@@ -95,6 +95,16 @@ TO BE DONE
 TO BE DONE
 
 
+8. Quick Notes for Developers
+-----------------------------------
+
+If you have built TerraMA2 in Debug mode and you want to run it inside the build tree, you may need to set some environment variables.
+
+For Mac OS X, you can set the following variables:
+$ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/MyLibs/lib
+$ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/MyLibs/lib/
+
+
 
 For more information on TerraMA2, please, visit its main web page at: http://www.dpi.inpe.br/terrama2.
 
