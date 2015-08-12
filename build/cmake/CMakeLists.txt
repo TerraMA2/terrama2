@@ -1,0 +1,380 @@
+#
+#  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+#
+#  This file is part of TerraMA2 - a free and open source computational
+#  platform for analysis, monitoring, and alert of geo-environmental extremes.
+#
+#  TerraMA2 is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation, either version 3 of the License,
+#  or (at your option) any later version.
+#
+#  TerraMA2 is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public License
+#  along with TerraMA2. See LICENSE. If not, write to
+#  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+#
+#
+#  Description: Main CMake script for the TerraMA2 build system.
+#
+#  Author: Gilberto Ribeiro de Queiroz <gribeiro@dpi.inpe.br>
+#
+
+cmake_minimum_required(VERSION 2.8.12)
+
+project(terrama2)
+
+#
+# main variables for the build script
+#
+
+# variables that control the system versioning
+set(TERRAMA2_VERSION_MAJOR 4)
+set(TERRAMA2_VERSION_MINOR 0)
+set(TERRAMA2_VERSION_PATCH 0)
+set(TERRAMA2_VERSION_QUALITY "-alpha1")
+set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}${TERRAMA2_VERSION_QUALITY}")
+set(TERRAMA2_VERSION "0x040000")
+
+# tells that 3rd-party libraries should be tracked and installed with TerraMA2
+if(NOT DEFINED TERRAMA2_TRACK_3RDPARTY_DEPENDENCIES)
+  set(TERRAMA2_TRACK_3RDPARTY_DEPENDENCIES 0 CACHE BOOL "If \"on\" it will search for 3rd-party libraries and install them when building the install target (e.g.: make install)")
+endif()
+
+# tells that TerraMA2 should be built as a bundle
+if(NOT DEFINED TERRAMA2_BUILD_AS_BUNDLE)
+  set(TERRAMA2_BUILD_AS_BUNDLE 0 CACHE BOOL "If on, tells that the build will generate a bundle")
+endif()
+
+# set the bundle items as writable before install_name_tool tries to change them (for APPLE platforms)
+if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE AND TERRAMA2_TRACK_3RDPARTY_DEPENDENCIES AND NOT DEFINED BU_CHMOD_BUNDLE_ITEMS)
+  set(BU_CHMOD_BUNDLE_ITEMS ON CACHE BOOL "If ON, set the bundle items as writable")
+endif()
+
+# variables storing absolute paths
+set(TERRAMA2_ABSOLUTE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+
+# variables that control paths
+if(NOT DEFINED TERRAMA2_DIR_VAR_NAME)
+  set(TERRAMA2_DIR_VAR_NAME "TERRAMA2_HOME" CACHE STRING "Name of an environment variable with the base installation path of TerraMA2")
+endif()
+
+if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE AND NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
+  set(TERRAMA2_BASE_DESTINATION_DIR "terrama2.app/Contents/")
+elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
+  set(TERRAMA2_BASE_DESTINATION_DIR "")
+endif()
+
+# variables that control install locations
+if(NOT DEFINED TERRAMA2_DESTINATION_PLUGINS)
+  set(TERRAMA2_DESTINATION_PLUGINS "${TERRAMA2_BASE_DESTINATION_DIR}share/terrama2/plugins")
+endif()
+
+if(NOT DEFINED TERRAMA2_DESTINATION_EXAMPLES)
+  set(TERRAMA2_DESTINATION_EXAMPLES "${TERRAMA2_BASE_DESTINATION_DIR}share/terrama2/examples")
+endif()
+
+if(NOT DEFINED TERRAMA2_DESTINATION_UNITTEST)
+  set(TERRAMA2_DESTINATION_UNITTEST "${TERRAMA2_BASE_DESTINATION_DIR}share/terrama2/unittest")
+endif()
+
+if(NOT DEFINED TERRAMA2_DESTINATION_LIBRARY)
+  set(TERRAMA2_DESTINATION_LIBRARY "${TERRAMA2_BASE_DESTINATION_DIR}lib")
+endif()
+
+if(NOT DEFINED TERRAMA2_DESTINATION_RUNTIME)
+  set(TERRAMA2_DESTINATION_RUNTIME "${TERRAMA2_BASE_DESTINATION_DIR}bin")
+endif()
+
+if(NOT DEFINED TERRAMA2_DESTINATION_ARCHIVE)
+  set(TERRAMA2_DESTINATION_ARCHIVE "${TERRAMA2_BASE_DESTINATION_DIR}lib")
+endif()
+
+if(NOT DEFINED TERRAMA2_DESTINATION_HEADERS)
+  set(TERRAMA2_DESTINATION_HEADERS "${TERRAMA2_BASE_DESTINATION_DIR}include")
+endif()
+
+if(NOT DEFINED TERRAMA2_DESTINATION_SHARE)
+  set(TERRAMA2_DESTINATION_SHARE "${TERRAMA2_BASE_DESTINATION_DIR}share")
+endif()
+
+# variables that controls what is built
+if(NOT DEFINED TERRAMA2_BUILD_EXAMPLES_ENABLED)
+  set(TERRAMA2_BUILD_EXAMPLES_ENABLED ON CACHE BOOL "If on, shows the list of examples to be built")
+endif()
+
+if(NOT DEFINED TERRAMA2_BUILD_UNITTEST_ENABLED)
+  set(TERRAMA2_BUILD_UNITTEST_ENABLED ON CACHE BOOL "If on, shows the list of unit-tests to be built")
+endif()
+
+
+#
+# global definitions and includes
+#
+
+add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
+
+if(WIN32)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
+  if(MINGW)
+    add_definitions(-DTE_MINGW -D_WIN32_WINNT=0x601 -fpermissive)
+  endif()
+
+elseif(APPLE)
+  add_definitions(-ftemplate-depth-1024)
+endif()
+
+# Note: automatically link executables with qtmain.lib on Windows when it has Qt dependency.
+if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_GREATER  2.8.9)
+  cmake_policy(SET CMP0020 NEW)
+endif()
+
+if(${CMAKE_MAJOR_VERSION} GREATER 2)
+  cmake_policy(SET CMP0026 OLD)
+  cmake_policy(SET CMP0042 NEW)
+  cmake_policy(SET CMP0043 NEW)
+endif()
+
+if(${CMAKE_VERSION} VERSION_GREATER "3.1.2")
+  cmake_policy(SET CMP0053 OLD)
+endif()
+
+include_directories(${CMAKE_BINARY_DIR})
+
+
+#
+# Build will generate files into a single folder
+#
+if((CMAKE_GENERATOR STREQUAL Xcode) OR MSVC)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+else()
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+endif()
+
+
+#
+# global configurations
+#
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
+endif()
+
+# Turn on multi process compilation
+if(MSVC)
+  add_definitions(/MP)
+endif()
+
+
+#
+# including CMake's auxiliary files
+#
+
+include(CMakeDependentOption)
+
+
+#
+# first check of libraries
+#
+
+find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets)
+
+find_package(Qt5LinguistTools QUIET)
+
+if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
+  find_program(QT_QCOLLECTIONGENERATOR_EXECUTABLE
+               NAME qcollectiongenerator
+               PATHS /usr
+                     /usr/local
+                     ${Qt5_DIR}/../../..
+               PATH_SUFFIXES bin)
+endif()
+
+#find_package(Boost 1.54.0 REQUIRED system date_time chrono timer filesystem thread unit_test_framework)
+
+#if(NOT Boost_FOUND)
+#  message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
+#endif()
+
+find_package(Doxygen)
+
+#find_package(terralib)
+
+#find_package(Lua)
+
+#find_package(R)
+
+#find_package(PythonLibs)
+
+#find_package(SWIG)
+
+#find_package(Java COMPONENTS Development)
+
+#find_package(JNI)
+
+
+#
+# some variables needed in config file
+#
+
+if(LUA_FOUND)
+  set(TERRAMA2_LUA_ENABLED ON)
+endif()
+
+if(PYTHONLIBS_FOUND)
+  set(TERRAMA2_PYTHON_ENABLED ON)
+endif()
+
+if(SWIG_FOUND)
+  set(TERRAMA2_SWIG_ENABLED ON)
+endif()
+
+if(JAVA_FOUND)
+  set(TERRAMA2_JAVA_ENABLED ON)
+endif()
+
+if(JNI_FOUND)
+  set(TERRAMA2_JNI_ENABLED ON)
+endif()
+
+
+#
+# build options
+#
+# warning: please, do not change the order below!
+#
+
+if(DOXYGEN_FOUND)
+  option(TERRAMA2_DOXYGEN_ENABLED  "Enable API documentation build?" ON)
+endif()
+
+option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector Web Service server module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
+
+
+#
+# build modules
+#
+
+if(TERRAMA2_DOXYGEN_ENABLED)
+  add_subdirectory(terrama2_doxygen)
+endif()
+
+if(TERRAMA2_MOD_CORE_ENABLED)
+  add_subdirectory(terrama2_mod_core)
+endif()
+
+
+#
+# install and targets export
+#
+
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/*.hpp)
+
+#install(FILES ${CMAKE_BINARY_DIR}/terrama2_config.hpp
+#              ${CMAKE_BINARY_DIR}/terrama2_defines.hpp
+#              ${CMAKE_BINARY_DIR}/terrama2_version.hpp
+#              ${TERRAMA2_HDR_FILES}
+#        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2 COMPONENT devel)
+
+#install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2.hpp
+#        DESTINATION ${TERRAMA2_DESTINATION_HEADERS} COMPONENT devel)
+
+#install(FILES ${TERRAMA2_BINARY_DIR}/pkg/terrama2-config.cmake
+#              ${TERRAMA2_BINARY_DIR}/terrama2-config-version.cmake
+#        DESTINATION ${TERRAMA2_DESTINATION_LIBRARY}/cmake/terrama2-${TERRAMA2_VERSION_STRING} COMPONENT devel)
+
+#install(EXPORT terrama2-targets
+#        DESTINATION ${TERRAMA2_DESTINATION_LIBRARY}/cmake/terrama2-${TERRAMA2_VERSION_STRING}
+#        FILE terrama2-exports.cmake
+#        COMPONENT devel)
+
+#install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/config
+#        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
+
+#install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/icons
+#        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
+
+
+#
+# Track dependencies
+#
+if(TERRAMA2_TRACK_3RDPARTY_DEPENDENCIES)
+  #set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
+
+  include(InstallRequiredSystemLibraries)
+
+  #install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
+  #        DESTINATION bin
+  #        COMPONENT runtime)
+
+  add_subdirectory(fix_bundle)
+endif()
+
+
+#
+# CPack
+#
+
+set(CPACK_SOURCE_INSTALLED_DIRECTORIES "${TERRAMA2_ABSOLUTE_ROOT_DIR};/")
+
+configure_file(${TERRAMA2_SOURCE_DIR}/terrama2-cpack-options.cmake.in
+               ${TERRAMA2_BINARY_DIR}/terrama2CPackOptions.cmake
+               @ONLY)
+
+set(CPACK_PROJECT_CONFIG_FILE ${TERRAMA2_BINARY_DIR}/terrama2CPackOptions.cmake)
+
+include(CPack)
+
+# defining installation types, components and groups
+cpack_add_install_type(full DISPLAY_NAME "Complete")
+cpack_add_install_type(minimalistic DISPLAY_NAME "Minimalistic")
+
+cpack_add_component_group(general_group
+                          DISPLAY_NAME "Applications"
+                          DESCRIPTION "TerraMA2 web servers, web clients and GUI applications"
+                          EXPANDED)
+
+cpack_add_component_group(devel_group
+                          DISPLAY_NAME "Development Tools"
+                          DESCRIPTION "Development Tools: header files, libraries and cmake stuffs"
+                          EXPANDED)
+
+cpack_add_component(runtime
+                    DISPLAY_NAME "Runtime Libraries and Executables"
+                    DESCRIPTION "Install only necessary shared libraries (or DLLs) and executables"
+                    GROUP general_group
+                    INSTALL_TYPES full minimalistic)
+
+cpack_add_component(devel
+                    DISPLAY_NAME "Development package"
+                    DESCRIPTION "Install header files, cmake stuffs and additional shared libraries"
+                    GROUP devel_group
+                    INSTALL_TYPES full minimalistic)
+
+#
+# Uninstall target
+#
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+               IMMEDIATE @ONLY)
+
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
