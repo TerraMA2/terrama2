@@ -21,7 +21,7 @@
 #
 #  Description: Main CMake script for the TerraMA2 build system.
 #
-#  Author: Gilberto Ribeiro de Queiroz <gribeiro@dpi.inpe.br>
+#  Author: Gilberto Ribeiro de Queiroz
 #
 
 cmake_minimum_required(VERSION 2.8.12)

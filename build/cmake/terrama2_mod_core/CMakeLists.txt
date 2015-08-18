@@ -19,9 +19,9 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: Main CMake script for the TerraMA2 build system.
+#  Description: CMake script for the TerraMA2 Core Runtime Module.
 #
-#  Author: Gilberto Ribeiro de Queiroz <gribeiro@dpi.inpe.br>
+#  Author: Gilberto Ribeiro de Queiroz
 #
 
 #if(WIN32)
