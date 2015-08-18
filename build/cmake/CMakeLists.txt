@@ -36,8 +36,9 @@ project(terrama2)
 set(TERRAMA2_VERSION_MAJOR 4)
 set(TERRAMA2_VERSION_MINOR 0)
 set(TERRAMA2_VERSION_PATCH 0)
-set(TERRAMA2_VERSION_QUALITY "-alpha1")
-set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}${TERRAMA2_VERSION_QUALITY}")
+set(TERRAMA2_VERSION_STATUS "alpha")
+set(TERRAMA2_VERSION_STATUS_FULL "-alpha1")
+set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}${TERRAMA2_VERSION_STATUS_FULL}")
 set(TERRAMA2_VERSION "0x040000")
 
 # tells that 3rd-party libraries should be tracked and installed with TerraMA2
@@ -284,17 +285,11 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Config.hpp.in
                ${CMAKE_BINARY_DIR}/terrama2_config.hpp @ONLY)
 
-#configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Defines.h.in
-#               ${CMAKE_BINARY_DIR}/terrama2_defines.h @ONLY)
+#configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Defines.hpp.in
+#               ${CMAKE_BINARY_DIR}/terrama2_defines.hpp @ONLY)
 
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Version.h.in
-               ${CMAKE_BINARY_DIR}/terrama2_version.h @ONLY)
-
-#configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/examples/Config.h.in
-#               ${CMAKE_BINARY_DIR}/terrama2_examples_config.h @ONLY)
-
-#configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/unittest/Config.h.in
-#               ${CMAKE_BINARY_DIR}/terrama2_unittest_config.h @ONLY)
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Version.hpp.in
+               ${CMAKE_BINARY_DIR}/terrama2_version.hpp @ONLY)
 
 #configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/COPYING ${CMAKE_BINARY_DIR}/COPYING.txt COPYONLY)
 
@@ -308,7 +303,7 @@ if(TERRAMA2_DOXYGEN_ENABLED)
 endif()
 
 if(TERRAMA2_MOD_CORE_ENABLED)
-  #add_subdirectory(terrama2_mod_core)
+  add_subdirectory(terrama2_mod_core)
 endif()
 
 
