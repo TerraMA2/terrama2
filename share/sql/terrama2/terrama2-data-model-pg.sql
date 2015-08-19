@@ -1,0 +1,3 @@
+--
+-- TerraMA2 Data Model for PostgreSQL DBMS
+--
