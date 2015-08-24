@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>849</width>
-    <height>557</height>
+    <width>919</width>
+    <height>635</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -201,8 +201,8 @@
                  <string>Verif. Conexão</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
-                  <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+                 <iconset>
+                  <normaloff>../../../../../share/icons/terrama2/16x16/generic/ok.png</normaloff>../../../../../share/icons/terrama2/16x16/generic/ok.png</iconset>
                 </property>
                </widget>
               </item>
@@ -212,8 +212,8 @@
                  <string>Criar Base</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
-                  <normaloff>:/global/icons/database_add.png</normaloff>:/global/icons/database_add.png</iconset>
+                 <iconset>
+                  <normaloff>../../../../../share/icons/terrama2/16x16/generic/database_add.png</normaloff>../../../../../share/icons/terrama2/16x16/generic/database_add.png</iconset>
                 </property>
                </widget>
               </item>
@@ -366,8 +366,8 @@ p, li { white-space: pre-wrap; }
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/global/icons/refresh.png</normaloff>:/global/icons/refresh.png</iconset>
+                  <iconset>
+                   <normaloff>../../../../../share/icons/terrama2/16x16/generic/refresh.png</normaloff>../../../../../share/icons/terrama2/16x16/generic/refresh.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -679,7 +679,7 @@ coletados:</string>
             <item row="4" column="0" colspan="6">
              <widget class="QTabWidget" name="tabWidget_2">
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="serverTab">
                <attribute name="title">
@@ -833,8 +833,8 @@ coletados:</string>
                    <string>Enviar Email de Teste</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
-                    <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+                   <iconset>
+                    <normaloff>../../../../../share/icons/terrama2/16x16/generic/ok.png</normaloff>../../../../../share/icons/terrama2/16x16/generic/ok.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -1036,8 +1036,8 @@ coletados:</string>
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="icons.qrc">
-                      <normaloff>:/global/icons/open.png</normaloff>:/global/icons/open.png</iconset>
+                     <iconset>
+                      <normaloff>../../../../../share/icons/terrama2/16x16/admin/open.png</normaloff>../../../../../share/icons/terrama2/16x16/admin/open.png</iconset>
                     </property>
                    </widget>
                   </item>
@@ -1255,8 +1255,8 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
-                <normaloff>:/global/icons/refresh.png</normaloff>:/global/icons/refresh.png</iconset>
+               <iconset>
+                <normaloff>../../../../../share/icons/terrama2/16x16/generic/refresh.png</normaloff>../../../../../share/icons/terrama2/16x16/generic/refresh.png</iconset>
               </property>
              </widget>
             </item>
@@ -1396,8 +1396,8 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/global/icons/open.png</normaloff>:/global/icons/open.png</iconset>
+                  <iconset>
+                   <normaloff>../../../../../share/icons/terrama2/16x16/admin/open.png</normaloff>../../../../../share/icons/terrama2/16x16/admin/open.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -1537,8 +1537,8 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/global/icons/open.png</normaloff>:/global/icons/open.png</iconset>
+                  <iconset>
+                   <normaloff>../../../../../share/icons/terrama2/16x16/admin/open.png</normaloff>../../../../../share/icons/terrama2/16x16/admin/open.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -1563,8 +1563,8 @@ p, li { white-space: pre-wrap; }
                     <string>Gerar Pacote</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="icons.qrc">
-                     <normaloff>:/global/icons/package.png</normaloff>:/global/icons/package.png</iconset>
+                    <iconset>
+                     <normaloff>../../../../../share/icons/terrama2/16x16/admin/package.png</normaloff>../../../../../share/icons/terrama2/16x16/admin/package.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -1611,8 +1611,8 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="icons.qrc">
-              <normaloff>:/global/icons/salvar.png</normaloff>:/global/icons/salvar.png</iconset>
+             <iconset>
+              <normaloff>../../../../../share/icons/terrama2/16x16/generic/salvar.png</normaloff>../../../../../share/icons/terrama2/16x16/generic/salvar.png</iconset>
             </property>
            </widget>
           </item>
@@ -1622,8 +1622,8 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="icons.qrc">
-              <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
+             <iconset>
+              <normaloff>../../../../../share/icons/terrama2/16x16/generic/cancel.png</normaloff>../../../../../share/icons/terrama2/16x16/generic/cancel.png</iconset>
             </property>
            </widget>
           </item>
@@ -1640,8 +1640,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>849</width>
-     <height>21</height>
+     <width>919</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArquivo">
@@ -1704,7 +1704,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="newAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/config_new.png</normaloff>:/global/icons/config_new.png</iconset>
    </property>
    <property name="text">
@@ -1724,7 +1724,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="saveAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/salvar.png</normaloff>:/global/icons/salvar.png</iconset>
    </property>
    <property name="text">
@@ -1733,7 +1733,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="saveAsAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/salvarcomo.png</normaloff>:/global/icons/salvarcomo.png</iconset>
    </property>
    <property name="text">
@@ -1742,7 +1742,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="servicesAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/wizard.png</normaloff>:/global/icons/wizard.png</iconset>
    </property>
    <property name="text">
@@ -1751,7 +1751,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="consoleAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/console.png</normaloff>:/global/icons/console.png</iconset>
    </property>
    <property name="text">
@@ -1765,7 +1765,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="openAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/config_open.png</normaloff>:/global/icons/config_open.png</iconset>
    </property>
    <property name="text">
@@ -1776,9 +1776,6 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
  </widget>
- <resources>
-  <include location="icons.qrc"/>
-  <include location="../web.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

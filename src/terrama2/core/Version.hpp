@@ -38,23 +38,24 @@ namespace terrama2
   namespace core
   {
     //! Utility class for system versioning.
-    class TMA_CORE_EXPORT Version
+  //  class TMA_CORE_EXPORT Version
+    class Version
     {
       public:
 
-        static int majorNumber();
+   //     static int majorNumber();
 
-        static int minorNumber();
+  //      static int minorNumber();
 
-        static int patchNumber();
+ //       static int patchNumber();
 
-        static std::string releaseStatus();
+ //       static std::string releaseStatus();
 
-        static std::string buildDate();
+ //       static std::string buildDate();
 
-        static std::string asString();
+ //       static std::string asString();
 
-        static int asInt();
+  //      static int asInt();
 
       private:
 

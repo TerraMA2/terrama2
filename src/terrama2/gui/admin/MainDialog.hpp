@@ -1,59 +1,53 @@
-/************************************************************************************
-TerraMA² is a development platform of Monitoring, Analysis and Alert for
-geoenvironmental extremes. Applied to natural disasters, quality of water / air / atmosphere,
-tailings basins, epidemics and others.Copyright © 2012 INPE.
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
 
-This code is part of the TerraMA² framework.
-This framework is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
 
-You should have received a copy of the GNU General Public
-License along with this library.
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
 
-The authors reassure the license terms regarding the warranties.
-They specifically disclaim any warranties, including, but not limited to,
-the implied warranties of merchantability and fitness for a particular purpose.
-The library provided hereunder is on an "as is" basis, and the authors have no
-obligation to provide maintenance, support, updates, enhancements,
-or modifications.
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
 
-In no event shall INPE or K2 SISTEMAS be held liable to any party for direct, indirect,
-special, incidental, or consequential damages arising out of the use of this
-library and its documentation.
-*************************************************************************************/
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
 
 /*!
- * \file mainDlg.h
- *
- * \brief Definicao da classe MainDlg
- *
- * \author Carlos Augusto Teixeira Mendes
- * \date january, 2009 
- * \version $Id$
- *
- */
- 
-#ifndef _MAINDLG_H_
-#define _MAINDLG_H_
+  \file terrama2/gui/admin/MainDialog.hpp
+
+  \brief Admin main dialog.
+
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  \author Carlos Augusto Teixeira Mendes
+*/
+
+#ifndef __TERRAMA2_INTERNAL_GUI_ADMIN_MAINDIALOG_HPP__
+#define __TERRAMA2_INTERNAL_GUI_ADMIN_MAINDIALOG_HPP__
 
 #include "ui_MainDialogForm.h"
 
-#include "configDataManager.h"
-#include "dbManager.h"
+// #include "ConfigDataManager.hpp"
+// #include "DbManager.hpp"
 
 class QItemSelection;
 
 /*! \brief Classe que implementa as açoes do diálogo principal
 */      
-class MainDialogForm : public QMainWindow, private Ui::MainDlg
+class MainDialog : public QMainWindow, private Ui::MainDialogForm
 {
 Q_OBJECT
 
 public:
-  MainDlg(QWidget* parent = 0, Qt::WFlags f = 0 );
-  ~MainDlg();
+  MainDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
+  ~MainDialog();
 
 signals: 
 
@@ -61,70 +55,70 @@ protected:
 	void closeEvent(QCloseEvent* close);
 
 private slots:
-  void newRequested();
-  void openRequested();
-  void saveRequested();
-  void saveAsRequested();
-  void renameRequested();
-  void removeRequested();
-  void cancelRequested();
+  // void newRequested();
+  // void openRequested();
+  // void saveRequested();
+  // void saveAsRequested();
+  // void renameRequested();
+  // void removeRequested();
+  // void cancelRequested();
   
-  void numInstancesChanged(int val);
-  void reloadInstancesTableData();
+  // void numInstancesChanged(int val);
+  // void reloadInstancesTableData();
 
-  void testSendMailRequested();
+  // void testSendMailRequested();
   
-  void showConsoles();
-  void manageServices();
+  // void showConsoles();
+  // void manageServices();
 
-  void dbCheckConnectionRequested();
-  void dbCreateDatabaseRequested();
+  // void dbCheckConnectionRequested();
+  // void dbCreateDatabaseRequested();
   
-  void loadBalanceReloadData();
-  void configListSelectionChanged(const QItemSelection& selected, const QItemSelection& oldSelection);
+  // void loadBalanceReloadData();
+  // void configListSelectionChanged(const QItemSelection& selected, const QItemSelection& oldSelection);
   
-  void setDataChanged();
-  void clearDataChanged();
+  // void setDataChanged();
+  // void clearDataChanged();
 
-  void studyChkClicked(bool);
+  // void studyChkClicked(bool);
 
-  void generatePackage();
-  void selectLogo();
-  void selectOutputPath();
-  void selectPDFPath();
+  // void generatePackage();
+  // void selectLogo();
+  // void selectOutputPath();
+  // void selectPDFPath();
   
 private:
-  void setupDataChanged();
-  void setupValidators();
-  void load();
-  bool save(QString newfilename, QString& err);
-  bool validateDbData(QString& err);
-  bool validateInstanceTableData(QString& err);
-  bool validate(QString& err);
-  void setDialogData(const ConfigData& data);
-  void setInstanceTableData(const ConfigData::Analysis& data);
+  // void setupDataChanged();
+  // void setupValidators();
+  // void load();
+  // bool save(QString newfilename, QString& err);
+  // bool validateDbData(QString& err);
+  // bool validateInstanceTableData(QString& err);
+  // bool validate(QString& err);
+  // void setDialogData(const ConfigData& data);
+  // void setInstanceTableData(const ConfigData::Analysis& data);
 
-  void getDialogData(ConfigData& data);
-  void getLoadBalanceData(QList<int>& instances);
-  void clearDialogData();
-  void enableFields(bool mode);
-  void discardChanges(bool restore_data);
-  void showFileName();
+  // void getDialogData(ConfigData& data);
+  // void getLoadBalanceData(QList<int>& instances);
+  // void clearDialogData();
+  // void enableFields(bool mode);
+  // void discardChanges(bool restore_data);
+  // void showFileName();
   
-  bool validateAndSaveChanges(bool newfile);
-  bool verifyAndEnableChange();  
+  // bool validateAndSaveChanges(bool newfile);
+  // bool verifyAndEnableChange();  
 
-  bool validateCustomPreview();  
+  // bool validateCustomPreview();  
 
-  ConfigDataManager _configManager;      //!< Gerenciador de configurações disponíveis
-  int               _currentConfigIndex; //!< Indice da config. corrente
-  bool              _newData;            //!< Indica se a configuração corrente é uma nova configuração
-  bool              _dataChanged;        //!< Idica que os dados da config. corrente foram alterados
-  bool              _ignoreChangeEvents; //!< Indica que modificações devem ser ignoradas por setDataChanged
-  QString           _name;               //!< Nome da config. corrente
-  QList<DbManager::AnaData> _loadBalData;  //!< Lista com informações de analise lida da base de dados
+  // ConfigDataManager _configManager;      //!< Gerenciador de configurações disponíveis
+  // int               _currentConfigIndex; //!< Indice da config. corrente
+  // bool              _newData;            //!< Indica se a configuração corrente é uma nova configuração
+  // bool              _dataChanged;        //!< Idica que os dados da config. corrente foram alterados
+  // bool              _ignoreChangeEvents; //!< Indica que modificações devem ser ignoradas por setDataChanged
+  // QString           _name;               //!< Nome da config. corrente
+  // QList<DbManager::AnaData> _loadBalData;  //!< Lista com informações de analise lida da base de dados
 };
 
 
-#endif
+#endif // __TERRAMA2_INTERNAL_GUI_ADMIN_MAINDIALOG_HPP__
 
