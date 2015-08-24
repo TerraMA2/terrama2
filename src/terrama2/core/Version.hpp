@@ -38,7 +38,7 @@ namespace terrama2
   namespace core
   {
     //! Utility class for system versioning.
-    class TMA_CORE_EXPORT Version
+    class Version
     {
       public:
 

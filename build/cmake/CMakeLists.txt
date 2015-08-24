@@ -306,6 +306,10 @@ if(TERRAMA2_MOD_CORE_ENABLED)
   add_subdirectory(terrama2_mod_core)
 endif()
 
+if(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_core)
+endif()
+
 
 #
 # install and targets export
