@@ -2,6 +2,7 @@
 -- TerraMA2 Data Model for PostgreSQL DBMS
 --
 
+create extension postgis;
 CREATE SCHEMA terrama2 AUTHORIZATION postgres;
 
 COMMENT ON SCHEMA terrama2 IS 'Schema used to store all objects related to TerraMA';
@@ -118,18 +119,18 @@ COMMENT ON COLUMN terrama2.project_server.server_id IS 'Server identifier';
 
 
 
-CREATE TABLE terrama2.collector_roles
+CREATE TABLE terrama2.user_roles
 (
   id serial NOT NULL,
   role character varying(20) NOT NULL,
   description TEXT NOT NULL,
-  CONSTRAINT pk_collector_roles_id PRIMARY KEY (id)
+  CONSTRAINT pk_user_roles_id PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE terrama2.collector_roles IS 'Table used to store the roles used when sharing a collector in a multi-user environment';
-COMMENT ON COLUMN terrama2.collector_roles.id IS 'Identifier of a role';
-COMMENT ON COLUMN terrama2.collector_roles.role IS 'Role name';
-COMMENT ON COLUMN terrama2.collector_roles.description IS 'Role description';
+COMMENT ON TABLE terrama2.user_roles IS 'Table used to store the roles used when sharing the servers and collector of a project';
+COMMENT ON COLUMN terrama2.user_roles.id IS 'Identifier of a role';
+COMMENT ON COLUMN terrama2.user_roles.role IS 'Role name';
+COMMENT ON COLUMN terrama2.user_roles.description IS 'Role description';
 
 CREATE TABLE terrama2.collector
 (
@@ -171,27 +172,27 @@ COMMENT ON COLUMN terrama2.collector.timezone IS 'Timezone of stored date';
 COMMENT ON COLUMN terrama2.collector.format IS 'Data format type';
 
 
-CREATE TABLE terrama2.user_collector
+CREATE TABLE terrama2.project_user
 (
   user_id integer NOT NULL,
-  collector_id integer NOT NULL,
+  project_id integer NOT NULL,
   role_id integer NOT NULL,
-  CONSTRAINT pk_user_collector PRIMARY KEY (user_id, collector_id),
-  CONSTRAINT fk_collector_id FOREIGN KEY (collector_id)
-      REFERENCES terrama2.collector (id) MATCH SIMPLE
+  CONSTRAINT pk_user_project PRIMARY KEY (user_id, project_id),
+  CONSTRAINT fk_project_id FOREIGN KEY (project_id)
+      REFERENCES terrama2.project (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_collector_roles_id FOREIGN KEY (role_id)
-      REFERENCES terrama2.collector_roles (id) MATCH SIMPLE
+  CONSTRAINT fk_user_roles_id FOREIGN KEY (role_id)
+      REFERENCES terrama2.user_roles (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT fk_user_id FOREIGN KEY (user_id)
       REFERENCES terrama2.users (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-COMMENT ON TABLE terrama2.user_collector IS 'Table used to store what role a user has in a collector';
-COMMENT ON COLUMN terrama2.user_collector.user_id IS 'Identifier of a user';
-COMMENT ON COLUMN terrama2.user_collector.collector_id IS 'Identifier of a collector';
-COMMENT ON COLUMN terrama2.user_collector.role_id IS 'Role of the user in the collector';
+COMMENT ON TABLE terrama2.project_user IS 'Table used to store the roles to be used when sharing a project';
+COMMENT ON COLUMN terrama2.project_user.user_id IS 'Identifier of a user';
+COMMENT ON COLUMN terrama2.project_user.project_id IS 'Identifier of a project';
+COMMENT ON COLUMN terrama2.project_user.role_id IS 'Identifier of the role';
 
 
 
