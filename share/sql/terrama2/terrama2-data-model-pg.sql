@@ -28,49 +28,6 @@ COMMENT ON COLUMN terrama2.users.name IS 'Full username';
 COMMENT ON COLUMN terrama2.users.email IS 'User email';
 COMMENT ON COLUMN terrama2.users.cellphone IS 'Cellphone number used to send notifications';
 
-
-CREATE TABLE terrama2.project
-(
-  id serial,
-  name  character varying(200) NOT NULL,
-  study boolean,
-  CONSTRAINT pk_project_id PRIMARY KEY (id),
-  CONSTRAINT uk_project_name UNIQUE (name)
-);
-
-COMMENT ON TABLE terrama2.project IS 'Table used to store the project configuration';
-COMMENT ON COLUMN terrama2.project.id IS 'Identifier of the project';
-COMMENT ON COLUMN terrama2.project.name IS 'Name of the project';
-COMMENT ON COLUMN terrama2.project.study IS 'Defines if this is a study project, it is used to verify the behavior of an analysis';
-
-
-CREATE TABLE terrama2.admin_collection
-(
-  project_id integer NOT NULL,
-  log_output_file varchar(255) NOT NULL,
-  timeout_min integer,
-  timeout_sec integer,
-  default_path varchar(255),
-  service_port_number integer NOT NULL,
-  service_parameters text,
-  service_address text NOT NULL,
-  service_command text NOT NULL,
-  CONSTRAINT pk_admin_collection_id PRIMARY KEY (project_id),
-  CONSTRAINT fk_admin_collection_project_id FOREIGN KEY (project_id) REFERENCES terrama2.project (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.admin_collection IS 'Table used to the project configuration';
-COMMENT ON COLUMN terrama2.admin_collection.project_id IS 'Identifier of the project';
-COMMENT ON COLUMN terrama2.admin_collection.log_output_file IS 'Name of the file that will store all the log messages from the collector service';
-COMMENT ON COLUMN terrama2.admin_collection.timeout_min IS 'Timeout in minutes to wait for a response from the server before considering it a lost connection';
-COMMENT ON COLUMN terrama2.admin_collection.timeout_sec IS 'Timeout in seconds to wait for a response from the server before considering it a lost connection';
-COMMENT ON COLUMN terrama2.admin_collection.default_path IS 'Directory to store all the collected files';
-COMMENT ON COLUMN terrama2.admin_collection.service_port_number IS 'Port number to be used by the collector service';
-COMMENT ON COLUMN terrama2.admin_collection.service_parameters IS 'Parameters to be used in order to run the collector service';
-COMMENT ON COLUMN terrama2.admin_collection.service_address IS 'Address to be used by the collector service';
-COMMENT ON COLUMN terrama2.admin_collection.service_command IS 'Command to run the collector service';
-
-
 CREATE TABLE terrama2.server
 (
   id serial NOT NULL,
@@ -104,34 +61,6 @@ COMMENT ON COLUMN terrama2.server.base_path IS 'Optional parameter to indicate a
 
 
 
-CREATE TABLE terrama2.project_server
-(
-  project_id integer NOT NULL,
-  server_id integer NOT NULL,
-  CONSTRAINT pk_project_server_id PRIMARY KEY (project_id, server_id),
-  CONSTRAINT fk_project_server_project_id FOREIGN KEY (project_id) REFERENCES terrama2.project (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_project_server_server_id FOREIGN KEY (server_id) REFERENCES terrama2.server (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.project_server IS 'Table used to link a project with multiple servers';
-COMMENT ON COLUMN terrama2.project_server.project_id IS 'Project identifier';
-COMMENT ON COLUMN terrama2.project_server.server_id IS 'Server identifier';
-
-
-
-CREATE TABLE terrama2.user_roles
-(
-  id serial NOT NULL,
-  role character varying(20) NOT NULL,
-  description TEXT NOT NULL,
-  CONSTRAINT pk_user_roles_id PRIMARY KEY (id)
-);
-
-COMMENT ON TABLE terrama2.user_roles IS 'Table used to store the roles used when sharing the servers and collector of a project';
-COMMENT ON COLUMN terrama2.user_roles.id IS 'Identifier of a role';
-COMMENT ON COLUMN terrama2.user_roles.role IS 'Role name';
-COMMENT ON COLUMN terrama2.user_roles.description IS 'Role description';
-
 CREATE TABLE terrama2.collector
 (
   id serial NOT NULL,
@@ -145,6 +74,7 @@ CREATE TABLE terrama2.collector
   unit character varying(20),
   timezone character varying(10) NOT NULL DEFAULT '+00:00',
   format text NOT NULL,
+  dynamic_metadata JSON,
 
   CONSTRAINT pk_collector_id PRIMARY KEY (id),
   CONSTRAINT uk_name UNIQUE (name),
@@ -152,8 +82,7 @@ CREATE TABLE terrama2.collector
     REFERENCES public.spatial_ref_sys (srid) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT format_check CHECK ((format =
-    ANY (ARRAY[ 'ASCII-Grid'::text, 'PCD'::text, 'TIFF'::text, 'GrADS'::text, 'Additional Map'::text,
-          'PROARCO File'::text, 'Model'::text, 'OGC WCS'::text, 'PCD OGC WFS'::text, 'Surface'::text, 'Instrument'::text])))
+    ANY (ARRAY[ 'ASCII-Grid'::text, 'TIFF'::text, 'GrADS'::text, 'PROARCO File'::text, 'OGC WCS'::text, 'PCD OGC WFS'::text, 'Surface'::text])))
 
 --  CONSTRAINT type_check CHECK ((type = ANY (ARRAY[SERIES DE DADOS ACEITAS]))),
 );
@@ -170,30 +99,6 @@ COMMENT ON COLUMN terrama2.collector.mask IS 'Mask of filename format to aquire'
 COMMENT ON COLUMN terrama2.collector.unit IS 'Unit of aquired data';
 COMMENT ON COLUMN terrama2.collector.timezone IS 'Timezone of stored date';
 COMMENT ON COLUMN terrama2.collector.format IS 'Data format type';
-
-
-CREATE TABLE terrama2.project_user
-(
-  user_id integer NOT NULL,
-  project_id integer NOT NULL,
-  role_id integer NOT NULL,
-  CONSTRAINT pk_user_project PRIMARY KEY (user_id, project_id),
-  CONSTRAINT fk_project_id FOREIGN KEY (project_id)
-      REFERENCES terrama2.project (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_user_roles_id FOREIGN KEY (role_id)
-      REFERENCES terrama2.user_roles (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_user_id FOREIGN KEY (user_id)
-      REFERENCES terrama2.users (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.project_user IS 'Table used to store the roles to be used when sharing a project';
-COMMENT ON COLUMN terrama2.project_user.user_id IS 'Identifier of a user';
-COMMENT ON COLUMN terrama2.project_user.project_id IS 'Identifier of a project';
-COMMENT ON COLUMN terrama2.project_user.role_id IS 'Identifier of the role';
-
 
 
 
@@ -315,124 +220,6 @@ COMMENT ON COLUMN terrama2.archiving_rules.type IS 'Rule type, possible values: 
 COMMENT ON COLUMN terrama2.archiving_rules.action IS 'Defines strategy to archive the data, possible values: DELETE_DATA, DELETE_LOG, DELETE_WARNING and DELETE_SURFACE';
 COMMENT ON COLUMN terrama2.archiving_rules.condition IS 'Defines which data from the collector or analysis will be considered by the rule';
 COMMENT ON COLUMN terrama2.archiving_rules.create_filter IS 'Filter valid only for the type datasource, it will impact the filter of the collector, it will change for the date of the execution of the archiving';
-
-
-
-CREATE TABLE terrama2.grads
-(
-  collector_id integer NOT NULL,
-  control_file text NOT NULL,
-  is_float boolean NOT NULL,
-  multiplier double precision,
-  is_bigendian boolean,
-  band_quantity integer,
-  band_header integer,
-  band_trailler integer,
-  band_time_offset integer,
-  data_type character varying(40),  
-  CONSTRAINT pk_grads_id PRIMARY KEY(collector_id),
-  CONSTRAINT fk_grads_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.grads IS 'Used to store the parameters of GrADS format';
-COMMENT ON COLUMN terrama2.grads.collector_id IS 'Collector identifier';
-COMMENT ON COLUMN terrama2.grads.control_file IS 'Name of the file that defines the format of the data defined by the mask';
-COMMENT ON COLUMN terrama2.grads.is_float IS 'Defines if the data are store as float or integer';
-COMMENT ON COLUMN terrama2.grads.multiplier IS 'Defines a multiplier to be applied to each grid value';
-COMMENT ON COLUMN terrama2.grads.is_bigendian IS 'Defines if the order is Big endian or Little endian';
-COMMENT ON COLUMN terrama2.grads.band_quantity IS 'Defines the number of bands';
-COMMENT ON COLUMN terrama2.grads.band_header IS 'Defines the number of bytes that preceds each band';
-COMMENT ON COLUMN terrama2.grads.band_trailler IS 'Defines the number of bytes that come after each band';
-COMMENT ON COLUMN terrama2.grads.band_time_offset IS 'Defines the time interval between each layer, used only for multidimensional grid of the type numeric prevision';
-COMMENT ON COLUMN terrama2.grads.data_type IS 'Describes the type of content';
-
-
-
-
-CREATE TABLE terrama2.wfs
-(
-  collector_id integer NOT NULL,
-  id_attr text NOT NULL,
-  timestamp_attr text NOT NULL,
-  timestamp_mask text NOT NULL,
-  CONSTRAINT pk_wfs_id PRIMARY KEY(collector_id),
-  CONSTRAINT fk_wfs_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.wfs IS 'Used to store the parameters of WFS format';
-COMMENT ON COLUMN terrama2.wfs.collector_id IS 'Collector identifier';
-COMMENT ON COLUMN terrama2.wfs.id_attr IS 'Identifier of the attribute that represents the identifier of the PCD';
-COMMENT ON COLUMN terrama2.wfs.timestamp_attr IS 'Attribute that represents the date tand time that the data was generated';
-COMMENT ON COLUMN terrama2.wfs.timestamp_mask IS 'Mask used to decode the temporal attribute of the WFS layer';
-
-
-CREATE TABLE terrama2.wcs
-(
-  collector_id integer NOT NULL,
-  dummy double precision DEFAULT NULL,
-  band_quantity integer NOT NULL,
-  time_interval integer NOT NULL,
-  CONSTRAINT pk_wcs_id PRIMARY KEY(collector_id),
-  CONSTRAINT fk_wcs_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.wcs IS 'Used to store the parameters of WCS format';
-COMMENT ON COLUMN terrama2.wcs.collector_id IS 'Collector identifier';
-COMMENT ON COLUMN terrama2.wcs.dummy IS 'Dummy value';
-COMMENT ON COLUMN terrama2.wcs.band_quantity IS 'Defines the number of bands';
-COMMENT ON COLUMN terrama2.wcs.time_interval IS 'Defines the time interval between each band';
-
-
-CREATE TABLE terrama2.ascgrid
-(
-  collector_id integer NOT NULL,
-  coord_unit text,
-  CONSTRAINT pk_ascgrid_id PRIMARY KEY(collector_id),
-  CONSTRAINT coord_unit_check CHECK ((coord_unit = ANY (ARRAY['DECIMAL_DEGREES'::text, 'MILLIDEGREES'::text]))),
-  CONSTRAINT fk_ascgrid_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.ascgrid IS 'Used to store the parameters of ASCII-Grid format';
-COMMENT ON COLUMN terrama2.ascgrid.collector_id IS 'Collector identifier';
-COMMENT ON COLUMN terrama2.ascgrid.coord_unit IS 'Coordinate unit of the grid, possible values: DECIMAL_DEGREES or MILLIDEGREES';
-
-
-
-CREATE TABLE terrama2.tiff
-(
-  collector_id integer NOT NULL,
-  navigation_file text,
-  CONSTRAINT pk_tiff_id PRIMARY KEY(collector_id),
-  CONSTRAINT fk_tiff_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.tiff IS 'Used to store the parameters of ASCII-Grid format';
-COMMENT ON COLUMN terrama2.tiff.collector_id IS 'Collector identifier';
-COMMENT ON COLUMN terrama2.tiff.navigation_file IS 'Name of the file that contains the information about the bounding box of the grid';
-
-
-
-
-CREATE TABLE terrama2.csv
-(
-  collector_id integer NOT NULL,
-  header_size integer DEFAULT 1,
-  header_start_line integer,
-  data_start_line integer,
-  separator character varying(10),
-  encoding character varying(10),
-  CONSTRAINT pk_csv_id PRIMARY KEY(collector_id),
-  CONSTRAINT fk_csv_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-COMMENT ON TABLE terrama2.csv IS 'Used to store the parameters of ASCII-Grid format';
-COMMENT ON COLUMN terrama2.csv.collector_id IS 'Collector identifier';
-COMMENT ON COLUMN terrama2.csv.header_size IS 'Defines the number of lines that compose the header';
-COMMENT ON COLUMN terrama2.csv.header_start_line IS 'Number of the line that starts header section';
-COMMENT ON COLUMN terrama2.csv.data_start_line IS 'Number of the line that starts the data section';
-COMMENT ON COLUMN terrama2.csv.separator IS 'Defines the string that will be used as separator';
-COMMENT ON COLUMN terrama2.csv.encoding IS 'Encoding of the file';
-
 
 
 
