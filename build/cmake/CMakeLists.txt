@@ -119,6 +119,8 @@ endif()
 
 #add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
 
+add_definitions(-std=c++11)
+
 if(WIN32)
   #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
@@ -210,7 +212,7 @@ endif()
 
 find_package(Doxygen)
 
-#find_package(terralib)
+find_package(terralib REQUIRED)
 
 #find_package(Lua)
 

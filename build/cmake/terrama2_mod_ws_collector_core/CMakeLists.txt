@@ -34,11 +34,18 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_mod_ws_collector_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_library(terrama2_mod_ws_collector_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
-target_link_libraries(terrama2_mod_ws_collector_core terrama2_mod_core)
+target_link_libraries(terrama2_mod_ws_collector_core terrama2_mod_core terralib_mod_dataaccess terralib_mod_postgis)
 
 qt5_use_modules(terrama2_mod_ws_collector_core Widgets)
+
+
+include_directories (
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
+
 
 set_target_properties(terrama2_mod_ws_collector_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
