@@ -21,11 +21,23 @@
 #
 #  Description: CMake script for TerraMA2's unit test - collector core module.
 #
-#  Author: Gilberto Ribeiro de Queiroz
+#  Author: Gilberto Ribeiro de Queiroz, Paulo R. M. Oliveira
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/core/*.hpp)
+
+
+include_directories (
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# Testing configuration
+enable_testing()
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
@@ -34,4 +46,8 @@ add_executable(terrama2_unittest_ws_collector_core ${TERRAMA2_SRC_FILES} ${TERRA
 
 target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collector_core
                                                           terralib_mod_plugin
-                                                          terralib_mod_common)
+                                                          terralib_mod_common )
+
+
+qt5_use_modules(terrama2_unittest_ws_collector_core Widgets Test)
+

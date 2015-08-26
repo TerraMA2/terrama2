@@ -19,16 +19,22 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for ...
+#  Description: CMake script for collector core
 #
-#  Author: Gilberto Ribeiro de Queiroz
+#  Author: Gilberto Ribeiro de Queiroz, Paulo R. M. Oliveira
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.hpp)
 
-source_group("Source Files"  FILES ${TERRALIB_SRC_FILES})
-source_group("Header Files"  FILES ${TERRALIB_HDR_FILES})
+source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
+source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+
+
+include_directories (
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -36,15 +42,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_library(terrama2_mod_ws_collector_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
-target_link_libraries(terrama2_mod_ws_collector_core terrama2_mod_core terralib_mod_dataaccess terralib_mod_postgis)
+target_link_libraries(terrama2_mod_ws_collector_core terrama2_mod_core terralib_mod_dataaccess )
 
 qt5_use_modules(terrama2_mod_ws_collector_core Widgets)
 
-
-include_directories (
-  ${terralib_INCLUDE_DIRS}
-  ${terralib_DIR}
-)
 
 
 set_target_properties(terrama2_mod_ws_collector_core

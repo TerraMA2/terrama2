@@ -51,7 +51,6 @@ terrama2::ws::collector::core::CollectorDAO::~CollectorDAO()
 
 bool terrama2::ws::collector::core::CollectorDAO::save(terrama2::ws::collector::core::Collector *collector)
 {
-
   return false;
 }
 

@@ -32,6 +32,7 @@
 
 // STL
 #include <vector>
+#include <memory>
 
 // terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
