@@ -53,19 +53,28 @@ class TestCollector: public QObject
   Q_OBJECT
 
 protected:
-  void initializeTerralib();
-  void finalizeTerralib();
+
+    void initializeTerralib();
+    void finalizeTerralib();
 
 private slots:
-  void testTiffCollector();
+    void t1() { QVERIFY(true); }
+
+    void initTestCase()
+    {
+        initializeTerralib();
+    }
+    void cleanupTestCase()
+    {
+        finalizeTerralib();
+    }
+
+    void testTiffCollector();
 };
 
 
 void TestCollector::testTiffCollector()
 {
-
-  initializeTerralib();
-
   int id = 0;
   std::string name = "Collector1";
   std::string description = "...";
@@ -86,11 +95,11 @@ void TestCollector::testTiffCollector()
   connInfo["PG_PORT"] = "5432" ;
   connInfo["PG_USER"] = "postgres";
   connInfo["PG_PASSWORD"] = "postgres";
-  connInfo["PG_DB_NAME"] = "tma";
+  connInfo["PG_DB_NAME"] = "bdgcurso";
   connInfo["PG_CONNECT_TIMEOUT"] = "4";
   connInfo["PG_CLIENT_ENCODING"] = "CP1252";
 
-  std::shared_ptr<te::da::DataSource> ds = te::da::DataSourceFactory::make("POSTGIS");
+  std::auto_ptr<te::da::DataSource> ds = te::da::DataSourceFactory::make("POSTGIS");
   QVERIFY(ds.get() != nullptr);
   
   // as we are going to use the data source, let´s set the connection info
@@ -99,14 +108,13 @@ void TestCollector::testTiffCollector()
   // let's open it with the connection info above!
   ds->open();
 
+  QVERIFY2(ds->isOpened(), "Database not open.");
+
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ds->getTransactor();
-  QVERIFY(transactor.get() != nullptr);
+  QVERIFY2(transactor.get() != nullptr, "NULL transactor.");
   
   terrama2::ws::collector::core::CollectorDAO collectorDAO(transactor);
-  QVERIFY(collectorDAO.save(collector));
-
-  finalizeTerralib();
-
+  QVERIFY2(collectorDAO.save(collector), "Fail to save.");
 }
 
 

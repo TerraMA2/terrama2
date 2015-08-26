@@ -36,9 +36,6 @@ include_directories (
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Testing configuration
-enable_testing()
-
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
@@ -46,8 +43,9 @@ add_executable(terrama2_unittest_ws_collector_core ${TERRAMA2_SRC_FILES} ${TERRA
 
 target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collector_core
                                                           terralib_mod_plugin
-                                                          terralib_mod_common )
+                                                          terralib_mod_common)
 
+add_test(NAME TestCollector COMMAND terrama2_unittest_ws_collector_core)
 
-qt5_use_modules(terrama2_unittest_ws_collector_core Widgets Test)
+qt5_use_modules(terrama2_unittest_ws_collector_core Test)
 
