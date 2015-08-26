@@ -22,6 +22,7 @@
 #  Description: Main CMake script for the TerraMA2 build system.
 #
 #  Author: Gilberto Ribeiro de Queiroz
+#          Paulo R. M. Oliveira
 #
 
 cmake_minimum_required(VERSION 2.8.12)
@@ -148,7 +149,6 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.1.2")
 endif()
 
 include_directories(${CMAKE_BINARY_DIR})
-include_directories(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src ${CMAKE_INSTALL_PREFIX}/include)
 
 
 #
@@ -192,9 +192,7 @@ include(CMakeDependentOption)
 # first check of libraries
 #
 
-find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets)
-find_package(Qt5Test QUIET)
-find_package(Qt5LinguistTools QUIET)
+find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets LinguistTools Test)
 
 if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
   find_program(QT_QCOLLECTIONGENERATOR_EXECUTABLE
@@ -205,8 +203,7 @@ if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
                PATH_SUFFIXES bin)
 endif()
 
-FIND_PACKAGE( Boost 1.54.0 COMPONENTS log REQUIRED )
-#find_package(Boost 1.54.0 REQUIRED system date_time chrono timer filesystem thread unit_test_framework)
+find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem)
 
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
@@ -215,6 +212,11 @@ endif()
 find_package(Doxygen)
 
 find_package(terralib REQUIRED)
+
+if(NOT terralib_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find TerraLib libraries!")
+endif()
+
 
 #find_package(Lua)
 
@@ -272,8 +274,7 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
 
-
-CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Web Service appserver module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Web Service appserver module?" ON "TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED "Build unittest for Collector Web Service core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 

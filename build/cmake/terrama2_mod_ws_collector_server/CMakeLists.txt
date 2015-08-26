@@ -42,7 +42,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_library(terrama2_mod_ws_collector_server SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
-target_link_libraries(terrama2_mod_ws_collector_server terrama2_mod_core terrama2_mod_ws_collector_core )
+target_link_libraries(terrama2_mod_ws_collector_server terrama2_mod_ws_collector_core
+                                                       terrama2_mod_core)
 
 qt5_use_modules(terrama2_mod_ws_collector_server Widgets)
 
