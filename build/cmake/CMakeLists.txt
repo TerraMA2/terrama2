@@ -202,11 +202,12 @@ if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
                PATH_SUFFIXES bin)
 endif()
 
+FIND_PACKAGE( Boost 1.54.0 COMPONENTS log REQUIRED )
 #find_package(Boost 1.54.0 REQUIRED system date_time chrono timer filesystem thread unit_test_framework)
 
-#if(NOT Boost_FOUND)
-#  message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
-#endif()
+if(NOT Boost_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
+endif()
 
 find_package(Doxygen)
 
