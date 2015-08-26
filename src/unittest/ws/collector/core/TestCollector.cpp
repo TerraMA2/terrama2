@@ -58,16 +58,17 @@ protected:
     void finalizeTerralib();
 
 private slots:
-    void t1() { QVERIFY(true); }
-
-    void initTestCase()
+    void initTestCase() // Always run before all tests
     {
         initializeTerralib();
     }
-    void cleanupTestCase()
+    void cleanupTestCase() // Always run after all tests
     {
         finalizeTerralib();
     }
+
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
     void testTiffCollector();
 };
