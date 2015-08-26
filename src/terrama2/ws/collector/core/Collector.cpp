@@ -22,11 +22,162 @@
 /*!
   \file terrama2/ws/collector/core/Collector.cpp
 
-  \brief Collector...
+  \brief Class that represents a collector
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Gilberto Ribeiro de Queiroz, Paulo R. M. Oliveira
  */
 
 // TerraMA2
 #include "Collector.hpp"
+#include "StorageStrategy.hpp"
 
+// STL
+#include <memory>
+
+
+terrama2::ws::collector::core::Collector::Collector(const int& id, const std::string& name, const std::string& description, const std::string& type, const Format& format, const int& updateFreqMinutes, const std::string& prefix, const int& srid, const std::string& mask, const std::string& unit, const std::string& timeZone, const QJsonObject& dynamicMetadata)
+: id_(id), 
+name_(name), 
+description_(description), 
+type_(type), 
+format_(format), 
+updateFreqMinutes_(updateFreqMinutes), 
+prefix_(prefix), 
+srid_(srid), 
+mask_(mask), 
+unit_(unit), 
+timeZone_(timeZone), 
+dynamicMetadata_(dynamicMetadata)
+{
+
+}
+
+terrama2::ws::collector::core::Collector::Collector()
+{
+
+}
+
+terrama2::ws::collector::core::Collector::~Collector()
+{
+
+}
+
+int terrama2::ws::collector::core::Collector::getId() const
+{
+  return id_;
+}
+
+void terrama2::ws::collector::core::Collector::setId(const int &id)
+{
+  id_ = id;
+}
+
+std::string terrama2::ws::collector::core::Collector::getName() const
+{
+  return name_;
+}
+
+void terrama2::ws::collector::core::Collector::setName(const std::string &name)
+{
+  name_ = name;
+}
+
+std::string terrama2::ws::collector::core::Collector::getDescription() const
+{
+  return description_;
+}
+
+void terrama2::ws::collector::core::Collector::setDescription(const std::string &description)
+{
+  description_ = description;
+}
+
+terrama2::ws::collector::core::Format terrama2::ws::collector::core::Collector::getFormat() const
+{
+  return format_;
+}
+
+void terrama2::ws::collector::core::Collector::setFormat(const terrama2::ws::collector::core::Format &format)
+{
+  format_ = format;
+}
+
+int terrama2::ws::collector::core::Collector::getUpdateFreqMinutes() const
+{
+  return updateFreqMinutes_;
+}
+
+void terrama2::ws::collector::core::Collector::setUpdateFreqMinutes(const int &updateFreqMinutes)
+{
+  updateFreqMinutes_ = updateFreqMinutes;
+}
+
+std::string terrama2::ws::collector::core::Collector::getPrefix() const
+{
+  return prefix_;
+}
+
+void terrama2::ws::collector::core::Collector::setPrefix(const std::string &prefix)
+{
+  prefix_ = prefix;
+}
+
+int terrama2::ws::collector::core::Collector::getSrid() const
+{
+  return srid_;
+}
+
+void terrama2::ws::collector::core::Collector::setSrid(const int &srid)
+{
+  srid_ = srid;
+}
+
+std::string terrama2::ws::collector::core::Collector::getMask() const
+{
+  return mask_;
+}
+
+void terrama2::ws::collector::core::Collector::setMask(const std::string &mask)
+{
+  mask_ = mask;
+}
+
+std::string terrama2::ws::collector::core::Collector::getUnit() const
+{
+  return unit_;
+}
+
+void terrama2::ws::collector::core::Collector::setUnit(const std::string &unit)
+{
+  unit_ = unit;
+}
+
+std::string terrama2::ws::collector::core::Collector::getTimeZone() const
+{
+  return timeZone_;
+}
+
+void terrama2::ws::collector::core::Collector::setTimeZone(const std::string &timeZone)
+{
+  timeZone_ = timeZone;
+}
+
+QJsonObject terrama2::ws::collector::core::Collector::getDynamicMetadata()
+{
+  return dynamicMetadata_;
+}
+
+void terrama2::ws::collector::core::Collector::setDynamicMetadata(const QJsonObject &dynamicMetadata)
+{
+  dynamicMetadata_ = dynamicMetadata;
+}
+
+std::shared_ptr<terrama2::ws::collector::core::StorageStrategy> terrama2::ws::collector::core::Collector::getStorageStrategy() const
+{
+  return storageStrategy_;
+}
+
+void terrama2::ws::collector::core::Collector::setStorageStrategy(std::shared_ptr<StorageStrategy> storageStrategy)
+{
+  storageStrategy_ = storageStrategy;
+}

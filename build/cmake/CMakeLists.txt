@@ -119,6 +119,8 @@ endif()
 
 #add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
 
+
+
 if(WIN32)
   #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
@@ -146,6 +148,7 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.1.2")
 endif()
 
 include_directories(${CMAKE_BINARY_DIR})
+include_directories(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src ${CMAKE_INSTALL_PREFIX}/include)
 
 
 #
@@ -169,7 +172,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11")
 endif()
 
 # Turn on multi process compilation
@@ -190,7 +193,7 @@ include(CMakeDependentOption)
 #
 
 find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets)
-
+find_package(Qt5Test QUIET)
 find_package(Qt5LinguistTools QUIET)
 
 if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
@@ -211,7 +214,7 @@ endif()
 
 find_package(Doxygen)
 
-#find_package(terralib)
+find_package(terralib REQUIRED)
 
 #find_package(Lua)
 
@@ -269,6 +272,9 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
 
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Web Service appserver module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
+
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED "Build unittest for Collector Web Service core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
 
@@ -311,6 +317,18 @@ endif()
 
 if(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED)
   add_subdirectory(terrama2_mod_ws_collector_core)
+endif()
+
+if(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_client)
+endif()
+
+if(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_server)
+endif()
+
+if(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_appserver)
 endif()
 
 if(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED)
