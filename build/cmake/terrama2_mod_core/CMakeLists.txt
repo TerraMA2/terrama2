@@ -31,8 +31,8 @@
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.hpp)
 
-source_group("Source Files"            FILES ${TERRALIB_SRC_FILES})
-source_group("Header Files"            FILES ${TERRALIB_HDR_FILES})
+source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
+source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 add_library(terrama2_mod_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
