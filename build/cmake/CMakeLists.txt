@@ -268,6 +268,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED "Build unittest for Collector Web Service core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
+
 
 #
 # process TerraMA2 configuration files
@@ -309,6 +311,11 @@ endif()
 if(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED)
   add_subdirectory(terrama2_mod_ws_collector_core)
 endif()
+
+if(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED)
+  add_subdirectory(terrama2_unittest_ws_collector_core)
+endif()
+
 
 
 #
