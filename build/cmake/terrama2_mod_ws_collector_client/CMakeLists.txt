@@ -19,13 +19,13 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for collector core
+#  Description: CMake script for collector client
 #
-#  Author: Gilberto Ribeiro de Queiroz, Paulo R. M. Oliveira
+#  Author: Paulo R. M. Oliveira
 #
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/client/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/client/*.hpp)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
@@ -40,26 +40,26 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_mod_ws_collector_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
+add_library(terrama2_mod_ws_collector_client SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
-target_link_libraries(terrama2_mod_ws_collector_core terrama2_mod_core terralib_mod_dataaccess )
+target_link_libraries(terrama2_mod_ws_collector_client terrama2_mod_core terrama2_mod_ws_collector_server terrama2_mod_ws_collector_core )
 
-qt5_use_modules(terrama2_mod_ws_collector_core Widgets)
+qt5_use_modules(terrama2_mod_ws_collector_client Widgets)
 
 
 
-set_target_properties(terrama2_mod_ws_collector_core
+set_target_properties(terrama2_mod_ws_collector_client
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  INSTALL_NAME_DIR "@executable_path/../lib")
 
-install(TARGETS terrama2_mod_ws_collector_core
+install(TARGETS terrama2_mod_ws_collector_client
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
 install(FILES ${TERRAMA2_HDR_FILES}
-        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/ws/collector/core COMPONENT devel)
+        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/ws/collector/client COMPONENT devel)
 
-export(TARGETS terrama2_mod_ws_collector_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_mod_ws_collector_client APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
