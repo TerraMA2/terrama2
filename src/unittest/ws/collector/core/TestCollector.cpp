@@ -58,21 +58,61 @@ protected:
     void finalizeTerralib();
 
 private slots:
-    void initTestCase() // Always run before all tests
+    void initTestCase() // Run before all tests
     {
         initializeTerralib();
     }
-    void cleanupTestCase() // Always run after all tests
+    void cleanupTestCase() // Run after all tests
     {
         finalizeTerralib();
     }
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+    void init(); //run before each test
+    void cleanup(); //run before each test
 
+    //******Test functions********
+
+    /*!
+     * \brief Test Description
+     */
     void testTiffCollector();
+
+
+
+    //******End of Test functions****
+
+private:
+    std::auto_ptr<te::da::DataSource> ds_;
+    std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 };
 
+void TestCollector::init()
+{
+    std::map<std::string, std::string> connInfo;
+    connInfo["PG_HOST"] = "localhost";
+    connInfo["PG_PORT"] = "5432" ;
+    connInfo["PG_USER"] = "postgres";
+    connInfo["PG_PASSWORD"] = "postgres";
+    connInfo["PG_DB_NAME"] = "bdgcurso";
+    connInfo["PG_CONNECT_TIMEOUT"] = "4";
+    connInfo["PG_CLIENT_ENCODING"] = "CP1252";
+
+    ds_ = te::da::DataSourceFactory::make("POSTGIS");
+
+    // as we are going to use the data source, let´s set the connection info
+    ds_->setConnectionInfo(connInfo);
+
+    // let's open it with the connection info above!
+    ds_->open();
+
+    transactor_ = ds_->getTransactor();
+    QVERIFY2(transactor_.get() != nullptr, "NULL transactor.");
+}
+
+void TestCollector::cleanup()
+{
+    ds_->close();
+}
 
 void TestCollector::testTiffCollector()
 {
@@ -91,30 +131,7 @@ void TestCollector::testTiffCollector()
 
   terrama2::ws::collector::core::Collector* collector = new terrama2::ws::collector::core::Tiff(id, name, description, type, format, updateFreqMinutes, prefix, srid, mask, unit, timeZone, dynamicMetadata);
 
-  std::map<std::string, std::string> connInfo;
-  connInfo["PG_HOST"] = "localhost";
-  connInfo["PG_PORT"] = "5432" ;
-  connInfo["PG_USER"] = "postgres";
-  connInfo["PG_PASSWORD"] = "postgres";
-  connInfo["PG_DB_NAME"] = "bdgcurso";
-  connInfo["PG_CONNECT_TIMEOUT"] = "4";
-  connInfo["PG_CLIENT_ENCODING"] = "CP1252";
-
-  std::auto_ptr<te::da::DataSource> ds = te::da::DataSourceFactory::make("POSTGIS");
-  QVERIFY(ds.get() != nullptr);
-  
-  // as we are going to use the data source, let´s set the connection info
-  ds->setConnectionInfo(connInfo);
-  
-  // let's open it with the connection info above!
-  ds->open();
-
-  QVERIFY2(ds->isOpened(), "Database not open.");
-
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = ds->getTransactor();
-  QVERIFY2(transactor.get() != nullptr, "NULL transactor.");
-  
-  terrama2::ws::collector::core::CollectorDAO collectorDAO(transactor);
+  terrama2::ws::collector::core::CollectorDAO collectorDAO(transactor_);
   QVERIFY2(collectorDAO.save(collector), "Fail to save.");
 }
 
