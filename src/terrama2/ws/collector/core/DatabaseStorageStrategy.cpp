@@ -20,55 +20,37 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/ws/collector/core/Collector.cpp
 
-  \brief Utility class for system versioning.
+  \brief Class that represents a collector
 
-  \author Gilberto Ribeiro de Queiroz
-*/
+  \author Gilberto Ribeiro de Queiroz, Paulo R. M. Oliveira
+ */
 
 // TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
+#include "DatabaseStorageStrategy.hpp"
+#include "Collector.hpp"
 
-// STL
-#include <cassert>
 
-int terrama2::core::Version::majorNumber()
+// terralib
+#include <terralib/dataaccess.h>
+
+
+
+terrama2::ws::collector::core::DatabaseStorageStrategy::DatabaseStorageStrategy(const std::string &storageName, const bool &uniqueStorage)
+  : storageName_(storageName),
+    uniqueStorage_(uniqueStorage)
 {
-  return TERRAMA2_VERSION_MAJOR;
+
 }
 
-int terrama2::core::Version::minorNumber()
+
+terrama2::ws::collector::core::DatabaseStorageStrategy::~DatabaseStorageStrategy()
 {
-  return TERRAMA2_VERSION_MINOR;
+
 }
 
-int terrama2::core::Version::patchNumber()
+void terrama2::ws::collector::core::DatabaseStorageStrategy::store(std::shared_ptr<te::da::DataSet> dataSet, const terrama2::ws::collector::core::Collector &collector)
 {
-  return TERRAMA2_VERSION_PATCH;
-}
 
-std::string terrama2::core::Version::releaseStatus()
-{
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
 }
-
-std::string terrama2::core::Version::buildDate()
-{
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
-}
-
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
-}
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
-

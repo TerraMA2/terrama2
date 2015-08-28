@@ -20,55 +20,35 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/ws/collector/core/Tiff.cpp
 
-  \brief Utility class for system versioning.
+  \brief Implementation of a collector for the Tiff format.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Paulo R. M. Oliveira
 */
 
-// TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
+#include "Tiff.hpp"
 
-// STL
-#include <cassert>
 
-int terrama2::core::Version::majorNumber()
+terrama2::ws::collector::core::Tiff::Tiff()
 {
-  return TERRAMA2_VERSION_MAJOR;
+
 }
 
-int terrama2::core::Version::minorNumber()
+terrama2::ws::collector::core::Tiff::Tiff(const int &id, const std::string &name, const std::string &description, const std::string &type, const terrama2::ws::collector::core::Format &format, const int &updateFreqMinutes, const std::string &prefix, const int &srid, const std::string &mask, const std::string &unit, const std::string &timeZone, const QJsonObject &dynamicMetadata)
+  :Collector(id, name, description, type, format, updateFreqMinutes, prefix, srid, mask, unit, timeZone, dynamicMetadata)
 {
-  return TERRAMA2_VERSION_MINOR;
+
 }
 
-int terrama2::core::Version::patchNumber()
+
+terrama2::ws::collector::core::Tiff::~Tiff()
 {
-  return TERRAMA2_VERSION_PATCH;
+
 }
 
-std::string terrama2::core::Version::releaseStatus()
-{
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
-}
 
-std::string terrama2::core::Version::buildDate()
+void terrama2::ws::collector::core::Tiff::collect(const std::string &file)
 {
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
-}
 
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
 }
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
-

@@ -20,55 +20,29 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/ws/collector/core/AsciiGrid.cpp
 
-  \brief Utility class for system versioning.
+  \brief Implementation of a collector for the AsciiGrid format.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Paulo R. M. Oliveira
 */
 
-// TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
+#include "AsciiGrid.hpp"
 
-// STL
-#include <cassert>
 
-int terrama2::core::Version::majorNumber()
+terrama2::ws::collector::core::AsciiGrid::AsciiGrid()
 {
-  return TERRAMA2_VERSION_MAJOR;
+
 }
 
-int terrama2::core::Version::minorNumber()
+
+terrama2::ws::collector::core::AsciiGrid::~AsciiGrid()
 {
-  return TERRAMA2_VERSION_MINOR;
+
 }
 
-int terrama2::core::Version::patchNumber()
-{
-  return TERRAMA2_VERSION_PATCH;
-}
 
-std::string terrama2::core::Version::releaseStatus()
+void terrama2::ws::collector::core::AsciiGrid::collect(const std::string &file)
 {
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
-}
 
-std::string terrama2::core::Version::buildDate()
-{
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
 }
-
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
-}
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
-

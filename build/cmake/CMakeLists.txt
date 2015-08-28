@@ -169,7 +169,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++11 -Wall -pedantic")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11")
 endif()
 
 # Turn on multi process compilation
@@ -261,7 +261,7 @@ if(DOXYGEN_FOUND)
   option(TERRAMA2_DOXYGEN_ENABLED  "Enable API documentation build?" ON)
 endif()
 
-option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" OFF)
+option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 

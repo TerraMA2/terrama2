@@ -20,51 +20,35 @@
 */
 
 /*!
-  \file terrama2/core/Version.hpp
+  \file terrama2/ws/collector/core/Format.hpp
 
-  \brief Utility class for system versioning.
+  \brief Enumeration to a collector format.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
-#define __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
-
-// STL
-#include <string>
+#ifndef __TERRAMA2_WS_COLLECTOR_CORE_FORMAT_HPP__
+#define __TERRAMA2_WS_COLLECTOR_CORE_FORMAT_HPP__
 
 namespace terrama2
 {
-  namespace core
+  namespace ws
   {
-    //! Utility class for system versioning.
-    class Version
+    namespace collector
     {
-      public:
+      namespace core
+      {
 
-        static int majorNumber();
 
-        static int minorNumber();
+        enum Format
+        {
+          ASCII_GRID, TIFF, GRADS, PROARCO_FILE, OGC_WCS, OGC_WFS, SURFACE
+        };
 
-        static int patchNumber();
+      
+      } // core    
+    } // collector
+  } // ws
+} // terrama2
 
-        static std::string releaseStatus();
-
-        static std::string buildDate();
-
-        static std::string asString();
-
-        static int asInt();
-
-      private:
-
-        Version();
-
-        ~Version();
-    };
-
-  } // end namespace core
-}   // end namespace terrama2
-
-#endif  // __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
-
+#endif // __TERRAMA2_WS_COLLECTOR_CORE_FORMAT_HPP__
