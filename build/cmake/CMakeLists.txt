@@ -311,9 +311,9 @@ if(TERRAMA2_MOD_CORE_ENABLED)
   add_subdirectory(terrama2_mod_core)
 endif()
 
-if(TERRAMA2_GUI_ADMIN_ENABLED)
-  add_subdirectory(terrama2_gui_admin)
-endif()
+# if(TERRAMA2_GUI_ADMIN_ENABLED)
+#   add_subdirectory(terrama2_gui_admin)
+# endif()
 
 if(TERRAMA2_GUI_CONFIG_ENABLED)
   add_subdirectory(terrama2_gui_config)
