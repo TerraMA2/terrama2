@@ -2,25 +2,33 @@
 -- TerraMA2 Data Model for PostgreSQL DBMS
 --
 
-create extension postgis;
+BEGIN TRANSACTION;
+
 CREATE SCHEMA terrama2 AUTHORIZATION postgres;
 
 COMMENT ON SCHEMA terrama2 IS 'Schema used to store all objects related to TerraMA';
 
+CREATE TABLE terrama2.version
+(
+  version     VARCHAR(10),
+  description TEXT
+);
+
+COMMENT ON TABLE terrama2.version IS 'Table used to store the database version';
+COMMENT ON COLUMN terrama2.version.version IS 'Number of the version';
+COMMENT ON COLUMN terrama2.version.description IS 'Description of this version';
 
 CREATE TABLE terrama2.users
 (
-  id serial,
-  login character varying(20) NOT NULL,
-  password character varying(20) NOT NULL,
-  name  character varying(200) NOT NULL,
-  email character varying(50) NOT NULL,
-  cellphone character varying(20) NOT NULL,
-  CONSTRAINT pk_users_id PRIMARY KEY (id),
-  CONSTRAINT uk_users_login UNIQUE (login)
+  id        SERIAL       PRIMARY KEY,
+  login     VARCHAR(20)  NOT NULL UNIQUE,
+  password  VARCHAR(20)  NOT NULL,
+  name      VARCHAR(200) NOT NULL,
+  email     VARCHAR(50)  NOT NULL,
+  cellphone VARCHAR(20)  NOT NULL,
 );
 
-COMMENT ON TABLE terrama2.users IS 'Table used to store the users of TerraMA';
+COMMENT ON TABLE terrama2.users IS 'Store information about TerraMA2 users';
 COMMENT ON COLUMN terrama2.users.id IS 'Identifier of an user';
 COMMENT ON COLUMN terrama2.users.login IS 'Login used to access the system';
 COMMENT ON COLUMN terrama2.users.password IS 'Password used to access the system';
@@ -28,56 +36,109 @@ COMMENT ON COLUMN terrama2.users.name IS 'Full username';
 COMMENT ON COLUMN terrama2.users.email IS 'User email';
 COMMENT ON COLUMN terrama2.users.cellphone IS 'Cellphone number used to send notifications';
 
-CREATE TABLE terrama2.server
+CREATE TABLE terrama2.data_provider_type
+{
+  id          SERIAL PRIMARY KEY,
+  name        VARCHAR(50) UNIQUE,
+  description TEXT
+};
+
+INSERT INTO terrama2.data_provider_type (name, description)
+     VALUES ('FTP', 'File Transfer Protocol'),
+            ('HTTP', 'Hyper Text Transfer Protocol'),
+            ('FILE', 'Local System File'),
+            ('WFS', 'OGC Web Feature Service'),
+            ('WCS', 'OGC Web Coverage Service');
+
+CREATE TABLE terrama2.data_provider
 (
-  id serial NOT NULL,
-  name character varying(60) NOT NULL,
-  protocol character varying(4),
-  url character varying(255),
-  username character varying(50),
-  password character varying(50),
-  port integer,
-  description text,
-  active boolean NOT NULL,
-  base_path character varying(255),
-  CONSTRAINT server_protocol_check CHECK (((protocol)::text = ANY ((ARRAY['FTP'::character varying, 'HTTP'::character varying, 'FILE'::character varying, 'OGC'::character varying])::text[]))),
-  CONSTRAINT pk_server PRIMARY KEY(id),
-  CONSTRAINT uk_server_name UNIQUE (name)
+  id          SERIAL NOT NULL PRIMARY KEY,
+  name        VARCHAR(60) NOT NULL UNIQUE,
+  description TEXT,
+  kind        INTEGER NOT NULL,
+  uri         TEXT,
+  active      BOOLEAN NOT NULL,
+  CONSTRAINT fk_data_provider_kind
+             FOREIGN KEY(kind)
+             REFERENCES terrama2.data_provider_type(id)
+             ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 
-COMMENT ON TABLE terrama2.server IS 'Table used to store the connection parameters with a server';
-COMMENT ON COLUMN terrama2.server.id IS 'Identifier of the server';
-COMMENT ON COLUMN terrama2.server.name IS 'Name of the server, must be unique';
-COMMENT ON COLUMN terrama2.server.protocol IS 'Defines which protocol of communication will be used, e.g. FTP, HTTP, File or OGC';
-COMMENT ON COLUMN terrama2.server.url IS 'Defines the server address, for File protocol should be the base file path';
-COMMENT ON COLUMN terrama2.server.username IS 'Username to be used in order to access a FTP server';
-COMMENT ON COLUMN terrama2.server.password IS 'Password to be used in order to access a FTP server';
-COMMENT ON COLUMN terrama2.server.port IS 'Port to be user in order to access a FTP server';
-COMMENT ON COLUMN terrama2.server.description IS 'Description of the server';
-COMMENT ON COLUMN terrama2.server.active IS 'Defines if the server is active and should be checked periodically';
-COMMENT ON COLUMN terrama2.server.base_path IS 'Optional parameter to indicate a base path to a FTP server';
+--COMMENT ON TABLE terrama2.data_provider IS 'Store information about TerraMA2 data providers (remote servers, ftp servers, web services)';
+--COMMENT ON COLUMN terrama2.server.id IS 'Data Provider identifier';
+--COMMENT ON COLUMN terrama2.server.name IS 'Name of the server, must be unique';
+--COMMENT ON COLUMN terrama2.server.protocol IS 'Defines which protocol of communication will be used, e.g. FTP, HTTP, File or OGC';
+--COMMENT ON COLUMN terrama2.server.url IS 'Defines the server address, for File protocol should be the base file path';
+--COMMENT ON COLUMN terrama2.server.username IS 'Username to be used in order to access a FTP server';
+--COMMENT ON COLUMN terrama2.server.password IS 'Password to be used in order to access a FTP server';
+--COMMENT ON COLUMN terrama2.server.port IS 'Port to be user in order to access a FTP server';
+--COMMENT ON COLUMN terrama2.server.description IS 'Description of the server';
+--COMMENT ON COLUMN terrama2.server.active IS 'Defines if the server is active and should be checked periodically';
+--COMMENT ON COLUMN terrama2.server.base_path IS 'Optional parameter to indicate a base path to a FTP server';
 
-
-
-
-CREATE TABLE terrama2.collector
+CREATE TABLE terrama2.dataset_type
 (
-  id serial NOT NULL,
-  name character varying(20) NOT NULL,
-  description text,
-  type character varying(20) NOT NULL,
-  update_frequency_minutes integer NOT NULL,
-  prefix character varying(10),
-  projection_id integer NOT NULL,
-  mask character varying(255) NOT NULL,
-  unit character varying(20),
-  timezone character varying(10) NOT NULL DEFAULT '+00:00',
+  id          SERIAL NOT NULL PRIMARY KEY,
+  name        VARCHAR(50) NOT NULL UNIQUE,
+  description TEXT
+);
+
+INSERT INTO terrama2.dataset_type (name, description)
+     VALUES ('PCD', '?????'),
+            ('Ocorrencias', '???'),
+            ('Grades', '????');
+
+CREATE TABLE terrama2.dataset
+(
+  id                SERIAL NOT NULL PRIMARY KEY,
+  name              VARCHAR(20) NOT NULL UNIQUE,
+  description       TEXT,
+  kind              INTEGER NOT NULL,
+  data_provider_id  INTEGER NOT NULL,
+  
+);
+
+CREATE TABLE terrama2.dataset_metadata
+(
+  key    VARCHAR(50),
+  value  VARCHAR(50),
+  dataset_id INTEGER
+);
+
+CREATE TABLE terrama2.series_pcd
+(
+  id         SERIAL NOT NULL,
+  dataset_id INTEGER
+  data_type VARCHAR(40),
+  script text,
+  id_attr varchar(50),
+  CONSTRAINT pk_series_pcd_id PRIMARY KEY(id),
+  CONSTRAINT uk_series_pcd_name UNIQUE (name)
+);
+
+COMMENT ON TABLE terrama2.series_pcd IS 'Used to store the parameters of a PCD collector';
+COMMENT ON COLUMN terrama2.series_pcd.id IS 'PCD identifier';
+COMMENT ON COLUMN terrama2.series_pcd.name IS 'Name of the PCD';
+COMMENT ON COLUMN terrama2.series_pcd.influence IS 'Defines the area of influence of a PCD';
+COMMENT ON COLUMN terrama2.series_pcd.data_type IS 'Describes the type of content of this PCD';
+COMMENT ON COLUMN terrama2.series_pcd.script IS 'Preprocessing rule to be applied before importing data';
+COMMENT ON COLUMN terrama2.series_pcd.id_attr IS 'Attribute that identifies a PCD';
+
+
+
+  update_frequency_minutes INTEGER NOT NULL,
+  prefix VARCHAR(10),
+  projection_id INTEGER NOT NULL,
+  mask VARCHAR(255) NOT NULL,
+  unit VARCHAR(20),
+  timezone VARCHAR(10) NOT NULL DEFAULT '+00:00',
   format text NOT NULL,
   dynamic_metadata JSON,
 
   CONSTRAINT pk_collector_id PRIMARY KEY (id),
   CONSTRAINT uk_name UNIQUE (name),
+  CONSTRAINT fk_ccollector_server_id FOREIGN KEY (server_id) REFERENCES terrama2.server (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_collector_projection FOREIGN KEY (projection_id)
     REFERENCES public.spatial_ref_sys (srid) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE RESTRICT,
@@ -91,6 +152,7 @@ COMMENT ON TABLE terrama2.collector IS 'Table used to store the collector inform
 COMMENT ON COLUMN terrama2.collector.id IS 'Identifier of a collector';
 COMMENT ON COLUMN terrama2.collector.name IS 'Unique name of the collector';
 COMMENT ON COLUMN terrama2.collector.description IS 'Description of the collector';
+COMMENT ON COLUMN terrama2.collector.server_id IS 'Server identifier';
 COMMENT ON COLUMN terrama2.collector.type IS 'Data serie type';
 COMMENT ON COLUMN terrama2.collector.update_frequency_minutes IS 'Time in minutes between data aquisition';
 COMMENT ON COLUMN terrama2.collector.prefix IS 'Prefix for the data tables or files created to store aquired data';
@@ -101,29 +163,14 @@ COMMENT ON COLUMN terrama2.collector.timezone IS 'Timezone of stored date';
 COMMENT ON COLUMN terrama2.collector.format IS 'Data format type';
 
 
-
-CREATE TABLE terrama2.collector_server
-(
-  collector_id integer NOT NULL,
-  server_id integer NOT NULL,
-  CONSTRAINT fk_collector_server_id FOREIGN KEY (collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_ccollector_server_id FOREIGN KEY (server_id) REFERENCES terrama2.server (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT pk_collector_server PRIMARY KEY (collector_id, server_id)
-);
-
-COMMENT ON TABLE terrama2.collector_server IS 'Table used to link a server with mutiple collectors';
-COMMENT ON COLUMN terrama2.collector_server.collector_id IS 'Collector identifier';
-COMMENT ON COLUMN terrama2.collector_server.server_id IS 'Server identifier';
-
-
 CREATE TABLE terrama2.interpolator
 (
-  id serial NOT NULL,
+  id SERIAL NOT NULL,
   attribute_name text,
   grid_output_name text,
   method text,
-  number_neighbors integer,
-  pow_value integer,
+  number_neighbors INTEGER,
+  pow_value INTEGER,
   roi_x1 double precision,
   roi_y1 double precision,
   roi_x2 double precision,
@@ -154,8 +201,8 @@ COMMENT ON COLUMN terrama2.interpolator.res_y IS 'Size of Y resolution';
 
 CREATE TABLE terrama2.collector_interpolator
 (
-  collector_id integer NOT NULL,
-  interpolator_id integer NOT NULL,
+  collector_id INTEGER NOT NULL,
+  interpolator_id INTEGER NOT NULL,
   CONSTRAINT fk_collector_interpolator_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector(id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_collector_interpolator_interpolator_id FOREIGN KEY(interpolator_id ) REFERENCES terrama2.interpolator(id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT pk_collector_interpolator PRIMARY KEY (collector_id, interpolator_id)
@@ -166,24 +213,15 @@ COMMENT ON COLUMN terrama2.collector_interpolator.collector_id IS 'Collector ide
 COMMENT ON COLUMN terrama2.collector_interpolator.interpolator_id IS 'Interpolator identifier';
 
 
-CREATE TABLE terrama2.version
-(
-  version character varying(10),
-  description text
-);
-
-COMMENT ON TABLE terrama2.version IS 'Table used to store the database version';
-COMMENT ON COLUMN terrama2.version.version IS 'Number of the version';
-COMMENT ON COLUMN terrama2.version.description IS 'Description of this version';
 
 CREATE TABLE terrama2.collector_log
 (
-  id serial NOT NULL,
-  collector_id integer NOT NULL,
-  data_path character varying(255) NOT NULL,
+  id SERIAL NOT NULL,
+  collector_id INTEGER NOT NULL,
+  data_path VARCHAR(255) NOT NULL,
   date_time_file timestamp without time zone NOT NULL,
   date_time_collection timestamp without time zone NOT NULL DEFAULT NOW(),
-  status character varying(20),
+  status VARCHAR(20),
   CONSTRAINT pk_collector_log PRIMARY KEY(id),
   CONSTRAINT fk_collector_log_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -199,13 +237,13 @@ COMMENT ON COLUMN terrama2.collector_log.status IS 'Status of the collection';
 
 CREATE TABLE terrama2.archiving_rules
 (
-  id serial NOT NULL,
-  collector_id integer,
-  analysis_id integer,
-  type character varying(50) NOT NULL,
-  action character varying(50) NOT NULL,
-  condition integer NOT NULL,
-  create_filter boolean NOT NULL,
+  id SERIAL NOT NULL,
+  collector_id INTEGER,
+  analysis_id INTEGER,
+  type VARCHAR(50) NOT NULL,
+  action VARCHAR(50) NOT NULL,
+  condition INTEGER NOT NULL,
+  create_filter BOOLEAN NOT NULL,
   CONSTRAINT pk_archiving_rules_id PRIMARY KEY (id),
   CONSTRAINT fk_archiving_rules_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector(id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
 --  CONSTRAINT fk_archiving_rules_analysis_id FOREIGN KEY(analysis_id) REFERENCES terrama2.analysis(id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
@@ -223,32 +261,12 @@ COMMENT ON COLUMN terrama2.archiving_rules.create_filter IS 'Filter valid only f
 
 
 
-CREATE TABLE terrama2.series_pcd
-(
-  id serial NOT NULL,
-  name character varying(40) NOT NULL,
-  influence character varying(40) NOT NULL,
-  data_type character varying(40),
-  script text,
-  id_attr varchar(50),
-  CONSTRAINT pk_series_pcd_id PRIMARY KEY(id),
-  CONSTRAINT uk_series_pcd_name UNIQUE (name)
-);
-
-COMMENT ON TABLE terrama2.series_pcd IS 'Used to store the parameters of a PCD collector';
-COMMENT ON COLUMN terrama2.series_pcd.id IS 'PCD identifier';
-COMMENT ON COLUMN terrama2.series_pcd.name IS 'Name of the PCD';
-COMMENT ON COLUMN terrama2.series_pcd.influence IS 'Defines the area of influence of a PCD';
-COMMENT ON COLUMN terrama2.series_pcd.data_type IS 'Describes the type of content of this PCD';
-COMMENT ON COLUMN terrama2.series_pcd.script IS 'Preprocessing rule to be applied before importing data';
-COMMENT ON COLUMN terrama2.series_pcd.id_attr IS 'Attribute that identifies a PCD';
-
 
 
 CREATE TABLE terrama2.series_pcd_collector
 (
-  series_pcd_id integer NOT NULL,
-  collector_id integer NOT NULL,
+  series_pcd_id INTEGER NOT NULL,
+  collector_id INTEGER NOT NULL,
   CONSTRAINT pk_series_pcd_collector_id PRIMARY KEY(series_pcd_id, collector_id),
   CONSTRAINT fk_series_pcd_collector_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_series_pcd_collector_series_pcd_id FOREIGN KEY(series_pcd_id) REFERENCES terrama2.series_pcd (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
@@ -261,9 +279,9 @@ COMMENT ON COLUMN terrama2.series_pcd_collector.collector_id IS 'Collector ident
 
 CREATE TABLE terrama2.storage_strategy
 (
-  collector_id integer NOT NULL,
-  table_name character varying(40),
-  unique_storage boolean NOT NULL,
+  collector_id INTEGER NOT NULL,
+  table_name VARCHAR(40),
+  unique_storage BOOLEAN NOT NULL,
   CONSTRAINT pk_storage_strategy_id PRIMARY KEY(collector_id),
   CONSTRAINT fk_storage_strategy_collector_id FOREIGN KEY(collector_id) REFERENCES terrama2.collector (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -274,3 +292,4 @@ COMMENT ON COLUMN terrama2.storage_strategy.collector_id IS 'Collector identifie
 COMMENT ON COLUMN terrama2.storage_strategy.table_name IS 'Name of the table that will store the data collected';
 COMMENT ON COLUMN terrama2.storage_strategy.unique_storage IS 'Defines if all collected data should be stored in the same table';
 
+COMMIT;
