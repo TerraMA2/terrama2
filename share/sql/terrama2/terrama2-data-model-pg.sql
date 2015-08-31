@@ -169,10 +169,10 @@ CREATE TABLE terrama2.data
   dataset_id   INTEGER,
   mask         VARCHAR(255),
   timezone     text DEFAULT '+00:00',
-  -- CONSTRAINT fk_dataset_data_type_id
-  --   FOREIGN KEY(kind)
-  --   REFERENCES terrama2.data_type(id)
-  --   ON UPDATE CASCADE ON DELETE RESTRICT,
+--  CONSTRAINT fk_dataset_data_type_id
+--    FOREIGN KEY(kind)
+--    REFERENCES terrama2.data_type(id)
+--    ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT fk_data_dataset_id
     FOREIGN KEY(dataset_id)
     REFERENCES terrama2.dataset(id)
@@ -227,6 +227,7 @@ CREATE TABLE terrama2.pcd_attributes
 );
 
 
+
 CREATE TABLE terrama2.filter
 (
   data_id                   INTEGER NOT NULL PRIMARY KEY,
@@ -243,6 +244,5 @@ CREATE TABLE terrama2.filter
   --CONSTRAINT fk_filter_within_by_value_type FOREIGN KEY(by_value_type) REFERENCES terrama2.???? (id) ON UPDATE CASCADE ON DELETE CASCADE
   --CONSTRAINT fk_filter_within_external_data_id FOREIGN KEY(within_external_data_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
-
 
 COMMIT;
