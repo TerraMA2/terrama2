@@ -154,25 +154,25 @@ CREATE TABLE terrama2.dataset_collect_rule
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE terrama2.data_type
-(
-  id          SERIAL NOT NULL PRIMARY KEY,
-  name        VARCHAR(50) NOT NULL UNIQUE,
-  description TEXT
-);
+--CREATE TABLE terrama2.data_type
+--(
+--  id          SERIAL NOT NULL PRIMARY KEY,
+--  name        VARCHAR(50) NOT NULL UNIQUE,
+--  description TEXT
+--);
 
 CREATE TABLE terrama2.data
 (
   id           SERIAL NOT NULL PRIMARY KEY,
-  kind         INTEGER NOT NULL,
+--  kind         INTEGER NOT NULL,
   active       BOOLEAN,
   dataset_id   INTEGER,
   mask         VARCHAR(255),
   timezone     text DEFAULT '+00:00',
-  CONSTRAINT fk_dataset_data_type_id
-    FOREIGN KEY(kind)
-    REFERENCES terrama2.data_type(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
+--  CONSTRAINT fk_dataset_data_type_id
+--    FOREIGN KEY(kind)
+--    REFERENCES terrama2.data_type(id)
+--    ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT fk_data_dataset_id
     FOREIGN KEY(dataset_id)
     REFERENCES terrama2.dataset(id)
@@ -226,78 +226,5 @@ CREATE TABLE terrama2.pcd_attributes
     MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE terrama2.archiving_rules
-(
-  id SERIAL NOT NULL,
-  dataset_id INTEGER,
-  analysis_id INTEGER,
-  type VARCHAR(50) NOT NULL,
-  action VARCHAR(50) NOT NULL,
-  condition INTEGER NOT NULL,
-  create_filter BOOLEAN NOT NULL,
-  CONSTRAINT pk_archiving_rules_id PRIMARY KEY (id),
-  CONSTRAINT fk_archiving_rules_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset(id) ON UPDATE CASCADE ON DELETE CASCADE
---  CONSTRAINT fk_archiving_rules_analysis_id FOREIGN KEY(analysis_id) REFERENCES terrama2.analysis(id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-
-COMMENT ON TABLE terrama2.archiving_rules IS 'Table used to store the archiving rules, it is possible to configure a rule for an analysis or a collector';
-COMMENT ON COLUMN terrama2.archiving_rules.id IS 'Identifier of the archiving rule';
-COMMENT ON COLUMN terrama2.archiving_rules.dataset_id IS 'Dataset identifier, used when the rule is pointed to a dataset';
-COMMENT ON COLUMN terrama2.archiving_rules.analysis_id IS 'Analysis identifier, used when the rule is pointed to a analysis';
-COMMENT ON COLUMN terrama2.archiving_rules.type IS 'Rule type, possible values: DATASOURCE or ANALYSIS';
-COMMENT ON COLUMN terrama2.archiving_rules.action IS 'Defines strategy to archive the data, possible values: DELETE_DATA, DELETE_LOG, DELETE_WARNING and DELETE_SURFACE';
-COMMENT ON COLUMN terrama2.archiving_rules.condition IS 'Defines which data from the collector or analysis will be considered by the rule';
-COMMENT ON COLUMN terrama2.archiving_rules.create_filter IS 'Filter valid only for the type datasource, it will impact the filter of the collector, it will change for the date of the execution of the archiving';
-
-
-CREATE TABLE terrama2.interpolator
-(
-  id SERIAL NOT NULL,
-  attribute_name text,
-  grid_output_name text,
-  method text,
-  number_neighbors INTEGER,
-  pow_value INTEGER,
-  roi_x1 double precision,
-  roi_y1 double precision,
-  roi_x2 double precision,
-  roi_y2 double precision,
-  res_unit text,
-  res_x double precision,
-  res_y double precision,
-  CONSTRAINT interpolator_method_check   CHECK ((method = ANY (ARRAY['NN'::text, 'AVERAGE'::text, 'WEIGHT_AVERAGE'::text, 'LINEAR_LEAST_SQUARE'::text]))),
-  CONSTRAINT interpolator_res_unit_check CHECK ((res_unit = ANY (ARRAY['METERS'::text, 'DD'::text]))),
-  CONSTRAINT pk_interpolator PRIMARY KEY(id)
-);
-
-COMMENT ON TABLE terrama2.interpolator IS 'Table used to store the interpolator parameters used to create a surface from a PCD';
-COMMENT ON COLUMN terrama2.interpolator.id IS 'Interpolator identifier';
-COMMENT ON COLUMN terrama2.interpolator.attribute_name IS 'Attribute to be used to create the surface';
-COMMENT ON COLUMN terrama2.interpolator.grid_output_name IS 'Name of the output grid';
-COMMENT ON COLUMN terrama2.interpolator.method IS 'Intepolation method';
-COMMENT ON COLUMN terrama2.interpolator.number_neighbors IS 'Number of number_neighbors';
-COMMENT ON COLUMN terrama2.interpolator.pow_value IS 'Power value, used only for the method weight average';
-COMMENT ON COLUMN terrama2.interpolator.roi_x1 IS 'Lower left X coordinate';
-COMMENT ON COLUMN terrama2.interpolator.roi_y1 IS 'Lower left Y coordinate';
-COMMENT ON COLUMN terrama2.interpolator.roi_x2 IS 'Upper right X coordinate';
-COMMENT ON COLUMN terrama2.interpolator.roi_y2 IS 'Upper right Y coordinate';
-COMMENT ON COLUMN terrama2.interpolator.res_unit IS 'Resolution unit of measure';
-COMMENT ON COLUMN terrama2.interpolator.res_x IS 'Size of X resolution';
-COMMENT ON COLUMN terrama2.interpolator.res_y IS 'Size of Y resolution';
-
-
-
-CREATE TABLE terrama2.storage_strategy
-(
-  dataset_id   INTEGER NOT NULL PRIMARY KEY,
-  uri_mask     TEXT,
-  CONSTRAINT fk_storage_strategy_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-
-COMMENT ON TABLE terrama2.storage_strategy IS 'Used to store the storage strategy of a dataset';
-COMMENT ON COLUMN terrama2.storage_strategy.dataset_id IS 'Dataset identifier';
-COMMENT ON COLUMN terrama2.storage_strategy.uri_mask IS 'URI to the mask of the collected data';
 
 COMMIT;
