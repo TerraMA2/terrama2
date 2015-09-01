@@ -49,7 +49,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
-//! Construtor
+//! Constructor
 AnalysisCreateLuaDialog::AnalysisCreateLuaDialog(Services* manager, int cellularSpaceID, const std::vector<std::string> columnCelularSpaceList, QWidget* parent, Qt::WFlags f)
 : QDialog(parent, f)
 {

@@ -43,7 +43,7 @@ source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
 
 QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
-add_executable(terrama2_config ${TERRAMA2_GUI_CONFIG_PATH}/Main.cpp ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
+add_executable(terrama2_config ${TERRAMA2_GUI_CONFIG_PATH}/main.cpp ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
 
 target_link_libraries(terrama2_config terrama2_mod_core)
 

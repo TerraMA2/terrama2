@@ -1,28 +1,32 @@
-/************************************************************************************
-TerraMA² is a development platform of Monitoring, Analysis and Alert for
-geoenvironmental extremes. Applied to natural disasters, quality of water / air / atmosphere,
-tailings basins, epidemics and others.Copyright © 2012 INPE.
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
 
-This code is part of the TerraMA² framework.
-This framework is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
 
-You should have received a copy of the GNU General Public
-License along with this library.
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
 
-The authors reassure the license terms regarding the warranties.
-They specifically disclaim any warranties, including, but not limited to,
-the implied warranties of merchantability and fitness for a particular purpose.
-The library provided hereunder is on an "as is" basis, and the authors have no
-obligation to provide maintenance, support, updates, enhancements,
-or modifications.
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
 
-In no event shall INPE or K2 SISTEMAS be held liable to any party for direct, indirect,
-special, incidental, or consequential damages arising out of the use of this
-library and its documentation.
-*************************************************************************************/
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file terrama2/gui/config/ArchivingItemsListDialog.hpp
+
+  \brief Definition of ArchivingItemsListDialog.hpp class
+
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+*/
 
 #ifndef _ARCHIVINGITEMSLISTDLG_H_
 #define _ARCHIVINGITEMSLISTDLG_H_
@@ -44,24 +48,24 @@ class ArchivingItemsListDialog : public QDialog, private Ui::ArchivingItemsListD
 Q_OBJECT
 
 public:
-	ArchivingItemsListDialog(RemoteWeatherServerList* rwsl, AnalysisList* anaList, QList< QPair<QString, int> > conditionList, QWidget* parent = 0, Qt::WFlags f = 0 );
-	~ArchivingItemsListDialog();
-	wsArchivingRule getFields();
-	void setFields(QString type, int id, wsArchivingRuleAction action, int condValue, QString condStr, bool createFilter);
-	static QString getActionString(wsArchivingRuleAction action);
-	static QString getTypeString(wsArchivingRuleType type);
-	static wsArchivingRuleType getTypeWS(QString typeStr);
+  ArchivingItemsListDialog(RemoteWeatherServerList* rwsl, AnalysisList* anaList, QList< QPair<QString, int> > conditionList, QWidget* parent = 0, Qt::WFlags f = 0 );
+  ~ArchivingItemsListDialog();
+  wsArchivingRule getFields();
+  void setFields(QString type, int id, wsArchivingRuleAction action, int condValue, QString condStr, bool createFilter);
+  static QString getActionString(wsArchivingRuleAction action);
+  static QString getTypeString(wsArchivingRuleType type);
+  static wsArchivingRuleType getTypeWS(QString typeStr);
 
 private slots:
-	void setTypeChanged(int);
-	void setObjectChanged(int);
-	void setActionChanged(int);
-	void enableConditionDate(bool enable);
+  void setTypeChanged(int);
+  void setObjectChanged(int);
+  void setActionChanged(int);
+  void enableConditionDate(bool enable);
   
 private:
-	RemoteWeatherServerList* _rwsl;
-	AnalysisList* _anaList;
-	void fillItemNameCmb(int type);
+  RemoteWeatherServerList* _rwsl;
+  AnalysisList* _anaList;
+  void fillItemNameCmb(int type);
 };
 
 
