@@ -20,56 +20,37 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/gui/config/PcdInfPlaneDialog.hpp
 
-  \brief Utility class for system versioning.
+  \brief Definition of Class PcdInfPlaneDialog.hpp
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa  
+  \author Carlos Augusto Teixeira Mendes
 */
 
-// TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
+#ifndef _PcdInfPlaneDialog_H_
+#define _PcdInfPlaneDialog_H_
 
-// STL
-#include <cassert>
+#include "ui_PcdInfPlaneDialog.h"
+#include "soapH.h"
 
-
-int terrama2::core::Version::majorNumber()
+class PcdInfPlaneDialog : public QDialog, private Ui::PcdInfPlaneDialog
 {
-  return TERRAMA2_VERSION_MAJOR;
-}
+Q_OBJECT
 
-int terrama2::core::Version::minorNumber()
-{
-  return TERRAMA2_VERSION_MINOR;
-}
+public:
+	PcdInfPlaneDialog(std::vector<struct wsPCDTheme> pcdThemes, QWidget* parent = 0, Qt::WFlags f = 0 );
+	~PcdInfPlaneDialog();
+	void getFields(wsPCDInfPlaneAttributes *pcdInfPlaneAttributes);
 
-int terrama2::core::Version::patchNumber()
-{
-  return TERRAMA2_VERSION_PATCH;
-}
+private slots:
+	void pcdThemeChanged(int index);
 
-std::string terrama2::core::Version::releaseStatus()
-{
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
-}
+private:
+	std::vector<struct wsPCDTheme> _pcdThemes;
+	void fillPCDThemeCmb();
 
-std::string terrama2::core::Version::buildDate()
-{
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
-}
+};
 
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
-}
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
-
+#endif

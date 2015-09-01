@@ -20,56 +20,39 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/gui/config/DeleteWeatherDataSourceDialog.cpp
 
-  \brief Utility class for system versioning.
+  \brief Definition of Class DeleteWeatherDataSourceDialog.hpp
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa  
 */
 
+
 // TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
+#include "DeleteWeatherDataSourceDialog.hpp"
 
-// STL
-#include <cassert>
-
-
-int terrama2::core::Version::majorNumber()
+//! Construtor
+DeleteWeatherDataSourceDialog::DeleteWeatherDataSourceDialog(QWidget* parent, Qt::WFlags f)
+: QDialog(parent, f)
 {
-  return TERRAMA2_VERSION_MAJOR;
+	setupUi(this);
+
+	connect(yesBtn,     SIGNAL(clicked()), SLOT(accept()));
+	connect(noBtn, SIGNAL(clicked()), SLOT(reject()));
 }
 
-int terrama2::core::Version::minorNumber()
+//! Destrutor
+DeleteWeatherDataSourceDialog::~DeleteWeatherDataSourceDialog()
 {
-  return TERRAMA2_VERSION_MINOR;
 }
 
-int terrama2::core::Version::patchNumber()
+bool DeleteWeatherDataSourceDialog::getDeleteLayersCbxValue()
 {
-  return TERRAMA2_VERSION_PATCH;
+	return deleteLayersCbx->isChecked();
 }
 
-std::string terrama2::core::Version::releaseStatus()
+void DeleteWeatherDataSourceDialog::setQuestionLabel(QString question)
 {
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
+	questionLabel->setText(question);
 }
-
-std::string terrama2::core::Version::buildDate()
-{
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
-}
-
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
-}
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
-

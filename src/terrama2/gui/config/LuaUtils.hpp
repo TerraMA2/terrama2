@@ -20,56 +20,27 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/gui/config/LuaUtils.hpp
 
-  \brief Utility class for system versioning.
+  \brief Definition of auxiliary functions for use with Lua
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  \author Carlos Augusto Teixeira Mendes
 */
 
-// TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
 
-// STL
-#include <cassert>
+#ifndef _LUA_UTILS_H_
+#define _LUA_UTILS_H_
 
+// QT
+#include <QObject>
 
-int terrama2::core::Version::majorNumber()
+namespace LuaUtils
 {
-  return TERRAMA2_VERSION_MAJOR;
+  //! Verifica se a sintaxe de um script é ou não válida
+  bool checkSyntax(const char* script, QString& err, int& lin);
 }
 
-int terrama2::core::Version::minorNumber()
-{
-  return TERRAMA2_VERSION_MINOR;
-}
 
-int terrama2::core::Version::patchNumber()
-{
-  return TERRAMA2_VERSION_PATCH;
-}
-
-std::string terrama2::core::Version::releaseStatus()
-{
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
-}
-
-std::string terrama2::core::Version::buildDate()
-{
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
-}
-
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
-}
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
-
+#endif

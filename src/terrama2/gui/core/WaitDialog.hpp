@@ -20,56 +20,35 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/gui/admin/WaitDialog.hpp
 
-  \brief Utility class for system versioning.
+  \brief Services QT Dialog Header
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  \author Carlos Augusto Teixeira Mendes
 */
+  
+#ifndef _WaitDialog_H_
+#define _WaitDialog_H_
 
-// TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
+#include "ui_WaitDialog.hpp"
 
-// STL
-#include <cassert>
-
-
-int terrama2::core::Version::majorNumber()
+//! Classe responsável pela apresentação do diálogo de espera
+class WaitDialog : public QDialog, private Ui::WaitDialog
 {
-  return TERRAMA2_VERSION_MAJOR;
-}
+Q_OBJECT
 
-int terrama2::core::Version::minorNumber()
-{
-  return TERRAMA2_VERSION_MINOR;
-}
+public:
+  WaitDialog(QString msg, QWidget* parent = 0, Qt::WFlags f = 0 );
+  ~WaitDialog();
 
-int terrama2::core::Version::patchNumber()
-{
-  return TERRAMA2_VERSION_PATCH;
-}
+public slots:
+  void setMsg(QString msg);
+  
+private:
+};
 
-std::string terrama2::core::Version::releaseStatus()
-{
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
-}
 
-std::string terrama2::core::Version::buildDate()
-{
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
-}
-
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
-}
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
+#endif
 

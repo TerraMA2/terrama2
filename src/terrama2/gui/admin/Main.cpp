@@ -20,56 +20,39 @@
 */
 
 /*!
-  \file terrama2/core/Version.cpp
+  \file terrama2/gui/admin/main.cpp
 
-  \brief Utility class for system versioning.
+  \brief Main function for 
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
 */
 
-// TerraMA2
-#include "../Version.hpp"
-#include "Version.hpp"
+// QT
+#include <qapplication.h>
+#include <QIcon>
+#include <QStringList>
+#include <iostream>
 
-// STL
-#include <cassert>
+// #include "Language.h"
+#include "MainDialog.hpp"
 
-
-int terrama2::core::Version::majorNumber()
+int main( int argc, char** argv )
 {
-  return TERRAMA2_VERSION_MAJOR;
-}
+  // Load Icons
+  QStringList ithemes = QIcon::themeSearchPaths();
+  ithemes.push_back("/home/terrama2/Projeto/terrama2/share/icons/");
+  QIcon::setThemeSearchPaths(ithemes);
+  QIcon::setThemeName("terrama2");
 
-int terrama2::core::Version::minorNumber()
-{
-  return TERRAMA2_VERSION_MINOR;
-}
+  QApplication app( argc, argv );
 
-int terrama2::core::Version::patchNumber()
-{
-  return TERRAMA2_VERSION_PATCH;
-}
+  //Carrega a linguagem do sistema e os translators.
+  // loadLanguage("admin");
 
-std::string terrama2::core::Version::releaseStatus()
-{
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
-}
+  // Abre janela principal
+  MainDialog mainwindow;
 
-std::string terrama2::core::Version::buildDate()
-{
-  assert(__DATE__ " " __TIME__);
-  return std::string(__DATE__ " " __TIME__);
+  mainwindow.show();
+  return app.exec();
 }
-
-std::string terrama2::core::Version::asString()
-{
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
-}
-
-int terrama2::core::Version::asInt()
-{
-  return TERRAMA2_VERSION;
-}
-
