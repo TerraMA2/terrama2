@@ -227,4 +227,22 @@ CREATE TABLE terrama2.pcd_attributes
 );
 
 
+
+CREATE TABLE terrama2.filter
+(
+  data_id                   INTEGER NOT NULL PRIMARY KEY,
+  discard_before            TIMESTAMP,
+  discard_after             TIMESTAMP,
+  geom                      GEOMETRY(POLYGON, 4326),
+  external_data_id          INTEGER,
+  by_value                  NUMERIC,
+  by_value_type             INTEGER,
+  within_external_data_id   INTEGER,
+  band_filter               TEXT,
+  CONSTRAINT fk_filter_data_id FOREIGN KEY(data_id) REFERENCES terrama2.data (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_external_data_id FOREIGN KEY(external_data_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_within_by_value_type FOREIGN KEY(by_value_type) REFERENCES terrama2.???? (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_within_external_data_id FOREIGN KEY(within_external_data_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 COMMIT;
