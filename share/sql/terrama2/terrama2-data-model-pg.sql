@@ -103,6 +103,7 @@ CREATE TABLE terrama2.dataset
   name                      VARCHAR(20) NOT NULL UNIQUE,
   description               TEXT,
   active                    BOOLEAN,
+  path                      VARCHAR(255),
   data_provider_id          INTEGER NOT NULL,
   kind                      INTEGER NOT NULL,
   data_frequency            NUMERIC,
@@ -166,6 +167,7 @@ CREATE TABLE terrama2.data
   id           SERIAL NOT NULL PRIMARY KEY,
   kind         INTEGER NOT NULL,
   active       BOOLEAN,
+  path         VARCHAR(255),
   dataset_id   INTEGER,
   mask         VARCHAR(255),
   timezone     text DEFAULT '+00:00',
@@ -204,9 +206,9 @@ COMMENT ON COLUMN terrama2.data_collection_log.collect_timestamp IS 'Date of the
 
 CREATE TABLE terrama2.pcd
 (
-  data_id SERIAL NOT NULL PRIMARY KEY,
-  location GEOMETRY(Point,4326),
-  table_name VARCHAR(50) NOT NULL,
+  data_id       SERIAL NOT NULL PRIMARY KEY,
+  location      GEOMETRY(Point,4326),
+  table_name    VARCHAR(50) NOT NULL,
   CONSTRAINT fk_pcd_data_id
     FOREIGN KEY(data_id)
     REFERENCES terrama2.data (id)
