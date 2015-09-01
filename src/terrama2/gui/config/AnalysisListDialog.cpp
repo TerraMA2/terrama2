@@ -1,39 +1,33 @@
-/************************************************************************************
-TerraMA² is a development platform of Monitoring, Analysis and Alert for
-geoenvironmental extremes. Applied to natural disasters, quality of water / air / atmosphere,
-tailings basins, epidemics and others.Copyright © 2012 INPE.
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
 
-This code is part of the TerraMA² framework.
-This framework is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
 
-You should have received a copy of the GNU General Public
-License along with this library.
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
 
-The authors reassure the license terms regarding the warranties.
-They specifically disclaim any warranties, including, but not limited to,
-the implied warranties of merchantability and fitness for a particular purpose.
-The library provided hereunder is on an "as is" basis, and the authors have no
-obligation to provide maintenance, support, updates, enhancements,
-or modifications.
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
 
-In no event shall INPE or K2 SISTEMAS be held liable to any party for direct, indirect,
-special, incidental, or consequential damages arising out of the use of this
-library and its documentation.
-*************************************************************************************/
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
 
 /*!
- * \file AnalysisListDialog.cpp
- *
- * \brief Definicao dos metodos declarados na classe AnalysisListDialog
- *
- * \author Celso Luiz Ramos Cruz
- * \date february, 2008 
- * \version $Id
- *
- */
+  \file terrama2/gui/config/AnalysisListDialog.cpp
+
+  \brief Definition of methods in AnalysisListDialog.cpp class
+
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  \author Celso Luiz Ramos Cruz
+*/
 
 /*!
 \class AnalysisListDialog
@@ -59,23 +53,22 @@ AnalysisListDialog::AnalysisListDialog(bool hideWarningCombo, QWidget* parent, Q
 
   if (hideWarningCombo)
   {
-	  warningGbox->hide();
+    warningGbox->hide();
   }
   else
   {
-	  //preenche os combobox
-	  fillWarningComboBox(emailCmb);
-	  fillWarningComboBox(cellphoneCmb);
-      fillReportComboBox(reportCmb);
+    fillWarningComboBox(emailCmb);
+    fillWarningComboBox(cellphoneCmb);
+    fillReportComboBox(reportCmb);
   }  
 }
 
-//! Destrutor
+//! Destructor
 AnalysisListDialog::~AnalysisListDialog()
 {
 }
 
-//! Preenche valores da WidgetList conforme lista de analises selecionadas
+//! Fill up the WidgetList values according to selected analysis list
 bool AnalysisListDialog::setFields(const std::vector<struct wsUserView>& userViews, AnalysisList* anaList)
 {
   QListWidgetItem* item;
@@ -88,27 +81,27 @@ bool AnalysisListDialog::setFields(const std::vector<struct wsUserView>& userVie
   {
     anaRule = anaList->at(i)->data();
 
-	if (!findAnalysisRule(userViews, anaRule))
-	{
-	  if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_RISK)
-	  {
+  if (!findAnalysisRule(userViews, anaRule))
+  {
+    if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_RISK)
+    {
          QString ico = ":/data/icons/analise_plano de risco.png";
-		 item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
-		 item->setData(Qt::UserRole, anaRule.id);
+     item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
+     item->setData(Qt::UserRole, anaRule.id);
 
-		 listWidgetAnalysis->addItem(item);
-		 ret = true;
-	  }
-		else if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_PCD)
-		{
-		 QString ico = ":/data/icons/dado_pontual.png";
-		 item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
-		 item->setData(Qt::UserRole, anaRule.id);
+     listWidgetAnalysis->addItem(item);
+     ret = true;
+    }
+    else if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_PCD)
+    {
+     QString ico = ":/data/icons/dado_pontual.png";
+     item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
+     item->setData(Qt::UserRole, anaRule.id);
 
-		 listWidgetAnalysis->addItem(item);
-		 ret = true;
-	  }
-	}
+     listWidgetAnalysis->addItem(item);
+     ret = true;
+    }
+  }
   }
 
   return ret;
@@ -116,44 +109,44 @@ bool AnalysisListDialog::setFields(const std::vector<struct wsUserView>& userVie
 
 bool AnalysisListDialog::setFields( const std::vector<struct wsAnalysisRule>& analysisRules, AnalysisList* anaList )
 {
-	QListWidgetItem* item;
-	wsAnalysisRule anaRule;
-	bool ret = false;
+  QListWidgetItem* item;
+  wsAnalysisRule anaRule;
+  bool ret = false;
 
-	listWidgetAnalysis->clear();
+  listWidgetAnalysis->clear();
 
-	for (int i=0; i<anaList->size(); i++)
-	{
-		anaRule = anaList->at(i)->data();
+  for (int i=0; i<anaList->size(); i++)
+  {
+    anaRule = anaList->at(i)->data();
 
-		if (!findAnalysisRule(analysisRules, anaRule))
-		{
-			if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_RISK)
-			{
+    if (!findAnalysisRule(analysisRules, anaRule))
+    {
+      if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_RISK)
+      {
                 QString ico = ":/data/icons/analise_plano de risco.png";
-				item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
-				item->setData(Qt::UserRole, anaRule.id);
+        item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
+        item->setData(Qt::UserRole, anaRule.id);
 
-				listWidgetAnalysis->addItem(item);
-				ret = true;
-			}
+        listWidgetAnalysis->addItem(item);
+        ret = true;
+      }
 
-			if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_PCD)
-			{
-				QString ico = ":/data/icons/dado_pontual.png";
-				item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
-				item->setData(Qt::UserRole, anaRule.id);
+      if(anaList->at(i)->getAnalysisType() == WS_ANALYSISTYPE_PCD)
+      {
+        QString ico = ":/data/icons/dado_pontual.png";
+        item = new QListWidgetItem(QIcon(ico), QString::fromStdString(anaRule.name));
+        item->setData(Qt::UserRole, anaRule.id);
 
-				listWidgetAnalysis->addItem(item);
-				ret = true;
-			}
-		}
-	}
+        listWidgetAnalysis->addItem(item);
+        ret = true;
+      }
+    }
+  }
 
-	return ret;
+  return ret;
 }
 
-//! Procura analise na lista de analises já selecionadas
+//! Find by analyse at selected list
 bool AnalysisListDialog::findAnalysisRule(const std::vector<struct wsUserView>& userViews, const wsAnalysisRule& anaRule)
 {
   wsUserView userView;
@@ -161,8 +154,8 @@ bool AnalysisListDialog::findAnalysisRule(const std::vector<struct wsUserView>& 
 
   for (unsigned i=0; i<userViews.size() && !ret; i++)
   {
-	  userView = userViews.at(i);
-	  ret = (userView.analysisID == anaRule.id);
+    userView = userViews.at(i);
+    ret = (userView.analysisID == anaRule.id);
   }
 
   return ret;
@@ -170,23 +163,23 @@ bool AnalysisListDialog::findAnalysisRule(const std::vector<struct wsUserView>& 
 
 bool AnalysisListDialog::findAnalysisRule( const std::vector<struct wsAnalysisRule>& analysisRules, const wsAnalysisRule& anaRule )
 {
-	wsAnalysisRule analysisRule;
-	bool ret = false;
+  wsAnalysisRule analysisRule;
+  bool ret = false;
 
-	for (unsigned i=0; i<analysisRules.size() && !ret; i++)
-	{
-		analysisRule = analysisRules.at(i);
-		if(analysisRule.id == anaRule.id)
-		{
-			ret = true;
-			break;
-		}
-	}
+  for (unsigned i=0; i<analysisRules.size() && !ret; i++)
+  {
+    analysisRule = analysisRules.at(i);
+    if(analysisRule.id == anaRule.id)
+    {
+      ret = true;
+      break;
+    }
+  }
 
-	return ret;
+  return ret;
 }
 
-//! Preenche lista de analises selecionadas conforme WidgetList
+//! Fill up the selected analysis list according WidgetList
 void AnalysisListDialog::getFields(QList<int>& newIDSelectedAnalyses, bool& changed)
 {
   QListWidgetItem* item;
@@ -197,46 +190,40 @@ void AnalysisListDialog::getFields(QList<int>& newIDSelectedAnalyses, bool& chan
 
   for (int i=0; i<listWidgetAnalysis->selectedItems().size(); i++)
   {
-	  item = listWidgetAnalysis->selectedItems().at(i);
-	  newIDSelectedAnalyses.push_back(item->data(Qt::UserRole).toInt());
+    item = listWidgetAnalysis->selectedItems().at(i);
+    newIDSelectedAnalyses.push_back(item->data(Qt::UserRole).toInt());
   }
 }
 
-//!< Preenche lista de combobox com os possíveis níveis de alerta e com seu icones
+//! Fill up the combobox list with available alert levels
 void AnalysisListDialog::fillWarningComboBox( QComboBox* combo, int currentIndex )
 {
-	//limpa o combo
-	combo->clear();
-	
-	//adiciona os alertas
-	combo->addItem(Utils::warningLevelColor(1), Utils::warningLevelToString(1));
-	combo->addItem(Utils::warningLevelColor(2), Utils::warningLevelToString(2));
-	combo->addItem(Utils::warningLevelColor(3), Utils::warningLevelToString(3));
-	combo->addItem(Utils::warningLevelColor(4), Utils::warningLevelToString(4));
-	combo->addItem(Utils::warningLevelColor(5), Utils::warningLevelToString(5));
+  combo->clear();
 
-	//define o alerta padrao
-	combo->setCurrentIndex(currentIndex);
+  combo->addItem(Utils::warningLevelColor(1), Utils::warningLevelToString(1));
+  combo->addItem(Utils::warningLevelColor(2), Utils::warningLevelToString(2));
+  combo->addItem(Utils::warningLevelColor(3), Utils::warningLevelToString(3));
+  combo->addItem(Utils::warningLevelColor(4), Utils::warningLevelToString(4));
+  combo->addItem(Utils::warningLevelColor(5), Utils::warningLevelToString(5));
+
+  combo->setCurrentIndex(currentIndex);
 }
 
-//!< Preenche lista de combobox com os possíveis níveis de relatório
+//! Fill up the combobox list with available report levels
 void AnalysisListDialog::fillReportComboBox( QComboBox* combo, int currentIndex )
 {
-    //limpa o combo
     combo->clear();
 
-    //adiciona os tipos
-		combo->addItem(Utils::reportTypeToString(0));
-		combo->addItem(Utils::reportTypeToString(1));
+    combo->addItem(Utils::reportTypeToString(0));
+    combo->addItem(Utils::reportTypeToString(1));
 
-    //define o tipo de relatório padrao
     combo->setCurrentIndex(currentIndex);
 }
 
-//!< Get email and cell phone levels from dialog
+//! Get email and cell phone levels from dialog
 void AnalysisListDialog::getLevels( int& email, int& cellphone, int& report )
 {
-	email = emailCmb->currentIndex() + 1;
-	cellphone = cellphoneCmb->currentIndex() + 1;
+  email = emailCmb->currentIndex() + 1;
+  cellphone = cellphoneCmb->currentIndex() + 1;
     report = reportCmb->currentIndex();
 }

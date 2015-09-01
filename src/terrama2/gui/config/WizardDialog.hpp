@@ -25,7 +25,7 @@
   \brief Definition of Class WizardDialog.hpp
 
   \author Evandro Delatin
-  \author Raphael Willian da Costa  
+  \author Raphael Willian da Costa
   \author Carlos Augusto Teixeira Mendes
 */
 
@@ -39,10 +39,9 @@
 class RiskMap;
 class WeatherGrid;
 
-/*! \brief Classe que implementa as açoes do diálogo do assistente
-           para criação de regras de análise
-*/      
-class WizardDialog : public QDialog, private Ui::WizardDialog
+/*! \brief Class responsible for dialog actions of assistant to create the analyse role
+*/
+class WizardDlg : public QDialog, private Ui::WizardDlg
 {
 Q_OBJECT
 
@@ -60,8 +59,8 @@ private slots:
   void cpcPCDChanged(int index);
 
 private:
-  QString _script;  //!< Script gerado
-  QList<WeatherGrid*> _sellist; //!< Lista de fontes de dados selecionadas
+  QString _script;
+  QList<WeatherGrid*> _sellist;
 
   void generateGenericScript();
   bool generateCPCScript();

@@ -61,7 +61,7 @@
 #include "QtUtils.hpp"
 #include "Utils.hpp"
 
-//! Construtor.  Prepara interface e estabelece conexıes
+//! Construtor.  Prepara interface e estabelece conex√µes
 MainDialogAnalysisTab::MainDialogAnalysisTab(MainDlg* main_dialog, Services* manager)
   : MainDlgTab(main_dialog, manager)
 {
@@ -82,10 +82,10 @@ MainDialogAnalysisTab::MainDialogAnalysisTab(MainDlg* main_dialog, Services* man
   resetAlertIcons();
 
   // Conecta sinais tratados pela classe
-  // Para monitorar a mudanÁa de regra na lista de regras de an·lise, estamos
-  // usando um sinal do modelo de seleÁ„o e n„o o tradicional currentRowChanged()
-  // Isso È feito pois em currentRowChanged() n„o conseguimos voltar para a seleÁ„o
-  // anterior caso o usu·rio deseje cancelar a troca.
+  // Para monitorar a mudan√ßa de regra na lista de regras de an√°lise, estamos
+  // usando um sinal do modelo de sele√ß√£o e n√£o o tradicional currentRowChanged()
+  // Isso √© feito pois em currentRowChanged() n√£o conseguimos voltar para a sele√ß√£o
+  // anterior caso o usu√°rio deseje cancelar a troca.
   connect(_ui->analysisListWidget->selectionModel(), 
           SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
           SLOT(listItemSelectionChanged(const QItemSelection&, const QItemSelection&)));
@@ -113,7 +113,7 @@ MainDialogAnalysisTab::MainDialogAnalysisTab(MainDlg* main_dialog, Services* man
   connect(_ui->analysisCellularSpaceCmb,SIGNAL(currentIndexChanged(int)), SLOT(cellularSpaceChanged(int)));
   connect(_ui->analysisFillCellOpBtn,   SIGNAL(clicked()), SLOT(fCellOpRequested()));
 
-  // Conecta sinais para adicionar e remover an·lises
+  // Conecta sinais para adicionar e remover an√°lises
   connect(_ui->analysisAddRiskBtn,		SIGNAL(clicked()), SLOT(addNewAnalysisRequested()));
   connect(_ui->analysisAddModelBtn,		SIGNAL(clicked()), SLOT(addNewAnalysisRequested()));
   connect(_ui->analysisAddTerraMEBtn,	SIGNAL(clicked()), SLOT(addNewAnalysisRequested()));
@@ -142,8 +142,8 @@ MainDialogAnalysisTab::MainDialogAnalysisTab(MainDlg* main_dialog, Services* man
   connect(_ui->analysisConditionalRdb, SIGNAL(toggled(bool)), _ui->analysisConditionBtn, SLOT(setEnabled(bool)));
 
 
-  // Menus associados a botıes
-  QMenu* menuMask = new QMenu(tr("M·scaras"), _parent);
+  // Menus associados a bot√µes
+  QMenu* menuMask = new QMenu(tr("M√°scaras"), _parent);
   menuMask->addAction(tr("%a - ano com dois digitos"));
   menuMask->addAction(tr("%A - ano com quatro digitos"));
   menuMask->addAction(tr("%d - dia com dois digitos"));
@@ -258,7 +258,7 @@ MainDialogAnalysisTab::~MainDialogAnalysisTab()
 // Funcao comentada na classe base
 void MainDialogAnalysisTab::load()
 {
-  // Carrega novas informaÁıes
+  // Carrega novas informa√ß√µes
   _anaList         = _manager->analysisList();
   _riskMapList     = _manager->riskMapList();
   _cellularSpaceList = _manager->cellularSpaceList();
@@ -269,7 +269,7 @@ void MainDialogAnalysisTab::load()
 
   assert(_anaList && _riskMapList && _weatherGridList && _cellularSpaceList && _pcdList);
   
-  // Obtem n˙mero de inst‚ncias do mÛdulo de an·lise ativas
+  // Obtem n√∫mero de inst√¢ncias do m√≥dulo de an√°lise ativas
   _numAnalysisModules = _anaList->numInstances();
   fillInstanceList();
 
@@ -301,7 +301,7 @@ void MainDialogAnalysisTab::load()
   _currentRuleIndex   = -1;
 
   // Preenche a lista de objetos monitorados. Entrada para "selecionar objeto monitorado"
-  // j· foi incluida e selecionda por clearFields()
+  // j√° foi incluida e selecionda por clearFields()
   if(_riskMapList->count()) 
   {
     for(int i=0, count=(int)_riskMapList->count(); i<count; i++)
@@ -312,7 +312,7 @@ void MainDialogAnalysisTab::load()
   }
 
   // Preenche a lista de PCDs. Entrada para "selecionar PCD"
-  // j· foi incluida e selecionda por clearFields()
+  // j√° foi incluida e selecionda por clearFields()
   for(int i=0, count=(int)_pcdList->count(); i<count; i++)
   {
     WeatherGrid* pcd = _pcdList->at(i);
@@ -320,15 +320,15 @@ void MainDialogAnalysisTab::load()
   }
 
 	// Preenche a lista de PCDs. Entrada para "selecionar PCD"
-  // j· foi incluida e selecionda por clearFields()
+  // j√° foi incluida e selecionda por clearFields()
   for(int i=0, count=(int)_viewList->count(); i<count; i++)
   {
     View* view = _viewList->at(i);
     _ui->analysisViewCmb->addItem(/* QIcon(":/data/icons/dado_pontual.png"), */ view->name());
   }
 
-  // Preenche a lista de espaÁos celulares. Entrada "Selecione o espaÁo celular..."
-  // j· foi incluida e selecionda por clearFields()
+  // Preenche a lista de espa√ßos celulares. Entrada "Selecione o espa√ßo celular..."
+  // j√° foi incluida e selecionda por clearFields()
   if(_cellularSpaceList->count())
   {
 	  for(int i=0, count=(int)_cellularSpaceList->count(); i<count; i++)
@@ -364,7 +364,7 @@ void MainDialogAnalysisTab::load()
     _ui->analysisListWidget->setCurrentRow(0);
   }  
   else
-    enableFields(false); // Se n„o h· entradas na lista, desabilita campos
+    enableFields(false); // Se n√£o h√° entradas na lista, desabilita campos
 }
 
 // Funcao comentada na classe base
@@ -376,10 +376,10 @@ bool MainDialogAnalysisTab::dataChanged()
 // Funcao comentada na classe base
 bool MainDialogAnalysisTab::validate(QString& err)
 {
-  // Nome da regra È obrigatÛrio
+  // Nome da regra √© obrigat√≥rio
   if(_ui->analysisNameLed->text().trimmed().isEmpty())
   {
-    err = tr("Nome da regra de an·lise n„o foi preenchido!");
+    err = tr("Nome da regra de an√°lise n√£o foi preenchido!");
     return false;
   }
   
@@ -388,68 +388,68 @@ bool MainDialogAnalysisTab::validate(QString& err)
     // objeto monitorado deve estar selecionado
     if(_ui->analysisRiskCmb->currentIndex() == 0)
     {
-      err = tr("objeto monitorado n„o foi selecionado!");
+      err = tr("objeto monitorado n√£o foi selecionado!");
       return false;
     }
   }
-  else if(_ui->analysisWidgetStack->currentIndex() == 1)// An·lise baseada em modelo
+  else if(_ui->analysisWidgetStack->currentIndex() == 1)// An√°lise baseada em modelo
   {
     // Nome de saida deve estar preenchido
     if(_ui->analysisOutputLed->text().trimmed().isEmpty())
     {
-      err = tr("Nome do plano de saÌda n„o foi preenchido!");
+      err = tr("Nome do plano de sa√≠da n√£o foi preenchido!");
       return false;
     }
     else if(_ui->analysisOutputLed->text().trimmed().at(0) == '%')
     {
-      err = tr("Nome do plano de saÌda n„o pode comeÁar pelo caractere ¥%¥!");
+      err = tr("Nome do plano de sa√≠da n√£o pode come√ßar pelo caractere ¬¥%¬¥!");
       return false;
     }
   }
-  else if(_ui->analysisWidgetStack->currentIndex() == 2)// An·lise com PCD
+  else if(_ui->analysisWidgetStack->currentIndex() == 2)// An√°lise com PCD
   {
     // PCD deve estar selecionado
     if(_ui->analysisPCDCmb->currentIndex() == 0)
     {
-      err = tr("Fonte PCD n„o foi selecionada!");
+      err = tr("Fonte PCD n√£o foi selecionada!");
       return false;
     }
 
 		// Vista deve estar selecionada
     if(_ui->analysisViewCmb->currentIndex() == 0)
     {
-      err = tr("Vista n„o foi selecionada!");
+      err = tr("Vista n√£o foi selecionada!");
       return false;
     }
   }
-  else // An·lise TerraME
+  else // An√°lise TerraME
   {
 	  if(_ui->analysisCellularSpaceCmb->currentIndex() == 0)
 	  {
-		  err = tr("EspaÁo celular n„o foi selecionado!");
+		  err = tr("Espa√ßo celular n√£o foi selecionado!");
 		  return false;
 	  }
   }
   
-  // Script È obrigatÛrio.
+  // Script √© obrigat√≥rio.
   QString script = _ui->analysisScriptTed->toPlainText().trimmed();
   if(script.isEmpty())
   {
-    err = tr("Modelo de an·lise n„o foi preenchido!");
+    err = tr("Modelo de an√°lise n√£o foi preenchido!");
     return false;
   }
   
-  // Se a an·lise for condicionada, o script decondiÁ„o È obrigatÛrio
+  // Se a an√°lise for condicionada, o script decondi√ß√£o √© obrigat√≥rio
   if(_ui->analysisConditionalRdb->isChecked())
   {
     if(_conditionRule.isEmpty())
     {
-      err = tr("Regra de condiÁ„o n„o foi preenchida!");
+      err = tr("Regra de condi√ß√£o n√£o foi preenchida!");
       return false;
     }
     if(_conditionAnalysisId == -1)
     {
-      err = tr("An·lise condicionante n„o foi preenchida!");
+      err = tr("An√°lise condicionante n√£o foi preenchida!");
       return false;
     }
   }
@@ -475,14 +475,14 @@ bool MainDialogAnalysisTab::save()
   else
     ok = _anaList->addNewAnalysis(&ana);  
   
-  // Se a operaÁ„o de salvar n„o deu certo, retorna false e mantÈm o estado atual
+  // Se a opera√ß√£o de salvar n√£o deu certo, retorna false e mant√©m o estado atual
   if(!ok)
     return false;
   
   // Atualiza nome da entrada atual da lista que pode ter sido alterado
   _ui->analysisListWidget->item(_currentRuleIndex)->setText(ana.name());  
   
-  // Atualiza estado para dados n„o alterados
+  // Atualiza estado para dados n√£o alterados
   clearRuleChanged();
   _newRule = false;
   _ui->analysisRiskCmb->setEnabled(false);
@@ -498,8 +498,8 @@ void MainDialogAnalysisTab::discardChanges(bool restore_data)
 {
   if(_newRule)
   {
-    // Estamos descartando uma an·lise recÈm criada que n„o foi salva na base
-    // 1) Remove entrada da lista (interface).  Deve ser a ˙ltima linha
+    // Estamos descartando uma an√°lise rec√©m criada que n√£o foi salva na base
+    // 1) Remove entrada da lista (interface).  Deve ser a √∫ltima linha
     assert(_currentRuleIndex == _ui->analysisListWidget->count()-1);
     _ignoreChangeEvents = true;
     delete _ui->analysisListWidget->takeItem(_currentRuleIndex);    
@@ -525,7 +525,7 @@ void MainDialogAnalysisTab::discardChanges(bool restore_data)
   }
   else
   {
-    // Estamos descartando as ediÁıes feitas em uma an·lise antiga
+    // Estamos descartando as edi√ß√µes feitas em uma an√°lise antiga
     if(restore_data)
       setFields(_anaList->at(_currentRuleIndex));
     else  
@@ -535,7 +535,7 @@ void MainDialogAnalysisTab::discardChanges(bool restore_data)
 
 /*! \brief Limpa a interface.  
 
-Flag indica se a lista de regras e a lista de objetos monitorados tambÈm devem ser limpas
+Flag indica se a lista de regras e a lista de objetos monitorados tamb√©m devem ser limpas
 */
 void MainDialogAnalysisTab::clearFields(bool clearlist)
 {
@@ -555,7 +555,7 @@ void MainDialogAnalysisTab::clearFields(bool clearlist)
     _ui->analysisViewCmb->addItem(tr("Selecione a vista..."));
 
     _ui->analysisCellularSpaceCmb->clear();
-    _ui->analysisCellularSpaceCmb->addItem(tr("Selecione o espaÁo celular..."));
+    _ui->analysisCellularSpaceCmb->addItem(tr("Selecione o espa√ßo celular..."));
   }
   // Campos globais
   _ui->analysisNameLed->clear();
@@ -569,22 +569,22 @@ void MainDialogAnalysisTab::clearFields(bool clearlist)
   _conditionAnalysisId = -1;
   _conditionRule = "";
 
-  // Campos da p·gina de an·lise com objeto monitorado
+  // Campos da p√°gina de an√°lise com objeto monitorado
   _ui->analysisRiskCmb->setCurrentIndex(0);
   _ui->analysisGridListWidget->clear();
-  // Campos da p·gina de an·lise baseada em modelo
+  // Campos da p√°gina de an√°lise baseada em modelo
   _ui->analysisOutputLed->clear();
   _ui->analysisModelGridListWidget->clear();
-  // Campos da p·gina de an·lise com PCD
+  // Campos da p√°gina de an√°lise com PCD
   _ui->analysisPCDCmb->setCurrentIndex(0);
   _ui->analysisViewCmb->setCurrentIndex(0);
-  // Campos da p·gina de an·lise TerraME
+  // Campos da p√°gina de an√°lise TerraME
   _ui->analysisCellularSpaceCmb->setCurrentIndex(0);
   _ui->analysisTerraMEListWidget->clear();
 
   _ignoreChangeEvents = false;
 
-  // Dados na ficha est„o atualizados...
+  // Dados na ficha est√£o atualizados...
   clearRuleChanged();
 }
 
@@ -612,7 +612,7 @@ void MainDialogAnalysisTab::enableFields(bool mode)
   _ui->analysisCreateImageCbx->setEnabled(mode);
   _ui->analysisCreateImageLabel->setEnabled(mode);
 
-  // Botıes
+  // Bot√µes
   _ui->analysisCreateLuaBtn->setVisible(mode);
   _ui->analysisCrossBtn->setEnabled(mode);
 	_ui->analysisPcdCrossBtn->setEnabled(mode);
@@ -652,29 +652,29 @@ void MainDialogAnalysisTab::showScriptButtons(wsAnalysisType anaType)
 	bool model = (anaType == WS_ANALYSISTYPE_MODEL);
 	bool terraME = (anaType == WS_ANALYSISTYPE_TERRAME);
 
-    // Botıes visÌveis apenas para objetos monitorados
+    // Bot√µes vis√≠veis apenas para objetos monitorados
 	_ui->analysisAtributesBtn->setVisible(risk);
 	_ui->analysisZonaisBtn->setVisible(risk);
 	_ui->analysisWizardBtn->setVisible(risk);
 
-	// Botıes visÌveis apenas para an·lises de PCD
+	// Bot√µes vis√≠veis apenas para an√°lises de PCD
 	_ui->analysisPCDAttributesBtn->setVisible(pcd);
 	_ui->analysisPCDZonaisBtn->setVisible(pcd);
 
-    // Botıes visÌveis para objetos monitorados e an·lises de PCD
+    // Bot√µes vis√≠veis para objetos monitorados e an√°lises de PCD
 	_ui->analysisLevelsBtn->setVisible(risk||pcd);
 
-	// Botıes visÌveis apenas em an·lises de modelos
+	// Bot√µes vis√≠veis apenas em an√°lises de modelos
 	_ui->analysisSampleBtn->setVisible(model);
 
-	// Botıes visÌveis apenas em an·lises TerraME
+	// Bot√µes vis√≠veis apenas em an√°lises TerraME
 	_ui->analysisCellularSpaceAtributesBtn->setVisible(terraME);
 	_ui->analysisTerraMEFunctionsBtn->setVisible(terraME);
     _ui->analysisCreateLuaBtn->setVisible(terraME);
 
 }
 
-//! FunÁ„o chamada quando o bot„o de condiÁ„o for pressionado
+//! Fun√ß√£o chamada quando o bot√£o de condi√ß√£o for pressionado
 void MainDialogAnalysisTab::conditionChangeRequested()
 {
   AnalysisConditionDlg dlg(_anaList, _riskMapList,
@@ -690,7 +690,7 @@ void MainDialogAnalysisTab::conditionChangeRequested()
   }
 }
 
-//! Preenche a interface com os dados de uma regra de an·lise
+//! Preenche a interface com os dados de uma regra de an√°lise
 void MainDialogAnalysisTab::setFields(const Analysis* ana)
 {
   _ignoreChangeEvents = true; 
@@ -723,50 +723,50 @@ void MainDialogAnalysisTab::setFields(const Analysis* ana)
 
   _ui->analysisScriptTed->setPlainText(ana->script());
   
-  // Define qual o modelo de an·lise visÌvel (com ou sem objeto monitorado)
+  // Define qual o modelo de an√°lise vis√≠vel (com ou sem objeto monitorado)
   wsAnalysisType anaType = ana->getAnalysisType();
   QListWidget* gridlist;
   
   if(anaType == WS_ANALYSISTYPE_RISK)
   {  
-    // Campos da p·gina de an·lise com objeto monitorado
+    // Campos da p√°gina de an√°lise com objeto monitorado
     int index = _riskMapList->findMapIndex(ana->riskMapId());
-    _ui->analysisRiskCmb->setCurrentIndex(index + 1); // Se id n„o foi encontrado, index == -1, logo seleciona entrada "escolher objeto monitorado" na posiÁ„o zero
+    _ui->analysisRiskCmb->setCurrentIndex(index + 1); // Se id n√£o foi encontrado, index == -1, logo seleciona entrada "escolher objeto monitorado" na posi√ß√£o zero
     gridlist = _ui->analysisGridListWidget;
 
-    // Como n„o queremos que o usu·rio altere o objeto monitorado
-	// de uma an·lise j· criada:
+    // Como n√£o queremos que o usu√°rio altere o objeto monitorado
+	// de uma an√°lise j√° criada:
 	 _ui->analysisRiskCmb->setEnabled(_newRule);
   }
   else if(anaType == WS_ANALYSISTYPE_PCD)
   {
-    // Campos da p·gina de an·lise com objeto monitorado
+    // Campos da p√°gina de an√°lise com objeto monitorado
     int index = _pcdList->findGridIndex(ana->pcdId());
-    _ui->analysisPCDCmb->setCurrentIndex(index + 1); // Se id n„o foi encontrado, index == -1, logo seleciona entrada "escolher objeto monitorado" na posiÁ„o zero
+    _ui->analysisPCDCmb->setCurrentIndex(index + 1); // Se id n√£o foi encontrado, index == -1, logo seleciona entrada "escolher objeto monitorado" na posi√ß√£o zero
 
     index = _viewList->findViewIndex(ana->viewId());
     _ui->analysisViewCmb->setCurrentIndex(index + 1);
 
-    // Como n„o queremos que o usu·rio altere o PCD ou a vista
-    // de uma an·lise j· criada:
+    // Como n√£o queremos que o usu√°rio altere o PCD ou a vista
+    // de uma an√°lise j√° criada:
     _ui->analysisPCDCmb->setEnabled(_newRule);
     _ui->analysisViewCmb->setEnabled(_newRule);
   }
   else if(anaType == WS_ANALYSISTYPE_MODEL)
   { 
-    // Campos da p·gina de an·lise baseada em modelo
+    // Campos da p√°gina de an√°lise baseada em modelo
     _ui->analysisOutputLed->setText(ana->outputName());
     gridlist = _ui->analysisModelGridListWidget;
   }
   else
   {
-	  // Campos da p·gina de an·lise TerraME
+	  // Campos da p√°gina de an√°lise TerraME
 	  int index = _cellularSpaceList->findCellularSpaceIndex(ana->cellularSpaceId());
-	  _ui->analysisCellularSpaceCmb->setCurrentIndex(index + 1); // Se id n„o foi encontrado, index == -1, logo seleciona entrada "escolher espaÁo celular" na posiÁ„o zero
+	  _ui->analysisCellularSpaceCmb->setCurrentIndex(index + 1); // Se id n√£o foi encontrado, index == -1, logo seleciona entrada "escolher espa√ßo celular" na posi√ß√£o zero
 	  gridlist = _ui->analysisTerraMEListWidget;
 
-	  // Como n„o queremos que o usu·rio altere o espaÁo celular
-	  // de uma an·lise j· criada:
+	  // Como n√£o queremos que o usu√°rio altere o espa√ßo celular
+	  // de uma an√°lise j√° criada:
 	  _ui->analysisCellularSpaceCmb->setEnabled(_newRule);
   }
   
@@ -801,20 +801,20 @@ void MainDialogAnalysisTab::setFields(const Analysis* ana)
 		}
 	}
 
-  // Seta tipo de an·lise
+  // Seta tipo de an√°lise
   _ui->analysisWidgetStack->setCurrentIndex(anaType);
   showScriptButtons(anaType);
-  //So È possivel selecionar a opcao de criar imagens para analises com objeto monitorado ou PCD
+  //So √© possivel selecionar a opcao de criar imagens para analises com objeto monitorado ou PCD
   _ui->analysisCreateImageCbx->setEnabled(anaType==WS_ANALYSISTYPE_RISK || anaType==WS_ANALYSISTYPE_PCD);
   _ui->analysisCreateImageLabel->setEnabled(anaType==WS_ANALYSISTYPE_RISK || anaType==WS_ANALYSISTYPE_PCD);
 
   _ignoreChangeEvents = false;
 
-  // Dados na ficha est„o atualizados...
+  // Dados na ficha est√£o atualizados...
   clearRuleChanged();
 }
 
-//! Preenche a an·lise com os dados da interface, que j· devem ter sido validados
+//! Preenche a an√°lise com os dados da interface, que j√° devem ter sido validados
 void MainDialogAnalysisTab::getFields(Analysis* ana)
 {
   // Preenche dados comuns
@@ -844,28 +844,28 @@ void MainDialogAnalysisTab::getFields(Analysis* ana)
 
   ana->setScript(_ui->analysisScriptTed->toPlainText().trimmed());
 
-  // Preenche tipo da regra (pois a an·lise pode ser nova)
+  // Preenche tipo da regra (pois a an√°lise pode ser nova)
   wsAnalysisType anaType = (wsAnalysisType) _ui->analysisWidgetStack->currentIndex();
   ana->setAnalysisType(anaType);
 
   QListWidget* gridlist;
   if(anaType == WS_ANALYSISTYPE_RISK)
   {
-    // Preenche campos relativos a an·lise com objeto monitorado
+    // Preenche campos relativos a an√°lise com objeto monitorado
     int index = _ui->analysisRiskCmb->currentIndex() - 1;
     ana->setRiskMap(*_riskMapList->at(index));
     gridlist = _ui->analysisGridListWidget;
   }
   else if(anaType == WS_ANALYSISTYPE_MODEL)
   {
-    // Preenche campos relativos a an·lise baseada em modelo
+    // Preenche campos relativos a an√°lise baseada em modelo
     ana->setOutputName(_ui->analysisOutputLed->text().trimmed());
     ana->setGridOutputConfig(_gridOutputConfig);
     gridlist = _ui->analysisModelGridListWidget;
   }
   else if(anaType == WS_ANALYSISTYPE_PCD)
   {
-    // Preenche campos relativos a an·lise com PCD analysisPCDCmb
+    // Preenche campos relativos a an√°lise com PCD analysisPCDCmb
     int index = _ui->analysisPCDCmb->currentIndex() - 1;
     ana->setPCD(*_pcdList->at(index));
 
@@ -876,7 +876,7 @@ void MainDialogAnalysisTab::getFields(Analysis* ana)
   }
   else
   {
-	  // Preenche campos relativos a an·lise TerraME
+	  // Preenche campos relativos a an√°lise TerraME
 	  int index = _ui->analysisCellularSpaceCmb->currentIndex() - 1;
 	  ana->setCellularSpace(*_cellularSpaceList->at(index));
 	  gridlist = _ui->analysisTerraMEListWidget;
@@ -891,10 +891,10 @@ void MainDialogAnalysisTab::getFields(Analysis* ana)
   }
 }
 
-/*! \brief Preenche lista com grids selecionados pelo usu·rio
+/*! \brief Preenche lista com grids selecionados pelo usu√°rio
 
 \param sellist Lista a ser preenchida
-\param grdlist Widget contendo a seleÁ„o do usu·rio
+\param grdlist Widget contendo a sele√ß√£o do usu√°rio
 */
 void MainDialogAnalysisTab::fillSelectedGrids(QList<WeatherGrid*>& sellist, QListWidget* gridlist)
 {
@@ -902,14 +902,14 @@ void MainDialogAnalysisTab::fillSelectedGrids(QList<WeatherGrid*>& sellist, QLis
   {
     int id = gridlist->item(i)->data(Qt::UserRole).toInt();
     WeatherGrid* grid = _weatherGridList->findGrid(id);
-    if(grid) // Nao deveria acontecer do grid n„o existir, porÈm a recuperaÁ„o entre a regra de an·lise e a lista de grids pode ter sido defasada...
+    if(grid) // Nao deveria acontecer do grid n√£o existir, por√©m a recupera√ß√£o entre a regra de an√°lise e a lista de grids pode ter sido defasada...
       sellist.append(grid);
   }
 }
 
 /*! \brief Indica que algum dos dados apresentados foi alterado.  
 
-Habilita botıes de salvar e cancelar
+Habilita bot√µes de salvar e cancelar
 */
 void MainDialogAnalysisTab::setRuleChanged()
 {
@@ -920,9 +920,9 @@ void MainDialogAnalysisTab::setRuleChanged()
   _ui->analysisSaveBtn->setEnabled(true);
   _ui->analysisCancelBtn->setEnabled(true);
   if(_newRule)
-    _parent->statusBar()->showMessage(tr("Nova regra de an·lise."));
+    _parent->statusBar()->showMessage(tr("Nova regra de an√°lise."));
   else
-    _parent->statusBar()->showMessage(tr("Regra de an·lise alterada."));
+    _parent->statusBar()->showMessage(tr("Regra de an√°lise alterada."));
 
   _ui->analysisAddRiskBtn->setEnabled(false);
   _ui->analysisAddModelBtn->setEnabled(false);
@@ -932,9 +932,9 @@ void MainDialogAnalysisTab::setRuleChanged()
   emit editAnalysisRuleStarted();
 }
 
-/*! \brief Indica que os dados mostrados est„o atualizados com o servidor. 
+/*! \brief Indica que os dados mostrados est√£o atualizados com o servidor. 
 
-Desabilita os botıes de salvar e cancelar
+Desabilita os bot√µes de salvar e cancelar
 */
 void MainDialogAnalysisTab::clearRuleChanged()
 {
@@ -951,13 +951,13 @@ void MainDialogAnalysisTab::clearRuleChanged()
   emit editAnalysisRuleFinished();
 }
 
-//! Preenche lista de inst‚ncias de acordo com o n˙mero de inst‚ncias cadastradas
+//! Preenche lista de inst√¢ncias de acordo com o n√∫mero de inst√¢ncias cadastradas
 void MainDialogAnalysisTab::fillInstanceList()
 {
   _ui->analysisLoadCmb->clear();
   for(int i=0; i<_numAnalysisModules; i++)
   {
-    _ui->analysisLoadCmb->addItem(tr("Inst‚ncia %1").arg(i+1));
+    _ui->analysisLoadCmb->addItem(tr("Inst√¢ncia %1").arg(i+1));
   }
 }
 
@@ -967,63 +967,63 @@ void MainDialogAnalysisTab::fillZoneOperatorMenu()
   QMenu* zoneOpMenu = new QMenu(tr("Operadores Zonais"), _parent);
 
   QMenu* gridMenu = new QMenu(tr("Op. zonal p/ grades"), _parent);
-  gridMenu->addAction(tr("MÌnimo"            ))->setProperty("added_text", "minimo('_Nome_da_grade_')");
-  gridMenu->addAction(tr("M·ximo"            ))->setProperty("added_text", "maximo('_Nome_da_grade_')");
-  gridMenu->addAction(tr("MÈdia"             ))->setProperty("added_text", "media('_Nome_da_grade_')");  
-  gridMenu->addAction(tr("N˙mero de amostras"))->setProperty("added_text", "conta_amostras('_Nome_da_grade_')"); 
+  gridMenu->addAction(tr("M√≠nimo"            ))->setProperty("added_text", "minimo('_Nome_da_grade_')");
+  gridMenu->addAction(tr("M√°ximo"            ))->setProperty("added_text", "maximo('_Nome_da_grade_')");
+  gridMenu->addAction(tr("M√©dia"             ))->setProperty("added_text", "media('_Nome_da_grade_')");  
+  gridMenu->addAction(tr("N√∫mero de amostras"))->setProperty("added_text", "conta_amostras('_Nome_da_grade_')"); 
 
-  QMenu* gridBandMenu = new QMenu(tr("Op. zonal p/ previsıes numÈricas"), _parent);
-  gridBandMenu->addAction(tr("MÌnimo PN"))->setProperty("added_text", "minimo_pn('_Nome_da_grade_', _Numero_de_horas_)");
-  gridBandMenu->addAction(tr("M·ximo PN"))->setProperty("added_text", "maximo_pn('_Nome_da_grade_', _Numero_de_horas_)");
-  gridBandMenu->addAction(tr("MÈdia PN" ))->setProperty("added_text", "media_pn('_Nome_da_grade_', _Numero_de_horas_)");  
+  QMenu* gridBandMenu = new QMenu(tr("Op. zonal p/ previs√µes num√©ricas"), _parent);
+  gridBandMenu->addAction(tr("M√≠nimo PN"))->setProperty("added_text", "minimo_pn('_Nome_da_grade_', _Numero_de_horas_)");
+  gridBandMenu->addAction(tr("M√°ximo PN"))->setProperty("added_text", "maximo_pn('_Nome_da_grade_', _Numero_de_horas_)");
+  gridBandMenu->addAction(tr("M√©dia PN" ))->setProperty("added_text", "media_pn('_Nome_da_grade_', _Numero_de_horas_)");  
   gridBandMenu->addAction(tr("Soma PN"))->setProperty("added_text", "soma_pn('_Nome_da_grade_', _Numero_de_horas_inicial_, _Numero_de_horas_final_ )");
 
-  QMenu* gridHistMenu = new QMenu(tr("Op. histÛrico p/ grades"), _parent);
+  QMenu* gridHistMenu = new QMenu(tr("Op. hist√≥rico p/ grades"), _parent);
 
   QMenu* avgHistMenu = new QMenu(tr("Taxa"), gridHistMenu);
-  avgHistMenu->addAction(tr("MÌnimo"))->setProperty("added_text", "taxa_min_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
-  avgHistMenu->addAction(tr("M·ximo"))->setProperty("added_text", "taxa_max_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
-  avgHistMenu->addAction(tr("MÈdia" ))->setProperty("added_text", "taxa_media_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
+  avgHistMenu->addAction(tr("M√≠nimo"))->setProperty("added_text", "taxa_min_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
+  avgHistMenu->addAction(tr("M√°ximo"))->setProperty("added_text", "taxa_max_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
+  avgHistMenu->addAction(tr("M√©dia" ))->setProperty("added_text", "taxa_media_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
 
-  QMenu* precHistMenu = new QMenu(tr("PrecipitaÁ„o total (mm)"), gridHistMenu);
-  precHistMenu->addAction(tr("MÌnimo"))->setProperty("added_text", "prec_min_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
-  precHistMenu->addAction(tr("M·ximo"))->setProperty("added_text", "prec_max_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
-  precHistMenu->addAction(tr("MÈdia" ))->setProperty("added_text", "prec_media_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
+  QMenu* precHistMenu = new QMenu(tr("Precipita√ß√£o total (mm)"), gridHistMenu);
+  precHistMenu->addAction(tr("M√≠nimo"))->setProperty("added_text", "prec_min_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
+  precHistMenu->addAction(tr("M√°ximo"))->setProperty("added_text", "prec_max_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
+  precHistMenu->addAction(tr("M√©dia" ))->setProperty("added_text", "prec_media_historico_grid('_Nome_da_grade_', _Numero_de_horas_)");
 
   gridHistMenu->addMenu(avgHistMenu);
   gridHistMenu->addMenu(precHistMenu);
 
   QMenu* pointMenu = new QMenu(tr("Op. zonal p/ pontos"), _parent);
-  pointMenu->addAction(tr("MÌnimo"            ))->setProperty("added_text", "minimo('_Nome_do_plano_', '_atributo_', _..._)");
-  pointMenu->addAction(tr("M·ximo"            ))->setProperty("added_text", "maximo('_Nome_do_plano_', '_atributo_', _..._)");
-  pointMenu->addAction(tr("MÈdia"             ))->setProperty("added_text", "media('_Nome_do_plano_', '_atributo_', _..._)");  
-  pointMenu->addAction(tr("N˙mero de amostras"))->setProperty("added_text", "conta_amostras('_Nome_do_plano_', '_atributo_', _..._)"); 
+  pointMenu->addAction(tr("M√≠nimo"            ))->setProperty("added_text", "minimo('_Nome_do_plano_', '_atributo_', _..._)");
+  pointMenu->addAction(tr("M√°ximo"            ))->setProperty("added_text", "maximo('_Nome_do_plano_', '_atributo_', _..._)");
+  pointMenu->addAction(tr("M√©dia"             ))->setProperty("added_text", "media('_Nome_do_plano_', '_atributo_', _..._)");  
+  pointMenu->addAction(tr("N√∫mero de amostras"))->setProperty("added_text", "conta_amostras('_Nome_do_plano_', '_atributo_', _..._)"); 
 
-  QMenu* pointHistMenu = new QMenu(tr("Op. histÛrico p/ pontos"), _parent);
+  QMenu* pointHistMenu = new QMenu(tr("Op. hist√≥rico p/ pontos"), _parent);
   pointHistMenu->addAction(tr("Soma" ))->setProperty("added_text", "soma_historico_pcd('_Nome_do_plano_', '_atributo_', '_ID_', _horas_)"); 
-  pointHistMenu->addAction(tr("MÈdia"))->setProperty("added_text", "media_historico_pcd('_Nome_do_plano_', '_atributo_', '_ID_', _horas_)"); 
+  pointHistMenu->addAction(tr("M√©dia"))->setProperty("added_text", "media_historico_pcd('_Nome_do_plano_', '_atributo_', '_ID_', _horas_)"); 
 
-  QMenu* pointDiffMenu = new QMenu(tr("Op. p/ dados pontuais de ocorrÍncias"), _parent);
+  QMenu* pointDiffMenu = new QMenu(tr("Op. p/ dados pontuais de ocorr√™ncias"), _parent);
 
-  QMenu* pointDiffMenuSimple = new QMenu(tr("Sem agregaÁ„o"), pointDiffMenu);
+  QMenu* pointDiffMenuSimple = new QMenu(tr("Sem agrega√ß√£o"), pointDiffMenu);
   QString simpleParams = "('_Nome_do_plano_', _buffer_do_Poligono_, _horas_, '_restricaoSQL_', '_atributo_')";
-  pointDiffMenuSimple->addAction(tr("MÌnimo"  ))->setProperty("added_text", "minimo_pontos" + simpleParams);
-  pointDiffMenuSimple->addAction(tr("M·ximo"  ))->setProperty("added_text", "maximo_pontos" + simpleParams);
-  pointDiffMenuSimple->addAction(tr("MÈdia"   ))->setProperty("added_text", "media_pontos"  + simpleParams);
+  pointDiffMenuSimple->addAction(tr("M√≠nimo"  ))->setProperty("added_text", "minimo_pontos" + simpleParams);
+  pointDiffMenuSimple->addAction(tr("M√°ximo"  ))->setProperty("added_text", "maximo_pontos" + simpleParams);
+  pointDiffMenuSimple->addAction(tr("M√©dia"   ))->setProperty("added_text", "media_pontos"  + simpleParams);
   pointDiffMenuSimple->addAction(tr("Contagem"))->setProperty("added_text", "contagem_pontos('_Nome_do_plano_', _buffer_do_Poligono_, _horas_, '_restricaoSQL_')");
 
-  QMenu* pointDiffMenuAg = new QMenu(tr("Com agregaÁ„o"), pointDiffMenu);
+  QMenu* pointDiffMenuAg = new QMenu(tr("Com agrega√ß√£o"), pointDiffMenu);
   QString aggregateParams = "('_Nome_do_plano_', _buffer_do_Poligono_, _horas_, '_restricaoSQL_', '_atributo_', _buffer_agregacao_)";
-  pointDiffMenuAg->addAction(tr("MÌnimo / AgregaÁ„o(mÌnimo)"  ))->setProperty("added_text", "minimo_pontos_agrega_min" + aggregateParams);
-  pointDiffMenuAg->addAction(tr("MÌnimo / AgregaÁ„o(m·ximo)"  ))->setProperty("added_text", "minimo_pontos_agrega_max" + aggregateParams);
-  pointDiffMenuAg->addAction(tr("MÌnimo / AgregaÁ„o(mÈdia)"   ))->setProperty("added_text", "minimo_pontos_agrega_med" + aggregateParams);
-  pointDiffMenuAg->addAction(tr("M·ximo / AgregaÁ„o(mÌnimo)"  ))->setProperty("added_text", "maximo_pontos_agrega_min" + aggregateParams);
-  pointDiffMenuAg->addAction(tr("M·ximo / AgregaÁ„o(m·ximo)"  ))->setProperty("added_text", "maximo_pontos_agrega_max" + aggregateParams);
-  pointDiffMenuAg->addAction(tr("M·ximo / AgregaÁ„o(mÈdia)"   ))->setProperty("added_text", "maximo_pontos_agrega_med" + aggregateParams);
-  pointDiffMenuAg->addAction(tr("MÈdia  / AgregaÁ„o(mÌnimo)"  ))->setProperty("added_text", "media_pontos_agrega_min"  + aggregateParams);
-  pointDiffMenuAg->addAction(tr("MÈdia  / AgregaÁ„o(m·ximo)"  ))->setProperty("added_text", "media_pontos_agrega_max"  + aggregateParams);
-  pointDiffMenuAg->addAction(tr("MÈdia  / AgregaÁ„o(mÈdia)"   ))->setProperty("added_text", "media_pontos_agrega_med"  + aggregateParams);
-  pointDiffMenuAg->addAction(tr("Contagem  / AgregaÁ„o"       ))->setProperty("added_text", "contagem_pontos_agrega('_Nome_do_plano_', _buffer_do_Poligono_, _horas_, '_restricaoSQL_', _buffer_agregacao_)");
+  pointDiffMenuAg->addAction(tr("M√≠nimo / Agrega√ß√£o(m√≠nimo)"  ))->setProperty("added_text", "minimo_pontos_agrega_min" + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√≠nimo / Agrega√ß√£o(m√°ximo)"  ))->setProperty("added_text", "minimo_pontos_agrega_max" + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√≠nimo / Agrega√ß√£o(m√©dia)"   ))->setProperty("added_text", "minimo_pontos_agrega_med" + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√°ximo / Agrega√ß√£o(m√≠nimo)"  ))->setProperty("added_text", "maximo_pontos_agrega_min" + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√°ximo / Agrega√ß√£o(m√°ximo)"  ))->setProperty("added_text", "maximo_pontos_agrega_max" + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√°ximo / Agrega√ß√£o(m√©dia)"   ))->setProperty("added_text", "maximo_pontos_agrega_med" + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√©dia  / Agrega√ß√£o(m√≠nimo)"  ))->setProperty("added_text", "media_pontos_agrega_min"  + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√©dia  / Agrega√ß√£o(m√°ximo)"  ))->setProperty("added_text", "media_pontos_agrega_max"  + aggregateParams);
+  pointDiffMenuAg->addAction(tr("M√©dia  / Agrega√ß√£o(m√©dia)"   ))->setProperty("added_text", "media_pontos_agrega_med"  + aggregateParams);
+  pointDiffMenuAg->addAction(tr("Contagem  / Agrega√ß√£o"       ))->setProperty("added_text", "contagem_pontos_agrega('_Nome_do_plano_', _buffer_do_Poligono_, _horas_, '_restricaoSQL_', _buffer_agregacao_)");
 
   pointDiffMenu->addMenu(pointDiffMenuSimple);
   pointDiffMenu->addMenu(pointDiffMenuAg);
@@ -1034,8 +1034,8 @@ void MainDialogAnalysisTab::fillZoneOperatorMenu()
   zoneOpMenu->addMenu(pointDiffMenu);
   zoneOpMenu->addMenu(pointMenu);
   zoneOpMenu->addMenu(pointHistMenu);
-  zoneOpMenu->addAction(tr("InfluÍncia p/ pontos"))->setProperty("added_text", "influencia_pcd('_Nome_do_plano_')");
-  zoneOpMenu->addAction(tr("Adiciona valor ao polÌgono"))->setProperty("added_text", "add_value(_Valor_, '_Nome_identificacao_')");
+  zoneOpMenu->addAction(tr("Influ√™ncia p/ pontos"))->setProperty("added_text", "influencia_pcd('_Nome_do_plano_')");
+  zoneOpMenu->addAction(tr("Adiciona valor ao pol√≠gono"))->setProperty("added_text", "add_value(_Valor_, '_Nome_identificacao_')");
 
   connect(zoneOpMenu, SIGNAL(triggered(QAction*)), SLOT(addTextToScript(QAction*)));
 
@@ -1049,13 +1049,13 @@ void MainDialogAnalysisTab::fillPCDZoneOperatorMenu()
   QMenu* zoneOpMenu = new QMenu(tr("Operadores Zonais"), _parent);
 
   QMenu* pointMenu = new QMenu(tr("Op. zonal p/ pontos"), _parent);
-  pointMenu->addAction(tr("MÌnimo"            ))->setProperty("added_text", "minimo('_atributo_', _..._)");
-  pointMenu->addAction(tr("M·ximo"            ))->setProperty("added_text", "maximo('_atributo_', _..._)");
-  pointMenu->addAction(tr("MÈdia"             ))->setProperty("added_text", "media('_atributo_', _..._)");
+  pointMenu->addAction(tr("M√≠nimo"            ))->setProperty("added_text", "minimo('_atributo_', _..._)");
+  pointMenu->addAction(tr("M√°ximo"            ))->setProperty("added_text", "maximo('_atributo_', _..._)");
+  pointMenu->addAction(tr("M√©dia"             ))->setProperty("added_text", "media('_atributo_', _..._)");
 
-  QMenu* pointHistMenu = new QMenu(tr("Op. histÛrico p/ pontos"), _parent);
+  QMenu* pointHistMenu = new QMenu(tr("Op. hist√≥rico p/ pontos"), _parent);
   pointHistMenu->addAction(tr("Soma" ))->setProperty("added_text", "soma_historico_pcd('_atributo_', _horas_)");
-  pointHistMenu->addAction(tr("MÈdia"))->setProperty("added_text", "media_historico_pcd('_atributo_', _horas_)");
+  pointHistMenu->addAction(tr("M√©dia"))->setProperty("added_text", "media_historico_pcd('_atributo_', _horas_)");
 
   zoneOpMenu->addMenu(pointMenu);
   zoneOpMenu->addMenu(pointHistMenu);
@@ -1080,11 +1080,11 @@ void MainDialogAnalysisTab::fillSampleOperatorMenu()
   _ui->analysisSampleBtn->setPopupMode(QToolButton::InstantPopup);
 }
 
-//! Preenche menu com resultados de alerta padrıes
+//! Preenche menu com resultados de alerta padr√µes
 void MainDialogAnalysisTab::fillAlertLevelsMenu()
 {
   QPixmap pixmap(10, 10);
-  QMenu*  levelsMenu = new QMenu(tr("NÌveis de Alerta"), _parent);
+  QMenu*  levelsMenu = new QMenu(tr("N√≠veis de Alerta"), _parent);
   levelsMenu->addAction(Utils::warningLevelToString(0))->setProperty("added_text", "return 0 -- Normal");
   pixmap.fill(QColor(0, 0, 255));
   levelsMenu->addAction(QIcon(pixmap), Utils::warningLevelToString(1))->setProperty("added_text", "return 1 -- Observacao");
@@ -1096,7 +1096,7 @@ void MainDialogAnalysisTab::fillAlertLevelsMenu()
   levelsMenu->addAction(QIcon(pixmap), Utils::warningLevelToString(4))->setProperty("added_text", "return 4 -- Alerta maximo");
 
   levelsMenu->addSeparator();
-  levelsMenu->addAction(tr("NÌvel de alerta"))->setProperty("added_text", "nivel_alerta('_Nome_da_analise_', '_Nome_do_campo_de_ligacao_', _Valor_de_ligacao_)");
+  levelsMenu->addAction(tr("N√≠vel de alerta"))->setProperty("added_text", "nivel_alerta('_Nome_da_analise_', '_Nome_do_campo_de_ligacao_', _Valor_de_ligacao_)");
   
   connect(levelsMenu, SIGNAL(triggered(QAction*)), SLOT(addTextToScript(QAction*)));
 
@@ -1104,11 +1104,11 @@ void MainDialogAnalysisTab::fillAlertLevelsMenu()
   _ui->analysisLevelsBtn->setPopupMode(QToolButton::InstantPopup);
 }
 
-//! Preenche menu com funÁıes padr„o colocadas no ambiente
+//! Preenche menu com fun√ß√µes padr√£o colocadas no ambiente
 void MainDialogAnalysisTab::fillFunctionsMenu()
 {
-  // Menu com operaÁıes padr„o
-  QMenu* funcOpMenu = new QMenu(tr("FunÁıes padr„o"), _parent);
+  // Menu com opera√ß√µes padr√£o
+  QMenu* funcOpMenu = new QMenu(tr("Fun√ß√µes padr√£o"), _parent);
   funcOpMenu->addAction(tr("print"))->setProperty("added_text", "print(_valores_)");
   funcOpMenu->addAction(tr("tonumber"))->setProperty("added_text", "tonumber(_valor_)");
   funcOpMenu->addAction(tr("tostring"))->setProperty("added_text", "tostring(_valor_)");
@@ -1116,8 +1116,8 @@ void MainDialogAnalysisTab::fillFunctionsMenu()
   funcOpMenu->addSeparator();
   connect(funcOpMenu, SIGNAL(triggered(QAction*)), SLOT(addTextToScript(QAction*)));
   
-  // Menu com operaÁıes matem·ticas
-  QMenu* mathMenu = new QMenu(tr("Func. Matem·ticas"), _parent);
+  // Menu com opera√ß√µes matem√°ticas
+  QMenu* mathMenu = new QMenu(tr("Func. Matem√°ticas"), _parent);
   mathMenu->addAction(tr("abs"  ))->setProperty("added_text", "math.abs(_numero_)");
   mathMenu->addAction(tr("ceil" ))->setProperty("added_text", "math.ceil(_numero_)");
   mathMenu->addAction(tr("exp"  ))->setProperty("added_text", "math.exp(_numero_)");
@@ -1131,7 +1131,7 @@ void MainDialogAnalysisTab::fillFunctionsMenu()
   mathMenu->addAction(tr("sqrt "))->setProperty("added_text", "math.sqrt(_numero_)");
   mathMenu->addSeparator();
 
-  QMenu* trigMenu = new QMenu(tr("TrigonomÈtricas"), _parent);
+  QMenu* trigMenu = new QMenu(tr("Trigonom√©tricas"), _parent);
   trigMenu->addAction(tr("acos" ))->setProperty("added_text", "math.acos(_numero_)");
   trigMenu->addAction(tr("asin" ))->setProperty("added_text", "math.asin(_numero_)");
   trigMenu->addAction(tr("atan" ))->setProperty("added_text", "math.atan(_numero_)");
@@ -1142,7 +1142,7 @@ void MainDialogAnalysisTab::fillFunctionsMenu()
   trigMenu->addAction(tr("rad"  ))->setProperty("added_text", "math.rad(_numero_em_graus_)");
   trigMenu->addAction(tr("sin"  ))->setProperty("added_text", "math.sin(_numero_em_radianos_)");
   trigMenu->addAction(tr("tan"  ))->setProperty("added_text", "math.tan(_numero_em_radianos_)");
-  QMenu* hiperMenu = new QMenu(tr("HiperbÛlicas"), _parent);
+  QMenu* hiperMenu = new QMenu(tr("Hiperb√≥licas"), _parent);
   hiperMenu->addAction(tr("cosh" ))->setProperty("added_text", "math.cosh(_numero_)");
   hiperMenu->addAction(tr("sinh" ))->setProperty("added_text", "math.sinh(_numero_)");
   hiperMenu->addAction(tr("tanh" ))->setProperty("added_text", "math.tanh(_numero_)");
@@ -1151,12 +1151,12 @@ void MainDialogAnalysisTab::fillFunctionsMenu()
   mathMenu->addMenu(hiperMenu);
   funcOpMenu->addMenu(mathMenu);
   
-  // Associa menu com o bot„o
+  // Associa menu com o bot√£o
   _ui->analysisFunctionsBtn->setMenu(funcOpMenu);
   _ui->analysisFunctionsBtn->setPopupMode(QToolButton::InstantPopup);
 }
 
-//! Preenche menu com comandos padr„o em Lua
+//! Preenche menu com comandos padr√£o em Lua
 void MainDialogAnalysisTab::fillCommandsMenu()
 {
   QMenu* cmdOpMenu = new QMenu(tr("Comandos"), _parent);
@@ -1178,7 +1178,7 @@ void MainDialogAnalysisTab::fillAttributesMenu(const RiskMap* map)
 {
   assert(map);
 
-  // Prepara o menu.  Se È a primeira vez, cria. Sen„o limpa itens e 
+  // Prepara o menu.  Se √© a primeira vez, cria. Sen√£o limpa itens e 
   // preenche menu antigo com novas entradas
   QMenu* attributesMenu;
   if(_ui->analysisAtributesBtn->menu())
@@ -1208,7 +1208,7 @@ void MainDialogAnalysisTab::fillPCDAttributesMenu(WeatherGrid* pcd)
 {
   assert(pcd);
 
-  // Prepara o menu.  Se È a primeira vez, cria. Sen„o limpa itens e
+  // Prepara o menu.  Se √© a primeira vez, cria. Sen√£o limpa itens e
   // preenche menu antigo com novas entradas
   QMenu* attributesMenu;
   if(_ui->analysisPCDAttributesBtn->menu())
@@ -1237,12 +1237,12 @@ void MainDialogAnalysisTab::fillPCDAttributesMenu(WeatherGrid* pcd)
 
 }
 
-//! Preenche o menu de atributos do espaÁo celular
+//! Preenche o menu de atributos do espa√ßo celular
 void MainDialogAnalysisTab::fillCellularSpaceAttributesMenu(const CellularSpace* cs)
 {
 	assert(cs);
 
-	// Prepara o menu.  Se È a primeira vez, cria. Sen„o limpa itens e 
+	// Prepara o menu.  Se √© a primeira vez, cria. Sen√£o limpa itens e 
 	// preenche menu antigo com novas entradas
 	QMenu* attributesMenu;
 	if(_ui->analysisCellularSpaceAtributesBtn->menu())
@@ -1268,10 +1268,10 @@ void MainDialogAnalysisTab::fillCellularSpaceAttributesMenu(const CellularSpace*
 	}
 }
 
-//! Preenche menu com funÁıes TerraME
+//! Preenche menu com fun√ß√µes TerraME
 void MainDialogAnalysisTab::fillTerraMEFunctionsMenu()
 {
-	QMenu* menu = new QMenu(tr("FunÁıes TerraME"), _parent);
+	QMenu* menu = new QMenu(tr("Fun√ß√µes TerraME"), _parent);
 
 	QString cellularSpace = tr("-- Define e carrega o espaco celular. \n"
 							   "-- Nao altere os parametros de conexao com a base de dados. \n"
@@ -1289,7 +1289,7 @@ void MainDialogAnalysisTab::fillTerraMEFunctionsMenu()
 					 "     } \n"
 					 "cs:load()\n";
 
-	// Primeiro elemento do menu ser· a referÍncia para o espaÁo celular da an·lise
+	// Primeiro elemento do menu ser√° a refer√™ncia para o espa√ßo celular da an√°lise
 	menu->addAction("CellularSpace")->setProperty("added_text", cellularSpace);
 	menu->addSeparator();
 
@@ -1312,14 +1312,14 @@ void MainDialogAnalysisTab::fillTerraMEFunctionsMenu()
 	_ui->analysisTerraMEFunctionsBtn->setPopupMode(QToolButton::InstantPopup);
 }
 
-// FunÁ„o comentada na classe base
+// Fun√ß√£o comentada na classe base
 QString MainDialogAnalysisTab::verifyAndEnableChangeMsg()
 {
-  return tr("As alteraÁıes efetuadas na tela de regras de an·lise\n"
-            "ainda n„o foram salvas.  Deseja salvar as alteraÁıes?");
+  return tr("As altera√ß√µes efetuadas na tela de regras de an√°lise\n"
+            "ainda n√£o foram salvas.  Deseja salvar as altera√ß√µes?");
 }
 
-//! Slot chamado quando a linha corrente È alterada na lista de an·lises
+//! Slot chamado quando a linha corrente √© alterada na lista de an√°lises
 void MainDialogAnalysisTab::listItemSelectionChanged(const QItemSelection& selected, const QItemSelection& oldSelection)
 {
   if(_ignoreChangeEvents)
@@ -1327,10 +1327,10 @@ void MainDialogAnalysisTab::listItemSelectionChanged(const QItemSelection& selec
 
   QModelIndexList selected_indexes = selected.indexes();
   
-  // Se usu·rio clicou na lista fora de qq. item, remarca item anterior
+  // Se usu√°rio clicou na lista fora de qq. item, remarca item anterior
   if(!selected_indexes.count())
   {
-    if(oldSelection.indexes().count()) // Evita loop infinito se n„o existir seleÁ„o anterior...
+    if(oldSelection.indexes().count()) // Evita loop infinito se n√£o existir sele√ß√£o anterior...
       _ui->analysisListWidget->selectionModel()->select(oldSelection, QItemSelectionModel::SelectCurrent);
     return;
   }
@@ -1338,7 +1338,7 @@ void MainDialogAnalysisTab::listItemSelectionChanged(const QItemSelection& selec
   // Obtem a linha selecionada    
   int row = selected_indexes[0].row();
 
-  // Verifica se estamos apenas voltando ‡ mesma opÁ„o atual.  Ocorre 
+  // Verifica se estamos apenas voltando √† mesma op√ß√£o atual.  Ocorre 
   // quando uma troca de regra foi cancelada
   if(row == _currentRuleIndex)
     return;
@@ -1352,32 +1352,32 @@ void MainDialogAnalysisTab::listItemSelectionChanged(const QItemSelection& selec
 
   if(ok)
   {
-    // OperaÁ„o permitida.  Troca dados na tela
+    // Opera√ß√£o permitida.  Troca dados na tela
     if(_newRule)
     {
-      // Estamos tratando a seleÁ„o de uma an·lise recÈm incluida na lista
+      // Estamos tratando a sele√ß√£o de uma an√°lise rec√©m incluida na lista
       assert(row == _anaList->count());
       clearFields(false);
     }
     else 
     {
-      // Estamos tratando uma seleÁ„o normal feita pelo usu·rio
+      // Estamos tratando uma sele√ß√£o normal feita pelo usu√°rio
       setFields(_anaList->at(row));
     }
     _currentRuleIndex = row;
   }
   else
   {
-    // OperaÁ„o foi cancelada.  Devemos reverter ‡ regra original
+    // Opera√ß√£o foi cancelada.  Devemos reverter √† regra original
     _ui->analysisListWidget->selectionModel()->select(oldSelection, QItemSelectionModel::SelectCurrent);
     _ui->analysisListWidget->setCurrentRow(_currentRuleIndex);
   }    
 }
 
-//! Slot chamdo quando o objeto monitorado È alterado
+//! Slot chamdo quando o objeto monitorado √© alterado
 void MainDialogAnalysisTab::riskMapChanged(int row)
 {
-  // Habilita ou desabilita menu de atributos e bot„o de wizard
+  // Habilita ou desabilita menu de atributos e bot√£o de wizard
   if(row <= 0)
   {
     _ui->analysisAtributesBtn->setEnabled(false);
@@ -1395,10 +1395,10 @@ void MainDialogAnalysisTab::riskMapChanged(int row)
   setRuleChanged();
 }
 
-//! Slot chamdo quando o PCD È alterado
+//! Slot chamdo quando o PCD √© alterado
 void MainDialogAnalysisTab::PCDChanged(int row)
 {
-  // Habilita ou desabilita menu de atributos e bot„o de wizard
+  // Habilita ou desabilita menu de atributos e bot√£o de wizard
   if(row <= 0)
   {
     _ui->analysisPCDAttributesBtn->setEnabled(false);
@@ -1416,7 +1416,7 @@ void MainDialogAnalysisTab::PCDChanged(int row)
   setRuleChanged();
 }
 
-//! Slot chamdo quando a vista È alterada
+//! Slot chamdo quando a vista √© alterada
 void MainDialogAnalysisTab::ViewChanged(int row)
 {
   if(row <= 0)
@@ -1429,7 +1429,7 @@ void MainDialogAnalysisTab::ViewChanged(int row)
 }
 
 
-//! Slot chamdo quando o espaÁo celular È alterado
+//! Slot chamdo quando o espa√ßo celular √© alterado
 void MainDialogAnalysisTab::cellularSpaceChanged(int row)
 {
 	// Habilita ou desabilita menu de atributos
@@ -1448,12 +1448,12 @@ void MainDialogAnalysisTab::cellularSpaceChanged(int row)
 	setRuleChanged();
 }
 
-//! Slot chamado quando o usuÈrio pressiona o bot„o de criaÁ„o do arquivo Lua.
+//! Slot chamado quando o usu√©rio pressiona o bot√£o de cria√ß√£o do arquivo Lua.
 void MainDialogAnalysisTab::wizardCreateLua()
 {
     if(_ui->analysisCellularSpaceCmb->currentIndex() == 0)
 	{
-        QMessageBox::warning(_parent, "", tr("EspaÁo celular n„o foi selecionado!"));
+        QMessageBox::warning(_parent, "", tr("Espa√ßo celular n√£o foi selecionado!"));
 		return;
     }
 
@@ -1464,7 +1464,7 @@ void MainDialogAnalysisTab::wizardCreateLua()
 
     if(!_manager->getColumnsCelularSpace(celularSpaceId, result))
     {
-        QMessageBox::warning(_parent, "", tr("Erro ao carregar o espaÁo celular!"));
+        QMessageBox::warning(_parent, "", tr("Erro ao carregar o espa√ßo celular!"));
         return;
     }
 
@@ -1479,17 +1479,17 @@ void MainDialogAnalysisTab::wizardCreateLua()
 
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o de assistente de an·lise
+//! Slot chamado quando o usu√°rio pressiona o bot√£o de assistente de an√°lise
 void MainDialogAnalysisTab::wizardRequested()
 {
   RiskMap* map = _riskMapList->at(_ui->analysisRiskCmb->currentIndex() - 1);
 
-  // Recarregamos a lista de grids, usada pela funÁ„o fillSelectedGrids,
-  // para que peguemos informaÁıes consistentes a respeito das fontes de dados
+  // Recarregamos a lista de grids, usada pela fun√ß√£o fillSelectedGrids,
+  // para que peguemos informa√ß√µes consistentes a respeito das fontes de dados
   _weatherGridList->clear();
   _manager->loadGridList();
   
-  // Ent„o, usamos essas fontes
+  // Ent√£o, usamos essas fontes
   QList<WeatherGrid*> selgrids;
   fillSelectedGrids(selgrids, _ui->analysisGridListWidget);
 
@@ -1501,7 +1501,7 @@ void MainDialogAnalysisTab::wizardRequested()
   _ui->analysisScriptTed->setPlainText(script);
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o de validaÁ„o de sintaxe do script
+//! Slot chamado quando o usu√°rio pressiona o bot√£o de valida√ß√£o de sintaxe do script
 void MainDialogAnalysisTab::syntaxCheckRequested()
 {
   QString script = _ui->analysisScriptTed->toPlainText().trimmed();
@@ -1512,13 +1512,13 @@ void MainDialogAnalysisTab::syntaxCheckRequested()
   {
     if(lin)
       QtUtils::selectLine(_ui->analysisScriptTed, lin);
-    QMessageBox::warning(_parent, tr("validaÁ„o de sintaxe..."), err);
+    QMessageBox::warning(_parent, tr("valida√ß√£o de sintaxe..."), err);
   }  
   else
-    QMessageBox::warning(_parent, tr("validaÁ„o de sintaxe..."), tr("ValidaÁ„o Ok"));  
+    QMessageBox::warning(_parent, tr("valida√ß√£o de sintaxe..."), tr("Valida√ß√£o Ok"));  
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o de cruzamento de planos
+//! Slot chamado quando o usu√°rio pressiona o bot√£o de cruzamento de planos
 void MainDialogAnalysisTab::crossRequested()
 {
   CrossDlg dlg;
@@ -1536,7 +1536,7 @@ void MainDialogAnalysisTab::crossRequested()
 
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o de configuraÁ„o dos icones de alerta
+//! Slot chamado quando o usu√°rio pressiona o bot√£o de configura√ß√£o dos icones de alerta
 void MainDialogAnalysisTab::alertIconRequested()
 {
   AlertIconDlg dlg;
@@ -1555,13 +1555,13 @@ void MainDialogAnalysisTab::alertIconRequested()
 
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o para definiÁ„o das operaÁıes de preenchimento de cÈlulas (disponÌvel apenas para an·lises TerraME)
+//! Slot chamado quando o usu√°rio pressiona o bot√£o para defini√ß√£o das opera√ß√µes de preenchimento de c√©lulas (dispon√≠vel apenas para an√°lises TerraME)
 void MainDialogAnalysisTab::fCellOpRequested()
 {
 	if(_ui->analysisTerraMEListWidget->count() == 0)
 	{
-		// SÛ faz sentido chamar a interface de definiÁ„o de operaÁıes de preenchimento se houver plano de entrada
-		QMessageBox::warning(_parent, tr("Erro..."), tr("Plano de entrada ainda n„o foi definido."));
+		// S√≥ faz sentido chamar a interface de defini√ß√£o de opera√ß√µes de preenchimento se houver plano de entrada
+		QMessageBox::warning(_parent, tr("Erro..."), tr("Plano de entrada ainda n√£o foi definido."));
 		return;
 	}
 	
@@ -1580,7 +1580,7 @@ void MainDialogAnalysisTab::fCellOpRequested()
 	}
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o de adicionar grid
+//! Slot chamado quando o usu√°rio pressiona o bot√£o de adicionar grid
 void MainDialogAnalysisTab::addGridRequested()
 {
   // Descobre em qual lista estamos inserindo dados
@@ -1594,7 +1594,7 @@ void MainDialogAnalysisTab::addGridRequested()
   else
 	  gridlist = _ui->analysisTerraMEListWidget;
 
-  // Obtem Ids dos grids selecionados (para que o di·logo apresente apenas grids novos)
+  // Obtem Ids dos grids selecionados (para que o di√°logo apresente apenas grids novos)
   QList<int> selgrids;
   for(int i=0, num=(int)gridlist->count(); i<num; i++)
   {
@@ -1612,7 +1612,7 @@ void MainDialogAnalysisTab::addGridRequested()
 	  currentAnalysis = _anaList->at(_currentRuleIndex);
   }
 
-  // Se a an·lise for do tipo TerraME, por enquanto n„o vamos permitir a adiÁ„o de planos de entrada que n„o sejam do tipo raster.
+  // Se a an√°lise for do tipo TerraME, por enquanto n√£o vamos permitir a adi√ß√£o de planos de entrada que n√£o sejam do tipo raster.
   // Se a analise for baseada em modelo, somente dados matriciais sao aceitos como planos de entrada.
   if(anaType == WS_ANALYSISTYPE_TERRAME || anaType == WS_ANALYSISTYPE_MODEL)
   {
@@ -1621,7 +1621,7 @@ void MainDialogAnalysisTab::addGridRequested()
 		  WeatherGrid* weatherGrid = _weatherGridList->at(i);
 		  if(weatherGrid->geometry() != WS_WDSGEOM_RASTER)
 		  {
-			  // Se o plano de entrada n„o È raster, ent„o o plano ainda n„o est· em selgrids. Vamos inserir...
+			  // Se o plano de entrada n√£o √© raster, ent√£o o plano ainda n√£o est√° em selgrids. Vamos inserir...
 			  selgrids.append(weatherGrid->id());
 		  }
 		  else if(anaType == WS_ANALYSISTYPE_MODEL && weatherGrid->data().format == WS_WDSFFMT_Model 
@@ -1633,16 +1633,16 @@ void MainDialogAnalysisTab::addGridRequested()
 	  }
   }
 
-  // Chama o di·logo de seleÁ„o
+  // Chama o di√°logo de sele√ß√£o
   // Caso ainda tenha alguma fonte de dado...
   if(_weatherGridList->count() > selgrids.size())
   {
-    // ...mostramos a janela para que o usu·rio escolha
-	// qual ele ir· adicionar
+    // ...mostramos a janela para que o usu√°rio escolha
+	// qual ele ir√° adicionar
 	GridListDlg dlg(_weatherGridList, selgrids);
 	dlg.exec();
 	WeatherGrid* newgrid = dlg.selectedGrid();
-	if(!newgrid)  // Usuario cancelou a operaÁ„o
+	if(!newgrid)  // Usuario cancelou a opera√ß√£o
 		return;
 
 	// Adiciona novo grid ao final da lista
@@ -1667,14 +1667,14 @@ void MainDialogAnalysisTab::addGridRequested()
 	item->setData(Qt::UserRole, newgrid->id());
 	gridlist->addItem(item);
 
-	//Se a an·lise for do tipo TerraME, vamos selecionar uma operaÁ„o de preenchimento de cÈlulas padr„o
+	//Se a an√°lise for do tipo TerraME, vamos selecionar uma opera√ß√£o de preenchimento de c√©lulas padr√£o
 	if(anaType == WS_ANALYSISTYPE_TERRAME)
 	{
 		wsFillOperation fillOp;
 		fillOp.weatherDataSourceID = newgrid->id();
 		fillOp.column = newgrid->name().toStdString();
 
-		//Os valores padr„o sugeridos para os par‚metros "operaÁ„o" e "horas" v„o depender do tipo do dado
+		//Os valores padr√£o sugeridos para os par√¢metros "opera√ß√£o" e "horas" v√£o depender do tipo do dado
 		if( (newgrid->data().format == WS_WDSFFMT_GrADS || newgrid->data().format == WS_WDSFFMT_OGC_WCS) 
 			 && newgrid->data().grads_numBands > 1)
 		{
@@ -1694,7 +1694,7 @@ void MainDialogAnalysisTab::addGridRequested()
   }
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o de remover grid
+//! Slot chamado quando o usu√°rio pressiona o bot√£o de remover grid
 void MainDialogAnalysisTab::removeGridRequested()
 {
 	// Descobre de qual lista estamso removendo o dado
@@ -1716,7 +1716,7 @@ void MainDialogAnalysisTab::removeGridRequested()
 
 	if(anaType == WS_ANALYSISTYPE_TERRAME)
 	{
-		// Vamos remover tambÈm a operaÁ„o de preenchimento associada a este dado
+		// Vamos remover tamb√©m a opera√ß√£o de preenchimento associada a este dado
 		QListWidgetItem *item = gridlist->takeItem(gridlist->currentRow());
 
 		int wdsID = item->data(Qt::UserRole).toInt();
@@ -1736,7 +1736,7 @@ void MainDialogAnalysisTab::removeGridRequested()
 	setRuleChanged();
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o de configurar grade de saÌda
+//! Slot chamado quando o usu√°rio pressiona o bot√£o de configurar grade de sa√≠da
 void MainDialogAnalysisTab::configOutputGridRequested()
 {
 	GridConfigDlg dlg;
@@ -1751,7 +1751,7 @@ void MainDialogAnalysisTab::configOutputGridRequested()
 	}
 }
 
-/*! \brief Slot chamado quando o usu·rio seleciona uma propriedade ou 
+/*! \brief Slot chamado quando o usu√°rio seleciona uma propriedade ou 
            operador zonal via menu de contexto
            
 Adiciona o texto associado ao item de menu selecionado no script.
@@ -1765,7 +1765,7 @@ void MainDialogAnalysisTab::addTextToScript(QAction* act)
   _ui->analysisScriptTed->setFocus(); 
 }
 
-//! Slot chamado quando o usu·rio deseja criar uma nova an·lise
+//! Slot chamado quando o usu√°rio deseja criar uma nova an√°lise
 void MainDialogAnalysisTab::addNewAnalysisRequested()
 {
   // Verifica se podemos ir para nova analise
@@ -1773,10 +1773,10 @@ void MainDialogAnalysisTab::addNewAnalysisRequested()
     return;
     
   // Ok. Podemos criar nova entrada.
-  // 1) Gera um nome tempor·rio para a an·lise
-  QString name = tr("Nova an·lise");
+  // 1) Gera um nome tempor√°rio para a an√°lise
+  QString name = tr("Nova an√°lise");
   
-  // 2) Descobre o tipo de an·lise
+  // 2) Descobre o tipo de an√°lise
   wsAnalysisType anaType;
   QString ico;
   bool image = false;
@@ -1799,21 +1799,21 @@ void MainDialogAnalysisTab::addNewAnalysisRequested()
   }
   else
   {
-	  // Verificar se durante a compilaÁ„o do TerraMA2 foi utilizado o TerraME
+	  // Verificar se durante a compila√ß√£o do TerraMA2 foi utilizado o TerraME
 #ifndef TERRAME_ENABLED
-	  QMessageBox::warning(_parent, tr("Erro..."), tr("Sistema n„o foi compilado para uso do TerraME."));
+	  QMessageBox::warning(_parent, tr("Erro..."), tr("Sistema n√£o foi compilado para uso do TerraME."));
 	  return;
 #endif
 
 #ifdef _WIN64
-	  QMessageBox::warning(_parent, tr("Erro..."), tr("Sistema n„o foi compilado para uso do TerraME."));
+	  QMessageBox::warning(_parent, tr("Erro..."), tr("Sistema n√£o foi compilado para uso do TerraME."));
 	  return;
 #endif
 
-	  // Verificar o driver de banco de dados. Atualmente o TerraME n„o È compatÌvel com PostgreSQL
+	  // Verificar o driver de banco de dados. Atualmente o TerraME n√£o √© compat√≠vel com PostgreSQL
 	  if(_manager->getConfigData()->db()._driver != ConfigData::DRIVER_MySQL)
 	  {
-		  QMessageBox::warning(_parent, tr("Erro..."), tr("TerraME n„o È compatÌvel com o banco de dados PostgreSQL.\nUtilize o MySQL."));
+		  QMessageBox::warning(_parent, tr("Erro..."), tr("TerraME n√£o √© compat√≠vel com o banco de dados PostgreSQL.\nUtilize o MySQL."));
 		  return;
 	  }
 
@@ -1821,13 +1821,13 @@ void MainDialogAnalysisTab::addNewAnalysisRequested()
 	  ico = ":/data/icons/terrame.png";
   }
   
-  // 3) Inclui nome na lista de an·lises e seleciona esta an·lise
+  // 3) Inclui nome na lista de an√°lises e seleciona esta an√°lise
   //    Antes de selecionar, marca que estamos tratando de uma nova regra
   _newRule = true;
   _ui->analysisListWidget->addItem(new QListWidgetItem(QIcon(ico), name));
   _ui->analysisListWidget->setCurrentRow(_ui->analysisListWidget->count()-1);
   
-  // 4) Tratador de seleÁ„o j· limpou a tela.  Habilita os widgets corretos
+  // 4) Tratador de sele√ß√£o j√° limpou a tela.  Habilita os widgets corretos
   //    de acordo com o uso de objeto monitorado
   enableFields(true);
   _ui->analysisWidgetStack->setCurrentIndex(anaType);
@@ -1835,10 +1835,10 @@ void MainDialogAnalysisTab::addNewAnalysisRequested()
   _ui->analysisCreateImageCbx->setEnabled(image);
   _ui->analysisCreateImageLabel->setEnabled(image);
   
-  // 5) Reseta os par‚metros de configuraÁ„o da grade de saÌda
+  // 5) Reseta os par√¢metros de configura√ß√£o da grade de sa√≠da
   resetGridOutputConfig();
 
-  // 6) Preenche campo com o nome da an·lise e marca a an·lise como modificada
+  // 6) Preenche campo com o nome da an√°lise e marca a an√°lise como modificada
   _ui->analysisNameLed->setText(name);
   _ui->analysisNameLed->setFocus();
   _ui->analysisNameLed->selectAll();
@@ -1850,22 +1850,22 @@ void MainDialogAnalysisTab::addNewAnalysisRequested()
   resetAlertIcons();
 }
 
-//! Slot chamado quando o usu·rio deseja remover a an·lise atual
+//! Slot chamado quando o usu√°rio deseja remover a an√°lise atual
 void MainDialogAnalysisTab::removeAnalysisRequested()
 {
   if(_currentRuleIndex == -1)
     return;
     
-  // Verifca com o usu·rio se ele deseja realmente remover o plano
+  // Verifca com o usu√°rio se ele deseja realmente remover o plano
   QMessageBox::StandardButton answer;
-  answer = QMessageBox::question(_parent, tr("Remover an·lise..."), 
-                                 tr("Deseja realmente remover esta an·lise?"),
+  answer = QMessageBox::question(_parent, tr("Remover an√°lise..."), 
+                                 tr("Deseja realmente remover esta an√°lise?"),
                                  QMessageBox::Yes | QMessageBox::No,
                                  QMessageBox::No);
   if(answer == QMessageBox::No)
     return;
 
-  // Remove objeto do servidor.  Se n„o deu certo, retorna e mantÈm o estado atual
+  // Remove objeto do servidor.  Se n√£o deu certo, retorna e mant√©m o estado atual
   bool  refreshNeeded = false;
   if(!_newRule)
   {
@@ -1876,8 +1876,8 @@ void MainDialogAnalysisTab::removeAnalysisRequested()
 	if(_anaList->at(_currentRuleIndex)->getAnalysisType() == WS_ANALYSISTYPE_MODEL)
 	{
 		QMessageBox::StandardButton answer;
-		answer = QMessageBox::question(_parent, tr("Remover an·lise..."), 
-										tr("Deseja remover tambÈm os layers gerados por esta an·lise?"),
+		answer = QMessageBox::question(_parent, tr("Remover an√°lise..."), 
+										tr("Deseja remover tamb√©m os layers gerados por esta an√°lise?"),
 										QMessageBox::Yes | QMessageBox::No,
 										QMessageBox::No);
 		if(answer == QMessageBox::Yes)
@@ -1892,7 +1892,7 @@ void MainDialogAnalysisTab::removeAnalysisRequested()
     emit analysisRuleDeleted(analysisID);
   }
   
-  // Remove objeto da lista (interface) e desmarca seleÁ„o
+  // Remove objeto da lista (interface) e desmarca sele√ß√£o
   _ignoreChangeEvents = true;
   delete _ui->analysisListWidget->takeItem(_currentRuleIndex);    
   _ui->analysisListWidget->setCurrentRow(-1);
@@ -1900,11 +1900,11 @@ void MainDialogAnalysisTab::removeAnalysisRequested()
   _ignoreChangeEvents = false;
   
 
-  // Desmarca indicadores de modificaÁ„o e nova regra
+  // Desmarca indicadores de modifica√ß√£o e nova regra
   clearRuleChanged();  
   _newRule = false;
 
-  // Seleciona a primeira linha ou limpa campos se n„o houver nenhuma entrada na lista.
+  // Seleciona a primeira linha ou limpa campos se n√£o houver nenhuma entrada na lista.
   if(_ui->analysisListWidget->count())
     _ui->analysisListWidget->setCurrentRow(0);
   else
@@ -1917,7 +1917,7 @@ void MainDialogAnalysisTab::removeAnalysisRequested()
     _ui->refreshAct->trigger();
 }
 
-//! Slot chamado quando o usu·rio clica no botao de mascara
+//! Slot chamado quando o usu√°rio clica no botao de mascara
 void MainDialogAnalysisTab::menuMaskClick(QAction* actMenu)
 {
   _ui->analysisOutputLed->setText(_ui->analysisOutputLed->text() + actMenu->text().left(2));
@@ -1930,10 +1930,10 @@ void MainDialogAnalysisTab::additionalMapChanged()
 
 void MainDialogAnalysisTab::analysisDoubleClicked( QListWidgetItem * )
 {
-	// Verifca com o usu·rio se ele deseja realmente executar o boletim
+	// Verifca com o usu√°rio se ele deseja realmente executar o boletim
 	QMessageBox::StandardButton answer;
-	answer = QMessageBox::question(_parent, tr("Executar an·lises..."), 
-		tr("Deseja realmente executar as an·lises ?"),
+	answer = QMessageBox::question(_parent, tr("Executar an√°lises..."), 
+		tr("Deseja realmente executar as an√°lises ?"),
 		QMessageBox::Yes | QMessageBox::No,
 		QMessageBox::No);
 

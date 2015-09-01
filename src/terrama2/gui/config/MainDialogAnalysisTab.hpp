@@ -46,8 +46,8 @@ class ViewList;
 class AlertIconList;
 
 /*!
-\brief Classe respons·vel pelo tratamento da interface da ficha de
-       an·lises da janela principal
+\brief Classe respons√°vel pelo tratamento da interface da ficha de
+       an√°lises da janela principal
 */      
 class MainDialogAnalysisTab : public MainDialogTab
 {
@@ -127,21 +127,21 @@ private:
   void resetGridOutputConfig();
   void resetAlertIcons();
   
-  AnalysisList*			_anaList;          //!< ReferÍncia para lista com dados das regras de an·lise, mantida pelo gerenciador de serviÁos
-  RiskMapList*			_riskMapList;      //!< ReferÍncia para lista com dados de objetos monitorados, mantida pelo gerenciador de serviÁos
-  CellularSpaceList*	_cellularSpaceList;//!< ReferÍncia para lista com dados de espaÁos celulares, mantida pelo gerenciador de serviÁos 
-  WeatherGridList* _weatherGridList;  //!< ReferÍncia para lista com dados de grids clim·ticos, mantida pelo gerenciador de serviÁos
-  WeatherGridList* _pcdList;  //!< ReferÍncia para lista com dados de tipo PCD, mantida pelo gerenciador de serviÁos
-  ViewList*        _viewList; //!< ReferÍncia para lista com vistas, mantida pelo gerenciador de serviÁos
-  AlertIconList*   _alertIconList; //!< ReferÍncia para lista de imagens para usar como icones de alerta, mantida pelo gerenciador de serviÁos
+  AnalysisList*			_anaList;          //!< Refer√™ncia para lista com dados das regras de an√°lise, mantida pelo gerenciador de servi√ßos
+  RiskMapList*			_riskMapList;      //!< Refer√™ncia para lista com dados de objetos monitorados, mantida pelo gerenciador de servi√ßos
+  CellularSpaceList*	_cellularSpaceList;//!< Refer√™ncia para lista com dados de espa√ßos celulares, mantida pelo gerenciador de servi√ßos 
+  WeatherGridList* _weatherGridList;  //!< Refer√™ncia para lista com dados de grids clim√°ticos, mantida pelo gerenciador de servi√ßos
+  WeatherGridList* _pcdList;  //!< Refer√™ncia para lista com dados de tipo PCD, mantida pelo gerenciador de servi√ßos
+  ViewList*        _viewList; //!< Refer√™ncia para lista com vistas, mantida pelo gerenciador de servi√ßos
+  AlertIconList*   _alertIconList; //!< Refer√™ncia para lista de imagens para usar como icones de alerta, mantida pelo gerenciador de servi√ßos
 
-  int   _currentRuleIndex;   //!< Indice da regra atual na lista de regras de an·lise
-  bool  _ignoreChangeEvents; //!< Indica que o slot que monitora mudanÁas est· temporariamente desligado
-  bool  _ruleChanged; //!< Indica que algum dos dados apresentados foi alterado pelo usu·rio
-  bool  _newRule;     //!< Indica que a regra atual È uma nova regra
-  int   _numAnalysisModules;  //!< Indica quanto mÛdulos de an·lise existem
-  int     _conditionAnalysisId; //!< Indice da regra de an·lise da qual dependemos
-  QString _conditionRule;       //!< Regra de condiÁ„o para an·lises condicionadas
+  int   _currentRuleIndex;   //!< Indice da regra atual na lista de regras de an√°lise
+  bool  _ignoreChangeEvents; //!< Indica que o slot que monitora mudan√ßas est√° temporariamente desligado
+  bool  _ruleChanged; //!< Indica que algum dos dados apresentados foi alterado pelo usu√°rio
+  bool  _newRule;     //!< Indica que a regra atual √© uma nova regra
+  int   _numAnalysisModules;  //!< Indica quanto m√≥dulos de an√°lise existem
+  int     _conditionAnalysisId; //!< Indice da regra de an√°lise da qual dependemos
+  QString _conditionRule;       //!< Regra de condi√ß√£o para an√°lises condicionadas
 
   std::vector<struct wsAddMapDisplayConfig> _listAddMapId;
   std::vector<struct wsFillOperation> _listFillOperations;
@@ -150,14 +150,14 @@ private:
   wsAlertIcons       _alertIcons;
   
 signals:
-  //! Chamado quando o usu·rio inicia a criaÁ„o/ediÁ„o de uma regra de an·lise.
+  //! Chamado quando o usu√°rio inicia a cria√ß√£o/edi√ß√£o de uma regra de an√°lise.
   void editAnalysisRuleStarted();
   
-  //! Chamado quando o usu·rio termina a criaÁ„o/ediÁ„o de uma regra de an·lise
+  //! Chamado quando o usu√°rio termina a cria√ß√£o/edi√ß√£o de uma regra de an√°lise
   //! (confirmando ou cancelando).
   void editAnalysisRuleFinished();
   
-  //! Chamado quando uma an·lise foi excluÌda.
+  //! Chamado quando uma an√°lise foi exclu√≠da.
   void analysisRuleDeleted(int id);
 };
 

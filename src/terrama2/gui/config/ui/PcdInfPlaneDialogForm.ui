@@ -1,0 +1,125 @@
+<ui version="4.0" >
+ <class>PcdInfPlaneDialogForm</class>
+ <widget class="QDialog" name="PcdInfPlaneDialogForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>267</width>
+    <height>168</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Localização das PCDs</string>
+  </property>
+  <widget class="QWidget" name="layoutWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>251</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" >
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="okBtn" >
+      <property name="enabled" >
+       <bool>true</bool>
+      </property>
+      <property name="toolTip" >
+       <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Salvar alterações&lt;/p>&lt;/body>&lt;/html></string>
+      </property>
+      <property name="text" >
+       <string>Ok</string>
+      </property>
+      <property name="icon" >
+       <iconset resource="icons.qrc" >:/global/icons/ok.png</iconset>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="cancelBtn" >
+      <property name="toolTip" >
+       <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Cancelar alterações&lt;/p>&lt;/body>&lt;/html></string>
+      </property>
+      <property name="text" >
+       <string>Cancelar</string>
+      </property>
+      <property name="icon" >
+       <iconset resource="icons.qrc" >:/global/icons/cancel.png</iconset>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>249</width>
+     <height>112</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string/>
+   </property>
+   <layout class="QGridLayout" >
+    <item row="0" column="0" >
+     <widget class="QLabel" name="label" >
+      <property name="text" >
+       <string>Tema:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" >
+     <widget class="QLabel" name="label_2" >
+      <property name="text" >
+       <string>Atributo:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" >
+     <widget class="QLabel" name="label_3" >
+      <property name="text" >
+       <string>Máscara:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1" >
+     <widget class="QLineEdit" name="maskLed" />
+    </item>
+    <item row="0" column="1" >
+     <widget class="QComboBox" name="themeCmb" />
+    </item>
+    <item row="1" column="1" >
+     <widget class="QComboBox" name="attributeCmb" />
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,607 @@
+<ui version="4.0" >
+ <class>WizardDialogForm</class>
+ <widget class="QDialog" name="WizardDialogForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>543</width>
+    <height>528</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Assistente de análise</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QLabel" name="label_2" >
+       <property name="text" >
+        <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:8pt; font-weight:600;">objeto monitorado:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="riskMapNameLbl" >
+       <property name="text" >
+        <string>objeto monitorado IPT Cubatão</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="enabled" >
+      <bool>true</bool>
+     </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="generalTab" >
+      <attribute name="title" >
+       <string>Modelo geral</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="groupBox_2" >
+         <property name="title" >
+          <string> Condição: </string>
+         </property>
+         <layout class="QGridLayout" >
+          <item row="0" column="0" colspan="2" >
+           <widget class="QLabel" name="label_27" >
+            <property name="text" >
+             <string>Grades:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3" >
+           <widget class="QLabel" name="label_5" >
+            <property name="text" >
+             <string>Atributos do plano:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2" >
+           <widget class="QListWidget" name="gridListWidget" >
+            <item>
+             <property name="text" >
+              <string>Eta 5Km</string>
+             </property>
+             <property name="icon" >
+              <iconset resource="icons.qrc" >:/data/icons/grid.png</iconset>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Satélite Acumulada 4Km</string>
+             </property>
+             <property name="icon" >
+              <iconset resource="icons.qrc" >:/data/icons/grid.png</iconset>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="2" >
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QRadioButton" name="opGtRdb" >
+              <property name="text" >
+               <string>></string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="opGteRdb" >
+              <property name="text" >
+               <string>>=</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="opLtRdb" >
+              <property name="text" >
+               <string>&lt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="opLteRdb" >
+              <property name="text" >
+               <string>&lt;=</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="opEqRdb" >
+              <property name="text" >
+               <string>=</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="opNeqRdb" >
+              <property name="text" >
+               <string>!=</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="3" >
+           <widget class="QListWidget" name="attributesListWidget" >
+            <item>
+             <property name="text" >
+              <string>ID</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ClasseSuc</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Limiar_CP</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Limiar_CA</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_4" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Preferred" hsizetype="Fixed" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text" >
+             <string>Zonal:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="QComboBox" name="zoneOpCmb" >
+            <item>
+             <property name="text" >
+              <string>Zonal Mínimo</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Zonal Máximo</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Zonal Média</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Zonal Número amostras</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="2" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>51</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="3" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>211</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string> Lista de Condições: </string>
+         </property>
+         <layout class="QGridLayout" >
+          <item rowspan="3" row="0" column="0" colspan="2" >
+           <widget class="QListWidget" name="rulesListWidget" >
+            <item>
+             <property name="text" >
+              <string>Eta 5Km > Limiar_CP</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Satélite Acumulada 4Km > Limiar_CA</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <widget class="QPushButton" name="addRuleBtn" >
+            <property name="toolTip" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Adicionar nova condição&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="icon" >
+             <iconset resource="icons.qrc" >:/global/icons/add.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" >
+           <widget class="QPushButton" name="removeRuleBtn" >
+            <property name="toolTip" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Remover condição selecionada&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="icon" >
+             <iconset resource="icons.qrc" >:/global/icons/remove.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>31</width>
+              <height>31</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="label" >
+            <property name="text" >
+             <string>Para haver situação de risco:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2" >
+           <widget class="QRadioButton" name="combineAndRdb" >
+            <property name="text" >
+             <string>Todas as condições acima devem ocorrer em conjunto ("E")</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" >
+           <widget class="QRadioButton" name="combineOrRdb" >
+            <property name="text" >
+             <string>Basta ocorrer uma das condições acima ("OU")</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="cpcTab" >
+      <attribute name="title" >
+       <string>CPC</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="groupBox_3" >
+         <property name="title" >
+          <string> Modelo matemático: </string>
+         </property>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QLabel" name="label_6" >
+            <property name="text" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">&lt;span style=" font-size:14pt;">CPC = &lt;/span>&lt;span style=" font-size:14pt; color:#0000ff;">li&lt;/span>&lt;span style=" font-size:14pt;"> / &lt;/span>&lt;span style=" font-size:14pt; color:#0000ff;">K&lt;/span>&lt;span style=" font-size:14pt;"> * &lt;/span>&lt;span style=" font-size:14pt; color:#0000ff;">Aci&lt;/span>&lt;span style=" font-size:14pt;"> ^-0.933&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_16" >
+            <property name="text" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">&lt;span style=" font-size:10pt; color:#0000ff;">           li	&lt;/span>&lt;span style=" font-size:10pt;">= Precipitação Horária&lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;">&lt;span style=" color:#0000ff;">           Aci	&lt;/span>= Precipitação Acumulada&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;">&lt;span style=" color:#0000ff;">           K&lt;/span>    	= Constante de Risco &lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;">	   por Área&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4" >
+         <property name="title" >
+          <string> Associações: </string>
+         </property>
+         <layout class="QGridLayout" >
+          <item row="0" column="0" colspan="3" >
+           <widget class="QLabel" name="label_12" >
+            <property name="text" >
+             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">A quantidade de&lt;span style=" font-weight:600;"> &lt;/span>chuva acumulada&lt;span style=" font-weight:600;"> &lt;/span>(&lt;span style=" color:#0000ff;">Aci&lt;/span>) precisa ser calculada no &lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">intervalo de &lt;span style=" font-weight:600;">84 horas&lt;/span>. É possível fazer previsões com o modelo &lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">de CPC usando fontes de dados do tipo GrADS (ETA).&lt;/p>&lt;/body>&lt;/html></string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignJustify|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_7" >
+            <property name="text" >
+             <string>PCD:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2" >
+           <widget class="QComboBox" name="cpcCmbBoxPCD" >
+            <item>
+             <property name="text" >
+              <string>Nenhum</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="3" colspan="2" >
+           <widget class="QLabel" name="label_8" >
+            <property name="text" >
+             <string>Envoltórias</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_3" >
+            <property name="text" >
+             <string>Atributo da PCD:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QComboBox" name="cpcCmbBoxPCDAttr" >
+            <item>
+             <property name="text" >
+              <string>Nenhum</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="3" >
+           <widget class="QLabel" name="label_9" >
+            <property name="text" >
+             <string>Atenção:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4" >
+           <widget class="QDoubleSpinBox" name="cpcAtencaoSpb" />
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="label_13" >
+            <property name="text" >
+             <string>Const. de Risco:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2" >
+           <widget class="QComboBox" name="cpcCmbBoxAttributes" >
+            <item>
+             <property name="text" >
+              <string>Nenhum</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="3" >
+           <widget class="QLabel" name="label_14" >
+            <property name="text" >
+             <string>Alerta:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4" >
+           <widget class="QDoubleSpinBox" name="cpcAlertaSpb" />
+          </item>
+          <item row="4" column="0" >
+           <widget class="QLabel" name="label_11" >
+            <property name="text" >
+             <string>Intens. Horária:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="2" >
+           <widget class="QComboBox" name="cpcCmbBoxGrid" >
+            <item>
+             <property name="text" >
+              <string>Nenhum</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="4" column="3" >
+           <widget class="QLabel" name="label_15" >
+            <property name="text" >
+             <string>Alerta Máximo:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="4" >
+           <widget class="QDoubleSpinBox" name="cpcAlertaMaxSpb" />
+          </item>
+          <item row="5" column="0" >
+           <widget class="QLabel" name="label_10" >
+            <property name="text" >
+             <string>Operador:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1" colspan="2" >
+           <widget class="QComboBox" name="cpcCmbBoxOperator" >
+            <item>
+             <property name="text" >
+              <string>Mínimo</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Média</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Máximo</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="6" column="1" >
+           <widget class="QLabel" name="cpcLabelHoras" >
+            <property name="layoutDirection" >
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text" >
+             <string>Previsão (horas):</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2" >
+           <widget class="QSpinBox" name="cpcSpinBoxHoras" >
+            <property name="value" >
+             <number>96</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="okBtn" >
+       <property name="toolTip" >
+        <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Salvar alterações&lt;/p>&lt;/body>&lt;/html></string>
+       </property>
+       <property name="text" >
+        <string>Ok</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="icons.qrc" >:/global/icons/ok.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelBtn" >
+       <property name="toolTip" >
+        <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">Cancelar alterações&lt;/p>&lt;/body>&lt;/html></string>
+       </property>
+       <property name="text" >
+        <string>Cancelar</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="icons.qrc" >:/global/icons/cancel.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

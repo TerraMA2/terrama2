@@ -197,7 +197,7 @@ void AnalysisCreateLuaDialog::reloadClassCodesBtnSlot()
   std::vector<std::string> result;
   if(!_manager->getValuesByColumnName(_cellularSpaceID, columnName.toStdString(), result))
   {
-    QMessageBox::warning(NULL, "", tr("Erro ao carregar o espaço celular!"));
+    QMessageBox::warning(NULL, "", tr("Erro ao carregar o espaÃ§o celular!"));
     return;
   }
 
@@ -360,7 +360,7 @@ void AnalysisCreateLuaDialog::openFileRainPushButtonSlot()
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) 
     {
-      QMessageBox::critical(this, tr("Error"), tr("Não foi possível abrir o arquivo"));
+      QMessageBox::critical(this, tr("Error"), tr("NÃ£o foi possÃ­vel abrir o arquivo"));
       return;
     }
     QTextStream in(&file);
@@ -403,13 +403,13 @@ void AnalysisCreateLuaDialog::okPressed()
 {
   if(classCodeTableWidget->rowCount() == 0)
   {
-    QMessageBox::warning(NULL, "", QObject::tr("Tabela de classes está vazia."));
+    QMessageBox::warning(NULL, "", QObject::tr("Tabela de classes estÃ¡ vazia."));
     return;
   }
 
   if(rainTableWidget->rowCount() == 0)
   {
-    QMessageBox::warning(NULL, "", QObject::tr("Tabela de chuvas está vazia."));
+    QMessageBox::warning(NULL, "", QObject::tr("Tabela de chuvas estÃ¡ vazia."));
     return;
   }
 
@@ -418,7 +418,7 @@ void AnalysisCreateLuaDialog::okPressed()
     QTableWidgetItem *item = hidrodynamicModelColumnsTableWidget->item ( i, 1);
     if(!item || item->text().isEmpty())
     {
-      QMessageBox::warning(NULL, "", QObject::tr("Valor da tabela de Colunas do modelo hidrodinâmico está vazio."));
+      QMessageBox::warning(NULL, "", QObject::tr("Valor da tabela de Colunas do modelo hidrodinÃ¢mico estÃ¡ vazio."));
       return;
     }
   }
@@ -430,7 +430,7 @@ void AnalysisCreateLuaDialog::okPressed()
 
     if(!item || item->text().isEmpty())
     {
-      QMessageBox::warning(NULL, "", QObject::tr("Nome da Classe não pode ser vazio."));
+      QMessageBox::warning(NULL, "", QObject::tr("Nome da Classe nÃ£o pode ser vazio."));
       return;
     }
     item = classCodeTableWidget->item ( row, 1);
@@ -439,7 +439,7 @@ void AnalysisCreateLuaDialog::okPressed()
     double value = item->text().toDouble(&ok);
     if(!ok || value == -1.00)
     {
-      QMessageBox::warning(NULL, QObject::tr("Valor do CN"), QObject::tr("Valor CN não poder ser -1."));
+      QMessageBox::warning(NULL, QObject::tr("Valor do CN"), QObject::tr("Valor CN nÃ£o poder ser -1."));
       return;
     }
   }
@@ -506,7 +506,7 @@ bool AnalysisCreateLuaDialog::fillCodificacaoClassesVIS()
   QTableWidgetItem *item = hidrodynamicModelColumnsTableWidget->item (VIS , 1);
   if(!item || item->text().isEmpty())
   {
-    QMessageBox::warning(NULL, "", QObject::tr("Valor da coluna VIS está vazio."));
+    QMessageBox::warning(NULL, "", QObject::tr("Valor da coluna VIS estÃ¡ vazio."));
     return false;
   }
   QString stringVIS = "cell." + item->text();
