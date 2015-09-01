@@ -4,7 +4,7 @@
 
 BEGIN TRANSACTION;
 
-CREATE SCHEMA terrama2 AUTHORIZATION postgres;
+CREATE SCHEMA terrama2;
 
 COMMENT ON SCHEMA terrama2 IS 'Schema used to store all objects related to TerraMA';
 
@@ -43,6 +43,8 @@ CREATE TABLE terrama2.unit_of_measure
   unit   TEXT
 );
 
+INSERT INTO terrama2.unit_of_measure(unit)
+     VALUES ('MINUTE'), ('HOUR'), ('DAY'), ('WEEK');
 
 CREATE TABLE terrama2.data_provider_type
 (
@@ -103,7 +105,6 @@ CREATE TABLE terrama2.dataset
   name                      VARCHAR(20) NOT NULL UNIQUE,
   description               TEXT,
   active                    BOOLEAN,
-  path                      VARCHAR(255),
   data_provider_id          INTEGER NOT NULL,
   kind                      INTEGER NOT NULL,
   data_frequency            NUMERIC,
@@ -162,12 +163,18 @@ CREATE TABLE terrama2.data_type
   description TEXT
 );
 
+INSERT INTO terrama2.data_type(name, description)
+     VALUES('PCD-INPE', 'INPE Format'),
+           ('PCD-TOA5', 'TOA5'),
+           ('FIRE POINTS', 'Occurrence of fire'),
+           ('DISEASE OCCURRENCE', 'Occurrence of diseases');
+
+
 CREATE TABLE terrama2.data
 (
   id           SERIAL NOT NULL PRIMARY KEY,
   kind         INTEGER NOT NULL,
   active       BOOLEAN,
-  path         VARCHAR(255),
   dataset_id   INTEGER,
   mask         VARCHAR(255),
   timezone     text DEFAULT '+00:00',
@@ -215,6 +222,12 @@ CREATE TABLE terrama2.pcd
     MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE terrama2.pcd_attribute_type
+(
+  id          SERIAL  NOT NULL PRIMARY KEY,
+  name        VARCHAR(50) UNIQUE,
+  description TEXT
+);
 
 CREATE TABLE terrama2.pcd_attributes
 (
@@ -225,6 +238,10 @@ CREATE TABLE terrama2.pcd_attributes
   CONSTRAINT fk_pcd_attributes_data_id
     FOREIGN KEY(data_id)
     REFERENCES terrama2.pcd (data_id)
+    MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_pcd_attributes_attr_type_id
+    FOREIGN KEY(attr_type_id)
+    REFERENCES terrama2.pcd_attribute_type(id)
     MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
 );
 
