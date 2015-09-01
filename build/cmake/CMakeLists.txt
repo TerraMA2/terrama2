@@ -195,7 +195,7 @@ include(CMakeDependentOption)
 # first check of libraries
 #
 
-find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets LinguistTools Test)
+find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools Test)
 
 if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
   find_program(QT_QCOLLECTIONGENERATOR_EXECUTABLE
@@ -271,11 +271,15 @@ endif()
 
 option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 
-CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
-CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector Web Service server module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
-CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
+#CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+
+#CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector Web Service server module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
+
+#CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Web Service appserver module?" ON "TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
 
@@ -319,6 +323,14 @@ if(TERRAMA2_MOD_CORE_ENABLED)
   add_subdirectory(terrama2_mod_core)
 endif()
 
+if(TERRAMA2_GUI_ADMIN_ENABLED)
+  add_subdirectory(terrama2_gui_admin)
+endif()
+
+if(TERRAMA2_GUI_CONFIG_ENABLED)
+  add_subdirectory(terrama2_gui_config)
+endif()
+
 if(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED)
   add_subdirectory(terrama2_mod_ws_collector_core)
 endif()
@@ -338,7 +350,6 @@ endif()
 if(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED)
   add_subdirectory(terrama2_unittest_ws_collector_core)
 endif()
-
 
 
 #
