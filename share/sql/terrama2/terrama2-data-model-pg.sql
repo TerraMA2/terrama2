@@ -39,7 +39,7 @@ COMMENT ON COLUMN terrama2.users.cellphone IS 'Cellphone number used to send not
 
 CREATE TABLE terrama2.unit_of_measure
 (
-  id     INTEGER PRIMARY KEY,
+  id     SERIAL PRIMARY KEY,
   unit   TEXT
 );
 
@@ -106,7 +106,7 @@ CREATE TABLE terrama2.dataset
   data_provider_id          INTEGER NOT NULL,
   kind                      INTEGER NOT NULL,
   data_frequency            NUMERIC,
-  data_frequency_id         INTEGER,
+  data_frequency_unit_id    INTEGER,
   schedule                  TIME,
   schedule_retry            NUMERIC,
   schedule_retry_unit_id    INTEGER,
@@ -116,8 +116,8 @@ CREATE TABLE terrama2.dataset
            FOREIGN KEY(data_provider_id)
            REFERENCES terrama2.data_provider(id)
            ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_dataset_data_frequency_id
-           FOREIGN KEY(data_frequency_id)
+  CONSTRAINT fk_dataset_data_frequency_unit_id
+           FOREIGN KEY(data_frequency_unit_id)
            REFERENCES terrama2.unit_of_measure(id)
            ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT fk_dataset_schedule_retry_unit_id
@@ -132,7 +132,7 @@ CREATE TABLE terrama2.dataset
 
 CREATE TABLE terrama2.dataset_metadata
 (
-  id     INTEGER PRIMARY KEY,
+  id     SERIAL PRIMARY KEY,
   key    VARCHAR(50),
   value  VARCHAR(50),
   dataset_id INTEGER,
@@ -145,7 +145,7 @@ CREATE TABLE terrama2.dataset_metadata
 
 CREATE TABLE terrama2.dataset_collect_rule
 (
-  id     INTEGER PRIMARY KEY,
+  id     SERIAL NOT NULL PRIMARY KEY,
   script TEXT,
   dataset_id INTEGER,
   CONSTRAINT fk_dataset_collect_rule_dataset_id
@@ -154,25 +154,25 @@ CREATE TABLE terrama2.dataset_collect_rule
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
---CREATE TABLE terrama2.data_type
---(
---  id          SERIAL NOT NULL PRIMARY KEY,
---  name        VARCHAR(50) NOT NULL UNIQUE,
---  description TEXT
---);
+CREATE TABLE terrama2.data_type
+(
+  id          SERIAL NOT NULL PRIMARY KEY,
+  name        VARCHAR(50) NOT NULL UNIQUE,
+  description TEXT
+);
 
 CREATE TABLE terrama2.data
 (
   id           SERIAL NOT NULL PRIMARY KEY,
---  kind         INTEGER NOT NULL,
+  kind         INTEGER NOT NULL,
   active       BOOLEAN,
   dataset_id   INTEGER,
   mask         VARCHAR(255),
   timezone     text DEFAULT '+00:00',
---  CONSTRAINT fk_dataset_data_type_id
---    FOREIGN KEY(kind)
---    REFERENCES terrama2.data_type(id)
---    ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_dataset_data_type_id
+    FOREIGN KEY(kind)
+    REFERENCES terrama2.data_type(id)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT fk_data_dataset_id
     FOREIGN KEY(dataset_id)
     REFERENCES terrama2.dataset(id)
