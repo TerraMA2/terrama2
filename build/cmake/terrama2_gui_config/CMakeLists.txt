@@ -24,12 +24,21 @@
 #  Author: Raphael Willian da Costa
 #
 
+include_directories (
+  ${Boost_INCLUDE_DIR}
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
+
+
 set(TERRAMA2_GUI_CONFIG_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/config)
+
 set(CMAKE_AUTOMOC ON)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CONFIG_PATH}/MainDialog.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CONFIG_PATH}/MainDialog.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ConfigApp.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ConfigApp.hpp)
 file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ui/MainDialogForm.ui)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
@@ -40,7 +49,7 @@ QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
 add_executable(terrama2_config ${TERRAMA2_GUI_CONFIG_PATH}/main.cpp ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
 
-target_link_libraries(terrama2_config terrama2_mod_core)
+target_link_libraries(terrama2_config terrama2_mod_core terralib_mod_common)
 
 qt5_use_modules(terrama2_config Widgets Network)
 

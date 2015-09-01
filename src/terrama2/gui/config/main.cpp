@@ -20,47 +20,42 @@
 */
 
 /*!
-  \file terrama2/gui/config/IntersectionDialog.cpp
+  \file terrama2/gui/config/main.cpp
 
-  \brief Definition of Class IntersectionDialog.hpp
+  \brief Main routine for TerraMA2 Config GUI.
 
   \author Evandro Delatin
-  \author Raphael Willian da Costa  
+  \author Raphael Willian da Costa
 */
 
-#include <qapplication.h>
-#include <QIcon>
-#include <QStringList>
+// TerraMA2
+#include "ConfigApp.hpp"
 
-#include "MainDialog.hpp"
-// #include "Language.h"
+// TerraLib
+#include <terralib/common/TerraLib.h>
 
-int main( int argc, char** argv )
+// Qt
+#include <QApplication>
+
+int main(int argc, char* argv[])
 {
-  // Load TerraMA2 icons and theme
-  QStringList ithemes = QIcon::themeSearchPaths();
+// initialize Qt
+  QApplication app(argc, argv);
 
-  ithemes.push_back("/home/raphael/Documents/my-devel/terrama2/share/icons/");
-  QIcon::setThemeSearchPaths(ithemes);
-  QIcon::setThemeName("terrama2");
+// initialize TerraLib
+  TerraLib::getInstance().initialize();
 
-  QApplication app( argc, argv );
+  ConfigApp capp;
 
-  // Load the translators and system language 
-  // loadLanguage("config");
+  capp.init();
+  
+  capp.showMaximized();
 
-  // Trick for avoid Mandriva problem
-  // TerraLib uses sprintf to generate some SQL inserts
-  // It depends of system idiom. It has been used a comma in float numbers and it turns out a
-  // problem at runtime insert
-#ifndef WIN32
-  setlocale(LC_NUMERIC,"en_US.UTF-8");
-#endif
+  int retval = app.exec();
 
-  // Open main window
-  MainDialog mainwindow;
 
-  mainwindow.show();
-  return app.exec();
+// finalize TerraLib
+  TerraLib::getInstance().finalize();
+  
+  return retval;
 }
-
