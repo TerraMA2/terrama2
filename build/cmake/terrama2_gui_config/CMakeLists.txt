@@ -21,21 +21,22 @@
 #
 #  Description: CMake script for the TerraMA2 Core Runtime Module.
 #
-#  Author: Evandro Delatin
-#
+#  Author: Raphael Willian da Costa
 
 #if(WIN32)
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-set(TERRAMA2_GUI_ADMIN_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/admin)
+set(TERRAMA2_GUI_CONFIG_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/config)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_ADMIN_PATH}/MainDialog.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_ADMIN_PATH}/MainDialog.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CONFIG_PATH}/MainDialog.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CONFIG_PATH}/MainDialog.hpp)
 
-file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_ADMIN_PATH}/ui/MainDialogForm.ui)
+file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ui/MainDialogForm.ui)
+
+message(STATUS "${TERRAMA2_UI_FILES}")
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
@@ -43,16 +44,16 @@ source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
 
 QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
-add_executable(terrama2_admin ${TERRAMA2_GUI_ADMIN_PATH}/Main.cpp ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
+add_executable(terrama2_config ${TERRAMA2_GUI_CONFIG_PATH}/Main.cpp ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
 
-target_link_libraries(terrama2_admin terrama2_mod_core)
+target_link_libraries(terrama2_config terrama2_mod_core)
 
-qt5_use_modules(terrama2_admin Widgets Network)
+qt5_use_modules(terrama2_config Widgets Network)
 
-install(TARGETS terrama2_admin
+install(TARGETS terrama2_config
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
-export(TARGETS terrama2_admin APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_config APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

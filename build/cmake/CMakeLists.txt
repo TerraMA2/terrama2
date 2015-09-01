@@ -261,9 +261,10 @@ if(DOXYGEN_FOUND)
   option(TERRAMA2_DOXYGEN_ENABLED  "Enable API documentation build?" ON)
 endif()
 
-option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" OFF)
+option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
 #CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
@@ -311,6 +312,10 @@ endif()
 
 if(TERRAMA2_GUI_ADMIN_ENABLED)
   add_subdirectory(terrama2_gui_admin)
+endif()
+
+if(TERRAMA2_GUI_CONFIG_ENABLED)
+  add_subdirectory(terrama2_gui_config)
 endif()
 
 
