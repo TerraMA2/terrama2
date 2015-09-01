@@ -39,7 +39,7 @@
 // #include "PreviewCustom.hpp"
 // #include "DbManager.hpp"
 // #include "consoleDlg.h"
-// #include "servicesDlg.h"
+// #include "ServicesDialog.hpp"
 
 
 // Qt
@@ -57,6 +57,8 @@
 // STL
 #include <cassert>
 #include <memory>
+#include <QIcon>
+#include <QString>
 
 //! Construtor
 MainDialog::MainDialog(QWidget* parent, Qt::WindowFlags f)

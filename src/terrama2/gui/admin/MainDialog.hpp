@@ -22,7 +22,7 @@
 /*!
   \file terrama2/gui/admin/MainDialog.hpp
 
-  \brief Admin main dialog.
+  \brief Admin main dialog - Class that implements the actions of the main dialog
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
@@ -32,15 +32,13 @@
 #ifndef __TERRAMA2_INTERNAL_GUI_ADMIN_MAINDIALOG_HPP__
 #define __TERRAMA2_INTERNAL_GUI_ADMIN_MAINDIALOG_HPP__
 
-#include "ui_MainDialogForm.h"
-
+// QT
 // #include "ConfigDataManager.hpp"
 // #include "DbManager.hpp"
+#include "ui_MainDialogForm.h"
 
 class QItemSelection;
-
-/*! \brief Classe que implementa as açoes do diálogo principal
-*/      
+ 
 class MainDialog : public QMainWindow, private Ui::MainDialogForm
 {
 Q_OBJECT

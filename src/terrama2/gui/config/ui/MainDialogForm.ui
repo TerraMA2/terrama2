@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1046</width>
-    <height>716</height>
+    <height>837</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,7 +90,7 @@ p, li { white-space: pre-wrap; }
                  <string>Adicionar Servidor</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/server_add.png</normaloff>:/data/icons/server_add.png</iconset>
                 </property>
                </widget>
@@ -110,7 +110,7 @@ p, li { white-space: pre-wrap; }
                  <string>Importar Servidor</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/server_import.png</normaloff>:/data/icons/server_import.png</iconset>
                 </property>
                </widget>
@@ -137,7 +137,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap resource="icons.qrc">:/global/icons/servidores.png</pixmap>
+                 <pixmap>:/global/icons/servidores.png</pixmap>
                 </property>
                </widget>
               </item>
@@ -321,7 +321,7 @@ p, li { white-space: pre-wrap; }
                  <string>Verificar conexão</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../../admin/ui/icons.qrc">
+                 <iconset>
                   <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
                 </property>
                </widget>
@@ -405,7 +405,7 @@ p, li { white-space: pre-wrap; }
                   <string>Projeção...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/PROJECAO.png</normaloff>:/global/icons/PROJECAO.png</iconset>
                  </property>
                 </widget>
@@ -733,7 +733,16 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>0</number>
                    </property>
-                   <property name="margin">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
                     <number>0</number>
                    </property>
                    <item>
@@ -784,7 +793,16 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>4</number>
                    </property>
-                   <property name="margin">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
                     <number>0</number>
                    </property>
                    <item>
@@ -818,7 +836,16 @@ p, li { white-space: pre-wrap; }
                  </widget>
                  <widget class="QWidget" name="pgGridGrADS">
                   <layout class="QGridLayout">
-                   <property name="margin">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
                     <number>0</number>
                    </property>
                    <property name="spacing">
@@ -1032,7 +1059,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/filter.png</normaloff>:/global/icons/filter.png</iconset>
                  </property>
                 </widget>
@@ -1219,7 +1246,7 @@ p, li { white-space: pre-wrap; }
                   <string>Projeção...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/PROJECAO.png</normaloff>:/global/icons/PROJECAO.png</iconset>
                  </property>
                 </widget>
@@ -1553,7 +1580,7 @@ p, li { white-space: pre-wrap; }
                   <string>Superfícies</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/data/icons/surface.png</normaloff>:/data/icons/surface.png</iconset>
                  </property>
                 </widget>
@@ -1785,7 +1812,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../admin/ui/icons.qrc">
+                    <iconset>
                      <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
                    </property>
                   </widget>
@@ -1820,7 +1847,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../admin/ui/icons.qrc">
+                    <iconset>
                      <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
                    </property>
                   </widget>
@@ -1869,7 +1896,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="icons.qrc">
+                    <iconset>
                      <normaloff>:/global/icons/table.png</normaloff>:/global/icons/table.png</iconset>
                    </property>
                   </widget>
@@ -1907,7 +1934,7 @@ p, li { white-space: pre-wrap; }
                     <string>...</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="icons.qrc">
+                    <iconset>
                      <normaloff>:/data/icons/dado_pontual.png</normaloff>:/data/icons/dado_pontual.png</iconset>
                    </property>
                   </widget>
@@ -1939,7 +1966,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../admin/ui/icons.qrc">
+                    <iconset>
                      <normaloff>:/global/icons/config_new.png</normaloff>:/global/icons/config_new.png</iconset>
                    </property>
                   </widget>
@@ -2007,7 +2034,7 @@ p, li { white-space: pre-wrap; }
                   <string>Projeção...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/PROJECAO.png</normaloff>:/global/icons/PROJECAO.png</iconset>
                  </property>
                 </widget>
@@ -2304,7 +2331,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/data/icons/intersecao.png</normaloff>:/data/icons/intersecao.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -2352,7 +2379,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/filter.png</normaloff>:/global/icons/filter.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -2437,8 +2464,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
-              <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+             <iconset theme="ok"/>
             </property>
            </widget>
           </item>
@@ -2454,7 +2480,7 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
             </property>
            </widget>
@@ -2512,7 +2538,7 @@ p, li { white-space: pre-wrap; }
                <string>Servidores remotos</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/servers.png</normaloff>:/data/icons/servers.png</iconset>
               </property>
               <item>
@@ -2520,7 +2546,7 @@ p, li { white-space: pre-wrap; }
                 <string>CPTEC</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/server.png</normaloff>:/data/icons/server.png</iconset>
                </property>
                <item>
@@ -2528,7 +2554,7 @@ p, li { white-space: pre-wrap; }
                  <string>PCD</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_pontual.png</normaloff>:/data/icons/dado_pontual.png</iconset>
                 </property>
                </item>
@@ -2537,7 +2563,7 @@ p, li { white-space: pre-wrap; }
                  <string>PCD - Alertas</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_pontual.png</normaloff>:/data/icons/dado_pontual.png</iconset>
                 </property>
                </item>
@@ -2546,7 +2572,7 @@ p, li { white-space: pre-wrap; }
                  <string>Satélite Acumulada 4Km</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2555,7 +2581,7 @@ p, li { white-space: pre-wrap; }
                  <string>Satélite Instantânea 4Km</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2564,7 +2590,7 @@ p, li { white-space: pre-wrap; }
                  <string>Radar Acumulada 4Km</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2573,7 +2599,7 @@ p, li { white-space: pre-wrap; }
                  <string>ETA 20Km</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2582,7 +2608,7 @@ p, li { white-space: pre-wrap; }
                  <string>ETA 5Km</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2592,7 +2618,7 @@ p, li { white-space: pre-wrap; }
                 <string>CPTEC-2</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/server.png</normaloff>:/data/icons/server.png</iconset>
                </property>
                <item>
@@ -2600,7 +2626,7 @@ p, li { white-space: pre-wrap; }
                  <string>ETA 20Km</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2609,7 +2635,7 @@ p, li { white-space: pre-wrap; }
                  <string>Ensemble Médio 40Km</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2619,7 +2645,7 @@ p, li { white-space: pre-wrap; }
                 <string>NASA</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/server.png</normaloff>:/data/icons/server.png</iconset>
                </property>
                <item>
@@ -2627,7 +2653,7 @@ p, li { white-space: pre-wrap; }
                  <string>Radar 1</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2636,7 +2662,7 @@ p, li { white-space: pre-wrap; }
                  <string>Radar 2</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/dado_grid.png</normaloff>:/data/icons/dado_grid.png</iconset>
                 </property>
                </item>
@@ -2664,7 +2690,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/server_update.png</normaloff>:/data/icons/server_update.png</iconset>
                </property>
               </widget>
@@ -2678,7 +2704,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/server_export.png</normaloff>:/data/icons/server_export.png</iconset>
                </property>
               </widget>
@@ -2695,7 +2721,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/server_remove.png</normaloff>:/data/icons/server_remove.png</iconset>
                </property>
               </widget>
@@ -2771,7 +2797,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadogrid.png</normaloff>:/data/icons/add_dadogrid.png</iconset>
                   </property>
                  </widget>
@@ -2785,7 +2811,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadospontual.png</normaloff>:/data/icons/add_dadospontual.png</iconset>
                   </property>
                  </widget>
@@ -2808,7 +2834,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadospontual _diferente.png</normaloff>:/data/icons/add_dadospontual _diferente.png</iconset>
                   </property>
                  </widget>
@@ -2825,7 +2851,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/remover_dadogrid.png</normaloff>:/data/icons/remover_dadogrid.png</iconset>
                   </property>
                  </widget>
@@ -2843,7 +2869,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/remover_dadopontual.png</normaloff>:/data/icons/remover_dadopontual.png</iconset>
                   </property>
                  </widget>
@@ -2861,7 +2887,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/remover_dadopontual_diferente.png</normaloff>:/data/icons/remover_dadopontual_diferente.png</iconset>
                   </property>
                  </widget>
@@ -2875,7 +2901,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadospontual_diferente_update.png</normaloff>:/data/icons/add_dadospontual_diferente_update.png</iconset>
                   </property>
                  </widget>
@@ -2889,7 +2915,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadospontual_diferente_export.png</normaloff>:/data/icons/add_dadospontual_diferente_export.png</iconset>
                   </property>
                  </widget>
@@ -2903,7 +2929,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadospontua_update.png</normaloff>:/data/icons/add_dadospontua_update.png</iconset>
                   </property>
                  </widget>
@@ -2917,7 +2943,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadospontua_exportl.png</normaloff>:/data/icons/add_dadospontua_exportl.png</iconset>
                   </property>
                  </widget>
@@ -2937,7 +2963,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadogrid_update.png</normaloff>:/data/icons/add_dadogrid_update.png</iconset>
                   </property>
                  </widget>
@@ -2951,7 +2977,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dadogrid_export.png</normaloff>:/data/icons/add_dadogrid_export.png</iconset>
                   </property>
                  </widget>
@@ -2965,7 +2991,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/add_dados_geral.png</normaloff>:/data/icons/add_dados_geral.png</iconset>
                   </property>
                  </widget>
@@ -3020,7 +3046,7 @@ p, li { white-space: pre-wrap; }
                <string>Plano de Risco IPT Cubatão</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/plano de risco.png</normaloff>:/data/icons/plano de risco.png</iconset>
               </property>
              </item>
@@ -3029,7 +3055,7 @@ p, li { white-space: pre-wrap; }
                <string>Plano de Risco PETROBRAS</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/plano de risco.png</normaloff>:/data/icons/plano de risco.png</iconset>
               </property>
              </item>
@@ -3046,7 +3072,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/plano de risco_mais.png</normaloff>:/data/icons/plano de risco_mais.png</iconset>
                </property>
               </widget>
@@ -3060,7 +3086,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/plano de risco_menos.png</normaloff>:/data/icons/plano de risco_menos.png</iconset>
                </property>
               </widget>
@@ -3131,7 +3157,7 @@ p, li { white-space: pre-wrap; }
               <string>Projeção...</string>
              </property>
              <property name="icon">
-              <iconset resource="icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/PROJECAO.png</normaloff>:/global/icons/PROJECAO.png</iconset>
              </property>
             </widget>
@@ -3180,7 +3206,16 @@ p, li { white-space: pre-wrap; }
              </property>
              <widget class="QWidget" name="page_3">
               <layout class="QGridLayout">
-               <property name="margin">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>0</number>
                </property>
                <property name="spacing">
@@ -3193,7 +3228,16 @@ p, li { white-space: pre-wrap; }
              </widget>
              <widget class="QWidget" name="page_4">
               <layout class="QGridLayout">
-               <property name="margin">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>0</number>
                </property>
                <property name="spacing">
@@ -3372,7 +3416,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
             </property>
            </widget>
@@ -3389,7 +3433,7 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
             </property>
            </widget>
@@ -3425,7 +3469,7 @@ p, li { white-space: pre-wrap; }
                <string>Altimetria</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/novo_grid.png</normaloff>:/data/icons/novo_grid.png</iconset>
               </property>
              </item>
@@ -3434,7 +3478,7 @@ p, li { white-space: pre-wrap; }
                <string>Declividade</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/novo_grid.png</normaloff>:/data/icons/novo_grid.png</iconset>
               </property>
              </item>
@@ -3443,7 +3487,7 @@ p, li { white-space: pre-wrap; }
                <string>Rodovias</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/info_vect.png</normaloff>:/data/icons/info_vect.png</iconset>
               </property>
              </item>
@@ -3463,7 +3507,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/add_grid.png</normaloff>:/data/icons/add_grid.png</iconset>
                </property>
               </widget>
@@ -3480,7 +3524,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/infovetor.png</normaloff>:/data/icons/infovetor.png</iconset>
                </property>
               </widget>
@@ -3497,7 +3541,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/remover_plano selecionado.png</normaloff>:/data/icons/remover_plano selecionado.png</iconset>
                </property>
               </widget>
@@ -3568,7 +3612,7 @@ p, li { white-space: pre-wrap; }
               <string>Projeção...</string>
              </property>
              <property name="icon">
-              <iconset resource="icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/PROJECAO.png</normaloff>:/global/icons/PROJECAO.png</iconset>
              </property>
             </widget>
@@ -3620,7 +3664,16 @@ p, li { white-space: pre-wrap; }
                <property name="spacing">
                 <number>0</number>
                </property>
-               <property name="margin">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>0</number>
                </property>
                <item>
@@ -3633,7 +3686,16 @@ p, li { white-space: pre-wrap; }
                <property name="spacing">
                 <number>0</number>
                </property>
-               <property name="margin">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>0</number>
                </property>
                <item>
@@ -3656,7 +3718,16 @@ p, li { white-space: pre-wrap; }
            <string> Atributos: </string>
           </property>
           <layout class="QHBoxLayout">
-           <property name="margin">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
             <number>0</number>
            </property>
            <item>
@@ -3922,7 +3993,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
             </property>
            </widget>
@@ -3939,7 +4010,7 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
             </property>
            </widget>
@@ -3987,7 +4058,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/espaco_celular_mais.png</normaloff>:/data/icons/espaco_celular_mais.png</iconset>
                </property>
               </widget>
@@ -4005,7 +4076,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/espaco_celular_menos.png</normaloff>:/data/icons/espaco_celular_menos.png</iconset>
                </property>
               </widget>
@@ -4076,7 +4147,7 @@ p, li { white-space: pre-wrap; }
               <string>Projeção...</string>
              </property>
              <property name="icon">
-              <iconset resource="icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/PROJECAO.png</normaloff>:/global/icons/PROJECAO.png</iconset>
              </property>
             </widget>
@@ -4125,7 +4196,16 @@ p, li { white-space: pre-wrap; }
              </property>
              <widget class="QWidget" name="page_7">
               <layout class="QGridLayout" name="_4">
-               <property name="margin">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>0</number>
                </property>
                <property name="spacing">
@@ -4138,7 +4218,16 @@ p, li { white-space: pre-wrap; }
              </widget>
              <widget class="QWidget" name="page_8">
               <layout class="QGridLayout" name="_5">
-               <property name="margin">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>0</number>
                </property>
                <property name="spacing">
@@ -4198,7 +4287,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
             </property>
            </widget>
@@ -4215,7 +4304,7 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
             </property>
            </widget>
@@ -4260,7 +4349,7 @@ p, li { white-space: pre-wrap; }
                <string>Analise Risco 1</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/analise_plano de risco.png</normaloff>:/data/icons/analise_plano de risco.png</iconset>
               </property>
              </item>
@@ -4269,7 +4358,7 @@ p, li { white-space: pre-wrap; }
                <string>Analise Risco 2</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/add_analise_plano risco.png</normaloff>:/data/icons/add_analise_plano risco.png</iconset>
               </property>
              </item>
@@ -4278,7 +4367,7 @@ p, li { white-space: pre-wrap; }
                <string>Analise Modelo A</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/analizemodel.png</normaloff>:/data/icons/analizemodel.png</iconset>
               </property>
              </item>
@@ -4295,7 +4384,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/add_analise_plano risco.png</normaloff>:/data/icons/add_analise_plano risco.png</iconset>
                </property>
               </widget>
@@ -4309,7 +4398,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/add_analise_modelo.png</normaloff>:/data/icons/add_analise_modelo.png</iconset>
                </property>
               </widget>
@@ -4327,7 +4416,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/add_dadospontual.png</normaloff>:/data/icons/add_dadospontual.png</iconset>
                </property>
               </widget>
@@ -4345,7 +4434,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/add_terrame.png</normaloff>:/data/icons/add_terrame.png</iconset>
                </property>
               </widget>
@@ -4362,7 +4451,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/remove_analise_selecionada.png</normaloff>:/data/icons/remove_analise_selecionada.png</iconset>
                </property>
               </widget>
@@ -4566,7 +4655,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/atributorisco.png</normaloff>:/data/icons/atributorisco.png</iconset>
                </property>
               </widget>
@@ -4577,7 +4666,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/atributos.png</normaloff>:/data/icons/atributos.png</iconset>
                </property>
               </widget>
@@ -4595,7 +4684,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/oper_zona.png</normaloff>:/data/icons/oper_zona.png</iconset>
                </property>
               </widget>
@@ -4606,7 +4695,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/oper_zona.png</normaloff>:/data/icons/oper_zona.png</iconset>
                </property>
               </widget>
@@ -4620,7 +4709,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/sample.png</normaloff>:/data/icons/sample.png</iconset>
                </property>
               </widget>
@@ -4637,7 +4726,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/risco.png</normaloff>:/data/icons/risco.png</iconset>
                </property>
               </widget>
@@ -4655,7 +4744,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/atributos_espaco_celular.png</normaloff>:/data/icons/atributos_espaco_celular.png</iconset>
                </property>
               </widget>
@@ -4673,7 +4762,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/functions_terrame.png</normaloff>:/data/icons/functions_terrame.png</iconset>
                </property>
               </widget>
@@ -4690,7 +4779,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/functions.png</normaloff>:/data/icons/functions.png</iconset>
                </property>
               </widget>
@@ -4707,7 +4796,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/lua.png</normaloff>:/data/icons/lua.png</iconset>
                </property>
               </widget>
@@ -4738,7 +4827,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/analise_cria_lua.png</normaloff>:/data/icons/analise_cria_lua.png</iconset>
                </property>
               </widget>
@@ -4755,7 +4844,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="../../admin/ui/icons.qrc">
+                <iconset>
                  <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
                </property>
               </widget>
@@ -4772,7 +4861,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/assistente_modelo2.png</normaloff>:/data/icons/assistente_modelo2.png</iconset>
                </property>
               </widget>
@@ -4809,7 +4898,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
             </property>
            </widget>
@@ -4826,7 +4915,7 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
             </property>
            </widget>
@@ -4849,7 +4938,16 @@ p, li { white-space: pre-wrap; }
             <property name="spacing">
              <number>6</number>
             </property>
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
@@ -4889,7 +4987,7 @@ p, li { white-space: pre-wrap; }
                    <string>Plano de Risco IPT Cubatão</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/risco.png</normaloff>:/data/icons/risco.png</iconset>
                   </property>
                  </item>
@@ -4898,7 +4996,7 @@ p, li { white-space: pre-wrap; }
                    <string>Plano de Risco PETROBRAS</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/risco.png</normaloff>:/data/icons/risco.png</iconset>
                   </property>
                  </item>
@@ -4924,7 +5022,7 @@ p, li { white-space: pre-wrap; }
                    <string>Eta 5Km</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/grid.png</normaloff>:/data/icons/grid.png</iconset>
                   </property>
                  </item>
@@ -4933,7 +5031,7 @@ p, li { white-space: pre-wrap; }
                    <string>Satélite Acumulada 4Km</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/grid.png</normaloff>:/data/icons/grid.png</iconset>
                   </property>
                  </item>
@@ -4963,7 +5061,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../admin/ui/icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
                  </property>
                 </widget>
@@ -4992,7 +5090,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../admin/ui/icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
                  </property>
                 </widget>
@@ -5034,7 +5132,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/data/icons/analicruzada.png</normaloff>:/data/icons/analicruzada.png</iconset>
                  </property>
                 </widget>
@@ -5046,7 +5144,16 @@ p, li { white-space: pre-wrap; }
           </widget>
           <widget class="QWidget" name="analysisModelPage">
            <layout class="QHBoxLayout">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
@@ -5125,7 +5232,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../admin/ui/icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
                  </property>
                 </widget>
@@ -5160,7 +5267,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../admin/ui/icons.qrc">
+                  <iconset>
                    <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
                  </property>
                 </widget>
@@ -5208,7 +5315,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="icons.qrc">
+                  <iconset>
                    <normaloff>:/data/icons/grid_config.png</normaloff>:/data/icons/grid_config.png</iconset>
                  </property>
                 </widget>
@@ -5220,7 +5327,16 @@ p, li { white-space: pre-wrap; }
           </widget>
           <widget class="QWidget" name="analysisPCDPage">
            <layout class="QGridLayout" name="gridLayout_7">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item row="0" column="0">
@@ -5229,7 +5345,16 @@ p, li { white-space: pre-wrap; }
                <string> PCD:</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_6">
-               <property name="margin">
+               <property name="leftMargin">
+                <number>9</number>
+               </property>
+               <property name="topMargin">
+                <number>9</number>
+               </property>
+               <property name="rightMargin">
+                <number>9</number>
+               </property>
+               <property name="bottomMargin">
                 <number>9</number>
                </property>
                <item row="0" column="0">
@@ -5267,7 +5392,7 @@ p, li { white-space: pre-wrap; }
                     <string>...</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="icons.qrc">
+                    <iconset>
                      <normaloff>:/data/icons/alert.png</normaloff>:/data/icons/alert.png</iconset>
                    </property>
                   </widget>
@@ -5285,7 +5410,7 @@ p, li { white-space: pre-wrap; }
                     <string>...</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="icons.qrc">
+                    <iconset>
                      <normaloff>:/data/icons/analicruzada.png</normaloff>:/data/icons/analicruzada.png</iconset>
                    </property>
                   </widget>
@@ -5310,7 +5435,7 @@ p, li { white-space: pre-wrap; }
                    <string>Fonte de dados do tipo PCD</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/risco.png</normaloff>:/data/icons/risco.png</iconset>
                   </property>
                  </item>
@@ -5348,7 +5473,7 @@ p, li { white-space: pre-wrap; }
                    <string>Vista do tema de alerta</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset>
                     <normaloff>:/data/icons/risco.png</normaloff>:/data/icons/risco.png</iconset>
                   </property>
                  </item>
@@ -5404,7 +5529,7 @@ p, li { white-space: pre-wrap; }
                  <string>Espaço celular</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/risco.png</normaloff>:/data/icons/risco.png</iconset>
                 </property>
                </item>
@@ -5430,7 +5555,7 @@ p, li { white-space: pre-wrap; }
                  <string>Hidroestimador</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/data/icons/grid.png</normaloff>:/data/icons/grid.png</iconset>
                 </property>
                </item>
@@ -5460,7 +5585,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="../../admin/ui/icons.qrc">
+                <iconset>
                  <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
                </property>
               </widget>
@@ -5489,7 +5614,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="../../admin/ui/icons.qrc">
+                <iconset>
                  <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
                </property>
               </widget>
@@ -5528,7 +5653,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/preencher_espaco_celular.png</normaloff>:/data/icons/preencher_espaco_celular.png</iconset>
                </property>
               </widget>
@@ -5567,7 +5692,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuario 1</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -5576,7 +5701,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuario 2</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -5585,7 +5710,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuario 3</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -5605,7 +5730,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/add-usuario.png</normaloff>:/data/icons/add-usuario.png</iconset>
                </property>
               </widget>
@@ -5622,7 +5747,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/remover_usuario.png</normaloff>:/data/icons/remover_usuario.png</iconset>
                </property>
               </widget>
@@ -5775,7 +5900,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="../../admin/ui/icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
              </property>
             </widget>
@@ -5792,7 +5917,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="../../admin/ui/icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
              </property>
             </widget>
@@ -5861,7 +5986,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="../../admin/ui/icons.qrc">
+                 <iconset>
                   <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
                 </property>
                </widget>
@@ -5872,7 +5997,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="../../admin/ui/icons.qrc">
+                 <iconset>
                   <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
                 </property>
                </widget>
@@ -5923,7 +6048,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
             </property>
            </widget>
@@ -5940,7 +6065,7 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
             </property>
            </widget>
@@ -5976,7 +6101,7 @@ p, li { white-space: pre-wrap; }
                <string>Boletim 1</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/boletim.png</normaloff>:/data/icons/boletim.png</iconset>
               </property>
              </item>
@@ -5985,7 +6110,7 @@ p, li { white-space: pre-wrap; }
                <string>Boletim 2</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/boletim.png</normaloff>:/data/icons/boletim.png</iconset>
               </property>
              </item>
@@ -5994,7 +6119,7 @@ p, li { white-space: pre-wrap; }
                <string>Boletim 3</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/boletim.png</normaloff>:/data/icons/boletim.png</iconset>
               </property>
              </item>
@@ -6011,7 +6136,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/add-boletim.png</normaloff>:/data/icons/add-boletim.png</iconset>
                </property>
               </widget>
@@ -6025,7 +6150,7 @@ p, li { white-space: pre-wrap; }
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset>
                  <normaloff>:/data/icons/remover-boletim.png</normaloff>:/data/icons/remover-boletim.png</iconset>
                </property>
               </widget>
@@ -6089,7 +6214,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="../../admin/ui/icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
              </property>
             </widget>
@@ -6100,7 +6225,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="../../admin/ui/icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
              </property>
             </widget>
@@ -6128,7 +6253,7 @@ p, li { white-space: pre-wrap; }
                <string>Análise 1</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/add_analise_plano risco.png</normaloff>:/data/icons/add_analise_plano risco.png</iconset>
               </property>
              </item>
@@ -6137,7 +6262,7 @@ p, li { white-space: pre-wrap; }
                <string>Análise 2</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/add_analise_plano risco.png</normaloff>:/data/icons/add_analise_plano risco.png</iconset>
               </property>
              </item>
@@ -6146,7 +6271,7 @@ p, li { white-space: pre-wrap; }
                <string>Análise 3</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/add_analise_plano risco.png</normaloff>:/data/icons/add_analise_plano risco.png</iconset>
               </property>
              </item>
@@ -6155,7 +6280,7 @@ p, li { white-space: pre-wrap; }
                <string>Análise 4</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/add_analise_plano risco.png</normaloff>:/data/icons/add_analise_plano risco.png</iconset>
               </property>
              </item>
@@ -6164,7 +6289,7 @@ p, li { white-space: pre-wrap; }
                <string>Análise 5</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/add_analise_plano risco.png</normaloff>:/data/icons/add_analise_plano risco.png</iconset>
               </property>
              </item>
@@ -6195,7 +6320,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="../../admin/ui/icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
              </property>
             </widget>
@@ -6206,7 +6331,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="../../admin/ui/icons.qrc">
+              <iconset>
                <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
              </property>
             </widget>
@@ -6234,7 +6359,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuário 1</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -6243,7 +6368,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuário 2</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -6252,7 +6377,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuário 3</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -6261,7 +6386,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuário 4</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -6270,7 +6395,7 @@ p, li { white-space: pre-wrap; }
                <string>Usuário 5</string>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/data/icons/usuario.png</normaloff>:/data/icons/usuario.png</iconset>
               </property>
              </item>
@@ -6306,7 +6431,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
             </property>
            </widget>
@@ -6323,7 +6448,7 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset resource="../../admin/ui/icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
             </property>
            </widget>
@@ -6342,7 +6467,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1046</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArquivo">
@@ -6414,7 +6539,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="openAct">
    <property name="icon">
-    <iconset resource="../../admin/ui/icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/config_open.png</normaloff>:/global/icons/config_open.png</iconset>
    </property>
    <property name="text">
@@ -6428,7 +6553,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="refreshAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/data/icons/refresh.png</normaloff>:/data/icons/refresh.png</iconset>
    </property>
    <property name="text">
@@ -6440,7 +6565,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/data/icons/console.png</normaloff>:/data/icons/console.png</iconset>
    </property>
    <property name="text">
@@ -6452,7 +6577,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/data/icons/wizard.png</normaloff>:/data/icons/wizard.png</iconset>
    </property>
    <property name="text">
@@ -6461,7 +6586,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="archivingAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/excluir.png</normaloff>:/global/icons/excluir.png</iconset>
    </property>
    <property name="text">
@@ -6473,7 +6598,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="terraMEPlayerAct">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/global/icons/monitor.png</normaloff>:/global/icons/monitor.png</iconset>
    </property>
    <property name="text">
@@ -6484,9 +6609,6 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
  </widget>
- <resources>
-  <include location="../../admin/ui/icons.qrc"/>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

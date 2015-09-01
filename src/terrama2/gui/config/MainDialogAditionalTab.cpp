@@ -40,14 +40,13 @@
 #include "projectionDlg.h"
 #include "Services.hpp"
 #include "AdditionalMapList.hpp"
-#include "utils.h"
-
+#include "Utils.hpp"
 
 #include <ComboBoxDelegate.h>
 
 
-//! Construtor.  Prepara interface e estabelece conexıes
-MainDlgAditionalTab::MainDlgAditionalTab(MainDlg* main_dialog, Services* manager)
+//! Construtor.  Prepara interface e estabelece conex√µes
+MainDialogAditionalTab::MainDialogAditionalTab(MainDlg* main_dialog, Services* manager)
   : MainDlgTab(main_dialog, manager)
 {
   _additionalMapList         = NULL;
@@ -57,20 +56,20 @@ MainDlgAditionalTab::MainDlgAditionalTab(MainDlg* main_dialog, Services* manager
   _currentAdditionalMapIndex = -1;
   _currentTypeAdditionalMap = MDAT_TYPE_NONE;
 
-  // Seta par‚metros da tabela de atributos
+  // Seta par√¢metros da tabela de atributos
   _ui->additionalMapAttributesTableTwi->resizeRowsToContents();
   _ui->additionalMapAttributesTableTwi->setAlternatingRowColors(true);
 
   // Criamos a combo da tabela de atributos
   ComboBoxDelegate* cmbDelegate = new ComboBoxDelegate();
-  cmbDelegate->insertItem(tr("N„o"));
+  cmbDelegate->insertItem(tr("N√£o"));
   cmbDelegate->insertItem(tr("Sim"));
   _ui->additionalMapAttributesTableTwi->setItemDelegateForColumn(2, cmbDelegate);
 
-  // Para monitorar a mudanÁa de regra na lista de objetos monitorados, estamos
-  // usando um sinal do modelo de seleÁ„o e n„o o tradicional currentRowChanged()
-  // Isso È feito pois em currentRowChanged() n„o conseguimos voltar para a seleÁ„o
-  // anterior caso o usu·rio deseje cancelar a troca.
+  // Para monitorar a mudan√ßa de regra na lista de objetos monitorados, estamos
+  // usando um sinal do modelo de sele√ß√£o e n√£o o tradicional currentRowChanged()
+  // Isso √© feito pois em currentRowChanged() n√£o conseguimos voltar para a sele√ß√£o
+  // anterior caso o usu√°rio deseje cancelar a troca.
   connect(_ui->additionalMapListWidget->selectionModel(), 
           SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
           SLOT(listItemSelectionChanged(const QItemSelection&, const QItemSelection&)));
@@ -95,7 +94,7 @@ MainDlgAditionalTab::MainDlgAditionalTab(MainDlg* main_dialog, Services* manager
   connect(_ui->additionalMapResXGridLed,			SIGNAL(textEdited(const QString&)), SLOT(setAdditionalMapChanged()));
   connect(_ui->additionalMapResYGridLed,			SIGNAL(textEdited(const QString&)), SLOT(setAdditionalMapChanged()));
 
-  // Define os tipos para validaÁ„o (raster)
+  // Define os tipos para valida√ß√£o (raster)
   _ui->additionalMapLinhasGridLed->setValidator(new QIntValidator(_ui->additionalMapLinhasGridLed));
   _ui->additionalMapColunasGridLed->setValidator(new QIntValidator(_ui->additionalMapColunasGridLed));
   _ui->additionalMapResXGridLed->setValidator(new QDoubleValidator(_ui->additionalMapResXGridLed));
@@ -127,14 +126,14 @@ MainDlgAditionalTab::MainDlgAditionalTab(MainDlg* main_dialog, Services* manager
 
 
 //! Destrutor
-MainDlgAditionalTab::~MainDlgAditionalTab()
+MainDialogAditionalTab::~MainDialogAditionalTab()
 {
 }
 
 // Funcao comentada na classe base
-void MainDlgAditionalTab::load()
+void MainDialogAditionalTab::load()
 {
-  // Carrega novas informaÁıes
+  // Carrega novas informa√ß√µes
   loadAdditionalMapData();
 
   // Limpa dados
@@ -162,22 +161,22 @@ void MainDlgAditionalTab::load()
     _ui->additionalMapListWidget->setCurrentRow(0);
   }
   else
-    enableFields(false);  // Se n„o h· entradas na lista, desabilita campos
+    enableFields(false);  // Se n√£o h√° entradas na lista, desabilita campos
 }
 
 // Funcao comentada na classe base
-bool MainDlgAditionalTab::dataChanged()
+bool MainDialogAditionalTab::dataChanged()
 {
   return _additionalMapChanged;
 }
 
 // Funcao comentada na classe base
-bool MainDlgAditionalTab::validate(QString& err)
+bool MainDialogAditionalTab::validate(QString& err)
 {
-  // Nome do mapa È obrigatÛrio
+  // Nome do mapa √© obrigat√≥rio
   if(_ui->additionalMapNameLed->text().trimmed().isEmpty())
   {
-    err = tr("Nome do mapa adicional n„o foi preenchido!");
+    err = tr("Nome do mapa adicional n√£o foi preenchido!");
     return false;
   }
 
@@ -191,7 +190,7 @@ bool MainDlgAditionalTab::validate(QString& err)
 }
 
 // Funcao comentada na classe base
-bool MainDlgAditionalTab::save()
+bool MainDialogAditionalTab::save()
 {
   AdditionalMap additionalMap;
   if(!_newAdditionalMap)
@@ -209,7 +208,7 @@ bool MainDlgAditionalTab::save()
   else
     ok = _additionalMapList->addNewAdditionalMap(&additionalMap, isGrid);  
   
-  // Se a operaÁ„o de salvar n„o deu certo, retorna false e mantÈm o estado atual
+  // Se a opera√ß√£o de salvar n√£o deu certo, retorna false e mant√©m o estado atual
   if(!ok)
     return false;
   
@@ -220,7 +219,7 @@ bool MainDlgAditionalTab::save()
   _manager->loadAdditionalMapThemeData();
   loadAdditionalMapData();
 
-  // Atualiza estado para dados n„o alterados
+  // Atualiza estado para dados n√£o alterados
   clearAdditionalMapChanged();
   _newAdditionalMap = false;
   
@@ -230,12 +229,12 @@ bool MainDlgAditionalTab::save()
 }
 
 // Funcao comentada na classe base
-void MainDlgAditionalTab::discardChanges(bool restore_data)
+void MainDialogAditionalTab::discardChanges(bool restore_data)
 {
   if(_newAdditionalMap)
   {
-    // Estamos descartando um mapa recÈm criado que n„o foi salvo na base
-    // 1) Remove entrada da lista (interface).  Deve ser a ˙ltima linha
+    // Estamos descartando um mapa rec√©m criado que n√£o foi salvo na base
+    // 1) Remove entrada da lista (interface).  Deve ser a √∫ltima linha
     assert(_currentAdditionalMapIndex == _ui->additionalMapListWidget->count()-1);
     _ignoreChangeEvents = true;
     delete _ui->additionalMapListWidget->takeItem(_currentAdditionalMapIndex);    
@@ -261,7 +260,7 @@ void MainDlgAditionalTab::discardChanges(bool restore_data)
   }
   else
   {
-    // Estamos descartando as ediÁıes feitas em uma an·lise antiga
+    // Estamos descartando as edi√ß√µes feitas em uma an√°lise antiga
     if(restore_data)
       setFields(_additionalMapList->at(_currentAdditionalMapIndex));
     else  
@@ -269,18 +268,18 @@ void MainDlgAditionalTab::discardChanges(bool restore_data)
   }  
 }
 
-//! Slot chamado quando a linha corrente È alterada na lista de mapas
-void MainDlgAditionalTab::listItemSelectionChanged(const QItemSelection& selected, const QItemSelection& oldSelection)
+//! Slot chamado quando a linha corrente √© alterada na lista de mapas
+void MainDialogAditionalTab::listItemSelectionChanged(const QItemSelection& selected, const QItemSelection& oldSelection)
 {
   if(_ignoreChangeEvents)
     return;
 
   QModelIndexList selected_indexes = selected.indexes();
   
-  // Se usu·rio clicou na lista fora de qq. item, remarca item anterior
+  // Se usu√°rio clicou na lista fora de qq. item, remarca item anterior
   if(!selected_indexes.count())
   {
-    if(oldSelection.indexes().count()) // Evita loop infinito se n„o existir seleÁ„o anterior...
+    if(oldSelection.indexes().count()) // Evita loop infinito se n√£o existir sele√ß√£o anterior...
       _ui->additionalMapListWidget->selectionModel()->select(oldSelection, QItemSelectionModel::SelectCurrent);
     return;
   }
@@ -288,7 +287,7 @@ void MainDlgAditionalTab::listItemSelectionChanged(const QItemSelection& selecte
   // Obtem a linha selecionada    
   int row = selected_indexes[0].row();
 
-  // Verifica se estamos apenas voltando ‡ mesma opÁ„o atual.  Ocorre 
+  // Verifica se estamos apenas voltando √† mesma op√ß√£o atual.  Ocorre 
   // quando uma troca de mapa foi cancelada
   if(row == _currentAdditionalMapIndex)
     return;
@@ -302,30 +301,30 @@ void MainDlgAditionalTab::listItemSelectionChanged(const QItemSelection& selecte
 
   if(ok)
   {
-    // OperaÁ„o permitida.  Troca dados na tela
+    // Opera√ß√£o permitida.  Troca dados na tela
     if(_newAdditionalMap)
     {
-      // Estamos tratando a seleÁ„o de uma an·lise recÈm incluida na lista
+      // Estamos tratando a sele√ß√£o de uma an√°lise rec√©m incluida na lista
       assert(row == _additionalMapList->count());
       clearFields(false);
     }
     else 
     {
-      // Estamos tratando uma seleÁ„o normal feita pelo usu·rio
+      // Estamos tratando uma sele√ß√£o normal feita pelo usu√°rio
       setFields(_additionalMapList->at(row));
     }  
     _currentAdditionalMapIndex = row;
   }
   else
   {
-    // OperaÁ„o foi cancelada.  Devemos reverter ‡ regra original
+    // Opera√ß√£o foi cancelada.  Devemos reverter √† regra original
     _ui->additionalMapListWidget->selectionModel()->select(oldSelection, QItemSelectionModel::SelectCurrent);
     _ui->additionalMapListWidget->setCurrentRow(_currentAdditionalMapIndex);
   }    
 }
 
-//! Slot chamado quando o bot„o de alterar projeÁıes È pressionado
-void MainDlgAditionalTab::projectionDialogRequested()
+//! Slot chamado quando o bot√£o de alterar proje√ß√µes √© pressionado
+void MainDialogAditionalTab::projectionDialogRequested()
 {
   ProjectionDlg dlg;
   wsProjectionParams tempProjectionParams;
@@ -350,18 +349,18 @@ void MainDlgAditionalTab::projectionDialogRequested()
   dlg.exec();
 }
 
-// FunÁ„o comentada na classe base
-QString MainDlgAditionalTab::verifyAndEnableChangeMsg()
+// Fun√ß√£o comentada na classe base
+QString MainDialogAditionalTab::verifyAndEnableChangeMsg()
 {
-  return tr("As alteraÁıes efetuadas na tela de mapas adicionais\n"
-            "ainda n„o foram salvas.  Deseja salvar as alteraÁıes?");
+  return tr("As altera√ß√µes efetuadas na tela de mapas adicionais\n"
+            "ainda n√£o foram salvas.  Deseja salvar as altera√ß√µes?");
 }
 
-/*! \brief Indica que os dados mostrados est„o atualizados com o servidor. 
+/*! \brief Indica que os dados mostrados est√£o atualizados com o servidor. 
 
-Desabilita os botıes de salvar e cancelar
+Desabilita os bot√µes de salvar e cancelar
 */
-void MainDlgAditionalTab::clearAdditionalMapChanged()
+void MainDialogAditionalTab::clearAdditionalMapChanged()
 {
   _additionalMapChanged = false;
   _ui->additionalMapSaveBtn->setEnabled(false);
@@ -378,9 +377,9 @@ void MainDlgAditionalTab::clearAdditionalMapChanged()
 
 /*! \brief Indica que algum dos dados apresentados foi alterado.  
 
-Habilita botıes de salvar e cancelar
+Habilita bot√µes de salvar e cancelar
 */
-void MainDlgAditionalTab::setAdditionalMapChanged()
+void MainDialogAditionalTab::setAdditionalMapChanged()
 {
   if(_ignoreChangeEvents)
     return;
@@ -403,9 +402,9 @@ void MainDlgAditionalTab::setAdditionalMapChanged()
 
 /*! \brief Limpa a interface.  
 
-Flag indica se a lista de mapas tambÈm deve ser limpa
+Flag indica se a lista de mapas tamb√©m deve ser limpa
 */
-void MainDlgAditionalTab::clearFields(bool clearlist)
+void MainDialogAditionalTab::clearFields(bool clearlist)
 {
   _ignoreChangeEvents = true;
 
@@ -429,12 +428,12 @@ void MainDlgAditionalTab::clearFields(bool clearlist)
 
   _ui->additionalDataWidgetStack->setEnabled(false);
 
-  // Dados na ficha est„o atualizados...
+  // Dados na ficha est√£o atualizados...
   clearAdditionalMapChanged();
 }
 
 //! Preenche a interface com os dados de um mapa
-void MainDlgAditionalTab::setFields(const AdditionalMap* additionalMap)
+void MainDialogAditionalTab::setFields(const AdditionalMap* additionalMap)
 {
   _ignoreChangeEvents = true; 
 
@@ -466,12 +465,12 @@ void MainDlgAditionalTab::setFields(const AdditionalMap* additionalMap)
 
   _ignoreChangeEvents = false;
 
-  // Dados na ficha est„o atualizados...
+  // Dados na ficha est√£o atualizados...
   clearAdditionalMapChanged();
 }
 
 //! Interface para procura o indice do tema pelo Id (Grid Ou Vector)
-void MainDlgAditionalTab::fillComboBox(const std::vector<struct wsTheme>& _additionalMapTheme)
+void MainDialogAditionalTab::fillComboBox(const std::vector<struct wsTheme>& _additionalMapTheme)
 {
    _ui->cboBoxAdditionalMapTheme->clear();
    _ui->cboBoxAdditionalMapTheme->addItem("Nenhum");
@@ -481,7 +480,7 @@ void MainDlgAditionalTab::fillComboBox(const std::vector<struct wsTheme>& _addit
 
 
 //! Interface para procura o indice do tema pelo Id (Grid Ou Vector)
-int MainDlgAditionalTab::findThemeIndex(enum mdatAdditionalType typeTheme, int id)
+int MainDialogAditionalTab::findThemeIndex(enum mdatAdditionalType typeTheme, int id)
 {
 	int ret = -1;
 
@@ -495,7 +494,7 @@ int MainDlgAditionalTab::findThemeIndex(enum mdatAdditionalType typeTheme, int i
 }
 
 //! Procura o indice do tema pelo Id
-int MainDlgAditionalTab::auxFindThemeIndex(const std::vector<struct wsTheme>& mapThemeList, int id)
+int MainDialogAditionalTab::auxFindThemeIndex(const std::vector<struct wsTheme>& mapThemeList, int id)
 {
 	int nRet = -1;
 	for (unsigned nPos=0; nPos < mapThemeList.size() && nRet == -1; nPos++)
@@ -512,7 +511,7 @@ int MainDlgAditionalTab::auxFindThemeIndex(const std::vector<struct wsTheme>& ma
 }
 
 //! Trata selecao do combo de temas
-void MainDlgAditionalTab::comboItemChanged(int index)
+void MainDialogAditionalTab::comboItemChanged(int index)
 {
 	if (_ignoreChangeEvents)
 		return;
@@ -558,7 +557,7 @@ void MainDlgAditionalTab::comboItemChanged(int index)
 }
 
 //! Preenche a interface com o Temas selecionado
-void MainDlgAditionalTab::setThemeFields(const struct wsTheme& theme)
+void MainDialogAditionalTab::setThemeFields(const struct wsTheme& theme)
 {
   if (theme.id == -1)
   {
@@ -595,8 +594,8 @@ void MainDlgAditionalTab::setThemeFields(const struct wsTheme& theme)
 		  _ui->additionalMapAttributesTableTwi->setItem(i, 0, new QTableWidgetItem(QString::fromStdString(theme.attributes.at(i).name)));
 		  _ui->additionalMapAttributesTableTwi->setItem(i, 1, new QTableWidgetItem(type));
 		  _ui->additionalMapAttributesTableTwi->item(i, 0)->setFlags(Qt::ItemIsEnabled);	// Evitam que essas duas colunas sejam
-		  _ui->additionalMapAttributesTableTwi->item(i, 1)->setFlags(Qt::ItemIsEnabled);	// edit·veis.
-		  _ui->additionalMapAttributesTableTwi->setItem(i, 2, new QTableWidgetItem(_addMapProperties.at(i).visible? tr("Sim") : tr("N„o")));
+		  _ui->additionalMapAttributesTableTwi->item(i, 1)->setFlags(Qt::ItemIsEnabled);	// edit√°veis.
+		  _ui->additionalMapAttributesTableTwi->setItem(i, 2, new QTableWidgetItem(_addMapProperties.at(i).visible? tr("Sim") : tr("N√£o")));
 		  _ui->additionalMapAttributesTableTwi->item(i,2)->setData(Qt::UserRole, _addMapProperties.at(i).visible);
 		  _ui->additionalMapAttributesTableTwi->setItem(i, 3, new QTableWidgetItem(QString::fromStdString(_addMapProperties.at(i).alias)));
 		  _ui->additionalMapAttributesTableTwi->setItem(i, 4, new QTableWidgetItem());
@@ -625,8 +624,8 @@ void MainDlgAditionalTab::setThemeFields(const struct wsTheme& theme)
   }
 }
 
-//! Preenche o mapa com os dados da interface, que j· devem ter sido validados
-void MainDlgAditionalTab::getFields(AdditionalMap* additionalMap)
+//! Preenche o mapa com os dados da interface, que j√° devem ter sido validados
+void MainDialogAditionalTab::getFields(AdditionalMap* additionalMap)
 {
   // Preenche dados comuns
   additionalMap->setName(_ui->additionalMapNameLed->text().trimmed());
@@ -654,9 +653,9 @@ void MainDlgAditionalTab::getFields(AdditionalMap* additionalMap)
 }
 
 //! Preenche o tema com os dados da interface
-void MainDlgAditionalTab::getThemeFields(AdditionalMap* additionalMap)
+void MainDialogAditionalTab::getThemeFields(AdditionalMap* additionalMap)
 {
-  assert(_newAdditionalMap);  // Ao editar um plano n„o podemos mudar o tema....
+  assert(_newAdditionalMap);  // Ao editar um plano n√£o podemos mudar o tema....
   
   struct wsTheme selectedTheme;
 
@@ -679,7 +678,7 @@ void MainDlgAditionalTab::getThemeFields(AdditionalMap* additionalMap)
 }
 
 //! Habilita ou desabilita campos da interface
-void MainDlgAditionalTab::enableFields(bool mode)
+void MainDialogAditionalTab::enableFields(bool mode)
 {
   // Campos
   _ui->additionalMapNameLed->setEnabled(mode);
@@ -693,7 +692,7 @@ void MainDlgAditionalTab::enableFields(bool mode)
   _ui->cboBoxAdditionalMapTheme->setEnabled(mode);
   // Stack
   _ui->additionalDataWidgetStack->setEnabled(mode);
-  // Botıes
+  // Bot√µes
   _ui->projectionAditionalBtn->setEnabled(mode);
 
   _ui->additionalMapDelMapBtn->setEnabled(mode);
@@ -701,8 +700,8 @@ void MainDlgAditionalTab::enableFields(bool mode)
 
 
 
-//! Slot chamado quando o usu·rio clica no botao para inserir um novo Mapa adicional Tipo Grid
-void MainDlgAditionalTab::insertAdditionalMapGridRequested()
+//! Slot chamado quando o usu√°rio clica no botao para inserir um novo Mapa adicional Tipo Grid
+void MainDialogAditionalTab::insertAdditionalMapGridRequested()
 {
 	// Falta diferenciar o Tipo (Grid ou Vect)
   QListWidgetItem* item = new QListWidgetItem;
@@ -733,8 +732,8 @@ void MainDlgAditionalTab::insertAdditionalMapGridRequested()
   _ui->cboBoxAdditionalMapTheme->setCurrentIndex(0);
 }
 
-//! Slot chamado quando o usu·rio clica no botao para inserir um novo Mapa adicional Tipo Vect
-void MainDlgAditionalTab::insertAdditionalMapVectRequested()
+//! Slot chamado quando o usu√°rio clica no botao para inserir um novo Mapa adicional Tipo Vect
+void MainDialogAditionalTab::insertAdditionalMapVectRequested()
 {
   QListWidgetItem* item = new QListWidgetItem;
 
@@ -764,8 +763,8 @@ void MainDlgAditionalTab::insertAdditionalMapVectRequested()
   _ui->cboBoxAdditionalMapTheme->setCurrentIndex(0);
 }
 
-//! Slot chamado quando o usu·rio clica no botao para excluir o mapa adicional atual
-void MainDlgAditionalTab::removeAdditionalMapRequested()
+//! Slot chamado quando o usu√°rio clica no botao para excluir o mapa adicional atual
+void MainDialogAditionalTab::removeAdditionalMapRequested()
 {
 	int currentPos = _ui->additionalMapListWidget->currentRow();
 	QListWidgetItem* oldItem = _ui->additionalMapListWidget->currentItem();
@@ -776,10 +775,10 @@ void MainDlgAditionalTab::removeAdditionalMapRequested()
 		return;
 
     
-      // Remove objeto do servidor.  Se n„o deu certo, retorna e mantÈm o estado atual
+      // Remove objeto do servidor.  Se n√£o deu certo, retorna e mant√©m o estado atual
   if(!_newAdditionalMap)
   {
-	// Verifca com o usu·rio se ele deseja realmente remover o servidor remoto
+	// Verifca com o usu√°rio se ele deseja realmente remover o servidor remoto
 	QMessageBox::StandardButton answer;
 	answer = QMessageBox::question(_parent, tr("Remover mapa adicional..."), 
 									tr("Deseja realmente remover este mapa adicional ?"),
@@ -788,8 +787,8 @@ void MainDlgAditionalTab::removeAdditionalMapRequested()
 	if(answer == QMessageBox::No)
 		return;
 
-	// Precisamos dessas informaÁıes para retornar o tema
-	// as combos da interface, agora que ele ser· liberado
+	// Precisamos dessas informa√ß√µes para retornar o tema
+	// as combos da interface, agora que ele ser√° liberado
 	int themeId = _additionalMapList->at(currentPos)->theme().id;
 	std::string themeName = _additionalMapList->at(currentPos)->theme().name;
 
@@ -802,14 +801,14 @@ void MainDlgAditionalTab::removeAdditionalMapRequested()
 
   if (ok)
   {
-	// Remove objeto da lista (interface) e desmarca seleÁ„o
+	// Remove objeto da lista (interface) e desmarca sele√ß√£o
 	_ignoreChangeEvents = true;
 
 	_ui->additionalMapListWidget->removeItemWidget(oldItem);
 	delete oldItem;
 	_ignoreChangeEvents = false;
 
-    // Desmarca indicadores de modificaÁ„o e novo objeto monitorado
+    // Desmarca indicadores de modifica√ß√£o e novo objeto monitorado
 	clearAdditionalMapChanged();
 	_newAdditionalMap = false;
 
@@ -825,16 +824,16 @@ void MainDlgAditionalTab::removeAdditionalMapRequested()
 	else
 	{
 		clearFields(true);
-		enableFields(false);  // Se n„o h· entradas na lista, desabilita campos
+		enableFields(false);  // Se n√£o h√° entradas na lista, desabilita campos
 	}
   }  
 
   emit additionalMapDatabaseChanged();
 }
 
-void MainDlgAditionalTab::loadAdditionalMapData()
+void MainDialogAditionalTab::loadAdditionalMapData()
 {
-	// Pega as informaÁıes da lista de mapas adicionais
+	// Pega as informa√ß√µes da lista de mapas adicionais
 	_additionalMapList = _manager->additionalMapList();
 	assert(_additionalMapList);
 	

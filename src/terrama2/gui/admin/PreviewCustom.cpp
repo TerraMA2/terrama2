@@ -29,12 +29,16 @@
   \author Raphael Meloni
 */
 
-
+// TerraMA2
 #include "PreviewCustom.hpp"
+
+// QT  
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
 #include <QMap>
+
+// STL  
 #include "JlCompress.h"
 
 //! Construtor

@@ -29,20 +29,21 @@
   \author Carlos Augusto Teixeira Mendes
 */
 
-
+// STL
 #include <assert.h>
+#include <memory>
 
+// TerraMA2
 #include "ServiceManager.hpp"
 
-#include "ModAnalise.nsmap" // Apenas um dos nsmap's deve ser incluido...
-  
+// SOAP
+#include "ModAnalise.nsmap" // Apenas um dos nsmap's deve ser incluido...  
 #include "soapModAnaliseProxy.h"
 #include "soapModColetaProxy.h"
 #include "soapModNotificacaoProxy.h"
 #include "soapServPlanosProxy.h"
 #include "soapServAnimacaoProxy.h"
 
-#include <memory>
 
 /*! Efetua um "ping" do serviço especificado em type.
 

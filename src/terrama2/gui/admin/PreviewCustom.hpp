@@ -33,14 +33,13 @@
 #ifndef _PREVIEW_H_
 #define _PREVIEW_H_
 
+// TerraMA2
 #include "PreviewCustom.hpp"
-
 #include "ConfigData.hpp"
+
+// QT  
 #include <QDir>
-
-
-/*! \brief Classe que gera o pacote de customizacao do módulo de visualizacao
-*/      
+ 
 class PreviewCustom
 {
 

@@ -29,13 +29,16 @@
   \author Carlos Augusto Teixeira Mendes
 */
 
+// STL
 #include <assert.h>
 
+// QT
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QProcess>
 #include <QFileInfo>
 
+// TerraMA2
 #include "ServicesDialog.hpp"
 #include "ServiceManager.hpp"
 

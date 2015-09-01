@@ -32,9 +32,9 @@
 #ifndef _MAINDLG_ANALYSIS_TAB_H_
 #define _MAINDLG_ANALYSIS_TAB_H_
 
-#include "mainDlgTab.h"
-#include "riskMap.h"
-#include "cellularSpace.h"
+#include "MainDialogTab.hpp"
+#include "RiskMap.hpp"
+#include "CellularSpace.hpp"
 
 class Analysis;
 class WeatherGrid;

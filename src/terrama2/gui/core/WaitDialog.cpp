@@ -20,29 +20,37 @@
 */
 
 /*!
-  \file terrama2/gui/admin/ServiceManager.hpp
+  \file terrama2/gui/admin/ServicesDialog.cpp
 
-  \brief Definition of ServiceManager Class
+  \brief Services QT Dialog
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
   \author Carlos Augusto Teixeira Mendes
 */
+ 
+#include <assert.h>
+
+#include "WaitDialog.hpp"
 
 
-#ifndef _SERVICE_MANAGER_H_
-#define _SERVICE_MANAGER_H_
-
-// TerraMA2
-#include "ConfigData.hpp"
-
-class ServiceManager 
+//! Construtor
+WaitDialog::WaitDialog(QString msg, QWidget* parent, Qt::WFlags f)
+: QDialog(parent, f)
 {
-public:
-  static bool ping(const ConfigData& config, int type);
-  static bool close(const ConfigData& config, int type);
-};
+  setupUi(this);
+  setMsg(msg);
+  show();
+}
 
-#endif
+//! Destrutor
+WaitDialog::~WaitDialog()
+{
+  hide();
+}
 
-
+//! Slot para setar a mensagem do diálogo
+void WaitDialog::setMsg(QString msg)
+{
+  msgLbl->setText(msg);
+}

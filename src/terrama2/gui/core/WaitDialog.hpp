@@ -20,39 +20,35 @@
 */
 
 /*!
-  \file terrama2/gui/admin/main.cpp
+  \file terrama2/gui/admin/WaitDialog.hpp
 
-  \brief Main function for 
+  \brief Services QT Dialog Header
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
+  \author Carlos Augusto Teixeira Mendes
 */
+  
+#ifndef _WaitDialog_H_
+#define _WaitDialog_H_
 
-// QT
-#include <qapplication.h>
-#include <QIcon>
-#include <QStringList>
-#include <iostream>
+#include "ui_WaitDialog.hpp"
 
-// #include "Language.h"
-#include "MainDialog.hpp"
-
-int main( int argc, char** argv )
+//! Classe responsável pela apresentação do diálogo de espera
+class WaitDialog : public QDialog, private Ui::WaitDialog
 {
-  // Load Icons
-  QStringList ithemes = QIcon::themeSearchPaths();
-  ithemes.push_back("/home/terrama2/Projeto/terrama2/share/icons/");
-  QIcon::setThemeSearchPaths(ithemes);
-  QIcon::setThemeName("terrama2");
+Q_OBJECT
 
-  QApplication app( argc, argv );
+public:
+  WaitDialog(QString msg, QWidget* parent = 0, Qt::WFlags f = 0 );
+  ~WaitDialog();
 
-  //Carrega a linguagem do sistema e os translators.
-  // loadLanguage("admin");
+public slots:
+  void setMsg(QString msg);
+  
+private:
+};
 
-  // Abre janela principal
-  MainDialog mainwindow;
 
-  mainwindow.show();
-  return app.exec();
-}
+#endif
+

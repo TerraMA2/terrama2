@@ -32,8 +32,10 @@
 #ifndef _ServicesDialog_H_
 #define _ServicesDialog_H_
 
+// QT
 #include "ui_ServicesDialog.hpp"
 
+// TerraMA2
 #include "ConfigData.hpp"
 #include "ConfigDataManager.hpp"
 
