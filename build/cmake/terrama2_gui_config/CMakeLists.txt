@@ -22,10 +22,7 @@
 #  Description: CMake script for the TerraMA2 Core Runtime Module.
 #
 #  Author: Raphael Willian da Costa
-
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
+#
 
 set(TERRAMA2_GUI_CONFIG_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/config)
 set(CMAKE_AUTOMOC ON)
@@ -33,10 +30,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CONFIG_PATH}/MainDialog.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CONFIG_PATH}/MainDialog.hpp)
-
 file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ui/MainDialogForm.ui)
-
-message(STATUS "${TERRAMA2_UI_FILES}")
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})

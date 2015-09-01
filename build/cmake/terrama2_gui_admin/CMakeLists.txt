@@ -24,10 +24,6 @@
 #  Author: Evandro Delatin
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
-
 set(TERRAMA2_GUI_ADMIN_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/admin)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
