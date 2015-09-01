@@ -133,17 +133,17 @@ WizardDialog::WizardDialog(const RiskMap* riskmap, const QList<WeatherGrid*>& se
 
   // Fill up the zone operation for the generic assistant tab
   zoneOpCmb->clear();
-  zoneOpCmb->addItem(tr("MÌnimo"), "minimo");
-  zoneOpCmb->addItem(tr("M·ximo"), "maximo");
-  zoneOpCmb->addItem(tr("MÈdia"),  "media");  
-  zoneOpCmb->addItem(tr("N˙mero amostras"), "conta_amostras"); 
+  zoneOpCmb->addItem(tr("M√≠nimo"), "minimo");
+  zoneOpCmb->addItem(tr("M√°ximo"), "maximo");
+  zoneOpCmb->addItem(tr("M√©dia"),  "media");  
+  zoneOpCmb->addItem(tr("N√∫mero amostras"), "conta_amostras"); 
   zoneOpCmb->setCurrentIndex(0);
 
   // Fill up the zone operation for the generic CPC tab 
   cpcCmbBoxOperator->clear();
-  cpcCmbBoxOperator->addItem(tr("MÌnimo"), "minimo");
-  cpcCmbBoxOperator->addItem(tr("M·ximo"), "maximo");
-  cpcCmbBoxOperator->addItem(tr("MÈdia"),  "media");  
+  cpcCmbBoxOperator->addItem(tr("M√≠nimo"), "minimo");
+  cpcCmbBoxOperator->addItem(tr("M√°ximo"), "maximo");
+  cpcCmbBoxOperator->addItem(tr("M√©dia"),  "media");  
   cpcCmbBoxOperator->setCurrentIndex(0);
 
   // Prepare the role table
@@ -215,14 +215,14 @@ void WizardDialog::addRuleRequested()
   rulesListWidget->addItem(rule);
 }
 
-//! Slot chamado quando o usu·rio pressiona o bot„o para remover uma regra
+//! Slot chamado quando o usu√°rio pressiona o bot√£o para remover uma regra
 void WizardDialog::removeRuleRequested()
 {
   int row = rulesListWidget->currentRow();
 
   if(row == -1)
   {
-    QMessageBox::warning(this, tr("Erro..."), tr("Selecione a regra a ser excluÌda."));
+    QMessageBox::warning(this, tr("Erro..."), tr("Selecione a regra a ser exclu√≠da."));
     return;
   }
 
@@ -336,8 +336,8 @@ bool WizardDialog::generateCPCScript()
   }
   else
   {
-    QMessageBox::warning(this, tr("Erro..."), tr("… necess·ria uma fonte de dados de tipo Grade para "
-                           "o c·lculo da intensidade de precipitaÁ„o hor·ria!"));
+    QMessageBox::warning(this, tr("Erro..."), tr("√â necess√°ria uma fonte de dados de tipo Grade para "
+                           "o c√°lculo da intensidade de precipita√ß√£o hor√°ria!"));
     return false;
   }
 
@@ -347,16 +347,16 @@ bool WizardDialog::generateCPCScript()
 
     if(!cpcCmbBoxPCDAttr->isEnabled())
     {
-      QMessageBox::warning(this, tr("Erro..."), tr("… necess·ria pelo menos um atributo no PCD usado "
-                             "no c·lculo do CPC!"));
+      QMessageBox::warning(this, tr("Erro..."), tr("√â necess√°ria pelo menos um atributo no PCD usado "
+                             "no c√°lculo do CPC!"));
       return false;
 
     }
   }
   else
   {
-    QMessageBox::warning(this, tr("Erro..."), tr("… necess·ria uma fonte de dados de tipo PCD para o "
-                           "c·lculo da quantidade de chuva acumulada!"));
+    QMessageBox::warning(this, tr("Erro..."), tr("√â necess√°ria uma fonte de dados de tipo PCD para o "
+                           "c√°lculo da quantidade de chuva acumulada!"));
     return false;
   }
 
@@ -369,9 +369,9 @@ bool WizardDialog::generateCPCScript()
 
   if(!isForecast)
   {
-    // Caso n„o seja um modelo de previs„o, a vari·vel aci È calculada apenas
-    // usando-se a mÈdia das chuvas acumuladas dos pcds que possuem influÍncia 
-    // sobre este polÌgono:
+    // Caso n√£o seja um modelo de previs√£o, a vari√°vel aci √© calculada apenas
+    // usando-se a m√©dia das chuvas acumuladas dos pcds que possuem influ√™ncia 
+    // sobre este pol√≠gono:
     aci = "local pcds = influencia_pcd('" + cpcCmbBoxPCD->currentText() + "')\n"
         "for i, v in ipairs(pcds) do\n"
         "  aci = aci + ( soma_historico_pcd('" + cpcCmbBoxPCD->currentText() + "', "
@@ -379,7 +379,7 @@ bool WizardDialog::generateCPCScript()
                          " " + QString::number(aciSpan) + ") ) / #pcds\n"
         "end";
 
-    // A vari·vel de intensidade de precipitaÁ„o hor·ria È calculada aplicando-se
+    // A vari√°vel de intensidade de precipita√ß√£o hor√°ria √© calculada aplicando-se
     // o operador zonal especificado ao plano selecionado.
     li = zonalOperator + "('" + cpcCmbBoxGrid->currentText() + "') or 0";
   }
@@ -387,7 +387,7 @@ bool WizardDialog::generateCPCScript()
   {
     int hours = cpcSpinBoxHoras->value();
 
-    // Vari·veis tempor·rias para c·lculo das chuvas acumuladas
+    // Vari√°veis tempor√°rias para c√°lculo das chuvas acumuladas
     QString variablePrev  = QString::fromStdString("prev" + QString::number(hours).toStdString() + "h");
     QString variablePrevAnt = QString::fromStdString("prev" + QString::number(hours-1).toStdString() + "h");
     aci = "local " + variablePrev + " = " + zonalOperator + "_pn('" + cpcCmbBoxGrid->currentText() + "', " + QString::number(hours) + ")\n";
@@ -397,10 +397,10 @@ bool WizardDialog::generateCPCScript()
     
     aci += "\n";
 
-    // No caso do modelo de previs„o, pegamos uma quantidade de horas
-    // das bandas do arquivo ETA de acordo com o especificado pelo usu·rio
+    // No caso do modelo de previs√£o, pegamos uma quantidade de horas
+    // das bandas do arquivo ETA de acordo com o especificado pelo usu√°rio
     // e complementamos com dados dos PCDs para que se somem uma quantidade
-    // necess·ria de horas (constante aciSpan).
+    // necess√°ria de horas (constante aciSpan).
     aci += "local pcds = influencia_pcd('" + cpcCmbBoxPCD->currentText() + "')\n"
         "for i, v in ipairs(pcds) do\n"
         "  aci = aci + ( soma_historico_pcd('" + cpcCmbBoxPCD->currentText() + "', "
@@ -408,16 +408,16 @@ bool WizardDialog::generateCPCScript()
                          " " + QString::number(aciSpan - hours + 1) + ") ) / #pcds\n"
         "end\n";
     
-    // SÛ consideramos a fonte de dados ETA no modelo caso o usu·rio
-    // tenha escolhido mais de uma hora de previs„o (neste caso, sÛ
-    // usamos a banda de Ìndice 1 no c·lculo do li).
+    // S√≥ consideramos a fonte de dados ETA no modelo caso o usu√°rio
+    // tenha escolhido mais de uma hora de previs√£o (neste caso, s√≥
+    // usamos a banda de √≠ndice 1 no c√°lculo do li).
     if(hours > 1)
     {
       aci += "aci = aci + " + variablePrevAnt;
     }
 
-    // A intensidade de precipitaÁ„o hor·ria prevista È calculada utilizando
-    // a quantidade de chuva acumulada entre a hora desejada pelo usu·rio e
+    // A intensidade de precipita√ß√£o hor√°ria prevista √© calculada utilizando
+    // a quantidade de chuva acumulada entre a hora desejada pelo usu√°rio e
     // a hora anterior.
     li = variablePrev;
     if(hours > 1)
@@ -426,20 +426,20 @@ bool WizardDialog::generateCPCScript()
     li += " or 0";
   }
   
-  // Agora, com as vari·veis com seus valores atribuÌdos, vamos escrever o script:
-  _script = "\t -- An·lise de Coeficiente de PrecipitaÁ„o CrÌtica\n"
+  // Agora, com as vari√°veis com seus valores atribu√≠dos, vamos escrever o script:
+  _script = "\t -- An√°lise de Coeficiente de Precipita√ß√£o Cr√≠tica\n"
         "\n"
-        "-- Constante de Risco por ¡rea (K): \n"
+        "-- Constante de Risco por √Årea (K): \n"
         "local k = " + cpcCmbBoxAttributes->currentText() + "\n"
         "\n"
-        "-- C·lculo da vari·vel de AcumulaÁ„o de Chuvas (Aci): \n"
+        "-- C√°lculo da vari√°vel de Acumula√ß√£o de Chuvas (Aci): \n"
         "local aci = 0\n" 
         "" + aci + "\n"
         "\n"
-        "-- C·lculo da vari·vel de Intensidade de PrecipitaÁ„o Hor·ria (Li): \n"
+        "-- C√°lculo da vari√°vel de Intensidade de Precipita√ß√£o Hor√°ria (Li): \n"
         "local li = " + li + "\n"
         "\n"
-        "-- C·lculo do CPC: \n"
+        "-- C√°lculo do CPC: \n"
         "local CPC = li / ( k * ( aci ^-0.933 ) ) or 0\n"
         "\n"
         "if      CPC < " + QString::number(cpcAtencaoSpb->value()) +    " then return 1\n"

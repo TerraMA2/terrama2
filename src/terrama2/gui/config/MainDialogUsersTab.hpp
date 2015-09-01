@@ -46,8 +46,8 @@ class UserAnalysisList;
 class AnalysisList;
 
 /*!
-\brief Classe respons·vel pelo tratamento da interface da ficha de
-       usu·rios da janela principal
+\brief Classe respons√°vel pelo tratamento da interface da ficha de
+       usu√°rios da janela principal
 */      
 class MainDialogUsersTab : public MainDialogTab
 {
@@ -103,22 +103,22 @@ private:
   void fillListAnalysis();
   void fillListNotification();
   
-  UserAnalysisList*     _userList;      //!< ReferÍncia para lista com dados dos usu·rios, mantida pelo gerenciador de serviÁos
-  AnalysisList*         _anaSelList;    //!< ReferÍncia para lista com dados das regras de an·lise, mantida pelo gerenciador de serviÁos
-  int   _currentUserIndex;              //!< Indice do usu·rio atual na lista de usu·rios
-  bool  _ignoreChangeEvents;            //!< Indica que o slot que monitora mudanÁas est· temporariamente desligado
-  bool  _userChanged;                   //!< Indica que algum dos dados apresentados foi alterado pelo usu·rio
-  bool  _newUser;                       //!< Indica que o usu·rio È um novo usu·rio
-  QStandardItemModel*   _model;			//!< Representa o modelo por tr·s da tabela
-  ComboBoxDelegate*     _comboDelegate; //!< O delegate utilizado para a ediÁ„o da tabela atravÈs de uma combo
+  UserAnalysisList*     _userList;      //!< Refer√™ncia para lista com dados dos usu√°rios, mantida pelo gerenciador de servi√ßos
+  AnalysisList*         _anaSelList;    //!< Refer√™ncia para lista com dados das regras de an√°lise, mantida pelo gerenciador de servi√ßos
+  int   _currentUserIndex;              //!< Indice do usu√°rio atual na lista de usu√°rios
+  bool  _ignoreChangeEvents;            //!< Indica que o slot que monitora mudan√ßas est√° temporariamente desligado
+  bool  _userChanged;                   //!< Indica que algum dos dados apresentados foi alterado pelo usu√°rio
+  bool  _newUser;                       //!< Indica que o usu√°rio √© um novo usu√°rio
+  QStandardItemModel*   _model;			//!< Representa o modelo por tr√°s da tabela
+  ComboBoxDelegate*     _comboDelegate; //!< O delegate utilizado para a edi√ß√£o da tabela atrav√©s de uma combo
 
-  std::vector<struct wsUserView>_listSelUserViews; //!< lista de userviews selecionadas para o usu·rio corrente  
+  std::vector<struct wsUserView>_listSelUserViews; //!< lista de userviews selecionadas para o usu√°rio corrente  
 
 signals:
-  //! Chamado quando o usu·rio inicia a criaÁ„o/ediÁ„o de um usu·rio.
+  //! Chamado quando o usu√°rio inicia a cria√ß√£o/edi√ß√£o de um usu√°rio.
   void editUserStarted();
   
-  //! Chamado quando o usu·rio termina a criaÁ„o/ediÁ„o de um usu·rio
+  //! Chamado quando o usu√°rio termina a cria√ß√£o/edi√ß√£o de um usu√°rio
   //! (confirmando ou cancelando).
   void editUserFinished();
 };

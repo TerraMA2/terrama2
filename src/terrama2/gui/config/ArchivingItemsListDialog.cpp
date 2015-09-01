@@ -258,7 +258,7 @@ QString ArchivingItemsListDialog::getActionString(wsArchivingRuleAction action)
   if(action == WS_ARRU_ACTION_DELETE_WARNING)
     return QObject::tr("Apagar alertas");
   if(action == WS_ARRU_ACTION_DELETE_SURFACE)
-    return QObject::tr("Apagar superfÌcies");
+    return QObject::tr("Apagar superf√≠cies");
 
   assert(0);
   return QObject::tr("Apagar dados");
@@ -269,7 +269,7 @@ QString ArchivingItemsListDialog::getTypeString(wsArchivingRuleType type)
   if(type == WS_ARRU_TYPE_DATASERVER)
     return QObject::tr("Fonte de dados");
   if(type == WS_ARRU_TYPE_ANALYSIS)
-    return QObject::tr("An·lise");
+    return QObject::tr("An√°lise");
 
   assert(0);
   return QObject::tr("Fonte de dados");
@@ -279,7 +279,7 @@ wsArchivingRuleType ArchivingItemsListDialog::getTypeWS(QString typeStr)
 {
   if(typeStr == QObject::tr("Fonte de dados"))
     return WS_ARRU_TYPE_DATASERVER;
-  if(typeStr == QObject::tr("An·lise"))
+  if(typeStr == QObject::tr("An√°lise"))
     return WS_ARRU_TYPE_ANALYSIS;
 
   assert(0);

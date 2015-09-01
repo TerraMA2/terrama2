@@ -43,10 +43,10 @@
 
 
 SurfacesConfigDialog::SurfacesConfigDialog(const QVector<struct wsPCD> &collectionPoints,
-                                     const QVector<std::string> &collectionAttributes,
-                                     const QVector<struct wsWeatherDataPcdSurface> &collectionSurfaces,
-                                     const wsProjectionParams &projection,
-                                     QWidget *parent, Qt::WFlags f) : QDialog(parent, f), _parent(parent),
+																		 const QVector<std::string> &collectionAttributes,
+																		 const QVector<struct wsWeatherDataPcdSurface> &collectionSurfaces,
+																		 const wsProjectionParams &projection,
+																		 QWidget *parent, Qt::WFlags f) : QDialog(parent, f), _parent(parent),
 
   _collectionPoints(collectionPoints),
   _collectionAttributes(collectionAttributes),
@@ -58,16 +58,16 @@ SurfacesConfigDialog::SurfacesConfigDialog(const QVector<struct wsPCD> &collecti
 {
   setupUi(this);
 
-  // mÈtodos de interpolaÁ„o
-  interpCmb->addItem(tr("Vizinho mais prÛximo"));
-  interpCmb->addItem(tr("K-vizinhos mais prÛximos"));
-  interpCmb->addItem(tr("K-vizinhos mais prÛximos ponderados"));
+  // m√©todos de interpola√ß√£o
+  interpCmb->addItem(tr("Vizinho mais pr√≥ximo"));
+  interpCmb->addItem(tr("K-vizinhos mais pr√≥ximos"));
+  interpCmb->addItem(tr("K-vizinhos mais pr√≥ximos ponderados"));
 #ifndef _WIN64  
-  interpCmb->addItem(tr("SuperfÌcie de tendÍncia"));
+  interpCmb->addItem(tr("Superf√≠cie de tend√™ncia"));
 #endif
 
-  // Menus associados a botıes
-  QMenu* menuMask = new QMenu(tr("M·scaras"), _parent);
+  // Menus associados a bot√µes
+  QMenu* menuMask = new QMenu(tr("M√°scaras"), _parent);
   menuMask->addAction(tr("%a - ano com dois digitos"));
   menuMask->addAction(tr("%A - ano com quatro digitos"));
   menuMask->addAction(tr("%d - dia com dois digitos"));
@@ -120,7 +120,7 @@ SurfacesConfigDialog::SurfacesConfigDialog(const QVector<struct wsPCD> &collecti
   resXEdit->setValidator(new QDoubleValidator(-TeMAXFLOAT, TeMAXFLOAT, 20, resXEdit));
   resYEdit->setValidator(new QDoubleValidator(-TeMAXFLOAT, TeMAXFLOAT, 20, resYEdit));
 
-  // Carrega as superfÌcies j· cadastradas
+  // Carrega as superf√≠cies j√° cadastradas
   if(!collectionSurfaces.isEmpty())
   {
     loadAttributeList();
@@ -129,7 +129,7 @@ SurfacesConfigDialog::SurfacesConfigDialog(const QVector<struct wsPCD> &collecti
   else // Nenhuma cadastrada, desabilita a parte direita da interface
     clearSurfaceDetails();
 
-  // Calcula o box padr„o
+  // Calcula o box padr√£o
   {
     TePointSet pointSet;
     for(int i = 0; i < _collectionPoints.size(); i++)
@@ -152,12 +152,12 @@ SurfacesConfigDialog::SurfacesConfigDialog(const QVector<struct wsPCD> &collecti
           pointSet[i].srid(projection->epsgCode());
       }
 
-      // Atualiza o box padr„o
+      // Atualiza o box padr√£o
       _baseBox = pointSet.box();
     }
   }
 
-  // Grava configuraÁ„o inicial
+  // Grava configura√ß√£o inicial
   _startConfig = _collectionSurfaces;
 }
 
@@ -168,11 +168,11 @@ void SurfacesConfigDialog::getFields(QVector<struct wsWeatherDataPcdSurface> &co
   changed = configChanged();
 }
 
-//! Slot chamado quando o usu·rio clica no botao para adicionar uma nova superficie
+//! Slot chamado quando o usu√°rio clica no botao para adicionar uma nova superficie
 void SurfacesConfigDialog::addSurface(){
   if(_collectionAttributes.isEmpty())
   {
-    QMessageBox::information(_parent, tr("Nova superfÌcie"), QObject::tr("O PCD ainda n„o realizou nenhuma coleta."));
+    QMessageBox::information(_parent, tr("Nova superf√≠cie"), QObject::tr("O PCD ainda n√£o realizou nenhuma coleta."));
     return;
   }
   loadAttributeList();
@@ -198,11 +198,11 @@ void SurfacesConfigDialog::addSurface(){
 
   enableWidgets(true);
 
-  // Nome temporario da nova superfÌcie na lista
-  surfaceList->currentItem()->setText("Nova superfÌcie");
+  // Nome temporario da nova superf√≠cie na lista
+  surfaceList->currentItem()->setText("Nova superf√≠cie");
 }
 
-//! Slot chamado quando o usu·rio clica no botao para remover uma superficie
+//! Slot chamado quando o usu√°rio clica no botao para remover uma superficie
 void SurfacesConfigDialog::removeSurface(){
 
   int row = surfaceList->currentRow();
@@ -218,7 +218,7 @@ void SurfacesConfigDialog::removeSurface(){
     clearSurfaceDetails();
 }
 
-//! Slot chamado quando o usu·rio clica no botao de mascara
+//! Slot chamado quando o usu√°rio clica no botao de mascara
 void SurfacesConfigDialog::menuMaskClick(QAction* actMenu)
 {
   outputGridEdit->setText(outputGridEdit->text() + actMenu->text().left(2));
@@ -226,7 +226,7 @@ void SurfacesConfigDialog::menuMaskClick(QAction* actMenu)
   updateSurfaceList();
 }
 
-//! Slot chamado quando o usu·rio troca de algoritimo de interpolaÁ„o
+//! Slot chamado quando o usu√°rio troca de algoritimo de interpola√ß√£o
 void SurfacesConfigDialog::interpolationChanged(int index)
 {
   if((wsSurfaceInterpolationMethod)index == WS_SURFACE_INTERPOLATION_NN_METHOD)
@@ -282,7 +282,7 @@ void SurfacesConfigDialog::resDegreeRadioToggled(bool checked)
   resYEdit->setText(QString::number(resY));
 }
 
-//! Slot chamado quando a superfÌcie atual foi alterada pelo usu·rio
+//! Slot chamado quando a superf√≠cie atual foi alterada pelo usu√°rio
 void SurfacesConfigDialog::updateCurrentSurface()
 {
   int row = surfaceList->currentRow();
@@ -310,7 +310,7 @@ void SurfacesConfigDialog::updateCurrentSurface()
   surface.resY                = resYEdit->text().toDouble();
 }
 
-//! Slot chamado depois de editar o nome da grade de saÌda
+//! Slot chamado depois de editar o nome da grade de sa√≠da
 void SurfacesConfigDialog::trimGridOutputName()
 {
   int row = surfaceList->currentRow();
@@ -323,13 +323,13 @@ void SurfacesConfigDialog::trimGridOutputName()
   surface.gridOutputName = QString::fromStdString(surface.gridOutputName).trimmed().toStdString();
 }
 
-//! Slot chamado quando a lista de superfÌcies precisa ser atualizada
+//! Slot chamado quando a lista de superf√≠cies precisa ser atualizada
 void SurfacesConfigDialog::updateSurfaceList()
 {
   updateSurfaceList(surfaceList->currentRow());
 }
 
-//! Atualiza a superfÌcie especificada
+//! Atualiza a superf√≠cie especificada
 void SurfacesConfigDialog::updateSurfaceList(int row)
 {
   surfaceList->clear();
@@ -351,7 +351,7 @@ void SurfacesConfigDialog::updateSurfaceList(int row)
     surfaceList->setCurrentRow(0);
 }
 
-//! Slot chamado quando os detalhes da superfÌcie publicada precisam ser atualizados
+//! Slot chamado quando os detalhes da superf√≠cie publicada precisam ser atualizados
 void SurfacesConfigDialog::showSurfaceDetails(int row)
 {
   if(row == -1)
@@ -426,7 +426,7 @@ void SurfacesConfigDialog::loadAttributeList()
   if(_attributeListIsLoaded)
     return;
 
-  // Insere os atributos disponÌveis no combobox
+  // Insere os atributos dispon√≠veis no combobox
   attributeCmb->clear();
   foreach(std::string attribute, _collectionAttributes)
     attributeCmb->addItem(QString::fromStdString(attribute));
@@ -434,7 +434,7 @@ void SurfacesConfigDialog::loadAttributeList()
   _attributeListIsLoaded = true;
 }
 
-//! Nenhuma superfÌcie a ser mostrada
+//! Nenhuma superf√≠cie a ser mostrada
 void SurfacesConfigDialog::clearSurfaceDetails()
 {
   outputGridEdit->clear();
@@ -478,7 +478,7 @@ void SurfacesConfigDialog::enableWidgets(bool enable)
   resYEdit->setEnabled(enable);
 }
 
-//! Verificar consistencia das superfÌcies cadastradas
+//! Verificar consistencia das superf√≠cies cadastradas
 bool SurfacesConfigDialog::verifyDados(QString & errMsg)
 {
   for(int row=0; row < _collectionSurfaces.count(); row++)
@@ -493,33 +493,33 @@ bool SurfacesConfigDialog::verifyDados(QString & errMsg)
   return true;
 }
 
-//! Verificar consistencia da superfÌcie especificada
+//! Verificar consistencia da superf√≠cie especificada
 bool SurfacesConfigDialog::verifyDadosAt(int row, QString & errMsg)
 {
   wsWeatherDataPcdSurface surface = _collectionSurfaces.at(row);
 
   if(QString::fromStdString(surface.gridOutputName).isEmpty())
   {
-    errMsg = tr("Informar a grade de saÌda");
+    errMsg = tr("Informar a grade de sa√≠da");
     return false;
   }
   else if((surface.interpolationMethod == WS_SURFACE_INTERPOLATION_AVERAGE ||
            surface.interpolationMethod == WS_SURFACE_INTERPOLATION_WEIGHT_AVERAGE) &&
            surface.numberOfNeighbors < 1)
   {
-    errMsg = tr("Numero de vizinhos inv·lido [1-9999]");
+    errMsg = tr("Numero de vizinhos inv√°lido [1-9999]");
     return false;
   }
   else if(surface.interpolationMethod == WS_SURFACE_INTERPOLATION_WEIGHT_AVERAGE &&
           surface.powValue < 1)
   {
-    errMsg = tr("ExponenciaÁ„o inv·lida [1-9999]");
+    errMsg = tr("Exponencia√ß√£o inv√°lida [1-9999]");
     return false;
   }
   else if(surface.interpolationMethod == WS_SURFACE_INTERPOLATION_POLYNOMIAL &&
           surface.powValue < 2)
   {
-    errMsg = tr("Grau do polinÙmio inv·lido");
+    errMsg = tr("Grau do polin√¥mio inv√°lido");
     return false;
   }
   else if(surface.x2 - surface.x1 < TeMINFLOAT)
@@ -534,7 +534,7 @@ bool SurfacesConfigDialog::verifyDadosAt(int row, QString & errMsg)
   }
   else if(surface.resX < TeMINFLOAT || surface.resY < TeMINFLOAT)
   {
-    errMsg = tr("ResoluÁıes devem ser estritamente positivas");
+    errMsg = tr("Resolu√ß√µes devem ser estritamente positivas");
     return false;
   }
   return true;
@@ -554,18 +554,18 @@ void SurfacesConfigDialog::checkAndAccept()
   accept();
 }
 
-//! Fecha o dialogo avisando o usuario das eventuais modificaÁıes n„o salvas
+//! Fecha o dialogo avisando o usuario das eventuais modifica√ß√µes n√£o salvas
 void SurfacesConfigDialog::checkAndReject()
 {
   if(configChanged())
   {
-    // Dados modificados.  Pergunta ao usu·rio se deseja salvar
-    // alteraÁıes, abandonar alteraÁıes ou cancelar a seleÁ„o de
+    // Dados modificados.  Pergunta ao usu√°rio se deseja salvar
+    // altera√ß√µes, abandonar altera√ß√µes ou cancelar a sele√ß√£o de
     // nova regra
     QMessageBox::StandardButton answer;
-    answer = QMessageBox::question(_parent, tr("ModificaÁıes n„o salvas!"),
-                                   "As alteraÁıes efetuadas na tela de configuraÁ„o de superfÌcies "
-                                   "ainda n„o foram salvas. Deseja salvar as alteraÁıes?",
+    answer = QMessageBox::question(_parent, tr("Modifica√ß√µes n√£o salvas!"),
+                                   "As altera√ß√µes efetuadas na tela de configura√ß√£o de superf√≠cies "
+                                   "ainda n√£o foram salvas. Deseja salvar as altera√ß√µes?",
                                    QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                                    QMessageBox::Save);
 
@@ -582,7 +582,7 @@ void SurfacesConfigDialog::checkAndReject()
     reject();
 }
 
-//! Verifica se houve alteraÁıes nas superfÌcies cadastradas
+//! Verifica se houve altera√ß√µes nas superf√≠cies cadastradas
 bool SurfacesConfigDialog::configChanged()
 {
   if(_collectionSurfaces.size() !=_startConfig.size())

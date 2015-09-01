@@ -34,6 +34,7 @@
 // STL
 #include <cassert>
 
+
 int terrama2::core::Version::majorNumber()
 {
   return TERRAMA2_VERSION_MAJOR;

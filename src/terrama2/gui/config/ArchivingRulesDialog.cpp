@@ -71,7 +71,7 @@ ArchivingRulesDialog::ArchivingRulesDialog(QString configFileName, Services* man
   _conditionList.clear();
   _conditionList.push_back(QPair<QString, int>(QObject::tr("Dia(s)"), 1));
   _conditionList.push_back(QPair<QString, int>(QObject::tr("Semana(s)"), 7));
-  _conditionList.push_back(QPair<QString, int>(QObject::tr("Mês(es)"), 30));
+  _conditionList.push_back(QPair<QString, int>(QObject::tr("MÃªs(es)"), 30));
   _conditionList.push_back(QPair<QString, int>(QObject::tr("Ano(s)"), 365));
 }
 
@@ -85,7 +85,7 @@ void ArchivingRulesDialog::executeArchiving()
   if(_changed)
   { 
     QMessageBox::StandardButton answer;
-    answer = QMessageBox::question(this, tr("O banco de dados deve ser atulalizado antes da execução"), 
+    answer = QMessageBox::question(this, tr("O banco de dados deve ser atulalizado antes da execuÃ§Ã£o"), 
         tr("Deseja salvar as regras de arquivamento?"),
       QMessageBox::Yes | QMessageBox::Cancel,
       QMessageBox::Cancel);
@@ -126,7 +126,7 @@ void ArchivingRulesDialog::executeArchiving()
   }
   else
   {
-    QMessageBox::warning(this, tr("Resultado"), tr("Nenhuma regra de arquivamento está selecionada!\nO arquivamento não foi realizado!"), QMessageBox::Ok);
+    QMessageBox::warning(this, tr("Resultado"), tr("Nenhuma regra de arquivamento estÃ¡ selecionada!\nO arquivamento nÃ£o foi realizado!"), QMessageBox::Ok);
     return;
   }
 
@@ -141,7 +141,7 @@ void ArchivingRulesDialog::executeArchiving()
   if(!QFile::exists(archivingProgramPath))
   {
     enableButtons(true);
-    QMessageBox::warning(this, tr("Resultado"), tr("O arquivamento não foi realizado!\n Programa \"arquivador\" não foi encontrado."), QMessageBox::Ok);
+    QMessageBox::warning(this, tr("Resultado"), tr("O arquivamento nÃ£o foi realizado!\n Programa \"arquivador\" nÃ£o foi encontrado."), QMessageBox::Ok);
     return;
   }
 
@@ -195,7 +195,7 @@ void ArchivingRulesDialog::addItem()
     if(newItemType.isEmpty() || newItemName.isEmpty() || 
        newItemAction.isEmpty() || newItemCondition.isEmpty() || newItemCreateFilter.isEmpty())
     {
-      QMessageBox::warning(this, tr("Ação cancelada"), tr("Dados incompletos!"));
+      QMessageBox::warning(this, tr("AÃ§Ã£o cancelada"), tr("Dados incompletos!"));
       return;
     }
 
@@ -206,7 +206,7 @@ void ArchivingRulesDialog::addItem()
         if(archivingItemsTbl->item(i, 1)->text() == newItemName)
           if(archivingItemsTbl->item(i, 2)->text() == newItemAction)
           {
-            QMessageBox::warning(this, tr("Ação cancelada"), tr("Item já está presente na tabela!"));
+            QMessageBox::warning(this, tr("AÃ§Ã£o cancelada"), tr("Item jÃ¡ estÃ¡ presente na tabela!"));
             return;
           }
     }
@@ -296,7 +296,7 @@ void ArchivingRulesDialog::itemUpdate(QTableWidgetItem* item)
           if(archivingItemsTbl->item(i, 1)->text().toStdString() == newRule.name)
             if(archivingItemsTbl->item(i, 2)->data(Qt::UserRole).toInt() == newRule.action)
             {
-              QMessageBox::warning(this, tr("Ação cancelada"), tr("Item já está presente na tabela!"));
+              QMessageBox::warning(this, tr("AÃ§Ã£o cancelada"), tr("Item jÃ¡ estÃ¡ presente na tabela!"));
               return;
             }
       }
@@ -413,7 +413,7 @@ QString ArchivingRulesDialog::createFilterToStr(wsArchivingRuleType ruleType, bo
     if(createFilter)
       return QObject::tr("Sim");
     else
-      return QObject::tr("Não");
+      return QObject::tr("NÃ£o");
   }
   else
   {

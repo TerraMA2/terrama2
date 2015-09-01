@@ -41,12 +41,7 @@ Size=48
 Type=Fixed
 Context=Applications
 
-[48x48/generic]
-Size=48
-Type=Fixed
-Context=Applications
-
-[64x64/config]
+[64x64]
 Size=64
 Type=Fixed
 Context=Applications

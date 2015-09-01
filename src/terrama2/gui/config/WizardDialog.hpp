@@ -22,20 +22,19 @@
 /*!
   \file terrama2/gui/config/WizardDialog.hpp
 
-  \brief Definition WizardDialog.hpp class methods
+  \brief Definition of Class WizardDialog.hpp
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
   \author Carlos Augusto Teixeira Mendes
 */
 
+#ifndef _WizardDialog_H_
+#define _WizardDialog_H_
 
-#ifndef _WIZARDDLG_H_
-#define _WIZARDDLG_H_
-
+// QT
 #include <QList>
-
-#include "ui_wizardDlg.h"
+#include "ui_WizardDialog.h"
 
 class RiskMap;
 class WeatherGrid;
@@ -47,8 +46,8 @@ class WizardDlg : public QDialog, private Ui::WizardDlg
 Q_OBJECT
 
 public:
-  WizardDlg(const RiskMap* riskmap, const QList<WeatherGrid*>& sellist, QWidget* parent = 0, Qt::WFlags f = 0 );
-  ~WizardDlg();
+  WizardDialog(const RiskMap* riskmap, const QList<WeatherGrid*>& sellist, QWidget* parent = 0, Qt::WFlags f = 0 );
+  ~WizardDialog();
 
   QString script();
 
@@ -66,6 +65,7 @@ private:
   void generateGenericScript();
   bool generateCPCScript();
 };
+
 
 #endif
 
