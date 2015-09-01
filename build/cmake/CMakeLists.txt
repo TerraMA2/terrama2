@@ -22,6 +22,7 @@
 #  Description: Main CMake script for the TerraMA2 build system.
 #
 #  Author: Gilberto Ribeiro de Queiroz
+#          Paulo R. M. Oliveira
 #
 
 cmake_minimum_required(VERSION 2.8.12)
@@ -119,6 +120,8 @@ endif()
 
 #add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
 
+
+
 if(WIN32)
   #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
@@ -169,13 +172,20 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+<<<<<<< HEAD
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++11 -Wall -pedantic")
+=======
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11")
+>>>>>>> upstream/master
 endif()
 
 # Turn on multi process compilation
 if(MSVC)
   add_definitions(/MP)
 endif()
+
+# Testing configuration
+enable_testing()
 
 
 #
@@ -189,10 +199,14 @@ include(CMakeDependentOption)
 # first check of libraries
 #
 
+<<<<<<< HEAD
 # Finding All QT5 libs
 find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network)
 
 find_package(Qt5LinguistTools QUIET)
+=======
+find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets LinguistTools Test)
+>>>>>>> upstream/master
 
 if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
   find_program(QT_QCOLLECTIONGENERATOR_EXECUTABLE
@@ -203,15 +217,20 @@ if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
                PATH_SUFFIXES bin)
 endif()
 
-#find_package(Boost 1.54.0 REQUIRED system date_time chrono timer filesystem thread unit_test_framework)
+find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem)
 
-#if(NOT Boost_FOUND)
-#  message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
-#endif()
+if(NOT Boost_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
+endif()
 
 find_package(Doxygen)
 
-#find_package(terralib)
+find_package(terralib REQUIRED)
+
+if(NOT terralib_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find TerraLib libraries!")
+endif()
+
 
 #find_package(Lua)
 
@@ -272,6 +291,10 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration
 
 #CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Web Service appserver module?" ON "TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED "Build unittest for Collector Web Service core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
+
 
 #
 # process TerraMA2 configuration files
@@ -316,6 +339,26 @@ endif()
 
 if(TERRAMA2_GUI_CONFIG_ENABLED)
   add_subdirectory(terrama2_gui_config)
+endif()
+
+if(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_core)
+endif()
+
+if(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_client)
+endif()
+
+if(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_server)
+endif()
+
+if(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED)
+  add_subdirectory(terrama2_mod_ws_collector_appserver)
+endif()
+
+if(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED)
+  add_subdirectory(terrama2_unittest_ws_collector_core)
 endif()
 
 

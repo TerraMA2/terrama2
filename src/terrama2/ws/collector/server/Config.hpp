@@ -20,51 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/Version.hpp
+  \file terrama2/ws/collector/server/Config.hpp
 
-  \brief Utility class for system versioning.
+  \brief Build options for TerraMA2 Collector Service server module.
 
-  \author Gilberto Ribeiro de Queiroz
-*/
+  \author Paulo R. M. Oliveira
+ */
 
-#ifndef __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
-#define __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_CONFIG_HPP__
+#define __TERRAMA2_WS_COLLECTOR_SERVER_CONFIG_HPP__
 
-// STL
-#include <string>
 
-namespace terrama2
-{
-  namespace core
-  {
-    //! Utility class for system versioning.
-    class Version
-    {
-      public:
-
-   //     static int majorNumber();
-
-  //      static int minorNumber();
-
- //       static int patchNumber();
-
- //       static std::string releaseStatus();
-
- //       static std::string buildDate();
-
- //       static std::string asString();
-
-  //      static int asInt();
-
-      private:
-
-        Version();
-
-        ~Version();
-    };
-
-  } // end namespace core
-}   // end namespace terrama2
-
-#endif  // __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
-
+#endif // __TERRAMA2_WS_COLLECTOR_SERVER_CONFIG_HPP__
