@@ -30,16 +30,14 @@ include_directories (
   ${terralib_DIR}
 )
 
-
 set(TERRAMA2_GUI_CONFIG_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/config)
 
 set(CMAKE_AUTOMOC ON)
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ConfigApp.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ConfigApp.hpp)
-file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ui/MainDialogForm.ui)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CONFIG_PATH}/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CONFIG_PATH}/*.hpp)
+file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ui/*.ui)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
@@ -47,9 +45,10 @@ source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
 
 QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
-add_executable(terrama2_config ${TERRAMA2_GUI_CONFIG_PATH}/main.cpp ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
+add_executable(terrama2_config ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
 
-target_link_libraries(terrama2_config terrama2_mod_core terralib_mod_common)
+target_link_libraries(terrama2_config terrama2_mod_core
+                                      terralib_mod_common)
 
 qt5_use_modules(terrama2_config Widgets Network)
 

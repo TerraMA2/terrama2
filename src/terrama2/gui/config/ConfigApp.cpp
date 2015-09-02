@@ -30,19 +30,38 @@
 
 // TerraMA2
 #include "ConfigApp.hpp"
+#include "ui_ConfigAppForm.h"
 
 // Qt
 #include <QIcon>
 #include <QStringList>
 #include <QToolBar>
 
-ConfigApp::ConfigApp(QWidget* parent)
-  : QMainWindow(parent)
+struct ConfigApp::Impl
 {
+  Ui::ConfigAppForm* ui_;
+  
+  Impl()
+    : ui_(new Ui::ConfigAppForm)
+  {
+  }
+
+  ~Impl()
+  {
+    delete ui_;
+  }
+};
+
+ConfigApp::ConfigApp(QWidget* parent)
+  : QMainWindow(parent),
+    pimpl_(new Impl)
+{
+  pimpl_->ui_->setupUi(this);
 }
 
 ConfigApp::~ConfigApp()
 {
+  delete pimpl_;
 }
 
 void

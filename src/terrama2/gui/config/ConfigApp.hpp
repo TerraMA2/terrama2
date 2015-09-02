@@ -34,15 +34,42 @@
 // Qt
 #include <QMainWindow>
 
+/*!
+  \class ConfigApp
+ 
+  \brief Main dialog for TerraMA2 Configuration module.
+ */
 class ConfigApp : public QMainWindow
 {
   public:
-
+  
+    //! Default constructor.
     ConfigApp(QWidget* parent = 0);
 
+    //! Destructor.
     ~ConfigApp();
 
+    //! Initializes the application.
+    /*!
+      Detalhes da inicializacao
+
+      \exception ?qual-tipo-de-excecao? <descricao-excecao>
+     */
     void init();
+  
+  private:
+  
+    //! No copy allowed.
+    ConfigApp(const ConfigApp&);
+  
+    //! No copy allowed.
+    ConfigApp& operator=(const ConfigApp&);
+  
+  private:
+  
+    struct Impl;
+
+    Impl* pimpl_;  //!< Pimpl idiom.
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

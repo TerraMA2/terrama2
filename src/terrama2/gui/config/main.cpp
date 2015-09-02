@@ -45,14 +45,13 @@ int main(int argc, char* argv[])
 // initialize TerraLib
   TerraLib::getInstance().initialize();
 
-  ConfigApp capp;
+  ConfigApp terrama2_config;
 
-  capp.init();
+  terrama2_config.init();
   
-  capp.showMaximized();
+  terrama2_config.showMaximized();
 
   int retval = app.exec();
-
 
 // finalize TerraLib
   TerraLib::getInstance().finalize();
