@@ -24,6 +24,12 @@
 #  Author: Evandro Delatin
 #
 
+include_directories (
+  ${Boost_INCLUDE_DIR}
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
+
 set(TERRAMA2_GUI_ADMIN_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/admin)
 
 set(CMAKE_AUTOMOC ON)
@@ -41,7 +47,7 @@ QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
 add_executable(terrama2_admin ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
 
-target_link_libraries(terrama2_admin terrama2_mod_core)
+target_link_libraries(terrama2_admin terrama2_mod_core terralib_mod_common)
 
 qt5_use_modules(terrama2_admin Widgets Network)
 
