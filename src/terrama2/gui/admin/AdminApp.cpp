@@ -76,10 +76,6 @@ AdminApp::init()
   
   QIcon::setThemeName("terrama2");
   
-// Just as example:
-  QToolBar* toolbar = new QToolBar(this);
-  toolbar->setWindowTitle("Barra de Ferramentas");
-  toolbar->addAction(QIcon::fromTheme("player_playback"), "Player Playback");
 }
 
 
