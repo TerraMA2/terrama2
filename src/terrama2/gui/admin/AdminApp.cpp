@@ -20,39 +20,62 @@
 */
 
 /*!
-  \file terrama2/gui/admin/main.cpp
+  \file terrama2/gui/admin/AdminApp.cpp
 
-  \brief Main function for 
+  \brief Main GUI for TerraMA2 Config application.
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
 */
 
-// QT
-#include <qapplication.h>
+// TerraMA2
+#include "AdminApp.hpp"
+#include "ui_AdminAppForm.h"
+
+// Qt
 #include <QIcon>
 #include <QStringList>
-#include <iostream>
+#include <QToolBar>
 
-// #include "Language.h"
-#include "MainDialog.hpp"
-
-int main( int argc, char** argv )
+struct AdminApp::Impl
 {
-  // Load Icons
-  QStringList ithemes = QIcon::themeSearchPaths();
-  ithemes.push_back("/home/terrama2/Projeto/terrama2/share/icons/");
-  QIcon::setThemeSearchPaths(ithemes);
-  QIcon::setThemeName("terrama2");
+  Ui::AdminAppForm* ui_;
+  
+  Impl()
+    : ui_(new Ui::AdminAppForm)
+  {
+  }
 
-  QApplication app( argc, argv );
+  ~Impl()
+  {
+    delete ui_;
+  }
+};
 
-  //Carrega a linguagem do sistema e os translators.
-  // loadLanguage("admin");
-
-  // Abre janela principal
-  MainDialog mainwindow;
-
-  mainwindow.show();
-  return app.exec();
+AdminApp::AdminApp(QWidget* parent)
+  : QMainWindow(parent),
+    pimpl_(new Impl)
+{
+  pimpl_->ui_->setupUi(this);
 }
+
+AdminApp::~AdminApp()
+{
+  delete pimpl_;
+}
+
+void
+AdminApp::init()
+{
+// load icon theme
+  QStringList ithemes = QIcon::themeSearchPaths();
+  
+  ithemes.push_back("/home/terrama2/Projeto/terrama2/codebase/share/icons");
+  
+  QIcon::setThemeSearchPaths(ithemes);
+  
+  QIcon::setThemeName("terrama2");
+  
+}
+
+
