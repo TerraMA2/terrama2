@@ -56,6 +56,15 @@ ConfigApp::ConfigApp(QWidget* parent)
   : QMainWindow(parent),
     pimpl_(new Impl)
 {
+// load icon theme
+  QStringList ithemes = QIcon::themeSearchPaths();
+
+  ithemes.push_back("/home/raphael/Documents/my-devel/terrama2/share/icons/");
+
+  QIcon::setThemeSearchPaths(ithemes);
+
+  QIcon::setThemeName("terrama2");
+
   pimpl_->ui_->setupUi(this);
 }
 
@@ -63,22 +72,3 @@ ConfigApp::~ConfigApp()
 {
   delete pimpl_;
 }
-
-void
-ConfigApp::init()
-{
-// load icon theme
-  QStringList ithemes = QIcon::themeSearchPaths();
-  
-  ithemes.push_back("/Users/gribeiro/MyDevel/github/terrama2/codebase/share/iconss");
-  
-  QIcon::setThemeSearchPaths(ithemes);
-  
-  QIcon::setThemeName("terrama2");
-  
-// Just as example:
-  QToolBar* toolbar = new QToolBar(this);
-  toolbar->setWindowTitle("Barra de Ferramentas");
-  toolbar->addAction(QIcon::fromTheme("player_playback"), "Player Playback");
-}
-

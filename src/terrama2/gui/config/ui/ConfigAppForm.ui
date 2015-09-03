@@ -405,9 +405,7 @@ p, li { white-space: pre-wrap; }
                   <string>Projeção...</string>
                  </property>
                  <property name="icon">
-                  <iconset theme="projection">
-                   <normaloff/>
-                  </iconset>
+                  <iconset theme="projection"/>
                  </property>
                 </widget>
                </item>
@@ -2466,9 +2464,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset theme="confirm">
-              <normaloff/>
-             </iconset>
+             <iconset theme="confirm"/>
             </property>
            </widget>
           </item>
@@ -4697,7 +4693,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="riskAttribute">
+                <iconset theme="risk-attribute">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4728,7 +4724,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="zoneOperator">
+                <iconset theme="zone-operator">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4879,7 +4875,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="luaAnalyse">
+                <iconset theme="lua-analyse">
                  <normaloff/>
                 </iconset>
                </property>
@@ -6543,7 +6539,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1058</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArquivo">
@@ -6615,9 +6611,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="openAct">
    <property name="icon">
-    <iconset theme="openConfig">
-     <normaloff/>
-    </iconset>
+    <iconset theme="config-open"/>
    </property>
    <property name="text">
     <string>Abrir...</string>
