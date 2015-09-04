@@ -118,9 +118,7 @@ endif()
 # global definitions and includes
 #
 
-#add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
-
-
+add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
 
 if(WIN32)
   #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -285,6 +283,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED "Build unittest for Collector Web Service core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER_ENABLED "Build unittest for Collector Web Service server module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
+
 
 #
 # process TerraMA2 configuration files
@@ -351,6 +351,11 @@ endif()
 if(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED)
   add_subdirectory(terrama2_unittest_ws_collector_core)
 endif()
+
+if(TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER_ENABLED)
+  add_subdirectory(terrama2_unittest_ws_collector_server)
+endif()
+
 
 
 #

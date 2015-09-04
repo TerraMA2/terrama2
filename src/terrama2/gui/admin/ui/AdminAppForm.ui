@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainDialogForm</class>
- <widget class="QMainWindow" name="MainDialogForm">
+ <class>AdminAppForm</class>
+ <widget class="QMainWindow" name="AdminAppForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -60,7 +60,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>7</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="dbTab">
            <attribute name="title">
@@ -201,7 +201,7 @@
                  <string>Verif. Conexão</string>
                 </property>
                 <property name="icon">
-                 <iconset theme="ok"/>
+                 <iconset theme="confirm"/>
                 </property>
                </widget>
               </item>
@@ -211,7 +211,9 @@
                  <string>Criar Base</string>
                 </property>
                 <property name="icon">
-                 <iconset theme="database_add"/>
+                 <iconset theme="create-database">
+                  <normaloff/>
+                 </iconset>
                 </property>
                </widget>
               </item>
@@ -364,7 +366,9 @@ p, li { white-space: pre-wrap; }
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset theme="refresh"/>
+                  <iconset theme="refresh">
+                   <normaloff/>
+                  </iconset>
                  </property>
                 </widget>
                </item>
@@ -676,7 +680,7 @@ coletados:</string>
             <item row="4" column="0" colspan="6">
              <widget class="QTabWidget" name="tabWidget_2">
               <property name="currentIndex">
-               <number>3</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="serverTab">
                <attribute name="title">
@@ -830,7 +834,9 @@ coletados:</string>
                    <string>Enviar Email de Teste</string>
                   </property>
                   <property name="icon">
-                   <iconset theme="ok"/>
+                   <iconset theme="confirm">
+                    <normaloff/>
+                   </iconset>
                   </property>
                  </widget>
                 </item>
@@ -1032,7 +1038,9 @@ coletados:</string>
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset theme="open"/>
+                     <iconset theme="open-config">
+                      <normaloff/>
+                     </iconset>
                     </property>
                    </widget>
                   </item>
@@ -1250,7 +1258,9 @@ p, li { white-space: pre-wrap; }
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset theme="refresh"/>
+               <iconset theme="refresh">
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -1390,7 +1400,9 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset theme="open"/>
+                  <iconset theme="open-config">
+                   <normaloff/>
+                  </iconset>
                  </property>
                 </widget>
                </item>
@@ -1530,7 +1542,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset theme="open">
+                  <iconset theme="open-config">
                    <normaloff/>
                   </iconset>
                  </property>
@@ -1557,7 +1569,9 @@ p, li { white-space: pre-wrap; }
                     <string>Gerar Pacote</string>
                    </property>
                    <property name="icon">
-                    <iconset theme="package"/>
+                    <iconset theme="package">
+                     <normaloff/>
+                    </iconset>
                    </property>
                   </widget>
                  </item>
@@ -1604,7 +1618,9 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset theme="salvar"/>
+             <iconset theme="save">
+              <normaloff/>
+             </iconset>
             </property>
            </widget>
           </item>
@@ -1614,7 +1630,9 @@ p, li { white-space: pre-wrap; }
              <string>Cancelar</string>
             </property>
             <property name="icon">
-             <iconset theme="cancel"/>
+             <iconset theme="cancel">
+              <normaloff/>
+             </iconset>
             </property>
            </widget>
           </item>
@@ -1695,7 +1713,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="newAct">
    <property name="icon">
-    <iconset theme="config_new"/>
+    <iconset theme="new-config">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Nova...</string>
@@ -1714,7 +1734,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="saveAct">
    <property name="icon">
-    <iconset theme="salvar"/>
+    <iconset theme="save">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Salvar</string>
@@ -1722,7 +1744,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="saveAsAct">
    <property name="icon">
-    <iconset theme="salvarcomo"/>
+    <iconset theme="save-as">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Salvar como ...</string>
@@ -1730,7 +1754,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="servicesAct">
    <property name="icon">
-    <iconset theme="wizard"/>
+    <iconset theme="wizard">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Gerenciar serviços</string>
@@ -1738,7 +1764,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="consoleAct">
    <property name="icon">
-    <iconset theme="console"/>
+    <iconset theme="console">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Console</string>
@@ -1751,7 +1779,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="openAct">
    <property name="icon">
-    <iconset theme="config_open"/>
+    <iconset theme="open-config">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Abrir...</string>

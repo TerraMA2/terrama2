@@ -48,6 +48,7 @@ target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collec
                                                           terralib_mod_common)
 
 add_test(NAME TestCollector COMMAND terrama2_unittest_ws_collector_core)
+add_test(NAME TestDataset COMMAND terrama2_unittest_ws_collector_core)
 
 qt5_use_modules(terrama2_unittest_ws_collector_core Test)
 

@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/Version.hpp
+  \file terrama2/core/Utils.hpp
 
-  \brief Utility class for system versioning.
+  \brief Utility functions for TerraMA2 SDK.
 
   \author Gilberto Ribeiro de Queiroz
 */
 
-#ifndef __TERRAMA2_CORE_VERSION_HPP__
-#define __TERRAMA2_CORE_VERSION_HPP__
+#ifndef __TERRAMA2_CORE_UTILS_HPP__
+#define __TERRAMA2_CORE_UTILS_HPP__
 
 // STL
 #include <string>
@@ -37,34 +37,17 @@ namespace terrama2
 {
   namespace core
   {
-    //! Utility class for system versioning.
-    class Version
-    {
-      public:
+    /*!
+      \brief Returns the path relative to a directory or file in the context of TerraMA2.
 
-        static int majorNumber();
+      \param p A path to be searched in the TerraMA2 context.
 
-        static int minorNumber();
-
-        static int patchNumber();
-
-        static std::string releaseStatus();
-
-        static std::string buildDate();
-
-        static std::string asString();
-
-        static int asInt();
-
-      private:
-
-        Version();
-
-        ~Version();
-    };
+      \return A complete path to the file or directory if it is found, otherwise returns an empty string.
+     */
+    std::string FindInTerraMA2Path(const std::string& p);
 
   } // end namespace core
 }   // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_VERSION_HPP__
+#endif // __TERRAMA2_CORE_UTILS_HPP__
 

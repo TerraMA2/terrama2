@@ -34,9 +34,23 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.h
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
+include_directories (
+  ${Boost_INCLUDE_DIR}
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
+
+set(CMAKE_AUTOMOC ON)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 add_library(terrama2_mod_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-#target_link_libraries(terrama2_mod_core terralib)
+qt5_use_modules(terrama2_mod_core Widgets)
+
+target_link_libraries(terrama2_mod_core terralib_mod_dataaccess
+                                        ${Boost_FILESYSTEM_LIBRARY}
+                                        ${Boost_SYSTEM_LIBRARY})
 
 set_target_properties(terrama2_mod_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

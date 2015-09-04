@@ -72,7 +72,7 @@ terrama2::ws::collector::core::Collector* terrama2::ws::collector::core::Collect
   return 0;
 }
 
-std::vector<terrama2::ws::collector::core::Collector *> terrama2::ws::collector::core::CollectorDAO::list(const int &id) const
+std::vector<terrama2::ws::collector::core::Collector *> terrama2::ws::collector::core::CollectorDAO::list() const
 {
   std::vector<terrama2::ws::collector::core::Collector*> vecCollectors;
   return vecCollectors;

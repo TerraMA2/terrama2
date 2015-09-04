@@ -20,51 +20,39 @@
 */
 
 /*!
-  \file terrama2/core/Version.hpp
+  \file terrama2/gui/admin/main.cpp
 
-  \brief Utility class for system versioning.
+  \brief Main routine for TerraMA2 Admin GUI.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
 */
 
-#ifndef __TERRAMA2_CORE_VERSION_HPP__
-#define __TERRAMA2_CORE_VERSION_HPP__
+// TerraMA2
+#include "AdminApp.hpp"
 
-// STL
-#include <string>
+// TerraLib
+#include <terralib/common/TerraLib.h>
 
-namespace terrama2
+// Qt
+#include <QApplication>
+
+int main(int argc, char* argv[])
 {
-  namespace core
-  {
-    //! Utility class for system versioning.
-    class Version
-    {
-      public:
+// initialize Qt
+  QApplication app(argc, argv);
 
-        static int majorNumber();
+// initialize TerraLib
+  TerraLib::getInstance().initialize();
 
-        static int minorNumber();
+  AdminApp terrama2_admin;
 
-        static int patchNumber();
+  terrama2_admin.showMaximized();
 
-        static std::string releaseStatus();
+  int retval = app.exec();
 
-        static std::string buildDate();
-
-        static std::string asString();
-
-        static int asInt();
-
-      private:
-
-        Version();
-
-        ~Version();
-    };
-
-  } // end namespace core
-}   // end namespace terrama2
-
-#endif  // __TERRAMA2_CORE_VERSION_HPP__
-
+// finalize TerraLib
+  TerraLib::getInstance().finalize();
+  
+  return retval;
+}

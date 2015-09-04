@@ -20,51 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/Version.hpp
+  \file terrama2/core/DataSet.cpp
 
-  \brief Utility class for system versioning.
+  \brief Metadata about a given dataset.
 
   \author Gilberto Ribeiro de Queiroz
+  \author Jano Simas
+  \author Paulo R. M. Oliveira
+  \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_CORE_VERSION_HPP__
-#define __TERRAMA2_CORE_VERSION_HPP__
-
-// STL
-#include <string>
-
-namespace terrama2
-{
-  namespace core
-  {
-    //! Utility class for system versioning.
-    class Version
-    {
-      public:
-
-        static int majorNumber();
-
-        static int minorNumber();
-
-        static int patchNumber();
-
-        static std::string releaseStatus();
-
-        static std::string buildDate();
-
-        static std::string asString();
-
-        static int asInt();
-
-      private:
-
-        Version();
-
-        ~Version();
-    };
-
-  } // end namespace core
-}   // end namespace terrama2
-
-#endif  // __TERRAMA2_CORE_VERSION_HPP__
-
+// TerraMA2
+#include "DataSet.hpp"

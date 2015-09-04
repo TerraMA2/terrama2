@@ -20,39 +20,39 @@
 */
 
 /*!
-  \file terrama2/gui/admin/main.cpp
+  \file terrama2/ws/collector/core/Data.cpp
 
-  \brief Main function for 
+  \brief Data...
 
-  \author Evandro Delatin
-  \author Raphael Willian da Costa
+  \author Paulo R. M. Oliveira
 */
 
-// QT
-#include <qapplication.h>
-#include <QIcon>
-#include <QStringList>
-#include <iostream>
+#include "Data.hpp"
 
-// #include "Language.h"
-#include "MainDialog.hpp"
 
-int main( int argc, char** argv )
+terrama2::ws::collector::core::Data::Data(const std::string &mask)
+  : mask_(mask)
 {
-  // Load Icons
-  QStringList ithemes = QIcon::themeSearchPaths();
-  ithemes.push_back("/home/terrama2/Projeto/terrama2/share/icons/");
-  QIcon::setThemeSearchPaths(ithemes);
-  QIcon::setThemeName("terrama2");
 
-  QApplication app( argc, argv );
+}
 
-  //Carrega a linguagem do sistema e os translators.
-  // loadLanguage("admin");
+terrama2::ws::collector::core::Data::~Data()
+{
 
-  // Abre janela principal
-  MainDialog mainwindow;
+}
 
-  mainwindow.show();
-  return app.exec();
+std::string terrama2::ws::collector::core::Data::getMask() const
+{
+  return mask_;
+}
+
+
+void terrama2::ws::collector::core::Data::setMask(const std::string &mask)
+{
+  mask_ = mask;
+}
+
+void terrama2::ws::collector::core::Data::store(const std::string& uri)
+{
+  
 }

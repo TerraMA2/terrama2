@@ -20,51 +20,48 @@
 */
 
 /*!
-  \file terrama2/core/Version.hpp
+  \file terrama2/gui/config/AdminApp.hpp
 
-  \brief Utility class for system versioning.
+  \brief Main GUI for TerraMA2 Admin application.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
 */
 
-#ifndef __TERRAMA2_CORE_VERSION_HPP__
-#define __TERRAMA2_CORE_VERSION_HPP__
+#ifndef __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
+#define __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
 
-// STL
-#include <string>
+// Qt
+#include <QMainWindow>
 
-namespace terrama2
+/*!
+  \class AdminApp
+ 
+  \brief Main dialog for TerraMA2 Administration module.
+ */
+class AdminApp : public QMainWindow
 {
-  namespace core
-  {
-    //! Utility class for system versioning.
-    class Version
-    {
-      public:
+  public:
+  
+    //! Default constructor.
+    AdminApp(QWidget* parent = 0);
 
-        static int majorNumber();
+    //! Destructor.
+    ~AdminApp();
 
-        static int minorNumber();
+  private:
+  
+    //! No copy allowed.
+    AdminApp(const AdminApp&);
+  
+    //! No copy allowed.
+    AdminApp& operator=(const AdminApp&);
+  
+  private:
+  
+    struct Impl;
 
-        static int patchNumber();
+    Impl* pimpl_;  //!< Pimpl idiom.
+};
 
-        static std::string releaseStatus();
-
-        static std::string buildDate();
-
-        static std::string asString();
-
-        static int asInt();
-
-      private:
-
-        Version();
-
-        ~Version();
-    };
-
-  } // end namespace core
-}   // end namespace terrama2
-
-#endif  // __TERRAMA2_CORE_VERSION_HPP__
-
+#endif // __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__

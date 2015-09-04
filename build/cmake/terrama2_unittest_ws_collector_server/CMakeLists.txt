@@ -19,42 +19,36 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for the TerraMA2 Core Runtime Module.
+#  Description: CMake script for TerraMA2's unit test - collector server module.
 #
-#  Author: Evandro Delatin
+#  Author: Gilberto Ribeiro de Queiroz
+#          Paulo R. M. Oliveira
 #
 
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/server/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/server/*.hpp)
+
+
 include_directories (
-  ${Boost_INCLUDE_DIR}
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
 )
 
-set(TERRAMA2_GUI_ADMIN_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/admin)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_ADMIN_PATH}/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_ADMIN_PATH}/*.hpp)
-file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_ADMIN_PATH}/ui/*.ui)
-
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
-source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
 
-QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
+add_executable(terrama2_unittest_ws_collector_server ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-add_executable(terrama2_admin ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
+target_link_libraries(terrama2_unittest_ws_collector_server terrama2_mod_ws_collector_core
+                                                          terrama2_mod_ws_collector_server
+                                                          terralib_mod_plugin
+                                                          terralib_mod_common)
 
-target_link_libraries(terrama2_admin terrama2_mod_core terralib_mod_common)
+add_test(NAME TestCollectorService COMMAND terrama2_unittest_ws_collector_server)
 
-qt5_use_modules(terrama2_admin Widgets Network)
+qt5_use_modules(terrama2_unittest_ws_collector_server Test)
 
-install(TARGETS terrama2_admin
-        EXPORT terrama2-targets
-        RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
-        LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
-        ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
-
-export(TARGETS terrama2_admin APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

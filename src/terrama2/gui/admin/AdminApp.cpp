@@ -20,51 +20,58 @@
 */
 
 /*!
-  \file terrama2/core/Version.hpp
+  \file terrama2/gui/admin/AdminApp.cpp
 
-  \brief Utility class for system versioning.
+  \brief Main GUI for TerraMA2 Config application.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
 */
 
-#ifndef __TERRAMA2_CORE_VERSION_HPP__
-#define __TERRAMA2_CORE_VERSION_HPP__
+// TerraMA2
+#include "AdminApp.hpp"
+#include "ui_AdminAppForm.h"
 
-// STL
-#include <string>
+// Qt
+#include <QIcon>
+#include <QStringList>
+#include <QToolBar>
 
-namespace terrama2
+struct AdminApp::Impl
 {
-  namespace core
+  Ui::AdminAppForm* ui_;
+  
+  Impl()
+    : ui_(new Ui::AdminAppForm)
   {
-    //! Utility class for system versioning.
-    class Version
-    {
-      public:
+  }
 
-        static int majorNumber();
+  ~Impl()
+  {
+    delete ui_;
+  }
+};
 
-        static int minorNumber();
+AdminApp::AdminApp(QWidget* parent)
+  : QMainWindow(parent),
+    pimpl_(new Impl)
+{
+  // load icon theme
+  QStringList ithemes = QIcon::themeSearchPaths();
 
-        static int patchNumber();
+  ithemes.push_back("/home/terrama2/Projeto/terrama2/codebase/share/icons");
 
-        static std::string releaseStatus();
+  QIcon::setThemeSearchPaths(ithemes);
 
-        static std::string buildDate();
+  QIcon::setThemeName("terrama2");
 
-        static std::string asString();
+  pimpl_->ui_->setupUi(this);
+}
 
-        static int asInt();
+AdminApp::~AdminApp()
+{
+  delete pimpl_;
+}
 
-      private:
 
-        Version();
-
-        ~Version();
-    };
-
-  } // end namespace core
-}   // end namespace terrama2
-
-#endif  // __TERRAMA2_CORE_VERSION_HPP__
 
