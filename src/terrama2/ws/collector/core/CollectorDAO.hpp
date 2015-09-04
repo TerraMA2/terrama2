@@ -60,7 +60,7 @@ namespace terrama2
           bool update(Collector* collector);
           bool remove(const int& id);
           Collector* get(const int& id) const;
-          std::vector<Collector*> list(const int& id) const;
+          std::vector<Collector*> list() const;
 
         protected:
           std::auto_ptr<te::da::DataSourceTransactor> transactor_;
