@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/TestCollector.cpp
+  \file unittest/ws/collector/core/TestDataset.cpp
 
   \brief Test Collector...
 
@@ -28,12 +28,12 @@
 */
 
 
-#include "terrama2/ws/collector/core/Tiff.hpp"
-#include "terrama2/ws/collector/core/Collector.hpp"
-#include "terrama2/ws/collector/core/CollectorDAO.hpp"
+#include "terrama2/ws/collector/core/Dataset.hpp"
+#include "terrama2/ws/collector/core/DataProvider.hpp"
 
 //QT
 #include <QtTest>
+#include <QApplication>
 
 // STL
 #include <memory>
@@ -48,7 +48,7 @@
 #include <terralib/common.h>
 #include <terralib/plugin.h>
 
-class TestCollector: public QObject
+class TestDataset: public QObject
 {
   Q_OBJECT
 
@@ -75,68 +75,32 @@ private slots:
     /*!
      * \brief Test Description
      */
-    void testTiffCollector();
+    void testDataSet();
 
 
 
     //******End of Test functions****
 
-private:
-    std::auto_ptr<te::da::DataSource> ds_;
-    std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 };
 
-void TestCollector::init()
+void TestDataset::init()
 {
-    std::map<std::string, std::string> connInfo;
-    connInfo["PG_HOST"] = "localhost";
-    connInfo["PG_PORT"] = "5432" ;
-    connInfo["PG_USER"] = "postgres";
-    connInfo["PG_PASSWORD"] = "postgres";
-    connInfo["PG_DB_NAME"] = "bdgcurso";
-    connInfo["PG_CONNECT_TIMEOUT"] = "4";
-    connInfo["PG_CLIENT_ENCODING"] = "CP1252";
 
-    ds_ = te::da::DataSourceFactory::make("POSTGIS");
-
-    // as we are going to use the data source, let´s set the connection info
-    ds_->setConnectionInfo(connInfo);
-
-    // let's open it with the connection info above!
-    ds_->open();
-
-    transactor_ = ds_->getTransactor();
-    QVERIFY2(transactor_.get() != nullptr, "NULL transactor.");
 }
 
-void TestCollector::cleanup()
+void TestDataset::cleanup()
 {
-    ds_->close();
+
 }
 
-void TestCollector::testTiffCollector()
+void TestDataset::testDataSet()
 {
-  int id = 0;
-  std::string name = "Collector1";
-  std::string description = "...";
-  std::string type = "Observação";
-  terrama2::ws::collector::core::Format format = terrama2::ws::collector::core::Format::TIFF;
-  int updateFreqMinutes = 10;
-  std::string prefix = "tiff";
-  int srid = 0;
-  std::string mask= "tiff_%y_%m_%d";
-  std::string unit="";
-  std::string timeZone = "+00:00";
-  QJsonObject dynamicMetadata;
 
-  terrama2::ws::collector::core::Collector* collector = new terrama2::ws::collector::core::Tiff(id, name, description, type, format, updateFreqMinutes, prefix, srid, mask, unit, timeZone, dynamicMetadata);
 
-  terrama2::ws::collector::core::CollectorDAO collectorDAO(transactor_);
-  QVERIFY2(collectorDAO.save(collector), "Fail to save.");
 }
 
 
-void TestCollector::initializeTerralib()
+void TestDataset::initializeTerralib()
 {
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
@@ -150,10 +114,10 @@ void TestCollector::initializeTerralib()
 
 
 
-void TestCollector::finalizeTerralib()
+void TestDataset::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
 }
 
-//QTEST_MAIN(TestCollector)
-#include "TestCollector.moc"
+QTEST_MAIN(TestDataset)
+#include "TestDataset.moc"
