@@ -54,8 +54,17 @@ namespace terrama2
       namespace appserver
       {
 
-        /**
-         * \brief Class that represents the collection service, once it starts it keeps collecting data until stop is called.
+        /*!
+          \class CollectorService
+         
+          \brief Defines the base abstraction of a collector service.
+         
+          The collector service is a singleton responsible for
+          scheduling collectors for each active dataset.
+         
+          Once this service starts collecting data it will 
+          remains in a loop waiting for a notification that new datasets
+          must be collected or .
          */
         class CollectorService : public QObject
         {

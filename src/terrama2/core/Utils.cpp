@@ -29,6 +29,10 @@
 
 // TerraMA2
 #include "Utils.hpp"
+#include "../Config.hpp"
+
+// Boost
+#include <boost/filesystem.hpp>
 
 std::string FindInTerraMA2Path(const std::string& p)
 {
