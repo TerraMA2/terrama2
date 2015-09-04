@@ -28,6 +28,19 @@
 */
 
 #include "CSV.hpp"
+#include "terrama2/ws/collector/core/StorageStrategy.hpp"
+
+// STL
+#include <stdlib.h>
+#include <memory>
+
+// TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 
 terrama2::ws::collector::core::CSV::CSV()
 {
@@ -43,5 +56,22 @@ terrama2::ws::collector::core::CSV::~CSV()
 
 void terrama2::ws::collector::core::CSV::collect(const std::string &file)
 {
+  std::auto_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR");
+
+  std::map<std::string, std::string> connInfo;
+
+  connInfo["SOURCE"] = file;
+
+  dsOGR->setConnectionInfo(connInfo);
+  dsOGR->open();
+
+  std::auto_ptr<te::da::DataSourceTransactor> ogrTransactor = dsOGR->getTransactor();
+  std::auto_ptr<te::da::DataSet> ogrDataSet = dsOGR->getDataSet("csv_teste");
+  std::auto_ptr<te::da::DataSetType>  dtype = dsOGR->getDataSetType("csv_teste");
+  /* PostGIS database to gets the DataSource Capabilities */
+  std::auto_ptr<te::da::DataSource> dsPGIS = te::da::DataSourceFactory::make("POSTGIS");
+
+
+
 
 }

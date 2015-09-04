@@ -20,28 +20,18 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/StorageStrategy.hpp
+  \file terrama2/ws/collector/core/Data.hpp
 
-  \brief Abstract class to define a storage strategy
+  \brief Represents each data of a dataset
 
   \author Paulo R. M. Oliveira
- */
+*/
 
-#ifndef __TERRAMA2_WS_COLLECTOR_CORE_STORAGE_STRATEGY_HPP__
-#define __TERRAMA2_WS_COLLECTOR_CORE_STORAGE_STRATEGY_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_CORE_DATA_HPP__
+#define __TERRAMA2_WS_COLLECTOR_CORE_DATA_HPP__
 
-
-#include "Collector.hpp"
-
-// STL
-#include <memory>
 #include <string>
 
-// QT
-#include <QJsonObject>
-
-// terralib
-#include <terralib/dataaccess/dataset/DataSet.h>
 
 namespace terrama2
 {
@@ -52,31 +42,58 @@ namespace terrama2
       namespace core
       {
 
-        class StorageStrategy
+        /*!
+         * \brief Enum that contains all data possible data types
+         */
+        enum DataType
+        {
+          PCD-INPE, PCD-TOA5, FIRE_POINTS, DISEASE_OCCURRENCE
+        }
+
+        /*!
+         * \brief Class that represents each data of a dataset
+         */
+        class Data
         {
         public:
 
           /*!
-          * \brief Constructor.
+          * \brief Constructor
           */
-          StorageStrategy();
+          Data(const std::string& mask);
 
           /*!
-          * \brief Destructor.
+          * \brief Destructor
           */
-          virtual ~StorageStrategy();
+          ~Data();
 
           /*!
-          * \brief Method to store the collected file, should be implemented by each subclass.
+            \brief It returns the mask.
+
+            \return The mask.
           */
-          virtual void store(std::shared_ptr<te::da::DataSet> dataSet) = 0;
+          std::string getMask() const;
 
+          /*!
+            \brief It sets the mask.
 
+            \param The mask.
+          */
+          void setMask(const std::string& mask);
+
+          /*!
+          * \brief Method to read and store the collected data
+          */
+          void import(const std::string& uri);
+
+        protected:
+          std::string mask_;
         };
       } // core
     } // collector
   } // ws
 } // terrama2
 
-#endif // __TERRAMA2_WS_COLLECTOR_CORE_STORAGE_STRATEGY_HPP__
 
+
+#endif // __TERRAMA2_WS_COLLECTOR_CORE_DATA_HPP__

@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/TestCollector.cpp
+  \file unittest/ws/collector/core/TestCollectorService.cpp
 
   \brief Test Collector...
 
@@ -28,12 +28,14 @@
 */
 
 
-#include "terrama2/ws/collector/core/Tiff.hpp"
-#include "terrama2/ws/collector/core/Collector.hpp"
-#include "terrama2/ws/collector/core/CollectorDAO.hpp"
+#include "terrama2/ws/collector/core/Data.hpp"
+#include "terrama2/ws/collector/core/Dataset.hpp"
+#include "terrama2/ws/collector/core/DataProvider.hpp"
+#include "terrama2/ws/collector/server/CollectorService.hpp"
 
 //QT
 #include <QtTest>
+#include <QApplication>
 
 // STL
 #include <memory>
@@ -48,7 +50,7 @@
 #include <terralib/common.h>
 #include <terralib/plugin.h>
 
-class TestCollector: public QObject
+class TestCollectorService: public QObject
 {
   Q_OBJECT
 
@@ -75,68 +77,52 @@ private slots:
     /*!
      * \brief Test Description
      */
-    void testTiffCollector();
+    void testCollectorService();
 
 
 
     //******End of Test functions****
 
-private:
-    std::auto_ptr<te::da::DataSource> ds_;
-    std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 };
 
-void TestCollector::init()
+void TestCollectorService::init()
 {
-    std::map<std::string, std::string> connInfo;
-    connInfo["PG_HOST"] = "localhost";
-    connInfo["PG_PORT"] = "5432" ;
-    connInfo["PG_USER"] = "postgres";
-    connInfo["PG_PASSWORD"] = "postgres";
-    connInfo["PG_DB_NAME"] = "bdgcurso";
-    connInfo["PG_CONNECT_TIMEOUT"] = "4";
-    connInfo["PG_CLIENT_ENCODING"] = "CP1252";
 
-    ds_ = te::da::DataSourceFactory::make("POSTGIS");
-
-    // as we are going to use the data source, let´s set the connection info
-    ds_->setConnectionInfo(connInfo);
-
-    // let's open it with the connection info above!
-    ds_->open();
-
-    transactor_ = ds_->getTransactor();
-    QVERIFY2(transactor_.get() != nullptr, "NULL transactor.");
 }
 
-void TestCollector::cleanup()
+void TestCollectorService::cleanup()
 {
-    ds_->close();
+
 }
 
-void TestCollector::testTiffCollector()
+void TestCollectorService::testCollectorService()
 {
-  int id = 0;
-  std::string name = "Collector1";
-  std::string description = "...";
-  std::string type = "Observação";
-  terrama2::ws::collector::core::Format format = terrama2::ws::collector::core::Format::TIFF;
-  int updateFreqMinutes = 10;
-  std::string prefix = "tiff";
-  int srid = 0;
-  std::string mask= "tiff_%y_%m_%d";
-  std::string unit="";
-  std::string timeZone = "+00:00";
-  QJsonObject dynamicMetadata;
+  std::cerr << "Start" << std::endl;
 
-  terrama2::ws::collector::core::Collector* collector = new terrama2::ws::collector::core::Tiff(id, name, description, type, format, updateFreqMinutes, prefix, srid, mask, unit, timeZone, dynamicMetadata);
+  // Create dataprovider
+  std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider(new terrama2::ws::collector::core::DataProvider());
+  std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider1(new terrama2::ws::collector::core::DataProvider());
+  std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider2(new terrama2::ws::collector::core::DataProvider());
 
-  terrama2::ws::collector::core::CollectorDAO collectorDAO(transactor_);
-  QVERIFY2(collectorDAO.save(collector), "Fail to save.");
+  terrama2::ws::collector::appserver::CollectorService service;
+
+  service.addProvider(dataProvider);
+  service.addProvider(dataProvider1);
+  service.addProvider(dataProvider2);
+
+  // Create dataset
+  QList<std::shared_ptr<terrama2::ws::collector::core::Data>> dataList;
+  dataList.append(std::shared_ptr<terrama2::ws::collector::core::Data>(new terrama2::ws::collector::core::Data("queimadas.csv")));
+  std::shared_ptr<terrama2::ws::collector::core::Dataset> dataset(new terrama2::ws::collector::core::Dataset(1, dataProvider, dataList));
+
+  service.addDataset(dataset);
+  service.start();
+  
+  std::cerr << "End" << std::endl;
 }
 
 
-void TestCollector::initializeTerralib()
+void TestCollectorService::initializeTerralib()
 {
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
@@ -150,10 +136,10 @@ void TestCollector::initializeTerralib()
 
 
 
-void TestCollector::finalizeTerralib()
+void TestCollectorService::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
 }
 
-//QTEST_MAIN(TestCollector)
-#include "TestCollector.moc"
+QTEST_MAIN(TestCollectorService)
+#include "TestCollectorService.moc"
