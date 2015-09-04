@@ -190,6 +190,13 @@ include(CMakeDependentOption)
 
 
 #
+# including TerraMA2 auxiliary macros and functions
+#
+
+include(terrama2_macros.cmake)
+
+
+#
 # first check of libraries
 #
 
@@ -218,6 +225,7 @@ if(NOT terralib_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find TerraLib libraries!")
 endif()
 
+find_package(gsoap REQUIRED)
 
 #find_package(Lua)
 

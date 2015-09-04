@@ -26,8 +26,8 @@
 #  GSOAP_SOAPCPP2_EXECUTABLE   - the soapcpp2 application.
 #  GSOAP_FOUND                 - True if gSOAP found.
 #
-#  Author: Gilberto Ribeiro de Queiroz <gribeiro@dpi.inpe.br>
-#          Vinicius Campanha <vinicius.campanha_indra@inpe.br>
+#  Author: Gilberto Ribeiro de Queiroz
+#          Vinicius Campanha
 #
 
 find_path(GSOAP_INCLUDE_DIR

@@ -24,8 +24,8 @@
 #
 #  Description: Auxiliary macros and functions.
 #
-#  Author: Gilberto Ribeiro de Queiroz <gribeiro@dpi.inpe.br>
-#          Vinicius Campanha <vinicius.campanha_indra@inpe.br>
+#  Author: Gilberto Ribeiro de Queiroz
+#          Vinicius Campanha
 #
 
 #
@@ -35,18 +35,18 @@
 #
 
 
-MACRO(TERRAMA2_GSOAP_SOAPCPP2 filhe_path service_name type GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
+MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path service_name type GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
 
 
 if(${type} STREQUAL "server")
 
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x ${filhe_path})
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x ${file_path})
     set(ARCHIVE_TYPE Service)
 
 
 elseif(${type} STREQUAL "client")
 
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x ${filhe_path})
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x ${file_path})
     set(ARCHIVE_TYPE Proxy)
 
 endif()
