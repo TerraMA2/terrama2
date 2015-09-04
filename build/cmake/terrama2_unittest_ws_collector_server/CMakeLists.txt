@@ -19,14 +19,14 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for TerraMA2's unit test - collector core module.
+#  Description: CMake script for TerraMA2's unit test - collector server module.
 #
 #  Author: Gilberto Ribeiro de Queiroz
 #          Paulo R. M. Oliveira
 #
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/core/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/core/*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/server/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/server/*.hpp)
 
 
 include_directories (
@@ -41,14 +41,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-add_executable(terrama2_unittest_ws_collector_core ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_executable(terrama2_unittest_ws_collector_server ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collector_core
+target_link_libraries(terrama2_unittest_ws_collector_server terrama2_mod_ws_collector_core
+                                                          terrama2_mod_ws_collector_server
                                                           terralib_mod_plugin
                                                           terralib_mod_common)
 
-add_test(NAME TestCollector COMMAND terrama2_unittest_ws_collector_core)
-add_test(NAME TestDataset COMMAND terrama2_unittest_ws_collector_core)
+add_test(NAME TestCollectorService COMMAND terrama2_unittest_ws_collector_server)
 
-qt5_use_modules(terrama2_unittest_ws_collector_core Test)
+qt5_use_modules(terrama2_unittest_ws_collector_server Test)
 

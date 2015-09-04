@@ -47,8 +47,6 @@ int main(int argc, char* argv[])
 
   AdminApp terrama2_admin;
 
-  terrama2_admin.init();
-  
   terrama2_admin.showMaximized();
 
   int retval = app.exec();

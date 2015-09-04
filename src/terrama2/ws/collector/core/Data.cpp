@@ -20,48 +20,39 @@
 */
 
 /*!
-  \file terrama2/gui/config/AdminApp.hpp
+  \file terrama2/ws/collector/core/Data.cpp
 
-  \brief Main GUI for TerraMA2 Admin application.
+  \brief Data...
 
-  \author Evandro Delatin
-  \author Raphael Willian da Costa
+  \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
-#define __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
+#include "Data.hpp"
 
-// Qt
-#include <QMainWindow>
 
-/*!
-  \class AdminApp
- 
-  \brief Main dialog for TerraMA2 Administration module.
- */
-class AdminApp : public QMainWindow
+terrama2::ws::collector::core::Data::Data(const std::string &mask)
+  : mask_(mask)
 {
-  public:
-  
-    //! Default constructor.
-    AdminApp(QWidget* parent = 0);
 
-    //! Destructor.
-    ~AdminApp();
+}
 
-  private:
-  
-    //! No copy allowed.
-    AdminApp(const AdminApp&);
-  
-    //! No copy allowed.
-    AdminApp& operator=(const AdminApp&);
-  
-  private:
-  
-    struct Impl;
+terrama2::ws::collector::core::Data::~Data()
+{
 
-    Impl* pimpl_;  //!< Pimpl idiom.
-};
+}
 
-#endif // __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
+std::string terrama2::ws::collector::core::Data::getMask() const
+{
+  return mask_;
+}
+
+
+void terrama2::ws::collector::core::Data::setMask(const std::string &mask)
+{
+  mask_ = mask;
+}
+
+void terrama2::ws::collector::core::Data::store(const std::string& uri)
+{
+  
+}

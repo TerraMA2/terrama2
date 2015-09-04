@@ -56,6 +56,15 @@ AdminApp::AdminApp(QWidget* parent)
   : QMainWindow(parent),
     pimpl_(new Impl)
 {
+  // load icon theme
+  QStringList ithemes = QIcon::themeSearchPaths();
+
+  ithemes.push_back("/home/terrama2/Projeto/terrama2/codebase/share/icons");
+
+  QIcon::setThemeSearchPaths(ithemes);
+
+  QIcon::setThemeName("terrama2");
+
   pimpl_->ui_->setupUi(this);
 }
 
@@ -64,18 +73,5 @@ AdminApp::~AdminApp()
   delete pimpl_;
 }
 
-void
-AdminApp::init()
-{
-// load icon theme
-  QStringList ithemes = QIcon::themeSearchPaths();
-  
-  ithemes.push_back("/home/terrama2/Projeto/terrama2/codebase/share/icons");
-  
-  QIcon::setThemeSearchPaths(ithemes);
-  
-  QIcon::setThemeName("terrama2");
-  
-}
 
 
