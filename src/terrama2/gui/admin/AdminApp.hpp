@@ -49,14 +49,6 @@ class AdminApp : public QMainWindow
     //! Destructor.
     ~AdminApp();
 
-    //! Initializes the application.
-    /*!
-      Detalhes da inicializacao
-
-      \exception ?qual-tipo-de-excecao? <descricao-excecao>
-     */
-    void init();
-  
   private:
   
     //! No copy allowed.
