@@ -36,6 +36,9 @@
 #include <QIcon>
 #include <QStringList>
 #include <QToolBar>
+#include <QString>
+#include <iostream>
+
 
 struct ConfigApp::Impl
 {
@@ -59,7 +62,7 @@ ConfigApp::ConfigApp(QWidget* parent)
 // load icon theme
   QStringList ithemes = QIcon::themeSearchPaths();
 
-  ithemes.push_back("/home/raphael/Documents/my-devel/terrama2/share/icons/");
+  ithemes.push_back("/home/raphael/Documents/my-devel/terrama2/codebase/share/icons/");
 
   QIcon::setThemeSearchPaths(ithemes);
 
