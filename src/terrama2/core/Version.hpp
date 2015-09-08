@@ -27,8 +27,8 @@
   \author Gilberto Ribeiro de Queiroz
 */
 
-#ifndef __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
-#define __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
+#ifndef __TERRAMA2_CORE_VERSION_HPP__
+#define __TERRAMA2_CORE_VERSION_HPP__
 
 // STL
 #include <string>
@@ -66,5 +66,5 @@ namespace terrama2
   } // end namespace core
 }   // end namespace terrama2
 
-#endif  // __TERRAMA2_INTERNAL_CORE_VERSION_HPP__
+#endif  // __TERRAMA2_CORE_VERSION_HPP__
 

@@ -20,29 +20,31 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WCS.cpp
+  \file terrama2/core/DataSet.cpp
 
-  \brief Implementation of a collector for the WCS format.
+  \brief Metadata about a given dataset.
 
+  \author Gilberto Ribeiro de Queiroz
+  \author Jano Simas
   \author Paulo R. M. Oliveira
+  \author Vinicius Campanha
 */
 
-#include "WCS.hpp"
+// TerraMA2
+#include "DataSet.hpp"
+#include "DataProvider.hpp"
 
-
-terrama2::ws::collector::core::WCS::WCS()
+terrama2::core::DataSet::DataSet(DataProviderPtr provider)
 {
 
 }
 
-
-terrama2::ws::collector::core::WCS::~WCS()
+terrama2::core::DataSet::~DataSet()
 {
 
 }
 
-
-void terrama2::ws::collector::core::WCS::collect(const std::string &file)
+void terrama2::core::DataSet::setId(u_int64_t id)
 {
-
+  id_ = id;
 }

@@ -20,37 +20,23 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/Collector.cpp
+  \file terrama2/core/DataManager.cpp
 
-  \brief Class that represents a collector
+  \brief Manages metadata about data providers and its datasets.
 
-  \author Gilberto Ribeiro de Queiroz, Paulo R. M. Oliveira
- */
+  \author Gilberto Ribeiro de Queiroz
+  \author Jano Simas
+  \author Paulo R. M. Oliveira
+  \author Vinicius Campanha
+*/
 
 // TerraMA2
-#include "DatabaseStorageStrategy.hpp"
-#include "Collector.hpp"
+#include "DataManager.hpp"
 
-
-// terralib
-#include <terralib/dataaccess.h>
-
-
-
-terrama2::ws::collector::core::DatabaseStorageStrategy::DatabaseStorageStrategy(const std::string &storageName, const bool &uniqueStorage)
-  : storageName_(storageName),
-    uniqueStorage_(uniqueStorage)
+struct terrama2::core::DataManager::Impl
 {
-
+  std::map<uint64, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
+  std::map<uint64, DataSetPtr> datasets_;       //!< A map from data-set-id to dataset.
+  // adicionar MUTEX
 }
 
-
-terrama2::ws::collector::core::DatabaseStorageStrategy::~DatabaseStorageStrategy()
-{
-
-}
-
-void terrama2::ws::collector::core::DatabaseStorageStrategy::store(std::shared_ptr<te::da::DataSet> dataSet, const terrama2::ws::collector::core::Collector &collector)
-{
-
-}

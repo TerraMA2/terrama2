@@ -71,6 +71,11 @@ elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR "")
 endif()
 
+# variable that defines  the path to data directory used in the unittests
+if(NOT DEFINED TERRALIB_DATA_DIR)
+  set(TERRALIB_DATA_DIR "${CMAKE_BINARY_DIR}/data" CACHE PATH "Path to a directory containing the data used in the examples and/or in the unit test")
+endif()
+
 # variables that control install locations
 if(NOT DEFINED TERRAMA2_DESTINATION_PLUGINS)
   set(TERRAMA2_DESTINATION_PLUGINS "${TERRAMA2_BASE_DESTINATION_DIR}share/terrama2/plugins")
@@ -118,9 +123,7 @@ endif()
 # global definitions and includes
 #
 
-#add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
-
-
+add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
 
 if(WIN32)
   #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -192,6 +195,13 @@ include(CMakeDependentOption)
 
 
 #
+# including TerraMA2 auxiliary macros and functions
+#
+
+include(terrama2_macros.cmake)
+
+
+#
 # first check of libraries
 #
 
@@ -220,6 +230,7 @@ if(NOT terralib_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find TerraLib libraries!")
 endif()
 
+find_package(gsoap REQUIRED)
 
 #find_package(Lua)
 
@@ -282,6 +293,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collec
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_CORE_ENABLED "Build unittest for core module?" ON "TERRAMA2_MOD_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED "Build unittest for Collector Web Service core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
@@ -348,6 +361,11 @@ endif()
 
 if(TERRAMA2_DOXYGEN_ENABLED)
   #add_subdirectory(terrama2_doxygen)
+endif()
+
+
+if(TERRAMA2_UNITTEST_CORE_ENABLED)
+  add_subdirectory(terrama2_unittest_core)
 endif()
 
 if(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED)

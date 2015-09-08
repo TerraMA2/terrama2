@@ -20,15 +20,17 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file unittest/core/DataProviderDAO.cpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Test for DataProviderDAO functionalities
 
   \author Paulo R. M. Oliveira
 */
 
 
 #include <terrama2_config.hpp>
+#include <terrama2/core/DataProviderDAO.hpp>
+#include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/ApplicationController.hpp>
 
 //QT
@@ -44,7 +46,7 @@
 #include <terralib/common.h>
 #include <terralib/plugin.h>
 
-class TestApplicationController: public QObject
+class TestDataProviderDAO: public QObject
 {
   Q_OBJECT
 
@@ -53,10 +55,14 @@ protected:
     void initializeTerralib();
     void finalizeTerralib();
 
+    void initializeTerraMA2();
+    void finalizeTerraMA2();
+
 private slots:
     void initTestCase() // Always run before all tests
     {
         initializeTerralib();
+        initializeTerraMA2();
     }
     void cleanupTestCase() // Always run after all tests
     {
@@ -66,20 +72,12 @@ private slots:
     void init(){ } //run before each test
     void cleanup(){ } //run before each test
 
-    void testLoadProject();
+    void testDataSetDAO();
 };
 
 
-void TestApplicationController::testLoadProject()
-{
-  std::string data_dir = TERRAMA2_DATA_DIR;
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(data_dir + "/project.json"), true);
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-  QVERIFY(transactor.get());
-}
 
-
-void TestApplicationController::initializeTerralib()
+void TestDataProviderDAO::initializeTerralib()
 {
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
@@ -98,10 +96,28 @@ void TestApplicationController::initializeTerralib()
   te::plugin::PluginManager::getInstance().loadAll();
 }
 
-void TestApplicationController::finalizeTerralib()
+void TestDataProviderDAO::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
 }
 
-//QTEST_MAIN(TestApplicationController)
-#include "TestApplicationController.moc"
+void TestDataProviderDAO::initializeTerraMA2()
+{
+  std::string data_dir = TERRAMA2_DATA_DIR;
+  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(data_dir + "/project.json"), true);
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
+  QVERIFY(transactor.get());
+}
+
+
+void TestDataProviderDAO::testDataSetDAO()
+{
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
+  QVERIFY(transactor.get());
+
+  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1"));
+}
+
+
+QTEST_MAIN(TestDataProviderDAO)
+#include "TestDataProviderDAO.moc"

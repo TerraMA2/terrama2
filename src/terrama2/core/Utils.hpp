@@ -20,29 +20,34 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/AsciiGrid.cpp
+  \file terrama2/core/Utils.hpp
 
-  \brief Implementation of a collector for the AsciiGrid format.
+  \brief Utility functions for TerraMA2 SDK.
 
-  \author Paulo R. M. Oliveira
+  \author Gilberto Ribeiro de Queiroz
 */
 
-#include "AsciiGrid.hpp"
+#ifndef __TERRAMA2_CORE_UTILS_HPP__
+#define __TERRAMA2_CORE_UTILS_HPP__
 
+// STL
+#include <string>
 
-terrama2::ws::collector::core::AsciiGrid::AsciiGrid()
+namespace terrama2
 {
+  namespace core
+  {
+    /*!
+      \brief Returns the path relative to a directory or file in the context of TerraMA2.
 
-}
+      \param p A path to be searched in the TerraMA2 context.
 
+      \return A complete path to the file or directory if it is found, otherwise returns an empty string.
+     */
+    std::string FindInTerraMA2Path(const std::string& p);
 
-terrama2::ws::collector::core::AsciiGrid::~AsciiGrid()
-{
+  } // end namespace core
+}   // end namespace terrama2
 
-}
+#endif // __TERRAMA2_CORE_UTILS_HPP__
 
-
-void terrama2::ws::collector::core::AsciiGrid::collect(const std::string &file)
-{
-
-}

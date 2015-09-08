@@ -20,28 +20,10 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/FileStorageStrategy.cpp
+  \file terrama2/ws/collector/core/WebService.hpp
 
-  \brief Abstract class to define a storage strategy for files
+  \brief TerraMA2 configuration options.
 
-  \author Paulo R. M. Oliveira
+  \author Vinicius Campanha
  */
 
-#include "FileStorageStrategy.hpp"
-
-terrama2::ws::collector::core::FileStorageStrategy::FileStorageStrategy()
-{
-
-}
-
-
-terrama2::ws::collector::core::FileStorageStrategy::~FileStorageStrategy()
-{
-
-}
-
-
-void terrama2::ws::collector::core::FileStorageStrategy::store(std::shared_ptr<te::da::DataSet> dataSet, const terrama2::ws::collector::core::Collector &collector)
-{
-
-}

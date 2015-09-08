@@ -32,7 +32,7 @@ If you prefer to install from source, download it from:
 http://www.boost.org
 
 
-2. Qt (Mandatory)
+3. Qt (Mandatory)
 -----------------
 
 Make sure you have an installed Qt version 5.2.1 or later.
@@ -45,6 +45,15 @@ If you prefer to install from source, download it from:
 http://qt-project.org/downloads.
 
 Windows users that had downloaded the auxiliary package (in the TerraMA2 site) must install Qt 5.4.1.
+
+
+4. gSOAP (Mandatory)
+--------------------
+
+Make sure you have an installed gSOAP version 2.8.23 or later.
+
+If you prefer to install from source, download it from:
+http://www.cs.fsu.edu/~engelen/soap.html
 
 
 For more information on TerraMA2, please, visit its main web page at: http://www.dpi.inpe.br/terrama2.

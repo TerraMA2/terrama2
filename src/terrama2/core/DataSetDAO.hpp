@@ -20,35 +20,51 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/Format.hpp
+  \file terrama2/core/DataSetDAO.hpp
 
-  \brief Enumeration to a collector format.
+  \brief DataProvider DAO...
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_CORE_FORMAT_HPP__
-#define __TERRAMA2_WS_COLLECTOR_CORE_FORMAT_HPP__
+#ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
+#define __TERRAMA2_CORE_DATASETDAO_HPP__
+
+// STL
+#include <vector>
+#include <memory>
+
+// terralib
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+
+
 
 namespace terrama2
 {
-  namespace ws
+  namespace core
   {
-    namespace collector
+
+    class DataSet;
+    typedef std::shared_ptr<DataSet> DataSetPtr;
+
+    class DataSetDAO
     {
-      namespace core
-      {
+    public:
+      DataSetDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor);
+      virtual ~DataSetDAO();
 
+      bool save(DataSetPtr dataset);
+      bool update(DataSetPtr dataset);
+      bool remove(const int& id);
+      DataSetPtr get(const int& id) const;
+      std::vector<DataSetPtr> list() const;
 
-        enum Format
-        {
-          ASCII_GRID, TIFF, GRADS, PROARCO_FILE, OGC_WCS, OGC_WFS, SURFACE
-        };
+    protected:
+      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 
-      
-      } // core    
-    } // collector
-  } // ws
+    };
+
+  } // core
 } // terrama2
 
-#endif // __TERRAMA2_WS_COLLECTOR_CORE_FORMAT_HPP__
+#endif // __TERRAMA2_CORE_DATASETDAO_HPP__
