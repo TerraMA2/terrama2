@@ -103,5 +103,5 @@ void TestApplicationController::finalizeTerralib()
   TerraLib::getInstance().finalize();
 }
 
-QTEST_MAIN(TestApplicationController)
+//QTEST_MAIN(TestApplicationController)
 #include "TestApplicationController.moc"

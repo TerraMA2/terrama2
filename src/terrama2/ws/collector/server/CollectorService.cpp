@@ -28,9 +28,8 @@
 */
 
 #include "CollectorService.hpp"
-#include "../core/Dataset.hpp"
-#include "../core/DataProvider.hpp"
-#include "../core/Data.hpp"
+#include "../../../core/DataSet.hpp"
+#include "../../../core/DataProvider.hpp"
 
 // QT
 #include <QApplication>

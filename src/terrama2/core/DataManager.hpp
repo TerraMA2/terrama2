@@ -36,10 +36,19 @@
 // STL
 #include <memory>
 
+// QT
+#include <QObject>
+
 namespace terrama2
 {
   namespace core
   {
+    class DataProvider;
+    typedef std::shared_ptr<DataProvider> DataProviderPtr;
+
+    class DataSet;
+    typedef std::shared_ptr<DataSet> DataSetPtr;
+
     /*!
       \class DataManager
 
@@ -54,6 +63,21 @@ namespace terrama2
     class DataManager : public QObject
     {
       Q_OBJECT
+
+      private:
+
+        //! Just acessible through instance method.
+        DataManager();
+
+        //! Destructor.
+        ~DataManager();
+
+        //! No copy allowed.
+        DataManager(const DataManager&);
+
+        //! No copy allowed.
+        DataManager& operator=(const DataManager&);
+
 
       public:
 
@@ -103,7 +127,7 @@ namespace terrama2
           \note Thread-safe.
          */
         void add(DataSetPtr dataset);
-        
+
         /*!
           \note Thread-safe.
          */
@@ -117,22 +141,22 @@ namespace terrama2
         /*!
           \note Thread-safe.
          */
-        void removeDataProvider(uint64 id);
+        void removeDataProvider(u_int64_t id);
 
         /*!
           \note Thread-safe.
          */
-        void removeDataSet(uint64 id);
+        void removeDataSet(u_int64_t id);
 
         /*!
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(uint64 id) const;
+        DataProviderPtr findDataProvider(u_int64_t id) const;
 
         /*!
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(uint64 id) const;
+        DataSetPtr findDataSet(u_int64_t id) const;
 
         static DataManager& instance();
 
@@ -152,19 +176,6 @@ namespace terrama2
         void dataSetUpdated(DataSetPtr);
         //void dataSetChanged(DataSetPtr);
 
-      private:
-
-        //! Just acessible through instance method.
-        DataManager();
-
-        //! Destructor.
-        ~DataManager();
-
-        //! No copy allowed.
-        DataManager(const DataManager&);
-
-        //! No copy allowed.
-        DataManager& operator=(const DataManager&);
 
       private:
 
