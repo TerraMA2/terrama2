@@ -46,6 +46,11 @@ add_executable(terrama2_unittest_core ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES
 target_link_libraries(terrama2_unittest_core terrama2_mod_core terralib_mod_plugin terralib_mod_common)
 
 add_test(NAME TestApplicationController COMMAND terrama2_unittest_core)
+add_test(NAME TestDataSetDAO COMMAND terrama2_unittest_core)
+add_test(NAME TestDataProviderDAO COMMAND terrama2_unittest_core)
+add_test(NAME TestCollectorService COMMAND terrama2_unittest_core)
+add_test(NAME TestDataManager COMMAND terrama2_unittest_core)
+
 
 qt5_use_modules(terrama2_unittest_core Test)
 

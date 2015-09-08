@@ -32,3 +32,19 @@
 
 // TerraMA2
 #include "DataSet.hpp"
+#include "DataProvider.hpp"
+
+terrama2::core::DataSet::DataSet(DataProviderPtr provider)
+{
+
+}
+
+terrama2::core::DataSet::~DataSet()
+{
+
+}
+
+void terrama2::core::DataSet::setId(u_int64_t id)
+{
+  id_ = id;
+}

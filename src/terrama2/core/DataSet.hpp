@@ -33,14 +33,23 @@
 #ifndef __TERRAMA2_CORE_DATASET_HPP__
 #define __TERRAMA2_CORE_DATASET_HPP__
 
+
+
 // STL
 #include <memory>
 #include <string>
+#include <cstdint>
+
+
 
 namespace terrama2
 {
   namespace core
   {
+
+    class DataProvider;
+    typedef std::shared_ptr<DataProvider> DataProviderPtr;
+
     /*!
       \class DataSet
 
@@ -48,7 +57,7 @@ namespace terrama2
 
       A data provider can be a remote server that provides data through
       FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
-      
+
       It can also be an URI for a folder into the file system...
      */
     class DataSet
@@ -84,11 +93,11 @@ namespace terrama2
 
           \param id
          */
-        void setId(uint64 id);
+        void setId(u_int64_t id);
 
       private:
 
-        uint64 id_;
+        u_int64_t id_;
         std::string name_;
         std::string description_;
         Status status_;
@@ -102,10 +111,10 @@ namespace terrama2
         double scheduleTimeout_;
         //UOM scheduleTimeoutUnit_;  //todo:
 
-      friend class DataManager; //review
+      friend class DataSetDAO; //review
     };
 
-    typedef shared_ptr<DataSet> DataSetPtr;
+    typedef std::shared_ptr<DataSet> DataSetPtr;
 
   } // end namespace core
 }   // end namespace terrama2

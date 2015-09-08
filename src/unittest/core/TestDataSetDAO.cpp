@@ -20,15 +20,18 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file unittest/core/DataSetDAO.cpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Test for DataSetDAO functionalities
 
   \author Paulo R. M. Oliveira
 */
 
 
 #include <terrama2_config.hpp>
+#include <terrama2/core/DataSetDAO.hpp>
+#include <terrama2/core/DataSet.hpp>
+#include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/ApplicationController.hpp>
 
 //QT
@@ -44,7 +47,7 @@
 #include <terralib/common.h>
 #include <terralib/plugin.h>
 
-class TestApplicationController: public QObject
+class DataSetDAO: public QObject
 {
   Q_OBJECT
 
@@ -52,6 +55,9 @@ protected:
 
     void initializeTerralib();
     void finalizeTerralib();
+
+    void initializeTerraMA2();
+    void finalizeTerraMA2();
 
 private slots:
     void initTestCase() // Always run before all tests
@@ -66,20 +72,12 @@ private slots:
     void init(){ } //run before each test
     void cleanup(){ } //run before each test
 
-    void testLoadProject();
+    void testDataSetDAO();
 };
 
 
-void TestApplicationController::testLoadProject()
-{
-  std::string data_dir = TERRAMA2_DATA_DIR;
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(data_dir + "/project.json"), true);
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-  QVERIFY(transactor.get());
-}
 
-
-void TestApplicationController::initializeTerralib()
+void DataSetDAO::initializeTerralib()
 {
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
@@ -98,10 +96,30 @@ void TestApplicationController::initializeTerralib()
   te::plugin::PluginManager::getInstance().loadAll();
 }
 
-void TestApplicationController::finalizeTerralib()
+void DataSetDAO::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
 }
 
-//QTEST_MAIN(TestApplicationController)
-#include "TestApplicationController.moc"
+void DataSetDAO::initializeTerraMA2()
+{
+  std::string data_dir = TERRAMA2_DATA_DIR;
+  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(data_dir + "/project.json"), true);
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
+  QVERIFY(transactor.get());
+}
+
+
+void DataSetDAO::testDataSetDAO()
+{
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
+  QVERIFY(transactor.get());
+
+  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1"));
+
+  terrama2::core::DataSetPtr dataset(new terrama2::core::DataSet(dataProvider));
+}
+
+
+//QTEST_MAIN(TestDataSetDAO)
+#include "TestDataSetDAO.moc"

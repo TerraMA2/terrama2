@@ -31,7 +31,7 @@
 #define __TERRAMA2_WS_COLLECTOR_APPSERVER_COLLECTORSERVICE_HPP__
 
 
-#include "../core/DataProvider.hpp"
+#include "../../../core/DataProvider.hpp"
 
 // QT
 #include <QObject>

@@ -20,29 +20,60 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WCS.cpp
+  \file terrama2/core/DataSetDAO.hpp
 
-  \brief Implementation of a collector for the WCS format.
+  \brief DataSet DAO...
 
   \author Paulo R. M. Oliveira
 */
 
-#include "WCS.hpp"
+#include "DataSetDAO.hpp"
+#include "DataSet.hpp"
 
+// STL
+#include <vector>
 
-terrama2::ws::collector::core::WCS::WCS()
+// terralib
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/query/Query.h>
+
+terrama2::core::DataSetDAO::DataSetDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor)
+  : transactor_(transactor)
+{
+
+}
+
+terrama2::core::DataSetDAO::~DataSetDAO()
 {
 
 }
 
 
-terrama2::ws::collector::core::WCS::~WCS()
+bool terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet)
 {
-
+  return false;
 }
 
 
-void terrama2::ws::collector::core::WCS::collect(const std::string &file)
+bool terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet)
 {
+  return false;
+}
 
+
+bool terrama2::core::DataSetDAO::remove(const int &id)
+{
+  return false;
+}
+
+
+terrama2::core::DataSetPtr terrama2::core::DataSetDAO::get(const int &id) const
+{
+  return 0;
+}
+
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataSetDAO::list() const
+{
+  std::vector<terrama2::core::DataSetPtr> vecCollectors;
+  return vecCollectors;
 }

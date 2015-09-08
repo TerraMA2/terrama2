@@ -20,60 +20,74 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/CollectorDAO.hpp
+  \file terrama2/core/DataProviderDAO.hpp
 
-  \brief Collector DAO...
+  \brief DataProvider DAO...
 
   \author Paulo R. M. Oliveira
 */
 
-#include "CollectorDAO.hpp"
-#include "Collector.hpp"
+#include "DataProviderDAO.hpp"
+#include "DataProvider.hpp"
 
 // STL
 #include <vector>
+#include <memory>
 
 // terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/query/Query.h>
+#include <terralib/common/StringUtils.h>
 
-terrama2::ws::collector::core::CollectorDAO::CollectorDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor)
+terrama2::core::DataProviderDAO::DataProviderDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor)
   : transactor_(transactor)
 {
 
 }
 
-terrama2::ws::collector::core::CollectorDAO::~CollectorDAO()
+terrama2::core::DataProviderDAO::~DataProviderDAO()
 {
 
 }
 
 
-bool terrama2::ws::collector::core::CollectorDAO::save(terrama2::ws::collector::core::Collector *collector)
+bool terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataProvider)
+{
+  try
+  {
+    transactor_->begin();
+
+    std::auto_ptr<te::da::DataSet> dataset = transactor_->getDataSet("data_provider");
+
+  }
+  catch(...)
+  {
+
+  }
+
+  return true;
+}
+
+
+bool terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dataProvider)
 {
   return false;
 }
 
 
-bool terrama2::ws::collector::core::CollectorDAO::update(terrama2::ws::collector::core::Collector *collector)
+bool terrama2::core::DataProviderDAO::remove(const int &id)
 {
   return false;
 }
 
 
-bool terrama2::ws::collector::core::CollectorDAO::remove(const int &id)
-{
-  return false;
-}
-
-
-terrama2::ws::collector::core::Collector* terrama2::ws::collector::core::CollectorDAO::get(const int &id) const
+terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::get(const int &id) const
 {
   return 0;
 }
 
-std::vector<terrama2::ws::collector::core::Collector *> terrama2::ws::collector::core::CollectorDAO::list() const
+std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataProviderDAO::list() const
 {
-  std::vector<terrama2::ws::collector::core::Collector*> vecCollectors;
+  std::vector<terrama2::core::DataProviderPtr> vecCollectors;
   return vecCollectors;
 }

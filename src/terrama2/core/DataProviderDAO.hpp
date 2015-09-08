@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/CollectorDAO.hpp
+  \file terrama2/core/DataProviderDAO.hpp
 
-  \brief Collector DAO...
+  \brief DataProvider DAO...
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_CORE_COLLECTORDAO_HPP__
-#define __TERRAMA2_WS_COLLECTOR_CORE_COLLECTORDAO_HPP__
+#ifndef __TERRAMA2_CORE_DATAPROVIDERDAO_HPP__
+#define __TERRAMA2_CORE_DATAPROVIDERDAO_HPP__
 
 // STL
 #include <vector>
@@ -41,35 +41,30 @@
 
 namespace terrama2
 {
-  namespace ws
+  namespace core
   {
-    namespace collector
+
+    class DataProvider;
+    typedef std::shared_ptr<DataProvider> DataProviderPtr;
+
+    class DataProviderDAO
     {
-      namespace core
-      {
+    public:
+      DataProviderDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor);
+      virtual ~DataProviderDAO();
 
-        class Collector;
+      bool save(DataProviderPtr dataProvider);
+      bool update(DataProviderPtr dataProvider);
+      bool remove(const int& id);
+      DataProviderPtr get(const int& id) const;
+      std::vector<DataProviderPtr> list() const;
 
-        class CollectorDAO
-        {
-        public:
-          CollectorDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor);
-          virtual ~CollectorDAO();
+    protected:
+      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 
-          bool save(Collector* collector);
-          bool update(Collector* collector);
-          bool remove(const int& id);
-          Collector* get(const int& id) const;
-          std::vector<Collector*> list() const;
+    };
 
-        protected:
-          std::auto_ptr<te::da::DataSourceTransactor> transactor_;
-
-        };
-
-      } // core
-    } // collector
-  } // ws
+  } // core
 } // terrama2
 
-#endif // __TERRAMA2_WS_COLLECTOR_CORE_COLLECTORDAO_HPP__
+#endif // __TERRAMA2_CORE_DATAPROVIDERDAO_HPP__
