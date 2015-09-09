@@ -71,7 +71,7 @@ elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR "")
 endif()
 
-# variable that defines  the path to data directory used in the unittests
+# variable that defines the path to data directory used in the unittests
 if(NOT DEFINED TERRAMA2_DATA_DIR)
   set(TERRAMA2_DATA_DIR "${CMAKE_BINARY_DIR}/data" CACHE PATH "Path to a directory containing the data used in the examples and/or in the unit test")
 endif()
@@ -207,6 +207,10 @@ include(terrama2_macros.cmake)
 
 find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools Test)
 
+if(NOT Qt5_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required Qt 5 libraries!")
+endif()
+
 if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
   find_program(QT_QCOLLECTIONGENERATOR_EXECUTABLE
                NAME qcollectiongenerator
@@ -231,6 +235,11 @@ if(NOT terralib_FOUND)
 endif()
 
 find_package(gsoap REQUIRED)
+
+if(NOT GSOAP_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required gSOAP library!")
+endif()
+
 
 #find_package(Lua)
 
@@ -385,9 +394,7 @@ endif()
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/*.hpp)
 
 install(FILES ${CMAKE_BINARY_DIR}/terrama2_config.hpp
-#              ${CMAKE_BINARY_DIR}/terrama2_buildconfig.hpp
-#              ${CMAKE_BINARY_DIR}/terrama2_defines.hpp
-#              ${CMAKE_BINARY_DIR}/terrama2_version.hpp
+              ${CMAKE_BINARY_DIR}/terrama2_version.hpp
               ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2 COMPONENT devel)
 
