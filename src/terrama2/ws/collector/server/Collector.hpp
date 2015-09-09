@@ -35,6 +35,8 @@
 #include "DataSetTimer.hpp"
 #include "DataProcessor.hpp"
 
+#include "soapH.h"
+
 //Qt
 #include <QObject>
 
@@ -54,18 +56,31 @@ namespace terrama2
       namespace server
       {
 
+        /*!
+         * \brief The Collector class is responsible for aquiring the data from a remote server.
+         *
+         * This class is an interface to open a connection with a [DataProvider](\ref terrama2::core::DataProvider)
+         * and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
+         *
+         */
         class Collector : public QObject
         {
             Q_OBJECT
 
           public:
+            /*!
+             * \brief Constructor
+             * \param dataProvider Data provider.
+             *
+             *
+             */
             Collector(core::DataProviderPtr dataProvider, QObject* parent = nullptr);
             virtual ~Collector(){}
 
             core::DataProvider::Kind kind()         const { return dataProvider_->kind();}
             core::DataProviderPtr    dataProvider() const { return dataProvider_;}
 
-            bool isCollecting()                     const {}//JANO: implementar isCollecting
+            bool isCollecting()                     const;
             bool collect(DataSetTimerPtr datasetTimer); //should run in thread
 
             virtual bool isOpen() const = 0;
@@ -75,7 +90,7 @@ namespace terrama2
           protected:
             virtual void getData(const DataProcessor&) = 0;
 
-            std::mutex mutex_;
+            mutable std::mutex mutex_;
 
             core::DataProviderPtr dataProvider_;
 

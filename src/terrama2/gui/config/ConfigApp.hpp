@@ -48,14 +48,6 @@ class ConfigApp : public QMainWindow
 
     //! Destructor.
     ~ConfigApp();
-
-    //! Initializes the application.
-    /*!
-      Detalhes da inicializacao
-
-      \exception ?qual-tipo-de-excecao? <descricao-excecao>
-     */
-    void init();
   
   private:
   
