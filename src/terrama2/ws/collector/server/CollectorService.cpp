@@ -147,29 +147,26 @@ void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t 
     datasetTimerQueue.append(datasetId);
 }
 
-void terrama2::ws::collector::server::CollectorService::addProvider(core::DataProviderPtr dataProvider)
+terrama2::ws::collector::server::Collector terrama2::ws::collector::server::CollectorService::addProvider(core::DataProviderPtr dataProvider)
 {
   BOOST_LOG_TRIVIAL(trace) << "CollectorService::addProvider: " << dataProvider->id();
 
   //Create a collector and add it to the list
-  auto collector = CollectorFactory::instance().newCollector(dataProvider, this);
-  collectorLst_.insert(dataProvider->id(), collector);
+  auto collector = CollectorFactory::instance().getCollector(dataProvider);
+
+  return collector;
 }
 
-void terrama2::ws::collector::server::CollectorService::addDataset(core::DataSetPtr dataset)
+terrama2::ws::collector::server::DataSetTimer terrama2::ws::collector::server::CollectorService::addDataset(core::DataSetPtr dataset)
 {
   BOOST_LOG_TRIVIAL(trace) << "CollectorService::addDataset: " << dataset->id();
 
-  //get collector or create one
-  if(!collectorLst_.contains(dataset->getDataProvider()->id()))
-    addProvider(dataset->getDataProvider());
-
-  CollectorPtr collector = collectorLst_.value(dataset->getDataProvider()->id());
-
   //Create a new dataset timer and connect the timeout signal to queue
-  auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset, collector, this));
+  auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
   datasetTimerLst_.insert(dataset->id(), datasetTimer);
   connect(datasetTimer.get(), &terrama2::ws::collector::server::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
+
+  return datasetTimer;
 }
 
 

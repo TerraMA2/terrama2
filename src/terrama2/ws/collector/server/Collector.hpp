@@ -35,8 +35,6 @@
 #include "DataSetTimer.hpp"
 #include "DataProcessor.hpp"
 
-#include "soapH.h"
-
 //Qt
 #include <QObject>
 
@@ -70,29 +68,65 @@ namespace terrama2
           public:
             /*!
              * \brief Constructor
-             * \param dataProvider Data provider.
-             *
-             *
+             * \param dataProvider Server information for collecting.
              */
             Collector(core::DataProviderPtr dataProvider, QObject* parent = nullptr);
+            /*!
+             * \brief Destructor
+             */
             virtual ~Collector(){}
 
-            core::DataProvider::Kind kind()         const { return dataProvider_->kind();}
-            core::DataProviderPtr    dataProvider() const { return dataProvider_;}
+            /*!
+             * \brief Type of the data provider.
+             *
+             * This information is used by the CollectorFactory to build a Collector
+             * of right type.
+             *
+             * \return Data provider kind.
+             */
+            core::DataProvider::Kind kind() const { return dataProvider_->kind();}
+            /*!
+             * \brief Data provider containing the information of this collector.
+             */
+            core::DataProviderPtr dataProvider() const { return dataProvider_;}
 
-            bool isCollecting()                     const;
-            bool collect(DataSetTimerPtr datasetTimer); //should run in thread
+            /*!
+             * \brief Verifies if the collector is collecting.
+             * \return Returns true if is collecting.
+             */
+            bool isCollecting() const;
+            /*!
+             * \brief Prepare and start to collect the data required by the [DataSet](\ref terrama2::core::DataSet).
+             *
+             * If the colelctor is avaiable will call collectAsThread in a new thread and return true.
+             *
+             * \return Return true if able to start collecting, false otherwise.
+             */
+            bool collect(DataSetTimerPtr datasetTimer);
 
+            //! \brief Returns if the connection is open.
             virtual bool isOpen() const = 0;
+
+            /*!
+             * \brief Open the connection with the server.
+             *
+             * Trys to open the connection, returns false if fails
+             *
+             * \return True if the connection is open. If not appliable, returns true.
+             */
             virtual bool open()  = 0;
+            //! \brief Close the connection, if not open, does nothing.
             virtual void close() = 0;
 
           protected:
-            virtual void getData(const DataProcessor&) = 0;
+            //! \brief Internal method to collect a dataset, should be started as a thread.
+            void collectAsThread(DataSetTimerPtr datasetTimer);
+            //! \brief Aquired the data specified in dataProcessor.
+            virtual void getData(const DataProcessor& dataProcessor) = 0;
 
-            mutable std::mutex mutex_;
+            mutable std::mutex mutex_; //!< Mutex for thread safety.
 
-            core::DataProviderPtr dataProvider_;
+            core::DataProviderPtr dataProvider_; //!< Data provider information.
 
             /*!
              * \brief Utility class to assert the mutex will be unlocked in the end of the process.

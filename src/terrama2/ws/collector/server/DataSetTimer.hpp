@@ -57,26 +57,45 @@ namespace terrama2
         class DataProcessor;
         typedef std::shared_ptr<DataProcessor> DataProcessorPtr;
 
+        /*!
+         * \brief The DataSetTimer class is a wrapper to a [DataSet](\ref terrama2::core::DataSet) with timer capabilities.
+         *
+         * The DataSetTimer class has an internal timer that emits a signal when
+         * it's time to collect the data.
+         *
+         * It also has pointer to the collector of it's data providerand a vector of DataProcessor of it's data.
+         *
+         */
         class DataSetTimer : public QObject
         {
             Q_OBJECT
 
           public:
-            DataSetTimer(core::DataSetPtr dataSet, CollectorPtr collector, QObject* parent = nullptr);
+            DataSetTimer(core::DataSetPtr dataSet);
             ~DataSetTimer(){}
 
-            CollectorPtr                  getCollector() const { return collector_; }
+            /*!
+             * \brief Recover the Collector from the CollectorFactory.
+             * \return Collector for the DataSet.
+             */
+            CollectorPtr                  getCollector() const ;
+            //! \brief Returns the original DataSet.
             core::DataSetPtr              getDataSet()   const { return dataSet_;   }
-            std::vector<DataProcessorPtr> getData()      const { return dataLst_; }
+            //! \brief List of DataProcessor that should be aquired and processed.
+            std::vector<DataProcessorPtr> getData()      const { return dataLst_;   }
 
           signals:
+            //! \brief Signal emited when the DataSet should be collected.
             void timerSignal(uint64_t DatasetID) const;
 
           private slots:
+            //! \brief Slot called when the timer_ times out, emits timerSignal.
             void timeoutSlot() const;
 
           private:
+            //! \brief Prepare and starts timer following the DataSet information.
             void prepareTimer();
+            //! \brief Populates dataLst_ based on DataSet's Data information.
             void populateDataLst();
 
             core::DataSetPtr dataSet_;

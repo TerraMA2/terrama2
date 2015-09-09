@@ -10,3 +10,15 @@ terrama2::ws::collector::server::CollectorFactory& terrama2::ws::collector::serv
 
   return *instance_;
 }
+
+terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorFactory::getCollector(terrama2::core::DataProviderPtr dataProvider)
+{
+  //JANO: implementar getCollector
+
+  if(!collectorMap_.contains(dataProvider->id()))
+  {
+    //... instatiate a new collector
+  }
+
+  return collectorMap_.value(dataProvider->id());
+}

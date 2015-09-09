@@ -90,19 +90,19 @@ namespace terrama2
             void start();
 
             /*!
-             * \brief Adds a new data provider to the list.
+             * \brief Creates an instace of a collector of appropriate type for the dataProvider.
              * \param dataProvider The shared pointer to the data provider
+             * \return Collector to the DataProvider.
              */
-            void addProvider(core::DataProviderPtr dataProvider);
+            Collector addProvider(core::DataProviderPtr dataProvider);
 
             /*!
-             * \brief Adds a new dataset to the list.
-             *
-             * This method will add this dataset provider if it was not added before.
-             *
+             * \brief Creaets a new DataSetTimer for the DataSet and adds it to the list.
              * \param dataset The shared pointer to the dataset
+             *
+             * \return DataSetTimer for the DataSet.
              */
-            void addDataset(core::DataSetPtr dataset);
+            DataSetTimer addDataset(core::DataSetPtr dataset);
 
             /*!
              * \brief Start do collect queued datasets
@@ -126,7 +126,6 @@ namespace terrama2
             QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
             QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
 
-            QMap<int /*DataProviderId*/, CollectorPtr>           collectorLst_;
             QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
         };
       }

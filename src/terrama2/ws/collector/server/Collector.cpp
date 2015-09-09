@@ -24,6 +24,8 @@ bool terrama2::ws::collector::server::Collector::collect(DataSetTimerPtr dataset
   if(lock.tryLock())
   {
     //JANO: implement collect
+    //thread....
+
     return true;
   }
   else

@@ -34,7 +34,7 @@
 #include "Collector.hpp"
 
 //Qt
-class QObject;
+#include <QMap>
 
 namespace terrama2
 {
@@ -49,15 +49,32 @@ namespace terrama2
       namespace server
       {
 
-        class CollectorFactory
+        /*!
+         * \brief The CollectorFactory class is responsible for creating the appropriate type of Collector.
+         *
+         *       The CollectorFactory is a singleton responsible for creating the appropriate type of Collector.
+         *
+         * The method CollectorFactory::getCollector will use the DataProvider information to
+         * create an instace of a collector of the appropriate derived classe and return a shared pointer to it.
+         *
+         */
+        class CollectorFactory//TODO: As it only has one method should it be an static method? not a class?
         {
           public:
+            //! \brief Get the current instance of CollectorFactory, if none, instantiate one.
             static CollectorFactory& instance();
 
-            CollectorPtr newCollector(core::DataProviderPtr dataProvider, QObject* parent = nullptr){}//JANO: implementar newCollector
+            /*!
+             * \brief Returns the instace of the collector or instatiate a new collector of the appropriate derived classe and return a shared pointer to it.
+             * \param dataProvider Data provider information.
+             * \return Shared pointer to the new collector.
+             */
+            CollectorPtr getCollector(core::DataProviderPtr dataProvider);
 
           private:
+            //! Contructor
             CollectorFactory() {}
+            //! Destructor
             ~CollectorFactory();
 
             //! No copy allowed.
@@ -66,7 +83,9 @@ namespace terrama2
             //! No copy allowed.
             CollectorFactory& operator=(const CollectorFactory&);
 
-            static CollectorFactory* instance_;
+            static CollectorFactory* instance_; //!< Current instance of the CollectorFactory.
+
+            QMap<int /*DataProviderId*/, CollectorPtr> collectorMap_;
 
         };
       }
