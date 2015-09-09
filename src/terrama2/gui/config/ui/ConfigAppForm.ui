@@ -6615,7 +6615,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="openAct">
    <property name="icon">
-    <iconset theme="open-config"/>
+    <iconset theme="open-config">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Abrir...</string>

@@ -37,7 +37,9 @@
 #include <QStringList>
 #include <QToolBar>
 #include <QString>
-#include <iostream>
+
+#include <QTranslator>
+#include <QLibraryInfo>
 
 
 struct ConfigApp::Impl
@@ -67,6 +69,11 @@ ConfigApp::ConfigApp(QWidget* parent)
   QIcon::setThemeSearchPaths(ithemes);
 
   QIcon::setThemeName("terrama2");
+
+  // Set Default Language
+  QTranslator translator;
+  translator.load("/home/raphael/Documents/my-devel/terrama2/build-make/terrama2_gui_config/terrama2_configapp_pt_BR.qm");
+  qApp->installTranslator(&translator);
 
   pimpl_->ui_->setupUi(this);
 }
