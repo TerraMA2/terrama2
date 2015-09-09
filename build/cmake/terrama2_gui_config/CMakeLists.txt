@@ -46,7 +46,6 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
 
 QT5_ADD_TRANSLATION(QM_FILES ${TRANSLATIONS})
-message(STATUS "translated= ${QM_FILES}")
 
 QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
