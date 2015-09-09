@@ -36,6 +36,7 @@
 #include <QIcon>
 #include <QStringList>
 #include <QToolBar>
+#include <QTranslator>
 
 struct AdminApp::Impl
 {
@@ -64,6 +65,12 @@ AdminApp::AdminApp(QWidget* parent)
   QIcon::setThemeSearchPaths(ithemes);
 
   QIcon::setThemeName("terrama2");
+
+  QTranslator translator;
+
+  translator.load("/home/terrama2/Projeto/terrama2/build-cmake/terrama2_gui_admin/terrama2_adminapp_pt_BR.qm");
+
+  qApp->installTranslator(&translator);
 
   pimpl_->ui_->setupUi(this);
 }
