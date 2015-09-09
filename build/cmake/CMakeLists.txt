@@ -72,8 +72,8 @@ elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
 endif()
 
 # variable that defines  the path to data directory used in the unittests
-if(NOT DEFINED TERRALIB_DATA_DIR)
-  set(TERRALIB_DATA_DIR "${CMAKE_BINARY_DIR}/data" CACHE PATH "Path to a directory containing the data used in the examples and/or in the unit test")
+if(NOT DEFINED TERRAMA2_DATA_DIR)
+  set(TERRAMA2_DATA_DIR "${CMAKE_BINARY_DIR}/data" CACHE PATH "Path to a directory containing the data used in the examples and/or in the unit test")
 endif()
 
 # variables that control install locations

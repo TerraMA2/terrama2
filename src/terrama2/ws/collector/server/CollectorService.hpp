@@ -27,11 +27,13 @@
   \author Jano Simas, Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_APPSERVER_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_WS_COLLECTOR_APPSERVER_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
+#define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
 
 
 #include "../../../core/DataProvider.hpp"
+#include "../../../core/DataSet.hpp"
+#include "../../../ws/collector/server/Collector.hpp"
 
 // QT
 #include <QObject>
@@ -39,19 +41,20 @@
 
 // STL
 #include <memory>
+#include <cstdint>
 
 namespace terrama2
 {
+  namespace core
+  {
+    class DataSet;
+  }
+
   namespace ws
   {
     namespace collector
     {
-      namespace core
-      {
-        class Dataset;
-      }
-
-      namespace appserver
+      namespace server
       {
 
         /*!
@@ -90,13 +93,13 @@ namespace terrama2
              * \brief Adds a new data provider to the list.
              * \param dataProvider The shared pointer to the data provider
              */
-            void addProvider(std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider);
+            void addProvider(terrama2::core::DataProviderPtr dataProvider);
 
              /**
              * \brief Adds a new dataset to the list.
              * \param dataset The shared pointer to the dataset
              */
-            void addDataset(std::shared_ptr<terrama2::ws::collector::core::Dataset> dataset);
+            void addDataset(terrama2::core::DataSetPtr dataset);
 
         public slots:
             /**
@@ -108,18 +111,19 @@ namespace terrama2
             /**
              * \brief Slot to be .
              */
-            void addToQueueSlot(terrama2::ws::collector::core::Dataset* dataset);
+            void addToQueueSlot(uint64_t datasetId);
 
         private:
             bool stop_;
-            QList<std::shared_ptr<terrama2::ws::collector::core::DataProvider>> dataProviderLst_;
-            QList<std::shared_ptr<terrama2::ws::collector::core::Dataset>> datasetLst_;
-            QMap<terrama2::ws::collector::core::DataProviderType, QList<std::shared_ptr<terrama2::ws::collector::core::DataProvider>>> dataProviderQueueMap_;
-            QMap<std::shared_ptr<terrama2::ws::collector::core::DataProvider>, QList<terrama2::ws::collector::core::Dataset*>> datasetQueue_datasetQueue_;
+            QMap<terrama2::core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
+            QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>                   datasetQueue_;
+
+            QList<CollectorPtr>                                            collectorLst_;
+            QMap<int /*DataSetId*/, DataSetTimerPtr>                       datasetTimerLst_;
         };
       }
     }
   }
 }
 
-#endif //__TERRAMA2_WS_COLLECTOR_APPSERVER_COLLECTORSERVICE_HPP__
+#endif //__TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
