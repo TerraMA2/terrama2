@@ -2695,7 +2695,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="updateServer">
+                <iconset theme="update-server">
                  <normaloff/>
                 </iconset>
                </property>
@@ -2710,7 +2710,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="exportServer">
+                <iconset theme="export-server">
                  <normaloff/>
                 </iconset>
                </property>
@@ -2728,7 +2728,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="removeServer">
+                <iconset theme="remove-server">
                  <normaloff/>
                 </iconset>
                </property>
@@ -2805,7 +2805,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="addGridDataSeries">
+                   <iconset theme="add-grid-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2820,7 +2820,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="addPCDDataSeries">
+                   <iconset theme="add-pcd-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2844,7 +2844,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="addOccurrenceDataSeries">
+                   <iconset theme="add-occurrence-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2862,7 +2862,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="removeGridDataSeries">
+                   <iconset theme="remove-grid-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2881,7 +2881,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="removePCDDataSeries">
+                   <iconset theme="remove-pcd-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2900,7 +2900,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="removeOccurrenceDataSeries">
+                   <iconset theme="remove-occurrence-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2915,7 +2915,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="updateOccurenceDataSeries">
+                   <iconset theme="update-occurence-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2930,7 +2930,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="exportOccurrenceDataSeries">
+                   <iconset theme="export-occurrence-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2945,7 +2945,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="updatePCDDataSeries">
+                   <iconset theme="update-pcd-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2960,7 +2960,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="exportPCDDataSeries">
+                   <iconset theme="export-pcd-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2981,7 +2981,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="updateGridDataSeries">
+                   <iconset theme="update-grid-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -2996,7 +2996,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="exportGridDataSeries">
+                   <iconset theme="export-grid-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -3011,7 +3011,7 @@ p, li { white-space: pre-wrap; }
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="importDataSeries">
+                   <iconset theme="import-data-series">
                     <normaloff/>
                    </iconset>
                   </property>
@@ -3093,7 +3093,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addRiskPlan">
+                <iconset theme="add-risk-plan">
                  <normaloff/>
                 </iconset>
                </property>
@@ -3108,7 +3108,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="removeRiskPlan">
+                <iconset theme="remove-risk-plan">
                  <normaloff/>
                 </iconset>
                </property>
@@ -3533,7 +3533,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addAdditionDataGrid">
+                <iconset theme="add-addition-data-grid">
                  <normaloff/>
                 </iconset>
                </property>
@@ -3551,7 +3551,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addAdditionalDataVector">
+                <iconset theme="add-additional-data-vector">
                  <normaloff/>
                 </iconset>
                </property>
@@ -3569,7 +3569,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="removeAdditionalSelectedPlan">
+                <iconset theme="remove-additional-selected-plan">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4090,7 +4090,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addCellSpace">
+                <iconset theme="add-cell-space">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4109,7 +4109,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="removeCellSpace">
+                <iconset theme="remove-cell-space">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4421,7 +4421,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addRiskPlanAnalyse">
+                <iconset theme="add-risk-plan-analyse">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4436,7 +4436,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addModelAnalyse">
+                <iconset theme="add-model-analyse">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4455,7 +4455,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addPCDDataSeries">
+                <iconset theme="add-pcd-data-series">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4474,7 +4474,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addTerraMEAnalyse">
+                <iconset theme="add-terrame-analyse">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4492,7 +4492,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="removeSelectedAnalyse">
+                <iconset theme="remove-selected-analyse">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4697,7 +4697,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="riskAttribute">
+                <iconset theme="risk-attribute">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4728,7 +4728,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="zoneOperator">
+                <iconset theme="zone-operator">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4740,7 +4740,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="zoneOperator">
+                <iconset theme="zone-operator">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4792,7 +4792,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="cellSpaceAttribute">
+                <iconset theme="cell-space-attribute">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4811,7 +4811,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="terrameFunctions">
+                <iconset theme="terrame-functions">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4879,7 +4879,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="luaAnalyse">
+                <iconset theme="lua-analyse">
                  <normaloff/>
                 </iconset>
                </property>
@@ -4915,7 +4915,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="wizardModelAnalyse">
+                <iconset theme="wizard-model-analyse">
                  <normaloff/>
                 </iconset>
                </property>
@@ -5191,7 +5191,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset theme="crossedAnalysis">
+                  <iconset theme="crossed-analysis">
                    <normaloff/>
                   </iconset>
                  </property>
@@ -5790,7 +5790,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addUser">
+                <iconset theme="add-user">
                  <normaloff/>
                 </iconset>
                </property>
@@ -5808,7 +5808,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="removeUser">
+                <iconset theme="remove-user">
                  <normaloff/>
                 </iconset>
                </property>
@@ -6204,7 +6204,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="addBulletin">
+                <iconset theme="add-bulletin">
                  <normaloff/>
                 </iconset>
                </property>
@@ -6219,7 +6219,7 @@ p, li { white-space: pre-wrap; }
                 <string/>
                </property>
                <property name="icon">
-                <iconset theme="removeBulletin">
+                <iconset theme="remove-bulletin">
                  <normaloff/>
                 </iconset>
                </property>
@@ -6543,7 +6543,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1058</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArquivo">
@@ -6615,7 +6615,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="openAct">
    <property name="icon">
-    <iconset theme="openConfig">
+    <iconset theme="open-config">
      <normaloff/>
     </iconset>
    </property>

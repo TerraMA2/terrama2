@@ -30,6 +30,7 @@
 #include "CollectorService.hpp"
 #include "../../../core/DataSet.hpp"
 #include "../../../core/DataProvider.hpp"
+#include "../../../core/DataManager.hpp"
 
 // QT
 #include <QApplication>
@@ -42,13 +43,13 @@
 #include <iostream>
 
 
-terrama2::ws::collector::appserver::CollectorService::CollectorService(QObject *parent)
+terrama2::ws::collector::server::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
     stop_(false)
 {
 }
 
-void terrama2::ws::collector::appserver::CollectorService::start()
+void terrama2::ws::collector::server::CollectorService::start()
 {
   std::cerr << "__Start__" << std::endl;
   while(true)
@@ -60,23 +61,23 @@ void terrama2::ws::collector::appserver::CollectorService::start()
     // in case it's collecting moves to next type of provider, when it's done remove it from the queue
     // in case it's not collecting, starts the collection calling the collect method.
     // It allows multiples providers to collect at the same time but only one provider of each type.
-    for (auto it = dataProviderQueueMap_.begin(); it != dataProviderQueueMap_.end(); ++it)
+    for (auto it = collectorQueueMap_.begin(); it != collectorQueueMap_.end(); ++it)
     {
       auto dataProviderQueueByType = it.value();
       if(dataProviderQueueByType.size())
       {
         assert(dataProviderQueueByType.size() > 0);
 
-        auto firstDataProviderInQueue = dataProviderQueueByType.front();
-        if(firstDataProviderInQueue->open())
+        auto firstCollectorInQueue = dataProviderQueueByType.front();
+        if(firstCollectorInQueue->open())
         {
-          assert(datasetQueue_.contains(firstDataProviderInQueue));
-          auto& datasetQueue = datasetQueue_[firstDataProviderInQueue];
+          assert(datasetQueue_.contains(firstCollectorInQueue));
+          auto& datasetQueue = datasetQueue_[firstCollectorInQueue];
 
           while(!datasetQueue.isEmpty())
           {
             //if dataprovider is already getting some file
-            if(firstDataProviderInQueue->isAquiring())
+            if(firstCollectorInQueue->isCollecting())
               break;
 
 
@@ -84,20 +85,20 @@ void terrama2::ws::collector::appserver::CollectorService::start()
 
             assert(!datasetQueue.isEmpty());
             //first dataset on queue
-            auto dataset = datasetQueue.front();
+            auto datasetTimer = datasetTimerLst_.value(datasetQueue.front());
 
             //aquire dataset files
-            firstDataProviderInQueue->collect(dataset);
+            firstCollectorInQueue->collect(datasetTimer);
             //remove first dataset from queue
             datasetQueue.pop_front();
           }
         }
 
         //It remains in the queue until it's done collecting
-        if(!firstDataProviderInQueue->isAquiring())
+        if(!firstCollectorInQueue->isCollecting())
         {
           //close dataprovider connection
-          firstDataProviderInQueue->close();
+          firstCollectorInQueue->close();
           dataProviderQueueByType.pop_front();
         }
       }
@@ -107,35 +108,39 @@ void terrama2::ws::collector::appserver::CollectorService::start()
   }
 }
 
-void terrama2::ws::collector::appserver::CollectorService::stop()
+void terrama2::ws::collector::server::CollectorService::stop()
 {
   stop_ = true;
 }
 
-void terrama2::ws::collector::appserver::CollectorService::addToQueueSlot(terrama2::ws::collector::core::Dataset *dataset)
+void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t datasetId)
 {
-  std::cerr << "Signal received!!" << std::endl;
+  auto datasetTimer = datasetTimerLst_.value(datasetId);
+  assert(datasetTimer);
 
   //Append the data provider to queue
-  auto dataProvider = dataset->getDataProvider();
-  if(!dataProviderLst_.contains(dataProvider))
-    dataProviderLst_.append(dataProvider);
+  auto collector = datasetTimer->getCollector();
+  auto collectorQueue = collectorQueueMap_.value(collector->kind());
+  if(!collectorQueue.contains(collector))
+    collectorQueue.append(collector);
 
   //Append the dataset to queue
-  auto& datasetQueue = datasetQueue_[dataProvider];
-  if(!datasetQueue.contains(dataset))
-    datasetQueue.append(dataset);
+  auto& datasetTimerQueue = datasetQueue_[collector];
+  if(!datasetTimerQueue.contains(datasetId))
+    datasetTimerQueue.append(datasetId);
 }
 
-void terrama2::ws::collector::appserver::CollectorService::addProvider(std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider)
+void terrama2::ws::collector::server::CollectorService::addProvider(core::DataProviderPtr dataProvider)
 {
-  dataProviderLst_.append(dataProvider);
+//  auto collector = std::shared_ptr<Collector>(new Collector(dataProvider, this));
+//  collectorLst_.append(collector);
 }
 
-void terrama2::ws::collector::appserver::CollectorService::addDataset(std::shared_ptr<terrama2::ws::collector::core::Dataset> dataset)
+void terrama2::ws::collector::server::CollectorService::addDataset(core::DataSetPtr dataset)
 {
-  datasetLst_.append(dataset);
-  connect(dataset.get(), &terrama2::ws::collector::core::Dataset::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
+  auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset, this));
+//  datasetTimerLst_.insert(dataset->id(), datasetTimer);
+  connect(datasetTimer.get(), &terrama2::ws::collector::server::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
 }
 
 

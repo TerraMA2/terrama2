@@ -83,7 +83,7 @@ bool terrama2::core::DataProviderDAO::remove(const int &id)
 
 terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::get(const int &id) const
 {
-  return 0;
+  return terrama2::core::DataProviderPtr(nullptr);
 }
 
 std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataProviderDAO::list() const

@@ -45,12 +45,12 @@ terrama2::core::DataProvider::~DataProvider()
 
 }
 
-u_int64_t terrama2::core::DataProvider::id() const
+uint64_t terrama2::core::DataProvider::id() const
 {
   return id_;
 }
 
-void terrama2::core::DataProvider::setId(const u_int64_t &id)
+void terrama2::core::DataProvider::setId(uint64_t id)
 {
   id_ = id;
 }
