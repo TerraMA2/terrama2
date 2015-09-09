@@ -22,6 +22,7 @@
 #  Description: CMake script for collector client
 #
 #  Author: Paulo R. M. Oliveira
+#          Vinicius Campanha
 #
 
 include_directories (
@@ -37,9 +38,11 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+
 TERRAMA2_GSOAP_SOAPCPP2(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp
                         WebService server
                         GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
+
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})

@@ -43,7 +43,6 @@ if(${type} STREQUAL "server")
     set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x ${file_path})
     set(ARCHIVE_TYPE Service)
 
-
 elseif(${type} STREQUAL "client")
 
     set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x ${file_path})
@@ -51,14 +50,14 @@ elseif(${type} STREQUAL "client")
 
 endif()
 
-    set(${GSOAP_HDR_FILES}   ${CMAKE_CURRENT_BINARY_DIR}/soap${service_name}${ARCHIVE_TYPE}.h
+    set(${GSOAP_HDR_FILES}   ${CMAKE_CURRENT_BINARY_DIR}/soap${ARCHIVE_TYPE}.h
                            ${CMAKE_CURRENT_BINARY_DIR}/soapH.h
                            ${CMAKE_CURRENT_BINARY_DIR}/soapStub.h)
                         
-    set(${GSOAP_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/soap${service_name}${ARCHIVE_TYPE}.cpp
+    set(${GSOAP_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/soap${ARCHIVE_TYPE}.cpp
                            ${CMAKE_CURRENT_BINARY_DIR}/soapC.cpp)
 
-    set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/collector.nsmap)
+    set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/${service_name}.nsmap)
 
 
     add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
