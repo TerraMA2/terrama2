@@ -35,6 +35,7 @@
 
 // STL
 #include <memory>
+#include <cstdint>
 
 // QT
 #include <QObject>
@@ -141,26 +142,30 @@ namespace terrama2
         /*!
           \note Thread-safe.
          */
-        void removeDataProvider(u_int64_t id);
+        void removeDataProvider(const uint64_t& id);
 
         /*!
           \note Thread-safe.
          */
-        void removeDataSet(u_int64_t id);
+        void removeDataSet(const uint64_t& id);
 
         /*!
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(u_int64_t id) const;
+        DataProviderPtr findDataProvider(const uint64_t& id) const;
 
         /*!
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(u_int64_t id) const;
+        DataSetPtr findDataSet(const uint64_t& id) const;
 
         static DataManager& instance();
 
-      public slots:
+        std::vector<terrama2::core::DataProviderPtr> listDataProvider() const;
+
+        std::vector<terrama2::core::DataSetPtr> listDataSet() const;
+
+    public slots:
 
       signals:
 

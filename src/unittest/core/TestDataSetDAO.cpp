@@ -27,9 +27,8 @@
   \author Paulo R. M. Oliveira
 */
 
+#include "TestDataSetDAO.hpp"
 
-#include <terrama2_config.hpp>
-#include <terrama2/core/DataSetDAO.hpp>
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/ApplicationController.hpp>
@@ -37,89 +36,32 @@
 //QT
 #include <QtTest>
 
-// STL
-#include <memory>
-#include <map>
-#include <exception>
 
-//terralib
-#include <terralib/common/PlatformUtils.h>
-#include <terralib/common.h>
-#include <terralib/plugin.h>
 
-class DataSetDAO: public QObject
+void TestDataSetDAO::testAddDataSet()
 {
-  Q_OBJECT
-
-protected:
-
-    void initializeTerralib();
-    void finalizeTerralib();
-
-    void initializeTerraMA2();
-    void finalizeTerraMA2();
-
-private slots:
-    void initTestCase() // Always run before all tests
-    {
-        initializeTerralib();
-    }
-    void cleanupTestCase() // Always run after all tests
-    {
-        finalizeTerralib();
-    }
-
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    void testDataSetDAO();
-};
-
-
-
-void DataSetDAO::initializeTerralib()
-{
-  // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
-
-  te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  te::plugin::PluginManager::getInstance().loadAll();
-}
-
-void DataSetDAO::finalizeTerralib()
-{
-  TerraLib::getInstance().finalize();
-}
-
-void DataSetDAO::initializeTerraMA2()
-{
-  std::string data_dir = TERRAMA2_DATA_DIR;
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(data_dir + "/project.json"), true);
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-  QVERIFY(transactor.get());
-}
-
-
-void DataSetDAO::testDataSetDAO()
-{
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-  QVERIFY(transactor.get());
-
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1"));
 
   terrama2::core::DataSetPtr dataset(new terrama2::core::DataSet(dataProvider));
 }
 
 
-//QTEST_MAIN(TestDataSetDAO)
+
+void TestDataSetDAO::testUpdateDataSet()
+{
+
+}
+
+
+void TestDataSetDAO::testRemoveDataSet()
+{
+
+}
+
+
+void TestDataSetDAO::testListDataSet()
+{
+
+}
+
 #include "TestDataSetDAO.moc"

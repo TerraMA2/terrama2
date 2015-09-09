@@ -27,97 +27,68 @@
   \author Paulo R. M. Oliveira
 */
 
+#include "TestDataProviderDAO.hpp"
 
-#include <terrama2_config.hpp>
-#include <terrama2/core/DataProviderDAO.hpp>
 #include <terrama2/core/DataProvider.hpp>
+#include <terrama2/core/DataProviderDAO.hpp>
+#include <terrama2/core/Utils.hpp>
 #include <terrama2/core/ApplicationController.hpp>
 
 //QT
 #include <QtTest>
 
 // STL
+#include <vector>
 #include <memory>
-#include <map>
-#include <exception>
 
-//terralib
-#include <terralib/common/PlatformUtils.h>
-#include <terralib/common.h>
-#include <terralib/plugin.h>
 
-class TestDataProviderDAO: public QObject
+
+void TestDataProviderDAO::initTestCase()
 {
-  Q_OBJECT
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
-protected:
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  transactor->begin();
+  std::string query = "DELETE FROM terrama2.data_provider";
+  transactor->execute(query);
+  transactor->commit();
 
-    void initializeTerralib();
-    void finalizeTerralib();
-
-    void initializeTerraMA2();
-    void finalizeTerraMA2();
-
-private slots:
-    void initTestCase() // Always run before all tests
-    {
-        initializeTerralib();
-        initializeTerraMA2();
-    }
-    void cleanupTestCase() // Always run after all tests
-    {
-        finalizeTerralib();
-    }
-
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    void testDataSetDAO();
-};
-
-
-
-void TestDataProviderDAO::initializeTerralib()
-{
-  // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
-
-  te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  te::plugin::PluginManager::getInstance().loadAll();
 }
 
-void TestDataProviderDAO::finalizeTerralib()
+void TestDataProviderDAO::cleanupTestCase()
 {
-  TerraLib::getInstance().finalize();
+
 }
 
-void TestDataProviderDAO::initializeTerraMA2()
+void TestDataProviderDAO::testCRUDDataProvider()
 {
-  std::string data_dir = TERRAMA2_DATA_DIR;
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(data_dir + "/project.json"), true);
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-  QVERIFY(transactor.get());
-}
-
-
-void TestDataProviderDAO::testDataSetDAO()
-{
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-  QVERIFY(transactor.get());
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+  terrama2::core::DataProviderDAO dataProviderDAO(dataSource);
 
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1"));
+  dataProvider->setKind(terrama2::core::DataProvider::FTP_TYPE);
+
+  // Inserts a new data provider
+  dataProviderDAO.save(dataProvider);
+
+  // Recovers the same data provider by id
+  terrama2::core::DataProviderPtr tempProvider = dataProviderDAO.find(dataProvider->id());
+
+  QVERIFY(tempProvider.get());
+
+  // Must be the same as the inserted one
+  QCOMPARE(tempProvider->id(), dataProvider->id());
+  QCOMPARE(tempProvider->name(), dataProvider->name());
+
+  // Lists all data providers
+  std::vector<terrama2::core::DataProviderPtr> vecDataProvider = dataProviderDAO.list();
+
+  // Shouldn't be empty
+  QVERIFY(!vecDataProvider.empty());
+
 }
 
 
-QTEST_MAIN(TestDataProviderDAO)
+
 #include "TestDataProviderDAO.moc"
+

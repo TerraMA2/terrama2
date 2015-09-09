@@ -35,10 +35,11 @@
 
 // terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/query/Query.h>
 
-terrama2::core::DataSetDAO::DataSetDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor)
-  : transactor_(transactor)
+terrama2::core::DataSetDAO::DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource)
+  : dataSource_(dataSource)
 {
 
 }
@@ -67,7 +68,7 @@ bool terrama2::core::DataSetDAO::remove(const int &id)
 }
 
 
-terrama2::core::DataSetPtr terrama2::core::DataSetDAO::get(const int &id) const
+terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(const int &id) const
 {
   return 0;
 }

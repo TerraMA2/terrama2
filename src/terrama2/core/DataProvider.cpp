@@ -35,7 +35,9 @@
 #include "DataProvider.hpp"
 
 terrama2::core::DataProvider::DataProvider(const std::string &name)
-  : name_(name)
+  : name_(name),
+    kind_(UNKNOWN_TYPE),
+    status_(INACTIVE)
 {
 
 }

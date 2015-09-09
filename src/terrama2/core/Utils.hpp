@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_UTILS_HPP__
 #define __TERRAMA2_CORE_UTILS_HPP__
 
+#include "DataProvider.hpp"
+
 // STL
 #include <string>
 
@@ -37,6 +39,7 @@ namespace terrama2
 {
   namespace core
   {
+
     /*!
       \brief Returns the path relative to a directory or file in the context of TerraMA2.
 
@@ -45,6 +48,33 @@ namespace terrama2
       \return A complete path to the file or directory if it is found, otherwise returns an empty string.
      */
     std::string FindInTerraMA2Path(const std::string& p);
+
+    /*!
+      \brief Returns a boolean with the status of the server based on the given status.
+
+      \param status Enum with the status of the data provider.
+
+      \return Boolean that determine if the data provider is active.
+     */
+    bool DataProviderStatusToBool(const terrama2::core::DataProvider::Status& status);
+
+    /*!
+      \brief Returns a enum with the status of the server based on the given parameter.
+
+      \param active Boolean that determine if the data provider is active.
+
+      \return Enum with the status of the data provider.
+     */
+   terrama2::core::DataProvider::Status BoolToDataProviderStatus(const bool& active);
+
+   /*!
+     \brief Returns a enum with the kind of the server based on the given parameter.
+
+     \param kind Kind that determine if the type of the data provider.
+
+     \return Enum with the type of the data provider.
+    */
+   terrama2::core::DataProvider::Kind IntToDataProviderKind(const int& kind);
 
   } // end namespace core
 }   // end namespace terrama2
