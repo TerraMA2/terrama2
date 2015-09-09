@@ -33,9 +33,13 @@
 
 #include "../../../core/DataProvider.hpp"
 #include "DataSetTimer.hpp"
+#include "DataProcessor.hpp"
 
 //Qt
 #include <QObject>
+
+//std
+#include <mutex>
 
 namespace terrama2
 {
@@ -56,20 +60,41 @@ namespace terrama2
 
           public:
             Collector(core::DataProviderPtr dataProvider, QObject* parent = nullptr);
-            ~Collector();
+            virtual ~Collector(){}
 
-            bool isCollecting();
-            void collect(DataSetTimerPtr);
-            core::DataProvider::Kind kind();
+            core::DataProvider::Kind kind()         const { return dataProvider_->kind();}
+            core::DataProviderPtr    dataProvider() const { return dataProvider_;}
 
-            virtual bool isOpen() = 0;
-            virtual bool open() = 0;
+            bool isCollecting()                     const {}//JANO: implementar isCollecting
+            bool collect(DataSetTimerPtr datasetTimer); //should run in thread
+
+            virtual bool isOpen() const = 0;
+            virtual bool open()  = 0;
             virtual void close() = 0;
 
-          private:
-            virtual void getData(core::Data*) = 0;
+          protected:
+            virtual void getData(const DataProcessor&) = 0;
+
+            std::mutex mutex_;
 
             core::DataProviderPtr dataProvider_;
+
+            /*!
+             * \brief Utility class to assert the mutex will be unlocked in the end of the process.
+             */
+            class LockMutex
+            {
+              public:
+                LockMutex(std::mutex& mutex) : mutex_(mutex) { }
+                ~LockMutex()   { mutex_.unlock(); }
+
+                bool tryLock() { return mutex_.try_lock(); }
+                void lock()    { mutex_.lock(); }
+                void unLock()  { mutex_.unlock(); }
+
+              private:
+                std::mutex& mutex_;
+            };
         };
 
         typedef std::shared_ptr<Collector> CollectorPtr;

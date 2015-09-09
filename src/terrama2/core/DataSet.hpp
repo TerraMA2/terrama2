@@ -84,7 +84,8 @@ namespace terrama2
 
       ~DataSet();
 
-      //uint64 id() const;
+      uint64_t        id()              const {return id_;}
+      DataProviderPtr getDataProvider() const { return provider_; }
 
       private:
 
@@ -104,12 +105,12 @@ namespace terrama2
         DataProviderPtr provider_;
         Kind kind_;
         double dataFrequency_;
-        //UOM dataFrequencyUnit_;    //todo:
-        //Time schedule_;            //todo:
+        //UOM dataFrequencyUnit_;    //TODO: is this needed?
+        //Time schedule_;            //TODO: is this needed?
         double scheduleRetry_;
-        //UOM scheduleRetryUnit_;    //todo:
+        //UOM scheduleRetryUnit_;    //TODO: is this needed?
         double scheduleTimeout_;
-        //UOM scheduleTimeoutUnit_;  //todo:
+        //UOM scheduleTimeoutUnit_;  //TODO: is this needed?
 
       friend class DataSetDAO; //review
     };

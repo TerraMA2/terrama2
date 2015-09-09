@@ -59,13 +59,13 @@ namespace terrama2
 
         /*!
           \class CollectorService
-         
+
           \brief Defines the base abstraction of a collector service.
-         
+
           The collector service is a singleton responsible for
           scheduling collectors for each active dataset.
-         
-          Once this service starts collecting data it will 
+
+          Once this service starts collecting data it will
           remains in a loop waiting for a notification that new datasets
           must be collected or .
          */
@@ -73,14 +73,14 @@ namespace terrama2
         {
             Q_OBJECT
 
-        public:
+          public:
             /*!
             * \brief Constructor
             */
             CollectorService(QObject* parent = nullptr);
             ~CollectorService(){}
 
-            /**
+            /*!
              * \brief Contains an infinite loop that will keep the service collecting data.
              * For each provider type verifies if the first provider in the queue is acquiring new data,
              * in case it's collecting moves to next type of provider, when it's done remove it from the queue,
@@ -89,37 +89,45 @@ namespace terrama2
              */
             void start();
 
-            /**
+            /*!
              * \brief Adds a new data provider to the list.
              * \param dataProvider The shared pointer to the data provider
              */
-            void addProvider(terrama2::core::DataProviderPtr dataProvider);
+            void addProvider(core::DataProviderPtr dataProvider);
 
-             /**
+            /*!
              * \brief Adds a new dataset to the list.
+             *
+             * This method will add this dataset provider if it was not added before.
+             *
              * \param dataset The shared pointer to the dataset
              */
-            void addDataset(terrama2::core::DataSetPtr dataset);
+            void addDataset(core::DataSetPtr dataset);
 
-        public slots:
-            /**
+            /*!
+             * \brief Start do collect queued datasets
+             * \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
+             */
+            void assignCollector(CollectorPtr firstCollectorInQueue);
+          public slots:
+
+            /*!
              * \brief Slot to stop the collector service.
              */
             void stop();
 
-        private slots:
-            /**
-             * \brief Slot to be .
+            /*!
+             * \brief Slot to be called when a DataSetTimer times out.
              */
             void addToQueueSlot(uint64_t datasetId);
 
-        private:
+          private:
             bool stop_;
-            QMap<terrama2::core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
-            QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>                   datasetQueue_;
+            QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
+            QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
 
-            QList<CollectorPtr>                                            collectorLst_;
-            QMap<int /*DataSetId*/, DataSetTimerPtr>                       datasetTimerLst_;
+            QMap<int /*DataProviderId*/, CollectorPtr>           collectorLst_;
+            QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
         };
       }
     }

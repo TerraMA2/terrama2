@@ -37,6 +37,7 @@
 
 //Qt
 #include <QObject>
+#include <QTimer>
 
 namespace terrama2
 {
@@ -53,22 +54,36 @@ namespace terrama2
         class Collector;
         typedef std::shared_ptr<Collector> CollectorPtr;
 
+        class DataProcessor;
+        typedef std::shared_ptr<DataProcessor> DataProcessorPtr;
+
         class DataSetTimer : public QObject
         {
             Q_OBJECT
 
           public:
-            DataSetTimer(core::DataSetPtr dataSet, QObject* parent = nullptr);
-            ~DataSetTimer();
+            DataSetTimer(core::DataSetPtr dataSet, CollectorPtr collector, QObject* parent = nullptr);
+            ~DataSetTimer(){}
 
-            CollectorPtr getCollector() const;
-            uint64_t getDataSetId() const;
+            CollectorPtr                  getCollector() const { return collector_; }
+            core::DataSetPtr              getDataSet()   const { return dataSet_;   }
+            std::vector<DataProcessorPtr> getData()      const { return dataLst_; }
 
           signals:
-            void timerSignal(uint64_t DatasetTimerID);
+            void timerSignal(uint64_t DatasetID) const;
+
+          private slots:
+            void timeoutSlot() const;
 
           private:
-            terrama2::core::DataSetPtr dataSet;
+            void prepareTimer();
+            void populateDataLst();
+
+            core::DataSetPtr dataSet_;
+            CollectorPtr     collector_;
+            QTimer           timer_;
+
+            std::vector<DataProcessorPtr> dataLst_;
         };
 
         typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr;
