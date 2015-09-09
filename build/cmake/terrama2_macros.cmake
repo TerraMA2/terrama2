@@ -63,6 +63,6 @@ endif()
     add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
                        COMMAND ${COMMAND_LINE}
                        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                       COMMENT "Generating gSoap Web Services files." VERBATIM)              
+                       COMMENT "Generating gSoap Web Services files." VERBATIM)
 
 ENDMACRO(TERRAMA2_GSOAP_SOAPCPP2)
