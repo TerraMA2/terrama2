@@ -46,8 +46,6 @@ int main(int argc, char* argv[])
   TerraLib::getInstance().initialize();
 
   ConfigApp terrama2_config;
-
-  terrama2_config.init();
   
   terrama2_config.showMaximized();
 
