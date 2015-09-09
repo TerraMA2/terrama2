@@ -70,7 +70,7 @@ bool terrama2::core::DataSetDAO::remove(const int &id)
 
 terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(const int &id) const
 {
-  return 0;
+  return terrama2::core::DataSetPtr(0);
 }
 
 std::vector<terrama2::core::DataSetPtr> terrama2::core::DataSetDAO::list() const

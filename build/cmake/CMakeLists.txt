@@ -71,7 +71,7 @@ elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR "")
 endif()
 
-# variable that defines  the path to data directory used in the unittests
+# variable that defines the path to data directory used in the unittests
 if(NOT DEFINED TERRAMA2_DATA_DIR)
   set(TERRAMA2_DATA_DIR "${CMAKE_BINARY_DIR}/data" CACHE PATH "Path to a directory containing the data used in the examples and/or in the unit test")
 endif()
@@ -195,10 +195,21 @@ include(CMakeDependentOption)
 
 
 #
+# including TerraMA2 auxiliary macros and functions
+#
+
+include(terrama2_macros.cmake)
+
+
+#
 # first check of libraries
 #
 
 find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools Test)
+
+if(NOT Qt5_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required Qt 5 libraries!")
+endif()
 
 if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
   find_program(QT_QCOLLECTIONGENERATOR_EXECUTABLE
@@ -221,6 +232,12 @@ find_package(terralib REQUIRED)
 
 if(NOT terralib_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find TerraLib libraries!")
+endif()
+
+find_package(gsoap REQUIRED)
+
+if(NOT GSOAP_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required gSOAP library!")
 endif()
 
 
@@ -274,11 +291,11 @@ endif()
 
 option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 
-#CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
-#CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector Web Service server module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector Web Service server module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
 
-#CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector Web Service client module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Web Service appserver module?" ON "TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
 
@@ -377,9 +394,7 @@ endif()
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/*.hpp)
 
 install(FILES ${CMAKE_BINARY_DIR}/terrama2_config.hpp
-#              ${CMAKE_BINARY_DIR}/terrama2_buildconfig.hpp
-#              ${CMAKE_BINARY_DIR}/terrama2_defines.hpp
-#              ${CMAKE_BINARY_DIR}/terrama2_version.hpp
+              ${CMAKE_BINARY_DIR}/terrama2_version.hpp
               ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2 COMPONENT devel)
 

@@ -92,7 +92,7 @@ namespace terrama2
 
         \return The identifier of the data provider.
       */
-      u_int64_t id() const;
+      uint64_t id() const;
 
       /*!
         \brief It returns the name of the data provider.
@@ -185,11 +185,11 @@ namespace terrama2
 
         \param The identifier of the data provider.
       */
-      void setId(const u_int64_t& id);
+      void setId(uint64_t id);
 
     private:
 
-      u_int64_t id_;
+      uint64_t id_;
       std::string name_;
       std::string description_;
       Kind kind_;

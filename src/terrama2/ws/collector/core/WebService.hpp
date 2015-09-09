@@ -20,31 +20,10 @@
 */
 
 /*!
-  \file terrama2/core/DataSet.cpp
+  \file terrama2/ws/collector/core/WebService.hpp
 
-  \brief Metadata about a given dataset.
+  \brief TerraMA2 configuration options.
 
-  \author Gilberto Ribeiro de Queiroz
-  \author Jano Simas
-  \author Paulo R. M. Oliveira
   \author Vinicius Campanha
-*/
+ */
 
-// TerraMA2
-#include "DataSet.hpp"
-#include "DataProvider.hpp"
-
-terrama2::core::DataSet::DataSet(DataProviderPtr provider)
-{
-
-}
-
-terrama2::core::DataSet::~DataSet()
-{
-
-}
-
-void terrama2::core::DataSet::setId(uint64_t id)
-{
-  id_ = id;
-}

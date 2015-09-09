@@ -28,9 +28,6 @@
 */
 
 
-#include "terrama2/ws/collector/core/Dataset.hpp"
-#include "terrama2/ws/collector/core/DataProvider.hpp"
-
 //QT
 #include <QtTest>
 #include <QApplication>
