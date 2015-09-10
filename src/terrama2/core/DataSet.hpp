@@ -94,11 +94,11 @@ namespace terrama2
 
           \param id
          */
-        void setId(u_int64_t id);
+        void setId(uint64_t id);
 
       private:
 
-        u_int64_t id_;
+        uint64_t id_;
         std::string name_;
         std::string description_;
         Status status_;
