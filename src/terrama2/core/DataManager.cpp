@@ -37,6 +37,8 @@
 #include "DataSet.hpp"
 #include "DataSetDAO.hpp"
 
+// STL
+#include <cstdint>
 
 
 terrama2::core::DataManager::DataManager()
@@ -51,34 +53,34 @@ terrama2::core::DataManager::~DataManager()
 
 terrama2::core::DataManager::DataManager(const terrama2::core::DataManager & rhs)
 {
-
+  //PAULO-TODO: implement
 }
 
 terrama2::core::DataManager& terrama2::core::DataManager::operator=(const terrama2::core::DataManager & rhs)
 {
-
+  //PAULO-TODO: implement
 }
 
 void terrama2::core::DataManager::load()
 {
-
+  //PAULO-TODO: implement
 }
 
 void terrama2::core::DataManager::unload()
 {
-
+  //PAULO-TODO: implement
 }
 
-void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr provider)
+void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr dataProvider)
 {
   try
   {
-    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getTransactor());
-    dataProviderDAO.save(provider);
+    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
+    dataProviderDAO.save(dataProvider);
   }
   catch(...)
   {
-
+    //TODO: Execption handling
   }
 }
 
@@ -87,46 +89,135 @@ void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
 
   try
   {
-    DataSetDAO datasetDAO(ApplicationController::getInstance().getTransactor());
+    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
     datasetDAO.save(dataset);
   }
   catch(...)
   {
-
+    //TODO: Execption handling
   }
 }
 
 void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataProvider)
 {
-
+  try
+  {
+    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
+    dataProviderDAO.update(dataProvider);
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
 }
 
 void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
 {
-
+  try
+  {
+    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
+    datasetDAO.update(dataset);
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
 }
 
-void terrama2::core::DataManager::removeDataProvider(u_int64_t id)
+void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
 {
-
+  try
+  {
+    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
+    dataProviderDAO.remove(id);
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
 }
 
-void terrama2::core::DataManager::removeDataSet(u_int64_t id)
+void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
 {
-
+  try
+  {
+    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
+    datasetDAO.remove(id);
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
 }
 
-terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(u_int64_t id) const
+terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const uint64_t& id) const
 {
+  terrama2::core::DataProviderPtr dataProvider;
+  try
+  {
+    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
+    dataProvider = dataProviderDAO.find(id);
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
 
+  return dataProvider;
 }
 
-terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(u_int64_t id) const
+terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const uint64_t& id) const
 {
+  terrama2::core::DataSetPtr dataset;
+  try
+  {
+    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
+    dataset = datasetDAO.find(id);
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
 
+  return dataset;
+}
+
+
+std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataManager::listDataProvider() const
+{
+  std::vector<terrama2::core::DataProviderPtr> vecProviders;
+  try
+  {
+    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
+    vecProviders = dataProviderDAO.list();
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
+
+  return vecProviders;
+}
+
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::listDataSet() const
+{
+  std::vector<terrama2::core::DataSetPtr> vecDataSets;
+  try
+  {
+    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
+    vecDataSets = datasetDAO.list();
+  }
+  catch(...)
+  {
+    //TODO: Execption handling
+  }
+
+  return vecDataSets;
 }
 
 terrama2::core::DataManager &terrama2::core::DataManager::instance()
 {
+  static DataManager dataManagerInstance;  // The singleton instance.
 
+  return dataManagerInstance;
 }

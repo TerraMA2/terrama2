@@ -98,3 +98,8 @@ std::auto_ptr<te::da::DataSourceTransactor> terrama2::core::ApplicationControlle
 
   return ptr;
 }
+
+std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDataSource()
+{
+  return dataSouce_;
+}
