@@ -52,13 +52,10 @@ terrama2::ws::collector::server::CollectorService::CollectorService(QObject *par
   : QObject(parent),
     stop_(false)
 {
-  BOOST_LOG_TRIVIAL(trace) << "CollectorService constructor";
 }
 
 void terrama2::ws::collector::server::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
 {
-  BOOST_LOG_TRIVIAL(trace) << "CollectorService::assignCollector: " << firstCollectorInQueue->dataProvider()->id();
-
   if(firstCollectorInQueue->open())
   {
     assert(datasetQueue_.contains(firstCollectorInQueue));
@@ -86,8 +83,6 @@ void terrama2::ws::collector::server::CollectorService::assignCollector(Collecto
 
 void terrama2::ws::collector::server::CollectorService::start()
 {
-  BOOST_LOG_TRIVIAL(trace) << "CollectorService::start";
-
   while(true)
   {
     if(stop_)
@@ -111,8 +106,6 @@ void terrama2::ws::collector::server::CollectorService::start()
         //It remains in the queue until it's done collecting
         if(!firstCollectorInQueue->isCollecting())
         {
-          BOOST_LOG_TRIVIAL(trace) << "CollectorService::start Colelctor removed from queue: " << firstCollectorInQueue->dataProvider()->id();
-
           //close dataprovider connection
           firstCollectorInQueue->close();
           collectorQueueByType.pop_front();
@@ -131,7 +124,6 @@ void terrama2::ws::collector::server::CollectorService::stop()
 
 void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t datasetId)
 {
-  BOOST_LOG_TRIVIAL(trace) << "CollectorService::addToQueueSlot: " << datasetId;
   auto datasetTimer = datasetTimerLst_.value(datasetId);
   assert(datasetTimer);
 
@@ -147,20 +139,16 @@ void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t 
     datasetTimerQueue.append(datasetId);
 }
 
-terrama2::ws::collector::server::Collector terrama2::ws::collector::server::CollectorService::addProvider(core::DataProviderPtr dataProvider)
+terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorService::addProvider(core::DataProviderPtr dataProvider)
 {
-  BOOST_LOG_TRIVIAL(trace) << "CollectorService::addProvider: " << dataProvider->id();
-
   //Create a collector and add it to the list
   auto collector = CollectorFactory::instance().getCollector(dataProvider);
 
   return collector;
 }
 
-terrama2::ws::collector::server::DataSetTimer terrama2::ws::collector::server::CollectorService::addDataset(core::DataSetPtr dataset)
+terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server::CollectorService::addDataset(core::DataSetPtr dataset)
 {
-  BOOST_LOG_TRIVIAL(trace) << "CollectorService::addDataset: " << dataset->id();
-
   //Create a new dataset timer and connect the timeout signal to queue
   auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
   datasetTimerLst_.insert(dataset->id(), datasetTimer);

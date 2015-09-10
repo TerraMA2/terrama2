@@ -51,15 +51,29 @@ namespace terrama2
     {
       namespace server
       {
+        /*!
+         * \brief The DataProcessor class is responsible to process and store the aquired data.
+         *
+         * The DataProcessor class receives an uri to the data aquired by a Collector
+         * and call the appropriate processing and filtering objects. After this process
+         * it is responsible for calling the appropriate storager.
+         *
+         */
         class DataProcessor : public QObject
         {
             Q_OBJECT
 
           public:
+            //! Constructor
             DataProcessor(QObject* parent = nullptr);
+            //! Destructor
             ~DataProcessor(){}
 
-            void import(std::string uri); //should run in thread //JANO: implementar import
+            /*!
+             * \brief Calls the process and filtering objecs, after they finish calls the storager.
+             * \param uri Uri to temporary data aquired by a collector.
+             */
+            void import(std::string uri);
 
         };
 

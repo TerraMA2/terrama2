@@ -63,8 +63,6 @@ namespace terrama2
          * The DataSetTimer class has an internal timer that emits a signal when
          * it's time to collect the data.
          *
-         * It also has pointer to the collector of it's data providerand a vector of DataProcessor of it's data.
-         *
          */
         class DataSetTimer : public QObject
         {
@@ -99,7 +97,6 @@ namespace terrama2
             void populateDataLst();
 
             core::DataSetPtr dataSet_;
-            CollectorPtr     collector_;
             QTimer           timer_;
 
             std::vector<DataProcessorPtr> dataLst_;

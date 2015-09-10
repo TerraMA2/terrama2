@@ -35,6 +35,8 @@
 #include "../../../core/DataSet.hpp"
 #include "../../../ws/collector/server/Collector.hpp"
 
+#include "Collector.hpp"
+
 // QT
 #include <QObject>
 #include <QMap>
@@ -94,7 +96,7 @@ namespace terrama2
              * \param dataProvider The shared pointer to the data provider
              * \return Collector to the DataProvider.
              */
-            Collector addProvider(core::DataProviderPtr dataProvider);
+            CollectorPtr addProvider(core::DataProviderPtr dataProvider);
 
             /*!
              * \brief Creaets a new DataSetTimer for the DataSet and adds it to the list.
@@ -102,7 +104,7 @@ namespace terrama2
              *
              * \return DataSetTimer for the DataSet.
              */
-            DataSetTimer addDataset(core::DataSetPtr dataset);
+            DataSetTimerPtr addDataset(core::DataSetPtr dataset);
 
             /*!
              * \brief Start do collect queued datasets

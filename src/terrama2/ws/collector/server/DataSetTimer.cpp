@@ -6,10 +6,8 @@
 #include "../../../core/DataSet.hpp"
 #include "../../../core/DataProvider.hpp"
 
-terrama2::ws::collector::server::DataSetTimer::DataSetTimer(terrama2::core::DataSetPtr dataSet, CollectorPtr collector, QObject *parent)
-  : QObject(parent),
-    dataSet_(dataSet),
-    collector_(collector)
+terrama2::ws::collector::server::DataSetTimer::DataSetTimer(terrama2::core::DataSetPtr dataSet)
+  : dataSet_(dataSet)
 {
   connect(&timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
 
@@ -36,6 +34,6 @@ void terrama2::ws::collector::server::DataSetTimer::populateDataLst()
 
 terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::DataSetTimer::getCollector() const
 {
-  auto id = getDataSet()->getDataProvider->id();
-  return CollectorFactory::instance().getCollector(id);
+  auto dataProvider = getDataSet()->getDataProvider();
+  return CollectorFactory::instance().getCollector(dataProvider);
 }
