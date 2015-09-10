@@ -55,6 +55,7 @@ protected:
 
     void initializeTerralib();
     void finalizeTerralib();
+    void pingTest();
 
 private slots:
     void initTestCase() // Run before all tests
@@ -136,6 +137,11 @@ void TestCollectorService::initializeTerralib()
 void TestCollectorService::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
+}
+
+void TestCollectorService::pingTest()
+{
+
 }
 
 QTEST_MAIN(TestCollectorService)

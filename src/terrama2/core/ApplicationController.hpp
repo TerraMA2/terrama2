@@ -60,9 +60,16 @@ namespace terrama2
       /*!
       * \brief Returns a datasource transactor.
       *
-      * \return Returns a smart pointer to the datasource transactor.
+      * \return Returns a auto pointer to the datasource transactor.
       */
       std::auto_ptr<te::da::DataSourceTransactor> getTransactor();
+
+      /*!
+      * \brief Returns a datasource.
+      *
+      * \return Returns a shared pointer to the datasource.
+      */
+      std::shared_ptr<te::da::DataSource> getDataSource();
 
     protected:
       std::string configFileName_; /*! Name of the configuration file.*/

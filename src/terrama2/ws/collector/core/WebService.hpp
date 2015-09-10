@@ -27,3 +27,6 @@
   \author Vinicius Campanha
  */
 
+//gsoap WebService service name: WebService
+
+int WebService__ping(std::string& answer);

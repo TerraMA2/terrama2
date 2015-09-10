@@ -20,51 +20,28 @@
 */
 
 /*!
-  \file terrama2/core/DataSetDAO.hpp
+  \file unittest/core/TestApplicationController.cpp
 
-  \brief DataProvider DAO...
+  \brief Test for ApplicationController functionalities
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
-#define __TERRAMA2_CORE_DATASETDAO_HPP__
+#ifndef __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
 
-// STL
-#include <vector>
-#include <memory>
+//QT
+#include <QtTest>
 
-// terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-
-
-namespace terrama2
+class TestApplicationController: public QObject
 {
-  namespace core
-  {
+  Q_OBJECT
 
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
+private slots:
+    void testLoadProject();
+};
 
-    class DataSetDAO
-    {
-    public:
-      DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource);
-      virtual ~DataSetDAO();
 
-      bool save(DataSetPtr dataset);
-      bool update(DataSetPtr dataset);
-      bool remove(const int& id);
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
 
-    protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
 
-    };
-
-  } // core
-} // terrama2
-
-#endif // __TERRAMA2_CORE_DATASETDAO_HPP__
+#endif  // __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__

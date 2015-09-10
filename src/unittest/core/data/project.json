@@ -43,8 +43,9 @@
         "dbName": "terrama2",
         "driver": "postgres",
         "hostName": "localhost",
-        "port": "postgres",
-        "user": "postgres"
+        "port": "5432",
+        "user": "postgres",
+        "password": "postgres"
     },
     "notification": {
         "bulletin": {

@@ -20,51 +20,36 @@
 */
 
 /*!
-  \file terrama2/core/DataSetDAO.hpp
+  \file terrama2/ws/collector/server/CollectorFactory.cpp
 
-  \brief DataProvider DAO...
+  \brief Instantiate collectors for DataProviders.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
-#define __TERRAMA2_CORE_DATASETDAO_HPP__
 
-// STL
-#include <vector>
-#include <memory>
+#include "CollectorFactory.hpp"
 
-// terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
+terrama2::ws::collector::server::CollectorFactory* terrama2::ws::collector::server::CollectorFactory::instance_ = nullptr;
 
-
-
-namespace terrama2
+terrama2::ws::collector::server::CollectorFactory& terrama2::ws::collector::server::CollectorFactory::instance()
 {
-  namespace core
+
+  if(!instance_)
+    instance_ = new CollectorFactory();
+
+  return *instance_;
+}
+
+terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
+{
+  //JANO: implementar getCollector
+
+  //If there is no collector for this DataProvider, create one.
+  if(!collectorMap_.contains(dataProvider->id()))
   {
+    //... instatiate a new collector
+  }
 
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
-    class DataSetDAO
-    {
-    public:
-      DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource);
-      virtual ~DataSetDAO();
-
-      bool save(DataSetPtr dataset);
-      bool update(DataSetPtr dataset);
-      bool remove(const int& id);
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
-
-    protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
-
-    };
-
-  } // core
-} // terrama2
-
-#endif // __TERRAMA2_CORE_DATASETDAO_HPP__
+  return collectorMap_.value(dataProvider->id());
+}

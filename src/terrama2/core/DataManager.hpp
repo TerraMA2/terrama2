@@ -35,6 +35,7 @@
 
 // STL
 #include <memory>
+#include <cstdint>
 
 // QT
 #include <QObject>
@@ -141,26 +142,30 @@ namespace terrama2
         /*!
           \note Thread-safe.
          */
-        void removeDataProvider(u_int64_t id);
+        void removeDataProvider(const uint64_t& id);
 
         /*!
           \note Thread-safe.
          */
-        void removeDataSet(u_int64_t id);
+        void removeDataSet(const uint64_t& id);
 
         /*!
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(u_int64_t id) const;
+        DataProviderPtr findDataProvider(const uint64_t& id) const;
 
         /*!
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(u_int64_t id) const;
+        DataSetPtr findDataSet(const uint64_t& id) const;
 
         static DataManager& instance();
 
-      public slots:
+        std::vector<terrama2::core::DataProviderPtr> listDataProvider() const;
+
+        std::vector<terrama2::core::DataSetPtr> listDataSet() const;
+
+    public slots:
 
       signals:
 
@@ -169,12 +174,12 @@ namespace terrama2
         void dataProviderAdded(DataProviderPtr);
         void dataProviderRemoved(DataProviderPtr);
         void dataProviderUpdated(DataProviderPtr);
-        //void dataProviderChanged(DataProviderPtr);
+        //void dataProviderChanged(DataProviderPtr); // TODO: Analyze if it is necessary
 
         void dataSetAdded(DataSetPtr);
         void dataSetRemoved(DataSetPtr);
         void dataSetUpdated(DataSetPtr);
-        //void dataSetChanged(DataSetPtr);
+        //void dataSetChanged(DataSetPtr); // TODO: Analyze if it is necessary
 
 
       private:

@@ -20,51 +20,19 @@
 */
 
 /*!
-  \file terrama2/core/DataSetDAO.hpp
+  \file terrama2/ws/collector/server/DataProcessor.cpp
 
-  \brief DataProvider DAO...
+  \brief Manages the processing, filtering and storaging of aquired data.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
-#define __TERRAMA2_CORE_DATASETDAO_HPP__
-
-// STL
-#include <vector>
-#include <memory>
-
-// terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
+#include "DataProcessor.hpp"
 
 
-
-namespace terrama2
+void terrama2::ws::collector::server::DataProcessor::import(const std::string &uri)
 {
-  namespace core
-  {
-
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
-    class DataSetDAO
-    {
-    public:
-      DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource);
-      virtual ~DataSetDAO();
-
-      bool save(DataSetPtr dataset);
-      bool update(DataSetPtr dataset);
-      bool remove(const int& id);
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
-
-    protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
-
-    };
-
-  } // core
-} // terrama2
-
-#endif // __TERRAMA2_CORE_DATASETDAO_HPP__
+  //JANO: implementar import
+  //should run in thread ?
+  //Call a thread method?
+}

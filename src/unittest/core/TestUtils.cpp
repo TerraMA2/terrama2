@@ -20,33 +20,67 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file unittest/core/TestUtils.cpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
   \author Paulo R. M. Oliveira
 */
 
-#include "TestApplicationController.hpp"
 
-#include <terrama2_config.hpp>
-#include <terrama2/core/ApplicationController.hpp>
+//TerrraMA2
 #include <terrama2/core/Utils.hpp>
+#include <terrama2/core/ApplicationController.hpp>
 
-// TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
+//terralib
+#include <terralib/common/PlatformUtils.h>
+#include <terralib/common.h>
+#include <terralib/plugin.h>
+
+// QT
+#include <QTest>
 
 // STL
-#include <memory>
+#include <string>
 
 
-
-void TestApplicationController::testLoadProject()
+void initializeTerralib()
 {
+  // Initialize the Terralib support
+  TerraLib::getInstance().initialize();
+
+  te::plugin::PluginInfo* info;
+  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  te::plugin::PluginManager::getInstance().loadAll();
+}
+
+void finalizeTerralib()
+{
+  TerraLib::getInstance().finalize();
+}
+
+void initializeTerraMA2()
+{
+  initializeTerralib();
+
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
   QVERIFY(dataSource.get());
 }
 
-#include "TestApplicationController.moc"
+void finalizeTerraMA2()
+{
+  finalizeTerralib();
+
+  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+}
