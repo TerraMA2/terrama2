@@ -31,11 +31,15 @@
 // TerraMA2
 #include "AdminApp.hpp"
 #include "ui_AdminAppForm.h"
+//#include "Exception.hpp"
+#include "../../core/Utils.hpp"
+
 
 // Qt
 #include <QIcon>
 #include <QStringList>
 #include <QToolBar>
+#include <QTranslator>
 
 struct AdminApp::Impl
 {
@@ -56,14 +60,39 @@ AdminApp::AdminApp(QWidget* parent)
   : QMainWindow(parent),
     pimpl_(new Impl)
 {
-  // load icon theme
+
+// find icon theme library
+  std::string icon_theme_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
+
+  if(icon_theme_path.empty())
+  {
+    // throw  terrama2::InitializationError() << terrama2::error_description(tr("Could not find TerraMA2 icon library folder."));
+  }
+  
+// load icon theme library
   QStringList ithemes = QIcon::themeSearchPaths();
 
-  ithemes.push_back("/home/terrama2/Projeto/terrama2/codebase/share/icons");
+  ithemes.push_back(icon_theme_path.c_str());
 
   QIcon::setThemeSearchPaths(ithemes);
 
   QIcon::setThemeName("terrama2");
+
+// load idioms
+  std::string idiom_path = terrama2::core::FindInTerraMA2Path("share/terrama2/translations/terrama2_admin_pt_BR.qm");
+  
+  if(idiom_path.empty())
+  {
+    // LOG WARNING
+  }
+  else
+  {
+    QTranslator translator;
+    
+    translator.load(idiom_path.c_str());
+
+    qApp->installTranslator(&translator);
+  }
 
   pimpl_->ui_->setupUi(this);
 }
@@ -72,6 +101,4 @@ AdminApp::~AdminApp()
 {
   delete pimpl_;
 }
-
-
 

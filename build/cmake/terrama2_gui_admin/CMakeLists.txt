@@ -30,31 +30,39 @@ include_directories (
   ${terralib_DIR}
 )
 
-set(TERRAMA2_GUI_ADMIN_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/admin)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+set(TERRAMA2_GUI_ADMIN_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/admin)
+
+file(GLOB TERRAMA2_TRANSLATION_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/translations/admin/*.ts)
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_ADMIN_PATH}/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_ADMIN_PATH}/*.hpp)
 file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_ADMIN_PATH}/ui/*.ui)
 
-source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
-source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
-source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
+TERRAMA2_ADD_QT_TRANSLATION(TERRAMA2_QM_FILES "${TERRAMA2_TRANSLATION_FILES}" "${CMAKE_BINARY_DIR}/share/terrama2/translations")
 
 QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
-add_executable(terrama2_admin ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
+add_executable(terrama2_admin ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES} ${TERRAMA2_QM_FILES})
 
 target_link_libraries(terrama2_admin terrama2_mod_core terralib_mod_common)
 
 qt5_use_modules(terrama2_admin Widgets Network)
+
+source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
+source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
+source_group("QM Files"      FILES ${TERRAMA2_QM_FILES})
+
 
 install(TARGETS terrama2_admin
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
+
+install(FILES ${TERRAMA2_QM_FILES}
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/translations COMPONENT runtime)
 
 export(TARGETS terrama2_admin APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

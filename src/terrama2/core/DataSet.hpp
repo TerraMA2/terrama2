@@ -40,6 +40,9 @@
 #include <string>
 #include <cstdint>
 
+//Boost
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+
 
 
 namespace terrama2
@@ -74,12 +77,17 @@ namespace terrama2
       };
 
       //! Dataset unit of time.
-      enum Kind
+      enum UOT
       {
-        UNKNOWN_TYPE,
-        PCD_TYPE,
-        OCCURENCE_TYPE,
-        GRID_TYPE
+        UNKNOWN_UOT,
+        MILISECOND,
+        SECOND,
+        MINUTE,
+        HOUR,
+        DAY,
+        WEEK,
+        MONTH,
+        YEAR
       };
 
       //! Dataset status.
@@ -186,12 +194,12 @@ namespace terrama2
         DataProviderPtr dataProvider_;
         Kind kind_;
         double dataFrequency_;
-        UOT dataFrequencyUnit_;    //TODO: Create enum UOT
-        Time schedule_;            //TODO:
+        UOT dataFrequencyUnit_;
+        boost::posix_time::time_duration schedule_;            //TODO:
         double scheduleRetry_;
-        UOT scheduleRetryUnit_;    //TODO: Create enum UOT
+        UOT scheduleRetryUnit_;
         double scheduleTimeout_;
-        UOT scheduleTimeoutUnit_;  //TODO: Create enum UOT
+        UOT scheduleTimeoutUnit_;
 
       friend class DataSetDAO; //review
     };
