@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/Collector.hpp
 
-  \brief Implementation of collector.
+  \brief Aquire data from server.
 
   \author Jano Simas
 */
@@ -70,7 +70,7 @@ namespace terrama2
              * \brief Constructor
              * \param dataProvider Server information for collecting.
              */
-            Collector(core::DataProviderPtr dataProvider, QObject* parent = nullptr);
+            Collector(const core::DataProviderPtr dataProvider, QObject* parent = nullptr);
             /*!
              * \brief Destructor
              */
@@ -102,7 +102,7 @@ namespace terrama2
              *
              * \return Return true if able to start collecting, false otherwise.
              */
-            bool collect(DataSetTimerPtr datasetTimer);
+            bool collect(const DataSetTimerPtr datasetTimer);
 
             //! \brief Returns if the connection is open.
             virtual bool isOpen() const = 0;
@@ -120,9 +120,9 @@ namespace terrama2
 
           protected:
             //! \brief Internal method to collect a dataset, should be started as a thread.
-            void collectAsThread(DataSetTimerPtr datasetTimer);
+            void collectAsThread(const DataSetTimerPtr datasetTimer);
             //! \brief Aquired the data specified in dataProcessor.
-            virtual void getData(const DataProcessor& dataProcessor) = 0;
+            virtual void getData(const DataProcessorPtr dataProcessor) = 0;
 
             mutable std::mutex mutex_; //!< Mutex for thread safety.
 

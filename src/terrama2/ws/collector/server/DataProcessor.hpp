@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/DataProcessor.hpp
 
-  \brief Implementation of a Data Processor.
+  \brief Manages the processing, filtering and storaging of aquired data.
 
   \author Jano Simas
 */
@@ -73,7 +73,7 @@ namespace terrama2
              * \brief Calls the process and filtering objecs, after they finish calls the storager.
              * \param uri Uri to temporary data aquired by a collector.
              */
-            void import(std::string uri);
+            void import(const std::string &uri);
 
         };
 

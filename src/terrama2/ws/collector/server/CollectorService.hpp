@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/CollectorService.hpp
 
-  \brief Implementation of a collector service.
+  \brief Manages the collection of data in the appropriate time.
 
   \author Jano Simas, Paulo R. M. Oliveira
 */
@@ -96,7 +96,7 @@ namespace terrama2
              * \param dataProvider The shared pointer to the data provider
              * \return Collector to the DataProvider.
              */
-            CollectorPtr addProvider(core::DataProviderPtr dataProvider);
+            CollectorPtr addProvider(const core::DataProviderPtr dataProvider);
 
             /*!
              * \brief Creaets a new DataSetTimer for the DataSet and adds it to the list.
@@ -104,13 +104,8 @@ namespace terrama2
              *
              * \return DataSetTimer for the DataSet.
              */
-            DataSetTimerPtr addDataset(core::DataSetPtr dataset);
+            DataSetTimerPtr addDataset(const core::DataSetPtr dataset);
 
-            /*!
-             * \brief Start do collect queued datasets
-             * \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
-             */
-            void assignCollector(CollectorPtr firstCollectorInQueue);
           public slots:
 
             /*!
@@ -121,9 +116,15 @@ namespace terrama2
             /*!
              * \brief Slot to be called when a DataSetTimer times out.
              */
-            void addToQueueSlot(uint64_t datasetId);
+            void addToQueueSlot(const uint64_t datasetId);
 
           private:
+            /*!
+             * \brief Start do collect queued datasets
+             * \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
+             */
+            void assignCollector(CollectorPtr firstCollectorInQueue);
+
             bool stop_;
             QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
             QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;

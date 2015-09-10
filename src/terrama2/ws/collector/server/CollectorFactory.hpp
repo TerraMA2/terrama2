@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/CollectorFactory.hpp
 
-  \brief Implementation of collector.
+  \brief Instantiate collectors for DataProviders.
 
   \author Jano Simas
 */
@@ -69,7 +69,7 @@ namespace terrama2
              * \param dataProvider Data provider information.
              * \return Shared pointer to the new collector.
              */
-            CollectorPtr getCollector(core::DataProviderPtr dataProvider);
+            CollectorPtr getCollector(const core::DataProviderPtr dataProvider);
 
           private:
             //! Contructor

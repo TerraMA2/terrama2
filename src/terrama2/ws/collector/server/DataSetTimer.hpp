@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/DataSetTimer.hpp
 
-  \brief Implementation of collector.
+  \brief Signals when the dataset should be collected.
 
   \author Jano Simas
 */
@@ -81,6 +81,8 @@ namespace terrama2
             core::DataSetPtr              getDataSet()   const { return dataSet_;   }
             //! \brief List of DataProcessor that should be aquired and processed.
             std::vector<DataProcessorPtr> getData()      const { return dataLst_;   }
+
+            bool isValid() const;
 
           signals:
             //! \brief Signal emited when the DataSet should be collected.

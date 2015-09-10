@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/CollectorService.cpp
 
-  \brief Implementation of a collector service.
+  \brief  Manages the collection of data in the appropriate time.
 
   \author Jano Simas, Paulo R. M. Oliveira
 */
@@ -122,7 +122,7 @@ void terrama2::ws::collector::server::CollectorService::stop()
   stop_ = true;
 }
 
-void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t datasetId)
+void terrama2::ws::collector::server::CollectorService::addToQueueSlot(const uint64_t datasetId)
 {
   auto datasetTimer = datasetTimerLst_.value(datasetId);
   assert(datasetTimer);
@@ -139,7 +139,7 @@ void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t 
     datasetTimerQueue.append(datasetId);
 }
 
-terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorService::addProvider(core::DataProviderPtr dataProvider)
+terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
 {
   //Create a collector and add it to the list
   auto collector = CollectorFactory::instance().getCollector(dataProvider);
@@ -147,7 +147,7 @@ terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::C
   return collector;
 }
 
-terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server::CollectorService::addDataset(core::DataSetPtr dataset)
+terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server::CollectorService::addDataset(const core::DataSetPtr dataset)
 {
   //Create a new dataset timer and connect the timeout signal to queue
   auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
