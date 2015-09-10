@@ -682,7 +682,7 @@ coletados:</string>
             <item row="4" column="0" colspan="6">
              <widget class="QTabWidget" name="tabWidget_2">
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="serverTab">
                <attribute name="title">
@@ -1620,7 +1620,9 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset theme="save"/>
+             <iconset theme="save">
+              <normaloff/>
+             </iconset>
             </property>
            </widget>
           </item>
