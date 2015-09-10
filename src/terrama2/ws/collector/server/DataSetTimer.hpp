@@ -82,7 +82,7 @@ namespace terrama2
             //! \brief List of DataProcessor that should be aquired and processed.
             std::vector<DataProcessorPtr> getData()      const { return dataLst_;   }
 
-            bool isValid() const;
+            bool isValid() const { return false; }
 
           signals:
             //! \brief Signal emited when the DataSet should be collected.
