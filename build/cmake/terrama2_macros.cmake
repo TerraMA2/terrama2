@@ -47,20 +47,22 @@ MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path service_name type GSOAP_HDR_FILES GSOAP_
     set(ARCHIVE_TYPE Proxy)
   endif()
 
-  set(${GSOAP_HDR_FILES}   ${CMAKE_CURRENT_BINARY_DIR}/soap${ARCHIVE_TYPE}.h
-                           ${CMAKE_CURRENT_BINARY_DIR}/soapH.h
-                           ${CMAKE_CURRENT_BINARY_DIR}/soapStub.h)
+endif()
 
-  set(${GSOAP_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/soap${ARCHIVE_TYPE}
-                         ${CMAKE_CURRENT_BINARY_DIR}/soapC.cpp)
+    set(${GSOAP_HDR_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/soap${service_name}${ARCHIVE_TYPE}.h
+                           ${CMAKE_CURRENT_BINARY_DIR}/generated/soapH.h
+                           ${CMAKE_CURRENT_BINARY_DIR}/generated/soapStub.h)
+                        
+    set(${GSOAP_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/soap${service_name}${ARCHIVE_TYPE}.cpp
+                           ${CMAKE_CURRENT_BINARY_DIR}/generated/soapC.cpp)
 
-  set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/${service_name}.nsmap)
+    set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/${service_name}.nsmap)
 
 
-  add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
-                     COMMAND ${COMMAND_LINE}
-                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                     COMMENT "Generating gSoap Web Services files." VERBATIM)
+    add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
+                       COMMAND ${COMMAND_LINE}
+                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generated
+                       COMMENT "Generating gSoap Web Services files." VERBATIM)
 
 ENDMACRO(TERRAMA2_GSOAP_SOAPCPP2)
 
