@@ -80,7 +80,7 @@ void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr dataProvid
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 }
 
@@ -94,7 +94,7 @@ void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 }
 
@@ -107,7 +107,7 @@ void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataPro
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 }
 
@@ -120,7 +120,7 @@ void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 }
 
@@ -133,7 +133,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 }
 
@@ -146,7 +146,7 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 }
 
@@ -160,7 +160,7 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 
   return dataProvider;
@@ -176,7 +176,7 @@ terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const uint64
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 
   return dataset;
@@ -193,7 +193,7 @@ std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataManager::listDa
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 
   return vecProviders;
@@ -209,7 +209,7 @@ std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::listDataSet
   }
   catch(...)
   {
-    //TODO: expection handling
+    //TODO: Execption handling
   }
 
   return vecDataSets;

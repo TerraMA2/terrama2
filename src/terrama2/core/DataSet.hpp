@@ -73,6 +73,15 @@ namespace terrama2
         GRID_TYPE
       };
 
+      //! Dataset unit of time.
+      enum Kind
+      {
+        UNKNOWN_TYPE,
+        PCD_TYPE,
+        OCCURENCE_TYPE,
+        GRID_TYPE
+      };
+
       //! Dataset status.
       enum Status
       {
@@ -89,11 +98,84 @@ namespace terrama2
       private:
 
         /*!
-          \brief
+          \brief It returns the identifier of the dataset.
 
-          \param id
-         */
+          \return The identifier of the dataset.
+        */
+        uint64_t id() const;
+
+        /*!
+          \brief It returns the name of the dataset.
+
+          \return The name of the dataset.
+        */
+        std::string name() const;
+
+        /*!
+          \brief It sets the name of the dataset.
+
+          \param The name of the dataset.
+        */
+        void setName(const std::string& name);
+
+        /*!
+          \brief It returns the the description of the dataset.
+
+          \return The the description of the dataset.
+        */
+        std::string description() const;
+
+        /*!
+          \brief It sets the the description of the data provider.
+
+          \param The the description of the dataset.
+        */
+        void setDescription(const std::string& description);
+
+        /*!
+          \brief It returns the the kind of the dataset.
+
+          \return The the kind of the dataset.
+        */
+        Kind kind() const;
+
+        /*!
+          \brief It sets the the kind of the dataset.
+
+          \param The the kind of the data provider.
+        */
+        void setKind(const Kind& kind);
+
+        /*!
+          \brief It returns the the status of the data provider.
+
+          \return The the status of the data provider.
+        */
+        Status status() const;
+
+        /*!
+          \brief It sets the the status of the data provider.
+
+          \param The the status of the data provider.
+        */
+        void setStatus(const Status& status);
+
+        /*!
+          \brief It returns the the data provider.
+
+          \return The the data provider.
+        */
+        DataProviderPtr dataProvider() const;
+
+      protected:
+
+        /*!
+          \brief It sets the identifier of the dataset.
+
+          \param The identifier of the dataset.
+        */
         void setId(uint64_t id);
+
 
       private:
 
@@ -101,15 +183,15 @@ namespace terrama2
         std::string name_;
         std::string description_;
         Status status_;
-        DataProviderPtr provider_;
+        DataProviderPtr dataProvider_;
         Kind kind_;
         double dataFrequency_;
-        //UOM dataFrequencyUnit_;    //todo:
-        //Time schedule_;            //todo:
+        UOT dataFrequencyUnit_;    //TODO: Create enum UOT
+        Time schedule_;            //TODO:
         double scheduleRetry_;
-        //UOM scheduleRetryUnit_;    //todo:
+        UOT scheduleRetryUnit_;    //TODO: Create enum UOT
         double scheduleTimeout_;
-        //UOM scheduleTimeoutUnit_;  //todo:
+        UOT scheduleTimeoutUnit_;  //TODO: Create enum UOT
 
       friend class DataSetDAO; //review
     };

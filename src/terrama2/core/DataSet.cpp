@@ -30,11 +30,14 @@
   \author Vinicius Campanha
 */
 
+
 // TerraMA2
 #include "DataSet.hpp"
+
 #include "DataProvider.hpp"
 
-terrama2::core::DataSet::DataSet(DataProviderPtr provider)
+terrama2::core::DataSet::DataSet(DataProviderPtr dataProvider)
+  : dataProvider_(dataProvider)
 {
 
 }
@@ -44,7 +47,57 @@ terrama2::core::DataSet::~DataSet()
 
 }
 
+uint64_t terrama2::core::DataSet::id() const
+{
+  return id_;
+}
+
 void terrama2::core::DataSet::setId(uint64_t id)
 {
   id_ = id;
+}
+
+std::string terrama2::core::DataSet::name() const
+{
+  return name_;
+}
+
+void terrama2::core::DataSet::setName(const std::string &name)
+{
+  name_ = name;
+}
+
+std::string terrama2::core::DataSet::description() const
+{
+  return description_;
+}
+
+void terrama2::core::DataSet::setDescription(const std::string &description)
+{
+  description_ = description;
+}
+
+terrama2::core::DataSet::Kind terrama2::core::DataSet::kind() const
+{
+  return kind_;
+}
+
+void terrama2::core::DataSet::setKind(const terrama2::core::DataSet::Kind &kind)
+{
+  kind_ = kind;
+}
+
+terrama2::core::DataSet::Status terrama2::core::DataSet::status() const
+{
+  return status_;
+}
+
+void terrama2::core::DataSet::setStatus(const terrama2::core::DataSet::Status &status)
+{
+  status_ = status;
+}
+
+terrama2::core::DataProviderPtr terrama2::core::DataSet::dataProvider() const
+{
+  return dataProvider_;
 }

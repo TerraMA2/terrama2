@@ -30,6 +30,7 @@
 // TerraMA2
 #include "Utils.hpp"
 #include "DataProvider.hpp"
+#include "DataSet.hpp"
 #include "../Config.hpp"
 
 // Boost
@@ -99,7 +100,7 @@ bool terrama2::core::DataProviderStatusToBool(const terrama2::core::DataProvider
 }
 
 
-terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(const bool& active)
+terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(const bool active)
 {
   if(active)
   {
@@ -112,7 +113,7 @@ terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(co
 }
 
 
-terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(const int& kind)
+terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(const int kind)
 {
   switch (kind) {
   case 1:
@@ -127,5 +128,38 @@ terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(const i
     return terrama2::core::DataProvider::WCS_TYPE;
   default:
     return terrama2::core::DataProvider::UNKNOWN_TYPE;
+  }
+}
+
+std::string terrama2::core::BoolToString(const bool b)
+{
+  return b ? "true" : "false";
+}
+
+
+
+bool terrama2::core::DataSetStatusToBool(const terrama2::core::DataSet::Status& status)
+{
+  switch (status)
+  {
+    case terrama2::core::DataSet::ACTIVE:
+      return true;
+    case terrama2::core::DataSet::INACTIVE:
+      return false;
+    default:
+      return false;
+  }
+}
+
+
+terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(const bool active)
+{
+  if(active)
+  {
+    return terrama2::core::DataSet::ACTIVE;
+  }
+  else
+  {
+    return terrama2::core::DataSet::INACTIVE;
   }
 }

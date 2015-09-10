@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_UTILS_HPP__
 
 #include "DataProvider.hpp"
+#include "DataSet.hpp"
 
 // STL
 #include <string>
@@ -65,7 +66,7 @@ namespace terrama2
 
       \return Enum with the status of the data provider.
      */
-   terrama2::core::DataProvider::Status BoolToDataProviderStatus(const bool& active);
+   terrama2::core::DataProvider::Status BoolToDataProviderStatus(const bool active);
 
    /*!
      \brief Returns a enum with the kind of the server based on the given parameter.
@@ -74,7 +75,34 @@ namespace terrama2
 
      \return Enum with the type of the data provider.
     */
-   terrama2::core::DataProvider::Kind IntToDataProviderKind(const int& kind);
+   terrama2::core::DataProvider::Kind IntToDataProviderKind(const int kind);
+
+   /*!
+     \brief Function to convert a boolean to string format.
+
+     \param b Boolean to converted.
+
+     \return string String representation of the given boolean.
+    */
+   std::string BoolToString(const bool b);
+
+   /*!
+     \brief Returns a boolean with the status of the dataset based on the given status.
+
+     \param status Enum with the status of the dataset.
+
+     \return Boolean that determine if the dataset is active.
+    */
+   bool DataSetStatusToBool(const terrama2::core::DataSet::Status& status);
+
+   /*!
+    \brief Returns a enum with the status of the dataset based on the given parameter.
+
+    \param active Boolean that determine if the dataset is active.
+
+    \return Enum with the status of the dataset.
+    */
+   terrama2::core::DataSet::Status BoolToDataSetStatus(const bool active);
 
   } // end namespace core
 }   // end namespace terrama2

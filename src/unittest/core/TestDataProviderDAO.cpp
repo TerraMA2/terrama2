@@ -91,6 +91,9 @@ void TestDataProviderDAO::testCRUDDataProvider()
   // Must be the same as the inserted one
   QCOMPARE(tempProvider->id(), dataProvider->id());
   QCOMPARE(tempProvider->name(), dataProvider->name());
+  QCOMPARE(tempProvider->kind(), dataProvider->kind());
+  QCOMPARE(tempProvider->status(), dataProvider->status());
+  QCOMPARE(tempProvider->description(), dataProvider->description());
 
   // Lists all data providers
   std::vector<terrama2::core::DataProviderPtr> vecDataProvider = dataProviderDAO.list();
@@ -100,6 +103,11 @@ void TestDataProviderDAO::testCRUDDataProvider()
 
   QVERIFY2(vecDataProvider.size() == 1, "Number of data providers recovered different than expected!");
 
+  // Removes the data provider
+  QVERIFY2(dataProviderDAO.remove(dataProvider->id()), "Could not remove the data provider!");
+
+
+  QVERIFY2(vecDataProvider.empty(), "List should be empty after remove!");
 }
 
 

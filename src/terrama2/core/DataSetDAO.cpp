@@ -29,14 +29,18 @@
 
 #include "DataSetDAO.hpp"
 #include "DataSet.hpp"
+#include "Utils.hpp"
 
 // STL
 #include <vector>
+#include <memory>
 
 // terralib
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/common/StringUtils.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/query/Query.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/memory.h>
+#include <terralib/memory/DataSetItem.h>
 
 terrama2::core::DataSetDAO::DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource)
   : dataSource_(dataSource)
@@ -52,7 +56,49 @@ terrama2::core::DataSetDAO::~DataSetDAO()
 
 bool terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet)
 {
-  //PAULO-TODO: implement
+  std::string dataSetName = "terrama2.dataset";
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+  transactor->begin();
+
+  // Removes the column id because it's an auto number
+  //review
+  std::auto_ptr<te::da::DataSetType> dataSetType = dataSource_->getDataSetType(dataSetName);
+  std::auto_ptr<te::da::DataSetType> dataSetTypeClone(dataSetType);
+  te::dt::Property* idProperty = dataSetTypeClone->getProperty(0);
+  dataSetTypeClone->remove(idProperty);
+
+  // Creates a memory dataset from the DataSetType without column id
+  std::shared_ptr<te::mem::DataSet> memDataSet(new te::mem::DataSet(dataSetTypeClone.get()));
+  te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
+
+  // Sets the values in the item
+  dsItem->setString("name", dataSet->name());
+  dsItem->setString("description", dataSet->description());
+  dsItem->setInt32("kind", (int)dataSet->kind());
+  dsItem->setBool("active", DataSetStatusToBool(dataSet->status()));
+
+  // Adds it to the dataset
+  memDataSet->add(dsItem);
+  std::map<std::string, std::string> options;
+
+  // Then, adds it to the data source
+  dataSource_->add(dataSetName, memDataSet.get(), options);
+
+
+  // Queries generated id
+  std::string sql("SELECT * FROM " + dataSetName + " WHERE name = '" + dataSet->name() + "'");
+  std::auto_ptr<te::da::DataSet> tempDataSet = transactor->query(sql);
+
+  // Sets the id in the given provider
+  if(tempDataSet->moveNext())
+  {
+    dataSet->setId(tempDataSet->getInt32("id"));
+  }
+
+
+  transactor->commit();
+
   return false;
 }
 

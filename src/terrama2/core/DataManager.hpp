@@ -174,12 +174,12 @@ namespace terrama2
         void dataProviderAdded(DataProviderPtr);
         void dataProviderRemoved(DataProviderPtr);
         void dataProviderUpdated(DataProviderPtr);
-        //void dataProviderChanged(DataProviderPtr);
+        //void dataProviderChanged(DataProviderPtr); // TODO: Analyze if it is necessary
 
         void dataSetAdded(DataSetPtr);
         void dataSetRemoved(DataSetPtr);
         void dataSetUpdated(DataSetPtr);
-        //void dataSetChanged(DataSetPtr);
+        //void dataSetChanged(DataSetPtr); // TODO: Analyze if it is necessary
 
 
       private:
