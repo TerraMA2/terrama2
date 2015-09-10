@@ -22,12 +22,14 @@
 /*!
   \file terrama2/ws/collector/server/CollectorService.cpp
 
-  \brief Implementation of a collector service.
+  \brief  Manages the collection of data in the appropriate time.
 
   \author Jano Simas, Paulo R. M. Oliveira
 */
 
 #include "CollectorService.hpp"
+#include "CollectorFactory.hpp"
+
 #include "../../../core/DataSet.hpp"
 #include "../../../core/DataProvider.hpp"
 #include "../../../core/DataManager.hpp"
@@ -42,6 +44,9 @@
 #include <cassert>
 #include <iostream>
 
+//Boost
+#include <boost/log/trivial.hpp>
+
 
 terrama2::ws::collector::server::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
@@ -49,9 +54,35 @@ terrama2::ws::collector::server::CollectorService::CollectorService(QObject *par
 {
 }
 
+void terrama2::ws::collector::server::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
+{
+  if(firstCollectorInQueue->open())
+  {
+    assert(datasetQueue_.contains(firstCollectorInQueue));
+    auto& datasetTimerQueue = datasetQueue_[firstCollectorInQueue];
+
+    while(!datasetTimerQueue.isEmpty())
+    {
+      //if dataprovider is already getting some file
+      if(firstCollectorInQueue->isCollecting())
+        break;
+
+      assert(!datasetTimerQueue.isEmpty());
+      //first dataset on queue
+      auto datasetTimer = datasetTimerLst_.value(datasetTimerQueue.front());
+      assert(datasetTimer);
+
+      //aquire dataset files
+      firstCollectorInQueue->collect(datasetTimer);
+
+      //remove first dataset from queue
+      datasetTimerQueue.pop_front();
+    }
+  }
+}
+
 void terrama2::ws::collector::server::CollectorService::start()
 {
-  std::cerr << "__Start__" << std::endl;
   while(true)
   {
     if(stop_)
@@ -63,43 +94,21 @@ void terrama2::ws::collector::server::CollectorService::start()
     // It allows multiples providers to collect at the same time but only one provider of each type.
     for (auto it = collectorQueueMap_.begin(); it != collectorQueueMap_.end(); ++it)
     {
-      auto dataProviderQueueByType = it.value();
-      if(dataProviderQueueByType.size())
+      auto collectorQueueByType = it.value();
+      if(collectorQueueByType.size())
       {
-        assert(dataProviderQueueByType.size() > 0);
+        assert(collectorQueueByType.size() > 0);
 
-        auto firstCollectorInQueue = dataProviderQueueByType.front();
-        if(firstCollectorInQueue->open())
-        {
-          assert(datasetQueue_.contains(firstCollectorInQueue));
-          auto& datasetQueue = datasetQueue_[firstCollectorInQueue];
-
-          while(!datasetQueue.isEmpty())
-          {
-            //if dataprovider is already getting some file
-            if(firstCollectorInQueue->isCollecting())
-              break;
-
-
-            std::cerr << "Collect dataset!" << std::endl;
-
-            assert(!datasetQueue.isEmpty());
-            //first dataset on queue
-            auto datasetTimer = datasetTimerLst_.value(datasetQueue.front());
-
-            //aquire dataset files
-            firstCollectorInQueue->collect(datasetTimer);
-            //remove first dataset from queue
-            datasetQueue.pop_front();
-          }
-        }
+        auto firstCollectorInQueue = collectorQueueByType.front();
+        //start collecting
+        assignCollector(firstCollectorInQueue);
 
         //It remains in the queue until it's done collecting
         if(!firstCollectorInQueue->isCollecting())
         {
           //close dataprovider connection
           firstCollectorInQueue->close();
-          dataProviderQueueByType.pop_front();
+          collectorQueueByType.pop_front();
         }
       }
     }
@@ -113,7 +122,7 @@ void terrama2::ws::collector::server::CollectorService::stop()
   stop_ = true;
 }
 
-void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t datasetId)
+void terrama2::ws::collector::server::CollectorService::addToQueueSlot(const uint64_t datasetId)
 {
   auto datasetTimer = datasetTimerLst_.value(datasetId);
   assert(datasetTimer);
@@ -130,17 +139,22 @@ void terrama2::ws::collector::server::CollectorService::addToQueueSlot(uint64_t 
     datasetTimerQueue.append(datasetId);
 }
 
-void terrama2::ws::collector::server::CollectorService::addProvider(core::DataProviderPtr dataProvider)
+terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
 {
-//  auto collector = std::shared_ptr<Collector>(new Collector(dataProvider, this));
-//  collectorLst_.append(collector);
+  //Create a collector and add it to the list
+  auto collector = CollectorFactory::instance().getCollector(dataProvider);
+
+  return collector;
 }
 
-void terrama2::ws::collector::server::CollectorService::addDataset(core::DataSetPtr dataset)
+terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server::CollectorService::addDataset(const core::DataSetPtr dataset)
 {
-  auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset, this));
-//  datasetTimerLst_.insert(dataset->id(), datasetTimer);
+  //Create a new dataset timer and connect the timeout signal to queue
+  auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
+  datasetTimerLst_.insert(dataset->id(), datasetTimer);
   connect(datasetTimer.get(), &terrama2::ws::collector::server::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
+
+  return datasetTimer;
 }
 
 

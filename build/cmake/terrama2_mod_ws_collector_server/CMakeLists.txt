@@ -52,7 +52,8 @@ add_library(terrama2_mod_ws_collector_server
 
 target_link_libraries(terrama2_mod_ws_collector_server terrama2_mod_ws_collector_core
                                                        terrama2_mod_core
-                                                       ${GSOAP_CPP_LIBRARY})
+                                                       ${GSOAP_CPP_LIBRARY}
+                                                       ${Boost_LOG_LIBRARY})
 
 qt5_use_modules(terrama2_mod_ws_collector_server Widgets)
 
