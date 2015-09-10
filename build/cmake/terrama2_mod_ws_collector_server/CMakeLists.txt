@@ -29,6 +29,7 @@ include_directories (
   ${GSOAP_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/server/*.cpp)

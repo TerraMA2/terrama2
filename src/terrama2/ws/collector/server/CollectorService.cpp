@@ -24,13 +24,16 @@
 
   \brief Implementation of a collector service.
 
-  \author Jano Simas, Paulo R. M. Oliveira
+  \author Jano Simas, Paulo R. M. Oliveira, Vinicius Campanha
 */
 
 #include "CollectorService.hpp"
 #include "../../../core/DataSet.hpp"
 #include "../../../core/DataProvider.hpp"
 #include "../../../core/DataManager.hpp"
+
+#include "soapWebServiceService.h"
+#include "WebService.nsmap"
 
 // QT
 #include <QApplication>
@@ -144,3 +147,40 @@ void terrama2::ws::collector::server::CollectorService::addDataset(core::DataSet
 }
 
 
+int WebServiceService::ping(std::string &answer)
+{
+    return SOAP_OK;
+}
+
+
+
+//Qt
+#include <QCoreApplication>
+
+
+int main(int argc, char** argv)
+{
+    QCoreApplication a(argc, argv);
+
+    WebServiceService service;
+
+    int port = 0;
+
+    if(argc >1)
+        port = atoi(argv[1]);
+
+    if (port == 0)
+    {
+        fprintf(stderr, "Informe a porta como parametro");
+        exit(0);
+    }
+
+    // run iterative server on port until fatal error
+    if(service.run(port))
+    {
+        service.soap_stream_fault(std::cerr);
+
+        exit(-1);
+    }
+    return EXIT_SUCCESS;
+}
