@@ -29,12 +29,14 @@
 
 // TerraMA2
 #include "Utils.hpp"
+#include "DataProvider.hpp"
+#include "DataSet.hpp"
 #include "../Config.hpp"
 
 // Boost
 #include <boost/filesystem.hpp>
 
-std::string FindInTerraMA2Path(const std::string& p)
+std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 {
 // 1st: look in the neighborhood of the executable
   boost::filesystem::path tma_path = boost::filesystem::current_path();
@@ -83,3 +85,81 @@ std::string FindInTerraMA2Path(const std::string& p)
   return "";
 }
 
+
+bool terrama2::core::DataProviderStatusToBool(const terrama2::core::DataProvider::Status& status)
+{
+  switch (status)
+  {
+    case terrama2::core::DataProvider::ACTIVE:
+      return true;
+    case terrama2::core::DataProvider::INACTIVE:
+      return false;
+    default:
+      return false;
+  }
+}
+
+
+terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(const bool active)
+{
+  if(active)
+  {
+    return terrama2::core::DataProvider::ACTIVE;
+  }
+  else
+  {
+    return terrama2::core::DataProvider::INACTIVE;
+  }
+}
+
+
+terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(const int kind)
+{
+  switch (kind) {
+  case 1:
+    return terrama2::core::DataProvider::FTP_TYPE;
+  case 2:
+    return terrama2::core::DataProvider::HTTP_TYPE;
+  case 3:
+    return terrama2::core::DataProvider::FILE_TYPE;
+  case 4:
+    return terrama2::core::DataProvider::WFS_TYPE;
+  case 5:
+    return terrama2::core::DataProvider::WCS_TYPE;
+  default:
+    return terrama2::core::DataProvider::UNKNOWN_TYPE;
+  }
+}
+
+std::string terrama2::core::BoolToString(const bool b)
+{
+  return b ? "true" : "false";
+}
+
+
+
+bool terrama2::core::DataSetStatusToBool(const terrama2::core::DataSet::Status& status)
+{
+  switch (status)
+  {
+    case terrama2::core::DataSet::ACTIVE:
+      return true;
+    case terrama2::core::DataSet::INACTIVE:
+      return false;
+    default:
+      return false;
+  }
+}
+
+
+terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(const bool active)
+{
+  if(active)
+  {
+    return terrama2::core::DataSet::ACTIVE;
+  }
+  else
+  {
+    return terrama2::core::DataSet::INACTIVE;
+  }
+}

@@ -20,51 +20,29 @@
 */
 
 /*!
-  \file terrama2/core/DataSetDAO.hpp
+  \file unittest/core/DataProviderDAO.cpp
 
-  \brief DataProvider DAO...
+  \brief Test for DataProviderDAO functionalities
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
-#define __TERRAMA2_CORE_DATASETDAO_HPP__
 
-// STL
-#include <vector>
-#include <memory>
+#include <terrama2/core/DataProviderDAO.hpp>
 
-// terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
+//QT
+#include <QtTest/QTest>
 
-
-
-namespace terrama2
+class TestDataProviderDAO: public QObject
 {
-  namespace core
-  {
+  Q_OBJECT
 
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
 
-    class DataSetDAO
-    {
-    public:
-      DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource);
-      virtual ~DataSetDAO();
+private slots:
+  void initTestCase();
+  void cleanupTestCase();
+  void testCRUDDataProvider();
 
-      bool save(DataSetPtr dataset);
-      bool update(DataSetPtr dataset);
-      bool remove(const int& id);
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
+};
 
-    protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
 
-    };
-
-  } // core
-} // terrama2
-
-#endif // __TERRAMA2_CORE_DATASETDAO_HPP__

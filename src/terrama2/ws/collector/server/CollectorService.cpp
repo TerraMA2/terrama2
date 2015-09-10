@@ -24,7 +24,7 @@
 
   \brief  Manages the collection of data in the appropriate time.
 
-  \author Jano Simas, Paulo R. M. Oliveira
+  \author Jano Simas, Paulo R. M. Oliveira, Vinicius Campanha
 */
 
 #include "CollectorService.hpp"
@@ -33,6 +33,9 @@
 #include "../../../core/DataSet.hpp"
 #include "../../../core/DataProvider.hpp"
 #include "../../../core/DataManager.hpp"
+
+#include "soapWebServiceService.h"
+#include "WebService.nsmap"
 
 // QT
 #include <QApplication>
@@ -158,4 +161,9 @@ terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server
   return datasetTimer;
 }
 
+
+int WebServiceService::ping(std::string &answer)
+{
+    return SOAP_OK;
+}
 
