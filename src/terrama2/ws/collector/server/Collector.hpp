@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/Collector.hpp
 
-  \brief Implementation of collector.
+  \brief Aquire data from server.
 
   \author Jano Simas
 */
@@ -33,9 +33,13 @@
 
 #include "../../../core/DataProvider.hpp"
 #include "DataSetTimer.hpp"
+#include "DataProcessor.hpp"
 
 //Qt
 #include <QObject>
+
+//std
+#include <mutex>
 
 namespace terrama2
 {
@@ -50,26 +54,96 @@ namespace terrama2
       namespace server
       {
 
+        /*!
+         * \brief The Collector class is responsible for aquiring the data from a remote server.
+         *
+         * This class is an interface to open a connection with a [DataProvider](\ref terrama2::core::DataProvider)
+         * and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
+         *
+         */
         class Collector : public QObject
         {
             Q_OBJECT
 
           public:
-            Collector(core::DataProviderPtr dataProvider, QObject* parent = nullptr);
-            ~Collector();
+            /*!
+             * \brief Constructor
+             * \param dataProvider Server information for collecting.
+             */
+            Collector(const core::DataProviderPtr dataProvider, QObject* parent = nullptr);
+            /*!
+             * \brief Destructor
+             */
+            virtual ~Collector(){}
 
-            bool isCollecting();
-            void collect(DataSetTimerPtr);
-            core::DataProvider::Kind kind();
+            /*!
+             * \brief Type of the data provider.
+             *
+             * This information is used by the CollectorFactory to build a Collector
+             * of right type.
+             *
+             * \return Data provider kind.
+             */
+            core::DataProvider::Kind kind() const { return dataProvider_->kind();}
+            /*!
+             * \brief Data provider containing the information of this collector.
+             */
+            core::DataProviderPtr dataProvider() const { return dataProvider_;}
 
-            virtual bool isOpen() = 0;
-            virtual bool open() = 0;
+            /*!
+             * \brief Verifies if the collector is collecting.
+             * \return Returns true if is collecting.
+             */
+            bool isCollecting() const;
+            /*!
+             * \brief Prepare and start to collect the data required by the [DataSet](\ref terrama2::core::DataSet).
+             *
+             * If the colelctor is avaiable will call collectAsThread in a new thread and return true.
+             *
+             * \return Return true if able to start collecting, false otherwise.
+             */
+            bool collect(const DataSetTimerPtr datasetTimer);
+
+            //! \brief Returns if the connection is open.
+            virtual bool isOpen() const = 0;
+
+            /*!
+             * \brief Open the connection with the server.
+             *
+             * Trys to open the connection, returns false if fails
+             *
+             * \return True if the connection is open. If not appliable, returns true.
+             */
+            virtual bool open()  = 0;
+            //! \brief Close the connection, if not open, does nothing.
             virtual void close() = 0;
 
-          private:
-            virtual void getData(core::Data*) = 0;
+          protected:
+            //! \brief Internal method to collect a dataset, should be started as a thread.
+            void collectAsThread(const DataSetTimerPtr datasetTimer);
+            //! \brief Aquired the data specified in dataProcessor.
+            virtual void getData(const DataProcessorPtr dataProcessor) = 0;
 
-            core::DataProviderPtr dataProvider_;
+            mutable std::mutex mutex_; //!< Mutex for thread safety.
+
+            core::DataProviderPtr dataProvider_; //!< Data provider information.
+
+            /*!
+             * \brief Utility class to assert the mutex will be unlocked in the end of the process.
+             */
+            class LockMutex
+            {
+              public:
+                LockMutex(std::mutex& mutex) : mutex_(mutex) { }
+                ~LockMutex()   { mutex_.unlock(); }
+
+                bool tryLock() { return mutex_.try_lock(); }
+                void lock()    { mutex_.lock(); }
+                void unLock()  { mutex_.unlock(); }
+
+              private:
+                std::mutex& mutex_;
+            };
         };
 
         typedef std::shared_ptr<Collector> CollectorPtr;

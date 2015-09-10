@@ -101,7 +101,8 @@ namespace terrama2
 
       ~DataSet();
 
-      //uint64 id() const;
+      uint64_t        id()              const { return id_;}
+      DataProviderPtr getDataProvider() const { return provider_; }
 
       private:
 
