@@ -55,8 +55,8 @@ namespace terrama2
 
       bool save(DataProviderPtr dataProvider);
       bool update(DataProviderPtr dataProvider);
-      bool remove(const int& id);
-      DataProviderPtr find(const int& id) const;
+      bool remove(int id);
+      DataProviderPtr find(int id) const;
       std::vector<DataProviderPtr> list() const;
 
     protected:

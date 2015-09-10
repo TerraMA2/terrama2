@@ -52,29 +52,34 @@ terrama2::core::DataSetDAO::~DataSetDAO()
 
 bool terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet)
 {
+  //PAULO-TODO: implement
   return false;
 }
 
 
 bool terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet)
 {
+  //PAULO-TODO: implement
   return false;
 }
 
 
 bool terrama2::core::DataSetDAO::remove(const int &id)
 {
+  //PAULO-TODO: implement
   return false;
 }
 
 
 terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(const int &id) const
 {
+  //PAULO-TODO: implement
   return terrama2::core::DataSetPtr(0);
 }
 
 std::vector<terrama2::core::DataSetPtr> terrama2::core::DataSetDAO::list() const
 {
+  //PAULO-TODO: implement
   std::vector<terrama2::core::DataSetPtr> vecCollectors;
   return vecCollectors;
 }

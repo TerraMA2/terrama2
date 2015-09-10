@@ -69,12 +69,24 @@ void TestDataProviderDAO::testCRUDDataProvider()
   dataProvider->setKind(terrama2::core::DataProvider::FTP_TYPE);
 
   // Inserts a new data provider
-  dataProviderDAO.save(dataProvider);
+  QVERIFY2(dataProviderDAO.save(dataProvider), "Could not save the data provider!");
+
+
+
+  // Updates a data provider
+  dataProvider->setName("New server");
+  dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
+
+  QVERIFY2(dataProviderDAO.update(dataProvider), "Could not update the data provider!");
+
+  QVERIFY2(dataProvider->id() != 0, "The id wasn't set in the provider after insert!");
+
+
 
   // Recovers the same data provider by id
   terrama2::core::DataProviderPtr tempProvider = dataProviderDAO.find(dataProvider->id());
 
-  QVERIFY(tempProvider.get());
+  QVERIFY2(tempProvider.get(), "Could not recover the data provider by id!");
 
   // Must be the same as the inserted one
   QCOMPARE(tempProvider->id(), dataProvider->id());
@@ -83,8 +95,10 @@ void TestDataProviderDAO::testCRUDDataProvider()
   // Lists all data providers
   std::vector<terrama2::core::DataProviderPtr> vecDataProvider = dataProviderDAO.list();
 
-  // Shouldn't be empty
-  QVERIFY(!vecDataProvider.empty());
+
+  QVERIFY2(!vecDataProvider.empty(), "Empty list but should have one data provider!");
+
+  QVERIFY2(vecDataProvider.size() == 1, "Number of data providers recovered different than expected!");
 
 }
 

@@ -42,19 +42,15 @@
 
 #include <terralib/memory.h>
 #include <terralib/memory/DataSetItem.h>
+#include <terralib/common/StringUtils.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/common/StringUtils.h>
-#include <terralib/datatype/Property.h>
 #include <terralib/dataaccess/dataset/ObjectIdSet.h>
 #include <terralib/dataaccess/dataset/ObjectId.h>
-#include <terralib/datatype/SimpleData.h>
-#include <terralib/dataaccess/query/Fields.h>
-#include <terralib/dataaccess/query/PropertyName.h>
-#include <terralib/dataaccess/query/From.h>
-#include <terralib/dataaccess/query/FromItem.h>
 #include <terralib/dataaccess/query/Select.h>
-#include <terralib/dataaccess/query/Where.h>
+#include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/datatype/Property.h>
+#include <terralib/datatype/SimpleData.h>
 
 
 terrama2::core::DataProviderDAO::DataProviderDAO(std::shared_ptr<te::da::DataSource> dataSource)
@@ -101,18 +97,18 @@ bool terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
   // Then, adds it to the data source
   dataSource_->add(dataSetName, dataSet.get(), options);
 
-  std::string sql("SELECT * FROM " + dataSetName + " WHERE name = '" + dataProvider->name() + "'");
 
+  // Queries generated id
+  std::string sql("SELECT * FROM " + dataSetName + " WHERE name = '" + dataProvider->name() + "'");
   std::auto_ptr<te::da::DataSet> tempDataSet = transactor->query(sql);
 
+  // Sets the id in the given provider
   if(tempDataSet->moveNext())
   {
-    dataProvider->setId(tempDataSet->getInt64("id"));
+    dataProvider->setId(tempDataSet->getInt32("id"));
   }
-  else
-  {
-    throw Exception();
-  }
+
+
   transactor->commit();
 
   return true;
@@ -121,17 +117,60 @@ bool terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
 
 bool terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dataProvider)
 {
-  return false;
+  std::string dataSetName = "terrama2.data_provider";
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+  transactor->begin();
+
+  std::auto_ptr<te::da::DataSetType> dataSetType = dataSource_->getDataSetType(dataSetName);
+
+  // Creates a memory dataset from the DataSetType
+  std::shared_ptr<te::mem::DataSet> dataSet(new te::mem::DataSet(dataSetType.get()));
+  te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(dataSet.get());
+
+  // Sets the values in the item
+  dsItem->setInt32("id", dataProvider->id());
+  dsItem->setString("name", dataProvider->name());
+  dsItem->setString("description", dataProvider->description());
+  dsItem->setInt64("kind", (int)dataProvider->kind());
+  dsItem->setString("uri", dataProvider->uri());
+  dsItem->setBool("active", DataProviderStatusToBool(dataProvider->status()));
+
+  // Adds it to the dataset
+  dataSet->add(dsItem);
+
+  std::set<int> propertiesSet;
+  std::vector< std::set<int> > properties;
+
+  for(size_t t = 0; t < dataSetType->getProperties().size(); ++t)
+  {
+    if(t != 0)
+    {
+      propertiesSet.insert(t);
+    }
+  }
+  properties.push_back(propertiesSet);
+
+  std::vector<std::size_t> oidPropertyPosition;
+  oidPropertyPosition.push_back(te::da::GetPropertyPos(dataSet.get(), "id"));
+
+
+  // Then, updates the data source
+  dataSource_->update(dataSetName, dataSet.get(), properties, oidPropertyPosition);
+
+  transactor->commit();
+
+  return true;
 }
 
 
-bool terrama2::core::DataProviderDAO::remove(const int &id)
+bool terrama2::core::DataProviderDAO::remove(int id)
 {
   return false;
 }
 
 
-terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(const int &id) const
+terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(int id) const
 {
   std::string dataSetName = "terrama2.data_provider";
 
@@ -143,14 +182,15 @@ terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(const int 
   std::auto_ptr<te::da::DataSet> dataSet = transactor->query(sql);
 
   DataProviderPtr provider;
-  if(dataSet->moveFirst())
+
+  if(dataSet->moveNext())
   {
     provider.reset(new DataProvider(dataSet->getAsString("name")));
-    provider->setId(dataSet->getInt64("id"));
+    provider->setId(dataSet->getInt32("id"));
     provider->setDescription(dataSet->getString("description"));
     provider->setKind(IntToDataProviderKind(dataSet->getInt64("kind")));
     provider->setUri(dataSet->getString("uri"));
-    provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("status")));
+    provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
   }
 
   return provider;
@@ -166,14 +206,15 @@ std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataProviderDAO::li
   std::auto_ptr<te::da::DataSet> dataSet = dataSource->getDataSet(dataSetName);
 
 
+  dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
   {
     DataProviderPtr provider(new DataProvider(dataSet->getAsString("name")));
-    provider->setId(dataSet->getInt64("id"));
+    provider->setId(dataSet->getInt32("id"));
     provider->setDescription(dataSet->getString("description"));
     provider->setKind(IntToDataProviderKind(dataSet->getInt64("kind")));
     provider->setUri(dataSet->getString("uri"));
-    provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("status")));
+    provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
     vecCollectors.push_back(provider);
   }
   return vecCollectors;
