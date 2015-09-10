@@ -34,7 +34,8 @@
 // Boost
 #include <boost/filesystem.hpp>
 
-std::string FindInTerraMA2Path(const std::string& p)
+std::string
+terrama2::core::FindInTerraMA2Path(const std::string& p)
 {
 // 1st: look in the neighborhood of the executable
   boost::filesystem::path tma_path = boost::filesystem::current_path();
