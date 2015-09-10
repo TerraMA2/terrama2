@@ -44,7 +44,7 @@ terrama2::core::DataSet::~DataSet()
 
 }
 
-void terrama2::core::DataSet::setId(u_int64_t id)
+void terrama2::core::DataSet::setId(uint64_t id)
 {
   id_ = id;
 }

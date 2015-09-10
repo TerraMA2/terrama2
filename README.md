@@ -1,2 +1,2 @@
-# terrama2
+# TerraMA2
 TerraMA2

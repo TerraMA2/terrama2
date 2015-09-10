@@ -32,6 +32,8 @@ include_directories (
 
 set(TERRAMA2_GUI_CONFIG_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/config)
 
+file(GLOB TERRAMA2_TRANSLATION_FILES "${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/translations/config/*.ts")
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -43,9 +45,11 @@ source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
 
+QT5_ADD_TRANSLATION(QM_FILES ${TERRAMA2_TRANSLATION_FILES})
+
 QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
-add_executable(terrama2_config ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES})
+add_executable(terrama2_config ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES} ${QM_FILES})
 
 target_link_libraries(terrama2_config terrama2_mod_core
                                       terralib_mod_common)

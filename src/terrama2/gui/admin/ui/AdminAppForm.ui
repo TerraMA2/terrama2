@@ -60,7 +60,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="dbTab">
            <attribute name="title">
@@ -201,7 +201,9 @@
                  <string>Verif. Conexão</string>
                 </property>
                 <property name="icon">
-                 <iconset theme="confirm"/>
+                 <iconset theme="confirm">
+                  <normaloff/>
+                 </iconset>
                 </property>
                </widget>
               </item>
@@ -1618,9 +1620,7 @@ p, li { white-space: pre-wrap; }
              <string>Salvar</string>
             </property>
             <property name="icon">
-             <iconset theme="save">
-              <normaloff/>
-             </iconset>
+             <iconset theme="save"/>
             </property>
            </widget>
           </item>
