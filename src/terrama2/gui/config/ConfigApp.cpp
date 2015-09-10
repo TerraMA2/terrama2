@@ -34,9 +34,6 @@
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
 
-// STL
-#include <iostream>
-
 // Qt
 #include <QStringList>
 #include <QTranslator>
@@ -79,7 +76,7 @@ ConfigApp::ConfigApp(QWidget* parent)
   QIcon::setThemeName("terrama2");
 
 // Set Default Language
-  std::string language_path = terrama2::core::FindInTerraMA2Path("share/terrama2/translations/terrama2_configapp_en_US.qm");
+  std::string language_path = terrama2::core::FindInTerraMA2Path("share/terrama2/translations/terrama2_config_en_US.qm");
 
   if (!language_path.empty())
   {

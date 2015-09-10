@@ -52,6 +52,13 @@ int main(int argc, char* argv[])
     ConfigApp terrama2_config;
   
     terrama2_config.showMaximized();
+
+    int retval = app.exec();
+
+  // finalize TerraLib
+    TerraLib::getInstance().finalize();
+
+    return retval;
   }
   catch(const terrama2::Exception& e)
   {
@@ -61,11 +68,10 @@ int main(int argc, char* argv[])
       messageError.append(msg);
     }
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
-    return EXIT_FAILURE;
   }
   catch(const std::exception& e)
   {
-    QString messageError = "TerraMA2 finished with errors!\n\n%s";
+    QString messageError = "TerraMA2 finished with errors!\n\n%1";
     messageError.arg(e.what());
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
   }
@@ -74,10 +80,6 @@ int main(int argc, char* argv[])
     QMessageBox::critical(nullptr, "TerraMA2", "Unknown Error");
   }
 
-  int retval = app.exec();
-
-// finalize TerraLib
   TerraLib::getInstance().finalize();
-  
-  return retval;
+  return EXIT_FAILURE;
 }
