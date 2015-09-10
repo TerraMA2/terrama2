@@ -39,8 +39,17 @@
  
   \brief Main dialog for TerraMA2 Configuration module.
  */
+
+ // Foward definition
+ namespace Ui
+ {
+   class ConfigAppForm;
+ }
+
 class ConfigApp : public QMainWindow
 {
+  Q_OBJECT
+
   public:
   
     //! Default constructor.
@@ -56,12 +65,16 @@ class ConfigApp : public QMainWindow
   
     //! No copy allowed.
     ConfigApp& operator=(const ConfigApp&);
+
+  private slots:
+    //! Change context to insert a new when the user click on insertServerBtn
+    void onInsertServerClick();
+    void onCancelClick();
   
   private:
-  
     struct Impl;
 
-    Impl* pimpl_;  //!< Pimpl idiom.
+    Impl* pimpl_;
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

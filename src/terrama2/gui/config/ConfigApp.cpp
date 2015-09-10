@@ -31,15 +31,15 @@
 // TerraMA2
 #include "ConfigApp.hpp"
 #include "ui_ConfigAppForm.h"
+#include "../../core/Utils.hpp"
+#include "Exception.hpp"
+
+// STL
+#include <iostream>
 
 // Qt
-#include <QIcon>
 #include <QStringList>
-#include <QToolBar>
-#include <QString>
-
 #include <QTranslator>
-#include <QLibraryInfo>
 
 
 struct ConfigApp::Impl
@@ -59,26 +59,54 @@ struct ConfigApp::Impl
 
 ConfigApp::ConfigApp(QWidget* parent)
   : QMainWindow(parent),
-    pimpl_(new Impl)
+    pimpl_(new ConfigApp::Impl)
 {
+// Find TerraMA2 icon theme library
+  std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
+
+  if (icon_path.empty())
+  {
+    throw terrama2::InitializationError() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icons library folder."));
+  }
+
 // load icon theme
   QStringList ithemes = QIcon::themeSearchPaths();
 
-  ithemes.push_back("/home/raphael/Documents/my-devel/terrama2/codebase/share/icons/");
+  ithemes.push_back(icon_path.c_str());
 
   QIcon::setThemeSearchPaths(ithemes);
 
   QIcon::setThemeName("terrama2");
 
-  // Set Default Language
-  QTranslator translator;
-  translator.load("/home/raphael/Documents/my-devel/terrama2/build-make/terrama2_gui_config/terrama2_configapp_pt_BR.qm");
-  qApp->installTranslator(&translator);
+// Set Default Language
+  std::string language_path = terrama2::core::FindInTerraMA2Path("share/terrama2/translations/terrama2_configapp_en_US.qm");
+
+  if (!language_path.empty())
+  {
+    QTranslator translator;
+    translator.load(language_path.c_str());
+    qApp->installTranslator(&translator);
+  }
 
   pimpl_->ui_->setupUi(this);
+
+  QObject::connect(pimpl_->ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onInsertServerClick()));
+  QObject::connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), this, SLOT(onCancelClick()));
 }
 
 ConfigApp::~ConfigApp()
 {
   delete pimpl_;
+}
+
+void ConfigApp::onInsertServerClick()
+{
+  pimpl_->ui_->ServerGroupPage->hide();
+  pimpl_->ui_->ServerPage->show();
+}
+
+void ConfigApp::onCancelClick()
+{
+  pimpl_->ui_->ServerPage->hide();
+  pimpl_->ui_->ServerGroupPage->show();
 }
