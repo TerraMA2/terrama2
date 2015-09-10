@@ -101,10 +101,7 @@ namespace terrama2
 
       ~DataSet();
 
-      uint64_t        id()              const { return id_;}
-      DataProviderPtr getDataProvider() const { return provider_; }
-
-      private:
+      public:
 
         /*!
           \brief It returns the identifier of the dataset.
