@@ -22,12 +22,14 @@
 #  Description: CMake script for collector client
 #
 #  Author: Paulo R. M. Oliveira
+#          Vinicius Campanha
 #
 
 include_directories (
   ${GSOAP_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/server/*.cpp)
@@ -37,9 +39,11 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+
 TERRAMA2_GSOAP_SOAPCPP2(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp
                         WebService server
                         GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
+
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
@@ -52,7 +56,8 @@ add_library(terrama2_mod_ws_collector_server
 
 target_link_libraries(terrama2_mod_ws_collector_server terrama2_mod_ws_collector_core
                                                        terrama2_mod_core
-                                                       ${GSOAP_CPP_LIBRARY})
+                                                       ${GSOAP_CPP_LIBRARY}
+                                                       ${Boost_LOG_LIBRARY})
 
 qt5_use_modules(terrama2_mod_ws_collector_server Widgets)
 

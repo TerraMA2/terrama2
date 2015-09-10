@@ -20,51 +20,10 @@
 */
 
 /*!
-  \file terrama2/core/DataSetDAO.hpp
+  \file terrama2/ws/collector/server/Parser.cpp
 
-  \brief DataProvider DAO...
+  \brief Parsers data and create a terralib DataSet.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
-#define __TERRAMA2_CORE_DATASETDAO_HPP__
-
-// STL
-#include <vector>
-#include <memory>
-
-// terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-
-
-namespace terrama2
-{
-  namespace core
-  {
-
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
-    class DataSetDAO
-    {
-    public:
-      DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource);
-      virtual ~DataSetDAO();
-
-      bool save(DataSetPtr dataset);
-      bool update(DataSetPtr dataset);
-      bool remove(const int& id);
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
-
-    protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
-
-    };
-
-  } // core
-} // terrama2
-
-#endif // __TERRAMA2_CORE_DATASETDAO_HPP__

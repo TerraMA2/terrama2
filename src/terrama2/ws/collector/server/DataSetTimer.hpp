@@ -22,7 +22,7 @@
 /*!
   \file terrama2/ws/collector/server/DataSetTimer.hpp
 
-  \brief Implementation of collector.
+  \brief Signals when the dataset should be collected.
 
   \author Jano Simas
 */
@@ -37,6 +37,7 @@
 
 //Qt
 #include <QObject>
+#include <QTimer>
 
 namespace terrama2
 {
@@ -53,22 +54,54 @@ namespace terrama2
         class Collector;
         typedef std::shared_ptr<Collector> CollectorPtr;
 
+        class DataProcessor;
+        typedef std::shared_ptr<DataProcessor> DataProcessorPtr;
+
+        /*!
+         * \brief The DataSetTimer class is a wrapper to a [DataSet](\ref terrama2::core::DataSet) with timer capabilities.
+         *
+         * The DataSetTimer class has an internal timer that emits a signal when
+         * it's time to collect the data.
+         *
+         */
         class DataSetTimer : public QObject
         {
             Q_OBJECT
 
           public:
-            DataSetTimer(core::DataSetPtr dataSet, QObject* parent = nullptr);
-            ~DataSetTimer();
+            DataSetTimer(core::DataSetPtr dataSet);
+            ~DataSetTimer(){}
 
-            CollectorPtr getCollector() const;
-            uint64_t getDataSetId() const;
+            /*!
+             * \brief Recover the Collector from the CollectorFactory.
+             * \return Collector for the DataSet.
+             */
+            CollectorPtr                  getCollector() const ;
+            //! \brief Returns the original DataSet.
+            core::DataSetPtr              getDataSet()   const { return dataSet_;   }
+            //! \brief List of DataProcessor that should be aquired and processed.
+            std::vector<DataProcessorPtr> getData()      const { return dataLst_;   }
+
+            bool isValid() const { return false; }
 
           signals:
-            void timerSignal(uint64_t DatasetTimerID);
+            //! \brief Signal emited when the DataSet should be collected.
+            void timerSignal(uint64_t DatasetID) const;
+
+          private slots:
+            //! \brief Slot called when the timer_ times out, emits timerSignal.
+            void timeoutSlot() const;
 
           private:
-            terrama2::core::DataSetPtr dataSet;
+            //! \brief Prepare and starts timer following the DataSet information.
+            void prepareTimer();
+            //! \brief Populates dataLst_ based on DataSet's Data information.
+            void populateDataLst();
+
+            core::DataSetPtr dataSet_;
+            QTimer           timer_;
+
+            std::vector<DataProcessorPtr> dataLst_;
         };
 
         typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr;
