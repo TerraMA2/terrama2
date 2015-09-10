@@ -113,6 +113,7 @@ void terrama2::ws::collector::server::CollectorService::start()
       }
     }
 
+    //FIXME: Bad!! QEventLoop? how?
     QApplication::processEvents();
   }
 }
