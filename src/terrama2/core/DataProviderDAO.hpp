@@ -50,17 +50,17 @@ namespace terrama2
     class DataProviderDAO
     {
     public:
-      DataProviderDAO(std::auto_ptr<te::da::DataSourceTransactor> transactor);
+      DataProviderDAO(std::shared_ptr<te::da::DataSource> dataSource);
       virtual ~DataProviderDAO();
 
       bool save(DataProviderPtr dataProvider);
       bool update(DataProviderPtr dataProvider);
-      bool remove(const int& id);
-      DataProviderPtr get(const int& id) const;
+      bool remove( const uint64_t id);
+      DataProviderPtr find(const uint64_t id) const;
       std::vector<DataProviderPtr> list() const;
 
     protected:
-      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
+      std::shared_ptr<te::da::DataSource> dataSource_;
 
     };
 
