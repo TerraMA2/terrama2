@@ -175,6 +175,20 @@ namespace terrama2
         */
         DataProviderPtr dataProvider() const;
 
+        /*!
+          \brief It returns the .
+        
+          \return The .
+        */
+        double dataFrequency() const;
+        
+        /*!
+          \brief It sets the freque.
+        
+          \param The .
+        */
+        void setDataFrequency(const double& dataFrequency);
+
       protected:
 
         /*!
@@ -193,13 +207,10 @@ namespace terrama2
         Status status_;
         DataProviderPtr dataProvider_;
         Kind kind_;
-        double dataFrequency_;
-        UOT dataFrequencyUnit_;
-        boost::posix_time::time_duration schedule_;            //TODO:
-        double scheduleRetry_;
-        UOT scheduleRetryUnit_;
-        double scheduleTimeout_;
-        UOT scheduleTimeoutUnit_;
+        boost::posix_time::time_duration dataFrequency_;
+        boost::posix_time::time_duration schedule_;
+        boost::posix_time::time_duration scheduleRetry_;
+        boost::posix_time::time_duration scheduleTimeout_;
 
       friend class DataSetDAO; //review
     };
