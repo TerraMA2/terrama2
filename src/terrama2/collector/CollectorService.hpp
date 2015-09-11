@@ -31,9 +31,8 @@
 #define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
 
 
-#include "../../../core/DataProvider.hpp"
-#include "../../../core/DataSet.hpp"
-#include "../../../ws/collector/server/Collector.hpp"
+#include "../core/DataProvider.hpp"
+#include "../core/DataSet.hpp"
 
 #include "Collector.hpp"
 
@@ -54,15 +53,11 @@ namespace terrama2
   {
     class DataSet;
   }
-
-  namespace ws
+  namespace collector
   {
-    namespace collector
-    {
-      namespace server
-      {
 
-        /*!
+
+    /*!
           \class CollectorService
 
           \brief Defines the base abstraction of a collector service.
@@ -74,68 +69,66 @@ namespace terrama2
           remains in a loop waiting for a notification that new datasets
           must be collected or .
          */
-        class CollectorService : public QObject, public boost::noncopyable
-        {
-            Q_OBJECT
+    class CollectorService : public QObject, public boost::noncopyable
+    {
+        Q_OBJECT
 
-          public:
-            /*!
+      public:
+        /*!
             * \brief Constructor
             */
-            CollectorService(QObject* parent = nullptr);
-            ~CollectorService(){}
+        CollectorService(QObject* parent = nullptr);
+        ~CollectorService(){}
 
-            /*!
+        /*!
              * \brief Contains an infinite loop that will keep the service collecting data.
              * For each provider type verifies if the first provider in the queue is acquiring new data,
              * in case it's collecting moves to next type of provider, when it's done remove it from the queue,
              * in case it's not collecting, starts the collection calling the collect method.
              * It allows multiples providers to collect at the same time but only one provider of each type.
              */
-            void start();
+        void start();
 
-            /*!
+        /*!
              * \brief Creates an instace of a collector of appropriate type for the dataProvider.
              * \param dataProvider The shared pointer to the data provider
              * \return Collector to the DataProvider.
              */
-            CollectorPtr addProvider(const core::DataProviderPtr dataProvider);
+        CollectorPtr addProvider(const core::DataProviderPtr dataProvider);
 
-            /*!
+        /*!
              * \brief Creates a new DataSetTimer for the DataSet and listen to it's timer signal.
              * \param dataset The shared pointer to the dataset
              *
              * \return DataSetTimer for the DataSet.
              */
-            DataSetTimerPtr addDataset(const core::DataSetPtr dataset);
+        DataSetTimerPtr addDataset(const core::DataSetPtr dataset);
 
-          public slots:
+      public slots:
 
-            /*!
+        /*!
              * \brief Slot to stop the collector service.
              */
-            void stop();
+        void stop();
 
-            /*!
+        /*!
              * \brief Slot to be called when a DataSetTimer times out.
              */
-            void addToQueueSlot(const uint64_t datasetId);
+        void addToQueueSlot(const uint64_t datasetId);
 
-          private:
-            /*!
+      private:
+        /*!
              * \brief Start do collect queued datasets
              * \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
              */
-            void assignCollector(CollectorPtr firstCollectorInQueue);
+        void assignCollector(CollectorPtr firstCollectorInQueue);
 
-            bool stop_;
-            QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
-            QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
+        bool stop_;
+        QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
+        QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
 
-            QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
-        };
-      }
-    }
+        QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
+    };
   }
 }
 

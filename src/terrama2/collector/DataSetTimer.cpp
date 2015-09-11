@@ -31,10 +31,10 @@
 #include "DataProcessor.hpp"
 #include "CollectorFactory.hpp"
 
-#include "../../../core/DataSet.hpp"
-#include "../../../core/DataProvider.hpp"
+#include "../core/DataSet.hpp"
+#include "../core/DataProvider.hpp"
 
-terrama2::ws::collector::server::DataSetTimer::DataSetTimer(terrama2::core::DataSetPtr dataSet)
+terrama2::collector::DataSetTimer::DataSetTimer(terrama2::core::DataSetPtr dataSet)
   : dataSet_(dataSet)
 {
   connect(&timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
@@ -43,24 +43,24 @@ terrama2::ws::collector::server::DataSetTimer::DataSetTimer(terrama2::core::Data
   prepareTimer();
 }
 
-void terrama2::ws::collector::server::DataSetTimer::timeoutSlot() const
+void terrama2::collector::DataSetTimer::timeoutSlot() const
 {
   emit timerSignal(dataSet_->id());
 }
 
-void terrama2::ws::collector::server::DataSetTimer::prepareTimer()
+void terrama2::collector::DataSetTimer::prepareTimer()
 {
   //JANO: implementar prepareTimer para schedule
 //  timer_.start(dataSet_->dataFrequency());
 }
 
-void terrama2::ws::collector::server::DataSetTimer::populateDataLst()
+void terrama2::collector::DataSetTimer::populateDataLst()
 {
 //JANO: implementar populateDataLst
 }
 
 
-terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::DataSetTimer::getCollector() const
+terrama2::collector::CollectorPtr terrama2::collector::DataSetTimer::collector() const
 {
   auto dataProvider = dataSet()->dataProvider();
   return CollectorFactory::instance().getCollector(dataProvider);

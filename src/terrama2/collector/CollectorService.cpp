@@ -30,9 +30,9 @@
 #include "CollectorService.hpp"
 #include "CollectorFactory.hpp"
 
-#include "../../../core/DataSet.hpp"
-#include "../../../core/DataProvider.hpp"
-#include "../../../core/DataManager.hpp"
+#include "../core/DataSet.hpp"
+#include "../core/DataProvider.hpp"
+#include "../core/DataManager.hpp"
 
 // QT
 #include <QApplication>
@@ -48,13 +48,13 @@
 #include <boost/log/trivial.hpp>
 
 
-terrama2::ws::collector::server::CollectorService::CollectorService(QObject *parent)
+terrama2::collector::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
     stop_(false)
 {
 }
 
-void terrama2::ws::collector::server::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
+void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
 {
   if(firstCollectorInQueue->open())
   {
@@ -81,7 +81,7 @@ void terrama2::ws::collector::server::CollectorService::assignCollector(Collecto
   }
 }
 
-void terrama2::ws::collector::server::CollectorService::start()
+void terrama2::collector::CollectorService::start()
 {
   while(true)
   {
@@ -118,12 +118,12 @@ void terrama2::ws::collector::server::CollectorService::start()
   }
 }
 
-void terrama2::ws::collector::server::CollectorService::stop()
+void terrama2::collector::CollectorService::stop()
 {
   stop_ = true;
 }
 
-void terrama2::ws::collector::server::CollectorService::addToQueueSlot(const uint64_t datasetId)
+void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datasetId)
 {
   auto datasetTimer = datasetTimerLst_.value(datasetId);
   assert(datasetTimer);
@@ -140,7 +140,7 @@ void terrama2::ws::collector::server::CollectorService::addToQueueSlot(const uin
     datasetTimerQueue.append(datasetId);
 }
 
-terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
+terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
 {
   //sanity check: valid dataprovider
   assert(dataProvider->id());
@@ -151,7 +151,7 @@ terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::C
   return collector;
 }
 
-terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server::CollectorService::addDataset(const core::DataSetPtr dataset)
+terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSetPtr dataset)
 {
   //sanity check: valid dataset
   assert(dataset->id());
@@ -159,7 +159,7 @@ terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server
   //Create a new dataset timer and connect the timeout signal to queue
   auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
   datasetTimerLst_.insert(dataset->id(), datasetTimer);
-  connect(datasetTimer.get(), &terrama2::ws::collector::server::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
+  connect(datasetTimer.get(), &terrama2::collector::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
 
   return datasetTimer;
 }

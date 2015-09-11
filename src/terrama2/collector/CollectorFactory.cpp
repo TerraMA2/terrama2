@@ -30,9 +30,9 @@
 
 #include "CollectorFactory.hpp"
 
-terrama2::ws::collector::server::CollectorFactory* terrama2::ws::collector::server::CollectorFactory::instance_ = nullptr;
+terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
 
-terrama2::ws::collector::server::CollectorFactory& terrama2::ws::collector::server::CollectorFactory::instance()
+terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
 {
 
   if(!instance_)
@@ -41,7 +41,7 @@ terrama2::ws::collector::server::CollectorFactory& terrama2::ws::collector::serv
   return *instance_;
 }
 
-terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
+terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
 {
   //JANO: implementar getCollector
 

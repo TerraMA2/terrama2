@@ -29,27 +29,27 @@
 
 
 #include "Collector.hpp"
-#include "../../../core/DataSet.hpp"
+#include "../core/DataSet.hpp"
 
 //Boost
 #include <boost/log/trivial.hpp>
 
 
-terrama2::ws::collector::server::Collector::Collector(const terrama2::core::DataProviderPtr dataProvider, QObject *parent)
+terrama2::collector::Collector::Collector(const terrama2::core::DataProviderPtr dataProvider, QObject *parent)
   : QObject(parent),
     dataProvider_(dataProvider)
 {
 
 }
 
-terrama2::ws::collector::server::Collector::~Collector()
+terrama2::collector::Collector::~Collector()
 {
   //If there is a thread running, join.
   if(collectingThread_.joinable())
     collectingThread_.join();
 }
 
-bool terrama2::ws::collector::server::Collector::isCollecting() const
+bool terrama2::collector::Collector::isCollecting() const
 {
   //Test if is not locked
   if(mutex_.try_lock())
@@ -63,7 +63,7 @@ bool terrama2::ws::collector::server::Collector::isCollecting() const
     return true;
 }
 
-void terrama2::ws::collector::server::Collector::collectAsThread(const DataSetTimerPtr datasetTimer)
+void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datasetTimer)
 {
   //already locked by Collector::collect, lock_guar just to release when finished
   std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
@@ -75,7 +75,7 @@ void terrama2::ws::collector::server::Collector::collectAsThread(const DataSetTi
   }
 }
 
-void terrama2::ws::collector::server::Collector::collect(const DataSetTimerPtr datasetTimer)
+void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 {
   if(datasetTimer->isValid())
   {

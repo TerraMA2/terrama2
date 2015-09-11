@@ -31,7 +31,7 @@
 #ifndef __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
 #define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
 
-#include "../../../core/DataProvider.hpp"
+#include "../core/DataProvider.hpp"
 #include "DataSetTimer.hpp"
 #include "DataProcessor.hpp"
 
@@ -51,36 +51,34 @@ namespace terrama2
     class DataSet;
     class Data;
   }
-  namespace ws
-  {
-    namespace collector
-    {
-      namespace server
-      {
 
-        /*!
+  namespace collector
+  {
+
+
+    /*!
          * \brief The Collector class is responsible for aquiring the data from a remote server.
          *
          * This class is an interface to open a connection with a [DataProvider](\ref terrama2::core::DataProvider)
          * and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
          *
          */
-        class Collector : public QObject, public boost::noncopyable
-        {
-            Q_OBJECT
+    class Collector : public QObject, public boost::noncopyable
+    {
+        Q_OBJECT
 
-          public:
-            /*!
+      public:
+        /*!
              * \brief Constructor
              * \param dataProvider Server information for collecting.
              */
-            Collector(const core::DataProviderPtr dataProvider, QObject* parent = nullptr);
-            /*!
+        Collector(const core::DataProviderPtr dataProvider, QObject* parent = nullptr);
+        /*!
              * \brief Destructor
              */
-            virtual ~Collector();
+        virtual ~Collector();
 
-            /*!
+        /*!
              * \brief Type of the data provider.
              *
              * This information is used by the CollectorFactory to build a Collector
@@ -88,18 +86,18 @@ namespace terrama2
              *
              * \return Data provider kind.
              */
-            core::DataProvider::Kind kind() const { return dataProvider_->kind();}
-            /*!
+        core::DataProvider::Kind kind() const { return dataProvider_->kind();}
+        /*!
              * \brief Data provider containing the information of this collector.
              */
-            core::DataProviderPtr dataProvider() const { return dataProvider_;}
+        core::DataProviderPtr dataProvider() const { return dataProvider_;}
 
-            /*!
+        /*!
              * \brief Verifies if the collector is collecting.
              * \return Returns true if is collecting.
              */
-            bool isCollecting() const;
-            /*!
+        bool isCollecting() const;
+        /*!
              * \brief Prepare and start to collect the data required by the [DataSet](\ref terrama2::core::DataSet).
              *
              * If the colelctor is avaiable will call collectAsThread in a new thread and return true.
@@ -108,42 +106,41 @@ namespace terrama2
              *
              * \exception TODO: exception when cannot start collecting
              */
-            void collect(const DataSetTimerPtr datasetTimer);
+        void collect(const DataSetTimerPtr datasetTimer);
 
-            //! \brief Returns if the connection is open.
-            virtual bool isOpen() const = 0;
+        //! \brief Returns if the connection is open.
+        virtual bool isOpen() const = 0;
 
-            /*!
+        /*!
              * \brief Open the connection with the server.
              *
              * Trys to open the connection, returns false if fails
              *
              * \return True if the connection is open. If not appliable, returns true.
              */
-            virtual bool open()  = 0;
+        virtual bool open()  = 0;
 
-            //! \brief Close the connection, if not open, does nothing.
-            virtual void close() = 0;
+        //! \brief Close the connection, if not open, does nothing.
+        virtual void close() = 0;
 
-          protected:
-            //! \brief Aquired the data specified in dataProcessor.
-            virtual void getData(const DataProcessorPtr dataProcessor) = 0;
+      protected:
+        //! \brief Aquired the data specified in dataProcessor.
+        virtual void getData(const DataProcessorPtr dataProcessor) = 0;
 
-            core::DataProviderPtr dataProvider_; //!< Data provider information.
+        core::DataProviderPtr dataProvider_; //!< Data provider information.
 
-          private:
-            //! \brief Internal method to collect a dataset, should be started as a thread.
-            void collectAsThread(const DataSetTimerPtr datasetTimer);
+      private:
+        //! \brief Internal method to collect a dataset, should be started as a thread.
+        void collectAsThread(const DataSetTimerPtr datasetTimer);
 
-            mutable std::mutex mutex_; //!< Mutex for thread safety.
-            std::thread        collectingThread_; //!< Thread for collecting.
-        };
+        mutable std::mutex mutex_; //!< Mutex for thread safety.
+        std::thread        collectingThread_; //!< Thread for collecting.
+    };
 
-        typedef std::shared_ptr<Collector> CollectorPtr;
-      }
-    }
+    typedef std::shared_ptr<Collector> CollectorPtr;
   }
 }
+
 
 
 #endif //__TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
