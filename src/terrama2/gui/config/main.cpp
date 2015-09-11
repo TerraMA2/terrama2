@@ -30,12 +30,14 @@
 
 // TerraMA2
 #include "ConfigApp.hpp"
+#include "Exception.hpp"
 
 // TerraLib
 #include <terralib/common/TerraLib.h>
 
 // Qt
 #include <QApplication>
+#include <QMessageBox>
 
 int main(int argc, char* argv[])
 {
@@ -45,14 +47,39 @@ int main(int argc, char* argv[])
 // initialize TerraLib
   TerraLib::getInstance().initialize();
 
-  ConfigApp terrama2_config;
+  try
+  {
+    ConfigApp terrama2_config;
   
-  terrama2_config.showMaximized();
+    terrama2_config.showMaximized();
 
-  int retval = app.exec();
+    int retval = app.exec();
 
-// finalize TerraLib
+  // finalize TerraLib
+    TerraLib::getInstance().finalize();
+
+    return retval;
+  }
+  catch(const terrama2::Exception& e)
+  {
+    QString messageError = "TerraMA2 finished with errors!\n\n";
+    if (const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e))
+    {
+      messageError.append(msg);
+    }
+    QMessageBox::critical(nullptr, "TerraMA2", messageError);
+  }
+  catch(const std::exception& e)
+  {
+    QString messageError = "TerraMA2 finished with errors!\n\n%1";
+    messageError.arg(e.what());
+    QMessageBox::critical(nullptr, "TerraMA2", messageError);
+  }
+  catch(...)
+  {
+    QMessageBox::critical(nullptr, "TerraMA2", "Unknown Error");
+  }
+
   TerraLib::getInstance().finalize();
-  
-  return retval;
+  return EXIT_FAILURE;
 }
