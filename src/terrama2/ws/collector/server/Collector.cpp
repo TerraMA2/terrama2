@@ -34,25 +34,75 @@
 //Boost
 #include <boost/log/trivial.hpp>
 
+
+terrama2::ws::collector::server::Collector::Collector(const terrama2::core::DataProviderPtr dataProvider, QObject *parent)
+  : QObject(parent),
+    dataProvider_(dataProvider)
+{
+
+}
+
+terrama2::ws::collector::server::Collector::~Collector()
+{
+  //If there is a thread running, join.
+  if(collectingThread_.joinable())
+    collectingThread_.join();
+}
+
 bool terrama2::ws::collector::server::Collector::isCollecting() const
 {
-  LockMutex lock(mutex_);
-  if(lock.tryLock())
+  //Test if is not locked
+  if(mutex_.try_lock())
+  {
+    //if can lock no one is using and release lock
+    mutex_.unlock();
     return false;
+  }
   else
+    //if cant get lock, is collecting
     return true;
 }
 
-bool terrama2::ws::collector::server::Collector::collect(const DataSetTimerPtr datasetTimer)
+void terrama2::ws::collector::server::Collector::collectAsThread(const DataSetTimerPtr datasetTimer)
 {
-  LockMutex lock(mutex_);
-  if(lock.tryLock())
+  //already locked by Collector::collect, lock_guar just to release when finished
+  std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
+  //aquire all data
+  for(auto& data : datasetTimer->data())
   {
-    //JANO: implement collect
-    //thread....
-
-    return true;
+    //TODO: conditions to collect Data?
+    getData(data);
   }
-  else
-    return false;
+}
+
+void terrama2::ws::collector::server::Collector::collect(const DataSetTimerPtr datasetTimer)
+{
+  if(datasetTimer->isValid())
+  {
+    //TODO: Collector::collect: throws dataset is invalid
+  }
+
+  if(datasetTimer->dataSet()->status() != terrama2::core::DataSet::ACTIVE)
+  {
+    //TODO: Collector::collect: throws dataset not active
+  }
+
+  //If can get lock creates a thread the collects the dataset
+  if(!mutex_.try_lock())
+  {
+    //throws an exception: unable to get lock
+
+    //TODO: Collector::collect: Exception if cant get mutex.lock
+  }
+
+  //***************************************************
+  //nothing wrong, prepare and collect
+
+  //"default" thread are not joinable,
+  //if there was one and we got a lock it has ended than join
+  if(collectingThread_.joinable())
+    collectingThread_.join();
+
+  //start a new thread
+  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
 }

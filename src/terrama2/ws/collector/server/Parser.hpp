@@ -33,6 +33,9 @@
 //Terralib
 #include "terralib/dataaccess/dataset/DataSet.h"
 
+//Boost
+#include <boost/noncopyable.hpp>
+
 namespace terrama2
 {
   namespace ws
@@ -49,7 +52,7 @@ namespace terrama2
          * if not compatible it will convert to a caompatible format.
          *
          */
-        class Parser
+        class Parser : public boost::noncopyable
         {
           public:
 

@@ -39,6 +39,9 @@
 #include <QObject>
 #include <QTimer>
 
+//BOOST
+#include <boost/noncopyable.hpp>
+
 namespace terrama2
 {
   namespace core {
@@ -64,7 +67,7 @@ namespace terrama2
          * it's time to collect the data.
          *
          */
-        class DataSetTimer : public QObject
+        class DataSetTimer : public QObject, public boost::noncopyable
         {
             Q_OBJECT
 
@@ -76,11 +79,11 @@ namespace terrama2
              * \brief Recover the Collector from the CollectorFactory.
              * \return Collector for the DataSet.
              */
-            CollectorPtr                  getCollector() const ;
+            CollectorPtr                  collector() const ;
             //! \brief Returns the original DataSet.
-            core::DataSetPtr              getDataSet()   const { return dataSet_;   }
+            core::DataSetPtr              dataSet()   const { return dataSet_;   }
             //! \brief List of DataProcessor that should be aquired and processed.
-            std::vector<DataProcessorPtr> getData()      const { return dataLst_;   }
+            std::vector<DataProcessorPtr> data()      const { return dataLst_;   }
 
             bool isValid() const { return false; }
 

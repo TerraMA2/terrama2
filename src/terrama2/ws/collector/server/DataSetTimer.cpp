@@ -50,8 +50,8 @@ void terrama2::ws::collector::server::DataSetTimer::timeoutSlot() const
 
 void terrama2::ws::collector::server::DataSetTimer::prepareTimer()
 {
-  //JANO: implementar prepareTimer
-  timer_.start(10000);
+  //JANO: implementar prepareTimer para schedule
+//  timer_.start(dataSet_->dataFrequency());
 }
 
 void terrama2::ws::collector::server::DataSetTimer::populateDataLst()
@@ -60,8 +60,8 @@ void terrama2::ws::collector::server::DataSetTimer::populateDataLst()
 }
 
 
-terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::DataSetTimer::getCollector() const
+terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::DataSetTimer::collector() const
 {
-  auto dataProvider = getDataSet()->getDataProvider();
+  auto dataProvider = dataSet()->dataProvider();
   return CollectorFactory::instance().getCollector(dataProvider);
 }

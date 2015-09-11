@@ -102,7 +102,7 @@ namespace terrama2
             CollectorPtr addProvider(const core::DataProviderPtr dataProvider);
 
             /*!
-             * \brief Creaets a new DataSetTimer for the DataSet and adds it to the list.
+             * \brief Creates a new DataSetTimer for the DataSet and listen to it's timer signal.
              * \param dataset The shared pointer to the dataset
              *
              * \return DataSetTimer for the DataSet.

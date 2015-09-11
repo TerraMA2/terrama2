@@ -40,6 +40,7 @@
 
 //std
 #include <mutex>
+#include <thread>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -77,7 +78,7 @@ namespace terrama2
             /*!
              * \brief Destructor
              */
-            virtual ~Collector(){}
+            virtual ~Collector();
 
             /*!
              * \brief Type of the data provider.
@@ -104,8 +105,10 @@ namespace terrama2
              * If the colelctor is avaiable will call collectAsThread in a new thread and return true.
              *
              * \return Return true if able to start collecting, false otherwise.
+             *
+             * \exception TODO: exception when cannot start collecting
              */
-            bool collect(const DataSetTimerPtr datasetTimer);
+            void collect(const DataSetTimerPtr datasetTimer);
 
             //! \brief Returns if the connection is open.
             virtual bool isOpen() const = 0;
@@ -118,35 +121,22 @@ namespace terrama2
              * \return True if the connection is open. If not appliable, returns true.
              */
             virtual bool open()  = 0;
+
             //! \brief Close the connection, if not open, does nothing.
             virtual void close() = 0;
 
           protected:
-            //! \brief Internal method to collect a dataset, should be started as a thread.
-            void collectAsThread(const DataSetTimerPtr datasetTimer);
             //! \brief Aquired the data specified in dataProcessor.
             virtual void getData(const DataProcessorPtr dataProcessor) = 0;
 
-            mutable std::mutex mutex_; //!< Mutex for thread safety.
-
             core::DataProviderPtr dataProvider_; //!< Data provider information.
 
-            /*!
-             * \brief Utility class to assert the mutex will be unlocked in the end of the process.
-             */
-            class LockMutex
-            {
-              public:
-                LockMutex(std::mutex& mutex) : mutex_(mutex) { }
-                ~LockMutex()   { mutex_.unlock(); }
+          private:
+            //! \brief Internal method to collect a dataset, should be started as a thread.
+            void collectAsThread(const DataSetTimerPtr datasetTimer);
 
-                bool tryLock() { return mutex_.try_lock(); }
-                void lock()    { mutex_.lock(); }
-                void unLock()  { mutex_.unlock(); }
-
-              private:
-                std::mutex& mutex_;
-            };
+            mutable std::mutex mutex_; //!< Mutex for thread safety.
+            std::thread        collectingThread_; //!< Thread for collecting.
         };
 
         typedef std::shared_ptr<Collector> CollectorPtr;

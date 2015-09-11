@@ -132,7 +132,7 @@ void terrama2::ws::collector::server::CollectorService::addToQueueSlot(const uin
   assert(datasetTimer);
 
   //Append the data provider to queue
-  auto collector = datasetTimer->getCollector();
+  auto collector = datasetTimer->collector();
   auto collectorQueue = collectorQueueMap_.value(collector->kind());
   if(!collectorQueue.contains(collector))
     collectorQueue.append(collector);
@@ -145,6 +145,9 @@ void terrama2::ws::collector::server::CollectorService::addToQueueSlot(const uin
 
 terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
 {
+  //sanity check: valid dataprovider
+  assert(dataProvider->id());
+
   //Create a collector and add it to the list
   auto collector = CollectorFactory::instance().getCollector(dataProvider);
 
@@ -153,6 +156,9 @@ terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::C
 
 terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server::CollectorService::addDataset(const core::DataSetPtr dataset)
 {
+  //sanity check: valid dataset
+  assert(dataset->id());
+
   //Create a new dataset timer and connect the timeout signal to queue
   auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
   datasetTimerLst_.insert(dataset->id(), datasetTimer);

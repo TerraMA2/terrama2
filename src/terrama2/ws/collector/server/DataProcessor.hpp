@@ -36,7 +36,11 @@
 #include <cstdint>
 #include <string>
 
+//Qt
 #include <QObject>
+
+//Boost
+#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
