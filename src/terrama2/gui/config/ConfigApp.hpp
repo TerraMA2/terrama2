@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__
 #define __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__
 
+// Boost
+#include <boost/noncopyable.hpp>
+
 // Qt
 #include <QMainWindow>
 
@@ -39,29 +42,37 @@
  
   \brief Main dialog for TerraMA2 Configuration module.
  */
-class ConfigApp : public QMainWindow
+
+ // Foward definition
+ namespace Ui
+ {
+   class ConfigAppForm;
+ }
+
+class ConfigApp : public QMainWindow, private  boost::noncopyable
 {
+  Q_OBJECT
+
   public:
   
-    //! Default constructor.
+    /*! Default constructor.
+      \exception terrama2::InitializationError <It may be raised when cannot find TerraMA2 icons library folder>
+
+    */
     ConfigApp(QWidget* parent = 0);
 
     //! Destructor.
     ~ConfigApp();
+
+  private slots:
+    //! Change context to insert a new when the user click on insertServerBtn
+    void onInsertServerClick();
+    void onCancelClick();
   
   private:
-  
-    //! No copy allowed.
-    ConfigApp(const ConfigApp&);
-  
-    //! No copy allowed.
-    ConfigApp& operator=(const ConfigApp&);
-  
-  private:
-  
     struct Impl;
 
-    Impl* pimpl_;  //!< Pimpl idiom.
+    Impl* pimpl_;
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

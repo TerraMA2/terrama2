@@ -20,18 +20,17 @@
 */
 
 /*!
-  \file terrama2/gui/Exception.hpp
+  \file terrama2/gui/config/Exception.hpp
 
-  \brief Base exceptions TerraMA2 for gui module.
+  \brief Base exceptions TerraMA2 for gui config module.
 
   \author Raphael Willian da Costa
-  \author Evandro Delatin
  */
 
 
-#ifndef __TERRAMA2_GUI_EXCEPTION_HPP__
-#define __TERRAMA2_GUI_EXCEPTION_HPP__
+#ifndef __TERRAMA2_GUI_CONFIG_EXCEPTION_HPP__
+#define __TERRAMA2_GUI_CONFIG_EXCEPTION_HPP__
 
 #include "../Exception.hpp"
 
-#endif // __TERRAMA2_GUI_EXCEPTION_HPP__
+#endif // __TERRAMA2_GUI_CONFIG_EXCEPTION_HPP__

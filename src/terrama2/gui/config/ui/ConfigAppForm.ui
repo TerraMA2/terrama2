@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="mainTabWidget">
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="WeatherDataTab">
        <attribute name="title">
@@ -28,9 +28,12 @@
         <item row="0" column="1">
          <widget class="QStackedWidget" name="weatherPageStack">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="ServerGroupPage">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <layout class="QVBoxLayout">
             <property name="topMargin">
              <number>0</number>
@@ -71,7 +74,7 @@
              </spacer>
             </item>
             <item>
-             <layout class="QHBoxLayout">
+             <layout class="QHBoxLayout" name="_8">
               <item>
                <widget class="QPushButton" name="insertServerBtn">
                 <property name="minimumSize">
@@ -90,8 +93,7 @@ p, li { white-space: pre-wrap; }
                  <string>Adicionar Servidor</string>
                 </property>
                 <property name="icon">
-                 <iconset>
-                  <normaloff>:/data/icons/server_add.png</normaloff>:/data/icons/server_add.png</iconset>
+                 <iconset theme="add-server"/>
                 </property>
                </widget>
               </item>
@@ -110,8 +112,7 @@ p, li { white-space: pre-wrap; }
                  <string>Importar Servidor</string>
                 </property>
                 <property name="icon">
-                 <iconset>
-                  <normaloff>:/data/icons/server_import.png</normaloff>:/data/icons/server_import.png</iconset>
+                 <iconset theme="import-server"/>
                 </property>
                </widget>
               </item>
@@ -321,8 +322,7 @@ p, li { white-space: pre-wrap; }
                  <string>Verificar conexão</string>
                 </property>
                 <property name="icon">
-                 <iconset>
-                  <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+                 <iconset theme="confirm"/>
                 </property>
                </widget>
               </item>
@@ -1248,8 +1248,7 @@ p, li { white-space: pre-wrap; }
                   <string>Projeção...</string>
                  </property>
                  <property name="icon">
-                  <iconset>
-                   <normaloff>:/global/icons/PROJECAO.png</normaloff>:/global/icons/PROJECAO.png</iconset>
+                  <iconset theme="projection"/>
                  </property>
                 </widget>
                </item>
@@ -1582,8 +1581,7 @@ p, li { white-space: pre-wrap; }
                   <string>Superfícies</string>
                  </property>
                  <property name="icon">
-                  <iconset>
-                   <normaloff>:/data/icons/surface.png</normaloff>:/data/icons/surface.png</iconset>
+                  <iconset theme="surface"/>
                  </property>
                 </widget>
                </item>
@@ -1814,8 +1812,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
+                    <iconset theme="add"/>
                    </property>
                   </widget>
                  </item>
@@ -1849,8 +1846,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
+                    <iconset theme="remove"/>
                    </property>
                   </widget>
                  </item>
@@ -1898,8 +1894,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>:/global/icons/table.png</normaloff>:/global/icons/table.png</iconset>
+                    <iconset theme="table"/>
                    </property>
                   </widget>
                  </item>
@@ -1936,8 +1931,7 @@ p, li { white-space: pre-wrap; }
                     <string>...</string>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>:/data/icons/dado_pontual.png</normaloff>:/data/icons/dado_pontual.png</iconset>
+                    <iconset theme="punctual-data"/>
                    </property>
                   </widget>
                  </item>
@@ -1968,8 +1962,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>:/global/icons/config_new.png</normaloff>:/global/icons/config_new.png</iconset>
+                    <iconset theme="new-config"/>
                    </property>
                   </widget>
                  </item>
@@ -2333,8 +2326,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
-                   <normaloff>:/data/icons/intersecao.png</normaloff>:/data/icons/intersecao.png</iconset>
+                  <iconset theme="intersection"/>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2381,8 +2373,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
-                   <normaloff>:/global/icons/filter.png</normaloff>:/global/icons/filter.png</iconset>
+                  <iconset theme="filter"/>
                  </property>
                  <property name="iconSize">
                   <size>
