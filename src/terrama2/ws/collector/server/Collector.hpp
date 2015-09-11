@@ -41,6 +41,9 @@
 //std
 #include <mutex>
 
+//Boost
+#include <boost/noncopyable.hpp>
+
 namespace terrama2
 {
   namespace core {
@@ -61,7 +64,7 @@ namespace terrama2
          * and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
          *
          */
-        class Collector : public QObject
+        class Collector : public QObject, public boost::noncopyable
         {
             Q_OBJECT
 

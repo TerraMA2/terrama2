@@ -45,6 +45,9 @@
 #include <memory>
 #include <cstdint>
 
+//Boost
+#include <boost/noncopyable.hpp>
+
 namespace terrama2
 {
   namespace core
@@ -71,7 +74,7 @@ namespace terrama2
           remains in a loop waiting for a notification that new datasets
           must be collected or .
          */
-        class CollectorService : public QObject
+        class CollectorService : public QObject, public boost::noncopyable
         {
             Q_OBJECT
 

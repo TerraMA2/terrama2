@@ -59,7 +59,7 @@ namespace terrama2
          * it is responsible for calling the appropriate storager.
          *
          */
-        class DataProcessor : public QObject
+        class DataProcessor : public QObject, public boost::noncopyable
         {
             Q_OBJECT
 

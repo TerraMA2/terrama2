@@ -36,6 +36,9 @@
 //Qt
 #include <QMap>
 
+//Boost
+#include <boost/noncopyable.hpp>
+
 namespace terrama2
 {
   namespace core {
@@ -58,7 +61,7 @@ namespace terrama2
          * create an instace of a collector of the appropriate derived classe and return a shared pointer to it.
          *
          */
-        class CollectorFactory//TODO: As it only has one method should it be an static method? not a class?
+        class CollectorFactory : public boost::noncopyable//TODO: As it only has one method should it be an static method? not a class?
         {
           public:
             //! \brief Get the current instance of CollectorFactory, if none, instantiate one.
