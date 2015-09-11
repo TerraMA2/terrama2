@@ -22,6 +22,7 @@
 #  Description: CMake script for collector appserver
 #
 #  Author: Paulo R. M. Oliveira
+#          Vinicius Campanha
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/appserver/*.cpp)
@@ -34,6 +35,8 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 include_directories (
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}/../terrama2_mod_ws_collector_server/generated
 )
 
 set(CMAKE_AUTOMOC ON)
