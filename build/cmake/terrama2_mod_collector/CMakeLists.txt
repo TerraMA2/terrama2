@@ -19,9 +19,9 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for the TerraMA2 Core Runtime Module.
+#  Description: CMake script for the TerraMA2 Collector Module.
 #
-#  Author: Gilberto Ribeiro de Queiroz
+#  Author: Jano Simas
 #
 
 #if(WIN32)
