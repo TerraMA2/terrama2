@@ -34,9 +34,6 @@
 #include "../../../core/DataProvider.hpp"
 #include "../../../core/DataManager.hpp"
 
-#include "soapWebServiceService.h"
-#include "WebService.nsmap"
-
 // QT
 #include <QApplication>
 #include <QDebug>
@@ -158,11 +155,5 @@ terrama2::ws::collector::server::DataSetTimerPtr terrama2::ws::collector::server
   connect(datasetTimer.get(), &terrama2::ws::collector::server::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
 
   return datasetTimer;
-}
-
-
-int WebServiceService::ping(std::string &answer)
-{
-    return SOAP_OK;
 }
 

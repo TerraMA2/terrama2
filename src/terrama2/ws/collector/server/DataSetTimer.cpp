@@ -62,6 +62,6 @@ void terrama2::ws::collector::server::DataSetTimer::populateDataLst()
 
 terrama2::ws::collector::server::CollectorPtr terrama2::ws::collector::server::DataSetTimer::getCollector() const
 {
-  auto dataProvider = getDataSet()->getDataProvider();
+  auto dataProvider = getDataSet()->dataProvider();
   return CollectorFactory::instance().getCollector(dataProvider);
 }
