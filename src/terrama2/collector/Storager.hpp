@@ -20,18 +20,20 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Parser.hpp
+  \file terrama2/ws/collector/server/Storager.hpp
 
-  \brief Parsers data and create a terralib DataSet.
+  \brief Store a temporary terralib DataSet into the permanent storage area.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_PARSER_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_PARSER_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
+#define __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
 
-//Terralib
 #include "terralib/dataaccess/dataset/DataSet.h"
+
+//Boost
+#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
@@ -43,24 +45,23 @@ namespace terrama2
       {
 
         /*!
-         * \brief The Parser class interpret the origin format and returns a te::da::DataSet.
+         * \brief The Storager class store the data in the final storage area and format.
          *
-         * This class is responsible for interpreting the data to use with te::da::DataSet,
-         * if not compatible it will convert to a caompatible format.
+         * The Storager is responsible for creating the final storaging area and
+         * converting the data (terralib) to the appropriate format.
          *
          */
-        class Parser
+        class Storager : public boost::noncopyable
         {
           public:
-
             /*!
-             * \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
-             * \param uri Uri to the temporary data.
-             * \return Pointer to an te::da::DataSet, can be invalid.
+             * \brief Store a temporary data set in it's final storage area and format.
+             * \return Pointer to a te::da::DataSet of the final storage.
              *
-             * \exception TODO: Parser::read exception...
+             * \exception TODO: Storager::store exception...
              */
-            virtual te::da::DataSetPtr read(const std::string& uri);//FIXME: The terralib uses auto_ptr, boost::shared_ptr and terrama2 uses std::shared_ptr...
+            virtual te::da::DataSetPtr store(const te::da::DataSetPtr tempDataSet );
+
         };
       }
     }
@@ -68,4 +69,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_PARSER_HPP__
+#endif //__TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__

@@ -28,7 +28,7 @@
 */
 
 
-#include "terrama2/ws/collector/server/CollectorService.hpp"
+#include <terrama2/collector/CollectorService.hpp>
 
 //QT
 #include <QtTest>

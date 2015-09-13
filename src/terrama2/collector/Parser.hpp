@@ -20,17 +20,21 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Storager.hpp
+  \file terrama2/ws/collector/server/Parser.hpp
 
-  \brief Store a temporary terralib DataSet into the permanent storage area.
+  \brief Parsers data and create a terralib DataSet.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_PARSER_HPP__
+#define __TERRAMA2_WS_COLLECTOR_SERVER_PARSER_HPP__
 
+//Terralib
 #include "terralib/dataaccess/dataset/DataSet.h"
+
+//Boost
+#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
@@ -42,23 +46,24 @@ namespace terrama2
       {
 
         /*!
-         * \brief The Storager class store the data in the final storage area and format.
+         * \brief The Parser class interpret the origin format and returns a te::da::DataSet.
          *
-         * The Storager is responsible for creating the final storaging area and
-         * converting the data (terralib) to the appropriate format.
+         * This class is responsible for interpreting the data to use with te::da::DataSet,
+         * if not compatible it will convert to a caompatible format.
          *
          */
-        class Storager
+        class Parser : public boost::noncopyable
         {
           public:
-            /*!
-             * \brief Store a temporary data set in it's final storage area and format.
-             * \return Pointer to a te::da::DataSet of the final storage.
-             *
-             * \exception TODO: Storager::store exception...
-             */
-            te::da::DataSetPtr store(const te::da::DataSetPtr tempDataSet );
 
+            /*!
+             * \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
+             * \param uri Uri to the temporary data.
+             * \return Pointer to an te::da::DataSet, can be invalid.
+             *
+             * \exception TODO: Parser::read exception...
+             */
+            virtual te::da::DataSetPtr read(const std::string& uri);//FIXME: The terralib uses auto_ptr, boost::shared_ptr and terrama2 uses std::shared_ptr...
         };
       }
     }
@@ -66,4 +71,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
+#endif //__TERRAMA2_WS_COLLECTOR_SERVER_PARSER_HPP__
