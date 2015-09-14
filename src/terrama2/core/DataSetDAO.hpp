@@ -53,24 +53,28 @@ namespace terrama2
 
     class DataSetDAO
     {
-    public:
-      DataSetDAO();
-      virtual ~DataSetDAO();
+      public:
+      
+        static void save(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
+      
+        static void update(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
+      
+        static void remove(int id, te::da::DataSourceTransactor& transactor);
+      
+        static DataSetPtr find(int id, te::da::DataSourceTransactor& transactor);
 
-      void save(DataSetPtr dataset);
-      void update(DataSetPtr dataset);
-      void remove(const int& id);
-      void remove(const int& id, std::auto_ptr<te::da::DataSourceTransactor> transactor);
-
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
-
-    protected:
-      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
-
+        static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);
+      
+      private:
+      
+        //! Not instantiable.
+        DataSetDAO();
+      
+        //! Not instantiable.
+        ~DataSetDAO();
     };
 
-  } // core
-} // terrama2
+  } // end namespace core
+}   // end namespace terrama2
 
 #endif // __TERRAMA2_CORE_DATASETDAO_HPP__

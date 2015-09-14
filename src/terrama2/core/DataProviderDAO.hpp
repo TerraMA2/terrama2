@@ -64,21 +64,6 @@ namespace terrama2
     {
     public:
 
-      /*!
-       \brief Constructor
-
-       It will retrieve the data source from the application controller in order to get the transactor.
-
-       \pre The project must have been loaded in the application controller.
-
-       \exeption PAULO-TODO: Specify the exception
-       */
-      DataProviderDAO();
-
-      /*!
-       \brief Destructor
-       */
-      virtual ~DataProviderDAO();
 
       /*!
        \brief Persists a given data provider.
@@ -89,7 +74,7 @@ namespace terrama2
 
        \param DataProviderPtr The data provider to persist.
        */
-      void save(DataProviderPtr dataProvider);
+      static void save(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
 
       /*!
        \brief Updates a given data provider.
@@ -100,7 +85,7 @@ namespace terrama2
 
        \param DataProviderPtr The data provider to update.
        */
-      void update(DataProviderPtr dataProvider);
+      static void update(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
 
       /*!
        \brief Removes a given data provider.
@@ -114,7 +99,7 @@ namespace terrama2
 
        \param DataProviderPtr The data provider to update.
        */
-      void remove(DataProviderPtr dataProvider);
+      static void remove(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
 
       /*!
        \brief Retrieves the data provider with the given id.
@@ -128,7 +113,7 @@ namespace terrama2
        \return DataProviderPtr A smart pointer to the data provider
 
        */
-      DataProviderPtr find(const uint64_t id) const;
+      static DataProviderPtr find(const uint64_t id, te::da::DataSourceTransactor& transactor);
 
       /*!
        \brief Retrieves all data provider in the database.
@@ -140,15 +125,19 @@ namespace terrama2
        \return std::vector<DataProviderPtr> A list with all data providers.
 
        */
-      std::vector<DataProviderPtr> list() const;
-
-    protected:
-
-      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
+      static std::vector<DataProviderPtr> list(te::da::DataSourceTransactor& transactor);
+      
+      private:
+      
+        //! Not instantiable.
+        DataProviderDAO();
+      
+        //! Not instantiable.
+        ~DataProviderDAO();
 
     };
 
-  } // core
-} // terrama2
+  } // end namespace core
+}   // end namespace terrama2
 
 #endif // __TERRAMA2_CORE_DATAPROVIDERDAO_HPP__

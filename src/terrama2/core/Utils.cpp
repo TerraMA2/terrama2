@@ -86,7 +86,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 }
 
 
-bool terrama2::core::DataProviderStatusToBool(const terrama2::core::DataProvider::Status& status)
+bool terrama2::core::DataProviderStatusToBool(terrama2::core::DataProvider::Status status)
 {
   switch (status)
   {
@@ -100,7 +100,7 @@ bool terrama2::core::DataProviderStatusToBool(const terrama2::core::DataProvider
 }
 
 
-terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(const bool active)
+terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(bool active)
 {
   if(active)
   {
@@ -113,7 +113,7 @@ terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(co
 }
 
 
-terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(const int kind)
+terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(int kind)
 {
   switch (kind) {
   case 1:
@@ -131,14 +131,14 @@ terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(const i
   }
 }
 
-std::string terrama2::core::BoolToString(const bool b)
+std::string terrama2::core::BoolToString(bool b)
 {
   return b ? "true" : "false";
 }
 
 
 
-bool terrama2::core::DataSetStatusToBool(const terrama2::core::DataSet::Status& status)
+bool terrama2::core::DataSetStatusToBool(terrama2::core::DataSet::Status status)
 {
   switch (status)
   {
@@ -152,7 +152,7 @@ bool terrama2::core::DataSetStatusToBool(const terrama2::core::DataSet::Status& 
 }
 
 
-terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(const bool active)
+terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(bool active)
 {
   if(active)
   {
@@ -166,16 +166,17 @@ terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(const bool a
 
 
 
-terrama2::core::DataSet::Kind terrama2::core::IntToDataSetKind(const int kind)
+terrama2::core::DataSet::Kind terrama2::core::IntToDataSetKind(int kind)
 {
-  switch (kind) {
-  case 1:
-    return terrama2::core::DataSet::PCD_TYPE;
-  case 2:
-    return terrama2::core::DataSet::OCCURENCE_TYPE;
-  case 3:
-    return terrama2::core::DataSet::GRID_TYPE;
-  default:
-    return terrama2::core::DataSet::UNKNOWN_TYPE;
+  switch (kind)
+  {
+    case 1:
+      return terrama2::core::DataSet::PCD_TYPE;
+    case 2:
+      return terrama2::core::DataSet::OCCURENCE_TYPE;
+    case 3:
+      return terrama2::core::DataSet::GRID_TYPE;
+    default:
+      return terrama2::core::DataSet::UNKNOWN_TYPE;
   }
 }

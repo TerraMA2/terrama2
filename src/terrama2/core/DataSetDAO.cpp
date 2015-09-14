@@ -27,49 +27,39 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "DataSetDAO.hpp"
 
-#include "ApplicationController.hpp"
+//TerraMA2
+#include "DataSetDAO.hpp"
 #include "DataSet.hpp"
 #include "DataProviderDAO.hpp"
+#include "Exception.hpp"
 #include "Utils.hpp"
 
 // STL
 #include <vector>
 #include <memory>
 
-// terralib
-#include <terralib/common/StringUtils.h>
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/datatype/TimeDuration.h>
-#include <terralib/memory.h>
+#include <terralib/memory/DataSet.h>
 #include <terralib/memory/DataSetItem.h>
 
+// Qt
+#include <QObject>
 
 //Boost
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/date_time.hpp>
 
-const std::string dataSetName = "terrama2.dataset";
+static const std::string dataSetName = "terrama2.dataset";
 
-terrama2::core::DataSetDAO::DataSetDAO()
+
+void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
 {
-  transactor_ = ApplicationController::getInstance().getDataSource()->getTransactor();
-}
-
-terrama2::core::DataSetDAO::~DataSetDAO()
-{
-
-}
-
-
-void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet)
-{
-  transactor_->begin();
-
-  // Removes the column id because it's an auto number
-  std::auto_ptr<te::da::DataSetType> dataSetType = transactor_->getDataSetType(dataSetName);
+// Removes the column id because it's an auto number
+  std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
   te::dt::Property* idProperty = dataSetType->getProperty(0);
   dataSetType->remove(idProperty);
 
@@ -93,12 +83,12 @@ void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet)
   std::map<std::string, std::string> options;
 
   // Then, adds it to the data source
-  transactor_->add(dataSetName, memDataSet.get(), options);
+  transactor.add(dataSetName, memDataSet.get(), options);
 
 
   // Queries generated id
   std::string sql("SELECT * FROM " + dataSetName + " WHERE name = '" + dataSet->name() + "'");
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor_->query(sql);
+  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
 
   // Sets the id in the given provider
   if(tempDataSet->moveNext())
@@ -106,88 +96,57 @@ void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet)
     dataSet->setId(tempDataSet->getInt32("id"));
   }
 
-  transactor_->commit();
+  transactor.commit();
 }
 
 
-void terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet)
+void terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
 {
-  if(!transactor_.get())
-  {
-    // PAULO-TODO: Throw exception to inform that the database connection is not available.
-  }
-
   if(dataSet->id() == 0)
-  {
-    // PAULO-TODO: Throw exception to inform that the id is invalid.
-  }
-
-  transactor_->begin();
+    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
 
   std::string sql = "UPDATE " + dataSetName + " SET"
       + " name='" + dataSet->name() + "'"
       + ", description='" + dataSet->description() + "'"
       + ", active=" + terrama2::core::BoolToString(DataSetStatusToBool(dataSet->status()))
-      + ", data_provider_id=" + te::common::Convert2String(dataSet->dataProvider()->id())
-      + ", kind=" + te::common::Convert2String((int)dataSet->kind())
-      + ", data_frequency=" + te::common::Convert2String(dataSet->dataFrequency().getTimeDuration().total_seconds())
-      + ", schedule=" + te::common::Convert2String(dataSet->schedule().getTimeDuration().total_seconds())
-      + ", schedule_retry=" + te::common::Convert2String(dataSet->scheduleRetry().getTimeDuration().total_seconds())
-      + ", schedule_timeout=" + te::common::Convert2String(dataSet->scheduleTimeout().getTimeDuration().total_seconds())
-      + " WHERE id = " + te::common::Convert2String(dataSet->id());
+      + ", data_provider_id=" + std::to_string(dataSet->dataProvider()->id())
+      + ", kind=" + std::to_string((int)dataSet->kind())
+      + ", data_frequency=" + std::to_string(dataSet->dataFrequency().getTimeDuration().total_seconds())
+      + ", schedule=" + std::to_string(dataSet->schedule().getTimeDuration().total_seconds())
+      + ", schedule_retry=" + std::to_string(dataSet->scheduleRetry().getTimeDuration().total_seconds())
+      + ", schedule_timeout=" + std::to_string(dataSet->scheduleTimeout().getTimeDuration().total_seconds())
+      + " WHERE id = " + std::to_string(dataSet->id());
 
-  transactor_->execute(sql);
-
-  transactor_->commit();
+  transactor.execute(sql);
 }
 
-
-void terrama2::core::DataSetDAO::remove(const int &id)
+void terrama2::core::DataSetDAO::remove(int id, te::da::DataSourceTransactor& transactor)
 {
-    remove(id, transactor_);
-}
-
-void terrama2::core::DataSetDAO::remove(const int &id, std::auto_ptr<te::da::DataSourceTransactor> transactor)
-{
-  // This method can be called when removing a data provider, so it will use the same transaction
-  bool needTransaction = !transactor->isInTransaction();
-
-  if(needTransaction)
-  {
-    transactor_->begin();
-  }
+  if(id == 0)
+    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
 
   std::string sql = "DELETE FROM " + dataSetName
-      + " WHERE id = " + te::common::Convert2String(id);
+      + " WHERE id = " + std::to_string(id);
 
-  transactor_->execute(sql);
-
-  // It will commit only if the transaction was started in this method
-  if(needTransaction)
-  {
-    transactor_->commit();
-  }
+  transactor.execute(sql);
 }
 
 
-terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(const int &id) const
+terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(int id, te::da::DataSourceTransactor& transactor)
 {
-  if(!transactor_.get())
-  {
-    // PAULO-TODO: Throw exception to inform that the database connection is not available.
-  }
+  if(id == 0)
+    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
 
-  std::string sql("SELECT * FROM " + dataSetName + " WHERE id = " + te::common::Convert2String(id));
+  std::string sql("SELECT * FROM " + dataSetName + " WHERE id = " + std::to_string(id));
 
-  std::auto_ptr<te::da::DataSet> dataSet = transactor_->query(sql);
+  std::auto_ptr<te::da::DataSet> dataSet = transactor.query(sql);
 
   DataSetPtr dataset;
 
   if(dataSet->moveNext())
   {
     int64_t id = dataSet->getInt32("data_provider_id");
-    DataProviderDAO dataProviderDAO;
-    DataProviderPtr dataProvider = dataProviderDAO.find(id);
+    DataProviderPtr dataProvider = DataProviderDAO::find(id, transactor);
 
     std::string name = dataSet->getAsString("name");    
     terrama2::core::DataSet::Kind kind = IntToDataSetKind(dataSet->getInt32("kind"));
@@ -223,23 +182,17 @@ terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(const int &id) const
   return dataset;
 }
 
-std::vector<terrama2::core::DataSetPtr> terrama2::core::DataSetDAO::list() const
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataSetDAO::list(te::da::DataSourceTransactor& transactor)
 {
-  if(!transactor_.get())
-  {
-    // PAULO-TODO: Throw exception to inform that the database connection is not available.
-  }
-
   std::vector<terrama2::core::DataSetPtr> vecDataSets;
 
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor_->getDataSet(dataSetName);
+  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.getDataSet(dataSetName);
 
   while(tempDataSet->moveNext())
   {
 
     int64_t id = tempDataSet->getInt32("data_provider_id");
-    DataProviderDAO dataProviderDAO;
-    DataProviderPtr dataProvider = dataProviderDAO.find(id);
+    DataProviderPtr dataProvider = DataProviderDAO::find(id, transactor);
 
     std::string name = tempDataSet->getAsString("name");
     terrama2::core::DataSet::Kind kind = IntToDataSetKind(tempDataSet->getInt32("kind"));

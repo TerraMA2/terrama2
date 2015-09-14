@@ -30,14 +30,14 @@
 #include "ApplicationController.hpp"
 
 //STL
-#include <string>
-#include <memory>
 #include <map>
+#include <memory>
+#include <string>
 
 //Qt
-#include <QJsonObject>
 #include <QFile>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QString>
 
 //TerraLib
