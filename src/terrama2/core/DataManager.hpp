@@ -33,12 +33,16 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
+// TerraLib
+#include <terralib/common/Singleton.h>
+
 // STL
 #include <memory>
 #include <cstdint>
 
 // QT
 #include <QObject>
+
 
 namespace terrama2
 {
@@ -61,24 +65,9 @@ namespace terrama2
       It will load the metadata from a database and will keep them
       synchronized.
      */
-    class DataManager : public QObject
+    class DataManager : public QObject, te::common::Singleton<DataManager>
     {
       Q_OBJECT
-
-      private:
-
-        //! Just acessible through instance method.
-        DataManager();
-
-        //! Destructor.
-        ~DataManager();
-
-        //! No copy allowed.
-        DataManager(const DataManager&);
-
-        //! No copy allowed.
-        DataManager& operator=(const DataManager&);
-
 
       public:
 
@@ -140,6 +129,15 @@ namespace terrama2
         void update(DataSetPtr dataset);
 
         /*!
+          \brief Removes the data provider with the given id.
+
+          It will also remove all datasets that belong to the this data provider.
+
+          \pre In order to remove a data provider, there must be no analysis using a dataset from this provider.
+          In case there is a dataset being used in an analysis the data provider won't be removed.
+
+          \exception DataSetInUseException
+
           \note Thread-safe.
          */
         void removeDataProvider(const uint64_t& id);
@@ -159,17 +157,35 @@ namespace terrama2
          */
         DataSetPtr findDataSet(const uint64_t& id) const;
 
-        static DataManager& instance();
-
+        /*!
+          \note Thread-safe.
+         */
         std::vector<terrama2::core::DataProviderPtr> listDataProvider() const;
 
+        /*!
+          \note Thread-safe.
+         */
         std::vector<terrama2::core::DataSetPtr> listDataSet() const;
+
+        /*!
+          \brief Lists all datasets that belong to the given data provider.
+
+          It returns an empty vector if there is no dataset or the given provider doesn't exist.
+
+          \param dataProviderId Identifier of the data provider.
+
+          \return All datasets that belong to the given data provider.
+
+          \note Thread-safe.
+         */
+        std::vector<terrama2::core::DataSetPtr> listDataSet(const uint64_t& dataProviderId) const;
 
     public slots:
 
       signals:
 
         void dataManagerLoaded();
+        void dataManagerUnloaded();
 
         void dataProviderAdded(DataProviderPtr);
         void dataProviderRemoved(DataProviderPtr);

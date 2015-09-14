@@ -71,6 +71,13 @@ namespace terrama2
       */
       std::shared_ptr<te::da::DataSource> getDataSource();
 
+      /*!
+      * \brief Creates a database with TerraMA2's data model.
+      *
+      * \return Returns true if the database was create successfully.
+      */
+      bool createDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port);
+
     protected:
       std::string configFileName_; /*! Name of the configuration file.*/
       std::shared_ptr<te::da::DataSource> dataSouce_; /*! Smart pointer to the datasource. */

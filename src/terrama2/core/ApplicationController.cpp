@@ -103,3 +103,8 @@ std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDa
 {
   return dataSouce_;
 }
+
+bool terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
+{
+  return false;
+}

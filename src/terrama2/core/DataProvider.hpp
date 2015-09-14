@@ -53,7 +53,9 @@ namespace terrama2
       A data provider can be a remote server that provides data through
       FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
 
-      It can also be an URI for a folder into the file system...
+      It can also be an URI for a folder into the file system.
+
+      It contains a list of datasets that belongs to this provider.
      */
     class DataProvider
     {
@@ -80,7 +82,7 @@ namespace terrama2
       /*!
         \brief Constructor
       */
-      DataProvider(const std::string& name);
+      DataProvider(const std::string& name, Kind kind);
 
       /*!
         \brief Destructor.
@@ -169,7 +171,7 @@ namespace terrama2
 
         \return The the dataset list.
       */
-      std::vector<DataSetPtr> dataSet() const;
+      std::vector<DataSetPtr> dataSetList() const;
 
       /*!
         \brief It sets the the dataset list.
