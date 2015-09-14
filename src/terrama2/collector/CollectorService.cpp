@@ -29,6 +29,7 @@
 
 #include "CollectorService.hpp"
 #include "CollectorFactory.hpp"
+#include "Exception.hpp"
 
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
@@ -66,14 +67,11 @@ terrama2::collector::CollectorService::~CollectorService()
     loopThread_.join();
 }
 
-void terrama2::collector::CollectorService::start()
+void terrama2::collector::CollectorService::exec()
 {
+  //if service already running, throws
   if(loopThread_.joinable())
-  {
-    //TODO: Exception, collector service already running
-
-    return;
-  }
+    throw ServiceAlreadyRunnningException() << terrama2::ErrorDescription(tr("Collector service already running."));
 
   loopThread_ = std::thread(&CollectorService::processingLoop, this);
 

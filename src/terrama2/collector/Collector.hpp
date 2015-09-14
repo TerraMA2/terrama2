@@ -104,7 +104,9 @@ namespace terrama2
              *
              * \return Return true if able to start collecting, false otherwise.
              *
-             * \exception TODO: exception when cannot start collecting
+             * \exception terrama2::collector::InvalidDataSetException Raise when called with an invalid dataset.
+             * \exception terrama2::collector::InactiveDataSetException Raise when called with an inactive dataset.
+             * \exception terrama2::collector::UnabletoGetLockException Raise when the processes is unable to get lock. Collector already collecting?
              */
         void collect(const DataSetTimerPtr datasetTimer);
 

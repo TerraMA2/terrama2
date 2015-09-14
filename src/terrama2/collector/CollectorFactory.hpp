@@ -67,6 +67,8 @@ namespace terrama2
              * \brief Returns the instace of the collector or instatiate a new collector of the appropriate derived classe and return a shared pointer to it.
              * \param dataProvider Data provider information.
              * \return Shared pointer to the new collector.
+             *
+             * \exception terrama2::collector::UnknownDataProviderTypeException Raised when CollectorFactory cannot identify the right Collector type for the DataProvider.
              */
         CollectorPtr getCollector(const core::DataProviderPtr dataProvider);
 
