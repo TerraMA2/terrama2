@@ -20,48 +20,40 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/TestDataSetTimer.cpp
+  \file terrama2/ws/collector/server/TestDataSetTimer.hpp
 
   \brief Tests for the DataSetTimer class.
 
   \author Jano Simas
 */
 
-#include "TestDataSetTimer.hpp"
-
-#include <terrama2/core/DataSet.hpp>
-#include <terrama2/collector/DataSetTimer.hpp>
-
 //Qt
 #include <QtTest>
 
-void TestDataSetTimer::TestNullDataSet()
+class TestDataSetTimer: public QObject
 {
-  terrama2::core::DataSetPtr nullDataSet;
-  terrama2::collector::DataSetTimer nullDataSetTimer(nullDataSet);
+  Q_OBJECT
 
-  QVERIFY(!nullDataSetTimer.isValid());
-}
+private slots:
 
-void TestDataSetTimer::TestTimerSignalEmit()
-{
-  QEventLoop loop;
-  QTimer timeout;
-  connect(&timeout, SIGNAL(timeout()), &loop, SLOT(quit()));
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-  terrama2::core::DataSetPtr dataSet;//TODO: create a valid dataset
-  terrama2::collector::DataSetTimer dataSetTimer(dataSet);
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-  QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
-  connect(&dataSetTimer, SIGNAL(timerSignal(uint64_t)), &loop, SLOT(quit()));
+    //******Test functions********
 
-  timeout.start(20000);
+    /*!
+     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     */
+    void TestNullDataSet();
 
-  loop.exec(); //blocks untill either timerSignal or timeout was fired
-
-  QCOMPARE(spy.count(), 1);
-}
+    /*!
+     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     */
+    void TestTimerSignalEmit();
 
 
-//QTEST_MAIN(MyTest)
-#include "TestDataSetTimer.moc"
+    //******End of Test functions****
+};

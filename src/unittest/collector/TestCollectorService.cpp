@@ -20,18 +20,18 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/TestCollectorService.cpp
+  \file unittest/ws/collector/collector/TestCollectorService.cpp
 
-  \brief Test Collector...
+  \brief Test Collector Service...
 
   \author Paulo R. M. Oliveira
 */
 
+#include "TestCollectorService.hpp"
 
 #include <terrama2/collector/CollectorService.hpp>
 
 //QT
-#include <QtTest>
 #include <QApplication>
 
 // STL
@@ -46,42 +46,6 @@
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
-
-class TestCollectorService: public QObject
-{
-  Q_OBJECT
-
-protected:
-
-    void initializeTerralib();
-    void finalizeTerralib();
-    void pingTest();
-
-private slots:
-    void initTestCase() // Run before all tests
-    {
-        initializeTerralib();
-    }
-    void cleanupTestCase() // Run after all tests
-    {
-        finalizeTerralib();
-    }
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Test Description
-     */
-    void testCollectorService();
-
-
-
-    //******End of Test functions****
-
-};
 
 void TestCollectorService::init()
 {
@@ -144,5 +108,5 @@ void TestCollectorService::pingTest()
 
 }
 
-QTEST_MAIN(TestCollectorService)
+//QTEST_MAIN(TestCollectorService)
 #include "TestCollectorService.moc"

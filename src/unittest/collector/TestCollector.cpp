@@ -20,18 +20,16 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/TestCollector.cpp
+  \file unittest/ws/collector/collector/TestCollector.cpp
 
   \brief Test Collector...
 
-  \author Paulo R. M. Oliveira
+  \author Paulo R. M. Oliveira, Jano Simas
 */
 
+#include "TestCollector.hpp"
 
-#include "terrama2/collector/Collector.hpp"
-
-//QT
-#include <QtTest>
+#include <terrama2/collector/Collector.hpp>
 
 // STL
 #include <memory>
@@ -40,49 +38,10 @@
 #include <terralib/postgis/Utils.h>
 #include <terralib/postgis/Connection.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
 
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
-
-class TestCollector: public QObject
-{
-  Q_OBJECT
-
-protected:
-
-    void initializeTerralib();
-    void finalizeTerralib();
-
-private slots:
-    void initTestCase() // Run before all tests
-    {
-        initializeTerralib();
-    }
-    void cleanupTestCase() // Run after all tests
-    {
-        finalizeTerralib();
-    }
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Test Description
-     */
-    void testTiffCollector();
-
-
-
-    //******End of Test functions****
-
-private:
-    std::auto_ptr<te::da::DataSource> ds_;
-    std::auto_ptr<te::da::DataSourceTransactor> transactor_;
-};
 
 void TestCollector::init()
 {
