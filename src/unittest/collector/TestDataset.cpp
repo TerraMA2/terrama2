@@ -20,15 +20,13 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/TestCollectorService.cpp
+  \file unittest/ws/collector/core/TestDataset.cpp
 
   \brief Test Collector...
 
   \author Paulo R. M. Oliveira
 */
 
-
-#include "terrama2/ws/collector/server/CollectorService.hpp"
 
 //QT
 #include <QtTest>
@@ -47,7 +45,7 @@
 #include <terralib/common.h>
 #include <terralib/plugin.h>
 
-class TestCollectorService: public QObject
+class TestDataset: public QObject
 {
   Q_OBJECT
 
@@ -55,7 +53,6 @@ protected:
 
     void initializeTerralib();
     void finalizeTerralib();
-    void pingTest();
 
 private slots:
     void initTestCase() // Run before all tests
@@ -75,7 +72,7 @@ private slots:
     /*!
      * \brief Test Description
      */
-    void testCollectorService();
+    void testDataSet();
 
 
 
@@ -83,44 +80,24 @@ private slots:
 
 };
 
-void TestCollectorService::init()
+void TestDataset::init()
 {
 
 }
 
-void TestCollectorService::cleanup()
+void TestDataset::cleanup()
 {
 
 }
 
-void TestCollectorService::testCollectorService()
+void TestDataset::testDataSet()
 {
-  std::cerr << "Start" << std::endl;
 
-//  // Create dataprovider
-//  std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider(new terrama2::ws::collector::core::DataProvider());
-//  std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider1(new terrama2::ws::collector::core::DataProvider());
-//  std::shared_ptr<terrama2::ws::collector::core::DataProvider> dataProvider2(new terrama2::ws::collector::core::DataProvider());
 
-//  terrama2::ws::collector::appserver::CollectorService service;
-
-//  service.addProvider(dataProvider);
-//  service.addProvider(dataProvider1);
-//  service.addProvider(dataProvider2);
-
-//  // Create dataset
-//  QList<std::shared_ptr<terrama2::ws::collector::core::Data>> dataList;
-//  dataList.append(std::shared_ptr<terrama2::ws::collector::core::Data>(new terrama2::ws::collector::core::Data("queimadas.csv")));
-//  std::shared_ptr<terrama2::ws::collector::core::Dataset> dataset(new terrama2::ws::collector::core::Dataset(1, dataProvider, dataList));
-
-//  service.addDataset(dataset);
-//  service.start();
-  
-  std::cerr << "End" << std::endl;
 }
 
 
-void TestCollectorService::initializeTerralib()
+void TestDataset::initializeTerralib()
 {
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
@@ -134,15 +111,10 @@ void TestCollectorService::initializeTerralib()
 
 
 
-void TestCollectorService::finalizeTerralib()
+void TestDataset::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
 }
 
-void TestCollectorService::pingTest()
-{
-
-}
-
-QTEST_MAIN(TestCollectorService)
-#include "TestCollectorService.moc"
+//QTEST_MAIN(TestDataset)
+#include "TestDataset.moc"

@@ -21,21 +21,39 @@
 
 /*!
   \file terrama2/ws/collector/appserver/main.cpp
- 
+
   \brief Main routine for TerraMA2 Collector Web Service.
- 
+
   \author Jano Simas
   \author Paulo R. M. Oliveira
   \author Vinicius Campanha
  */
 
 // TerraMA2
-#include "../server/CollectorService.hpp"
+#include "soapcollectorService.h"
 
 // STL
 #include <cstdlib>
 
 int main(int argc, char* argv[])
 {
+
+  collectorService server;
+
+  // check if a port number was passed as parameter
+  if (argv[1] == 0)
+  {
+    fprintf(stderr, "Inform a port to server run.");
+    exit(0);
+  }
+
+  // run iterative server on port until fatal error
+  if(server.run(atoi(argv[1])))
+  {
+    server.soap_stream_fault(std::cerr);
+
+    exit(-1);
+  }
+
   return EXIT_SUCCESS;
 }

@@ -20,13 +20,17 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WebService.hpp
+  \file terrama2/core/Exception.hpp
 
-  \brief TerraMA2 Collector gSOAP interfaces declarations.
+  \brief The base Exception for TerraMA2 application.
 
-  \author Vinicius Campanha
- */
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+*/
 
-//gsoap collector service name: collector
+#ifndef __TERRAMA2_GUI_ADMIN_EXCEPTION_HPP__
+#define __TERRAMA2_GUI_ADMIN_EXCEPTION_HPP__
 
-int collector__ping(std::string& answer);
+#include "../Exception.hpp"
+
+#endif // __TERRAMA2_GUI_ADMIN_EXCEPTION_HPP__

@@ -36,20 +36,19 @@
 //Qt
 #include <QMap>
 
+//Boost
+#include <boost/noncopyable.hpp>
+
 namespace terrama2
 {
   namespace core {
     class DataSet;
     class Data;
   }
-  namespace ws
+  namespace collector
   {
-    namespace collector
-    {
-      namespace server
-      {
 
-        /*!
+    /*!
          * \brief The CollectorFactory class is responsible for creating the appropriate type of Collector.
          *
          *       The CollectorFactory is a singleton responsible for creating the appropriate type of Collector.
@@ -58,38 +57,36 @@ namespace terrama2
          * create an instace of a collector of the appropriate derived classe and return a shared pointer to it.
          *
          */
-        class CollectorFactory//TODO: As it only has one method should it be an static method? not a class?
-        {
-          public:
-            //! \brief Get the current instance of CollectorFactory, if none, instantiate one.
-            static CollectorFactory& instance();
+    class CollectorFactory : public boost::noncopyable//TODO: As it only has one method should it be an static method? not a class?
+    {
+      public:
+        //! \brief Get the current instance of CollectorFactory, if none, instantiate one.
+        static CollectorFactory& instance();
 
-            /*!
+        /*!
              * \brief Returns the instace of the collector or instatiate a new collector of the appropriate derived classe and return a shared pointer to it.
              * \param dataProvider Data provider information.
              * \return Shared pointer to the new collector.
              */
-            CollectorPtr getCollector(const core::DataProviderPtr dataProvider);
+        CollectorPtr getCollector(const core::DataProviderPtr dataProvider);
 
-          private:
-            //! Contructor
-            CollectorFactory() {}
-            //! Destructor
-            ~CollectorFactory();
+      private:
+        //! Contructor
+        CollectorFactory() {}
+        //! Destructor
+        ~CollectorFactory();
 
-            //! No copy allowed.
-            CollectorFactory(const CollectorFactory&);
+        //! No copy allowed.
+        CollectorFactory(const CollectorFactory&);
 
-            //! No copy allowed.
-            CollectorFactory& operator=(const CollectorFactory&);
+        //! No copy allowed.
+        CollectorFactory& operator=(const CollectorFactory&);
 
-            static CollectorFactory* instance_; //!< Current instance of the CollectorFactory.
+        static CollectorFactory* instance_; //!< Current instance of the CollectorFactory.
 
-            QMap<int /*DataProviderId*/, CollectorPtr> collectorMap_;
+        QMap<int /*DataProviderId*/, CollectorPtr> collectorMap_;
 
-        };
-      }
-    }
+    };
   }
 }
 

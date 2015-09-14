@@ -41,6 +41,9 @@
 //STD
 #include <string>
 
+//Boost
+#include <boost/noncopyable.hpp>
+
 namespace terrama2
 {
   namespace ws
@@ -50,7 +53,7 @@ namespace terrama2
       namespace server
       {
 
-        class Filter
+        class Filter : public boost::noncopyable
         {
           public:
             Filter()

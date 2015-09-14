@@ -31,7 +31,7 @@
 // TerraMA2
 #include "AdminApp.hpp"
 #include "ui_AdminAppForm.h"
-//#include "Exception.hpp"
+#include "../Exception.hpp"
 #include "../../core/Utils.hpp"
 
 
@@ -66,7 +66,7 @@ AdminApp::AdminApp(QWidget* parent)
 
   if(icon_theme_path.empty())
   {
-    // throw  terrama2::InitializationError() << terrama2::error_description(tr("Could not find TerraMA2 icon library folder."));
+    throw terrama2::InitializationError() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icon library folder."));
   }
   
 // load icon theme library
@@ -79,7 +79,7 @@ AdminApp::AdminApp(QWidget* parent)
   QIcon::setThemeName("terrama2");
 
 // load idioms
-  std::string idiom_path = terrama2::core::FindInTerraMA2Path("share/terrama2/translations/terrama2_admin_pt_BR.qm");
+  std::string idiom_path = terrama2::core::FindInTerraMA2Path("share/terrama2/translations/terrama2_admin_en_US.qm");
   
   if(idiom_path.empty())
   {
