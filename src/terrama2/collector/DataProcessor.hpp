@@ -36,7 +36,11 @@
 #include <cstdint>
 #include <string>
 
+//Qt
 #include <QObject>
+
+//Boost
+#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
@@ -59,7 +63,7 @@ namespace terrama2
          * it is responsible for calling the appropriate storager.
          *
          */
-        class DataProcessor : public QObject
+        class DataProcessor : public QObject, public boost::noncopyable
         {
             Q_OBJECT
 

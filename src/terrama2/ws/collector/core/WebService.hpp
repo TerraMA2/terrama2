@@ -22,11 +22,11 @@
 /*!
   \file terrama2/ws/collector/core/WebService.hpp
 
-  \brief TerraMA2 configuration options.
+  \brief TerraMA2 Collector gSOAP interfaces declarations.
 
   \author Vinicius Campanha
  */
 
-//gsoap WebService service name: WebService
+//gsoap collector service name: collector
 
-int WebService__ping(std::string& answer);
+int collector__ping(std::string& answer);

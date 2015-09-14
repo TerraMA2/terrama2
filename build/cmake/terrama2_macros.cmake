@@ -45,8 +45,6 @@ MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path service_name type GSOAP_HDR_FILES GSOAP_
     set(ARCHIVE_TYPE Proxy)
   endif()
 
-  make_directory(${CMAKE_CURRENT_BINARY_DIR}/generated)
-
   set(${GSOAP_HDR_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/soap${service_name}${ARCHIVE_TYPE}.h
                          ${CMAKE_CURRENT_BINARY_DIR}/generated/soapH.h
                          ${CMAKE_CURRENT_BINARY_DIR}/generated/soapStub.h)

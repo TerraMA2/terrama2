@@ -33,5 +33,4 @@
 
 #include "../Exception.hpp"
 
-
 #endif // __TERRAMA2_GUI_ADMIN_EXCEPTION_HPP__

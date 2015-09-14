@@ -20,39 +20,36 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Collector.cpp
+  \file terrama2/ws/collector/server/CollectorFactory.cpp
 
-  \brief Aquire data from server.
+  \brief Instantiate collectors for DataProviders.
 
   \author Jano Simas
 */
 
 
-#include "Collector.hpp"
-#include "../../../core/DataSet.hpp"
+#include "CollectorFactory.hpp"
 
-//Boost
-#include <boost/log/trivial.hpp>
+terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
 
-bool terrama2::ws::collector::server::Collector::isCollecting() const
+terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
 {
-  LockMutex lock(mutex_);
-  if(lock.tryLock())
-    return false;
-  else
-    return true;
+
+  if(!instance_)
+    instance_ = new CollectorFactory();
+
+  return *instance_;
 }
 
-bool terrama2::ws::collector::server::Collector::collect(const DataSetTimerPtr datasetTimer)
+terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
 {
-  LockMutex lock(mutex_);
-  if(lock.tryLock())
-  {
-    //JANO: implement collect
-    //thread....
+  //JANO: implementar getCollector
 
-    return true;
+  //If there is no collector for this DataProvider, create one.
+  if(!collectorMap_.contains(dataProvider->id()))
+  {
+    //... instatiate a new collector
   }
-  else
-    return false;
+
+  return collectorMap_.value(dataProvider->id());
 }
