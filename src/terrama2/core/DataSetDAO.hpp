@@ -34,10 +34,14 @@
 #include <vector>
 #include <memory>
 
-// terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-
+namespace te
+{
+  namespace da
+  {
+    class DataSource;
+    class DataSourceTransactor;
+  }
+}
 
 namespace terrama2
 {
@@ -50,17 +54,19 @@ namespace terrama2
     class DataSetDAO
     {
     public:
-      DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource);
+      DataSetDAO();
       virtual ~DataSetDAO();
 
-      bool save(DataSetPtr dataset);
-      bool update(DataSetPtr dataset);
-      bool remove(const int& id);
+      void save(DataSetPtr dataset);
+      void update(DataSetPtr dataset);
+      void remove(const int& id);
+      void remove(const int& id, std::auto_ptr<te::da::DataSourceTransactor> transactor);
+
       DataSetPtr find(const int& id) const;
       std::vector<DataSetPtr> list() const;
 
     protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
+      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 
     };
 

@@ -71,7 +71,7 @@ namespace terrama2
    /*!
      \brief Returns a enum with the kind of the server based on the given parameter.
 
-     \param kind Kind that determine if the type of the data provider.
+     \param kind Kind that determine the type of the data provider.
 
      \return Enum with the type of the data provider.
     */
@@ -103,6 +103,17 @@ namespace terrama2
     \return Enum with the status of the dataset.
     */
    terrama2::core::DataSet::Status BoolToDataSetStatus(const bool active);
+
+
+   /*!
+     \brief Returns a enum with the kind of the dataset based on the given parameter.
+
+     \param kind Kind that determine the type of the dataset.
+
+     \return Enum with the type of the dataset.
+    */
+   terrama2::core::DataSet::Kind IntToDataSetKind(const int kind);
+
 
   } // end namespace core
 }   // end namespace terrama2

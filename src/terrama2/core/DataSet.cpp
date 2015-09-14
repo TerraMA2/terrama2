@@ -36,8 +36,17 @@
 
 #include "DataProvider.hpp"
 
-terrama2::core::DataSet::DataSet(DataProviderPtr dataProvider)
-  : dataProvider_(dataProvider)
+// TerraLib
+#include <terralib/datatype/TimeDuration.h>
+
+terrama2::core::DataSet::DataSet(DataProviderPtr dataProvider, const std::string& name, Kind kind)
+  : dataProvider_(dataProvider),
+    name_(name),
+    kind_(kind),
+    dataFrequency_(0, 0, 0),
+    schedule_(0, 0, 0),
+    scheduleRetry_(0, 0, 0),
+    scheduleTimeout_(0, 0, 0)
 {
 
 }
@@ -100,4 +109,44 @@ void terrama2::core::DataSet::setStatus(const terrama2::core::DataSet::Status &s
 terrama2::core::DataProviderPtr terrama2::core::DataSet::dataProvider() const
 {
   return dataProvider_;
+}
+
+te::dt::TimeDuration terrama2::core::DataSet::dataFrequency() const
+{
+  return dataFrequency_;
+}
+
+void terrama2::core::DataSet::setDataFrequency(const te::dt::TimeDuration &dataFrequency)
+{
+  dataFrequency_ = dataFrequency;
+}
+
+te::dt::TimeDuration terrama2::core::DataSet::schedule() const
+{
+  return schedule_;
+}
+
+void terrama2::core::DataSet::setSchedule(const te::dt::TimeDuration &schedule)
+{
+  schedule_ = schedule;
+}
+
+te::dt::TimeDuration terrama2::core::DataSet::scheduleRetry() const
+{
+  return scheduleRetry_;
+}
+
+void terrama2::core::DataSet::setScheduleRetry(const te::dt::TimeDuration &scheduleRetry)
+{
+  scheduleRetry_ = scheduleRetry;
+}
+
+te::dt::TimeDuration terrama2::core::DataSet::scheduleTimeout() const
+{
+  return scheduleTimeout_;
+}
+
+void terrama2::core::DataSet::setScheduleTimeout(const te::dt::TimeDuration &scheduleTimeout)
+{
+  scheduleTimeout_ = scheduleTimeout;
 }

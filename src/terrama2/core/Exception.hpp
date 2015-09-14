@@ -20,23 +20,26 @@
 */
 
 /*!
-  \file terrama2/core/DataManager.cpp
+  \file terrama2/core/Exception.hpp
 
-  \brief Manages metadata about data providers and its datasets.
+  \brief Exception classes for core module
 
-  \author Gilberto Ribeiro de Queiroz
-  \author Jano Simas
   \author Paulo R. M. Oliveira
-  \author Vinicius Campanha
-*/
+ */
 
-// TerraMA2
-#include "DataManager.hpp"
+#ifndef __TERRAMA2_CORE_EXCEPTION_HPP__
+#define __TERRAMA2_CORE_EXCEPTION_HPP__
 
-struct terrama2::core::DataManager::Impl
+#include "../Exception.hpp"
+
+namespace terrama2
 {
-  std::map<uint64, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
-  std::map<uint64, DataSetPtr> datasets_;       //!< A map from data-set-id to dataset.
-  // adicionar MUTEX
-}
+  namespace core
+  {
+  //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
+  struct DataSetInUseException: virtual terrama2::Exception{ };
 
+  }  // end namespace core
+}  // end namespace terrama2
+
+#endif  // __TERRAMA2_CORE_EXCEPTION_HPP__

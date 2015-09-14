@@ -163,3 +163,19 @@ terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(const bool a
     return terrama2::core::DataSet::INACTIVE;
   }
 }
+
+
+
+terrama2::core::DataSet::Kind terrama2::core::IntToDataSetKind(const int kind)
+{
+  switch (kind) {
+  case 1:
+    return terrama2::core::DataSet::PCD_TYPE;
+  case 2:
+    return terrama2::core::DataSet::OCCURENCE_TYPE;
+  case 3:
+    return terrama2::core::DataSet::GRID_TYPE;
+  default:
+    return terrama2::core::DataSet::UNKNOWN_TYPE;
+  }
+}
