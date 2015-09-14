@@ -20,29 +20,26 @@
 */
 
 /*!
-  \file unittest/core/DataSetDAO.cpp
+  \file terrama2/core/Exception.hpp
 
-  \brief Test for DataSetDAO functionalities
+  \brief Exception classes for core module
 
   \author Paulo R. M. Oliveira
-*/
+ */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
+#ifndef __TERRAMA2_CORE_EXCEPTION_HPP__
+#define __TERRAMA2_CORE_EXCEPTION_HPP__
 
-#include <QtTest>
+#include "../Exception.hpp"
 
-class TestDataSetDAO: public QObject
+namespace terrama2
 {
-  Q_OBJECT
-private:
+  namespace core
+  {
+  //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
+  struct DataSetInUseException: virtual terrama2::Exception{ };
 
+  }  // end namespace core
+}  // end namespace terrama2
 
-private slots:
-  void initTestCase();
-  void cleanupTestCase();
-  void testCRUDDataSet();
-};
-
-
-#endif // __TERRAMA2_UNITTEST_CORE_TESTDATAPROVIDERDAO_HPP__
+#endif  // __TERRAMA2_CORE_EXCEPTION_HPP__

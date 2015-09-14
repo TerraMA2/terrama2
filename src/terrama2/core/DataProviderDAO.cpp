@@ -29,6 +29,7 @@
 
 #include "DataProviderDAO.hpp"
 #include "DataProvider.hpp"
+#include "DataSetDAO.hpp"
 #include "ApplicationController.hpp"
 #include "Utils.hpp"
 #include "../Exception.hpp"
@@ -40,15 +41,21 @@
 
 // terralib
 #include <terralib/common/StringUtils.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/memory.h>
 #include <terralib/memory/DataSetItem.h>
 
+const std::string dataSetName = "terrama2.data_provider";
 
-terrama2::core::DataProviderDAO::DataProviderDAO(std::shared_ptr<te::da::DataSource> dataSource)
-  : dataSource_(dataSource)
+terrama2::core::DataProviderDAO::DataProviderDAO()
 {
+  std::shared_ptr<te::da::DataSource> dataSource = ApplicationController::getInstance().getDataSource();
+
+  if(!dataSource.get())
+  {
+    // PAULO-TODO: throw exception
+  }
+  transactor_ = dataSource->getTransactor();
 
 }
 
@@ -58,22 +65,22 @@ terrama2::core::DataProviderDAO::~DataProviderDAO()
 }
 
 
-bool terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataProvider)
+void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataProvider)
 {
-  std::string dataSetName = "terrama2.data_provider";
+  if(!transactor_.get())
+  {
+    // PAULO-TODO: Throw exception to inform that the database connection is not available.
+  }
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
-  transactor->begin();
+  transactor_->begin();
 
   // Removes the column id because it's an auto number
-  //review
-  std::auto_ptr<te::da::DataSetType> dataSetType = dataSource_->getDataSetType(dataSetName);
-  std::auto_ptr<te::da::DataSetType> dataSetTypeClone(dataSetType);
-  te::dt::Property* idProperty = dataSetTypeClone->getProperty(0);
-  dataSetTypeClone->remove(idProperty);
+  std::auto_ptr<te::da::DataSetType> dataSetType = transactor_->getDataSetType(dataSetName);
+  te::dt::Property* idProperty = dataSetType->getProperty(0);
+  dataSetType->remove(idProperty);
 
   // Creates a memory dataset from the DataSetType without column id
-  std::shared_ptr<te::mem::DataSet> dataSet(new te::mem::DataSet(dataSetTypeClone.get()));
+  std::shared_ptr<te::mem::DataSet> dataSet(new te::mem::DataSet(dataSetType.get()));
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(dataSet.get());
 
   // Sets the values in the item
@@ -88,32 +95,42 @@ bool terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
   std::map<std::string, std::string> options;
 
   // Then, adds it to the data source
-  dataSource_->add(dataSetName, dataSet.get(), options);
+  transactor_->add(dataSetName, dataSet.get(), options);
 
+  transactor_->commit();
 
-  // Queries generated id
-  std::string sql("SELECT * FROM " + dataSetName + " WHERE name = '" + dataProvider->name() + "'");
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor->query(sql);
+  // TODO: Remove this after getLastGeneratedId is implemented
+  std::string sql("SELECT id FROM " + dataSetName + " WHERE name = '" + dataProvider->name() + "'");
 
-  // Sets the id in the given provider
-  if(tempDataSet->moveNext())
+  std::auto_ptr<te::da::DataSet> dataSetId = transactor_->query(sql);
+
+  if(dataSetId->moveNext())
   {
-    dataProvider->setId(tempDataSet->getInt32("id"));
+    dataProvider->setId(dataSetId->getInt32("id"));
   }
 
 
-  transactor->commit();
+  // Recovers the generated id and sets it in the provider
+  // TODO: Implement getLastGeneratedId in TerraLib
+  //dataProvider->setId(transactor_->getLastGeneratedId());
 
-  return true;
 }
 
 
-bool terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dataProvider)
+void terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dataProvider)
 {
-  std::string dataSetName = "terrama2.data_provider";
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
-  transactor->begin();
+  if(!transactor_.get())
+  {
+    // PAULO-TODO: Throw exception to inform that the database connection is not available.
+  }
+
+  if(dataProvider->id() == 0)
+  {
+    // PAULO-TODO: Throw exception to inform that the id is invalid.
+  }
+
+  transactor_->begin();
 
   std::string sql = "UPDATE " + dataSetName + " SET"
       + " name='" + dataProvider->name() + "'"
@@ -123,52 +140,63 @@ bool terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dat
       + ", active=" + terrama2::core::BoolToString(DataProviderStatusToBool(dataProvider->status()))
       + " WHERE id = " + te::common::Convert2String(dataProvider->id());
 
-  transactor->execute(sql);
+  transactor_->execute(sql);
 
-  transactor->commit();
-
-  return true;
+  transactor_->commit();
 }
 
 
-bool terrama2::core::DataProviderDAO::remove(const uint64_t id)
-{
+void terrama2::core::DataProviderDAO::remove(DataProviderPtr dataProvider)
+{  
+  std::shared_ptr<te::da::DataSource> dataSource = ApplicationController::getInstance().getDataSource();
+  transactor_ = dataSource->getTransactor();
+  if(!transactor_.get())
+  {
+    // PAULO-TODO: Throw exception to inform that the database connection is not available.
+  }
 
-  std::string dataSetName = "terrama2.data_provider";
+  transactor_->begin();
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
-  transactor->begin();
+  // Tries to removes all the datasets that belong to this provider
+
+  DataSetDAO datasetDAO;
+
+  auto dataSetList = dataProvider->dataSetList();
+  foreach (auto dataSet, dataSetList)
+  {
+    datasetDAO.remove(dataProvider->id(), transactor_);
+  }
 
   std::string sql = "DELETE FROM " + dataSetName
-      + " WHERE id = " + te::common::Convert2String(id);
+      + " WHERE id = " + te::common::Convert2String(dataProvider->id());
 
-  transactor->execute(sql);
+  transactor_->execute(sql);
 
-  transactor->commit();
-
-  return false;
+  transactor_->commit();
 }
 
 
 terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(const uint64_t id) const
 {
-  std::string dataSetName = "terrama2.data_provider";
+  if(!transactor_.get())
+  {
+    // PAULO-TODO: Throw exception to inform that the database connection is not available.
+  }
 
-  std::shared_ptr<te::da::DataSource> dataSource = ApplicationController::getInstance().getDataSource();
-
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
   std::string sql("SELECT * FROM " + dataSetName + " WHERE id = " + te::common::Convert2String(id));
 
-  std::auto_ptr<te::da::DataSet> dataSet = transactor->query(sql);
+  std::auto_ptr<te::da::DataSet> dataSet = transactor_->query(sql);
 
   DataProviderPtr provider;
 
   if(dataSet->moveNext())
   {
-    provider.reset(new DataProvider(dataSet->getAsString("name")));
+
+    terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
+    std::string name = dataSet->getAsString("name");
+    provider.reset(new DataProvider(name, kind));
     provider->setId(dataSet->getInt32("id"));
     provider->setDescription(dataSet->getString("description"));
-    provider->setKind(IntToDataProviderKind(dataSet->getInt32("kind")));
     provider->setUri(dataSet->getString("uri"));
     provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
   }
@@ -178,24 +206,28 @@ terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(const uint
 
 std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataProviderDAO::list() const
 {
-  std::vector<terrama2::core::DataProviderPtr> vecCollectors;
-  std::string dataSetName = "terrama2.data_provider";
 
-  std::shared_ptr<te::da::DataSource> dataSource = ApplicationController::getInstance().getDataSource();
+  if(!transactor_.get())
+  {
+    // PAULO-TODO: Throw exception to inform that the database connection is not available.
+  }
 
-  std::auto_ptr<te::da::DataSet> dataSet = dataSource->getDataSet(dataSetName);
+  std::vector<terrama2::core::DataProviderPtr> vecProviders;
 
+  std::auto_ptr<te::da::DataSet> dataSet = transactor_->getDataSet(dataSetName);
 
-  dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
   {
-    DataProviderPtr provider(new DataProvider(dataSet->getAsString("name")));
+    DataProviderPtr provider;
+    terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
+    std::string name = dataSet->getAsString("name");
+    provider.reset(new DataProvider(name, kind));
     provider->setId(dataSet->getInt32("id"));
     provider->setDescription(dataSet->getString("description"));
-    provider->setKind(IntToDataProviderKind(dataSet->getInt32("kind")));
     provider->setUri(dataSet->getString("uri"));
     provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
-    vecCollectors.push_back(provider);
+    vecProviders.push_back(provider);
   }
-  return vecCollectors;
+
+  return vecProviders;
 }
