@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataProviderDAO.hpp
 
-  \brief DataProvider DAO...
+  \brief Persistense layer to a data provider class.
 
   \author Paulo R. M. Oliveira
 */
@@ -34,10 +34,13 @@
 #include <vector>
 #include <memory>
 
-// terralib
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-
-
+namespace te
+{
+  namespace da
+  {
+    class DataSourceTransactor;
+  }
+}
 
 namespace terrama2
 {
@@ -47,20 +50,101 @@ namespace terrama2
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
+    /*!
+      \class DataProviderDAO
+
+      \brief Persistense layer to a data provider class.
+
+      Contains methods to persist and retrieve information about a data provider.
+
+      It uses the connection to the database given by the application controller.
+
+     */
     class DataProviderDAO
     {
     public:
-      DataProviderDAO(std::shared_ptr<te::da::DataSource> dataSource);
+
+      /*!
+       \brief Constructor
+
+       It will retrieve the data source from the application controller in order to get the transactor.
+
+       \pre The project must have been loaded in the application controller.
+
+       \exeption PAULO-TODO: Specify the exception
+       */
+      DataProviderDAO();
+
+      /*!
+       \brief Destructor
+       */
       virtual ~DataProviderDAO();
 
-      bool save(DataProviderPtr dataProvider);
-      bool update(DataProviderPtr dataProvider);
-      bool remove( const uint64_t id);
+      /*!
+       \brief Persists a given data provider.
+
+       It will not persist information about datasets contained in this provider.
+
+       \exeption PAULO-TODO: Specify the exception
+
+       \param DataProviderPtr The data provider to persist.
+       */
+      void save(DataProviderPtr dataProvider);
+
+      /*!
+       \brief Updates a given data provider.
+
+       \pre The data provider must have a valid identifier.
+
+       \exeption PAULO-TODO: Specify the exception
+
+       \param DataProviderPtr The data provider to update.
+       */
+      void update(DataProviderPtr dataProvider);
+
+      /*!
+       \brief Removes a given data provider.
+
+       \pre The data provider must have a valid identifier.
+
+       It will remove all datasets that belong to this data provider.
+       In case there is an analysis that uses one these dataset an exception is thrown.
+
+       \exeption PAULO-TODO: Specify the exception
+
+       \param DataProviderPtr The data provider to update.
+       */
+      void remove(DataProviderPtr dataProvider);
+
+      /*!
+       \brief Retrieves the data provider with the given id.
+
+       \exeption PAULO-TODO: Specify the exception
+
+       In case there is no data provider in the database with the given id it will return an empty smart pointer.
+
+       \param id The data provider identifier.
+
+       \return DataProviderPtr A smart pointer to the data provider
+
+       */
       DataProviderPtr find(const uint64_t id) const;
+
+      /*!
+       \brief Retrieves all data provider in the database.
+
+       \exeption PAULO-TODO: Specify the exception
+
+       In case there is no data provider in the database it will return an empty vector.
+
+       \return std::vector<DataProviderPtr> A list with all data providers.
+
+       */
       std::vector<DataProviderPtr> list() const;
 
     protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
+
+      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 
     };
 

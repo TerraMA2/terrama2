@@ -29,6 +29,8 @@
 
 #include "TestDataSetDAO.hpp"
 
+#include <terrama2/core/DataSetDAO.hpp>
+#include <terrama2/core/DataProviderDAO.hpp>
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/ApplicationController.hpp>
@@ -37,31 +39,82 @@
 #include <QtTest>
 
 
-
-void TestDataSetDAO::testAddDataSet()
+void TestDataSetDAO::initTestCase()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1"));
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
-  terrama2::core::DataSetPtr dataset(new terrama2::core::DataSet(dataProvider));
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  transactor->begin();
+
+  std::string query = "DELETE FROM terrama2.dataset";
+  transactor->execute(query);
+
+  query = "DELETE FROM terrama2.data_provider";
+  transactor->execute(query);
+
+  transactor->commit();
 }
 
-
-
-void TestDataSetDAO::testUpdateDataSet()
+void TestDataSetDAO::cleanupTestCase()
 {
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  transactor->begin();
+
+  std::string query = "DELETE FROM terrama2.dataset";
+  transactor->execute(query);
+
+  query = "DELETE FROM terrama2.data_provider";
+  transactor->execute(query);
+
+  transactor->commit();
+}
+
+void TestDataSetDAO::testCRUDDataSet()
+{
+  terrama2::core::DataProviderDAO dataProviderDAO;
+  terrama2::core::DataSetDAO dataSetDAO;
+
+  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
+  dataProviderDAO.save(dataProvider);
+
+  terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
+  te::dt::TimeDuration dataFrequency(2,0,0);
+  dataSet->setDataFrequency(dataFrequency);
+
+  dataSetDAO.save(dataSet);
+
+  QVERIFY2(dataSet->id() > 0, "Id must be different than zero after save()!");
+
+  te::dt::TimeDuration schedule(12,0,0);
+  dataSet->setSchedule(schedule);
+
+  te::dt::TimeDuration scheduleTimeout(0,30,0);
+  dataSet->setScheduleTimeout(scheduleTimeout);
+
+  te::dt::TimeDuration scheduleRetry(0,5,0);
+  dataSet->setScheduleRetry(scheduleRetry);
+
+  dataSet->setStatus(terrama2::core::DataSet::ACTIVE);
+
+  dataSet->setDescription("Description...");
+  dataSet->setName("New queimadas");
+
+  dataSetDAO.update(dataSet);
+
+
+  terrama2::core::DataSetPtr findDataSet = dataSetDAO.find(dataSet->id());
+
+  QVERIFY2(dataSet->name() == findDataSet->name(), "Name must be the same!");
+  QVERIFY2(dataSet->status() == findDataSet->status(), "Status must be the same!");
+  QVERIFY2(dataSet->scheduleTimeout() == findDataSet->scheduleTimeout(), "Schedule timeout must be the same!");
+  QVERIFY2(dataSet->schedule() == findDataSet->schedule(), "Schedule must be the same!");
+  QVERIFY2(dataSet->scheduleRetry() == findDataSet->scheduleRetry(), "Schedule retry must be the same!");
+  QVERIFY2(dataSet->dataFrequency() == findDataSet->dataFrequency(), "Data frequency must be the same!");
 
 }
 
-
-void TestDataSetDAO::testRemoveDataSet()
-{
-
-}
-
-
-void TestDataSetDAO::testListDataSet()
-{
-
-}
 
 #include "TestDataSetDAO.moc"
+

@@ -37,15 +37,6 @@ COMMENT ON COLUMN terrama2.users.email IS 'User email';
 COMMENT ON COLUMN terrama2.users.cellphone IS 'Cellphone number used to send notifications';
 
 
-CREATE TABLE terrama2.unit_of_measure
-(
-  id     SERIAL PRIMARY KEY,
-  unit   TEXT
-);
-
-INSERT INTO terrama2.unit_of_measure(unit)
-     VALUES ('MINUTE'), ('HOUR'), ('DAY'), ('WEEK');
-
 CREATE TABLE terrama2.data_provider_type
 (
   id          SERIAL PRIMARY KEY,
@@ -107,29 +98,14 @@ CREATE TABLE terrama2.dataset
   active                    BOOLEAN,
   data_provider_id          INTEGER NOT NULL,
   kind                      INTEGER NOT NULL,
-  data_frequency            NUMERIC,
-  data_frequency_unit_id    INTEGER,
-  schedule                  TIME,
-  schedule_retry            NUMERIC,
-  schedule_retry_unit_id    INTEGER,
-  schedule_timeout          NUMERIC,
-  schedule_timeout_unit_id  INTEGER,
+  data_frequency            INTEGER,
+  schedule                  INTEGER,
+  schedule_retry            INTEGER,
+  schedule_timeout          INTEGER,
   CONSTRAINT fk_dataset_data_provider_id
            FOREIGN KEY(data_provider_id)
            REFERENCES terrama2.data_provider(id)
-           ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_dataset_data_frequency_unit_id
-           FOREIGN KEY(data_frequency_unit_id)
-           REFERENCES terrama2.unit_of_measure(id)
-           ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_dataset_schedule_retry_unit_id
-         FOREIGN KEY(schedule_retry_unit_id)
-         REFERENCES terrama2.unit_of_measure(id)
-         ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_dataset_schedule_timeout_unit_id
-         FOREIGN KEY(schedule_timeout_unit_id)
-         REFERENCES terrama2.unit_of_measure(id)
-         ON UPDATE CASCADE ON DELETE RESTRICT
+           ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 CREATE TABLE terrama2.dataset_metadata

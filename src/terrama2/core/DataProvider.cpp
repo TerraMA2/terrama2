@@ -34,9 +34,9 @@
 
 #include "DataProvider.hpp"
 
-terrama2::core::DataProvider::DataProvider(const std::string &name)
+terrama2::core::DataProvider::DataProvider(const std::string &name, Kind kind)
   : name_(name),
-    kind_(UNKNOWN_TYPE),
+    kind_(kind),
     status_(INACTIVE)
 {
 
@@ -107,7 +107,7 @@ void terrama2::core::DataProvider::setStatus(const terrama2::core::DataProvider:
   status_ = status;
 }
 
-std::vector<terrama2::core::DataSetPtr> terrama2::core::DataProvider::dataSet() const
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataProvider::dataSetList() const
 {
   return dataSets_;
 }
