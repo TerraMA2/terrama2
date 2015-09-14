@@ -119,6 +119,7 @@ namespace terrama2
              * Trys to open the connection, returns false if fails
              *
              * \return True if the connection is open. If not appliable, returns true.
+             * //TODO: Exception if cannot open?
              */
         virtual bool open()  = 0;
 

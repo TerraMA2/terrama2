@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/TestDataSetTimer.cpp
+  \file terrama2/collector/TestDataSetTimer.cpp
 
   \brief Tests for the DataSetTimer class.
 

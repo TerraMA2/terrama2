@@ -37,34 +37,28 @@
 
 namespace terrama2
 {
-  namespace ws
+  namespace collector
   {
-    namespace collector
-    {
-      namespace server
-      {
 
-        /*!
+    /*!
          * \brief The Storager class store the data in the final storage area and format.
          *
          * The Storager is responsible for creating the final storaging area and
          * converting the data (terralib) to the appropriate format.
          *
          */
-        class Storager : public boost::noncopyable
-        {
-          public:
-            /*!
+    class Storager : public boost::noncopyable
+    {
+      public:
+        /*!
              * \brief Store a temporary data set in it's final storage area and format.
              * \return Pointer to a te::da::DataSet of the final storage.
              *
              * \exception TODO: Storager::store exception...
              */
-            virtual te::da::DataSetPtr store(const te::da::DataSetPtr tempDataSet );
+        virtual te::da::DataSetPtr store(const te::da::DataSetPtr tempDataSet );
 
-        };
-      }
-    }
+    };
   }
 }
 

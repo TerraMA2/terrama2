@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/TestDataSetTimer.hpp
+  \file terrama2/collector/TestDataSetTimer.hpp
 
   \brief Tests for the DataSetTimer class.
 

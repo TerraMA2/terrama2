@@ -38,37 +38,31 @@
 
 namespace terrama2
 {
-  namespace ws
+  namespace collector
   {
-    namespace collector
-    {
-      namespace server
-      {
-
-        /*!
+    /*!
          * \brief The Parser class interpret the origin format and returns a te::da::DataSet.
          *
          * This class is responsible for interpreting the data to use with te::da::DataSet,
          * if not compatible it will convert to a caompatible format.
          *
          */
-        class Parser : public boost::noncopyable
-        {
-          public:
+    class Parser : public boost::noncopyable
+    {
+      public:
 
-            /*!
+        /*!
              * \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
              * \param uri Uri to the temporary data.
              * \return Pointer to an te::da::DataSet, can be invalid.
              *
              * \exception TODO: Parser::read exception...
              */
-            virtual te::da::DataSetPtr read(const std::string& uri);//FIXME: The terralib uses auto_ptr, boost::shared_ptr and terrama2 uses std::shared_ptr...
-        };
-      }
-    }
+        virtual te::da::DataSetPtr read(const std::string& uri);//FIXME: The terralib uses auto_ptr, boost::shared_ptr and terrama2 uses std::shared_ptr...
+    };
   }
 }
+
 
 
 #endif //__TERRAMA2_COLLECTOR_PARSER_HPP__

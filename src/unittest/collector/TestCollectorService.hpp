@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file unittest/ws/collector/collector/TestCollectorService.cpp
+  \file unittest/collector/TestCollectorService.cpp
 
   \brief Test Collector service...
 

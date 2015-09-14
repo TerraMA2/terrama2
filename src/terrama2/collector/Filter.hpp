@@ -46,48 +46,43 @@
 
 namespace terrama2
 {
-  namespace ws
+  namespace collector
   {
-    namespace collector
+    class Filter : public boost::noncopyable
     {
-      namespace server
-      {
+      public:
+        Filter()
+          : relationRule_(te::gm::UNKNOWN_SPATIAL_RELATION){}
 
-        class Filter : public boost::noncopyable
-        {
-          public:
-            Filter()
-              : relationRule_(te::gm::UNKNOWN_SPATIAL_RELATION){}
-
-            /*!
+        /*!
              * \brief Sets the mask the names should match
              * .
              * //TODO: define the wild cards to mask may have
              *
              */
-            void setMask(const std::string& mask);
+        void setMask(const std::string& mask);
 
-            /*!
+        /*!
              * \brief Sets the geometry and the relation rule the data must comply to be accepted
              * \param geometry Geometry to be confronted with the data.
              * \param relationRule Relation rule the data must comply.
              *
              * //TODO: enum the possible relations
              */
-            void setGeometry(const te::gm::GeometryShrPtr geometry, te::gm::SpatialRelation relationRule);
+        void setGeometry(const te::gm::GeometryShrPtr geometry, te::gm::SpatialRelation relationRule);
 
-            /*!
+        /*!
              * \brief Sets the date/time that should be used as starting date/time of valid data.
              * \param startDateTime Starting valid data date/time.
              */
-            void setDataStartDate();//TODO: What datetime format?
-            /*!
+        void setDataStartDate();//TODO: What datetime format?
+        /*!
              * \brief Sets the date/time that should be used as last date/time of valid data.
              * \param endDateTime Last valid data date/time.
              */
-            void setDataEndDate();//TODO: What datetime format?
+        void setDataEndDate();//TODO: What datetime format?
 
-            /*!
+        /*!
              * \brief Filters a list of names using filtering criteria.
              *
              * \param namesList Full list of names to be filtered.
@@ -96,9 +91,9 @@ namespace terrama2
              *
              * \return List of filtered names.
              */
-            QList<std::string> filterNames(const QList<std::string>& namesList) const;
+        QList<std::string> filterNames(const QList<std::string>& namesList) const;
 
-            /*!
+        /*!
              * \brief Filters a te::da::DataSet by matching criteria.
              * \param dataSet DataSet to be filtered.
              *
@@ -106,20 +101,18 @@ namespace terrama2
              *
              * \return Filtered DataSet.
              */
-            te::da::DataSetPtr filterDataSet(const te::da::DataSetPtr& dataSet) const;
+        te::da::DataSetPtr filterDataSet(const te::da::DataSetPtr& dataSet) const;
 
-            //TODO: should have static methods for easy access?
-            static QList<std::string> filterNamesByMask(const QList<std::string>& namesList, const std::string& mask) const;
-            static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry) const;
+        //TODO: should have static methods for easy access?
+        static QList<std::string> filterNamesByMask(const QList<std::string>& namesList, const std::string& mask) const;
+        static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry) const;
 
-          private:
-            std::string mask_;
-            te::gm::GeometryShrPtr  geometry_;
-            te::gm::SpatialRelation relationRule_;
+      private:
+        std::string mask_;
+        te::gm::GeometryShrPtr  geometry_;
+        te::gm::SpatialRelation relationRule_;
 
-        };
-      }
-    }
+    };
   }
 }
 

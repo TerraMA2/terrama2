@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file unittest/ws/collector/collector/TestCollector.cpp
+  \file unittest/collector/TestCollector.cpp
 
   \brief Test Collector...
 
