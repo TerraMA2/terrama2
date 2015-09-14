@@ -31,14 +31,14 @@
 
 // TerraMA2
 #include "../../../collector/CollectorService.hpp"
-#include "soapcollectorService.h"
+//#include "soapWebService.h"
 
 // STL
 #include <cstdlib>
 
 int main(int argc, char* argv[])
 {
-
+/*
   collectorService server;
 
   // check if a port number was passed as parameter
@@ -55,6 +55,6 @@ int main(int argc, char* argv[])
 
     exit(-1);
   }
-
+*/
   return EXIT_SUCCESS;
 }

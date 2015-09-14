@@ -27,6 +27,36 @@
   \author Vinicius Campanha
  */
 
-//gsoap collector service name: collector
+//gsoap Web service name: Web
 
-int collector__ping(std::string& answer);
+/*!
+  \brief gSOAP Test Ping, write in 'answer' and return SOAP_OK if executed whitout error.
+
+  \param answer Referenced string where will be the ping answer after method execution
+
+  \return Integer that inform that the method was executed whitout error.
+*/
+int Web__ping(std::string &answer);
+
+int Web__load(void);
+
+int Web__unload(void);
+
+int Web__removeDataProvider(uint64_t id, void);
+
+int Web__removeDataSet(uint64_t id, void);
+
+
+// VINICIUS: define interfaces of webservice collector, how work with Ptr?
+/*
+
++ add(DataProviderPtr)
++ add(DataSetPtr)
++ update(DataProviderPtr)
++ update(DataSetPtr)
++ findDataProvider(uint64_t): DataProviderPtr
++ findDataSet(uint64_t): DataSetPtr
++ listDataProvider() : std::vector<:DataProviderPtr>
++ listDataSet() : std::vector<:DataSetPtr>
++ instance():  DataManager
+*/
