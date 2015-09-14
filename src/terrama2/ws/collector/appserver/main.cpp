@@ -30,7 +30,6 @@
  */
 
 // TerraMA2
-#include "../../../collector/CollectorService.hpp"
 #include "soapcollectorService.h"
 
 // STL

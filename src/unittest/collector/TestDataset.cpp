@@ -116,5 +116,5 @@ void TestDataset::finalizeTerralib()
   TerraLib::getInstance().finalize();
 }
 
-QTEST_MAIN(TestDataset)
+//QTEST_MAIN(TestDataset)
 #include "TestDataset.moc"
