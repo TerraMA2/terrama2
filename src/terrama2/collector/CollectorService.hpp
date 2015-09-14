@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/CollectorService.hpp
+  \file terrama2/collector/CollectorService.hpp
 
   \brief Manages the collection of data in the appropriate time.
 
   \author Jano Simas, Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
 
 
 #include "../core/DataProvider.hpp"
@@ -93,7 +93,7 @@ namespace terrama2
              * in case it's not collecting, starts the collection calling the collect method.
              * It allows multiples providers to collect at the same time but only one provider of each type.
              */
-        void processLoop();
+        void processingLoop();
 
         /*!
              * \brief Creates an instace of a collector of appropriate type for the dataProvider.
@@ -136,4 +136,4 @@ namespace terrama2
   }
 }
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
+#endif //__TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__

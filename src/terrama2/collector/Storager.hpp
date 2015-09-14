@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Storager.hpp
+  \file terrama2/collector/Storager.hpp
 
   \brief Store a temporary terralib DataSet into the permanent storage area.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
+#ifndef __TERRAMA2_COLLECTOR_STORAGER_HPP__
+#define __TERRAMA2_COLLECTOR_STORAGER_HPP__
 
 #include "terralib/dataaccess/dataset/DataSet.h"
 
@@ -69,4 +69,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
+#endif //__TERRAMA2_COLLECTOR_STORAGER_HPP__

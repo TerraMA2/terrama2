@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/CollectorFactory.hpp
+  \file terrama2/collector/CollectorFactory.hpp
 
   \brief Instantiate collectors for DataProviders.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORFACTORY_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORFACTORY_HPP__
+#ifndef __TERRAMA2_COLLECTOR_COLLECTORFACTORY_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTORFACTORY_HPP__
 
 #include "Collector.hpp"
 
@@ -91,4 +91,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORFACTORY_HPP__
+#endif //__TERRAMA2_COLLECTOR_COLLECTORFACTORY_HPP__

@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/DataSetTimer.cpp
+  \file terrama2/collector/DataSetTimer.cpp
 
   \brief Signals when the dataset should be collected..
 

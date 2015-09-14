@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/DataSetTimer.hpp
+  \file terrama2/collector/DataSetTimer.hpp
 
   \brief Signals when the dataset should be collected.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_DATASETTIMER_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_DATASETTIMER_HPP__
+#ifndef __TERRAMA2_COLLECTOR_DATASETTIMER_HPP__
+#define __TERRAMA2_COLLECTOR_DATASETTIMER_HPP__
 
 //Std
 #include <memory>
@@ -108,4 +108,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_DATASETTIMER_HPP__
+#endif //__TERRAMA2_COLLECTOR_DATASETTIMER_HPP__

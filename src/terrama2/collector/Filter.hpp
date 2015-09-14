@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Filter.hpp
+  \file terrama2/collector/Filter.hpp
 
   \brief Filters data.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_FILTER_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_FILTER_HPP__
+#ifndef __TERRAMA2_COLLECTOR_FILTER_HPP__
+#define __TERRAMA2_COLLECTOR_FILTER_HPP__
 
 //Terralib
 #include "terralib/dataaccess/dataset/DataSet.h"
@@ -124,4 +124,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_FILTER_HPP__
+#endif //__TERRAMA2_COLLECTOR_FILTER_HPP__

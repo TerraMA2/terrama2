@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/DataProcessor.hpp
+  \file terrama2/collector/DataProcessor.hpp
 
   \brief Manages the processing, filtering and storaging of aquired data.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_DATAPROCESSOR_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_DATAPROCESSOR_HPP__
+#ifndef __TERRAMA2_COLLECTOR_DATAPROCESSOR_HPP__
+#define __TERRAMA2_COLLECTOR_DATAPROCESSOR_HPP__
 
 //Std
 #include <memory>
@@ -88,4 +88,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_DATAPROCESSOR_HPP__
+#endif //__TERRAMA2_COLLECTOR_DATAPROCESSOR_HPP__

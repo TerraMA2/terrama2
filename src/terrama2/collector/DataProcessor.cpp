@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/DataProcessor.cpp
+  \file terrama2/collector/DataProcessor.cpp
 
   \brief Manages the processing, filtering and storaging of aquired data.
 

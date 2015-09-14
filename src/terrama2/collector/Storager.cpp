@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Storager.cpp
+  \file terrama2/collector/Storager.cpp
 
   \brief Store a temporary terralib DataSet into the permanent storage area.
 

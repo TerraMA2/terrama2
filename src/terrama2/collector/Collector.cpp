@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Collector.cpp
+  \file terrama2/collector/Collector.cpp
 
   \brief Aquire data from server.
 

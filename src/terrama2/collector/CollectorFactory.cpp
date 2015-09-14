@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/CollectorFactory.cpp
+  \file terrama2/collector/CollectorFactory.cpp
 
   \brief Instantiate collectors for DataProviders.
 

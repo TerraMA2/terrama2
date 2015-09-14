@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Filter.cpp
+  \file terrama2/collector/Filter.cpp
 
   \brief Filters data.
 

@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Collector.hpp
+  \file terrama2/collector/Collector.hpp
 
   \brief Aquire data from server.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
+#ifndef __TERRAMA2_COLLECTOR_COLLECTOR_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTOR_HPP__
 
 #include "../core/DataProvider.hpp"
 #include "DataSetTimer.hpp"
@@ -143,4 +143,4 @@ namespace terrama2
 
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
+#endif //__TERRAMA2_COLLECTOR_COLLECTOR_HPP__

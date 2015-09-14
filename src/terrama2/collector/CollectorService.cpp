@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/CollectorService.cpp
+  \file terrama2/collector/CollectorService.cpp
 
   \brief  Manages the collection of data in the appropriate time.
 
@@ -75,7 +75,7 @@ void terrama2::collector::CollectorService::start()
     return;
   }
 
-  loopThread_ = std::thread(&CollectorService::processLoop, this);
+  loopThread_ = std::thread(&CollectorService::processingLoop, this);
 
   QCoreApplication::exec();
 }
@@ -107,7 +107,7 @@ void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCo
   }
 }
 
-void terrama2::collector::CollectorService::processLoop()
+void terrama2::collector::CollectorService::processingLoop()
 {
   while(true)
   {
