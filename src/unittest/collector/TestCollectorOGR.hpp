@@ -20,36 +20,42 @@
 */
 
 /*!
-  \file unittest/collector/main.cpp
+  \file unittest/collector/TestCollectorOGR.hpp
 
-  \brief Main test
+  \brief Test CollectorOGR...
 
   \author Jano Simas
 */
 
 
-
-#include "TestCollector.hpp"
-#include "TestCollectorService.hpp"
-#include "TestDataSetTimer.hpp"
-
-//TerraMA2
 #include "../core/TestUtils.hpp"
 
-// QT
-#include <QTest>
+//QT
+#include <QtTest>
 
-int main(int argc, char **argv)
+
+class TestCollectorOGR: public QObject
 {
+  Q_OBJECT
 
-  TestCollector testCollector;
-  QTest::qExec(&testCollector, argc, argv);
+protected:
 
-  TestCollectorService testCollectorService;
-  QTest::qExec(&testCollectorService, argc, argv);
+private slots:
+    void initTestCase(); // Run before all tests
 
-  TestDataSetTimer testDataSetTimer;
-  QTest::qExec(&testDataSetTimer, argc, argv);
+    void cleanupTestCase(); // Run after all tests
 
-  return 0;
-}
+    void init(){} //run before each test
+    void cleanup(){} //run before each test
+
+    //******Test functions********
+
+    /*!
+     * \brief Test Description
+     */
+    void testInvalidDataProvider();
+
+
+
+    //******End of Test functions****
+};

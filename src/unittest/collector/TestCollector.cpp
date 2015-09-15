@@ -112,5 +112,5 @@ void TestCollector::finalizeTerralib()
   TerraLib::getInstance().finalize();
 }
 
-//QTEST_MAIN(TestCollector)
+QTEST_MAIN(TestCollector)
 #include "TestCollector.moc"
