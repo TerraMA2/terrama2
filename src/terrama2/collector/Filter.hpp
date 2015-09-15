@@ -37,6 +37,7 @@
 
 //QT
 #include <QList>
+#include <QStringList>
 
 //STD
 #include <string>
@@ -92,7 +93,7 @@ namespace terrama2
              *
              * \return List of filtered names.
              */
-        std::vector<std::string> filterNames(const std::vector<std::string>& namesList) const;
+        QStringList filterNames(const QStringList &namesList) const;
 
         /*!
              * \brief Filters a te::da::DataSet by matching criteria.

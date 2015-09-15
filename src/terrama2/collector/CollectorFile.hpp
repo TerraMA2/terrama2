@@ -20,42 +20,52 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorOGR.hpp
+  \file terrama2/collector/CollectorFile.hpp
 
-  \brief Test CollectorOGR...
+  \brief Aquire data from server.
 
   \author Jano Simas
 */
 
 
-#include "../core/TestUtils.hpp"
+#ifndef __TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
 
-//QT
-#include <QtTest>
+#include "Collector.hpp"
 
+//Qt
+#include <QDir>
 
-class TestCollectorOGR: public QObject
+namespace te
 {
-  Q_OBJECT
+  namespace da {
+    class DataSource;
+  }
+}
 
-protected:
+namespace terrama2
+{
+  namespace collector
+  {
+    class CollectorFile : public Collector
+    {
+      public:
+        CollectorFile(const terrama2::core::DataProviderPtr dataProvider, QObject *parent = nullptr);
+        virtual ~CollectorFile(){}
 
-private slots:
-    void initTestCase(); // Run before all tests
+        virtual bool checkConnection() const override;
+        virtual bool isOpen() const override;
+        virtual void open() override;
+        virtual void close() override;
 
-    void cleanupTestCase(); // Run after all tests
+      protected:
+        virtual void getData(const DataProcessorPtr dataProcessor) override;
 
-    void init(){} //run before each test
-    void cleanup(){} //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Test Description
-     */
-    void testInvalidDataProvider();
+        QDir dir_;
+    };
+  }
+}
 
 
 
-    //******End of Test functions****
-};
+#endif //__TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__

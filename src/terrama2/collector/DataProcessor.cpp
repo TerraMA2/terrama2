@@ -29,6 +29,12 @@
 
 #include "DataProcessor.hpp"
 
+#include "Filter.hpp"
+#include "Parser.hpp"
+#include "Storager.hpp"
+
+//terralib
+#include <terralib/dataaccess/dataset/DataSet.h>
 
 terrama2::core::DataPtr terrama2::collector::DataProcessor::data() const
 {
@@ -37,11 +43,15 @@ terrama2::core::DataPtr terrama2::collector::DataProcessor::data() const
 
 terrama2::collector::FilterPtr terrama2::collector::DataProcessor::filter() const
 {
-  //JANO: implementar filter()
+  return filter_;
 }
 
 void terrama2::collector::DataProcessor::import(const std::string &uri)
 {
+  te::da::DataSetPtr tempDataSet = parser_->read(uri);
+  tempDataSet = filter_->filterDataSet(tempDataSet);
+  te::da::DataSetPtr storedDataSet = storager_->store(tempDataSet);
+
   //JANO: implementar import
   //should run in thread ?
   //Call a thread method?

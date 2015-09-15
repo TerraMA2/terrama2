@@ -126,6 +126,9 @@ namespace terrama2
         //! \brief Close the connection, if not open, does nothing.
         virtual void close() = 0;
 
+        //! \brief Check if possible to connect
+        virtual bool checkConnection() const = 0;
+
       protected:
         //! \brief Aquired the data specified in dataProcessor.
         virtual void getData(const DataProcessorPtr dataProcessor) = 0;

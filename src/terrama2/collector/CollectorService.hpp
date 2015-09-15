@@ -129,8 +129,8 @@ namespace terrama2
         void processingLoop();
 
         bool stop_;
-        QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
-        QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
+        QMap<core::DataProvider::Kind, QList<CollectorPtr> >  collectorQueueMap_;
+        QMap<CollectorPtr, QList<uint64_t /*DataSetId*/> >    datasetQueue_;
 
         QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
 

@@ -29,9 +29,16 @@
 
 #include "Filter.hpp"
 
-std::vector<std::string> terrama2::collector::Filter::filterNames(const std::vector<std::string> &namesList) const
+QStringList terrama2::collector::Filter::filterNames(const QStringList& namesList) const
 {
+  //TODO: Implement filterNames
+  return namesList;
+}
 
+te::da::DataSetPtr terrama2::collector::Filter::filterDataSet(const te::da::DataSetPtr &dataSet) const
+{
+  //TODO: Implement filterDataSet
+  return dataSet;
 }
 
 

@@ -54,11 +54,11 @@ void initializeTerralib()
   info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
   te::plugin::PluginManager::getInstance().add(info);
 
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+//  te::plugin::PluginManager::getInstance().add(info);
 
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+//  te::plugin::PluginManager::getInstance().add(info);
 
   te::plugin::PluginManager::getInstance().loadAll();
 }

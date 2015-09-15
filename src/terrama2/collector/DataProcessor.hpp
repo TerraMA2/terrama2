@@ -53,6 +53,10 @@ namespace terrama2
   {
     class Filter;
     typedef std::shared_ptr<Filter> FilterPtr;
+    class Parser;
+    typedef std::shared_ptr<Parser> ParserPtr;
+    class Storager;
+    typedef std::shared_ptr<Storager> StoragerPtr;
 
     /*!
          * \brief The DataProcessor class is responsible to process and store the aquired data.
@@ -81,6 +85,11 @@ namespace terrama2
              * \param uri Uri to temporary data aquired by a collector.
              */
         void import(const std::string &uri);
+
+      private:
+        FilterPtr filter_;
+        ParserPtr parser_;
+        StoragerPtr storager_;
 
     };
 
