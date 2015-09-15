@@ -39,14 +39,9 @@ private:
 
 
 private slots:
-
-  void testAddDataSet();
-
-  void testUpdateDataSet();
-
-  void testRemoveDataSet();
-
-  void testListDataSet();
+  void initTestCase();
+  void cleanupTestCase();
+  void testCRUDDataSet();
 };
 
 

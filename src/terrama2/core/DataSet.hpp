@@ -33,17 +33,12 @@
 #ifndef __TERRAMA2_CORE_DATASET_HPP__
 #define __TERRAMA2_CORE_DATASET_HPP__
 
-
-
 // STL
 #include <memory>
 #include <string>
-#include <cstdint>
 
-//Boost
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-
-
+// TerraLib
+#include <terralib/datatype/TimeDuration.h>
 
 namespace terrama2
 {
@@ -76,20 +71,6 @@ namespace terrama2
         GRID_TYPE
       };
 
-      //! Dataset unit of time.
-      enum UOT
-      {
-        UNKNOWN_UOT,
-        MILISECOND,
-        SECOND,
-        MINUTE,
-        HOUR,
-        DAY,
-        WEEK,
-        MONTH,
-        YEAR
-      };
-
       //! Dataset status.
       enum Status
       {
@@ -97,7 +78,7 @@ namespace terrama2
         INACTIVE
       };
 
-      DataSet(DataProviderPtr provider);
+      DataSet(DataProviderPtr provider, const std::string& name, Kind kind);
 
       ~DataSet();
 
@@ -174,18 +155,61 @@ namespace terrama2
         DataProviderPtr dataProvider() const;
 
         /*!
-          \brief It returns the .
-        
-          \return The .
+          \brief It returns the time frequency that this dataset must try to acquire a new data.
+
+          \return The the time frequency that this dataset must try to acquire a new data.
         */
-        double dataFrequency() const;
-        
+        te::dt::TimeDuration dataFrequency() const;
+
         /*!
-          \brief It sets the freque.
-        
-          \param The .
+          \brief It sets the time frequency that this dataset must try to acquire a new data.
+
+          \param The time frequency that this dataset must try to acquire a new data.
         */
-        void setDataFrequency(const double& dataFrequency);
+        void setDataFrequency(const te::dt::TimeDuration& dataFrequency);
+
+        /*!
+          \brief It returns the time scheduled to the next collection.
+
+          \return The time scheduled to the next collection.
+        */
+        te::dt::TimeDuration schedule() const;
+
+        /*!
+          \brief It sets the time scheduled to the next collection.
+
+          \param The time scheduled to the next collection.
+        */
+        void setSchedule(const te::dt::TimeDuration& schedule);
+
+        /*!
+          \brief It returns the time frequency to retry a collection if the data wasn't available in the scheduled time.
+
+          \return The time frequency to retry a collection if the data wasn't available in the scheduled time.
+        */
+        te::dt::TimeDuration scheduleRetry() const;
+
+        /*!
+          \brief It sets the time frequency to retry a collection if the data wasn't available in the scheduled time.
+
+          \param The time frequency to retry a collection if the data wasn't available in the scheduled time.
+        */
+        void setScheduleRetry(const te::dt::TimeDuration& scheduleRetry);
+
+        /*!
+          \brief It returns the time limit to retry a scheduled collection.
+
+          \return The the time limit to retry a scheduled collection.
+        */
+        te::dt::TimeDuration scheduleTimeout() const;
+
+        /*!
+          \brief Sets the time limit to retry a scheduled collection.
+
+          \param The time limit to retry a scheduled collection.
+        */
+        void setScheduleTimeout(const te::dt::TimeDuration& scheduleTimeout);
+
 
       protected:
 
@@ -205,12 +229,12 @@ namespace terrama2
         Status status_;
         DataProviderPtr dataProvider_;
         Kind kind_;
-        boost::posix_time::time_duration dataFrequency_;
-        boost::posix_time::time_duration schedule_;
-        boost::posix_time::time_duration scheduleRetry_;
-        boost::posix_time::time_duration scheduleTimeout_;
+        te::dt::TimeDuration dataFrequency_;
+        te::dt::TimeDuration schedule_;
+        te::dt::TimeDuration scheduleRetry_;
+        te::dt::TimeDuration scheduleTimeout_;
 
-      friend class DataSetDAO; //review
+      friend class DataSetDAO;
     };
 
     typedef std::shared_ptr<DataSet> DataSetPtr;

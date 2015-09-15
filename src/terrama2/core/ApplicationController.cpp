@@ -30,14 +30,14 @@
 #include "ApplicationController.hpp"
 
 //STL
-#include <string>
-#include <memory>
 #include <map>
+#include <memory>
+#include <string>
 
 //Qt
-#include <QJsonObject>
 #include <QFile>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QString>
 
 //TerraLib
@@ -102,4 +102,9 @@ std::auto_ptr<te::da::DataSourceTransactor> terrama2::core::ApplicationControlle
 std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDataSource()
 {
   return dataSouce_;
+}
+
+bool terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
+{
+  return false;
 }

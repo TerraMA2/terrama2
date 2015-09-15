@@ -30,9 +30,10 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.h
 
 
 include_directories (
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -48,7 +49,6 @@ target_link_libraries(terrama2_unittest_core terrama2_mod_core terralib_mod_plug
 add_test(NAME TestApplicationController COMMAND terrama2_unittest_core)
 add_test(NAME TestDataSetDAO COMMAND terrama2_unittest_core)
 add_test(NAME TestDataProviderDAO COMMAND terrama2_unittest_core)
-add_test(NAME TestCollectorService COMMAND terrama2_unittest_core)
 add_test(NAME TestDataManager COMMAND terrama2_unittest_core)
 
 

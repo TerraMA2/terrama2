@@ -49,46 +49,54 @@ void TestDataProviderDAO::initTestCase()
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
   transactor->begin();
-  std::string query = "DELETE FROM terrama2.data_provider";
+
+  std::string query = "DELETE FROM terrama2.dataset";
   transactor->execute(query);
+
+  query = "DELETE FROM terrama2.data_provider";
+  transactor->execute(query);
+
   transactor->commit();
 
 }
 
 void TestDataProviderDAO::cleanupTestCase()
 {
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  transactor->begin();
+
+  std::string query = "DELETE FROM terrama2.data_provider";
+  transactor->execute(query);
+
+  transactor->commit();
 }
 
 void TestDataProviderDAO::testCRUDDataProvider()
 {
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-  terrama2::core::DataProviderDAO dataProviderDAO(dataSource);
+// get the transactor
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
 
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1"));
-  dataProvider->setKind(terrama2::core::DataProvider::FTP_TYPE);
+// create a new data provider and save it to the database
+  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
 
-  // Inserts a new data provider
-  QVERIFY2(dataProviderDAO.save(dataProvider), "Could not save the data provider!");
+  terrama2::core::DataProviderDAO::save(dataProvider, *transactor);
 
-
-
-  // Updates a data provider
+// update the data provider
   dataProvider->setName("New server");
   dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
 
-  QVERIFY2(dataProviderDAO.update(dataProvider), "Could not update the data provider!");
+  terrama2::core::DataProviderDAO::update(dataProvider, *transactor);
 
   QVERIFY2(dataProvider->id() != 0, "The id wasn't set in the provider after insert!");
 
-
-
-  // Recovers the same data provider by id
-  terrama2::core::DataProviderPtr tempProvider = dataProviderDAO.find(dataProvider->id());
+// Find the same data provider by id
+  terrama2::core::DataProviderPtr tempProvider = terrama2::core::DataProviderDAO::find(dataProvider->id(), *transactor);
 
   QVERIFY2(tempProvider.get(), "Could not recover the data provider by id!");
 
-  // Must be the same as the inserted one
+// must be the same as the inserted one
   QCOMPARE(tempProvider->id(), dataProvider->id());
   QCOMPARE(tempProvider->name(), dataProvider->name());
   QCOMPARE(tempProvider->kind(), dataProvider->kind());
@@ -96,7 +104,7 @@ void TestDataProviderDAO::testCRUDDataProvider()
   QCOMPARE(tempProvider->description(), dataProvider->description());
 
   // Lists all data providers
-  std::vector<terrama2::core::DataProviderPtr> vecDataProvider = dataProviderDAO.list();
+  std::vector<terrama2::core::DataProviderPtr> vecDataProvider = terrama2::core::DataProviderDAO::list(*transactor);
 
 
   QVERIFY2(!vecDataProvider.empty(), "Empty list but should have one data provider!");
@@ -104,13 +112,14 @@ void TestDataProviderDAO::testCRUDDataProvider()
   QVERIFY2(vecDataProvider.size() == 1, "Number of data providers recovered different than expected!");
 
   // Removes the data provider
-  QVERIFY2(dataProviderDAO.remove(dataProvider->id()), "Could not remove the data provider!");
+  terrama2::core::DataProviderDAO::remove(dataProvider, *transactor);
 
+  // Lists all data providers
+  vecDataProvider = terrama2::core::DataProviderDAO::list(*transactor);
 
   QVERIFY2(vecDataProvider.empty(), "List should be empty after remove!");
 }
 
 
-
-#include "TestDataProviderDAO.moc"
+//#include "TestDataProviderDAO.moc"
 

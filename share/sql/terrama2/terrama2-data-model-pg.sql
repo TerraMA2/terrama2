@@ -6,7 +6,7 @@ BEGIN TRANSACTION;
 
 CREATE SCHEMA terrama2;
 
-COMMENT ON SCHEMA terrama2 IS 'Schema used to store all objects related to TerraMA';
+COMMENT ON SCHEMA terrama2 IS 'TerraMA2 Schema';
 
 CREATE TABLE terrama2.version
 (
@@ -14,8 +14,8 @@ CREATE TABLE terrama2.version
   description TEXT
 );
 
-COMMENT ON TABLE terrama2.version IS 'Table used to store the database version';
-COMMENT ON COLUMN terrama2.version.version IS 'Number of the version';
+COMMENT ON TABLE terrama2.version IS 'Store TerraMA2 data model version';
+COMMENT ON COLUMN terrama2.version.version IS 'Data model version';
 COMMENT ON COLUMN terrama2.version.description IS 'Description of this version';
 
 CREATE TABLE terrama2.users
@@ -25,26 +25,16 @@ CREATE TABLE terrama2.users
   password  VARCHAR(20)  NOT NULL,
   name      VARCHAR(200) NOT NULL,
   email     VARCHAR(50)  NOT NULL,
-  cellphone VARCHAR(20)  NOT NULL
+  cell_phone VARCHAR(20)  NOT NULL
 );
 
 COMMENT ON TABLE terrama2.users IS 'Store information about TerraMA2 users';
-COMMENT ON COLUMN terrama2.users.id IS 'Identifier of an user';
-COMMENT ON COLUMN terrama2.users.login IS 'Login used to access the system';
-COMMENT ON COLUMN terrama2.users.password IS 'Password used to access the system';
-COMMENT ON COLUMN terrama2.users.name IS 'Full username';
-COMMENT ON COLUMN terrama2.users.email IS 'User email';
-COMMENT ON COLUMN terrama2.users.cellphone IS 'Cellphone number used to send notifications';
-
-
-CREATE TABLE terrama2.unit_of_measure
-(
-  id     SERIAL PRIMARY KEY,
-  unit   TEXT
-);
-
-INSERT INTO terrama2.unit_of_measure(unit)
-     VALUES ('MINUTE'), ('HOUR'), ('DAY'), ('WEEK');
+COMMENT ON COLUMN terrama2.users.id IS 'User identifier';
+COMMENT ON COLUMN terrama2.users.login IS 'User login';
+COMMENT ON COLUMN terrama2.users.password IS 'User password';
+COMMENT ON COLUMN terrama2.users.name IS 'User name';
+COMMENT ON COLUMN terrama2.users.email IS 'User e-mail';
+COMMENT ON COLUMN terrama2.users.cell_phone IS 'User cell phone';
 
 CREATE TABLE terrama2.data_provider_type
 (
@@ -74,18 +64,13 @@ CREATE TABLE terrama2.data_provider
              ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-
---COMMENT ON TABLE terrama2.data_provider IS 'Store information about TerraMA2 data providers (remote servers, ftp servers, web services)';
---COMMENT ON COLUMN terrama2.server.id IS 'Data Provider identifier';
---COMMENT ON COLUMN terrama2.server.name IS 'Name of the server, must be unique';
---COMMENT ON COLUMN terrama2.server.protocol IS 'Defines which protocol of communication will be used, e.g. FTP, HTTP, File or OGC';
---COMMENT ON COLUMN terrama2.server.url IS 'Defines the server address, for File protocol should be the base file path';
---COMMENT ON COLUMN terrama2.server.username IS 'Username to be used in order to access a FTP server';
---COMMENT ON COLUMN terrama2.server.password IS 'Password to be used in order to access a FTP server';
---COMMENT ON COLUMN terrama2.server.port IS 'Port to be user in order to access a FTP server';
---COMMENT ON COLUMN terrama2.server.description IS 'Description of the server';
---COMMENT ON COLUMN terrama2.server.active IS 'Defines if the server is active and should be checked periodically';
---COMMENT ON COLUMN terrama2.server.base_path IS 'Optional parameter to indicate a base path to a FTP server';
+COMMENT ON TABLE terrama2.data_provider IS 'Store information about TerraMA2 data providers (remote servers, ftp servers, web services)';
+COMMENT ON COLUMN terrama2.data_provider.id IS 'Data Provider identifier';
+COMMENT ON COLUMN terrama2.data_provider.name IS 'A name used to refer to the data server';
+COMMENT ON COLUMN terrama2.data_provider.description IS 'A brief description about the dara server';
+COMMENT ON COLUMN terrama2.data_provider.kind IS 'The identifier of data server type';
+COMMENT ON COLUMN terrama2.data_provider.uri IS 'An URI describing how to access the data provider';
+COMMENT ON COLUMN terrama2.data_provider.active IS 'A true value indicates that the server is active and must be checked periodically';
 
 CREATE TABLE terrama2.dataset_type
 (
@@ -107,29 +92,14 @@ CREATE TABLE terrama2.dataset
   active                    BOOLEAN,
   data_provider_id          INTEGER NOT NULL,
   kind                      INTEGER NOT NULL,
-  data_frequency            NUMERIC,
-  data_frequency_unit_id    INTEGER,
+  data_frequency            INTEGER,
   schedule                  TIME,
-  schedule_retry            NUMERIC,
-  schedule_retry_unit_id    INTEGER,
-  schedule_timeout          NUMERIC,
-  schedule_timeout_unit_id  INTEGER,
+  schedule_retry            INTEGER,
+  schedule_timeout          INTEGER,
   CONSTRAINT fk_dataset_data_provider_id
            FOREIGN KEY(data_provider_id)
            REFERENCES terrama2.data_provider(id)
-           ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_dataset_data_frequency_unit_id
-           FOREIGN KEY(data_frequency_unit_id)
-           REFERENCES terrama2.unit_of_measure(id)
-           ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_dataset_schedule_retry_unit_id
-         FOREIGN KEY(schedule_retry_unit_id)
-         REFERENCES terrama2.unit_of_measure(id)
-         ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_dataset_schedule_timeout_unit_id
-         FOREIGN KEY(schedule_timeout_unit_id)
-         REFERENCES terrama2.unit_of_measure(id)
-         ON UPDATE CASCADE ON DELETE RESTRICT
+           ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE terrama2.dataset_metadata

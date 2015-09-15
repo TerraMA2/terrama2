@@ -20,31 +20,32 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file terrama2/core/Exception.hpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Exception classes for core module
 
   \author Paulo R. M. Oliveira
-*/
+ */
 
-#include "TestApplicationController.hpp"
+#ifndef __TERRAMA2_CORE_EXCEPTION_HPP__
+#define __TERRAMA2_CORE_EXCEPTION_HPP__
 
-#include <terrama2_config.hpp>
-#include <terrama2/core/ApplicationController.hpp>
-#include <terrama2/core/Utils.hpp>
+#include "../Exception.hpp"
 
-// TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-// STL
-#include <memory>
-
-void TestApplicationController::testLoadProject()
+namespace terrama2
 {
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-  QVERIFY(dataSource.get());
-}
+  namespace core
+  {
+    //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
+    struct DataSetInUseError: virtual terrama2::Exception{ };
+    
+    //! Indicates that an invalid data provider identifier was used.
+    struct InvalidDataProviderIdError: virtual terrama2::Exception{ };
+    
+    //! Indicates that an invalid dataset identifier was used.
+    struct InvalidDataSetIdError: virtual terrama2::Exception{ };
 
-//#include "TestApplicationController.moc"
+  }  // end namespace core
+}  // end namespace terrama2
+
+#endif  // __TERRAMA2_CORE_EXCEPTION_HPP__
