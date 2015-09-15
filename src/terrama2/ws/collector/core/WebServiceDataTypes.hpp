@@ -20,15 +20,41 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/Config.hpp
+  \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
 
-  \brief Build options for TerraMA2 Collector Service Core module.
+  \brief TerraMA2 Collector gSOAP data types.
 
-  \author Vinicius Camapanha
+  \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_CORE_CONFIG_HPP__
-#define __TERRAMA2_WS_COLLECTOR_CORE_CONFIG_HPP__
+//#import "stlvector.h"
 
+struct DataProvider
+{
+  uint64_t      id;
+  std::string   name;
+  std::string   description;
+  uint32_t      kind;
+  std::string   uri;
+  uint32_t      status;
+};
 
-#endif // __TERRAMA2_WS_COLLECTOR_CORE_CONFIG_HPP__
+struct DataProviderResponse { DataProvider return_; };
+
+//struct listDataProviderResponse { std::vector<DataProvider> return_ };
+
+struct DataSet
+{
+  uint64_t      id;
+  std::string   name;
+  std::string   description;
+  uint32_t      status;
+  uin64_t       data_provider_id;
+  uint32_t      kind;
+  uint32_t      data_frequency;
+  std::string   schedule;
+  uint32_t      schedule_retry;
+  uint32_t      schedule_timeout;
+};
+
+struct DataSetResponse { DataSet return_; };
