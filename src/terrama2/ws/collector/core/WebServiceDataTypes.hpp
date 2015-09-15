@@ -20,40 +20,41 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.cpp
+  \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
 
-  \brief Instantiate collectors for DataProviders.
+  \brief TerraMA2 Collector gSOAP data types.
 
-  \author Jano Simas
-*/
+  \author Vinicius Campanha
+ */
 
+//#import "stlvector.h"
 
-#include "CollectorFactory.hpp"
-#include "Exception.hpp"
-
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
-
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
+struct DataProvider
 {
+  uint64_t      id;
+  std::string   name;
+  std::string   description;
+  uint32_t      kind;
+  std::string   uri;
+  uint32_t      status;
+};
 
-  if(!instance_)
-    instance_ = new CollectorFactory();
+struct DataProviderResponse { DataProvider return_; };
 
-  return *instance_;
-}
+//struct listDataProviderResponse { std::vector<DataProvider> return_ };
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
+struct DataSet
 {
-  //JANO: implementar getCollector
+  uint64_t      id;
+  std::string   name;
+  std::string   description;
+  uint32_t      status;
+  uin64_t       data_provider_id;
+  uint32_t      kind;
+  uint32_t      data_frequency;
+  std::string   schedule;
+  uint32_t      schedule_retry;
+  uint32_t      schedule_timeout;
+};
 
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
-  {
-    //... instatiate a new collector
-    //TODO: Throws if fail?
-
-    //TODO: Throws UnknownDataProviderKindException
-  }
-
-  return collectorMap_.value(dataProvider->id());
-}
+struct DataSetResponse { DataSet return_; };

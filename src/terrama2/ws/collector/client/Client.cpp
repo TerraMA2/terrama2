@@ -27,5 +27,5 @@
   \author Vinicius Campanha
  */
 
-#include "soapcollectorProxy.h"
-#include "collector.nsmap"
+#include "soapWebProxy.h"
+#include "Web.nsmap"

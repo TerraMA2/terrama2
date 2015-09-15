@@ -20,40 +20,49 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.cpp
+  \file terrama2/collector/CollectorOGC.hpp
 
-  \brief Instantiate collectors for DataProviders.
+  \brief Aquire data from server.
 
   \author Jano Simas
 */
 
 
-#include "CollectorFactory.hpp"
-#include "Exception.hpp"
+#ifndef __TERRAMA2_COLLECTOR_COLLECTOROGC_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTOROGC_HPP__
 
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
+#include "Collector.hpp"
 
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
+namespace te
 {
-
-  if(!instance_)
-    instance_ = new CollectorFactory();
-
-  return *instance_;
-}
-
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
-{
-  //JANO: implementar getCollector
-
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
-  {
-    //... instatiate a new collector
-    //TODO: Throws if fail?
-
-    //TODO: Throws UnknownDataProviderKindException
+  namespace da {
+    class DataSource;
   }
-
-  return collectorMap_.value(dataProvider->id());
 }
+
+namespace terrama2
+{
+  namespace collector
+  {
+    class CollectorOGR : public Collector
+    {
+      public:
+        CollectorOGR(const terrama2::core::DataProviderPtr dataProvider, QObject *parent = nullptr);
+        virtual ~CollectorOGR(){}
+
+        virtual bool isOpen() const override;
+        virtual void open() override;
+        virtual void close() override;
+
+      protected:
+        virtual void getData(const DataProcessorPtr dataProcessor) override;
+
+        std::auto_ptr<te::da::DataSource> dataSource_;
+
+    };
+  }
+}
+
+
+
+#endif //__TERRAMA2_COLLECTOR_COLLECTOROGC_HPP__

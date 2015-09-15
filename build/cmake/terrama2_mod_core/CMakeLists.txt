@@ -48,8 +48,8 @@ add_library(terrama2_mod_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES}
 
 qt5_use_modules(terrama2_mod_core Widgets)
 
-target_link_libraries(terrama2_mod_core terralib_mod_dataaccess
-                                        terralib_mod_memory
+target_link_libraries(terrama2_mod_core terralib_mod_memory
+                                        terralib_mod_dataaccess
                                         ${Boost_FILESYSTEM_LIBRARY}
                                         ${Boost_SYSTEM_LIBRARY})
 

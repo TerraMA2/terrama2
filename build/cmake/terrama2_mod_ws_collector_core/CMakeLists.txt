@@ -21,7 +21,7 @@
 #
 #  Description: CMake script for collector core
 #
-#  Author: Gilberto Ribeiro de Queiroz, Paulo R. M. Oliveira
+#  Author: Vinicius Camapanha
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.cpp)
@@ -46,8 +46,6 @@ add_library(terrama2_mod_ws_collector_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAM
 target_link_libraries(terrama2_mod_ws_collector_core terrama2_mod_core terralib_mod_dataaccess )
 
 qt5_use_modules(terrama2_mod_ws_collector_core Widgets)
-
-
 
 set_target_properties(terrama2_mod_ws_collector_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

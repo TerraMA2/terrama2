@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/CollectorService.cpp
+  \file terrama2/collector/CollectorService.cpp
 
   \brief  Manages the collection of data in the appropriate time.
 
@@ -29,6 +29,7 @@
 
 #include "CollectorService.hpp"
 #include "CollectorFactory.hpp"
+#include "Exception.hpp"
 
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
@@ -54,39 +55,70 @@ terrama2::collector::CollectorService::CollectorService(QObject *parent)
 {
 }
 
-void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
+terrama2::collector::CollectorService::~CollectorService()
 {
-  if(firstCollectorInQueue->open())
-  {
-    assert(datasetQueue_.contains(firstCollectorInQueue));
-    auto& datasetTimerQueue = datasetQueue_[firstCollectorInQueue];
 
-    while(!datasetTimerQueue.isEmpty())
-    {
-      //if dataprovider is already getting some file
-      if(firstCollectorInQueue->isCollecting())
-        break;
+  mutex_.lock();
+  //Finish the thread
+  stop_ = true;
+  mutex_.unlock();
 
-      assert(!datasetTimerQueue.isEmpty());
-      //first dataset on queue
-      auto datasetTimer = datasetTimerLst_.value(datasetTimerQueue.front());
-      assert(datasetTimer);
-
-      //aquire dataset files
-      firstCollectorInQueue->collect(datasetTimer);
-
-      //remove first dataset from queue
-      datasetTimerQueue.pop_front();
-    }
-  }
+  if(loopThread_.joinable())
+    loopThread_.join();
 }
 
-void terrama2::collector::CollectorService::start()
+void terrama2::collector::CollectorService::exec()
+{
+  //if service already running, throws
+  if(loopThread_.joinable())
+    throw ServiceAlreadyRunnningException() << terrama2::ErrorDescription(tr("Collector service already running."));
+
+  loopThread_ = std::thread(&CollectorService::processingLoop, this);
+
+  QCoreApplication::exec();
+}
+
+void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
+{
+  try
+  {
+    firstCollectorInQueue->open();
+  }
+  catch(...)
+  {
+    //TODO: what to do when cant open collector connection?
+  }
+
+
+  assert(datasetQueue_.contains(firstCollectorInQueue));
+  auto& datasetTimerQueue = datasetQueue_[firstCollectorInQueue];
+
+  while(!datasetTimerQueue.isEmpty())
+  {
+    //if dataprovider is already getting some file
+    if(firstCollectorInQueue->isCollecting())
+      break;
+
+    assert(!datasetTimerQueue.isEmpty());
+    //first dataset on queue
+    auto datasetTimer = datasetTimerLst_.value(datasetTimerQueue.front());
+    assert(datasetTimer);
+
+    //aquire dataset files
+    firstCollectorInQueue->collect(datasetTimer);
+
+    //remove first dataset from queue
+    datasetTimerQueue.pop_front();
+  }
+
+}
+
+void terrama2::collector::CollectorService::processingLoop()
 {
   while(true)
   {
     if(stop_)
-      break;
+      return;
 
     // For each provider type verifies if the first provider in the queue is acquiring new data,
     // in case it's collecting moves to next type of provider, when it's done remove it from the queue
@@ -94,6 +126,8 @@ void terrama2::collector::CollectorService::start()
     // It allows multiples providers to collect at the same time but only one provider of each type.
     for (auto it = collectorQueueMap_.begin(); it != collectorQueueMap_.end(); ++it)
     {
+      std::lock_guard<std::mutex> lock(mutex_);
+
       auto collectorQueueByType = it.value();
       if(collectorQueueByType.size())
       {
@@ -112,19 +146,14 @@ void terrama2::collector::CollectorService::start()
         }
       }
     }
-
-    //FIXME: Bad!! QEventLoop? how?
-    QApplication::processEvents();
   }
-}
-
-void terrama2::collector::CollectorService::stop()
-{
-  stop_ = true;
 }
 
 void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datasetId)
 {
+  //Lock Thread and add to the queue
+  std::lock_guard<std::mutex> lock(mutex_);
+
   auto datasetTimer = datasetTimerLst_.value(datasetId);
   assert(datasetTimer);
 
@@ -145,10 +174,12 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
   //sanity check: valid dataprovider
   assert(dataProvider->id());
 
+  //TODO: catch? rethrow?
   //Create a collector and add it to the list
-  auto collector = CollectorFactory::instance().getCollector(dataProvider);
+  CollectorPtr collector = CollectorFactory::instance().getCollector(dataProvider);
 
   return collector;
+
 }
 
 terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSetPtr dataset)

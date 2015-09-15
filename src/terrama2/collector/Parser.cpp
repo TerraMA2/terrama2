@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Parser.cpp
+  \file terrama2/collector/Parser.cpp
 
   \brief Parsers data and create a terralib DataSet.
 

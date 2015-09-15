@@ -20,40 +20,22 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.cpp
+  \file unittest/core/TestUtils.hpp
 
-  \brief Instantiate collectors for DataProviders.
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
 
-#include "CollectorFactory.hpp"
-#include "Exception.hpp"
+void initializeTerralib();
 
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
+void finalizeTerralib();
 
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
-{
+void initializeTerraMA2();
 
-  if(!instance_)
-    instance_ = new CollectorFactory();
+void finalizeTerraMA2();
 
-  return *instance_;
-}
-
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
-{
-  //JANO: implementar getCollector
-
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
-  {
-    //... instatiate a new collector
-    //TODO: Throws if fail?
-
-    //TODO: Throws UnknownDataProviderKindException
-  }
-
-  return collectorMap_.value(dataProvider->id());
-}
+#endif // __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__

@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Collector.hpp
+  \file terrama2/collector/Collector.hpp
 
   \brief Aquire data from server.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
+#ifndef __TERRAMA2_COLLECTOR_COLLECTOR_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTOR_HPP__
 
 #include "../core/DataProvider.hpp"
 #include "DataSetTimer.hpp"
@@ -86,11 +86,11 @@ namespace terrama2
              *
              * \return Data provider kind.
              */
-        core::DataProvider::Kind kind() const { return dataProvider_->kind();}
+        core::DataProvider::Kind kind() const;
         /*!
              * \brief Data provider containing the information of this collector.
              */
-        core::DataProviderPtr dataProvider() const { return dataProvider_;}
+        core::DataProviderPtr dataProvider() const;
 
         /*!
              * \brief Verifies if the collector is collecting.
@@ -104,7 +104,9 @@ namespace terrama2
              *
              * \return Return true if able to start collecting, false otherwise.
              *
-             * \exception TODO: exception when cannot start collecting
+             * \exception terrama2::collector::InvalidDataSetException Raise when called with an invalid dataset.
+             * \exception terrama2::collector::InactiveDataSetException Raise when called with an inactive dataset.
+             * \exception terrama2::collector::UnabletoGetLockException Raise when the processes is unable to get lock. Collector already collecting?
              */
         void collect(const DataSetTimerPtr datasetTimer);
 
@@ -117,8 +119,9 @@ namespace terrama2
              * Trys to open the connection, returns false if fails
              *
              * \return True if the connection is open. If not appliable, returns true.
+             * //TODO: Exception if cannot open?
              */
-        virtual bool open()  = 0;
+        virtual void open()  = 0;
 
         //! \brief Close the connection, if not open, does nothing.
         virtual void close() = 0;
@@ -143,4 +146,4 @@ namespace terrama2
 
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_COLLECTOR_HPP__
+#endif //__TERRAMA2_COLLECTOR_COLLECTOR_HPP__
