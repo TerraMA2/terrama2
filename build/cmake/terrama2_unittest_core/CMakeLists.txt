@@ -28,7 +28,6 @@
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.hpp)
 
-
 include_directories (
   ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
@@ -44,9 +43,10 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 add_executable(terrama2_unittest_core ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_unittest_core terrama2_mod_core terralib_mod_plugin terralib_mod_common)
-
-add_test(NAME terrama2_unittest_core COMMAND terrama2_unittest_core)
+target_link_libraries(terrama2_unittest_core terrama2_mod_core
+                                             terralib_mod_plugin
+                                             terralib_mod_common)
 
 qt5_use_modules(terrama2_unittest_core Test)
 
+add_test(NAME terrama2_unittest_core COMMAND terrama2_unittest_core)
