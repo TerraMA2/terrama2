@@ -58,6 +58,10 @@ static const std::string dataSetName = "terrama2.dataset";
 
 void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
 {
+
+  if(dataSet->id() != 0)
+    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
+
 // Removes the column id because it's an auto number
   std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
   te::dt::Property* idProperty = dataSetType->getProperty(0);
@@ -95,8 +99,6 @@ void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da
   {
     dataSet->setId(tempDataSet->getInt32("id"));
   }
-
-  transactor.commit();
 }
 
 

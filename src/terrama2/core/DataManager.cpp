@@ -224,7 +224,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
     transactor->commit();
     
     // Removes all related datasets from the map
-    foreach (auto dataSet, dataProvider->dataSetList())
+    foreach (auto dataSet, dataProvider->dataSets())
     {
       auto it = pimpl_->providers_.find(dataSet->id());
       pimpl_->providers_.erase(it);

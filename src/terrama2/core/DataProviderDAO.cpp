@@ -46,6 +46,10 @@ static const std::string dataSetName = "terrama2.data_provider";
 
 void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor)
 {
+
+  if(dataProvider->id() != 0)
+    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
+
 // Removes the column id because it's an auto number
   std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
   te::dt::Property* idProperty = dataSetType->getProperty(0);
@@ -84,6 +88,16 @@ void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
 // Recovers the generated id and sets it in the provider
 // TODO: Implement getLastGeneratedId in TerraLib
 //dataProvider->setId(transactor_->getLastGeneratedId());
+
+// save all datasets in this provider, it must be zero.
+  foreach (auto ds, dataProvider->dataSets())
+  {
+    if(ds->id() != 0)
+      throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not save a dataset with identifier different than 0."));
+
+    DataSetDAO::save(ds, transactor);
+  }
+
 }
 
 
