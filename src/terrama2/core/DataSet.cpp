@@ -148,3 +148,23 @@ void terrama2::core::DataSet::setScheduleTimeout(const te::dt::TimeDuration &sch
 {
   scheduleTimeout_ = scheduleTimeout;
 }
+
+std::map<std::string, std::string> terrama2::core::DataSet::metadata() const
+{
+  return metadata_;
+}
+
+void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::string>& metadata)
+{
+  metadata_ = metadata;
+}
+
+std::vector<terrama2::core::DataSet::CollectRule> terrama2::core::DataSet::collectRules() const
+{
+  return collectRules_;
+}
+
+void terrama2::core::DataSet::setCollectRules(const std::vector<terrama2::core::DataSet::CollectRule>& collectRules)
+{
+  collectRules_ = collectRules;
+}

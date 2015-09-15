@@ -32,10 +32,9 @@
 
 // TerraMA2
 #include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataManager.hpp>
 #include <terrama2/core/DataProvider.hpp>
-#include <terrama2/core/DataProviderDAO.hpp>
 #include <terrama2/core/DataSet.hpp>
-#include <terrama2/core/DataSetDAO.hpp>
 
 // Qt
 #include <QtTest>
@@ -74,23 +73,41 @@ void TestDataSetDAO::cleanupTestCase()
 
 void TestDataSetDAO::testCRUDDataSet()
 {
-// get the transactor
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-
 // create a new data provider and save it t the database
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
 
-  terrama2::core::DataProviderDAO::save(dataProvider, *transactor);
+  terrama2::core::DataManager::getInstance().add(dataProvider);
 
 // create a new dataset and save it to the database
   terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet->setDataFrequency(dataFrequency);
 
-  terrama2::core::DataSetDAO::save(dataSet, *transactor);
+  std::vector<terrama2::core::DataSet::CollectRule> collectRules;
+  {
+    terrama2::core::DataSet::CollectRule collectRule;
+    collectRule.script_ = "... LUA SCRIPT 1...";
+    collectRules.push_back(collectRule);
+  }
+  {
+    terrama2::core::DataSet::CollectRule collectRule;
+    collectRule.script_ = "... LUA SCRIPT 2...";
+    collectRules.push_back(collectRule);
+  }
+  dataSet->setCollectRules(collectRules);
+
+  std::map<std::string, std::string> metadata;
+  metadata["key"] = "value";
+  metadata["key1"] = "value1";
+  metadata["key2"] = "value2";
+
+  dataSet->setMetadata(metadata);
+
+  terrama2::core::DataManager::getInstance().add(dataSet);
 
 // assure we have a valid dataset identifier
   QVERIFY2(dataSet->id() > 0, "Id must be different than zero after save()!");
+
 
   te::dt::TimeDuration schedule(12,0,0);
   dataSet->setSchedule(schedule);
@@ -106,20 +123,43 @@ void TestDataSetDAO::testCRUDDataSet()
   dataSet->setDescription("Description...");
   dataSet->setName("New queimadas");
 
-  terrama2::core::DataSetDAO::update(dataSet, *transactor);
+  // Change the collect rule script
+  collectRules[0].script_ = "... LUA SCRIPT UPDATE 1...";
+  dataSet->setCollectRules(collectRules);
+
+  terrama2::core::DataManager::getInstance().update(dataSet);
 
 
-  terrama2::core::DataSetPtr findDataSet = terrama2::core::DataSetDAO::find(dataSet->id(), *transactor);
+  // Test find dataset
+  terrama2::core::DataSetPtr findDataSet = terrama2::core::DataManager::getInstance().findDataSet(dataSet->id());
+
+  QVERIFY2(findDataSet.get() != nullptr, "Find should return a valid dataset");
 
   QVERIFY2(dataSet->name() == findDataSet->name(), "Name must be the same!");
+  QVERIFY2(dataSet->kind() == findDataSet->kind(), "Kind must be the same!");
   QVERIFY2(dataSet->status() == findDataSet->status(), "Status must be the same!");
   QVERIFY2(dataSet->scheduleTimeout() == findDataSet->scheduleTimeout(), "Schedule timeout must be the same!");
   QVERIFY2(dataSet->schedule() == findDataSet->schedule(), "Schedule must be the same!");
   QVERIFY2(dataSet->scheduleRetry() == findDataSet->scheduleRetry(), "Schedule retry must be the same!");
   QVERIFY2(dataSet->dataFrequency() == findDataSet->dataFrequency(), "Data frequency must be the same!");
 
+  QVERIFY2(collectRules[0].script_ == findDataSet->collectRules()[0].script_, "Collect rule script must be the same!");
+
+  QVERIFY2(metadata["key"] == findDataSet->metadata()["key"], "Metadata key/value must be the same!");
+  QVERIFY2(metadata["key1"] == findDataSet->metadata()["key1"], "Metadata key1/value1 must be the same!");
+  QVERIFY2(metadata["key2"] == findDataSet->metadata()["key2"], "Metadata key2/value2 must be the same!");
+
+
+  // Test remove dataset
+  terrama2::core::DataManager::getInstance().removeDataSet(dataSet->id());
+  findDataSet = terrama2::core::DataManager::getInstance().findDataSet(dataSet->id());
+
+  QVERIFY2(findDataSet.get() == nullptr, "Find should return null after remove");
+
+  // Test list empty
+  auto vecDataSet = terrama2::core::DataManager::getInstance().datasets();
+  QVERIFY2(vecDataSet.empty(), "List should be empty after remove!");
+
+
 }
-
-
-//#include "TestDataSetDAO.moc"
 
