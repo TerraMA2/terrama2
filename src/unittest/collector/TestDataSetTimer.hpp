@@ -20,40 +20,40 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.cpp
+  \file terrama2/collector/TestDataSetTimer.hpp
 
-  \brief Instantiate collectors for DataProviders.
+  \brief Tests for the DataSetTimer class.
 
   \author Jano Simas
 */
 
+//Qt
+#include <QtTest>
 
-#include "CollectorFactory.hpp"
-#include "Exception.hpp"
-
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
-
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
+class TestDataSetTimer: public QObject
 {
+  Q_OBJECT
 
-  if(!instance_)
-    instance_ = new CollectorFactory();
+private slots:
 
-  return *instance_;
-}
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
-{
-  //JANO: implementar getCollector
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
-  {
-    //... instatiate a new collector
-    //TODO: Throws if fail?
+    //******Test functions********
 
-    //TODO: Throws UnknownDataProviderKindException
-  }
+    /*!
+     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     */
+    void TestNullDataSet();
 
-  return collectorMap_.value(dataProvider->id());
-}
+    /*!
+     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     */
+    void TestTimerSignalEmit();
+
+
+    //******End of Test functions****
+};

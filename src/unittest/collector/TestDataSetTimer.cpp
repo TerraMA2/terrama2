@@ -20,46 +20,20 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/TestDataSetTimer.cpp
+  \file terrama2/collector/TestDataSetTimer.cpp
 
   \brief Tests for the DataSetTimer class.
 
   \author Jano Simas
 */
 
+#include "TestDataSetTimer.hpp"
+
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/collector/DataSetTimer.hpp>
 
 //Qt
 #include <QtTest>
-
-class TestDataSetTimer: public QObject
-{
-  Q_OBJECT
-
-private slots:
-
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
-
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Tests the behavior of a miscontructed DataSetTimer.
-     */
-    void TestNullDataSet();
-
-    /*!
-     * \brief Tests the behavior of a miscontructed DataSetTimer.
-     */
-    void TestTimerSignalEmit();
-
-
-    //******End of Test functions****
-};
 
 void TestDataSetTimer::TestNullDataSet()
 {
@@ -89,5 +63,5 @@ void TestDataSetTimer::TestTimerSignalEmit()
 }
 
 
-//QTEST_MAIN(MyTest)
+QTEST_MAIN(TestDataSetTimer)
 #include "TestDataSetTimer.moc"

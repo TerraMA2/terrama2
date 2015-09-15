@@ -20,84 +20,31 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/TestDataset.cpp
+  \file unittest/core/TestUtils.cpp
 
-  \brief Test Collector...
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
   \author Paulo R. M. Oliveira
 */
 
 
-//QT
-#include <QtTest>
-#include <QApplication>
-
-// STL
-#include <memory>
+//TerrraMA2
+#include <terrama2/core/Utils.hpp>
+#include <terrama2/core/ApplicationController.hpp>
 
 //terralib
-#include <terralib/postgis/Utils.h>
-#include <terralib/postgis/Connection.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
-
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
 
-class TestDataset: public QObject
-{
-  Q_OBJECT
+// QT
+#include <QTest>
 
-protected:
-
-    void initializeTerralib();
-    void finalizeTerralib();
-
-private slots:
-    void initTestCase() // Run before all tests
-    {
-        initializeTerralib();
-    }
-    void cleanupTestCase() // Run after all tests
-    {
-        finalizeTerralib();
-    }
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Test Description
-     */
-    void testDataSet();
+// STL
+#include <string>
 
 
-
-    //******End of Test functions****
-
-};
-
-void TestDataset::init()
-{
-
-}
-
-void TestDataset::cleanup()
-{
-
-}
-
-void TestDataset::testDataSet()
-{
-
-
-}
-
-
-void TestDataset::initializeTerralib()
+void initializeTerralib()
 {
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
@@ -106,15 +53,34 @@ void TestDataset::initializeTerralib()
   std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
   info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
   te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
   te::plugin::PluginManager::getInstance().loadAll();
 }
 
-
-
-void TestDataset::finalizeTerralib()
+void finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
 }
 
-//QTEST_MAIN(TestDataset)
-#include "TestDataset.moc"
+void initializeTerraMA2()
+{
+  initializeTerralib();
+
+  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+  QVERIFY(dataSource.get());
+}
+
+void finalizeTerraMA2()
+{
+  finalizeTerralib();
+
+  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+}

@@ -20,9 +20,22 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Filter.cpp
+  \file terrama2/collector/Filter.cpp
 
   \brief Filters data.
 
   \author Jano Simas
 */
+
+#include "Filter.hpp"
+
+std::vector<std::string> terrama2::collector::Filter::filterNames(const std::vector<std::string> &namesList) const
+{
+
+}
+
+
+void terrama2::collector::Filter::setMask(const std::string &mask)
+{
+
+}
