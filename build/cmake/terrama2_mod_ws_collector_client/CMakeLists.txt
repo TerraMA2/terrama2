@@ -21,8 +21,7 @@
 #
 #  Description: CMake script for collector web service client module.
 #
-#  Author: Paulo R. M. Oliveira
-#          Vinicius Campanha
+#  Author: Vinicius Camapanha
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/client/*.cpp)
@@ -55,7 +54,8 @@ add_library(terrama2_mod_ws_collector_client
             ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES}
             ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES})
 
-target_link_libraries(terrama2_mod_ws_collector_client terrama2_mod_core
+target_link_libraries(terrama2_mod_ws_collector_client terrama2_mod_ws_collector_core
+                                                       terrama2_mod_core
                                                        ${GSOAP_CPP_LIBRARY})
 
 qt5_use_modules(terrama2_mod_ws_collector_client Widgets)

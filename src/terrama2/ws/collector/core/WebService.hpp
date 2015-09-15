@@ -48,7 +48,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-int Web__load(void);
+//int Web__load(void);
 
 /*!
   \brief
@@ -57,7 +57,7 @@ int Web__load(void);
 
   \return
 */
-int Web__unload(void);
+//int Web__unload(void);
 
 /*!
   \brief
@@ -66,7 +66,7 @@ int Web__unload(void);
 
   \return
 */
-int Web__addDataProvider(DataProvider, void);
+//int Web__addDataProvider(DataProvider, void);
 
 /*!
   \brief
@@ -75,7 +75,7 @@ int Web__addDataProvider(DataProvider, void);
 
   \return
 */
-int Web__addDataset(DataSet, void);
+//int Web__addDataset(DataSet, void);
 
 /*!
   \brief
@@ -84,7 +84,7 @@ int Web__addDataset(DataSet, void);
 
   \return
 */
-int Web__updateDataProvider(DataProvider, void);
+//int Web__updateDataProvider(DataProvider, void);
 
 /*!
   \brief
@@ -93,7 +93,7 @@ int Web__updateDataProvider(DataProvider, void);
 
   \return
 */
-int Web__updateDataSet(DataSet, void);
+//int Web__updateDataSet(DataSet, void);
 
 /*!
   \brief
@@ -102,7 +102,7 @@ int Web__updateDataSet(DataSet, void);
 
   \return
 */
-int Web__removeDataProvider(uint64_t id, void);
+//int Web__removeDataProvider(uint64_t id, void);
 
 /*!
   \brief
@@ -111,7 +111,7 @@ int Web__removeDataProvider(uint64_t id, void);
 
   \return
 */
-int Web__removeDataSet(uint64_t id, void);
+//int Web__removeDataSet(uint64_t id, void);
 
 /*!
   \brief
@@ -120,7 +120,7 @@ int Web__removeDataSet(uint64_t id, void);
 
   \return
 */
-int Web__findDataProvider(uint64_t id, struct findDataProviderResponse &r);
+//int Web__findDataProvider(uint64_t id, struct DataProviderResponse &r);
 
 /*!
   \brief
@@ -129,7 +129,7 @@ int Web__findDataProvider(uint64_t id, struct findDataProviderResponse &r);
 
   \return
 */
-int Web__findDataSet(uint64_t id, struct findDataSetResponse &r);
+//int Web__findDataSet(uint64_t id, struct DataSetResponse &r);
 
 /*!
   \brief

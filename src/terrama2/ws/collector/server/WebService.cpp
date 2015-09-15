@@ -37,3 +37,4 @@ int WebService::ping(std::string &answer)
     return SOAP_OK;
 }
 
+ 

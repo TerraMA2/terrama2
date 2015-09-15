@@ -29,56 +29,32 @@
 
 //#import "stlvector.h"
 
-enum Status
+struct DataProvider
 {
-  ACTIVE,
-  INACTIVE
+  uint64_t      id;
+  std::string   name;
+  std::string   description;
+  uint32_t      kind;
+  std::string   uri;
+  uint32_t      status;
 };
 
-enum DataProviderKind
-{
-  UNKNOWN_DATAPROVIDER_TYPE,
-  PCD_TYPE,
-  OCCURENCE_TYPE,
-  GRID_TYPE
-};
-
-class DataProvider
-{
-  uint64_t                  id_;
-  std::string               name_;
-  std::string               description_;
-  enum DataProviderKind     kind_;
-  std::string               uri_;
-  enum Status               status_;
-};
-
-struct findDataProviderResponse { DataProvider return_;};
+struct DataProviderResponse { DataProvider return_; };
 
 //struct listDataProviderResponse { std::vector<DataProvider> return_ };
 
-enum DataSetKind
+struct DataSet
 {
-  UNKNOWN_DATASET_TYPE,
-  FTP_TYPE,
-  HTTP_TYPE,
-  FILE_TYPE,
-  WFS_TYPE,
-  WCS_TYPE
+  uint64_t      id;
+  std::string   name;
+  std::string   description;
+  uint32_t      status;
+  uin64_t       data_provider_id;
+  uint32_t      kind;
+  uint32_t      data_frequency;
+  std::string   schedule;
+  uint32_t      schedule_retry;
+  uint32_t      schedule_timeout;
 };
 
-class DataSet
-{
-  uint64_t                  id_;
-  std::string               name_;
-  std::string               description_;
-  enum Status               status_;
-//  DataProviderPtr           dataProvider_;
-  enum DataSetKind          kind_;  
-//  te::dt::TimeDuration      dataFrequency_;
-//  te::dt::TimeDuration      schedule_;
-//  te::dt::TimeDuration      scheduleRetry_;
-//  te::dt::TimeDuration      scheduleTimeout_;
-};
-
-struct findDataSetResponse {DataSet return_;};
+struct DataSetResponse { DataSet return_; };

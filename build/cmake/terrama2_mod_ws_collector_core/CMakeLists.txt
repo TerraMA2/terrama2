@@ -21,8 +21,7 @@
 #
 #  Description: CMake script for collector core
 #
-#  Author: Gilberto Ribeiro de Queiroz
-#          Paulo R. M. Oliveira
+#  Author: Vinicius Camapanha
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.cpp)

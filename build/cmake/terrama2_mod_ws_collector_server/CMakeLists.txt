@@ -21,8 +21,7 @@
 #
 #  Description: CMake script for collector client
 #
-#  Author: Paulo R. M. Oliveira
-#          Vinicius Campanha
+#  Author: Vinicius Campanha
 #
 
 include_directories (
@@ -54,6 +53,7 @@ add_library(terrama2_mod_ws_collector_server
             ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES})
 
 target_link_libraries(terrama2_mod_ws_collector_server terrama2_mod_core
+                                                       terrama2_mod_ws_collector_core
                                                        ${GSOAP_CPP_LIBRARY}
                                                        ${Boost_LOG_LIBRARY})
 
