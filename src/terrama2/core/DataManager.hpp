@@ -165,7 +165,7 @@ namespace terrama2
         /*!
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataSetPtr> datasets() const;
+        std::vector<terrama2::core::DataSetPtr> dataSets() const;
 
       
 
@@ -194,7 +194,6 @@ namespace terrama2
         struct Impl;
 
         Impl* pimpl_;
-        mutable std::mutex mutex_;  //!< A mutex to syncronize all operations.
 
       friend class te::common::Singleton<DataManager>;
     };
