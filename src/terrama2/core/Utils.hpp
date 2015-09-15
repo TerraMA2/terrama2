@@ -57,7 +57,7 @@ namespace terrama2
 
       \return Boolean that determine if the data provider is active.
      */
-    bool DataProviderStatusToBool(const terrama2::core::DataProvider::Status& status);
+    bool DataProviderStatusToBool(terrama2::core::DataProvider::Status status);
 
     /*!
       \brief Returns a enum with the status of the server based on the given parameter.
@@ -66,7 +66,7 @@ namespace terrama2
 
       \return Enum with the status of the data provider.
      */
-   terrama2::core::DataProvider::Status BoolToDataProviderStatus(const bool active);
+   terrama2::core::DataProvider::Status BoolToDataProviderStatus(bool active);
 
    /*!
      \brief Returns a enum with the kind of the server based on the given parameter.
@@ -75,7 +75,7 @@ namespace terrama2
 
      \return Enum with the type of the data provider.
     */
-   terrama2::core::DataProvider::Kind IntToDataProviderKind(const int kind);
+   terrama2::core::DataProvider::Kind IntToDataProviderKind(int kind);
 
    /*!
      \brief Function to convert a boolean to string format.
@@ -84,7 +84,7 @@ namespace terrama2
 
      \return string String representation of the given boolean.
     */
-   std::string BoolToString(const bool b);
+   std::string BoolToString(bool b);
 
    /*!
      \brief Returns a boolean with the status of the dataset based on the given status.
@@ -93,7 +93,7 @@ namespace terrama2
 
      \return Boolean that determine if the dataset is active.
     */
-   bool DataSetStatusToBool(const terrama2::core::DataSet::Status& status);
+   bool DataSetStatusToBool(terrama2::core::DataSet::Status status);
 
    /*!
     \brief Returns a enum with the status of the dataset based on the given parameter.
@@ -102,7 +102,7 @@ namespace terrama2
 
     \return Enum with the status of the dataset.
     */
-   terrama2::core::DataSet::Status BoolToDataSetStatus(const bool active);
+   terrama2::core::DataSet::Status BoolToDataSetStatus(bool active);
 
 
    /*!
@@ -112,7 +112,7 @@ namespace terrama2
 
      \return Enum with the type of the dataset.
     */
-   terrama2::core::DataSet::Kind IntToDataSetKind(const int kind);
+   terrama2::core::DataSet::Kind IntToDataSetKind(int kind);
 
 
   } // end namespace core

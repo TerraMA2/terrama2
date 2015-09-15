@@ -53,24 +53,71 @@ namespace terrama2
 
     class DataSetDAO
     {
-    public:
-      DataSetDAO();
-      virtual ~DataSetDAO();
+      public:
 
-      void save(DataSetPtr dataset);
-      void update(DataSetPtr dataset);
-      void remove(const int& id);
-      void remove(const int& id, std::auto_ptr<te::da::DataSourceTransactor> transactor);
+        /*!
+          \brief Persists a given dataset in the database, the generated id will be set in the dataset.
+          In case the data provider identifier is 0, it will also save the data provider.         *
 
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
+          \param dataset Dataset to save.
+          \param transactor Data source transactor.
 
-    protected:
-      std::auto_ptr<te::da::DataSourceTransactor> transactor_;
+          \exception InvalidDataSetIdError
+         */
+        static void save(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
 
+        /*!
+          \brief Update a given dataset in the database.
+          The identifier of the dataset must be valid.
+
+          \param dataset Dataset to update.
+          \param transactor Data source transactor.
+
+          \exception InvalidDataSetIdError
+         */
+        static void update(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Removes the dataset with the given id.
+          The identifier of the dataset must be valid.
+          In case there is an analysis configured to use this dataset, it will not be removed.
+
+          \param id Identifier of the dataset.
+          \param transactor Data source transactor.
+
+          \exception InvalidDataSetIdError
+         */
+        static void remove(int id, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Search for a dataset with the given id
+          In case none is found it will return an empty smart pointer.
+
+          \param id Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return A smart pointer to the dataset.
+         */
+        static DataSetPtr find(int id, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieve all datasets from the database.
+          In case none is found it will return an empty vector.
+
+          \param transactor Data source transactor.
+          \return Vector with all datasets.
+         */
+        static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);
+
+      private:
+
+        //! Not instantiable.
+        DataSetDAO();
+
+        //! Not instantiable.
+        ~DataSetDAO();
     };
 
-  } // core
-} // terrama2
+  } // end namespace core
+}   // end namespace terrama2
 
 #endif // __TERRAMA2_CORE_DATASETDAO_HPP__

@@ -33,15 +33,13 @@
 
 // TerraMA2
 #include "DataSet.hpp"
-
 #include "DataProvider.hpp"
 
-// TerraLib
-#include <terralib/datatype/TimeDuration.h>
-
 terrama2::core::DataSet::DataSet(DataProviderPtr dataProvider, const std::string& name, Kind kind)
-  : dataProvider_(dataProvider),
+  : id_(0),
     name_(name),
+    status_(INACTIVE),
+    dataProvider_(dataProvider),
     kind_(kind),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),

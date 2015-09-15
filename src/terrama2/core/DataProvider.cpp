@@ -30,9 +30,9 @@
   \author Vinicius Campanha
 */
 
-
-
+// TerraMA2
 #include "DataProvider.hpp"
+#include "DataSet.hpp"
 
 terrama2::core::DataProvider::DataProvider(const std::string &name, Kind kind)
   : name_(name),
@@ -62,7 +62,7 @@ std::string terrama2::core::DataProvider::name() const
   return name_;
 }
 
-void terrama2::core::DataProvider::setName(const std::string &name)
+void terrama2::core::DataProvider::setName(const std::string& name)
 {
   name_ = name;
 }
@@ -72,7 +72,7 @@ std::string terrama2::core::DataProvider::description() const
   return description_;
 }
 
-void terrama2::core::DataProvider::setDescription(const std::string &description)
+void terrama2::core::DataProvider::setDescription(const std::string& description)
 {
   description_ = description;
 }
@@ -82,7 +82,7 @@ terrama2::core::DataProvider::Kind terrama2::core::DataProvider::kind() const
   return kind_;
 }
 
-void terrama2::core::DataProvider::setKind(const terrama2::core::DataProvider::Kind &kind)
+void terrama2::core::DataProvider::setKind(terrama2::core::DataProvider::Kind kind)
 {
   kind_ = kind;
 }
@@ -92,7 +92,7 @@ std::string terrama2::core::DataProvider::uri() const
   return uri_;
 }
 
-void terrama2::core::DataProvider::setUri(const std::string &uri)
+void terrama2::core::DataProvider::setUri(const std::string& uri)
 {
   uri_ = uri;
 }
@@ -102,17 +102,17 @@ terrama2::core::DataProvider::Status terrama2::core::DataProvider::status() cons
   return status_;
 }
 
-void terrama2::core::DataProvider::setStatus(const terrama2::core::DataProvider::Status &status)
+void terrama2::core::DataProvider::setStatus(terrama2::core::DataProvider::Status status)
 {
   status_ = status;
 }
 
-std::vector<terrama2::core::DataSetPtr> terrama2::core::DataProvider::dataSetList() const
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataProvider::dataSets() const
 {
   return dataSets_;
 }
 
-void terrama2::core::DataProvider::setDataSet(const std::vector<terrama2::core::DataSetPtr> &dataSets)
+void terrama2::core::DataProvider::setDataSets(const std::vector<terrama2::core::DataSetPtr>& dataSets)
 {
   dataSets_ = dataSets;
 }

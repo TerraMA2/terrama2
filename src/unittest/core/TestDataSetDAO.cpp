@@ -27,17 +27,18 @@
   \author Paulo R. M. Oliveira
 */
 
+// TerraMA2 Unittest
 #include "TestDataSetDAO.hpp"
 
-#include <terrama2/core/DataSetDAO.hpp>
+// TerraMA2
+#include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataProviderDAO.hpp>
 #include <terrama2/core/DataSet.hpp>
-#include <terrama2/core/DataProvider.hpp>
-#include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataSetDAO.hpp>
 
-//QT
+// Qt
 #include <QtTest>
-
 
 void TestDataSetDAO::initTestCase()
 {
@@ -73,18 +74,22 @@ void TestDataSetDAO::cleanupTestCase()
 
 void TestDataSetDAO::testCRUDDataSet()
 {
-  terrama2::core::DataProviderDAO dataProviderDAO;
-  terrama2::core::DataSetDAO dataSetDAO;
+// get the transactor
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
 
+// create a new data provider and save it t the database
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
-  dataProviderDAO.save(dataProvider);
 
+  terrama2::core::DataProviderDAO::save(dataProvider, *transactor);
+
+// create a new dataset and save it to the database
   terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet->setDataFrequency(dataFrequency);
 
-  dataSetDAO.save(dataSet);
+  terrama2::core::DataSetDAO::save(dataSet, *transactor);
 
+// assure we have a valid dataset identifier
   QVERIFY2(dataSet->id() > 0, "Id must be different than zero after save()!");
 
   te::dt::TimeDuration schedule(12,0,0);
@@ -101,10 +106,10 @@ void TestDataSetDAO::testCRUDDataSet()
   dataSet->setDescription("Description...");
   dataSet->setName("New queimadas");
 
-  dataSetDAO.update(dataSet);
+  terrama2::core::DataSetDAO::update(dataSet, *transactor);
 
 
-  terrama2::core::DataSetPtr findDataSet = dataSetDAO.find(dataSet->id());
+  terrama2::core::DataSetPtr findDataSet = terrama2::core::DataSetDAO::find(dataSet->id(), *transactor);
 
   QVERIFY2(dataSet->name() == findDataSet->name(), "Name must be the same!");
   QVERIFY2(dataSet->status() == findDataSet->status(), "Status must be the same!");
@@ -116,5 +121,5 @@ void TestDataSetDAO::testCRUDDataSet()
 }
 
 
-#include "TestDataSetDAO.moc"
+//#include "TestDataSetDAO.moc"
 

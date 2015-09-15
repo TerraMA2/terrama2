@@ -33,16 +33,12 @@
 #ifndef __TERRAMA2_CORE_DATASET_HPP__
 #define __TERRAMA2_CORE_DATASET_HPP__
 
-
-
 // STL
 #include <memory>
 #include <string>
-#include <cstdint>
 
 // TerraLib
 #include <terralib/datatype/TimeDuration.h>
-
 
 namespace terrama2
 {
@@ -66,25 +62,25 @@ namespace terrama2
     {
       public:
 
-      //! Dataset type.
-      enum Kind
-      {
-        UNKNOWN_TYPE,
-        PCD_TYPE,
-        OCCURENCE_TYPE,
-        GRID_TYPE
-      };
+        //! Dataset type.
+        enum Kind
+        {
+          UNKNOWN_TYPE,
+          PCD_TYPE,
+          OCCURENCE_TYPE,
+          GRID_TYPE
+        };
 
-      //! Dataset status.
-      enum Status
-      {
-        ACTIVE,
-        INACTIVE
-      };
+        //! Dataset status.
+        enum Status
+        {
+          ACTIVE,
+          INACTIVE
+        };
 
-      DataSet(DataProviderPtr provider, const std::string& name, Kind kind);
+        DataSet(DataProviderPtr provider, const std::string& name, Kind kind);
 
-      ~DataSet();
+        ~DataSet();
 
       public:
 
@@ -238,7 +234,7 @@ namespace terrama2
         te::dt::TimeDuration scheduleRetry_;
         te::dt::TimeDuration scheduleTimeout_;
 
-      friend class DataSetDAO; //review
+        friend class DataSetDAO;
     };
 
     typedef std::shared_ptr<DataSet> DataSetPtr;

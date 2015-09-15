@@ -160,25 +160,14 @@ namespace terrama2
         /*!
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataProviderPtr> listDataProvider() const;
+        std::vector<terrama2::core::DataProviderPtr> providers() const;
 
         /*!
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataSetPtr> listDataSet() const;
+        std::vector<terrama2::core::DataSetPtr> datasets() const;
 
-        /*!
-          \brief Lists all datasets that belong to the given data provider.
-
-          It returns an empty vector if there is no dataset or the given provider doesn't exist.
-
-          \param dataProviderId Identifier of the data provider.
-
-          \return All datasets that belong to the given data provider.
-
-          \note Thread-safe.
-         */
-        std::vector<terrama2::core::DataSetPtr> listDataSet(const uint64_t& dataProviderId) const;
+      
 
     public slots:
 

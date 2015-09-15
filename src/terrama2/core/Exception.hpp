@@ -36,8 +36,14 @@ namespace terrama2
 {
   namespace core
   {
-  //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
-  struct DataSetInUseException: virtual terrama2::Exception{ };
+    //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
+    struct DataSetInUseError: virtual terrama2::Exception{ };
+    
+    //! Indicates that an invalid data provider identifier was used.
+    struct InvalidDataProviderIdError: virtual terrama2::Exception{ };
+    
+    //! Indicates that an invalid dataset identifier was used.
+    struct InvalidDataSetIdError: virtual terrama2::Exception{ };
 
   }  // end namespace core
 }  // end namespace terrama2

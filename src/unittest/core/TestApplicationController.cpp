@@ -39,8 +39,6 @@
 // STL
 #include <memory>
 
-
-
 void TestApplicationController::testLoadProject()
 {
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
@@ -49,4 +47,4 @@ void TestApplicationController::testLoadProject()
   QVERIFY(dataSource.get());
 }
 
-#include "TestApplicationController.moc"
+//#include "TestApplicationController.moc"
