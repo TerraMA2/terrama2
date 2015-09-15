@@ -43,44 +43,44 @@ namespace terrama2
 {
   namespace core
   {
-    /**
-     * \brief Singleton class to provide a connection to the database and read all project configuration.
+    /*!
+      \brief Singleton class to provide a connection to the database and read all project configuration.
      */
     class ApplicationController : public te::common::Singleton<ApplicationController>
     {
-    public:
-      /*!
-      * \brief Loads project configuration from the given file and creates a data source for the database configuration.
-      *
-      * \param Path to the configuration file
-      * \return Returns if it was possible to read the file and read all the configurations.
-      */
-      bool loadProject(const std::string& configFileName);
+      public:
+        /*!
+          \brief Loads project configuration from the given file and creates a data source for the database configuration.
 
-      /*!
-      * \brief Returns a datasource transactor.
-      *
-      * \return Returns a auto pointer to the datasource transactor.
+          \param Path to the configuration file
+          \return Returns if it was possible to read the file and read all the configurations.
       */
-      std::auto_ptr<te::da::DataSourceTransactor> getTransactor();
+        bool loadProject(const std::string& configFileName);
 
-      /*!
-      * \brief Returns a datasource.
-      *
-      * \return Returns a shared pointer to the datasource.
-      */
-      std::shared_ptr<te::da::DataSource> getDataSource();
+        /*!
+          \brief Returns a datasource transactor.
 
-      /*!
-      * \brief Creates a database with TerraMA2's data model.
-      *
-      * \return Returns true if the database was create successfully.
-      */
-      bool createDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port);
+          \return Returns a auto pointer to the datasource transactor.
+        */
+        std::auto_ptr<te::da::DataSourceTransactor> getTransactor();
 
-    protected:
-      std::string configFileName_; /*! Name of the configuration file.*/
-      std::shared_ptr<te::da::DataSource> dataSouce_; /*! Smart pointer to the datasource. */
+        /*!
+          \brief Returns a datasource.
+
+          \return Returns a shared pointer to the datasource.
+        */
+        std::shared_ptr<te::da::DataSource> getDataSource();
+
+        /*!
+          \brief Creates a database with TerraMA2's data model.
+
+          \return Returns true if the database was create successfully.
+        */
+        bool createDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port);
+
+      protected:
+        std::string configFileName_; /*! Name of the configuration file.*/
+        std::shared_ptr<te::da::DataSource> dataSouce_; /*! Smart pointer to the datasource. */
     };
   } // end namespace core
 }   // end namespace terrama2
