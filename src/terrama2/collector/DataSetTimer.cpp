@@ -65,3 +65,13 @@ terrama2::collector::CollectorPtr terrama2::collector::DataSetTimer::collector()
   auto dataProvider = dataSet()->dataProvider();
   return CollectorFactory::instance().getCollector(dataProvider);
 }
+
+terrama2::core::DataSetPtr terrama2::collector::DataSetTimer::dataSet() const
+{
+  return dataSet_;
+}
+
+std::vector<terrama2::collector::DataProcessorPtr> terrama2::collector::DataSetTimer::data() const
+{
+  return dataLst_;
+}

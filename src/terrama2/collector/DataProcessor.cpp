@@ -30,7 +30,17 @@
 #include "DataProcessor.hpp"
 
 
-void terrama2::ws::collector::server::DataProcessor::import(const std::string &uri)
+terrama2::core::DataPtr terrama2::collector::DataProcessor::data() const
+{
+  //JANO: implementar data()
+}
+
+terrama2::collector::FilterPtr terrama2::collector::DataProcessor::filter() const
+{
+  //JANO: implementar filter()
+}
+
+void terrama2::collector::DataProcessor::import(const std::string &uri)
 {
   //JANO: implementar import
   //should run in thread ?

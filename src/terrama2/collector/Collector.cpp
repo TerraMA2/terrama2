@@ -50,6 +50,16 @@ terrama2::collector::Collector::~Collector()
     collectingThread_.join();
 }
 
+terrama2::core::DataProvider::Kind terrama2::collector::Collector::kind() const
+{
+  return dataProvider_->kind();
+}
+
+terrama2::core::DataProviderPtr terrama2::collector::Collector::dataProvider() const
+{
+  return dataProvider_;
+}
+
 bool terrama2::collector::Collector::isCollecting() const
 {
   //Test if is not locked

@@ -52,7 +52,7 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getColl
     //... instatiate a new collector
     //TODO: Throws if fail?
 
-    //TODO: Throws UnknownDataProviderTypeException
+    //TODO: Throws UnknownDataProviderKindException
   }
 
   return collectorMap_.value(dataProvider->id());

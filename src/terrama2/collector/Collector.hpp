@@ -86,11 +86,11 @@ namespace terrama2
              *
              * \return Data provider kind.
              */
-        core::DataProvider::Kind kind() const { return dataProvider_->kind();}
+        core::DataProvider::Kind kind() const;
         /*!
              * \brief Data provider containing the information of this collector.
              */
-        core::DataProviderPtr dataProvider() const { return dataProvider_;}
+        core::DataProviderPtr dataProvider() const;
 
         /*!
              * \brief Verifies if the collector is collecting.
@@ -121,7 +121,7 @@ namespace terrama2
              * \return True if the connection is open. If not appliable, returns true.
              * //TODO: Exception if cannot open?
              */
-        virtual bool open()  = 0;
+        virtual void open()  = 0;
 
         //! \brief Close the connection, if not open, does nothing.
         virtual void close() = 0;

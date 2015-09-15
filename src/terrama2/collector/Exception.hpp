@@ -44,7 +44,9 @@ namespace terrama2
 
     struct UnabletoGetLockException: virtual Exception { };
 
-    struct UnknownDataProviderTypeException: virtual Exception { };
+    struct UnknownDataProviderKindException: virtual Exception { };
+
+    struct WrongDataProviderKindException: virtual Exception { };
   }
 }
 

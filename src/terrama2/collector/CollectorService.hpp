@@ -90,16 +90,6 @@ namespace terrama2
         void exec();
 
         /*!
-             * \brief Contains an infinite loop that will keep the service collecting data.
-             *
-             * For each provider type verifies if the first provider in the queue is acquiring new data,
-             * in case it's collecting moves to next type of provider, when it's done remove it from the queue,
-             * in case it's not collecting, starts the collection calling the collect method.
-             * It allows multiples providers to collect at the same time but only one provider of each type.
-             */
-        void processingLoop();
-
-        /*!
              * \brief Creates an instace of a collector of appropriate type for the dataProvider.
              * \param dataProvider The shared pointer to the data provider
              * \return Collector to the DataProvider.
@@ -128,14 +118,24 @@ namespace terrama2
              */
         void assignCollector(CollectorPtr firstCollectorInQueue);
 
+        /*!
+             * \brief Contains an infinite loop that will keep the service collecting data.
+             *
+             * For each provider type verifies if the first provider in the queue is acquiring new data,
+             * in case it's collecting moves to next type of provider, when it's done remove it from the queue,
+             * in case it's not collecting, starts the collection calling the collect method.
+             * It allows multiples providers to collect at the same time but only one provider of each type.
+             */
+        void processingLoop();
+
         bool stop_;
         QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
         QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
 
         QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
 
-        std::mutex  mutex_;
-        std::thread loopThread_;
+        std::mutex  mutex_;//!< mutex to thread safety
+        std::thread loopThread_;//!< Thread that holds the loop of processing queued dataset.
     };
   }
 }

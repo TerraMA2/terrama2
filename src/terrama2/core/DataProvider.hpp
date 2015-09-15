@@ -65,7 +65,7 @@ namespace terrama2
         UNKNOWN_TYPE,
         FTP_TYPE,
         HTTP_TYPE,
-        FILE_TYPE,
+        FILE_TYPE,//FIXME: Is this for OGR too? shape and csv? missing?
         WFS_TYPE,
         WCS_TYPE
       };

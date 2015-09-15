@@ -68,7 +68,7 @@ namespace terrama2
              * \param dataProvider Data provider information.
              * \return Shared pointer to the new collector.
              *
-             * \exception terrama2::collector::UnknownDataProviderTypeException Raised when CollectorFactory cannot identify the right Collector type for the DataProvider.
+             * \exception terrama2::collector::UnknownDataProviderKindException Raised when CollectorFactory cannot identify the right Collector type for the DataProvider.
              */
         CollectorPtr getCollector(const core::DataProviderPtr dataProvider);
 

@@ -75,11 +75,11 @@ namespace terrama2
              * \brief Recover the Collector from the CollectorFactory.
              * \return Collector for the DataSet.
              */
-        CollectorPtr                  collector() const ;
+        CollectorPtr                  collector() const;
         //! \brief Returns the original DataSet.
-        core::DataSetPtr              dataSet()   const { return dataSet_;   }
+        core::DataSetPtr              dataSet()   const;
         //! \brief List of DataProcessor that should be aquired and processed.
-        std::vector<DataProcessorPtr> data()      const { return dataLst_;   }
+        std::vector<DataProcessorPtr> data()      const;
 
         bool isValid() const { return false; }
 
@@ -97,8 +97,8 @@ namespace terrama2
         //! \brief Populates dataLst_ based on DataSet's Data information.
         void populateDataLst();
 
-        core::DataSetPtr dataSet_;
-        QTimer           timer_;
+        core::DataSetPtr dataSet_;//<! Pointer to the Dataset.
+        QTimer           timer_;//<! Timer to next collection.
 
         std::vector<DataProcessorPtr> dataLst_;
     };

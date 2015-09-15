@@ -80,29 +80,37 @@ void terrama2::collector::CollectorService::exec()
 
 void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
 {
-  if(firstCollectorInQueue->open())
+  try
   {
-    assert(datasetQueue_.contains(firstCollectorInQueue));
-    auto& datasetTimerQueue = datasetQueue_[firstCollectorInQueue];
-
-    while(!datasetTimerQueue.isEmpty())
-    {
-      //if dataprovider is already getting some file
-      if(firstCollectorInQueue->isCollecting())
-        break;
-
-      assert(!datasetTimerQueue.isEmpty());
-      //first dataset on queue
-      auto datasetTimer = datasetTimerLst_.value(datasetTimerQueue.front());
-      assert(datasetTimer);
-
-      //aquire dataset files
-      firstCollectorInQueue->collect(datasetTimer);
-
-      //remove first dataset from queue
-      datasetTimerQueue.pop_front();
-    }
+    firstCollectorInQueue->open();
   }
+  catch(...)
+  {
+    //TODO: what to do when cant open collector connection?
+  }
+
+
+  assert(datasetQueue_.contains(firstCollectorInQueue));
+  auto& datasetTimerQueue = datasetQueue_[firstCollectorInQueue];
+
+  while(!datasetTimerQueue.isEmpty())
+  {
+    //if dataprovider is already getting some file
+    if(firstCollectorInQueue->isCollecting())
+      break;
+
+    assert(!datasetTimerQueue.isEmpty());
+    //first dataset on queue
+    auto datasetTimer = datasetTimerLst_.value(datasetTimerQueue.front());
+    assert(datasetTimer);
+
+    //aquire dataset files
+    firstCollectorInQueue->collect(datasetTimer);
+
+    //remove first dataset from queue
+    datasetTimerQueue.pop_front();
+  }
+
 }
 
 void terrama2::collector::CollectorService::processingLoop()
@@ -143,6 +151,9 @@ void terrama2::collector::CollectorService::processingLoop()
 
 void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datasetId)
 {
+  //Lock Thread and add to the queue
+  std::lock_guard<std::mutex> lock(mutex_);
+
   auto datasetTimer = datasetTimerLst_.value(datasetId);
   assert(datasetTimer);
 
@@ -163,10 +174,12 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
   //sanity check: valid dataprovider
   assert(dataProvider->id());
 
+  //TODO: catch? rethrow?
   //Create a collector and add it to the list
-  auto collector = CollectorFactory::instance().getCollector(dataProvider);
+  CollectorPtr collector = CollectorFactory::instance().getCollector(dataProvider);
 
   return collector;
+
 }
 
 terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSetPtr dataset)

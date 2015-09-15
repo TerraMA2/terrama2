@@ -40,6 +40,7 @@
 
 //STD
 #include <string>
+#include <vector>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -91,7 +92,7 @@ namespace terrama2
              *
              * \return List of filtered names.
              */
-        QList<std::string> filterNames(const QList<std::string>& namesList) const;
+        std::vector<std::string> filterNames(const std::vector<std::string>& namesList) const;
 
         /*!
              * \brief Filters a te::da::DataSet by matching criteria.
@@ -104,8 +105,8 @@ namespace terrama2
         te::da::DataSetPtr filterDataSet(const te::da::DataSetPtr& dataSet) const;
 
         //TODO: should have static methods for easy access?
-        static QList<std::string> filterNamesByMask(const QList<std::string>& namesList, const std::string& mask) const;
-        static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry) const;
+        static QList<std::string> filterNamesByMask(const QList<std::string>& namesList, const std::string& mask);
+        static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
 
       private:
         std::string mask_;

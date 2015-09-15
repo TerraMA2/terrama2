@@ -45,17 +45,16 @@
 namespace terrama2
 {
   namespace core {
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
+    class Data;
+    typedef std::shared_ptr<Data> DataPtr;
   }
 
-  namespace ws
+  namespace collector
   {
-    namespace collector
-    {
-      namespace server
-      {
-        /*!
+    class Filter;
+    typedef std::shared_ptr<Filter> FilterPtr;
+
+    /*!
          * \brief The DataProcessor class is responsible to process and store the aquired data.
          *
          * The DataProcessor class receives an uri to the data aquired by a Collector
@@ -63,27 +62,29 @@ namespace terrama2
          * it is responsible for calling the appropriate storager.
          *
          */
-        class DataProcessor : public QObject, public boost::noncopyable
-        {
-            Q_OBJECT
+    class DataProcessor : public QObject, public boost::noncopyable
+    {
+        Q_OBJECT
 
-          public:
-            //! Constructor
-            DataProcessor(QObject* parent = nullptr);
-            //! Destructor
-            ~DataProcessor(){}
+      public:
+        //! Constructor
+        DataProcessor(QObject* parent = nullptr);
+        //! Destructor
+        ~DataProcessor(){}
 
-            /*!
+        core::DataPtr data() const;
+
+        FilterPtr filter() const;
+
+        /*!
              * \brief Calls the process and filtering objecs, after they finish calls the storager.
              * \param uri Uri to temporary data aquired by a collector.
              */
-            void import(const std::string &uri);
+        void import(const std::string &uri);
 
-        };
+    };
 
-        typedef std::shared_ptr<DataProcessor> DataProcessorPtr;
-      }
-    }
+    typedef std::shared_ptr<DataProcessor> DataProcessorPtr;
   }
 }
 

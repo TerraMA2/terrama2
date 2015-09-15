@@ -26,3 +26,16 @@
 
   \author Jano Simas
 */
+
+#include "Filter.hpp"
+
+std::vector<std::string> terrama2::collector::Filter::filterNames(const std::vector<std::string> &namesList) const
+{
+
+}
+
+
+void terrama2::collector::Filter::setMask(const std::string &mask)
+{
+
+}
