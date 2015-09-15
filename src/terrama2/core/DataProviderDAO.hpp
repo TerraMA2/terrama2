@@ -62,76 +62,77 @@ namespace terrama2
      */
     class DataProviderDAO
     {
-    public:
+      public:
 
+        /*!
+          \brief Persists a given data provider.
 
-      /*!
-       \brief Persists a given data provider.
+          The identifier of the data provider must be zero.
 
-       It will not persist information about datasets contained in this provider.
+          It will persist also the datasets existents in this data provider, the id of the datasets must be zero.
 
-       \exeption PAULO-TODO: Specify the exception
+          \exeption InvalidDataProviderIdError, InvalidDataSetIdError
 
-       \param DataProviderPtr The data provider to persist.
+          \param DataProviderPtr The data provider to persist.
        */
-      static void save(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
+        static void save(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
 
-      /*!
-       \brief Updates a given data provider.
+        /*!
+          \brief Updates a given data provider.
 
-       \pre The data provider must have a valid identifier.
+          The data provider must have a valid identifier.
 
-       \exeption PAULO-TODO: Specify the exception
+          \exeption InvalidDataProviderIdError
 
-       \param DataProviderPtr The data provider to update.
+          \param DataProviderPtr The data provider to update.
        */
-      static void update(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
+        static void update(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
 
-      /*!
-       \brief Removes a given data provider.
+        /*!
+          \brief Removes a given data provider.
 
-       \pre The data provider must have a valid identifier.
+          \pre The data provider must have a valid identifier.
 
-       It will remove all datasets that belong to this data provider.
-       In case there is an analysis that uses one these dataset an exception is thrown.
+          It will remove all datasets that belong to this data provider.
+          In case there is an analysis that uses one these dataset an exception is thrown.
 
-       \exeption PAULO-TODO: Specify the exception
+          \exeption PAULO-TODO: Specify the exception
 
-       \param DataProviderPtr The data provider to update.
+          \param DataProviderPtr The data provider to update.
        */
-      static void remove(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
+        static void remove(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
 
-      /*!
-       \brief Retrieves the data provider with the given id.
+        /*!
+          \brief Retrieves the data provider with the given id.
 
-       \exeption PAULO-TODO: Specify the exception
+          \exeption PAULO-TODO: Specify the exception
 
-       In case there is no data provider in the database with the given id it will return an empty smart pointer.
+          In case there is no data provider in the database with the given id it will return an empty smart pointer.
 
-       \param id The data provider identifier.
+          \param id The data provider identifier.
 
-       \return DataProviderPtr A smart pointer to the data provider
-
-       */
-      static DataProviderPtr find(const uint64_t id, te::da::DataSourceTransactor& transactor);
-
-      /*!
-       \brief Retrieves all data provider in the database.
-
-       \exeption PAULO-TODO: Specify the exception
-
-       In case there is no data provider in the database it will return an empty vector.
-
-       \return std::vector<DataProviderPtr> A list with all data providers.
+          \return DataProviderPtr A smart pointer to the data provider
 
        */
-      static std::vector<DataProviderPtr> list(te::da::DataSourceTransactor& transactor);
-      
+        static DataProviderPtr find(const uint64_t id, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieves all data provider in the database.
+
+          \exeption PAULO-TODO: Specify the exception
+
+          In case there is no data provider in the database it will return an empty vector.
+
+          \return std::vector<DataProviderPtr> A list with all data providers.
+
+       */
+        static std::vector<DataProviderPtr> list(te::da::DataSourceTransactor& transactor);
+
       private:
-      
+
         //! Not instantiable.
         DataProviderDAO();
-      
+
         //! Not instantiable.
         ~DataProviderDAO();
 
