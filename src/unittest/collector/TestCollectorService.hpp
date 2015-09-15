@@ -38,19 +38,11 @@ class TestCollectorService: public QObject
 
 protected:
 
-    void initializeTerralib();
-    void finalizeTerralib();
-    void pingTest();
-
 private slots:
-    void initTestCase() // Run before all tests
-    {
-        initializeTerralib();
-    }
-    void cleanupTestCase() // Run after all tests
-    {
-        finalizeTerralib();
-    }
+    void initTestCase(); // Run before all tests
+
+    void cleanupTestCase(); // Run after all tests
+
 
     void init(); //run before each test
     void cleanup(); //run before each test
@@ -60,7 +52,6 @@ private slots:
     /*!
      * \brief Test Description
      */
-    void testCollectorService();
 
 
 

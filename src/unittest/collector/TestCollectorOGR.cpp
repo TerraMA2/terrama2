@@ -1,5 +1,7 @@
 
 #include "TestCollectorOGR.hpp"
+#include "Utils.hpp"
+
 
 //Terrama2
 #include <terrama2/core/DataProvider.hpp>
@@ -14,21 +16,24 @@
 
 void TestCollectorOGR::initTestCase()
 {
-  // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
+//  // Initialize the Terralib support
+//  TerraLib::getInstance().initialize();
 
-  te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+//  te::plugin::PluginInfo* info;
+//  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
 
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+//  te::plugin::PluginManager::getInstance().add(info);
 
-  te::plugin::PluginManager::getInstance().loadAll();
+//  te::plugin::PluginManager::getInstance().loadAll();
+
+  initializeTerralib();
 }
 
 void TestCollectorOGR::cleanupTestCase()
 {
-  TerraLib::getInstance().finalize();
+  finalizeTerralib();
+//  TerraLib::getInstance().finalize();
 }
 
 void TestCollectorOGR::testInvalidDataProvider()

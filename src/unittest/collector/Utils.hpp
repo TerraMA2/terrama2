@@ -20,56 +20,22 @@
 */
 
 /*!
-  \file unittest/collector/TestCollector.hpp
+  \file unittest/core/TestUtils.hpp
 
-  \brief Test Collector...
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
 
+void initializeTerralib();
 
-//QT
-#include <QtTest>
+void finalizeTerralib();
 
-//Terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
+void initializeTerraMA2();
 
+void finalizeTerraMA2();
 
-class TestCollector: public QObject
-{
-  Q_OBJECT
-
-protected:
-
-    void initializeTerralib();
-    void finalizeTerralib();
-
-private slots:
-    void initTestCase() // Run before all tests
-    {
-        initializeTerralib();
-    }
-    void cleanupTestCase() // Run after all tests
-    {
-        finalizeTerralib();
-    }
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Test Description
-     */
-    void testTiffCollector();
-
-
-
-    //******End of Test functions****
-
-private:
-    std::auto_ptr<te::da::DataSource> ds_;
-    std::auto_ptr<te::da::DataSourceTransactor> transactor_;
-};
+#endif // __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
