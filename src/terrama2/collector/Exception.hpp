@@ -20,40 +20,34 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.cpp
+  \file terrama2/collector/Exception.hpp
 
-  \brief Instantiate collectors for DataProviders.
+  \brief Exceptions for collector module.
 
   \author Jano Simas
 */
 
+#include "../Exception.hpp"
 
-#include "CollectorFactory.hpp"
-#include "Exception.hpp"
+#ifndef __TERRAMA2_COLLECTOR_EXCEPTION_HPP__
+#define __TERRAMA2_COLLECTOR_EXCEPTION_HPP__
 
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
-
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
+namespace terrama2
 {
-
-  if(!instance_)
-    instance_ = new CollectorFactory();
-
-  return *instance_;
-}
-
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
-{
-  //JANO: implementar getCollector
-
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
+  namespace collector
   {
-    //... instatiate a new collector
-    //TODO: Throws if fail?
+    struct ServiceAlreadyRunnningException: virtual Exception { };
 
-    //TODO: Throws UnknownDataProviderKindException
+    struct InvalidDataSetException: virtual Exception { };
+
+    struct InactiveDataSetException: virtual Exception { };
+
+    struct UnabletoGetLockException: virtual Exception { };
+
+    struct UnknownDataProviderKindException: virtual Exception { };
+
+    struct WrongDataProviderKindException: virtual Exception { };
   }
-
-  return collectorMap_.value(dataProvider->id());
 }
+
+#endif //__TERRAMA2_COLLECTOR_EXCEPTION_HPP__

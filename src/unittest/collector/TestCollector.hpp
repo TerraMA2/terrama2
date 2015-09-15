@@ -20,32 +20,23 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/TestDataset.cpp
+  \file unittest/collector/TestCollector.hpp
 
   \brief Test Collector...
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
+
 
 
 //QT
 #include <QtTest>
-#include <QApplication>
 
-// STL
-#include <memory>
-
-//terralib
-#include <terralib/postgis/Utils.h>
-#include <terralib/postgis/Connection.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+//Terralib
 #include <terralib/dataaccess/datasource/DataSource.h>
 
-#include <terralib/common/PlatformUtils.h>
-#include <terralib/common.h>
-#include <terralib/plugin.h>
 
-class TestDataset: public QObject
+class TestCollector: public QObject
 {
   Q_OBJECT
 
@@ -72,49 +63,13 @@ private slots:
     /*!
      * \brief Test Description
      */
-    void testDataSet();
+    void testTiffCollector();
 
 
 
     //******End of Test functions****
 
+private:
+    std::auto_ptr<te::da::DataSource> ds_;
+    std::auto_ptr<te::da::DataSourceTransactor> transactor_;
 };
-
-void TestDataset::init()
-{
-
-}
-
-void TestDataset::cleanup()
-{
-
-}
-
-void TestDataset::testDataSet()
-{
-
-
-}
-
-
-void TestDataset::initializeTerralib()
-{
-  // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
-
-  te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-  te::plugin::PluginManager::getInstance().loadAll();
-}
-
-
-
-void TestDataset::finalizeTerralib()
-{
-  TerraLib::getInstance().finalize();
-}
-
-//QTEST_MAIN(TestDataset)
-#include "TestDataset.moc"

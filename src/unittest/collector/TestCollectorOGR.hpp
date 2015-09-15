@@ -20,40 +20,42 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.cpp
+  \file unittest/collector/TestCollectorOGR.hpp
 
-  \brief Instantiate collectors for DataProviders.
+  \brief Test CollectorOGR...
 
   \author Jano Simas
 */
 
 
-#include "CollectorFactory.hpp"
-#include "Exception.hpp"
+#include "../core/TestUtils.hpp"
 
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
+//QT
+#include <QtTest>
 
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
+
+class TestCollectorOGR: public QObject
 {
+  Q_OBJECT
 
-  if(!instance_)
-    instance_ = new CollectorFactory();
+protected:
 
-  return *instance_;
-}
+private slots:
+    void initTestCase(); // Run before all tests
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
-{
-  //JANO: implementar getCollector
+    void cleanupTestCase(); // Run after all tests
 
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
-  {
-    //... instatiate a new collector
-    //TODO: Throws if fail?
+    void init(){} //run before each test
+    void cleanup(){} //run before each test
 
-    //TODO: Throws UnknownDataProviderKindException
-  }
+    //******Test functions********
 
-  return collectorMap_.value(dataProvider->id());
-}
+    /*!
+     * \brief Test Description
+     */
+    void testInvalidDataProvider();
+
+
+
+    //******End of Test functions****
+};
