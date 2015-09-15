@@ -48,7 +48,5 @@ target_link_libraries(terrama2_unittest_ws_collector_server terrama2_mod_ws_coll
                                                           terralib_mod_plugin
                                                           terralib_mod_common)
 
-add_test(NAME TestCollectorService COMMAND terrama2_unittest_ws_collector_server)
-
 qt5_use_modules(terrama2_unittest_ws_collector_server Test)
 
