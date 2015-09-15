@@ -65,6 +65,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_;
     Services* manager_; //!< Services Handler
+    bool changed_;
 };
 
 #endif

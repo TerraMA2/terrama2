@@ -40,6 +40,8 @@
 // Qt
 #include <QStringList>
 #include <QTranslator>
+#include <QFileDialog>
+#include <QMessageBox>
 
 
 struct ConfigApp::Impl
@@ -99,6 +101,8 @@ ConfigApp::ConfigApp(QWidget* parent)
 
   connect(weatherTab, SIGNAL(serverChanged()), this, SLOT(disableRefreshAction()));
 
+  connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
+
 }
 
 ConfigApp::~ConfigApp()
@@ -130,4 +134,15 @@ void ConfigApp::tabChangeRequested(int index)
 void ConfigApp::disableRefreshAction()
 {
   pimpl_->ui_->refreshAct->setEnabled(false);
+}
+
+void ConfigApp::openRequested()
+{
+  QString file = QFileDialog::getOpenFileName(this, tr("Choice file"),
+                                             ".", tr("Configurations (*.terrama2)"));
+  if (!file.isEmpty())
+  {
+    // process
+    QMessageBox::information(this, "TerraMA2", file);
+  }
 }

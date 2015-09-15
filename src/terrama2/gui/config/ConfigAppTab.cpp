@@ -6,7 +6,7 @@
 #include <QMessageBox>
 
 ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : QObject(app), app_(app), ui_(ui)
+  : QObject(app), app_(app), ui_(ui), changed_(false)
 {
 
 }
@@ -26,7 +26,6 @@ void ConfigAppTab::validateAndSaveChanges()
   {
     const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
     QMessageBox::critical(app_, tr("TerraMA2 - Error"), *msg);
-    delete msg;
   }
   catch(const std::exception& e)
   {

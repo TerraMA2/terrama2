@@ -20,6 +20,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   // Bind the inputs
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->serverDescription, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -63,6 +64,7 @@ void ConfigAppWeatherTab::onEnteredWeatherTab()
   ui_->cancelBtn->setVisible(true);
 
   ui_->saveBtn->setEnabled(false);
+  ui_->cancelBtn->setEnabled(false);
 
   ui_->ServerGroupPage->hide();
   ui_->ServerPage->show();
@@ -71,4 +73,6 @@ void ConfigAppWeatherTab::onEnteredWeatherTab()
 void ConfigAppWeatherTab::onWeatherTabEdited()
 {
   ui_->saveBtn->setEnabled(true);
+  ui_->cancelBtn->setEnabled(true);
+  changed_ = true;
 }
