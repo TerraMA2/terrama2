@@ -37,11 +37,14 @@
 # Description: Generate the gSoap service files for server or client
 #
 MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path namespace type GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
-  if(${type} STREQUAL "server")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x ${file_path})
+
+  set(GSOAP_INCLUDES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core)
+
+if(${type} STREQUAL "server")
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x -I${GSOAP_INCLUDES} ${file_path})
     set(ARCHIVE_TYPE Service)
   elseif(${type} STREQUAL "client")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x ${file_path})
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x -I${GSOAP_INCLUDES} ${file_path})
     set(ARCHIVE_TYPE Proxy)
   endif()
 
