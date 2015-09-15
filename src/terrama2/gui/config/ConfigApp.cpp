@@ -34,6 +34,9 @@
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
 
+// TerraMA2 Tab controls
+#include "ConfigAppWeatherTab.hpp"
+
 // Qt
 #include <QStringList>
 #include <QTranslator>
@@ -56,7 +59,7 @@ struct ConfigApp::Impl
 
 ConfigApp::ConfigApp(QWidget* parent)
   : QMainWindow(parent),
-    pimpl_(new ConfigApp::Impl)
+    pimpl_(new ConfigApp::Impl), currentTabIndex_(0)
 {
 // Find TerraMA2 icon theme library
   std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
@@ -87,23 +90,44 @@ ConfigApp::ConfigApp(QWidget* parent)
 
   pimpl_->ui_->setupUi(this);
 
-  QObject::connect(pimpl_->ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onInsertServerClick()));
-  QObject::connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), this, SLOT(onCancelClick()));
+// Init services for each tab
+  ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
+
+  tabList_.append(weatherTab);
+
+  connect(pimpl_->ui_->mainTabWidget, SIGNAL(currentChanged(int)), SLOT(tabChangeRequested(int)));
+
+  connect(weatherTab, SIGNAL(serverChanged()), this, SLOT(disableRefreshAction()));
+
 }
 
 ConfigApp::~ConfigApp()
 {
+  for (auto tab: tabList_)
+    delete tab;
   delete pimpl_;
 }
 
-void ConfigApp::onInsertServerClick()
+Ui::ConfigAppForm* ConfigApp::ui() const
 {
-  pimpl_->ui_->ServerGroupPage->hide();
-  pimpl_->ui_->ServerPage->show();
+  return pimpl_->ui_;
 }
 
-void ConfigApp::onCancelClick()
+void ConfigApp::tabChangeRequested(int index)
 {
-  pimpl_->ui_->ServerPage->hide();
-  pimpl_->ui_->ServerGroupPage->show();
+  if(index != currentTabIndex_)
+  {
+    // Verifica se o tab pode ser trocado
+    ConfigAppTab* tab = tabList_.at(currentTabIndex_);
+
+    if(tab->verifyAndEnableChange(true))
+      currentTabIndex_ = index;
+    else
+      pimpl_->ui_->mainTabWidget->setCurrentIndex(currentTabIndex_);
+  }
+}
+
+void ConfigApp::disableRefreshAction()
+{
+  pimpl_->ui_->refreshAct->setEnabled(false);
 }

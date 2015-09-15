@@ -28,7 +28,7 @@
         <item row="0" column="1">
          <widget class="QStackedWidget" name="weatherPageStack">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="ServerGroupPage">
            <property name="enabled">
@@ -93,7 +93,9 @@ p, li { white-space: pre-wrap; }
                  <string>Adicionar Servidor</string>
                 </property>
                 <property name="icon">
-                 <iconset theme="add-server"/>
+                 <iconset theme="add-server">
+                  <normaloff/>
+                 </iconset>
                 </property>
                </widget>
               </item>
@@ -112,7 +114,9 @@ p, li { white-space: pre-wrap; }
                  <string>Importar Servidor</string>
                 </property>
                 <property name="icon">
-                 <iconset theme="import-server"/>
+                 <iconset theme="import-server">
+                  <normaloff/>
+                 </iconset>
                 </property>
                </widget>
               </item>
@@ -322,7 +326,9 @@ p, li { white-space: pre-wrap; }
                  <string>Verificar conexão</string>
                 </property>
                 <property name="icon">
-                 <iconset theme="confirm"/>
+                 <iconset theme="confirm">
+                  <normaloff/>
+                 </iconset>
                 </property>
                </widget>
               </item>
@@ -1248,7 +1254,9 @@ p, li { white-space: pre-wrap; }
                   <string>Projeção...</string>
                  </property>
                  <property name="icon">
-                  <iconset theme="projection"/>
+                  <iconset theme="projection">
+                   <normaloff/>
+                  </iconset>
                  </property>
                 </widget>
                </item>
@@ -1581,7 +1589,9 @@ p, li { white-space: pre-wrap; }
                   <string>Superfícies</string>
                  </property>
                  <property name="icon">
-                  <iconset theme="surface"/>
+                  <iconset theme="surface">
+                   <normaloff/>
+                  </iconset>
                  </property>
                 </widget>
                </item>
@@ -1812,7 +1822,9 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset theme="add"/>
+                    <iconset theme="add">
+                     <normaloff/>
+                    </iconset>
                    </property>
                   </widget>
                  </item>
@@ -1846,7 +1858,9 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset theme="remove"/>
+                    <iconset theme="remove">
+                     <normaloff/>
+                    </iconset>
                    </property>
                   </widget>
                  </item>
@@ -1894,7 +1908,9 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset theme="table"/>
+                    <iconset theme="table">
+                     <normaloff/>
+                    </iconset>
                    </property>
                   </widget>
                  </item>
@@ -1931,7 +1947,9 @@ p, li { white-space: pre-wrap; }
                     <string>...</string>
                    </property>
                    <property name="icon">
-                    <iconset theme="punctual-data"/>
+                    <iconset theme="punctual-data">
+                     <normaloff/>
+                    </iconset>
                    </property>
                   </widget>
                  </item>
@@ -1962,7 +1980,9 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset theme="new-config"/>
+                    <iconset theme="new-config">
+                     <normaloff/>
+                    </iconset>
                    </property>
                   </widget>
                  </item>
@@ -2326,7 +2346,9 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset theme="intersection"/>
+                  <iconset theme="intersection">
+                   <normaloff/>
+                  </iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2373,7 +2395,9 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset theme="filter"/>
+                  <iconset theme="filter">
+                   <normaloff/>
+                  </iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2433,7 +2457,7 @@ p, li { white-space: pre-wrap; }
         <item row="1" column="0" colspan="2">
          <layout class="QHBoxLayout">
           <item>
-           <spacer>
+           <spacer name="groupServerButton">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
