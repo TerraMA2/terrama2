@@ -157,7 +157,7 @@ void TestDataSetDAO::testCRUDDataSet()
   QVERIFY2(findDataSet.get() == nullptr, "Find should return null after remove");
 
   // Test list empty
-  auto vecDataSet = terrama2::core::DataManager::getInstance().datasets();
+  auto vecDataSet = terrama2::core::DataManager::getInstance().dataSets();
   QVERIFY2(vecDataSet.empty(), "List should be empty after remove!");
 
 
