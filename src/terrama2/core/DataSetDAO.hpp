@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
 #define __TERRAMA2_CORE_DATASETDAO_HPP__
 
+// TerraMA2
+#include "DataSet.hpp"
+
 // STL
 #include <vector>
 #include <memory>
@@ -47,10 +50,6 @@ namespace terrama2
 {
   namespace core
   {
-
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
     class DataSetDAO
     {
       public:
@@ -108,7 +107,43 @@ namespace terrama2
          */
         static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);
 
+
       private:
+
+        /*!
+          \brief Retrieve the list of collect rules of a given dataset.
+
+          \param dataSetId Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return The list of collect rules.
+         */
+        static std::vector<terrama2::core::DataSet::CollectRule> getCollectRules(int dataSetId, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the collect rules of a given dataset.
+
+           \param dataSet Dataset with the collect rules.
+           \param transactor Data source transactor.
+         */
+        static void addCollectRules(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieve a map with the metadata for a given dataset.
+
+          In case there is no metadata, it will return an empty map.
+
+          \param dataSetId Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return The map with the dataset metadata.
+         */
+        static std::map<std::string, std::string> getMetadata(int dataSetId, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the collect rules of a given dataset.
+           \param dataSet Dataset with the metadata.
+           \param transactor Data source transactor.
+         */
+        static void addMetadata(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
 
         //! Not instantiable.
         DataSetDAO();

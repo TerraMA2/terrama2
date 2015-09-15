@@ -38,7 +38,7 @@
 
 // STL
 #include <memory>
-#include <cstdint>
+#include <mutex>
 
 // QT
 #include <QObject>
@@ -65,7 +65,7 @@ namespace terrama2
       It will load the metadata from a database and will keep them
       synchronized.
      */
-    class DataManager : public QObject, te::common::Singleton<DataManager>
+    class DataManager : public QObject, public te::common::Singleton<DataManager>
     {
       Q_OBJECT
 
@@ -187,11 +187,16 @@ namespace terrama2
         //void dataSetChanged(DataSetPtr); // TODO: Analyze if it is necessary
 
 
-      private:
+      protected:
+        DataManager();
+        ~DataManager();
 
         struct Impl;
 
         Impl* pimpl_;
+        mutable std::mutex mutex_;  //!< A mutex to syncronize all operations.
+
+      friend class te::common::Singleton<DataManager>;
     };
 
   } // end namespace core

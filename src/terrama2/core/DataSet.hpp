@@ -78,6 +78,15 @@ namespace terrama2
           INACTIVE
         };
 
+        /*!
+           \brief Struct to store the collect rules.
+         */
+        struct CollectRule {
+            uint64_t id_;
+            std::string script_;
+        };
+
+
         DataSet(DataProviderPtr provider, const std::string& name, Kind kind);
 
         ~DataSet();
@@ -108,49 +117,49 @@ namespace terrama2
         /*!
           \brief It returns the the description of the dataset.
 
-          \return The the description of the dataset.
+          \return The description of the dataset.
         */
         std::string description() const;
 
         /*!
           \brief It sets the the description of the data provider.
 
-          \param The the description of the dataset.
+          \param The description of the dataset.
         */
         void setDescription(const std::string& description);
 
         /*!
           \brief It returns the the kind of the dataset.
 
-          \return The the kind of the dataset.
+          \return The kind of the dataset.
         */
         Kind kind() const;
 
         /*!
           \brief It sets the the kind of the dataset.
 
-          \param The the kind of the data provider.
+          \param The kind of the data provider.
         */
         void setKind(const Kind& kind);
 
         /*!
           \brief It returns the the status of the data provider.
 
-          \return The the status of the data provider.
+          \return The status of the data provider.
         */
         Status status() const;
 
         /*!
           \brief It sets the the status of the data provider.
 
-          \param The the status of the data provider.
+          \param The status of the data provider.
         */
         void setStatus(const Status& status);
 
         /*!
           \brief It returns the the data provider.
 
-          \return The the data provider.
+          \return The data provider.
         */
         DataProviderPtr dataProvider() const;
 
@@ -199,7 +208,7 @@ namespace terrama2
         /*!
           \brief It returns the time limit to retry a scheduled collection.
 
-          \return The the time limit to retry a scheduled collection.
+          \return The time limit to retry a scheduled collection.
         */
         te::dt::TimeDuration scheduleTimeout() const;
 
@@ -209,6 +218,34 @@ namespace terrama2
           \param The time limit to retry a scheduled collection.
         */
         void setScheduleTimeout(const te::dt::TimeDuration& scheduleTimeout);
+
+        /*!
+          \brief Returns the map with the dataset metadata.
+
+          \return The map with the dataset metadata.
+         */
+        std::map<std::string, std::string> metadata() const;
+
+        /*!
+           \brief Sets the dataset metadata.
+
+           \param The dataset metadata.
+         */
+        void setMetadata(const std::map<std::string, std::string>& metadata);
+
+        /*!
+           \brief Returns the collect rules.
+
+           \return The collect rules.
+         */
+        std::vector<CollectRule> collectRules() const;
+
+        /*!
+           \brief Sets the collect rules.
+
+           \param The collect rules.
+         */
+        void setCollectRules(const std::vector<CollectRule>& collectRules);
 
 
       protected:
@@ -233,6 +270,8 @@ namespace terrama2
         te::dt::TimeDuration schedule_;
         te::dt::TimeDuration scheduleRetry_;
         te::dt::TimeDuration scheduleTimeout_;
+        std::vector<CollectRule> collectRules_;
+        std::map<std::string, std::string> metadata_;
 
         friend class DataSetDAO;
     };

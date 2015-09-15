@@ -35,7 +35,9 @@
 #include "DataSet.hpp"
 
 terrama2::core::DataProvider::DataProvider(const std::string &name, Kind kind)
-  : name_(name),
+  :
+    id_(0),
+    name_(name),
     kind_(kind),
     status_(INACTIVE)
 {
