@@ -38,7 +38,7 @@ void TestCollectorOGR::cleanupTestCase()
 
 void TestCollectorOGR::testInvalidDataProvider()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy"));
+  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::UNKNOWN_TYPE));
 
   try
   {
