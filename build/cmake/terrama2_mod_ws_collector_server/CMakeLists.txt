@@ -29,7 +29,6 @@ include_directories (
   ${GSOAP_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
@@ -42,7 +41,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
 TERRAMA2_GSOAP_SOAPCPP2(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp
-                        collector server
+                        Web server
                         GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
 
 

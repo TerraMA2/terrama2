@@ -35,7 +35,6 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 include_directories (
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
@@ -44,7 +43,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 TERRAMA2_GSOAP_SOAPCPP2(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp
-                        collector client
+                        Web client
                         GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})

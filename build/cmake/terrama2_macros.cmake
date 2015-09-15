@@ -36,24 +36,28 @@
 #
 # Description: Generate the gSoap service files for server or client
 #
-MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path service_name type GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
-  if(${type} STREQUAL "server")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x ${file_path})
+MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path namespace type GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
+
+  set(GSOAP_INCLUDES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core)
+
+if(${type} STREQUAL "server")
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x -I${GSOAP_INCLUDES} ${file_path})
     set(ARCHIVE_TYPE Service)
   elseif(${type} STREQUAL "client")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x ${file_path})
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x -I${GSOAP_INCLUDES} ${file_path})
     set(ARCHIVE_TYPE Proxy)
   endif()
 
   make_directory(${CMAKE_CURRENT_BINARY_DIR}/generated)
-  set(${GSOAP_HDR_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/soap${service_name}${ARCHIVE_TYPE}.h
+
+  set(${GSOAP_HDR_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/soap${namespace}${ARCHIVE_TYPE}.h
                          ${CMAKE_CURRENT_BINARY_DIR}/generated/soapH.h
                          ${CMAKE_CURRENT_BINARY_DIR}/generated/soapStub.h)
 
-  set(${GSOAP_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/soap${service_name}${ARCHIVE_TYPE}.cpp
+  set(${GSOAP_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/soap${namespace}${ARCHIVE_TYPE}.cpp
                          ${CMAKE_CURRENT_BINARY_DIR}/generated/soapC.cpp)
 
-  set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/${service_name}.nsmap)
+  set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/generated/${namespace}.nsmap)
 
   add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
                      COMMAND ${COMMAND_LINE}

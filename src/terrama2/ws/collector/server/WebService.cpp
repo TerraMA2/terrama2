@@ -20,19 +20,19 @@
 */
 
 /*!
-  \file terrama2/ws/collector/appserver/WebService.cpp
+  \file terrama2/ws/collector/server/WebService.cpp
 
-  \brief TerraMA2 configuration options.
+  \brief TerraMA2 server gSOAP interfaces implementation.
 
   \author Vinicius Campanha
  */
 
 // TerraMA
-#include "soapcollectorService.h"
-#include "collector.nsmap"
+#include "soapWebService.h"
+#include "Web.nsmap"
 
 
-int collectorService::ping(std::string &answer)
+int WebService::ping(std::string &answer)
 {
     return SOAP_OK;
 }

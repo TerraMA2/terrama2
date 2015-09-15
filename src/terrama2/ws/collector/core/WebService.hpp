@@ -27,6 +27,134 @@
   \author Vinicius Campanha
  */
 
-//gsoap collector service name: collector
+//gsoap Web service name: Web
 
-int collector__ping(std::string& answer);
+#import "WebServiceDataTypes.hpp"
+
+/*!
+  \brief gSOAP Test Ping, write in 'answer' and return SOAP_OK if executed whitout error.
+
+  \param answer Referenced string where will be the ping answer after method execution
+
+  \return Integer that inform that the method was executed whitout error.
+*/
+int Web__ping(std::string &answer);
+
+// VINICIUS: write the methods documentation
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__load(void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__unload(void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__addDataProvider(DataProvider, void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__addDataset(DataSet, void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__updateDataProvider(DataProvider, void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__updateDataSet(DataSet, void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__removeDataProvider(uint64_t id, void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__removeDataSet(uint64_t id, void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__findDataProvider(uint64_t id, struct findDataProviderResponse &r);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__findDataSet(uint64_t id, struct findDataSetResponse &r);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+//int listDataProvider(); // std::vector<:DataProviderPtr>
+
+// VINICIUS: define interfaces of webservice
+/*
+
++ load()
++ unload()
++ add(DataProviderPtr)
++ add(DataSetPtr)
++ update(DataProviderPtr)
++ update(DataSetPtr)
++ removeDataProvider(uint64_t)
++ removeDataSet(uint64_t)
++ findDataProvider(uint64_t): DataProviderPtr
++ findDataSet(uint64_t): DataSetPtr
++ listDataProvider() : std::vector<:DataProviderPtr>
++ listDataSet() : std::vector<:DataSetPtr>
++ instance():  DataManager
+
+*/

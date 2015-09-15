@@ -35,8 +35,6 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 include_directories (
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}/../terrama2_mod_ws_collector_server/generated
 )
 
 set(CMAKE_AUTOMOC ON)
