@@ -20,20 +20,41 @@
 */
 
 /*!
-  \file terrama2/ws/collector/appserver/WebService.cpp
+  \file unittest/collector/TestCollectorService.cpp
 
-  \brief TerraMA2 configuration options.
+  \brief Test Collector service...
 
-  \author Vinicius Campanha
- */
-
-// TerraMA
-#include "soapcollectorService.h"
-#include "collector.nsmap"
+  \author Paulo R. M. Oliveira
+*/
 
 
-int collectorService::ping(std::string &answer)
+//QT
+#include <QtTest>
+
+
+class TestCollectorService: public QObject
 {
-    return SOAP_OK;
-}
+  Q_OBJECT
 
+protected:
+
+private slots:
+    void initTestCase(); // Run before all tests
+
+    void cleanupTestCase(); // Run after all tests
+
+
+    void init(); //run before each test
+    void cleanup(); //run before each test
+
+    //******Test functions********
+
+    /*!
+     * \brief Test Description
+     */
+
+
+
+    //******End of Test functions****
+
+};

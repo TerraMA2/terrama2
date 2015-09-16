@@ -21,8 +21,7 @@
 #
 #  Description: CMake script for collector appserver
 #
-#  Author: Paulo R. M. Oliveira
-#          Vinicius Campanha
+#  Author: Vinicius Campanha
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/appserver/*.cpp)
@@ -31,12 +30,11 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/colle
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-
 include_directories (
+  ${GSOAP_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}/../terrama2_mod_ws_collector_server/generated
+  "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_server/gsoap"
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -46,12 +44,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_executable(terrama2_mod_ws_collector_appserver ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
 target_link_libraries(terrama2_mod_ws_collector_appserver terrama2_mod_ws_collector_server
-                                                          terrama2_mod_ws_collector_core
                                                           terrama2_mod_core)
 
 qt5_use_modules(terrama2_mod_ws_collector_appserver Widgets)
-
-
 
 set_target_properties(terrama2_mod_ws_collector_appserver
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

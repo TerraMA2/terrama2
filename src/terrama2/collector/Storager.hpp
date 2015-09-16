@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Storager.hpp
+  \file terrama2/collector/Storager.hpp
 
   \brief Store a temporary terralib DataSet into the permanent storage area.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
+#ifndef __TERRAMA2_COLLECTOR_STORAGER_HPP__
+#define __TERRAMA2_COLLECTOR_STORAGER_HPP__
 
 #include "terralib/dataaccess/dataset/DataSet.h"
 
@@ -37,36 +37,30 @@
 
 namespace terrama2
 {
-  namespace ws
+  namespace collector
   {
-    namespace collector
-    {
-      namespace server
-      {
 
-        /*!
+    /*!
          * \brief The Storager class store the data in the final storage area and format.
          *
          * The Storager is responsible for creating the final storaging area and
          * converting the data (terralib) to the appropriate format.
          *
          */
-        class Storager : public boost::noncopyable
-        {
-          public:
-            /*!
+    class Storager : public boost::noncopyable
+    {
+      public:
+        /*!
              * \brief Store a temporary data set in it's final storage area and format.
              * \return Pointer to a te::da::DataSet of the final storage.
              *
              * \exception TODO: Storager::store exception...
              */
-            virtual te::da::DataSetPtr store(const te::da::DataSetPtr tempDataSet );
+        virtual te::da::DataSetPtr store(const te::da::DataSetPtr tempDataSet );
 
-        };
-      }
-    }
+    };
   }
 }
 
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_STORAGER_HPP__
+#endif //__TERRAMA2_COLLECTOR_STORAGER_HPP__

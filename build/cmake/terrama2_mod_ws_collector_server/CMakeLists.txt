@@ -21,16 +21,14 @@
 #
 #  Description: CMake script for collector client
 #
-#  Author: Paulo R. M. Oliveira
-#          Vinicius Campanha
+#  Author: Vinicius Campanha
 #
 
 include_directories (
   ${GSOAP_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}/generated
+  ${CMAKE_CURRENT_BINARY_DIR}/gsoap
 )
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/server/*.cpp)
@@ -41,22 +39,21 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
-TERRAMA2_GSOAP_SOAPCPP2(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp
-                        collector server
+TERRAMA2_GSOAP_SOAPCPP2("${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp"
+                        "Web" "server" "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core"
                         GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
-
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
-source_group("GSOAP Files"   FILES ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES})
+source_group("gSOAP Files"   FILES ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES})
 
 add_library(terrama2_mod_ws_collector_server
             SHARED
             ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES}
             ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES})
 
-target_link_libraries(terrama2_mod_ws_collector_server terrama2_mod_ws_collector_core
-                                                       terrama2_mod_core
+target_link_libraries(terrama2_mod_ws_collector_server terrama2_mod_core
+                                                       terrama2_mod_ws_collector_core
                                                        ${GSOAP_CPP_LIBRARY}
                                                        ${Boost_LOG_LIBRARY})
 

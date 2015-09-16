@@ -20,40 +20,21 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.cpp
+  \file terrama2/ws/collector/server/WebService.cpp
 
-  \brief Instantiate collectors for DataProviders.
+  \brief TerraMA2 server gSOAP interfaces implementation.
 
-  \author Jano Simas
-*/
+  \author Vinicius Campanha
+ */
+
+// TerraMA
+#include "soapWebService.h"
+#include "Web.nsmap"
 
 
-#include "CollectorFactory.hpp"
-#include "Exception.hpp"
-
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
-
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
+int WebService::ping(std::string &answer)
 {
-
-  if(!instance_)
-    instance_ = new CollectorFactory();
-
-  return *instance_;
+    return SOAP_OK;
 }
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
-{
-  //JANO: implementar getCollector
-
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
-  {
-    //... instatiate a new collector
-    //TODO: Throws if fail?
-
-    //TODO: Throws UnknownDataProviderKindException
-  }
-
-  return collectorMap_.value(dataProvider->id());
-}
+ 
