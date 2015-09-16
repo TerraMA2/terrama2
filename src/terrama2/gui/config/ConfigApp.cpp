@@ -93,7 +93,7 @@ ConfigApp::ConfigApp(QWidget* parent)
   pimpl_->ui_->setupUi(this);
 
 // Initialize services
-  services_ = new ServiceHandler;
+//  services_ = new ServiceHandler;
 
 // Init services for each tab
   ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
@@ -113,7 +113,7 @@ ConfigApp::~ConfigApp()
   for (auto tab: tabList_)
     delete tab;
   delete pimpl_;
-  delete services_;
+//  delete services_;
 }
 
 Ui::ConfigAppForm* ConfigApp::ui() const
