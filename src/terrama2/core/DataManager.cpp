@@ -47,12 +47,13 @@ struct terrama2::core::DataManager::Impl
   std::map<uint64_t, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
   std::map<uint64_t, DataSetPtr> datasets_;       //!< A map from data-set-id to dataset.
   bool dataLoaded_;                               //!< A boolean that defines if the data has already been loaded.
+  mutable std::mutex mutex_;                      //!< A mutex to syncronize all operations.
 };
 
 void terrama2::core::DataManager::load()
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   // If the data has already been loaded there is nothing to be done.
   if(pimpl_->dataLoaded_)
@@ -97,7 +98,7 @@ void terrama2::core::DataManager::load()
 void terrama2::core::DataManager::unload()
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   // If the data has already been loaded there is nothing to be done.
   if(pimpl_->dataLoaded_)
@@ -119,7 +120,7 @@ void terrama2::core::DataManager::unload()
 void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr dataProvider)
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   try
   {
@@ -146,7 +147,7 @@ void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr dataProvid
 void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   try
   {
@@ -173,7 +174,7 @@ void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
 void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataProvider)
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   try
   {
@@ -205,7 +206,7 @@ void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataPro
 void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   try
   {
@@ -233,7 +234,7 @@ void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
 void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   try
   {
@@ -281,7 +282,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
 void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   try
   {
@@ -314,7 +315,7 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   try
   {
     // Only one thread at time can access the data
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
     auto it = pimpl_->providers_.find(id);
     if(it !=  pimpl_->providers_.end())
@@ -336,7 +337,7 @@ terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const uint64
   try
   {
     // Only one thread at time can access the data
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
     auto it = pimpl_->datasets_.find(id);
     if(it !=  pimpl_->datasets_.end())
@@ -359,7 +360,7 @@ std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataManager::provid
   try
   {
     // Only one thread at time can access the data
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
     for (auto it = pimpl_->providers_.begin(); it != pimpl_->providers_.end(); ++it)
     {
@@ -376,10 +377,10 @@ std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataManager::provid
 
 }
 
-std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::datasets() const
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::dataSets() const
 {
   // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   std::vector<terrama2::core::DataSetPtr> vecDataSets;
   try
