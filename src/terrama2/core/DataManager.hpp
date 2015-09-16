@@ -172,6 +172,8 @@ namespace terrama2
 
           \pre The data provider must have a valid ID.
 
+          Emits dataProviderRemoved() signal if the data provider is removed successfully.
+
           It will remove all datasets that belong to this data provider.
           In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
 
@@ -188,6 +190,8 @@ namespace terrama2
           \brief Removes the dataset with the given id.
 
           \pre The dataset must have a valid ID.
+
+          Emits dataSetRemoved() signal if the dataset is removed successfully.
 
           In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
@@ -260,12 +264,10 @@ namespace terrama2
         void dataProviderAdded(DataProviderPtr);
         void dataProviderRemoved(DataProviderPtr);
         void dataProviderUpdated(DataProviderPtr);
-        //void dataProviderChanged(DataProviderPtr); // TODO: Analyze if it is necessary
 
         void dataSetAdded(DataSetPtr);
         void dataSetRemoved(DataSetPtr);
         void dataSetUpdated(DataSetPtr);
-        //void dataSetChanged(DataSetPtr); // TODO: Analyze if it is necessary
 
 
       protected:
