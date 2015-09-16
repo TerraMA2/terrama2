@@ -50,7 +50,7 @@ private slots:
     void TestNullDataSet();
 
     /*!
-     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     * \brief Tests the timer signal emition.
      */
     void TestTimerSignalEmit();
 

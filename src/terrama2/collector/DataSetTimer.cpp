@@ -30,6 +30,7 @@
 #include "DataSetTimer.hpp"
 #include "DataProcessor.hpp"
 #include "CollectorFactory.hpp"
+#include "Exception.hpp"
 
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
@@ -45,6 +46,12 @@ struct terrama2::collector::DataSetTimer::Impl
 terrama2::collector::DataSetTimer::DataSetTimer(terrama2::core::DataSetPtr dataSet)
 {
   impl_ = new Impl();
+
+  if(!dataSet)
+  {
+    throw InvalidDataSetException() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
+  }
+
   impl_->dataSet_ = dataSet;
 
   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
@@ -66,7 +73,8 @@ void terrama2::collector::DataSetTimer::timeoutSlot() const
 void terrama2::collector::DataSetTimer::prepareTimer()
 {
   //JANO: implementar prepareTimer para schedule
-//  timer_.start(dataSet_->dataFrequency());
+  te::dt::TimeDuration frequency = impl_->dataSet_->dataFrequency();
+  impl_->timer_.start(frequency.getSeconds()*1000);
 }
 
 void terrama2::collector::DataSetTimer::populateDataLst()
