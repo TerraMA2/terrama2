@@ -20,7 +20,7 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
     void load();
     bool dataChanged();
-    bool validate(QString& err);
+    bool validate();
     void save();
     void discardChanges(bool restore_data);
 

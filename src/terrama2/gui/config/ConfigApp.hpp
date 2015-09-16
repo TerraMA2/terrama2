@@ -33,7 +33,7 @@
 
 // TerraMA2
 #include "ui_ConfigAppForm.h"
-//#include "ServiceHandler.hpp"
+#include "ServiceHandler.hpp"
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -85,7 +85,7 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
 
     int currentTabIndex_;
 
-//    ServiceHandler* services_;
+    ServiceHandler* services_;
 
     QList<ConfigAppTab*> tabList_; //< List of TerraMA2 Configuration Tabs
 };

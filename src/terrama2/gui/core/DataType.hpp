@@ -18,7 +18,7 @@ enum DatabaseDriver
 
 struct Database
 {
-  QString host;
+  QString host_;
   int port_;
   QString user_;
   QString password_;
