@@ -20,39 +20,29 @@
 */
 
 /*!
-  \file terrama2/gui/admin/WaitDialog.hpp
+  \file terrama2/gui/core/ConfigManager.cpp
 
-  \brief Services QT Dialog Header
+  \brief This source file handling the terrama2 configuration file.
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Carlos Augusto Teixeira Mendes
 */
-  
-#ifndef __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
-#define __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
 
-#include "ui_WaitDialogForm.h"
+#include "ConfigManager.hpp"
 
-//! Class responsible for wait dialog apresentation
-class WaitDialog : public QDialog
+ConfigManager::ConfigManager()
+  : collection_(nullptr), database_(nullptr)
 {
-Q_OBJECT
 
-public:
-  WaitDialog(QString msg, QWidget* parent = 0, Qt::WindowFlags f = 0 );
-  ~WaitDialog();
+}
 
-public slots:
-  //! Set message to dialog
-  void setMsg(QString msg);
-  
-private:
-  // Forward Declaration
-  struct Impl;
+ConfigManager::~ConfigManager()
+{
+  delete collection_;
+  delete database_;
+}
 
-  Impl* pimpl_; //< Pimpl idiom
-};
-
-#endif // __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
-
+void ConfigManager::loadConfiguration(QString filepath)
+{
+  // OPEN JSON DOC.. <! It may raise Exception
+}
