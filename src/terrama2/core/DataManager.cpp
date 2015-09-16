@@ -42,12 +42,6 @@
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 
-
-// STL
-#include <cstdint>
-#include <mutex>
-
-
 struct terrama2::core::DataManager::Impl
 {
   std::map<uint64_t, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
@@ -96,7 +90,8 @@ void terrama2::core::DataManager::load()
   }
   catch(...)
   {
-    //TODO: Execption handling
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
   }
 }
 
@@ -136,11 +131,17 @@ void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr dataProvid
     DataProviderDAO::save(dataProvider, *transactor.get());
     
     transactor->commit();
+
+    pimpl_->providers_[dataProvider->id()] = dataProvider;
+
+    emit dataProviderAdded(dataProvider);
   }
   catch(...)
   {
-    //TODO: Execption handling
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
   }
+
 }
 
 void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
@@ -157,11 +158,17 @@ void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
     DataSetDAO::save(dataset, *transactor.get());
     
     transactor->commit();
+
+    pimpl_->datasets_[dataset->id()] = dataset;
+
+    emit dataSetAdded(dataset);
   }
   catch(...)
   {
-    //TODO: Execption handling
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
   }
+
 }
 
 void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataProvider)
@@ -178,11 +185,22 @@ void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataPro
     DataProviderDAO::update(dataProvider, *transactor.get());
     
     transactor->commit();
+
+    foreach (auto dataSet, dataProvider->dataSets())
+    {
+      pimpl_->datasets_[dataSet->id()] = dataSet;
+    }
+
+    pimpl_->providers_[dataProvider->id()] = dataProvider;
+
+    emit dataProviderUpdated(dataProvider);
   }
   catch(...)
   {
-    //TODO: Execption handling
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
   }
+
 }
 
 void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
@@ -199,11 +217,18 @@ void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
     DataSetDAO::update(dataset, *transactor.get());
     
     transactor->commit();
+
+    pimpl_->datasets_[dataset->id()] = dataset;
+
+    emit dataSetUpdated(dataset);
   }
   catch(...)
   {
-    //TODO: Execption handling
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
+
   }
+
 }
 
 void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
@@ -226,26 +251,32 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
     // Removes all related datasets from the map
     foreach (auto dataSet, dataProvider->dataSets())
     {
-      auto it = pimpl_->providers_.find(dataSet->id());
-      pimpl_->providers_.erase(it);
+      auto it = pimpl_->datasets_.find(id);
+      if(it !=  pimpl_->datasets_.end())
+      {
+        pimpl_->datasets_.erase(it);
+      }
     }
 
     // Remove the data provider from the map
     auto it = pimpl_->providers_.find(id);
-    pimpl_->providers_.erase(it);
+    if(it != pimpl_->providers_.end())
+    {
+      pimpl_->providers_.erase(it);
+    }
+
+    emit dataProviderRemoved(dataProvider);
   }
   catch(const DataSetInUseError& e)
   {
     throw e;
   }
-  catch(const terrama2::Exception& /*e*/)
+  catch(...)
   {
-    // PAULO-TODO: throw new terrama2::Exception() << terrama2::ErrorDescription(tr("Could not remove the data provider."));
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
   }
-  catch(const std::exception& /*e*/)
-  {
-    // PAULO-TODO: throw new terrama2::Exception() << terrama2::ErrorDescription(tr("Could not remove the data provider."));
-  }
+
 }
 
 void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
@@ -262,58 +293,119 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
     DataSetDAO::remove(id, *transactor.get());
     
     transactor->commit();
+
+    // Removes dataset from the map
+    auto it = pimpl_->datasets_.find(id);
+    if(it !=  pimpl_->datasets_.end())
+    {
+      pimpl_->datasets_.erase(it);
+    }
+
   }
   catch(...)
   {
-    //TODO: Execption handling
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
   }
 }
 
 terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const uint64_t& id) const
 {
-  // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+  DataProviderPtr dataProvider;
+  try
+  {
+    // Only one thread at time can access the data
+    std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
-  terrama2::core::DataProviderPtr dataProvider = pimpl_->providers_.at(id);
+    auto it = pimpl_->providers_.find(id);
+    if(it !=  pimpl_->providers_.end())
+    {
+      dataProvider = it->second;
+    }
+  }
+  catch(...)
+  {
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
+  }
   return dataProvider;
 }
 
 terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const uint64_t& id) const
 {
-  // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+  DataSetPtr dataset;
+  try
+  {
+    // Only one thread at time can access the data
+    std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
-  DataSetPtr dataset = pimpl_->datasets_.at(id);
+    auto it = pimpl_->datasets_.find(id);
+    if(it !=  pimpl_->datasets_.end())
+    {
+      dataset = it->second;
+    }
 
+  }
+  catch(...)
+  {
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
+  }
   return dataset;
 }
 
 std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataManager::providers() const
 {
-  // Only one thread at time can access the data
-  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
-
   std::vector<terrama2::core::DataProviderPtr> vecProviders;
-  
-  for (auto it = pimpl_->providers_.begin(); it != pimpl_->providers_.end(); ++it)
+  try
   {
-    vecProviders.push_back(it->second);
+    // Only one thread at time can access the data
+    std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+    for (auto it = pimpl_->providers_.begin(); it != pimpl_->providers_.end(); ++it)
+    {
+      vecProviders.push_back(it->second);
+    }
+  }
+  catch(...)
+  {
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
   }
 
   return vecProviders;
+
 }
 
-std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::datasets() const
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::dataSets() const
 {
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   std::vector<terrama2::core::DataSetPtr> vecDataSets;
-  
-  for (auto it = pimpl_->datasets_.begin(); it != pimpl_->datasets_.end(); ++it)
+  try
   {
-    vecDataSets.push_back(it->second);
+    for (auto it = pimpl_->datasets_.begin(); it != pimpl_->datasets_.end(); ++it)
+    {
+      vecDataSets.push_back(it->second);
+    }
   }
-  
+  catch(...)
+  {
+    // PAULO-TODO
+    throw Exception() << ErrorDescription(QObject::tr("Something wrong happened."));
+  }
+
   return vecDataSets;
+}
+
+terrama2::core::DataManager::DataManager()
+{
+  pimpl_ = new Impl();
+}
+
+terrama2::core::DataManager::~DataManager()
+{
+  delete pimpl_;
+  pimpl_ = nullptr;
 }
