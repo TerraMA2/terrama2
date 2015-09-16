@@ -148,10 +148,15 @@ void terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransacto
   if(id == 0)
     throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
 
-  std::string sql = "DELETE FROM " + dataSetName
-      + " WHERE id = " + std::to_string(id);
-
-  transactor.execute(sql);
+  try
+  {
+    std::string sql = "DELETE FROM " + dataSetName + " WHERE id = " + std::to_string(id);
+    transactor.execute(sql);
+  }
+  catch(...)
+  {
+    throw DataSetInUseError() << ErrorDescription(QObject::tr("Can not remove a dataset that is in use by an analysis."));
+  }
 }
 
 

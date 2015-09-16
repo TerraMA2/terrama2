@@ -79,12 +79,12 @@ namespace terrama2
         /*!
           \brief Removes the dataset with the given id.
           The identifier of the dataset must be valid.
-          In case there is an analysis configured to use this dataset, it will not be removed.
+          In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
           \param id Identifier of the dataset.
           \param transactor Data source transactor.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetIdError, DataSetInUseError
          */
         static void remove(uint64_t id, te::da::DataSourceTransactor& transactor);
 
@@ -95,6 +95,8 @@ namespace terrama2
           \param id Identifier of the dataset.
           \param transactor Data source transactor.
           \return A smart pointer to the dataset.
+
+          \exception InvalidDataSetIdError
          */
         static DataSetPtr find(uint64_t id, te::da::DataSourceTransactor& transactor);
 
