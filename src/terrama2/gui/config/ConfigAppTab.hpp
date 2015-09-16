@@ -1,6 +1,7 @@
 #ifndef __TERRAMA2_GUI_CONFIG_CONFIGTAB_HPP__
 #define __TERRAMA2_GUI_CONFIG_CONFIGTAB_HPP__
 
+// TerraMA2
 #include "ConfigApp.hpp"
 
 // QT
@@ -9,11 +10,6 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
-
-class Services
-{
-
-};
 
 class ConfigAppTab : public QObject, private boost::noncopyable
 {
@@ -64,7 +60,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
   protected:
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_;
-    Services* manager_; //!< Services Handler
+//    ServiceHandler* manager_; //!< Services Handler
     bool changed_;
 };
 

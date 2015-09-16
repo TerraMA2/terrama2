@@ -21,6 +21,8 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Bind the inputs
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
   connect(ui_->serverDescription, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+
+  ui_->weatherDataTree->clear();
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()

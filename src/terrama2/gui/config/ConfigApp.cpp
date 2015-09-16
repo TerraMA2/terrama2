@@ -92,6 +92,9 @@ ConfigApp::ConfigApp(QWidget* parent)
 
   pimpl_->ui_->setupUi(this);
 
+// Initialize services
+  services_ = new ServiceHandler;
+
 // Init services for each tab
   ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
 
@@ -110,6 +113,7 @@ ConfigApp::~ConfigApp()
   for (auto tab: tabList_)
     delete tab;
   delete pimpl_;
+  delete services_;
 }
 
 Ui::ConfigAppForm* ConfigApp::ui() const
@@ -139,10 +143,11 @@ void ConfigApp::disableRefreshAction()
 void ConfigApp::openRequested()
 {
   QString file = QFileDialog::getOpenFileName(this, tr("Choice file"),
-                                             ".", tr("Configurations (*.terrama2)"));
+                                             ".", tr("TerraMA2 (*.terrama2)"));
   if (!file.isEmpty())
   {
     // process
     QMessageBox::information(this, "TerraMA2", file);
+
   }
 }
