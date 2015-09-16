@@ -27,7 +27,6 @@
   \author Vinicius Campanha
  */
 
-//#import "stlvector.h"
 
 struct DataProvider
 {
@@ -39,7 +38,7 @@ struct DataProvider
   uint32_t      status;
 };
 
-struct DataProviderResponse { DataProvider return_; };
+//struct DataProviderResponse { DataProvider return_; };
 
 //struct listDataProviderResponse { std::vector<DataProvider> return_ };
 
@@ -49,7 +48,7 @@ struct DataSet
   std::string   name;
   std::string   description;
   uint32_t      status;
-  uin64_t       data_provider_id;
+  uint64_t       data_provider_id;
   uint32_t      kind;
   uint32_t      data_frequency;
   std::string   schedule;
@@ -57,4 +56,4 @@ struct DataSet
   uint32_t      schedule_timeout;
 };
 
-struct DataSetResponse { DataSet return_; };
+//struct DataSetResponse { DataSet return_; };

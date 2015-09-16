@@ -27,7 +27,7 @@
   \author Vinicius Campanha
  */
 
-// TerraMA
+// TerraMA2
 #include "soapWebService.h"
 #include "Web.nsmap"
 
@@ -37,4 +37,74 @@ int WebService::ping(std::string &answer)
     return SOAP_OK;
 }
 
- 
+
+int WebService::restart(void)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::shutdown(void)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::addDataProvider(struct DataProvider)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::addDataset(struct DataSet)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::updateDataProvider(struct DataProvider)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::updateDataSet(struct DataSet)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::removeDataProvider(uint64_t id)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::removeDataSet(uint64_t id)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::findDataProvider(uint64_t id, struct DataProvider &r)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::findDataSet(uint64_t id, struct DataSet &r)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::listDataProvider(std::vector< DataProvider >)
+{
+   return SOAP_OK;
+}
+
+
+int WebService::listDataSet(std::vector< DataSet >)
+{
+   return SOAP_OK;
+}
