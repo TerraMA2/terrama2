@@ -50,6 +50,14 @@ namespace terrama2
     class CollectorFile : public Collector
     {
       public:
+        /*!
+         * \brief TODO: document CollectorFile
+         * \param dataProvider
+         * \param parent
+         *
+         * \exception InvalidDataProviderException
+         * \exception WrongDataProviderKindException
+         */
         CollectorFile(const terrama2::core::DataProviderPtr dataProvider, QObject *parent = nullptr);
         virtual ~CollectorFile(){}
 

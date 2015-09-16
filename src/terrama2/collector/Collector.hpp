@@ -62,6 +62,7 @@ namespace terrama2
          * This class is an interface to open a connection with a [DataProvider](\ref terrama2::core::DataProvider)
          * and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
          *
+         *
          */
     class Collector : public QObject, public boost::noncopyable
     {
