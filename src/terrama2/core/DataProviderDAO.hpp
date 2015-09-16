@@ -71,7 +71,7 @@ namespace terrama2
 
           It will persist also the datasets existents in this data provider, the id of the datasets must be zero.
 
-          \exeption InvalidDataProviderIdError, InvalidDataSetIdError
+          \exception InvalidDataProviderIdError, InvalidDataSetIdError
 
           \param DataProviderPtr The data provider to persist.
        */
@@ -82,7 +82,7 @@ namespace terrama2
 
           The data provider must have a valid identifier.
 
-          \exeption InvalidDataProviderIdError
+          \exception InvalidDataProviderIdError
 
           \param DataProviderPtr The data provider to update.
        */
@@ -96,7 +96,7 @@ namespace terrama2
           It will remove all datasets that belong to this data provider.
           In case there is an analysis that uses one these dataset an exception is thrown.
 
-          \exeption PAULO-TODO: Specify the exception
+          \exception InvalidDataProviderIdError, DataSetInUseError
 
           \param DataProviderPtr The data provider to update.
        */
@@ -105,7 +105,7 @@ namespace terrama2
         /*!
           \brief Retrieves the data provider with the given id.
 
-          \exeption PAULO-TODO: Specify the exception
+          \exception InvalidDataProviderIdError
 
           In case there is no data provider in the database with the given id it will return an empty smart pointer.
 
@@ -118,8 +118,6 @@ namespace terrama2
 
         /*!
           \brief Retrieves all data provider in the database.
-
-          \exeption PAULO-TODO: Specify the exception
 
           In case there is no data provider in the database it will return an empty vector.
 

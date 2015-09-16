@@ -79,14 +79,14 @@ namespace terrama2
         /*!
           \brief Removes the dataset with the given id.
           The identifier of the dataset must be valid.
-          In case there is an analysis configured to use this dataset, it will not be removed.
+          In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
           \param id Identifier of the dataset.
           \param transactor Data source transactor.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetIdError, DataSetInUseError
          */
-        static void remove(int id, te::da::DataSourceTransactor& transactor);
+        static void remove(uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Search for a dataset with the given id
@@ -95,8 +95,10 @@ namespace terrama2
           \param id Identifier of the dataset.
           \param transactor Data source transactor.
           \return A smart pointer to the dataset.
+
+          \exception InvalidDataSetIdError
          */
-        static DataSetPtr find(int id, te::da::DataSourceTransactor& transactor);
+        static DataSetPtr find(uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Retrieve all datasets from the database.
@@ -117,7 +119,7 @@ namespace terrama2
           \param transactor Data source transactor.
           \return The list of collect rules.
          */
-        static std::vector<terrama2::core::DataSet::CollectRule> getCollectRules(int dataSetId, te::da::DataSourceTransactor& transactor);
+        static std::vector<terrama2::core::DataSet::CollectRule> getCollectRules(uint64_t dataSetId, te::da::DataSourceTransactor& transactor);
 
         /*!
            \brief Persists the collect rules of a given dataset.
@@ -136,7 +138,7 @@ namespace terrama2
           \param transactor Data source transactor.
           \return The map with the dataset metadata.
          */
-        static std::map<std::string, std::string> getMetadata(int dataSetId, te::da::DataSourceTransactor& transactor);
+        static std::map<std::string, std::string> getMetadata(uint64_t dataSetId, te::da::DataSourceTransactor& transactor);
 
         /*!
            \brief Persists the collect rules of a given dataset.

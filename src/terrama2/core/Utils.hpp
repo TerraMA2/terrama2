@@ -75,7 +75,7 @@ namespace terrama2
 
      \return Enum with the type of the data provider.
     */
-   terrama2::core::DataProvider::Kind IntToDataProviderKind(int kind);
+   terrama2::core::DataProvider::Kind IntToDataProviderKind(uint64_t kind);
 
    /*!
      \brief Function to convert a boolean to string format.
@@ -112,7 +112,7 @@ namespace terrama2
 
      \return Enum with the type of the dataset.
     */
-   terrama2::core::DataSet::Kind IntToDataSetKind(int kind);
+   terrama2::core::DataSet::Kind IntToDataSetKind(uint64_t kind);
 
 
   } // end namespace core

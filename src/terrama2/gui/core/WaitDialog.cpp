@@ -28,29 +28,46 @@
   \author Raphael Willian da Costa
   \author Carlos Augusto Teixeira Mendes
 */
- 
-#include <assert.h>
 
+// TerraMA2
 #include "WaitDialog.hpp"
 
+// STL
+#include <assert.h>
 
-//! Construtor
-WaitDialog::WaitDialog(QString msg, QWidget* parent, Qt::WFlags f)
-: QDialog(parent, f)
+struct WaitDialog::Impl
 {
-  setupUi(this);
+  Impl() : ui_(new Ui::WaitDialogForm)
+  {
+
+  }
+
+  ~Impl()
+  {
+    delete ui_;
+  }
+
+  Ui::WaitDialogForm* ui_;
+};
+
+
+//! Constructor
+WaitDialog::WaitDialog(QString msg, QWidget* parent, Qt::WindowFlags f)
+  : QDialog(parent, f), pimpl_(new WaitDialog::Impl)
+{
+  pimpl_->ui_->setupUi(this);
   setMsg(msg);
   show();
 }
 
-//! Destrutor
+//! Destructor
 WaitDialog::~WaitDialog()
 {
   hide();
 }
 
-//! Slot para setar a mensagem do diálogo
+//! Slot to set a message in dialog
 void WaitDialog::setMsg(QString msg)
 {
-  msgLbl->setText(msg);
+  pimpl_->ui_->msgLbl->setText(msg);
 }

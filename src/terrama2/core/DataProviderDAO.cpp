@@ -106,15 +106,22 @@ void terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dat
   if(dataProvider->id() == 0)
     throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
 
-  std::string sql = "UPDATE " + dataSetName + " SET"
-      + " name='" + dataProvider->name() + "'"
-      + ", description='" + dataProvider->description() + "'"
-      + ", kind=" + std::to_string(static_cast<int>(dataProvider->kind()))
-      + ", uri='" + dataProvider->uri() + "'"
-      + ", active=" + terrama2::core::BoolToString(DataProviderStatusToBool(dataProvider->status()))
-  + " WHERE id = " + std::to_string(dataProvider->id());
+  try
+  {
+    std::string sql = "UPDATE " + dataSetName + " SET"
+        + " name='" + dataProvider->name() + "'"
+        + ", description='" + dataProvider->description() + "'"
+        + ", kind=" + std::to_string(static_cast<int>(dataProvider->kind()))
+        + ", uri='" + dataProvider->uri() + "'"
+        + ", active=" + terrama2::core::BoolToString(DataProviderStatusToBool(dataProvider->status()))
+    + " WHERE id = " + std::to_string(dataProvider->id());
 
-  transactor.execute(sql);
+    transactor.execute(sql);
+  }
+  catch(...)
+  {
+    throw DataSetInUseError() << ErrorDescription(QObject::tr("Can not remove a data provider with datasets that are in use by analysis."));
+  }
 }
 
 
@@ -132,6 +139,9 @@ void terrama2::core::DataProviderDAO::remove(DataProviderPtr dataProvider, te::d
 
 terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
+  if(id == 0)
+    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Invalid identifier: 0."));
+
   std::string sql("SELECT * FROM " + dataSetName + " WHERE id = " + std::to_string(id));
 
   std::auto_ptr<te::da::DataSet> dataSet = transactor.query(sql);
