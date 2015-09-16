@@ -120,6 +120,3 @@ void TestDataProviderDAO::testCRUDDataProvider()
   QVERIFY2(vecDataProvider.empty(), "List should be empty after remove!");
 }
 
-
-//#include "TestDataProviderDAO.moc"
-

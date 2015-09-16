@@ -46,5 +46,3 @@ void TestApplicationController::testLoadProject()
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
   QVERIFY(dataSource.get());
 }
-
-//#include "TestApplicationController.moc"
