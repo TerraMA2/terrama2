@@ -3,7 +3,7 @@
 #include "TestDataProviderDAO.hpp"
 #include "TestDataSetDAO.hpp"
 
-#include "TestUtils.hpp"
+#include "Utils.hpp"
 
 
 // QT

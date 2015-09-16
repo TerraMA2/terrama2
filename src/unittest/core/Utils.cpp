@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file unittest/core/TestUtils.cpp
+  \file unittest/core/Utils.cpp
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
@@ -29,6 +29,7 @@
 
 
 //TerrraMA2
+#include "Utils.hpp"
 #include <terrama2/core/Utils.hpp>
 #include <terrama2/core/ApplicationController.hpp>
 
