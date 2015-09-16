@@ -78,7 +78,8 @@ void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da
   dsItem->setInt32("data_provider_id", dataSet->dataProvider()->id());
   dsItem->setInt32("kind", (int)dataSet->kind());
   dsItem->setInt32("data_frequency", dataSet->dataFrequency().getTimeDuration().total_seconds());
-  dsItem->setInt32("schedule", dataSet->schedule().getTimeDuration().total_seconds());
+  te::dt::TimeDuration* tdSchedule = new  te::dt::TimeDuration(dataSet->schedule());
+  dsItem->setDateTime("schedule", tdSchedule);
   dsItem->setInt32("schedule_retry", dataSet->scheduleRetry().getTimeDuration().total_seconds());
   dsItem->setInt32("schedule_timeout", dataSet->scheduleTimeout().getTimeDuration().total_seconds());
 
@@ -124,7 +125,9 @@ void terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet, te::
       + ", data_provider_id=" + std::to_string(dataSet->dataProvider()->id())
       + ", kind=" + std::to_string((int)dataSet->kind())
       + ", data_frequency=" + std::to_string(dataSet->dataFrequency().getTimeDuration().total_seconds())
-      + ", schedule=" + std::to_string(dataSet->schedule().getTimeDuration().total_seconds())
+      + ", schedule='" + std::to_string(dataSet->schedule().getTimeDuration().hours()) + ":" +
+                    std::to_string(dataSet->schedule().getTimeDuration().minutes()) + ":" +
+                    std::to_string(dataSet->schedule().getTimeDuration().seconds()) + "'"
       + ", schedule_retry=" + std::to_string(dataSet->scheduleRetry().getTimeDuration().total_seconds())
       + ", schedule_timeout=" + std::to_string(dataSet->scheduleTimeout().getTimeDuration().total_seconds())
       + " WHERE id = " + std::to_string(dataSet->id());
@@ -188,11 +191,12 @@ terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(uint64_t id, te::da:
     te::dt::TimeDuration teTDDataFrequency(tdDataFrequency);
     dataset->setDataFrequency(teTDDataFrequency);
 
-    u_int64_t schedule = tempDataSet->getInt32("schedule");
-    boost::posix_time::time_duration tdSchedule = boost::posix_time::seconds(schedule);
-    te::dt::TimeDuration teTDSchedule(tdSchedule);
-    dataset->setSchedule(teTDSchedule);
-
+    te::dt::TimeDuration* schedule = dynamic_cast<te::dt::TimeDuration*>(tempDataSet->getDateTime("schedule").get());
+    if(schedule != nullptr)
+    {
+      dataset->setSchedule(*schedule);
+      delete schedule;
+    }
 
     u_int64_t scheduleRetry =  tempDataSet->getInt32("schedule_retry");
     boost::posix_time::time_duration tdScheduleRetry = boost::posix_time::seconds(scheduleRetry);
