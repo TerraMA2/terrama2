@@ -36,6 +36,23 @@
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
+struct terrama2::collector::DataProcessor::Impl
+{
+    FilterPtr filter_;
+    ParserPtr parser_;
+    StoragerPtr storager_;
+};
+
+terrama2::collector::DataProcessor::DataProcessor(QObject *parent)
+{
+  impl_ = new Impl();
+}
+
+terrama2::collector::DataProcessor::~DataProcessor()
+{
+  delete impl_;
+}
+
 terrama2::core::DataPtr terrama2::collector::DataProcessor::data() const
 {
   //JANO: implementar data()
@@ -43,14 +60,14 @@ terrama2::core::DataPtr terrama2::collector::DataProcessor::data() const
 
 terrama2::collector::FilterPtr terrama2::collector::DataProcessor::filter() const
 {
-  return filter_;
+  return impl_->filter_;
 }
 
 void terrama2::collector::DataProcessor::import(const std::string &uri)
 {
-  te::da::DataSetPtr tempDataSet = parser_->read(uri);
-  tempDataSet = filter_->filterDataSet(tempDataSet);
-  te::da::DataSetPtr storedDataSet = storager_->store(tempDataSet);
+  te::da::DataSetPtr tempDataSet = impl_->parser_->read(uri);
+  tempDataSet = impl_->filter_->filterDataSet(tempDataSet);
+  te::da::DataSetPtr storedDataSet = impl_->storager_->store(tempDataSet);
 
   //JANO: implementar import
   //should run in thread ?

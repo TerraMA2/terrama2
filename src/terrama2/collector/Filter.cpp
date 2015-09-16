@@ -29,6 +29,13 @@
 
 #include "Filter.hpp"
 
+struct terrama2::collector::Filter::Impl
+{
+    std::string mask_;
+    te::gm::GeometryShrPtr  geometry_;
+    te::gm::SpatialRelation relationRule_;
+};
+
 QStringList terrama2::collector::Filter::filterNames(const QStringList& namesList) const
 {
   //TODO: Implement filterNames
@@ -41,6 +48,17 @@ te::da::DataSetPtr terrama2::collector::Filter::filterDataSet(const te::da::Data
   return dataSet;
 }
 
+
+terrama2::collector::Filter::Filter()
+{
+  impl_ = new Impl();
+  impl_->relationRule_ = te::gm::UNKNOWN_SPATIAL_RELATION;
+}
+
+terrama2::collector::Filter::~Filter()
+{
+  delete impl_;
+}
 
 void terrama2::collector::Filter::setMask(const std::string &mask)
 {

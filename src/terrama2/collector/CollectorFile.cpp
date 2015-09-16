@@ -87,8 +87,7 @@ void terrama2::collector::CollectorFile::getData(const terrama2::collector::Data
     QString tempFilePath(tempDir+"/"+std::tmpnam(nullptr));
 //    QFile::copy(dir_.absolutePath()+"/"+fileName, tempFilePath);
 
-
-    //TODO: How to remove the temporary file???
+    //TODO: It's a local file, should it be copied? How to remove the temporary file???
 
     QString uri("file:");
     uri+tempFilePath;

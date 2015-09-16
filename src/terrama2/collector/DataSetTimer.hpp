@@ -69,7 +69,7 @@ namespace terrama2
 
       public:
         DataSetTimer(core::DataSetPtr dataSet);
-        ~DataSetTimer(){}
+        ~DataSetTimer();
 
         /*!
              * \brief Recover the Collector from the CollectorFactory.
@@ -97,10 +97,8 @@ namespace terrama2
         //! \brief Populates dataLst_ based on DataSet's Data information.
         void populateDataLst();
 
-        core::DataSetPtr dataSet_;//<! Pointer to the Dataset.
-        QTimer           timer_;//<! Timer to next collection.
-
-        std::vector<DataProcessorPtr> dataLst_;
+        struct Impl;
+        Impl* impl_;
     };
 
     typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr;

@@ -53,8 +53,8 @@ namespace terrama2
     class Filter : public boost::noncopyable
     {
       public:
-        Filter()
-          : relationRule_(te::gm::UNKNOWN_SPATIAL_RELATION){}
+        Filter();
+        ~Filter();
 
         /*!
              * \brief Sets the mask the names should match
@@ -110,10 +110,9 @@ namespace terrama2
         static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
 
       private:
-        std::string mask_;
-        te::gm::GeometryShrPtr  geometry_;
-        te::gm::SpatialRelation relationRule_;
 
+        struct Impl;
+        Impl* impl_;
     };
   }
 }
