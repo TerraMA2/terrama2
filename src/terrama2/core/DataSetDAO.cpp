@@ -143,7 +143,7 @@ void terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet, te::
 
 }
 
-void terrama2::core::DataSetDAO::remove(int id, te::da::DataSourceTransactor& transactor)
+void terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
     throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
@@ -155,7 +155,7 @@ void terrama2::core::DataSetDAO::remove(int id, te::da::DataSourceTransactor& tr
 }
 
 
-terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(int id, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
     throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
@@ -268,7 +268,7 @@ std::vector<terrama2::core::DataSetPtr> terrama2::core::DataSetDAO::list(te::da:
   return vecDataSets;
 }
 
-std::vector<terrama2::core::DataSet::CollectRule> terrama2::core::DataSetDAO::getCollectRules(int dataSetId, te::da::DataSourceTransactor& transactor)
+std::vector<terrama2::core::DataSet::CollectRule> terrama2::core::DataSetDAO::getCollectRules(uint64_t dataSetId, te::da::DataSourceTransactor& transactor)
 {
   std::vector<terrama2::core::DataSet::CollectRule> collectRules;
 
@@ -317,7 +317,7 @@ void terrama2::core::DataSetDAO::addCollectRules(terrama2::core::DataSetPtr data
 }
 
 
-std::map<std::string, std::string> terrama2::core::DataSetDAO::getMetadata(int dataSetId, te::da::DataSourceTransactor& transactor)
+std::map<std::string, std::string> terrama2::core::DataSetDAO::getMetadata(uint64_t dataSetId, te::da::DataSourceTransactor& transactor)
 {
   std::map<std::string, std::string> metadata;
 

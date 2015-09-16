@@ -47,7 +47,7 @@ struct terrama2::core::DataManager::Impl
   std::map<uint64_t, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
   std::map<uint64_t, DataSetPtr> datasets_;       //!< A map from data-set-id to dataset.
   bool dataLoaded_;                               //!< A boolean that defines if the data has already been loaded.
-  mutable std::mutex mutex_;                      //!< A mutex to syncronize all operations.
+  std::mutex mutex_;                      //!< A mutex to syncronize all operations.
 };
 
 void terrama2::core::DataManager::load()

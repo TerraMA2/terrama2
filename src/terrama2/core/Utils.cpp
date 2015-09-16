@@ -113,7 +113,7 @@ terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(bo
 }
 
 
-terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(int kind)
+terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(uint64_t kind)
 {
   switch (kind) {
   case 1:
@@ -166,7 +166,7 @@ terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(bool active)
 
 
 
-terrama2::core::DataSet::Kind terrama2::core::IntToDataSetKind(int kind)
+terrama2::core::DataSet::Kind terrama2::core::IntToDataSetKind(uint64_t kind)
 {
   switch (kind)
   {

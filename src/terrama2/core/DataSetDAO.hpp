@@ -86,7 +86,7 @@ namespace terrama2
 
           \exception InvalidDataSetIdError
          */
-        static void remove(int id, te::da::DataSourceTransactor& transactor);
+        static void remove(uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Search for a dataset with the given id
@@ -96,7 +96,7 @@ namespace terrama2
           \param transactor Data source transactor.
           \return A smart pointer to the dataset.
          */
-        static DataSetPtr find(int id, te::da::DataSourceTransactor& transactor);
+        static DataSetPtr find(uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Retrieve all datasets from the database.
@@ -117,7 +117,7 @@ namespace terrama2
           \param transactor Data source transactor.
           \return The list of collect rules.
          */
-        static std::vector<terrama2::core::DataSet::CollectRule> getCollectRules(int dataSetId, te::da::DataSourceTransactor& transactor);
+        static std::vector<terrama2::core::DataSet::CollectRule> getCollectRules(uint64_t dataSetId, te::da::DataSourceTransactor& transactor);
 
         /*!
            \brief Persists the collect rules of a given dataset.
@@ -136,7 +136,7 @@ namespace terrama2
           \param transactor Data source transactor.
           \return The map with the dataset metadata.
          */
-        static std::map<std::string, std::string> getMetadata(int dataSetId, te::da::DataSourceTransactor& transactor);
+        static std::map<std::string, std::string> getMetadata(uint64_t dataSetId, te::da::DataSourceTransactor& transactor);
 
         /*!
            \brief Persists the collect rules of a given dataset.
