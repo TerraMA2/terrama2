@@ -96,7 +96,7 @@ AdminApp::AdminApp(QWidget* parent)
 
   pimpl_->ui_->setupUi(this);
 
-  configManager_ = new ConfigManager;
+  configManager_ = new ConfigManager(this);
 
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
  
@@ -124,7 +124,7 @@ AdminApp::~AdminApp()
 void AdminApp::fillForm()
 {
 //  pimpl_->ui_->dbTypeCmb->setText(configManager_->getDatabase()->driver_);
-  pimpl_->ui_->dbAddressLed->setText(configManager_->getDatabase()->host);
+//  pimpl_->ui_->dbAddressLed->setText(configManager_->getDatabase()->host);
   pimpl_->ui_->dbUserLed->setText(configManager_->getDatabase()->user_);
   pimpl_->ui_->dbDatabaseLed->setText(configManager_->getDatabase()->dbName_);
 //  pimpl_->ui_->dbPortLed->setText(configManager_->getDatabase()->port_);

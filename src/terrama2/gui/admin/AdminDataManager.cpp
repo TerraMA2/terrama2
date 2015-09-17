@@ -33,7 +33,7 @@
 #include "AdminDataManager.hpp"  
 #include "../core/ConfigManager.hpp"
 
-AdminDataManager::AdminDataManager()
+AdminDataManager::AdminDataManager():ConfigManager(nullptr)
 {
 
 } 
