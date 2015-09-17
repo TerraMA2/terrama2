@@ -21,7 +21,8 @@
 #
 #  Description: CMake script for the TerraMA2 Core Runtime Module.
 #
-#  Author: Raphael Willian da Costa
+#  Author: Evandro Delatin
+#  Author: Raphael Willian
 #
 
 include_directories (
@@ -33,36 +34,41 @@ include_directories (
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(TERRAMA2_GUI_CONFIG_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/config)
+set(TERRAMA2_GUI_CORE_PATH ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/gui/core)
 
 file(GLOB TERRAMA2_TRANSLATION_FILES "${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/translations/*.ts")
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CONFIG_PATH}/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CONFIG_PATH}/*.hpp)
-file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_CONFIG_PATH}/ui/*.ui)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_GUI_CORE_PATH}/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_GUI_CORE_PATH}/*.hpp)
+file(GLOB TERRAMA2_UI_FILES ${TERRAMA2_GUI_CORE_PATH}/ui/*.ui)
 
 TERRAMA2_ADD_QT_TRANSLATION(TERRAMA2_QM_FILES "${TERRAMA2_TRANSLATION_FILES}" "${CMAKE_BINARY_DIR}/share/terrama2/translations")
 
 QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
-add_executable(terrama2_config ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES} ${TERRAMA2_QM_FILES})
+add_library(terrama2_gui_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES} ${TERRAMA2_QM_FILES})
 
-target_link_libraries(terrama2_config terrama2_gui_core
-                                      terralib_mod_common)
-
-qt5_use_modules(terrama2_config Widgets Network)
+qt5_use_modules(terrama2_gui_core Widgets Network)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
-source_group("UI Files"      FILES ${TERRAMA2_UI_FILES})
-source_group("QM Files"      FILES ${TERRAMA2_QM_FILES})
+source_group("UI Files"  FILES ${TERRAMA2_UI_FILES})
 
-install(TARGETS terrama2_config
+target_link_libraries(terrama2_gui_core terrama2_mod_core
+                                        ${Boost_FILESYSTEM_LIBRARY}
+                                        ${Boost_SYSTEM_LIBRARY})
+
+set_target_properties(terrama2_gui_core
+                      PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
+                                 SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
+                                 INSTALL_NAME_DIR "@executable_path/../lib")
+
+install(TARGETS terrama2_gui_core
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
-install(FILES ${TERRAMA_QM_FILES}
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/translations COMPONENT runtime)
+install(FILES ${TERRAMA2_HDR_FILES}
+        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/gui/core COMPONENT devel)
 
-export(TARGETS terrama2_config APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_mod_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
