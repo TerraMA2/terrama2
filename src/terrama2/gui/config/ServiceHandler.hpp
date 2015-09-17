@@ -20,39 +20,36 @@
 */
 
 /*!
-  \file terrama2/gui/admin/WaitDialog.hpp
+  \file terrama2/gui/config/ServiceHandler.cpp
 
-  \brief Services QT Dialog Header
+  \brief This class contains all TerraMA2 Services
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Carlos Augusto Teixeira Mendes
 */
-  
-#ifndef __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
-#define __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
 
-#include "ui_WaitDialogForm.h"
+#ifndef __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
+#define __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
 
-//! Class responsible for wait dialog apresentation
-class WaitDialog : public QDialog
+// TerraMA2
+#include <QString>
+#include "../core/ConfigManager.hpp"
+
+// Boost
+#include <boost/noncopyable.hpp>
+
+class ServiceHandler
 {
-Q_OBJECT
+  public:
+    ServiceHandler(QMainWindow* app);
 
-public:
-  WaitDialog(QString msg, QWidget* parent = 0, Qt::WindowFlags f = 0 );
-  ~WaitDialog();
+    ~ServiceHandler();
 
-public slots:
-  //! Set message to dialog
-  void setMsg(QString msg);
-  
-private:
-  // Forward Declaration
-  struct Impl;
+    void loadConfiguration(QString filepath);
 
-  Impl* pimpl_; //< Pimpl idiom
+  private:
+    ConfigManager* configManager_;
+    // Pointer for each service
+    //Collector* coll;
 };
 
-#endif // __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
-
+#endif // __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
