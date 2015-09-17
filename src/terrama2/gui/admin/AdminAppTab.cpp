@@ -20,59 +20,28 @@
 */
 
 /*!
-  \file terrama2/gui/config/AdminApp.hpp
+  \file terrama2/gui/admin/AdminAppTab.cpp
 
-  \brief Main GUI for TerraMA2 Admin application.
+  \brief 
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
+  
 */
 
-#ifndef __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
-#define __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
-
 // TerraMA2
-#include "ui_AdminAppForm.h";
-#include "../core/ConfigManager.hpp"
+#include "AdminAppTab.hpp"
+#include "ui_AdminAppForm.h"
+#include "Exception.hpp"
 
-// Boost
-#include <boost/noncopyable.hpp>
-
-// Qt
-#include <QMainWindow>
-
-/*!
-  \class AdminApp
- 
-  \brief Main dialog for TerraMA2 Administration module.
- */
-
-class AdminApp : public QMainWindow, private boost::noncopyable
+AdminAppTab::AdminAppTab(AdminApp* app, Ui::AdminAppForm* ui)
+ :app_(app), ui_(ui)
 {
-  Q_OBJECT
 
-  public:
+} 
 
-//! Default constructor.
-    AdminApp(QWidget* parent = 0);
-
-//! Destructor.
-    ~AdminApp();
-
-//! Fill fields
-    void fillForm();
-
-  private slots:
-
-    void openRequested();
+AdminAppTab::~AdminAppTab()
+{
   
-  private:
-  
-    struct Impl;
+}
 
-    ConfigManager* configManager_;
-
-    Impl* pimpl_;  //!< Pimpl idiom.
-};
-
-#endif // __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__

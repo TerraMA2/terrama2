@@ -46,7 +46,12 @@ ConfigManager::ConfigManager(QMainWindow* app)
 ConfigManager::~ConfigManager()
 {
   delete collection_;
-  delete database_;
+    delete database_;
+}
+
+Database *ConfigManager::getDatabase()
+{
+ return database_;
 }
 
 void ConfigManager::loadConfiguration(QString filepath)
