@@ -87,12 +87,12 @@ void TestDataSetDAO::testCRUDDataSet()
   std::vector<terrama2::core::DataSet::CollectRule> collectRules;
   {
     terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.script_ = "... LUA SCRIPT 1...";
+    collectRule.script = "... LUA SCRIPT 1...";
     collectRules.push_back(collectRule);
   }
   {
     terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.script_ = "... LUA SCRIPT 2...";
+    collectRule.script = "... LUA SCRIPT 2...";
     collectRules.push_back(collectRule);
   }
   dataSet->setCollectRules(collectRules);
@@ -136,7 +136,7 @@ void TestDataSetDAO::testCRUDDataSet()
   dataSet->setName("New queimadas");
 
   // Change the collect rule script
-  collectRules[0].script_ = "... LUA SCRIPT UPDATE 1...";
+  collectRules[0].script = "... LUA SCRIPT UPDATE 1...";
   dataSet->setCollectRules(collectRules);
 
   // Remove the data PCD_INPE
@@ -167,7 +167,7 @@ void TestDataSetDAO::testCRUDDataSet()
   QVERIFY2(dataSet->scheduleRetry() == findDataSet->scheduleRetry(), "Schedule retry must be the same!");
   QVERIFY2(dataSet->dataFrequency() == findDataSet->dataFrequency(), "Data frequency must be the same!");
 
-  QVERIFY2(collectRules[0].script_ == findDataSet->collectRules()[0].script_, "Collect rule script must be the same!");
+  QVERIFY2(collectRules[0].script == findDataSet->collectRules()[0].script, "Collect rule script must be the same!");
 
   QVERIFY2(metadata["key"] == findDataSet->metadata()["key"], "Metadata key/value must be the same!");
   QVERIFY2(metadata["key1"] == findDataSet->metadata()["key1"], "Metadata key1/value1 must be the same!");

@@ -84,9 +84,10 @@ namespace terrama2
         /*!
            \brief Struct to store the collect rules.
          */
-        struct CollectRule {
-            uint64_t id_;
-            std::string script_;
+        struct CollectRule
+        {
+          uint64_t id;
+          std::string script;
         };
 
 

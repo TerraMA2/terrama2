@@ -158,7 +158,22 @@ CREATE TABLE terrama2.dataset_item
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-
+CREATE TABLE terrama2.filter
+(
+  dataset_item_id                   INTEGER NOT NULL PRIMARY KEY,
+  discard_before                    TIMESTAMP,
+  discard_after                     TIMESTAMP,
+  geom                              GEOMETRY(POLYGON, 4326),
+  external_dataset_item_id          INTEGER,
+  by_value                          NUMERIC,
+  by_value_type                     INTEGER,
+  within_external_dataset_item_id   INTEGER,
+  band_filter                       TEXT,
+  CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_external_dataset_item_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_within_by_value_type FOREIGN KEY(by_value_type) REFERENCES terrama2.???? (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_within_external_dataset_item_id FOREIGN KEY(within_external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
 
 CREATE TABLE terrama2.data_collection_log
 (
@@ -213,25 +228,6 @@ CREATE TABLE terrama2.pcd_attributes
     FOREIGN KEY(attr_type_id)
     REFERENCES terrama2.pcd_attribute_type(id)
     MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-
-
-CREATE TABLE terrama2.filter
-(
-  dataset_item_id                   INTEGER NOT NULL PRIMARY KEY,
-  discard_before            TIMESTAMP,
-  discard_after             TIMESTAMP,
-  geom                      GEOMETRY(POLYGON, 4326),
-  external_dataset_item_id          INTEGER,
-  by_value                  NUMERIC,
-  by_value_type             INTEGER,
-  within_external_dataset_item_id   INTEGER,
-  band_filter               TEXT,
-  CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE
-  --CONSTRAINT fk_filter_external_dataset_item_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
-  --CONSTRAINT fk_filter_within_by_value_type FOREIGN KEY(by_value_type) REFERENCES terrama2.???? (id) ON UPDATE CASCADE ON DELETE CASCADE
-  --CONSTRAINT fk_filter_within_external_dataset_item_id FOREIGN KEY(within_external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 COMMIT;

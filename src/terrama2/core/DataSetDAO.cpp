@@ -298,8 +298,8 @@ std::vector<terrama2::core::DataSet::CollectRule> terrama2::core::DataSetDAO::ge
   while(tempDataSet->moveNext())
   {
     terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.id_ = tempDataSet->getInt32("id");
-    collectRule.script_ = tempDataSet->getString("script");
+    collectRule.id = tempDataSet->getInt32("id");
+    collectRule.script = tempDataSet->getString("script");
 
     collectRules.push_back(collectRule);
   }
@@ -324,7 +324,7 @@ void terrama2::core::DataSetDAO::saveCollectRules(terrama2::core::DataSetPtr dat
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
 
     // Sets the values in the item
-    dsItem->setString("script", rule.script_);
+    dsItem->setString("script", rule.script);
     dsItem->setInt32("dataset_id", dataSet->id());
     memDataSet->add(dsItem);
 
