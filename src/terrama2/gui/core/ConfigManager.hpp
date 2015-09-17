@@ -53,9 +53,6 @@ class ConfigManager : private boost::noncopyable
     //! Open the json configuration file and try to parse it
     virtual void loadConfiguration(QString filepath);
 
-    //! It opens a file from filepath and apply parse to json
-    QJsonObject open(QString filepath);
-
     //! Get the TerraMA2 database struct
     Database* getDatabase() const;
 
