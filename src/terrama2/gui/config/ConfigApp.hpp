@@ -41,17 +41,6 @@
 // Qt
 #include <QMainWindow>
 
-/*!
-  \class ConfigApp
- 
-  \brief Main dialog for TerraMA2 Configuration module.
- */
-
- // Foward definition
-// namespace Ui
-// {
-//   class ConfigAppForm;
-// }
 
 class ConfigAppTab;
 

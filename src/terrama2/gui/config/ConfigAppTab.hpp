@@ -60,7 +60,6 @@ class ConfigAppTab : public QObject, private boost::noncopyable
   protected:
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_;
-//    ServiceHandler* manager_; //!< Services Handler
     bool changed_;
 };
 

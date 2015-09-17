@@ -101,9 +101,7 @@ ConfigApp::ConfigApp(QWidget* parent)
   tabList_.append(weatherTab);
 
   connect(pimpl_->ui_->mainTabWidget, SIGNAL(currentChanged(int)), SLOT(tabChangeRequested(int)));
-
   connect(weatherTab, SIGNAL(serverChanged()), this, SLOT(disableRefreshAction()));
-
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
 }
 
@@ -111,8 +109,8 @@ ConfigApp::~ConfigApp()
 {
   for (auto tab: tabList_)
     delete tab;
+  delete services_;
   delete pimpl_;
-//  delete services_;
 }
 
 Ui::ConfigAppForm* ConfigApp::ui() const

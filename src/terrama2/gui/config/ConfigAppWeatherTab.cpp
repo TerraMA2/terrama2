@@ -20,9 +20,18 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   // Bind the inputs
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->serverDescription, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->serverDescription, SIGNAL(textChanged(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onWeatherTabEdited()));
+  connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
 
   ui_->weatherDataTree->clear();
+
+  // Call the default configuration
+  load();
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -32,7 +41,15 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 
 void ConfigAppWeatherTab::load()
 {
+  // Disable series button
+  ui_->exportServerBtn->setVisible(false);
+  ui_->updateServerBtn->setVisible(false);
+  ui_->serverDeleteBtn->setVisible(false);
+
+  ui_->groupBox_25->hide();
+
   // Connect to database and list the values
+
 }
 
 bool ConfigAppWeatherTab::dataChanged()
