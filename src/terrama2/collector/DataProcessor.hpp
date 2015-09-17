@@ -42,6 +42,14 @@
 //Boost
 #include <boost/noncopyable.hpp>
 
+namespace te
+{
+  namespace da
+  {
+    class DataSource;
+  }
+}
+
 namespace terrama2
 {
   namespace core {
@@ -72,7 +80,7 @@ namespace terrama2
 
       public:
         //! Constructor
-        DataProcessor(QObject* parent = nullptr);
+        DataProcessor(core::DataPtr data, QObject* parent = nullptr);
         //! Destructor
         ~DataProcessor();
 

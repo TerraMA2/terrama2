@@ -43,6 +43,8 @@ namespace terrama2
         ParserOGR() : Parser(){}
         virtual ~ParserOGR(){}
 
+        virtual QStringList datasetNames(const std::string &uri) const override;
+
 
         /*!
          * \brief TODO: document ParserOGR
@@ -51,7 +53,7 @@ namespace terrama2
          *
          * \pre TerrLib should be initialized.
          */
-        virtual te::da::DataSetPtr read(const std::string& uri) override;
+        virtual std::shared_ptr<te::da::DataSet> read(const std::string& uri, const QStringList &names) override;
     };
   }
 }

@@ -38,14 +38,17 @@
 
 struct terrama2::collector::DataProcessor::Impl
 {
+    core::DataPtr   data_;
     FilterPtr filter_;
     ParserPtr parser_;
     StoragerPtr storager_;
 };
 
-terrama2::collector::DataProcessor::DataProcessor(QObject *parent)
+terrama2::collector::DataProcessor::DataProcessor(core::DataPtr data, QObject *parent)
 {
   impl_ = new Impl();
+  impl_->data_ = data;
+  //TODO: instantiate filter, parser, storager...
 }
 
 terrama2::collector::DataProcessor::~DataProcessor()
@@ -55,7 +58,7 @@ terrama2::collector::DataProcessor::~DataProcessor()
 
 terrama2::core::DataPtr terrama2::collector::DataProcessor::data() const
 {
-  //JANO: implementar data()
+  return impl_->data_;
 }
 
 terrama2::collector::FilterPtr terrama2::collector::DataProcessor::filter() const
@@ -65,9 +68,20 @@ terrama2::collector::FilterPtr terrama2::collector::DataProcessor::filter() cons
 
 void terrama2::collector::DataProcessor::import(const std::string &uri)
 {
-  te::da::DataSetPtr tempDataSet = impl_->parser_->read(uri);
+  assert(impl_->parser_);
+  assert(impl_->filter_);
+  assert(impl_->storager_);
+
+  //get full name list
+  QStringList names = impl_->parser_->datasetNames(uri);
+  //filter names
+  names = impl_->filter_->filterNames(names);
+  //get dataset
+  std::shared_ptr<te::da::DataSet> tempDataSet = impl_->parser_->read(uri, names);
+  //filter dataset
   tempDataSet = impl_->filter_->filterDataSet(tempDataSet);
-  te::da::DataSetPtr storedDataSet = impl_->storager_->store(tempDataSet);
+  //store dataset
+  std::shared_ptr<te::da::DataSet> storedDataSet = impl_->storager_->store(tempDataSet);
 
   //JANO: implementar import
   //should run in thread ?

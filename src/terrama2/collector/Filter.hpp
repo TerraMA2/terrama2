@@ -103,7 +103,7 @@ namespace terrama2
              *
              * \return Filtered DataSet.
              */
-        te::da::DataSetPtr filterDataSet(const te::da::DataSetPtr& dataSet) const;
+        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const;
 
         //TODO: should have static methods for easy access?
         static QList<std::string> filterNamesByMask(const QList<std::string>& namesList, const std::string& mask);
@@ -114,6 +114,8 @@ namespace terrama2
         struct Impl;
         Impl* impl_;
     };
+
+    typedef std::shared_ptr<Filter> FilterPtr;
   }
 }
 

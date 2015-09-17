@@ -20,16 +20,39 @@
 */
 
 /*!
-  \file terrama2/collector/Storager.cpp
+  \file terrama2/collector/TestParserOGR.hpp
 
-  \brief Store a temporary terralib DataSet into the permanent storage area.
+  \brief Tests for the ParserOGR class.
 
   \author Jano Simas
 */
 
-#include "Storager.hpp"
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::Storager::store(const std::shared_ptr<te::da::DataSet> tempDataSet)
+//Qt
+#include <QtTest>
+
+class TestParserOGR: public QObject
 {
+  Q_OBJECT
 
-}
+private slots:
+
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
+
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
+
+    //******Test functions********
+
+    void TestNullDataSource();
+    void TestDataSourceNotOpen();
+    void TestEmptyFile();
+
+
+    //******End of Test functions****
+};
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__

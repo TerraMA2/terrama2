@@ -132,7 +132,7 @@ namespace terrama2
 
       protected:
         //! \brief Aquired the data specified in dataProcessor.
-        virtual void getData(const DataProcessorPtr dataProcessor) = 0;
+        virtual std::string retrieveData(const DataProcessorPtr dataProcessor) = 0;
 
         core::DataProviderPtr dataProvider_; //!< Data provider information.
 

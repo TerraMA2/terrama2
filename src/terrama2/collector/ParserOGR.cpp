@@ -29,18 +29,55 @@
 
 #include "ParserOGR.hpp"
 
+//QT
+#include <QDir>
+
+//STD
+#include <memory>
+
+//terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 
-te::da::DataSetPtr terrama2::collector::ParserOGR::read(const std::string &uri)
+QStringList terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
 {
-  std::auto_ptr<te::da::DataSource> datasource = te::da::DataSourceFactory::make("OGR");
+  QDir dir(uri.c_str());
 
+  return dir.entryList();
+}
+
+std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std::string &uri, const QStringList& names)
+{
+  if(names.isEmpty())
+  {
+    //TODO: throw
+  }
+
+  //create a datasource and open
+  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR").release());//FIXME: releasing auto_ptr to create a shared_ptr
   std::map<std::string, std::string> connInfo;
-
   connInfo["URI"] = uri;
-
   datasource->setConnectionInfo(connInfo);
+  datasource->open(); //FIXME: close? where?
 
-  return datasource;
+  if(!datasource->isOpened())
+  {
+    //TODO: throw
+  }
+
+// get a transactor to interact to the data source
+  te::da::DataSourceTransactor* transactor = (datasource->getTransactor()).release();
+
+  try
+  {
+    assert(names.size() == 1);//TODO: remove this!
+    std::shared_ptr<te::da::DataSet> dataSet(datasource->getDataSet(names.front().toStdString()).release());//FIXME: releasing auto_ptr to create a shared_ptr
+
+    return dataSet;
+  }
+  catch(...)
+  {
+    //TODO: error getting dataset...
+    return std::auto_ptr<te::da::DataSet>(nullptr);
+  }
 }

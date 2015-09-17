@@ -29,16 +29,7 @@
 
 
 #include "CollectorFile.hpp"
-#include "Filter.hpp"
 #include "Exception.hpp"
-
-//QT
-#include <QStringList>
-#include <QFile>
-#include <QDebug>
-
-//STD
-#include <cstdio>
 
 terrama2::collector::CollectorFile::CollectorFile(const terrama2::core::DataProviderPtr dataProvider, QObject *parent)
   : Collector(dataProvider, parent)
@@ -78,25 +69,7 @@ void terrama2::collector::CollectorFile::close()
   //nothing to do
 }
 
-void terrama2::collector::CollectorFile::getData(const terrama2::collector::DataProcessorPtr dataProcessor)
+std::string terrama2::collector::CollectorFile::retrieveData(const terrama2::collector::DataProcessorPtr /*dataProcessor*/)
 {
-  QString tempDir = QDir::tempPath()+"/TerraMa2";
-
-  QStringList names = dir_.entryList();
-
-  FilterPtr filter = dataProcessor->filter();
-  names = filter->filterNames(names);
-
-  for(const QString& fileName : names)
-  {
-    qDebug() << dir_.absolutePath()+"/"+fileName;
-    QString tempFilePath(tempDir+"/"+std::tmpnam(nullptr));
-//    QFile::copy(dir_.absolutePath()+"/"+fileName, tempFilePath);
-
-    //TODO: It's a local file, should it be copied? How to remove the temporary file???
-
-    QString uri("file:");
-    uri+tempFilePath;
-    dataProcessor->import(uri.toStdString());
-  }
+  return dir_.absolutePath().toStdString();
 }

@@ -36,6 +36,17 @@
 //Boost
 #include <boost/noncopyable.hpp>
 
+//QT
+#include <QStringList>
+
+namespace te
+{
+  namespace da
+  {
+    class DataSource;
+  }
+}
+
 namespace terrama2
 {
   namespace collector
@@ -51,6 +62,8 @@ namespace terrama2
     {
       public:
 
+
+        virtual QStringList datasetNames(const std::string& uri) const = 0;
         /*!
              * \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
              * \param uri Uri to the temporary data.
@@ -58,7 +71,7 @@ namespace terrama2
              *
              * \exception TODO: Parser::read exception...
              */
-        virtual te::da::DataSetPtr read(const std::string& uri) = 0;//FIXME: The terralib uses auto_ptr, boost::shared_ptr and terrama2 uses std::shared_ptr...
+        virtual std::shared_ptr<te::da::DataSet> read(const std::string& uri, const QStringList &names) = 0;//FIXME: The terralib uses auto_ptr, boost::shared_ptr and terrama2 uses std::shared_ptr...
     };
   }
 }

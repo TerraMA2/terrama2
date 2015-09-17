@@ -20,36 +20,47 @@
 */
 
 /*!
-  \file terrama2/collector/TestParserOGR.hpp
+  \file terrama2/collector/TestFilter.hpp
 
-  \brief Tests for the ParserOGR class.
+  \brief Tests for the TestFilter class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#include "TestFilter.hpp"
 
-//Qt
-#include <QtTest>
+//terrama2
+#include <terrama2/collector/Filter.hpp>
 
-class TestParserOGR: public QObject
+//QT
+#include <QStringList>
+
+void TestFilter::TestFilterNamesExact()
 {
-  Q_OBJECT
+  QString exact("exact");
+  terrama2::collector::Filter filter;
+  filter.setMask(exact.toStdString());
 
-private slots:
+  QStringList names;
+  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+  names = filter.filterNames(names);
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+  QCOMPARE(names.size(), 1);
+  QCOMPARE(names.at(0), exact);
+}
 
-    //******Test functions********
+void TestFilter::TestEmptyMask()
+{
+  terrama2::collector::Filter filter;
 
+  QStringList names;
+  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
 
+  QStringList output = filter.filterNames(names);
 
-    //******End of Test functions****
-};
+  QCOMPARE(output, names);
+}
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+QTEST_MAIN(TestFilter)
+#include "TestFilter.moc"

@@ -76,13 +76,15 @@ bool terrama2::collector::Collector::isCollecting() const
 
 void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datasetTimer)
 {
-  //already locked by Collector::collect, lock_guar just to release when finished
+  //already locked by Collector::collect, lock_guard just to release when finished
   std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
   //aquire all data
   for(auto& data : datasetTimer->data())
   {
     //TODO: conditions to collect Data?
-    getData(data);
+    std::string localUri = retrieveData(data);
+
+    data->import(localUri);
   }
 }
 
