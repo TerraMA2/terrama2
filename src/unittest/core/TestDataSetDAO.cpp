@@ -35,6 +35,7 @@
 #include <terrama2/core/DataManager.hpp>
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSet.hpp>
+#include <terrama2/core/Data.hpp>
 
 // Qt
 #include <QtTest>
@@ -103,6 +104,17 @@ void TestDataSetDAO::testCRUDDataSet()
 
   dataSet->setMetadata(metadata);
 
+
+  // Creates a data list with two data's
+  std::vector<terrama2::core::DataPtr> dataList;
+
+  terrama2::core::DataPtr data(new terrama2::core::Data(dataSet, terrama2::core::Data::PCD_INPE_TYPE));
+  dataList.push_back(data);
+
+  terrama2::core::DataPtr data2(new terrama2::core::Data(dataSet, terrama2::core::Data::FIRE_POINTS_TYPE));
+  dataList.push_back(data2);
+  dataSet->setDataList(dataList);
+
   terrama2::core::DataManager::getInstance().add(dataSet);
 
 // assure we have a valid dataset identifier
@@ -127,6 +139,18 @@ void TestDataSetDAO::testCRUDDataSet()
   collectRules[0].script_ = "... LUA SCRIPT UPDATE 1...";
   dataSet->setCollectRules(collectRules);
 
+  // Remove the data PCD_INPE
+  dataList = dataSet->dataList();
+  dataList.erase(dataList.begin());
+
+  // Updates the data from FIRE_POINTS_TYPE
+  dataList[0]->setMask("Queimadas_*");
+
+  // Add a new data of type PCD_TOA5_TYPE
+  data.reset(new terrama2::core::Data(dataSet, terrama2::core::Data::PCD_TOA5_TYPE));
+  dataList.push_back(data);
+  dataSet->setDataList(dataList);
+
   terrama2::core::DataManager::getInstance().update(dataSet);
 
 
@@ -149,6 +173,11 @@ void TestDataSetDAO::testCRUDDataSet()
   QVERIFY2(metadata["key1"] == findDataSet->metadata()["key1"], "Metadata key1/value1 must be the same!");
   QVERIFY2(metadata["key2"] == findDataSet->metadata()["key2"], "Metadata key2/value2 must be the same!");
 
+  // Expected result is to remove the data PCD_INPE, update the FIRE_POINTS  and insert PCD_TOA5.
+  QVERIFY2(findDataSet->dataList().size() == 2, "DataList must have 2 itens!");
+  QVERIFY2(findDataSet->dataList()[0]->kind() == terrama2::core::Data::FIRE_POINTS_TYPE, "DataList[0] must be of the type FIRE_POINTS!");
+  QVERIFY2(findDataSet->dataList()[0]->mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
+  QVERIFY2(findDataSet->dataList()[1]->kind() == terrama2::core::Data::PCD_TOA5_TYPE, "DataList[1] must be of the type PCD-TOA5!");
 
   // Test remove dataset
   terrama2::core::DataManager::getInstance().removeDataSet(dataSet->id());

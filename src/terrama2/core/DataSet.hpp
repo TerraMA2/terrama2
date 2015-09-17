@@ -36,6 +36,7 @@
 // STL
 #include <memory>
 #include <string>
+#include <vector>
 
 // TerraLib
 #include <terralib/datatype/TimeDuration.h>
@@ -48,15 +49,17 @@ namespace terrama2
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
+    class Data;
+    typedef std::shared_ptr<Data> DataPtr;
+
     /*!
       \class DataSet
 
-      \brief Contains metadata about data servers.
+      \brief Contains metadata about a dataset.
 
-      A data provider can be a remote server that provides data through
-      FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
+      A dataset can be a PCD, occurence or a grid.
 
-      It can also be an URI for a folder into the file system...
+      It has the time frequency that this dataset should be collected.
      */
     class DataSet
     {
@@ -122,7 +125,7 @@ namespace terrama2
         std::string description() const;
 
         /*!
-          \brief It sets the the description of the data provider.
+          \brief It sets the the description of the dataset.
 
           \param The description of the dataset.
         */
@@ -143,16 +146,16 @@ namespace terrama2
         void setKind(const Kind& kind);
 
         /*!
-          \brief It returns the the status of the data provider.
+          \brief It returns the the status of the dataset.
 
-          \return The status of the data provider.
+          \return The status of the dataset.
         */
         Status status() const;
 
         /*!
-          \brief It sets the the status of the data provider.
+          \brief It sets the the status of the dataset.
 
-          \param The status of the data provider.
+          \param The status of the dataset.
         */
         void setStatus(const Status& status);
 
@@ -247,6 +250,20 @@ namespace terrama2
          */
         void setCollectRules(const std::vector<CollectRule>& collectRules);
 
+        /*!
+           \brief Returns the list of data
+
+           \return The list of data.
+         */
+        std::vector<DataPtr> dataList() const;
+
+        /*!
+           \brief Sets the list of data.
+
+           \param The list of data.
+         */
+        void setDataList(const std::vector<DataPtr>& dataList);
+
 
       protected:
 
@@ -272,6 +289,7 @@ namespace terrama2
         te::dt::TimeDuration scheduleTimeout_;
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
+        std::vector<DataPtr> dataList_;
 
         friend class DataSetDAO;
     };

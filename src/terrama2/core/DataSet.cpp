@@ -168,3 +168,14 @@ void terrama2::core::DataSet::setCollectRules(const std::vector<terrama2::core::
 {
   collectRules_ = collectRules;
 }
+
+std::vector<terrama2::core::DataPtr> terrama2::core::DataSet::dataList() const
+{
+  return dataList_;
+}
+
+void terrama2::core::DataSet::setDataList(const std::vector<terrama2::core::DataPtr>& dataList)
+{
+  dataList_ = dataList;
+}
+

@@ -32,6 +32,7 @@
 
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
+#include "Data.hpp"
 
 // STL
 #include <string>
@@ -113,6 +114,33 @@ namespace terrama2
      \return Enum with the type of the dataset.
     */
    terrama2::core::DataSet::Kind IntToDataSetKind(uint64_t kind);
+
+   /*!
+     \brief Returns a boolean with the status of the data based on the given status.
+
+     \param status Enum with the status of the data.
+
+     \return Boolean that determine if the data is active.
+    */
+   bool DataStatusToBool(terrama2::core::Data::Status status);
+
+   /*!
+    \brief Returns a enum with the status of the data based on the given parameter.
+
+    \param active Boolean that determine if the data is active.
+
+    \return Enum with the status of the data.
+    */
+   terrama2::core::Data::Status BoolToDataStatus(bool active);
+
+   /*!
+     \brief Returns a enum with the kind of the data based on the given parameter.
+
+     \param kind Kind that determine the type of the data.
+
+     \return Enum with the type of the data.
+    */
+   terrama2::core::Data::Kind IntToDataKind(uint64_t kind);
 
 
   } // end namespace core

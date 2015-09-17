@@ -110,6 +110,7 @@ namespace terrama2
         static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);
 
 
+
       private:
 
         /*!
@@ -127,7 +128,7 @@ namespace terrama2
            \param dataSet Dataset with the collect rules.
            \param transactor Data source transactor.
          */
-        static void addCollectRules(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+        static void saveCollectRules(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Retrieve a map with the metadata for a given dataset.
@@ -145,7 +146,33 @@ namespace terrama2
            \param dataSet Dataset with the metadata.
            \param transactor Data source transactor.
          */
-        static void addMetadata(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+        static void saveMetadata(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieve a vector of data from a given dataset ID.
+
+          In case there is no data, it will return an empty vector.
+
+          \param dataSetId Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return The vector of data.
+         */
+        static std::vector<terrama2::core::DataPtr> getDataList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the list of data from a given dataset.
+           \param dataSetId Identifier of the dataset.
+           \param dataList List with the data to persist.
+           \param transactor Data source transactor.
+         */
+        static void saveDataList(const int64_t dataSetId, const std::vector<DataPtr>& dataList, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Updates the list of data from a given dataset.
+           \param dataSet The dataset that to update.
+           \param transactor Data source transactor.
+         */
+        static void updateDataList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
 
         //! Not instantiable.
         DataSetDAO();
