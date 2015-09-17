@@ -29,8 +29,6 @@
 
 // TerraMA2
 #include "Utils.hpp"
-#include "DataProvider.hpp"
-#include "DataSet.hpp"
 #include "../Config.hpp"
 
 // Boost
@@ -178,5 +176,50 @@ terrama2::core::DataSet::Kind terrama2::core::IntToDataSetKind(uint64_t kind)
       return terrama2::core::DataSet::GRID_TYPE;
     default:
       return terrama2::core::DataSet::UNKNOWN_TYPE;
+  }
+}
+
+
+terrama2::core::Data::Kind terrama2::core::IntToDataKind(uint64_t kind)
+{
+  switch (kind)
+  {
+    case 1:
+      return terrama2::core::Data::PCD_INPE_TYPE;
+    case 2:
+      return terrama2::core::Data::PCD_TOA5_TYPE;
+    case 3:
+      return terrama2::core::Data::FIRE_POINTS_TYPE;
+    case 4:
+      return terrama2::core::Data::DISEASE_OCCURRENCE_TYPE;
+    default:
+      return terrama2::core::Data::UNKNOWN_TYPE;
+  }
+}
+
+
+terrama2::core::Data::Status terrama2::core::BoolToDataStatus(bool active)
+{
+  if(active)
+  {
+    return terrama2::core::Data::ACTIVE;
+  }
+  else
+  {
+    return terrama2::core::Data::INACTIVE;
+  }
+}
+
+
+bool terrama2::core::DataStatusToBool(terrama2::core::Data::Status status)
+{
+  switch (status)
+  {
+    case terrama2::core::Data::ACTIVE:
+      return true;
+    case terrama2::core::Data::INACTIVE:
+      return false;
+    default:
+      return false;
   }
 }
