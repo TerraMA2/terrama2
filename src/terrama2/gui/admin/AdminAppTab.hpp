@@ -20,34 +20,38 @@
 */
 
 /*!
-  \file terrama2/gui/core/ConfigManager.cpp
+  \file terrama2/gui/admin/AdminAppTab.hpp
 
-  \brief This source file handling the terrama2 configuration file.
+  \brief 
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
+  
 */
 
-#include "ConfigManager.hpp"
+#ifndef __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__
+#define __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__
 
-ConfigManager::ConfigManager()
-  : collection_(nullptr), database_(nullptr)
+// TerraMA2
+#include "AdminApp.hpp"
+ 
+class AdminAppTab
 {
+ public:
 
-}
+//! Default constructor
+  AdminAppTab(AdminApp* app, Ui::AdminAppForm* ui);
 
-ConfigManager::~ConfigManager()
-{
-  delete collection_;
-    delete database_;
-}
+//! Destructor
+ virtual ~AdminAppTab();
 
-Database *ConfigManager::getDatabase()
-{
- return database_;
-}
+ virtual bool validate() = 0;
+ virtual bool load() = 0;
 
-void ConfigManager::loadConfiguration(QString filepath)
-{
-  // OPEN JSON DOC.. <! It may raise Exception
-}
+ private:
+
+  AdminApp* app_;
+  Ui::AdminAppForm* ui_;
+};
+
+#endif __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__

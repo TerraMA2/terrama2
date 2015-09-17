@@ -43,6 +43,8 @@ class ConfigManager : private boost::noncopyable
     ConfigManager();
     ~ConfigManager();
 
+    Database* getDatabase();
+
     //! Open the json configuration file and try to parse it
     void loadConfiguration(QString filepath);
 

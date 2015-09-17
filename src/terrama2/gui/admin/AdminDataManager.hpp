@@ -20,34 +20,31 @@
 */
 
 /*!
-  \file terrama2/gui/core/ConfigManager.cpp
+  \file terrama2/gui/admin/AdminDataManager.hpp
 
-  \brief This source file handling the terrama2 configuration file.
+  \brief 
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
+  
 */
 
-#include "ConfigManager.hpp"
+#ifndef __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__
+#define __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__
 
-ConfigManager::ConfigManager()
-  : collection_(nullptr), database_(nullptr)
+// TerraMA2
+#include "../core/ConfigManager.hpp"
+ 
+class AdminDataManager: public ConfigManager
 {
+ public:
 
-}
+//! Constructor
+  AdminDataManager();
 
-ConfigManager::~ConfigManager()
-{
-  delete collection_;
-    delete database_;
-}
+//! Destructor
+  ~AdminDataManager();
 
-Database *ConfigManager::getDatabase()
-{
- return database_;
-}
+};
 
-void ConfigManager::loadConfiguration(QString filepath)
-{
-  // OPEN JSON DOC.. <! It may raise Exception
-}
+#endif __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__

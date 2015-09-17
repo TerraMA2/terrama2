@@ -34,12 +34,12 @@
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
 
-
 // Qt
 #include <QIcon>
 #include <QStringList>
 #include <QToolBar>
 #include <QTranslator>
+#include <QFileDialog>
 
 struct AdminApp::Impl
 {
@@ -83,7 +83,7 @@ AdminApp::AdminApp(QWidget* parent)
   
   if(idiom_path.empty())
   {
-    // LOG WARNING
+// LOG WARNING
   }
   else
   {
@@ -95,10 +95,40 @@ AdminApp::AdminApp(QWidget* parent)
   }
 
   pimpl_->ui_->setupUi(this);
+
+  configManager_ = new ConfigManager;
+
+  connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
+ 
+}
+
+void AdminApp::openRequested()
+{
+  QString filename = QFileDialog::getOpenFileName(this, tr("Choose file"), ".", tr("TerraMA2 ( *.terrama2"));
+
+  if (filename.isEmpty())
+     return;
+
+  configManager_->loadConfiguration(filename);
+
+// fills fields
+  fillForm();
 }
 
 AdminApp::~AdminApp()
 {
   delete pimpl_;
+}
+
+// fills fields
+void AdminApp::fillForm()
+{
+//  pimpl_->ui_->dbTypeCmb->setText(configManager_->getDatabase()->driver_);
+  pimpl_->ui_->dbAddressLed->setText(configManager_->getDatabase()->host);
+  pimpl_->ui_->dbUserLed->setText(configManager_->getDatabase()->user_);
+  pimpl_->ui_->dbDatabaseLed->setText(configManager_->getDatabase()->dbName_);
+//  pimpl_->ui_->dbPortLed->setText(configManager_->getDatabase()->port_);
+  pimpl_->ui_->dbPasswordLed->setText(configManager_->getDatabase()->password_);
+  pimpl_->ui_->dbStudyChk->setChecked(configManager_->getDatabase()->study_);
 }
 
