@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/Data.hpp
+  \file terrama2/core/DataSetItem.hpp
 
-  \brief Metadata about a given data.
+  \brief Metadata about a given dataset item.
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_CORE_DATA_HPP__
-#define __TERRAMA2_CORE_DATA_HPP__
+#ifndef __TERRAMA2_CORE_DATASETITEM_HPP__
+#define __TERRAMA2_CORE_DATASETITEM_HPP__
 
 // STL
 #include <memory>
@@ -44,18 +44,18 @@ namespace terrama2
     typedef std::shared_ptr<DataSet> DataSetPtr;
 
     /*!
-      \class Data
+      \class DataSetItem
 
-      \brief Contains metadata about a data.
+      \brief Contains metadata about a dataset item.
 
-      A data can be a INPE Format PCD, TOA5 PCD, an occurrence of fire or an occurrence of diseases.
+      A dataset item can be a INPE Format PCD, TOA5 PCD, an occurrence of fire or an occurrence of diseases.
 
      */
-    class Data
+    class DataSetItem
     {
       public:
 
-        //! Data type.
+        //! Dataset item type.
         enum Kind
         {
           UNKNOWN_TYPE,
@@ -65,7 +65,7 @@ namespace terrama2
           DISEASE_OCCURRENCE_TYPE
         };
 
-        //! Data status.
+        //! Dataset item status.
         enum Status
         {
           ACTIVE,
@@ -78,73 +78,73 @@ namespace terrama2
         /*!
           \brief Constructor.
         */
-        Data(DataSetPtr dataSet, Kind kind);
+        DataSetItem(DataSetPtr dataSet, Kind kind);
 
         /*!
           \brief Destructor.
         */
-        virtual ~Data();
+        virtual ~DataSetItem();
 
         /*!
-          \brief It returns the identifier of the data.
+          \brief It returns the identifier of the dataset item.
 
-          \return The identifier of the data.
+          \return The identifier of the dataset item.
         */
         uint64_t id() const;
 
         /*!
-          \brief It returns the the kind of the data.
+          \brief It returns the the kind of the dataset item.
 
-          \return The kind of the data.
+          \return The kind of the dataset item.
         */
         Kind kind() const;
 
         /*!
-          \brief It sets the the kind of the data.
+          \brief It sets the the kind of the dataset item.
 
-          \param The kind of the data.
+          \param The kind of the dataset item.
         */
         void setKind(const Kind& kind);
 
         /*!
-          \brief It returns the the status of the data.
+          \brief It returns the the status of the dataset item.
 
-          \return The status of the data.
+          \return The status of the dataset item.
         */
         Status status() const;
 
         /*!
-          \brief It sets the the status of the data.
+          \brief It sets the the status of the dataset item.
 
-          \param The status of the data.
+          \param The status of the dataset item.
         */
         void setStatus(const Status& status);
 
         /*!
-          \brief It returns the mask of the data.
+          \brief It returns the mask of the dataset item.
 
-          \return The mask of the data.
+          \return The mask of the dataset item.
         */
         std::string mask() const;
 
         /*!
-          \brief It sets the mask of the data.
+          \brief It sets the mask of the dataset item.
 
-          \param The mask of the data.
+          \param The mask of the dataset item.
         */
         void setMask(const std::string& mask);
 
         /*!
-          \brief It returns the timezone of the data.
+          \brief It returns the timezone of the dataset item.
 
-          \return The timezone of the data.
+          \return The timezone of the dataset item.
         */
         std::string timezone() const;
 
         /*!
-          \brief It sets the timezone of the data.
+          \brief It sets the timezone of the dataset item.
 
-          \param The timezone of the data.
+          \param The timezone of the dataset item.
         */
         void setTimezone(const std::string& timezone);
 
@@ -159,9 +159,9 @@ namespace terrama2
       protected:
 
         /*!
-          \brief It sets the identifier of the data.
+          \brief It sets the identifier of the dataset item.
 
-          \param The identifier of the data.
+          \param The identifier of the dataset item.
         */
         void setId(uint64_t id);
 
@@ -178,10 +178,10 @@ namespace terrama2
       friend class DataSetDAO;
     };
 
-    typedef std::shared_ptr<Data> DataPtr;
+    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
 
   } // end namespace core
 }   // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_DATA_HPP__
+#endif  // __TERRAMA2_CORE_DATASETITEM_HPP__
 

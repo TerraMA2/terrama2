@@ -20,18 +20,18 @@
 */
 
 /*!
-  \file terrama2/core/Data.cpp
+  \file terrama2/core/DataSetItem.cpp
 
-  \brief Metadata about a given data.
+  \brief Metadata about a given dataset item.
 
   \author Paulo R. M. Oliveira
 */
 
 // TerraMA2
-#include "Data.hpp"
+#include "DataSetItem.hpp"
 #include "DataSet.hpp"
 
-terrama2::core::Data::Data(DataSetPtr dataSet, Kind kind)
+terrama2::core::DataSetItem::DataSetItem(DataSetPtr dataSet, Kind kind)
   : id_(0),
     status_(INACTIVE),
     dataSet_(dataSet),
@@ -40,62 +40,62 @@ terrama2::core::Data::Data(DataSetPtr dataSet, Kind kind)
 
 }
 
-terrama2::core::Data::~Data()
+terrama2::core::DataSetItem::~DataSetItem()
 {
 
 }
 
-uint64_t terrama2::core::Data::id() const
+uint64_t terrama2::core::DataSetItem::id() const
 {
   return id_;
 }
 
-void terrama2::core::Data::setId(uint64_t id)
+void terrama2::core::DataSetItem::setId(uint64_t id)
 {
   id_ = id;
 }
 
-terrama2::core::Data::Kind terrama2::core::Data::kind() const
+terrama2::core::DataSetItem::Kind terrama2::core::DataSetItem::kind() const
 {
   return kind_;
 }
 
-void terrama2::core::Data::setKind(const terrama2::core::Data::Kind& kind)
+void terrama2::core::DataSetItem::setKind(const terrama2::core::DataSetItem::Kind& kind)
 {
   kind_ = kind;
 }
 
-terrama2::core::Data::Status terrama2::core::Data::status() const
+terrama2::core::DataSetItem::Status terrama2::core::DataSetItem::status() const
 {
   return status_;
 }
 
-void terrama2::core::Data::setStatus(const terrama2::core::Data::Status& status)
+void terrama2::core::DataSetItem::setStatus(const terrama2::core::DataSetItem::Status& status)
 {
   status_ = status;
 }
 
-std::string terrama2::core::Data::mask() const
+std::string terrama2::core::DataSetItem::mask() const
 {
   return mask_;
 }
 
-void terrama2::core::Data::setMask(const std::string& mask)
+void terrama2::core::DataSetItem::setMask(const std::string& mask)
 {
   mask_ = mask;
 }
 
-std::string terrama2::core::Data::timezone() const
+std::string terrama2::core::DataSetItem::timezone() const
 {
   return timezone_;
 }
 
-void terrama2::core::Data::setTimezone(const std::string& timezone)
+void terrama2::core::DataSetItem::setTimezone(const std::string& timezone)
 {
   timezone_ = timezone;
 }
 
-terrama2::core::DataSetPtr terrama2::core::Data::dataSet() const
+terrama2::core::DataSetPtr terrama2::core::DataSetItem::dataSet() const
 {
   return dataSet_;
 }
