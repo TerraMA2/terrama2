@@ -49,8 +49,8 @@ namespace terrama2
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
-    class Data;
-    typedef std::shared_ptr<Data> DataPtr;
+    class DataSetItem;
+    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
 
     /*!
       \class DataSet
@@ -251,18 +251,18 @@ namespace terrama2
         void setCollectRules(const std::vector<CollectRule>& collectRules);
 
         /*!
-           \brief Returns the list of data
+           \brief Returns the list of of dataset item.
 
-           \return The list of data.
+           \return The list of dataset item.
          */
-        std::vector<DataPtr> dataList() const;
+        std::vector<DataSetItemPtr> dataSetItemList() const;
 
         /*!
-           \brief Sets the list of data.
+           \brief Sets the list of dataset item.
 
-           \param The list of data.
+           \param The list of dataset item.
          */
-        void setDataList(const std::vector<DataPtr>& dataList);
+        void setDataSetItemList(const std::vector<DataSetItemPtr>& dataSetItemList);
 
 
       protected:
@@ -289,7 +289,7 @@ namespace terrama2
         te::dt::TimeDuration scheduleTimeout_;
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
-        std::vector<DataPtr> dataList_;
+        std::vector<DataSetItemPtr> dataSetItemList_;
 
         friend class DataSetDAO;
     };

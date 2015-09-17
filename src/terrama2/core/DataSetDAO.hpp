@@ -149,30 +149,30 @@ namespace terrama2
         static void saveMetadata(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
 
         /*!
-          \brief Retrieve a vector of data from a given dataset ID.
+          \brief Retrieve a vector of dataset item from a given dataset ID.
 
-          In case there is no data, it will return an empty vector.
+          In case there is no dataset item, it will return an empty vector.
 
           \param dataSetId Identifier of the dataset.
           \param transactor Data source transactor.
           \return The vector of data.
          */
-        static std::vector<terrama2::core::DataPtr> getDataList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+        static std::vector<terrama2::core::DataSetItemPtr> getDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
 
         /*!
-           \brief Persists the list of data from a given dataset.
+           \brief Persists the list of dataset item from a given dataset.
            \param dataSetId Identifier of the dataset.
            \param dataList List with the data to persist.
            \param transactor Data source transactor.
          */
-        static void saveDataList(const int64_t dataSetId, const std::vector<DataPtr>& dataList, te::da::DataSourceTransactor& transactor);
+        static void saveDataSetItemList(const int64_t dataSetId, const std::vector<DataSetItemPtr>& dataList, te::da::DataSourceTransactor& transactor);
 
         /*!
-           \brief Updates the list of data from a given dataset.
+           \brief Updates the list of dataset item from a given dataset.
            \param dataSet The dataset that to update.
            \param transactor Data source transactor.
          */
-        static void updateDataList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+        static void updateDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
 
         //! Not instantiable.
         DataSetDAO();

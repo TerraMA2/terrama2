@@ -30,7 +30,7 @@
 
 //TerraMA2
 #include "DataSetDAO.hpp"
-#include "Data.hpp"
+#include "DataSetItem.hpp"
 #include "DataProviderDAO.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
@@ -112,9 +112,9 @@ void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da
   saveMetadata(dataSet, transactor);
 
   // Persist the collect rules and sets the generated id
-  saveDataList(dataSet->id(), dataSet->dataList(), transactor);
-  auto dataList = getDataList(dataSet, transactor);
-  dataSet->setDataList(dataList);
+  saveDataSetItemList(dataSet->id(), dataSet->dataSetItemList(), transactor);
+  auto dataSetItemList = getDataSetItemList(dataSet, transactor);
+  dataSet->setDataSetItemList(dataSetItemList);
 }
 
 
@@ -150,8 +150,8 @@ void terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet, te::
   saveMetadata(dataSet, transactor);
 
 
-  // Updates data list
-  updateDataList(dataSet, transactor);
+  // Updates dataset item list
+  updateDataSetItemList(dataSet, transactor);
 
 }
 
@@ -381,33 +381,33 @@ void terrama2::core::DataSetDAO::saveMetadata(terrama2::core::DataSetPtr dataSet
   transactor.add(dataSetName, memDataSet.get(), options);
 }
 
-std::vector<terrama2::core::DataPtr> terrama2::core::DataSetDAO::getDataList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
+std::vector<terrama2::core::DataSetItemPtr> terrama2::core::DataSetDAO::getDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
 {
-  std::vector<terrama2::core::DataPtr> dataList;
+  std::vector<terrama2::core::DataSetItemPtr> dataSetItemList;
 
-  std::string dataSetName = "terrama2.data";
+  std::string dataSetName = "terrama2.dataset_item";
 
   std::string sql("SELECT * FROM " + dataSetName + " WHERE dataset_id = " + std::to_string(dataSet->id()));
   std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
 
   while(tempDataSet->moveNext())
   {
-    terrama2::core::Data::Kind kind = IntToDataKind(tempDataSet->getInt32("kind"));
-    terrama2::core::DataPtr data(new terrama2::core::Data(dataSet, kind));
+    terrama2::core::DataSetItem::Kind kind = IntToDataSetItemKind(tempDataSet->getInt32("kind"));
+    terrama2::core::DataSetItemPtr data(new terrama2::core::DataSetItem(dataSet, kind));
     data->setId(tempDataSet->getInt32("id"));
-    data->setStatus(BoolToDataStatus(tempDataSet->getBool("active")));
+    data->setStatus(BoolToDataSetItemStatus(tempDataSet->getBool("active")));
     data->setMask(tempDataSet->getString("mask"));
     data->setTimezone(tempDataSet->getString("timezone"));
-    dataList.push_back(data);
+    dataSetItemList.push_back(data);
   }
 
-  return dataList;
+  return dataSetItemList;
 }
 
 
-void terrama2::core::DataSetDAO::saveDataList(const int64_t dataSetId, const std::vector<DataPtr>& dataList, te::da::DataSourceTransactor& transactor)
+void terrama2::core::DataSetDAO::saveDataSetItemList(const int64_t dataSetId, const std::vector<DataSetItemPtr>& dataSetItemList, te::da::DataSourceTransactor& transactor)
 {
-  std::string dataSetName = "terrama2.data";
+  std::string dataSetName = "terrama2.dataset_item";
   std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
   te::dt::Property* idProperty = dataSetType->getProperty(0);
   dataSetType->remove(idProperty);
@@ -417,13 +417,13 @@ void terrama2::core::DataSetDAO::saveDataList(const int64_t dataSetId, const std
   std::map<std::string, std::string> options;
 
 
-  for (int i = 0; i < dataList.size(); ++i)
+  for (int i = 0; i < dataSetItemList.size(); ++i)
   {
-    DataPtr data = dataList[i];
+    DataSetItemPtr data = dataSetItemList[i];
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
 
     // Sets the values in the item
-    dsItem->setBool("active", DataStatusToBool(data->status()));
+    dsItem->setBool("active", DataSetItemStatusToBool(data->status()));
     dsItem->setInt32("kind", static_cast<int>(data->kind()));
     dsItem->setInt32("dataset_id", dataSetId);
     dsItem->setString("mask", data->mask());
@@ -436,9 +436,9 @@ void terrama2::core::DataSetDAO::saveDataList(const int64_t dataSetId, const std
 }
 
 
-void terrama2::core::DataSetDAO::updateDataList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
+void terrama2::core::DataSetDAO::updateDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
 {
-  std::string dataSetName = "terrama2.data";
+  std::string dataSetName = "terrama2.dataset_item";
 
   // First we need to retrieve all ids from database to identify the new data.
   std::string sql = "SELECT id FROM " + dataSetName + " WHERE dataset_id = " + std::to_string(dataSet->id());
@@ -449,16 +449,16 @@ void terrama2::core::DataSetDAO::updateDataList(terrama2::core::DataSetPtr dataS
     ids.push_back(tempDataSet->getInt32("id"));
   }
 
-  std::vector<DataPtr> dataListToInsert;
+  std::vector<DataSetItemPtr> dataListToInsert;
 
-  foreach (auto data, dataSet->dataList())
+  foreach (auto data, dataSet->dataSetItemList())
   {
     // Update the data that already exists in database.
     auto itId = std::find(ids.begin(), ids.end(), data->id());
     if ( itId != ids.end() )
     {
       sql = "UPDATE " + dataSetName + " SET"
-          + " active=" + terrama2::core::BoolToString(DataStatusToBool(data->status()))
+          + " active=" + terrama2::core::BoolToString(DataSetItemStatusToBool(data->status()))
           + ", dataset_id=" + std::to_string(dataSet->id())
           + ", kind=" + std::to_string(static_cast<int>(data->kind()))
           + ", mask='" + data->mask() + "'"
@@ -483,9 +483,9 @@ void terrama2::core::DataSetDAO::updateDataList(terrama2::core::DataSetPtr dataS
   }
 
   // Inserts the new data.
-  saveDataList(dataSet->id(), dataListToInsert, transactor);
+  saveDataSetItemList(dataSet->id(), dataListToInsert, transactor);
 
   // Retrieves all data from database and sets in the dataset
-  auto dataList = getDataList(dataSet, transactor);
-  dataSet->setDataList(dataList);
+  auto dataSetItemList = getDataSetItemList(dataSet, transactor);
+  dataSet->setDataSetItemList(dataSetItemList);
 }

@@ -33,6 +33,7 @@
 
 // TerraMA2
 #include "DataSet.hpp"
+#include "DataSetItem.hpp"
 #include "DataProvider.hpp"
 
 terrama2::core::DataSet::DataSet(DataProviderPtr dataProvider, const std::string& name, Kind kind)
@@ -169,13 +170,13 @@ void terrama2::core::DataSet::setCollectRules(const std::vector<terrama2::core::
   collectRules_ = collectRules;
 }
 
-std::vector<terrama2::core::DataPtr> terrama2::core::DataSet::dataList() const
+std::vector<terrama2::core::DataSetItemPtr> terrama2::core::DataSet::dataSetItemList() const
 {
-  return dataList_;
+  return dataSetItemList_;
 }
 
-void terrama2::core::DataSet::setDataList(const std::vector<terrama2::core::DataPtr>& dataList)
+void terrama2::core::DataSet::setDataSetItemList(const std::vector<terrama2::core::DataSetItemPtr>& dataSetItemList)
 {
-  dataList_ = dataList;
+  dataSetItemList_ = dataSetItemList;
 }
 
