@@ -27,11 +27,12 @@
   \author Vinicius Campanha
  */
 
+// STL
+#include <iostream>
+
 // TerraMA2
 #include "soapWebService.h"
 
-// STL
-#include <iostream>
 
 int main(int argc, char* argv[])
 {
