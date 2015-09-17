@@ -71,4 +71,4 @@ install(TARGETS terrama2_gui_core
 install(FILES ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/gui/core COMPONENT devel)
 
-export(TARGETS terrama2_mod_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_gui_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

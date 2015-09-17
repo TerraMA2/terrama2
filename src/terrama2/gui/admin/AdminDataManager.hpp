@@ -20,37 +20,31 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
+  \file terrama2/gui/admin/AdminDataManager.hpp
 
-  \brief TerraMA2 Collector gSOAP data types.
+  \brief 
 
-  \author Vinicius Campanha
- */
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  
+*/
 
+#ifndef __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__
+#define __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__
 
-struct DataProvider
+// TerraMA2
+#include "../core/ConfigManager.hpp"
+ 
+class AdminDataManager: public ConfigManager
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      kind;
-  std::string   uri;
-  uint32_t      status;
+ public:
+
+//! Constructor
+  AdminDataManager();
+
+//! Destructor
+  ~AdminDataManager();
+
 };
 
-
-struct DataSet
-{
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      status;
-  uint64_t       data_provider_id;
-  uint32_t      kind;
-  uint32_t      data_frequency;
-  std::string   schedule;
-  uint32_t      schedule_retry;
-  uint32_t      schedule_timeout;
-};
-
-
+#endif __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__

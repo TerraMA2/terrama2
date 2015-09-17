@@ -22,6 +22,7 @@
 #  Description: Find gSOAP include directory,libraries and tools.
 #
 #  GSOAP_INCLUDE_DIR           - where to find stdsoap2.h.
+#  GSOAP_IMPORT_DIR              where to find axiliary headers to gSOAP
 #  GSOAP_CPP_LIBRARY           - the gsoap++ library link.
 #  GSOAP_SOAPCPP2_EXECUTABLE   - the soapcpp2 application.
 #  GSOAP_FOUND                 - True if gSOAP found.
@@ -35,6 +36,13 @@ find_path(GSOAP_INCLUDE_DIR
           PATHS /usr
                 /usr/local
           PATH_SUFFIXES include)
+
+find_path(GSOAP_IMPORT_DIR
+          NAMES stlvector.h
+          PATHS /usr
+                /usr/local
+                /usr/local/share/gsoap
+          PATH_SUFFIXES import)
 
 if(UNIX)
 

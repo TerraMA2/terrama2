@@ -35,6 +35,7 @@
 #include <terrama2/core/DataManager.hpp>
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSet.hpp>
+#include <terrama2/core/DataSetItem.hpp>
 
 // Qt
 #include <QtTest>
@@ -86,12 +87,12 @@ void TestDataSetDAO::testCRUDDataSet()
   std::vector<terrama2::core::DataSet::CollectRule> collectRules;
   {
     terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.script_ = "... LUA SCRIPT 1...";
+    collectRule.script = "... LUA SCRIPT 1...";
     collectRules.push_back(collectRule);
   }
   {
     terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.script_ = "... LUA SCRIPT 2...";
+    collectRule.script = "... LUA SCRIPT 2...";
     collectRules.push_back(collectRule);
   }
   dataSet->setCollectRules(collectRules);
@@ -102,6 +103,17 @@ void TestDataSetDAO::testCRUDDataSet()
   metadata["key2"] = "value2";
 
   dataSet->setMetadata(metadata);
+
+
+  // Creates a data list with two data's
+  std::vector<terrama2::core::DataSetItemPtr> dataSetItemList;
+
+  terrama2::core::DataSetItemPtr data(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_INPE_TYPE));
+  dataSetItemList.push_back(data);
+
+  terrama2::core::DataSetItemPtr data2(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::FIRE_POINTS_TYPE));
+  dataSetItemList.push_back(data2);
+  dataSet->setDataSetItemList(dataSetItemList);
 
   terrama2::core::DataManager::getInstance().add(dataSet);
 
@@ -124,8 +136,20 @@ void TestDataSetDAO::testCRUDDataSet()
   dataSet->setName("New queimadas");
 
   // Change the collect rule script
-  collectRules[0].script_ = "... LUA SCRIPT UPDATE 1...";
+  collectRules[0].script = "... LUA SCRIPT UPDATE 1...";
   dataSet->setCollectRules(collectRules);
+
+  // Remove the data PCD_INPE
+  dataSetItemList = dataSet->dataSetItemList();
+  dataSetItemList.erase(dataSetItemList.begin());
+
+  // Updates the data from FIRE_POINTS_TYPE
+  dataSetItemList[0]->setMask("Queimadas_*");
+
+  // Add a new data of type PCD_TOA5_TYPE
+  data.reset(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_TOA5_TYPE));
+  dataSetItemList.push_back(data);
+  dataSet->setDataSetItemList(dataSetItemList);
 
   terrama2::core::DataManager::getInstance().update(dataSet);
 
@@ -143,12 +167,17 @@ void TestDataSetDAO::testCRUDDataSet()
   QVERIFY2(dataSet->scheduleRetry() == findDataSet->scheduleRetry(), "Schedule retry must be the same!");
   QVERIFY2(dataSet->dataFrequency() == findDataSet->dataFrequency(), "Data frequency must be the same!");
 
-  QVERIFY2(collectRules[0].script_ == findDataSet->collectRules()[0].script_, "Collect rule script must be the same!");
+  QVERIFY2(collectRules[0].script == findDataSet->collectRules()[0].script, "Collect rule script must be the same!");
 
   QVERIFY2(metadata["key"] == findDataSet->metadata()["key"], "Metadata key/value must be the same!");
   QVERIFY2(metadata["key1"] == findDataSet->metadata()["key1"], "Metadata key1/value1 must be the same!");
   QVERIFY2(metadata["key2"] == findDataSet->metadata()["key2"], "Metadata key2/value2 must be the same!");
 
+  // Expected result is to remove the data PCD_INPE, update the FIRE_POINTS  and insert PCD_TOA5.
+  QVERIFY2(findDataSet->dataSetItemList().size() == 2, "dataSetItemList must have 2 itens!");
+  QVERIFY2(findDataSet->dataSetItemList()[0]->kind() == terrama2::core::DataSetItem::FIRE_POINTS_TYPE, "dataSetItemList[0] must be of the type FIRE_POINTS!");
+  QVERIFY2(findDataSet->dataSetItemList()[0]->mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
+  QVERIFY2(findDataSet->dataSetItemList()[1]->kind() == terrama2::core::DataSetItem::PCD_TOA5_TYPE, "dataSetItemList[1] must be of the type PCD-TOA5!");
 
   // Test remove dataset
   terrama2::core::DataManager::getInstance().removeDataSet(dataSet->id());

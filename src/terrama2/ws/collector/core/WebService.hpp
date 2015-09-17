@@ -29,6 +29,10 @@
 
 //gsoap Web service name: Web
 
+// STL
+#import "stlvector.h"
+
+// TerraMA2
 #import "WebServiceDataTypes.hpp"
 
 /*!
@@ -40,7 +44,7 @@
 */
 int Web__ping(std::string &answer);
 
-// VINICIUS: write the methods documentation
+// VINICIUS_TODO: write the methods documentation
 /*!
   \brief
 
@@ -48,16 +52,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__load(void);
-
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-//int Web__unload(void);
+int Web__restart(void);
 
 /*!
   \brief
@@ -66,7 +61,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__addDataProvider(DataProvider, void);
+int Web__shutdown(void);
 
 /*!
   \brief
@@ -75,7 +70,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__addDataset(DataSet, void);
+int Web__addDataProvider(struct DataProvider, void);
 
 /*!
   \brief
@@ -84,7 +79,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__updateDataProvider(DataProvider, void);
+int Web__addDataset(struct DataSet, void);
 
 /*!
   \brief
@@ -93,7 +88,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__updateDataSet(DataSet, void);
+int Web__updateDataProvider(struct DataProvider, void);
 
 /*!
   \brief
@@ -102,7 +97,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__removeDataProvider(uint64_t id, void);
+int Web__updateDataSet(struct DataSet, void);
 
 /*!
   \brief
@@ -111,7 +106,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__removeDataSet(uint64_t id, void);
+int Web__removeDataProvider(uint64_t id, void);
 
 /*!
   \brief
@@ -120,7 +115,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__findDataProvider(uint64_t id, struct DataProviderResponse &r);
+int Web__removeDataSet(uint64_t id, void);
 
 /*!
   \brief
@@ -129,7 +124,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int Web__findDataSet(uint64_t id, struct DataSetResponse &r);
+int Web__findDataProvider(uint64_t id, struct DataProvider &r);
 
 /*!
   \brief
@@ -138,23 +133,24 @@ int Web__ping(std::string &answer);
 
   \return
 */
-//int listDataProvider(); // std::vector<:DataProviderPtr>
+int Web__findDataSet(uint64_t id, struct DataSet &r);
 
-// VINICIUS: define interfaces of webservice
-/*
+/*!
+  \brief
 
-+ load()
-+ unload()
-+ add(DataProviderPtr)
-+ add(DataSetPtr)
-+ update(DataProviderPtr)
-+ update(DataSetPtr)
-+ removeDataProvider(uint64_t)
-+ removeDataSet(uint64_t)
-+ findDataProvider(uint64_t): DataProviderPtr
-+ findDataSet(uint64_t): DataSetPtr
-+ listDataProvider() : std::vector<:DataProviderPtr>
-+ listDataSet() : std::vector<:DataSetPtr>
-+ instance():  DataManager
+  \param
 
+  \return
 */
+
+int Web__listDataProvider(std::vector< struct DataProvider > &data_provider_list);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+
+int Web__listDataSet(std::vector< struct DataSet > &data_set_list);

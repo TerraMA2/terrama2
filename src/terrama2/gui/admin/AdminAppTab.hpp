@@ -20,37 +20,38 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
+  \file terrama2/gui/admin/AdminAppTab.hpp
 
-  \brief TerraMA2 Collector gSOAP data types.
+  \brief 
 
-  \author Vinicius Campanha
- */
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  
+*/
 
+#ifndef __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__
+#define __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__
 
-struct DataProvider
+// TerraMA2
+#include "AdminApp.hpp"
+ 
+class AdminAppTab
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      kind;
-  std::string   uri;
-  uint32_t      status;
+ public:
+
+//! Default constructor
+  AdminAppTab(AdminApp* app, Ui::AdminAppForm* ui);
+
+//! Destructor
+ virtual ~AdminAppTab();
+
+ virtual bool validate() = 0;
+ virtual bool load() = 0;
+
+ private:
+
+  AdminApp* app_;
+  Ui::AdminAppForm* ui_;
 };
 
-
-struct DataSet
-{
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      status;
-  uint64_t       data_provider_id;
-  uint32_t      kind;
-  uint32_t      data_frequency;
-  std::string   schedule;
-  uint32_t      schedule_retry;
-  uint32_t      schedule_timeout;
-};
-
-
+#endif __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__

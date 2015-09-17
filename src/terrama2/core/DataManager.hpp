@@ -38,16 +38,15 @@
 
 // STL
 #include <memory>
-#include <mutex>
 
 // QT
 #include <QObject>
-
 
 namespace terrama2
 {
   namespace core
   {
+// Forward declaration
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
@@ -251,10 +250,6 @@ namespace terrama2
           \note Thread-safe.
          */
         std::vector<terrama2::core::DataSetPtr> dataSets() const;
-
-      
-
-    public slots:
 
       signals:
 

@@ -20,37 +20,28 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
+  \file terrama2/gui/admin/AdminAppTab.cpp
 
-  \brief TerraMA2 Collector gSOAP data types.
+  \brief 
 
-  \author Vinicius Campanha
- */
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  
+*/
 
+// TerraMA2
+#include "AdminApp.hpp"
+#include "AdminAppDBTab.hpp"  
+#include "ui_AdminAppForm.h"
+#include "Exception.hpp"
 
-struct DataProvider
+AdminAppDBTab::AdminAppDBTab(AdminApp* app, Ui::AdminAppForm* ui)
+ :AdminAppTab(app, ui)
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      kind;
-  std::string   uri;
-  uint32_t      status;
-};
 
+} 
 
-struct DataSet
+AdminAppDBTab::~AdminAppDBTab()
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      status;
-  uint64_t       data_provider_id;
-  uint32_t      kind;
-  uint32_t      data_frequency;
-  std::string   schedule;
-  uint32_t      schedule_retry;
-  uint32_t      schedule_timeout;
-};
-
-
+  
+}

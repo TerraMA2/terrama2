@@ -32,15 +32,15 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 
 void ConfigAppWeatherTab::load()
 {
-
+  // Connect to database and list the values
 }
 
 bool ConfigAppWeatherTab::dataChanged()
 {
-  return true;
+  return changed_;
 }
 
-bool ConfigAppWeatherTab::validate(QString& q)
+bool ConfigAppWeatherTab::validate()
 {
   return false;
 }
@@ -52,11 +52,18 @@ void ConfigAppWeatherTab::save()
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)
 {
+  if (restore_data)
+  {
+    // Make the save procedure
+  }
+
   ui_->ServerPage->hide();
   ui_->ServerGroupPage->show();
-  // Set visible false on server buttons
+
+// Set visible false on server buttons
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
+
 }
 
 void ConfigAppWeatherTab::onEnteredWeatherTab()

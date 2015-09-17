@@ -48,10 +48,10 @@
 MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path namespace type include_dirs GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
 
   if(${type} STREQUAL "server")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x -I${include_dirs} ${file_path})
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x -I${GSOAP_IMPORT_DIR} -I${include_dirs} ${file_path})
     set(ARCHIVE_TYPE Service)
   elseif(${type} STREQUAL "client")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x -I${include_dirs} ${file_path})
+    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x -I${GSOAP_IMPORT_DIR} -I${include_dirs} ${file_path})
     set(ARCHIVE_TYPE Proxy)
   endif()
 

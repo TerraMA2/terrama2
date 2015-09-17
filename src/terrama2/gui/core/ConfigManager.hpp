@@ -34,20 +34,41 @@
 // TerraMA2
 #include "DataType.hpp"
 
+// QT
+#include <QJsonObject>
+#include <QMainWindow>
+
 // Boost
 #include <boost/noncopyable.hpp>
 
 class ConfigManager : private boost::noncopyable
 {
   public:
-    ConfigManager();
-    ~ConfigManager();
+    ConfigManager(QMainWindow* app);
+
+    virtual ~ConfigManager();
+
+    Database* getDatabase();
 
     //! Open the json configuration file and try to parse it
-    void loadConfiguration(QString filepath);
+    virtual void loadConfiguration(QString filepath);
 
-    //void saveConfiguration();
+    //! It opens a file from filepath and apply parse to json
+    QJsonObject open(QString filepath);
+
+    //! Get the TerraMA2 database struct
+    Database* getDatabase() const;
+
+    //! Get the TerraMA2 collection struct
+    Collection* getCollection() const;
+
+    //! Get the TerraMA2 name
+    QString getName() const;
+
   private:
+    QMainWindow* app_; //< Dialog to display error message if there is.
+
+    QString name_; //< TerraMA2 config name
     Collection* collection_;
     Database* database_;
 };

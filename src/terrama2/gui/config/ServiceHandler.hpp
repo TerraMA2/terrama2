@@ -20,37 +20,36 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
+  \file terrama2/gui/config/ServiceHandler.cpp
 
-  \brief TerraMA2 Collector gSOAP data types.
+  \brief This class contains all TerraMA2 Services
 
-  \author Vinicius Campanha
- */
+  \author Raphael Willian da Costa
+*/
 
+#ifndef __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
+#define __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
 
-struct DataProvider
+// TerraMA2
+#include <QString>
+#include "../core/ConfigManager.hpp"
+
+// Boost
+#include <boost/noncopyable.hpp>
+
+class ServiceHandler
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      kind;
-  std::string   uri;
-  uint32_t      status;
+  public:
+    ServiceHandler(QMainWindow* app);
+
+    ~ServiceHandler();
+
+    void loadConfiguration(QString filepath);
+
+  private:
+    ConfigManager* configManager_;
+    // Pointer for each service
+    //Collector* coll;
 };
 
-
-struct DataSet
-{
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      status;
-  uint64_t       data_provider_id;
-  uint32_t      kind;
-  uint32_t      data_frequency;
-  std::string   schedule;
-  uint32_t      schedule_retry;
-  uint32_t      schedule_timeout;
-};
-
-
+#endif // __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
