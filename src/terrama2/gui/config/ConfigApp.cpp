@@ -93,7 +93,7 @@ ConfigApp::ConfigApp(QWidget* parent)
   pimpl_->ui_->setupUi(this);
 
 // Initialize services
-//  services_ = new ServiceHandler;
+  services_ = new ServiceHandler(this);
 
 // Init services for each tab
   ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
@@ -105,7 +105,6 @@ ConfigApp::ConfigApp(QWidget* parent)
   connect(weatherTab, SIGNAL(serverChanged()), this, SLOT(disableRefreshAction()));
 
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
-
 }
 
 ConfigApp::~ConfigApp()
@@ -125,7 +124,7 @@ void ConfigApp::tabChangeRequested(int index)
 {
   if(index != currentTabIndex_)
   {
-    // Verifica se o tab pode ser trocado
+    // Check if the tab may be changed
     ConfigAppTab* tab = tabList_.at(currentTabIndex_);
 
     if(tab->verifyAndEnableChange(true))
@@ -146,8 +145,6 @@ void ConfigApp::openRequested()
                                              ".", tr("TerraMA2 (*.terrama2)"));
   if (!file.isEmpty())
   {
-    // process
-    QMessageBox::information(this, "TerraMA2", file);
-
+    services_->loadConfiguration(file);
   }
 }

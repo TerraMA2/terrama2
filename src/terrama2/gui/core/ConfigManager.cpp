@@ -28,10 +28,17 @@
   \author Raphael Willian da Costa
 */
 
+// TerraMA2
 #include "ConfigManager.hpp"
+#include "../Exception.hpp"
 
-ConfigManager::ConfigManager()
-  : collection_(nullptr), database_(nullptr)
+#include <QString>
+#include <QFile>
+#include <QJsonDocument>
+#include <QMessageBox>
+
+ConfigManager::ConfigManager(QMainWindow* app)
+  : app_(app), collection_(new Collection), database_(new Database)
 {
 
 }
@@ -44,5 +51,65 @@ ConfigManager::~ConfigManager()
 
 void ConfigManager::loadConfiguration(QString filepath)
 {
-  // OPEN JSON DOC.. <! It may raise Exception
+  try
+  {
+    QJsonObject metadata = open(filepath);
+
+    name_ = metadata["name"].toString();
+
+    if (metadata.contains("database"))
+    {
+      QJsonObject databaseConfig = metadata["database"].toObject();
+      database_->dbName_ = databaseConfig["name"].toString();
+      database_->host_ = databaseConfig["host"].toString();
+      database_->port_ = databaseConfig["port"].toString().toInt();
+      database_->user_ = databaseConfig["user"].toString();
+      database_->password_ = databaseConfig["password"].toString();
+    }
+    if (metadata.contains("collector_web_service"))
+    {
+
+    }
+    else
+      throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
+  }
+  catch (const terrama2::Exception& e)
+  {
+    const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(app_, "TerraMA2", *msg);
+  }
+
+  catch (const std::exception& e)
+  {
+    QMessageBox::information(app_, "TerraMA2", e.what());
+  }
+}
+
+QJsonObject ConfigManager::open(QString filepath)
+{
+  QString settings;
+  QFile file;
+  file.setFileName(filepath);
+  file.open(QIODevice::ReadOnly | QIODevice::Text);
+  settings = file.readAll();
+  file.close();
+
+  QJsonDocument document = QJsonDocument::fromJson(settings.toUtf8());
+  QJsonObject project = document.object();
+  return project;
+}
+
+Database* ConfigManager::getDatabase() const
+{
+  return database_;
+}
+
+Collection* ConfigManager::getCollection() const
+{
+  return collection_;
+}
+
+QString ConfigManager::getName() const
+{
+  return name_;
 }

@@ -32,13 +32,13 @@ class ConfigAppTab : public QObject, private boost::noncopyable
 
     //! Check if current data are valids and it may be saved
     //! This function is called by validateAndSaveChanges to validate display fields
-    virtual bool validate(QString& err) = 0;
+    virtual bool validate() = 0;
 
     //! It saves current data
     //! It tries to save the current data. Return true ou false showing the success of operation
     virtual void save() = 0;
 
-    //! Calcel the editions made at current data
+    //! Cancel the editions made at current data
     virtual void discardChanges(bool restore_data) = 0;
 
     //! It calls the save method inside a try/catch block and check if there are any exception has found
