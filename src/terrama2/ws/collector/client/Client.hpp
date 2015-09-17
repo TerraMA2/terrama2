@@ -20,18 +20,25 @@
  */
 
 /*!
-  \file terrama2/ws/collector/core/Utils.hpp
+  \file terrama2/ws/collector/client/Client.hpp
 
-  \brief TerraMA2 Utils to Web Service.
+  \brief Client header of TerraMA2 Collector Web Service.
 
   \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__
-#define __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_CLIENT_HPP__
+#define __TERRAMA2_WS_COLLECTOR_CLIENT_HPP__
 
+// STL
+#include <string>
+
+// gSOAP
+#include "soapWebProxy.h"
+#include "Web.nsmap"
+
+// TerraMA2
 #include "../../../core/DataProvider.hpp"
-
 
 namespace terrama2
 {
@@ -39,17 +46,30 @@ namespace terrama2
   namespace ws
   {
 
-  namespace collector
+    namespace collector
     {
 
-      namespace core
+      class Client
       {
+        public:
 
-        //DataProvider2Struct();
+          Client(std::string url);
 
-      }
+          ~Client();
+
+          int ping(std::string& answer);
+
+          int addDataProvider(terrama2::core::DataProvider data_provider);
+
+        private:
+
+          WebProxy* wsClient_;
+
+    };
+
     }
   }
+
 }
 
-#endif // __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__
+#endif // __TERRAMA2_WS_COLLECTOR_CLIENT_HPP__

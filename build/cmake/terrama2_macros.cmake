@@ -54,11 +54,7 @@ MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path namespace type include_dirs GSOAP_HDR_FI
     set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x -I${GSOAP_IMPORT_DIR} -I${include_dirs} ${file_path})
     set(ARCHIVE_TYPE Proxy)
   endif()
-message(${GSOAP_SOAPCPP2_EXECUTABLE})
-message(${GSOAP_IMPORT_DIR})
-message(${include_dirs})
-message(${file_path})
-message(${COMMAND_LINE})
+
   make_directory(${CMAKE_CURRENT_BINARY_DIR}/gsoap)
 
   set(${GSOAP_HDR_FILES} ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soap${namespace}${ARCHIVE_TYPE}.h

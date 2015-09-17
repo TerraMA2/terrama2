@@ -38,9 +38,6 @@ struct DataProvider
   uint32_t      status;
 };
 
-//struct DataProviderResponse { DataProvider return_; };
-
-//struct listDataProviderResponse { std::vector<DataProvider> return_ };
 
 struct DataSet
 {
@@ -56,4 +53,4 @@ struct DataSet
   uint32_t      schedule_timeout;
 };
 
-//struct DataSetResponse { DataSet return_; };
+

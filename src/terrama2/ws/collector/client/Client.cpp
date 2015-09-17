@@ -27,5 +27,69 @@
   \author Vinicius Campanha
  */
 
-#include "soapWebProxy.h"
-#include "Web.nsmap"
+// TerraMA2
+#include "Client.hpp"
+#include "../core/Utils.hpp"
+
+terrama2::ws::collector::Client::Client(std::string url)
+{
+  wsClient_ = new WebProxy(url.c_str());
+}
+
+
+terrama2::ws::collector::Client::~Client()
+{
+  wsClient_->destroy();
+  delete wsClient_;
+}
+
+
+int terrama2::ws::collector::Client::ping(std::string& answer)
+{
+  wsClient_->ping(answer);
+  return 0;
+}
+
+
+int terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider data_provider)
+{
+//  wsClient_->addDataProvider();
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const char server[] = "http://localhost:1989";
+
+int main(int argc, char** argv)
+{
+  std::string answer;
+  WebProxy client;
+
+  if(client.ping(answer) != SOAP_OK)
+  {
+    std::string error;
+    client.soap_stream_fault(std::cerr);
+    printf(error.c_str());
+
+    return EXIT_FAILURE;
+  }
+
+  std::cout << answer << std::endl;
+
+  return EXIT_SUCCESS;
+}
