@@ -33,14 +33,22 @@ void ConfigAppTab::validateAndSaveChanges()
   }
 }
 
-bool ConfigAppTab::verifyAndEnableChange(bool restore)
+void ConfigAppTab::askForChangeTab(const int index)
 {
-  return false;
-}
+  // Used here to avoid change tab
+  ui_->mainTabWidget->setCurrentIndex(app_->getCurrentTabIndex());
 
-QString ConfigAppTab::verifyAndEnableChangeMsg()
-{
-  return QString("");
+  QMessageBox::StandardButton reply;
+  reply = QMessageBox::question(app_, tr("There are modifications not saved yet"),
+                                      tr("Would you like to save them?"),
+                                      QMessageBox::Save | QMessageBox::Discard,
+                                      QMessageBox::Save);
+
+  if (reply == QMessageBox::Save)
+  {
+    app_->setCurrentTabIndex(index);
+    ui_->mainTabWidget->setCurrentIndex(index);
+  }
 }
 
 void ConfigAppTab::onSaveRequested()

@@ -62,6 +62,10 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
     //! It retrieves the ui from pimpl_
     Ui::ConfigAppForm* ui() const;
 
+    void setCurrentTabIndex(const int& index);
+
+    int getCurrentTabIndex() const;
+
   private slots:
     void tabChangeRequested(int);
     void disableRefreshAction();

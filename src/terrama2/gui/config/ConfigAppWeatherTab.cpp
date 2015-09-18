@@ -64,7 +64,11 @@ bool ConfigAppWeatherTab::validate()
 
 void ConfigAppWeatherTab::save()
 {
-  throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+  if (!validate())
+  {
+    throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+  }
+  //Apply save process
 }
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)

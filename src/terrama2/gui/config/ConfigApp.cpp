@@ -36,6 +36,7 @@
 
 // TerraMA2 Tab controls
 #include "ConfigAppWeatherTab.hpp"
+#include "ConfigAppAdditionalTab.hpp"
 
 // Qt
 #include <QStringList>
@@ -97,11 +98,13 @@ ConfigApp::ConfigApp(QWidget* parent)
 
 // Init services for each tab
   ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
+  ConfigAppAdditionalTab* additionalTab = new ConfigAppAdditionalTab(this, ui());
 
   tabList_.append(weatherTab);
+  tabList_.append(additionalTab);
 
+// Connect tabs to changing index
   connect(pimpl_->ui_->mainTabWidget, SIGNAL(currentChanged(int)), SLOT(tabChangeRequested(int)));
-  connect(weatherTab, SIGNAL(serverChanged()), this, SLOT(disableRefreshAction()));
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
 }
 
@@ -118,6 +121,16 @@ Ui::ConfigAppForm* ConfigApp::ui() const
   return pimpl_->ui_;
 }
 
+void ConfigApp::setCurrentTabIndex(const int &index)
+{
+  currentTabIndex_ = index;
+}
+
+int ConfigApp::getCurrentTabIndex() const
+{
+  return currentTabIndex_;
+}
+
 void ConfigApp::tabChangeRequested(int index)
 {
   if(index != currentTabIndex_)
@@ -125,11 +138,10 @@ void ConfigApp::tabChangeRequested(int index)
     // Check if the tab may be changed
     ConfigAppTab* tab = tabList_.at(currentTabIndex_);
 
-    if(tab->verifyAndEnableChange(true))
-      currentTabIndex_ = index;
-    else
-      pimpl_->ui_->mainTabWidget->setCurrentIndex(currentTabIndex_);
+    tab->askForChangeTab(index);
   }
+  else
+    return;
 }
 
 void ConfigApp::disableRefreshAction()
@@ -139,7 +151,7 @@ void ConfigApp::disableRefreshAction()
 
 void ConfigApp::openRequested()
 {
-  QString file = QFileDialog::getOpenFileName(this, tr("Choice file"),
+  QString file = QFileDialog::getOpenFileName(this, tr("Choice TerraMA2 file"),
                                              ".", tr("TerraMA2 (*.terrama2)"));
   if (!file.isEmpty())
   {
