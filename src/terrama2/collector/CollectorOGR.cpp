@@ -3,7 +3,7 @@
 #include "Exception.hpp"
 #include "Filter.hpp"
 
-#include "../core/Data.hpp"
+//#include "../core/Data.hpp"
 
 //TerraLib
 #include <terralib/ogr/DataSource.h>
@@ -55,8 +55,9 @@ void terrama2::collector::CollectorOGR::close()
 
 void terrama2::collector::CollectorOGR::getData(const terrama2::collector::DataProcessorPtr dataProcessor)
 {
+/*
   //FIXME: is data implemented?
-  core::DataPtr data = dataProcessor->data();
+  //core::DataPtr data = dataProcessor->data();
   std::string dataMask = data->mask();
 
   std::vector<std::string> names = dataSource_->getDataSetNames();
@@ -65,5 +66,5 @@ void terrama2::collector::CollectorOGR::getData(const terrama2::collector::DataP
   filter->setMask(dataMask);
   names = filter->filterNames(names);
 
-
+*/
 }

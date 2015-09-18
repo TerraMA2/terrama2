@@ -28,7 +28,7 @@
 */
 
 
-#include "../core/TestUtils.hpp"
+//#include "../core/TestUtils.hpp"
 
 //QT
 #include <QtTest>
