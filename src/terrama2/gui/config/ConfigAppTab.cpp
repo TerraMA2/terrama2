@@ -35,6 +35,9 @@ void ConfigAppTab::validateAndSaveChanges()
 
 void ConfigAppTab::askForChangeTab(const int index)
 {
+  if (!dataChanged())
+    return;
+
   // Used here to avoid change tab
   ui_->mainTabWidget->setCurrentIndex(app_->getCurrentTabIndex());
 

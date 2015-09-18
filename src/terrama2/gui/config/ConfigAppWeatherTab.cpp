@@ -5,6 +5,7 @@
 
 // QT
 #include <QMessageBox>
+#include <QLineEdit>
 
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
@@ -59,7 +60,13 @@ bool ConfigAppWeatherTab::dataChanged()
 
 bool ConfigAppWeatherTab::validate()
 {
-  return false;
+  // HardCode
+  for(QLineEdit* widget: ui_->mainTabWidget->findChildren<QLineEdit*>())
+  {
+    if (widget->text() == "")
+      return false;
+  }
+  return true;
 }
 
 void ConfigAppWeatherTab::save()
@@ -69,6 +76,7 @@ void ConfigAppWeatherTab::save()
     throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
   }
   //Apply save process
+  discardChanges(false);
 }
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)
@@ -80,11 +88,23 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
 
   ui_->ServerPage->hide();
   ui_->ServerGroupPage->show();
+  changed_ = false;
 
 // Set visible false on server buttons
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
+// Clear all inputs
+  const auto& tab = ui_->mainTabWidget;
+
+  // Clear QLineEdits
+  for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
+  {
+    widget->clear();
+  }
+
+  //Clear TextEdit (server description)
+  ui_->serverDescription->clear();
 }
 
 void ConfigAppWeatherTab::onEnteredWeatherTab()
