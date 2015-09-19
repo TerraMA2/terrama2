@@ -32,10 +32,16 @@
 
 // TerraMA2
 #include <QString>
-#include "../core/ConfigManager.hpp"
 
 // Boost
 #include <boost/noncopyable.hpp>
+
+// QT
+#include <QMainWindow>
+
+
+// Forward declaration
+class ConfigManager;
 
 class ServiceHandler
 {

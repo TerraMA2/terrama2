@@ -34,6 +34,11 @@
 // Boost
 #include <boost/filesystem.hpp>
 
+// QT
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFile>
+
 std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 {
 // 1st: look in the neighborhood of the executable
@@ -222,4 +227,17 @@ bool terrama2::core::DataSetItemStatusToBool(terrama2::core::DataSetItem::Status
     default:
       return false;
   }
+}
+
+QJsonObject terrama2::core::OpenFile(const std::string &filepath)
+{
+  QString settings;
+  QFile file;
+  file.setFileName(filepath.c_str());
+  file.open(QIODevice::ReadOnly | QIODevice::Text);
+  settings = file.readAll();
+  file.close();
+
+  QJsonDocument document = QJsonDocument::fromJson(settings.toUtf8());
+  return document.object();
 }

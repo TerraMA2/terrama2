@@ -28,6 +28,7 @@
 */
 
 #include "ApplicationController.hpp"
+#include "Utils.hpp"
 
 //STL
 #include <map>
@@ -35,8 +36,6 @@
 #include <string>
 
 //Qt
-#include <QFile>
-#include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
 
@@ -49,15 +48,7 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
 {
   configFileName_ = configFileName;
 
-  QString settings;
-  QFile file;
-  file.setFileName(configFileName.c_str());
-  file.open(QIODevice::ReadOnly | QIODevice::Text);
-  settings = file.readAll();
-  file.close();
-
-  QJsonDocument document = QJsonDocument::fromJson(settings.toUtf8());
-  QJsonObject project = document.object();
+  QJsonObject project = terrama2::core::OpenFile(configFileName);
 
   if(project.contains("database"))
   {
