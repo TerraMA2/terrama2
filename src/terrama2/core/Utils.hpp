@@ -32,9 +32,12 @@
 
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
+#include "DataSetItem.hpp"
 
 // STL
 #include <string>
+
+class QJsonObject;
 
 namespace terrama2
 {
@@ -57,7 +60,7 @@ namespace terrama2
 
       \return Boolean that determine if the data provider is active.
      */
-    bool DataProviderStatusToBool(const terrama2::core::DataProvider::Status& status);
+    bool DataProviderStatusToBool(terrama2::core::DataProvider::Status status);
 
     /*!
       \brief Returns a enum with the status of the server based on the given parameter.
@@ -66,16 +69,16 @@ namespace terrama2
 
       \return Enum with the status of the data provider.
      */
-   terrama2::core::DataProvider::Status BoolToDataProviderStatus(const bool active);
+   terrama2::core::DataProvider::Status BoolToDataProviderStatus(bool active);
 
    /*!
      \brief Returns a enum with the kind of the server based on the given parameter.
 
-     \param kind Kind that determine if the type of the data provider.
+     \param kind Kind that determine the type of the data provider.
 
      \return Enum with the type of the data provider.
     */
-   terrama2::core::DataProvider::Kind IntToDataProviderKind(const int kind);
+   terrama2::core::DataProvider::Kind IntToDataProviderKind(uint64_t kind);
 
    /*!
      \brief Function to convert a boolean to string format.
@@ -84,7 +87,7 @@ namespace terrama2
 
      \return string String representation of the given boolean.
     */
-   std::string BoolToString(const bool b);
+   std::string BoolToString(bool b);
 
    /*!
      \brief Returns a boolean with the status of the dataset based on the given status.
@@ -93,7 +96,7 @@ namespace terrama2
 
      \return Boolean that determine if the dataset is active.
     */
-   bool DataSetStatusToBool(const terrama2::core::DataSet::Status& status);
+   bool DataSetStatusToBool(terrama2::core::DataSet::Status status);
 
    /*!
     \brief Returns a enum with the status of the dataset based on the given parameter.
@@ -102,7 +105,52 @@ namespace terrama2
 
     \return Enum with the status of the dataset.
     */
-   terrama2::core::DataSet::Status BoolToDataSetStatus(const bool active);
+   terrama2::core::DataSet::Status BoolToDataSetStatus(bool active);
+
+   /*!
+     \brief Returns a enum with the kind of the dataset based on the given parameter.
+
+     \param kind Kind that determine the type of the dataset.
+
+     \return Enum with the type of the dataset.
+    */
+   terrama2::core::DataSet::Kind IntToDataSetKind(uint64_t kind);
+
+   /*!
+     \brief Returns a boolean with the status of the dataset item based on the given status.
+
+     \param status Enum with the status of the dataset item.
+
+     \return Boolean that determine if the dataset item is active.
+    */
+   bool DataSetItemStatusToBool(terrama2::core::DataSetItem::Status status);
+
+   /*!
+    \brief Returns a enum with the status of the dataset item based on the given parameter.
+
+    \param active Boolean that determine if the dataset item is active.
+
+    \return Enum with the status of the dataset item.
+    */
+   terrama2::core::DataSetItem::Status BoolToDataSetItemStatus(bool active);
+
+   /*!
+     \brief Returns a enum with the kind of the dataset item based on the given parameter.
+
+     \param kind Kind that determine the type of the dataset item.
+
+     \return Enum with the type of the dataset item.
+    */
+   terrama2::core::DataSetItem::Kind IntToDataSetItemKind(uint64_t kind);
+
+   /*!
+     \brief Returns a QJsonObject based on the given parameter
+
+     \param filepath const std::string that represents absolute file path.
+
+     \return QJsonObject with TerraMA2 JSON configuration
+   */
+   QJsonObject OpenFile(const std::string& filepath);
 
   } // end namespace core
 }   // end namespace terrama2

@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/Collector.cpp
+  \file terrama2/collector/Collector.cpp
 
   \brief Aquire data from server.
 
@@ -29,6 +29,7 @@
 
 
 #include "Collector.hpp"
+#include "Exception.hpp"
 #include "../core/DataSet.hpp"
 
 //Boost
@@ -47,6 +48,16 @@ terrama2::collector::Collector::~Collector()
   //If there is a thread running, join.
   if(collectingThread_.joinable())
     collectingThread_.join();
+}
+
+terrama2::core::DataProvider::Kind terrama2::collector::Collector::kind() const
+{
+  return dataProvider_->kind();
+}
+
+terrama2::core::DataProviderPtr terrama2::collector::Collector::dataProvider() const
+{
+  return dataProvider_;
 }
 
 bool terrama2::collector::Collector::isCollecting() const
@@ -78,22 +89,18 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
 void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 {
   if(datasetTimer->isValid())
-  {
-    //TODO: Collector::collect: throws dataset is invalid
-  }
+    throw InvalidDataSetException() << terrama2::ErrorDescription(
+                                         tr("Trying to collect an invalid dataset."));
 
   if(datasetTimer->dataSet()->status() != terrama2::core::DataSet::ACTIVE)
-  {
-    //TODO: Collector::collect: throws dataset not active
-  }
+    throw InactiveDataSetException() << terrama2::ErrorDescription(
+                                         tr("Trying to collect an inactive dataset."));
 
   //If can get lock creates a thread the collects the dataset
   if(!mutex_.try_lock())
-  {
-    //throws an exception: unable to get lock
+    throw UnabletoGetLockException() << terrama2::ErrorDescription(
+                                         tr("Unable to get lock."));
 
-    //TODO: Collector::collect: Exception if cant get mutex.lock
-  }
 
   //***************************************************
   //nothing wrong, prepare and collect

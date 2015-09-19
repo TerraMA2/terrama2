@@ -21,8 +21,7 @@
 #
 #  Description: CMake script for TerraMA2's unit test - collector server module.
 #
-#  Author: Gilberto Ribeiro de Queiroz
-#          Paulo R. M. Oliveira
+#  Author: Vinicius Camapanha
 #
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/server/*.cpp)
@@ -47,8 +46,6 @@ target_link_libraries(terrama2_unittest_ws_collector_server terrama2_mod_ws_coll
                                                           terrama2_mod_ws_collector_server
                                                           terralib_mod_plugin
                                                           terralib_mod_common)
-
-add_test(NAME TestCollectorService COMMAND terrama2_unittest_ws_collector_server)
 
 qt5_use_modules(terrama2_unittest_ws_collector_server Test)
 

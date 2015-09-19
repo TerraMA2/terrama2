@@ -31,23 +31,18 @@
 #ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__
 #define __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__
 
+// TerraMA2
+#include "ui_ConfigAppForm.h"
+#include "ServiceHandler.hpp"
+
 // Boost
 #include <boost/noncopyable.hpp>
 
 // Qt
 #include <QMainWindow>
 
-/*!
-  \class ConfigApp
- 
-  \brief Main dialog for TerraMA2 Configuration module.
- */
 
- // Foward definition
- namespace Ui
- {
-   class ConfigAppForm;
- }
+class ConfigAppTab;
 
 class ConfigApp : public QMainWindow, private  boost::noncopyable
 {
@@ -64,15 +59,28 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
     //! Destructor.
     ~ConfigApp();
 
+    //! It retrieves the ui from pimpl_
+    Ui::ConfigAppForm* ui() const;
+
+    void setCurrentTabIndex(const int& index);
+
+    int getCurrentTabIndex() const;
+
   private slots:
-    //! Change context to insert a new when the user click on insertServerBtn
-    void onInsertServerClick();
-    void onCancelClick();
+    void tabChangeRequested(int);
+    void disableRefreshAction();
+    void openRequested();
   
   private:
     struct Impl;
 
     Impl* pimpl_;
+
+    int currentTabIndex_;
+
+    ServiceHandler* services_;
+
+    QList<ConfigAppTab*> tabList_; //< List of TerraMA2 Configuration Tabs
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

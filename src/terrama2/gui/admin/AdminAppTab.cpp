@@ -20,20 +20,28 @@
 */
 
 /*!
-  \file terrama2/ws/collector/appserver/WebService.cpp
+  \file terrama2/gui/admin/AdminAppTab.cpp
 
-  \brief TerraMA2 configuration options.
+  \brief 
 
-  \author Vinicius Campanha
- */
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  
+*/
 
-// TerraMA
-#include "soapcollectorService.h"
-#include "collector.nsmap"
+// TerraMA2
+#include "AdminAppTab.hpp"
+#include "ui_AdminAppForm.h"
+#include "Exception.hpp"
 
-
-int collectorService::ping(std::string &answer)
+AdminAppTab::AdminAppTab(AdminApp* app, Ui::AdminAppForm* ui)
+ :app_(app), ui_(ui)
 {
-    return SOAP_OK;
+
+} 
+
+AdminAppTab::~AdminAppTab()
+{
+  
 }
 

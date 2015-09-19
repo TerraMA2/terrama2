@@ -30,137 +30,233 @@
   \author Vinicius Campanha
 */
 
+// TerraMA2
 #include "DataManager.hpp"
 #include "ApplicationController.hpp"
 #include "DataProvider.hpp"
 #include "DataProviderDAO.hpp"
 #include "DataSet.hpp"
 #include "DataSetDAO.hpp"
+#include "Exception.hpp"
 
 // STL
-#include <cstdint>
+#include <mutex>
+
+// TerraLib
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 
-terrama2::core::DataManager::DataManager()
+struct terrama2::core::DataManager::Impl
 {
-
-}
-
-terrama2::core::DataManager::~DataManager()
-{
-
-}
-
-terrama2::core::DataManager::DataManager(const terrama2::core::DataManager & rhs)
-{
-  //PAULO-TODO: implement
-}
-
-terrama2::core::DataManager& terrama2::core::DataManager::operator=(const terrama2::core::DataManager & rhs)
-{
-  //PAULO-TODO: implement
-}
+  std::map<uint64_t, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
+  std::map<uint64_t, DataSetPtr> datasets_;       //!< A map from data-set-id to dataset.
+  bool dataLoaded_;                               //!< A boolean that defines if the data has already been loaded.
+  std::mutex mutex_;                              //!< A mutex to syncronize all operations.
+};
 
 void terrama2::core::DataManager::load()
 {
-  //PAULO-TODO: implement
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  // If the data has already been loaded there is nothing to be done.
+  if(pimpl_->dataLoaded_)
+  {
+    return;
+  }
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+  // Loads all providers and fills the map
+  std::vector<DataProviderPtr> vecProviders = DataProviderDAO::list(*transactor.get());
+
+  foreach (auto provider, vecProviders)
+  {
+    pimpl_->providers_[provider->id()] = provider;
+  }
+
+  // Loads all datasets and fills the map
+  std::vector<terrama2::core::DataSetPtr> vecDataSets = DataSetDAO::list(*transactor.get());
+
+  foreach (auto dataSet, vecDataSets)
+  {
+    pimpl_->datasets_[dataSet->id()] = dataSet;
+  }
+
+  pimpl_->dataLoaded_ = true;
+
+  // Emits a signal in order to notify the application that the data manager has been loaded.
+  emit dataManagerLoaded();
 }
 
 void terrama2::core::DataManager::unload()
 {
-  //PAULO-TODO: implement
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  // If the data has already been loaded there is nothing to be done.
+  if(pimpl_->dataLoaded_)
+  {
+    return;
+  }
+
+  // Clears all data
+  pimpl_->providers_.clear();
+  pimpl_->datasets_.clear();
+
+  pimpl_->dataLoaded_ = false;
+
+  // Emits a signal in order to notify the application that the data manager has been unloaded.
+  emit dataManagerUnloaded();
+
 }
 
 void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr dataProvider)
 {
-  try
-  {
-    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
-    dataProviderDAO.save(dataProvider);
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
-  }
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+  transactor->begin();
+
+  DataProviderDAO::save(dataProvider, *transactor.get());
+
+  transactor->commit();
+
+  pimpl_->providers_[dataProvider->id()] = dataProvider;
+
+  emit dataProviderAdded(dataProvider);
+
 }
 
 void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
 {
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
-  try
-  {
-    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
-    datasetDAO.save(dataset);
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
-  }
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+  transactor->begin();
+
+  DataSetDAO::save(dataset, *transactor.get());
+
+  transactor->commit();
+
+  pimpl_->datasets_[dataset->id()] = dataset;
+
+  emit dataSetAdded(dataset);
 }
 
 void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataProvider)
 {
-  try
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+  transactor->begin();
+
+  DataProviderDAO::update(dataProvider, *transactor.get());
+
+  transactor->commit();
+
+  foreach (auto dataSet, dataProvider->dataSets())
   {
-    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
-    dataProviderDAO.update(dataProvider);
+    pimpl_->datasets_[dataSet->id()] = dataSet;
   }
-  catch(...)
-  {
-    //TODO: Execption handling
-  }
+
+  pimpl_->providers_[dataProvider->id()] = dataProvider;
+
+  emit dataProviderUpdated(dataProvider);
 }
 
 void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
 {
-  try
-  {
-    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
-    datasetDAO.update(dataset);
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
-  }
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+  transactor->begin();
+
+  DataSetDAO::update(dataset, *transactor.get());
+
+  transactor->commit();
+
+  pimpl_->datasets_[dataset->id()] = dataset;
+
+  emit dataSetUpdated(dataset);
 }
 
 void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
 {
-  try
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  DataProviderPtr dataProvider = pimpl_->providers_[id];
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+  transactor->begin();
+
+  DataProviderDAO::remove(dataProvider, *transactor.get());
+
+  transactor->commit();
+
+  // Removes all related datasets from the map
+  foreach (auto dataSet, dataProvider->dataSets())
   {
-    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
-    dataProviderDAO.remove(id);
+    auto it = pimpl_->datasets_.find(id);
+    if(it !=  pimpl_->datasets_.end())
+    {
+      pimpl_->datasets_.erase(it);
+    }
   }
-  catch(...)
+
+  // Remove the data provider from the map
+  auto it = pimpl_->providers_.find(id);
+  if(it != pimpl_->providers_.end())
   {
-    //TODO: Execption handling
+    pimpl_->providers_.erase(it);
   }
+
+  emit dataProviderRemoved(dataProvider);
+
 }
 
 void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
 {
-  try
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+  transactor->begin();
+
+  DataSetDAO::remove(id, *transactor.get());
+
+  transactor->commit();
+
+  // Removes dataset from the map
+  auto it = pimpl_->datasets_.find(id);
+  if(it !=  pimpl_->datasets_.end())
   {
-    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
-    datasetDAO.remove(id);
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
+    pimpl_->datasets_.erase(it);
   }
 }
 
 terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const uint64_t& id) const
 {
-  terrama2::core::DataProviderPtr dataProvider;
-  try
+  DataProviderPtr dataProvider;
+
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  auto it = pimpl_->providers_.find(id);
+  if(it !=  pimpl_->providers_.end())
   {
-    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
-    dataProvider = dataProviderDAO.find(id);
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
+    dataProvider = it->second;
   }
 
   return dataProvider;
@@ -168,56 +264,57 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
 
 terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const uint64_t& id) const
 {
-  terrama2::core::DataSetPtr dataset;
-  try
+  DataSetPtr dataset;
+
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  auto it = pimpl_->datasets_.find(id);
+  if(it !=  pimpl_->datasets_.end())
   {
-    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
-    dataset = datasetDAO.find(id);
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
+    dataset = it->second;
   }
 
   return dataset;
 }
 
-
-std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataManager::listDataProvider() const
+std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataManager::providers() const
 {
   std::vector<terrama2::core::DataProviderPtr> vecProviders;
-  try
+
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  for (auto it = pimpl_->providers_.begin(); it != pimpl_->providers_.end(); ++it)
   {
-    DataProviderDAO dataProviderDAO(ApplicationController::getInstance().getDataSource());
-    vecProviders = dataProviderDAO.list();
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
+    vecProviders.push_back(it->second);
   }
 
   return vecProviders;
 }
 
-std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::listDataSet() const
+std::vector<terrama2::core::DataSetPtr> terrama2::core::DataManager::dataSets() const
 {
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
   std::vector<terrama2::core::DataSetPtr> vecDataSets;
-  try
+
+  for (auto it = pimpl_->datasets_.begin(); it != pimpl_->datasets_.end(); ++it)
   {
-    DataSetDAO datasetDAO(ApplicationController::getInstance().getDataSource());
-    vecDataSets = datasetDAO.list();
-  }
-  catch(...)
-  {
-    //TODO: Execption handling
+    vecDataSets.push_back(it->second);
   }
 
   return vecDataSets;
 }
 
-terrama2::core::DataManager &terrama2::core::DataManager::instance()
+terrama2::core::DataManager::DataManager()
 {
-  static DataManager dataManagerInstance;  // The singleton instance.
+  pimpl_ = new Impl();
+}
 
-  return dataManagerInstance;
+terrama2::core::DataManager::~DataManager()
+{
+  delete pimpl_;
+  pimpl_ = nullptr;
 }

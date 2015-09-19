@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/CollectorService.hpp
+  \file terrama2/collector/CollectorService.hpp
 
   \brief Manages the collection of data in the appropriate time.
 
   \author Jano Simas, Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
 
 
 #include "../core/DataProvider.hpp"
@@ -78,16 +78,16 @@ namespace terrama2
             * \brief Constructor
             */
         CollectorService(QObject* parent = nullptr);
-        ~CollectorService(){}
+        ~CollectorService();
 
         /*!
-             * \brief Contains an infinite loop that will keep the service collecting data.
-             * For each provider type verifies if the first provider in the queue is acquiring new data,
-             * in case it's collecting moves to next type of provider, when it's done remove it from the queue,
-             * in case it's not collecting, starts the collection calling the collect method.
-             * It allows multiples providers to collect at the same time but only one provider of each type.
-             */
-        void start();
+         * \brief Creates a processloop thread and wait for signals.
+         *
+         * Starts an QCoreApplication::exec(), won't exit! //TODO: should CollectorService.exec exit?
+         *
+         * \exception terrama2::collector::ServiceAlreadyRunnningException Raise when the service is already runnning.
+         */
+        void exec();
 
         /*!
              * \brief Creates an instace of a collector of appropriate type for the dataProvider.
@@ -107,11 +107,6 @@ namespace terrama2
       public slots:
 
         /*!
-             * \brief Slot to stop the collector service.
-             */
-        void stop();
-
-        /*!
              * \brief Slot to be called when a DataSetTimer times out.
              */
         void addToQueueSlot(const uint64_t datasetId);
@@ -123,13 +118,26 @@ namespace terrama2
              */
         void assignCollector(CollectorPtr firstCollectorInQueue);
 
+        /*!
+             * \brief Contains an infinite loop that will keep the service collecting data.
+             *
+             * For each provider type verifies if the first provider in the queue is acquiring new data,
+             * in case it's collecting moves to next type of provider, when it's done remove it from the queue,
+             * in case it's not collecting, starts the collection calling the collect method.
+             * It allows multiples providers to collect at the same time but only one provider of each type.
+             */
+        void processingLoop();
+
         bool stop_;
         QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
         QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
 
         QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
+
+        std::mutex  mutex_;//!< mutex to thread safety
+        std::thread loopThread_;//!< Thread that holds the loop of processing queued dataset.
     };
   }
 }
 
-#endif //__TERRAMA2_WS_COLLECTOR_SERVER_COLLECTORSERVICE_HPP__
+#endif //__TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__

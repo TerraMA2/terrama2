@@ -34,9 +34,15 @@
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
 
+// TerraMA2 Tab controls
+#include "ConfigAppWeatherTab.hpp"
+#include "ConfigAppAdditionalTab.hpp"
+
 // Qt
 #include <QStringList>
 #include <QTranslator>
+#include <QFileDialog>
+#include <QMessageBox>
 
 
 struct ConfigApp::Impl
@@ -56,7 +62,7 @@ struct ConfigApp::Impl
 
 ConfigApp::ConfigApp(QWidget* parent)
   : QMainWindow(parent),
-    pimpl_(new ConfigApp::Impl)
+    pimpl_(new ConfigApp::Impl), currentTabIndex_(0)
 {
 // Find TerraMA2 icon theme library
   std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
@@ -87,23 +93,68 @@ ConfigApp::ConfigApp(QWidget* parent)
 
   pimpl_->ui_->setupUi(this);
 
-  QObject::connect(pimpl_->ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onInsertServerClick()));
-  QObject::connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), this, SLOT(onCancelClick()));
+// Initialize services
+  services_ = new ServiceHandler(this);
+
+// Init services for each tab
+  ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
+  ConfigAppAdditionalTab* additionalTab = new ConfigAppAdditionalTab(this, ui());
+
+  tabList_.append(weatherTab);
+  tabList_.append(additionalTab);
+
+// Connect tabs to changing index
+  connect(pimpl_->ui_->mainTabWidget, SIGNAL(currentChanged(int)), SLOT(tabChangeRequested(int)));
+  connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
 }
 
 ConfigApp::~ConfigApp()
 {
+  for (auto tab: tabList_)
+    delete tab;
+  delete services_;
   delete pimpl_;
 }
 
-void ConfigApp::onInsertServerClick()
+Ui::ConfigAppForm* ConfigApp::ui() const
 {
-  pimpl_->ui_->ServerGroupPage->hide();
-  pimpl_->ui_->ServerPage->show();
+  return pimpl_->ui_;
 }
 
-void ConfigApp::onCancelClick()
+void ConfigApp::setCurrentTabIndex(const int &index)
 {
-  pimpl_->ui_->ServerPage->hide();
-  pimpl_->ui_->ServerGroupPage->show();
+  currentTabIndex_ = index;
+}
+
+int ConfigApp::getCurrentTabIndex() const
+{
+  return currentTabIndex_;
+}
+
+void ConfigApp::tabChangeRequested(int index)
+{
+  if(index != currentTabIndex_)
+  {
+    // Check if the tab may be changed
+    ConfigAppTab* tab = tabList_.at(currentTabIndex_);
+
+    tab->askForChangeTab(index);
+  }
+  else
+    return;
+}
+
+void ConfigApp::disableRefreshAction()
+{
+  pimpl_->ui_->refreshAct->setEnabled(false);
+}
+
+void ConfigApp::openRequested()
+{
+  QString file = QFileDialog::getOpenFileName(this, tr("Choice TerraMA2 file"),
+                                             ".", tr("TerraMA2 (*.terrama2)"));
+  if (!file.isEmpty())
+  {
+    services_->loadConfiguration(file);
+  }
 }

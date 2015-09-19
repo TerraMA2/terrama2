@@ -1,0 +1,24 @@
+{
+  "is_study": "false",
+  "name": "Monitoramento de Queimadas e Incêndios",
+  "version": "4.0.0-alpha1",
+  "database": {
+    "name": "terrama2_test",
+    "driver": "postgis",
+    "host": "localhost",
+    "port": "5432",
+    "user": "terrama2_tester",
+    "password": "terrama2_tester"
+  },
+  "collector_web_service": {
+    "data_path": "",
+    "log_file": "collector.log",
+    "connection_timeout": "180",
+    "webservice": {
+      "address": "eymar-dell",
+      "command": "coleta.exe",
+      "parameters": "%c",
+      "port": "32100"
+    }
+  }
+}

@@ -33,9 +33,11 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
+// TerraLib
+#include <terralib/common/Singleton.h>
+
 // STL
 #include <memory>
-#include <cstdint>
 
 // QT
 #include <QObject>
@@ -44,6 +46,7 @@ namespace terrama2
 {
   namespace core
   {
+// Forward declaration
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
@@ -61,24 +64,9 @@ namespace terrama2
       It will load the metadata from a database and will keep them
       synchronized.
      */
-    class DataManager : public QObject
+    class DataManager : public QObject, public te::common::Singleton<DataManager>
     {
       Q_OBJECT
-
-      private:
-
-        //! Just acessible through instance method.
-        DataManager();
-
-        //! Destructor.
-        ~DataManager();
-
-        //! No copy allowed.
-        DataManager(const DataManager&);
-
-        //! No copy allowed.
-        DataManager& operator=(const DataManager&);
-
 
       public:
 
@@ -113,80 +101,179 @@ namespace terrama2
 
           Emits dataProviderAdded() signal if the data provider is saved and registered in the manager.
 
+          It will also add the datasets.
+
           \pre The provider must not have an ID.
           \pre A provider with the same name must not be already in the manager.
+          \pre The datasets must not have an ID.
 
           \pos The informed data provider will have a valid ID.
+          \pos The dataset within this provider will have a valid ID.
 
-          \exception
+          \exception InvalidDataProviderIdError
 
           \note Thread-safe.
          */
         void add(DataProviderPtr provider);
 
         /*!
+          \brief Add the dataset to the database and register it in the manager.
+
+          Emits dataSetAdded() signal if the dataset is saved and registered in the manager.
+
+          \pre The dataset must not have an ID.
+          \pre A provider with the same name must not be already in the manager.
+
+          \pos The informed dataset will have a valid ID.
+
+          \param dataset Dataset to add.
+
+          \exception InvalidDataSetIdError
+
           \note Thread-safe.
          */
         void add(DataSetPtr dataset);
 
         /*!
+          \brief Update a given data provider in the database.
+
+          Emits dataProviderUpdated() signal if the data provider is updated successfully.
+
+          \pre The data provider must have an valid ID.
+
+          \param dataProvider Data provider to update.
+
+          \exception InvalidDataProviderIdError
+
           \note Thread-safe.
          */
         void update(DataProviderPtr dataProvider);
 
         /*!
+          \brief Update a given dataset in the database.
+
+          Emits dataSetUpdated() signal if the dataset is updated successfully.
+
+          It will not update the datasets.
+
+          \pre The dataset must have an valid ID.
+
+          \param dataset Dataset to update.
+
+          \exception InvalidDataSetIdError
+
           \note Thread-safe.
          */
         void update(DataSetPtr dataset);
 
         /*!
+          \brief Removes a given data provider.
+
+          \pre The data provider must have a valid ID.
+
+          Emits dataProviderRemoved() signal if the data provider is removed successfully.
+
+          It will remove all datasets that belong to this data provider.
+          In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
+
+          \exception InvalidDataProviderIdError, DataSetInUseError
+
+          \param id ID of the data provider to remove.
+
           \note Thread-safe.
          */
+
         void removeDataProvider(const uint64_t& id);
 
         /*!
+          \brief Removes the dataset with the given id.
+
+          \pre The dataset must have a valid ID.
+
+          Emits dataSetRemoved() signal if the dataset is removed successfully.
+
+          In case there is an analysis configured to use this dataset, the dataset will not be removed.
+
+          \param id ID of the dataset to remove.
+
+          \exception InvalidDataSetIdError, DataSetInUseError
+
           \note Thread-safe.
          */
         void removeDataSet(const uint64_t& id);
 
         /*!
+          \brief Retrieves the data provider with the given id.
+
+          \exception InvalidDataProviderIdError
+
+          In case there is no data provider in the database with the given id it will return an empty smart pointer.
+
+          \param id The data provider identifier.
+
+          \return DataProviderPtr A smart pointer to the data provider
+
           \note Thread-safe.
          */
         DataProviderPtr findDataProvider(const uint64_t& id) const;
 
         /*!
+          \brief Search for a dataset with the given id
+          In case none is found it will return an empty smart pointer.
+
+          \param id Identifier of the dataset.
+          \return A smart pointer to the dataset.
+
+          \exception InvalidDataSetIdError
+
           \note Thread-safe.
          */
         DataSetPtr findDataSet(const uint64_t& id) const;
 
-        static DataManager& instance();
+        /*!
+          \brief Retrieves all data provider.
 
-        std::vector<terrama2::core::DataProviderPtr> listDataProvider() const;
+          In case there is no data provider in the database it will return an empty vector.
 
-        std::vector<terrama2::core::DataSetPtr> listDataSet() const;
+          \return std::vector<DataProviderPtr> A list with all data providers.
 
-    public slots:
+          \note Thread-safe.
+         */
+        std::vector<terrama2::core::DataProviderPtr> providers() const;
+
+        /*!
+          \brief Retrieve all datasets from the database.
+          In case none is found it will return an empty vector.
+
+          \return Vector with all datasets.
+
+          \note Thread-safe.
+         */
+        std::vector<terrama2::core::DataSetPtr> dataSets() const;
 
       signals:
 
         void dataManagerLoaded();
+        void dataManagerUnloaded();
 
         void dataProviderAdded(DataProviderPtr);
         void dataProviderRemoved(DataProviderPtr);
         void dataProviderUpdated(DataProviderPtr);
-        //void dataProviderChanged(DataProviderPtr); // TODO: Analyze if it is necessary
 
         void dataSetAdded(DataSetPtr);
         void dataSetRemoved(DataSetPtr);
         void dataSetUpdated(DataSetPtr);
-        //void dataSetChanged(DataSetPtr); // TODO: Analyze if it is necessary
 
 
-      private:
+      protected:
+        DataManager();
+        ~DataManager();
 
         struct Impl;
 
         Impl* pimpl_;
+
+      friend class te::common::Singleton<DataManager>;
     };
 
   } // end namespace core

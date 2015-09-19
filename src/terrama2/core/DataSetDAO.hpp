@@ -30,41 +30,158 @@
 #ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
 #define __TERRAMA2_CORE_DATASETDAO_HPP__
 
+// TerraMA2
+#include "DataSet.hpp"
+
 // STL
 #include <vector>
 #include <memory>
 
-// terralib
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-
+namespace te
+{
+  namespace da
+  {
+    class DataSource;
+    class DataSourceTransactor;
+  }
+}
 
 namespace terrama2
 {
   namespace core
   {
-
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
     class DataSetDAO
     {
-    public:
-      DataSetDAO(std::shared_ptr<te::da::DataSource> dataSource);
-      virtual ~DataSetDAO();
+      public:
 
-      bool save(DataSetPtr dataset);
-      bool update(DataSetPtr dataset);
-      bool remove(const int& id);
-      DataSetPtr find(const int& id) const;
-      std::vector<DataSetPtr> list() const;
+        /*!
+          \brief Persists a given dataset in the database, the generated id will be set in the dataset.
+          In case the data provider identifier is 0, it will also save the data provider.         *
 
-    protected:
-      std::shared_ptr<te::da::DataSource> dataSource_;
+          \param dataset Dataset to save.
+          \param transactor Data source transactor.
 
+          \exception InvalidDataSetIdError
+         */
+        static void save(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Update a given dataset in the database.
+          The identifier of the dataset must be valid.
+
+          \param dataset Dataset to update.
+          \param transactor Data source transactor.
+
+          \exception InvalidDataSetIdError
+         */
+        static void update(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Removes the dataset with the given id.
+          The identifier of the dataset must be valid.
+          In case there is an analysis configured to use this dataset, the dataset will not be removed.
+
+          \param id Identifier of the dataset.
+          \param transactor Data source transactor.
+
+          \exception InvalidDataSetIdError, DataSetInUseError
+         */
+        static void remove(uint64_t id, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Search for a dataset with the given id
+          In case none is found it will return an empty smart pointer.
+
+          \param id Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return A smart pointer to the dataset.
+
+          \exception InvalidDataSetIdError
+         */
+        static DataSetPtr find(uint64_t id, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieve all datasets from the database.
+          In case none is found it will return an empty vector.
+
+          \param transactor Data source transactor.
+          \return Vector with all datasets.
+         */
+        static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);
+
+
+
+      private:
+
+        /*!
+          \brief Retrieve the list of collect rules of a given dataset.
+
+          \param dataSetId Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return The list of collect rules.
+         */
+        static std::vector<terrama2::core::DataSet::CollectRule> getCollectRules(uint64_t dataSetId, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the collect rules of a given dataset.
+
+           \param dataSet Dataset with the collect rules.
+           \param transactor Data source transactor.
+         */
+        static void saveCollectRules(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieve a map with the metadata for a given dataset.
+
+          In case there is no metadata, it will return an empty map.
+
+          \param dataSetId Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return The map with the dataset metadata.
+         */
+        static std::map<std::string, std::string> getMetadata(uint64_t dataSetId, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the collect rules of a given dataset.
+           \param dataSet Dataset with the metadata.
+           \param transactor Data source transactor.
+         */
+        static void saveMetadata(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieve a vector of dataset item from a given dataset ID.
+
+          In case there is no dataset item, it will return an empty vector.
+
+          \param dataSetId Identifier of the dataset.
+          \param transactor Data source transactor.
+          \return The vector of data.
+         */
+        static std::vector<terrama2::core::DataSetItemPtr> getDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the list of dataset item from a given dataset.
+           \param dataSetId Identifier of the dataset.
+           \param dataList List with the data to persist.
+           \param transactor Data source transactor.
+         */
+        static void saveDataSetItemList(const int64_t dataSetId, const std::vector<DataSetItemPtr>& dataList, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Updates the list of dataset item from a given dataset.
+           \param dataSet The dataset that to update.
+           \param transactor Data source transactor.
+         */
+        static void updateDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        //! Not instantiable.
+        DataSetDAO();
+
+        //! Not instantiable.
+        ~DataSetDAO();
     };
 
-  } // core
-} // terrama2
+  } // end namespace core
+}   // end namespace terrama2
 
 #endif // __TERRAMA2_CORE_DATASETDAO_HPP__

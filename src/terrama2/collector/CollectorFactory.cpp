@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/collector/server/CollectorFactory.cpp
+  \file terrama2/collector/CollectorFactory.cpp
 
   \brief Instantiate collectors for DataProviders.
 
@@ -29,6 +29,7 @@
 
 
 #include "CollectorFactory.hpp"
+#include "Exception.hpp"
 
 terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
 
@@ -49,6 +50,9 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getColl
   if(!collectorMap_.contains(dataProvider->id()))
   {
     //... instatiate a new collector
+    //TODO: Throws if fail?
+
+    //TODO: Throws UnknownDataProviderKindException
   }
 
   return collectorMap_.value(dataProvider->id());

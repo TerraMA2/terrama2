@@ -31,6 +31,13 @@
 #ifndef __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
 #define __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
 
+// TerraMA2
+#include "ui_AdminAppForm.h";
+#include "../core/ConfigManager.hpp"
+
+// Boost
+#include <boost/noncopyable.hpp>
+
 // Qt
 #include <QMainWindow>
 
@@ -39,27 +46,31 @@
  
   \brief Main dialog for TerraMA2 Administration module.
  */
-class AdminApp : public QMainWindow
+
+class AdminApp : public QMainWindow, private boost::noncopyable
 {
+  Q_OBJECT
+
   public:
-  
-    //! Default constructor.
+
+//! Default constructor.
     AdminApp(QWidget* parent = 0);
 
-    //! Destructor.
+//! Destructor.
     ~AdminApp();
 
-  private:
-  
-    //! No copy allowed.
-    AdminApp(const AdminApp&);
-  
-    //! No copy allowed.
-    AdminApp& operator=(const AdminApp&);
+//! Fill fields
+    void fillForm();
+
+  private slots:
+
+    void openRequested();
   
   private:
   
     struct Impl;
+
+    ConfigManager* configManager_;
 
     Impl* pimpl_;  //!< Pimpl idiom.
 };

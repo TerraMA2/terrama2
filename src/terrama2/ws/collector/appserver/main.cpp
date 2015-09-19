@@ -24,36 +24,34 @@
 
   \brief Main routine for TerraMA2 Collector Web Service.
 
-  \author Jano Simas
-  \author Paulo R. M. Oliveira
   \author Vinicius Campanha
  */
 
-// TerraMA2
-#include "../../../collector/CollectorService.hpp"
-#include "soapcollectorService.h"
-
 // STL
-#include <cstdlib>
+#include <iostream>
+
+// TerraMA2
+#include "soapWebService.h"
+
 
 int main(int argc, char* argv[])
 {
+  WebService server;
 
-  collectorService server;
-
-  // check if a port number was passed as parameter
-  if (argv[1] == 0)
+// check if a port number was passed as parameter
+  if(argv[1] == 0)
   {
-    fprintf(stderr, "Inform a port to server run.");
-    exit(0);
+    std::cerr << "Inform a port in order to run the collector application server.";
+
+    return EXIT_FAILURE;
   }
 
-  // run iterative server on port until fatal error
-  if(server.run(atoi(argv[1])))
+// run iterative server on port until fatal error
+  if( server.run( std::stoi(argv[1]) ) )
   {
     server.soap_stream_fault(std::cerr);
 
-    exit(-1);
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;

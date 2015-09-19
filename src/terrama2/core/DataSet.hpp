@@ -33,17 +33,13 @@
 #ifndef __TERRAMA2_CORE_DATASET_HPP__
 #define __TERRAMA2_CORE_DATASET_HPP__
 
-
-
 // STL
 #include <memory>
 #include <string>
-#include <cstdint>
+#include <vector>
 
-//Boost
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-
-
+// TerraLib
+#include <terralib/datatype/TimeDuration.h>
 
 namespace terrama2
 {
@@ -53,53 +49,51 @@ namespace terrama2
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
+    class DataSetItem;
+    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
+
     /*!
       \class DataSet
 
-      \brief Contains metadata about data servers.
+      \brief Contains metadata about a dataset.
 
-      A data provider can be a remote server that provides data through
-      FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
+      A dataset can be a PCD, occurence or a grid.
 
-      It can also be an URI for a folder into the file system...
+      It has the time frequency that this dataset should be collected.
      */
     class DataSet
     {
       public:
 
-      //! Dataset type.
-      enum Kind
-      {
-        UNKNOWN_TYPE,
-        PCD_TYPE,
-        OCCURENCE_TYPE,
-        GRID_TYPE
-      };
+        //! Dataset type.
+        enum Kind
+        {
+          UNKNOWN_TYPE,
+          PCD_TYPE,
+          OCCURENCE_TYPE,
+          GRID_TYPE
+        };
 
-      //! Dataset unit of time.
-      enum UOT
-      {
-        UNKNOWN_UOT,
-        MILISECOND,
-        SECOND,
-        MINUTE,
-        HOUR,
-        DAY,
-        WEEK,
-        MONTH,
-        YEAR
-      };
+        //! Dataset status.
+        enum Status
+        {
+          ACTIVE,
+          INACTIVE
+        };
 
-      //! Dataset status.
-      enum Status
-      {
-        ACTIVE,
-        INACTIVE
-      };
+        /*!
+           \brief Struct to store the collect rules.
+         */
+        struct CollectRule
+        {
+          uint64_t id;
+          std::string script;
+        };
 
-      DataSet(DataProviderPtr provider);
 
-      ~DataSet();
+        DataSet(DataProviderPtr provider, const std::string& name, Kind kind);
+
+        ~DataSet();
 
       public:
 
@@ -127,65 +121,150 @@ namespace terrama2
         /*!
           \brief It returns the the description of the dataset.
 
-          \return The the description of the dataset.
+          \return The description of the dataset.
         */
         std::string description() const;
 
         /*!
-          \brief It sets the the description of the data provider.
+          \brief It sets the the description of the dataset.
 
-          \param The the description of the dataset.
+          \param The description of the dataset.
         */
         void setDescription(const std::string& description);
 
         /*!
           \brief It returns the the kind of the dataset.
 
-          \return The the kind of the dataset.
+          \return The kind of the dataset.
         */
         Kind kind() const;
 
         /*!
           \brief It sets the the kind of the dataset.
 
-          \param The the kind of the data provider.
+          \param The kind of the data provider.
         */
         void setKind(const Kind& kind);
 
         /*!
-          \brief It returns the the status of the data provider.
+          \brief It returns the the status of the dataset.
 
-          \return The the status of the data provider.
+          \return The status of the dataset.
         */
         Status status() const;
 
         /*!
-          \brief It sets the the status of the data provider.
+          \brief It sets the the status of the dataset.
 
-          \param The the status of the data provider.
+          \param The status of the dataset.
         */
         void setStatus(const Status& status);
 
         /*!
           \brief It returns the the data provider.
 
-          \return The the data provider.
+          \return The data provider.
         */
         DataProviderPtr dataProvider() const;
 
         /*!
-          \brief It returns the .
-        
-          \return The .
+          \brief It returns the time frequency that this dataset must try to acquire a new data.
+
+          \return The the time frequency that this dataset must try to acquire a new data.
         */
-        double dataFrequency() const;
-        
+        te::dt::TimeDuration dataFrequency() const;
+
         /*!
-          \brief It sets the freque.
-        
-          \param The .
+          \brief It sets the time frequency that this dataset must try to acquire a new data.
+
+          \param The time frequency that this dataset must try to acquire a new data.
         */
-        void setDataFrequency(const double& dataFrequency);
+        void setDataFrequency(const te::dt::TimeDuration& dataFrequency);
+
+        /*!
+          \brief It returns the time scheduled to the next collection.
+
+          \return The time scheduled to the next collection.
+        */
+        te::dt::TimeDuration schedule() const;
+
+        /*!
+          \brief It sets the time scheduled to the next collection.
+
+          \param The time scheduled to the next collection.
+        */
+        void setSchedule(const te::dt::TimeDuration& schedule);
+
+        /*!
+          \brief It returns the time frequency to retry a collection if the data wasn't available in the scheduled time.
+
+          \return The time frequency to retry a collection if the data wasn't available in the scheduled time.
+        */
+        te::dt::TimeDuration scheduleRetry() const;
+
+        /*!
+          \brief It sets the time frequency to retry a collection if the data wasn't available in the scheduled time.
+
+          \param The time frequency to retry a collection if the data wasn't available in the scheduled time.
+        */
+        void setScheduleRetry(const te::dt::TimeDuration& scheduleRetry);
+
+        /*!
+          \brief It returns the time limit to retry a scheduled collection.
+
+          \return The time limit to retry a scheduled collection.
+        */
+        te::dt::TimeDuration scheduleTimeout() const;
+
+        /*!
+          \brief Sets the time limit to retry a scheduled collection.
+
+          \param The time limit to retry a scheduled collection.
+        */
+        void setScheduleTimeout(const te::dt::TimeDuration& scheduleTimeout);
+
+        /*!
+          \brief Returns the map with the dataset metadata.
+
+          \return The map with the dataset metadata.
+         */
+        std::map<std::string, std::string> metadata() const;
+
+        /*!
+           \brief Sets the dataset metadata.
+
+           \param The dataset metadata.
+         */
+        void setMetadata(const std::map<std::string, std::string>& metadata);
+
+        /*!
+           \brief Returns the collect rules.
+
+           \return The collect rules.
+         */
+        std::vector<CollectRule> collectRules() const;
+
+        /*!
+           \brief Sets the collect rules.
+
+           \param The collect rules.
+         */
+        void setCollectRules(const std::vector<CollectRule>& collectRules);
+
+        /*!
+           \brief Returns the list of of dataset item.
+
+           \return The list of dataset item.
+         */
+        std::vector<DataSetItemPtr> dataSetItemList() const;
+
+        /*!
+           \brief Sets the list of dataset item.
+
+           \param The list of dataset item.
+         */
+        void setDataSetItemList(const std::vector<DataSetItemPtr>& dataSetItemList);
+
 
       protected:
 
@@ -205,12 +284,15 @@ namespace terrama2
         Status status_;
         DataProviderPtr dataProvider_;
         Kind kind_;
-        boost::posix_time::time_duration dataFrequency_;
-        boost::posix_time::time_duration schedule_;
-        boost::posix_time::time_duration scheduleRetry_;
-        boost::posix_time::time_duration scheduleTimeout_;
+        te::dt::TimeDuration dataFrequency_;
+        te::dt::TimeDuration schedule_;
+        te::dt::TimeDuration scheduleRetry_;
+        te::dt::TimeDuration scheduleTimeout_;
+        std::vector<CollectRule> collectRules_;
+        std::map<std::string, std::string> metadata_;
+        std::vector<DataSetItemPtr> dataSetItemList_;
 
-      friend class DataSetDAO; //review
+        friend class DataSetDAO;
     };
 
     typedef std::shared_ptr<DataSet> DataSetPtr;

@@ -76,6 +76,9 @@
             </item>
             <item row="0" column="1">
              <widget class="QComboBox" name="dbTypeCmb">
+              <property name="currentText">
+               <string>PostGis</string>
+              </property>
               <item>
                <property name="text">
                 <string>PostGis</string>
@@ -682,7 +685,7 @@ coletados:</string>
             <item row="4" column="0" colspan="6">
              <widget class="QTabWidget" name="tabWidget_2">
               <property name="currentIndex">
-               <number>3</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="serverTab">
                <attribute name="title">

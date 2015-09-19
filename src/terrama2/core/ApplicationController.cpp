@@ -28,16 +28,15 @@
 */
 
 #include "ApplicationController.hpp"
+#include "Utils.hpp"
 
 //STL
-#include <string>
-#include <memory>
 #include <map>
+#include <memory>
+#include <string>
 
 //Qt
 #include <QJsonObject>
-#include <QFile>
-#include <QJsonDocument>
 #include <QString>
 
 //TerraLib
@@ -49,15 +48,7 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
 {
   configFileName_ = configFileName;
 
-  QString settings;
-  QFile file;
-  file.setFileName(configFileName.c_str());
-  file.open(QIODevice::ReadOnly | QIODevice::Text);
-  settings = file.readAll();
-  file.close();
-
-  QJsonDocument document = QJsonDocument::fromJson(settings.toUtf8());
-  QJsonObject project = document.object();
+  QJsonObject project = terrama2::core::OpenFile(configFileName);
 
   if(project.contains("database"))
   {
@@ -102,4 +93,9 @@ std::auto_ptr<te::da::DataSourceTransactor> terrama2::core::ApplicationControlle
 std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDataSource()
 {
   return dataSouce_;
+}
+
+bool terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
+{
+  return false;
 }

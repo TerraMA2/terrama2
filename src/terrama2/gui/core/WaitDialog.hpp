@@ -29,26 +29,30 @@
   \author Carlos Augusto Teixeira Mendes
 */
   
-#ifndef _WaitDialog_H_
-#define _WaitDialog_H_
+#ifndef __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
+#define __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
 
-#include "ui_WaitDialog.hpp"
+#include "ui_WaitDialogForm.h"
 
-//! Classe responsável pela apresentação do diálogo de espera
-class WaitDialog : public QDialog, private Ui::WaitDialog
+//! Class responsible for wait dialog apresentation
+class WaitDialog : public QDialog
 {
 Q_OBJECT
 
 public:
-  WaitDialog(QString msg, QWidget* parent = 0, Qt::WFlags f = 0 );
+  WaitDialog(QString msg, QWidget* parent = 0, Qt::WindowFlags f = 0 );
   ~WaitDialog();
 
 public slots:
+  //! Set message to dialog
   void setMsg(QString msg);
   
 private:
+  // Forward Declaration
+  struct Impl;
+
+  Impl* pimpl_; //< Pimpl idiom
 };
 
-
-#endif
+#endif // __TERRAMA2_GUI_CORE_WAITDIALOG_HPP__
 

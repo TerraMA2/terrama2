@@ -20,23 +20,41 @@
 */
 
 /*!
-  \file terrama2/core/DataManager.cpp
+  \file unittest/collector/TestCollectorService.cpp
 
-  \brief Manages metadata about data providers and its datasets.
+  \brief Test Collector service...
 
-  \author Gilberto Ribeiro de Queiroz
-  \author Jano Simas
   \author Paulo R. M. Oliveira
-  \author Vinicius Campanha
 */
 
-// TerraMA2
-#include "DataManager.hpp"
 
-struct terrama2::core::DataManager::Impl
+//QT
+#include <QtTest>
+
+
+class TestCollectorService: public QObject
 {
-  std::map<uint64, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
-  std::map<uint64, DataSetPtr> datasets_;       //!< A map from data-set-id to dataset.
-  // adicionar MUTEX
-}
+  Q_OBJECT
 
+protected:
+
+private slots:
+    void initTestCase(); // Run before all tests
+
+    void cleanupTestCase(); // Run after all tests
+
+
+    void init(); //run before each test
+    void cleanup(); //run before each test
+
+    //******Test functions********
+
+    /*!
+     * \brief Test Description
+     */
+
+
+
+    //******End of Test functions****
+
+};

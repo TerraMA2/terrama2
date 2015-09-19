@@ -24,7 +24,7 @@
 
   \brief Build options for TerraMA2 Collector Service Core module.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Vinicius Camapanha
  */
 
 #ifndef __TERRAMA2_WS_COLLECTOR_CORE_CONFIG_HPP__
