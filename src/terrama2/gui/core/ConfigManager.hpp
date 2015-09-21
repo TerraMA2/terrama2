@@ -65,6 +65,8 @@ class ConfigManager : private boost::noncopyable
     //! Get the TerraMA2 name
     QString getName() const;
 
+    //QString getDataBaseDriver(DatabaseDriver id) const;
+
   private:
     QMainWindow* app_; //< Dialog to display error message if there is.
 

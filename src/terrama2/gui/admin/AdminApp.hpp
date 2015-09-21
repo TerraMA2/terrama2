@@ -64,13 +64,18 @@ class AdminApp : public QMainWindow, private boost::noncopyable
 
   private slots:
 
+    void newRequested();
     void openRequested();
+    void saveRequested();
+    void renameRequested();
   
   private:
   
     struct Impl;
 
     ConfigManager* configManager_;
+
+    QString nameConfig_; //!< Current Configuration Name.
 
     Impl* pimpl_;  //!< Pimpl idiom.
 };

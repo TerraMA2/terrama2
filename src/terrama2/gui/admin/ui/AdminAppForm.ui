@@ -77,11 +77,11 @@
             <item row="0" column="1">
              <widget class="QComboBox" name="dbTypeCmb">
               <property name="currentText">
-               <string>PostGis</string>
+               <string>PostGIS</string>
               </property>
               <item>
                <property name="text">
-                <string>PostGis</string>
+                <string>PostGIS</string>
                </property>
               </item>
               <item>
@@ -167,6 +167,9 @@
              <widget class="QCheckBox" name="dbStudyChk">
               <property name="text">
                <string>Base de dados para estudos</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
               </property>
              </widget>
             </item>

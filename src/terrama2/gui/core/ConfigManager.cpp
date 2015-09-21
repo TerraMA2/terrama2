@@ -70,6 +70,11 @@ void ConfigManager::loadConfiguration(QString filepath)
       database_->port_ = databaseConfig["port"].toString().toInt();
       database_->user_ = databaseConfig["user"].toString();
       database_->password_ = databaseConfig["password"].toString();
+      database_->driver_ = databaseConfig["driver"].toString();
+      database_->study_ = metadata["is_study"].toString();
+      database_->name_ = metadata["name"].toString();
+      database_->version_ = metadata["version"].toString();
+
     }
     if (metadata.contains("collector_web_service"))
     {
