@@ -37,6 +37,7 @@
 
 //QT
 #include <QList>
+#include <QStringList>
 
 //STD
 #include <string>
@@ -52,8 +53,8 @@ namespace terrama2
     class Filter : public boost::noncopyable
     {
       public:
-        Filter()
-          : relationRule_(te::gm::UNKNOWN_SPATIAL_RELATION){}
+        Filter();
+        ~Filter();
 
         /*!
              * \brief Sets the mask the names should match
@@ -92,7 +93,7 @@ namespace terrama2
              *
              * \return List of filtered names.
              */
-        std::vector<std::string> filterNames(const std::vector<std::string>& namesList) const;
+        QStringList filterNames(const QStringList &namesList) const;
 
         /*!
              * \brief Filters a te::da::DataSet by matching criteria.
@@ -102,18 +103,19 @@ namespace terrama2
              *
              * \return Filtered DataSet.
              */
-        te::da::DataSetPtr filterDataSet(const te::da::DataSetPtr& dataSet) const;
+        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const;
 
         //TODO: should have static methods for easy access?
         static QList<std::string> filterNamesByMask(const QList<std::string>& namesList, const std::string& mask);
         static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
 
       private:
-        std::string mask_;
-        te::gm::GeometryShrPtr  geometry_;
-        te::gm::SpatialRelation relationRule_;
 
+        struct Impl;
+        Impl* impl_;
     };
+
+    typedef std::shared_ptr<Filter> FilterPtr;
   }
 }
 

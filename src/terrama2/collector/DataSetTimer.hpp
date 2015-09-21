@@ -68,8 +68,13 @@ namespace terrama2
         Q_OBJECT
 
       public:
+        /*!
+         * TODO: document DataSetTimer
+         *
+         * \exception terrama2::collector::InvalidDataSetException Raise when constructed with an invalid DataSet or empty pointer.
+         */
         DataSetTimer(core::DataSetPtr dataSet);
-        ~DataSetTimer(){}
+        ~DataSetTimer();
 
         /*!
              * \brief Recover the Collector from the CollectorFactory.
@@ -80,8 +85,6 @@ namespace terrama2
         core::DataSetPtr              dataSet()   const;
         //! \brief List of DataProcessor that should be aquired and processed.
         std::vector<DataProcessorPtr> data()      const;
-
-        bool isValid() const { return false; }
 
       signals:
         //! \brief Signal emited when the DataSet should be collected.
@@ -97,10 +100,8 @@ namespace terrama2
         //! \brief Populates dataLst_ based on DataSet's Data information.
         void populateDataLst();
 
-        core::DataSetPtr dataSet_;//<! Pointer to the Dataset.
-        QTimer           timer_;//<! Timer to next collection.
-
-        std::vector<DataProcessorPtr> dataLst_;
+        struct Impl;
+        Impl* impl_;
     };
 
     typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr;

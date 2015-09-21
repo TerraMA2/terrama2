@@ -89,12 +89,38 @@ namespace terrama2
          */
         void exec();
 
+      public slots:
         /*!
              * \brief Creates an instace of a collector of appropriate type for the dataProvider.
              * \param dataProvider The shared pointer to the data provider
              * \return Collector to the DataProvider.
              */
         CollectorPtr addProvider(const core::DataProviderPtr dataProvider);
+
+        /*!
+         * \brief Remove a [DataProvider]{\ref terrama2::core::DataProvider} and
+         *  all associated [DataSet]{\ref terrama2::core::DataSet}.
+         *
+         * The associated DataSet will be removed first.
+         *
+         * If the DataProvider does not exist nothing is done.
+         *
+         * \param DataProvider to be removed.
+         */
+        void removeProvider(const core::DataProviderPtr dataProvider);
+
+        /*!
+         * \brief Updates a [DataProvider]{\ref terrama2::core::DataProvider}.
+         *
+         * The Collector is destroyed ad recreated.
+         *
+         * No change is made to the associated [DataSet]{\ref terrama2::core::DataSet}.
+         *
+         * If the DataProvider does not exist nothing is done.
+         *
+         * \param Data provider to be updated.
+         */
+        void updateProvider(const core::DataProviderPtr dataProvider);
 
         /*!
              * \brief Creates a new DataSetTimer for the DataSet and listen to it's timer signal.
@@ -104,7 +130,26 @@ namespace terrama2
              */
         DataSetTimerPtr addDataset(const core::DataSetPtr dataset);
 
-      public slots:
+        /*!
+         * \brief Removes a [DataSet]{\ref terrama2::core::DataSet}.
+         *
+         * If the DataSet does not exist nothing is done.
+         *
+         * \param Dataset to be removed.
+         */
+        void removeDataset(const core::DataSetPtr dataset);
+
+        /*!
+         * \brief Updates a [DataSet]{\ref terrama2::core::DataSet}.
+         *
+         * The [DataSet]{\ref terrama2::core::DataSet} will be destroyed
+         * and recreated.
+         *
+         * If the DataSet does not exist nothing is done.
+         *
+         * \param Dataset to be updated.
+         */
+        void updateDataset(const core::DataSetPtr dataset);
 
         /*!
              * \brief Slot to be called when a DataSetTimer times out.
@@ -128,9 +173,23 @@ namespace terrama2
              */
         void processingLoop();
 
+        /*!
+         * \brief Make connections with the [DataManager]{\ref terrama2::core::DataManager}.
+         *
+         * Listens to:
+         *  - dataProviderAdded(DataProviderPtr);
+         *  - dataProviderRemoved(DataProviderPtr);
+         *  - dataProviderUpdated(DataProviderPtr);
+         *  - dataSetAdded(DataSetPtr);
+         *  - dataSetRemoved(DataSetPtr);
+         *  - dataSetUpdated(DataSetPtr);
+         *
+         */
+        void connectDataManager();
+
         bool stop_;
-        QMap<core::DataProvider::Kind, QList<CollectorPtr>>  collectorQueueMap_;
-        QMap<CollectorPtr, QList<uint64_t /*DataSetId*/>>    datasetQueue_;
+        QMap<core::DataProvider::Kind, QList<CollectorPtr> >  collectorQueueMap_;
+        QMap<CollectorPtr, QList<uint64_t /*DataSetId*/> >    datasetQueue_;
 
         QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
 

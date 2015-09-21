@@ -49,10 +49,26 @@
 #include <boost/log/trivial.hpp>
 
 
+void terrama2::collector::CollectorService::connectDataManager()
+{
+  core::DataManager &dataManager = core::DataManager::getInstance();
+  //DataProvider signals
+  connect(&dataManager, SIGNAL(dataProviderAdded(core::DataProviderPtr)), SLOT(addProvider(core::DataProviderPtr)),    Qt::UniqueConnection);
+  connect(&dataManager, SIGNAL(dataProviderRemoved(DataProviderPtr)),     SLOT(removeProvider(core::DataProviderPtr)), Qt::UniqueConnection);
+  connect(&dataManager, SIGNAL(dataProviderUpdated(DataProviderPtr)),     SLOT(updateProvider(core::DataProviderPtr)), Qt::UniqueConnection);
+
+  //dataset signals
+  connect(&dataManager, SIGNAL(dataSetAdded(core::DataSetPtr)),   SLOT(addDataset(core::DataSetPtr)),    Qt::UniqueConnection);
+  connect(&dataManager, SIGNAL(dataSetRemoved(core::DataSetPtr)), SLOT(removeDataset(core::DataSetPtr)), Qt::UniqueConnection);
+  connect(&dataManager, SIGNAL(dataSetUpdated(core::DataSetPtr)), SLOT(updateDataset(core::DataSetPtr)), Qt::UniqueConnection);
+}
+
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
     stop_(false)
 {
+  connectDataManager();
+
 }
 
 terrama2::collector::CollectorService::~CollectorService()
@@ -176,10 +192,26 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
 
   //TODO: catch? rethrow?
   //Create a collector and add it to the list
-  CollectorPtr collector = CollectorFactory::instance().getCollector(dataProvider);
+  CollectorPtr collector = CollectorFactory::getInstance().getCollector(dataProvider);
 
   return collector;
 
+}
+
+void terrama2::collector::CollectorService::removeProvider(const terrama2::core::DataProviderPtr dataProvider)
+{
+  for(core::DataSetPtr dataSet : dataProvider->dataSets())
+    removeDataset(dataSet);
+
+  CollectorFactory& factory = CollectorFactory::getInstance();
+  factory.removeCollector(dataProvider);
+}
+
+void terrama2::collector::CollectorService::updateProvider(const terrama2::core::DataProviderPtr dataProvider)
+{
+  CollectorFactory& factory = CollectorFactory::getInstance();
+  factory.removeCollector(dataProvider);
+  factory.getCollector(dataProvider);
 }
 
 terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSetPtr dataset)
@@ -193,5 +225,22 @@ terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addD
   connect(datasetTimer.get(), &terrama2::collector::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
 
   return datasetTimer;
+}
+
+void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSetPtr dataset)
+{
+  if(datasetTimerLst_.contains(dataset->id()))
+  {
+    DataSetTimerPtr datasetTimer = datasetTimerLst_.value(dataset->id());
+    disconnect(datasetTimer.get(), nullptr, this, nullptr);
+
+    datasetTimerLst_.remove(dataset->id());
+  }
+}
+
+void terrama2::collector::CollectorService::updateDataset(const terrama2::core::DataSetPtr dataset)
+{
+  removeDataset(dataset);
+  addDataset(dataset);
 }
 

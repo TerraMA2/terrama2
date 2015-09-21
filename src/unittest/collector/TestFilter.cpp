@@ -20,42 +20,47 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorOGR.hpp
+  \file terrama2/collector/TestFilter.hpp
 
-  \brief Test CollectorOGR...
+  \brief Tests for the TestFilter class.
 
   \author Jano Simas
 */
 
+#include "TestFilter.hpp"
 
-#include "../core/TestUtils.hpp"
+//terrama2
+#include <terrama2/collector/Filter.hpp>
 
 //QT
-#include <QtTest>
+#include <QStringList>
 
-
-class TestCollectorOGR: public QObject
+void TestFilter::TestFilterNamesExact()
 {
-  Q_OBJECT
+  QString exact("exact");
+  terrama2::collector::Filter filter;
+  filter.setMask(exact.toStdString());
 
-protected:
+  QStringList names;
+  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
 
-private slots:
-    void initTestCase(); // Run before all tests
+  names = filter.filterNames(names);
 
-    void cleanupTestCase(); // Run after all tests
+  QCOMPARE(names.size(), 1);
+  QCOMPARE(names.at(0), exact);
+}
 
-    void init(){} //run before each test
-    void cleanup(){} //run before each test
+void TestFilter::TestEmptyMask()
+{
+  terrama2::collector::Filter filter;
 
-    //******Test functions********
+  QStringList names;
+  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
 
-    /*!
-     * \brief Test Description
-     */
-    void testInvalidDataProvider();
+  QStringList output = filter.filterNames(names);
 
+  QCOMPARE(output, names);
+}
 
-
-    //******End of Test functions****
-};
+QTEST_MAIN(TestFilter)
+#include "TestFilter.moc"
