@@ -20,37 +20,51 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
+  \file terrama2/gui/config/ConfigAppAdditionalTab.cpp
 
-  \brief TerraMA2 Collector gSOAP data types.
+  \brief Definition of Class ConfigAppAdditionalTab.hpp
 
-  \author Vinicius Campanha
- */
+  \author Evandro Delatin
+  \author Raphael Willian da Costa  
+  \author Carlos Augusto Teixeira Mendes
+*/
+
+// TerraMA2
+#include "ConfigAppAdditionalTab.hpp"
 
 
-struct DataProvider
+ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui)
+  : ConfigAppTab(app, ui)
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      kind;
-  std::string   uri;
-  uint32_t      status;
-};
 
+}
 
-struct DataSet
+ConfigAppAdditionalTab::~ConfigAppAdditionalTab()
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      status;
-  uint64_t       data_provider_id;
-  uint32_t      kind;
-  uint32_t      data_frequency;
-  std::string   schedule;
-  uint32_t      schedule_retry;
-  uint32_t      schedule_timeout;
-};
+}
 
 
+void ConfigAppAdditionalTab::load()
+{
+
+}
+
+bool ConfigAppAdditionalTab::dataChanged()
+{
+  return false;
+}
+
+bool ConfigAppAdditionalTab::validate()
+{
+  return true;
+}
+
+void ConfigAppAdditionalTab::save()
+{
+
+}
+
+void ConfigAppAdditionalTab::discardChanges(bool restore_data)
+{
+
+}

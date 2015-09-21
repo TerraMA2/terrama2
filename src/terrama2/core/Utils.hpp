@@ -32,9 +32,12 @@
 
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
+#include "DataSetItem.hpp"
 
 // STL
 #include <string>
+
+class QJsonObject;
 
 namespace terrama2
 {
@@ -104,7 +107,6 @@ namespace terrama2
     */
    terrama2::core::DataSet::Status BoolToDataSetStatus(bool active);
 
-
    /*!
      \brief Returns a enum with the kind of the dataset based on the given parameter.
 
@@ -114,6 +116,41 @@ namespace terrama2
     */
    terrama2::core::DataSet::Kind IntToDataSetKind(uint64_t kind);
 
+   /*!
+     \brief Returns a boolean with the status of the dataset item based on the given status.
+
+     \param status Enum with the status of the dataset item.
+
+     \return Boolean that determine if the dataset item is active.
+    */
+   bool DataSetItemStatusToBool(terrama2::core::DataSetItem::Status status);
+
+   /*!
+    \brief Returns a enum with the status of the dataset item based on the given parameter.
+
+    \param active Boolean that determine if the dataset item is active.
+
+    \return Enum with the status of the dataset item.
+    */
+   terrama2::core::DataSetItem::Status BoolToDataSetItemStatus(bool active);
+
+   /*!
+     \brief Returns a enum with the kind of the dataset item based on the given parameter.
+
+     \param kind Kind that determine the type of the dataset item.
+
+     \return Enum with the type of the dataset item.
+    */
+   terrama2::core::DataSetItem::Kind IntToDataSetItemKind(uint64_t kind);
+
+   /*!
+     \brief Returns a QJsonObject based on the given parameter
+
+     \param filepath const std::string that represents absolute file path.
+
+     \return QJsonObject with TerraMA2 JSON configuration
+   */
+   QJsonObject OpenFile(const std::string& filepath);
 
   } // end namespace core
 }   // end namespace terrama2

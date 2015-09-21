@@ -5,6 +5,7 @@
 
 // QT
 #include <QMessageBox>
+#include <QLineEdit>
 
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
@@ -20,9 +21,18 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   // Bind the inputs
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->serverDescription, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->serverDescription, SIGNAL(textChanged(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onWeatherTabEdited()));
+  connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
 
   ui_->weatherDataTree->clear();
+
+  // Call the default configuration
+  load();
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -32,7 +42,15 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 
 void ConfigAppWeatherTab::load()
 {
+  // Disable series button
+  ui_->exportServerBtn->setVisible(false);
+  ui_->updateServerBtn->setVisible(false);
+  ui_->serverDeleteBtn->setVisible(false);
+
+  ui_->groupBox_25->hide();
+
   // Connect to database and list the values
+
 }
 
 bool ConfigAppWeatherTab::dataChanged()
@@ -42,12 +60,23 @@ bool ConfigAppWeatherTab::dataChanged()
 
 bool ConfigAppWeatherTab::validate()
 {
-  return false;
+  // HardCode
+  for(QLineEdit* widget: ui_->mainTabWidget->findChildren<QLineEdit*>())
+  {
+    if (widget->text() == "")
+      return false;
+  }
+  return true;
 }
 
 void ConfigAppWeatherTab::save()
 {
-  throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+  if (!validate())
+  {
+    throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+  }
+  //Apply save process
+  discardChanges(false);
 }
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)
@@ -59,11 +88,23 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
 
   ui_->ServerPage->hide();
   ui_->ServerGroupPage->show();
+  changed_ = false;
 
 // Set visible false on server buttons
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
+// Clear all inputs
+  const auto& tab = ui_->mainTabWidget;
+
+  // Clear QLineEdits
+  for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
+  {
+    widget->clear();
+  }
+
+  //Clear TextEdit (server description)
+  ui_->serverDescription->clear();
 }
 
 void ConfigAppWeatherTab::onEnteredWeatherTab()

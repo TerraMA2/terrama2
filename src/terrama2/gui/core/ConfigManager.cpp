@@ -31,6 +31,7 @@
 // TerraMA2
 #include "ConfigManager.hpp"
 #include "../Exception.hpp"
+#include "../../core/Utils.hpp"
 
 #include <QString>
 #include <QFile>
@@ -46,19 +47,14 @@ ConfigManager::ConfigManager(QMainWindow* app)
 ConfigManager::~ConfigManager()
 {
   delete collection_;
-    delete database_;
-}
-
-Database *ConfigManager::getDatabase()
-{
- return database_;
+  delete database_;
 }
 
 void ConfigManager::loadConfiguration(QString filepath)
 {
   try
   {
-    QJsonObject metadata = open(filepath);
+    QJsonObject metadata = terrama2::core::OpenFile(filepath.toStdString());
 
     name_ = metadata["name"].toString();
 
@@ -93,20 +89,6 @@ void ConfigManager::loadConfiguration(QString filepath)
   {
     QMessageBox::information(app_, "TerraMA2", e.what());
   }
-}
-
-QJsonObject ConfigManager::open(QString filepath)
-{
-  QString settings;
-  QFile file;
-  file.setFileName(filepath);
-  file.open(QIODevice::ReadOnly | QIODevice::Text);
-  settings = file.readAll();
-  file.close();
-
-  QJsonDocument document = QJsonDocument::fromJson(settings.toUtf8());
-  QJsonObject project = document.object();
-  return project;
 }
 
 Database* ConfigManager::getDatabase() const

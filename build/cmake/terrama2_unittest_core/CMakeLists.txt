@@ -30,9 +30,9 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.h
 
 include_directories (
   ${Boost_INCLUDE_DIR}
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
 )
 
 set(CMAKE_AUTOMOC ON)
