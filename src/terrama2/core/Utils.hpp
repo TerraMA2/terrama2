@@ -38,6 +38,8 @@
 // STL
 #include <string>
 
+class QJsonObject;
+
 namespace terrama2
 {
   namespace core
@@ -149,7 +151,17 @@ namespace terrama2
 
      \return Enum with the type of filter.
     */
+
    terrama2::core::Filter::ByValueType IntToFilterByValueType(uint64_t type);
+
+   /*!
+     \brief Returns a QJsonObject based on the given parameter
+
+     \param filepath const std::string that represents absolute file path.
+
+     \return QJsonObject with TerraMA2 JSON configuration
+   */
+   QJsonObject OpenFile(const std::string& filepath);
 
 
   } // end namespace core
