@@ -29,17 +29,17 @@
 
 #include "TestDataProviderDAO.hpp"
 
-#include <terrama2/core/DataProvider.hpp>
-#include <terrama2/core/DataProviderDAO.hpp>
-#include <terrama2/core/Utils.hpp>
 #include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataManager.hpp>
+#include <terrama2/core/DataProvider.hpp>
+#include <terrama2/core/Utils.hpp>
 
 //QT
 #include <QtTest>
 
 // STL
-#include <vector>
 #include <memory>
+#include <vector>
 
 
 
@@ -75,24 +75,22 @@ void TestDataProviderDAO::cleanupTestCase()
 
 void TestDataProviderDAO::testCRUDDataProvider()
 {
-// get the transactor
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
 
 // create a new data provider and save it to the database
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
 
-  terrama2::core::DataProviderDAO::save(dataProvider, *transactor);
+  terrama2::core::DataManager::getInstance().add(dataProvider);
 
 // update the data provider
   dataProvider->setName("New server");
   dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
 
-  terrama2::core::DataProviderDAO::update(dataProvider, *transactor);
+  terrama2::core::DataManager::getInstance().update(dataProvider);
 
   QVERIFY2(dataProvider->id() != 0, "The id wasn't set in the provider after insert!");
 
 // Find the same data provider by id
-  terrama2::core::DataProviderPtr tempProvider = terrama2::core::DataProviderDAO::find(dataProvider->id(), *transactor);
+  terrama2::core::DataProviderPtr tempProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataProvider->id());
 
   QVERIFY2(tempProvider.get(), "Could not recover the data provider by id!");
 
@@ -104,7 +102,7 @@ void TestDataProviderDAO::testCRUDDataProvider()
   QCOMPARE(tempProvider->description(), dataProvider->description());
 
   // Lists all data providers
-  std::vector<terrama2::core::DataProviderPtr> vecDataProvider = terrama2::core::DataProviderDAO::list(*transactor);
+  std::vector<terrama2::core::DataProviderPtr> vecDataProvider = terrama2::core::DataManager::getInstance().providers();
 
 
   QVERIFY2(!vecDataProvider.empty(), "Empty list but should have one data provider!");
@@ -112,10 +110,10 @@ void TestDataProviderDAO::testCRUDDataProvider()
   QVERIFY2(vecDataProvider.size() == 1, "Number of data providers recovered different than expected!");
 
   // Removes the data provider
-  terrama2::core::DataProviderDAO::remove(dataProvider, *transactor);
+  terrama2::core::DataManager::getInstance().removeDataProvider(dataProvider->id());
 
   // Lists all data providers
-  vecDataProvider = terrama2::core::DataProviderDAO::list(*transactor);
+  vecDataProvider = terrama2::core::DataManager::getInstance().providers();
 
   QVERIFY2(vecDataProvider.empty(), "List should be empty after remove!");
 }

@@ -223,3 +223,22 @@ bool terrama2::core::DataSetItemStatusToBool(terrama2::core::DataSetItem::Status
       return false;
   }
 }
+
+
+
+terrama2::core::Filter::ByValueType terrama2::core::IntToFilterByValueType(uint64_t type)
+{
+  switch (type)
+  {
+    case 1:
+      return terrama2::core::Filter::LESS_THAN_TYPE;
+    case 2:
+      return terrama2::core::Filter::GREATER_THAN_TYPE;
+    case 3:
+      return terrama2::core::Filter::MEAN_LESS_THAN_TYPE;
+    case 4:
+      return terrama2::core::Filter::MEAN_GREATER_THAN_TYPE;
+    default:
+      return terrama2::core::Filter::NONE_TYPE;
+  }
+}

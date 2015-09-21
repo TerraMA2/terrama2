@@ -33,6 +33,7 @@
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
 #include "DataSetItem.hpp"
+#include "Filter.hpp"
 
 // STL
 #include <string>
@@ -140,6 +141,15 @@ namespace terrama2
      \return Enum with the type of the dataset item.
     */
    terrama2::core::DataSetItem::Kind IntToDataSetItemKind(uint64_t kind);
+
+   /*!
+     \brief Returns a enum with the type of filter based on the given parameter.
+
+     \param kind Kind that determine the type of filter.
+
+     \return Enum with the type of filter.
+    */
+   terrama2::core::Filter::ByValueType IntToFilterByValueType(uint64_t type);
 
 
   } // end namespace core
