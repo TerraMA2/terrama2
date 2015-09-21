@@ -30,7 +30,20 @@
 #ifndef __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__
 #define __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__
 
+// STL
+#include <memory>
+
+// Boost
+#include "boost/date_time/posix_time/posix_time.hpp"
+
+// TerraLib
+#include <terralib/datatype/TimeDuration.h>
+
+// TerraMA2
+#include "../../../core/DataManager.hpp"
 #include "../../../core/DataProvider.hpp"
+#include "../../../core/DataSet.hpp"
+
 struct DataProvider;
 
 namespace terrama2
@@ -57,8 +70,11 @@ namespace terrama2
 
         template<typename T1, typename T2> T2 DataProviderPtr2Struct(T1);
 
-        //template<typename T1, typename T2> T2 Struct2DataSet(T1);
-        //template<typename T1, typename T2> T2 DataSet2Struct(T1);
+        // VINICIUS: check if need to create a Struct2DataProviderPtr
+
+        template <typename T1> terrama2::core::DataSetPtr Struct2DataSetPtr(T1 struct_dataset);
+
+        template<typename T1> T1 DataSetPtr2Struct(terrama2::core::DataSetPtr datasetPtr);
 
       }
     }
@@ -69,14 +85,15 @@ template <typename T1, typename T2>
 T2 terrama2::ws::collector::core::Struct2DataProvider(T1 struct_dataprovider)
 {
   // VINICIUS: check if a DataProvider constructor that receives (id, name, kind) was implemented
-/*
-  T2 dataprovider(struct_dataprovider.name, struct_dataprovider.kind, struct_dataprovider.id);
+  //T2 dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind, struct_dataprovider.id);
+  T2 dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind);
+
   dataprovider.setDescription(struct_dataprovider.description);
   dataprovider.setUri(struct_dataprovider.uri);
-  dataprovider.setStatus(struct_dataprovider.status);
+  dataprovider.setStatus((terrama2::core::DataProvider::Status)struct_dataprovider.status);
 
   return dataprovider;
-*/
+
 }
 
 template<typename T1, typename T2>
@@ -87,54 +104,64 @@ T2 terrama2::ws::collector::core::DataProviderPtr2Struct(T1 dataproviderPtr)
       dataproviderPtr->id(),
       dataproviderPtr->name(),
       dataproviderPtr->description(),
-      dataproviderPtr->kind(),
+      (int)dataproviderPtr->kind(),
       dataproviderPtr->uri(),
-      dataproviderPtr->status()
+      (int)dataproviderPtr->status()
 };
 
   return struct_dataprovider;
 }
 
-// VINICIUS:
-/*
-template <typename T1, typename T2>
-T2 terrama2::ws::collector::core::Struct2DataSet(T1 st_ds)
+
+
+template <typename T1>
+terrama2::core::DataSetPtr terrama2::ws::collector::core::Struct2DataSetPtr(T1 struct_dataset)
 {
 
-  terrama2::core::DataProvider dp();
-  WebService::findDataProvider(data_set.data_provider_id, dp);
+  auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(struct_dataset.id);
 
-  terrama2::core::DataSet ds(dp, data_set.id, data_set.name, data_set.kind);
-  ds.setDescription(data_set.description);
-  ds.setStatus(data_set.status);
-  ds.setDataFrequency(data_set.data_frequency);
-  ds.setSchedule(data_set.schedule);
-  ds.setScheduleRetry(data_set.schedule_retry);
-  ds.scheduleTimeout(data_set.schedule_timeout);
+  // VINICIUS: check if the constructor accept the id parameter already
+  //terrama2::core::DataSet dataset(dataproviderPtr, struct_dataset.name, (terrama2::core::DataSet::Kind)struct_dataset.kind, struct_dataset.id);
+  terrama2::core::DataSet dataset(dataproviderPtr, struct_dataset.name, (terrama2::core::DataSet::Kind)struct_dataset.kind);
 
+  dataset.setDescription(struct_dataset.description);
+  dataset.setStatus((terrama2::core::DataSet::Status)struct_dataset.status);
+
+  boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string(struct_dataset.data_frequency));
+  boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string(struct_dataset.schedule));
+  boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string(struct_dataset.schedule_retry));
+  boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string(struct_dataset.schedule_timeout));
+
+
+  dataset.setDataFrequency(te::dt::TimeDuration(dataFrequency));
+  dataset.setSchedule(te::dt::TimeDuration(schedule));
+  dataset.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
+  dataset.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+  auto datasetPtr = std::make_shared<terrama2::core::DataSet>(dataset);
+
+  return datasetPtr;
 }
-*/
 
-/*
-template <typename T1, typename T2>
-T2 terrama2::ws::collector::core::DataSet2Struct(T1 ds)
+
+
+template<typename T1>
+T1 terrama2::ws::collector::core::DataSetPtr2Struct(terrama2::core::DataSetPtr datasetPtr)
 {
+  T1 struct_dataset;
 
-  terrama2::core::DataProvider dp;
+  struct_dataset.data_provider_id =  datasetPtr->dataProvider()->id();
+  struct_dataset.id = datasetPtr->id();
+  struct_dataset.kind = (int)datasetPtr->kind();
+  struct_dataset.description = datasetPtr->description();
+  struct_dataset.status = (int)datasetPtr->status();
+  struct_dataset.data_frequency = datasetPtr->dataFrequency().toString();
+  struct_dataset.schedule = datasetPtr->schedule().toString();
+  struct_dataset.schedule_retry = datasetPtr->scheduleRetry().toString();
+  struct_dataset.schedule_timeout = datasetPtr->scheduleTimeout().toString();
 
-  data_set.dataProvider();
-  DataSet ds;
-
-  ds.data_provider_id = ;
-  ds.id = ;
-  ds.kind = ;
-  ds.description = ;
-  ds.status = ;
-  ds.data_frequency = ;
-  ds.schedule = ;
-  ds.shedule_retry = ;
-  ds.schedule_timeout = ;
+  return struct_dataset;
 
 }
-*/
+
 #endif // __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__
