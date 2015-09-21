@@ -44,10 +44,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! It calls the save method inside a try/catch block and check if there are any exception has found
     virtual void validateAndSaveChanges();
 
-    //! It is used for enable/disable the save button along application runtime
-    virtual bool verifyAndEnableChange(bool restore);
-
-    virtual QString verifyAndEnableChangeMsg();
+    virtual void askForChangeTab(const int index);
 
   public slots:
 
@@ -60,7 +57,6 @@ class ConfigAppTab : public QObject, private boost::noncopyable
   protected:
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_;
-//    ServiceHandler* manager_; //!< Services Handler
     bool changed_;
 };
 
