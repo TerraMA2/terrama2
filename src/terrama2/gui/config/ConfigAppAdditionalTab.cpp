@@ -33,8 +33,8 @@
 #include "ConfigAppAdditionalTab.hpp"
 
 
-ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller)
+  : ConfigAppTab(app, ui, controller)
 {
 
 }

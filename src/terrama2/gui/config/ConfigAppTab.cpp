@@ -1,12 +1,13 @@
 // TerraMA2
 #include "ConfigAppTab.hpp"
 #include "Exception.hpp"
+#include "../../core/ApplicationController.hpp"
 
 // QT
 #include <QMessageBox>
 
-ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : QObject(app), app_(app), ui_(ui), changed_(false)
+ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller)
+  : QObject(app), app_(app), ui_(ui), controller_(controller), changed_(false)
 {
 
 }
@@ -44,11 +45,13 @@ void ConfigAppTab::askForChangeTab(const int index)
   QMessageBox::StandardButton reply;
   reply = QMessageBox::question(app_, tr("There are modifications not saved yet"),
                                       tr("Would you like to save them?"),
-                                      QMessageBox::Save | QMessageBox::Discard,
+                                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                                       QMessageBox::Save);
 
-  if (reply == QMessageBox::Save)
+  bool saved = (reply == QMessageBox::Save);
+  if (saved || reply == QMessageBox::Discard)
   {
+    discardChanges(saved);
     app_->setCurrentTabIndex(index);
     ui_->mainTabWidget->setCurrentIndex(index);
   }

@@ -34,6 +34,7 @@
 // TerraMA2
 #include "ui_ConfigAppForm.h"
 #include "ServiceHandler.hpp"
+#include "../../core/ApplicationController.hpp"
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -74,13 +75,15 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
   private:
     struct Impl;
 
-    Impl* pimpl_;
+    Impl* pimpl_; //!< Pimpl idiom
 
-    int currentTabIndex_;
+    int currentTabIndex_; //!< index of active tab
 
-    ServiceHandler* services_;
+    ServiceHandler* services_; //!< attribute for handling terrama2 services
 
-    QList<ConfigAppTab*> tabList_; //< List of TerraMA2 Configuration Tabs
+    QList<ConfigAppTab*> tabList_; //!< List of TerraMA2 Configuration Tabs
+
+    terrama2::core::ApplicationController* controller_;
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

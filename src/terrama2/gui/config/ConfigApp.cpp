@@ -44,7 +44,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-
 struct ConfigApp::Impl
 {
   Ui::ConfigAppForm* ui_;
@@ -62,7 +61,7 @@ struct ConfigApp::Impl
 
 ConfigApp::ConfigApp(QWidget* parent)
   : QMainWindow(parent),
-    pimpl_(new ConfigApp::Impl), currentTabIndex_(0)
+    pimpl_(new ConfigApp::Impl), currentTabIndex_(0), controller_(new terrama2::core::ApplicationController)
 {
 // Find TerraMA2 icon theme library
   std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
@@ -97,8 +96,8 @@ ConfigApp::ConfigApp(QWidget* parent)
   services_ = new ServiceHandler(this);
 
 // Init services for each tab
-  ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
-  ConfigAppAdditionalTab* additionalTab = new ConfigAppAdditionalTab(this, ui());
+  ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui(), controller_);
+  ConfigAppAdditionalTab* additionalTab = new ConfigAppAdditionalTab(this, ui(), controller_);
 
   tabList_.append(weatherTab);
   tabList_.append(additionalTab);
@@ -113,6 +112,7 @@ ConfigApp::~ConfigApp()
   for (auto tab: tabList_)
     delete tab;
   delete services_;
+  delete controller_;
   delete pimpl_;
 }
 
@@ -121,7 +121,7 @@ Ui::ConfigAppForm* ConfigApp::ui() const
   return pimpl_->ui_;
 }
 
-void ConfigApp::setCurrentTabIndex(const int &index)
+void ConfigApp::setCurrentTabIndex(const int& index)
 {
   currentTabIndex_ = index;
 }
@@ -140,8 +140,6 @@ void ConfigApp::tabChangeRequested(int index)
 
     tab->askForChangeTab(index);
   }
-  else
-    return;
 }
 
 void ConfigApp::disableRefreshAction()

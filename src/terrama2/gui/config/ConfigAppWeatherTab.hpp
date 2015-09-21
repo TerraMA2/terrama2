@@ -7,15 +7,12 @@
 // QT
 #include <QString>
 
-// Foward declaration
-class Services;
-
 class ConfigAppWeatherTab : public ConfigAppTab
 {
   Q_OBJECT
 
   public:
-    ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller);
     ~ConfigAppWeatherTab();
 
     void load();
@@ -33,6 +30,8 @@ class ConfigAppWeatherTab : public ConfigAppTab
   private slots:
     void onEnteredWeatherTab();
     void onWeatherTabEdited();
+    void onImportServer();
+    void onCheckConnection();
 
 };
 

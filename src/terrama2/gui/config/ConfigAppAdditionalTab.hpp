@@ -41,7 +41,7 @@ class ConfigAppAdditionalTab : public ConfigAppTab
   Q_OBJECT
 
   public:
-    ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller);
 
     virtual ~ConfigAppAdditionalTab();
 

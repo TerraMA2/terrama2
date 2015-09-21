@@ -6,10 +6,11 @@
 // QT
 #include <QMessageBox>
 #include <QLineEdit>
+#include <QFileDialog>
 
 
-ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller)
+  : ConfigAppTab(app, ui, controller)
 {
   ui_->weatherDataTree->header()->hide();
   ui_->weatherDataTree->setCurrentItem(app_->ui()->weatherDataTree->topLevelItem(0));
@@ -18,6 +19,8 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->saveBtn, SIGNAL(clicked()), SLOT(onSaveRequested()));
   connect(ui_->insertServerBtn, SIGNAL(clicked()), SLOT(onEnteredWeatherTab()));
   connect(ui_->cancelBtn, SIGNAL(clicked()), SLOT(onCancelRequested()));
+  connect(ui_->importServerBtn, SIGNAL(clicked()), SLOT(onImportServer()));
+  connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnection()));
 
   // Bind the inputs
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
@@ -28,6 +31,9 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
   connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onWeatherTabEdited()));
   connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+
+  ui_->saveBtn->setVisible(false);
+  ui_->cancelBtn->setVisible(false);
 
   ui_->weatherDataTree->clear();
 
@@ -61,7 +67,7 @@ bool ConfigAppWeatherTab::dataChanged()
 bool ConfigAppWeatherTab::validate()
 {
   // HardCode
-  for(QLineEdit* widget: ui_->mainTabWidget->findChildren<QLineEdit*>())
+  for(QLineEdit* widget: ui_->ServerPage->findChildren<QLineEdit*>())
   {
     if (widget->text() == "")
       return false;
@@ -75,8 +81,9 @@ void ConfigAppWeatherTab::save()
   {
     throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
   }
-  //Apply save process
+  // Apply save process
   discardChanges(false);
+  QMessageBox::information(app_, tr("TerraMA2"), tr("Save successfully"));
 }
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)
@@ -86,6 +93,19 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
     // Make the save procedure
   }
 
+// Clear all inputs
+  const auto& tab = ui_->ServerPage;
+
+// Clear QLineEdits
+  for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
+  {
+    widget->clear();
+  }
+
+  //Clear TextEdit (server description)
+  ui_->serverDescription->clear();
+
+// Hide the form
   ui_->ServerPage->hide();
   ui_->ServerGroupPage->show();
   changed_ = false;
@@ -94,17 +114,6 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
-// Clear all inputs
-  const auto& tab = ui_->mainTabWidget;
-
-  // Clear QLineEdits
-  for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
-  {
-    widget->clear();
-  }
-
-  //Clear TextEdit (server description)
-  ui_->serverDescription->clear();
 }
 
 void ConfigAppWeatherTab::onEnteredWeatherTab()
@@ -125,4 +134,19 @@ void ConfigAppWeatherTab::onWeatherTabEdited()
   ui_->saveBtn->setEnabled(true);
   ui_->cancelBtn->setEnabled(true);
   changed_ = true;
+}
+
+void ConfigAppWeatherTab::onImportServer()
+{
+  QString file = QFileDialog::getOpenFileName(app_, tr("Choose file"), ".", tr("TerraMA2 ( *.terrama2"));
+  if (!file.isEmpty())
+  {
+    QMessageBox::information(app_, tr("TerraMA2 Server"), tr("Opened Server File"));
+  }
+}
+
+void ConfigAppWeatherTab::onCheckConnection()
+{
+  // dispatch
+  QMessageBox::information(app_, tr("TerraMA2 Server"), tr("Connection Working..."));
 }
