@@ -20,44 +20,44 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorService.cpp
+  \file terrama2/collector/ParserOGR.hpp
 
-  \brief Test Collector service...
+  \brief Parsers OGR data and create a terralib DataSet.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_COLLECTOR_PARSEROGR_HPP__
+#define __TERRAMA2_COLLECTOR_PARSEROGR_HPP__
 
-//QT
-#include <QtTest>
+#include "Parser.hpp"
 
-
-class TestCollectorService: public QObject
+namespace terrama2
 {
-  Q_OBJECT
+  namespace collector
+  {
 
-protected:
+    class ParserOGR : public Parser
+    {
+      public:
+        ParserOGR() : Parser(){}
+        virtual ~ParserOGR(){}
 
-private slots:
-    void initTestCase(); // Run before all tests
-
-    void cleanupTestCase(); // Run after all tests
-
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Test Description
-     */
+        virtual QStringList datasetNames(const std::string &uri) const override;
 
 
+        /*!
+         * \brief TODO: document ParserOGR
+         * \param uri
+         * \return
+         *
+         * \pre TerrLib should be initialized.
+         */
+        virtual std::shared_ptr<te::da::DataSet> read(const std::string& uri, const QStringList &names) override;
+    };
+  }
+}
 
-    //******End of Test functions****
 
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+
+#endif //__TERRAMA2_COLLECTOR_PARSEROGR_HPP__

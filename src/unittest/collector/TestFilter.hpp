@@ -20,15 +20,45 @@
 */
 
 /*!
-  \file terrama2/ws/collector/core/Config.hpp
+  \file terrama2/collector/TestFilter.hpp
 
-  \brief Build options for TerraMA2 Collector Service Core module.
+  \brief Tests for the TestFilter class.
 
-  \author Vinicius Camapanha
- */
+  \author Jano Simas
+*/
 
-#ifndef __TERRAMA2_WS_COLLECTOR_CORE_CONFIG_HPP__
-#define __TERRAMA2_WS_COLLECTOR_CORE_CONFIG_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+
+//Qt
+#include <QtTest>
+
+class TestFilter: public QObject
+{
+  Q_OBJECT
+
+private slots:
+
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
+
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
+
+    //******Test functions********
+
+    /*!
+     * \brief Tests if the filter matches exact name.
+     */
+    void TestFilterNamesExact();
+
+    /*!
+     * \brief Tests behavior with no mask set.
+     */
+    void TestEmptyMask();
 
 
-#endif // __TERRAMA2_WS_COLLECTOR_CORE_CONFIG_HPP__
+    //******End of Test functions****
+};
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__

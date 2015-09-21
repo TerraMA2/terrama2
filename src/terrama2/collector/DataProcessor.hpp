@@ -42,6 +42,14 @@
 //Boost
 #include <boost/noncopyable.hpp>
 
+namespace te
+{
+  namespace da
+  {
+    class DataSource;
+  }
+}
+
 namespace terrama2
 {
   namespace core {
@@ -53,6 +61,10 @@ namespace terrama2
   {
     class Filter;
     typedef std::shared_ptr<Filter> FilterPtr;
+    class Parser;
+    typedef std::shared_ptr<Parser> ParserPtr;
+    class Storager;
+    typedef std::shared_ptr<Storager> StoragerPtr;
 
     /*!
          * \brief The DataProcessor class is responsible to process and store the aquired data.
@@ -68,12 +80,26 @@ namespace terrama2
 
       public:
         //! Constructor
-        DataProcessor(QObject* parent = nullptr);
+        DataProcessor(core::DataPtr data, QObject* parent = nullptr);
         //! Destructor
-        ~DataProcessor(){}
+        ~DataProcessor();
 
+        /*!
+         * \brief Data object being processed by this processor.
+         * \return Shared pointer to the Data object.
+         */
         core::DataPtr data() const;
 
+        /*!
+         * \brief Filtering rules for the data.
+         *
+         * The filter object is able to filter file names to match the Data mask
+         * and filter the data with according rules. [Filter]{\ref terrama2::collector::Filter}
+         *
+         * \pre The usage of this function assumes that the filtering rules are already set.
+         *
+         * \return Shared pointer to a filter object.
+         */
         FilterPtr filter() const;
 
         /*!
@@ -82,6 +108,9 @@ namespace terrama2
              */
         void import(const std::string &uri);
 
+      private:
+        struct Impl;
+        Impl* impl_;
     };
 
     typedef std::shared_ptr<DataProcessor> DataProcessorPtr;

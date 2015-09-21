@@ -29,13 +29,49 @@
 
 #include "Filter.hpp"
 
-std::vector<std::string> terrama2::collector::Filter::filterNames(const std::vector<std::string> &namesList) const
+struct terrama2::collector::Filter::Impl
 {
+    std::string mask_;
+    te::gm::GeometryShrPtr  geometry_;
+    te::gm::SpatialRelation relationRule_;
+};
 
+QStringList terrama2::collector::Filter::filterNames(const QStringList& namesList) const
+{
+  //TODO: Implement filterNames
+  if(impl_->mask_.empty())
+    return namesList;
+
+  QStringList matchNames;
+  for(const QString &name : namesList)
+  {
+    //TODO: how is the match? regex?
+    if(name.toStdString() == impl_->mask_)
+      matchNames.append(name);
+  }
+
+  return matchNames;
+}
+
+std::shared_ptr<te::da::DataSet> terrama2::collector::Filter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const
+{
+  //TODO: Implement filterDataSet
+  return dataSet;
 }
 
 
+terrama2::collector::Filter::Filter()
+{
+  impl_ = new Impl();
+  impl_->relationRule_ = te::gm::UNKNOWN_SPATIAL_RELATION;
+}
+
+terrama2::collector::Filter::~Filter()
+{
+  delete impl_;
+}
+
 void terrama2::collector::Filter::setMask(const std::string &mask)
 {
-
+  impl_->mask_ = mask;
 }

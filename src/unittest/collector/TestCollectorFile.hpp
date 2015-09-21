@@ -20,44 +20,55 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorService.cpp
+  \file terrama2/collector/TestCollectorFile.hpp
 
-  \brief Test Collector service...
+  \brief Tests for the CollectorFile class.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
 
-//QT
+//Qt
 #include <QtTest>
 
-
-class TestCollectorService: public QObject
+class TestCollectorFile: public QObject
 {
   Q_OBJECT
 
-protected:
-
 private slots:
-    void initTestCase(); // Run before all tests
 
-    void cleanupTestCase(); // Run after all tests
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
     //******Test functions********
 
     /*!
-     * \brief Test Description
+     * \brief Tests a normal constructor.
      */
+    void TestNormalBehavior();
 
+    /*!
+     * \brief Tests an invalid dataprovider.
+     */
+    void TestNullDataProvider();
+
+    /*!
+     * \brief Test DataProvider with kind different from file.
+     */
+    void TestWrongDataProviderKind();
+
+    /*!
+     * \brief Test if a temporary dir exists.
+     */
+    void TestCheckConnection();
 
 
     //******End of Test functions****
-
 };
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
