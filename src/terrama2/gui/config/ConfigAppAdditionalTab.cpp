@@ -20,29 +20,51 @@
 */
 
 /*!
-  \file terrama2/gui/config/ServiceHandler.cpp
+  \file terrama2/gui/config/ConfigAppAdditionalTab.cpp
 
-  \brief This class contains all TerraMA2 Services implementation
+  \brief Definition of Class ConfigAppAdditionalTab.hpp
 
-  \author Raphael Willian da Costa
+  \author Evandro Delatin
+  \author Raphael Willian da Costa  
+  \author Carlos Augusto Teixeira Mendes
 */
 
 // TerraMA2
-#include "ServiceHandler.hpp"
-#include "../core/ConfigManager.hpp"
+#include "ConfigAppAdditionalTab.hpp"
 
-ServiceHandler::ServiceHandler(QMainWindow* app)
-  : configManager_(new ConfigManager(app))
+
+ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui)
+  : ConfigAppTab(app, ui)
 {
 
 }
 
-ServiceHandler::~ServiceHandler()
+ConfigAppAdditionalTab::~ConfigAppAdditionalTab()
+{
+}
+
+
+void ConfigAppAdditionalTab::load()
 {
 
 }
 
-void ServiceHandler::loadConfiguration(QString filepath)
+bool ConfigAppAdditionalTab::dataChanged()
 {
-  configManager_->loadConfiguration(filepath);
+  return false;
+}
+
+bool ConfigAppAdditionalTab::validate()
+{
+  return true;
+}
+
+void ConfigAppAdditionalTab::save()
+{
+
+}
+
+void ConfigAppAdditionalTab::discardChanges(bool restore_data)
+{
+
 }
