@@ -62,6 +62,7 @@ namespace terrama2
          * This class is an interface to open a connection with a [DataProvider](\ref terrama2::core::DataProvider)
          * and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
          *
+         *
          */
     class Collector : public QObject, public boost::noncopyable
     {
@@ -126,9 +127,12 @@ namespace terrama2
         //! \brief Close the connection, if not open, does nothing.
         virtual void close() = 0;
 
+        //! \brief Check if possible to connect
+        virtual bool checkConnection() const = 0;
+
       protected:
         //! \brief Aquired the data specified in dataProcessor.
-        virtual void getData(const DataProcessorPtr dataProcessor) = 0;
+        virtual std::string retrieveData(const DataProcessorPtr dataProcessor) = 0;
 
         core::DataProviderPtr dataProvider_; //!< Data provider information.
 

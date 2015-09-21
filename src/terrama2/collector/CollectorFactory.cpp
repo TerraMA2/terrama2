@@ -31,17 +31,6 @@
 #include "CollectorFactory.hpp"
 #include "Exception.hpp"
 
-terrama2::collector::CollectorFactory* terrama2::collector::CollectorFactory::instance_ = nullptr;
-
-terrama2::collector::CollectorFactory& terrama2::collector::CollectorFactory::instance()
-{
-
-  if(!instance_)
-    instance_ = new CollectorFactory();
-
-  return *instance_;
-}
-
 terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
 {
   //JANO: implementar getCollector
@@ -56,4 +45,9 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getColl
   }
 
   return collectorMap_.value(dataProvider->id());
+}
+
+void terrama2::collector::CollectorFactory::removeCollector(const terrama2::core::DataProviderPtr dataProvider)
+{
+  collectorMap_.remove(dataProvider->id());
 }

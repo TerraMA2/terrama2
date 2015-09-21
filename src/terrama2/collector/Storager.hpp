@@ -56,7 +56,7 @@ namespace terrama2
              *
              * \exception TODO: Storager::store exception...
              */
-        virtual te::da::DataSetPtr store(const te::da::DataSetPtr tempDataSet );
+        virtual std::shared_ptr<te::da::DataSet> store(const std::shared_ptr<te::da::DataSet> tempDataSet );
 
     };
   }

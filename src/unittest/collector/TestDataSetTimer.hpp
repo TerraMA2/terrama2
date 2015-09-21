@@ -27,6 +27,9 @@
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
+
 //Qt
 #include <QtTest>
 
@@ -50,10 +53,12 @@ private slots:
     void TestNullDataSet();
 
     /*!
-     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     * \brief Tests the timer signal emition.
      */
     void TestTimerSignalEmit();
 
 
     //******End of Test functions****
 };
+
+#endif//__TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__

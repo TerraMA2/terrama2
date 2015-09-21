@@ -20,44 +20,45 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorService.cpp
+  \file terrama2/collector/TestFilter.hpp
 
-  \brief Test Collector service...
+  \brief Tests for the TestFilter class.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
 
-//QT
+//Qt
 #include <QtTest>
 
-
-class TestCollectorService: public QObject
+class TestFilter: public QObject
 {
   Q_OBJECT
 
-protected:
-
 private slots:
-    void initTestCase(); // Run before all tests
 
-    void cleanupTestCase(); // Run after all tests
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
     //******Test functions********
 
     /*!
-     * \brief Test Description
+     * \brief Tests if the filter matches exact name.
      */
+    void TestFilterNamesExact();
 
+    /*!
+     * \brief Tests behavior with no mask set.
+     */
+    void TestEmptyMask();
 
 
     //******End of Test functions****
-
 };
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__

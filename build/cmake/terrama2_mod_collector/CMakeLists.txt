@@ -50,7 +50,6 @@ qt5_use_modules(terrama2_mod_collector Widgets)
 
 target_link_libraries(terrama2_mod_collector terrama2_mod_core
                                              terralib_mod_dataaccess
-                                             terralib_mod_ogr
                                              terralib_mod_memory
                                              ${Boost_FILESYSTEM_LIBRARY}
                                              ${Boost_SYSTEM_LIBRARY})
