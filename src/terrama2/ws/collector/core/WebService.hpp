@@ -45,23 +45,6 @@
 int Web__ping(std::string &answer);
 
 // VINICIUS_TODO: write the methods documentation
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-int Web__restart(void);
-
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-int Web__shutdown(void);
 
 /*!
   \brief

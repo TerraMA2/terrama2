@@ -29,6 +29,7 @@
 
 // STL
 #include <memory>
+#include <vector>
 
 // TerraMA2
 #include "../core/Utils.hpp"
@@ -39,7 +40,6 @@
 #include "Web.nsmap"
 
 
-
 int WebService::ping(std::string &answer)
 {
   answer = "TerraMA2 pong!";
@@ -47,24 +47,9 @@ int WebService::ping(std::string &answer)
 }
 
 
-int WebService::restart(void)
-{
-  return SOAP_OK;
-}
-
-
-int WebService::shutdown(void)
-{
-  return SOAP_OK;
-}
-
-
 int WebService::addDataProvider(DataProvider struct_dataprovider)
 {
-
-  auto DataProviderPtr = std::make_shared<terrama2::core::DataProvider>(terrama2::ws::collector::core::Struct2DataProvider<DataProvider, terrama2::core::DataProvider>(struct_dataprovider));
-
-  terrama2::core::DataManager::getInstance().add(DataProviderPtr);
+  terrama2::core::DataManager::getInstance().add(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataprovider));
 
   return SOAP_OK;
 }
@@ -82,10 +67,7 @@ int WebService::addDataset(DataSet struct_dataset)
 
 int WebService::updateDataProvider(DataProvider struct_dataprovider)
 {
-
-  auto DataProviderPtr = std::make_shared<terrama2::core::DataProvider>(terrama2::ws::collector::core::Struct2DataProvider<DataProvider, terrama2::core::DataProvider>(struct_dataprovider));
-
-  terrama2::core::DataManager::getInstance().update(DataProviderPtr);
+  terrama2::core::DataManager::getInstance().update(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataprovider));
 
   return SOAP_OK;
 }
@@ -115,17 +97,17 @@ int WebService::removeDataSet(uint64_t id)
 }
 
 
-int WebService::findDataProvider(uint64_t id, struct DataProvider &struct_dataprovider)
+int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
 {
   auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(id);
 
-  struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<terrama2::core::DataProviderPtr, DataProvider>(dataproviderPtr);
+  struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataproviderPtr);
 
   return SOAP_OK;
 }
 
 
-int WebService::findDataSet(uint64_t id, struct DataSet &struct_dataset)
+int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
 {
   auto datasetPtr = terrama2::core::DataManager::getInstance().findDataSet(id);
 
@@ -135,13 +117,27 @@ int WebService::findDataSet(uint64_t id, struct DataSet &struct_dataset)
 }
 
 
-int WebService::listDataProvider(std::vector< struct DataProvider > &data_provider_list)
+int WebService::listDataProvider(std::vector< DataProvider > &data_provider_list)
 {
+  std::vector<terrama2::core::DataProviderPtr> dataproviders = terrama2::core::DataManager::getInstance().providers();
+
+  for(uint32_t i = 0; i < dataproviders.size() ; i++)
+  {
+    data_provider_list.push_back(terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataproviders.at(i)));
+  }
+
   return SOAP_OK;
 }
 
 
-int WebService::listDataSet(std::vector< struct DataSet > &data_set_list)
+int WebService::listDataSet(std::vector< DataSet > &data_set_list)
 {
+  std::vector<terrama2::core::DataSetPtr> datasets = terrama2::core::DataManager::getInstance().dataSets();
+
+  for(uint32_t i = 0; i < datasets.size() ; i++)
+  {
+    data_set_list.push_back(terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(datasets.at(i)));
+  }
+
   return SOAP_OK;
 }
