@@ -33,6 +33,7 @@
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
 #include "DataSetItem.hpp"
+#include "Filter.hpp"
 
 // STL
 #include <string>
@@ -144,6 +145,16 @@ namespace terrama2
    terrama2::core::DataSetItem::Kind IntToDataSetItemKind(uint64_t kind);
 
    /*!
+     \brief Returns a enum with the type of filter based on the given parameter.
+
+     \param kind Kind that determine the type of filter.
+
+     \return Enum with the type of filter.
+    */
+
+   terrama2::core::Filter::ByValueType IntToFilterByValueType(uint64_t type);
+
+   /*!
      \brief Returns a QJsonObject based on the given parameter
 
      \param filepath const std::string that represents absolute file path.
@@ -151,6 +162,7 @@ namespace terrama2
      \return QJsonObject with TerraMA2 JSON configuration
    */
    QJsonObject OpenFile(const std::string& filepath);
+
 
   } // end namespace core
 }   // end namespace terrama2
