@@ -45,12 +45,12 @@ struct DataSet
   std::string   name;
   std::string   description;
   uint32_t      status;
-  uint64_t       data_provider_id;
+  uint64_t      data_provider_id;
   uint32_t      kind;
-  uint32_t      data_frequency;
+  std::string      data_frequency;
   std::string   schedule;
-  uint32_t      schedule_retry;
-  uint32_t      schedule_timeout;
+  std::string      schedule_retry;
+  std::string      schedule_timeout;
 };
 
 

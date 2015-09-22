@@ -32,6 +32,7 @@
 
 // TerraMA2
 #include "DataSet.hpp"
+#include "Filter.hpp"
 
 // STL
 #include <vector>
@@ -107,9 +108,7 @@ namespace terrama2
           \param transactor Data source transactor.
           \return Vector with all datasets.
          */
-        static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);
-
-
+        static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);        
 
       private:
 
@@ -169,10 +168,33 @@ namespace terrama2
 
         /*!
            \brief Updates the list of dataset item from a given dataset.
-           \param dataSet The dataset that to update.
+           \param dataSet The dataset to update.
            \param transactor Data source transactor.
          */
         static void updateDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Retrieve a the filter from a given dataset ID.
+
+          \param dataSetItem The dataset item.
+          \param transactor Data source transactor.
+          \return The filter from the dataset item.
+         */
+        static terrama2::core::FilterPtr getFilter(terrama2::core::DataSetItemPtr dataSetItem, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the given filter.
+           \param filter The filter to persist.
+           \param transactor Data source transactor.
+         */
+        static void saveFilter(const uint64_t dataSetItemId, terrama2::core::FilterPtr filter, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Updates the given filter.
+           \param filter The filter to update.
+           \param transactor Data source transactor.
+         */
+        static void updateFilter(terrama2::core::FilterPtr filter, te::da::DataSourceTransactor& transactor);
 
         //! Not instantiable.
         DataSetDAO();

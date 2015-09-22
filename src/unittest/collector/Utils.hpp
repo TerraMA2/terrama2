@@ -27,8 +27,8 @@
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_TESTUTILS_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_TESTUTILS_HPP__
 
 void initializeTerralib();
 
@@ -38,4 +38,4 @@ void initializeTerraMA2();
 
 void finalizeTerraMA2();
 
-#endif // __TERRAMA2_UNITTEST_CORE_TESTUTILS_HPP__
+#endif // __TERRAMA2_UNITTEST_COLLECTOR_TESTUTILS_HPP__

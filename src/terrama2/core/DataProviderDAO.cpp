@@ -74,20 +74,7 @@ void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
 // Then, adds it to the data source
   transactor.add(dataSetName, dataSet.get(), options);
 
-// TODO: Remove this after getLastGeneratedId is implemented
-  std::string sql("SELECT id FROM " + dataSetName + " WHERE name = '" + dataProvider->name() + "'");
-
-  std::auto_ptr<te::da::DataSet> dataSetId = transactor.query(sql);
-
-  if(dataSetId->moveNext())
-  {
-    dataProvider->setId(dataSetId->getInt32("id"));
-  }
-
-
-// Recovers the generated id and sets it in the provider
-// TODO: Implement getLastGeneratedId in TerraLib
-//dataProvider->setId(transactor_->getLastGeneratedId());
+  dataProvider->setId(transactor.getLastGeneratedId());
 
 // save all datasets in this provider, it must be zero.
   foreach (auto ds, dataProvider->dataSets())

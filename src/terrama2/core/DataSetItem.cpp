@@ -31,14 +31,15 @@
 #include "DataSetItem.hpp"
 #include "DataSet.hpp"
 
-terrama2::core::DataSetItem::DataSetItem(DataSetPtr dataSet, Kind kind)
-  : id_(0),
+terrama2::core::DataSetItem::DataSetItem(DataSetPtr dataSet, Kind kind, const uint64_t id)
+  : id_(id),
     status_(INACTIVE),
     dataSet_(dataSet),
     kind_(kind)
 {
 
 }
+
 
 terrama2::core::DataSetItem::~DataSetItem()
 {
@@ -98,4 +99,14 @@ void terrama2::core::DataSetItem::setTimezone(const std::string& timezone)
 terrama2::core::DataSetPtr terrama2::core::DataSetItem::dataSet() const
 {
   return dataSet_;
+}
+
+terrama2::core::FilterPtr terrama2::core::DataSetItem::filter() const
+{
+  return filter_;
+}
+
+void terrama2::core::DataSetItem::setFilter(terrama2::core::FilterPtr filter)
+{
+  filter_ = filter;
 }

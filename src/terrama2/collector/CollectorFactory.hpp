@@ -36,8 +36,8 @@
 //Qt
 #include <QMap>
 
-//Boost
-#include <boost/noncopyable.hpp>
+//Teralib
+#include <terralib/common/Singleton.h>
 
 namespace terrama2
 {
@@ -57,11 +57,9 @@ namespace terrama2
          * create an instace of a collector of the appropriate derived classe and return a shared pointer to it.
          *
          */
-    class CollectorFactory : public boost::noncopyable//TODO: As it only has one method should it be an static method? not a class?
+    class CollectorFactory : public te::common::Singleton<CollectorFactory>
     {
       public:
-        //! \brief Get the current instance of CollectorFactory, if none, instantiate one.
-        static CollectorFactory& instance();
 
         /*!
              * \brief Returns the instace of the collector or instatiate a new collector of the appropriate derived classe and return a shared pointer to it.
@@ -72,19 +70,16 @@ namespace terrama2
              */
         CollectorPtr getCollector(const core::DataProviderPtr dataProvider);
 
+        /*!
+         * \brief Remove the collector from the list.
+         *
+         * If there is no collector for the dataProvider, nothing is done.
+         *
+         * \param dataProvider Collector's DataProvider.
+         */
+        void removeCollector(const core::DataProviderPtr dataProvider);
+
       private:
-        //! Contructor
-        CollectorFactory() {}
-        //! Destructor
-        ~CollectorFactory();
-
-        //! No copy allowed.
-        CollectorFactory(const CollectorFactory&);
-
-        //! No copy allowed.
-        CollectorFactory& operator=(const CollectorFactory&);
-
-        static CollectorFactory* instance_; //!< Current instance of the CollectorFactory.
 
         QMap<int /*DataProviderId*/, CollectorPtr> collectorMap_;
 

@@ -31,35 +31,48 @@
 
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/collector/DataSetTimer.hpp>
+#include <terrama2/collector/Exception.hpp>
 
 //Qt
 #include <QtTest>
+#include <QMetaType>//for signals with uint64_t
+
+//STD
+#include <cstdint>
 
 void TestDataSetTimer::TestNullDataSet()
 {
   terrama2::core::DataSetPtr nullDataSet;
-  terrama2::collector::DataSetTimer nullDataSetTimer(nullDataSet);
 
-  QVERIFY(!nullDataSetTimer.isValid());
+  try
+  {
+    terrama2::collector::DataSetTimer nullDataSetTimer(nullDataSet);
+
+    QFAIL("Should not be here!");
+  }
+  catch(terrama2::collector::InvalidDataSetException& e)
+  {
+    return;
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here!");
+  }
+
+  QFAIL("Should not be here!");
 }
 
 void TestDataSetTimer::TestTimerSignalEmit()
 {
-  QEventLoop loop;
-  QTimer timeout;
-  connect(&timeout, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-  terrama2::core::DataSetPtr dataSet;//TODO: create a valid dataset
+  terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(nullptr, "dummy", terrama2::core::DataSet::UNKNOWN_TYPE));
+  te::dt::TimeDuration freq(0,0,10);
+  dataSet->setDataFrequency(freq);
   terrama2::collector::DataSetTimer dataSetTimer(dataSet);
 
+  qRegisterMetaType<uint64_t>("uint64_t");
   QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
-  connect(&dataSetTimer, SIGNAL(timerSignal(uint64_t)), &loop, SLOT(quit()));
 
-  timeout.start(20000);
-
-  loop.exec(); //blocks untill either timerSignal or timeout was fired
-
-  QCOMPARE(spy.count(), 1);
+  QVERIFY(spy.wait(20000));
 }
 
 

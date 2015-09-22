@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorOGC.hpp
+  \file terrama2/collector/CollectorFile.hpp
 
   \brief Aquire data from server.
 
@@ -28,10 +28,13 @@
 */
 
 
-#ifndef __TERRAMA2_COLLECTOR_COLLECTOROGC_HPP__
-#define __TERRAMA2_COLLECTOR_COLLECTOROGC_HPP__
+#ifndef __TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
 
 #include "Collector.hpp"
+
+//Qt
+#include <QDir>
 
 namespace te
 {
@@ -44,25 +47,33 @@ namespace terrama2
 {
   namespace collector
   {
-    class CollectorOGR : public Collector
+    class CollectorFile : public Collector
     {
       public:
-        CollectorOGR(const terrama2::core::DataProviderPtr dataProvider, QObject *parent = nullptr);
-        virtual ~CollectorOGR(){}
+        /*!
+         * \brief TODO: document CollectorFile
+         * \param dataProvider
+         * \param parent
+         *
+         * \exception InvalidDataProviderException
+         * \exception WrongDataProviderKindException
+         */
+        CollectorFile(const terrama2::core::DataProviderPtr dataProvider, QObject *parent = nullptr);
+        virtual ~CollectorFile(){}
 
+        virtual bool checkConnection() const override;
         virtual bool isOpen() const override;
         virtual void open() override;
         virtual void close() override;
 
       protected:
-        virtual void getData(const DataProcessorPtr dataProcessor) override;
+        virtual std::string retrieveData(const DataProcessorPtr) override;
 
-        std::auto_ptr<te::da::DataSource> dataSource_;
-
+        QDir dir_;
     };
   }
 }
 
 
 
-#endif //__TERRAMA2_COLLECTOR_COLLECTOROGC_HPP__
+#endif //__TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
