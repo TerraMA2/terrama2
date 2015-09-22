@@ -154,5 +154,6 @@ void ConfigApp::openRequested()
   if (!file.isEmpty())
   {
     services_->loadConfiguration(file);
+    controller_->loadProject(file.toStdString());
   }
 }

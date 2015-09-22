@@ -81,6 +81,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! It calls the save method inside a try/catch block and check if there are any exception has found
     virtual void validateAndSaveChanges();
 
+    //! It asks to change tab, giving the index as parameter
     virtual void askForChangeTab(const int index);
 
   public slots:
