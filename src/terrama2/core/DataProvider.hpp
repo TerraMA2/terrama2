@@ -82,7 +82,7 @@ namespace terrama2
         /*!
           \brief Constructor
         */
-        DataProvider(const std::string& name, Kind kind);
+        DataProvider(const std::string& name, Kind kind, const uint64_t id = 0);
 
         /*!
           \brief Destructor.
