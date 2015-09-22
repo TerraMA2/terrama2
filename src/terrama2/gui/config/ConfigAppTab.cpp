@@ -34,10 +34,13 @@ void ConfigAppTab::validateAndSaveChanges()
   }
 }
 
-void ConfigAppTab::askForChangeTab(const int index)
+void ConfigAppTab::askForChangeTab(const int& index)
 {
   if (!dataChanged())
+  {
+    app_->setCurrentTabIndex(index);
     return;
+  }
 
   // Used here to avoid change tab
   ui_->mainTabWidget->setCurrentIndex(app_->getCurrentTabIndex());
@@ -49,10 +52,11 @@ void ConfigAppTab::askForChangeTab(const int index)
                                       QMessageBox::Save);
 
   bool saved = (reply == QMessageBox::Save);
+  app_->setCurrentTabIndex(index);
   if (saved || reply == QMessageBox::Discard)
   {
     discardChanges(saved);
-    app_->setCurrentTabIndex(index);
+
     ui_->mainTabWidget->setCurrentIndex(index);
   }
 }

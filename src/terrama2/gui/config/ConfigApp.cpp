@@ -44,6 +44,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+
 struct ConfigApp::Impl
 {
   Ui::ConfigAppForm* ui_;
@@ -59,8 +60,8 @@ struct ConfigApp::Impl
   }
 };
 
-ConfigApp::ConfigApp(QWidget* parent)
-  : QMainWindow(parent),
+ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
+  : QMainWindow(parent, flags),
     pimpl_(new ConfigApp::Impl), currentTabIndex_(0), controller_(new terrama2::core::ApplicationController)
 {
 // Find TerraMA2 icon theme library
@@ -96,8 +97,8 @@ ConfigApp::ConfigApp(QWidget* parent)
   services_ = new ServiceHandler(this);
 
 // Init services for each tab
-  ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui(), controller_);
-  ConfigAppAdditionalTab* additionalTab = new ConfigAppAdditionalTab(this, ui(), controller_);
+  QSharedPointer<ConfigAppWeatherTab> weatherTab(new ConfigAppWeatherTab(this, ui(), controller_));
+  QSharedPointer<ConfigAppAdditionalTab> additionalTab(new ConfigAppAdditionalTab(this, ui(), controller_));
 
   tabList_.append(weatherTab);
   tabList_.append(additionalTab);
@@ -109,8 +110,6 @@ ConfigApp::ConfigApp(QWidget* parent)
 
 ConfigApp::~ConfigApp()
 {
-  for (auto tab: tabList_)
-    delete tab;
   delete services_;
   delete controller_;
   delete pimpl_;
@@ -136,7 +135,7 @@ void ConfigApp::tabChangeRequested(int index)
   if(index != currentTabIndex_)
   {
     // Check if the tab may be changed
-    ConfigAppTab* tab = tabList_.at(currentTabIndex_);
+    QSharedPointer<ConfigAppTab> tab(tabList_.at(currentTabIndex_));
 
     tab->askForChangeTab(index);
   }

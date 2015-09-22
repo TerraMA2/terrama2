@@ -82,7 +82,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     virtual void validateAndSaveChanges();
 
     //! It asks to change tab, giving the index as parameter
-    virtual void askForChangeTab(const int index);
+    virtual void askForChangeTab(const int& index);
 
   public slots:
 
