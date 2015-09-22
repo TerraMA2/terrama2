@@ -65,10 +65,10 @@ namespace terrama2
 
         \return terrama2::core::DataProvider that contains the data in gSOAP struct DataProvider passed.
       */
-        template<typename T1, typename T2> T2 Struct2DataProvider(T1);
+        template<typename T1> terrama2::core::DataProviderPtr Struct2DataProviderPtr(T1);
 
 
-        template<typename T1, typename T2> T2 DataProviderPtr2Struct(T1);
+        template<typename T1, typename T2>  T2 DataProviderPtr2Struct(T1);
 
         // VINICIUS: check if need to create a Struct2DataProviderPtr
 
@@ -81,18 +81,18 @@ namespace terrama2
   }
 }
 
-template <typename T1, typename T2>
-T2 terrama2::ws::collector::core::Struct2DataProvider(T1 struct_dataprovider)
+template <typename T1>
+terrama2::core::DataProviderPtr terrama2::ws::collector::core::Struct2DataProviderPtr(T1 struct_dataprovider)
 {
   // VINICIUS: check if a DataProvider constructor that receives (id, name, kind) was implemented
   //T2 dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind, struct_dataprovider.id);
-  T2 dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind);
+  terrama2::core::DataProvider dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind);
 
   dataprovider.setDescription(struct_dataprovider.description);
   dataprovider.setUri(struct_dataprovider.uri);
   dataprovider.setStatus((terrama2::core::DataProvider::Status)struct_dataprovider.status);
 
-  return dataprovider;
+  return std::make_shared<terrama2::core::DataProvider>(dataprovider);
 
 }
 
@@ -132,15 +132,12 @@ terrama2::core::DataSetPtr terrama2::ws::collector::core::Struct2DataSetPtr(T1 s
   boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string(struct_dataset.schedule_retry));
   boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string(struct_dataset.schedule_timeout));
 
-
   dataset.setDataFrequency(te::dt::TimeDuration(dataFrequency));
   dataset.setSchedule(te::dt::TimeDuration(schedule));
   dataset.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataset.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
-  auto datasetPtr = std::make_shared<terrama2::core::DataSet>(dataset);
-
-  return datasetPtr;
+  return std::make_shared<terrama2::core::DataSet>(dataset);
 }
 
 

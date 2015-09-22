@@ -62,9 +62,7 @@ int WebService::shutdown(void)
 int WebService::addDataProvider(DataProvider struct_dataprovider)
 {
 
-  auto DataProviderPtr = std::make_shared<terrama2::core::DataProvider>(terrama2::ws::collector::core::Struct2DataProvider<DataProvider, terrama2::core::DataProvider>(struct_dataprovider));
-
-  terrama2::core::DataManager::getInstance().add(DataProviderPtr);
+  terrama2::core::DataManager::getInstance().add(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataprovider));
 
   return SOAP_OK;
 }
@@ -82,10 +80,7 @@ int WebService::addDataset(DataSet struct_dataset)
 
 int WebService::updateDataProvider(DataProvider struct_dataprovider)
 {
-
-  auto DataProviderPtr = std::make_shared<terrama2::core::DataProvider>(terrama2::ws::collector::core::Struct2DataProvider<DataProvider, terrama2::core::DataProvider>(struct_dataprovider));
-
-  terrama2::core::DataManager::getInstance().update(DataProviderPtr);
+  terrama2::core::DataManager::getInstance().update(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataprovider));
 
   return SOAP_OK;
 }
@@ -115,7 +110,7 @@ int WebService::removeDataSet(uint64_t id)
 }
 
 
-int WebService::findDataProvider(uint64_t id, struct DataProvider &struct_dataprovider)
+int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
 {
   auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(id);
 
@@ -125,7 +120,7 @@ int WebService::findDataProvider(uint64_t id, struct DataProvider &struct_datapr
 }
 
 
-int WebService::findDataSet(uint64_t id, struct DataSet &struct_dataset)
+int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
 {
   auto datasetPtr = terrama2::core::DataManager::getInstance().findDataSet(id);
 
@@ -135,13 +130,13 @@ int WebService::findDataSet(uint64_t id, struct DataSet &struct_dataset)
 }
 
 
-int WebService::listDataProvider(std::vector< struct DataProvider > &data_provider_list)
+int WebService::listDataProvider(std::vector< DataProvider > &data_provider_list)
 {
   return SOAP_OK;
 }
 
 
-int WebService::listDataSet(std::vector< struct DataSet > &data_set_list)
+int WebService::listDataSet(std::vector< DataSet > &data_set_list)
 {
   return SOAP_OK;
 }
