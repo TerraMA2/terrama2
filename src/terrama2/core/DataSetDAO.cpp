@@ -39,6 +39,7 @@
 #include <map>
 #include <memory>
 #include <algorithm>
+#include <cstdlib>
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -113,8 +114,8 @@ void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da
 
   // Persist the collect rules and sets the generated id
   saveDataSetItemList(dataSet->id(), dataSet->dataSetItemList(), transactor);
-  auto dataSetItemList = getDataSetItemList(dataSet, transactor);
-  dataSet->setDataSetItemList(dataSetItemList);
+
+
 }
 
 
@@ -218,7 +219,7 @@ terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(uint64_t id, te::da:
     te::dt::TimeDuration teTDScheduleTimeout(tdScheduleTimeout);
     dataset->setScheduleTimeout(teTDScheduleTimeout);
 
-    // Sets the collect rules    
+    // Sets the collect rules
     auto collectRules = getCollectRules(id, transactor);
     dataset->setCollectRules(collectRules);
 
@@ -393,12 +394,16 @@ std::vector<terrama2::core::DataSetItemPtr> terrama2::core::DataSetDAO::getDataS
   while(tempDataSet->moveNext())
   {
     terrama2::core::DataSetItem::Kind kind = IntToDataSetItemKind(tempDataSet->getInt32("kind"));
-    terrama2::core::DataSetItemPtr data(new terrama2::core::DataSetItem(dataSet, kind));
-    data->setId(tempDataSet->getInt32("id"));
-    data->setStatus(BoolToDataSetItemStatus(tempDataSet->getBool("active")));
-    data->setMask(tempDataSet->getString("mask"));
-    data->setTimezone(tempDataSet->getString("timezone"));
-    dataSetItemList.push_back(data);
+    terrama2::core::DataSetItemPtr dataSetItem(new terrama2::core::DataSetItem(dataSet, kind));
+    dataSetItem->setId(tempDataSet->getInt32("id"));
+    dataSetItem->setStatus(BoolToDataSetItemStatus(tempDataSet->getBool("active")));
+    dataSetItem->setMask(tempDataSet->getString("mask"));
+    dataSetItem->setTimezone(tempDataSet->getString("timezone"));
+
+    // Retrieve the filter
+    dataSetItem->setFilter(getFilter(dataSetItem, transactor));
+
+    dataSetItemList.push_back(dataSetItem);
   }
 
   return dataSetItemList;
@@ -412,27 +417,38 @@ void terrama2::core::DataSetDAO::saveDataSetItemList(const int64_t dataSetId, co
   te::dt::Property* idProperty = dataSetType->getProperty(0);
   dataSetType->remove(idProperty);
 
-  // Creates a memory dataset from the DataSetType without column id
-  std::shared_ptr<te::mem::DataSet> memDataSet(new te::mem::DataSet(dataSetType.get()));
   std::map<std::string, std::string> options;
 
 
-  for (int i = 0; i < dataSetItemList.size(); ++i)
+  for (unsigned int i = 0; i < dataSetItemList.size(); ++i)
   {
-    DataSetItemPtr data = dataSetItemList[i];
+
+    // Creates a memory dataset from the DataSetType without column id
+    std::shared_ptr<te::mem::DataSet> memDataSet(new te::mem::DataSet(dataSetType.get()));
+
+    DataSetItemPtr dataSetItem = dataSetItemList[i];
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
 
     // Sets the values in the item
-    dsItem->setBool("active", DataSetItemStatusToBool(data->status()));
-    dsItem->setInt32("kind", static_cast<int>(data->kind()));
+    dsItem->setBool("active", DataSetItemStatusToBool(dataSetItem->status()));
+    dsItem->setInt32("kind", static_cast<int>(dataSetItem->kind()));
     dsItem->setInt32("dataset_id", dataSetId);
-    dsItem->setString("mask", data->mask());
-    dsItem->setString("timezone", data->timezone());
+    dsItem->setString("mask", dataSetItem->mask());
+    dsItem->setString("timezone", dataSetItem->timezone());
     memDataSet->add(dsItem);
+
+
+    // Adds it to the data source
+    transactor.add(dataSetName, memDataSet.get(), options);
+
+    // Sets the id
+    dataSetItem->setId(transactor.getLastGeneratedId());
+
+    // Save the filter
+    saveFilter(dataSetItem->id(), dataSetItem->filter(), transactor);
+
   }
 
-  // Adds it to the data source
-  transactor.add(dataSetName, memDataSet.get(), options);
 }
 
 
@@ -476,16 +492,105 @@ void terrama2::core::DataSetDAO::updateDataSetItemList(terrama2::core::DataSetPt
     }
   }
 
-  for (int i = 0; i < ids.size(); ++i)
+  // Delete from database the dataset itens that don't exist anymore.
+  for (unsigned int i = 0; i < ids.size(); ++i)
   {
     sql = "DELETE FROM " + dataSetName + " WHERE id = " + std::to_string(ids[i]);
     transactor.execute(sql);
   }
 
-  // Inserts the new data.
+  // Inserts the new dataset itens.
   saveDataSetItemList(dataSet->id(), dataListToInsert, transactor);
 
-  // Retrieves all data from database and sets in the dataset
+  // Retrieves all data from database and sets in the dataset.
   auto dataSetItemList = getDataSetItemList(dataSet, transactor);
   dataSet->setDataSetItemList(dataSetItemList);
+
+  // Updates the filter for each dataset item.
+  foreach(auto dataSetItem, dataSetItemList)
+  {
+    updateFilter(dataSetItem->filter(), transactor);
+  }
+}
+
+terrama2::core::FilterPtr terrama2::core::DataSetDAO::getFilter(terrama2::core::DataSetItemPtr dataSetItem, te::da::DataSourceTransactor& transactor)
+{
+  terrama2::core::FilterPtr filter(new terrama2::core::Filter(dataSetItem));
+
+  std::string dataSetName = "terrama2.filter";
+
+  std::string sql("SELECT * FROM " + dataSetName + " WHERE dataset_item_id = " + std::to_string(dataSetItem->id()));
+  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+
+  while(tempDataSet->moveNext())
+  {
+    filter->setDiscardBefore(tempDataSet->getDateTime("discard_before"));
+    filter->setDiscardAfter(tempDataSet->getDateTime("discard_after"));
+
+    if(!tempDataSet->isNull(3))
+    {
+      filter->setGeometry(tempDataSet->getGeometry("geom"));
+    }
+
+    filter->setByValueType(IntToFilterByValueType(tempDataSet->getInt32("by_value_type")));
+    filter->setByValue(atof(tempDataSet->getNumeric("by_value").c_str()));
+    filter->setBandFilter(tempDataSet->getString("band_filter"));
+  }
+
+  return filter;
+}
+
+void terrama2::core::DataSetDAO::saveFilter(const uint64_t dataSetItemId, terrama2::core::FilterPtr filter, te::da::DataSourceTransactor& transactor)
+{
+  std::string dataSetName = "terrama2.filter";
+  std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
+
+  // Creates a memory dataset from the DataSetType
+  std::shared_ptr<te::mem::DataSet> memDataSet(new te::mem::DataSet(dataSetType.get()));
+  std::map<std::string, std::string> options;
+
+  te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
+
+  // Sets the values in the item
+  dsItem->setDateTime("discard_before", filter->discardBefore().get());
+  dsItem->setDateTime("discard_after", filter->discardAfter().get());
+  dsItem->setInt32("dataset_item_id", dataSetItemId);
+  dsItem->setInt32("by_value_type", static_cast<int>(filter->byValueType()));
+  dsItem->setNumeric("by_value", std::to_string(filter->byValue()));
+  dsItem->setGeometry("geom", filter->geometry().get());
+  dsItem->setString("band_filter", filter->bandFilter());
+  memDataSet->add(dsItem);
+
+
+  // Adds it to the data source
+  transactor.add(dataSetName, memDataSet.get(), options);
+}
+
+void terrama2::core::DataSetDAO::updateFilter(terrama2::core::FilterPtr filter, te::da::DataSourceTransactor& transactor)
+{
+  std::string dataSetName = "terrama2.filter";
+
+  std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
+  std::shared_ptr<te::mem::DataSet> memDataSet(new te::mem::DataSet(dataSetType.get()));
+
+  std::vector< std::set<int> > properties;
+  std::set<int> set = { 1, 2, 3, 4, 5, 6 };
+  properties.push_back(set);
+
+  std::vector<size_t> ids = { 0 };
+
+  te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
+
+  // Sets the values in the item
+  dsItem->setInt32("dataset_item_id", filter->dataSetItemPtr()->id());
+  dsItem->setDateTime("discard_before", filter->discardBefore().get());
+  dsItem->setDateTime("discard_after", filter->discardAfter().get());
+  dsItem->setInt32("by_value_type", static_cast<int>(filter->byValueType()));
+  dsItem->setNumeric("by_value", std::to_string(filter->byValue()));
+  dsItem->setGeometry("geom", filter->geometry().get());
+  dsItem->setString("band_filter", filter->bandFilter());
+  memDataSet->add(dsItem);
+
+  transactor.update(dataSetName, memDataSet.get(), properties, ids);
+
 }

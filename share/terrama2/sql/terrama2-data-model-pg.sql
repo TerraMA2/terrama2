@@ -43,6 +43,11 @@ CREATE TABLE terrama2.data_provider_type
   description TEXT
 );
 
+COMMENT ON TABLE terrama2.data_provider_type IS 'Stores the data server type';
+COMMENT ON COLUMN terrama2.data_provider_type.id IS 'Type identifier';
+COMMENT ON COLUMN terrama2.data_provider_type.name IS 'Name that identifies the data server type';
+COMMENT ON COLUMN terrama2.data_provider_type.description IS 'Description of the data server type';
+
 INSERT INTO terrama2.data_provider_type (name, description)
      VALUES ('FTP', 'File Transfer Protocol'),
             ('HTTP', 'Hyper Text Transfer Protocol'),
@@ -67,7 +72,7 @@ CREATE TABLE terrama2.data_provider
 COMMENT ON TABLE terrama2.data_provider IS 'Store information about TerraMA2 data providers (remote servers, ftp servers, web services)';
 COMMENT ON COLUMN terrama2.data_provider.id IS 'Data Provider identifier';
 COMMENT ON COLUMN terrama2.data_provider.name IS 'A name used to refer to the data server';
-COMMENT ON COLUMN terrama2.data_provider.description IS 'A brief description about the dara server';
+COMMENT ON COLUMN terrama2.data_provider.description IS 'A brief description about the data server';
 COMMENT ON COLUMN terrama2.data_provider.kind IS 'The identifier of data server type';
 COMMENT ON COLUMN terrama2.data_provider.uri IS 'An URI describing how to access the data provider';
 COMMENT ON COLUMN terrama2.data_provider.active IS 'A true value indicates that the server is active and must be checked periodically';
@@ -78,6 +83,11 @@ CREATE TABLE terrama2.dataset_type
   name        VARCHAR(50) NOT NULL UNIQUE,
   description TEXT
 );
+
+COMMENT ON TABLE terrama2.dataset_type IS 'Stores the dataset type';
+COMMENT ON COLUMN terrama2.dataset_type.id IS 'Type identifier';
+COMMENT ON COLUMN terrama2.dataset_type.name IS 'Name that identifies the dataset type';
+COMMENT ON COLUMN terrama2.dataset_type.description IS 'Description of the dataset type';
 
 INSERT INTO terrama2.dataset_type (name, description)
      VALUES ('PCD', 'Identifies a PCD dataset'),
@@ -102,6 +112,19 @@ CREATE TABLE terrama2.dataset
            ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+COMMENT ON TABLE terrama2.dataset IS 'Stores information about the dataset (PCD, Occurrence or Grid)';
+COMMENT ON COLUMN terrama2.dataset.id IS 'Dataset identifier';
+COMMENT ON COLUMN terrama2.dataset.name IS 'A name used to refer to the dataset';
+COMMENT ON COLUMN terrama2.dataset.description IS 'A brief description about the dataset';
+COMMENT ON COLUMN terrama2.dataset.active IS 'A true value indicates that the dataset is active and must be checked periodically';
+COMMENT ON COLUMN terrama2.dataset.data_provider_id IS 'Data provider identifier';
+COMMENT ON COLUMN terrama2.dataset.kind IS 'The identifier of dataset type';
+COMMENT ON COLUMN terrama2.dataset.data_frequency IS 'Frequency to check for a new data in seconds';
+COMMENT ON COLUMN terrama2.dataset.schedule IS 'Time scheduled to check for a new data';
+COMMENT ON COLUMN terrama2.dataset.schedule_retry IS 'Frequency in seconds to retry a collection when the data was not available in the scheduled time';
+COMMENT ON COLUMN terrama2.dataset.schedule_timeout IS 'Timeout in seconds for retrying a scheduled collection';
+
+
 CREATE TABLE terrama2.dataset_metadata
 (
   id     SERIAL PRIMARY KEY,
@@ -113,6 +136,12 @@ CREATE TABLE terrama2.dataset_metadata
     REFERENCES terrama2.dataset(id)
     ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+COMMENT ON TABLE terrama2.dataset_metadata IS 'Stores metadata from a dataset';
+COMMENT ON COLUMN terrama2.dataset_metadata.id IS 'Metadata identifier';
+COMMENT ON COLUMN terrama2.dataset_metadata.key IS 'Metadata key';
+COMMENT ON COLUMN terrama2.dataset_metadata.value IS 'Metadata value';
+COMMENT ON COLUMN terrama2.dataset_metadata.dataset_id IS 'Dataset identifier';
 
 
 CREATE TABLE terrama2.dataset_collect_rule
@@ -164,16 +193,32 @@ CREATE TABLE terrama2.filter
   discard_before                    TIMESTAMP,
   discard_after                     TIMESTAMP,
   geom                              GEOMETRY(POLYGON, 4326),
-  external_dataset_item_id          INTEGER,
+  external_data_id                  INTEGER,
   by_value                          NUMERIC,
   by_value_type                     INTEGER,
-  within_external_dataset_item_id   INTEGER,
+  within_external_data_id           INTEGER,
   band_filter                       TEXT,
   CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE
-  --CONSTRAINT fk_filter_external_dataset_item_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
-  --CONSTRAINT fk_filter_within_by_value_type FOREIGN KEY(by_value_type) REFERENCES terrama2.???? (id) ON UPDATE CASCADE ON DELETE CASCADE
-  --CONSTRAINT fk_filter_within_external_dataset_item_id FOREIGN KEY(within_external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_external_data_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
+  CONSTRAINT fk_filter_within_by_value_type FOREIGN KEY(by_value_type) REFERENCES terrama2.dataset_item_type (id) ON UPDATE CASCADE ON DELETE CASCADE
+  --CONSTRAINT fk_filter_within_external_data_id FOREIGN KEY(within_external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+
+CREATE TABLE terrama2.filter_by_value_type
+(
+  id          SERIAL NOT NULL PRIMARY KEY,
+  name        VARCHAR(50) NOT NULL UNIQUE,
+  description TEXT
+);
+
+INSERT INTO terrama2.filter_by_value_type(name, description)
+     VALUES('NONE_TYPE', 'None'),
+           ('LESS_THAN_TYPE', 'Eliminate data when all values are less than a given value'),
+           ('GREATER_THAN_TYPE', 'Eliminate data when all values are greater than a given value'),
+           ('MEAN_LESS_THAN_TYPE', 'Eliminate data when the mean is less than a given value'),
+           ('MEAN_GREATER_THAN_TYPE', 'Eliminate data when mean is greater than a given value');
+
 
 CREATE TABLE terrama2.data_collection_log
 (

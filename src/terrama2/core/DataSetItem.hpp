@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_CORE_DATASETITEM_HPP__
 #define __TERRAMA2_CORE_DATASETITEM_HPP__
 
+
 // STL
 #include <memory>
 #include <string>
@@ -39,9 +40,11 @@ namespace terrama2
 {
   namespace core
   {
-
     class DataSet;
     typedef std::shared_ptr<DataSet> DataSetPtr;
+
+    class Filter;
+    typedef std::shared_ptr<Filter> FilterPtr;
 
     /*!
       \class DataSetItem
@@ -78,7 +81,7 @@ namespace terrama2
         /*!
           \brief Constructor.
         */
-        DataSetItem(DataSetPtr dataSet, Kind kind);
+        DataSetItem(DataSetPtr dataSet, Kind kind, const uint64_t id = 0);
 
         /*!
           \brief Destructor.
@@ -155,6 +158,20 @@ namespace terrama2
         */
         DataSetPtr dataSet() const;
 
+        /*!
+          \brief It returns the filter to be used when collecting data.
+
+          \return The filter to used when collecting data.
+        */
+        FilterPtr filter() const;
+
+        /*!
+          \brief It sets the filter to be used when collecting data.
+
+          \param The filter to used when collecting data.
+        */
+        void setFilter(FilterPtr filter);
+
 
       protected:
 
@@ -174,6 +191,7 @@ namespace terrama2
         Kind kind_;
         std::string mask_;
         std::string timezone_;
+        FilterPtr filter_;
 
       friend class DataSetDAO;
     };
