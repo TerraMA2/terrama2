@@ -50,7 +50,7 @@ void TestDataSetTimer::TestNullDataSet()
 
     QFAIL("Should not be here!");
   }
-  catch(terrama2::collector::InvalidDataSetException& e)
+  catch(terrama2::collector::InvalidDataSetError& e)
   {
     return;
   }

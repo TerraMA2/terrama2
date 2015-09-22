@@ -92,14 +92,14 @@ void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 {
   if(datasetTimer->dataSet()->status() != terrama2::core::DataSet::ACTIVE)
   {
-    throw InactiveDataSetException() << terrama2::ErrorDescription(
+    throw InactiveDataSetError() << terrama2::ErrorDescription(
                                          tr("Trying to collect an inactive dataset."));
   }
 
   //If can get lock creates a thread the collects the dataset
   if(!mutex_.try_lock())
   {
-    throw UnabletoGetLockException() << terrama2::ErrorDescription(
+    throw UnabletoGetLockError() << terrama2::ErrorDescription(
                                          tr("Unable to get lock."));
   }
 

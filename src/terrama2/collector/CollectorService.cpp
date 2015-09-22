@@ -87,7 +87,7 @@ void terrama2::collector::CollectorService::exec()
 {
   //if service already running, throws
   if(loopThread_.joinable())
-    throw ServiceAlreadyRunnningException() << terrama2::ErrorDescription(tr("Collector service already running."));
+    throw ServiceAlreadyRunnningError() << terrama2::ErrorDescription(tr("Collector service already running."));
 
   loopThread_ = std::thread(&CollectorService::processingLoop, this);
 

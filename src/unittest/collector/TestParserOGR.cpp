@@ -28,9 +28,11 @@
 */
 
 #include "TestParserOGR.hpp"
+#include "Utils.hpp"
 
 //terrama2
 #include <terrama2/collector/ParserOGR.hpp>
+#include <terrama2/collector/Exception.hpp>
 
 //Terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -40,6 +42,7 @@
 //QT
 #include <QTemporaryDir>
 #include <QTemporaryFile>
+#include <QFileInfo>
 
 void TestParserOGR::TestNullDataSource()
 {
@@ -53,21 +56,32 @@ void TestParserOGR::TestDataSourceNotOpen()
 
 void TestParserOGR::TestEmptyFile()
 {
+  initializeTerralib();
+
   QTemporaryDir dir;
-  QTemporaryFile file(dir.isValid()+"/test_XXXXXX");
+  QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
+  file.open();
+  file.close();
+  QFileInfo info(file);
 
   try
   {
     terrama2::collector::ParserOGR parser;
-    std::shared_ptr<te::da::DataSet> dataset = parser.read(dir.path().toStdString(), QStringList() << file.fileName());
+    std::shared_ptr<te::da::DataSet> dataset = parser.read(dir.path().toStdString(), QStringList() << info.baseName());
 
-    QVERIFY(dataset->isEmpty());
+    QFAIL("Should not be here.");
+  }
+  catch(terrama2::collector::UnableToReadDataSetError e)
+  {
+    finalizeTerralib();
+    return;
   }
   catch(...)
   {
-    QFAIL("Read Exception...Should not be here.");
+    QFAIL("Unknown Exception...Should not be here.");
   }
 
+  QFAIL("End of test... Should not be here.");
 }
 
 QTEST_MAIN(TestParserOGR)

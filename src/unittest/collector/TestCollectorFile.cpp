@@ -36,7 +36,7 @@ void TestCollectorFile::TestNullDataProvider()
 
     QFAIL("Should not be here");
   }
-  catch(terrama2::collector::InvalidDataProviderException& e)
+  catch(terrama2::collector::InvalidDataProviderError& e)
   {
     return;
   }
@@ -59,7 +59,7 @@ void TestCollectorFile::TestWrongDataProviderKind()
 
     QFAIL("Should not be here");
   }
-  catch(terrama2::collector::WrongDataProviderKindException& e)
+  catch(terrama2::collector::WrongDataProviderKindError& e)
   {
     return;
   }

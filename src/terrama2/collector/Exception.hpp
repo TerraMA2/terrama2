@@ -36,19 +36,21 @@ namespace terrama2
 {
   namespace collector
   {
-    struct ServiceAlreadyRunnningException: virtual Exception { };
+    struct ServiceAlreadyRunnningError: virtual Exception { };
 
-    struct InvalidDataSetException: virtual Exception { };
+    struct InvalidDataSetError: virtual Exception { };
 
-    struct InactiveDataSetException: virtual Exception { };
+    struct InactiveDataSetError: virtual Exception { };
 
-    struct UnabletoGetLockException: virtual Exception { };
+    struct UnabletoGetLockError: virtual Exception { };
 
-    struct InvalidDataProviderException: virtual Exception { };
+    struct InvalidDataProviderError: virtual Exception { };
 
-    struct UnknownDataProviderKindException: virtual Exception { };
+    struct UnknownDataProviderKindError: virtual Exception { };
 
-    struct WrongDataProviderKindException: virtual Exception { };
+    struct WrongDataProviderKindError: virtual Exception { };
+
+    struct UnableToReadDataSetError: virtual Exception { };
   }
 }
 

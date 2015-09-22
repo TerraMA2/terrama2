@@ -49,9 +49,11 @@ namespace terrama2
         /*!
          * \brief TODO: document ParserOGR
          * \param uri
-         * \return
+         * \return Dataset of the temporary file.
          *
          * \pre TerrLib should be initialized.
+         *
+         * \exception UnableToReadDataSetError Raised if could not open the datasource, dataset is empty, terralib exception.
          */
         virtual std::shared_ptr<te::da::DataSet> read(const std::string& uri, const QStringList &names) override;
     };

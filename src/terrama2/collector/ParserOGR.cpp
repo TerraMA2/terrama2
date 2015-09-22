@@ -28,16 +28,20 @@
 */
 
 #include "ParserOGR.hpp"
+#include "Exception.hpp"
 
 //QT
 #include <QDir>
+#include <QDebug>
 
 //STD
 #include <memory>
 
 //terralib
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/common/Exception.h>
 
 QStringList terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
 {
@@ -53,31 +57,42 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std:
     //TODO: throw
   }
 
-  //create a datasource and open
-  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR").release());//FIXME: releasing auto_ptr to create a shared_ptr
-  std::map<std::string, std::string> connInfo;
-  connInfo["URI"] = uri;
-  datasource->setConnectionInfo(connInfo);
-  datasource->open(); //FIXME: close? where?
-
-  if(!datasource->isOpened())
-  {
-    //TODO: throw
-  }
-
-// get a transactor to interact to the data source
-  te::da::DataSourceTransactor* transactor = (datasource->getTransactor()).release();
-
   try
   {
+    //create a datasource and open
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
+    std::map<std::string, std::string> connInfo;
+    connInfo["URI"] = uri;
+    datasource->setConnectionInfo(connInfo);
+    datasource->open(); //FIXME: close? where?
+
+    if(!datasource->isOpened())
+    {
+      throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                            QObject::tr("DataProvider could not be opened."));
+    }
+
+    // get a transactor to interact to the data source
+    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+
+    for(const std::string& name : transactor->getDataSetNames())
+      qDebug() << name.c_str();
+
     assert(names.size() == 1);//TODO: remove this!
-    std::shared_ptr<te::da::DataSet> dataSet(datasource->getDataSet(names.front().toStdString()).release());//FIXME: releasing auto_ptr to create a shared_ptr
+    std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(names.front().toStdString()));
+
+    if(!dataSet)
+    {
+      throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                            QObject::tr("DataSet is null."));
+    }
 
     return dataSet;
   }
-  catch(...)
+  catch(te::common::Exception e)
   {
-    //TODO: error getting dataset...
-    return std::auto_ptr<te::da::DataSet>(nullptr);
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                          QObject::tr("Terralib exception: ") + e.what());
   }
+
 }
