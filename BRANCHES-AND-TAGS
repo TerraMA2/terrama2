@@ -19,9 +19,7 @@ In the above output the "* master" means that the current branch is master.
 
 We have the following branches:
 * master:
-  This is the branch where the development team is working to add new features to future versions of TerraMA2.
-  It may be instable although the codebase is subject to automatic tests (regression and unittests).
-  We don't recommend to generate prodcution versions of TerraMA2 from this branch. Use it for testing new features and get involved with TerraMA2 development.
+  This is the branch where the development team is working to add new features to future versions of TerraMA2. It may be instable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate prodcution versions of TerraMA2 from this branch. Use it for testing new features and get involved with TerraMA2 development.
 
 * 4.0.0-alpha:
   This will be the first branch in TerraMA2's codebase for the generation 4.
