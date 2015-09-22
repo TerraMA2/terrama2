@@ -59,21 +59,39 @@ namespace terrama2
       {
 
       /*!
-        \brief Method to convert a gSOAP struct DataProvider to a struct terrama2::core::DataProvider .
+        \brief Method to convert a gSOAP struct DataProvider to a terrama2::core::DataProviderPtr.
 
-        \param T1 MUST be a struct DataProvider, defined in soapStub.h(gSOAP generated file)
+        \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
 
         \return terrama2::core::DataProvider that contains the data in gSOAP struct DataProvider passed.
       */
-        template<typename T1> terrama2::core::DataProviderPtr Struct2DataProviderPtr(T1);
+        template<typename T1> terrama2::core::DataProviderPtr Struct2DataProviderPtr(T1 struct_dataprovider);
 
+      /*!
+        \brief Method to convert a terrama2::core::DataProviderPtr to a gSOAP struct DataProvider.
 
-        template<typename T1, typename T2>  T2 DataProviderPtr2Struct(T1);
+        \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
 
-        // VINICIUS: check if need to create a Struct2DataProviderPtr
+        \return a gSOAP struct DataProvider that contains the data in terrama2::core::DataProviderPtr passed.
+      */
+        template<typename T1> T1 DataProviderPtr2Struct(terrama2::core::DataProviderPtr dataproviderPtr);
 
+      /*!
+        \brief Method to convert a gSOAP struct DataSet to a terrama2::core::DataSetPtr.
+
+        \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+
+        \return terrama2::core::DataSetPtr that contains the data in gSOAP struct DataSet passed.
+      */
         template <typename T1> terrama2::core::DataSetPtr Struct2DataSetPtr(T1 struct_dataset);
 
+      /*!
+        \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
+
+        \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+
+        \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
+      */
         template<typename T1> T1 DataSetPtr2Struct(terrama2::core::DataSetPtr datasetPtr);
 
       }
@@ -81,48 +99,42 @@ namespace terrama2
   }
 }
 
+
 template <typename T1>
 terrama2::core::DataProviderPtr terrama2::ws::collector::core::Struct2DataProviderPtr(T1 struct_dataprovider)
 {
-  // VINICIUS: check if a DataProvider constructor that receives (id, name, kind) was implemented
-  //T2 dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind, struct_dataprovider.id);
-  terrama2::core::DataProvider dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind);
+  terrama2::core::DataProvider dataprovider(struct_dataprovider.name, (terrama2::core::DataProvider::Kind)struct_dataprovider.kind, struct_dataprovider.id);
 
   dataprovider.setDescription(struct_dataprovider.description);
   dataprovider.setUri(struct_dataprovider.uri);
   dataprovider.setStatus((terrama2::core::DataProvider::Status)struct_dataprovider.status);
 
   return std::make_shared<terrama2::core::DataProvider>(dataprovider);
-
 }
 
-template<typename T1, typename T2>
-T2 terrama2::ws::collector::core::DataProviderPtr2Struct(T1 dataproviderPtr)
-{
 
-  T2 struct_dataprovider = T2{
+template<typename T1>
+T1 terrama2::ws::collector::core::DataProviderPtr2Struct(terrama2::core::DataProviderPtr dataproviderPtr)
+{
+  T1 struct_dataprovider = T1{
       dataproviderPtr->id(),
       dataproviderPtr->name(),
       dataproviderPtr->description(),
-      (int)dataproviderPtr->kind(),
+      (uint32_t)dataproviderPtr->kind(),
       dataproviderPtr->uri(),
-      (int)dataproviderPtr->status()
+      (uint32_t)dataproviderPtr->status()
 };
 
   return struct_dataprovider;
 }
 
 
-
 template <typename T1>
 terrama2::core::DataSetPtr terrama2::ws::collector::core::Struct2DataSetPtr(T1 struct_dataset)
 {
-
   auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(struct_dataset.id);
 
-  // VINICIUS: check if the constructor accept the id parameter already
-  //terrama2::core::DataSet dataset(dataproviderPtr, struct_dataset.name, (terrama2::core::DataSet::Kind)struct_dataset.kind, struct_dataset.id);
-  terrama2::core::DataSet dataset(dataproviderPtr, struct_dataset.name, (terrama2::core::DataSet::Kind)struct_dataset.kind);
+  terrama2::core::DataSet dataset(dataproviderPtr, struct_dataset.name, (terrama2::core::DataSet::Kind)struct_dataset.kind, struct_dataset.id);
 
   dataset.setDescription(struct_dataset.description);
   dataset.setStatus((terrama2::core::DataSet::Status)struct_dataset.status);
@@ -158,7 +170,6 @@ T1 terrama2::ws::collector::core::DataSetPtr2Struct(terrama2::core::DataSetPtr d
   struct_dataset.schedule_timeout = datasetPtr->scheduleTimeout().toString();
 
   return struct_dataset;
-
 }
 
 #endif // __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__
