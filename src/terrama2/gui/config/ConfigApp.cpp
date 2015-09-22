@@ -44,6 +44,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+
 struct ConfigApp::Impl
 {
   Ui::ConfigAppForm* ui_;
