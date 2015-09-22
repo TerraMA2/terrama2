@@ -34,12 +34,15 @@
 
 // TerraMA2
 #include "AdminApp.hpp"
+#include <QMap>
+
+class QJsonObject;
  
 class AdminAppTab
 {
  public:
 
-//! Default constructor
+//! Constructor
   AdminAppTab(AdminApp* app, Ui::AdminAppForm* ui);
 
 //! Destructor
@@ -47,10 +50,11 @@ class AdminAppTab
 
  virtual bool validate() = 0;
  virtual bool load() = 0;
+ virtual QMap<QString, QJsonObject> toJson() = 0;
 
- private:
+ protected:
 
-  AdminApp* app_;
+  AdminApp* app_; //!< Main Window Administration
   Ui::AdminAppForm* ui_;
 };
 

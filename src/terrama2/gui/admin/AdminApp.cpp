@@ -33,6 +33,7 @@
 #include "ui_AdminAppForm.h"
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
+#include "AdminAppDBTab.hpp"
 
 // Qt
 #include <QIcon>
@@ -42,6 +43,8 @@
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QJsonObject>
+#include <QJsonDocument>
+#include <QMessageBox>
 
 struct AdminApp::Impl
 {
@@ -100,18 +103,24 @@ AdminApp::AdminApp(QWidget* parent)
 
   configManager_ = new ConfigManager(this);
 
-// Inicializa campos
+// Init variable
   pimpl_->ui_->configListWidget->clear();
   nameConfig_ = "";
+
+ // Init services for each tab
+  QSharedPointer<AdminAppTab> dbTab(new AdminAppDBTab(this,pimpl_->ui_));
+  tabs_.append(dbTab);
 
 
   connect(pimpl_->ui_->newAct,  SIGNAL(triggered()), SLOT(newRequested()));
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
-  connect(pimpl_->ui_->saveAct, SIGNAL(triggered()), SLOT(saveResquested()));
+  connect(pimpl_->ui_->saveAct, SIGNAL(triggered()), SLOT(saveRequested()));
   connect(pimpl_->ui_->renameAct, SIGNAL(triggered()), SLOT(renameRequested()));
+  connect(pimpl_->ui_->saveBtn, SIGNAL(clicked()), SLOT(saveRequested()));
  
 }
 
+// New file
 void AdminApp::newRequested()
 {
  nameConfig_ = tr("Nova Configuracão");
@@ -120,6 +129,7 @@ void AdminApp::newRequested()
 
 }
 
+// Open file
 void AdminApp::openRequested()
 {
   QString filename = QFileDialog::getOpenFileName(this, tr("Choose file"), ".", tr("TerraMA2 ( *.terrama2"));
@@ -133,6 +143,7 @@ void AdminApp::openRequested()
   fillForm();
 }
 
+// Rename file
 void AdminApp::renameRequested()
 {
   bool ok;
@@ -147,8 +158,33 @@ void AdminApp::renameRequested()
   pimpl_->ui_->configListWidget->addItem(nameConfig_);
 }
 
+// Save file
 void AdminApp::saveRequested()
 {
+  QJsonObject metadata;
+  QString version = "4.0.0-alpha1";
+
+  metadata["is_study"] = pimpl_->ui_->dbStudyChk->isChecked();
+  metadata["name"] = nameConfig_;
+  metadata["version"] = version;
+
+  for(QSharedPointer<AdminAppTab> tab: tabs_)
+  {
+   QMap<QString, QJsonObject> tabJson = tab->toJson();
+   metadata[tabJson.firstKey()] = tabJson.first();
+  }
+
+  QFile saveFile("Teste.terrama2");
+
+  saveFile.open(QIODevice::WriteOnly);
+
+  QJsonDocument jsondoc(metadata);
+
+  saveFile.write(jsondoc.toJson());
+
+  saveFile.close();
+
+  QMessageBox::information(this, tr("TerraMA2"), tr("Project successfully saved!"));
 
 }
 
@@ -167,7 +203,6 @@ void AdminApp::fillForm()
   pimpl_->ui_->dbPortLed->setText(QString::number(configManager_->getDatabase()->port_));
   pimpl_->ui_->dbPasswordLed->setText(configManager_->getDatabase()->password_);
   pimpl_->ui_->dbStudyChk->setChecked(configManager_->getDatabase()->study_.toLower() == "true");
-
   pimpl_->ui_->configListWidget->addItem(configManager_->getDatabase()->name_);
 }
 
