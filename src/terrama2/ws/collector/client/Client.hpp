@@ -39,6 +39,7 @@
 
 // TerraMA2
 #include "../../../core/DataProvider.hpp"
+#include "../../../core/DataSet.hpp"
 
 namespace terrama2
 {
@@ -59,7 +60,26 @@ namespace terrama2
 
           int ping(std::string& answer);
 
-          int addDataProvider(terrama2::core::DataProvider data_provider);
+          int addDataProvider(terrama2::core::DataProvider dataProvider);
+
+          int addDataset(DataSet struct_dataSet);
+
+          int updateDataProvider(DataProvider struct_dataProvider);
+
+          int updateDataSet(DataSet struct_dataSet);
+
+          int removeDataProvider(uint64_t id);
+
+          int removeDataSet(uint64_t id);
+
+          int findDataProvider(uint64_t id, DataProvider &struct_dataProvider);
+
+          int findDataSet(uint64_t id,DataSet &struct_dataSet);
+
+          int listDataProvider(std::vector< DataProvider > &dataProviderList);
+
+          int listDataSet(std::vector< DataSet > &dataSetList);
+
 
         private:
 

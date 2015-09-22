@@ -51,8 +51,72 @@ int terrama2::ws::collector::Client::ping(std::string& answer)
 }
 
 
-int terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider data_provider)
+int terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider dataProvider)
 {
-//  wsClient_->addDataProvider();
+  wsClient_->addDataProvider(dataProvider);
+
   return 0;
+}
+
+
+int terrama2::ws::collector::Client::addDataset(DataSet struct_dataSet)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::updateDataProvider(DataProvider struct_dataProvider)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::updateDataSet(DataSet struct_dataSet)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::removeDataSet(uint64_t id)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::findDataProvider(uint64_t id, DataProvider &struct_dataProvider)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::findDataSet(uint64_t id,DataSet &struct_dataSet)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::listDataProvider(std::vector< DataProvider > &dataProviderList)
+{
+
+  return SOAP_OK;
+}
+
+
+int terrama2::ws::collector::Client::listDataSet(std::vector< DataSet > &dataSetList)
+{
+
+  return SOAP_OK;
 }

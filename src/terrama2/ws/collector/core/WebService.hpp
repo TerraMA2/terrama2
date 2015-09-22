@@ -44,8 +44,8 @@
 */
 int Web__ping(std::string &answer);
 
-// VINICIUS_TODO: write the methods documentation
-
+// VINICIUS: write the methods documentation
+// VINICIUS: check if need to change the Synchronous One-Way Message methods to receive an answer
 /*!
   \brief
 

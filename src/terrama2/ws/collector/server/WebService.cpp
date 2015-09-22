@@ -39,6 +39,7 @@
 #include "soapWebService.h"
 #include "Web.nsmap"
 
+// VINICIUS Implement Error Handling in methods
 
 int WebService::ping(std::string &answer)
 {
