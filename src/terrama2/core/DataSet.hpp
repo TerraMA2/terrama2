@@ -90,9 +90,18 @@ namespace terrama2
           std::string script;
         };
 
+        /*!
+          \brief Constructor
 
-        DataSet(DataProviderPtr provider, const std::string& name, Kind kind);
+          \param provider The data provider used obtain this dataset.
+          \param name The name of the dataset.
+          \param kind The kind of the dataset.
+        */
+        DataSet(DataProviderPtr provider, const std::string& name, Kind kind, const uint64_t id = 0);
 
+        /*!
+          \brief Destructor
+        */
         ~DataSet();
 
       public:
