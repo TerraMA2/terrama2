@@ -9,6 +9,8 @@ List of Branches
 
 You can check all branches available (remotes and local) and see the current one (marked with "*"):
   $ git branch -a
+
+The output of above command will be something like:
   * master
   remotes/origin/HEAD -> origin/master
   remotes/origin/master
