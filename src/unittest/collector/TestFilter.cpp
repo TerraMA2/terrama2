@@ -62,5 +62,5 @@ void TestFilter::TestEmptyMask()
   QCOMPARE(output, names);
 }
 
-QTEST_MAIN(TestFilter)
+//QTEST_MAIN(TestFilter)
 #include "TestFilter.moc"

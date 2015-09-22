@@ -84,5 +84,5 @@ void TestParserOGR::TestEmptyFile()
   QFAIL("End of test... Should not be here.");
 }
 
-QTEST_MAIN(TestParserOGR)
+//QTEST_MAIN(TestParserOGR)
 #include "TestParserOGR.moc"
