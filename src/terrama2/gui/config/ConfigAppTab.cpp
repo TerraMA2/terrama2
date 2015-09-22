@@ -1,13 +1,12 @@
 // TerraMA2
 #include "ConfigAppTab.hpp"
 #include "Exception.hpp"
-#include "../../core/ApplicationController.hpp"
 
 // QT
 #include <QMessageBox>
 
-ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller)
-  : QObject(app), app_(app), ui_(ui), controller_(controller), changed_(false)
+ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui)
+  : QObject(app), app_(app), ui_(ui), changed_(false)
 {
 
 }

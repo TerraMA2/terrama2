@@ -39,13 +39,22 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
+namespace terrama2
+{
+  namespace core
+  {
+    class ApplicationController;
+  }
+}
+
+
 class ConfigAppTab : public QObject, private boost::noncopyable
 {
   Q_OBJECT
 
   public:
     //! Constructor
-    ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller);
 
     //! Destructor
     virtual ~ConfigAppTab();
@@ -72,8 +81,12 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! It calls the save method inside a try/catch block and check if there are any exception has found
     virtual void validateAndSaveChanges();
 
+<<<<<<< HEAD
     //! It asks to change tab, giving the index as parameter
+    virtual void askForChangeTab(const int index);
+=======
     virtual void askForChangeTab(const int& index);
+>>>>>>> 42fd32f9ca609ae1a98beb025a691cb26534f071
 
   public slots:
 
@@ -86,6 +99,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
   protected:
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_;
+    terrama2::core::ApplicationController* controller_;
     bool changed_;
 };
 

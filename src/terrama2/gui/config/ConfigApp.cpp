@@ -62,7 +62,7 @@ struct ConfigApp::Impl
 
 ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   : QMainWindow(parent, flags),
-    pimpl_(new ConfigApp::Impl), currentTabIndex_(0), controller_(new terrama2::core::ApplicationController)
+    pimpl_(new ConfigApp::Impl), currentTabIndex_(0)
 {
 // Find TerraMA2 icon theme library
   std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
@@ -97,8 +97,8 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   services_ = new ServiceHandler(this);
 
 // Init services for each tab
-  QSharedPointer<ConfigAppWeatherTab> weatherTab(new ConfigAppWeatherTab(this, ui(), controller_));
-  QSharedPointer<ConfigAppAdditionalTab> additionalTab(new ConfigAppAdditionalTab(this, ui(), controller_));
+  QSharedPointer<ConfigAppWeatherTab> weatherTab(new ConfigAppWeatherTab(this, ui()));//, controller_));
+  QSharedPointer<ConfigAppAdditionalTab> additionalTab(new ConfigAppAdditionalTab(this, ui())); //, controller_));
 
   tabList_.append(weatherTab);
   tabList_.append(additionalTab);
@@ -111,7 +111,7 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 ConfigApp::~ConfigApp()
 {
   delete services_;
-  delete controller_;
+//  delete controller_;
   delete pimpl_;
 }
 
@@ -153,6 +153,5 @@ void ConfigApp::openRequested()
   if (!file.isEmpty())
   {
     services_->loadConfiguration(file);
-    controller_->loadProject(file.toStdString());
   }
 }

@@ -42,7 +42,7 @@ class ConfigAppWeatherTab : public ConfigAppTab
   Q_OBJECT
 
   public:
-    ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller);
+    ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
     ~ConfigAppWeatherTab();
 
     void load();

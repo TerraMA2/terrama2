@@ -1,6 +1,7 @@
 // TerraMA2
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
+#include "../core/Utils.hpp"
 //#include "Service.hpp"
 
 // QT
@@ -8,9 +9,11 @@
 #include <QLineEdit>
 #include <QFileDialog>
 
+#include <iostream>
 
-ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller)
-  : ConfigAppTab(app, ui, controller)
+
+ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
+  : ConfigAppTab(app, ui)//, controller)
 {
   ui_->weatherDataTree->header()->hide();
   ui_->weatherDataTree->setCurrentItem(app_->ui()->weatherDataTree->topLevelItem(0));
@@ -147,6 +150,29 @@ void ConfigAppWeatherTab::onImportServer()
 
 void ConfigAppWeatherTab::onCheckConnection()
 {
-  // dispatch
+  bool state = false;
+  QString message;
+  switch ((terrama2::gui::core::ConnectionType)ui_->connectionProtocol->currentIndex())
+  {
+    case terrama2::gui::core::FTP:
+      state = terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
+                                                      ui_->connectionPort->text().toInt(),
+                                                      ui_->serverDataBasePath->text(),
+                                                      ui_->connectionUserName->text(),
+                                                      ui_->connectionPassword->text());
+      std::cout << "Connection FTP " << (state) << std::endl;
+      break;
+    case terrama2::gui::core::WEBSERVICE:
+      state = terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
+                                                          ui_->connectionPort->text().toInt(),
+                                                          ui_->connectionUserName->text(),
+                                                          ui_->connectionPassword->text());
+      break;
+    case terrama2::gui::core::LOCALFILES:
+      std::cout << "Local Files " << (terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text())) << std::endl;
+      break;
+    default:
+      break;
+  }
   QMessageBox::information(app_, tr("TerraMA2 Server"), tr("Connection Working..."));
 }

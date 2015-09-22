@@ -24,17 +24,16 @@
 
   \brief Definition of Class ConfigAppAdditionalTab.hpp
 
+  \author Raphael Willian da Costa
   \author Evandro Delatin
-  \author Raphael Willian da Costa  
-  \author Carlos Augusto Teixeira Mendes
 */
 
 // TerraMA2
 #include "ConfigAppAdditionalTab.hpp"
 
 
-ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui, terrama2::core::ApplicationController* controller)
-  : ConfigAppTab(app, ui, controller)
+ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui)
+  : ConfigAppTab(app, ui)//, controller)
 {
 
 }

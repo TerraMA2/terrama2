@@ -34,12 +34,24 @@
 // QT
 #include <QString>
 #include <QDir>
+#include <QUrl>
+
 
 bool terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
 {
+  QString address;
+  if (!host.startsWith("http://") or !host.startsWith("https://"))
+    address.append("http://");
+  address.append(host);
+
+  QUrl url(address);
+  if (url.isValid())
+  {
+
+  }
+
   return false;
 }
-
 
 bool terrama2::gui::core::checkFTPConnection(const QString& host, const int& port, const QString& basepath,
                                              const QString& user, const QString& password)
