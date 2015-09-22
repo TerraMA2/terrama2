@@ -44,7 +44,6 @@ terrama2::collector::CollectorFile::CollectorFile(const terrama2::core::DataProv
     throw WrongDataProviderKindError() << terrama2::ErrorDescription(
                                                 tr("Wrong DataProvider Kind received in CollectorFile constructor."));
 
-  //TODO: Change to QString?
   dir_.setPath(dataProvider->uri().c_str());
 }
 

@@ -73,7 +73,7 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
   assert(impl_->storager_);
 
   //get full name list
-  QStringList names = impl_->parser_->datasetNames(uri);
+  std::vector<std::string> names = impl_->parser_->datasetNames(uri);
   //filter names
   names = impl_->filter_->filterNames(names);
   //get dataset

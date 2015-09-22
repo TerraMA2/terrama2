@@ -35,10 +35,6 @@
 #include "terralib/dataaccess/dataset/DataSet.h"
 #include "terralib/geometry.h"
 
-//QT
-#include <QList>
-#include <QStringList>
-
 //STD
 #include <string>
 #include <vector>
@@ -93,7 +89,7 @@ namespace terrama2
              *
              * \return List of filtered names.
              */
-        QStringList filterNames(const QStringList &namesList) const;
+        std::vector<std::string> filterNames(const std::vector<std::string> &namesList) const;
 
         /*!
              * \brief Filters a te::da::DataSet by matching criteria.
@@ -106,7 +102,7 @@ namespace terrama2
         std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const;
 
         //TODO: should have static methods for easy access?
-        static QList<std::string> filterNamesByMask(const QList<std::string>& namesList, const std::string& mask);
+        static std::vector<std::string> filterNamesByMask(const std::vector<std::string>& namesList, const std::string& mask);
         static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
 
       private:

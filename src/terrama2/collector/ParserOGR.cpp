@@ -43,16 +43,21 @@
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/common/Exception.h>
 
-QStringList terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
+std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
 {
   QDir dir(uri.c_str());
 
-  return dir.entryList();
+  QStringList entryList = dir.entryList();
+  std::vector<std::string> names(entryList.size());
+  for(const QString& name : entryList)
+    names.push_back(name.toStdString());
+
+  return names;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std::string &uri, const QStringList& names)
+std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std::string &uri, const std::vector<std::string> &names)
 {
-  if(names.isEmpty())
+  if(names.empty())
   {
     //TODO: throw
   }
@@ -79,7 +84,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std:
       qDebug() << name.c_str();
 
     assert(names.size() == 1);//TODO: remove this!
-    std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(names.front().toStdString()));
+    std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(names.front()));
 
     if(!dataSet)
     {

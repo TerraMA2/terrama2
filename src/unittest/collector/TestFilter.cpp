@@ -41,8 +41,7 @@ void TestFilter::TestFilterNamesExact()
   terrama2::collector::Filter filter;
   filter.setMask(exact.toStdString());
 
-  QStringList names;
-  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
+  std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
 
   names = filter.filterNames(names);
 
@@ -54,10 +53,9 @@ void TestFilter::TestEmptyMask()
 {
   terrama2::collector::Filter filter;
 
-  QStringList names;
-  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
+  std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
 
-  QStringList output = filter.filterNames(names);
+  std::vector<std::string> output = filter.filterNames(names);
 
   QCOMPARE(output, names);
 }

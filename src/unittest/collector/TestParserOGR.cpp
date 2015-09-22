@@ -67,7 +67,8 @@ void TestParserOGR::TestEmptyFile()
   try
   {
     terrama2::collector::ParserOGR parser;
-    std::shared_ptr<te::da::DataSet> dataset = parser.read(dir.path().toStdString(), QStringList() << info.baseName());
+    std::vector<std::string> names { info.baseName().toStdString() };
+    std::shared_ptr<te::da::DataSet> dataset = parser.read(dir.path().toStdString(), names);
 
     QFAIL("Should not be here.");
   }

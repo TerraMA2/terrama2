@@ -43,7 +43,7 @@ namespace terrama2
         ParserOGR() : Parser(){}
         virtual ~ParserOGR(){}
 
-        virtual QStringList datasetNames(const std::string &uri) const override;
+        virtual std::vector<std::string> datasetNames(const std::string &uri) const override;
 
 
         /*!
@@ -55,7 +55,7 @@ namespace terrama2
          *
          * \exception UnableToReadDataSetError Raised if could not open the datasource, dataset is empty, terralib exception.
          */
-        virtual std::shared_ptr<te::da::DataSet> read(const std::string& uri, const QStringList &names) override;
+        virtual std::shared_ptr<te::da::DataSet> read(const std::string& uri, const std::vector<std::string> &names) override;
     };
   }
 }

@@ -36,18 +36,18 @@ struct terrama2::collector::Filter::Impl
     te::gm::SpatialRelation relationRule_;
 };
 
-QStringList terrama2::collector::Filter::filterNames(const QStringList& namesList) const
+std::vector<std::string> terrama2::collector::Filter::filterNames(const std::vector<std::string>& namesList) const
 {
   //TODO: Implement filterNames
   if(impl_->mask_.empty())
     return namesList;
 
-  QStringList matchNames;
-  for(const QString &name : namesList)
+  std::vector<std::string> matchNames;
+  for(const std::string &name : namesList)
   {
     //TODO: how is the match? regex?
-    if(name.toStdString() == impl_->mask_)
-      matchNames.append(name);
+    if(name == impl_->mask_)
+      matchNames.push_back(name);
   }
 
   return matchNames;
