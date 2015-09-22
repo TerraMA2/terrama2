@@ -29,6 +29,7 @@
 
 // STL
 #include <memory>
+#include <vector>
 
 // TerraMA2
 #include "../core/Utils.hpp"
@@ -39,7 +40,6 @@
 #include "Web.nsmap"
 
 
-
 int WebService::ping(std::string &answer)
 {
   answer = "TerraMA2 pong!";
@@ -47,21 +47,8 @@ int WebService::ping(std::string &answer)
 }
 
 
-int WebService::restart(void)
-{
-  return SOAP_OK;
-}
-
-
-int WebService::shutdown(void)
-{
-  return SOAP_OK;
-}
-
-
 int WebService::addDataProvider(DataProvider struct_dataprovider)
 {
-
   terrama2::core::DataManager::getInstance().add(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataprovider));
 
   return SOAP_OK;
@@ -114,7 +101,7 @@ int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
 {
   auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(id);
 
-  struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<terrama2::core::DataProviderPtr, DataProvider>(dataproviderPtr);
+  struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataproviderPtr);
 
   return SOAP_OK;
 }
@@ -132,11 +119,25 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
 
 int WebService::listDataProvider(std::vector< DataProvider > &data_provider_list)
 {
+  std::vector<terrama2::core::DataProviderPtr> dataproviders = terrama2::core::DataManager::getInstance().providers();
+
+  for(uint32_t i = 0; i < dataproviders.size() ; i++)
+  {
+    data_provider_list.push_back(terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataproviders.at(i)));
+  }
+
   return SOAP_OK;
 }
 
 
 int WebService::listDataSet(std::vector< DataSet > &data_set_list)
 {
+  std::vector<terrama2::core::DataSetPtr> datasets = terrama2::core::DataManager::getInstance().dataSets();
+
+  for(uint32_t i = 0; i < datasets.size() ; i++)
+  {
+    data_set_list.push_back(terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(datasets.at(i)));
+  }
+
   return SOAP_OK;
 }
