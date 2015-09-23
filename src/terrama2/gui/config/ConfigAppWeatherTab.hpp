@@ -71,6 +71,12 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void onInsertPointBtnClicked();
     void onInsertPointDiffBtnClicked();
 
+  private:
+    bool serverTabChanged_; //!< Defines if the user is inserting a server
+    bool dataGridSeriesChanged_; //!< Defines if the user is inserting datagrid series
+    bool dataPointSeriesChanged_; //!< Defines if the user is inserting data point series
+    bool dataPointDiffSeriesChanged_; //!< Defines if the user is inserting data point series
+
 };
 
 #endif

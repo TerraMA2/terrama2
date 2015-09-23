@@ -6,7 +6,7 @@
 #include <QMessageBox>
 
 ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : QObject(app), app_(app), ui_(ui), changed_(false)
+  : QObject(app), app_(app), ui_(ui)
 {
 
 }

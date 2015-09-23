@@ -5,20 +5,19 @@
 #include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
 
-
-#include <terralib/common.h>
-
 // QT
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QWidget>
 
-#include <iostream>
-
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)//, controller)
+  : ConfigAppTab(app, ui),
+    serverTabChanged_(false),
+    dataGridSeriesChanged_(false),
+    dataPointSeriesChanged_(false),
+    dataPointDiffSeriesChanged_(false)
 {
   ui_->weatherDataTree->header()->hide();
   ui_->weatherDataTree->setCurrentItem(ui_->weatherDataTree->topLevelItem(0));
@@ -45,7 +44,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
 
-      // datagridpage
+  // datagridpage
 
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
@@ -72,7 +71,7 @@ void ConfigAppWeatherTab::load()
 
 bool ConfigAppWeatherTab::dataChanged()
 {
-  return changed_;
+  return serverTabChanged_ || dataGridSeriesChanged_ || dataPointDiffSeriesChanged_ || dataPointSeriesChanged_;
 }
 
 bool ConfigAppWeatherTab::validate()
@@ -135,13 +134,15 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
     widget->clear();
   }
 
-  //Clear TextEdit (server description)
   ui_->serverDescription->clear();
 
 // Hide the form
-  ui_->ServerPage->hide();
-  ui_->ServerGroupPage->show();
-  changed_ = false;
+  hidePanels(ui_->ServerGroupPage);
+
+  serverTabChanged_ = false;
+  dataGridSeriesChanged_ = false;
+  dataPointDiffSeriesChanged_ = false;
+  dataPointSeriesChanged_ = false;
 
 // Set visible false on server buttons
   ui_->saveBtn->setVisible(false);
@@ -184,6 +185,12 @@ void ConfigAppWeatherTab::hidePanels(QWidget *except)
   ui_->DataPointPage->hide();
   ui_->DataPointDiffPage->hide();
 
+  ui_->saveBtn->setVisible(true);
+  ui_->cancelBtn->setVisible(true);
+
+  ui_->saveBtn->setEnabled(false);
+  ui_->cancelBtn->setEnabled(false);
+
   except->show();
 }
 
@@ -204,7 +211,7 @@ void ConfigAppWeatherTab::onWeatherTabEdited()
 {
   ui_->saveBtn->setEnabled(true);
   ui_->cancelBtn->setEnabled(true);
-  changed_ = true;
+  serverTabChanged_ = true;
 }
 
 void ConfigAppWeatherTab::onImportServer()
@@ -242,9 +249,6 @@ void ConfigAppWeatherTab::onCheckConnection()
 
 void ConfigAppWeatherTab::onDataGridBtnClicked()
 {
-//  for(QWidget* widget: ui_->weatherPageStack->findChildren<QWidget*>("Page"))
-//    widget->hide();
-
   hidePanels(ui_->DataGridPage);
 }
 
