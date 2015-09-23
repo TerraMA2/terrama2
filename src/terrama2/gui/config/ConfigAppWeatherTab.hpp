@@ -51,6 +51,10 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void save();
     void discardChanges(bool restore_data);
 
+  private:
+    void isValidConnection();
+    void showDataSeries(bool state);
+    void hidePanels(QWidget* except);
   signals:
     void serverChanged();
 
@@ -62,6 +66,10 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void onWeatherTabEdited();
     void onImportServer();
     void onCheckConnection();
+
+    void onDataGridBtnClicked();
+    void onInsertPointBtnClicked();
+    void onInsertPointDiffBtnClicked();
 
 };
 

@@ -2,12 +2,17 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
-//#include "Service.hpp"
+#include "../../core/ApplicationController.hpp"
+#include "../../core/Utils.hpp"
+
+
+#include <terralib/common.h>
 
 // QT
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QFileDialog>
+#include <QWidget>
 
 #include <iostream>
 
@@ -16,8 +21,8 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui)//, controller)
 {
   ui_->weatherDataTree->header()->hide();
-  ui_->weatherDataTree->setCurrentItem(app_->ui()->weatherDataTree->topLevelItem(0));
-  ui_->weatherDataTree->setExpanded(app_->ui()->weatherDataTree->model()->index(0, 0), true);
+  ui_->weatherDataTree->setCurrentItem(ui_->weatherDataTree->topLevelItem(0));
+  ui_->weatherDataTree->setExpanded(ui_->weatherDataTree->model()->index(0, 0), true);
 
   connect(ui_->saveBtn, SIGNAL(clicked()), SLOT(onSaveRequested()));
   connect(ui_->insertServerBtn, SIGNAL(clicked()), SLOT(onEnteredWeatherTab()));
@@ -34,6 +39,13 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
   connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onWeatherTabEdited()));
   connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
+
+  // Bind the data series type with respective group view
+  connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridBtnClicked()));
+  connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
+  connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
+
+      // datagridpage
 
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
@@ -52,11 +64,7 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 void ConfigAppWeatherTab::load()
 {
   // Disable series button
-  ui_->exportServerBtn->setVisible(false);
-  ui_->updateServerBtn->setVisible(false);
-  ui_->serverDeleteBtn->setVisible(false);
-
-  ui_->groupBox_25->hide();
+  showDataSeries(false);
 
   // Connect to database and list the values
 
@@ -69,12 +77,26 @@ bool ConfigAppWeatherTab::dataChanged()
 
 bool ConfigAppWeatherTab::validate()
 {
-  // HardCode
-  for(QLineEdit* widget: ui_->ServerPage->findChildren<QLineEdit*>())
+  if (ui_->serverName->text().isEmpty())
   {
-    if (widget->text() == "")
-      return false;
+    ui_->serverName->setFocus();
+    return false;
   }
+
+  QTreeWidgetItemIterator it(ui_->weatherDataTree);
+  while(*it)
+  {
+    if ((*it)->text(0) == ui_->serverName->text())
+    {
+      ui_->serverName->setFocus();
+      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid server name. It is already in use"));
+    }
+
+    ++it;
+  }
+
+  isValidConnection();
+
   return true;
 }
 
@@ -85,6 +107,14 @@ void ConfigAppWeatherTab::save()
     throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
   }
   // Apply save process
+
+  // TODO: save in database
+  QTreeWidgetItem* newServer = new QTreeWidgetItem();
+  newServer->setText(0, ui_->serverName->text());
+  ui_->weatherDataTree->addTopLevelItem(newServer);
+
+  showDataSeries(true);
+
   discardChanges(false);
   QMessageBox::information(app_, tr("TerraMA2"), tr("Save successfully"));
 }
@@ -117,6 +147,44 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
+}
+
+void ConfigAppWeatherTab::isValidConnection()
+{
+  terrama2::gui::core::ConnectionType serviceType = (terrama2::gui::core::ConnectionType)ui_->connectionProtocol->currentIndex();
+  if (serviceType == terrama2::gui::core::FTP)
+      terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
+                                              ui_->connectionPort->text().toInt(),
+                                              ui_->serverDataBasePath->text(),
+                                              ui_->connectionUserName->text(),
+                                              ui_->connectionPassword->text());
+  else if (serviceType == terrama2::gui::core::WEBSERVICE)
+      terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
+                                                  ui_->connectionPort->text().toInt(),
+                                                  ui_->connectionUserName->text(),
+                                                  ui_->connectionPassword->text());
+  else if (serviceType == terrama2::gui::core::LOCALFILES)
+    terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());
+}
+
+void ConfigAppWeatherTab::showDataSeries(bool state)
+{
+  ui_->exportServerBtn->setVisible(state);
+  ui_->updateServerBtn->setVisible(state);
+  ui_->serverDeleteBtn->setVisible(state);
+
+  (state) ? ui_->groupBox_25->show() : ui_->groupBox_25->hide();
+}
+
+void ConfigAppWeatherTab::hidePanels(QWidget *except)
+{
+  ui_->ServerGroupPage->hide();
+  ui_->ServerPage->hide();
+  ui_->DataGridPage->hide();
+  ui_->DataPointPage->hide();
+  ui_->DataPointDiffPage->hide();
+
+  except->show();
 }
 
 void ConfigAppWeatherTab::onEnteredWeatherTab()
@@ -154,28 +222,7 @@ void ConfigAppWeatherTab::onCheckConnection()
   QString message;
   try
   {
-    switch ((terrama2::gui::core::ConnectionType)ui_->connectionProtocol->currentIndex())
-    {
-      case terrama2::gui::core::FTP:
-        terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
-                                                ui_->connectionPort->text().toInt(),
-                                                ui_->serverDataBasePath->text(),
-                                                ui_->connectionUserName->text(),
-                                                ui_->connectionPassword->text());
-        break;
-      case terrama2::gui::core::WEBSERVICE:
-        terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
-                                                    ui_->connectionPort->text().toInt(),
-                                                    ui_->connectionUserName->text(),
-                                                    ui_->connectionPassword->text());
-        break;
-      case terrama2::gui::core::LOCALFILES:
-        terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());
-        break;
-      default:
-        throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Invalid protocol selected"));
-        break;
-    }
+    isValidConnection();
     return;
   }
   catch(const terrama2::Exception& e)
@@ -191,4 +238,22 @@ void ConfigAppWeatherTab::onCheckConnection()
     message.append("Unknown Error");
   }
   QMessageBox::critical(app_, tr("TerraMA2 Error"), message);
+}
+
+void ConfigAppWeatherTab::onDataGridBtnClicked()
+{
+//  for(QWidget* widget: ui_->weatherPageStack->findChildren<QWidget*>("Page"))
+//    widget->hide();
+
+  hidePanels(ui_->DataGridPage);
+}
+
+void ConfigAppWeatherTab::onInsertPointBtnClicked()
+{
+  hidePanels(ui_->DataPointPage);
+}
+
+void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
+{
+  hidePanels(ui_->DataPointDiffPage);
 }
