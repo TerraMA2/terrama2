@@ -60,7 +60,7 @@ namespace terrama2
 
           int ping(std::string& answer);
 
-          int addDataProvider(terrama2::core::DataProvider dataProvider);
+          int addDataProvider(DataProvider &dataProvider);
 
           int addDataset(DataSet struct_dataSet);
 

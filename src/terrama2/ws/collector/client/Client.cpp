@@ -51,7 +51,7 @@ int terrama2::ws::collector::Client::ping(std::string& answer)
 }
 
 
-int terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider dataProvider)
+int terrama2::ws::collector::Client::addDataProvider(DataProvider &dataProvider)
 {
   wsClient_->addDataProvider(dataProvider);
 
@@ -82,14 +82,14 @@ int terrama2::ws::collector::Client::updateDataSet(DataSet struct_dataSet)
 
 int terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
 {
-
+  wsClient_->removeDataProvider(id, nullptr);
   return SOAP_OK;
 }
 
 
 int terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 {
-
+  wsClient_->removeDataSet(id, nullptr);
   return SOAP_OK;
 }
 
