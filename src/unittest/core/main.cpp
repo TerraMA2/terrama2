@@ -14,15 +14,15 @@ int main(int argc, char **argv)
   initializeTerraMA2();
 
   TestApplicationController testApplicationController;
-  QTest::qExec(&testApplicationController, argc, argv);
+  int ret = QTest::qExec(&testApplicationController, argc, argv);
 
   TestDataProviderDAO testDataProviderDAO;
-  QTest::qExec(&testDataProviderDAO, argc, argv);
+  ret += QTest::qExec(&testDataProviderDAO, argc, argv);
 
   TestDataSetDAO testDataSetDAO;
-  QTest::qExec(&testDataSetDAO, argc, argv);
+  ret += QTest::qExec(&testDataSetDAO, argc, argv);
 
   finalizeTerraMA2();
 
-  return 0;
+  return ret;
 }
