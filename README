@@ -18,7 +18,7 @@ Instructions
 
 The documents below are in the root directory of TerraMA2 codebase and they explain the details of the codebase:
 
-- BRANCHES..........: Notes on how to switch to the right branch to work on or the right tag to get the source code.
+- BRANCHES-AND-TAGS.: Notes on how to switch to the right branch to work on or the right tag to get the source code.
 
 - BUILD-INSTRUCTIONS: Notes on how to compile and install TerraMA2 for each platform.
 
