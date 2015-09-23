@@ -33,7 +33,7 @@
 //QT
 #include <QtTest/QTest>
 
-class TestDataProviderDAO: public QObject
+class TsDataProviderDAO: public QObject
 {
   Q_OBJECT
 

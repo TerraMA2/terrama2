@@ -20,29 +20,29 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file unittest/core/DataSetDAO.cpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Test for DataSetDAO functionalities
 
   \author Paulo R. M. Oliveira
 */
 
-#include "TestApplicationController.hpp"
+#ifndef __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
 
-#include <terrama2_config.hpp>
-#include <terrama2/core/ApplicationController.hpp>
-#include <terrama2/core/Utils.hpp>
+#include <QtTest>
 
-// TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-// STL
-#include <memory>
-
-void TestApplicationController::testLoadProject()
+class TsDataSetDAO: public QObject
 {
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-  QVERIFY(dataSource.get());
-}
+  Q_OBJECT
+private:
+
+
+private slots:
+  void initTestCase();
+  void cleanupTestCase();
+  void testCRUDDataSet();
+};
+
+
+#endif // __TERRAMA2_UNITTEST_CORE_TESTDATAPROVIDERDAO_HPP__

@@ -4,7 +4,7 @@
   "version": "4.0.0-alpha1",
   "database": {
     "name": "terrama2_test",
-    "driver": "MySQL",
+    "driver": "PostGIS",
     "host": "localhost",
     "port": "5432",
     "user": "terrama2_tester",
