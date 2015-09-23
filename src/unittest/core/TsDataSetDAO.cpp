@@ -28,7 +28,7 @@
 */
 
 // TerraMA2 Unittest
-#include "TestDataSetDAO.hpp"
+#include "TsDataSetDAO.hpp"
 
 // TerraMA2
 #include <terrama2/core/ApplicationController.hpp>
@@ -41,7 +41,7 @@
 // Qt
 #include <QtTest>
 
-void TestDataSetDAO::initTestCase()
+void TsDataSetDAO::initTestCase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -57,7 +57,7 @@ void TestDataSetDAO::initTestCase()
   transactor->commit();
 }
 
-void TestDataSetDAO::cleanupTestCase()
+void TsDataSetDAO::cleanupTestCase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -73,7 +73,7 @@ void TestDataSetDAO::cleanupTestCase()
   transactor->commit();
 }
 
-void TestDataSetDAO::testCRUDDataSet()
+void TsDataSetDAO::testCRUDDataSet()
 {
 // create a new data provider and save it t the database
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));

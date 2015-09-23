@@ -20,29 +20,28 @@
 */
 
 /*!
-  \file unittest/core/DataSetDAO.cpp
+  \file unittest/core/TestApplicationController.cpp
 
-  \brief Test for DataSetDAO functionalities
+  \brief Test for ApplicationController functionalities
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
+#ifndef __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
 
+//QT
 #include <QtTest>
 
-class TestDataSetDAO: public QObject
+class TsApplicationController: public QObject
 {
   Q_OBJECT
-private:
-
 
 private slots:
-  void initTestCase();
-  void cleanupTestCase();
-  void testCRUDDataSet();
+    void testLoadProject();
 };
 
 
-#endif // __TERRAMA2_UNITTEST_CORE_TESTDATAPROVIDERDAO_HPP__
+
+
+#endif  // __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
