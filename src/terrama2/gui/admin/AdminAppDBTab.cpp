@@ -34,6 +34,8 @@
 #include "AdminAppDBTab.hpp"  
 #include "ui_AdminAppForm.h"
 #include "Exception.hpp"
+#include <QJsonObject>
+#include <QString>
 
 AdminAppDBTab::AdminAppDBTab(AdminApp* app, Ui::AdminAppForm* ui)
  :AdminAppTab(app, ui)
@@ -44,4 +46,31 @@ AdminAppDBTab::AdminAppDBTab(AdminApp* app, Ui::AdminAppForm* ui)
 AdminAppDBTab::~AdminAppDBTab()
 {
   
+}
+
+QMap<QString, QJsonObject> AdminAppDBTab::toJson()
+{
+
+ QJsonObject database;
+
+ database["name"] = ui_->dbDatabaseLed->text();
+ database["driver"] = ui_->dbTypeCmb->currentText();
+ database["host"] = ui_->dbAddressLed->text();
+ database["port"] = ui_->dbPortLed->text();
+ database["user"] = ui_->dbUserLed->text();
+ database["password"] = ui_->dbPasswordLed->text();
+ QMap<QString, QJsonObject> json;
+ json.insert(QString("database"), database);
+
+ return json;
+}
+
+bool AdminAppDBTab::load()
+{
+    return false;
+}
+
+bool AdminAppDBTab::validate()
+{
+    return false;
 }

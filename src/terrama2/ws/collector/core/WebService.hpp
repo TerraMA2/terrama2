@@ -44,25 +44,8 @@
 */
 int Web__ping(std::string &answer);
 
-// VINICIUS_TODO: write the methods documentation
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-int Web__restart(void);
-
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-int Web__shutdown(void);
-
+// VINICIUS: write the methods documentation
+// VINICIUS: check if need to change the Synchronous One-Way Message methods to receive an answer
 /*!
   \brief
 
