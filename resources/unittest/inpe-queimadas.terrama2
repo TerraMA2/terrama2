@@ -1,10 +1,10 @@
 {
-  "is_study": "false",
+  "is_study": "True",
   "name": "Monitoramento de Queimadas e Incêndios",
   "version": "4.0.0-alpha1",
   "database": {
     "name": "terrama2_test",
-    "driver": "postgis",
+    "driver": "PostGIS",
     "host": "localhost",
     "port": "5432",
     "user": "terrama2_tester",

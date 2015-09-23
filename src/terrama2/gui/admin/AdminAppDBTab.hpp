@@ -45,6 +45,10 @@ class AdminAppDBTab: public AdminAppTab
  //! Destructor
   ~AdminAppDBTab();
 
+  bool validate();
+  bool load();
+  QMap<QString, QJsonObject> toJson();
+
 };
 
 #endif __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPDBTAB_HPP__

@@ -9,13 +9,6 @@ struct CommonData
   QString params_;
 };
 
-enum DatabaseDriver
-{
-  DRIVER_PostGIS,
-  DRIVER_PostgreSQL,
-  DRIVER_MySQL
-};
-
 struct Database
 {
   QString host_;
@@ -23,8 +16,10 @@ struct Database
   QString user_;
   QString password_;
   QString dbName_;
-  DatabaseDriver driver_;
-  bool study_;
+  QString driver_;
+  QString study_;
+  QString name_;
+  QString version_;
 };
 
 struct Collection: public CommonData

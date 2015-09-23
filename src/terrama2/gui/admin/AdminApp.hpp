@@ -40,12 +40,16 @@
 
 // Qt
 #include <QMainWindow>
+#include <QList>
+#include <QSharedPointer>
 
 /*!
   \class AdminApp
  
   \brief Main dialog for TerraMA2 Administration module.
  */
+
+class AdminAppTab;
 
 class AdminApp : public QMainWindow, private boost::noncopyable
 {
@@ -64,13 +68,20 @@ class AdminApp : public QMainWindow, private boost::noncopyable
 
   private slots:
 
+    void newRequested();
     void openRequested();
+    void saveRequested();
+    void renameRequested();
   
   private:
   
     struct Impl;
 
     ConfigManager* configManager_;
+
+    QString nameConfig_; //!< Current Configuration Name.
+
+    QList<QSharedPointer<AdminAppTab>> tabs_; //!< List of TerraMA2 Administration Tabs
 
     Impl* pimpl_;  //!< Pimpl idiom.
 };

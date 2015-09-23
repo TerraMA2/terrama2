@@ -93,4 +93,4 @@ void TestCollectorFile::TestCheckConnection()
 }
 
 QTEST_MAIN(TestCollectorFile)
-#include "TestCollectorFile.moc"
+//#include "TestCollectorFile.moc"
