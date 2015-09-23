@@ -150,29 +150,45 @@ void ConfigAppWeatherTab::onImportServer()
 
 void ConfigAppWeatherTab::onCheckConnection()
 {
-  bool state = false;
+  // For handling error message
   QString message;
-  switch ((terrama2::gui::core::ConnectionType)ui_->connectionProtocol->currentIndex())
+  try
   {
-    case terrama2::gui::core::FTP:
-      state = terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
-                                                      ui_->connectionPort->text().toInt(),
-                                                      ui_->serverDataBasePath->text(),
-                                                      ui_->connectionUserName->text(),
-                                                      ui_->connectionPassword->text());
-      std::cout << "Connection FTP " << (state) << std::endl;
-      break;
-    case terrama2::gui::core::WEBSERVICE:
-      state = terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
-                                                          ui_->connectionPort->text().toInt(),
-                                                          ui_->connectionUserName->text(),
-                                                          ui_->connectionPassword->text());
-      break;
-    case terrama2::gui::core::LOCALFILES:
-      std::cout << "Local Files " << (terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text())) << std::endl;
-      break;
-    default:
-      break;
+    switch ((terrama2::gui::core::ConnectionType)ui_->connectionProtocol->currentIndex())
+    {
+      case terrama2::gui::core::FTP:
+        terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
+                                                ui_->connectionPort->text().toInt(),
+                                                ui_->serverDataBasePath->text(),
+                                                ui_->connectionUserName->text(),
+                                                ui_->connectionPassword->text());
+        break;
+      case terrama2::gui::core::WEBSERVICE:
+        terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
+                                                    ui_->connectionPort->text().toInt(),
+                                                    ui_->connectionUserName->text(),
+                                                    ui_->connectionPassword->text());
+        break;
+      case terrama2::gui::core::LOCALFILES:
+        terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());
+        break;
+      default:
+        throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Invalid protocol selected"));
+        break;
+    }
+    return;
   }
-  QMessageBox::information(app_, tr("TerraMA2 Server"), tr("Connection Working..."));
+  catch(const terrama2::Exception& e)
+  {
+    message.append(boost::get_error_info<terrama2::ErrorDescription>(e));
+  }
+  catch(const std::exception& e)
+  {
+    message.fromUtf8(e.what());
+  }
+  catch(...)
+  {
+    message.append("Unknown Error");
+  }
+  QMessageBox::critical(app_, tr("TerraMA2 Error"), message);
 }

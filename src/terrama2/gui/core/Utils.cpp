@@ -35,9 +35,10 @@
 #include <QString>
 #include <QDir>
 #include <QUrl>
+#include "../Exception.hpp"
 
 
-bool terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
+void terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
 {
   QString address;
   if (!host.startsWith("http://") or !host.startsWith("https://"))
@@ -45,26 +46,29 @@ bool terrama2::gui::core::checkServiceConnection(const QString& host, const int&
   address.append(host);
 
   QUrl url(address);
-  if (url.isValid())
-  {
+  if (!url.isValid())
+    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
 
-  }
-
-  return false;
+  // do connection
 }
 
-bool terrama2::gui::core::checkFTPConnection(const QString& host, const int& port, const QString& basepath,
+void terrama2::gui::core::checkFTPConnection(const QString& host, const int& port, const QString& basepath,
                                              const QString& user, const QString& password)
 {
-  return false;
+  throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
 }
 
 
-bool terrama2::gui::core::checkLocalFilesConnection(const QString& path)
+void terrama2::gui::core::checkLocalFilesConnection(const QString& path)
 {
   QString absolutePath = path;
   absolutePath.append("/");
   QDir directory(absolutePath);
 
-  return directory.exists();
+  if (!directory.exists())
+  {
+    QString error(QObject::tr("Invalid directory typed: \"%1\""));
+    error.arg(absolutePath);
+    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(error);
+  }
 }

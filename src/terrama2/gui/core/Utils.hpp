@@ -50,14 +50,16 @@ namespace terrama2
         WEBSERVICE
       };
 
-      //! Function to check if there is any service listening on host (WebServices)
-      bool checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password);
+      /*! Function to check if there is any service listening on host (WebServices)
+        \exception It may raise <terrama2::gui::URLError> when trying to request invalid url
+      */
+      void checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password);
 
       //! Function to check if there is any in FTP connections
-      bool checkFTPConnection(const QString& host, const int& port, const QString& basepath, const QString& user, const QString& password);
+      void checkFTPConnection(const QString& host, const int& port, const QString& basepath, const QString& user, const QString& password);
 
       //! Function to check if there is a valid path
-      bool checkLocalFilesConnection(const QString& path);
+      void checkLocalFilesConnection(const QString& path);
     }
   }
 }
