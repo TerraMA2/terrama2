@@ -27,7 +27,7 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "TestDataProviderDAO.hpp"
+#include "TsDataProviderDAO.hpp"
 
 #include <terrama2/core/ApplicationController.hpp>
 #include <terrama2/core/DataManager.hpp>
@@ -43,7 +43,7 @@
 
 
 
-void TestDataProviderDAO::initTestCase()
+void TsDataProviderDAO::initTestCase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -60,7 +60,7 @@ void TestDataProviderDAO::initTestCase()
 
 }
 
-void TestDataProviderDAO::cleanupTestCase()
+void TsDataProviderDAO::cleanupTestCase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -73,7 +73,7 @@ void TestDataProviderDAO::cleanupTestCase()
   transactor->commit();
 }
 
-void TestDataProviderDAO::testCRUDDataProvider()
+void TsDataProviderDAO::testCRUDDataProvider()
 {
 
 // create a new data provider and save it to the database
