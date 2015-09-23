@@ -55,6 +55,9 @@ Notes:
   f) To turn on C++11 support:
      -DCMAKE_CXX_FLAGS:STRING="-std=c++11"
 
+  g) To turn on the check of undefined macros, add the following flag:
+     -DCMAKE_CXX_FLAGS:STRING="-Wundef"
+
 1.5 Building (with 4 process in parallel):
 $ make -j 4
 
