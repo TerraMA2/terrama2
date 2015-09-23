@@ -57,7 +57,7 @@ int WebService::addDataProvider(DataProvider &struct_dataprovider)
 }
 
 
-int WebService::addDataset(DataSet &struct_dataset)
+int WebService::addDataSet(DataSet &struct_dataset)
 {
   auto DataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataset);
 

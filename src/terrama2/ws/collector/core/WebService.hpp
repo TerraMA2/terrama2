@@ -45,7 +45,6 @@
 int Web__ping(std::string &answer);
 
 // VINICIUS: write the methods documentation
-// VINICIUS: check if need to change the Synchronous One-Way Message methods to receive an answer
 /*!
   \brief
 
@@ -62,8 +61,8 @@ int Web__addDataProvider(struct DataProvider&);
 
   \return
 */
-// VINICIUS: rename to addDataSet
-int Web__addDataset(struct DataSet&);
+
+int Web__addDataSet(struct DataSet&);
 
 /*!
   \brief
