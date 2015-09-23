@@ -39,7 +39,7 @@ COMMENT ON COLUMN terrama2.users.cell_phone IS 'User cell phone';
 CREATE TABLE terrama2.data_provider_type
 (
   id          SERIAL PRIMARY KEY,
-  name        VARCHAR(50), --UNIQUE,
+  name        VARCHAR(50) UNIQUE,
   description TEXT
 );
 
