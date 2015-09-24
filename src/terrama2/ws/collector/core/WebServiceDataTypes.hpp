@@ -27,7 +27,6 @@
   \author Vinicius Campanha
  */
 
-
 struct DataProvider
 {
   uint64_t      id;
