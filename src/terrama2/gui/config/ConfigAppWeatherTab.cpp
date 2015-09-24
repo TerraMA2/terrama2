@@ -2,7 +2,7 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
-//#include "../../core/ApplicationController.hpp"
+#include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
 
 // QT
@@ -10,7 +10,6 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QWidget>
-
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui),
@@ -105,6 +104,15 @@ void ConfigAppWeatherTab::save()
   }
   // Apply save process
 
+
+  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+
+//  std::shared_ptr<te::da::DataSource> ds = te::da::DataSourceFactory::make("POSTGIS");
+  terrama2::core::ApplicationController::getInstance().loadProject(path);
+  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+  std::auto_ptr<te::da::DataSet> dset = ds->query("create table abacate (id serial primary key, nome varchar(200))");
+
   // TODO: save in database
   QTreeWidgetItem* newServer = new QTreeWidgetItem();
   newServer->setText(0, ui_->serverName->text());
@@ -124,7 +132,7 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
   }
 
 // Clear all inputs
-  const auto& tab = ui_->ServerPage;
+  const auto* tab = ui_->ServerPage;
 
 // Clear QLineEdits
   for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
@@ -187,7 +195,7 @@ void ConfigAppWeatherTab::hidePanels(QWidget *except)
   ui_->cancelBtn->setVisible(true);
 
   ui_->saveBtn->setEnabled(false);
-  ui_->cancelBtn->setEnabled(false);
+  ui_->cancelBtn->setEnabled(true);
 
   except->show();
 }
