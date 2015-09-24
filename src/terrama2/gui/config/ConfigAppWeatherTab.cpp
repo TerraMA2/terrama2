@@ -111,7 +111,7 @@ void ConfigAppWeatherTab::save()
   terrama2::core::ApplicationController::getInstance().loadProject(path);
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
 
-  std::auto_ptr<te::da::DataSet> dset = ds->query("create table abacate (id serial primary key, nome varchar(200))");
+  std::auto_ptr<te::da::DataSet> dset = ds->query("create table terrama2.servers (id serial primary key, nome varchar(200))"); // temp
 
   // TODO: save in database
   QTreeWidgetItem* newServer = new QTreeWidgetItem();
