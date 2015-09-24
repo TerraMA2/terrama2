@@ -38,6 +38,7 @@
 
 // QT
 #include <QMainWindow>
+#include <QSharedPointer>
 
 
 // Forward declaration
@@ -53,7 +54,7 @@ class ServiceHandler
     void loadConfiguration(QString filepath);
 
   private:
-    ConfigManager* configManager_;
+    QSharedPointer<ConfigManager> configManager_;
     // Pointer for each service
     //Collector* coll;
 };

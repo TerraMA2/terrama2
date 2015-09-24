@@ -34,4 +34,14 @@
 
 #include "../Exception.hpp"
 
+namespace terrama2
+{
+  namespace gui
+  {
+    struct URLError: virtual terrama2::Exception{ };
+    struct FieldError: virtual terrama2::Exception{ };
+    struct DirectoryError: virtual terrama2::Exception{ };
+  }
+}
+
 #endif // __TERRAMA2_GUI_EXCEPTION_HPP__

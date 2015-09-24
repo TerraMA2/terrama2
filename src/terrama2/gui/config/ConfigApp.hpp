@@ -40,6 +40,7 @@
 
 // Qt
 #include <QMainWindow>
+#include <QSharedPointer>
 
 
 class ConfigAppTab;
@@ -54,7 +55,7 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
       \exception terrama2::InitializationError <It may be raised when cannot find TerraMA2 icons library folder>
 
     */
-    ConfigApp(QWidget* parent = 0);
+    ConfigApp(QWidget* parent = 0, Qt::WindowFlags flags = 0);
 
     //! Destructor.
     ~ConfigApp();
@@ -74,13 +75,13 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
   private:
     struct Impl;
 
-    Impl* pimpl_;
+    Impl* pimpl_; //!< Pimpl idiom
 
-    int currentTabIndex_;
+    int currentTabIndex_; //!< index of active tab
 
-    ServiceHandler* services_;
+    ServiceHandler* services_; //!< attribute for handling terrama2 services
 
-    QList<ConfigAppTab*> tabList_; //< List of TerraMA2 Configuration Tabs
+    QList<QSharedPointer<ConfigAppTab>> tabList_; //!< List of TerraMA2 Configuration Tabs
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

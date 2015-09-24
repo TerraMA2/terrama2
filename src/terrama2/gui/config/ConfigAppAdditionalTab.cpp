@@ -24,9 +24,8 @@
 
   \brief Definition of Class ConfigAppAdditionalTab.hpp
 
+  \author Raphael Willian da Costa
   \author Evandro Delatin
-  \author Raphael Willian da Costa  
-  \author Carlos Augusto Teixeira Mendes
 */
 
 // TerraMA2
