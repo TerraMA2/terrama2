@@ -287,10 +287,10 @@ fi
 
 
 #
-# Check for terralib-3rdparty-linux-ubuntu-14.04.tar.gz
+# Check for terrama2-3rdparty-linux-ubuntu-14.04.tar.gz
 #
-if [ ! -f ./terralib-3rdparty-linux-ubuntu-14.04.tar.gz ]; then
-  echo "Please, make sure to have terralib-3rdparty-linux-ubuntu-14.04.tar.gz in the current directory!"
+if [ ! -f ./terrama2-3rdparty-linux-ubuntu-14.04.tar.gz ]; then
+  echo "Please, make sure to have terrama2-3rdparty-linux-ubuntu-14.04.tar.gz in the current directory!"
   echo ""
   exit
 fi
@@ -303,8 +303,8 @@ echo "extracting packages..."
 echo ""
 sleep 1s
 
-tar xzvf terralib-3rdparty-linux-ubuntu-14.04.tar.gz
-valid $? "Error: could not extract 3rd party libraries (terralib-3rdparty-linux-ubuntu-14.04.tar.gz)"
+tar xzvf terrama2-3rdparty-linux-ubuntu-14.04.tar.gz
+valid $? "Error: could not extract 3rd party libraries (terrama2-3rdparty-linux-ubuntu-14.04.tar.gz)"
 
 echo "packages extracted!"
 echo ""
@@ -314,15 +314,15 @@ sleep 1s
 #
 # Go to 3rd party libraries dir
 #
-cd terralib-3rdparty-linux-ubuntu-14.04
-valid $? "Error: could not enter 3rd-party libraries dir (terralib-3rdparty-linux-ubuntu-14.04)"
+cd terrama2-3rdparty-linux-ubuntu-14.04
+valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-linux-ubuntu-14.04)"
 
 
 #
 # Check installation dir
 #
 if [ "$TERRAMA2_DEPENDENCIES_DIR" == "" ]; then
-  TERRAMA2_DEPENDENCIES_DIR = "/opt/terralib5"
+  TERRAMA2_DEPENDENCIES_DIR = "/opt/terrama2"
 fi
 
 export PATH="$PATH:$TERRAMA2_DEPENDENCIES_DIR/bin"
