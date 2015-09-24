@@ -33,7 +33,7 @@
 
 
 ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)//, controller)
+  : ConfigAppTab(app, ui)
 {
 
 }

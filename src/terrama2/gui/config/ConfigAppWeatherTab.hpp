@@ -62,13 +62,25 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void serverDone();
 
   private slots:
+    //! It used when user click add server btn
     void onEnteredWeatherTab();
+
+    //! Activated when user starting editing an input
     void onWeatherTabEdited();
+
+    //! Slot for handling importServer btn
     void onImportServer();
+
+    //! Slot for handling if it is valid connection. TODO: ftp
     void onCheckConnection();
 
+    //! Triggered when click datagridbtn to show datagrid modal
     void onDataGridBtnClicked();
+
+    //! Triggered when click datapointbtn to show datapoint modal
     void onInsertPointBtnClicked();
+
+    //! Triggered when click datapointdiffbtn to show datapointdiff modal
     void onInsertPointDiffBtnClicked();
 
   private:

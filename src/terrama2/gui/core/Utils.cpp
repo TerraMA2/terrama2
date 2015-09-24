@@ -41,7 +41,7 @@
 void terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
 {
   QString address;
-  if (!host.startsWith("http://") or !host.startsWith("https://"))
+  if (!host.startsWith("http://") && !host.startsWith("https://"))
     address.append("http://");
   address.append(host);
 
@@ -49,12 +49,13 @@ void terrama2::gui::core::checkServiceConnection(const QString& host, const int&
   if (!url.isValid())
     throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
 
-  // do connection
+  // TODO: do remote connection
 }
 
 void terrama2::gui::core::checkFTPConnection(const QString& host, const int& port, const QString& basepath,
                                              const QString& user, const QString& password)
 {
+  // TODO
   throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
 }
 

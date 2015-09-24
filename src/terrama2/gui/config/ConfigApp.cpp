@@ -97,8 +97,8 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   services_ = new ServiceHandler(this);
 
 // Init services for each tab
-  QSharedPointer<ConfigAppWeatherTab> weatherTab(new ConfigAppWeatherTab(this, ui()));//, controller_));
-  QSharedPointer<ConfigAppAdditionalTab> additionalTab(new ConfigAppAdditionalTab(this, ui())); //, controller_));
+  QSharedPointer<ConfigAppWeatherTab> weatherTab(new ConfigAppWeatherTab(this, ui()));
+  QSharedPointer<ConfigAppAdditionalTab> additionalTab(new ConfigAppAdditionalTab(this, ui()));
 
   tabList_.append(weatherTab);
   tabList_.append(additionalTab);
@@ -111,7 +111,6 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 ConfigApp::~ConfigApp()
 {
   delete services_;
-//  delete controller_;
   delete pimpl_;
 }
 

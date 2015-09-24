@@ -2,7 +2,7 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
-#include "../../core/ApplicationController.hpp"
+//#include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
 
 // QT
@@ -43,8 +43,6 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridBtnClicked()));
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
-
-  // datagridpage
 
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
@@ -230,6 +228,8 @@ void ConfigAppWeatherTab::onCheckConnection()
   try
   {
     isValidConnection();
+    // FIX
+    QMessageBox::information(app_, tr("TerraMA2"), tr("Connection OK"));
     return;
   }
   catch(const terrama2::Exception& e)
