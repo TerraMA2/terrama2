@@ -45,7 +45,6 @@
 int Web__ping(std::string &answer);
 
 // VINICIUS: write the methods documentation
-// VINICIUS: check if need to change the Synchronous One-Way Message methods to receive an answer
 /*!
   \brief
 
@@ -53,16 +52,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-int Web__addDataProvider(struct DataProvider, void);
-
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-int Web__addDataset(struct DataSet, void);
+int Web__addDataProvider(struct DataProvider&);
 
 /*!
   \brief
@@ -71,7 +61,8 @@ int Web__addDataset(struct DataSet, void);
 
   \return
 */
-int Web__updateDataProvider(struct DataProvider, void);
+
+int Web__addDataSet(struct DataSet&);
 
 /*!
   \brief
@@ -80,7 +71,7 @@ int Web__updateDataProvider(struct DataProvider, void);
 
   \return
 */
-int Web__updateDataSet(struct DataSet, void);
+int Web__updateDataProvider(struct DataProvider&);
 
 /*!
   \brief
@@ -89,7 +80,7 @@ int Web__updateDataSet(struct DataSet, void);
 
   \return
 */
-int Web__removeDataProvider(uint64_t id, void);
+int Web__updateDataSet(struct DataSet&);
 
 /*!
   \brief
@@ -98,7 +89,16 @@ int Web__removeDataProvider(uint64_t id, void);
 
   \return
 */
-int Web__removeDataSet(uint64_t id, void);
+int Web__removeDataProvider(uint64_t id, struct Web__removeDataProviderResponse {} *out);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
+int Web__removeDataSet(uint64_t id, struct Web__removeDataSetResponse{} *out);
 
 /*!
   \brief
