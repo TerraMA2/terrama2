@@ -20,24 +20,25 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: Install all required software for TerraMA2 on Linux Ubuntu 14.04.
+#  Description: Install all required software for TerraMA2 on MAC OS X Yosemite.
 #
 #  Author: Gilberto Ribeiro de Queiroz
-#          Paulo R. M. Oliveira
 #
 #
 #  Example:
-#  $ TERRAMA2_DEPENDENCIES_DIR="/home/gribeiro/MyLibs" ./install-3rdparty-linux-ubuntu-14.04.sh
+#  $ TERRAMA2_DEPENDENCIES_DIR="/Users/gribeiro/MyLibs" ./install-3rdparty-macosx-yosemite.sh
 #
 
-echo "*****************************************************************"
-echo "* TerraMA2 3rd-party Libraries Installer for Linux Ubuntu 14.04 *"
-echo "*****************************************************************"
+echo "********************************************"
+echo "* TerraMA2 Installer for Mac OS X Yosemite *"
+echo "********************************************"
 echo ""
 sleep 1s
 
+
 #
-# Valid parameter val or abort script
+# If first argument is false it aborts the script and
+# report the message passed as second argument.
 #
 function valid()
 {
@@ -50,248 +51,10 @@ function valid()
 
 
 #
-# Update Ubuntu install list
+# Check for terrama2-3rdparty-macosx-yosemite.tar.gz
 #
-sudo apt-get update
-valid $? "Error: could not update apt-get database list"
-
-
-#
-# gcc
-#
-gcpp_test=`dpkg -s g++ | grep Status`
-
-if [ "$gcpp_test" != "Status: install ok installed" ]; then
-  sudo apt-get install g++
-  valid $? "Error: could not install g++! Please, install g++: sudo apt-get install g++"
-  echo "g++ installed!"
-else
-  echo "g++ already installed!"
-fi
-
-
-#
-# gfortran
-#
-gfortran_test=`dpkg -s gfortran | grep Status`
-
-if [ "$gfortran_test" != "Status: install ok installed" ]; then
-  sudo apt-get install gfortran
-  valid $? "Error: could not install gfortran! Please, install g++: sudo apt-get install gfortran" 
-  echo "gfortran installed!"
-else
-  echo "gfortran already installed!"
-fi
-
-
-#
-# zlibdevel
-#
-zlibdevel_test=`dpkg -s zlib1g-dev | grep Status`
-
-if [ "$zlibdevel_test" != "Status: install ok installed" ]; then
-  sudo apt-get install zlib1g-dev
-  valid $? "Error: could not install zlib1g-dev! Please, install g++: sudo apt-get install zlib1g-dev"
-  echo "zlib1g-dev installed!"
-else
-  echo "zlib1g-dev already installed!"
-fi
-
-
-#
-# libreadline-dev
-#
-readline_test=`dpkg -s libreadline-dev | grep Status`
-
-if [ "$readline_test" != "Status: install ok installed" ]; then
-  sudo apt-get install libreadline-dev
-  valid $? "Error: could not install libreadline-dev! Please, install readline: sudo apt-get install libreadline-dev"
-  echo "libreadline-dev installed!"
-else
-  echo "libreadline-dev already installed!"
-fi
-
-
-#
-# python support
-#
-pysetup_test=`dpkg -s python-setuptools | grep Status`
-
-if [ "$gcpp_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-setuptools
-  valid $? "Error: could not install python-setuptools! Please, install readline: sudo apt-get install python-setuptools"
-  echo "python-setuptools installed!"
-else
-  echo "python-setuptools already installed!"
-fi
-
-pypip_test=`dpkg -s python-pip | grep Status`
-
-if [ "$pypip_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-pip
-  valid $? "Error: could not install python-pip! Please, install readline: sudo apt-get install python-pip"
-  echo "python-pip installed!"
-else
-  echo "python-pip already installed!"
-fi
-
-pydev_test=`dpkg -s python-dev | grep Status`
-
-if [ "$pydev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-dev
-  valid $? "Error: could not install python-dev! Please, install readline: sudo apt-get install python-dev"
-  echo "python-dev installed!"
-else
-  echo "python-dev already installed!"
-fi
-
-numpy_test=`dpkg -s python-numpy | grep Status`
-
-if [ "$numpy_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-numpy
-  valid $? "Error: could not install python-numpy! Please, install readline: sudo apt-get install python-numpy"
-  echo "python-numpy installed!"
-else
-  echo "python-numpy already installed!"
-fi
-
-
-#
-# autoconf
-#
-autoconf_test=`dpkg -s autoconf | grep Status`
-
-if [ "$autoconf_test" != "Status: install ok installed" ]; then
-  sudo apt-get install autoconf
-  valid $? "Error: could not install autoconf! Please, install readline: sudo apt-get install autoconf" 
-  echo "autoconf installed!"
-else
-  echo "autoconf already installed!"
-fi
-
-
-#
-# GNU gettext
-#
-gettext_test=`dpkg -s gettext | grep Status`
-
-if [ "$gettext_test" != "Status: install ok installed" ]; then
-  sudo apt-get install gettext
-  valid $? "Error: could not install gettext! Please, install readline: sudo apt-get install gettext" 
-  echo "gettext installed!"
-else
-  echo "gettext already installed!"
-fi
-
-
-#
-# flex
-#
-flex_test=`dpkg -s flex | grep Status`
-
-if [ "$flex_test" != "Status: install ok installed" ]; then
-  sudo apt-get install flex
-  valid $? "Error: could not install flex! Please, install readline: sudo apt-get install flex"
-  echo "flex installed!"
-else
-  echo "flex already installed!"
-fi
-
-
-#
-# bison
-#
-bison_test=`dpkg -s bison | grep Status`
-
-if [ "$bison_test" != "Status: install ok installed" ]; then
-  sudo apt-get install bison
-  valid $? "Error: could not install bison! Please, install readline: sudo apt-get install bison"
-  echo "bison installed!"
-else
-  echo "bison already installed!"
-fi
-
-
-#
-# qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
-#
-qt5_dev_test=`dpkg -s qt5-default qttools5-dev libqt5svg5-dev libqt5designer5 | grep Status`
-
-if [ "$qt5_dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
-  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5"
-  echo "qt5-dev-tools installed!"
-else
-  echo "qt5-dev-tools already installed!"
-fi
-
-
-#
-# PHP 5
-#
-php5dev_test=`dpkg -s php5-dev | grep Status`
-
-if [ "$php5dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install  php5-dev
-  valid $? "Error: could not install php5-dev! Please, install PHP5 support: sudo apt-get install php5-dev"
-  echo "php5-dev installed!"
-else
-  echo "php5-dev already installed!"
-fi
-
-
-#
-# CMake
-#
-cmake_test=`dpkg -s cmake | grep Status`
-
-if [ "$cmake_test" != "Status: install ok installed" ]; then
-  sudo apt-get install cmake cmake-qt-gui
-  valid $? "Error: could not install CMake! Please, install CMake: sudo apt-get install cmake"
-  echo "CMake installed!"
-else
-    if [ ! command -v cmake --version >/dev/null 2>&1 ]; then
-      valid 1 "CMake already installed but not found in PATH!"
-    else
-      echo "CMake already installed!"
-    fi
-fi
-
-
-#
-# liblog4cxx10-dev
-#
-log4cxx_test=`dpkg -s liblog4cxx10-dev | grep Status`
-
-if [ "$log4cxx_test" != "Status: install ok installed" ]; then
-  sudo apt-get install liblog4cxx10-dev
-  valid $? "Error: could not install liblog4cxx10-dev! Please, install liblog4cxx10-dev: sudo apt-get install liblog4cxx10-dev" 
-  echo "liblog4cxx10-dev installed!"
-else
-  echo "liblog4cxx10-dev already installed!"
-fi
-
-
-#
-# libkml
-#
-libkml_test=`dpkg -s libkml-dev | grep Status`
-
-if [ "$libkml_test" != "Status: install ok installed" ]; then
-  sudo apt-get install libkml-dev
-  valid $? "Error: could not install libkml-dev! Please, install libkml-dev: sudo apt-get install libkml-dev"
-  echo "libkml-dev installed!"
-else
-  echo "libkml-dev already installed!"
-fi
-
-
-#
-# Check for terrama2-3rdparty-linux-ubuntu-14.04.tar.gz
-#
-if [ ! -f ./terrama2-3rdparty-linux-ubuntu-14.04.tar.gz ]; then
-  echo "Please, make sure to have terrama2-3rdparty-linux-ubuntu-14.04.tar.gz in the current directory!"
-  echo ""
+if [ ! -f ./terrama2-3rdparty-macosx-yosemite.tar.gz ]; then
+  echo "Please, make sure to have terrama2-3rdparty-macosx-yosemite.tar.gz in the current directory!"
   exit
 fi
 
@@ -300,22 +63,20 @@ fi
 # Extract packages
 #
 echo "extracting packages..."
-echo ""
 sleep 1s
 
-tar xzvf terrama2-3rdparty-linux-ubuntu-14.04.tar.gz
-valid $? "Error: could not extract 3rd party libraries (terrama2-3rdparty-linux-ubuntu-14.04.tar.gz)"
+tar xzvf terrama2-3rdparty-macosx-yosemite.tar.gz
+valid $? "Error: could not extract 3rd party libraries (terrama2-3rdparty-macosx-yosemite.tar.gz)"
 
 echo "packages extracted!"
-echo ""
 sleep 1s
 
 
 #
 # Go to 3rd party libraries dir
 #
-cd terrama2-3rdparty-linux-ubuntu-14.04
-valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-linux-ubuntu-14.04)"
+cd terrama2-3rdparty-macosx-yosemite
+valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-macosx-yosemite)"
 
 
 #
@@ -329,23 +90,22 @@ export PATH="$PATH:$TERRAMA2_DEPENDENCIES_DIR/bin"
 export LD_LIBRARY_PATH="$PATH:$TERRAMA2_DEPENDENCIES_DIR/lib"
 
 echo "installing 3rd-party libraries to '$TERRAMA2_DEPENDENCIES_DIR' ..."
-echo ""
 sleep 1s
 
 
 #
-# PCRE
+# PCRE version 8.37
+# Site: http://www.pcre.org
 #
 if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libpcre.a" ]; then
   echo "installing PCRE..."
-  echo ""
   sleep 1s
 
   tar xzvf pcre-8.37.tar.gz
   valid $? "Error: could not uncompress pcre-8.37.tar.gz!"
 
   cd pcre-8.37
-  valid $? "Error: could not enter pcre-8.37 dir!"
+  valid $? "Error: could not enter pcre-8.32 dir!"
 
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure PCRE!"
@@ -392,7 +152,7 @@ fi
 # FreeXL version 1.0.1
 # Site: https://www.gaia-gis.it/fossil/freexl/index
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libfreexl.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libfreexl.dylib" ]; then
   echo "installing FreeXL..."
   sleep 1s
 
@@ -416,11 +176,11 @@ fi
 
 
 #
-# OOSP-UUID
+# OOSP-UUID version 1.6.2
+# Site: http://www.ossp.org/pkg/lib/uuid/
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libuuid.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libuuid.dylib" ]; then
   echo "installing OOSP-UUID..."
-  echo ""
   sleep 1s
 
   tar xvf uuid-1.6.2.tar
@@ -436,22 +196,22 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libuuid.so" ]; then
   valid $? "Error: could not make OOSP-UUID!"
 
   make install
- valid $? "Error: Could not install OOSP-UUID!"
+  valid $? "Error: Could not install OOSP-UUID!"
 
   cd ..
 fi
 
 
 #
-# BZIP2
+# BZIP2 verson 1.0.6
+# Site: http://www.bzip.org
 #
 if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libbz2.a" ]; then
   echo "installing bzip2..."
-  echo ""
   sleep 1s
 
-  tar xzvf bzip2-1.0.6-ubuntu.tar.gz
-  valid $? "Error: could not uncompress bzip2-1.0.6-ubuntu.tar.gz!"
+  tar xzvf bzip2-1.0.6.tar.gz
+  valid $? "Error: could not uncompress bzip2-1.0.6.tar.gz!"
 
   cd bzip2-1.0.6
   valid $? "Error: could not enter bzip2-1.0.6 dir!"
@@ -470,7 +230,7 @@ fi
 # Proj4 version 4.9.1 (with proj-datumgrid version 1.5)
 # Site: https://trac.osgeo.org/proj/
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libproj.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libproj.dylib" ]; then
   echo "installing Proj4..."
   sleep 1s
 
@@ -494,11 +254,11 @@ fi
 
 
 #
-# GEOS
+# GEOS version 3.4.2
+# Site: http://geos.osgeo.org
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgeos.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgeos.dylib" ]; then
   echo "installing GEOS..."
-  echo ""
   sleep 1s
 
   tar xjvf geos-3.4.2.tar.bz2
@@ -522,10 +282,10 @@ fi
 
 #
 # libjson-c
+# Site: https://github.com/json-c/json-c
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libjson.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libjson.dylib" ]; then
   echo "installing libjson-c..."
-  echo ""
   sleep 1s
 
   tar xzvf json-c-0.9.tar.gz
@@ -548,11 +308,11 @@ fi
 
 
 #
-# libPNG
+# libPNG version 1.5.17
+# Site: http://www.libpng.org/pub/png/libpng.html
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libpng.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libpng.dylib" ]; then
   echo "installing libPNG..."
-  echo ""
   sleep 1s
 
   tar xzvf libpng-1.5.17.tar.gz
@@ -568,7 +328,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libpng.so" ]; then
   valid $? "Error: could not make libPNG!"
 
   make install
- valid $? "Error: Could not install libPNG!"
+  valid $? "Error: Could not install libPNG!"
 
   cd ..
 fi
@@ -578,7 +338,7 @@ fi
 # Independent JPEG Group version v9a
 # Site: http://www.ijg.org
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libjpeg.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libjpeg.dylib" ]; then
   echo "installing Independent JPEG Group Library..."
   sleep 1s
 
@@ -602,11 +362,10 @@ fi
 
 
 #
-# TIFF
+# TIFF version 4.0.3
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libtiff.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libtiff.dylib" ]; then
   echo "installing TIFF..."
-  echo ""
   sleep 1s
 
   tar xzvf tiff-4.0.3.tar.gz
@@ -629,11 +388,10 @@ fi
 
 
 #
-# GeoTIFF
+# GeoTIFF version 1.4.0
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgeotiff.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgeotiff.dylib" ]; then
   echo "installing GeoTIFF..."
-  echo ""
   sleep 1s
 
   tar xzvf libgeotiff-1.4.0.tar.gz
@@ -656,11 +414,10 @@ fi
 
 
 #
-# SZIP
+# SZIP version 2.1
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libsz.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libsz.dylib" ]; then
   echo "installing SZIP..."
-  echo ""
   sleep 1s
 
   tar xzvf szip-2.1.tar.gz
@@ -686,7 +443,7 @@ fi
 # CURL version 7.42.1
 # Site: http://curl.haxx.se/libcurl/
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libcurl.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libcurl.dylib" ]; then
   echo "installing CURL..."
   sleep 1s
 
@@ -710,11 +467,10 @@ fi
 
 
 #
-# ICU
+# ICU 52.1
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libicuuc.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libicuuc.a" ]; then
   echo "installing ICU..."
-  echo ""
   sleep 1s
 
   tar xzvf icu4c-52_1-src.tgz
@@ -726,7 +482,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libicuuc.so" ]; then
   chmod +x runConfigureICU configure install-sh
   valid $? "Error: could not set runConfigureICU to execute mode!"
 
-  CPPFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_CHARSET_IS_UTF8=1 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1" ./runConfigureICU Linux/gcc --prefix=$TERRAMA2_DEPENDENCIES_DIR
+  CPPFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_CHARSET_IS_UTF8=1 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1" ./runConfigureICU MacOSX --prefix=$TERRAMA2_DEPENDENCIES_DIR --enable-static --disable-shared --with-data-packaging=archive
   valid $? "Error: could not runConfigureICU!"
 
   make -j 4
@@ -743,18 +499,17 @@ fi
 
 
 #
-# Xerces-c
+# Xerces-c version 3.1.1
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxerces-c.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxerces-c.dylib" ]; then
   echo "installing Xerces..."
-  echo ""
   sleep 1s
 
   tar xzvf xerces-c-3.1.1.tar.gz
-  valid $? "Error: could not uncompress icu4c-52_1-src.tgz!"
+  valid $? "Error: could not uncompress xerces-c-3.1.1.tar.gz!"
 
   cd xerces-c-3.1.1
-  valid $? "Error: could not enter icu/source!"
+  valid $? "Error: could not enter xerces-c-3.1.1!"
 
   CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --enable-netaccessor-curl --disable-static --enable-msgloader-icu --with-icu=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure Xerces-c!"
@@ -772,9 +527,8 @@ fi
 #
 # libxml2
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxml2.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxml2.dylib" ]; then
   echo "installing libxml2..."
-  echo ""
   sleep 1s
 
   tar xzvf libxml2-2.9.1.tar.gz
@@ -783,7 +537,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxml2.so" ]; then
   cd libxml2-2.9.1
   valid $? "Error: could not enter libxml2-2.9.1!"
 
-  CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-icu
+  CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-icu --disable-python
   valid $? "Error: could not configure libxml2!"
 
   make -j 4
@@ -799,9 +553,8 @@ fi
 #
 # libxslt
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxslt.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxslt.dylib" ]; then
   echo "installing libxslt..."
-  echo ""
   sleep 1s
 
   tar xzvf libxslt-1.1.28.tar.gz
@@ -824,11 +577,11 @@ fi
 
 
 #
-# Boost
+# Boost 1.58
+# Site: http://www.boost.org
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libboost_thread.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libboost_thread.dylib" ]; then
   echo "installing boost..."
-  echo ""
   sleep 1s
 
   tar xzvf boost_1_58_0.tar.gz
@@ -840,7 +593,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libboost_thread.so" ]; then
   ./bootstrap.sh
   valid $? "Error: could not configure Boost!"
 
-  sudo ./b2 runtime-link=shared link=shared variant=release threading=multi --prefix=$TERRAMA2_DEPENDENCIES_DIR -sICU_PATH=$TERRAMA2_DEPENDENCIES_DIR -sICONV_PATH=/usr -sBZIP2_INCLUDE=$TERRAMA2_DEPENDENCIES_DIR/include -sBZIP2_LIBPATH=$TERRAMA2_DEPENDENCIES_DIR/lib install
+  ./b2 runtime-link=shared link=shared variant=release threading=multi --prefix=$TERRAMA2_DEPENDENCIES_DIR -sICU_PATH=$TERRAMA2_DEPENDENCIES_DIR -sICONV_PATH=$TERRAMA2_DEPENDENCIES_DIR -sBZIP2_INCLUDE=$TERRAMA2_DEPENDENCIES_DIR/include -sBZIP2_LIBPATH=$TERRAMA2_DEPENDENCIES_DIR/lib install
   valid $? "Error: could not make boost"
 
   cd ..
@@ -848,11 +601,10 @@ fi
 
 
 #
-# PostgreSQL
+# PostgreSQL version 9.4.1
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/pgsql/lib/libpq.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/pgsql/lib/libpq.dylib" ]; then
   echo "installing PostgreSQL..."
-  echo ""
   sleep 1s
 
   tar xjvf postgresql-9.4.1.tar.bz2
@@ -861,7 +613,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/pgsql/lib/libpq.so" ]; then
   cd postgresql-9.4.1
   valid $? "Error: could not enter postgresql-9.4.1!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS="-lstdc++ -L$TERRAMA2_DEPENDENCIES_DIR/lib" ./configure --with-libxml2 --with-libxslt --with-ossp-uuid --with-openssl --prefix=$TERRAMA2_DEPENDENCIES_DIR/pgsql --with-includes=$TERRAMA2_DEPENDENCIES_DIR/include --with-libraries=$TERRAMA2_DEPENDENCIES_DIR/lib
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS="-lstdc++ -L$TERRAMA2_DEPENDENCIES_DIR/lib" ./configure --with-libxml --with-libxslt --with-uuid=e2fs --with-openssl --prefix=$TERRAMA2_DEPENDENCIES_DIR/pgsql --with-includes=$TERRAMA2_DEPENDENCIES_DIR/include --with-libraries=$TERRAMA2_DEPENDENCIES_DIR/lib
   valid $? "Error: could not configure postgresql!"
 
   make -j 4
@@ -884,11 +636,10 @@ fi
 
 
 #
-# HDF4
+# HDF4 version 4.2.9
 #
 if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libmfhdf.a" ]; then
   echo "installing HDF4..."
-  echo ""
   sleep 1s
 
   tar xzvf hdf-4.2.9.tar.gz
@@ -897,7 +648,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libmfhdf.a" ]; then
   cd hdf-4.2.9
   valid $? "Error: could not enter hdf-4.2.9!"
 
-  CFLAGS=-fPIC ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-szlib=$TERRAMA2_DEPENDENCIES_DIR --with-zlib --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR --enable-netcdf --disable-fortran
+  ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-szlib=$TERRAMA2_DEPENDENCIES_DIR --with-zlib --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR --enable-netcdf --disable-fortran
   valid $? "Error: could not configure hdf-4!"
 
   make -j 4
@@ -914,7 +665,7 @@ fi
 # SQLite version 3.8.10.1
 # Site: https://www.sqlite.org
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libsqlite3.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libsqlite3.dylib" ]; then
   echo "installing SQLite..."
   sleep 1s
 
@@ -942,7 +693,7 @@ fi
 # Site: https://www.gaia-gis.it/fossil/libspatialite
 # Obs.: In the future we should turn on libxml2 support.
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libspatialite.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libspatialite.dylib" ]; then
   echo "installing SpatiaLite..."
   sleep 1s
 
@@ -966,11 +717,12 @@ fi
 
 
 #
-# GDAL/OGR 1.11.2
+# GDAL/OGR version 1.11.2
+# Site: http://www.gdal.org
+# Obs.: in the future add a flag --with-libkml --with-php --with-python
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib/libgdal.so" ]; then
-  echo "installing GDAL/OGR..."
-  echo ""
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib/libgdal.dylib" ]; then
+  echo "installing GDAL/OGR 1.11.2..."
   sleep 1s
 
   tar xzvf gdal-1.11.2.tar.gz
@@ -979,24 +731,25 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib/libgdal.so" ]; then
   cd gdal-1.11.2
   valid $? "Error: could not enter gdal-1.11.2!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal1 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf 
-  valid $? "Error: could not configure gdal!"
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal1 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config
+  valid $? "Error: could not configure gdal 1.11.2!"
 
-  make -j 4 -s
-  valid $? "Error: could not make gdal"
+  make -j 4
+  valid $? "Error: could not make gdal 1.11.2"
 
   make install
-  valid $? "Error: Could not install gdal"
+  valid $? "Error: Could not install gdal 1.11.2"
 
   cd ..
 fi
 
 #
-# GDAL/OGR 2.0.1
+# GDAL/OGR version 2.0.1
+# Site: http://www.gdal.org
+# Obs.: in the future add a flag --with-libkml --with-php --with-python
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal2/lib/libgdal.so" ]; then
-  echo "installing GDAL/OGR..."
-  echo ""
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal2/lib/libgdal.dylib" ]; then
+  echo "installing GDAL/OGR 2.0.1..."
   sleep 1s
 
   tar xzvf gdal-2.0.1.tar.gz
@@ -1005,25 +758,24 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal2/lib/libgdal.so" ]; then
   cd gdal-2.0.1
   valid $? "Error: could not enter gdal-2.0.1!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal2 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf
-  valid $? "Error: could not configure gdal!"
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal2 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config
+  valid $? "Error: could not configure gdal 2.0.1!"
 
-  make -j 4 -s
-  valid $? "Error: could not make gdal"
+  make -j 4
+  valid $? "Error: could not make gdal 2.0.1"
 
   make install
-  valid $? "Error: Could not install gdal"
+  valid $? "Error: Could not install gdal 2.0.1"
 
   cd ..
 fi
 
 
 #
-# CppUnit
+# CppUnit version 1.12.1
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libcppunit.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libcppunit.dylib" ]; then
   echo "installing CppUnit.."
-  echo ""
   sleep 1s
 
   tar xzvf cppunit-1.12.1.tar.gz
@@ -1032,8 +784,9 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libcppunit.so" ]; then
   cd cppunit-1.12.1
   valid $? "Error: could not enter cppunit-1.12.1!"
 
-  LDFLAGS="-ldl" ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
-  valid $? "Error: could not configure cppunit!"
+  #LDFLAGS="-ldl" ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
+  ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
+#  valid $? "Error: could not configure cppunit!"
 
   make -j 4
   valid $? "Error: could not make cppunit"
@@ -1046,11 +799,11 @@ fi
 
 
 #
-# PostGIS
+# PostGIS version 2.1.7
+# Site: http://postgis.net
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/liblwgeom.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/liblwgeom.dylib" ]; then
   echo "installing PostGIS..."
-  echo ""
   sleep 1s
 
   tar xzvf postgis-2.1.7.tar.gz
@@ -1077,16 +830,15 @@ fi
 #
 if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/include/rapidjson/rapidjson.h" ]; then
   echo "installing RapidJSON..."
-  echo ""
   sleep 1s
 
-  tar xzvf rapidjson-0.11-ubuntu.tar.gz
-  valid $? "Error: could not uncompress rapidjson-0.11-ubuntu.tar.gz!"
+  tar xzvf rapidjson-0.11.tar.gz
+  valid $? "Error: could not uncompress rapidjson-0.11.tar.gz!"
 
   cd rapidjson
   valid $? "Error: could not enter rapidjson!"
 
-  sudo mv include/rapidjson $TERRAMA2_DEPENDENCIES_DIR/include/
+  mv include/rapidjson $TERRAMA2_DEPENDENCIES_DIR/include/
 
   cd ..
 fi
@@ -1095,9 +847,8 @@ fi
 #
 # QJson
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqjson.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqjson.dylib" ]; then
   echo "installing QJson..."
-  echo ""
   sleep 1s
 
   tar xzvf qjson-master.tar.gz
@@ -1128,9 +879,8 @@ fi
 #
 # Qt Property Browser
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqt_property_browser.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqt_property_browser.dylib" ]; then
   echo "installing Qt Property Browser..."
-  echo ""
   sleep 1s
 
   tar xzvf qtpropertybrowser.tar.gz
@@ -1155,9 +905,8 @@ fi
 #
 # QScintilla
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqscintilla2.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqscintilla2.dylib" ]; then
   echo "installing QScintilla..."
-  echo ""
   sleep 1s
 
   tar xzvf QScintilla-gpl-2.8.tar.gz
@@ -1184,7 +933,6 @@ fi
 #
 if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/liblua.a" ]; then
   echo "installing Lua..."
-  echo ""
   sleep 1s
 
   tar xzvf lua-5.2.2.tar.gz
@@ -1193,7 +941,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/liblua.a" ]; then
   cd lua-5.2.2
   valid $? "Error: could not change dir to lua-5.2.2!"
 
-  make linux INSTALL_TOP=$TERRAMA2_DEPENDENCIES_DIR
+  make macosx INSTALL_TOP=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not make Lua!"
 
   make linux install INSTALL_TOP=$TERRAMA2_DEPENDENCIES_DIR
@@ -1206,31 +954,30 @@ fi
 #
 # QtLua
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqtlua.so" ]; then
-  echo "installing QtLua..."
-  echo ""
-  sleep 1s
- 
-  tar xzvf libqtlua-2.0.tar.gz
-  valid $? "Error: could not uncompress libqtlua-2.0.tar.gz!"
-
-  cd libqtlua-2.0
-  valid $? "Error: could not change dir to libqtlua-2.0!"
-
-  LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --enable-qtrelease --disable-examples --enable-shared --with-lua-inc-dir=$TERRAMA2_DEPENDENCIES_DIR/include --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-lua-lib=lua
-  valid $? "Error: could not configure QtLua!"
-
-  make -j 4
-  valid $? "Error: could not make QtLua!"
-
-  make install
-  valid $? "Error: could not install QtLua!"
-
-  sudo cp -r src/internal $TERRAMA2_DEPENDENCIES_DIR/include/QtLua/
-  valid $? "Error: could not copy QtLua internal folder!"
-
-  cd ..
-fi
+# if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqtlua.dylib" ]; then
+#   echo "installing QtLua..."
+#   sleep 1s
+#  
+#   #tar xzvf libqtlua-2.0.tar.gz
+#   #valid $? "Error: could not uncompress libqtlua-2.0.tar.gz!"
+# 
+#   cd libqtlua-2.0
+#   valid $? "Error: could not change dir to libqtlua-2.0!"
+# 
+#   LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --enable-qtrelease --disable-examples --enable-shared --with-lua-inc-dir=$TERRAMA2_DEPENDENCIES_DIR/include --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-lua-lib=lua
+#   valid $? "Error: could not configure QtLua!"
+# 
+#   make -j 4
+#   valid $? "Error: could not make QtLua!"
+# 
+#   make install
+#   valid $? "Error: could not install QtLua!"
+# 
+#   cp -r src/internal $TERRAMA2_DEPENDENCIES_DIR/include/QtLua/
+#   valid $? "Error: could not copy QtLua internal folder!"
+# 
+#   cd ..
+# fi
 
 
 #
@@ -1259,14 +1006,12 @@ if [ ! -d "$TERRAMA2_DEPENDENCIES_DIR/lib/qwt.framework" ]; then
   cd ..
 fi
 
-
 #
 # Finished!
 #
 clear
-echo "*****************************************************************"
-echo "* TerraMA2 3rd-party Libraries Installer for Linux Ubuntu 14.04 *"
-echo "*****************************************************************"
+echo "********************************************"
+echo "* TerraMA2 Installer for Mac OS X Yosemite *"
+echo "********************************************"
 echo ""
 echo "finished successfully!"
-
