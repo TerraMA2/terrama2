@@ -20,29 +20,22 @@
 */
 
 /*!
-  \file unittest/core/DataSetDAO.cpp
+  \file terrama2/Exception.hpp
 
-  \brief Test for DataSetDAO functionalities
+  \brief Base exception for Collector WebService.
 
-  \author Paulo R. M. Oliveira
-*/
+  \author Vinicius Campanha
+ */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTDATASETDAO_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_EXCEPTION_HPP__
+#define __TERRAMA2_WS_COLLECTOR_EXCEPTION_HPP__
 
-#include <QtTest>
+// TerraMA2
+#include "../Exception.hpp"
 
-class TsDataSetDAO: public QObject
+namespace terrama2
 {
-  Q_OBJECT
-private:
 
+}  // end namespace terrama2
 
-private slots:
-  void initTestCase();
-  void cleanupTestCase();
-  void testCRUDDataSet();
-};
-
-
-#endif // __TERRAMA2_UNITTEST_CORE_TESTDATAPROVIDERDAO_HPP__
+#endif  // __TERRAMA2_WS_COLLECTOR_EXCEPTION_HPP__
