@@ -94,12 +94,6 @@ void terrama2::core::DataManager::unload()
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
-  // If the data has already been loaded there is nothing to be done.
-  if(pimpl_->dataLoaded_)
-  {
-    return;
-  }
-
   // Clears all data
   pimpl_->providers_.clear();
   pimpl_->datasets_.clear();
@@ -194,6 +188,9 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
+  if(id == 0)
+    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+
   DataProviderPtr dataProvider = pimpl_->providers_[id];
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
@@ -230,6 +227,9 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
+  if(id == 0)
+    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
+
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
@@ -239,11 +239,15 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
   transactor->commit();
 
   // Removes dataset from the map
+  DataSetPtr dataSet;
   auto it = pimpl_->datasets_.find(id);
   if(it !=  pimpl_->datasets_.end())
   {
+    dataSet = it->second;
     pimpl_->datasets_.erase(it);
   }
+
+  emit dataSetRemoved(dataSet);
 }
 
 terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const uint64_t& id) const

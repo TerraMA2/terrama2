@@ -1,13 +1,8 @@
 //TerraMA2
 #include "TsApplicationController.hpp"
-#include "TsDataProviderDAO.hpp"
-#include "TsDataSetDAO.hpp"
-
+#include "TsDataManager.hpp"
 #include "Utils.hpp"
 
-
-// QT
-#include <QTest>
 
 int main(int argc, char **argv)
 {
@@ -16,11 +11,8 @@ int main(int argc, char **argv)
   TsApplicationController testApplicationController;
   int ret = QTest::qExec(&testApplicationController, argc, argv);
 
-  TsDataProviderDAO testDataProviderDAO;
+  TsDataManager testDataProviderDAO;
   ret += QTest::qExec(&testDataProviderDAO, argc, argv);
-
-  TsDataSetDAO testDataSetDAO;
-  ret += QTest::qExec(&testDataSetDAO, argc, argv);
 
   finalizeTerraMA2();
 
