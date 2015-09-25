@@ -979,10 +979,10 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib/libgdal.so" ]; then
   cd gdal-1.11.2
   valid $? "Error: could not enter gdal-1.11.2!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal1 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal1 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --without-netcdf
   valid $? "Error: could not configure gdal!"
 
-  make -j 4
+  make -j 4 -s
   valid $? "Error: could not make gdal"
 
   make install
@@ -1005,10 +1005,10 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal2/lib/libgdal.so" ]; then
   cd gdal-2.0.1
   valid $? "Error: could not enter gdal-2.0.1!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal2 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal2 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --without-netcdf
   valid $? "Error: could not configure gdal!"
 
-  make -j 4
+  make -j 4 -s
   valid $? "Error: could not make gdal"
 
   make install
@@ -1059,7 +1059,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/liblwgeom.so" ]; then
   cd postgis-2.1.7
   valid $? "Error: could not enter postgis-2.1.7!"
 
-  CFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/gdal1 -I$TERRAMA2_DEPENDENCIES_DIR/gdal1/include" LDFLAGS="-L$TERRAMA2_DEPENDENCIES_DIR/lib -L$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib" ./configure --with-pgconfig=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-gdalconfig=$TERRAMA2_DEPENDENCIES_DIR/gdal1/bin/gdal-config --with-geosconfig=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-projdir=$TERRAMA2_DEPENDENCIES_DIR --with-raster --with-topology --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-xml2config=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config
+  CFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/gdal1 -I$TERRAMA2_DEPENDENCIES_DIR/gdal1/include" LDFLAGS="-L$TERRAMA2_DEPENDENCIES_DIR/lib -L$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib" ./configure --with-pgconfig=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-gdalconfig=$TERRAMA2_DEPENDENCIES_DIR/gdal1/bin/gdal-config --with-geosconfig=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-projdir=$TERRAMA2_DEPENDENCIES_DIR --with-raster --with-topology --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-xml2config=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --without-netcdf
   valid $? "Error: could not configure postgis!"
 
   make -j 4
