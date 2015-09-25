@@ -239,11 +239,15 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
   transactor->commit();
 
   // Removes dataset from the map
+  DataSetPtr dataSet;
   auto it = pimpl_->datasets_.find(id);
   if(it !=  pimpl_->datasets_.end())
   {
+    dataSet = it->second;
     pimpl_->datasets_.erase(it);
   }
+
+  emit dataSetRemoved(dataSet);
 }
 
 terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const uint64_t& id) const
