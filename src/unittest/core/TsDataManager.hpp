@@ -62,6 +62,8 @@ class TsDataManager : public QObject
 
     //Data provider methods
     void testAddDataProvider();
+    void testAddDataProviderWithId();
+    void testAddDataProviderWithDataSet();
 
     void testRemoveDataProvider();
     void testRemoveDataProviderInvalidId();
@@ -73,9 +75,11 @@ class TsDataManager : public QObject
 
     //Dataset methods
     void testAddDataSet();
+    void testAddDataSetWihId();
 
     void testRemoveDataSet();
     void testRemoveDataSetInvalidId();
+    void testRemoveDataSetInUse();
 
     void testFindDataSet();
 

@@ -77,6 +77,65 @@ void TsDataManager::clearDatabase()
   transactor->commit();
 }
 
+terrama2::core::DataProviderPtr TsDataManager::createDataProvider()
+{
+  auto dataProvider = terrama2::core::DataProviderPtr(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
+  dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
+  dataProvider->setDescription("This server...");
+  dataProvider->setUri("localhost@...");
+
+  return dataProvider;
+}
+
+terrama2::core::DataSetPtr TsDataManager::createDataSet()
+{
+  terrama2::core::DataProviderPtr dataProvider = createDataProvider();
+  terrama2::core::DataManager::getInstance().add(dataProvider);
+
+  // create a new dataset and save it to the database
+  terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
+  te::dt::TimeDuration dataFrequency(2,0,0);
+  dataSet->setDataFrequency(dataFrequency);
+
+  std::vector<terrama2::core::DataSet::CollectRule> collectRules;
+  {
+    terrama2::core::DataSet::CollectRule collectRule;
+    collectRule.script = "... LUA SCRIPT 1...";
+    collectRules.push_back(collectRule);
+  }
+  {
+    terrama2::core::DataSet::CollectRule collectRule;
+    collectRule.script = "... LUA SCRIPT 2...";
+    collectRules.push_back(collectRule);
+  }
+  dataSet->setCollectRules(collectRules);
+
+  std::map<std::string, std::string> metadata;
+  metadata["key"] = "value";
+  metadata["key1"] = "value1";
+  metadata["key2"] = "value2";
+
+  dataSet->setMetadata(metadata);
+
+
+  // Creates a data list with two DataSetItem
+  std::vector<terrama2::core::DataSetItemPtr> dataSetItemList;
+
+  terrama2::core::DataSetItemPtr dataSetItem(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_INPE_TYPE));
+
+  terrama2::core::FilterPtr filter(new terrama2::core::Filter(dataSetItem));
+  filter->setByValueType(terrama2::core::Filter::GREATER_THAN_TYPE);
+  filter->setByValue(100.);
+  dataSetItem->setFilter(filter);
+  dataSetItemList.push_back(dataSetItem);
+
+  terrama2::core::DataSetItemPtr data2(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::FIRE_POINTS_TYPE));
+  dataSetItemList.push_back(data2);
+  dataSet->setDataSetItemList(dataSetItemList);
+
+  return dataSet;
+}
+
 void TsDataManager::testLoad()
 {
   QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataManagerLoaded()));
@@ -416,61 +475,80 @@ void TsDataManager::testUpdateDataSetInvalidId()
 }
 
 
-terrama2::core::DataProviderPtr TsDataManager::createDataProvider()
+void TsDataManager::testRemoveDataSetInUse()
 {
-  auto dataProvider = terrama2::core::DataProviderPtr(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
-  dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
-  dataProvider->setDescription("This server...");
-  dataProvider->setUri("localhost@...");
-
-  return dataProvider;
+  //TODO: Try to remove a dataset in use by an analysis, expected an exception: DataSetInUseError
 }
 
-terrama2::core::DataSetPtr TsDataManager::createDataSet()
+void TsDataManager::testAddDataProviderWithId()
 {
-  terrama2::core::DataProviderPtr dataProvider = createDataProvider();
+  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+
+  // Tries to add a data provider with an Id different than 0
+  try
+  {
+    auto dataProvider = terrama2::core::DataProviderPtr(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE, 1));
+    terrama2::core::DataManager::getInstance().add(dataProvider);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderIdError not thrown");
+  }
+  catch (terrama2::core::InvalidDataProviderIdError /*ex*/)
+  {
+    // test ok
+  }
+}
+
+void TsDataManager::testAddDataSetWihId()
+{
+  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+
+  // Tries to update a dataset that doesn't have a valid ID
+  try
+  {
+    terrama2::core::DataProviderPtr dataProvider = createDataProvider();
+    terrama2::core::DataManager::getInstance().add(dataProvider);
+
+    // create a new dataset and save it to the database
+    terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE, 1));
+
+    terrama2::core::DataManager::getInstance().add(dataSet);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataSetIdError not thrown");
+  }
+  catch (terrama2::core::InvalidDataSetIdError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+
+    // test ok
+  }
+}
+
+void TsDataManager::testAddDataProviderWithDataSet()
+{
+  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+
+  auto dataProvider = createDataProvider();
+  auto dataSets = dataProvider->dataSets();
+  terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
+  dataSets.push_back(dataSet);
+  dataProvider->setDataSets(dataSets);
+
   terrama2::core::DataManager::getInstance().add(dataProvider);
 
-  // create a new dataset and save it to the database
-  terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
-  te::dt::TimeDuration dataFrequency(2,0,0);
-  dataSet->setDataFrequency(dataFrequency);
+  QVERIFY2(dataProvider->dataSets().size() != 0, "The dataset was not persisted!");
 
-  std::vector<terrama2::core::DataSet::CollectRule> collectRules;
+  foreach(auto ds, dataProvider->dataSets())
   {
-    terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.script = "... LUA SCRIPT 1...";
-    collectRules.push_back(collectRule);
+    QVERIFY2(ds->id() != 0, "DataSet id wasn't set in the provider after insert!");
   }
-  {
-    terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.script = "... LUA SCRIPT 2...";
-    collectRules.push_back(collectRule);
-  }
-  dataSet->setCollectRules(collectRules);
-
-  std::map<std::string, std::string> metadata;
-  metadata["key"] = "value";
-  metadata["key1"] = "value1";
-  metadata["key2"] = "value2";
-
-  dataSet->setMetadata(metadata);
 
 
-  // Creates a data list with two DataSetItem
-  std::vector<terrama2::core::DataSetItemPtr> dataSetItemList;
+  QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
-  terrama2::core::DataSetItemPtr dataSetItem(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_INPE_TYPE));
-
-  terrama2::core::FilterPtr filter(new terrama2::core::Filter(dataSetItem));
-  filter->setByValueType(terrama2::core::Filter::GREATER_THAN_TYPE);
-  filter->setByValue(100.);
-  dataSetItem->setFilter(filter);
-  dataSetItemList.push_back(dataSetItem);
-
-  terrama2::core::DataSetItemPtr data2(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::FIRE_POINTS_TYPE));
-  dataSetItemList.push_back(data2);
-  dataSet->setDataSetItemList(dataSetItemList);
-
-  return dataSet;
+  QVERIFY2(dataProvider->id() != 0, "The id wasn't set in the provider after insert!");
 }
