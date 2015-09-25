@@ -40,7 +40,9 @@ void TestWebService::TestStatus()
 
   try
   {
+
     WebService test;
+
     test.ping(answer);
 
     std::cout << answer << std::endl;
@@ -66,20 +68,12 @@ void TestWebService::TestAddDataProvider()
     struct_dataprovider.status = 1;
     struct_dataprovider.uri = "C:/Dataprovider/path";
 
-
-
     struct_dataprovider_check = struct_dataprovider;
 
     WebService test;
 
     if (test.addDataProvider(struct_dataprovider) != SOAP_OK)
     {
-      char errorMessage[100];
-
-      test.soap_sprint_fault(errorMessage, sizeof(errorMessage));
-
-      std::cout << errorMessage << std::endl;
-
       QFAIL("Should not be here");
     }
 

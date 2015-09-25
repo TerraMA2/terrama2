@@ -20,25 +20,22 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/server/main.cpp
+  \file unittest/core/Utils.hpp
 
-  \brief Main class for tests in the WebService class.
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Vinicius Campanha
+  \author Paulo R. M. Oliveira
 */
 
-// TerraMA2 Test
-#include "TestWebService.hpp"
-#include "Utils.hpp"
+#ifndef __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
 
-int main(int argc, char **argv)
-{
-  initializeTerraMA2();
+void initializeTerralib();
 
-  TestWebService testWebService;
-  int ret = QTest::qExec(&testWebService, argc, argv);
+void finalizeTerralib();
 
-  finalizeTerraMA2();
+void initializeTerraMA2();
 
-  return ret;
-}
+void finalizeTerraMA2();
+
+#endif // __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
