@@ -889,7 +889,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqt_property_browser.dylib" ]; then
   cd qtpropertybrowser
   valid $? "Error: could not change dir to qtpropertybrowser!"
 
-  qmake "TERRAMA2_DEPENDENCIES_DIR=$TERRAMA2_DEPENDENCIES_DIR"
+  qmake "TERRALIB_DIR=$TERRAMA2_DEPENDENCIES_DIR"
   valid $? "Error: could not run qmake for qt-property-browser!"
 
   make -j 4
@@ -915,7 +915,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqscintilla2.dylib" ]; then
   cd QScintilla-gpl-2.8/Qt4Qt5
   valid $? "Error: could not change dir to QScintilla-gpl-2.8/Qt4Qt5!"
 
-  qmake "TERRAMA2_DEPENDENCIES_DIR=$TERRAMA2_DEPENDENCIES_DIR"
+  qmake "TERRALIB_DIR=$TERRAMA2_DEPENDENCIES_DIR"
   valid $? "Error: could not prepare QScintilla build with qmake!"
 
   make -j 4
