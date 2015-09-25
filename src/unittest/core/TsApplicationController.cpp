@@ -27,21 +27,22 @@
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+#include "TsApplicationController.hpp"
 
-//QT
-#include <QtTest>
+#include <terrama2_config.hpp>
+#include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/Utils.hpp>
 
-class TestApplicationController: public QObject
+// TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
+
+// STL
+#include <memory>
+
+void TsApplicationController::testLoadProject()
 {
-  Q_OBJECT
-
-private slots:
-    void testLoadProject();
-};
-
-
-
-
-#endif  // __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+  QVERIFY(dataSource.get());
+}

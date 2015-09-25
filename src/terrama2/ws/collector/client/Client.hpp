@@ -39,6 +39,7 @@
 
 // TerraMA2
 #include "../../../core/DataProvider.hpp"
+#include "../../../core/DataSet.hpp"
 
 namespace terrama2
 {
@@ -57,9 +58,104 @@ namespace terrama2
 
           ~Client();
 
-          int ping(std::string& answer);
+          /*!
+            \brief
 
-          int addDataProvider(terrama2::core::DataProvider data_provider);
+            \param
+
+            \return
+          */
+          int ping(std::string &answer);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int addDataset(terrama2::core::DataSetPtr &dataSetPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int updateDataSet(terrama2::core::DataSetPtr &dataSetPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int removeDataProvider(uint64_t id);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int removeDataSet(uint64_t id);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int findDataSet(uint64_t id, terrama2::core::DataSetPtr &dataSetPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          int listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList);
 
         private:
 

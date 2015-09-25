@@ -44,7 +44,7 @@
 */
 int Web__ping(std::string &answer);
 
-// VINICIUS_TODO: write the methods documentation
+// VINICIUS: write the methods documentation
 /*!
   \brief
 
@@ -52,16 +52,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-int Web__restart(void);
-
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-int Web__shutdown(void);
+int Web__addDataProvider(struct DataProvider&);
 
 /*!
   \brief
@@ -70,7 +61,8 @@ int Web__shutdown(void);
 
   \return
 */
-int Web__addDataProvider(struct DataProvider, void);
+
+int Web__addDataSet(struct DataSet&);
 
 /*!
   \brief
@@ -79,7 +71,7 @@ int Web__addDataProvider(struct DataProvider, void);
 
   \return
 */
-int Web__addDataset(struct DataSet, void);
+int Web__updateDataProvider(struct DataProvider&);
 
 /*!
   \brief
@@ -88,7 +80,7 @@ int Web__addDataset(struct DataSet, void);
 
   \return
 */
-int Web__updateDataProvider(struct DataProvider, void);
+int Web__updateDataSet(struct DataSet&);
 
 /*!
   \brief
@@ -97,7 +89,7 @@ int Web__updateDataProvider(struct DataProvider, void);
 
   \return
 */
-int Web__updateDataSet(struct DataSet, void);
+int Web__removeDataProvider(uint64_t id, struct Web__removeDataProviderResponse {} *out);
 
 /*!
   \brief
@@ -106,16 +98,7 @@ int Web__updateDataSet(struct DataSet, void);
 
   \return
 */
-int Web__removeDataProvider(uint64_t id, void);
-
-/*!
-  \brief
-
-  \param
-
-  \return
-*/
-int Web__removeDataSet(uint64_t id, void);
+int Web__removeDataSet(uint64_t id, struct Web__removeDataSetResponse{} *out);
 
 /*!
   \brief

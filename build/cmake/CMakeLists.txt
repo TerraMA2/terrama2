@@ -120,11 +120,13 @@ endif()
 
 
 #
-# global definitions and includes
+# global definitions, includes and config
 #
 
+# Common definitions to all modules
 add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
 
+# Specific definitions per platform
 if(WIN32)
   #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
@@ -136,6 +138,7 @@ elseif(APPLE)
   add_definitions(-ftemplate-depth-1024)
 endif()
 
+# For each CMake version we need to check some policies
 # Note: automatically link executables with qtmain.lib on Windows when it has Qt dependency.
 if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_GREATER  2.8.9)
   cmake_policy(SET CMP0020 NEW)
@@ -151,12 +154,7 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.1.2")
   cmake_policy(SET CMP0053 OLD)
 endif()
 
-include_directories(${CMAKE_BINARY_DIR})
-
-
-#
 # Build will generate files into a single folder
-#
 if((CMAKE_GENERATOR STREQUAL Xcode) OR MSVC)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -167,24 +165,24 @@ else()
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
 
-
-#
-# global configurations
-#
-
+# Where to find modules (find procedures)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+# Compiler options: warning and C++ 11
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang"))
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11")
 endif()
 
-# Turn on multi process compilation
+# Turn on multi process compilation on Windows
 if(MSVC)
   add_definitions(/MP)
 endif()
 
 # Enable CTest
 enable_testing()
+
+# Build tree directory will be needed in all projects.
+include_directories(${CMAKE_BINARY_DIR})
 
 
 #

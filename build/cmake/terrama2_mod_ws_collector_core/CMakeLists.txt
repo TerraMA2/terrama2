@@ -24,6 +24,8 @@
 #  Author: Vinicius Camapanha
 #
 
+
+
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/*.hpp)
 
@@ -50,7 +52,8 @@ qt5_use_modules(terrama2_mod_ws_collector_core Widgets)
 set_target_properties(terrama2_mod_ws_collector_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
-                                 INSTALL_NAME_DIR "@executable_path/../lib")
+                                 INSTALL_NAME_DIR "@executable_path/../lib"
+                                 LINKER_LANGUAGE "CXX")
 
 install(TARGETS terrama2_mod_ws_collector_core
         EXPORT terrama2-targets

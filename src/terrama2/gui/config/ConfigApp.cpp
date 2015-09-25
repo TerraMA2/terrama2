@@ -60,8 +60,8 @@ struct ConfigApp::Impl
   }
 };
 
-ConfigApp::ConfigApp(QWidget* parent)
-  : QMainWindow(parent),
+ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
+  : QMainWindow(parent, flags),
     pimpl_(new ConfigApp::Impl), currentTabIndex_(0)
 {
 // Find TerraMA2 icon theme library
@@ -97,8 +97,8 @@ ConfigApp::ConfigApp(QWidget* parent)
   services_ = new ServiceHandler(this);
 
 // Init services for each tab
-  ConfigAppWeatherTab* weatherTab = new ConfigAppWeatherTab(this, ui());
-  ConfigAppAdditionalTab* additionalTab = new ConfigAppAdditionalTab(this, ui());
+  QSharedPointer<ConfigAppWeatherTab> weatherTab(new ConfigAppWeatherTab(this, ui()));
+  QSharedPointer<ConfigAppAdditionalTab> additionalTab(new ConfigAppAdditionalTab(this, ui()));
 
   tabList_.append(weatherTab);
   tabList_.append(additionalTab);
@@ -110,8 +110,6 @@ ConfigApp::ConfigApp(QWidget* parent)
 
 ConfigApp::~ConfigApp()
 {
-  for (auto tab: tabList_)
-    delete tab;
   delete services_;
   delete pimpl_;
 }
@@ -121,7 +119,7 @@ Ui::ConfigAppForm* ConfigApp::ui() const
   return pimpl_->ui_;
 }
 
-void ConfigApp::setCurrentTabIndex(const int &index)
+void ConfigApp::setCurrentTabIndex(const int& index)
 {
   currentTabIndex_ = index;
 }
@@ -136,12 +134,10 @@ void ConfigApp::tabChangeRequested(int index)
   if(index != currentTabIndex_)
   {
     // Check if the tab may be changed
-    ConfigAppTab* tab = tabList_.at(currentTabIndex_);
+    QSharedPointer<ConfigAppTab> tab(tabList_.at(currentTabIndex_));
 
     tab->askForChangeTab(index);
   }
-  else
-    return;
 }
 
 void ConfigApp::disableRefreshAction()

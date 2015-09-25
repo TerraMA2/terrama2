@@ -28,7 +28,7 @@
 */
 
 // TerraMA2 Unittest
-#include "TestDataSetDAO.hpp"
+#include "TsDataSetDAO.hpp"
 
 // TerraMA2
 #include <terrama2/core/ApplicationController.hpp>
@@ -36,11 +36,12 @@
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/core/DataSetItem.hpp>
+#include <terrama2/core/Filter.hpp>
 
 // Qt
 #include <QtTest>
 
-void TestDataSetDAO::initTestCase()
+void TsDataSetDAO::initTestCase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -56,7 +57,7 @@ void TestDataSetDAO::initTestCase()
   transactor->commit();
 }
 
-void TestDataSetDAO::cleanupTestCase()
+void TsDataSetDAO::cleanupTestCase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -72,7 +73,7 @@ void TestDataSetDAO::cleanupTestCase()
   transactor->commit();
 }
 
-void TestDataSetDAO::testCRUDDataSet()
+void TsDataSetDAO::testCRUDDataSet()
 {
 // create a new data provider and save it t the database
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
@@ -108,8 +109,13 @@ void TestDataSetDAO::testCRUDDataSet()
   // Creates a data list with two data's
   std::vector<terrama2::core::DataSetItemPtr> dataSetItemList;
 
-  terrama2::core::DataSetItemPtr data(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_INPE_TYPE));
-  dataSetItemList.push_back(data);
+  terrama2::core::DataSetItemPtr dataSetItem(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_INPE_TYPE));
+
+  terrama2::core::FilterPtr filter(new terrama2::core::Filter(dataSetItem));
+  filter->setByValueType(terrama2::core::Filter::GREATER_THAN_TYPE);
+  filter->setByValue(100.);
+  dataSetItem->setFilter(filter);
+  dataSetItemList.push_back(dataSetItem);
 
   terrama2::core::DataSetItemPtr data2(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::FIRE_POINTS_TYPE));
   dataSetItemList.push_back(data2);
@@ -147,8 +153,8 @@ void TestDataSetDAO::testCRUDDataSet()
   dataSetItemList[0]->setMask("Queimadas_*");
 
   // Add a new data of type PCD_TOA5_TYPE
-  data.reset(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_TOA5_TYPE));
-  dataSetItemList.push_back(data);
+  dataSetItem.reset(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_TOA5_TYPE));
+  dataSetItemList.push_back(dataSetItem);
   dataSet->setDataSetItemList(dataSetItemList);
 
   terrama2::core::DataManager::getInstance().update(dataSet);
