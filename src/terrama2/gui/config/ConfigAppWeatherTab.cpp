@@ -63,7 +63,22 @@ void ConfigAppWeatherTab::load()
   showDataSeries(false);
 
   // Connect to database and list the values
+  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
 
+  // TEMP Harded code
+  terrama2::core::ApplicationController::getInstance().loadProject(path);
+  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+  std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.data_provider");
+
+  if (dataSet->size() != -1)
+    showDataSeries(true);
+
+  while(dataSet->moveNext())
+  {
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setText(0, QString(dataSet->getAsString(1).c_str()));
+    ui_->weatherDataTree->addTopLevelItem(item);
+  }
 }
 
 bool ConfigAppWeatherTab::dataChanged()
