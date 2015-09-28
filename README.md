@@ -62,9 +62,9 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 - **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
  
-### Bash Scripts for Building All Dependencies on Linux Ubuntu 14.04
+### Bash script for building all dependencies on Linux Ubuntu 14.04
 
-We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under **[https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh]**. Follow the steps below:
+We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under **https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh**. Follow the steps below:
 
 - Download the third-party libraries package used by the development: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
@@ -74,10 +74,10 @@ We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. T
 ```
 $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-14.04.sh
 ```
-### Bash Scripts for Building All Dependencies on Mac OS X Yosemite
+### Bash script for building all dependencies on Mac OS X Yosemite
 **TO BE DONE**
 
-### Prepared Dependencies for Microsot Windows
+### Prepared dependencies for Microsot Windows
 
 **NOT AVAILABLE YET**
 
