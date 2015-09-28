@@ -53,6 +53,8 @@ In the root directory of TerraMA² codebase (the source code tree) there are som
 
 ## Dependencies
 
+The file named **[https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES DEPENDENCIES]** in the root of TerraMA² source tree contains the official list of third-party libraries and tools that you must install before building TerraMA² from source.
+
 If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
 - **Boost (Mandatory):** TerraMA² is built on top of Boost libraries. You will need to have them installed in order to build TerraMA2. Make sure to have at least version 1.54.0 installed. If you prefer to install from source, download it from: http://www.boost.org.
 
@@ -66,7 +68,7 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under **https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh**. Follow the steps below:
 
-- Download the third-party libraries package used by the development: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
+- Download the third-party libraries package used by the development team: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
 - Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
@@ -75,7 +77,24 @@ We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. T
 $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-14.04.sh
 ```
 ### Bash script for building all dependencies on Mac OS X Yosemite
-**TO BE DONE**
+
+We have prepared a special bash script for this purpose on Mac OS X Yosemite. This script can be found in TerraMA² source tree under **https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-macosx-yosemite.sh**. Follow the steps below:
+
+- Download the third-party libraries package used by the development team: [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz).
+
+- Copy the script [install-3rdparty-macosx-yosemite.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-macosx-yosemite.sh) to the same folder you have downloaded the [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz terrama2-3rdparty-macosx-yosemite.tar.gz).
+
+- Open the shell command line.
+
+- Make sure your Qt and CMake environment can be found in your PATH:
+```
+$ export PATH=$PATH:/Users/user/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app/Contents/bin
+```
+
+- In the shell command line, call the script *install-3rdparty-macosx-yosemite.sh* setting the target to install all the stuffs from these third-party libraries and tools:
+```
+$ TERRAMA2_DEPENDENCIES_DIR="/Users/user/mylibs" ./install-3rdparty-macosx-yosemite.sh
+```
 
 ### Prepared dependencies for Microsot Windows
 
