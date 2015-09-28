@@ -66,11 +66,11 @@ If you want to build yourself TerraMA² then you need to install some third-part
  
 ### Bash script for building all dependencies on Linux Ubuntu 14.04
 
-We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under **https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh**. Follow the steps below:
+We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under install folder. Follow the steps below:
 
 - Download the third-party libraries package used by the development team: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
-- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
+- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the *terrama2-3rdparty-linux-ubuntu-14.04.tar.gz*.
 
 - Open the shell command line and call the script *install-3rdparty-linux-ubuntu-14.04.sh* setting the target to install all the stuffs from these third-party libraries and tools:
 ```
@@ -78,11 +78,11 @@ $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-
 ```
 ### Bash script for building all dependencies on Mac OS X Yosemite
 
-We have prepared a special bash script for this purpose on Mac OS X Yosemite. This script can be found in TerraMA² source tree under **https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-macosx-yosemite.sh**. Follow the steps below:
+We have prepared a special bash script for this purpose on Mac OS X Yosemite. This script can be found in TerraMA² source tree under install folder. Follow the steps below:
 
 - Download the third-party libraries package used by the development team: [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz).
 
-- Copy the script [install-3rdparty-macosx-yosemite.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-macosx-yosemite.sh) to the same folder you have downloaded the [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz terrama2-3rdparty-macosx-yosemite.tar.gz).
+- Copy the script [install-3rdparty-macosx-yosemite.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-macosx-yosemite.sh) to the same folder you have downloaded the *terrama2-3rdparty-macosx-yosemite.tar.gz*.
 
 - Open the shell command line.
 
