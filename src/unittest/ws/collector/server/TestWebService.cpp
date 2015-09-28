@@ -27,11 +27,39 @@
   \author Vinicius Campanha
 */
 
+// STL
+#include <memory>
+
 // TerraMA2 Test
 #include "TestWebService.hpp"
 
 // TerraMA2
 #include "soapWebService.h"
+#include <terrama2/core/ApplicationController.hpp>
+
+void TestWebService::init()
+{
+  clearDatabase();
+}
+
+void TestWebService::cleanup()
+{
+  clearDatabase();
+}
+
+
+void TestWebService::clearDatabase()
+{
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  transactor->begin();
+
+  std::string query = "TRUNCATE TABLE terrama2.data_provider CASCADE";
+  transactor->execute(query);
+
+  transactor->commit();
+}
 
 
 void TestWebService::TestStatus()
@@ -74,40 +102,139 @@ void TestWebService::TestAddDataProvider()
 
     if (test.addDataProvider(struct_dataprovider) != SOAP_OK)
     {
-      QFAIL("Should not be here");
+      QFAIL("Add a Data Provider failed!");
     }
 
     if(struct_dataprovider.id == 0)
     {
-      QFAIL("Should not be here");
+      QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
 
-    if(struct_dataprovider.name != struct_dataprovider_check.name) QFAIL("Should not be here");
+    QVERIFY2(struct_dataprovider.name == struct_dataprovider_check.name, "Name changed after add!");
 
-    if(struct_dataprovider.kind != struct_dataprovider_check.kind) QFAIL("Should not be here");
+    QVERIFY2(struct_dataprovider.kind == struct_dataprovider_check.kind, "Kind changed after add!");
 
-    if(struct_dataprovider.description != struct_dataprovider_check.description) QFAIL("Should not be here");
+    QVERIFY2(struct_dataprovider.description == struct_dataprovider_check.description, "Description changed after add!");
 
-    if(struct_dataprovider.status != struct_dataprovider_check.status) QFAIL("Should not be here");
+    QVERIFY2(struct_dataprovider.status == struct_dataprovider_check.status, "Status changed after add!");
 
-    if(struct_dataprovider.uri != struct_dataprovider_check.uri) QFAIL("Should not be here");
+    QVERIFY2(struct_dataprovider.uri == struct_dataprovider_check.uri, "URI changed after add!");
 
   }
   catch(...)
   {
-    QFAIL("Should not be here");
+    QFAIL("Exception unexpected!");
   }
 }
 
 void TestWebService::TestAddNullDataProvider()
 {
+    try
+    {
+        DataProvider struct_dataprovider;
+
+        WebService test;
+
+        if (test.addDataProvider(struct_dataprovider) == SOAP_OK)
+        {
+          QFAIL("Should not add a null Data Provider!");
+        }
+    }
+    catch(...)
+    {
+        QFAIL("Exception unexpected!");
+    }
 
 }
 
-void TestWebService::TestAddDataProviderID()
+void TestWebService::TestAddDataProviderWithID()
+{
+    try
+    {
+        DataProvider struct_dataprovider, struct_dataprovider_check;
+
+        struct_dataprovider.id = 1;
+        struct_dataprovider.name = "Data Provider";
+        struct_dataprovider.kind = 1;
+        struct_dataprovider.description = "Data Provider description";
+        struct_dataprovider.status = 1;
+        struct_dataprovider.uri = "C:/Dataprovider/path";
+
+        struct_dataprovider_check = struct_dataprovider;
+
+        WebService test;
+
+        if (test.addDataProvider(struct_dataprovider) == SOAP_OK)
+        {
+          QFAIL("Should not add a Data Provider with ID!");
+        }
+    }
+    catch(...)
+    {
+        QFAIL("Exception unexpected!");
+    }
+
+}
+
+
+void TestWebService::testRemoveDataProvider()
+{
+    try
+    {
+        DataProvider struct_dataprovider;
+
+        struct_dataprovider.id = 0;
+        struct_dataprovider.name = "Data Provider";
+        struct_dataprovider.kind = 1;
+        struct_dataprovider.description = "Data Provider description";
+        struct_dataprovider.status = 1;
+        struct_dataprovider.uri = "C:/Dataprovider/path";
+
+        WebService test;
+
+        if (test.addDataProvider(struct_dataprovider) != SOAP_OK)
+        {
+          QFAIL("Add a Data Provider failed!");
+        }
+
+        if(struct_dataprovider.id == 0)
+        {
+          QFAIL("After added, a Data Providetr MUST have a valid ID!");
+        }
+
+        if (test.removeDataProvider(struct_dataprovider.id, nullptr) != SOAP_OK)
+        {
+          QFAIL("Fail to remove a Data Provider!");
+        }
+    }
+    catch(...)
+    {
+        QFAIL("Exception unexpected!");
+    }
+}
+
+void TestWebService::testRemoveDataProviderInvalidId()
 {
 
 }
+
+
+void TestWebService::testUpdateDataProvider()
+{
+
+}
+
+void TestWebService::testUpdateDataProviderInvalidId()
+{
+
+}
+
+
+void TestWebService::testFindDataProvider()
+{
+
+}
+
 
 void TestWebService::TestAddDataSet()
 {

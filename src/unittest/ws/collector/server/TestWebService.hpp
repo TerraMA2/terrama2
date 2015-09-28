@@ -36,15 +36,22 @@ class TestWebService: public QObject
 {
   Q_OBJECT
 
+private:
+
+    /*!
+     * \brief Clear all the data in TerraMA2 database
+     */
+    void clearDatabase();
+
 private slots:
 
     void initTestCase(){} // Run before all tests
     void cleanupTestCase(){} // Run after all tests
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+    void init(); //run before each test
+    void cleanup(); //run before each test
 
-    //******Test functions********
+    //******Test functions********;
 
     /*!
      * \brief Test to request the WebService status
@@ -67,9 +74,37 @@ private slots:
     /*!
      * \brief Test to add a DataProvider with an id
      */
-    void TestAddDataProviderID();
-    
-    
+    void TestAddDataProviderWithID();
+
+
+    /*!
+     * \brief
+     */
+    void testRemoveDataProvider();
+
+    /*!
+     * \brief
+     */
+    void testRemoveDataProviderInvalidId();
+
+
+    /*!
+     * \brief
+     */
+    void testUpdateDataProvider();
+
+    /*!
+     * \brief
+     */
+    void testUpdateDataProviderInvalidId();
+
+
+    /*!
+     * \brief
+     */
+    void testFindDataProvider();
+
+
     /*!
      * \brief Test to add a normal DataSet
      */
