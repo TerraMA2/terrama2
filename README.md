@@ -97,7 +97,7 @@ Microsoft Windows users that had downloaded the auxiliary package (in the TerraM
 $ mkdir -p /home/user/mydevel/terrama2/codebase
 ```
 
-- Change teh current directory to that new folder:
+- Change the current directory to that new folder:
 ```
 $ cd /home/user/mydevel/terrama2/codebase
 ```
