@@ -4,6 +4,7 @@
 #include "../core/Utils.hpp"
 #include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
+#include "../../core/DataManager.hpp"
 
 // QT
 #include <QMessageBox>
@@ -47,9 +48,8 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->cancelBtn->setVisible(false);
 
   ui_->weatherDataTree->clear();
-
-  // Call the default configuration
-  load();
+  // Disable series button
+  showDataSeries(false);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -59,14 +59,6 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 
 void ConfigAppWeatherTab::load()
 {
-  // Disable series button
-  showDataSeries(false);
-
-  // Connect to database and list the values
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
-
-  // TEMP Harded code
-  terrama2::core::ApplicationController::getInstance().loadProject(path);
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
   std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.data_provider");
 
@@ -94,16 +86,17 @@ bool ConfigAppWeatherTab::validate()
     return false;
   }
 
-  QTreeWidgetItemIterator it(ui_->weatherDataTree);
-  while(*it)
-  {
-    if ((*it)->text(0) == ui_->serverName->text())
-    {
-      ui_->serverName->setFocus();
-      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid server name. It is already in use"));
-    }
+  // Check if has already been saved before
+  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
 
-    ++it;
+  std::string sqlProvider("SELECT name FROM terrama2.data_provider WHERE name = '");
+  sqlProvider += ui_->serverName->text().toStdString() + "'";
+  std::auto_ptr<te::da::DataSet> dset = ds->query(sqlProvider);
+
+  if (dset->size() >= 0)
+  {
+    ui_->serverName->setFocus();
+    throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
   }
 
   isValidConnection();
@@ -117,16 +110,19 @@ void ConfigAppWeatherTab::save()
   {
     throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
   }
-  // Apply save process
 
-
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
-
-//  std::shared_ptr<te::da::DataSource> ds = te::da::DataSourceFactory::make("POSTGIS");
-  terrama2::core::ApplicationController::getInstance().loadProject(path);
+  // Get DataSource
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
 
-  std::auto_ptr<te::da::DataSet> dset = ds->query("create table terrama2.servers (id serial primary key, nome varchar(200))"); // temp
+  terrama2::core::DataProviderPtr dataProvider(
+        new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
+                                         terrama2::core::DataProvider::FTP_TYPE));
+  dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
+  dataProvider->setUri(ui_->connectionAddress->text().toStdString());
+  dataProvider->setStatus(ui_->serverActiveServer->isChecked() ? terrama2::core::DataProvider::ACTIVE :
+                                                                 terrama2::core::DataProvider::INACTIVE);
+
+  terrama2::core::DataManager::getInstance().add(dataProvider);
 
   // TODO: save in database
   QTreeWidgetItem* newServer = new QTreeWidgetItem();
@@ -222,7 +218,7 @@ void ConfigAppWeatherTab::onEnteredWeatherTab()
   ui_->cancelBtn->setVisible(true);
 
   ui_->saveBtn->setEnabled(false);
-  ui_->cancelBtn->setEnabled(false);
+  ui_->cancelBtn->setEnabled(true);
 
   ui_->ServerGroupPage->hide();
   ui_->ServerPage->show();
