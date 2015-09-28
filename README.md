@@ -183,7 +183,7 @@ Follow the build steps below according to your platform.
 
 1.3. Create a folder out of the TerraMA² source tree to generate the build system, for example:
 ```
-$ cd /home/user/terrama2
+$ cd /home/user/mydevel/terrama2
 $ mkdir build-release
 $ cd build-release
 ```
@@ -192,6 +192,17 @@ $ cd build-release
 ```
 $ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="/home/user/myinstall/terrama2" -DCMAKE_PREFIX_PATH:PATH="/home/user/mylibs;/usr/local;/opt/external-libraries" ../codebase/build/cmake
 ```
+1.5 Building (with 4 process in parallel):
+
+`$ make -j 4`
+
+1.6 Installing:
+
+`$ make install`
+
+1.7 Uninstalling:
+
+`$ make uninstall`
 
 Notes:
 * Some Linux flavours with different versions of GNU gcc and Boost will need more parameters such as:
@@ -225,18 +236,6 @@ Notes:
 ```
   -DCMAKE_CXX_FLAGS:STRING="-Wundef"
 ```
-1.5 Building (with 4 process in parallel):
-
-`$ make -j 4`
-
-1.6 Installing:
-
-`$ make install`
-
-1.7 Uninstalling:
-
-`$ make uninstall`
-
 
 ### Building on Mac OS X Yosemite
 
@@ -252,28 +251,15 @@ Notes:
 
 **TO BE DONE**
 
-## Packing TerraMA²
-
-### Packing TerraMA² on Linux Ubuntu 14.04
-
-**TO BE DONE**
-
-### Packing TerraMA² on Mac OS X Yosemite
-
-**TO BE DONE**
-
-### Packing TerraMA² on Microsoft Windows
-
-**TO BE DONE**
-
 ### Quick Notes for Developers
 
 If you have built TerraMA² in Debug mode and you want to run it inside the build tree, you may need to set some environment variables.
 
 For Mac OS X, you can set the following variables:
-
-`$ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/MyLibs/lib`
-`$ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/MyLibs/lib/`
+```
+$ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/MyLibs/lib
+$ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/MyLibs/lib/
+```
 
 ## Reporting Bugs
 
