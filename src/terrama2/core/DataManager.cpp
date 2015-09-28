@@ -110,6 +110,11 @@ void terrama2::core::DataManager::add(terrama2::core::DataProviderPtr dataProvid
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
+  if(!dataProvider.get())
+  {
+    throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not add an invalid data provider."));
+  }
+
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
@@ -129,6 +134,11 @@ void terrama2::core::DataManager::add(terrama2::core::DataSetPtr dataset)
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
+  if(!dataset.get())
+  {
+    throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not add an invalid dataset."));
+  }
+
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
@@ -146,6 +156,11 @@ void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr dataPro
 {
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  if(!dataProvider.get())
+  {
+    throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not update an invalid data provider."));
+  }
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
@@ -170,6 +185,11 @@ void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
+  if(!dataset.get())
+  {
+    throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not update an invalid dataset."));
+  }
+
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
@@ -189,7 +209,10 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
 
   if(id == 0)
-    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+  {
+    throw InvalidDataProviderIdError() <<
+          ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+  }
 
   DataProviderPtr dataProvider = pimpl_->providers_[id];
 

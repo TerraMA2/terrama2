@@ -552,3 +552,91 @@ void TsDataManager::testAddDataProviderWithDataSet()
 
   QVERIFY2(dataProvider->id() != 0, "The id wasn't set in the provider after insert!");
 }
+
+void TsDataManager::testAddNullDataProvider()
+{
+  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+
+  // Tries to update a data provider that doesn't have a valid ID
+  try
+  {
+    terrama2::core::DataProviderPtr dataProvider;
+    terrama2::core::DataManager::getInstance().add(dataProvider);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (terrama2::core::InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+}
+
+
+void TsDataManager::testAddNullDataSet()
+{
+  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+
+  // Tries to update a dataset that doesn't have a valid ID
+  try
+  {
+    terrama2::core::DataSetPtr dataSet;
+    terrama2::core::DataManager::getInstance().add(dataSet);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataSetError not thrown");
+  }
+  catch (terrama2::core::InvalidDataSetError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+
+}
+
+
+void TsDataManager::testUpdateNullDataProvider()
+{
+  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+
+  // Tries to update a data provider that doesn't have a valid ID
+  try
+  {
+    terrama2::core::DataProviderPtr dataProvider;
+    terrama2::core::DataManager::getInstance().update(dataProvider);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (terrama2::core::InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+}
+
+void TsDataManager::testUpdateNullDataSet()
+{
+  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+
+  // Tries to update a dataset that doesn't have a valid ID
+  try
+  {
+    terrama2::core::DataSetPtr dataSet;
+    terrama2::core::DataManager::getInstance().update(dataSet);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataSetError not thrown");
+  }
+  catch (terrama2::core::InvalidDataSetError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+
+}
