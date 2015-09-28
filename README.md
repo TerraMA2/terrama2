@@ -187,6 +187,7 @@ $ cd /home/user/mydevel/terrama2
 $ mkdir build-release
 $ cd build-release
 ```
+**Note:** for the sake of simplicity create this directory in the same level as the source tree (as showned above).
 
 1.4. For Linux systems you must choose the build configuration:
 ```
@@ -228,19 +229,65 @@ Notes:
 ```
   -DCMAKE_BUILD_TYPE:STRING="Debug"
 ```
-* To turn on C++11 support:
-```
-  -DCMAKE_CXX_FLAGS:STRING="-std=c++11"
-```
-* To turn on the check of undefined macros, add the following flag:
-```
-  -DCMAKE_CXX_FLAGS:STRING="-Wundef"
-```
 
 ### Building on Mac OS X Yosemite
 
-**TO BE DONE**
+1.1 Open a Command Prompt (Shell).
 
+1.2. We will assume that the codebase (all the source tree) is located at:
+```
+/Users/user/mydevel/terrama2/codebase
+```
+
+1.3. Create a folder out of the TerraMA² source tree to generate the build system, for example:
+```
+$ cd /Users/user/mydevel/terrama2
+$ mkdir build-release
+$ cd build-release
+```
+**Note:** for the sake of simplicity create this directory in the same level as the source tree (as showned above).
+
+1.4. For Mac OS X systems you must choose the build configuration:
+```
+$ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="/Users/user/myinstall/terrama2" -DCMAKE_PREFIX_PATH:PATH="/Users/user/mylibs;/usr/local;/opt/external-libraries" ../codebase/build/cmake
+```
+
+1.5. Building (with 4 process in parallel):
+```
+$ make -j 4
+```
+
+1.6. Installing:
+```
+$ make install
+```
+1.7. Uninstalling:
+```
+$ make uninstall
+```
+
+Notes:
+
+* You have to specify valid paths for *CMAKE_PREFIX_PATH*. If you have a Qt version installed as a framework in your home directory, you have to tell CMake where to locate its CMake support. For instance, if you have Qt version 5.4.1 installed, you have to add to *CMAKE_PREFIX_PATH* the following directory:
+```
+/Users/user/Qt5.4.1/5.4/clang_64/lib/cmake
+```
+
+* You have also to tell where TerraLib? CMake support is located. Add to CMAKE_PREFIX_PATH where TerraLib? is installed, for example:
+```
+/Users/user/MyLibs/terralib/lib/cmake
+```
+
+* You can also generate an Xcode project by using the "Xcode generator" option:
+```
+-G "Xcode"
+```
+
+* There are some useful variables that can be set inside Xcode in order to run an application. The following environment variable can be set:
+```
+DYLD_FALLBACK_LIBRARY_PATH
+DYLD_FALLBACK_FRAMEWORK_PATH
+```
 
 ### Building on Microsoft Windows with Visual C++
 
