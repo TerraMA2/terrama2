@@ -44,6 +44,12 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
 
+  connect(ui_->serverDeleteBtn, SIGNAL(clicked()),
+                                SLOT(onDeleteServerClicked()));
+
+  // Lock for cannot allow multiple selection
+  ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
+
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
@@ -80,27 +86,41 @@ bool ConfigAppWeatherTab::dataChanged()
 
 bool ConfigAppWeatherTab::validate()
 {
-  if (ui_->serverName->text().isEmpty())
+  // If serverAdd tab is active
+  if (serverTabChanged_)
   {
-    ui_->serverName->setFocus();
+    if (ui_->serverName->text().isEmpty())
+    {
+      ui_->serverName->setFocus();
+      return false;
+    }
+
+    // Check if has already been saved before
+    std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+    std::string sqlProvider("SELECT name FROM terrama2.data_provider WHERE name = '");
+    sqlProvider += ui_->serverName->text().toStdString() + "'";
+    std::auto_ptr<te::da::DataSet> dset = ds->query(sqlProvider);
+
+    if (dset->size() > 0)
+    {
+      ui_->serverName->setFocus();
+      throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
+    }
+
+    isValidConnection();
+
+    return true;
+  }
+
+  if (dataGridSeriesChanged_)
     return false;
-  }
 
-  // Check if has already been saved before
-  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+  if (dataPointDiffSeriesChanged_)
+    return false;
 
-  std::string sqlProvider("SELECT name FROM terrama2.data_provider WHERE name = '");
-  sqlProvider += ui_->serverName->text().toStdString() + "'";
-  std::auto_ptr<te::da::DataSet> dset = ds->query(sqlProvider);
-
-  if (dset->size() >= 0)
-  {
-    ui_->serverName->setFocus();
-    throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
-  }
-
-  isValidConnection();
-
+  if (dataPointSeriesChanged_)
+    return false;
   return true;
 }
 
@@ -111,12 +131,24 @@ void ConfigAppWeatherTab::save()
     throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
   }
 
+  if (serverTabChanged_)
+    saveServer();
+  else if (dataGridSeriesChanged_)
+    saveGridDataSeries();
+
+  showDataSeries(true);
+  discardChanges(false);
+  QMessageBox::information(app_, tr("TerraMA2"), tr("Save successfully"));
+}
+
+void ConfigAppWeatherTab::saveServer()
+{
   // Get DataSource
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
 
   terrama2::core::DataProviderPtr dataProvider(
         new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
-                                         terrama2::core::DataProvider::FTP_TYPE));
+                                         (terrama2::core::DataProvider::Kind) ui_->connectionProtocol->currentIndex()));
   dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
   dataProvider->setUri(ui_->connectionAddress->text().toStdString());
   dataProvider->setStatus(ui_->serverActiveServer->isChecked() ? terrama2::core::DataProvider::ACTIVE :
@@ -124,15 +156,14 @@ void ConfigAppWeatherTab::save()
 
   terrama2::core::DataManager::getInstance().add(dataProvider);
 
-  // TODO: save in database
   QTreeWidgetItem* newServer = new QTreeWidgetItem();
   newServer->setText(0, ui_->serverName->text());
   ui_->weatherDataTree->addTopLevelItem(newServer);
+}
 
-  showDataSeries(true);
+void ConfigAppWeatherTab::saveGridDataSeries()
+{
 
-  discardChanges(false);
-  QMessageBox::information(app_, tr("TerraMA2"), tr("Save successfully"));
 }
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)
@@ -279,4 +310,22 @@ void ConfigAppWeatherTab::onInsertPointBtnClicked()
 void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
 {
   hidePanels(ui_->DataPointDiffPage);
+}
+
+void ConfigAppWeatherTab::onDeleteServerClicked()
+{
+  std::string dataProviderSelected = ui_->weatherDataTree->currentItem()->text(0).toStdString();
+  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+  std::string sql = "SELECT id FROM terrama2.data_provider WHERE name = '";
+  sql += dataProviderSelected + "'";
+  std::auto_ptr<te::da::DataSet> dataSet = ds->query(sql);
+
+  if (dataSet->size() != 1)
+    throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid data provider"));
+
+  dataSet->moveFirst();
+  uint64_t id = dataSet->getInt64(0);
+  terrama2::core::DataManager::getInstance().removeDataProvider(id);
+
 }
