@@ -6,7 +6,7 @@
 #include <QMessageBox>
 
 ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : QObject(app), app_(app), ui_(ui), changed_(false)
+  : QObject(app), app_(app), ui_(ui)
 {
 
 }
@@ -33,10 +33,13 @@ void ConfigAppTab::validateAndSaveChanges()
   }
 }
 
-void ConfigAppTab::askForChangeTab(const int index)
+void ConfigAppTab::askForChangeTab(const int& index)
 {
   if (!dataChanged())
+  {
+    app_->setCurrentTabIndex(index);
     return;
+  }
 
   // Used here to avoid change tab
   ui_->mainTabWidget->setCurrentIndex(app_->getCurrentTabIndex());
@@ -44,12 +47,15 @@ void ConfigAppTab::askForChangeTab(const int index)
   QMessageBox::StandardButton reply;
   reply = QMessageBox::question(app_, tr("There are modifications not saved yet"),
                                       tr("Would you like to save them?"),
-                                      QMessageBox::Save | QMessageBox::Discard,
+                                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                                       QMessageBox::Save);
 
-  if (reply == QMessageBox::Save)
+  bool saved = (reply == QMessageBox::Save);
+  app_->setCurrentTabIndex(index);
+  if (saved || reply == QMessageBox::Discard)
   {
-    app_->setCurrentTabIndex(index);
+    discardChanges(saved);
+
     ui_->mainTabWidget->setCurrentIndex(index);
   }
 }

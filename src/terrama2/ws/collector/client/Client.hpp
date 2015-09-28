@@ -58,28 +58,120 @@ namespace terrama2
 
           ~Client();
 
-          int ping(std::string& answer);
+          /*!
+            \brief
 
-          int addDataProvider(terrama2::core::DataProvider dataProvider);
+            \param
 
-          int addDataset(DataSet struct_dataSet);
+            \return
+          */
+          void ping(std::string &answer);
 
-          int updateDataProvider(DataProvider struct_dataProvider);
+          /*!
+            \brief
 
-          int updateDataSet(DataSet struct_dataSet);
+            \param
 
-          int removeDataProvider(uint64_t id);
+            \exception AddingDataProviderError
 
-          int removeDataSet(uint64_t id);
+            \return
+          */
+          void addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
 
-          int findDataProvider(uint64_t id, DataProvider &struct_dataProvider);
+          /*!
+            \brief
 
-          int findDataSet(uint64_t id,DataSet &struct_dataSet);
+            \param
 
-          int listDataProvider(std::vector< DataProvider > &dataProviderList);
+            \exception AddingDataSetError
 
-          int listDataSet(std::vector< DataSet > &dataSetList);
+            \return
+          */
+          void addDataset(terrama2::core::DataSetPtr &dataSetPtr);
 
+          /*!
+            \brief
+
+            \param
+
+            \exception UpdateDataProviderError
+
+            \return
+          */
+          void updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception UpdateDataSetError
+
+            \return
+          */
+          void updateDataSet(terrama2::core::DataSetPtr &dataSetPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception RemoveDataProviderError
+
+            \return
+          */
+          void removeDataProvider(uint64_t id);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception RemoveDataSetError
+
+            \return
+          */
+          void removeDataSet(uint64_t id);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception FindDataProviderError
+
+            \return
+          */
+          void findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception FindDataSetError
+
+            \return
+          */
+          void findDataSet(uint64_t id, terrama2::core::DataSetPtr &dataSetPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          void listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList);
+
+          /*!
+            \brief
+
+            \param
+
+            \return
+          */
+          void listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList);
 
         private:
 

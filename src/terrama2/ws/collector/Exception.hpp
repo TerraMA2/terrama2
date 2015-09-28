@@ -20,28 +20,22 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file terrama2/Exception.hpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Base exception for Collector WebService.
 
-  \author Paulo R. M. Oliveira
-*/
+  \author Vinicius Campanha
+ */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+#ifndef __TERRAMA2_WS_COLLECTOR_EXCEPTION_HPP__
+#define __TERRAMA2_WS_COLLECTOR_EXCEPTION_HPP__
 
-//QT
-#include <QtTest>
+// TerraMA2
+#include "../Exception.hpp"
 
-class TestApplicationController: public QObject
+namespace terrama2
 {
-  Q_OBJECT
 
-private slots:
-    void testLoadProject();
-};
+}  // end namespace terrama2
 
-
-
-
-#endif  // __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+#endif  // __TERRAMA2_WS_COLLECTOR_EXCEPTION_HPP__

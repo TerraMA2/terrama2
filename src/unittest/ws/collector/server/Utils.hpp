@@ -20,43 +20,22 @@
 */
 
 /*!
-  \file terrama2/gui/config/ServiceHandler.cpp
+  \file unittest/core/Utils.hpp
 
-  \brief This class contains all TerraMA2 Services
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Raphael Willian da Costa
+  \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
-#define __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
+#ifndef __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
 
-// TerraMA2
-#include <QString>
+void initializeTerralib();
 
-// Boost
-#include <boost/noncopyable.hpp>
+void finalizeTerralib();
 
-// QT
-#include <QMainWindow>
-#include <QSharedPointer>
+void initializeTerraMA2();
 
+void finalizeTerraMA2();
 
-// Forward declaration
-class ConfigManager;
-
-class ServiceHandler
-{
-  public:
-    ServiceHandler(QMainWindow* app);
-
-    ~ServiceHandler();
-
-    void loadConfiguration(QString filepath);
-
-  private:
-    QSharedPointer<ConfigManager> configManager_;
-    // Pointer for each service
-    //Collector* coll;
-};
-
-#endif // __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
+#endif // __TERRAMA2_UNITTEST_CORE_UTILS_HPP__

@@ -19,30 +19,30 @@ In the above output the "* master" means that the current branch is master.
 
 We have the following branches:
 * master:
-  This is the branch where the development team is working to add new features to future versions of TerraMA2. It may be instable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate prodcution versions of TerraMA2 from this branch. Use it for testing new features and get involved with TerraMA2 development.
+  This is the branch where the development team is working to add new features to future versions of TerraMA2. It may be instable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate production versions of TerraMA2 from this branch. Use it for testing new features and get involved with TerraMA2 development.
 
-* 4.0.0-alpha:
+* b-4.0.0-alpha:
   This will be the first branch in TerraMA2's codebase for the generation 4.
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:
   $ git checkout -b <local_branch_name> <remote_branch_name without this part "remotes/">
 
 In order to switch to branch 4.0.0-alpha you can use the following command:
-  $ git checkout -b 4.0.0-alpha origin/4.0.0-alpha
+  $ git checkout -b b-4.0.0-alpha origin/b-4.0.0-alpha
 
 
 List of Tags
 ------------
 
-Also there are tags which usually are originated from a release branch. For instance, tag 4.0.0-alpha1 will be originated from branch 4.0.0-alpha.
+Also there are tags which usually are originated from a release branch. For instance, tag t-4.0.0-alpha1 will be originated from branch b-4.0.0-alpha.
 
 To check all tags available, use:
   $ git tag -l           (list all tag names)
-  4.0.0-alpha1
-  4.0.0-alpha2
-  4.0.0-beta1
-  4.0.0-rc1
-  4.0.0
+  t-4.0.0-alpha1
+  t-4.0.0-alpha2
+  t-4.0.0-beta1
+  t-4.0.0-rc1
+  t-4.0.0
   ...
 
 If you want to checkout a specific version given by a tag and create a local branch to work on you can use the following git command:

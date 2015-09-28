@@ -27,7 +27,7 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "TestApplicationController.hpp"
+#include "TsApplicationController.hpp"
 
 #include <terrama2_config.hpp>
 #include <terrama2/core/ApplicationController.hpp>
@@ -39,7 +39,7 @@
 // STL
 #include <memory>
 
-void TestApplicationController::testLoadProject()
+void TsApplicationController::testLoadProject()
 {
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);

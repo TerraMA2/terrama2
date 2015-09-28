@@ -225,6 +225,9 @@ p, li { white-space: pre-wrap; }
                </item>
                <item row="1" column="3">
                 <widget class="QComboBox" name="connectionProtocol">
+                 <property name="currentIndex">
+                  <number>1</number>
+                 </property>
                  <item>
                   <property name="text">
                    <string>FTP</string>

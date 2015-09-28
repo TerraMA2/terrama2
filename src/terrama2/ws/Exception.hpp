@@ -20,29 +20,26 @@
 */
 
 /*!
-  \file unittest/core/DataProviderDAO.cpp
+  \file terrama2/Exception.hpp
 
-  \brief Test for DataProviderDAO functionalities
+  \brief Base exception for WebService.
 
-  \author Paulo R. M. Oliveira
-*/
+  \author Vinicius Campanha
+ */
 
+#ifndef __TERRAMA2_WS_EXCEPTION_HPP__
+#define __TERRAMA2_WS_EXCEPTION_HPP__
 
-#include <terrama2/core/DataProviderDAO.hpp>
+// TerraMA2
+#include "../Exception.hpp"
 
-//QT
-#include <QtTest/QTest>
-
-class TestDataProviderDAO: public QObject
+namespace terrama2
 {
-  Q_OBJECT
+  namespace collector
+  {
 
+  }
 
-private slots:
-  void initTestCase();
-  void cleanupTestCase();
-  void testCRUDDataProvider();
+}  // end namespace terrama2
 
-};
-
-
+#endif  // __TERRAMA2_WS_EXCEPTION_HPP__
