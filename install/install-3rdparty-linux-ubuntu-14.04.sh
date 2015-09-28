@@ -783,7 +783,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxml2.so" ]; then
   cd libxml2-2.9.1
   valid $? "Error: could not enter libxml2-2.9.1!"
 
-  CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-icu
+  CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-icu --without-python
   valid $? "Error: could not configure libxml2!"
 
   make -j 4
@@ -840,8 +840,35 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libboost_thread.so" ]; then
   ./bootstrap.sh
   valid $? "Error: could not configure Boost!"
 
-  sudo ./b2 runtime-link=shared link=shared variant=release threading=multi --prefix=$TERRAMA2_DEPENDENCIES_DIR -sICU_PATH=$TERRAMA2_DEPENDENCIES_DIR -sICONV_PATH=/usr -sBZIP2_INCLUDE=$TERRAMA2_DEPENDENCIES_DIR/include -sBZIP2_LIBPATH=$TERRAMA2_DEPENDENCIES_DIR/lib install
+  ./b2 runtime-link=shared link=shared variant=release threading=multi --prefix=$TERRAMA2_DEPENDENCIES_DIR -sICU_PATH=$TERRAMA2_DEPENDENCIES_DIR -sICONV_PATH=/usr -sBZIP2_INCLUDE=$TERRAMA2_DEPENDENCIES_DIR/include -sBZIP2_LIBPATH=$TERRAMA2_DEPENDENCIES_DIR/lib install
   valid $? "Error: could not make boost"
+
+  cd ..
+fi
+
+
+#
+# gSOAP
+#
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
+  echo "installing gSOAP..."
+  echo ""
+  sleep 1s
+
+  unzip gsoap_2.8.23.zip
+  valid $? "Error: could not uncompress gsoap_2.8.23.zip!"
+
+  cd gsoap-2.8
+  valid $? "Error: could not enter gsoap-2.8!"
+
+  ./configure --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR
+  valid $? "Error: could not configure gSOAP!"
+
+  make
+  valid $? "Error: could not make gSOAP!"
+
+  make install
+  valid $? "Error: Could not install gSOAP!"
 
   cd ..
 fi
@@ -1086,7 +1113,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/include/rapidjson/rapidjson.h" ]; then
   cd rapidjson
   valid $? "Error: could not enter rapidjson!"
 
-  sudo mv include/rapidjson $TERRAMA2_DEPENDENCIES_DIR/include/
+  mv include/rapidjson $TERRAMA2_DEPENDENCIES_DIR/include/
 
   cd ..
 fi
@@ -1226,7 +1253,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqtlua.so" ]; then
   make install
   valid $? "Error: could not install QtLua!"
 
-  sudo cp -r src/internal $TERRAMA2_DEPENDENCIES_DIR/include/QtLua/
+  cp -r src/internal $TERRAMA2_DEPENDENCIES_DIR/include/QtLua/
   valid $? "Error: could not copy QtLua internal folder!"
 
   cd ..
