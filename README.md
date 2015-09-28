@@ -66,9 +66,9 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under **[https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh]**. Follow the steps below:
 
-- Download the third-party libraries package used by the development: [terrama2-third-party-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-third-party-linux-ubuntu-14.04.tar.gz).
+- Download the third-party libraries package used by the development: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
-- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the [terrama2-third-party-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-third-party-linux-ubuntu-14.04.tar.gz).
+- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
 - Open the shell command line and call the script *install-3rdparty-linux-ubuntu-14.04.sh* setting the target to install all the stuffs from these third-party libraries and tools:
 ```
