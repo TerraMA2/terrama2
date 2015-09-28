@@ -72,6 +72,14 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     void openRequested();
     void saveRequested();
     void renameRequested();
+    void dbCreateDatabaseRequested();
+
+    void setDataChanged();
+    void clearDataChanged();
+    void clearFormData();
+
+
+    void configListSelectionChanged(const QItemSelection& selected);
   
   private:
   
@@ -80,10 +88,18 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     ConfigManager* configManager_;
 
     QString nameConfig_; //!< Current Configuration Name.
+    bool newData_; //!< Current new configuration.
+    bool ignoreChangeEvents_; //!< Indicates that modifications should be ignored by setDataChanged.
+    bool dataChanged_; //!< Indicates that the data has changed.
+    int CurrentConfigIndex_; //!< Indice current configuration.
 
     QList<QSharedPointer<AdminAppTab>> tabs_; //!< List of TerraMA2 Administration Tabs
 
     Impl* pimpl_;  //!< Pimpl idiom.
+
+    void enableFields(bool mode);
+    bool searchDataList(int row_total, QString find_name);
+
 };
 
 #endif // __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__

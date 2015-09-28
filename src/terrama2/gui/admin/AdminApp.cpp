@@ -34,6 +34,8 @@
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
 #include "AdminAppDBTab.hpp"
+#include "AdminAppCollectTab.hpp"
+#include "../../core/ApplicationController.hpp"
 
 // Qt
 #include <QIcon>
@@ -45,6 +47,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QList>
 
 struct AdminApp::Impl
 {
@@ -106,33 +109,62 @@ AdminApp::AdminApp(QWidget* parent)
 // Init variable
   pimpl_->ui_->configListWidget->clear();
   nameConfig_ = "";
+  CurrentConfigIndex_ = 0;
+  ignoreChangeEvents_ = false;
+  clearDataChanged();
+  enableFields(false);
+
 
  // Init services for each tab
   QSharedPointer<AdminAppTab> dbTab(new AdminAppDBTab(this,pimpl_->ui_));
+  QSharedPointer<AdminAppTab> collectTab(new AdminAppCollectTab(this,pimpl_->ui_));
+
   tabs_.append(dbTab);
+  tabs_.append(collectTab);
 
-
+// Connects settings menu actions
   connect(pimpl_->ui_->newAct,  SIGNAL(triggered()), SLOT(newRequested()));
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
   connect(pimpl_->ui_->saveAct, SIGNAL(triggered()), SLOT(saveRequested()));
   connect(pimpl_->ui_->renameAct, SIGNAL(triggered()), SLOT(renameRequested()));
+  connect(pimpl_->ui_->exitAct, SIGNAL(triggered()), SLOT(close()));
+
+// Connects actions related to the interface
   connect(pimpl_->ui_->saveBtn, SIGNAL(clicked()), SLOT(saveRequested()));
+  connect(pimpl_->ui_->dbCreateDatabaseBtn,  SIGNAL(clicked()), SLOT(dbCreateDatabaseRequested()));
+
+  connect(pimpl_->ui_->configListWidget->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection&)),
+          SLOT(configListSelectionChanged(const QItemSelection&)));
+
+
+// Prepare context menu to the list of settings
+  pimpl_->ui_->configListWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
+  pimpl_->ui_->configListWidget->insertAction(NULL, pimpl_->ui_->renameAct);
+  pimpl_->ui_->configListWidget->insertAction(NULL, pimpl_->ui_->removeAct);
  
 }
 
 // New file
 void AdminApp::newRequested()
 {
- nameConfig_ = tr("Nova Configuracão");
+ nameConfig_ = tr("New Configuration");
 
+ newData_ = true;
+
+ pimpl_->ui_->configListWidget->setCurrentRow(pimpl_->ui_->configListWidget->count()+1);
+
+ enableFields(true);
+ clearFormData();
+ setDataChanged();
  renameRequested();
-
 }
 
 // Open file
 void AdminApp::openRequested()
 {
-  QString filename = QFileDialog::getOpenFileName(this, tr("Choose file"), ".", tr("TerraMA2 ( *.terrama2"));
+  QString filename = QFileDialog::getOpenFileName(this, tr("Choose file"), ".",
+                                                        tr("TerraMA2 ( *.terrama2"));
 
   if (filename.isEmpty())
      return;
@@ -141,21 +173,64 @@ void AdminApp::openRequested()
 
 // fills fields
   fillForm();
+
+  enableFields(true);
+}
+
+// Search Data List
+bool AdminApp::searchDataList(int row_total, QString find_name)
+{
+  bool find = true;
+
+  if (row_total > 0)
+  {
+    for (int row = 0; row < row_total; row++)
+      {
+        QListWidgetItem *item = pimpl_->ui_->configListWidget->item(row);
+
+        if (item->text() == find_name)
+        {
+          find = false;
+          break;
+        }
+      }
+  }
+ return find;
 }
 
 // Rename file
 void AdminApp::renameRequested()
 {
   bool ok;
-  QString newname = QInputDialog::getText(this, tr("Renomear..."),
-                                          tr ("Novo nome da Configuracão: "),
+  QString newname = QInputDialog::getText(this, tr("Rename..."),
+                                          tr ("New configuration name: "),
                                           QLineEdit::Normal, nameConfig_, &ok);
 
   if (!ok || newname.isEmpty())
-      return;
+  {
+    clearDataChanged();
+    enableFields(false);
+    return;
+  }
+
+  enableFields(true);
 
   nameConfig_ = newname;
-  pimpl_->ui_->configListWidget->addItem(nameConfig_);
+
+  ok = searchDataList(pimpl_->ui_->configListWidget->count(), newname);
+
+  if (ok)
+   {
+    nameConfig_ = newname;
+    pimpl_->ui_->configListWidget->addItem(nameConfig_);
+    setDataChanged();
+   }
+   else
+   {
+    QMessageBox::information(this, tr("TerraMA2"), tr("Configuration Name Exists!"));
+    clearDataChanged();
+    enableFields(false);
+   }
 }
 
 // Save file
@@ -186,7 +261,122 @@ void AdminApp::saveRequested()
 
   QMessageBox::information(this, tr("TerraMA2"), tr("Project successfully saved!"));
 
+  enableFields(false);
+
 }
+
+void AdminApp::dbCreateDatabaseRequested()
+{
+
+  configManager_->setDatabase(tabs_[0]->toJson().first());
+
+  Database* database = configManager_->getDatabase();
+
+  terrama2::core::ApplicationController::getInstance().createDatabase(database->dbName_.toStdString(),
+                                                                      database->user_.toStdString(),
+                                                                      database->password_.toStdString(),
+                                                                      database->host_.toStdString(),
+                                                                      database->port_ );
+
+}
+
+//! Enable or Disable fields of form
+void AdminApp::enableFields(bool mode)
+ {
+// action
+  pimpl_->ui_->saveAct->setEnabled(mode);
+  pimpl_->ui_->renameAct->setEnabled(mode);
+  pimpl_->ui_->removeAct->setEnabled(mode);
+  pimpl_->ui_->saveAsAct->setEnabled(mode);
+  pimpl_->ui_->servicesAct->setEnabled(mode);
+  pimpl_->ui_->consoleAct->setEnabled(mode);
+  pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(mode);
+  pimpl_->ui_->dbCheckConnectionBtn->setEnabled(mode);
+  pimpl_->ui_->saveBtn->setEnabled(mode);
+  pimpl_->ui_->cancelBtn->setEnabled(mode);
+
+// fields Database
+  pimpl_->ui_->dbTypeCmb->setEnabled(mode);
+  pimpl_->ui_->dbAddressLed->setEnabled(mode);
+  pimpl_->ui_->dbPortLed->setEnabled(mode);
+  pimpl_->ui_->dbUserLed->setEnabled(mode);
+  pimpl_->ui_->dbPasswordLed->setEnabled(mode);
+  pimpl_->ui_->dbDatabaseLed->setEnabled(mode);
+  pimpl_->ui_->dbStudyChk->setEnabled(mode);
+
+// fields Collect
+  pimpl_->ui_->aqAddressLed->setEnabled(mode);
+  pimpl_->ui_->aqPortLed->setEnabled(mode);
+  pimpl_->ui_->aqLogFileLed->setEnabled(mode);
+  pimpl_->ui_->aqTimeoutMinSpb->setEnabled(mode);
+  pimpl_->ui_->aqTimeoutSecSpb->setEnabled(mode);
+  pimpl_->ui_->aqDirNameLed->setEnabled(mode);
+
+}
+
+void AdminApp::setDataChanged()
+{
+  if(ignoreChangeEvents_)
+    return;
+
+  dataChanged_ = true;
+  pimpl_->ui_->saveBtn->setEnabled(true);
+  pimpl_->ui_->cancelBtn->setEnabled(true);
+  pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
+  pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
+
+}
+
+void AdminApp::clearDataChanged()
+{
+  dataChanged_ = false;
+  pimpl_->ui_->saveBtn->setEnabled(false);
+  pimpl_->ui_->cancelBtn->setEnabled(false);
+  pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(false);
+  pimpl_->ui_->dbCheckConnectionBtn->setEnabled(false);
+}
+
+void AdminApp::clearFormData()
+{
+  ignoreChangeEvents_ = true;
+
+// fields tab Database
+  pimpl_->ui_->dbTypeCmb->setCurrentIndex(0);
+  pimpl_->ui_->dbAddressLed->setText("");
+  pimpl_->ui_->dbPortLed->setText("");
+  pimpl_->ui_->dbUserLed->setText("");
+  pimpl_->ui_->dbPasswordLed->setText("");
+  pimpl_->ui_->dbDatabaseLed->setText("");
+  pimpl_->ui_->dbStudyChk->setChecked(false);
+
+// fields tab collect
+  pimpl_->ui_->aqAddressLed->setText("");
+  pimpl_->ui_->aqPortLed->setText("");
+  pimpl_->ui_->aqLogFileLed->setText("");
+  pimpl_->ui_->aqTimeoutMinSpb->setValue(3);
+  pimpl_->ui_->aqTimeoutSecSpb->setValue(0);
+  pimpl_->ui_->aqDirNameLed->setText("");
+}
+
+void AdminApp::configListSelectionChanged(const QItemSelection& selected)
+{
+  if(ignoreChangeEvents_)
+   return;
+
+ QModelIndexList selected_indexes = selected.indexes();
+
+// Obtem a linha selecionada
+ int row = selected_indexes[0].row();
+
+ QString selectedName = pimpl_->ui_->configListWidget->currentItem()->text();
+ QJsonObject selectedMetadata = configManager_->getfiles().take(selectedName);
+
+ configManager_->setDataForm(selectedMetadata);
+
+ fillForm();
+
+}
+
 
 AdminApp::~AdminApp()
 {
