@@ -317,6 +317,15 @@ void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
 
 void ConfigAppWeatherTab::onDeleteServerClicked()
 {
+  QMessageBox::StandardButton reply;
+  reply = QMessageBox::question(app_, tr("TerraMA2 Remove Data Provider"),
+                                      tr("Would you like to remove data provider?"),
+                                      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                      QMessageBox::Yes);
+
+  if (reply == QMessageBox::No || reply == QMessageBox::Cancel)
+    return;
+
   try
   {
     if (ui_->weatherDataTree->selectedItems().isEmpty())
