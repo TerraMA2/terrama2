@@ -65,7 +65,95 @@ namespace terrama2
 
             \return
           */
-          int ping(std::string &answer);
+          void ping(std::string &answer);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception AddingDataProviderError
+
+            \return
+          */
+          void addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception AddingDataSetError
+
+            \return
+          */
+          void addDataset(terrama2::core::DataSetPtr &dataSetPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception UpdateDataProviderError
+
+            \return
+          */
+          void updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception UpdateDataSetError
+
+            \return
+          */
+          void updateDataSet(terrama2::core::DataSetPtr &dataSetPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception RemoveDataProviderError
+
+            \return
+          */
+          void removeDataProvider(uint64_t id);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception RemoveDataSetError
+
+            \return
+          */
+          void removeDataSet(uint64_t id);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception FindDataProviderError
+
+            \return
+          */
+          void findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr);
+
+          /*!
+            \brief
+
+            \param
+
+            \exception FindDataSetError
+
+            \return
+          */
+          void findDataSet(uint64_t id, terrama2::core::DataSetPtr &dataSetPtr);
 
           /*!
             \brief
@@ -74,7 +162,7 @@ namespace terrama2
 
             \return
           */
-          int addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+          void listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList);
 
           /*!
             \brief
@@ -83,79 +171,7 @@ namespace terrama2
 
             \return
           */
-          int addDataset(terrama2::core::DataSetPtr &dataSetPtr);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int updateDataSet(terrama2::core::DataSetPtr &dataSetPtr);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int removeDataProvider(uint64_t id);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int removeDataSet(uint64_t id);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int findDataSet(uint64_t id, terrama2::core::DataSetPtr &dataSetPtr);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          int listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList);
+          void listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList);
 
         private:
 
