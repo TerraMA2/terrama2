@@ -47,6 +47,9 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()),
                                 SLOT(onDeleteServerClicked()));
 
+  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this,
+                                SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+
   // Lock for cannot allow multiple selection
   ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -365,4 +368,40 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
   {
     throw;
   }
+}
+
+void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem)
+{
+  if (selectedItem->parent() != nullptr)
+  {
+    // If it does not have parent, so it has to be DataProvider. Otherwise, selectedItem is DataSet
+    if (selectedItem->parent()->parent() == nullptr)
+    {
+      std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
+      sql += selectedItem->text(0).toStdString() + "'";
+
+      std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+      std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
+
+      if (dataSet->size() != 1)
+        throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
+
+      dataSet->moveFirst();
+
+      // Call for insert server to display server form
+      emit(ui_->insertServerBtn->clicked());
+
+      ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
+      ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
+      ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
+      ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
+      ui_->serverActiveServer->setChecked(dataSet->getBool(5));
+    }
+    else
+    {
+
+    }
+  }
+  else
+    emit(ui_->cancelBtn->clicked());
 }

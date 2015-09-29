@@ -88,6 +88,9 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! Triggered when click serverDeleteBtn to remove data provider
     void onDeleteServerClicked();
 
+    //! Triggered when click in weatherTree to display metadata from DB
+    void onWeatherDataTreeClicked(QTreeWidgetItem*);
+
   private:
     bool serverTabChanged_; //!< Defines if the user is inserting a server
     bool dataGridSeriesChanged_; //!< Defines if the user is inserting datagrid series
