@@ -53,6 +53,8 @@ In the root directory of TerraMA² codebase (the source code tree) there are som
 
 ## Dependencies
 
+The file named **[DEPENDENCIES](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** in the root of TerraMA² source tree contains the official list of third-party libraries and tools that you must install before building TerraMA² from source.
+
 If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
 - **Boost (Mandatory):** TerraMA² is built on top of Boost libraries. You will need to have them installed in order to build TerraMA2. Make sure to have at least version 1.54.0 installed. If you prefer to install from source, download it from: http://www.boost.org.
 
@@ -62,22 +64,39 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 - **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
  
-### Bash Scripts for Building All Dependencies on Linux Ubuntu 14.04
+### Bash script for building all dependencies on Linux Ubuntu 14.04
 
-We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under **[https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh]**. Follow the steps below:
+We have prepared a special bash script for this purpose on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under install folder. Follow the steps below:
 
-- Download the third-party libraries package used by the development: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
+- Download the third-party libraries package used by the development team: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
-- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
+- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the *terrama2-3rdparty-linux-ubuntu-14.04.tar.gz*.
 
 - Open the shell command line and call the script *install-3rdparty-linux-ubuntu-14.04.sh* setting the target to install all the stuffs from these third-party libraries and tools:
 ```
 $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-14.04.sh
 ```
-### Bash Scripts for Building All Dependencies on Mac OS X Yosemite
-**TO BE DONE**
+### Bash script for building all dependencies on Mac OS X Yosemite
 
-### Prepared Dependencies for Microsot Windows
+We have prepared a special bash script for this purpose on Mac OS X Yosemite. This script can be found in TerraMA² source tree under install folder. Follow the steps below:
+
+- Download the third-party libraries package used by the development team: [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz).
+
+- Copy the script [install-3rdparty-macosx-yosemite.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-macosx-yosemite.sh) to the same folder you have downloaded the *terrama2-3rdparty-macosx-yosemite.tar.gz*.
+
+- Open the shell command line.
+
+- Make sure your Qt and CMake environment can be found in your PATH:
+```
+$ export PATH=$PATH:/Users/user/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app/Contents/bin
+```
+
+- In the shell command line, call the script *install-3rdparty-macosx-yosemite.sh* setting the target to install all the stuffs from these third-party libraries and tools:
+```
+$ TERRAMA2_DEPENDENCIES_DIR="/Users/user/mylibs" ./install-3rdparty-macosx-yosemite.sh
+```
+
+### Prepared dependencies for Microsot Windows
 
 **NOT AVAILABLE YET**
 
@@ -97,7 +116,7 @@ Microsoft Windows users that had downloaded the auxiliary package (in the TerraM
 $ mkdir -p /home/user/mydevel/terrama2/codebase
 ```
 
-- Change teh current directory to that new folder:
+- Change the current directory to that new folder:
 ```
 $ cd /home/user/mydevel/terrama2/codebase
 ```
@@ -183,15 +202,27 @@ Follow the build steps below according to your platform.
 
 1.3. Create a folder out of the TerraMA² source tree to generate the build system, for example:
 ```
-$ cd /home/user/terrama2
+$ cd /home/user/mydevel/terrama2
 $ mkdir build-release
 $ cd build-release
 ```
+**Note:** for the sake of simplicity create this directory in the same level as the source tree (as showned above).
 
 1.4. For Linux systems you must choose the build configuration:
 ```
 $ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="/home/user/myinstall/terrama2" -DCMAKE_PREFIX_PATH:PATH="/home/user/mylibs;/usr/local;/opt/external-libraries" ../codebase/build/cmake
 ```
+1.5 Building (with 4 process in parallel):
+
+`$ make -j 4`
+
+1.6 Installing:
+
+`$ make install`
+
+1.7 Uninstalling:
+
+`$ make uninstall`
 
 Notes:
 * Some Linux flavours with different versions of GNU gcc and Boost will need more parameters such as:
@@ -217,31 +248,65 @@ Notes:
 ```
   -DCMAKE_BUILD_TYPE:STRING="Debug"
 ```
-* To turn on C++11 support:
-```
-  -DCMAKE_CXX_FLAGS:STRING="-std=c++11"
-```
-* To turn on the check of undefined macros, add the following flag:
-```
-  -DCMAKE_CXX_FLAGS:STRING="-Wundef"
-```
-1.5 Building (with 4 process in parallel):
-
-`$ make -j 4`
-
-1.6 Installing:
-
-`$ make install`
-
-1.7 Uninstalling:
-
-`$ make uninstall`
-
 
 ### Building on Mac OS X Yosemite
 
-**TO BE DONE**
+1.1 Open a Command Prompt (Shell).
 
+1.2. We will assume that the codebase (all the source tree) is located at:
+```
+/Users/user/mydevel/terrama2/codebase
+```
+
+1.3. Create a folder out of the TerraMA² source tree to generate the build system, for example:
+```
+$ cd /Users/user/mydevel/terrama2
+$ mkdir build-release
+$ cd build-release
+```
+**Note:** for the sake of simplicity create this directory in the same level as the source tree (as showned above).
+
+1.4. For Mac OS X systems you must choose the build configuration:
+```
+$ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="/Users/user/myinstall/terrama2" -DCMAKE_PREFIX_PATH:PATH="/Users/user/mylibs;/usr/local;/opt/external-libraries" ../codebase/build/cmake
+```
+
+1.5. Building (with 4 process in parallel):
+```
+$ make -j 4
+```
+
+1.6. Installing:
+```
+$ make install
+```
+1.7. Uninstalling:
+```
+$ make uninstall
+```
+
+Notes:
+
+* You have to specify valid paths for *CMAKE_PREFIX_PATH*. If you have a Qt version installed as a framework in your home directory, you have to tell CMake where to locate its CMake support. For instance, if you have Qt version 5.4.1 installed, you have to add to *CMAKE_PREFIX_PATH* the following directory:
+```
+/Users/user/Qt5.4.1/5.4/clang_64/lib/cmake
+```
+
+* You have also to tell where TerraLib? CMake support is located. Add to CMAKE_PREFIX_PATH where TerraLib? is installed, for example:
+```
+/Users/user/MyLibs/terralib/lib/cmake
+```
+
+* You can also generate an Xcode project by using the "Xcode generator" option:
+```
+-G "Xcode"
+```
+
+* There are some useful variables that can be set inside Xcode in order to run an application. The following environment variable can be set:
+```
+DYLD_FALLBACK_LIBRARY_PATH
+DYLD_FALLBACK_FRAMEWORK_PATH
+```
 
 ### Building on Microsoft Windows with Visual C++
 
@@ -252,28 +317,15 @@ Notes:
 
 **TO BE DONE**
 
-## Packing TerraMA²
-
-### Packing TerraMA² on Linux Ubuntu 14.04
-
-**TO BE DONE**
-
-### Packing TerraMA² on Mac OS X Yosemite
-
-**TO BE DONE**
-
-### Packing TerraMA² on Microsoft Windows
-
-**TO BE DONE**
-
 ### Quick Notes for Developers
 
 If you have built TerraMA² in Debug mode and you want to run it inside the build tree, you may need to set some environment variables.
 
 For Mac OS X, you can set the following variables:
-
-`$ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/MyLibs/lib`
-`$ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/MyLibs/lib/`
+```
+$ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/MyLibs/lib
+$ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/MyLibs/lib/
+```
 
 ## Reporting Bugs
 
