@@ -77,11 +77,21 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
   //filter names
   names = impl_->filter_->filterNames(names);
   //get dataset
-  std::shared_ptr<te::da::DataSet> tempDataSet = impl_->parser_->read(uri, names);
+  std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+  std::vector<std::shared_ptr<te::da::DataSetType> > datasetTypeVec;
+  impl_->parser_->read(uri, names, datasetVec, datasetTypeVec);
+
   //filter dataset
-  tempDataSet = impl_->filter_->filterDataSet(tempDataSet);
+  for(int i = 0, size = datasetVec.size(); i < size; ++i)
+  {
+    std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+
+    //std::vector::at is NON-const, Qt containers use 'at' as const
+    datasetVec.at(i) = impl_->filter_->filterDataSet(tempDataSet);
+  }
+
   //store dataset
-  std::shared_ptr<te::da::DataSet> storedDataSet = impl_->storager_->store(tempDataSet);
+  impl_->storager_->store(datasetVec, datasetTypeVec);
 
   //JANO: implementar import
   //should run in thread ?

@@ -55,7 +55,10 @@ std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std:
   return names;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std::string &uri, const std::vector<std::string> &names)
+void terrama2::collector::ParserOGR::read(const std::string &uri,
+                                          const std::vector<std::string> &names,
+                                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                          std::vector<std::shared_ptr<te::da::DataSetType> > &datasetTypeVec)
 {
   if(names.empty())
   {
@@ -80,19 +83,22 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std:
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-    for(const std::string& name : transactor->getDataSetNames())
-      qDebug() << name.c_str();
-
-    assert(names.size() == 1);//TODO: remove this!
-    std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(names.front()));
-
-    if(!dataSet)
+    for(const std::string& name : names)
     {
-      throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                            QObject::tr("DataSet is null."));
+      std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
+      std::shared_ptr<te::da::DataSetType> dataSetType(transactor->getDataSetType(name));
+
+      if(!dataSet || !dataSetType)
+      {
+        throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                              QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
+      }
+
+      datasetVec.push_back(dataSet);
+      datasetTypeVec.push_back(dataSetType);
     }
 
-    return dataSet;
+    return;
   }
   catch(te::common::Exception e)
   {
@@ -100,4 +106,5 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std:
                                           QObject::tr("Terralib exception: ") + e.what());
   }
 
+  return;
 }

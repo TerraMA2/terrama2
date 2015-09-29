@@ -32,6 +32,7 @@
 
 //Terralib
 #include "terralib/dataaccess/dataset/DataSet.h"
+#include "terralib/dataaccess/dataset/DataSetType.h"
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -68,7 +69,10 @@ namespace terrama2
              *
              * \exception TODO: Parser::read exception...
              */
-        virtual std::shared_ptr<te::da::DataSet> read(const std::string& uri, const std::vector<std::string> &names) = 0;//FIXME: The terralib uses auto_ptr, boost::shared_ptr and terrama2 uses std::shared_ptr...
+        virtual void read(const std::string& uri,
+                          const std::vector<std::string> &names,
+                          std::vector<std::shared_ptr<te::da::DataSet>> &datasetVec,
+                          std::vector<std::shared_ptr<te::da::DataSetType>> &datasetTypeVec) = 0;
     };
   }
 }
