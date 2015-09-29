@@ -20,44 +20,53 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorService.cpp
+  \file unittest/collector/TsCollectorService.cpp
 
-  \brief Test Collector service...
+  \brief Test Collector Service...
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#include "TsCollectorService.hpp"
+
+#include <terrama2/collector/CollectorService.hpp>
 
 //QT
-#include <QtTest>
+#include <QApplication>
 
+// STL
+#include <memory>
 
-class TestCollectorService: public QObject
+//terralib
+#include <terralib/postgis/Utils.h>
+#include <terralib/postgis/Connection.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
+
+#include <terralib/common/PlatformUtils.h>
+#include <terralib/common.h>
+#include <terralib/plugin.h>
+
+void TsCollectorService::initTestCase()
 {
-  Q_OBJECT
 
-protected:
+}
 
-private slots:
-    void initTestCase(); // Run before all tests
+void TsCollectorService::cleanupTestCase()
+{
 
-    void cleanupTestCase(); // Run after all tests
+}
 
+void TsCollectorService::init()
+{
 
-    void init(); //run before each test
-    void cleanup(); //run before each test
+}
 
-    //******Test functions********
+void TsCollectorService::cleanup()
+{
 
-    /*!
-     * \brief Test Description
-     */
-
+}
 
 
-    //******End of Test functions****
-
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+//QTEST_MAIN(TsCollectorService)
+#include "TsCollectorService.moc"

@@ -1,9 +1,9 @@
 
-#include "TestCollectorService.hpp"
-#include "TestCollectorFile.hpp"
-#include "TestDataSetTimer.hpp"
-#include "TestParserOGR.hpp"
-#include "TestFilter.hpp"
+#include "TsCollectorService.hpp"
+#include "TsCollectorFile.hpp"
+#include "TsDataSetTimer.hpp"
+#include "TsParserOGR.hpp"
+#include "TsFilter.hpp"
 
 #include <QApplication>
 #include <QTimer>
@@ -13,20 +13,20 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
-  TestCollectorFile testCollectorFile;
-  returnVal += QTest::qExec(&testCollectorFile, argc, argv);
+  TsCollectorFile tsCollectorFile;
+  returnVal += QTest::qExec(&tsCollectorFile, argc, argv);
 
-  TestCollectorService testCollectorService;
-  returnVal += QTest::qExec(&testCollectorService, argc, argv);
+  TsCollectorService tsCollectorService;
+  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
-  TestDataSetTimer testDataSetTimer;
-  returnVal += QTest::qExec(&testDataSetTimer, argc, argv);
+  TsDataSetTimer tsDataSetTimer;
+  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
 
-  TestParserOGR testParserOGR;
-  returnVal += QTest::qExec(&testParserOGR, argc, argv);
+  TsParserOGR tsParserOGR;
+  returnVal += QTest::qExec(&tsParserOGR, argc, argv);
 
-  TestFilter testFilter;
-  returnVal += QTest::qExec(&testFilter, argc, argv);
+  TsFilter tsFilter;
+  returnVal += QTest::qExec(&tsFilter, argc, argv);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

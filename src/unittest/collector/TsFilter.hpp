@@ -20,45 +20,45 @@
 */
 
 /*!
-  \file terrama2/collector/TestFilter.hpp
+  \file terrama2/collector/TsFilter.hpp
 
   \brief Tests for the TestFilter class.
 
   \author Jano Simas
 */
 
-#include "TestFilter.hpp"
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
 
-//terrama2
-#include <terrama2/collector/Filter.hpp>
+//Qt
+#include <QtTest>
 
-//QT
-#include <QStringList>
-
-void TestFilter::TestFilterNamesExact()
+class TsFilter: public QObject
 {
-  QString exact("exact");
-  terrama2::collector::Filter filter;
-  filter.setMask(exact.toStdString());
+  Q_OBJECT
 
-  std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
+private slots:
 
-  names = filter.filterNames(names);
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-  QCOMPARE(names.size(), 1);
-  QCOMPARE(names.at(0), exact);
-}
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-void TestFilter::TestEmptyMask()
-{
-  terrama2::collector::Filter filter;
+    //******Test functions********
 
-  std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
+    /*!
+     * \brief Tests if the filter matches exact name.
+     */
+    void TestFilterNamesExact();
 
-  std::vector<std::string> output = filter.filterNames(names);
+    /*!
+     * \brief Tests behavior with no mask set.
+     */
+    void TestEmptyMask();
 
-  QCOMPARE(output, names);
-}
 
-//QTEST_MAIN(TestFilter)
-#include "TestFilter.moc"
+    //******End of Test functions****
+};
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__

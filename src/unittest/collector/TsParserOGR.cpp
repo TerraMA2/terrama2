@@ -20,14 +20,14 @@
 */
 
 /*!
-  \file terrama2/collector/TestParserOGR.hpp
+  \file terrama2/collector/TsParserOGR.hpp
 
   \brief Tests for the ParserOGR class.
 
   \author Jano Simas
 */
 
-#include "TestParserOGR.hpp"
+#include "TsParserOGR.hpp"
 #include "Utils.hpp"
 
 //terrama2
@@ -44,17 +44,17 @@
 #include <QTemporaryFile>
 #include <QFileInfo>
 
-void TestParserOGR::TestNullDataSource()
+void TsParserOGR::TestNullDataSource()
 {
   QFAIL("Not implemented");
 }
 
-void TestParserOGR::TestDataSourceNotOpen()
+void TsParserOGR::TestDataSourceNotOpen()
 {
   QFAIL("Not implemented");
 }
 
-void TestParserOGR::TestEmptyFile()
+void TsParserOGR::TestEmptyFile()
 {
   initializeTerralib();
 
@@ -68,7 +68,10 @@ void TestParserOGR::TestEmptyFile()
   {
     terrama2::collector::ParserOGR parser;
     std::vector<std::string> names { info.baseName().toStdString() };
-    std::shared_ptr<te::da::DataSet> dataset = parser.read(dir.path().toStdString(), names);
+
+    std::vector<std::shared_ptr<te::da::DataSet>> datasetVec;
+    std::vector<std::shared_ptr<te::da::DataSetType>> datasetTypeVec;
+    parser.read(dir.path().toStdString(), names, datasetVec, datasetTypeVec);
 
     QFAIL("Should not be here.");
   }
@@ -85,5 +88,5 @@ void TestParserOGR::TestEmptyFile()
   QFAIL("End of test... Should not be here.");
 }
 
-//QTEST_MAIN(TestParserOGR)
-#include "TestParserOGR.moc"
+//QTEST_MAIN(TsParserOGR)
+#include "TsParserOGR.moc"

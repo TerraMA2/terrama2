@@ -1,5 +1,33 @@
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
 
-#include "TestCollectorFile.hpp"
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
+
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
+
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file terrama2/collector/TsCollectorFile.cpp
+
+  \brief Tests for the CollectorFile class.
+
+  \author Jano Simas
+*/
+
+#include "TsCollectorFile.hpp"
 
 //Terrama2
 #include <terrama2/collector/CollectorFile.hpp>
@@ -8,7 +36,7 @@
 //Qt
 #include <QTemporaryDir>
 
-void TestCollectorFile::TestNormalBehavior()
+void TsCollectorFile::TestNormalBehavior()
 {
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
 
@@ -26,7 +54,7 @@ void TestCollectorFile::TestNormalBehavior()
   return;
 }
 
-void TestCollectorFile::TestNullDataProvider()
+void TsCollectorFile::TestNullDataProvider()
 {
   terrama2::core::DataProviderPtr nullDataProvider;
 
@@ -49,7 +77,7 @@ void TestCollectorFile::TestNullDataProvider()
   QFAIL("Should not be here");
 }
 
-void TestCollectorFile::TestWrongDataProviderKind()
+void TsCollectorFile::TestWrongDataProviderKind()
 {
   terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::UNKNOWN_TYPE));
 
@@ -72,7 +100,7 @@ void TestCollectorFile::TestWrongDataProviderKind()
   QFAIL("Should not be here");
 }
 
-void TestCollectorFile::TestCheckConnection()
+void TsCollectorFile::TestCheckConnection()
 {
   QTemporaryDir tempDir;
 
@@ -92,5 +120,5 @@ void TestCollectorFile::TestCheckConnection()
   return;
 }
 
-//QTEST_MAIN(TestCollectorFile)
-#include "TestCollectorFile.moc"
+//QTEST_MAIN(TsCollectorFile)
+#include "TsCollectorFile.moc"

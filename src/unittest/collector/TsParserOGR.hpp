@@ -20,20 +20,20 @@
 */
 
 /*!
-  \file terrama2/collector/TestFilter.hpp
+  \file terrama2/collector/TsParserOGR.hpp
 
-  \brief Tests for the TestFilter class.
+  \brief Tests for the ParserOGR class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
 
 //Qt
 #include <QtTest>
 
-class TestFilter: public QObject
+class TsParserOGR: public QObject
 {
   Q_OBJECT
 
@@ -47,18 +47,12 @@ private slots:
 
     //******Test functions********
 
-    /*!
-     * \brief Tests if the filter matches exact name.
-     */
-    void TestFilterNamesExact();
-
-    /*!
-     * \brief Tests behavior with no mask set.
-     */
-    void TestEmptyMask();
+    void TestNullDataSource();
+    void TestDataSourceNotOpen();
+    void TestEmptyFile();
 
 
     //******End of Test functions****
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__

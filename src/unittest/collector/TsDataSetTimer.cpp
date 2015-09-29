@@ -20,14 +20,14 @@
 */
 
 /*!
-  \file terrama2/collector/TestDataSetTimer.cpp
+  \file terrama2/collector/TsDataSetTimer.cpp
 
   \brief Tests for the DataSetTimer class.
 
   \author Jano Simas
 */
 
-#include "TestDataSetTimer.hpp"
+#include "TsDataSetTimer.hpp"
 
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/collector/DataSetTimer.hpp>
@@ -40,7 +40,7 @@
 //STD
 #include <cstdint>
 
-void TestDataSetTimer::TestNullDataSet()
+void TsDataSetTimer::TestNullDataSet()
 {
   terrama2::core::DataSetPtr nullDataSet;
 
@@ -62,7 +62,7 @@ void TestDataSetTimer::TestNullDataSet()
   QFAIL("Should not be here!");
 }
 
-void TestDataSetTimer::TestTimerSignalEmit()
+void TsDataSetTimer::TestTimerSignalEmit()
 {
   terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(nullptr, "dummy", terrama2::core::DataSet::UNKNOWN_TYPE));
   te::dt::TimeDuration freq(0,0,10);
@@ -76,5 +76,5 @@ void TestDataSetTimer::TestTimerSignalEmit()
 }
 
 
-//QTEST_MAIN(TestDataSetTimer)
-#include "TestDataSetTimer.moc"
+//QTEST_MAIN(TsDataSetTimer)
+#include "TsDataSetTimer.moc"

@@ -20,20 +20,20 @@
 */
 
 /*!
-  \file terrama2/collector/TestCollectorFile.hpp
+  \file terrama2/collector/TsDataSetTimer.hpp
 
-  \brief Tests for the CollectorFile class.
+  \brief Tests for the DataSetTimer class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
 
 //Qt
 #include <QtTest>
 
-class TestCollectorFile: public QObject
+class TsDataSetTimer: public QObject
 {
   Q_OBJECT
 
@@ -48,27 +48,17 @@ private slots:
     //******Test functions********
 
     /*!
-     * \brief Tests a normal constructor.
+     * \brief Tests the behavior of a miscontructed DataSetTimer.
      */
-    void TestNormalBehavior();
+    void TestNullDataSet();
 
     /*!
-     * \brief Tests an invalid dataprovider.
+     * \brief Tests the timer signal emition.
      */
-    void TestNullDataProvider();
-
-    /*!
-     * \brief Test DataProvider with kind different from file.
-     */
-    void TestWrongDataProviderKind();
-
-    /*!
-     * \brief Test if a temporary dir exists.
-     */
-    void TestCheckConnection();
+    void TestTimerSignalEmit();
 
 
     //******End of Test functions****
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
+#endif//__TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__

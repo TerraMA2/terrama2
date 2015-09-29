@@ -20,45 +20,44 @@
 */
 
 /*!
-  \file terrama2/collector/TestDataSetTimer.hpp
+  \file unittest/collector/TsCollectorService.cpp
 
-  \brief Tests for the DataSetTimer class.
+  \brief Test Collector service...
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
 
-//Qt
+//QT
 #include <QtTest>
 
-class TestDataSetTimer: public QObject
+
+class TsCollectorService: public QObject
 {
   Q_OBJECT
 
+protected:
+
 private slots:
+    void initTestCase(); // Run before all tests
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+    void cleanupTestCase(); // Run after all tests
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+
+    void init(); //run before each test
+    void cleanup(); //run before each test
 
     //******Test functions********
 
     /*!
-     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     * \brief Test Description
      */
-    void TestNullDataSet();
 
-    /*!
-     * \brief Tests the timer signal emition.
-     */
-    void TestTimerSignalEmit();
 
 
     //******End of Test functions****
-};
 
-#endif//__TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
+};
+#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
