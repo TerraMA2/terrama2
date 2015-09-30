@@ -62,7 +62,7 @@ namespace terrama2
           \param dataset Dataset to save.
           \param transactor Data source transactor.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError
          */
         static void save(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
 
@@ -73,7 +73,7 @@ namespace terrama2
           \param dataset Dataset to update.
           \param transactor Data source transactor.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError
          */
         static void update(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
 
@@ -108,7 +108,7 @@ namespace terrama2
           \param transactor Data source transactor.
           \return Vector with all datasets.
          */
-        static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);        
+        static std::vector<DataSetPtr> list(te::da::DataSourceTransactor& transactor);
 
       private:
 

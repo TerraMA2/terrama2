@@ -110,7 +110,7 @@ namespace terrama2
           \pos The informed data provider will have a valid ID.
           \pos The dataset within this provider will have a valid ID.
 
-          \exception InvalidDataProviderIdError
+          \exception InvalidDataProviderError, InvalidDataProviderIdError
 
           \note Thread-safe.
          */
@@ -128,7 +128,7 @@ namespace terrama2
 
           \param dataset Dataset to add.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError
 
           \note Thread-safe.
          */
@@ -143,7 +143,7 @@ namespace terrama2
 
           \param dataProvider Data provider to update.
 
-          \exception InvalidDataProviderIdError
+          \exception InvalidDataProviderError, InvalidDataProviderIdError
 
           \note Thread-safe.
          */
@@ -160,7 +160,7 @@ namespace terrama2
 
           \param dataset Dataset to update.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError
 
           \note Thread-safe.
          */
