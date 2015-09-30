@@ -29,6 +29,9 @@
 
 #include "TsApplicationController.hpp"
 
+#include "Utils.hpp"
+
+// TerraMA2
 #include <terrama2_config.hpp>
 #include <terrama2/core/ApplicationController.hpp>
 #include <terrama2/core/Utils.hpp>
@@ -39,10 +42,24 @@
 // STL
 #include <memory>
 
+
+
+void TsApplicationController::testCreateDatabase()
+{
+  // TODO: Uncomment this after implementation of batch executor
+  //dropDatabase();
+  //QVERIFY(terrama2::core::ApplicationController::getInstance().createDatabase("terrama2_test", "postgres", "postgres", "localhost", 5432));
+
+}
+
 void TsApplicationController::testLoadProject()
 {
+  // TODO: Uncomment this after implementation of batch executor
+  //testCreateDatabase();
+
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
   QVERIFY(dataSource.get());
 }
+

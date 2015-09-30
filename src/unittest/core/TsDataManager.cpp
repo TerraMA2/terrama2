@@ -47,25 +47,37 @@
 #include <vector>
 
 
+using namespace terrama2::core;
 
 void TsDataManager::init()
 {
-  terrama2::core::DataManager::getInstance().unload();
+  DataManager::getInstance().unload();
   clearDatabase();
 }
 
 void TsDataManager::cleanup()
 {
-  terrama2::core::DataManager::getInstance().unload();
+  DataManager::getInstance().unload();
   clearDatabase();
 }
 
 
 void TsDataManager::clearDatabase()
 {
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+  std::shared_ptr<te::da::DataSource> dataSource = ApplicationController::getInstance().getDataSource();
+
+  if(!dataSource.get())
+  {
+    QFAIL("Invalid database connection");
+  }
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+
+  if(!transactor.get())
+  {
+    QFAIL("Invalid database transactor");
+  }
+
   transactor->begin();
 
   std::string query = "DELETE FROM terrama2.dataset";
@@ -77,34 +89,34 @@ void TsDataManager::clearDatabase()
   transactor->commit();
 }
 
-terrama2::core::DataProviderPtr TsDataManager::createDataProvider()
+DataProviderPtr TsDataManager::createDataProvider()
 {
-  auto dataProvider = terrama2::core::DataProviderPtr(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE));
-  dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
+  auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE));
+  dataProvider->setStatus(DataProvider::ACTIVE);
   dataProvider->setDescription("This server...");
   dataProvider->setUri("localhost@...");
 
   return dataProvider;
 }
 
-terrama2::core::DataSetPtr TsDataManager::createDataSet()
+DataSetPtr TsDataManager::createDataSet()
 {
-  terrama2::core::DataProviderPtr dataProvider = createDataProvider();
-  terrama2::core::DataManager::getInstance().add(dataProvider);
+  DataProviderPtr dataProvider = createDataProvider();
+  DataManager::getInstance().add(dataProvider);
 
   // create a new dataset and save it to the database
-  terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
+  DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet->setDataFrequency(dataFrequency);
 
-  std::vector<terrama2::core::DataSet::CollectRule> collectRules;
+  std::vector<DataSet::CollectRule> collectRules;
   {
-    terrama2::core::DataSet::CollectRule collectRule;
+    DataSet::CollectRule collectRule;
     collectRule.script = "... LUA SCRIPT 1...";
     collectRules.push_back(collectRule);
   }
   {
-    terrama2::core::DataSet::CollectRule collectRule;
+    DataSet::CollectRule collectRule;
     collectRule.script = "... LUA SCRIPT 2...";
     collectRules.push_back(collectRule);
   }
@@ -119,17 +131,17 @@ terrama2::core::DataSetPtr TsDataManager::createDataSet()
 
 
   // Creates a data list with two DataSetItem
-  std::vector<terrama2::core::DataSetItemPtr> dataSetItemList;
+  std::vector<DataSetItemPtr> dataSetItemList;
 
-  terrama2::core::DataSetItemPtr dataSetItem(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_INPE_TYPE));
+  DataSetItemPtr dataSetItem(new DataSetItem(dataSet, DataSetItem::PCD_INPE_TYPE));
 
-  terrama2::core::FilterPtr filter(new terrama2::core::Filter(dataSetItem));
-  filter->setByValueType(terrama2::core::Filter::GREATER_THAN_TYPE);
+  FilterPtr filter(new Filter(dataSetItem));
+  filter->setByValueType(Filter::GREATER_THAN_TYPE);
   filter->setByValue(100.);
   dataSetItem->setFilter(filter);
   dataSetItemList.push_back(dataSetItem);
 
-  terrama2::core::DataSetItemPtr data2(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::FIRE_POINTS_TYPE));
+  DataSetItemPtr data2(new DataSetItem(dataSet, DataSetItem::FIRE_POINTS_TYPE));
   dataSetItemList.push_back(data2);
   dataSet->setDataSetItemList(dataSetItemList);
 
@@ -138,51 +150,51 @@ terrama2::core::DataSetPtr TsDataManager::createDataSet()
 
 void TsDataManager::testLoad()
 {
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataManagerLoaded()));
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataManagerLoaded()));
 
-  terrama2::core::DataSetPtr dataSet = createDataSet();
-  terrama2::core::DataManager::getInstance().add(dataSet);
+  DataSetPtr dataSet = createDataSet();
+  DataManager::getInstance().add(dataSet);
 
-  terrama2::core::DataManager::getInstance().unload();
+  DataManager::getInstance().unload();
 
-  terrama2::core::DataManager::getInstance().load();
+  DataManager::getInstance().load();
 
   QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
   // Calling load again should have no effect
-  terrama2::core::DataManager::getInstance().load();
+  DataManager::getInstance().load();
 
   QVERIFY2(spy.count() == 1, "Should not emit a new signal, the data manager is already loaded");
 
-  QVERIFY2(terrama2::core::DataManager::getInstance().providers().size() == 1, "List should have one provider!");
-  QVERIFY2(terrama2::core::DataManager::getInstance().dataSets().size() == 1, "List should have one dataset!");
+  QVERIFY2(DataManager::getInstance().providers().size() == 1, "List should have one provider!");
+  QVERIFY2(DataManager::getInstance().dataSets().size() == 1, "List should have one dataset!");
 }
 
 void TsDataManager::testUnload()
 {
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataManagerUnloaded()));
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataManagerUnloaded()));
 
-  terrama2::core::DataSetPtr dataSet = createDataSet();
-  terrama2::core::DataManager::getInstance().add(dataSet);
+  DataSetPtr dataSet = createDataSet();
+  DataManager::getInstance().add(dataSet);
 
-  terrama2::core::DataManager::getInstance().unload();
+  DataManager::getInstance().unload();
 
   QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
-  QVERIFY2(terrama2::core::DataManager::getInstance().providers().size() == 0, "List of providers should be empty after unload!");
-  QVERIFY2(terrama2::core::DataManager::getInstance().dataSets().size() == 0, "List of datasets should be empty after unload!");
+  QVERIFY2(DataManager::getInstance().providers().size() == 0, "List of providers should be empty after unload!");
+  QVERIFY2(DataManager::getInstance().dataSets().size() == 0, "List of datasets should be empty after unload!");
 }
 
 
 
 void TsDataManager::testAddDataProvider()
 {
-  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
 
-  terrama2::core::DataProviderPtr dataProvider = createDataProvider();
+  DataProviderPtr dataProvider = createDataProvider();
 
-  terrama2::core::DataManager::getInstance().add(dataProvider);
+  DataManager::getInstance().add(dataProvider);
 
   QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
@@ -191,67 +203,67 @@ void TsDataManager::testAddDataProvider()
 
 void TsDataManager::testRemoveDataProvider()
 {
-  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderRemoved(DataProviderPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderRemoved(DataProviderPtr)));
 
-  terrama2::core::DataProviderPtr dataProvider = createDataProvider();
+  DataProviderPtr dataProvider = createDataProvider();
 
-  terrama2::core::DataManager::getInstance().add(dataProvider);
+  DataManager::getInstance().add(dataProvider);
 
   QVERIFY2(dataProvider->id() != 0, "The id wasn't set in the provider after insert!");
 
   // Removes the data provider
-  terrama2::core::DataManager::getInstance().removeDataProvider(dataProvider->id());
+  DataManager::getInstance().removeDataProvider(dataProvider->id());
 
   QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
   // Lists all data providers
-  auto vecDataProvider = terrama2::core::DataManager::getInstance().providers();
+  auto vecDataProvider = DataManager::getInstance().providers();
 
   QVERIFY2(vecDataProvider.empty(), "List should be empty after remove!");
 }
 
 void TsDataManager::testFindDataProvider()
 {
-  terrama2::core::DataProviderPtr dataProvider = createDataProvider();
+  DataProviderPtr dataProvider = createDataProvider();
 
-  terrama2::core::DataManager::getInstance().add(dataProvider);
+  DataManager::getInstance().add(dataProvider);
 
   // Find the same data provider by id
-  terrama2::core::DataProviderPtr foundDataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
+  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(
           foundDataProvider->id());
 
   QVERIFY2(foundDataProvider.get(), "Could not recover the data provider by id!");
 
   QVERIFY2("This server..." == foundDataProvider->description(), "Wrong Description in recovered provider");
   QVERIFY2("Server 1" == foundDataProvider->name(), "Wrong name in recovered provider");
-  QVERIFY2(terrama2::core::DataProvider::FTP_TYPE == foundDataProvider->kind(), "Wrong type in recovered provider");
-  QVERIFY2(terrama2::core::DataProvider::ACTIVE == foundDataProvider->status(), "Wrong status in recovered provider");
+  QVERIFY2(DataProvider::FTP_TYPE == foundDataProvider->kind(), "Wrong type in recovered provider");
+  QVERIFY2(DataProvider::ACTIVE == foundDataProvider->status(), "Wrong status in recovered provider");
   QVERIFY2("localhost@..." == foundDataProvider->uri(), "Wrong uri in recovered provider");
 
 }
 
 void TsDataManager::testUpdateDataProvider()
 {
-  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProviderPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProviderPtr)));
 
-  terrama2::core::DataProviderPtr dataProvider = createDataProvider();
+  DataProviderPtr dataProvider = createDataProvider();
 
-  terrama2::core::DataManager::getInstance().add(dataProvider);
+  DataManager::getInstance().add(dataProvider);
 
   dataProvider->setName("New server");
-  dataProvider->setStatus(terrama2::core::DataProvider::INACTIVE);
+  dataProvider->setStatus(DataProvider::INACTIVE);
   dataProvider->setDescription("New server is ...");
   dataProvider->setUri("myserver@...");
 
-  terrama2::core::DataManager::getInstance().update(dataProvider);
+  DataManager::getInstance().update(dataProvider);
 
   QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
 
   // Find the same data provider by id
-  terrama2::core::DataProviderPtr foundDataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
+  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(
           foundDataProvider->id());
 
   QVERIFY2(foundDataProvider.get(), "Could not recover the data provider by id!");
@@ -270,13 +282,13 @@ void TsDataManager::testUpdateDataProviderInvalidId()
   // Tries to update a data provider that doesn't have a valid ID
   try
   {
-    terrama2::core::DataProviderPtr dataProvider = createDataProvider();
-    terrama2::core::DataManager::getInstance().update(dataProvider);
+    DataProviderPtr dataProvider = createDataProvider();
+    DataManager::getInstance().update(dataProvider);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataProviderIdError not thrown");
   }
-  catch (terrama2::core::InvalidDataProviderIdError /*ex*/)
+  catch (InvalidDataProviderIdError /*ex*/)
   {
     // test ok
   }
@@ -287,12 +299,12 @@ void TsDataManager::testRemoveDataProviderInvalidId()
 {
   try
   {
-    terrama2::core::DataManager::getInstance().removeDataProvider(0);
+    DataManager::getInstance().removeDataProvider(0);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataProviderIdError not thrown");
   }
-  catch (terrama2::core::InvalidDataProviderIdError /*ex*/)
+  catch (InvalidDataProviderIdError /*ex*/)
   {
     // test ok
   }
@@ -300,12 +312,12 @@ void TsDataManager::testRemoveDataProviderInvalidId()
 
 void TsDataManager::testAddDataSet()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
 
-  terrama2::core::DataSetPtr dataSet = createDataSet();
+  DataSetPtr dataSet = createDataSet();
 
-  terrama2::core::DataManager::getInstance().add(dataSet);
+  DataManager::getInstance().add(dataSet);
 
   QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
@@ -313,23 +325,28 @@ void TsDataManager::testAddDataSet()
   QVERIFY2(dataSet->id() > 0, "Id must be different than zero after save()!");
 
   // Test find dataset
-  terrama2::core::DataSetPtr findDataSet = terrama2::core::DataManager::getInstance().findDataSet(dataSet->id());
+  DataSetPtr findDataSet = DataManager::getInstance().findDataSet(dataSet->id());
 
 }
 
 void TsDataManager::testRemoveDataSet()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSetPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
 
-  terrama2::core::DataSetPtr dataSet = createDataSet();
-  terrama2::core::DataManager::getInstance().add(dataSet);
+  DataSetPtr dataSet = createDataSet();
+  DataManager::getInstance().add(dataSet);
 
-  terrama2::core::DataManager::getInstance().removeDataSet(dataSet->id());
 
-  QVERIFY2(spy.count() == 1, "Expect an emitted signal");
+  QSignalSpy spyDataSet(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSetPtr)));
+  QSignalSpy spyDataProvider(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProviderPtr)));
 
-  auto findDataSet = terrama2::core::DataManager::getInstance().findDataSet(dataSet->id());
+  DataManager::getInstance().removeDataSet(dataSet->id());
+
+  QVERIFY2(spyDataProvider.count() == 1, "Expect an emitted signal for an updated data provider");
+  QVERIFY2(spyDataSet.count() == 1, "Expect an emitted signal for a removed dataset");
+
+  auto findDataSet = DataManager::getInstance().findDataSet(dataSet->id());
 
   QVERIFY2(findDataSet.get() == nullptr, "Find should return null after remove");
 
@@ -337,16 +354,16 @@ void TsDataManager::testRemoveDataSet()
 
 void TsDataManager::testRemoveDataSetInvalidId()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSetPtr)));
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSetPtr)));
 
   try
   {
-    terrama2::core::DataManager::getInstance().removeDataSet(0);
+    DataManager::getInstance().removeDataSet(0);
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataSetIdError not thrown");
   }
-  catch (terrama2::core::InvalidDataSetIdError /*ex*/)
+  catch (InvalidDataSetIdError /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
 
@@ -356,10 +373,10 @@ void TsDataManager::testRemoveDataSetInvalidId()
 
 void TsDataManager::testFindDataSet()
 {
-  terrama2::core::DataSetPtr dataSet = createDataSet();
-  terrama2::core::DataManager::getInstance().add(dataSet);
+  DataSetPtr dataSet = createDataSet();
+  DataManager::getInstance().add(dataSet);
 
-  auto foundDataSet = terrama2::core::DataManager::getInstance().findDataSet(dataSet->id());
+  auto foundDataSet = DataManager::getInstance().findDataSet(dataSet->id());
 
   QCOMPARE(foundDataSet->kind(), dataSet->kind());
   QCOMPARE(foundDataSet->name(), dataSet->name());
@@ -381,11 +398,11 @@ void TsDataManager::testFindDataSet()
 
 void TsDataManager::testUpdateDataSet()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetUpdated(DataSetPtr)));
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetUpdated(DataSetPtr)));
 
-  terrama2::core::DataSetPtr dataSet = createDataSet();
-  terrama2::core::DataManager::getInstance().add(dataSet);
+  DataSetPtr dataSet = createDataSet();
+  DataManager::getInstance().add(dataSet);
 
   te::dt::TimeDuration schedule(12,0,0);
   dataSet->setSchedule(schedule);
@@ -396,13 +413,13 @@ void TsDataManager::testUpdateDataSet()
   te::dt::TimeDuration scheduleRetry(0,5,0);
   dataSet->setScheduleRetry(scheduleRetry);
 
-  dataSet->setStatus(terrama2::core::DataSet::ACTIVE);
+  dataSet->setStatus(DataSet::ACTIVE);
 
   dataSet->setDescription("Description...");
   dataSet->setName("New queimadas");
 
   // Change the collect rule script
-  std::vector<terrama2::core::DataSet::CollectRule>  collectRules = dataSet->collectRules();
+  std::vector<DataSet::CollectRule>  collectRules = dataSet->collectRules();
   collectRules[0].script = "... LUA SCRIPT UPDATE 1...";
   dataSet->setCollectRules(collectRules);
 
@@ -415,15 +432,15 @@ void TsDataManager::testUpdateDataSet()
   dataSetItemList[0]->setMask("Queimadas_*");
 
   // Add a new dataset item of type PCD_TOA5_TYPE
-  terrama2::core::DataSetItemPtr dataSetItem(new terrama2::core::DataSetItem(dataSet, terrama2::core::DataSetItem::PCD_TOA5_TYPE));
+  DataSetItemPtr dataSetItem(new DataSetItem(dataSet, DataSetItem::PCD_TOA5_TYPE));
   dataSetItemList.push_back(dataSetItem);
   dataSet->setDataSetItemList(dataSetItemList);
 
-  terrama2::core::DataManager::getInstance().update(dataSet);
+  DataManager::getInstance().update(dataSet);
 
   QVERIFY2(spy.count() == 1, "Expect an emitted signal");
 
-  auto foundDataSet = terrama2::core::DataManager::getInstance().findDataSet(dataSet->id());
+  auto foundDataSet = DataManager::getInstance().findDataSet(dataSet->id());
 
 
   QVERIFY2(foundDataSet.get() != nullptr, "Find should return a valid dataset");
@@ -445,28 +462,28 @@ void TsDataManager::testUpdateDataSet()
 
   // Expected result is to remove the data PCD_INPE, update the FIRE_POINTS  and insert PCD_TOA5.
   QVERIFY2(foundDataSet->dataSetItemList().size() == 2, "dataSetItemList must have 2 itens!");
-  QVERIFY2(foundDataSet->dataSetItemList()[0]->kind() == terrama2::core::DataSetItem::FIRE_POINTS_TYPE, "dataSetItemList[0] must be of the type FIRE_POINTS!");
+  QVERIFY2(foundDataSet->dataSetItemList()[0]->kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItemList[0] must be of the type FIRE_POINTS!");
   QVERIFY2(foundDataSet->dataSetItemList()[0]->mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
-  QVERIFY2(foundDataSet->dataSetItemList()[1]->kind() == terrama2::core::DataSetItem::PCD_TOA5_TYPE, "dataSetItemList[1] must be of the type PCD-TOA5!");
+  QVERIFY2(foundDataSet->dataSetItemList()[1]->kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItemList[1] must be of the type PCD-TOA5!");
 
 
 }
 
 void TsDataManager::testUpdateDataSetInvalidId()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetUpdated(DataSetPtr)));
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetUpdated(DataSetPtr)));
 
   // Tries to update a dataset that doesn't have a valid ID
   try
   {
-    terrama2::core::DataSetPtr dataSet = createDataSet();
-    terrama2::core::DataManager::getInstance().update(dataSet);
+    DataSetPtr dataSet = createDataSet();
+    DataManager::getInstance().update(dataSet);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataSetIdError not thrown");
   }
-  catch (terrama2::core::InvalidDataSetIdError /*ex*/)
+  catch (InvalidDataSetIdError /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
 
@@ -482,19 +499,19 @@ void TsDataManager::testRemoveDataSetInUse()
 
 void TsDataManager::testAddDataProviderWithId()
 {
-  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
 
   // Tries to add a data provider with an Id different than 0
   try
   {
-    auto dataProvider = terrama2::core::DataProviderPtr(new terrama2::core::DataProvider("Server 1", terrama2::core::DataProvider::FTP_TYPE, 1));
-    terrama2::core::DataManager::getInstance().add(dataProvider);
+    auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 1));
+    DataManager::getInstance().add(dataProvider);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataProviderIdError not thrown");
   }
-  catch (terrama2::core::InvalidDataProviderIdError /*ex*/)
+  catch (InvalidDataProviderIdError /*ex*/)
   {
     // test ok
   }
@@ -502,24 +519,24 @@ void TsDataManager::testAddDataProviderWithId()
 
 void TsDataManager::testAddDataSetWihId()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
 
   // Tries to update a dataset that doesn't have a valid ID
   try
   {
-    terrama2::core::DataProviderPtr dataProvider = createDataProvider();
-    terrama2::core::DataManager::getInstance().add(dataProvider);
+    DataProviderPtr dataProvider = createDataProvider();
+    DataManager::getInstance().add(dataProvider);
 
     // create a new dataset and save it to the database
-    terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE, 1));
+    DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE, 1));
 
-    terrama2::core::DataManager::getInstance().add(dataSet);
+    DataManager::getInstance().add(dataSet);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataSetIdError not thrown");
   }
-  catch (terrama2::core::InvalidDataSetIdError /*ex*/)
+  catch (InvalidDataSetIdError /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
 
@@ -529,16 +546,16 @@ void TsDataManager::testAddDataSetWihId()
 
 void TsDataManager::testAddDataProviderWithDataSet()
 {
-  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
 
   auto dataProvider = createDataProvider();
   auto dataSets = dataProvider->dataSets();
-  terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(dataProvider, "Queimadas", terrama2::core::DataSet::OCCURENCE_TYPE));
+  DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
   dataSets.push_back(dataSet);
   dataProvider->setDataSets(dataSets);
 
-  terrama2::core::DataManager::getInstance().add(dataProvider);
+  DataManager::getInstance().add(dataProvider);
 
   QVERIFY2(dataProvider->dataSets().size() != 0, "The dataset was not persisted!");
 
@@ -555,19 +572,19 @@ void TsDataManager::testAddDataProviderWithDataSet()
 
 void TsDataManager::testAddNullDataProvider()
 {
-  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
 
   // Tries to update a data provider that doesn't have a valid ID
   try
   {
-    terrama2::core::DataProviderPtr dataProvider;
-    terrama2::core::DataManager::getInstance().add(dataProvider);
+    DataProviderPtr dataProvider;
+    DataManager::getInstance().add(dataProvider);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataProviderError not thrown");
   }
-  catch (terrama2::core::InvalidDataProviderError /*ex*/)
+  catch (InvalidDataProviderError /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -577,19 +594,19 @@ void TsDataManager::testAddNullDataProvider()
 
 void TsDataManager::testAddNullDataSet()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
 
   // Tries to update a dataset that doesn't have a valid ID
   try
   {
-    terrama2::core::DataSetPtr dataSet;
-    terrama2::core::DataManager::getInstance().add(dataSet);
+    DataSetPtr dataSet;
+    DataManager::getInstance().add(dataSet);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataSetError not thrown");
   }
-  catch (terrama2::core::InvalidDataSetError /*ex*/)
+  catch (InvalidDataSetError /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -600,19 +617,19 @@ void TsDataManager::testAddNullDataSet()
 
 void TsDataManager::testUpdateNullDataProvider()
 {
-  qRegisterMetaType<terrama2::core::DataProviderPtr>("DataProviderPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
 
   // Tries to update a data provider that doesn't have a valid ID
   try
   {
-    terrama2::core::DataProviderPtr dataProvider;
-    terrama2::core::DataManager::getInstance().update(dataProvider);
+    DataProviderPtr dataProvider;
+    DataManager::getInstance().update(dataProvider);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataProviderError not thrown");
   }
-  catch (terrama2::core::InvalidDataProviderError /*ex*/)
+  catch (InvalidDataProviderError /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -621,22 +638,240 @@ void TsDataManager::testUpdateNullDataProvider()
 
 void TsDataManager::testUpdateNullDataSet()
 {
-  qRegisterMetaType<terrama2::core::DataSetPtr>("DataSetPtr");
-  QSignalSpy spy(&terrama2::core::DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
 
   // Tries to update a dataset that doesn't have a valid ID
   try
   {
-    terrama2::core::DataSetPtr dataSet;
-    terrama2::core::DataManager::getInstance().update(dataSet);
+    DataSetPtr dataSet;
+    DataManager::getInstance().update(dataSet);
 
     // An exception should be thrown, if not the test fails.
     QFAIL("InvalidDataSetError not thrown");
   }
-  catch (terrama2::core::InvalidDataSetError /*ex*/)
+  catch (InvalidDataSetError /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
   }
 
+}
+
+void TsDataManager::testFindNonExistentDataSet()
+{
+  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(0);
+
+  QVERIFY2(!foundDataProvider.get(), "Should return an empty shared pointer");
+
+  foundDataProvider = DataManager::getInstance().findDataProvider(999);
+
+  QVERIFY2(!foundDataProvider.get(), "Should return an empty shared pointer");
+}
+
+void TsDataManager::testUpdateNonexistentDataProvider()
+{
+
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+
+  // Tries to update a data provider that doesn't have a valid ID
+  try
+  {
+    auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 10));
+
+    DataManager::getInstance().update(dataProvider);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+}
+
+void TsDataManager::testFindNonExistentDataProvider()
+{
+  DataSetPtr dataSet = DataManager::getInstance().findDataSet(0);
+
+  QVERIFY2(!dataSet.get(), "Should return an empty shared pointer");
+
+  dataSet = DataManager::getInstance().findDataSet(999);
+
+  QVERIFY2(!dataSet.get(), "Should return an empty shared pointer");
+}
+
+void TsDataManager::testRemoveNonExistentDataSet()
+{
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSetPtr)));
+
+  // Tries to remove an nonexistent dataset
+  try
+  {
+    DataManager::getInstance().removeDataSet(1);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataSetError not thrown");
+  }
+  catch (InvalidDataSetError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+
+    // test ok
+  }
+}
+
+void TsDataManager::testRemoveNonExistentDataProvider()
+{
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
+
+  // Tries to update a data provider that doesn't have a valid ID
+  try
+  {
+    // Removes the data provider
+    DataManager::getInstance().removeDataProvider(1);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+}
+
+void TsDataManager::testAddDataSetWithNullProvider()
+{
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+
+  // Tries to add an dataset with an invalid data provider
+  try
+  {
+    DataProviderPtr nullProvider;
+    DataSetPtr dataSet(new DataSet(nullProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
+
+    DataManager::getInstance().add(dataSet);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+
+}
+
+void TsDataManager::testAddDataSetWithNonexistentProvider()
+{
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSetPtr)));
+
+  // Tries to add an dataset with an invalid data provider
+  try
+  {
+    auto nonExistentProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 1));
+    DataSetPtr dataSet(new DataSet(nonExistentProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
+
+    DataManager::getInstance().add(dataSet);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+}
+
+void TsDataManager::testRemoveDataProviderWithDataSet()
+{
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  qRegisterMetaType<DataProviderPtr>("DataSetPtr");
+  QSignalSpy spyDataProvider(&DataManager::getInstance(), SIGNAL(dataProviderRemoved(DataProviderPtr)));
+  QSignalSpy spyDataSet(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSetPtr)));
+
+
+  auto dataProvider = createDataProvider();
+  auto dataSets = dataProvider->dataSets();
+  DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
+  dataSets.push_back(dataSet);
+  dataProvider->setDataSets(dataSets);
+
+  DataManager::getInstance().add(dataProvider);
+
+
+  // Removes the data provider
+  DataManager::getInstance().removeDataProvider(dataProvider->id());
+
+  QVERIFY2(spyDataProvider.count() == 1, "Expect an emitted signal for a removed data provider");
+  QVERIFY2(spyDataSet.count() == 1, "Expect an emitted signal for a removed dataset");
+
+  // Lists all data providers
+  auto vecDataProvider = DataManager::getInstance().providers();
+  QVERIFY2(vecDataProvider.empty(), "List of providers should be empty after remove!");
+
+  auto vecDataSets = DataManager::getInstance().dataSets();
+  QVERIFY2(vecDataSets.empty(), "List of datasets should be empty after remove!");
+}
+
+void TsDataManager::testUpdateDataSetWithNullProvider()
+{
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetUpdated(DataSetPtr)));
+
+  // Tries to add an dataset with an invalid data provider
+  try
+  {
+    DataProviderPtr nullProvider;
+    DataSetPtr dataSet(new DataSet(nullProvider, "Queimadas", DataSet::OCCURENCE_TYPE, 1));
+
+    DataManager::getInstance().update(dataSet);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
+
+}
+
+void TsDataManager::testUpdateDataSetWithNonexistentProvider()
+{
+
+  DataSetPtr dataSet = createDataSet();
+  DataManager::getInstance().add(dataSet);
+
+  qRegisterMetaType<DataSetPtr>("DataSetPtr");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetUpdated(DataSetPtr)));
+
+  // Tries to add an dataset with an invalid data provider
+  try
+  {
+    // Nonexistent data provider
+    auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 10));
+
+    DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE, 1));
+
+    DataManager::getInstance().update(dataSet);
+
+    // An exception should be thrown, if not the test fails.
+    QFAIL("InvalidDataProviderError not thrown");
+  }
+  catch (InvalidDataProviderError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
+  }
 }
