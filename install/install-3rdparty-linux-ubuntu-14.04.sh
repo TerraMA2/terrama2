@@ -861,7 +861,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
   cd gsoap-2.8
   valid $? "Error: could not enter gsoap-2.8!"
 
-  ./configure CXXFLAGS="-g -O2 -fPIC" --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR 
+  ./configure CXXFLAGS="-O2 -fPIC" --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR 
   valid $? "Error: could not configure gSOAP!"
 
   make
