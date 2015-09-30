@@ -213,13 +213,13 @@ fi
 
 
 #
-# qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
+# qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
 #
-qt5_dev_test=`dpkg -s qt5-default qttools5-dev libqt5svg5-dev libqt5designer5 | grep Status`
+qt5_dev_test=`dpkg -s qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5 | grep Status`
 
 if [ "$qt5_dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
-  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5"
+  sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
+  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5"
   echo "qt5-dev-tools installed!"
 else
   echo "qt5-dev-tools already installed!"
@@ -861,7 +861,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
   cd gsoap-2.8
   valid $? "Error: could not enter gsoap-2.8!"
 
-  ./configure --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR
+  ./configure CXXFLAGS="-g -O2 -fPIC" --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR 
   valid $? "Error: could not configure gSOAP!"
 
   make
@@ -1264,7 +1264,7 @@ fi
 # Qwt version 
 # Site: http://qwt.sourceforge.net
 #
-if [ ! -d "$TERRAMA2_DEPENDENCIES_DIR/lib/libqwt.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqwt.so" ]; then
   echo "installing Qwt..."
   sleep 1s
 
@@ -1299,12 +1299,12 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libterralib_mod_common.so" ]; then
   valid $? "Error: could not uncompress terralib5-2015-09-28.bz2!"
 
   mkdir terralib5_build_make
-  valid $? "Error: could not create terralib5_build_make!"
+  #valid $? "Error: could not create terralib5_build_make!"
 
   cd terralib5_build_make
   valid $? "Error: could not enter terralib5_build_make!"
 
-  cmake ../terralib5/build/cmake -DCMAKE_BUILD_TYPE:STRING='Release' -DCMAKE_INSTALL_PREFIX:PATH='$TERRAMA2_DEPENDENCIES_DIR' -DCMAKE_PREFIX_PATH:PATH='$TERRAMA2_DEPENDENCIES_DIR;$TERRAMA2_DEPENDENCIES_DIR/lib;$TERRAMA2_DEPENDENCIES_DIR/gdal2;$TERRAMA2_DEPENDENCIES_DIR/pgsql' -DTERRALIB_BUILD_EXAMPLES_ENABLED:BOOL=OFF -DTERRALIB_BUILD_UNITTEST_ENABLED:BOOL=OFF -DTERRALIB_DOXYGEN_ENABLED:BOOL=OFF -DTERRALIB_QHELP_ENABLED:BOOL=OFF -DTERRALIB_QTRANSLATION_ENABLED:BOOL=OFF -DGEOS_INCLUDE_DIR:PATH='$TERRAMA2_DEPENDENCIES_DIR/include/geos' -DGNUGETTEXT_INCLUDE_DIR:PATH='/usr/include' -DGNUGETTEXT_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libgettextpo.so' -DGNUICONV_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libc.so'
+  cmake ../terralib5/build/cmake -DCMAKE_BUILD_TYPE:STRING='Release' -DCMAKE_INSTALL_PREFIX:PATH="$TERRAMA2_DEPENDENCIES_DIR/terralib5" -DCMAKE_PREFIX_PATH:PATH="$TERRAMA2_DEPENDENCIES_DIR;$TERRAMA2_DEPENDENCIES_DIR/lib;$TERRAMA2_DEPENDENCIES_DIR/gdal2;$TERRAMA2_DEPENDENCIES_DIR/pgsql" -DTERRALIB_BUILD_EXAMPLES_ENABLED:BOOL=OFF -DTERRALIB_BUILD_UNITTEST_ENABLED:BOOL=OFF -DTERRALIB_DOXYGEN_ENABLED:BOOL=OFF -DTERRALIB_QHELP_ENABLED:BOOL=OFF -DTERRALIB_QTRANSLATION_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_JAVA_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_PYTHON_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_LUA_ENABLED:BOOL=OFF -DGEOS_INCLUDE_DIR:PATH="$TERRAMA2_DEPENDENCIES_DIR/include/geos" -DGNUGETTEXT_INCLUDE_DIR:PATH="/usr/include" -DGNUGETTEXT_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libgettextpo.so' -DGNUICONV_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libc.so'
   valid $? "Error: could not configure terralib5!"
 
   make -j 4
