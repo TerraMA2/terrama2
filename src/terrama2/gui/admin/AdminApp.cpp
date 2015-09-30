@@ -35,6 +35,7 @@
 #include "../../core/Utils.hpp"
 #include "AdminAppDBTab.hpp"
 #include "AdminAppCollectTab.hpp"
+#include "ServicesDialog.hpp"
 #include "../../core/ApplicationController.hpp"
 
 // Qt
@@ -114,7 +115,6 @@ AdminApp::AdminApp(QWidget* parent)
   clearDataChanged();
   enableFields(false);
 
-
  // Init services for each tab
   QSharedPointer<AdminAppTab> dbTab(new AdminAppDBTab(this,pimpl_->ui_));
   QSharedPointer<AdminAppTab> collectTab(new AdminAppCollectTab(this,pimpl_->ui_));
@@ -129,20 +129,21 @@ AdminApp::AdminApp(QWidget* parent)
   connect(pimpl_->ui_->renameAct, SIGNAL(triggered()), SLOT(renameRequested()));
   connect(pimpl_->ui_->exitAct, SIGNAL(triggered()), SLOT(close()));
 
+// Connects settings menu services
+  connect(pimpl_->ui_->consoleAct,  SIGNAL(triggered()), SLOT(showConsoles()));
+  connect(pimpl_->ui_->servicesAct, SIGNAL(triggered()), SLOT(manageServices()));
+
 // Connects actions related to the interface
   connect(pimpl_->ui_->saveBtn, SIGNAL(clicked()), SLOT(saveRequested()));
-  connect(pimpl_->ui_->dbCreateDatabaseBtn,  SIGNAL(clicked()), SLOT(dbCreateDatabaseRequested()));
+  connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(cancelRequested()));
 
-  connect(pimpl_->ui_->configListWidget->selectionModel(),
-          SIGNAL(selectionChanged(const QItemSelection&)),
-          SLOT(configListSelectionChanged(const QItemSelection&)));
-
+  connect(pimpl_->ui_->dbCreateDatabaseBtn,  SIGNAL(clicked()), SLOT(dbCreateDatabaseRequested())); 
+  connect(pimpl_->ui_->configListWidget, SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(itemClicked()));
 
 // Prepare context menu to the list of settings
   pimpl_->ui_->configListWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
   pimpl_->ui_->configListWidget->insertAction(NULL, pimpl_->ui_->renameAct);
-  pimpl_->ui_->configListWidget->insertAction(NULL, pimpl_->ui_->removeAct);
- 
+  pimpl_->ui_->configListWidget->insertAction(NULL, pimpl_->ui_->removeAct); 
 }
 
 // New file
@@ -171,8 +172,11 @@ void AdminApp::openRequested()
 
   configManager_->loadConfiguration(filename);
 
+
 // fills fields
   fillForm();
+
+  pimpl_->ui_->configListWidget->addItem(configManager_->getDatabase()->name_);
 
   enableFields(true);
 }
@@ -249,7 +253,7 @@ void AdminApp::saveRequested()
    metadata[tabJson.firstKey()] = tabJson.first();
   }
 
-  QFile saveFile("Teste.terrama2");
+  QFile saveFile(nameConfig_+".terrama2");
 
   saveFile.open(QIODevice::WriteOnly);
 
@@ -265,6 +269,19 @@ void AdminApp::saveRequested()
 
 }
 
+// Cancel
+void AdminApp::cancelRequested()
+{
+ if (newData_)
+ {
+//  delete pimpl_->ui_->configListWidget->takeItem()
+ }
+ newData_= false;
+ clearFormData();
+ enableFields(false);
+}
+
+// Create Database
 void AdminApp::dbCreateDatabaseRequested()
 {
 
@@ -277,6 +294,18 @@ void AdminApp::dbCreateDatabaseRequested()
                                                                       database->password_.toStdString(),
                                                                       database->host_.toStdString(),
                                                                       database->port_ );
+
+}
+
+void AdminApp::manageServices()
+{
+ ServicesDialog dlg(this);
+ dlg.exec();
+
+}
+
+void AdminApp::showConsoles()
+{
 
 }
 
@@ -324,7 +353,6 @@ void AdminApp::setDataChanged()
   pimpl_->ui_->cancelBtn->setEnabled(true);
   pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
   pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
-
 }
 
 void AdminApp::clearDataChanged()
@@ -358,25 +386,18 @@ void AdminApp::clearFormData()
   pimpl_->ui_->aqDirNameLed->setText("");
 }
 
-void AdminApp::configListSelectionChanged(const QItemSelection& selected)
+void AdminApp::itemClicked()
 {
   if(ignoreChangeEvents_)
    return;
 
- QModelIndexList selected_indexes = selected.indexes();
+   QString selectedName = pimpl_->ui_->configListWidget->currentItem()->text();
+   QJsonObject selectedMetadata = configManager_->getfiles().take(selectedName);
 
-// Obtem a linha selecionada
- int row = selected_indexes[0].row();
+   configManager_->setDataForm(selectedMetadata);
 
- QString selectedName = pimpl_->ui_->configListWidget->currentItem()->text();
- QJsonObject selectedMetadata = configManager_->getfiles().take(selectedName);
-
- configManager_->setDataForm(selectedMetadata);
-
- fillForm();
-
+   fillForm();
 }
-
 
 AdminApp::~AdminApp()
 {
@@ -386,6 +407,7 @@ AdminApp::~AdminApp()
 // fills fields
 void AdminApp::fillForm()
 {
+// Database tab
   pimpl_->ui_->dbTypeCmb->setCurrentIndex(pimpl_->ui_->dbTypeCmb->findText(configManager_->getDatabase()->driver_));
   pimpl_->ui_->dbAddressLed->setText(configManager_->getDatabase()->host_);
   pimpl_->ui_->dbUserLed->setText(configManager_->getDatabase()->user_);
@@ -393,6 +415,19 @@ void AdminApp::fillForm()
   pimpl_->ui_->dbPortLed->setText(QString::number(configManager_->getDatabase()->port_));
   pimpl_->ui_->dbPasswordLed->setText(configManager_->getDatabase()->password_);
   pimpl_->ui_->dbStudyChk->setChecked(configManager_->getDatabase()->study_.toLower() == "true");
-  pimpl_->ui_->configListWidget->addItem(configManager_->getDatabase()->name_);
+ // pimpl_->ui_->configListWidget->addItem(configManager_->getDatabase()->name_);
+
+// Collect tab
+  pimpl_->ui_->aqAddressLed->setText(configManager_->getCollection()->address_);
+  pimpl_->ui_->aqPortLed->setText(QString::number(configManager_->getCollection()->servicePort_));
+  pimpl_->ui_->aqLogFileLed->setText(configManager_->getCollection()->logFile_);
+  pimpl_->ui_->aqDirNameLed->setText(configManager_->getCollection()->dirPath_);
+  pimpl_->ui_->aqTimeoutMinSpb->setValue(configManager_->getCollection()->timeout_ / 60);
+  pimpl_->ui_->aqTimeoutSecSpb->setValue(configManager_->getCollection()->timeout_ % 60);
+
+  ignoreChangeEvents_ = false;
+
+  clearDataChanged();
+
 }
 

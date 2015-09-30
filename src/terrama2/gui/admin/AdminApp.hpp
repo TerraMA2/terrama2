@@ -72,14 +72,16 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     void openRequested();
     void saveRequested();
     void renameRequested();
+    void cancelRequested();
     void dbCreateDatabaseRequested();
+    void manageServices();
+    void showConsoles();
 
     void setDataChanged();
     void clearDataChanged();
     void clearFormData();
 
-
-    void configListSelectionChanged(const QItemSelection& selected);
+    void itemClicked();
   
   private:
   
