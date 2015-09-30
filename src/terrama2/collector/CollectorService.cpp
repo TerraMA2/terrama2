@@ -83,7 +83,7 @@ terrama2::collector::CollectorService::~CollectorService()
     loopThread_.join();
 }
 
-void terrama2::collector::CollectorService::exec()
+void terrama2::collector::CollectorService::start()
 {
   //if service already running, throws
   if(loopThread_.joinable())

@@ -87,7 +87,7 @@ namespace terrama2
          *
          * \exception terrama2::collector::ServiceAlreadyRunnningException Raise when the service is already runnning.
          */
-        void exec();
+        void start();
 
       public slots:
         /*!

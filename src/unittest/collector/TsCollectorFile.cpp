@@ -50,7 +50,7 @@ void TsCollectorFile::TestNormalBehavior()
   {
     QFAIL("Should not be here");
   }
-
+ 
   return;
 }
 
