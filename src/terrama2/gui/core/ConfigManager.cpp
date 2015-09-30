@@ -38,6 +38,7 @@
 #include <QJsonDocument>
 #include <QMessageBox>
 
+
 ConfigManager::ConfigManager(QMainWindow* app)
   : app_(app), collection_(new Collection), database_(new Database)
 {
@@ -58,6 +59,25 @@ void ConfigManager::loadConfiguration(QString filepath)
 
     name_ = metadata["name"].toString();
 
+    fileList_.insert(name_, metadata);
+    setDataForm(metadata);
+
+  }
+  catch (const terrama2::Exception& e)
+  {
+    const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(app_, "TerraMA2", *msg);
+  }
+
+  catch (const std::exception& e)
+  {
+    QMessageBox::information(app_, "TerraMA2", e.what());
+  }
+}
+
+void ConfigManager::setDataForm(QJsonObject metadata)
+{
+
     if (metadata.contains("database"))
     {
       QJsonObject databaseConfig = metadata["database"].toObject();
@@ -70,25 +90,36 @@ void ConfigManager::loadConfiguration(QString filepath)
       database_->study_ = metadata["is_study"].toString();
       database_->name_ = metadata["name"].toString();
       database_->version_ = metadata["version"].toString();
-
     }
     if (metadata.contains("collector_web_service"))
     {
+      QJsonObject collectConfig = metadata["collector_web_service"].toObject();
 
+      collection_->dirPath_ = collectConfig["data_path"].toString();
+      collection_->logFile_ = collectConfig["log_file"].toString();
+      collection_->timeout_ = collectConfig["connection_timeout"].toString().toInt();
+      collection_->address_ = collectConfig["address"].toString();
+      collection_->servicePort_ = collectConfig["port"].toString().toInt();
     }
     else
       throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
-  }
-  catch (const terrama2::Exception& e)
-  {
-    const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, "TerraMA2", *msg);
-  }
 
-  catch (const std::exception& e)
-  {
-    QMessageBox::information(app_, "TerraMA2", e.what());
-  }
+
+}
+
+QMap<QString, QJsonObject> ConfigManager::getfiles() const
+{
+  return fileList_;
+}
+
+void ConfigManager::setDatabase(QJsonObject dbase)
+{
+ database_->dbName_ = dbase["name"].toString();
+ database_->driver_ = dbase["driver"].toString();
+ database_->host_ = dbase["host"].toString();
+ database_->port_ = dbase["port"].toString().toInt();
+ database_->user_ = dbase["user"].toString();
+ database_->password_ = dbase["password"].toString();
 }
 
 Database* ConfigManager::getDatabase() const

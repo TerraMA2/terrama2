@@ -2,15 +2,15 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
-//#include "../../core/ApplicationController.hpp"
+#include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
+#include "../../core/DataManager.hpp"
 
 // QT
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QWidget>
-
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui),
@@ -44,13 +44,23 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
 
+  connect(ui_->serverDeleteBtn, SIGNAL(clicked()),
+                                SLOT(onDeleteServerClicked()));
+
+  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this,
+                                SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+
+  // Lock for cannot allow multiple selection
+  ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
+
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
-  ui_->weatherDataTree->clear();
+  // Delete all children from remote services
+  qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
 
-  // Call the default configuration
-  load();
+  // Disable series button
+  showDataSeries(false);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -60,11 +70,18 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 
 void ConfigAppWeatherTab::load()
 {
-  // Disable series button
-  showDataSeries(false);
+  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+  std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.data_provider");
 
-  // Connect to database and list the values
+  if (dataSet->size() != -1)
+    showDataSeries(true);
 
+  while(dataSet->moveNext())
+  {
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setText(0, QString(dataSet->getAsString(1).c_str()));
+    ui_->weatherDataTree->topLevelItem(0)->addChild(item);
+  }
 }
 
 bool ConfigAppWeatherTab::dataChanged()
@@ -74,26 +91,41 @@ bool ConfigAppWeatherTab::dataChanged()
 
 bool ConfigAppWeatherTab::validate()
 {
-  if (ui_->serverName->text().isEmpty())
+  // If serverAdd tab is active
+  if (serverTabChanged_)
   {
-    ui_->serverName->setFocus();
-    return false;
-  }
-
-  QTreeWidgetItemIterator it(ui_->weatherDataTree);
-  while(*it)
-  {
-    if ((*it)->text(0) == ui_->serverName->text())
+    if (ui_->serverName->text().isEmpty())
     {
       ui_->serverName->setFocus();
-      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid server name. It is already in use"));
+      return false;
     }
 
-    ++it;
+    // Check if has already been saved before
+    std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+    std::string sqlProvider("SELECT name FROM terrama2.data_provider WHERE name = '");
+    sqlProvider += ui_->serverName->text().toStdString() + "'";
+    std::auto_ptr<te::da::DataSet> dset = ds->query(sqlProvider);
+
+    if (dset->size() > 0)
+    {
+      ui_->serverName->setFocus();
+      throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
+    }
+
+    isValidConnection();
+
+    return true;
   }
 
-  isValidConnection();
+  if (dataGridSeriesChanged_)
+    return false;
 
+  if (dataPointDiffSeriesChanged_)
+    return false;
+
+  if (dataPointSeriesChanged_)
+    return false;
   return true;
 }
 
@@ -103,17 +135,41 @@ void ConfigAppWeatherTab::save()
   {
     throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
   }
-  // Apply save process
 
-  // TODO: save in database
-  QTreeWidgetItem* newServer = new QTreeWidgetItem();
-  newServer->setText(0, ui_->serverName->text());
-  ui_->weatherDataTree->addTopLevelItem(newServer);
+  if (serverTabChanged_)
+    saveServer();
+  else if (dataGridSeriesChanged_)
+    saveGridDataSeries();
 
   showDataSeries(true);
-
   discardChanges(false);
   QMessageBox::information(app_, tr("TerraMA2"), tr("Save successfully"));
+}
+
+void ConfigAppWeatherTab::saveServer()
+{
+  // Get DataSource
+  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+  terrama2::core::DataProviderPtr dataProvider(
+        new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
+                                         (terrama2::core::DataProvider::Kind) ui_->connectionProtocol->currentIndex()));
+  dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
+  dataProvider->setUri(ui_->connectionAddress->text().toStdString());
+  dataProvider->setStatus(ui_->serverActiveServer->isChecked() ? terrama2::core::DataProvider::ACTIVE :
+                                                                 terrama2::core::DataProvider::INACTIVE);
+
+  terrama2::core::DataManager::getInstance().add(dataProvider);
+
+  QTreeWidgetItem* newServer = new QTreeWidgetItem();
+  newServer->setText(0, ui_->serverName->text());
+  ui_->weatherDataTree->topLevelItem(0)->addChild(newServer);
+//  ui_->weatherDataTree->addTopLevelItem(newServer);
+}
+
+void ConfigAppWeatherTab::saveGridDataSeries()
+{
+
 }
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)
@@ -124,7 +180,7 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
   }
 
 // Clear all inputs
-  const auto& tab = ui_->ServerPage;
+  const auto* tab = ui_->ServerPage;
 
 // Clear QLineEdits
   for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
@@ -187,7 +243,7 @@ void ConfigAppWeatherTab::hidePanels(QWidget *except)
   ui_->cancelBtn->setVisible(true);
 
   ui_->saveBtn->setEnabled(false);
-  ui_->cancelBtn->setEnabled(false);
+  ui_->cancelBtn->setEnabled(true);
 
   except->show();
 }
@@ -199,7 +255,7 @@ void ConfigAppWeatherTab::onEnteredWeatherTab()
   ui_->cancelBtn->setVisible(true);
 
   ui_->saveBtn->setEnabled(false);
-  ui_->cancelBtn->setEnabled(false);
+  ui_->cancelBtn->setEnabled(true);
 
   ui_->ServerGroupPage->hide();
   ui_->ServerPage->show();
@@ -260,4 +316,92 @@ void ConfigAppWeatherTab::onInsertPointBtnClicked()
 void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
 {
   hidePanels(ui_->DataPointDiffPage);
+}
+
+void ConfigAppWeatherTab::onDeleteServerClicked()
+{
+  QMessageBox::StandardButton reply;
+  reply = QMessageBox::question(app_, tr("TerraMA2 Remove Data Provider"),
+                                      tr("Would you like to remove data provider?"),
+                                      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                      QMessageBox::Yes);
+
+  if (reply == QMessageBox::No || reply == QMessageBox::Cancel)
+    return;
+
+  try
+  {
+    if (ui_->weatherDataTree->selectedItems().isEmpty())
+      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
+
+    QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
+    std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+    std::string sql = "SELECT id FROM terrama2.data_provider WHERE name = '";
+    sql += selectedItem->text(0).toStdString() + "'";
+    std::auto_ptr<te::da::DataSet> dataSet = ds->query(sql);
+
+    if (dataSet->size() != 1)
+      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid data provider"));
+
+    dataSet->moveFirst();
+    int64_t id = boost::lexical_cast<int64_t>(dataSet->getAsString(0));
+
+    // Load providers
+    terrama2::core::DataManager::getInstance().load();
+
+    // Remove from database and refresh providers list
+    terrama2::core::DataManager::getInstance().removeDataProvider(id);
+
+    QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
+
+    ui_->weatherDataTree->removeItemWidget(ui_->weatherDataTree->currentItem(), 0);
+
+    delete selectedItem;
+  }
+  catch(const terrama2::Exception& e)
+  {
+    const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+  }
+  catch(...)
+  {
+    throw;
+  }
+}
+
+void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem)
+{
+  if (selectedItem->parent() != nullptr)
+  {
+    // If it does not have parent, so it has to be DataProvider. Otherwise, selectedItem is DataSet
+    if (selectedItem->parent()->parent() == nullptr)
+    {
+      std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
+      sql += selectedItem->text(0).toStdString() + "'";
+
+      std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+      std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
+
+      if (dataSet->size() != 1)
+        throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
+
+      dataSet->moveFirst();
+
+      // Call for insert server to display server form
+      emit(ui_->insertServerBtn->clicked());
+
+      ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
+      ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
+      ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
+      ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
+      ui_->serverActiveServer->setChecked(dataSet->getBool(5));
+    }
+    else
+    {
+
+    }
+  }
+  else
+    emit(ui_->cancelBtn->clicked());
 }

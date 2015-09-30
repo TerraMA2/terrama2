@@ -33,6 +33,7 @@
 #include "ui_ConfigAppForm.h"
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
+#include "../../core/ApplicationController.hpp"
 
 // TerraMA2 Tab controls
 #include "ConfigAppWeatherTab.hpp"
@@ -106,6 +107,9 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 // Connect tabs to changing index
   connect(pimpl_->ui_->mainTabWidget, SIGNAL(currentChanged(int)), SLOT(tabChangeRequested(int)));
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
+
+  // Disable form until load terrama2 config file
+  pimpl_->ui_->centralwidget->setEnabled(false);
 }
 
 ConfigApp::~ConfigApp()
@@ -152,5 +156,14 @@ void ConfigApp::openRequested()
   if (!file.isEmpty())
   {
     services_->loadConfiguration(file);
+    // Connect to database and list the values
+    std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+
+    // TEMP Harded code
+    terrama2::core::ApplicationController::getInstance().loadProject(path);
+
+    pimpl_->ui_->centralwidget->setEnabled(true);
+    for(QSharedPointer<ConfigAppTab> tab: tabList_)
+      tab->load();
   }
 }
