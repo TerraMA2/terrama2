@@ -77,13 +77,8 @@
             <item row="0" column="1">
              <widget class="QComboBox" name="dbTypeCmb">
               <property name="currentText">
-               <string>PostGIS</string>
+               <string>PostgreSQL</string>
               </property>
-              <item>
-               <property name="text">
-                <string>PostGIS</string>
-               </property>
-              </item>
               <item>
                <property name="text">
                 <string>PostgreSQL</string>
@@ -91,7 +86,7 @@
               </item>
               <item>
                <property name="text">
-                <string>MySQL</string>
+                <string>PostGIS</string>
                </property>
               </item>
              </widget>

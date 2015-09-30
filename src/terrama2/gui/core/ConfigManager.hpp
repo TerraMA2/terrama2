@@ -37,6 +37,7 @@
 // QT
 #include <QJsonObject>
 #include <QMainWindow>
+#include <QMap>
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -54,11 +55,19 @@ class ConfigManager : private boost::noncopyable
     //! Get the TerraMA2 database struct
     Database* getDatabase() const;
 
+    void setDatabase(QJsonObject dbase);
+
     //! Get the TerraMA2 collection struct
     Collection* getCollection() const;
 
     //! Get the TerraMA2 name
     QString getName() const;
+
+    void setDataForm(QJsonObject metadata);
+
+    QMap<QString,QJsonObject> getfiles() const;
+
+ //   QString configurationFile(int id) const { return fileList_.at(id);}
 
     //QString getDataBaseDriver(DatabaseDriver id) const;
 
@@ -68,6 +77,8 @@ class ConfigManager : private boost::noncopyable
     QString name_; //< TerraMA2 config name
     Collection* collection_;
     Database* database_;
+
+    QMap<QString,QJsonObject> fileList_;
 };
 
 #endif // __TERRAMA2_GUI_CORE_CONFIGMANAGER_HPP__

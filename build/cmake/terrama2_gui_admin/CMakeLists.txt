@@ -46,7 +46,9 @@ QT5_WRAP_UI(TERRAMA2_GEN_HDR_FILES ${TERRAMA2_UI_FILES})
 
 add_executable(terrama2_admin ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_GEN_HDR_FILES} ${TERRAMA2_QM_FILES})
 
-target_link_libraries(terrama2_admin terrama2_gui_core terralib_mod_common)
+target_link_libraries(terrama2_admin terrama2_gui_core 
+                                     terralib_mod_common 
+                                     terralib_mod_plugin)
 
 qt5_use_modules(terrama2_admin Widgets Network)
 
