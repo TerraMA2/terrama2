@@ -62,33 +62,31 @@ class TsDataManager : public QObject
 
     //Data provider methods
     void testAddDataProvider();
+    void testAddNullDataProvider();
+    void testUpdateNullDataProvider();
     void testAddDataProviderWithId();
     void testAddDataProviderWithDataSet();
-
     void testRemoveDataProvider();
     void testRemoveDataProviderInvalidId();
-
     void testFindDataProvider();
-
     void testUpdateDataProvider();
     void testUpdateDataProviderInvalidId();
 
     //Dataset methods
     void testAddDataSet();
     void testAddDataSetWihId();
-
+    void testAddNullDataSet();
+    void testUpdateDataSet();
+    void testUpdateNullDataSet();
+    void testUpdateDataSetInvalidId();
     void testRemoveDataSet();
     void testRemoveDataSetInvalidId();
     void testRemoveDataSetInUse();
-
     void testFindDataSet();
 
-    void testUpdateDataSet();
-    void testUpdateDataSetInvalidId();
 
     terrama2::core::DataProviderPtr createDataProvider();
     terrama2::core::DataSetPtr createDataSet();
 
+
 };
-
-

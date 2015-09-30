@@ -48,7 +48,10 @@ void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
 {
 
   if(dataProvider->id() != 0)
-    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
+  {
+    throw InvalidDataProviderIdError() <<
+          ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
+  }
 
 // Removes the column id because it's an auto number
   std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
@@ -80,7 +83,10 @@ void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
   foreach (auto ds, dataProvider->dataSets())
   {
     if(ds->id() != 0)
-      throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not save a dataset with identifier different than 0."));
+    {
+      throw InvalidDataSetIdError() <<
+            ErrorDescription(QObject::tr("Can not save a dataset with identifier different than 0."));
+    }
 
     DataSetDAO::save(ds, transactor);
   }
@@ -91,7 +97,10 @@ void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataP
 void terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor)
 {
   if(dataProvider->id() == 0)
-    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
+  {
+    throw InvalidDataProviderIdError() <<
+          ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
+  }
 
   try
   {
@@ -115,7 +124,10 @@ void terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dat
 void terrama2::core::DataProviderDAO::remove(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor)
 {
   if(dataProvider->id() == 0)
-    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+  {
+    throw InvalidDataProviderIdError() <<
+          ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+  }
 
   std::string sql = "DELETE FROM " + dataSetName
                   + " WHERE id = " + std::to_string(dataProvider->id());
