@@ -37,8 +37,10 @@ class TsApplicationController: public QObject
 {
   Q_OBJECT
 
-private slots:
+  private slots:
+
     void testLoadProject();
+    void testCreateDatabase();
 };
 
 

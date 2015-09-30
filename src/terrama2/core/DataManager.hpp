@@ -99,18 +99,20 @@ namespace terrama2
         /*!
           \brief Add the data provider to the database and register it in the manager.
 
+          It will also add the datasets.
+
           Emits dataProviderAdded() signal if the data provider is saved and registered in the manager.
 
-          It will also add the datasets.
+          Emits dataSetAdded() signal if the data provider's dataset added.
 
           \pre The provider must not have an ID.
           \pre A provider with the same name must not be already in the manager.
           \pre The datasets must not have an ID.
 
           \pos The informed data provider will have a valid ID.
-          \pos The dataset within this provider will have a valid ID.
+          \pos The datasets within this provider will have a valid ID.
 
-          \exception InvalidDataProviderError, InvalidDataProviderIdError
+          \exception InvalidDataProviderError, InvalidDataProviderIdError, InvalidDataSetError, InvalidDataSetIdError
 
           \note Thread-safe.
          */
@@ -121,6 +123,8 @@ namespace terrama2
 
           Emits dataSetAdded() signal if the dataset is saved and registered in the manager.
 
+          Emits dataProviderUpdated() signal to notify that there is a new dataset in the provider.
+
           \pre The dataset must not have an ID.
           \pre A provider with the same name must not be already in the manager.
 
@@ -128,7 +132,7 @@ namespace terrama2
 
           \param dataset Dataset to add.
 
-          \exception InvalidDataSetError, InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
 
           \note Thread-safe.
          */
@@ -140,6 +144,8 @@ namespace terrama2
           Emits dataProviderUpdated() signal if the data provider is updated successfully.
 
           \pre The data provider must have an valid ID.
+
+          \pre The data provider must exist in the database.
 
           \param dataProvider Data provider to update.
 
@@ -158,9 +164,11 @@ namespace terrama2
 
           \pre The dataset must have an valid ID.
 
+          \pre The dataset must exist in the database.
+
           \param dataset Dataset to update.
 
-          \exception InvalidDataSetError, InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
 
           \note Thread-safe.
          */
@@ -172,6 +180,8 @@ namespace terrama2
           \pre The data provider must have a valid ID.
 
           Emits dataProviderRemoved() signal if the data provider is removed successfully.
+
+          Emits dataSetRemoved() signal for each dataset that belongs to this data provider.
 
           It will remove all datasets that belong to this data provider.
           In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
@@ -191,6 +201,8 @@ namespace terrama2
           \pre The dataset must have a valid ID.
 
           Emits dataSetRemoved() signal if the dataset is removed successfully.
+
+          Emits dataProviderUpdated() signal to notify that a dataset was removed from the provider's list.
 
           In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
