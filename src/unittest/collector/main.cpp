@@ -2,6 +2,7 @@
 #include "TsCollectorService.hpp"
 #include "TsCollectorFile.hpp"
 #include "TsDataSetTimer.hpp"
+#include "TsIntegration.hpp"
 #include "TsParserOGR.hpp"
 #include "TsFilter.hpp"
 
@@ -27,6 +28,9 @@ int main(int argc, char *argv[])
 
   TsFilter tsFilter;
   returnVal += QTest::qExec(&tsFilter, argc, argv);
+
+  TsIntegration tsIntegration;
+  returnVal += QTest::qExec(&tsIntegration, argc, argv);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

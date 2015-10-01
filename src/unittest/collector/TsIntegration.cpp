@@ -69,6 +69,8 @@ void TsIntegration::TestReadCsvStorePostGis()
     provider->setDataSets(datasetVec);
 
     terrama2::collector::CollectorService service;
+    service.addDataset(dataset);
+
     service.start();
 
   }
