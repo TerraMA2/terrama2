@@ -70,6 +70,7 @@ void TsIntegration::TestReadCsvStorePostGis()
 
     terrama2::collector::CollectorService service;
     service.start();
+
   }
   catch(...)
   {

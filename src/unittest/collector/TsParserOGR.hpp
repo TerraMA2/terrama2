@@ -37,7 +37,9 @@ class TsParserOGR: public QObject
 {
   Q_OBJECT
 
-private slots:
+
+
+  private slots:
 
     void initTestCase(){} // Run before all tests
     void cleanupTestCase(){} // Run after all tests
@@ -50,7 +52,6 @@ private slots:
     void TestNullDataSource();
     void TestDataSourceNotOpen();
     void TestEmptyFile();
-
 
     //******End of Test functions****
 };

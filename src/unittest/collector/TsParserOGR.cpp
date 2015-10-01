@@ -80,6 +80,10 @@ void TsParserOGR::TestEmptyFile()
     finalizeTerralib();
     return;
   }
+  catch(te::common::Exception& e)
+  {
+    QFAIL("Teralib Exception...Should not be here.");
+  }
   catch(...)
   {
     QFAIL("Unknown Exception...Should not be here.");
