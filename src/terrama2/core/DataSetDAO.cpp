@@ -610,7 +610,7 @@ void terrama2::core::DataSetDAO::updateFilter(terrama2::core::FilterPtr filter, 
     set.insert(3);
   }
 
-  // TODO: Define what to id to store for external data
+  // TODO: What is an external data?
   //dsItem->setInt32("extenal_data_id", ...);
   //set.insert(4);
 
@@ -619,7 +619,7 @@ void terrama2::core::DataSetDAO::updateFilter(terrama2::core::FilterPtr filter, 
   dsItem->setNumeric("by_value", std::to_string(filter->byValue()));
   set.insert(6);
 
-  // TODO: Define what to id to store for external data
+  // TODO: What is an external data?
   //dsItem->setInt32("within_external_data_id", ...);
   //set.insert(7);
 
