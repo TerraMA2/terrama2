@@ -35,7 +35,6 @@
 
 // gSOAP
 #include "soapWebProxy.h"
-#include "Web.nsmap"
 
 // TerraMA2
 #include "../../../core/DataProvider.hpp"
