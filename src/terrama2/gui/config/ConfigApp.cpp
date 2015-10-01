@@ -30,7 +30,6 @@
 
 // TerraMA2
 #include "ConfigApp.hpp"
-#include "ui_ConfigAppForm.h"
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
 #include "../../core/ApplicationController.hpp"
@@ -40,10 +39,8 @@
 #include "ConfigAppAdditionalTab.hpp"
 
 // Qt
-#include <QStringList>
 #include <QTranslator>
 #include <QFileDialog>
-#include <QMessageBox>
 
 
 struct ConfigApp::Impl
@@ -142,11 +139,6 @@ void ConfigApp::tabChangeRequested(int index)
 
     tab->askForChangeTab(index);
   }
-}
-
-void ConfigApp::disableRefreshAction()
-{
-  pimpl_->ui_->refreshAct->setEnabled(false);
 }
 
 void ConfigApp::openRequested()

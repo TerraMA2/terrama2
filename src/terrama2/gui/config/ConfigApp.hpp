@@ -69,7 +69,6 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
 
   private slots:
     void tabChangeRequested(int);
-    void disableRefreshAction();
     void openRequested();
   
   private:

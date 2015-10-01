@@ -138,7 +138,9 @@ p, li { white-space: pre-wrap; }
                <string>Servidores remotos</string>
               </property>
               <property name="icon">
-               <iconset theme="servers"/>
+               <iconset theme="servers">
+                <normaloff/>
+               </iconset>
               </property>
               <item>
                <property name="text">
@@ -662,7 +664,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item row="1" column="0">
-             <spacer name="spacerServerPage">
+             <spacer name="spacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -751,7 +753,7 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
            <zorder>label_9</zorder>
-           <zorder>spacerServerPage</zorder>
+           <zorder>spacer</zorder>
            <zorder></zorder>
           </widget>
           <widget class="QWidget" name="ServerPage">

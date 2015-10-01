@@ -98,6 +98,9 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! Triggered when click exportServerBtn to export DataProvider as TerraMA2 File
     void onExportServerClicked();
 
+    //! Triggered when click projectionBtn to call projection gui window
+    void onProjectionClicked();
+
   private:
     bool serverTabChanged_; //!< Defines if the user is inserting a server
     bool dataGridSeriesChanged_; //!< Defines if the user is inserting datagrid series

@@ -1,10 +1,12 @@
 // TerraMA2
 #include "ConfigAppWeatherTab.hpp"
+#include "ProjectionDialog.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
 #include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
 #include "../../core/DataManager.hpp"
+#include "../../core/DataProviderDAO.hpp"
 
 // QT
 #include <QMessageBox>
@@ -41,13 +43,12 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
 
   // Bind the data series type with respective group view
+  connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridBtnClicked()));
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
-
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
-
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
 
   // Lock for cannot allow multiple selection
@@ -62,6 +63,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Disable series button
   showDataSeries(false);
   hideDataSetButtons(false);
+
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -161,20 +163,37 @@ void ConfigAppWeatherTab::saveServer()
   // Get DataSource
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
 
-  terrama2::core::DataProviderPtr dataProvider(
-        new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
-                                         (terrama2::core::DataProvider::Kind) ui_->connectionProtocol->currentIndex()));
-  dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
-  dataProvider->setUri(ui_->connectionAddress->text().toStdString());
-  dataProvider->setStatus(ui_->serverActiveServer->isChecked() ? terrama2::core::DataProvider::ACTIVE :
-                                                                 terrama2::core::DataProvider::INACTIVE);
+  // Temp code
+  terrama2::core::DataProviderPtr dataProvider;
+  if (dataProvider != nullptr)
 
-  terrama2::core::DataManager::getInstance().add(dataProvider);
+  // If there data provider in database
+//  if (terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataProviderDAO::find(ui_->serverName->text().toStdString()))
+  {
+    dataProvider->setName(ui_->serverName->text().toStdString());
+    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
+    dataProvider->setKind(static_cast<terrama2::core::DataProvider::Kind>(ui_->connectionProtocol->currentIndex()));
+    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
+    dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
-  QTreeWidgetItem* newServer = new QTreeWidgetItem();
-  newServer->setText(0, ui_->serverName->text());
-  ui_->weatherDataTree->topLevelItem(0)->addChild(newServer);
-//  ui_->weatherDataTree->addTopLevelItem(newServer);
+    terrama2::core::DataManager::getInstance().update(dataProvider);
+    ui_->weatherDataTree->currentItem()->setText(0, ui_->serverName->text());
+  }
+  else
+  {
+    dataProvider.reset(new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
+                                                  terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())));
+    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
+    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
+    dataProvider->setStatus(ui_->serverActiveServer->isChecked() ? terrama2::core::DataProvider::ACTIVE :
+                                                                   terrama2::core::DataProvider::INACTIVE);
+
+    terrama2::core::DataManager::getInstance().add(dataProvider);
+
+    QTreeWidgetItem* newServer = new QTreeWidgetItem();
+    newServer->setText(0, ui_->serverName->text());
+    ui_->weatherDataTree->topLevelItem(0)->addChild(newServer);
+  }
 }
 
 void ConfigAppWeatherTab::saveGridDataSeries()
@@ -216,20 +235,27 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
 
 void ConfigAppWeatherTab::validateConnection()
 {
-  terrama2::gui::core::ConnectionType serviceType = (terrama2::gui::core::ConnectionType)ui_->connectionProtocol->currentIndex();
-  if (serviceType == terrama2::gui::core::FTP)
+  switch (terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())) {
+    case terrama2::core::DataProvider::FTP_TYPE:
       terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
                                               ui_->connectionPort->text().toInt(),
                                               ui_->serverDataBasePath->text(),
                                               ui_->connectionUserName->text(),
                                               ui_->connectionPassword->text());
-  else if (serviceType == terrama2::gui::core::WEBSERVICE)
+      break;
+    case terrama2::core::DataProvider::HTTP_TYPE:
       terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
                                                   ui_->connectionPort->text().toInt(),
                                                   ui_->connectionUserName->text(),
                                                   ui_->connectionPassword->text());
-  else if (serviceType == terrama2::gui::core::LOCALFILES)
-    terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());
+      break;
+    case terrama2::core::DataProvider::FILE_TYPE:
+      terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());
+      break;
+    default:
+      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Not implemented yet"));
+      break;
+    }
 }
 
 void ConfigAppWeatherTab::showDataSeries(bool state)
@@ -466,4 +492,12 @@ void ConfigAppWeatherTab::onExportServerClicked()
   {
     throw;
   }
+}
+
+void ConfigAppWeatherTab::onProjectionClicked()
+{
+  ProjectionDialog projectionDialog(app_);
+
+  projectionDialog.show();
+  int ret = projectionDialog.exec();
 }
