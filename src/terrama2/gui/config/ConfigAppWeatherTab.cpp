@@ -11,6 +11,7 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QWidget>
+#include <QJsonObject>
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui),
@@ -44,11 +45,10 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
 
-  connect(ui_->serverDeleteBtn, SIGNAL(clicked()),
-                                SLOT(onDeleteServerClicked()));
+  connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
+  connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
 
-  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this,
-                                SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
 
   // Lock for cannot allow multiple selection
   ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -57,15 +57,21 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->cancelBtn->setVisible(false);
 
   // Delete all children from remote services
-  qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
+  clearList();
 
   // Disable series button
   showDataSeries(false);
+  hideDataSetButtons(false);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
 {
 
+}
+
+void ConfigAppWeatherTab::clearList()
+{
+  qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
 }
 
 void ConfigAppWeatherTab::load()
@@ -76,9 +82,13 @@ void ConfigAppWeatherTab::load()
   if (dataSet->size() != -1)
     showDataSeries(true);
 
+  // clear list
+  clearList();
+
   while(dataSet->moveNext())
   {
     QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setIcon(0, QIcon::fromTheme("server"));
     item->setText(0, QString(dataSet->getAsString(1).c_str()));
     ui_->weatherDataTree->topLevelItem(0)->addChild(item);
   }
@@ -113,7 +123,7 @@ bool ConfigAppWeatherTab::validate()
       throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
     }
 
-    isValidConnection();
+    validateConnection();
 
     return true;
   }
@@ -191,7 +201,7 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
   ui_->serverDescription->clear();
 
 // Hide the form
-  hidePanels(ui_->ServerGroupPage);
+  hidePanels(0);
 
   serverTabChanged_ = false;
   dataGridSeriesChanged_ = false;
@@ -204,7 +214,7 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
 
 }
 
-void ConfigAppWeatherTab::isValidConnection()
+void ConfigAppWeatherTab::validateConnection()
 {
   terrama2::gui::core::ConnectionType serviceType = (terrama2::gui::core::ConnectionType)ui_->connectionProtocol->currentIndex();
   if (serviceType == terrama2::gui::core::FTP)
@@ -231,21 +241,28 @@ void ConfigAppWeatherTab::showDataSeries(bool state)
   (state) ? ui_->groupBox_25->show() : ui_->groupBox_25->hide();
 }
 
-void ConfigAppWeatherTab::hidePanels(QWidget *except)
+void ConfigAppWeatherTab::hideDataSetButtons(const bool state)
 {
-  ui_->ServerGroupPage->hide();
-  ui_->ServerPage->hide();
-  ui_->DataGridPage->hide();
-  ui_->DataPointPage->hide();
-  ui_->DataPointDiffPage->hide();
+  ui_->gridFormatDataDeleteBtn->setVisible(state);
+  ui_->pointFormatDataDeleteBtn->setVisible(state);
+  ui_->serverRemovePointDiffBtn->setVisible(state);
+  ui_->updateDataPointBtn->setVisible(state);
+  ui_->updateDataGridBtn->setVisible(state);
+  ui_->updateDataPointDiffBtn->setVisible(state);
+  ui_->exportDataGridBtn->setVisible(state);
+  ui_->exportDataPointBtn->setVisible(state);
+  ui_->exportDataPointDiffBtn->setVisible(state);
+}
 
+void ConfigAppWeatherTab::hidePanels(const int indexOfExcept)
+{
   ui_->saveBtn->setVisible(true);
   ui_->cancelBtn->setVisible(true);
 
   ui_->saveBtn->setEnabled(false);
   ui_->cancelBtn->setEnabled(true);
 
-  except->show();
+  ui_->weatherPageStack->setCurrentIndex(indexOfExcept);
 }
 
 void ConfigAppWeatherTab::onEnteredWeatherTab()
@@ -257,8 +274,7 @@ void ConfigAppWeatherTab::onEnteredWeatherTab()
   ui_->saveBtn->setEnabled(false);
   ui_->cancelBtn->setEnabled(true);
 
-  ui_->ServerGroupPage->hide();
-  ui_->ServerPage->show();
+  ui_->weatherPageStack->setCurrentIndex(1);
 }
 
 void ConfigAppWeatherTab::onWeatherTabEdited()
@@ -283,7 +299,7 @@ void ConfigAppWeatherTab::onCheckConnection()
   QString message;
   try
   {
-    isValidConnection();
+    validateConnection();
     // FIX
     QMessageBox::information(app_, tr("TerraMA2"), tr("Connection OK"));
     return;
@@ -305,36 +321,39 @@ void ConfigAppWeatherTab::onCheckConnection()
 
 void ConfigAppWeatherTab::onDataGridBtnClicked()
 {
-  hidePanels(ui_->DataGridPage);
+  // Index 2 represents DataGridPage
+  hidePanels(2);
 }
 
 void ConfigAppWeatherTab::onInsertPointBtnClicked()
 {
-  hidePanels(ui_->DataPointPage);
+  // Index 3 represents DataPointPage
+  hidePanels(3);
 }
 
 void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
 {
-  hidePanels(ui_->DataPointDiffPage);
+  // Index 4 represents DataPointDiffPage
+  hidePanels(4);
 }
 
 void ConfigAppWeatherTab::onDeleteServerClicked()
 {
-  QMessageBox::StandardButton reply;
-  reply = QMessageBox::question(app_, tr("TerraMA2 Remove Data Provider"),
-                                      tr("Would you like to remove data provider?"),
-                                      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                                      QMessageBox::Yes);
-
-  if (reply == QMessageBox::No || reply == QMessageBox::Cancel)
-    return;
-
   try
   {
-    if (ui_->weatherDataTree->selectedItems().isEmpty())
+    QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
+    if (selectedItem == nullptr || selectedItem->parent() == nullptr)
       throw terrama2::Exception() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
 
-    QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(app_, tr("TerraMA2 Remove Data Provider"),
+                                        tr("Would you like to remove data provider?"),
+                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                        QMessageBox::Yes);
+
+    if (reply == QMessageBox::No || reply == QMessageBox::Cancel)
+      return;
+
     std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
 
     std::string sql = "SELECT id FROM terrama2.data_provider WHERE name = '";
@@ -404,4 +423,47 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
   }
   else
     emit(ui_->cancelBtn->clicked());
+}
+
+void ConfigAppWeatherTab::onExportServerClicked()
+{
+  try
+  {
+    QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
+    if (selectedItem == nullptr || selectedItem->parent() == nullptr)
+      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
+
+    QJsonObject json;
+    json["name"] = ui_->serverName->text();
+    json["description"] = ui_->serverDescription->toPlainText();
+
+    json["kind"] = ui_->connectionProtocol->currentText();
+    switch((terrama2::core::DataProvider::Kind) ui_->connectionProtocol->currentIndex())
+    {
+      case terrama2::core::DataProvider::FILE_TYPE:
+        json["path"] = ui_->serverDataBasePath->text();
+        break;
+      default:
+        json["address"] = ui_->connectionAddress->text();
+        json["port"] = ui_->connectionPort->text();
+        json["username"] = ui_->connectionUserName->text();
+        json["password"] = ui_->connectionPort->text();
+    }
+
+    json["interval"] = ui_->serverIntervalData->text();
+
+    terrama2::gui::core::saveTerraMA2File(app_, json);
+
+    QMessageBox::information(app_, tr("TerraMA2 Export Data Provider"), tr("The data provider has been successfully exported!"));
+
+  }
+  catch(const terrama2::Exception& e)
+  {
+    const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+  }
+  catch(...)
+  {
+    throw;
+  }
 }

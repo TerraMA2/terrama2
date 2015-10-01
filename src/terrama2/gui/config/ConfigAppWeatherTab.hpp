@@ -53,10 +53,14 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void saveGridDataSeries();
     void discardChanges(bool restore_data);
 
+    //! It remove all children from QWidgetTree
+    void clearList();
+
   private:
-    void isValidConnection();
+    void validateConnection();
     void showDataSeries(bool state);
-    void hidePanels(QWidget* except);
+    void hideDataSetButtons(const bool state);
+    void hidePanels(const int indexOfExcept);
   signals:
     void serverChanged();
 
@@ -90,6 +94,9 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
     //! Triggered when click in weatherTree to display metadata from DB
     void onWeatherDataTreeClicked(QTreeWidgetItem*);
+
+    //! Triggered when click exportServerBtn to export DataProvider as TerraMA2 File
+    void onExportServerClicked();
 
   private:
     bool serverTabChanged_; //!< Defines if the user is inserting a server
