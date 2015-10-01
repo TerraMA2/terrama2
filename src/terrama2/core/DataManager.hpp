@@ -193,7 +193,7 @@ namespace terrama2
           \note Thread-safe.
          */
 
-        void removeDataProvider(const uint64_t& id);
+        void removeDataProvider(const uint64_t id);
 
         /*!
           \brief Removes the dataset with the given id.
@@ -212,7 +212,22 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void removeDataSet(const uint64_t& id);
+        void removeDataSet(const uint64_t id);
+
+        /*!
+          \brief Retrieves the data provider with the given name.
+
+          \exception InvalidDataProviderIdError
+
+          In case there is no data provider in the database with the given name it will return an empty smart pointer.
+
+          \param name The data provider name.
+
+          \return DataProviderPtr A smart pointer to the data provider
+
+          \note Thread-safe.
+         */
+        DataProviderPtr findDataProvider(const std::string& name) const;
 
         /*!
           \brief Retrieves the data provider with the given id.
@@ -227,7 +242,20 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(const uint64_t& id) const;
+        DataProviderPtr findDataProvider(const uint64_t id) const;
+
+        /*!
+          \brief Search for a dataset with the given name
+          In case none is found it will return an empty smart pointer.
+
+          \param name Name of the dataset.
+          \return A smart pointer to the dataset.
+
+          \exception InvalidDataSetIdError
+
+          \note Thread-safe.
+         */
+        DataSetPtr findDataSet(const std::string& name) const;
 
         /*!
           \brief Search for a dataset with the given id
@@ -240,7 +268,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(const uint64_t& id) const;
+        DataSetPtr findDataSet(const uint64_t id) const;
 
         /*!
           \brief Retrieves all data provider.

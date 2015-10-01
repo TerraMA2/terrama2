@@ -245,8 +245,15 @@ void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
           ErrorDescription(QObject::tr("Can not add a dataset with an invalid data provider."));
   }
 
-  auto it = pimpl_->datasets_.find(dataset->id());
-  if(it ==  pimpl_->datasets_.end())
+  auto itDp = pimpl_->providers_.find(dataset->dataProvider()->id());
+  if(itDp ==  pimpl_->providers_.end())
+  {
+    throw InvalidDataProviderError() <<
+          ErrorDescription(QObject::tr("Can not update a nonexistent data provider."));
+  }
+
+  auto itDs = pimpl_->datasets_.find(dataset->id());
+  if(itDs ==  pimpl_->datasets_.end())
   {
     throw InvalidDataSetError() <<
           ErrorDescription(QObject::tr("Can not update a nonexistent dataset."));
@@ -266,7 +273,7 @@ void terrama2::core::DataManager::update(terrama2::core::DataSetPtr dataset)
   emit dataSetUpdated(dataset);
 }
 
-void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
+void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 {
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
@@ -320,7 +327,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t& id)
 
 }
 
-void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
+void terrama2::core::DataManager::removeDataSet(const uint64_t id)
 {
   // Only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mutex_);
@@ -365,7 +372,7 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t& id)
   emit dataSetRemoved(dataSet);
 }
 
-terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const uint64_t& id) const
+terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const uint64_t id) const
 {
   DataProviderPtr dataProvider;
 
@@ -381,7 +388,51 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   return dataProvider;
 }
 
-terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const uint64_t& id) const
+terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const std::string& name) const
+{
+  DataProviderPtr dataProvider;
+
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  auto it = pimpl_->providers_.begin();
+  while(it !=  pimpl_->providers_.end())
+  {
+    if(it->second->name() == name)
+    {
+      dataProvider = it->second;
+      break;
+    }
+
+    ++it;
+  }
+
+  return dataProvider;
+}
+
+terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const std::string& name) const
+{
+  DataSetPtr dataset;
+
+  // Only one thread at time can access the data
+  std::lock_guard<std::mutex> lock(pimpl_->mutex_);
+
+  auto it = pimpl_->datasets_.begin();
+  while(it !=  pimpl_->datasets_.end())
+  {
+    if(it->second->name() == name)
+    {
+      dataset = it->second;
+      break;
+    }
+
+    ++it;
+  }
+
+  return dataset;
+}
+
+terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const uint64_t id) const
 {
   DataSetPtr dataset;
 

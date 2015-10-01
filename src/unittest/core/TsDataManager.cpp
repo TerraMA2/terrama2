@@ -243,6 +243,27 @@ void TsDataManager::testFindDataProvider()
 
 }
 
+
+void TsDataManager::testFindDataProviderByName()
+{
+  DataProviderPtr dataProvider = createDataProvider();
+
+  DataManager::getInstance().add(dataProvider);
+
+  // Find the same data provider by name
+  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(
+          foundDataProvider->name());
+
+  QVERIFY2(foundDataProvider.get(), "Could not recover the data provider by id!");
+
+  QVERIFY2("This server..." == foundDataProvider->description(), "Wrong Description in recovered provider");
+  QVERIFY2("Server 1" == foundDataProvider->name(), "Wrong name in recovered provider");
+  QVERIFY2(DataProvider::FTP_TYPE == foundDataProvider->kind(), "Wrong type in recovered provider");
+  QVERIFY2(DataProvider::ACTIVE == foundDataProvider->status(), "Wrong status in recovered provider");
+  QVERIFY2("localhost@..." == foundDataProvider->uri(), "Wrong uri in recovered provider");
+
+}
+
 void TsDataManager::testUpdateDataProvider()
 {
   qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
@@ -395,6 +416,33 @@ void TsDataManager::testFindDataSet()
   QCOMPARE(foundDataSet->dataSetItemList().size(), dataSet->dataSetItemList().size());
 
 }
+
+
+void TsDataManager::testFindDataSetByName()
+{
+  DataSetPtr dataSet = createDataSet();
+  DataManager::getInstance().add(dataSet);
+
+  auto foundDataSet = DataManager::getInstance().findDataSet(dataSet->name());
+
+  QCOMPARE(foundDataSet->kind(), dataSet->kind());
+  QCOMPARE(foundDataSet->name(), dataSet->name());
+  QCOMPARE(foundDataSet->dataFrequency(), dataSet->dataFrequency());
+
+
+
+  QCOMPARE(foundDataSet->collectRules().size(), dataSet->collectRules().size());
+  auto dsCollectRules = dataSet->collectRules();
+  auto foundCollectRules = foundDataSet->collectRules();
+  for(unsigned int i = 0; i < dsCollectRules.size(); ++i)
+  {
+    QCOMPARE(dsCollectRules[i].script, foundCollectRules[i].script);
+  }
+
+  QCOMPARE(foundDataSet->dataSetItemList().size(), dataSet->dataSetItemList().size());
+
+}
+
 
 void TsDataManager::testUpdateDataSet()
 {
@@ -875,3 +923,4 @@ void TsDataManager::testUpdateDataSetWithNonexistentProvider()
     // test ok
   }
 }
+

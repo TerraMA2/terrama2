@@ -83,6 +83,7 @@ class TsDataManager : public QObject
     // Tests for find
     void testFindDataProvider();
     void testFindNonExistentDataProvider();
+    void testFindDataProviderByName();
 
     //Dataset tests
 
@@ -109,6 +110,7 @@ class TsDataManager : public QObject
     // Tests for find
     void testFindDataSet();
     void testFindNonExistentDataSet();
+    void testFindDataSetByName();
 
 
     terrama2::core::DataProviderPtr createDataProvider();
