@@ -2,7 +2,7 @@
 
 struct CommonData
 {
-  int servicePort;
+  int servicePort_;
   QString address_;
   QString logFile_;
   QString cmd_;

@@ -61,8 +61,16 @@ static const std::string dataSetName = "terrama2.dataset";
 void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
 {
 
+  if(!dataSet.get())
+  {
+    throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not add an invalid dataset."));
+  }
+
   if(dataSet->id() != 0)
-    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
+  {
+    throw InvalidDataSetIdError() <<
+          ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
+  }
 
 // Removes the column id because it's an auto number
   std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
@@ -111,8 +119,15 @@ void terrama2::core::DataSetDAO::save(terrama2::core::DataSetPtr dataSet, te::da
 
 void terrama2::core::DataSetDAO::update(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor)
 {
+  if(!dataSet.get())
+  {
+    throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not update an invalid dataset."));
+  }
+
   if(dataSet->id() == 0)
+  {
     throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
+  }
 
   std::string sql = "UPDATE " + dataSetName + " SET"
       + " name='" + dataSet->name() + "'"

@@ -213,13 +213,13 @@ fi
 
 
 #
-# qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
+# qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
 #
-qt5_dev_test=`dpkg -s qt5-default qttools5-dev libqt5svg5-dev libqt5designer5 | grep Status`
+qt5_dev_test=`dpkg -s qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5 | grep Status`
 
 if [ "$qt5_dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
-  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5"
+  sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
+  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5"
   echo "qt5-dev-tools installed!"
 else
   echo "qt5-dev-tools already installed!"
@@ -861,7 +861,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
   cd gsoap-2.8
   valid $? "Error: could not enter gsoap-2.8!"
 
-  ./configure --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR
+  ./configure CXXFLAGS="-O2 -fPIC" --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR 
   valid $? "Error: could not configure gSOAP!"
 
   make
