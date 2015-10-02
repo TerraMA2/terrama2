@@ -87,7 +87,7 @@ void TestWebService::TestAddDataProvider()
   try
   {
 
-    DataProvider struct_dataProvider, struct_dataProvider_check;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -96,25 +96,23 @@ void TestWebService::TestAddDataProvider()
     struct_dataProvider.status = 1;
     struct_dataProvider.uri = "C:/Dataprovider/path";
 
-    struct_dataProvider_check = struct_dataProvider;
-
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
 
-    if(struct_dataProvider.id == 0)
+    if(struct_dataProviderResult.id == 0)
     {
       QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
 
-    QVERIFY2(struct_dataProvider.name == struct_dataProvider_check.name, "Name changed after add!");
-    QVERIFY2(struct_dataProvider.kind == struct_dataProvider_check.kind, "Kind changed after add!");
-    QVERIFY2(struct_dataProvider.description == struct_dataProvider_check.description, "Description changed after add!");
-    QVERIFY2(struct_dataProvider.status == struct_dataProvider_check.status, "Status changed after add!");
-    QVERIFY2(struct_dataProvider.uri == struct_dataProvider_check.uri, "URI changed after add!");
+    QVERIFY2(struct_dataProvider.name == struct_dataProviderResult.name, "Name changed after add!");
+    QVERIFY2(struct_dataProvider.kind == struct_dataProviderResult.kind, "Kind changed after add!");
+    QVERIFY2(struct_dataProvider.description == struct_dataProviderResult.description, "Description changed after add!");
+    QVERIFY2(struct_dataProvider.status == struct_dataProviderResult.status, "Status changed after add!");
+    QVERIFY2(struct_dataProvider.uri == struct_dataProviderResult.uri, "URI changed after add!");
 
   }
   catch(...)
@@ -127,13 +125,13 @@ void TestWebService::TestAddNullDataProvider()
 {
     try
     {
-        DataProvider struct_dataProvider;
+        DataProvider struct_dataProvider, struct_dataProviderResult;
 
         WebService webService;
 
         struct_dataProvider.id = 0;
 
-        if (webService.addDataProvider(struct_dataProvider) == SOAP_OK)
+        if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) == SOAP_OK)
         {
           QFAIL("Should not add a null Data Provider!");
         }
@@ -149,7 +147,7 @@ void TestWebService::TestAddDataProviderWithID()
 {
     try
     {
-        DataProvider struct_dataProvider, struct_dataProvider_check;
+        DataProvider struct_dataProvider, struct_dataProviderResult;
 
         struct_dataProvider.id = 1;
         struct_dataProvider.name = "Data Provider";
@@ -158,11 +156,9 @@ void TestWebService::TestAddDataProviderWithID()
         struct_dataProvider.status = 1;
         struct_dataProvider.uri = "C:/Dataprovider/path";
 
-        struct_dataProvider_check = struct_dataProvider;
-
         WebService webService;
 
-        if (webService.addDataProvider(struct_dataProvider) == SOAP_OK)
+        if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) == SOAP_OK)
         {
           QFAIL("Should not add a Data Provider with ID!");
         }
@@ -179,7 +175,7 @@ void TestWebService::testRemoveDataProvider()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -190,12 +186,12 @@ void TestWebService::testRemoveDataProvider()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
 
-    if(struct_dataProvider.id == 0)
+    if(struct_dataProviderResult.id == 0)
     {
       QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
@@ -217,8 +213,7 @@ void TestWebService::testRemoveDataProviderInvalidId()
   {
     WebService webService;
 
-    // VINICIUS: check the core method to remove a Data Provider, the only check is if the ID is not 0, should it test if the data provider exist?
-    if(webService.removeDataProvider(0,nullptr) == SOAP_OK)
+    if(webService.removeDataProvider(1,nullptr) == SOAP_OK)
     {
       QFAIL("Should not remove a invalid Data Provider ID");
     }
@@ -234,7 +229,7 @@ void TestWebService::testUpdateDataProvider()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -245,17 +240,17 @@ void TestWebService::testUpdateDataProvider()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
 
-    if(struct_dataProvider.id == 0)
+    if(struct_dataProviderResult.id == 0)
     {
       QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
 
-    DataProvider struct_dataproviderOLD = struct_dataProvider;
+    DataProvider struct_dataproviderOLD = struct_dataProviderResult;
 
     struct_dataProvider.name = "Data Provider Updated";
     struct_dataProvider.kind = 2;
@@ -263,14 +258,14 @@ void TestWebService::testUpdateDataProvider()
     struct_dataProvider.status = 2;
     struct_dataProvider.uri = "C:/Dataprovider/path/updated";
 
-    webService.updateDataProvider(struct_dataProvider);
+    webService.updateDataProvider(struct_dataProvider, struct_dataProviderResult);
 
-    QVERIFY2(struct_dataproviderOLD.id == struct_dataProvider.id, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.name != struct_dataProvider.name, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.kind != struct_dataProvider.kind, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.description != struct_dataProvider.description, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.status != struct_dataProvider.status, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.uri != struct_dataProvider.uri, "Data Provider ID changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.id == struct_dataProviderResult.id, "Data Provider ID changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.name != struct_dataProviderResult.name, "Data Provider ID changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.kind != struct_dataProviderResult.kind, "Data Provider ID changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.description != struct_dataProviderResult.description, "Data Provider ID changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.status != struct_dataProviderResult.status, "Data Provider ID changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.uri != struct_dataProviderResult.uri, "Data Provider ID changed after update!" );
   }
   catch(...)
   {
@@ -282,14 +277,14 @@ void TestWebService::testUpdateDataProviderInvalidId()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     // VINICIUS: check the core method to update a Data Provider, the only check is if the ID is not 0, should it test if the data provider exist?
     struct_dataProvider.id = 0;
 
     WebService webService;
 
-    if(webService.updateDataProvider(struct_dataProvider) == SOAP_OK)
+    if(webService.updateDataProvider(struct_dataProvider, struct_dataProviderResult) == SOAP_OK)
     {
       QFAIL("Should not update a invalid Data Provider!");
     }
@@ -305,7 +300,7 @@ void TestWebService::testFindDataProvider()
 {
   try
   {
-    DataProvider struct_dataProvider, struct_dataProvider_found;
+    DataProvider struct_dataProvider, struct_dataProvider_found, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -316,27 +311,27 @@ void TestWebService::testFindDataProvider()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
 
-    if(struct_dataProvider.id == 0)
+    if(struct_dataProviderResult.id == 0)
     {
       QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
 
-    if(webService.findDataProvider(struct_dataProvider.id, struct_dataProvider_found) != SOAP_OK)
+    if(webService.findDataProvider(struct_dataProviderResult.id, struct_dataProvider_found) != SOAP_OK)
     {
       QFAIL("Can't find the Data Provider!");
     }
 
-    QVERIFY2(struct_dataProvider.id == struct_dataProvider_found.id, "ID is not the same inserted!");
-    QVERIFY2(struct_dataProvider.name == struct_dataProvider_found.name, "Name is not the same inserted!");
-    QVERIFY2(struct_dataProvider.kind == struct_dataProvider_found.kind, "Kind is not the same inserted!");
-    QVERIFY2(struct_dataProvider.description == struct_dataProvider_found.description, "Description is not the same inserted!");
-    QVERIFY2(struct_dataProvider.status == struct_dataProvider_found.status, "Status is not the same inserted!");
-    QVERIFY2(struct_dataProvider.uri == struct_dataProvider_found.uri, "URI is not the same inserted!");
+    QVERIFY2(struct_dataProviderResult.id == struct_dataProvider_found.id, "ID is not the same inserted!");
+    QVERIFY2(struct_dataProviderResult.name == struct_dataProvider_found.name, "Name is not the same inserted!");
+    QVERIFY2(struct_dataProviderResult.kind == struct_dataProvider_found.kind, "Kind is not the same inserted!");
+    QVERIFY2(struct_dataProviderResult.description == struct_dataProvider_found.description, "Description is not the same inserted!");
+    QVERIFY2(struct_dataProviderResult.status == struct_dataProvider_found.status, "Status is not the same inserted!");
+    QVERIFY2(struct_dataProviderResult.uri == struct_dataProvider_found.uri, "URI is not the same inserted!");
 
   }
   catch(...)
@@ -371,7 +366,7 @@ void TestWebService::TestAddDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -382,7 +377,7 @@ void TestWebService::TestAddDataSet()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
@@ -398,7 +393,7 @@ void TestWebService::TestAddDataSet()
     struct_dataSet.schedule = "00:05:00.00";
     struct_dataSet.schedule_retry = "00:05:00.00";
     struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProvider.id;
+    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
 
     if(webService.addDataSet(struct_dataSet) != SOAP_OK)
     {
@@ -418,7 +413,7 @@ void TestWebService::TestAddNullDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -429,7 +424,7 @@ void TestWebService::TestAddNullDataSet()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
@@ -454,7 +449,7 @@ void TestWebService::TestAddDataSetWithID()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -465,7 +460,7 @@ void TestWebService::TestAddDataSetWithID()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
@@ -512,12 +507,11 @@ void TestWebService::TestAddDataSetWithWrongDataProviderID()
     struct_dataSet.schedule_retry = "00:05:00.00";
     struct_dataSet.schedule_timeout = "00:05:00.00";
     struct_dataSet.data_provider_id = 1;
-/*
-    // VINICIUS: check core findDataProvider method, it dont give a exception if a data provider id don't exist
+
     if(webService.addDataSet(struct_dataSet) == SOAP_OK)
     {
       QFAIL("Should not add a Data Set With a wrong Data Provider ID!");
-    }*/
+    }
   }
   catch(...)
   {
@@ -530,7 +524,7 @@ void TestWebService::testRemoveDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -541,7 +535,7 @@ void TestWebService::testRemoveDataSet()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
@@ -581,7 +575,7 @@ void TestWebService::testRemoveDataSetInvalidId()
   try
   {
      WebService webService;
-    //VINICIUS: check removeDataSet in core, it don't check if the data Set exists;
+
      if(webService.removeDataSet(1, nullptr) == SOAP_OK)
      {
        QFAIL("Should not remove a invalid Data Set!");
@@ -598,7 +592,7 @@ void TestWebService::testUpdateDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -609,7 +603,7 @@ void TestWebService::testUpdateDataSet()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }
@@ -683,13 +677,13 @@ void TestWebService::testUpdateDataSetInvalidId()
     struct_dataSet.schedule = "00:06:00.00";
     struct_dataSet.schedule_retry = "00:06:00.00";
     struct_dataSet.schedule_timeout = "00:06:00.00";
-/*
+
     WebService webService;
-    // VINICIUS: check the findDataProvider in terrama2/core, they don't check if data Provider exists
+
     if(webService.updateDataSet(struct_dataSet) == SOAP_OK)
     {
       QFAIL("Should not update a invalid Data Set!");
-    }*/
+    }
   }
   catch(...)
   {
@@ -702,7 +696,7 @@ void TestWebService::testFindDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider;
+    DataProvider struct_dataProvider, struct_dataProviderResult;
 
     struct_dataProvider.id = 0;
     struct_dataProvider.name = "Data Provider";
@@ -713,7 +707,7 @@ void TestWebService::testFindDataSet()
 
     WebService webService;
 
-    if (webService.addDataProvider(struct_dataProvider) != SOAP_OK)
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
       QFAIL("Add a Data Provider failed!");
     }

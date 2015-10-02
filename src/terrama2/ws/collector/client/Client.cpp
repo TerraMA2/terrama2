@@ -33,9 +33,11 @@
 #include "../core/Utils.hpp"
 #include "Web.nsmap"
 
-terrama2::ws::collector::Client::Client(std::string url)
+terrama2::ws::collector::Client::Client(const std::string url)
 {
-  wsClient_ = new WebProxy(url.c_str());
+  server_ = url;
+
+  wsClient_ = new WebProxy(server_.c_str());
 }
 
 
@@ -62,14 +64,16 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
 {
   DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
 
-  if(wsClient_->addDataProvider(struct_dataProvider) != SOAP_OK)
+  DataProvider struct_dataProviderResult;
+
+  if(wsClient_->addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
     throw client::AddingDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProvider);
+  dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
 
 }
 

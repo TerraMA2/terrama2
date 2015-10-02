@@ -65,6 +65,17 @@ void TestClient::clearDatabase()
   transactor->commit();
 }
 
+terrama2::core::DataProviderPtr TestClient::buildDataProviderPtr()
+{
+
+  terrama2::core::DataProviderPtr  dataProviderPtr(new terrama2::core::DataProvider("Data Provider", (terrama2::core::DataProvider::Kind)1));
+
+  dataProviderPtr->setUri("C:/DataProvider/");
+  dataProviderPtr->setDescription("Data Provider Description");
+  dataProviderPtr->setStatus((terrama2::core::DataProvider::Status)1);
+
+  return dataProviderPtr;
+}
 
 void TestClient::TestStatus()
 {
@@ -86,6 +97,7 @@ void TestClient::TestStatus()
   }
 }
 
+
 void TestClient::TestWrongConection()
 {
   std::string answer;
@@ -101,19 +113,27 @@ void TestClient::TestWrongConection()
   catch(terrama2::Exception &e)
   {
     // test ok
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
     QFAIL("Exception unexpected!");
   }
 }
+
 
 void TestClient::TestAddDataProvider()
 {
   try
   {
+    auto dataProviderPtr = buildDataProviderPtr();
 
+    wsClient_->addDataProvider(dataProviderPtr);
 
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -121,29 +141,39 @@ void TestClient::TestAddDataProvider()
   }
 }
 
+
 void TestClient::TestAddNullDataProvider()
 {
-    try
-    {
-
-    }
-    catch(...)
-    {
-        QFAIL("Exception unexpected!");
-    }
+  try
+  {
+    auto dataProviderPtr = buildDataProviderPtr();
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
 
 }
 
+
 void TestClient::TestAddDataProviderWithID()
 {
-    try
-    {
-
-    }
-    catch(...)
-    {
-        QFAIL("Exception unexpected!");
-    }
+  try
+  {
+    auto dataProviderPtr = buildDataProviderPtr();
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
 
 }
 
@@ -152,7 +182,11 @@ void TestClient::testRemoveDataProvider()
 {
   try
   {
-
+    auto dataProviderPtr = buildDataProviderPtr();
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -160,11 +194,16 @@ void TestClient::testRemoveDataProvider()
   }
 }
 
+
 void TestClient::testRemoveDataProviderInvalidId()
 {
   try
   {
-
+    auto dataProviderPtr = buildDataProviderPtr();
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -177,7 +216,11 @@ void TestClient::testUpdateDataProvider()
 {
   try
   {
-
+    auto dataProviderPtr = buildDataProviderPtr();
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -185,11 +228,16 @@ void TestClient::testUpdateDataProvider()
   }
 }
 
+
 void TestClient::testUpdateDataProviderInvalidId()
 {
   try
   {
-
+    auto dataProviderPtr = buildDataProviderPtr();
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -202,7 +250,11 @@ void TestClient::testFindDataProvider()
 {
   try
   {
-
+    auto dataProviderPtr = buildDataProviderPtr();
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -217,6 +269,10 @@ void TestClient::testFindDataProviderInvalidID()
   {
 
   }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -230,17 +286,26 @@ void TestClient::TestAddDataSet()
   {
 
   }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
   }
 }
 
+
 void TestClient::TestAddNullDataSet()
 {
   try
   {
 
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -255,17 +320,26 @@ void TestClient::TestAddDataSetWithID()
   {
 
   }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
   }
 }
 
+
 void TestClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
   {
 
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -280,6 +354,10 @@ void TestClient::testRemoveDataSet()
   {
 
   }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -292,6 +370,10 @@ void TestClient::testRemoveDataSetInvalidId()
   try
   {
 
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -307,6 +389,10 @@ void TestClient::testUpdateDataSet()
 
 
   }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -320,6 +406,10 @@ void TestClient::testUpdateDataSetInvalidId()
   {
 
 
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -335,6 +425,10 @@ void TestClient::testFindDataSet()
 
 
   }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -348,6 +442,10 @@ void TestClient::testFindDataSetInvalidID()
   {
 
 
+  }
+  catch(terrama2::Exception &e)
+  {
+QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {

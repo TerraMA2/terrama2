@@ -52,6 +52,9 @@ private:
      */
     void clearDatabase();
 
+    terrama2::core::DataProviderPtr buildDataProviderPtr();
+    terrama2::core::DataSetPtr buildDataSetPtr();
+
 private slots:
 
     void initTestCase(){} // Run before all tests
