@@ -40,7 +40,7 @@
         }
     },
     "database": {
-        "dbName": "terrama2",
+        "dbName": "terrama2_test",
         "driver": "postgres",
         "hostName": "localhost",
         "port": "5432",

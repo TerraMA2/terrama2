@@ -73,6 +73,11 @@ void initializeTerraMA2()
 {
   initializeTerralib();
 
+
+  // TODO: Uncomment this after implementation of batch executor
+  //createDatabase();
+
+  // TODO: Remove this after implementation of batch executor
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
@@ -83,5 +88,46 @@ void finalizeTerraMA2()
 {
   finalizeTerralib();
 
-  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+  if(terrama2::core::ApplicationController::getInstance().getDataSource().get())
+  {
+    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+  }
+
+}
+
+
+void dropDatabase()
+{
+  if(terrama2::core::ApplicationController::getInstance().getDataSource().get())
+  {
+    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+  }
+
+  std::map<std::string, std::string> connInfo;
+
+  connInfo["PG_HOST"] = "localhost";
+  connInfo["PG_PORT"] = "5432";
+  connInfo["PG_USER"] = "postgres";
+  connInfo["PG_DB_NAME"] = "postgres";
+  connInfo["PG_CONNECT_TIMEOUT"] = "4";
+  connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+  connInfo["PG_DB_TO_DROP"] = "terrama2_test";
+
+  std::string dsType = "POSTGIS";
+
+  // Check the data source existence
+  connInfo["PG_CHECK_DB_EXISTENCE"] = "terrama2_test";
+  bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+  if(dsExists)
+  {
+    te::da::DataSource::drop(dsType, connInfo);
+  }
+}
+
+void createDatabase()
+{
+  dropDatabase();
+
+  terrama2::core::ApplicationController::getInstance().createDatabase("terrama2_test", "postgres", "postgres", "localhost", 5432);
 }
