@@ -104,11 +104,11 @@ COMMENT ON COLUMN terrama2.dataset_item.timezone IS 'Which timezone the data is 
 
 CREATE TABLE terrama2.storage_metadata( id SERIAL PRIMARY KEY, key VARCHAR(50), value VARCHAR(50), dataset_item_id INTEGER, CONSTRAINT fk_dataset_metadata_dataset_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item(id) ON UPDATE CASCADE ON DELETE CASCADE);
 
-COMMENT ON TABLE terrama2.dataset_metadata IS 'Stores metadata of the storage strategy';
-COMMENT ON COLUMN terrama2.dataset_metadata.id IS 'Metadata identifier';
-COMMENT ON COLUMN terrama2.dataset_metadata.key IS 'Metadata key';
-COMMENT ON COLUMN terrama2.dataset_metadata.value IS 'Metadata value';
-COMMENT ON COLUMN terrama2.dataset_metadata.dataset_item_id IS 'Dataset item identifier';
+COMMENT ON TABLE terrama2.storage_metadata IS 'Stores metadata of the storage strategy';
+COMMENT ON COLUMN terrama2.storage_metadata.id IS 'Metadata identifier';
+COMMENT ON COLUMN terrama2.storage_metadata.key IS 'Metadata key';
+COMMENT ON COLUMN terrama2.storage_metadata.value IS 'Metadata value';
+COMMENT ON COLUMN terrama2.storage_metadata.dataset_item_id IS 'Dataset item identifier';
 
 
 CREATE TABLE terrama2.filter_by_value_type ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(50) NOT NULL UNIQUE, description TEXT);
