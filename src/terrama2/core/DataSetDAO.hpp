@@ -174,7 +174,7 @@ namespace terrama2
         static void updateDataSetItemList(terrama2::core::DataSetPtr dataSet, te::da::DataSourceTransactor& transactor);
 
         /*!
-          \brief Retrieve a the filter from a given dataset ID.
+          \brief Retrieve the filter from a given dataset ID.
 
           \param dataSetItem The dataset item.
           \param transactor Data source transactor.
@@ -195,6 +195,25 @@ namespace terrama2
            \param transactor Data source transactor.
          */
         static void updateFilter(terrama2::core::FilterPtr filter, te::da::DataSourceTransactor& transactor);
+
+
+        /*!
+          \brief Retrieve a the storageg strategy metadata from a given dataset ID.
+
+          \param dataSetItemId The dataset item identifier.
+          \param transactor Data source transactor.
+          \return The map with the storage strategy metadata.
+         */
+        static std::map<std::string, std::string> getStorageMetadata(const uint64_t dataSetItemId, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Persists the storage strategy metadata of a dataset item.
+           \param dataSetItemId The dataset item identifier.
+           \param storageMetadata The map with the storage strategy metadata.
+           \param transactor Data source transactor.
+         */
+        static void saveStorageMetadata(const uint64_t dataSetItemId, const std::map<std::string, std::string>& storageMetadata, te::da::DataSourceTransactor& transactor);
+
 
         //! Not instantiable.
         DataSetDAO();

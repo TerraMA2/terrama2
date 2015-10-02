@@ -139,10 +139,20 @@ DataSetPtr TsDataManager::createDataSet()
   filter->setByValueType(Filter::GREATER_THAN_TYPE);
   filter->setByValue(100.);
   dataSetItem->setFilter(filter);
+
   dataSetItemList.push_back(dataSetItem);
 
-  DataSetItemPtr data2(new DataSetItem(dataSet, DataSetItem::FIRE_POINTS_TYPE));
-  dataSetItemList.push_back(data2);
+
+  DataSetItemPtr dataSetItem2(new DataSetItem(dataSet, DataSetItem::FIRE_POINTS_TYPE));
+
+  std::map<std::string, std::string> storageMetadata;
+  storageMetadata["key"] = "value";
+  storageMetadata["key1"] = "value1";
+  storageMetadata["key2"] = "value2";
+
+  dataSetItem2->setStorageMetadata(storageMetadata);
+
+  dataSetItemList.push_back(dataSetItem2);
   dataSet->setDataSetItemList(dataSetItemList);
 
   return dataSet;
@@ -509,11 +519,20 @@ void TsDataManager::testUpdateDataSet()
   QVERIFY2(metadata["key2"] == foundDataSet->metadata()["key2"], "Metadata key2/value2 must be the same!");
 
   // Expected result is to remove the data PCD_INPE, update the FIRE_POINTS  and insert PCD_TOA5.
-  QVERIFY2(foundDataSet->dataSetItemList().size() == 2, "dataSetItemList must have 2 itens!");
-  QVERIFY2(foundDataSet->dataSetItemList()[0]->kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItemList[0] must be of the type FIRE_POINTS!");
-  QVERIFY2(foundDataSet->dataSetItemList()[0]->mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
-  QVERIFY2(foundDataSet->dataSetItemList()[1]->kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItemList[1] must be of the type PCD-TOA5!");
 
+  QVERIFY2(foundDataSet->dataSetItemList().size() == 2, "dataSetItemList must have 2 itens!");
+
+  auto dsItem0 = foundDataSet->dataSetItemList()[0];
+  auto dsItem1 = foundDataSet->dataSetItemList()[1];
+
+  QVERIFY2(dsItem0->kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItemList[0] must be of the type FIRE_POINTS!");
+  QVERIFY2(dsItem0->mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
+  QVERIFY2(dsItem1->kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItemList[1] must be of the type PCD-TOA5!");
+
+  std::map<std::string, std::string> storageMetadata =  dsItem0->storageMetadata();
+  QVERIFY2("value" == storageMetadata["key"], "Metadata key/value must be the same!");
+  QVERIFY2("value1" == storageMetadata["key1"], "Metadata key1/value1 must be the same!");
+  QVERIFY2("value2" == storageMetadata["key2"], "Metadata key2/value2 must be the same!");
 
 }
 

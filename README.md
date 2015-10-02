@@ -71,7 +71,7 @@ We have prepared a special bash script for building and installing the dependenc
 
 - Download the third-party libraries package used by the development team: [terrama2-3rdparty-linux-ubuntu-14.04.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-linux-ubuntu-14.04.tar.gz).
 
-- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the *terrama2-3rdparty-linux-ubuntu-14.04.tar.gz* package.
+- Copy the script [install-3rdparty-linux-ubuntu-14.04.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-linux-ubuntu-14.04.sh) to the same folder you have downloaded the *terrama2-3rdparty-linux-ubuntu-14.04.tar.gz* package.
 
 - Open the shell command line and call the script *install-3rdparty-linux-ubuntu-14.04.sh* setting the target to install all the stuffs from these third-party libraries and tools:
 ```

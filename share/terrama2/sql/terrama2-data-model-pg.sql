@@ -218,11 +218,11 @@ CREATE TABLE terrama2.storage_metadata
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-COMMENT ON TABLE terrama2.dataset_metadata IS 'Stores metadata of the storage strategy';
-COMMENT ON COLUMN terrama2.dataset_metadata.id IS 'Metadata identifier';
-COMMENT ON COLUMN terrama2.dataset_metadata.key IS 'Metadata key';
-COMMENT ON COLUMN terrama2.dataset_metadata.value IS 'Metadata value';
-COMMENT ON COLUMN terrama2.dataset_metadata.dataset_item_id IS 'Dataset item identifier';
+COMMENT ON TABLE terrama2.storage_metadata IS 'Stores metadata of the storage strategy';
+COMMENT ON COLUMN terrama2.storage_metadata.id IS 'Metadata identifier';
+COMMENT ON COLUMN terrama2.storage_metadata.key IS 'Metadata key';
+COMMENT ON COLUMN terrama2.storage_metadata.value IS 'Metadata value';
+COMMENT ON COLUMN terrama2.storage_metadata.dataset_item_id IS 'Dataset item identifier';
 
 
 CREATE TABLE terrama2.filter_by_value_type

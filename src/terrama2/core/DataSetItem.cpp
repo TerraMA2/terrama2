@@ -31,6 +31,7 @@
 #include "DataSetItem.hpp"
 #include "DataSet.hpp"
 
+
 terrama2::core::DataSetItem::DataSetItem(DataSetPtr dataSet, Kind kind, const uint64_t id)
   : id_(id),
     status_(INACTIVE),
@@ -109,4 +110,14 @@ terrama2::core::FilterPtr terrama2::core::DataSetItem::filter() const
 void terrama2::core::DataSetItem::setFilter(terrama2::core::FilterPtr filter)
 {
   filter_ = filter;
+}
+
+std::map<std::string, std::string> terrama2::core::DataSetItem::storageMetadata() const
+{
+  return storageMetadata_;
+}
+
+void terrama2::core::DataSetItem::setStorageMetadata(const std::map<std::string, std::string>& storageMetadata)
+{
+  storageMetadata_ = storageMetadata;
 }
