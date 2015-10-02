@@ -37,13 +37,11 @@
 #include <terralib/dataaccess/utils/Utils.h>
 
 void terrama2::collector::Storager::store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                          const std::vector<std::shared_ptr<te::da::DataSetType> > &datasetTypeVec)
+                                          const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
-  assert(datasetVec.size() == datasetTypeVec.size());
   assert(datasetVec.size() == 1);//TODO: remove this!
 
   const std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(0);
-  const std::shared_ptr<te::da::DataSetType> tempDataSetType = datasetTypeVec.at(0);
 
   // let's open the destination datasource
   std::map<std::string, std::string> pgisInfo;
@@ -73,11 +71,11 @@ void terrama2::collector::Storager::store(const std::vector<std::shared_ptr<te::
   }
 
   // create and save datasettype in the datasource destination
-  te::da::DataSetType* newDataSet = static_cast<te::da::DataSetType*>(tempDataSetType->clone());
+  te::da::DataSetType* newDataSet = static_cast<te::da::DataSetType*>(dataSetType->clone());
   newDataSet->setName(dataSetName);
 
   //Get original geometry to get srid
-  te::gm::GeometryProperty* geom = GetFirstGeomProperty(tempDataSetType.get());
+  te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
   if(geom)
     GetFirstGeomProperty(newDataSet)->setSRID(geom->getSRID());
   else

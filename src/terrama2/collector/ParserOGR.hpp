@@ -58,7 +58,7 @@ namespace terrama2
         virtual void read(const std::string& uri,
                           const std::vector<std::string> &names,
                           std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
-                          std::vector<std::shared_ptr<te::da::DataSetType> >& datasetTypeVec) override;
+                          std::shared_ptr<te::da::DataSetType> & datasetType) override;
     };
   }
 }

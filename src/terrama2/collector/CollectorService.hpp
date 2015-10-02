@@ -41,6 +41,7 @@
 #include <QMap>
 
 // STL
+#include <atomic>
 #include <memory>
 #include <cstdint>
 
@@ -90,6 +91,9 @@ namespace terrama2
         void start();
 
       public slots:
+
+        void stop();
+
         /*!
              * \brief Creates an instace of a collector of appropriate type for the dataProvider.
              * \param dataProvider The shared pointer to the data provider

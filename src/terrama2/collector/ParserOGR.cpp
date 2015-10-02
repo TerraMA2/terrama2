@@ -58,7 +58,7 @@ std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std:
 void terrama2::collector::ParserOGR::read(const std::string &uri,
                                           const std::vector<std::string> &names,
                                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                          std::vector<std::shared_ptr<te::da::DataSetType> > &datasetTypeVec)
+                                          std::shared_ptr<te::da::DataSetType>& dataSetType)
 {
   if(names.empty())
   {
@@ -86,7 +86,7 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     for(const std::string& name : names)
     {
       std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
-      std::shared_ptr<te::da::DataSetType> dataSetType(transactor->getDataSetType(name));
+      dataSetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
 
       if(!dataSet || !dataSetType)
       {
@@ -95,7 +95,6 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
       }
 
       datasetVec.push_back(dataSet);
-      datasetTypeVec.push_back(dataSetType);
     }
 
     return;

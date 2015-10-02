@@ -29,26 +29,32 @@
 
 #include "DataProcessor.hpp"
 
-#include "Filter.hpp"
-#include "Parser.hpp"
+#include "ParserFactory.hpp"
+#include "DataFilter.hpp"
 #include "Storager.hpp"
+#include "Parser.hpp"
+
+#include "../core/DataSetItem.hpp"
 
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
 struct terrama2::collector::DataProcessor::Impl
 {
-    core::DataPtr   data_;
-    FilterPtr filter_;
+    core::DataSetItemPtr   data_;
+    DataFilterPtr filter_;
     ParserPtr parser_;
     StoragerPtr storager_;
 };
 
-terrama2::collector::DataProcessor::DataProcessor(core::DataPtr data, QObject *parent)
+terrama2::collector::DataProcessor::DataProcessor(core::DataSetItemPtr data, QObject *parent)
 {
   impl_ = new Impl();
   impl_->data_ = data;
+
   //TODO: instantiate filter, parser, storager...
+  initFilter();
+  initParser();
 }
 
 terrama2::collector::DataProcessor::~DataProcessor()
@@ -56,12 +62,12 @@ terrama2::collector::DataProcessor::~DataProcessor()
   delete impl_;
 }
 
-terrama2::core::DataPtr terrama2::collector::DataProcessor::data() const
+terrama2::core::DataSetItemPtr terrama2::collector::DataProcessor::data() const
 {
   return impl_->data_;
 }
 
-terrama2::collector::FilterPtr terrama2::collector::DataProcessor::filter() const
+terrama2::collector::DataFilterPtr terrama2::collector::DataProcessor::filter() const
 {
   return impl_->filter_;
 }
@@ -78,8 +84,8 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
   names = impl_->filter_->filterNames(names);
   //get dataset
   std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-  std::vector<std::shared_ptr<te::da::DataSetType> > datasetTypeVec;
-  impl_->parser_->read(uri, names, datasetVec, datasetTypeVec);
+  std::shared_ptr<te::da::DataSetType> datasetType;
+  impl_->parser_->read(uri, names, datasetVec, datasetType);
 
   //filter dataset
   for(int i = 0, size = datasetVec.size(); i < size; ++i)
@@ -91,9 +97,21 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
   }
 
   //store dataset
-  impl_->storager_->store(datasetVec, datasetTypeVec);
+  impl_->storager_->store(datasetVec, datasetType);
 
   //JANO: implementar import
   //should run in thread ?
   //Call a thread method?
+}
+
+void terrama2::collector::DataProcessor::initFilter()
+{
+  DataFilterPtr newFilter(new DataFilter(impl_->data_));
+  impl_->filter_ = newFilter;
+}
+
+void terrama2::collector::DataProcessor::initParser()
+{
+  ParserPtr parser = ParserFactory::getParser(impl_->data_);
+  impl_->parser_ = parser;
 }

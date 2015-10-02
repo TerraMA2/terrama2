@@ -53,14 +53,14 @@ void terrama2::collector::CollectorService::connectDataManager()
 {
   core::DataManager &dataManager = core::DataManager::getInstance();
   //DataProvider signals
-  connect(&dataManager, SIGNAL(dataProviderAdded(core::DataProviderPtr)), SLOT(addProvider(core::DataProviderPtr)),    Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataProviderRemoved(DataProviderPtr)),     SLOT(removeProvider(core::DataProviderPtr)), Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataProviderUpdated(DataProviderPtr)),     SLOT(updateProvider(core::DataProviderPtr)), Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderAdded,   this, &terrama2::collector::CollectorService::addProvider,    Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderRemoved, this, &terrama2::collector::CollectorService::removeProvider, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderUpdated, this, &terrama2::collector::CollectorService::updateProvider, Qt::UniqueConnection);
 
   //dataset signals
-  connect(&dataManager, SIGNAL(dataSetAdded(core::DataSetPtr)),   SLOT(addDataset(core::DataSetPtr)),    Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataSetRemoved(core::DataSetPtr)), SLOT(removeDataset(core::DataSetPtr)), Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataSetUpdated(core::DataSetPtr)), SLOT(updateDataset(core::DataSetPtr)), Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetAdded  , this, &terrama2::collector::CollectorService::addDataset   , Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetRemoved, this, &terrama2::collector::CollectorService::removeDataset, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetUpdated, this, &terrama2::collector::CollectorService::updateDataset, Qt::UniqueConnection);
 }
 
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
@@ -74,10 +74,7 @@ terrama2::collector::CollectorService::CollectorService(QObject *parent)
 terrama2::collector::CollectorService::~CollectorService()
 {
 
-  mutex_.lock();
-  //Finish the thread
-  stop_ = true;
-  mutex_.unlock();
+  stop();
 
   if(loopThread_.joinable())
     loopThread_.join();
@@ -90,8 +87,14 @@ void terrama2::collector::CollectorService::start()
     throw ServiceAlreadyRunnningError() << terrama2::ErrorDescription(tr("Collector service already running."));
 
   loopThread_ = std::thread(&CollectorService::processingLoop, this);
+}
 
-  QCoreApplication::exec();
+void terrama2::collector::CollectorService::stop()
+{
+  mutex_.lock();
+  //Finish the thread
+  stop_ = true;
+  mutex_.unlock();
 }
 
 void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
@@ -175,7 +178,8 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
 
   //Append the data provider to queue
   auto collector = datasetTimer->collector();
-  auto collectorQueue = collectorQueueMap_.value(collector->kind());
+  assert(collector);
+  auto& collectorQueue = collectorQueueMap_[collector->kind()];
   if(!collectorQueue.contains(collector))
     collectorQueue.append(collector);
 
@@ -187,8 +191,9 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
 
 terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
 {
+  //TODO: Debug?
   //sanity check: valid dataprovider
-  assert(dataProvider->id());
+//  assert(dataProvider->id());
 
   //TODO: catch? rethrow?
   //Create a collector and add it to the list
@@ -216,8 +221,9 @@ void terrama2::collector::CollectorService::updateProvider(const terrama2::core:
 
 terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSetPtr dataset)
 {
+  //TODO: Debug?
   //sanity check: valid dataset
-  assert(dataset->id());
+//  assert(dataset->id());
 
   //Create a new dataset timer and connect the timeout signal to queue
   auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));

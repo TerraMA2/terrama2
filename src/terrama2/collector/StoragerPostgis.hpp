@@ -54,7 +54,7 @@ namespace terrama2
              * \exception TODO: Storager::store exception...
              */
         virtual void store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                           const std::vector<std::shared_ptr<te::da::DataSetType> > &datasetTypeVec) override;
+                           const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
 
     };
   }

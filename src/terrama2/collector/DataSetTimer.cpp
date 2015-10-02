@@ -79,7 +79,11 @@ void terrama2::collector::DataSetTimer::prepareTimer()
 
 void terrama2::collector::DataSetTimer::populateDataLst()
 {
-//JANO: implementar populateDataLst
+  for(auto dataSetItem : impl_->dataSet_->dataSetItemList())
+  {
+    DataProcessorPtr data(new DataProcessor(dataSetItem));
+    impl_->dataLst_.push_back(data);
+  }
 }
 
 

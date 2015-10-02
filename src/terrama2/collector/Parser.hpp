@@ -71,9 +71,11 @@ namespace terrama2
              */
         virtual void read(const std::string& uri,
                           const std::vector<std::string> &names,
-                          std::vector<std::shared_ptr<te::da::DataSet>> &datasetVec,
-                          std::vector<std::shared_ptr<te::da::DataSetType>> &datasetTypeVec) = 0;
+                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                          std::shared_ptr<te::da::DataSetType> &datasetTypeVec) = 0;
     };
+
+    typedef std::shared_ptr<Parser> ParserPtr;
   }
 }
 

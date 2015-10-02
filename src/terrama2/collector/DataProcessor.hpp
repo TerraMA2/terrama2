@@ -53,14 +53,14 @@ namespace te
 namespace terrama2
 {
   namespace core {
-    class Data;
-    typedef std::shared_ptr<Data> DataPtr;
+    class DataSetItem;
+    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
   }
 
   namespace collector
   {
-    class Filter;
-    typedef std::shared_ptr<Filter> FilterPtr;
+    class DataFilter;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
     class Parser;
     typedef std::shared_ptr<Parser> ParserPtr;
     class Storager;
@@ -80,7 +80,7 @@ namespace terrama2
 
       public:
         //! Constructor
-        DataProcessor(core::DataPtr data, QObject* parent = nullptr);
+        DataProcessor(core::DataSetItemPtr data, QObject* parent = nullptr);
         //! Destructor
         ~DataProcessor();
 
@@ -88,7 +88,7 @@ namespace terrama2
          * \brief Data object being processed by this processor.
          * \return Shared pointer to the Data object.
          */
-        core::DataPtr data() const;
+        core::DataSetItemPtr data() const;
 
         /*!
          * \brief Filtering rules for the data.
@@ -100,7 +100,7 @@ namespace terrama2
          *
          * \return Shared pointer to a filter object.
          */
-        FilterPtr filter() const;
+        DataFilterPtr filter() const;
 
         /*!
              * \brief Calls the process and filtering objecs, after they finish calls the storager.
@@ -109,6 +109,11 @@ namespace terrama2
         void import(const std::string &uri);
 
       private:
+        void initFilter();
+        void initParser();
+        void initStorager();
+
+
         struct Impl;
         Impl* impl_;
     };
