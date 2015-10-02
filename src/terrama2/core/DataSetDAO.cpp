@@ -232,6 +232,8 @@ terrama2::core::DataSetPtr terrama2::core::DataSetDAO::find(uint64_t id, te::da:
     auto metadata = getMetadata(id, transactor);
     dataset->setMetadata(metadata);
 
+    dataset->setDataSetItemList(getDataSetItemList(dataset, transactor));
+
   }
 
   return dataset;
@@ -408,6 +410,8 @@ std::vector<terrama2::core::DataSetItemPtr> terrama2::core::DataSetDAO::getDataS
     // Retrieve the filter
     dataSetItem->setFilter(getFilter(dataSetItem, transactor));
 
+    dataSetItem->setStorageMetadata(getStorageMetadata(dataSetItem->id(), transactor));
+
     dataSetItemList.push_back(dataSetItem);
   }
 
@@ -454,6 +458,8 @@ void terrama2::core::DataSetDAO::saveDataSetItemList(const int64_t dataSetId, co
     {
       saveFilter(dataSetItem->id(), dataSetItem->filter(), transactor);
     }
+
+    saveStorageMetadata(dataSetItem->id(), dataSetItem->storageMetadata(), transactor);
 
   }
 
@@ -514,13 +520,19 @@ void terrama2::core::DataSetDAO::updateDataSetItemList(terrama2::core::DataSetPt
   auto dataSetItemList = getDataSetItemList(dataSet, transactor);
   dataSet->setDataSetItemList(dataSetItemList);
 
-  // Updates the filter for each dataset item.
   foreach(auto dataSetItem, dataSetItemList)
   {
     if(dataSetItem->filter().get())
     {
       updateFilter(dataSetItem->filter(), transactor);
     }
+
+    // Remove all metadata then insert the new one
+    std::string sql = "DELETE FROM terrama2.dataset_metadata WHERE dataset_id = " + std::to_string(dataSetItem->id());
+    transactor.execute(sql);
+
+    saveStorageMetadata(dataSetItem->id(), dataSetItem->storageMetadata(), transactor);
+
   }
 }
 
@@ -632,4 +644,51 @@ void terrama2::core::DataSetDAO::updateFilter(terrama2::core::FilterPtr filter, 
 
   transactor.update(dataSetName, memDataSet.get(), properties, ids);
 
+}
+
+std::map<std::string, std::string> terrama2::core::DataSetDAO::getStorageMetadata(const uint64_t dataSetItemId,
+                                                                                  te::da::DataSourceTransactor& transactor)
+{
+  std::map<std::string, std::string> metadata;
+
+  std::string dataSetName = "terrama2.storage_metadata";
+
+  std::string sql("SELECT key, value FROM " + dataSetName + " WHERE dataset_item_id = " + std::to_string(dataSetItemId));
+  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+
+  while(tempDataSet->moveNext())
+  {
+    metadata[tempDataSet->getString("key")] = tempDataSet->getString("value");
+  }
+
+  return metadata;
+}
+
+void terrama2::core::DataSetDAO::saveStorageMetadata(const uint64_t dataSetItemId,
+                                                     const std::map<std::string, std::string>& storageMetadata,
+                                                     te::da::DataSourceTransactor& transactor)
+{
+  std::string dataSetName = "terrama2.storage_metadata";
+  std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
+  te::dt::Property* idProperty = dataSetType->getProperty(0);
+  dataSetType->remove(idProperty);
+
+  // Creates a memory dataset from the DataSetType without column id
+  std::shared_ptr<te::mem::DataSet> memDataSet(new te::mem::DataSet(dataSetType.get()));
+  std::map<std::string, std::string> options;
+
+
+  for(auto it = storageMetadata.begin(); it != storageMetadata.end(); ++it)
+  {
+    te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
+
+    // Sets the values in the item
+    dsItem->setString("key", it->first);
+    dsItem->setString("value", it->second);
+    dsItem->setInt32("dataset_item_id", dataSetItemId);
+    memDataSet->add(dsItem);
+  }
+
+  // Adds it to the data source
+  transactor.add(dataSetName, memDataSet.get(), options);
 }
