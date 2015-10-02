@@ -31,12 +31,17 @@
 
 //terrama
 #include <terrama2/collector/CollectorService.hpp>
+#include <terrama2/collector/Exception.hpp>
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSetItem.hpp>
 #include <terrama2/core/DataSet.hpp>
 
 //terralib
 #include <terralib/datatype/TimeDuration.h>
+#include <terralib/common/Exception.h>
+
+//QT
+#include <QTimer>
 
 void TsIntegration::TestReadCsvStorePostGis()
 {
@@ -52,7 +57,7 @@ void TsIntegration::TestReadCsvStorePostGis()
   {
     terrama2::core::DataProviderPtr provider(new terrama2::core::DataProvider("TestProvider", terrama2::core::DataProvider::FILE_TYPE));
     provider->setStatus(terrama2::core::DataProvider::ACTIVE);
-    provider->setUri(info.absolutePath().toStdString());
+    provider->setUri(info.canonicalPath().toStdString());
 
     terrama2::core::DataSetPtr dataset(new terrama2::core::DataSet(provider, "TestDataSet", terrama2::core::DataSet::PCD_TYPE));
     dataset->setStatus(terrama2::core::DataSet::ACTIVE);
@@ -73,10 +78,25 @@ void TsIntegration::TestReadCsvStorePostGis()
 
     service.start();
 
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
+    timer.start(120000);
+
+    QApplication::exec();
+  }
+  catch(terrama2::Exception& e)
+  {
+    qDebug() << e.what();
+    QFAIL("Terrama2 exception...");
+  }
+  catch(te::common::Exception& e)
+  {
+    qDebug() << e.what();
+    QFAIL("Terralib exception...");
   }
   catch(...)
   {
-
+    QFAIL("Unkown exception...");
   }
 }
 

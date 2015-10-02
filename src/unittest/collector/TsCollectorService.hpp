@@ -51,9 +51,8 @@ private slots:
 
     //******Test functions********
 
-    /*!
-     * \brief Test Description
-     */
+
+    void TestStartServer();
 
 
 

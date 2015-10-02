@@ -3,8 +3,8 @@
 #include "TsCollectorFile.hpp"
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
+#include "TsDataFilter.hpp"
 #include "TsParserOGR.hpp"
-#include "TsFilter.hpp"
 
 #include <QApplication>
 #include <QTimer>
@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
   TsParserOGR tsParserOGR;
   returnVal += QTest::qExec(&tsParserOGR, argc, argv);
 
-  TsFilter tsFilter;
-  returnVal += QTest::qExec(&tsFilter, argc, argv);
+  TsDataFilter tsDataFilter;
+  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
 
   TsIntegration tsIntegration;
   returnVal += QTest::qExec(&tsIntegration, argc, argv);

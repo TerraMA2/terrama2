@@ -33,7 +33,7 @@
 //Qt
 #include <QtTest>
 
-class TsFilter: public QObject
+class TsDataFilter: public QObject
 {
   Q_OBJECT
 

@@ -70,8 +70,8 @@ void TsParserOGR::TestEmptyFile()
     std::vector<std::string> names { info.baseName().toStdString() };
 
     std::vector<std::shared_ptr<te::da::DataSet>> datasetVec;
-    std::vector<std::shared_ptr<te::da::DataSetType>> datasetTypeVec;
-    parser.read(dir.path().toStdString(), names, datasetVec, datasetTypeVec);
+    std::shared_ptr<te::da::DataSetType>          datasetType;
+    parser.read(dir.path().toStdString(), names, datasetVec, datasetType);
 
     QFAIL("Should not be here.");
   }

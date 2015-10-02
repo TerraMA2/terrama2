@@ -67,6 +67,12 @@ void TsCollectorService::cleanup()
 
 }
 
+void TsCollectorService::TestStartServer()
+{
+  terrama2::collector::CollectorService service;
+  service.start();
+}
+
 
 //QTEST_MAIN(TsCollectorService)
 #include "TsCollectorService.moc"

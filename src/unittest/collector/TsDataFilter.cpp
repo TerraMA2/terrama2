@@ -27,38 +27,64 @@
   \author Jano Simas
 */
 
-#include "TsFilter.hpp"
+#include "TsDataFilter.hpp"
 
 //terrama2
-#include <terrama2/collector/Filter.hpp>
+#include <terrama2/collector/DataFilter.hpp>
+
+#include <terrama2/core/DataProvider.hpp>
+#include <terrama2/core/DataSetItem.hpp>
+#include <terrama2/core/DataSet.hpp>
+#include <terrama2/core/Filter.hpp>
 
 //QT
 #include <QStringList>
 
-void TsFilter::TestFilterNamesExact()
+void TsDataFilter::TestFilterNamesExact()
 {
+  terrama2::core::DataProviderPtr provider(new terrama2::core::DataProvider("TestProvider", terrama2::core::DataProvider::UNKNOWN_TYPE));
+  terrama2::core::DataSetPtr      dataset (new terrama2::core::DataSet     (provider, "TestDataSet", terrama2::core::DataSet::UNKNOWN_TYPE));
+  terrama2::core::DataSetItemPtr  dataItem(new terrama2::core::DataSetItem (dataset, terrama2::core::DataSetItem::UNKNOWN_TYPE));
+  terrama2::core::FilterPtr       filter(new terrama2::core::Filter(dataItem));
+  std::vector<terrama2::core::DataSetPtr>     datasets     = { dataset };
+  std::vector<terrama2::core::DataSetItemPtr> datasetitems = { dataItem };
+  provider->setDataSets(datasets);
+  dataset->setDataSetItemList(datasetitems);
+  dataItem->setFilter(filter);
+
   std::string exact("exact");
-  terrama2::collector::Filter filter;
-  filter.setMask(exact);
+  dataItem->setMask(exact);
+
+  terrama2::collector::DataFilter datafilter(dataItem);
 
   std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
 
-  names = filter.filterNames(names);
+  names = datafilter.filterNames(names);
 
   QVERIFY(names.size() == 1);
   QCOMPARE(names.at(0), exact);
 }
 
-void TsFilter::TestEmptyMask()
+void TsDataFilter::TestEmptyMask()
 {
-  terrama2::collector::Filter filter;
+  terrama2::core::DataProviderPtr provider(new terrama2::core::DataProvider("TestProvider", terrama2::core::DataProvider::UNKNOWN_TYPE));
+  terrama2::core::DataSetPtr      dataset (new terrama2::core::DataSet     (provider, "TestDataSet", terrama2::core::DataSet::UNKNOWN_TYPE));
+  terrama2::core::DataSetItemPtr  dataItem(new terrama2::core::DataSetItem (dataset, terrama2::core::DataSetItem::UNKNOWN_TYPE));
+  terrama2::core::FilterPtr       filter(new terrama2::core::Filter(dataItem));
+  std::vector<terrama2::core::DataSetPtr>     datasets     = { dataset };
+  std::vector<terrama2::core::DataSetItemPtr> datasetitems = { dataItem };
+  provider->setDataSets(datasets);
+  dataset->setDataSetItemList(datasetitems);
+  dataItem->setFilter(filter);
+
+  terrama2::collector::DataFilter datafilter(dataItem);
 
   std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
 
-  std::vector<std::string> output = filter.filterNames(names);
+  std::vector<std::string> output = datafilter.filterNames(names);
 
   QCOMPARE(output, names);
 }
 
-//QTEST_MAIN(TsFilter)
-#include "TsFilter.moc"
+//QTEST_MAIN(TsDataFilter)
+#include "TsDataFilter.moc"
