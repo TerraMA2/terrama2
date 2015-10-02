@@ -29,6 +29,7 @@
 
 
 #include "CollectorFactory.hpp"
+#include "CollectorFile.hpp"
 #include "Exception.hpp"
 
 terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
@@ -42,6 +43,16 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getColl
     //TODO: Throws if fail?
 
     //TODO: Throws UnknownDataProviderKindException
+    switch (dataProvider->kind()) {
+      case core::DataProvider::FILE_TYPE:
+      {
+        CollectorPtr newCollector(new CollectorFile(dataProvider));
+        collectorMap_.insert(dataProvider->id(), newCollector);
+        break;
+      }
+      default:
+        break;
+    }
   }
 
   return collectorMap_.value(dataProvider->id());
