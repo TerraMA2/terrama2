@@ -60,29 +60,57 @@ class TsDataManager : public QObject
     void testLoad();
     void testUnload();
 
-    //Data provider methods
+    //Data provider tests
+
+    // Tests for add
     void testAddDataProvider();
     void testAddNullDataProvider();
-    void testUpdateNullDataProvider();
     void testAddDataProviderWithId();
     void testAddDataProviderWithDataSet();
-    void testRemoveDataProvider();
-    void testRemoveDataProviderInvalidId();
-    void testFindDataProvider();
+
+    // Tests for update
     void testUpdateDataProvider();
+    void testUpdateNonexistentDataProvider();
+    void testUpdateNullDataProvider();
     void testUpdateDataProviderInvalidId();
 
-    //Dataset methods
+    // Tests for remove
+    void testRemoveDataProvider();
+    void testRemoveDataProviderInvalidId();
+    void testRemoveNonExistentDataProvider();
+    void testRemoveDataProviderWithDataSet();
+
+    // Tests for find
+    void testFindDataProvider();
+    void testFindNonExistentDataProvider();
+    void testFindDataProviderByName();
+
+    //Dataset tests
+
+    // Tests for add
     void testAddDataSet();
     void testAddDataSetWihId();
     void testAddNullDataSet();
+    void testAddDataSetWithNullProvider();
+    void testAddDataSetWithNonexistentProvider();
+
+    // Tests for update
     void testUpdateDataSet();
     void testUpdateNullDataSet();
     void testUpdateDataSetInvalidId();
+    void testUpdateDataSetWithNullProvider();
+    void testUpdateDataSetWithNonexistentProvider();
+
+    // Tests for remove
     void testRemoveDataSet();
     void testRemoveDataSetInvalidId();
     void testRemoveDataSetInUse();
+    void testRemoveNonExistentDataSet();
+
+    // Tests for find
     void testFindDataSet();
+    void testFindNonExistentDataSet();
+    void testFindDataSetByName();
 
 
     terrama2::core::DataProviderPtr createDataProvider();
