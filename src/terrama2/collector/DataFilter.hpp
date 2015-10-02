@@ -31,6 +31,8 @@
 #ifndef __TERRAMA2_COLLECTOR_FILTER_HPP__
 #define __TERRAMA2_COLLECTOR_FILTER_HPP__
 
+#include "../core/DataSetItem.hpp"
+
 //Terralib
 #include "terralib/dataaccess/dataset/DataSet.h"
 #include "terralib/geometry.h"
@@ -46,11 +48,38 @@ namespace terrama2
 {
   namespace collector
   {
-    class Filter : public boost::noncopyable
+    class DataFilter : public boost::noncopyable
     {
       public:
-        Filter();
-        ~Filter();
+        DataFilter(core::DataSetItemPtr datasetItem);
+        ~DataFilter();
+
+        /*!
+             * \brief Filters a list of names using filtering criteria.
+             *
+             * \param namesList Full list of names to be filtered.
+             *
+             * \pre Filtering rules should have been set, otherwise unmodified list will be returned.
+             *
+             * \return List of filtered names.
+             */
+        std::vector<std::string> filterNames(const std::vector<std::string> &namesList) const;
+
+        /*!
+             * \brief Filters a te::da::DataSet by matching criteria.
+             * \param dataSet DataSet to be filtered.
+             *
+             * \pre Filtering rules should have been set, otherwise unmodified DataSet is returned.
+             *
+             * \return Filtered DataSet.
+             */
+        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const;
+
+        //TODO: should have static methods for easy access?
+        static std::vector<std::string> filterNamesByMask(const std::vector<std::string>& namesList, const std::string& mask);
+        static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
+
+      private:
 
         /*!
              * \brief Sets the mask the names should match
@@ -80,38 +109,11 @@ namespace terrama2
              */
         void setDataEndDate();//TODO: What datetime format?
 
-        /*!
-             * \brief Filters a list of names using filtering criteria.
-             *
-             * \param namesList Full list of names to be filtered.
-             *
-             * \pre Filtering rules should have been set, otherwise unmodified list will be returned.
-             *
-             * \return List of filtered names.
-             */
-        std::vector<std::string> filterNames(const std::vector<std::string> &namesList) const;
-
-        /*!
-             * \brief Filters a te::da::DataSet by matching criteria.
-             * \param dataSet DataSet to be filtered.
-             *
-             * \pre Filtering rules should have been set, otherwise unmodified DataSet is returned.
-             *
-             * \return Filtered DataSet.
-             */
-        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const;
-
-        //TODO: should have static methods for easy access?
-        static std::vector<std::string> filterNamesByMask(const std::vector<std::string>& namesList, const std::string& mask);
-        static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
-
-      private:
-
         struct Impl;
         Impl* impl_;
     };
 
-    typedef std::shared_ptr<Filter> FilterPtr;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
   }
 }
 
