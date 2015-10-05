@@ -20,42 +20,58 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file unittest/ws/collector/core/Utils.cpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Paulo R. M. Oliveira
+  \author Vinicius Campanha
 */
 
-#include "TsApplicationController.hpp"
 
+//TerrraMA2
 #include "Utils.hpp"
-
-// TerraMA2
-#include <terrama2_config.hpp>
-#include <terrama2/core/ApplicationController.hpp>
 #include <terrama2/core/Utils.hpp>
+#include <terrama2/core/ApplicationController.hpp>
 
-// TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
+//terralib
+#include <terralib/common/PlatformUtils.h>
+#include <terralib/common.h>
+#include <terralib/plugin.h>
+
+// QT
+#include <QTest>
 
 // STL
-#include <memory>
+#include <string>
 
 
-
-void TsApplicationController::testCreateDatabase()
+void initializeTerralib()
 {
-  // TODO: Uncomment this after implementation of batch executor
-  //dropDatabase();
-  //QVERIFY(terrama2::core::ApplicationController::getInstance().createDatabase("terrama2_test", "postgres", "postgres", "localhost", 5432));
+  // Initialize the Terralib support
+  TerraLib::getInstance().initialize();
 
+  te::plugin::PluginInfo* info;
+  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  te::plugin::PluginManager::getInstance().loadAll();
 }
 
-void TsApplicationController::testLoadProject()
+void finalizeTerralib()
 {
-  // TODO: Uncomment this after implementation of batch executor
-  //testCreateDatabase();
+  TerraLib::getInstance().finalize();
+}
+
+void initializeTerraMA2()
+{
+  initializeTerralib();
 
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
@@ -63,3 +79,9 @@ void TsApplicationController::testLoadProject()
   QVERIFY(dataSource.get());
 }
 
+void finalizeTerraMA2()
+{
+  finalizeTerralib();
+
+  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+}

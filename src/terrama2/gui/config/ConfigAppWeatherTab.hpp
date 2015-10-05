@@ -49,6 +49,8 @@ class ConfigAppWeatherTab : public ConfigAppTab
     bool dataChanged();
     bool validate();
     void save();
+    void saveServer();
+    void saveGridDataSeries();
     void discardChanges(bool restore_data);
 
   private:
@@ -82,6 +84,12 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
     //! Triggered when click datapointdiffbtn to show datapointdiff modal
     void onInsertPointDiffBtnClicked();
+
+    //! Triggered when click serverDeleteBtn to remove data provider
+    void onDeleteServerClicked();
+
+    //! Triggered when click in weatherTree to display metadata from DB
+    void onWeatherDataTreeClicked(QTreeWidgetItem*);
 
   private:
     bool serverTabChanged_; //!< Defines if the user is inserting a server

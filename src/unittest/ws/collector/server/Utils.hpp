@@ -20,30 +20,22 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file unittest/core/Utils.hpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+#ifndef __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
 
-//QT
-#include <QtTest>
+void initializeTerralib();
 
-class TsApplicationController: public QObject
-{
-  Q_OBJECT
+void finalizeTerralib();
 
-  private slots:
+void initializeTerraMA2();
 
-    void testLoadProject();
-    void testCreateDatabase();
-};
+void finalizeTerraMA2();
 
-
-
-
-#endif  // __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+#endif // __TERRAMA2_UNITTEST_CORE_UTILS_HPP__

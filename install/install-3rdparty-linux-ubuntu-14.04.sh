@@ -213,13 +213,13 @@ fi
 
 
 #
-# qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
+# qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
 #
-qt5_dev_test=`dpkg -s qt5-default qttools5-dev libqt5svg5-dev libqt5designer5 | grep Status`
+qt5_dev_test=`dpkg -s qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5 | grep Status`
 
 if [ "$qt5_dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5
-  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev libqt5svg5-dev libqt5designer5"
+  sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
+  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5"
   echo "qt5-dev-tools installed!"
 else
   echo "qt5-dev-tools already installed!"
@@ -783,7 +783,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxml2.so" ]; then
   cd libxml2-2.9.1
   valid $? "Error: could not enter libxml2-2.9.1!"
 
-  CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-icu
+  CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-icu --without-python
   valid $? "Error: could not configure libxml2!"
 
   make -j 4
@@ -840,8 +840,35 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libboost_thread.so" ]; then
   ./bootstrap.sh
   valid $? "Error: could not configure Boost!"
 
-  sudo ./b2 runtime-link=shared link=shared variant=release threading=multi --prefix=$TERRAMA2_DEPENDENCIES_DIR -sICU_PATH=$TERRAMA2_DEPENDENCIES_DIR -sICONV_PATH=/usr -sBZIP2_INCLUDE=$TERRAMA2_DEPENDENCIES_DIR/include -sBZIP2_LIBPATH=$TERRAMA2_DEPENDENCIES_DIR/lib install
+  ./b2 runtime-link=shared link=shared variant=release threading=multi --prefix=$TERRAMA2_DEPENDENCIES_DIR -sICU_PATH=$TERRAMA2_DEPENDENCIES_DIR -sICONV_PATH=/usr -sBZIP2_INCLUDE=$TERRAMA2_DEPENDENCIES_DIR/include -sBZIP2_LIBPATH=$TERRAMA2_DEPENDENCIES_DIR/lib install
   valid $? "Error: could not make boost"
+
+  cd ..
+fi
+
+
+#
+# gSOAP
+#
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
+  echo "installing gSOAP..."
+  echo ""
+  sleep 1s
+
+  unzip gsoap_2.8.23.zip
+  valid $? "Error: could not uncompress gsoap_2.8.23.zip!"
+
+  cd gsoap-2.8
+  valid $? "Error: could not enter gsoap-2.8!"
+
+  ./configure CXXFLAGS="-O2 -fPIC" --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR 
+  valid $? "Error: could not configure gSOAP!"
+
+  make
+  valid $? "Error: could not make gSOAP!"
+
+  make install
+  valid $? "Error: Could not install gSOAP!"
 
   cd ..
 fi
@@ -979,7 +1006,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib/libgdal.so" ]; then
   cd gdal-1.11.2
   valid $? "Error: could not enter gdal-1.11.2!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal1 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf 
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --without-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal1 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf 
   valid $? "Error: could not configure gdal!"
 
   make -j 4 -s
@@ -1005,7 +1032,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal2/lib/libgdal.so" ]; then
   cd gdal-2.0.1
   valid $? "Error: could not enter gdal-2.0.1!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --with-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal2 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --without-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal2 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf
   valid $? "Error: could not configure gdal!"
 
   make -j 4 -s
@@ -1086,7 +1113,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/include/rapidjson/rapidjson.h" ]; then
   cd rapidjson
   valid $? "Error: could not enter rapidjson!"
 
-  sudo mv include/rapidjson $TERRAMA2_DEPENDENCIES_DIR/include/
+  mv include/rapidjson $TERRAMA2_DEPENDENCIES_DIR/include/
 
   cd ..
 fi
@@ -1226,7 +1253,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqtlua.so" ]; then
   make install
   valid $? "Error: could not install QtLua!"
 
-  sudo cp -r src/internal $TERRAMA2_DEPENDENCIES_DIR/include/QtLua/
+  cp -r src/internal $TERRAMA2_DEPENDENCIES_DIR/include/QtLua/
   valid $? "Error: could not copy QtLua internal folder!"
 
   cd ..
@@ -1237,7 +1264,7 @@ fi
 # Qwt version 
 # Site: http://qwt.sourceforge.net
 #
-if [ ! -d "$TERRAMA2_DEPENDENCIES_DIR/lib/qwt.framework" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqwt.so" ]; then
   echo "installing Qwt..."
   sleep 1s
 
@@ -1255,6 +1282,36 @@ if [ ! -d "$TERRAMA2_DEPENDENCIES_DIR/lib/qwt.framework" ]; then
 
   make install
   valid $? "Error: could not copy Qwt internal folder!"
+
+  cd ..
+fi
+
+
+#
+# TerraLib
+#
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libterralib_mod_common.so" ]; then
+  echo "installing TerraLib..."
+  echo ""
+  sleep 1s
+
+  tar jxvf terralib5-2015-09-28.bz2
+  valid $? "Error: could not uncompress terralib5-2015-09-28.bz2!"
+
+  mkdir terralib5_build_make
+  #valid $? "Error: could not create terralib5_build_make!"
+
+  cd terralib5_build_make
+  valid $? "Error: could not enter terralib5_build_make!"
+
+  cmake ../terralib5/build/cmake -DCMAKE_BUILD_TYPE:STRING='Release' -DCMAKE_INSTALL_PREFIX:PATH="$TERRAMA2_DEPENDENCIES_DIR/terralib5" -DCMAKE_PREFIX_PATH:PATH="$TERRAMA2_DEPENDENCIES_DIR;$TERRAMA2_DEPENDENCIES_DIR/lib;$TERRAMA2_DEPENDENCIES_DIR/gdal2;$TERRAMA2_DEPENDENCIES_DIR/pgsql" -DTERRALIB_BUILD_EXAMPLES_ENABLED:BOOL=OFF -DTERRALIB_BUILD_UNITTEST_ENABLED:BOOL=OFF -DTERRALIB_DOXYGEN_ENABLED:BOOL=OFF -DTERRALIB_QHELP_ENABLED:BOOL=OFF -DTERRALIB_QTRANSLATION_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_JAVA_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_PYTHON_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_LUA_ENABLED:BOOL=OFF -DGEOS_INCLUDE_DIR:PATH="$TERRAMA2_DEPENDENCIES_DIR/include/geos" -DGNUGETTEXT_INCLUDE_DIR:PATH="/usr/include" -DGNUGETTEXT_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libgettextpo.so' -DGNUICONV_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libc.so'
+  valid $? "Error: could not configure terralib5!"
+
+  make -j 4
+  valid $? "Error: could not make terralib5"
+
+  make install
+  valid $? "Error: Could not install terralib5"
 
   cd ..
 fi

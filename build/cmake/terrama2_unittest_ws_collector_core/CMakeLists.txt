@@ -42,9 +42,7 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 add_executable(terrama2_unittest_ws_collector_core ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collector_core
-                                                          terralib_mod_plugin
-                                                          terralib_mod_common)
+target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collector_core)
 
 qt5_use_modules(terrama2_unittest_ws_collector_core Test)
 

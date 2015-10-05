@@ -27,19 +27,20 @@
   \author Paulo R. M. Oliveira
 */
 
+// TerraMA2
 #include "ApplicationController.hpp"
 #include "Utils.hpp"
 
-//STL
+// STL
 #include <map>
 #include <memory>
 #include <string>
 
-//Qt
+// Qt
 #include <QJsonObject>
 #include <QString>
 
-//TerraLib
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
@@ -59,7 +60,7 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
     connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
     connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
     connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
-    connInfo["PG_CLIENT_ENCODING"] = "CP1252";
+    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
     dataSouce_ = te::da::DataSourceFactory::make("POSTGIS");
     dataSouce_->setConnectionInfo(connInfo);
@@ -97,5 +98,45 @@ std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDa
 
 bool terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
 {
-  return false;
+
+  std::map<std::string, std::string> connInfo;
+
+  connInfo["PG_HOST"] = host;
+  connInfo["PG_PORT"] = std::to_string(port);
+  connInfo["PG_USER"] = username;
+  connInfo["PG_DB_NAME"] = "postgres";
+  connInfo["PG_CONNECT_TIMEOUT"] = "4";
+  connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+  connInfo["PG_NEWDB_NAME"] = dbName;
+
+  std::string dsType = "POSTGIS";
+
+
+  // Check the data source existence
+  connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
+  bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+  if(dsExists)
+  {
+    return false;
+  }
+  else
+  {
+    // Closes the previous data source
+    if(dataSouce_.get())
+    {
+      dataSouce_->close();
+    }
+
+    dataSouce_ = std::shared_ptr<te::da::DataSource>(te::da::DataSource::create(dsType, connInfo));
+
+    dataSouce_->open();
+
+    auto transactor = dataSouce_->getTransactor();
+
+    // TODO: Create the database model executing the script
+
+    return true;
+  }
+
 }

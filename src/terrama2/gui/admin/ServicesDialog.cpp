@@ -20,30 +20,51 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file terrama2/gui/admin/ServicesDialog.hpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Services QT Dialog
 
-  \author Paulo R. M. Oliveira
+  \author Evandro Delatin
+  \author Raphael Willian da Costa
+  \author Carlos Augusto Teixeira Mendes
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+// STL
+#include <assert.h>
 
-//QT
-#include <QtTest>
+// TerraMA2
+#include "ServicesDialog.hpp"
+//#include "ServiceManager.hpp"
 
-class TsApplicationController: public QObject
+struct ServicesDialog::Impl
 {
-  Q_OBJECT
+  Ui::ServicesDialogForm* ui_;
+  
+  Impl()
+    : ui_(new Ui::ServicesDialogForm)
+  {
+  }
 
-  private slots:
-
-    void testLoadProject();
-    void testCreateDatabase();
+  ~Impl()
+  {
+    delete ui_;
+  }
 };
 
+//! Construtor
+ServicesDialog::ServicesDialog(QWidget* parent, Qt::WindowFlags f)
+: QDialog(parent, f), pimpl_(new Impl)
+{
+
+  pimpl_->ui_->setupUi(this);
+
+ // ConfigManager_ = new ConfigManager(this);
+
+}
+
+//! Destrutor
+ServicesDialog::~ServicesDialog()
+{
+}
 
 
-
-#endif  // __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
