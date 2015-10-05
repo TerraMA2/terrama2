@@ -66,6 +66,9 @@ namespace terrama2
   //! An exception indicating a serialization error.
   struct SerializationError: virtual Exception { };
 
+  //! An exception indicating a serialization error.
+  struct FileOpenError: virtual Exception { };
+
   //! The base type for error report messages.
   typedef boost::error_info<struct tag_error_description, QString> ErrorDescription;
 
