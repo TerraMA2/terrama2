@@ -27,19 +27,20 @@
   \author Paulo R. M. Oliveira
 */
 
+// TerraMA2
 #include "ApplicationController.hpp"
 #include "Utils.hpp"
 
-//STL
+// STL
 #include <map>
 #include <memory>
 #include <string>
 
-//Qt
+// Qt
 #include <QJsonObject>
 #include <QString>
 
-//TerraLib
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
@@ -59,7 +60,7 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
     connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
     connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
     connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
-    connInfo["PG_CLIENT_ENCODING"] = "CP1252";
+    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
     dataSouce_ = te::da::DataSourceFactory::make("POSTGIS");
     dataSouce_->setConnectionInfo(connInfo);
@@ -101,7 +102,7 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
   std::map<std::string, std::string> connInfo;
 
   connInfo["PG_HOST"] = host;
-  connInfo["PG_PORT"] = port;
+  connInfo["PG_PORT"] = std::to_string(port);
   connInfo["PG_USER"] = username;
   connInfo["PG_DB_NAME"] = "postgres";
   connInfo["PG_CONNECT_TIMEOUT"] = "4";
@@ -121,7 +122,20 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
   }
   else
   {
+    // Closes the previous data source
+    if(dataSouce_.get())
+    {
+      dataSouce_->close();
+    }
+
     dataSouce_ = std::shared_ptr<te::da::DataSource>(te::da::DataSource::create(dsType, connInfo));
+
+    dataSouce_->open();
+
+    auto transactor = dataSouce_->getTransactor();
+
+    // TODO: Create the database model executing the script
+
     return true;
   }
 
