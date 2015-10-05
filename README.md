@@ -18,7 +18,7 @@ Besides that, it provides support for building models to several application dom
 
 The computational platform is based on a service-oriented architecture, which is open and provides the technological infrastructure required to develop and implement operating systems to monitor early warnings of environmental risks.
 
-## Basic Instructions
+## Source Code Instructions
 
 In the root directory of TerraMA² codebase (the source code tree) there are some text files explaining the details of the codebase:
 
@@ -34,7 +34,7 @@ In the root directory of TerraMA² codebase (the source code tree) there are som
 
 - **[README:](https://github.com/TerraMA2/terrama2/blob/master/README)** Contains instructions about how to build and how is organized TerraMA² plataform source code.
 
-## Directories
+## Source Code Organization
 
 - **[build/cmake:](https://github.com/TerraMA2/terrama2/tree/master/build/cmake)** Contains the CMake scripts with commands, macros and functions used to build the environment for compiling libraries and executables in different platforms using the CMake tool.
 
@@ -78,7 +78,7 @@ We have prepared a special bash script for building and installing the dependenc
 $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-14.04.sh
 ```
 
-**Note:* Don't choose as target location, a system folder such as /usr or /usr/local. Try some user specifiic folder.
+**Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
 
 ### Bash script for building all dependencies on Mac OS X Yosemite
 
@@ -86,7 +86,7 @@ We have prepared a special bash script for building and installing the dependenc
 
 - Download the third-party libraries package used by the development team: [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz).
 
-- Copy the script [install-3rdparty-macosx-yosemite.sh](https://github.com/TerraMA2/terrama2/tree/master/install/install-3rdparty-macosx-yosemite.sh) to the same folder you have downloaded the *terrama2-3rdparty-macosx-yosemite.tar.gz* package.
+- Copy the script [install-3rdparty-macosx-yosemite.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-macosx-yosemite.sh) to the same folder you have downloaded the *terrama2-3rdparty-macosx-yosemite.tar.gz* package.
 
 - Open the shell command line.
 
@@ -100,7 +100,7 @@ $ export PATH=$PATH:/Users/user/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app
 $ TERRAMA2_DEPENDENCIES_DIR="/Users/user/mylibs" ./install-3rdparty-macosx-yosemite.sh
 ```
 
-**Note:** Don't choose as target location, a system folder such as /usr or /usr/local. Try some user specifiic folder.
+**Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
 
 ### Prepared dependencies for Microsot Windows
 
@@ -327,12 +327,30 @@ DYLD_FALLBACK_FRAMEWORK_PATH
 
 ### Quick Notes for Developers
 
-If you have built TerraMA² in Debug mode and you want to run it inside the build tree, you may need to set some environment variables.
-
-For Mac OS X, you can set the following variables:
+If you have built TerraMA² in Debug mode and you want to run it inside the build tree, you may need to set some environment variables:
+* For Mac OS X, you can set the following variables:
 ```
-$ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/MyLibs/lib
-$ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/MyLibs/lib/
+$ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/mylibs/lib
+$ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/mylibs/lib/
+```
+
+* For Linux, you can set the following variable:
+```
+$ export LD_LIBRARY_PATH=/home/user/mylibs/lib
+```
+
+If you want to use QtCreator on Linux Ubuntu 14.04 you can install it through the following command:
+```
+$ sudo apt-get install qtcreator
+```
+
+On Linux Ubuntu 14.04 you can install git through the following command:
+```
+$ sudo apt-get install git
+```
+  * If you have experienced  any problem building any of the third-party tool on Mac OS X, try to install Xcode command line tools:
+```
+$ xcode-select --install
 ```
 
 ## Reporting Bugs
