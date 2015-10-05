@@ -99,18 +99,20 @@ namespace terrama2
         /*!
           \brief Add the data provider to the database and register it in the manager.
 
+          It will also add the datasets.
+
           Emits dataProviderAdded() signal if the data provider is saved and registered in the manager.
 
-          It will also add the datasets.
+          Emits dataSetAdded() signal if the data provider's dataset added.
 
           \pre The provider must not have an ID.
           \pre A provider with the same name must not be already in the manager.
           \pre The datasets must not have an ID.
 
           \pos The informed data provider will have a valid ID.
-          \pos The dataset within this provider will have a valid ID.
+          \pos The datasets within this provider will have a valid ID.
 
-          \exception InvalidDataProviderIdError
+          \exception InvalidDataProviderError, InvalidDataProviderIdError, InvalidDataSetError, InvalidDataSetIdError
 
           \note Thread-safe.
          */
@@ -121,6 +123,8 @@ namespace terrama2
 
           Emits dataSetAdded() signal if the dataset is saved and registered in the manager.
 
+          Emits dataProviderUpdated() signal to notify that there is a new dataset in the provider.
+
           \pre The dataset must not have an ID.
           \pre A provider with the same name must not be already in the manager.
 
@@ -128,7 +132,7 @@ namespace terrama2
 
           \param dataset Dataset to add.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
 
           \note Thread-safe.
          */
@@ -141,9 +145,11 @@ namespace terrama2
 
           \pre The data provider must have an valid ID.
 
+          \pre The data provider must exist in the database.
+
           \param dataProvider Data provider to update.
 
-          \exception InvalidDataProviderIdError
+          \exception InvalidDataProviderError, InvalidDataProviderIdError
 
           \note Thread-safe.
          */
@@ -158,9 +164,11 @@ namespace terrama2
 
           \pre The dataset must have an valid ID.
 
+          \pre The dataset must exist in the database.
+
           \param dataset Dataset to update.
 
-          \exception InvalidDataSetIdError
+          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
 
           \note Thread-safe.
          */
@@ -173,6 +181,8 @@ namespace terrama2
 
           Emits dataProviderRemoved() signal if the data provider is removed successfully.
 
+          Emits dataSetRemoved() signal for each dataset that belongs to this data provider.
+
           It will remove all datasets that belong to this data provider.
           In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
 
@@ -183,7 +193,7 @@ namespace terrama2
           \note Thread-safe.
          */
 
-        void removeDataProvider(const uint64_t& id);
+        void removeDataProvider(const uint64_t id);
 
         /*!
           \brief Removes the dataset with the given id.
@@ -191,6 +201,8 @@ namespace terrama2
           \pre The dataset must have a valid ID.
 
           Emits dataSetRemoved() signal if the dataset is removed successfully.
+
+          Emits dataProviderUpdated() signal to notify that a dataset was removed from the provider's list.
 
           In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
@@ -200,7 +212,22 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void removeDataSet(const uint64_t& id);
+        void removeDataSet(const uint64_t id);
+
+        /*!
+          \brief Retrieves the data provider with the given name.
+
+          \exception InvalidDataProviderIdError
+
+          In case there is no data provider in the database with the given name it will return an empty smart pointer.
+
+          \param name The data provider name.
+
+          \return DataProviderPtr A smart pointer to the data provider
+
+          \note Thread-safe.
+         */
+        DataProviderPtr findDataProvider(const std::string& name) const;
 
         /*!
           \brief Retrieves the data provider with the given id.
@@ -215,7 +242,20 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(const uint64_t& id) const;
+        DataProviderPtr findDataProvider(const uint64_t id) const;
+
+        /*!
+          \brief Search for a dataset with the given name
+          In case none is found it will return an empty smart pointer.
+
+          \param name Name of the dataset.
+          \return A smart pointer to the dataset.
+
+          \exception InvalidDataSetIdError
+
+          \note Thread-safe.
+         */
+        DataSetPtr findDataSet(const std::string& name) const;
 
         /*!
           \brief Search for a dataset with the given id
@@ -228,7 +268,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(const uint64_t& id) const;
+        DataSetPtr findDataSet(const uint64_t id) const;
 
         /*!
           \brief Retrieves all data provider.

@@ -38,4 +38,8 @@ void initializeTerraMA2();
 
 void finalizeTerraMA2();
 
+void dropDatabase();
+
+void createDatabase();
+
 #endif // __TERRAMA2_UNITTEST_CORE_UTILS_HPP__

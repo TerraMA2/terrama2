@@ -34,6 +34,7 @@
 // STL
 #include <memory>
 #include <string>
+#include <map>
 
 
 namespace terrama2
@@ -172,6 +173,19 @@ namespace terrama2
         */
         void setFilter(FilterPtr filter);
 
+        /*!
+          \brief It returns the storage strategy metadata.
+
+          \param The storage strategy metadata.
+        */
+        std::map<std::string, std::string> storageMetadata() const;
+
+        /*!
+          \brief It sets the storage strategy metadata.
+
+          \param The storage strategy metadata.
+        */
+        void setStorageMetadata(const std::map<std::string, std::string>& storageMetadata);
 
       protected:
 
@@ -192,8 +206,11 @@ namespace terrama2
         std::string mask_;
         std::string timezone_;
         FilterPtr filter_;
+        std::map<std::string, std::string> storageMetadata_;
 
       friend class DataSetDAO;
+
+        std::map<std::string, std::string> getStorageMetadata() const;
     };
 
     typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
