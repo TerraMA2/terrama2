@@ -78,7 +78,7 @@ We have prepared a special bash script for building and installing the dependenc
 $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-14.04.sh
 ```
 
-**Note:* Don't choose as target location, a system folder such as /usr or /usr/local. Try some user specifiic folder.
+**Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
 
 ### Bash script for building all dependencies on Mac OS X Yosemite
 
