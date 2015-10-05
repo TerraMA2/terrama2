@@ -56,11 +56,11 @@ namespace terrama2
     std::string FindInTerraMA2Path(const std::string& p);
 
     /*!
-      \brief Returns a QJsonObject based on the given parameter
+      \brief Read a JSON document and parse it.
 
-      \param file_name The file to be open (with absolute or relative path).
+      \param file_name The file to be read (with absolute or relative path).
 
-      \return QJsonObject with TerraMA2 JSON configuration
+      \return A valid JSON document or throws an exception.
 
       \exception FileOpenError Throw this type of exception if a file could not be open.
       \exception ParserError  Throw this type of exception if JSON document is not valid.
