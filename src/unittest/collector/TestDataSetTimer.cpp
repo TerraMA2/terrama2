@@ -77,4 +77,4 @@ void TestDataSetTimer::TestTimerSignalEmit()
 
 
 QTEST_MAIN(TestDataSetTimer)
-#include "TestDataSetTimer.moc"
+//#include "TestDataSetTimer.moc"
