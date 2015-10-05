@@ -349,9 +349,9 @@ On Linux Ubuntu 14.04 you can install git through the following command:
 $ sudo apt-get install git
 ```
   * If you have experienced  any problem building any of the third-party tool on Mac OS X, try to install Xcode command line tools:
-{{{
+```
 $ xcode-select --install
-}}}
+```
 
 ## Reporting Bugs
 
