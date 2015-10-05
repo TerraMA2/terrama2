@@ -71,4 +71,4 @@ void TestParserOGR::TestEmptyFile()
 }
 
 QTEST_MAIN(TestParserOGR)
-#include "TestParserOGR.moc"
+//#include "TestParserOGR.moc"

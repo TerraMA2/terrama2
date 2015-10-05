@@ -63,4 +63,4 @@ void TestFilter::TestEmptyMask()
 }
 
 QTEST_MAIN(TestFilter)
-#include "TestFilter.moc"
+//#include "TestFilter.moc"

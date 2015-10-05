@@ -69,4 +69,4 @@ void TestCollectorService::cleanup()
 
 
 QTEST_MAIN(TestCollectorService)
-#include "TestCollectorService.moc"
+//#include "TestCollectorService.moc"
