@@ -41,6 +41,7 @@
 // Qt
 #include <QTranslator>
 #include <QFileDialog>
+#include <QMessageBox>
 
 
 struct ConfigApp::Impl
@@ -143,19 +144,27 @@ void ConfigApp::tabChangeRequested(int index)
 
 void ConfigApp::openRequested()
 {
-  QString file = QFileDialog::getOpenFileName(this, tr("Choice TerraMA2 file"),
-                                             ".", tr("TerraMA2 (*.terrama2)"));
-  if (!file.isEmpty())
+  try
   {
-    services_->loadConfiguration(file);
-    // Connect to database and list the values
-    std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+    QString file = QFileDialog::getOpenFileName(this, tr("Choice TerraMA2 file"),
+                                               ".", tr("TerraMA2 (*.terrama2)"));
+    if (!file.isEmpty())
+    {
+      services_->loadConfiguration(file);
+      // Connect to database and list the values
+      std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
 
-    // TEMP Harded code
-    terrama2::core::ApplicationController::getInstance().loadProject(path);
+      // TEMP Harded code
+      terrama2::core::ApplicationController::getInstance().loadProject(path);
 
-    pimpl_->ui_->centralwidget->setEnabled(true);
-    for(QSharedPointer<ConfigAppTab> tab: tabList_)
-      tab->load();
+      pimpl_->ui_->centralwidget->setEnabled(true);
+      for(QSharedPointer<ConfigAppTab> tab: tabList_)
+        tab->load();
+    }
+  }
+  catch(const terrama2::Exception& e)
+  {
+    const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(this, tr("TerraMA2"), *message);
   }
 }

@@ -92,6 +92,7 @@ void ConfigAppWeatherTab::load()
     QTreeWidgetItem* item = new QTreeWidgetItem;
     item->setIcon(0, QIcon::fromTheme("server"));
     item->setText(0, QString(dataSet->getAsString(1).c_str()));
+    item->setIcon(0, QIcon::fromTheme("server"));
     ui_->weatherDataTree->topLevelItem(0)->addChild(item);
   }
 }
@@ -131,7 +132,17 @@ bool ConfigAppWeatherTab::validate()
   }
 
   if (dataGridSeriesChanged_)
-    return false;
+  {
+    if (ui_->gridFormatDataName->text().isEmpty())
+    {
+      ui_->gridFormatDataName->setFocus();
+      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The DataSet name cannot be empty."));
+    }
+
+
+
+    return true;
+  }
 
   if (dataPointDiffSeriesChanged_)
     return false;
@@ -164,7 +175,7 @@ void ConfigAppWeatherTab::saveServer()
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
 
   // Temp code
-  terrama2::core::DataProviderPtr dataProvider;
+  terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
   if (dataProvider != nullptr)
 
   // If there data provider in database
@@ -192,6 +203,7 @@ void ConfigAppWeatherTab::saveServer()
 
     QTreeWidgetItem* newServer = new QTreeWidgetItem();
     newServer->setText(0, ui_->serverName->text());
+    newServer->setIcon(0, QIcon::fromTheme("server"));
     ui_->weatherDataTree->topLevelItem(0)->addChild(newServer);
   }
 }
@@ -499,5 +511,5 @@ void ConfigAppWeatherTab::onProjectionClicked()
   ProjectionDialog projectionDialog(app_);
 
   projectionDialog.show();
-  int ret = projectionDialog.exec();
+  projectionDialog.exec();
 }
