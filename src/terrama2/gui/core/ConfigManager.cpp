@@ -106,7 +106,7 @@ void ConfigManager::setDataForm(QJsonObject metadata)
 
 
 }
-
+//QMultiMap<QString, QJsonObject> ConfigManager::getfiles() const
 QMap<QString, QJsonObject> ConfigManager::getfiles() const
 {
   return fileList_;

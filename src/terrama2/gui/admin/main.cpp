@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   QApplication app(argc, argv);
 
 // initialize TerraLib
-   TerraLib::getInstance().initialize();
+  TerraLib::getInstance().initialize();
 
   te::plugin::PluginInfo* info;
   std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");

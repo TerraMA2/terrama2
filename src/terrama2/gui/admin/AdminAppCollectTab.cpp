@@ -24,7 +24,7 @@ QMap<QString, QJsonObject> AdminAppCollectTab::toJson()
   collect["data_path"] = ui_->aqDirNameLed->text();
   collect["log_file"] = ui_->aqLogFileLed->text();
   collect["connection_timeout"] = ui_->aqTimeoutMinSpb->value() * 60 + ui_->aqTimeoutSecSpb->value();
-  collect["connection_timeout"] = ui_->aqTimeoutMinSpb->text();
+  //collect["connection_timeout"] = ui_->aqTimeoutMinSpb->text();
   collect["address"] = ui_->aqAddressLed->text();
   collect["port"] = ui_->aqPortLed->text();
 

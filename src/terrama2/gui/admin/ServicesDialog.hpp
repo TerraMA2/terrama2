@@ -26,7 +26,6 @@
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Carlos Augusto Teixeira Mendes
 */
 
 #ifndef __TERRAMA2_GUI_ADMIN_SERVICESDIALOG_HPP__

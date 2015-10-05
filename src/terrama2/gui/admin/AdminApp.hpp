@@ -72,8 +72,10 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     void openRequested();
     void saveRequested();
     void renameRequested();
+    void removeRequested();
     void cancelRequested();
     void dbCreateDatabaseRequested();
+    void dbCheckConnectionRequested();
     void manageServices();
     void showConsoles();
 
@@ -82,6 +84,7 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     void clearFormData();
 
     void itemClicked();
+    void refresh();
   
   private:
   
@@ -100,7 +103,8 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     Impl* pimpl_;  //!< Pimpl idiom.
 
     void enableFields(bool mode);
-    bool searchDataList(int row_total, QString find_name);
+    bool searchDataList(int rowTotal, QString findName);
+    bool validateDbData(QString& err);
 
 };
 

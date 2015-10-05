@@ -36,6 +36,7 @@
 #include "AdminAppDBTab.hpp"
 #include "AdminAppCollectTab.hpp"
 #include "ServicesDialog.hpp"
+//#include "../core/ConsoleDialog.hpp"
 #include "../../core/ApplicationController.hpp"
 
 // Qt
@@ -49,6 +50,7 @@
 #include <QJsonDocument>
 #include <QMessageBox>
 #include <QList>
+#include <QHostInfo>
 
 struct AdminApp::Impl
 {
@@ -127,6 +129,7 @@ AdminApp::AdminApp(QWidget* parent)
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
   connect(pimpl_->ui_->saveAct, SIGNAL(triggered()), SLOT(saveRequested()));
   connect(pimpl_->ui_->renameAct, SIGNAL(triggered()), SLOT(renameRequested()));
+  connect(pimpl_->ui_->removeAct, SIGNAL(triggered()), SLOT(removeRequested()));
   connect(pimpl_->ui_->exitAct, SIGNAL(triggered()), SLOT(close()));
 
 // Connects settings menu services
@@ -138,6 +141,7 @@ AdminApp::AdminApp(QWidget* parent)
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(cancelRequested()));
 
   connect(pimpl_->ui_->dbCreateDatabaseBtn,  SIGNAL(clicked()), SLOT(dbCreateDatabaseRequested())); 
+  connect(pimpl_->ui_->dbCheckConnectionBtn, SIGNAL(clicked()), SLOT(dbCheckConnectionRequested()));
   connect(pimpl_->ui_->configListWidget, SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(itemClicked()));
 
 // Prepare context menu to the list of settings
@@ -146,8 +150,37 @@ AdminApp::AdminApp(QWidget* parent)
   pimpl_->ui_->configListWidget->insertAction(NULL, pimpl_->ui_->removeAct); 
 }
 
+// Search Data List
+bool AdminApp::searchDataList(int rowTotal, QString findName)
+{
+  bool find = true;
+
+  if (rowTotal > 0)
+  {
+    for (int row = 0; row < rowTotal; row++)
+      {
+        QListWidgetItem *item = pimpl_->ui_->configListWidget->item(row);
+
+        if (item->text() == findName)
+        {
+          find = false;
+          break;
+        }
+      }
+  }
+ return find;
+}
+
 // New file
 void AdminApp::newRequested()
+{
+
+ if (dataChanged_)
+  {
+   QMessageBox::information(this, tr("TerraMA2"), tr("Save data changed!"));
+   pimpl_->ui_->saveBtn->setFocus();
+  }
+  else
 {
  nameConfig_ = tr("New Configuration");
 
@@ -158,12 +191,55 @@ void AdminApp::newRequested()
  enableFields(true);
  clearFormData();
  setDataChanged();
- renameRequested();
+// renameRequested();
+
+ bool ok;
+ QString newname = QInputDialog::getText(this, tr("New configuration name..."),
+                                         tr ("New configuration name: "),
+                                         QLineEdit::Normal, nameConfig_, &ok);
+
+ if (!ok || newname.isEmpty())
+ {
+   clearDataChanged();
+   enableFields(false);
+   return;
+ }
+
+ enableFields(true);
+
+ nameConfig_ = newname;
+
+ ok = searchDataList(pimpl_->ui_->configListWidget->count(), newname);
+
+ if (ok)
+  {
+   nameConfig_ = newname;
+   pimpl_->ui_->configListWidget->addItem(nameConfig_);
+   setDataChanged();
+   dataChanged_ = true;
+   //pimpl_->ui_->dbTypeCmb->setFocus();
+   pimpl_->ui_->dbAddressLed->setFocus();
+  }
+  else
+  {
+   QMessageBox::information(this, tr("TerraMA2"), tr("Configuration Name Exists!"));
+   clearDataChanged();
+   enableFields(false);
+  }
+}
 }
 
 // Open file
 void AdminApp::openRequested()
 {
+  if (dataChanged_)
+    {
+     QMessageBox::information(this, tr("TerraMA2"), tr("Save data changed!"));
+     pimpl_->ui_->saveBtn->setFocus();
+   }
+  else
+  {
+
   QString filename = QFileDialog::getOpenFileName(this, tr("Choose file"), ".",
                                                         tr("TerraMA2 ( *.terrama2"));
 
@@ -172,34 +248,15 @@ void AdminApp::openRequested()
 
   configManager_->loadConfiguration(filename);
 
-
 // fills fields
   fillForm();
 
   pimpl_->ui_->configListWidget->addItem(configManager_->getDatabase()->name_);
 
   enableFields(true);
-}
-
-// Search Data List
-bool AdminApp::searchDataList(int row_total, QString find_name)
-{
-  bool find = true;
-
-  if (row_total > 0)
-  {
-    for (int row = 0; row < row_total; row++)
-      {
-        QListWidgetItem *item = pimpl_->ui_->configListWidget->item(row);
-
-        if (item->text() == find_name)
-        {
-          find = false;
-          break;
-        }
-      }
-  }
- return find;
+  pimpl_->ui_->saveBtn->setEnabled(false);
+  pimpl_->ui_->cancelBtn->setEnabled(false);
+ }
 }
 
 // Rename file
@@ -221,92 +278,192 @@ void AdminApp::renameRequested()
 
   nameConfig_ = newname;
 
-  ok = searchDataList(pimpl_->ui_->configListWidget->count(), newname);
+  int row = pimpl_->ui_->configListWidget->currentRow();
 
-  if (ok)
-   {
-    nameConfig_ = newname;
-    pimpl_->ui_->configListWidget->addItem(nameConfig_);
-    setDataChanged();
-   }
-   else
-   {
-    QMessageBox::information(this, tr("TerraMA2"), tr("Configuration Name Exists!"));
-    clearDataChanged();
-    enableFields(false);
-   }
+  //configManager_->getfiles()
+
+  pimpl_->ui_->configListWidget->item(row)->setText(nameConfig_);
+
+  newData_ = true;
+
+  dataChanged_ = true;
+
+  setDataChanged();
+
+  pimpl_->ui_->dbAddressLed->setFocus();
 }
 
 // Save file
 void AdminApp::saveRequested()
-{
-  QJsonObject metadata;
-  QString version = "4.0.0-alpha1";
-
-  metadata["is_study"] = pimpl_->ui_->dbStudyChk->isChecked();
-  metadata["name"] = nameConfig_;
-  metadata["version"] = version;
-
-  for(QSharedPointer<AdminAppTab> tab: tabs_)
+{ 
+  QString err;
+  if (!validateDbData(err))
   {
-   QMap<QString, QJsonObject> tabJson = tab->toJson();
-   metadata[tabJson.firstKey()] = tabJson.first();
+    if(!err.isEmpty())
+      QMessageBox::warning(this, tr("Error validating data to save..."), err);
+      return;
   }
 
-  QFile saveFile(nameConfig_+".terrama2");
+  if (newData_)
+   {
+     QJsonObject metadata;
+     QString version = "4.0.0-alpha1";
 
-  saveFile.open(QIODevice::WriteOnly);
+     metadata["is_study"] = pimpl_->ui_->dbStudyChk->isChecked();
+     metadata["name"] = nameConfig_;
+     metadata["version"] = version;
 
-  QJsonDocument jsondoc(metadata);
+     for(QSharedPointer<AdminAppTab> tab: tabs_)
+     {
+       QMap<QString, QJsonObject> tabJson = tab->toJson();
+       metadata[tabJson.firstKey()] = tabJson.first();
+     }
 
-  saveFile.write(jsondoc.toJson());
+     QFile saveFile(nameConfig_+".terrama2");
 
-  saveFile.close();
+     saveFile.open(QIODevice::WriteOnly);
 
-  QMessageBox::information(this, tr("TerraMA2"), tr("Project successfully saved!"));
+     QJsonDocument jsondoc(metadata);
 
-  enableFields(false);
+     saveFile.write(jsondoc.toJson());
 
+     saveFile.close();
+
+     QMessageBox::information(this, tr("TerraMA2"), tr("Project successfully saved!"));
+
+     dataChanged_ = false;
+   }
 }
 
 // Cancel
 void AdminApp::cancelRequested()
 {
- if (newData_)
- {
-//  delete pimpl_->ui_->configListWidget->takeItem()
- }
- newData_= false;
- clearFormData();
- enableFields(false);
+  newData_= false;
+
+  delete pimpl_->ui_->configListWidget->currentItem();
+
+  refresh();
+
+  pimpl_->ui_->dbAddressLed->setFocus();
+
+  dataChanged_ = false;
 }
 
 // Create Database
 void AdminApp::dbCreateDatabaseRequested()
 {
+  try
+  {
+    QString err;
+    if (!validateDbData(err))
+    {
+      if(!err.isEmpty())
+        QMessageBox::warning(this, tr("Error validating data for connection database..."), err);
+        return;
+    }
 
-  configManager_->setDatabase(tabs_[0]->toJson().first());
+    configManager_->setDatabase(tabs_[0]->toJson().first());
 
-  Database* database = configManager_->getDatabase();
+    Database* database = configManager_->getDatabase();
 
-  terrama2::core::ApplicationController::getInstance().createDatabase(database->dbName_.toStdString(),
+    terrama2::core::ApplicationController::getInstance().createDatabase(database->dbName_.toStdString(),
                                                                       database->user_.toStdString(),
                                                                       database->password_.toStdString(),
                                                                       database->host_.toStdString(),
                                                                       database->port_ );
+  }
+  catch(const terrama2::Exception& e)
+  {
+    QString messageError = "TerraMA2 finished with errors!\n\n";
 
+    if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
+    {
+      messageError.append(d);
+    }
+
+    QMessageBox::critical(nullptr, "TerraMA2", messageError);
+  }
+  catch(...)
+  {
+    throw;
+  }
+}
+
+// Check connection Database
+void AdminApp::dbCheckConnectionRequested()
+{
+  QString err;
+  if(!validateDbData(err))
+  {
+    if(!err.isEmpty())
+      QMessageBox::warning(this, tr("Error validating data for connection database..."), err);
+      return;
+  }
+}
+
+void AdminApp::refresh()
+{
+  int row = pimpl_->ui_->configListWidget->currentRow();
+
+  if (row < 0)
+  {
+    clearFormData();
+  }
+  else
+  {
+    QString valor = pimpl_->ui_->configListWidget->currentItem()->text();
+    QJsonObject selectedMetadata = configManager_->getfiles().take(valor);
+
+    configManager_->setDataForm(selectedMetadata);
+
+    fillForm();
+  }
+}
+
+void AdminApp::removeRequested()
+{
+  QMessageBox::StandardButton answer;
+  answer = QMessageBox::question(this, tr("Remove configuration..."),
+                                       tr("Do you Want to remove this configuration?"),
+                                       QMessageBox::Yes | QMessageBox::No,
+                                       QMessageBox::No);
+  if(answer == QMessageBox::No)
+   return;
+
+ // QString valor = pimpl_->ui_->configListWidget->currentItem()->text();
+  delete pimpl_->ui_->configListWidget->currentItem();
+
+  refresh();
+
+  newData_= false;
 }
 
 void AdminApp::manageServices()
 {
- ServicesDialog dlg(this);
- dlg.exec();
+  ServicesDialog dlg(this);
+  dlg.exec();
 
 }
 
 void AdminApp::showConsoles()
 {
+// ConsoleDialog dlg(this);
+// dlg.exec();
+}
 
+//! Validate connection data in the database interface. Return true if ok to save.
+bool AdminApp::validateDbData(QString& err)
+{
+  err = "";
+  if(pimpl_->ui_->dbAddressLed->text().trimmed().isEmpty())
+    err = tr("Please fill in the 'Address' field Database'.");
+  else if(pimpl_->ui_->dbDatabaseLed->text().trimmed().isEmpty())
+    err = tr("Please fill in the 'Database' field Database'.");
+  else if(!pimpl_->ui_->dbPortLed->hasAcceptableInput())
+    err = tr("The field 'Port' of 'Database' must be filled\n"
+             "with an integer between 0 and 65535.");
+
+  return (err == "");
 }
 
 //! Enable or Disable fields of form
@@ -340,7 +497,6 @@ void AdminApp::enableFields(bool mode)
   pimpl_->ui_->aqTimeoutMinSpb->setEnabled(mode);
   pimpl_->ui_->aqTimeoutSecSpb->setEnabled(mode);
   pimpl_->ui_->aqDirNameLed->setEnabled(mode);
-
 }
 
 void AdminApp::setDataChanged()
@@ -368,6 +524,8 @@ void AdminApp::clearFormData()
 {
   ignoreChangeEvents_ = true;
 
+  QString hostname = QHostInfo::localHostName();
+
 // fields tab Database
   pimpl_->ui_->dbTypeCmb->setCurrentIndex(0);
   pimpl_->ui_->dbAddressLed->setText("");
@@ -378,14 +536,15 @@ void AdminApp::clearFormData()
   pimpl_->ui_->dbStudyChk->setChecked(false);
 
 // fields tab collect
-  pimpl_->ui_->aqAddressLed->setText("");
-  pimpl_->ui_->aqPortLed->setText("");
-  pimpl_->ui_->aqLogFileLed->setText("");
+  pimpl_->ui_->aqAddressLed->setText(hostname);
+  pimpl_->ui_->aqPortLed->setText("32100");
+  pimpl_->ui_->aqLogFileLed->setText("log_coleta.txt");
   pimpl_->ui_->aqTimeoutMinSpb->setValue(3);
   pimpl_->ui_->aqTimeoutSecSpb->setValue(0);
   pimpl_->ui_->aqDirNameLed->setText("");
 }
 
+// Item Clicked ListWidget
 void AdminApp::itemClicked()
 {
   if(ignoreChangeEvents_)
@@ -415,7 +574,6 @@ void AdminApp::fillForm()
   pimpl_->ui_->dbPortLed->setText(QString::number(configManager_->getDatabase()->port_));
   pimpl_->ui_->dbPasswordLed->setText(configManager_->getDatabase()->password_);
   pimpl_->ui_->dbStudyChk->setChecked(configManager_->getDatabase()->study_.toLower() == "true");
- // pimpl_->ui_->configListWidget->addItem(configManager_->getDatabase()->name_);
 
 // Collect tab
   pimpl_->ui_->aqAddressLed->setText(configManager_->getCollection()->address_);
@@ -428,6 +586,5 @@ void AdminApp::fillForm()
   ignoreChangeEvents_ = false;
 
   clearDataChanged();
-
 }
 
