@@ -80,9 +80,37 @@ TO BE DONE
 TO BE DONE
 
 
-4. Using CMake-GUI
-------------------
-TO BE DONE
+4. Using CMake-GUI and Xcode 7.0.1
+----------------------------------
+
+(!!Under Development!!)
+
+4.1 We will assume that the codebase (all the source tree) is located at:
+/Users/user/terrama2/codebase
+
+4.2 Open CMake-GUI
+
+4.3 Make sure that in the main window the "Grouped" and "Advanced" options are checked.
+
+4.4 In the "Where is the source code" text box, please, add the location for the CMake scripts inside your codebase that will be used to generate the build project, for example:
+/Users/user/terrama2/codebase/build/cmake
+
+4.5 In the "Where to build the binaries" text box, please, add the location where the build project will be generated. You should give a location outside the source code tree, for exemple:
+/Users/user/terrama2/build-xcode
+
+4.6 Add the following entries (button "Add Entry"):
+    - 1st entry:
+       Name: CMAKE_INSTALL_PREFIX
+       Type: PATH
+       Value: /Users/user/myinstalls/terrama2
+    - 2nd entry:
+       Name: CMAKE_PREFIX_PATH
+       Type: PATH
+       Value: /Users/user/mylibs;/Users/user/mylibs/terralib5/lib/cmake;/Users/user/Qt5.4.1/5.4/clang_64/lib/cmake
+
+4.7 Click the "Configure" button".
+
+4.8 If everything is ok, please, click the "Generate" button".
 
 
 5. Packing TerraMA2 on Linux Ubuntu 14.04
