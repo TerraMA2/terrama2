@@ -49,7 +49,7 @@ int WebService::ping(std::string &answer)
 }
 
 
-int WebService::addDataProvider(DataProvider &struct_dataprovider)
+int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &struct_dataproviderResult)
 {
   try
   {
@@ -57,7 +57,7 @@ int WebService::addDataProvider(DataProvider &struct_dataprovider)
 
     terrama2::core::DataManager::getInstance().add(dataProviderPtr);
 
-    struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct< DataProvider >(dataProviderPtr);
+    result = terrama2::ws::collector::core::DataProviderPtr2Struct< DataProvider >(dataProviderPtr);
   }
   catch(terrama2::Exception &e)
   {
@@ -72,7 +72,7 @@ int WebService::addDataProvider(DataProvider &struct_dataprovider)
 }
 
 
-int WebService::addDataSet(DataSet &struct_dataset)
+int WebService::addDataSet(DataSet struct_dataset, DataSet &struct_datasetResult)
 {
   try
   {
@@ -95,7 +95,7 @@ int WebService::addDataSet(DataSet &struct_dataset)
 }
 
 
-int WebService::updateDataProvider(DataProvider &struct_dataprovider)
+int WebService::updateDataProvider(DataProvider struct_dataprovider, DataProvider &struct_dataproviderResult)
 {
   try
   {
@@ -118,7 +118,7 @@ int WebService::updateDataProvider(DataProvider &struct_dataprovider)
 }
 
 
-int WebService::updateDataSet(DataSet &struct_dataset)
+int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetResult)
 {
   try
   {

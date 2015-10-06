@@ -13,7 +13,7 @@ You should use at least CMake version 2.8.12 for building TerraMA2. Older versio
 
 Make sure you have all the third-party library dependencies listed in the DEPENDENCIES file on the root of the codebase.
 
-Read also the BRANCHES-AND-TAGS document to choose the right branch or tag to build upon.
+If you don't know which branch or tag to use for building TerraMA2, please se the BRANCHES-AND-TAGS file on the root of the codebase.
 
 Follow the build steps below according to your platform.
 
@@ -80,9 +80,37 @@ TO BE DONE
 TO BE DONE
 
 
-4. Using CMake-GUI
-------------------
-TO BE DONE
+4. Using CMake-GUI and Xcode 7.0.1
+----------------------------------
+
+(!!Under Development!!)
+
+4.1 We will assume that the codebase (all the source tree) is located at:
+/Users/user/terrama2/codebase
+
+4.2 Open CMake-GUI
+
+4.3 Make sure that in the main window the "Grouped" and "Advanced" options are checked.
+
+4.4 In the "Where is the source code" text box, please, add the location for the CMake scripts inside your codebase that will be used to generate the build project, for example:
+/Users/user/terrama2/codebase/build/cmake
+
+4.5 In the "Where to build the binaries" text box, please, add the location where the build project will be generated. You should give a location outside the source code tree, for exemple:
+/Users/user/terrama2/build-xcode
+
+4.6 Add the following entries (button "Add Entry"):
+    - 1st entry:
+       Name: CMAKE_INSTALL_PREFIX
+       Type: PATH
+       Value: /Users/user/myinstalls/terrama2
+    - 2nd entry:
+       Name: CMAKE_PREFIX_PATH
+       Type: PATH
+       Value: /Users/user/mylibs;/Users/user/mylibs/terralib5/lib/cmake;/Users/user/Qt5.4.1/5.4/clang_64/lib/cmake
+
+4.7 Click the "Configure" button".
+
+4.8 If everything is ok, please, click the "Generate" button".
 
 
 5. Packing TerraMA2 on Linux Ubuntu 14.04
@@ -103,13 +131,17 @@ TO BE DONE
 8. Quick Notes for Developers
 -----------------------------------
 
-If you have built TerraMA2 in Debug mode and you want to run it inside the build tree, you may need to set some environment variables.
+If you have built TerraMA2 in Debug mode and you want to run it inside the build tree, you may need to set some environment variables depending where you have installed the third-party libraries (or dependencies).
 
-For Mac OS X, you can set the following variables:
+In Mac OS X you play with the following variables:
 $ export DYLD_FALLBACK_LIBRARY_PATH=/Users/user/MyLibs/lib
 $ export DYLD_FALLBACK_FRAMEWORK_PATH=/Users/user/MyLibs/lib/
 
+In Linux Ubuntu 14.04 you play with the following variables:
+$ export LD_LIBRARY_PATH=/Users/user/MyLibs/lib
 
+The TerraMA2 Developer's Guide contains more explanation about building TerraMA2:
+https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/buildfromsource
 
 For more information on TerraMA2, please, visit its main web page at: http://www.dpi.inpe.br/terrama2.
 

@@ -20,22 +20,25 @@
 */
 
 /*!
-  \file terrama2/terrama2_config.hpp
+  \file terrama2/unittest/ws/server/main.cpp
 
-  \brief TerraMA2 configuration options.
+  \brief Main class for tests in the WebService class.
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Vinicius Campanha
+*/
 
-#ifndef __TERRAMA2_TERRAMA2_CONFIG_HPP__
-#define __TERRAMA2_TERRAMA2_CONFIG_HPP__
+// TerraMA2 Test
+#include "TestClient.hpp"
+#include "Utils.hpp"
 
-#define TERRAMA2_DATA_DIR "@TERRAMA2_DATA_DIR@"
+int main(int argc, char **argv)
+{
+  initializeTerraMA2();
 
-#define TERRAMA2_CODEBASE_PATH "@TERRAMA2_ABSOLUTE_ROOT_DIR@"
+  TestClient testClient;
+  int ret = QTest::qExec(&testClient, argc, argv);
 
-#define TERRAMA2_INSTALL_PREFIX_PATH "@CMAKE_INSTALL_PREFIX@"
+  finalizeTerraMA2();
 
-#define TERRAMA2_DIR_VAR_NAME "@TERRAMA2_DIR_VAR_NAME@"
-
-#endif // __TERRAMA2_TERRAMA2_CONFIG_HPP__
+  return ret;
+}

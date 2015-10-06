@@ -136,8 +136,8 @@ DataSetPtr TsDataManager::createDataSet()
   DataSetItemPtr dataSetItem(new DataSetItem(dataSet, DataSetItem::PCD_INPE_TYPE));
 
   FilterPtr filter(new Filter(dataSetItem));
-  filter->setByValueType(Filter::GREATER_THAN_TYPE);
-  filter->setByValue(100.);
+  filter->setExpressionType(Filter::GREATER_THAN_TYPE);
+  filter->setValue(100.);
   dataSetItem->setFilter(filter);
 
   dataSetItemList.push_back(dataSetItem);

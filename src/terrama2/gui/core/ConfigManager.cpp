@@ -33,10 +33,11 @@
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
 
-#include <QString>
+// Qt
 #include <QFile>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QString>
 
 
 ConfigManager::ConfigManager(QMainWindow* app)
@@ -55,7 +56,9 @@ void ConfigManager::loadConfiguration(QString filepath)
 {
   try
   {
-    QJsonObject metadata = terrama2::core::OpenFile(filepath.toStdString());
+    QJsonDocument jdoc = terrama2::core::ReadJsonFile(filepath.toStdString());
+    
+    QJsonObject metadata = jdoc.object();
 
     name_ = metadata["name"].toString();
 

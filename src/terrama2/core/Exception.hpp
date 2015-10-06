@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/Exception.hpp
 
-  \brief Exception classes for core module
+  \brief Specific exception classes from core module.
 
   \author Paulo R. M. Oliveira
  */
@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_CORE_EXCEPTION_HPP__
 #define __TERRAMA2_CORE_EXCEPTION_HPP__
 
+// TerraMA2
 #include "../Exception.hpp"
 
 namespace terrama2
