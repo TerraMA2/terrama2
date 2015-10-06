@@ -48,6 +48,10 @@ void TsIntegration::TestReadCsvStorePostGis()
   QTemporaryDir dir;
   QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
   file.open();
+  file.write("lat,lon,sat,data_pas\n");
+  file.write("-10.7030,  30.3750,AQUA_M,2015-08-26 11:35:00\n");
+  file.write("-10.7020,  30.3840,AQUA_M,2015-08-26 11:35:00\n");
+  file.write("-10.4870,  30.4070,AQUA_M,2015-08-26 11:35:00\n");
   file.close();
   QFileInfo info(file);
 
@@ -66,6 +70,18 @@ void TsIntegration::TestReadCsvStorePostGis()
     dataset->setDataFrequency(frequency);
 
     terrama2::core::DataSetItemPtr item(new terrama2::core::DataSetItem(dataset, terrama2::core::DataSetItem::PCD_INPE_TYPE));
+
+    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+                                                        {"PG_HOST", "localhost"},
+                                                        {"PG_PORT", "5432"},
+                                                        {"PG_USER", "postgres"},
+                                                        {"PG_PASSWORD", "postgres"},
+                                                        {"PG_DB_NAME", "terrama2"},
+                                                        {"PG_CONNECT_TIMEOUT", "4"},
+                                                        {"PG_CLIENT_ENCODING", "UTF-8"},
+                                                        {"PG_SCHEME", "terrama2"},
+                                                        {"PG_TABLENAME", "nome_teste"} };
+    item->setStorageMetadata(storageMetadata);
 
     std::vector<terrama2::core::DataSetItemPtr> datasetItemVect = {item};
     dataset->setDataSetItemList(datasetItemVect);

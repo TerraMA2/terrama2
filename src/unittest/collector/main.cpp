@@ -6,11 +6,15 @@
 #include "TsDataFilter.hpp"
 #include "TsParserOGR.hpp"
 
+#include "Utils.hpp"
+
 #include <QApplication>
 #include <QTimer>
 
 int main(int argc, char *argv[])
 {
+  initializeTerralib();
+
   int returnVal = 0;
   QApplication app(argc, argv);
 
@@ -36,6 +40,8 @@ int main(int argc, char *argv[])
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
   timer.start(1000);
   app.exec();
+
+  finalizeTerralib();
 
   return returnVal;
 }

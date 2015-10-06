@@ -33,17 +33,18 @@
 //Qt
 #include <QtTest>
 
+
 class TsCollectorFile: public QObject
 {
   Q_OBJECT
 
 private slots:
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+    void initTestCase() {} // Run before all tests
+    void cleanupTestCase() {} // Run after all tests
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+    void init() {} //run before each test
+    void cleanup() {} //run before each test
 
     //******Test functions********
 
@@ -67,8 +68,14 @@ private slots:
      */
     void TestCheckConnection();
 
+    /*!
+     * \brief Test to fail if a temporary dir don't exists.
+     */
+    void TestFailCheckConnection();
+
 
     //******End of Test functions****
+
 };
 
 #endif //__TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__

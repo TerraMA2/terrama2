@@ -73,6 +73,8 @@ void initializeTerralib()
 
 void finalizeTerralib()
 {
+  te::plugin::PluginManager::getInstance().unloadAll();
+
   TerraLib::getInstance().finalize();
 }
 

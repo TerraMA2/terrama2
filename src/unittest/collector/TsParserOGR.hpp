@@ -37,12 +37,12 @@ class TsParserOGR: public QObject
 {
   Q_OBJECT
 
-
+    void readCSV();
 
   private slots:
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+    void initTestCase(); // Run before all tests
+    void cleanupTestCase(); // Run after all tests
 
     void init(){ } //run before each test
     void cleanup(){ } //run before each test
@@ -50,8 +50,15 @@ class TsParserOGR: public QObject
     //******Test functions********
 
     void TestNullDataSource();
+
     void TestDataSourceNotOpen();
+
+    void TestInpeCsvFile();
+
     void TestEmptyFile();
+
+    void TestDataSetNames();
+
 
     //******End of Test functions****
 };
