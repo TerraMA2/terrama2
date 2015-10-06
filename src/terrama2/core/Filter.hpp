@@ -34,20 +34,20 @@
 #include <memory>
 #include <string>
 
-// TerraLib
-#include <terralib/datatype/DateTime.h>
+// Boost
+#include <boost/noncopyable.hpp>
 
 // Forward declaration
 namespace te
 {
-  namespace gm
-  {
-    class Geometry;
-  }
-
   namespace dt
   {
     class DateTime;
+  }
+  
+  namespace gm
+  {
+    class Geometry;
   }
 }
 
@@ -56,7 +56,7 @@ namespace terrama2
 {
   namespace core
   {
-
+// Forward declaration
     class DataSetItem;
     typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
 
@@ -67,14 +67,14 @@ namespace terrama2
       \brief Contains the filters to be applied in a dataset item.
 
      */
-    class Filter
+    class Filter : public boost::noncopyable
     {
 
       public:
 
 
         //! Filter by value type.
-        enum ByValueType
+        enum ExpressionType
         {
           NONE_TYPE,
           LESS_THAN_TYPE,
@@ -86,7 +86,7 @@ namespace terrama2
         /*!
           \brief Constructor
         */
-        Filter(DataSetItemPtr dataSetItemPtr);
+        Filter(const DataSetItemPtr& item);
 
         /*!
           \brief Destructor
@@ -98,84 +98,84 @@ namespace terrama2
 
           \return The dataset item.
         */
-        DataSetItemPtr dataSetItemPtr() const;
+        DataSetItemPtr dataSetItem() const;
 
         /*!
           \brief It sets the dataset item.
 
-          \param The dataset item.
+          \param datasetItem The dataset item.
         */
-        void setDataSetItemPtr(const DataSetItemPtr& dataSetItemPtr);
+        void setDataSetItemPtr(const DataSetItemPtr& datasetItem);
 
         /*!
           \brief It returns Initial date of interest.
 
           \return Initial date of interest.
         */
-        std::shared_ptr<te::dt::DateTime> discardBefore();
+        const te::dt::DateTime* discardBefore() const;
 
         /*!
           \brief It sets Initial date of interest.
 
-          \param Initial date of interest.
+          \param discardBefore Initial date of interest.
         */
-        void setDiscardBefore(std::shared_ptr<te::dt::DateTime> discardBefore);
+        void setDiscardBefore(std::unique_ptr<te::dt::DateTime> discardBefore);
 
         /*!
           \brief It returns the final date of interest.
 
           \return The final date of interest.
         */
-        std::shared_ptr<te::dt::DateTime> discardAfter();
+        const te::dt::DateTime* discardAfter() const;
 
         /*!
           \brief It sets the final date of interest.
 
-          \param The final date of interest.
+          \param discardAfter The final date of interest.
         */
-        void setDiscardAfter(std::shared_ptr<te::dt::DateTime> discardAfter);
+        void setDiscardAfter(std::unique_ptr<te::dt::DateTime> discardAfter);
 
         /*!
           \brief It returns the geometry to be used as area of interest.
 
           \return The geometry to be used as area of interest.
         */
-        std::shared_ptr<te::gm::Geometry> geometry();
+        const te::gm::Geometry* geometry() const;
 
         /*!
           \brief It sets the geometry to be used as area of interest.
 
-          \param The geometry to be used as area of interest.
+          \param geom The geometry to be used as area of interest.
         */
-        void setGeometry(std::shared_ptr<te::gm::Geometry> geometry);
+        void setGeometry(std::unique_ptr<te::gm::Geometry> geom);
 
         /*!
           \brief It returns the value to be used in a filter by value.
 
           \return The value to be used in a filter by value.
         */
-        double byValue() const;
+        double value() const;
 
         /*!
           \brief It sets the value to be used in a filter by value.
 
-          \param The value to be used in a filter by value.
+          \param v The value to be used in a filter by value.
         */
-        void setByValue(const double byValue);
+        void setValue(const double v);
 
         /*!
           \brief It returns the enum that defines the filter by value type.
 
           \return The enum that defines the filter by value type.
         */
-        ByValueType byValueType() const;
+        ExpressionType expressionType() const;
 
         /*!
           \brief It sets the enum that defines the filter by value type.
 
-          \param The enum that defines the filter by value type.
+          \param t The enum that defines the filter by value type.
         */
-        void setByValueType(const ByValueType byValueType);
+        void setExpressionType(const ExpressionType t);
 
         /*!
           \brief It returns the band filter.
@@ -193,14 +193,13 @@ namespace terrama2
 
       private:
 
-        DataSetItemPtr dataSetItemPtr_;
-        std::shared_ptr<te::dt::DateTime> discardBefore_;
-        std::shared_ptr<te::dt::DateTime> discardAfter_;
-        std::shared_ptr<te::gm::Geometry> geometry_;
-        double byValue_;
-        ByValueType byValueType_;
+        DataSetItemPtr datasetItem_;
+        std::unique_ptr<te::dt::DateTime> discardBefore_;
+        std::unique_ptr<te::dt::DateTime> discardAfter_;
+        std::unique_ptr<te::gm::Geometry> geometry_;
+        double value_;
+        ExpressionType expressionType_;
         std::string bandFilter_;
-
 
     };
 

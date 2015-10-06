@@ -62,8 +62,8 @@ valid $? "Error: could not update apt-get database list"
 gcpp_test=`dpkg -s g++ | grep Status`
 
 if [ "$gcpp_test" != "Status: install ok installed" ]; then
-  sudo apt-get install g++
-  valid $? "Error: could not install g++! Please, install g++: sudo apt-get install g++"
+  sudo  apt-get -y install g++
+  valid $? "Error: could not install g++! Please, install g++: sudo apt-get -y install g++"
   echo "g++ installed!"
 else
   echo "g++ already installed!"
@@ -76,8 +76,8 @@ fi
 gfortran_test=`dpkg -s gfortran | grep Status`
 
 if [ "$gfortran_test" != "Status: install ok installed" ]; then
-  sudo apt-get install gfortran
-  valid $? "Error: could not install gfortran! Please, install g++: sudo apt-get install gfortran" 
+  sudo apt-get -y install gfortran
+  valid $? "Error: could not install gfortran! Please, install g++: sudo apt-get -y install gfortran" 
   echo "gfortran installed!"
 else
   echo "gfortran already installed!"
@@ -90,8 +90,8 @@ fi
 zlibdevel_test=`dpkg -s zlib1g-dev | grep Status`
 
 if [ "$zlibdevel_test" != "Status: install ok installed" ]; then
-  sudo apt-get install zlib1g-dev
-  valid $? "Error: could not install zlib1g-dev! Please, install g++: sudo apt-get install zlib1g-dev"
+  sudo apt-get -y install zlib1g-dev
+  valid $? "Error: could not install zlib1g-dev! Please, install g++: sudo apt-get -y install zlib1g-dev"
   echo "zlib1g-dev installed!"
 else
   echo "zlib1g-dev already installed!"
@@ -104,8 +104,8 @@ fi
 readline_test=`dpkg -s libreadline-dev | grep Status`
 
 if [ "$readline_test" != "Status: install ok installed" ]; then
-  sudo apt-get install libreadline-dev
-  valid $? "Error: could not install libreadline-dev! Please, install readline: sudo apt-get install libreadline-dev"
+  sudo apt-get -y install libreadline-dev
+  valid $? "Error: could not install libreadline-dev! Please, install readline: sudo apt-get -y install libreadline-dev"
   echo "libreadline-dev installed!"
 else
   echo "libreadline-dev already installed!"
@@ -118,8 +118,8 @@ fi
 pysetup_test=`dpkg -s python-setuptools | grep Status`
 
 if [ "$gcpp_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-setuptools
-  valid $? "Error: could not install python-setuptools! Please, install readline: sudo apt-get install python-setuptools"
+  sudo apt-get -y install python-setuptools
+  valid $? "Error: could not install python-setuptools! Please, install readline: sudo apt-get -y install python-setuptools"
   echo "python-setuptools installed!"
 else
   echo "python-setuptools already installed!"
@@ -128,8 +128,8 @@ fi
 pypip_test=`dpkg -s python-pip | grep Status`
 
 if [ "$pypip_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-pip
-  valid $? "Error: could not install python-pip! Please, install readline: sudo apt-get install python-pip"
+  sudo apt-get -y install python-pip
+  valid $? "Error: could not install python-pip! Please, install readline: sudo apt-get -y install python-pip"
   echo "python-pip installed!"
 else
   echo "python-pip already installed!"
@@ -138,8 +138,8 @@ fi
 pydev_test=`dpkg -s python-dev | grep Status`
 
 if [ "$pydev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-dev
-  valid $? "Error: could not install python-dev! Please, install readline: sudo apt-get install python-dev"
+  sudo apt-get -y install python-dev
+  valid $? "Error: could not install python-dev! Please, install readline: sudo apt-get -y install python-dev"
   echo "python-dev installed!"
 else
   echo "python-dev already installed!"
@@ -148,8 +148,8 @@ fi
 numpy_test=`dpkg -s python-numpy | grep Status`
 
 if [ "$numpy_test" != "Status: install ok installed" ]; then
-  sudo apt-get install python-numpy
-  valid $? "Error: could not install python-numpy! Please, install readline: sudo apt-get install python-numpy"
+  sudo apt-get -y install python-numpy
+  valid $? "Error: could not install python-numpy! Please, install readline: sudo apt-get -y install python-numpy"
   echo "python-numpy installed!"
 else
   echo "python-numpy already installed!"
@@ -162,8 +162,8 @@ fi
 autoconf_test=`dpkg -s autoconf | grep Status`
 
 if [ "$autoconf_test" != "Status: install ok installed" ]; then
-  sudo apt-get install autoconf
-  valid $? "Error: could not install autoconf! Please, install readline: sudo apt-get install autoconf" 
+  sudo apt-get -y install autoconf
+  valid $? "Error: could not install autoconf! Please, install readline: sudo apt-get -y install autoconf" 
   echo "autoconf installed!"
 else
   echo "autoconf already installed!"
@@ -176,8 +176,8 @@ fi
 gettext_test=`dpkg -s gettext | grep Status`
 
 if [ "$gettext_test" != "Status: install ok installed" ]; then
-  sudo apt-get install gettext
-  valid $? "Error: could not install gettext! Please, install readline: sudo apt-get install gettext" 
+  sudo apt-get -y install gettext
+  valid $? "Error: could not install gettext! Please, install readline: sudo apt-get -y install gettext" 
   echo "gettext installed!"
 else
   echo "gettext already installed!"
@@ -190,8 +190,8 @@ fi
 flex_test=`dpkg -s flex | grep Status`
 
 if [ "$flex_test" != "Status: install ok installed" ]; then
-  sudo apt-get install flex
-  valid $? "Error: could not install flex! Please, install readline: sudo apt-get install flex"
+  sudo apt-get -y install flex
+  valid $? "Error: could not install flex! Please, install readline: sudo apt-get -y install flex"
   echo "flex installed!"
 else
   echo "flex already installed!"
@@ -204,8 +204,8 @@ fi
 bison_test=`dpkg -s bison | grep Status`
 
 if [ "$bison_test" != "Status: install ok installed" ]; then
-  sudo apt-get install bison
-  valid $? "Error: could not install bison! Please, install readline: sudo apt-get install bison"
+  sudo apt-get -y install bison
+  valid $? "Error: could not install bison! Please, install readline: sudo apt-get -y install bison"
   echo "bison installed!"
 else
   echo "bison already installed!"
@@ -218,8 +218,8 @@ fi
 qt5_dev_test=`dpkg -s qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5 | grep Status`
 
 if [ "$qt5_dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
-  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5"
+  sudo apt-get -y install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
+  valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get -y install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5"
   echo "qt5-dev-tools installed!"
 else
   echo "qt5-dev-tools already installed!"
@@ -232,8 +232,8 @@ fi
 php5dev_test=`dpkg -s php5-dev | grep Status`
 
 if [ "$php5dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get install  php5-dev
-  valid $? "Error: could not install php5-dev! Please, install PHP5 support: sudo apt-get install php5-dev"
+  sudo apt-get -y install  php5-dev
+  valid $? "Error: could not install php5-dev! Please, install PHP5 support: sudo apt-get -y install php5-dev"
   echo "php5-dev installed!"
 else
   echo "php5-dev already installed!"
@@ -246,8 +246,8 @@ fi
 cmake_test=`dpkg -s cmake | grep Status`
 
 if [ "$cmake_test" != "Status: install ok installed" ]; then
-  sudo apt-get install cmake cmake-qt-gui
-  valid $? "Error: could not install CMake! Please, install CMake: sudo apt-get install cmake"
+  sudo apt-get -y install cmake cmake-qt-gui
+  valid $? "Error: could not install CMake! Please, install CMake: sudo apt-get -y install cmake"
   echo "CMake installed!"
 else
     if [ ! command -v cmake --version >/dev/null 2>&1 ]; then
@@ -264,8 +264,8 @@ fi
 log4cxx_test=`dpkg -s liblog4cxx10-dev | grep Status`
 
 if [ "$log4cxx_test" != "Status: install ok installed" ]; then
-  sudo apt-get install liblog4cxx10-dev
-  valid $? "Error: could not install liblog4cxx10-dev! Please, install liblog4cxx10-dev: sudo apt-get install liblog4cxx10-dev" 
+  sudo apt-get -y install liblog4cxx10-dev
+  valid $? "Error: could not install liblog4cxx10-dev! Please, install liblog4cxx10-dev: sudo apt-get -y install liblog4cxx10-dev" 
   echo "liblog4cxx10-dev installed!"
 else
   echo "liblog4cxx10-dev already installed!"
@@ -278,8 +278,8 @@ fi
 libkml_test=`dpkg -s libkml-dev | grep Status`
 
 if [ "$libkml_test" != "Status: install ok installed" ]; then
-  sudo apt-get install libkml-dev
-  valid $? "Error: could not install libkml-dev! Please, install libkml-dev: sudo apt-get install libkml-dev"
+  sudo apt-get -y install libkml-dev
+  valid $? "Error: could not install libkml-dev! Please, install libkml-dev: sudo apt-get -y install libkml-dev"
   echo "libkml-dev installed!"
 else
   echo "libkml-dev already installed!"
