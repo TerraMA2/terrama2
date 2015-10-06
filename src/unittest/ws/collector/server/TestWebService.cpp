@@ -123,50 +123,50 @@ void TestWebService::TestAddDataProvider()
 
 void TestWebService::TestAddNullDataProvider()
 {
-    try
+  try
+  {
+    DataProvider struct_dataProvider, struct_dataProviderResult;
+
+    WebService webService;
+
+    struct_dataProvider.id = 0;
+
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) == SOAP_OK)
     {
-        DataProvider struct_dataProvider, struct_dataProviderResult;
-
-        WebService webService;
-
-        struct_dataProvider.id = 0;
-
-        if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) == SOAP_OK)
-        {
-          QFAIL("Should not add a null Data Provider!");
-        }
+      QFAIL("Should not add a null Data Provider!");
     }
-    catch(...)
-    {
-        QFAIL("Exception unexpected!");
-    }
+  }
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
 
 }
 
 void TestWebService::TestAddDataProviderWithID()
 {
-    try
+  try
+  {
+    DataProvider struct_dataProvider, struct_dataProviderResult;
+
+    struct_dataProvider.id = 1;
+    struct_dataProvider.name = "Data Provider";
+    struct_dataProvider.kind = 1;
+    struct_dataProvider.description = "Data Provider description";
+    struct_dataProvider.status = 1;
+    struct_dataProvider.uri = "C:/Dataprovider/path";
+
+    WebService webService;
+
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) == SOAP_OK)
     {
-        DataProvider struct_dataProvider, struct_dataProviderResult;
-
-        struct_dataProvider.id = 1;
-        struct_dataProvider.name = "Data Provider";
-        struct_dataProvider.kind = 1;
-        struct_dataProvider.description = "Data Provider description";
-        struct_dataProvider.status = 1;
-        struct_dataProvider.uri = "C:/Dataprovider/path";
-
-        WebService webService;
-
-        if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) == SOAP_OK)
-        {
-          QFAIL("Should not add a Data Provider with ID!");
-        }
+      QFAIL("Should not add a Data Provider with ID!");
     }
-    catch(...)
-    {
-        QFAIL("Exception unexpected!");
-    }
+  }
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
 
 }
 
@@ -196,7 +196,7 @@ void TestWebService::testRemoveDataProvider()
       QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
 
-    if (webService.removeDataProvider(struct_dataProvider.id, nullptr) != SOAP_OK)
+    if (webService.removeDataProvider(struct_dataProviderResult.id, nullptr) != SOAP_OK)
     {
       QFAIL("Fail to remove a Data Provider!");
     }
@@ -252,6 +252,7 @@ void TestWebService::testUpdateDataProvider()
 
     DataProvider struct_dataproviderOLD = struct_dataProviderResult;
 
+    struct_dataProvider.id = struct_dataProviderResult.id;
     struct_dataProvider.name = "Data Provider Updated";
     struct_dataProvider.kind = 2;
     struct_dataProvider.description = "Data Provider description Updated";
@@ -261,11 +262,11 @@ void TestWebService::testUpdateDataProvider()
     webService.updateDataProvider(struct_dataProvider, struct_dataProviderResult);
 
     QVERIFY2(struct_dataproviderOLD.id == struct_dataProviderResult.id, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.name != struct_dataProviderResult.name, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.kind != struct_dataProviderResult.kind, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.description != struct_dataProviderResult.description, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.status != struct_dataProviderResult.status, "Data Provider ID changed after update!" );
-    QVERIFY2(struct_dataproviderOLD.uri != struct_dataProviderResult.uri, "Data Provider ID changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.name != struct_dataProviderResult.name, "Data Provider name changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.kind != struct_dataProviderResult.kind, "Data Provider kind changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.description != struct_dataProviderResult.description, "Data Provider description changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.status != struct_dataProviderResult.status, "Data Provider status changed after update!" );
+    QVERIFY2(struct_dataproviderOLD.uri != struct_dataProviderResult.uri, "Data Provider URI changed after update!" );
   }
   catch(...)
   {
@@ -395,12 +396,13 @@ void TestWebService::TestAddDataSet()
     struct_dataSet.schedule_timeout = "00:05:00.00";
     struct_dataSet.data_provider_id = struct_dataProviderResult.id;
 
-    if(webService.addDataSet(struct_dataSet) != SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
     }
 
-    QVERIFY2(struct_dataSet.id != 0, "Data Set should have a valid ID!");
+    QVERIFY2(struct_dataSetResult.id != 0, "Data Set should have a valid ID!");
 
   }
   catch(...)
@@ -433,7 +435,8 @@ void TestWebService::TestAddNullDataSet()
 
     struct_dataSet.id = 0;
 
-    if(webService.addDataSet(struct_dataSet) == SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) == SOAP_OK)
     {
       QFAIL("Should not add a null Data Set!");
     }
@@ -478,7 +481,8 @@ void TestWebService::TestAddDataSetWithID()
     struct_dataSet.schedule_timeout = "00:05:00.00";
     struct_dataSet.data_provider_id = struct_dataProvider.id;
 
-    if(webService.addDataSet(struct_dataSet) == SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) == SOAP_OK)
     {
       QFAIL("Should not add a Data Set With an ID!");
     }
@@ -508,7 +512,8 @@ void TestWebService::TestAddDataSetWithWrongDataProviderID()
     struct_dataSet.schedule_timeout = "00:05:00.00";
     struct_dataSet.data_provider_id = 1;
 
-    if(webService.addDataSet(struct_dataSet) == SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) == SOAP_OK)
     {
       QFAIL("Should not add a Data Set With a wrong Data Provider ID!");
     }
@@ -551,14 +556,15 @@ void TestWebService::testRemoveDataSet()
     struct_dataSet.schedule = "00:05:00.00";
     struct_dataSet.schedule_retry = "00:05:00.00";
     struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProvider.id;
+    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
 
-    if(webService.addDataSet(struct_dataSet) != SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
     }
 
-    if(webService.removeDataSet(struct_dataSet.id, nullptr) != SOAP_OK)
+    if(webService.removeDataSet(struct_dataSetResult.id, nullptr) != SOAP_OK)
     {
       QFAIL("Fail to remove a Data Set!");
     }
@@ -574,12 +580,12 @@ void TestWebService::testRemoveDataSetInvalidId()
 {
   try
   {
-     WebService webService;
+    WebService webService;
 
-     if(webService.removeDataSet(1, nullptr) == SOAP_OK)
-     {
-       QFAIL("Should not remove a invalid Data Set!");
-     }
+    if(webService.removeDataSet(1, nullptr) == SOAP_OK)
+    {
+      QFAIL("Should not remove a invalid Data Set!");
+    }
   }
   catch(...)
   {
@@ -619,15 +625,17 @@ void TestWebService::testUpdateDataSet()
     struct_dataSet.schedule = "00:05:00.00";
     struct_dataSet.schedule_retry = "00:05:00.00";
     struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProvider.id;
+    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
 
-    if(webService.addDataSet(struct_dataSet) != SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
     }
 
-    struct_dataSet_check = struct_dataSet;
+    struct_dataSet_check = struct_dataSetResult;
 
+    struct_dataSet.id = struct_dataSetResult.id;
     struct_dataSet.name = "Data Set Updated";
     struct_dataSet.kind = 2;
     struct_dataSet.status = 2;
@@ -637,21 +645,21 @@ void TestWebService::testUpdateDataSet()
     struct_dataSet.schedule_retry = "00:06:00.00";
     struct_dataSet.schedule_timeout = "00:06:00.00";
 
-    if(webService.updateDataSet(struct_dataSet) != SOAP_OK)
+    if(webService.updateDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Fail to update Data Set");
     }
 
-    QVERIFY2(struct_dataSet.id == struct_dataSet_check.id, "ID changed after update!");
-    QVERIFY2(struct_dataSet.data_provider_id == struct_dataSet_check.data_provider_id, "Data Provider changed after update!");
-    QVERIFY2(struct_dataSet.name != struct_dataSet_check.name, "Name didn't update!");
-    QVERIFY2(struct_dataSet.kind != struct_dataSet_check.kind, "Kind didn't update!");
-    QVERIFY2(struct_dataSet.status != struct_dataSet_check.status, "Status didn't update!");
-    QVERIFY2(struct_dataSet.description != struct_dataSet_check.description, "Description didn't update!");
-    QVERIFY2(struct_dataSet.data_frequency != struct_dataSet_check.data_frequency, "Data Frequency didn't update!");
-    QVERIFY2(struct_dataSet.schedule != struct_dataSet_check.schedule, "Schedule didn't update!");
-    QVERIFY2(struct_dataSet.schedule_retry != struct_dataSet_check.schedule_retry, "Schedule retry didn't update!");
-    QVERIFY2(struct_dataSet.schedule_timeout != struct_dataSet_check.schedule_timeout, "Schedule Timeout didn't update!");
+    QVERIFY2(struct_dataSetResult.id == struct_dataSet_check.id, "ID changed after update!");
+    QVERIFY2(struct_dataSetResult.data_provider_id == struct_dataSet_check.data_provider_id, "Data Provider changed after update!");
+    QVERIFY2(struct_dataSetResult.name != struct_dataSet_check.name, "Name didn't update!");
+    QVERIFY2(struct_dataSetResult.kind != struct_dataSet_check.kind, "Kind didn't update!");
+    QVERIFY2(struct_dataSetResult.status != struct_dataSet_check.status, "Status didn't update!");
+    QVERIFY2(struct_dataSetResult.description != struct_dataSet_check.description, "Description didn't update!");
+    QVERIFY2(struct_dataSetResult.data_frequency != struct_dataSet_check.data_frequency, "Data Frequency didn't update!");
+    QVERIFY2(struct_dataSetResult.schedule != struct_dataSet_check.schedule, "Schedule didn't update!");
+    QVERIFY2(struct_dataSetResult.schedule_retry != struct_dataSet_check.schedule_retry, "Schedule retry didn't update!");
+    QVERIFY2(struct_dataSetResult.schedule_timeout != struct_dataSet_check.schedule_timeout, "Schedule Timeout didn't update!");
 
   }
   catch(...)
@@ -680,7 +688,8 @@ void TestWebService::testUpdateDataSetInvalidId()
 
     WebService webService;
 
-    if(webService.updateDataSet(struct_dataSet) == SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.updateDataSet(struct_dataSet, struct_dataSetResult) == SOAP_OK)
     {
       QFAIL("Should not update a invalid Data Set!");
     }
@@ -723,30 +732,31 @@ void TestWebService::testFindDataSet()
     struct_dataSet.schedule = "00:05:00.00";
     struct_dataSet.schedule_retry = "00:05:00.00";
     struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProvider.id;
+    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
 
-    if(webService.addDataSet(struct_dataSet) != SOAP_OK)
+    DataSet struct_dataSetResult;
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
     }
 
-    QVERIFY2(struct_dataSet.id != 0, "Data Set have a invalid ID!");
+    QVERIFY2(struct_dataSetResult.id != 0, "Data Set have a invalid ID!");
 
-    if(webService.findDataSet(struct_dataSet.id, struct_dataSet_found) != SOAP_OK)
+    if(webService.findDataSet(struct_dataSetResult.id, struct_dataSet_found) != SOAP_OK)
     {
       QFAIL("Failed to find the Data Set!");
     }
 
-    QVERIFY2(struct_dataSet.id == struct_dataSet_found.id, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.data_provider_id == struct_dataSet_found.data_provider_id, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.name == struct_dataSet_found.name, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.kind == struct_dataSet_found.kind, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.status == struct_dataSet_found.status, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.description == struct_dataSet_found.description, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.data_frequency == struct_dataSet_found.data_frequency, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.schedule == struct_dataSet_found.schedule, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.schedule_retry == struct_dataSet_found.schedule_retry, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSet.schedule_timeout == struct_dataSet_found.schedule_timeout, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.id == struct_dataSet_found.id, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.data_provider_id == struct_dataSet_found.data_provider_id, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.name == struct_dataSet_found.name, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.kind == struct_dataSet_found.kind, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.status == struct_dataSet_found.status, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.description == struct_dataSet_found.description, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.data_frequency == struct_dataSet_found.data_frequency, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.schedule == struct_dataSet_found.schedule, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.schedule_retry == struct_dataSet_found.schedule_retry, "Error to find properly the Data Set!");
+    QVERIFY2(struct_dataSetResult.schedule_timeout == struct_dataSet_found.schedule_timeout, "Error to find properly the Data Set!");
 
   }
   catch(...)

@@ -62,6 +62,9 @@ void terrama2::ws::collector::Client::ping(std::string &answer)
 
 void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr)
 {
+  if(dataProviderPtr == nullptr)
+    throw client::AddingDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
 
   DataProvider struct_dataProviderResult;
@@ -80,48 +83,63 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
 
 void terrama2::ws::collector::Client::addDataset(terrama2::core::DataSetPtr &dataSetPtr)
 {
+  if(dataSetPtr == nullptr)
+    throw client::AddingDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSetPtr);
 
-  if(wsClient_->addDataSet(struct_dataSet) != SOAP_OK)
+  DataSet struct_dataSetResult;
+
+  if(wsClient_->addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSet);
+  dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
 
 }
 
 
 void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr)
 {
+  if(dataProviderPtr == nullptr)
+    throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
 
-  if(wsClient_->updateDataProvider(struct_dataProvider) != SOAP_OK)
+  DataProvider struct_dataProviderResult;
+
+  if(wsClient_->updateDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
     throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProvider);
+  dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
 
 }
 
 
 void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSetPtr &dataSetPtr)
 {
+  if(dataSetPtr == nullptr)
+    throw client::UpdateDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSetPtr);
 
-  if(wsClient_->updateDataSet(struct_dataSet) != SOAP_OK)
+  DataSet struct_dataSetResult;
+
+  if(wsClient_->updateDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
     throw client::UpdateDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSet);
+  dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
 
 }
 
@@ -152,6 +170,9 @@ void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 
 void terrama2::ws::collector::Client::findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr)
 {
+  if(dataProviderPtr == nullptr)
+    throw client::FindDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
 
   if(wsClient_->findDataProvider(id, struct_dataProvider) != SOAP_OK)
@@ -168,6 +189,9 @@ void terrama2::ws::collector::Client::findDataProvider(uint64_t id, terrama2::co
 
 void terrama2::ws::collector::Client::findDataSet(uint64_t id,terrama2::core::DataSetPtr &dataSetPtr)
 {
+  if(dataSetPtr == nullptr)
+    throw client::FindDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSetPtr);
 
   if(wsClient_->findDataSet(id, struct_dataSet) != SOAP_OK)
@@ -184,9 +208,17 @@ void terrama2::ws::collector::Client::findDataSet(uint64_t id,terrama2::core::Da
 
 void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList)
 {
+  if(dataProviderPtrList.at(0) == nullptr)
+    throw client::ListDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   std::vector< DataProvider > struct_dataProviderList;
 
-  wsClient_->listDataProvider(struct_dataProviderList);
+  if(wsClient_->listDataProvider(struct_dataProviderList) != SOAP_OK)
+  {
+    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+
+    throw client::ListDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+  }
 
   for(uint32_t i = 0; i < struct_dataProviderList.size() ; i++)
   {
@@ -198,9 +230,17 @@ void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::co
 
 void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList)
 {
+  if(dataSetPtrList.at(0) == nullptr)
+    throw client::ListDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+
   std::vector< DataSet > struct_dataSetPtrList;
 
-  wsClient_->listDataSet(struct_dataSetPtrList);
+  if(wsClient_->listDataSet(struct_dataSetPtrList) != SOAP_OK)
+  {
+    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+
+    throw client::ListDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+  }
 
   for(uint32_t i = 0; i < struct_dataSetPtrList.size() ; i++)
   {

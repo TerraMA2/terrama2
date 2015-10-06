@@ -68,6 +68,12 @@ namespace terrama2
         //! Exception to be used when receives a fault from WebService when request to find a DataSet
         struct FindDataSetError: virtual terrama2::Exception{ };
 
+        //! Exception to be used when receives a fault from WebService when request to find a DataSet
+        struct ListDataProviderError: virtual terrama2::Exception{ };
+
+        //! Exception to be used when receives a fault from WebService when request to find a DataSet
+        struct ListDataSetError: virtual terrama2::Exception{ };
+
       }
     }
   }
