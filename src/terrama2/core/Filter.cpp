@@ -32,13 +32,13 @@
 #include "DataSetItem.hpp"
 
 // TerraLib
-#include <terralib/geometry.h>
+#include <terralib/datatype/DateTime.h>
+#include <terralib/geometry/Geometry.h>
 
-
-terrama2::core::Filter::Filter(DataSetItemPtr dataSetItemPtr)
-  : dataSetItemPtr_(dataSetItemPtr),
-    byValue_(0.0),
-    byValueType_(NONE_TYPE)
+terrama2::core::Filter::Filter(const DataSetItemPtr& item)
+  : datasetItem_(item),
+    value_(0.0),
+    expressionType_(NONE_TYPE)
 {
 
 }
@@ -48,64 +48,64 @@ terrama2::core::Filter::~Filter()
 
 }
 
-terrama2::core::DataSetItemPtr terrama2::core::Filter::dataSetItemPtr() const
+terrama2::core::DataSetItemPtr terrama2::core::Filter::dataSetItem() const
 {
-  return dataSetItemPtr_;
+  return datasetItem_;
 }
 
-void terrama2::core::Filter::setDataSetItemPtr(const terrama2::core::DataSetItemPtr& dataSetItemPtr)
+void terrama2::core::Filter::setDataSetItemPtr(const terrama2::core::DataSetItemPtr& datasetItem)
 {
-  dataSetItemPtr_ = dataSetItemPtr;
+  datasetItem_ = datasetItem;
 }
 
-std::shared_ptr<te::dt::DateTime> terrama2::core::Filter::discardBefore()
+const te::dt::DateTime* terrama2::core::Filter::discardBefore() const
 {
-  return discardBefore_;
+  return discardBefore_.get();
 }
 
-void terrama2::core::Filter::setDiscardBefore(std::shared_ptr<te::dt::DateTime> discardBefore)
+void terrama2::core::Filter::setDiscardBefore(std::unique_ptr<te::dt::DateTime> discardBefore)
 {
-  discardBefore_ = discardBefore;
+  discardBefore_ = std::move(discardBefore);
 }
 
-std::shared_ptr<te::dt::DateTime> terrama2::core::Filter::discardAfter()
+const te::dt::DateTime* terrama2::core::Filter::discardAfter() const
 {
-  return discardAfter_;
+  return discardAfter_.get();
 }
 
-void terrama2::core::Filter::setDiscardAfter(std::shared_ptr<te::dt::DateTime> discardAfter)
+void terrama2::core::Filter::setDiscardAfter(std::unique_ptr<te::dt::DateTime> discardAfter)
 {
-  discardAfter_ = discardAfter;
+  discardAfter_ = std::move(discardAfter);
 }
 
-std::shared_ptr<te::gm::Geometry> terrama2::core::Filter::geometry()
+const te::gm::Geometry* terrama2::core::Filter::geometry() const
 {
-  return geometry_;
+  return geometry_.get();
 }
 
-void terrama2::core::Filter::setGeometry(std::shared_ptr<te::gm::Geometry> geometry)
+void terrama2::core::Filter::setGeometry(std::unique_ptr<te::gm::Geometry> geom)
 {
-  geometry_ = geometry;
+  geometry_ = std::move(geom);
 }
 
-double terrama2::core::Filter::byValue() const
+double terrama2::core::Filter::value() const
 {
-  return byValue_;
+  return value_;
 }
 
-void terrama2::core::Filter::setByValue(const double byValue)
+void terrama2::core::Filter::setValue(const double v)
 {
-  byValue_ = byValue;
+  value_ = v;
 }
 
-terrama2::core::Filter::ByValueType terrama2::core::Filter::byValueType() const
+terrama2::core::Filter::ExpressionType terrama2::core::Filter::expressionType() const
 {
-  return byValueType_;
+  return expressionType_;
 }
 
-void terrama2::core::Filter::setByValueType(const terrama2::core::Filter::ByValueType byValueType)
+void terrama2::core::Filter::setExpressionType(const ExpressionType t)
 {
-  byValueType_ = byValueType;
+  expressionType_ = t;
 }
 
 std::string terrama2::core::Filter::bandFilter() const

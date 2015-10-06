@@ -245,7 +245,7 @@ terrama2::core::DataSetItemStatusToBool(DataSetItem::Status status)
   }
 }
 
-terrama2::core::Filter::ByValueType
+terrama2::core::Filter::ExpressionType
 terrama2::core::IntToFilterByValueType(uint64_t type)
 {
   switch (type)

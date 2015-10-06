@@ -164,7 +164,7 @@ namespace terrama2
 
       \return Enum with the type of filter.
      */
-    Filter::ByValueType IntToFilterByValueType(uint64_t type);
+    Filter::ExpressionType IntToFilterByValueType(uint64_t type);
 
   } // end namespace core
 }   // end namespace terrama2

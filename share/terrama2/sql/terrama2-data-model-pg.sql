@@ -238,7 +238,7 @@ COMMENT ON COLUMN terrama2.filter_by_value_type.id IS 'Filter by value identifie
 COMMENT ON COLUMN terrama2.filter_by_value_type.name IS 'Name that identifies the type of filter';
 COMMENT ON COLUMN terrama2.filter_by_value_type.description IS 'Brief description about the filter type';
 
-INSERT INTO terrama2.filter_by_value_type(name, description)
+INSERT INTO terrama2.filter_expression_type(name, description)
      VALUES('NONE_TYPE', 'None'),
            ('LESS_THAN_TYPE', 'Eliminate data when all values are less than a given value'),
            ('GREATER_THAN_TYPE', 'Eliminate data when all values are greater than a given value'),
@@ -254,12 +254,12 @@ CREATE TABLE terrama2.filter
   discard_after                     TIMESTAMP,
   geom                              GEOMETRY(POLYGON, 4326),
   external_data_id                  INTEGER,
-  by_value                          NUMERIC,
-  by_value_type                     INTEGER,
+  value                             NUMERIC,
+  expression_type                   INTEGER,
   within_external_data_id           INTEGER,
   band_filter                       TEXT,
   CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_filter_within_by_value_type FOREIGN KEY(by_value_type) REFERENCES terrama2.dataset_item_type (id) ON UPDATE CASCADE ON DELETE CASCADE
+  CONSTRAINT fk_filter_with_expression_type FOREIGN KEY(expression_type) REFERENCES terrama2.filter_expression_type (id) ON UPDATE CASCADE ON DELETE CASCADE
   --CONSTRAINT fk_filter_external_data_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
   --CONSTRAINT fk_filter_within_external_data_id FOREIGN KEY(within_external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
