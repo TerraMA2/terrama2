@@ -132,7 +132,7 @@ T1 terrama2::ws::collector::core::DataProviderPtr2Struct(terrama2::core::DataPro
 template <typename T1>
 terrama2::core::DataSetPtr terrama2::ws::collector::core::Struct2DataSetPtr(T1 struct_dataset)
 {
-  auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(struct_dataset.id);
+  auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(struct_dataset.data_provider_id);
 
   terrama2::core::DataSet dataset(dataproviderPtr, struct_dataset.name, (terrama2::core::DataSet::Kind)struct_dataset.kind, struct_dataset.id);
 
@@ -161,6 +161,7 @@ T1 terrama2::ws::collector::core::DataSetPtr2Struct(terrama2::core::DataSetPtr d
 
   struct_dataset.data_provider_id =  datasetPtr->dataProvider()->id();
   struct_dataset.id = datasetPtr->id();
+  struct_dataset.name = datasetPtr->name();
   struct_dataset.kind = (int)datasetPtr->kind();
   struct_dataset.description = datasetPtr->description();
   struct_dataset.status = (int)datasetPtr->status();
