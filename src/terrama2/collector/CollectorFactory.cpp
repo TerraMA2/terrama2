@@ -34,8 +34,6 @@
 
 terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
 {
-  //JANO: implementar getCollector
-
   //If there is no collector for this DataProvider, create one.
   if(!collectorMap_.contains(dataProvider->id()))
   {

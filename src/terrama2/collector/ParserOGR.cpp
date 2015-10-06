@@ -37,6 +37,8 @@
 //STD
 #include <memory>
 
+#include <boost/format/exceptions.hpp>
+
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -47,10 +49,10 @@ std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std:
 {
   QDir dir(uri.c_str());
 
-  QStringList entryList = dir.entryList();
-  std::vector<std::string> names(entryList.size());
-  for(const QString& name : entryList)
-    names.push_back(name.toStdString());
+  QFileInfoList entryList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files | QDir::Readable);
+  std::vector<std::string> names;
+  for(const QFileInfo& file : entryList)
+    names.push_back(file.baseName().toStdString());
 
   return names;
 }
@@ -99,10 +101,15 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
 
     return;
   }
-  catch(te::common::Exception e)
+  catch(te::common::Exception& e)
   {
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
                                           QObject::tr("Terralib exception: ") + e.what());
+  }
+  catch(boost::io::format_error& e)
+  {
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                          QObject::tr("Boost exception: ") + e.what());
   }
 
   return;

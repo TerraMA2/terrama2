@@ -47,6 +47,8 @@ namespace terrama2
     class StoragerPostgis : public Storager
     {
       public:
+        StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
+
         /*!
              * \brief Store a temporary data set in it's final storage area and format.
              * \return Pointer to a te::da::DataSet of the final storage.

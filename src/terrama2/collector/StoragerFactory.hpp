@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
+#ifndef __TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
+#define __TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
 
 #include "Storager.hpp"
 #include "../core/DataSetItem.hpp"
@@ -40,10 +40,10 @@ namespace terrama2
   {
     namespace StoragerFactory
     {
-      StoragerPtr getStorager(core::DataSetItem::Kind datasetItemKind);
+      StoragerPtr getStorager(core::DataSetItemPtr datasetItem);
     }
   }
 }
 
 
-#endif //__TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
+#endif //__TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__

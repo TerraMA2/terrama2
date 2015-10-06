@@ -51,6 +51,8 @@ namespace terrama2
     class Storager : public boost::noncopyable
     {
       public:
+        Storager(const std::map<std::string, std::string>& storageMetadata);
+
         /*!
              * \brief Store a temporary data set in it's final storage area and format.
              * \return Pointer to a te::da::DataSet of the final storage.
@@ -59,6 +61,9 @@ namespace terrama2
              */
         virtual void store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                            const std::shared_ptr<te::da::DataSetType>& dataSetType) = 0;
+
+      protected:
+        std::map<std::string, std::string> storageMetadata_;
 
     };
 

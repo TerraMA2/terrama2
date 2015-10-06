@@ -84,8 +84,6 @@ namespace terrama2
         /*!
          * \brief Creates a processloop thread and wait for signals.
          *
-         * Starts an QCoreApplication::exec(), won't exit! //TODO: should CollectorService.exec exit?
-         *
          * \exception terrama2::collector::ServiceAlreadyRunnningException Raise when the service is already runnning.
          */
         void start();

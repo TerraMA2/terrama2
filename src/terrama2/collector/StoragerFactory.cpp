@@ -28,8 +28,25 @@
 */
 
 #include "StoragerFactory.hpp"
+#include "StoragerPostgis.hpp"
 
-terrama2::collector::StoragerPtr terrama2::collector::StoragerFactory::getStorager(terrama2::core::DataSetItem::Kind datasetItemKind)
+#include "../core/DataSetItem.hpp"
+
+terrama2::collector::StoragerPtr terrama2::collector::StoragerFactory::getStorager(terrama2::core::DataSetItemPtr datasetItem)
 {
+  std::map<std::string, std::string> storageMetadata = datasetItem->storageMetadata();
+
+  //Exceptions
+
+  std::string storagerKind = storageMetadata.at("KIND");
+  if(storagerKind.empty())
+    return StoragerPtr();
+
+  if(storagerKind == "POSTGIS")
+  {
+    return StoragerPtr(new StoragerPostgis(storageMetadata));
+  }
+
+
   return StoragerPtr();
 }

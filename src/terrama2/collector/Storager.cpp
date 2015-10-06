@@ -29,3 +29,10 @@
 
 #include "Storager.hpp"
 
+
+terrama2::collector::Storager::Storager(const std::map<std::string, std::string>& storageMetadata)
+  : storageMetadata_(storageMetadata)
+
+{
+
+}

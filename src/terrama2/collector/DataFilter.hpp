@@ -102,12 +102,12 @@ namespace terrama2
              * \brief Sets the date/time that should be used as starting date/time of valid data.
              * \param startDateTime Starting valid data date/time.
              */
-        void setDataStartDate();//TODO: What datetime format?
+        void setDataStartDate();//TODO: What datetime format? : Boost
         /*!
              * \brief Sets the date/time that should be used as last date/time of valid data.
              * \param endDateTime Last valid data date/time.
              */
-        void setDataEndDate();//TODO: What datetime format?
+        void setDataEndDate();//TODO: What datetime format? : Boost
 
         struct Impl;
         Impl* impl_;

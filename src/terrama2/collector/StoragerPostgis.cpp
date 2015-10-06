@@ -28,6 +28,7 @@
 */
 
 #include "StoragerPostgis.hpp"
+#include "Exception.hpp"
 
 //Terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -36,59 +37,63 @@
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
-void terrama2::collector::Storager::store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                          const std::shared_ptr<te::da::DataSetType> &dataSetType)
+//Qt
+#include <QObject>
+
+terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string, std::string>& storageMetadata)
+  : Storager(storageMetadata)
+{
+
+}
+
+void terrama2::collector::StoragerPostgis::store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                                 const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
   assert(datasetVec.size() == 1);//TODO: remove this!
 
-  const std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(0);
-
-  // let's open the destination datasource
-  std::map<std::string, std::string> pgisInfo;
-  pgisInfo["PG_HOST"] = "localhost";
-  pgisInfo["PG_PORT"] = "5432";
-  pgisInfo["PG_USER"] = "postgres";
-  pgisInfo["PG_PASSWORD"] = "postgres";
-  pgisInfo["PG_DB_NAME"]  = "terrama2";
-  pgisInfo["PG_CONNECT_TIMEOUT"] = "4";
-  pgisInfo["PG_CLIENT_ENCODING"] = "UTF8";
-  std::string dataSetScheme = "terrama2";
-  std::string dataSetName   = "nome_teste";
-
-  if(!dataSetScheme.empty())
-    dataSetName = dataSetScheme+"."+dataSetName;
-
-  std::auto_ptr<te::da::DataSource> dsDestination = te::da::DataSourceFactory::make("POSTGIS");
-  dsDestination->setConnectionInfo(pgisInfo);
-  dsDestination->open();
-
-  // get a transactor to interact to the data source
-  std::shared_ptr<te::da::DataSourceTransactor> tDestination(dsDestination->getTransactor());
-  if (tDestination->dataSetExists(dataSetName))
+  try
   {
-    assert(0);
-    //TODO: what to do?
+    const std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(0);
+
+    // let's open the destination datasource
+    std::string dataSetScheme = storageMetadata_.at("PG_SCHEME");
+    std::string dataSetName   = storageMetadata_.at("PG_TABLENAME");
+
+    if(!dataSetScheme.empty())
+      dataSetName = dataSetScheme+"."+dataSetName;
+
+    std::auto_ptr<te::da::DataSource> datasourceDestination = te::da::DataSourceFactory::make("POSTGIS");
+    datasourceDestination->setConnectionInfo(storageMetadata_);
+    datasourceDestination->open();
+
+    // create and save datasettype in the datasource destination
+    te::da::DataSetType* newDataSet = static_cast<te::da::DataSetType*>(dataSetType->clone());
+    newDataSet->setName(dataSetName);
+    std::map<std::string, std::string> options;
+
+    //Get original geometry to get srid
+    te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
+    //configure if there is a geometry property
+    if(geom)
+    {
+      GetFirstGeomProperty(newDataSet)->setSRID(geom->getSRID());
+      GetFirstGeomProperty(newDataSet)->setGeometryType(te::gm::GeometryType);
+    }
+
+    // get a transactor to interact to the data source
+    std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
+    transactorDestination->begin();
+
+    if (!transactorDestination->dataSetExists(dataSetName))
+      transactorDestination->createDataSet(newDataSet,options);
+
+    transactorDestination->add(newDataSet->getName(), tempDataSet.get(), options);
+    transactorDestination->commit();
   }
-
-  // create and save datasettype in the datasource destination
-  te::da::DataSetType* newDataSet = static_cast<te::da::DataSetType*>(dataSetType->clone());
-  newDataSet->setName(dataSetName);
-
-  //Get original geometry to get srid
-  te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
-  if(geom)
-    GetFirstGeomProperty(newDataSet)->setSRID(geom->getSRID());
-  else
-    GetFirstGeomProperty(newDataSet)->setSRID(4326);
-  GetFirstGeomProperty(newDataSet)->setGeometryType(te::gm::GeometryType);
-
-
-  std::map<std::string, std::string> options;
-
-  tDestination->begin();
-  tDestination->createDataSet(newDataSet,options);
-  tDestination->add(newDataSet->getName(), tempDataSet.get(),options);
-  tDestination->commit();
+  catch(te::common::Exception& e)
+  {
+    throw StoragerConnectionError() << terrama2::ErrorDescription(QObject::tr("Terralib exception: %1").arg(e.what()));
+  }
 
   return ;
 }

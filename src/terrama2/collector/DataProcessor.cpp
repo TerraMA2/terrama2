@@ -29,6 +29,7 @@
 
 #include "DataProcessor.hpp"
 
+#include "StoragerFactory.hpp"
 #include "ParserFactory.hpp"
 #include "DataFilter.hpp"
 #include "Storager.hpp"
@@ -39,12 +40,15 @@
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
+//std
+#include <atomic>
+
 struct terrama2::collector::DataProcessor::Impl
 {
     core::DataSetItemPtr   data_;
-    DataFilterPtr filter_;
-    ParserPtr parser_;
-    StoragerPtr storager_;
+    DataFilterPtr          filter_;
+    ParserPtr              parser_;
+    StoragerPtr            storager_;
 };
 
 terrama2::collector::DataProcessor::DataProcessor(core::DataSetItemPtr data, QObject *parent)
@@ -52,9 +56,9 @@ terrama2::collector::DataProcessor::DataProcessor(core::DataSetItemPtr data, QOb
   impl_ = new Impl();
   impl_->data_ = data;
 
-  //TODO: instantiate filter, parser, storager...
   initFilter();
   initParser();
+  initStorager();
 }
 
 terrama2::collector::DataProcessor::~DataProcessor()
@@ -99,8 +103,7 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
   //store dataset
   impl_->storager_->store(datasetVec, datasetType);
 
-  //JANO: implementar import
-  //should run in thread ?
+  //JANO: should run in thread ?
   //Call a thread method?
 }
 
@@ -112,6 +115,12 @@ void terrama2::collector::DataProcessor::initFilter()
 
 void terrama2::collector::DataProcessor::initParser()
 {
-  ParserPtr parser = ParserFactory::getParser(impl_->data_);
+  ParserPtr parser = ParserFactory::getParser(impl_->data_->kind());
   impl_->parser_ = parser;
+}
+
+void terrama2::collector::DataProcessor::initStorager()
+{
+  StoragerPtr storager = StoragerFactory::getStorager(impl_->data_);
+  impl_->storager_ = storager;
 }

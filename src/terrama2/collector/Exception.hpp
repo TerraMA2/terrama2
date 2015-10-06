@@ -51,6 +51,8 @@ namespace terrama2
     struct WrongDataProviderKindError: virtual Exception { };
 
     struct UnableToReadDataSetError: virtual Exception { };
+
+    struct StoragerConnectionError: virtual Exception { };
   }
 }
 
