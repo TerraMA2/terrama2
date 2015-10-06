@@ -112,6 +112,8 @@ void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
   if(collectingThread_.joinable())
     collectingThread_.join();
 
+  //JANO: Reabilitar thread na colleta
   //start a new thread
-  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
+//  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
+  collectAsThread(datasetTimer);
 }
