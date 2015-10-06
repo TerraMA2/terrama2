@@ -20,21 +20,30 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/server/TestWebService.hpp
+  \file terrama2/unittest/ws/client/TestClient.hpp
 
-  \brief Tests for the WebService class.
+  \brief Tests for the WebService Client class.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER__
-#define __TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER__
+#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT__
+#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT__
 
+// Qt
 #include <QtTest>
 
-class TestWebService: public QObject
+// TerraMA2
+#include <terrama2/ws/collector/client/Client.hpp>
+
+
+class TestClient: public QObject
 {
   Q_OBJECT
+
+private:
+
+  terrama2::ws::collector::Client* wsClient_;
 
 private:
 
@@ -42,6 +51,9 @@ private:
      * \brief Clear all the data in TerraMA2 database
      */
     void clearDatabase();
+
+    terrama2::core::DataProviderPtr buildDataProviderPtr();
+    terrama2::core::DataSetPtr buildDataSetPtr();
 
 private slots:
 
@@ -53,10 +65,18 @@ private slots:
 
     //******Test functions********;
 
+
     /*!
      * \brief Test to request the WebService status
      */
     void TestStatus();
+
+
+    /*!
+     * \brief Test to request the WebService status
+     */
+    void TestWrongConection();
+
 
 
     /*!
@@ -169,7 +189,10 @@ private slots:
 
 
     //******End of Test functions****
+
+
+
 };
 
-#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER__
+#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT__
 

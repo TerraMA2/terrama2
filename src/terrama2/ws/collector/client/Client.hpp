@@ -35,7 +35,6 @@
 
 // gSOAP
 #include "soapWebProxy.h"
-#include "Web.nsmap"
 
 // TerraMA2
 #include "../../../core/DataProvider.hpp"
@@ -54,7 +53,7 @@ namespace terrama2
       {
         public:
 
-          Client(std::string url);
+          Client(const std::string url);
 
           ~Client();
 
@@ -173,9 +172,11 @@ namespace terrama2
           */
           void listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList);
 
+
         private:
 
           WebProxy* wsClient_;
+          std::string server_;
 
     };
 
