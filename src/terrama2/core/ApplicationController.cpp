@@ -37,6 +37,7 @@
 #include <string>
 
 // Qt
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
 
@@ -49,30 +50,39 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
 {
   configFileName_ = configFileName;
 
-  QJsonObject project = terrama2::core::OpenFile(configFileName);
 
-  if(project.contains("database"))
+  try
   {
-    QJsonObject databaseConfig = project["database"].toObject();
-    std::map<std::string, std::string> connInfo;
-    connInfo["PG_HOST"] = databaseConfig["hostName"].toString().toStdString();
-    connInfo["PG_PORT"] = databaseConfig["port"].toString().toStdString();
-    connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
-    connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
-    connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
-    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+    QJsonDocument jdoc = terrama2::core::ReadJsonFile(configFileName);
+    
+    QJsonObject project = jdoc.object();
 
-    dataSouce_ = te::da::DataSourceFactory::make("POSTGIS");
-    dataSouce_->setConnectionInfo(connInfo);
-    dataSouce_->open();
+    if(project.contains("database"))
+    {
+      QJsonObject databaseConfig = project["database"].toObject();
+      std::map<std::string, std::string> connInfo;
+      connInfo["PG_HOST"] = databaseConfig["hostName"].toString().toStdString();
+      connInfo["PG_PORT"] = databaseConfig["port"].toString().toStdString();
+      connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
+      connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
+      connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
+      connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
-    return true;
+      dataSouce_ = te::da::DataSourceFactory::make("POSTGIS");
+      dataSouce_->setConnectionInfo(connInfo);
+      dataSouce_->open();
+
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
+  catch(...)
   {
     return false;
   }
-
 
 }
 

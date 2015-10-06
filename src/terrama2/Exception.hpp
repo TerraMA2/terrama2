@@ -27,8 +27,8 @@
   \author Gilberto Ribeiro de Queiroz
  */
 
-#ifndef __TERRAMA2_INTERNAL_EXCEPTION_HPP__
-#define __TERRAMA2_INTERNAL_EXCEPTION_HPP__
+#ifndef __TERRAMA2_EXCEPTION_HPP__
+#define __TERRAMA2_EXCEPTION_HPP__
 
 // STL
 #include <stdexcept>
@@ -66,24 +66,12 @@ namespace terrama2
   //! An exception indicating a serialization error.
   struct SerializationError: virtual Exception { };
 
-  //! An exception indicating a general plugin error.
-  struct PluginError: virtual Exception { };
-
-  //! An exception indicating that a plugin could not be loaded.
-  struct PluginLoadError: virtual PluginError { };
-
-  //! An exception indicating that a plugin could not be unloaded.
-  struct PluginUnloadError: virtual PluginError { };
-
-  //! An exception indicating that a plugin could not be started.
-  struct PluginStartupError: virtual PluginError { };
-
-  //! An exception indicating that a plugin could not be stopped.
-  struct PluginShutdownError: virtual PluginError { };
+  //! An exception indicating a serialization error.
+  struct FileOpenError: virtual Exception { };
 
   //! The base type for error report messages.
   typedef boost::error_info<struct tag_error_description, QString> ErrorDescription;
 
 }  // end namespace terrama2
 
-#endif  // __TERRAMA2_INTERNAL_EXCEPTION_HPP__
+#endif  // __TERRAMA2_EXCEPTION_HPP__

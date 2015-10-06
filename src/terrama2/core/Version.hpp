@@ -42,24 +42,33 @@ namespace terrama2
     {
       public:
 
+        //! Return the major version of TerraMA2.
         static int majorNumber();
 
+        //! Return the minor revision of TerraMA2.
         static int minorNumber();
 
+        //! Return the patch revision number of TerraMA2.
         static int patchNumber();
 
+        //! Tells which type of release.
         static std::string releaseStatus();
 
+        //! Tells the build date.
         static std::string buildDate();
 
+        //! Returns the version as a string to be read by humans.
         static std::string asString();
 
+        //! Returns the version as a integer number.
         static int asInt();
 
       private:
 
+        //! Not constructible.
         Version();
 
+        //! Not constructible.
         ~Version();
     };
 
