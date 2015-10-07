@@ -56,6 +56,9 @@ Final Remarks
 
 After choosing the right branch or tag to work on, follow the BUILD-INSTRUCTIONS file available on the codebase.
 
+To see all valid branches and tags, please, see:
+https://trac.dpi.inpe.br/terrama2/wiki/branches_tags
+
 If you want to understand the rationale behind branchs and TerraMA2 versioning, please, see the wiki at:
 https://trac.dpi.inpe.br/terrama2/wiki/versioning
 
@@ -63,5 +66,4 @@ For more information on TerraMA2, please, visit its main web page at: http://www
 
 
   August 2015, TerraMA2 Team <terrama2-team@dpi.inpe.br>
-
 

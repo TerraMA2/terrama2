@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSet.hpp
 
-  \brief Metadata about a given dataset.
+  \brief Models the information of given dataset dataset from a data provider that should be collected by TerraMA2.
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -38,6 +38,9 @@
 #include <string>
 #include <vector>
 
+// Boost
+#include <boost/noncopyable.hpp>
+
 // TerraLib
 #include <terralib/datatype/TimeDuration.h>
 
@@ -45,7 +48,7 @@ namespace terrama2
 {
   namespace core
   {
-
+// Forward declaration
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
@@ -55,13 +58,17 @@ namespace terrama2
     /*!
       \class DataSet
 
-      \brief Contains metadata about a dataset.
+      \brief Models the information of given dataset dataset from a data provider that should be collected by TerraMA2.
 
-      A dataset can be a PCD, occurence or a grid.
+      A dataset cmodels information about:
+      - PCDs: fixed location sensors that emmits their measures in the format known as PCD-INPE.
+      - Occurrences (or events): something that happens at a given place and time.
+      - Coverages: from OGC WCS servers.
+      - FeatureTypes: from OGC WFS server.
 
-      It has the time frequency that this dataset should be collected.
+      A dataset has an associated time interval (or frequency) for being collected.
      */
-    class DataSet
+    class DataSet : public boost::noncopyable
     {
       public:
 
@@ -82,7 +89,7 @@ namespace terrama2
         };
 
         /*!
-           \brief Struct to store the collect rules.
+          \brief Struct to store the collect rules.
          */
         struct CollectRule
         {
@@ -123,7 +130,7 @@ namespace terrama2
         /*!
           \brief It sets the name of the dataset.
 
-          \param The name of the dataset.
+          \param name The name of the dataset.
         */
         void setName(const std::string& name);
 
@@ -137,9 +144,9 @@ namespace terrama2
         /*!
           \brief It sets the the description of the dataset.
 
-          \param The description of the dataset.
+          \param d The description of the dataset.
         */
-        void setDescription(const std::string& description);
+        void setDescription(const std::string& d);
 
         /*!
           \brief It returns the the kind of the dataset.
@@ -151,9 +158,9 @@ namespace terrama2
         /*!
           \brief It sets the the kind of the dataset.
 
-          \param The kind of the data provider.
+          \param k The kind of the data provider.
         */
-        void setKind(const Kind& kind);
+        void setKind(const Kind& k);
 
         /*!
           \brief It returns the the status of the dataset.
@@ -165,9 +172,9 @@ namespace terrama2
         /*!
           \brief It sets the the status of the dataset.
 
-          \param The status of the dataset.
+          \param s The status of the dataset.
         */
-        void setStatus(const Status& status);
+        void setStatus(const Status s);
 
         /*!
           \brief It returns the the data provider.
@@ -181,56 +188,56 @@ namespace terrama2
 
           \return The the time frequency that this dataset must try to acquire a new data.
         */
-        te::dt::TimeDuration dataFrequency() const;
+        const te::dt::TimeDuration& dataFrequency() const;
 
         /*!
           \brief It sets the time frequency that this dataset must try to acquire a new data.
 
-          \param The time frequency that this dataset must try to acquire a new data.
+          \param t The time frequency that this dataset must try to acquire a new data.
         */
-        void setDataFrequency(const te::dt::TimeDuration& dataFrequency);
+        void setDataFrequency(const te::dt::TimeDuration& t);
 
         /*!
           \brief It returns the time scheduled to the next collection.
 
           \return The time scheduled to the next collection.
         */
-        te::dt::TimeDuration schedule() const;
+        const te::dt::TimeDuration& schedule() const;
 
         /*!
           \brief It sets the time scheduled to the next collection.
 
-          \param The time scheduled to the next collection.
+          \param t The time scheduled to the next collection.
         */
-        void setSchedule(const te::dt::TimeDuration& schedule);
+        void setSchedule(const te::dt::TimeDuration& t);
 
         /*!
           \brief It returns the time frequency to retry a collection if the data wasn't available in the scheduled time.
 
           \return The time frequency to retry a collection if the data wasn't available in the scheduled time.
         */
-        te::dt::TimeDuration scheduleRetry() const;
+        const te::dt::TimeDuration& scheduleRetry() const;
 
         /*!
           \brief It sets the time frequency to retry a collection if the data wasn't available in the scheduled time.
 
-          \param The time frequency to retry a collection if the data wasn't available in the scheduled time.
+          \param t The time frequency to retry a collection if the data wasn't available in the scheduled time.
         */
-        void setScheduleRetry(const te::dt::TimeDuration& scheduleRetry);
+        void setScheduleRetry(const te::dt::TimeDuration& t);
 
         /*!
           \brief It returns the time limit to retry a scheduled collection.
 
           \return The time limit to retry a scheduled collection.
         */
-        te::dt::TimeDuration scheduleTimeout() const;
+        const te::dt::TimeDuration& scheduleTimeout() const;
 
         /*!
           \brief Sets the time limit to retry a scheduled collection.
 
-          \param The time limit to retry a scheduled collection.
+          \param t The time limit to retry a scheduled collection.
         */
-        void setScheduleTimeout(const te::dt::TimeDuration& scheduleTimeout);
+        void setScheduleTimeout(const te::dt::TimeDuration& t);
 
         /*!
           \brief Returns the map with the dataset metadata.
@@ -242,9 +249,9 @@ namespace terrama2
         /*!
            \brief Sets the dataset metadata.
 
-           \param The dataset metadata.
+           \param m The dataset metadata.
          */
-        void setMetadata(const std::map<std::string, std::string>& metadata);
+        void setMetadata(const std::map<std::string, std::string>& m);
 
         /*!
            \brief Returns the collect rules.
@@ -256,23 +263,23 @@ namespace terrama2
         /*!
            \brief Sets the collect rules.
 
-           \param The collect rules.
+           \param rules The collect rules.
          */
-        void setCollectRules(const std::vector<CollectRule>& collectRules);
+        void setCollectRules(const std::vector<CollectRule>& rules);
 
         /*!
-           \brief Returns the list of of dataset item.
+           \brief Returns the list of of dataset items.
 
-           \return The list of dataset item.
+           \return The list of dataset items.
          */
         std::vector<DataSetItemPtr> dataSetItemList() const;
 
         /*!
-           \brief Sets the list of dataset item.
+           \brief Sets the list of dataset items.
 
-           \param The list of dataset item.
+           \param items The list of dataset items.
          */
-        void setDataSetItemList(const std::vector<DataSetItemPtr>& dataSetItemList);
+        void setDataSetItemList(const std::vector<DataSetItemPtr>& items);
 
 
       protected:

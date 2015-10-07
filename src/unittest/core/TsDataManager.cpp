@@ -136,8 +136,8 @@ DataSetPtr TsDataManager::createDataSet()
   DataSetItemPtr dataSetItem(new DataSetItem(dataSet, DataSetItem::PCD_INPE_TYPE));
 
   FilterPtr filter(new Filter(dataSetItem));
-  filter->setByValueType(Filter::GREATER_THAN_TYPE);
-  filter->setByValue(100.);
+  filter->setExpressionType(Filter::GREATER_THAN_TYPE);
+  filter->setValue(100.);
   dataSetItem->setFilter(filter);
 
   dataSetItemList.push_back(dataSetItem);
@@ -240,8 +240,7 @@ void TsDataManager::testFindDataProvider()
   DataManager::getInstance().add(dataProvider);
 
   // Find the same data provider by id
-  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(
-          foundDataProvider->id());
+  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(dataProvider->id());
 
   QVERIFY2(foundDataProvider.get(), "Could not recover the data provider by id!");
 
@@ -261,8 +260,7 @@ void TsDataManager::testFindDataProviderByName()
   DataManager::getInstance().add(dataProvider);
 
   // Find the same data provider by name
-  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(
-          foundDataProvider->name());
+  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(dataProvider->name());
 
   QVERIFY2(foundDataProvider.get(), "Could not recover the data provider by id!");
 
@@ -294,8 +292,7 @@ void TsDataManager::testUpdateDataProvider()
 
 
   // Find the same data provider by id
-  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(
-          foundDataProvider->id());
+  DataProviderPtr foundDataProvider = DataManager::getInstance().findDataProvider(dataProvider->id());
 
   QVERIFY2(foundDataProvider.get(), "Could not recover the data provider by id!");
 

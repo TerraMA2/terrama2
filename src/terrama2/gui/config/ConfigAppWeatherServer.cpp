@@ -37,6 +37,9 @@ void ConfigAppWeatherServer::load()
 
 void ConfigAppWeatherServer::save()
 {
+  // Load dataproviders
+  terrama2::core::DataManager::getInstance().load();
+
   // If there data provider in database
   if (terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
       ui_->serverName->text().toStdString()))

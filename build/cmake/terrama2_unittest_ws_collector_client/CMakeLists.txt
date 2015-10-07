@@ -19,28 +19,24 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for TerraMA2's unit test - collector module.
+#  Description: CMake script for TerraMA2's unit test - collector client module.
 #
-#  Author: Jano Simas
+#  Author: Vinicius Camapanha
 #
 
-SET(TERRAMA2_TEST_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/collector/")
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}*.hpp)
 
-file(GLOB TERRAMA2_TEST_SRC_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}Test*.cpp)
-file(GLOB TERRAMA2_TEST_HDR_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}Test*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/client/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/client/*.hpp)
 
-list(REMOVE_ITEM TERRAMA2_SRC_FILES ${TERRAMA2_TEST_SRC_FILES})
-list(REMOVE_ITEM TERRAMA2_HDR_FILES ${TERRAMA2_TEST_HDR_FILES})
 
 include_directories (
   ${Boost_INCLUDE_DIR}
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${GSOAP_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-)
+  "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_client/gsoap")
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -48,22 +44,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-foreach(FILE ${TERRAMA2_TEST_SRC_FILES})
+add_executable(terrama2_unittest_ws_collector_client ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-   STRING(REGEX REPLACE ".cpp" "" TEST "${FILE}")
-   SET(HEADER "${TEST}.hpp")
-   STRING(REGEX REPLACE "${TERRAMA2_TEST_COLLECTOR_DIR}" "" TEST "${TEST}")
+target_link_libraries(terrama2_unittest_ws_collector_client terrama2_mod_ws_collector_core
+                                                          terrama2_mod_ws_collector_client
+                                                          terrama2_mod_core
+                                                          terralib_mod_plugin
+                                                          terralib_mod_common)
 
-
-   add_executable(${TEST} ${FILE} ${HEADER} ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
-
-   target_link_libraries(${TEST} terrama2_mod_core
-                                 terrama2_mod_collector
-                                 terralib_mod_plugin
-                                 terralib_mod_common)
-   add_test(${TEST} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TEST}")
-
-   qt5_use_modules(${TEST} Test)
-endforeach()
-
-
+qt5_use_modules(terrama2_unittest_ws_collector_client Test)

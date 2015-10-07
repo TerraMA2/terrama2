@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSet.cpp
 
-  \brief Metadata about a given dataset.
+  \brief Models the information of given dataset dataset from a data provider that should be collected by TerraMA2.
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -80,9 +80,9 @@ std::string terrama2::core::DataSet::description() const
   return description_;
 }
 
-void terrama2::core::DataSet::setDescription(const std::string &description)
+void terrama2::core::DataSet::setDescription(const std::string &d)
 {
-  description_ = description;
+  description_ = d;
 }
 
 terrama2::core::DataSet::Kind terrama2::core::DataSet::kind() const
@@ -90,9 +90,9 @@ terrama2::core::DataSet::Kind terrama2::core::DataSet::kind() const
   return kind_;
 }
 
-void terrama2::core::DataSet::setKind(const terrama2::core::DataSet::Kind &kind)
+void terrama2::core::DataSet::setKind(const terrama2::core::DataSet::Kind &k)
 {
-  kind_ = kind;
+  kind_ = k;
 }
 
 terrama2::core::DataSet::Status terrama2::core::DataSet::status() const
@@ -100,82 +100,92 @@ terrama2::core::DataSet::Status terrama2::core::DataSet::status() const
   return status_;
 }
 
-void terrama2::core::DataSet::setStatus(const terrama2::core::DataSet::Status &status)
+void terrama2::core::DataSet::setStatus(const Status s)
 {
-  status_ = status;
+  status_ = s;
 }
 
-terrama2::core::DataProviderPtr terrama2::core::DataSet::dataProvider() const
+terrama2::core::DataProviderPtr
+terrama2::core::DataSet::dataProvider() const
 {
   return dataProvider_;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::dataFrequency() const
+const te::dt::TimeDuration&
+terrama2::core::DataSet::dataFrequency() const
 {
   return dataFrequency_;
 }
 
-void terrama2::core::DataSet::setDataFrequency(const te::dt::TimeDuration &dataFrequency)
+void terrama2::core::DataSet::setDataFrequency(const te::dt::TimeDuration& t)
 {
-  dataFrequency_ = dataFrequency;
+  dataFrequency_ = t;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::schedule() const
+const te::dt::TimeDuration&
+terrama2::core::DataSet::schedule() const
 {
   return schedule_;
 }
 
-void terrama2::core::DataSet::setSchedule(const te::dt::TimeDuration &schedule)
+void terrama2::core::DataSet::setSchedule(const te::dt::TimeDuration& t)
 {
-  schedule_ = schedule;
+  schedule_ = t;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::scheduleRetry() const
+const te::dt::TimeDuration&
+terrama2::core::DataSet::scheduleRetry() const
 {
   return scheduleRetry_;
 }
 
-void terrama2::core::DataSet::setScheduleRetry(const te::dt::TimeDuration &scheduleRetry)
+void terrama2::core::DataSet::setScheduleRetry(const te::dt::TimeDuration& t)
 {
-  scheduleRetry_ = scheduleRetry;
+  scheduleRetry_ = t;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::scheduleTimeout() const
+const te::dt::TimeDuration&
+terrama2::core::DataSet::scheduleTimeout() const
 {
   return scheduleTimeout_;
 }
 
-void terrama2::core::DataSet::setScheduleTimeout(const te::dt::TimeDuration &scheduleTimeout)
+void terrama2::core::DataSet::setScheduleTimeout(const te::dt::TimeDuration& t)
 {
-  scheduleTimeout_ = scheduleTimeout;
+  scheduleTimeout_ = t;
 }
 
-std::map<std::string, std::string> terrama2::core::DataSet::metadata() const
+std::map<std::string, std::string>
+terrama2::core::DataSet::metadata() const
 {
   return metadata_;
 }
 
-void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::string>& metadata)
+void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::string>& m)
 {
-  metadata_ = metadata;
+  metadata_ = m;
 }
 
-std::vector<terrama2::core::DataSet::CollectRule> terrama2::core::DataSet::collectRules() const
+std::vector<terrama2::core::DataSet::CollectRule>
+terrama2::core::DataSet::collectRules() const
 {
   return collectRules_;
 }
 
-void terrama2::core::DataSet::setCollectRules(const std::vector<terrama2::core::DataSet::CollectRule>& collectRules)
+void
+terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
 {
-  collectRules_ = collectRules;
+  collectRules_ = rules;
 }
 
-std::vector<terrama2::core::DataSetItemPtr> terrama2::core::DataSet::dataSetItemList() const
+std::vector<terrama2::core::DataSetItemPtr>
+terrama2::core::DataSet::dataSetItemList() const
 {
   return dataSetItemList_;
 }
 
-void terrama2::core::DataSet::setDataSetItemList(const std::vector<terrama2::core::DataSetItemPtr>& dataSetItemList)
+void
+terrama2::core::DataSet::setDataSetItemList(const std::vector<DataSetItemPtr>& dataSetItemList)
 {
   dataSetItemList_ = dataSetItemList;
 }

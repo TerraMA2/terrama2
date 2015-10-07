@@ -555,8 +555,8 @@ terrama2::core::FilterPtr terrama2::core::DataSetDAO::getFilter(terrama2::core::
       filter->setGeometry(tempDataSet->getGeometry("geom"));
     }
 
-    filter->setByValueType(IntToFilterByValueType(tempDataSet->getInt32("by_value_type")));
-    filter->setByValue(atof(tempDataSet->getNumeric("by_value").c_str()));
+    filter->setExpressionType(IntToFilterExpressionType(tempDataSet->getInt32("by_value_type")));
+    filter->setValue(atof(tempDataSet->getNumeric("by_value").c_str()));
     filter->setBandFilter(tempDataSet->getString("band_filter"));
   }
 
@@ -575,12 +575,19 @@ void terrama2::core::DataSetDAO::saveFilter(const uint64_t dataSetItemId, terram
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
 
   // Sets the values in the item
-  dsItem->setDateTime("discard_before", filter->discardBefore().get());
-  dsItem->setDateTime("discard_after", filter->discardAfter().get());
+  if(filter->discardBefore() != nullptr)
+    dsItem->setDateTime("discard_before", static_cast<te::dt::DateTime*>(filter->discardBefore()->clone()));
+  
+  if(filter->discardAfter() != nullptr)
+    dsItem->setDateTime("discard_after", static_cast<te::dt::DateTime*>(filter->discardAfter()->clone()));
+
   dsItem->setInt32("dataset_item_id", dataSetItemId);
-  dsItem->setInt32("by_value_type", static_cast<int>(filter->byValueType()));
-  dsItem->setNumeric("by_value", std::to_string(filter->byValue()));
-  dsItem->setGeometry("geom", filter->geometry().get());
+  dsItem->setInt32("expression_type", static_cast<int>(filter->expressionType()));
+  dsItem->setNumeric("value", std::to_string(filter->value()));
+
+  if(filter->geometry() != nullptr)
+    dsItem->setGeometry("geom", static_cast<te::gm::Geometry*>(filter->geometry()->clone()));
+
   dsItem->setString("band_filter", filter->bandFilter());
   memDataSet->add(dsItem);
 
@@ -603,22 +610,24 @@ void terrama2::core::DataSetDAO::updateFilter(terrama2::core::FilterPtr filter, 
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(memDataSet.get());
 
   // Sets the values in the item
-  dsItem->setInt32("dataset_item_id", filter->dataSetItemPtr()->id());
+  dsItem->setInt32("dataset_item_id", filter->dataSetItem()->id());
   set.insert(0);
-  if(filter->discardBefore().get())
+
+  if(filter->discardBefore() != nullptr)
   {
-    dsItem->setDateTime("discard_before", filter->discardBefore().get());
+    dsItem->setDateTime("discard_before", static_cast<te::dt::DateTime*>(filter->discardBefore()->clone()));
     set.insert(1);
   }
-  if(filter->discardAfter().get())
+
+  if(filter->discardAfter() != nullptr)
   {
-    dsItem->setDateTime("discard_after", filter->discardAfter().get());
+    dsItem->setDateTime("discard_after", static_cast<te::dt::DateTime*>(filter->discardAfter()->clone()));
     set.insert(2);
   }
 
-  if(filter->geometry().get())
+  if(filter->geometry() != nullptr)
   {
-    dsItem->setGeometry("geom", filter->geometry().get());
+    dsItem->setGeometry("geom", static_cast<te::gm::Geometry*>(filter->geometry()->clone()));
     set.insert(3);
   }
 
@@ -626,9 +635,9 @@ void terrama2::core::DataSetDAO::updateFilter(terrama2::core::FilterPtr filter, 
   //dsItem->setInt32("extenal_data_id", ...);
   //set.insert(4);
 
-  dsItem->setInt32("by_value_type", static_cast<int>(filter->byValueType()));
+  dsItem->setInt32("expression_type", static_cast<int>(filter->expressionType()));
   set.insert(5);
-  dsItem->setNumeric("by_value", std::to_string(filter->byValue()));
+  dsItem->setNumeric("value", std::to_string(filter->value()));
   set.insert(6);
 
   // TODO: What is an external data?

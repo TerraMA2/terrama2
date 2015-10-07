@@ -28,12 +28,11 @@
 */
 
 // TerraMA2
-#include "../Version.hpp"
 #include "Version.hpp"
+#include "../Version.hpp"
 
 // STL
 #include <cassert>
-
 
 int terrama2::core::Version::majorNumber()
 {

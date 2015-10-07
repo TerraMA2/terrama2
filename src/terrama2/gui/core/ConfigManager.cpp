@@ -33,10 +33,11 @@
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
 
-#include <QString>
+// Qt
 #include <QFile>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QString>
 
 
 ConfigManager::ConfigManager(QMainWindow* app)
@@ -53,13 +54,28 @@ ConfigManager::~ConfigManager()
 
 void ConfigManager::loadConfiguration(QString filepath)
 {
-  QJsonObject metadata = terrama2::core::OpenFile(filepath.toStdString());
+  try
+  {
+    QJsonDocument jdoc = terrama2::core::ReadJsonFile(filepath.toStdString());
+    
+    QJsonObject metadata = jdoc.object();
 
-  name_ = metadata["name"].toString();
+    name_ = metadata["name"].toString();
 
-  fileList_.insert(name_, metadata);
+    fileList_.insert(name_, metadata);
+    setDataForm(metadata);
 
-  setDataForm(metadata);
+  }
+  catch (const terrama2::Exception& e)
+  {
+    const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(app_, "TerraMA2", *msg);
+  }
+
+  catch (const std::exception& e)
+  {
+    QMessageBox::information(app_, "TerraMA2", e.what());
+  }
 }
 
 void ConfigManager::setDataForm(QJsonObject metadata)
@@ -78,6 +94,7 @@ void ConfigManager::setDataForm(QJsonObject metadata)
     database_->version_ = metadata["version"].toString();
 
     QJsonObject collectConfig = metadata["collector_web_service"].toObject();
+
     collection_->dirPath_ = collectConfig["data_path"].toString();
     collection_->logFile_ = collectConfig["log_file"].toString();
     collection_->timeout_ = collectConfig["connection_timeout"].toString().toInt();
@@ -95,12 +112,12 @@ QMap<QString, QJsonObject> ConfigManager::getfiles() const
 
 void ConfigManager::setDatabase(QJsonObject dbase)
 {
-  database_->dbName_ = dbase["name"].toString();
-  database_->driver_ = dbase["driver"].toString();
-  database_->host_ = dbase["host"].toString();
-  database_->port_ = dbase["port"].toString().toInt();
-  database_->user_ = dbase["user"].toString();
-  database_->password_ = dbase["password"].toString();
+ database_->dbName_ = dbase["name"].toString();
+ database_->driver_ = dbase["driver"].toString();
+ database_->host_ = dbase["host"].toString();
+ database_->port_ = dbase["port"].toString().toInt();
+ database_->user_ = dbase["user"].toString();
+ database_->password_ = dbase["password"].toString();
 }
 
 Database* ConfigManager::getDatabase() const

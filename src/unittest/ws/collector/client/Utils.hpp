@@ -20,22 +20,22 @@
 */
 
 /*!
-  \file terrama2/terrama2_config.hpp
+  \file unittest/ws/collector/client/Utils.hpp
 
-  \brief TerraMA2 configuration options.
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Paulo R. M. Oliveira
+*/
 
-#ifndef __TERRAMA2_TERRAMA2_CONFIG_HPP__
-#define __TERRAMA2_TERRAMA2_CONFIG_HPP__
+#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
 
-#define TERRAMA2_DATA_DIR "@TERRAMA2_DATA_DIR@"
+void initializeTerralib();
 
-#define TERRAMA2_CODEBASE_PATH "@TERRAMA2_ABSOLUTE_ROOT_DIR@"
+void finalizeTerralib();
 
-#define TERRAMA2_INSTALL_PREFIX_PATH "@CMAKE_INSTALL_PREFIX@"
+void initializeTerraMA2();
 
-#define TERRAMA2_DIR_VAR_NAME "@TERRAMA2_DIR_VAR_NAME@"
+void finalizeTerraMA2();
 
-#endif // __TERRAMA2_TERRAMA2_CONFIG_HPP__
+#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
