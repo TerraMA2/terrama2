@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file unittest/core/TestUtils.cpp
+  \file unittest/collector/TestUtils.cpp
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Paulo R. M. Oliveira
+  \author Paulo R. M. Oliveira, Jano Simas
 */
 
 
@@ -44,6 +44,14 @@
 #include <string>
 
 
+const char* NO_EXCEPTION_THROWN = "No exception thrown";
+
+const char* NO_EXCEPTION_EXPECTED = "No exception expected";
+
+const char* WRONG_TYPE_EXCEPTION = "Wrong exception type";
+
+const char* UNEXPECTED_BEHAVIOR = "Should not be here";
+
 void initializeTerralib()
 {
   // Initialize the Terralib support
@@ -54,17 +62,27 @@ void initializeTerralib()
   info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
   te::plugin::PluginManager::getInstance().add(info);
 
-//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-//  te::plugin::PluginManager::getInstance().add(info);
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
 
-//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-//  te::plugin::PluginManager::getInstance().add(info);
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
 
-  te::plugin::PluginManager::getInstance().loadAll();
+  try
+  {
+    te::plugin::PluginManager::getInstance().loadAll();
+  }
+  catch(te::plugin::Exception& e)
+  {
+    qDebug() << e.what();
+    assert(0);
+  }
 }
 
 void finalizeTerralib()
 {
+  te::plugin::PluginManager::getInstance().unloadAll();
+
   TerraLib::getInstance().finalize();
 }
 

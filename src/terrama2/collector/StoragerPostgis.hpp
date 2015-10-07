@@ -20,21 +20,17 @@
 */
 
 /*!
-  \file terrama2/collector/Storager.hpp
+  \file terrama2/collector/StoragerpOSTGIS.hpp
 
-  \brief Store a temporary terralib DataSet into the permanent storage area.
+  \brief Store a temporary terralib DataSet into the permanent PostGis storage area.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_STORAGER_HPP__
-#define __TERRAMA2_COLLECTOR_STORAGER_HPP__
+#ifndef __TERRAMA2_COLLECTOR_STORAGERPOSTGIS_HPP__
+#define __TERRAMA2_COLLECTOR_STORAGERPOSTGIS_HPP__
 
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/dataaccess/dataset/DataSetType.h>
-
-//Boost
-#include <boost/noncopyable.hpp>
+#include "Storager.hpp"
 
 namespace terrama2
 {
@@ -48,10 +44,10 @@ namespace terrama2
          * converting the data (terralib) to the appropriate format.
          *
          */
-    class Storager : public boost::noncopyable
+    class StoragerPostgis : public Storager
     {
       public:
-        Storager(const std::map<std::string, std::string>& storageMetadata);
+        StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
 
         /*!
              * \brief Store a temporary data set in it's final storage area and format.
@@ -60,16 +56,11 @@ namespace terrama2
              * \exception TODO: Storager::store exception...
              */
         virtual void store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                           const std::shared_ptr<te::da::DataSetType>& dataSetType) = 0;
-
-      protected:
-        std::map<std::string, std::string> storageMetadata_;
+                           const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
 
     };
-
-    typedef std::shared_ptr<Storager> StoragerPtr;
   }
 }
 
 
-#endif //__TERRAMA2_COLLECTOR_STORAGER_HPP__
+#endif //__TERRAMA2_COLLECTOR_STORAGERPOSTGIS_HPP__

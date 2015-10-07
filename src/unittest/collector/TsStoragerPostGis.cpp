@@ -20,44 +20,15 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorService.cpp
+  \file terrama2/collector/TsStoragerPostGis.hpp
 
-  \brief Test Collector service...
+  \brief Tests for the StoragerPostgis class.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-
-//QT
-#include <QtTest>
+#include "TsStoragerPostGis.hpp"
 
 
-class TestCollectorService: public QObject
-{
-  Q_OBJECT
-
-protected:
-
-private slots:
-    void initTestCase(); // Run before all tests
-
-    void cleanupTestCase(); // Run after all tests
-
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Test Description
-     */
-
-
-
-    //******End of Test functions****
-
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+//QTEST_MAIN(TsStoragerPostGis)
+#include "TsStoragerPostGis.moc"

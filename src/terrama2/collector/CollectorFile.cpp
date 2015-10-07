@@ -36,15 +36,14 @@ terrama2::collector::CollectorFile::CollectorFile(const terrama2::core::DataProv
 {
 
   if(!dataProvider)
-    throw InvalidDataProviderException() << terrama2::ErrorDescription(
+    throw InvalidDataProviderError() << terrama2::ErrorDescription(
                                                 tr("Invalid DataProvider received in CollectorFile constructor."));
 
 
   if(dataProvider->kind() != core::DataProvider::FILE_TYPE)
-    throw WrongDataProviderKindException() << terrama2::ErrorDescription(
+    throw WrongDataProviderKindError() << terrama2::ErrorDescription(
                                                 tr("Wrong DataProvider Kind received in CollectorFile constructor."));
 
-  //TODO: Change to QString?
   dir_.setPath(dataProvider->uri().c_str());
 }
 
