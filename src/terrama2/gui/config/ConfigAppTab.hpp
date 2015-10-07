@@ -30,14 +30,18 @@
 #ifndef __TERRAMA2_GUI_CONFIG_CONFIGTAB_HPP__
 #define __TERRAMA2_GUI_CONFIG_CONFIGTAB_HPP__
 
-// TerraMA2
-#include "ConfigApp.hpp"
-
 // QT
 #include <QString>
+#include <QObject>
 
 // Boost
 #include <boost/noncopyable.hpp>
+
+class ConfigApp;
+namespace Ui
+{
+  class ConfigAppForm;
+}
 
 class ConfigAppTab : public QObject, private boost::noncopyable
 {
@@ -45,7 +49,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
 
   public:
     //! Constructor
-    ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ConfigAppTab(ConfigApp* app = nullptr, Ui::ConfigAppForm* ui = nullptr);
 
     //! Destructor
     virtual ~ConfigAppTab();
@@ -75,6 +79,12 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! It asks to change tab, giving the index as parameter
     virtual void askForChangeTab(const int& index);
 
+    //! It checks if is active to lock tab
+    virtual bool isActive() const;
+
+    //! It sets the tab state
+    virtual void setActive(bool state);
+
   public slots:
 
     //! Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
@@ -86,6 +96,8 @@ class ConfigAppTab : public QObject, private boost::noncopyable
   protected:
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_;
+    bool active_;
+    bool changed_;
 };
 
 #endif

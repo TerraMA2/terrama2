@@ -1,5 +1,6 @@
 // TerraMA2
 #include "ConfigAppWeatherTab.hpp"
+#include "ConfigApp.hpp"
 #include "ProjectionDialog.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
@@ -8,48 +9,39 @@
 #include "../../core/DataManager.hpp"
 #include "../../core/DataProviderDAO.hpp"
 
+// SubTabs
+#include "ConfigAppWeatherServer.hpp"
+#include "ConfigAppWeatherGrid.hpp"
+
 // QT
 #include <QMessageBox>
-#include <QLineEdit>
 #include <QFileDialog>
-#include <QWidget>
 #include <QJsonObject>
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui),
-    serverTabChanged_(false),
-    dataGridSeriesChanged_(false),
-    dataPointSeriesChanged_(false),
-    dataPointDiffSeriesChanged_(false)
+  : ConfigAppTab(app, ui)
 {
   ui_->weatherDataTree->header()->hide();
   ui_->weatherDataTree->setCurrentItem(ui_->weatherDataTree->topLevelItem(0));
   ui_->weatherDataTree->setExpanded(ui_->weatherDataTree->model()->index(0, 0), true);
 
   connect(ui_->saveBtn, SIGNAL(clicked()), SLOT(onSaveRequested()));
-  connect(ui_->insertServerBtn, SIGNAL(clicked()), SLOT(onEnteredWeatherTab()));
   connect(ui_->cancelBtn, SIGNAL(clicked()), SLOT(onCancelRequested()));
   connect(ui_->importServerBtn, SIGNAL(clicked()), SLOT(onImportServer()));
-  connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnection()));
-
-  // Bind the inputs
-  connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->serverDescription, SIGNAL(textChanged(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
-  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onWeatherTabEdited()));
-  connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onWeatherTabEdited()));
 
   // Bind the data series type with respective group view
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
-  connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridBtnClicked()));
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+
+  // Tabs
+  QSharedPointer<ConfigAppWeatherGridTab> gridTab(new ConfigAppWeatherGridTab(app, ui));
+  QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
+  subTabs_.append(gridTab);
+  subTabs_.append(serverTab);
 
   // Lock for cannot allow multiple selection
   ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -63,7 +55,6 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Disable series button
   showDataSeries(false);
   hideDataSetButtons(false);
-
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -81,7 +72,7 @@ void ConfigAppWeatherTab::load()
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
   std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.data_provider");
 
-  if (dataSet->size() != -1)
+  if (dataSet->size() > 0)
     showDataSeries(true);
 
   // clear list
@@ -92,182 +83,57 @@ void ConfigAppWeatherTab::load()
     QTreeWidgetItem* item = new QTreeWidgetItem;
     item->setIcon(0, QIcon::fromTheme("server"));
     item->setText(0, QString(dataSet->getAsString(1).c_str()));
-    item->setIcon(0, QIcon::fromTheme("server"));
     ui_->weatherDataTree->topLevelItem(0)->addChild(item);
   }
 }
 
 bool ConfigAppWeatherTab::dataChanged()
 {
-  return serverTabChanged_ || dataGridSeriesChanged_ || dataPointDiffSeriesChanged_ || dataPointSeriesChanged_;
+  for(const auto tab: subTabs_)
+    if (tab->isActive() && tab->dataChanged())
+      return true;
+  return false;
 }
 
 bool ConfigAppWeatherTab::validate()
 {
-  // If serverAdd tab is active
-  if (serverTabChanged_)
-  {
-    if (ui_->serverName->text().isEmpty())
+  for(const auto tab: subTabs_)
+    if (tab->isActive() && tab->dataChanged())
     {
-      ui_->serverName->setFocus();
-      return false;
+      return tab->validate();
     }
-
-    // Check if has already been saved before
-    std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-
-    std::string sqlProvider("SELECT name FROM terrama2.data_provider WHERE name = '");
-    sqlProvider += ui_->serverName->text().toStdString() + "'";
-    std::auto_ptr<te::da::DataSet> dset = ds->query(sqlProvider);
-
-    if (dset->size() > 0)
-    {
-      ui_->serverName->setFocus();
-      throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
-    }
-
-    validateConnection();
-
-    return true;
-  }
-
-  if (dataGridSeriesChanged_)
-  {
-    if (ui_->gridFormatDataName->text().isEmpty())
-    {
-      ui_->gridFormatDataName->setFocus();
-      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The DataSet name cannot be empty."));
-    }
-
-
-
-    return true;
-  }
-
-  if (dataPointDiffSeriesChanged_)
-    return false;
-
-  if (dataPointSeriesChanged_)
-    return false;
-  return true;
+  return false;
 }
 
 void ConfigAppWeatherTab::save()
 {
-  if (!validate())
+  for(auto tab: subTabs_)
   {
-    throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+    if (tab->isActive())
+    {
+      if (!tab->validate())
+        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+      tab->save();
+      showDataSeries(true);
+      discardChanges(false);
+      QMessageBox::information(app_, tr("TerraMA2"), tr("Save successfully"));
+    }
   }
-
-  if (serverTabChanged_)
-    saveServer();
-  else if (dataGridSeriesChanged_)
-    saveGridDataSeries();
-
-  showDataSeries(true);
-  discardChanges(false);
-  QMessageBox::information(app_, tr("TerraMA2"), tr("Save successfully"));
-}
-
-void ConfigAppWeatherTab::saveServer()
-{
-  // Get DataSource
-  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-
-  // Temp code
-  terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
-  if (dataProvider != nullptr)
-
-  // If there data provider in database
-//  if (terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataProviderDAO::find(ui_->serverName->text().toStdString()))
-  {
-    dataProvider->setName(ui_->serverName->text().toStdString());
-    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
-    dataProvider->setKind(static_cast<terrama2::core::DataProvider::Kind>(ui_->connectionProtocol->currentIndex()));
-    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
-    dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
-
-    terrama2::core::DataManager::getInstance().update(dataProvider);
-    ui_->weatherDataTree->currentItem()->setText(0, ui_->serverName->text());
-  }
-  else
-  {
-    dataProvider.reset(new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
-                                                  terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())));
-    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
-    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
-    dataProvider->setStatus(ui_->serverActiveServer->isChecked() ? terrama2::core::DataProvider::ACTIVE :
-                                                                   terrama2::core::DataProvider::INACTIVE);
-
-    terrama2::core::DataManager::getInstance().add(dataProvider);
-
-    QTreeWidgetItem* newServer = new QTreeWidgetItem();
-    newServer->setText(0, ui_->serverName->text());
-    newServer->setIcon(0, QIcon::fromTheme("server"));
-    ui_->weatherDataTree->topLevelItem(0)->addChild(newServer);
-  }
-}
-
-void ConfigAppWeatherTab::saveGridDataSeries()
-{
-
 }
 
 void ConfigAppWeatherTab::discardChanges(bool restore_data)
 {
-  if (restore_data)
-  {
-    // Make the save procedure
-  }
-
-// Clear all inputs
-  const auto* tab = ui_->ServerPage;
-
-// Clear QLineEdits
-  for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
-  {
-    widget->clear();
-  }
-
-  ui_->serverDescription->clear();
+  for(auto tab: subTabs_)
+    if (tab->dataChanged())
+      tab->discardChanges(restore_data);
 
 // Hide the form
-  hidePanels(0);
-
-  serverTabChanged_ = false;
-  dataGridSeriesChanged_ = false;
-  dataPointDiffSeriesChanged_ = false;
-  dataPointSeriesChanged_ = false;
+  hidePanels(ui_->ServerGroupPage);
 
 // Set visible false on server buttons
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
-}
-
-void ConfigAppWeatherTab::validateConnection()
-{
-  switch (terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())) {
-    case terrama2::core::DataProvider::FTP_TYPE:
-      terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
-                                              ui_->connectionPort->text().toInt(),
-                                              ui_->serverDataBasePath->text(),
-                                              ui_->connectionUserName->text(),
-                                              ui_->connectionPassword->text());
-      break;
-    case terrama2::core::DataProvider::HTTP_TYPE:
-      terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
-                                                  ui_->connectionPort->text().toInt(),
-                                                  ui_->connectionUserName->text(),
-                                                  ui_->connectionPassword->text());
-      break;
-    case terrama2::core::DataProvider::FILE_TYPE:
-      terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());
-      break;
-    default:
-      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Not implemented yet"));
-      break;
-    }
 }
 
 void ConfigAppWeatherTab::showDataSeries(bool state)
@@ -292,7 +158,7 @@ void ConfigAppWeatherTab::hideDataSetButtons(const bool state)
   ui_->exportDataPointDiffBtn->setVisible(state);
 }
 
-void ConfigAppWeatherTab::hidePanels(const int indexOfExcept)
+void ConfigAppWeatherTab::hidePanels(QWidget* except)
 {
   ui_->saveBtn->setVisible(true);
   ui_->cancelBtn->setVisible(true);
@@ -300,26 +166,7 @@ void ConfigAppWeatherTab::hidePanels(const int indexOfExcept)
   ui_->saveBtn->setEnabled(false);
   ui_->cancelBtn->setEnabled(true);
 
-  ui_->weatherPageStack->setCurrentIndex(indexOfExcept);
-}
-
-void ConfigAppWeatherTab::onEnteredWeatherTab()
-{
-  // Set visible the buttons
-  ui_->saveBtn->setVisible(true);
-  ui_->cancelBtn->setVisible(true);
-
-  ui_->saveBtn->setEnabled(false);
-  ui_->cancelBtn->setEnabled(true);
-
-  ui_->weatherPageStack->setCurrentIndex(1);
-}
-
-void ConfigAppWeatherTab::onWeatherTabEdited()
-{
-  ui_->saveBtn->setEnabled(true);
-  ui_->cancelBtn->setEnabled(true);
-  serverTabChanged_ = true;
+  ui_->weatherPageStack->setCurrentWidget(except);
 }
 
 void ConfigAppWeatherTab::onImportServer()
@@ -331,48 +178,16 @@ void ConfigAppWeatherTab::onImportServer()
   }
 }
 
-void ConfigAppWeatherTab::onCheckConnection()
-{
-  // For handling error message
-  QString message;
-  try
-  {
-    validateConnection();
-    // FIX
-    QMessageBox::information(app_, tr("TerraMA2"), tr("Connection OK"));
-    return;
-  }
-  catch(const terrama2::Exception& e)
-  {
-    message.append(boost::get_error_info<terrama2::ErrorDescription>(e));
-  }
-  catch(const std::exception& e)
-  {
-    message.fromUtf8(e.what());
-  }
-  catch(...)
-  {
-    message.append("Unknown Error");
-  }
-  QMessageBox::critical(app_, tr("TerraMA2 Error"), message);
-}
-
-void ConfigAppWeatherTab::onDataGridBtnClicked()
-{
-  // Index 2 represents DataGridPage
-  hidePanels(2);
-}
-
 void ConfigAppWeatherTab::onInsertPointBtnClicked()
 {
   // Index 3 represents DataPointPage
-  hidePanels(3);
+  hidePanels(ui_->DataPointPage);
 }
 
 void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
 {
   // Index 4 represents DataPointDiffPage
-  hidePanels(4);
+  hidePanels(ui_->DataPointDiffPage);
 }
 
 void ConfigAppWeatherTab::onDeleteServerClicked()
@@ -512,4 +327,41 @@ void ConfigAppWeatherTab::onProjectionClicked()
 
   projectionDialog.show();
   projectionDialog.exec();
+}
+
+void ConfigAppWeatherTab::displayOperationButtons(bool state)
+{
+  // Set visible the buttons
+  ui_->saveBtn->setVisible(state);
+  ui_->cancelBtn->setVisible(state);
+
+  ui_->saveBtn->setEnabled(!state);
+  ui_->cancelBtn->setEnabled(state);
+}
+
+void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
+  for(auto tab: subTabs_)
+  {
+    if (tab->isActive())
+    {
+      if (tab->dataChanged())
+      {
+        // todo: ASK FOR would like to save
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(app_, tr("TerraMA2"),
+                                      tr("Would you like to try save before cancel?"),
+                                      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                      QMessageBox::Yes);
+        if (reply == QMessageBox::Yes)
+        {
+          // fix: temp code
+          emit ui_->saveBtn->clicked();
+        }
+      }
+      tab->discardChanges(false);
+    }
+  }
+  sender.setActive(true);
+  ui_->weatherPageStack->setCurrentWidget(&widget);
+  hidePanels(&widget);
 }

@@ -36,6 +36,12 @@
 
 // QT
 #include <QString>
+#include <QList>
+#include <QSharedPointer>
+
+
+class QTreeWidgetItem;
+
 
 class ConfigAppWeatherTab : public ConfigAppTab
 {
@@ -44,44 +50,25 @@ class ConfigAppWeatherTab : public ConfigAppTab
   public:
     ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
     ~ConfigAppWeatherTab();
-
     void load();
     bool dataChanged();
     bool validate();
     void save();
-    void saveServer();
-    void saveGridDataSeries();
     void discardChanges(bool restore_data);
 
     //! It remove all children from QWidgetTree
     void clearList();
+    void displayOperationButtons(bool state);
+    void changeTab(ConfigAppTab &sender, QWidget &widget);
 
   private:
-    void validateConnection();
     void showDataSeries(bool state);
     void hideDataSetButtons(const bool state);
-    void hidePanels(const int indexOfExcept);
-  signals:
-    void serverChanged();
-
-    //! It could be used in server operations when it was inserted or server was cancelled
-    void serverDone();
+    void hidePanels(QWidget* except);
 
   private slots:
-    //! It used when user click add server btn
-    void onEnteredWeatherTab();
-
-    //! Activated when user starting editing an input
-    void onWeatherTabEdited();
-
     //! Slot for handling importServer btn
     void onImportServer();
-
-    //! Slot for handling if it is valid connection. TODO: ftp
-    void onCheckConnection();
-
-    //! Triggered when click datagridbtn to show datagrid modal
-    void onDataGridBtnClicked();
 
     //! Triggered when click datapointbtn to show datapoint modal
     void onInsertPointBtnClicked();
@@ -102,11 +89,7 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void onProjectionClicked();
 
   private:
-    bool serverTabChanged_; //!< Defines if the user is inserting a server
-    bool dataGridSeriesChanged_; //!< Defines if the user is inserting datagrid series
-    bool dataPointSeriesChanged_; //!< Defines if the user is inserting data point series
-    bool dataPointDiffSeriesChanged_; //!< Defines if the user is inserting data point series
-
+    QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
 };
 
 #endif

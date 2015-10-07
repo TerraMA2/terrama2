@@ -20,50 +20,36 @@
 */
 
 /*!
-  \file terrama2/gui/config/ConfigAppAdditionalTab.cpp
+  \file terrama2/gui/config/ConfigAppWeatherGrid.hpp
 
-  \brief Definition of Class ConfigAppAdditionalTab.hpp
+  \brief Class responsible for handling DataGrid inside WeatherTab
 
   \author Raphael Willian da Costa
-  \author Evandro Delatin
 */
 
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
+
 // TerraMA2
-#include "ConfigAppAdditionalTab.hpp"
+#include "ConfigAppTab.hpp"
 
 
-ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
-{
+class ConfigAppWeatherGridTab : public ConfigAppTab {
+  Q_OBJECT
+  public:
+    ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherGridTab();
 
-}
+    void load();
+    bool dataChanged();
+    bool validate();
+    void save();
 
-ConfigAppAdditionalTab::~ConfigAppAdditionalTab()
-{
-}
+    void discardChanges(bool restore_data);
 
+  private slots:
+    void onDataGridClicked();
+    void onSubTabChanged();
+};
 
-void ConfigAppAdditionalTab::load()
-{
-
-}
-
-bool ConfigAppAdditionalTab::dataChanged()
-{
-  return false;
-}
-
-bool ConfigAppAdditionalTab::validate()
-{
-  return true;
-}
-
-void ConfigAppAdditionalTab::save()
-{
-
-}
-
-void ConfigAppAdditionalTab::discardChanges(bool restore_data)
-{
-
-}
+#endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
