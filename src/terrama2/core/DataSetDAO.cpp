@@ -555,7 +555,7 @@ terrama2::core::FilterPtr terrama2::core::DataSetDAO::getFilter(terrama2::core::
       filter->setGeometry(tempDataSet->getGeometry("geom"));
     }
 
-    filter->setExpressionType(IntToFilterByValueType(tempDataSet->getInt32("by_value_type")));
+    filter->setExpressionType(IntToFilterExpressionType(tempDataSet->getInt32("by_value_type")));
     filter->setValue(atof(tempDataSet->getNumeric("by_value").c_str()));
     filter->setBandFilter(tempDataSet->getString("band_filter"));
   }
@@ -584,7 +584,10 @@ void terrama2::core::DataSetDAO::saveFilter(const uint64_t dataSetItemId, terram
   dsItem->setInt32("dataset_item_id", dataSetItemId);
   dsItem->setInt32("expression_type", static_cast<int>(filter->expressionType()));
   dsItem->setNumeric("value", std::to_string(filter->value()));
-  dsItem->setGeometry("geom", static_cast<te::gm::Geometry*>(filter->geometry()->clone()));
+
+  if(filter->geometry() != nullptr)
+    dsItem->setGeometry("geom", static_cast<te::gm::Geometry*>(filter->geometry()->clone()));
+
   dsItem->setString("band_filter", filter->bandFilter());
   memDataSet->add(dsItem);
 
