@@ -1,4 +1,4 @@
---
+﻿--
 -- TerraMA2 Data Model for PostgreSQL DBMS
 --
 
@@ -225,7 +225,7 @@ COMMENT ON COLUMN terrama2.storage_metadata.value IS 'Metadata value';
 COMMENT ON COLUMN terrama2.storage_metadata.dataset_item_id IS 'Dataset item identifier';
 
 
-CREATE TABLE terrama2.filter_by_value_type
+CREATE TABLE terrama2.filter_expression_type
 (
   id          SERIAL NOT NULL PRIMARY KEY,
   name        VARCHAR(50) NOT NULL UNIQUE,
@@ -233,10 +233,10 @@ CREATE TABLE terrama2.filter_by_value_type
 );
 
 
-COMMENT ON TABLE terrama2.filter_by_value_type IS 'Stores the filter by value type';
-COMMENT ON COLUMN terrama2.filter_by_value_type.id IS 'Filter by value identifier';
-COMMENT ON COLUMN terrama2.filter_by_value_type.name IS 'Name that identifies the type of filter';
-COMMENT ON COLUMN terrama2.filter_by_value_type.description IS 'Brief description about the filter type';
+COMMENT ON TABLE terrama2.filter_expression_type IS 'Stores the filter by value type';
+COMMENT ON COLUMN terrama2.filter_expression_type.id IS 'Filter by value identifier';
+COMMENT ON COLUMN terrama2.filter_expression_type.name IS 'Name that identifies the type of filter';
+COMMENT ON COLUMN terrama2.filter_expression_type.description IS 'Brief description about the filter type';
 
 INSERT INTO terrama2.filter_expression_type(name, description)
      VALUES('NONE_TYPE', 'None'),
@@ -270,8 +270,8 @@ COMMENT ON COLUMN terrama2.filter.discard_before IS 'Initial date of interest';
 COMMENT ON COLUMN terrama2.filter.discard_after IS 'Final date of interest';
 COMMENT ON COLUMN terrama2.filter.geom IS 'Geometry to filter the area of interest';
 COMMENT ON COLUMN terrama2.filter.external_data_id IS 'Identifier of the dataset to be used as area of interest';
-COMMENT ON COLUMN terrama2.filter.by_value IS 'Filter by value';
-COMMENT ON COLUMN terrama2.filter.by_value_type IS 'Type of filter by value';
+COMMENT ON COLUMN terrama2.filter.value IS 'Filter by value';
+COMMENT ON COLUMN terrama2.filter.expression_type IS 'Type of filter by value';
 COMMENT ON COLUMN terrama2.filter.within_external_data_id IS 'Identifier of the dataset to be used as area of interest';
 COMMENT ON COLUMN terrama2.filter.band_filter IS 'Bands to exclude from collection';
 
