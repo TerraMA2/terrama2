@@ -60,6 +60,8 @@ namespace terrama2
      */
     class DataSetItem : boost::noncopyable
     {
+      friend class DataSetDAO;
+
       public:
 
         //! Dataset item type.
@@ -213,9 +215,6 @@ namespace terrama2
         std::string timezone_;
         FilterPtr filter_;
         std::map<std::string, std::string> storageMetadata_;
-        
-
-      friend class DataSetDAO;
     };
 
     typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
