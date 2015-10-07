@@ -43,6 +43,34 @@
 class QDialog;
 class QWidget;
 
+struct ProjectionValue
+{
+  double valdefOriginLat;
+  double valdefOriginLong;
+  double valdefStandardPararel1;
+  double valdefStandardPararel2;
+  double valdefOffsetX;
+  double valdefOffsetY;
+  double valdefScale;
+};
+
+struct Projection
+{
+  QString name;
+  int  unit;
+  bool hasUnit;
+  bool hasZone;
+  bool hasOriginLat;
+  bool hasOriginLong;
+  bool hasStandardPararel1;
+  bool hasStandardPararel2;
+  bool hasOffsetX;
+  bool hasOffsetY;
+  bool hasScale;
+  bool hasHemisphere;
+  ProjectionValue *valueDef;
+};
+
 class ProjectionDialog : public QDialog, private boost::noncopyable
 {
   Q_OBJECT
@@ -50,6 +78,9 @@ class ProjectionDialog : public QDialog, private boost::noncopyable
   public:
     ProjectionDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
     ~ProjectionDialog();
+
+  private slots:
+    void onProjectionChanged(int);
 
   private:
     struct Impl;
