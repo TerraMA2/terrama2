@@ -36,11 +36,14 @@
 #include <string>
 #include <map>
 
+// Boost
+#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
   namespace core
   {
+// Forward declaration
     class DataSet;
     typedef std::shared_ptr<DataSet> DataSetPtr;
 
@@ -55,7 +58,7 @@ namespace terrama2
       A dataset item can be a INPE Format PCD, TOA5 PCD, an occurrence of fire or an occurrence of diseases.
 
      */
-    class DataSetItem
+    class DataSetItem : boost::noncopyable
     {
       public:
 
@@ -81,8 +84,12 @@ namespace terrama2
 
         /*!
           \brief Constructor.
+
+          \param d  The dataset to which this item belongs to.
+          \param k  The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
+          \param id The dataset item identifier or zero if it doesn't have a valid one.
         */
-        DataSetItem(DataSetPtr dataSet, Kind kind, const uint64_t id = 0);
+        DataSetItem(DataSetPtr d, Kind k, const uint64_t id = 0);
 
         /*!
           \brief Destructor.
@@ -106,9 +113,9 @@ namespace terrama2
         /*!
           \brief It sets the the kind of the dataset item.
 
-          \param The kind of the dataset item.
+          \param k The kind of the dataset item.
         */
-        void setKind(const Kind& kind);
+        void setKind(const Kind& k);
 
         /*!
           \brief It returns the the status of the dataset item.
@@ -120,9 +127,9 @@ namespace terrama2
         /*!
           \brief It sets the the status of the dataset item.
 
-          \param The status of the dataset item.
+          \param s The status of the dataset item.
         */
-        void setStatus(const Status& status);
+        void setStatus(const Status s);
 
         /*!
           \brief It returns the mask of the dataset item.
@@ -134,9 +141,9 @@ namespace terrama2
         /*!
           \brief It sets the mask of the dataset item.
 
-          \param The mask of the dataset item.
+          \param m The mask of the dataset item.
         */
-        void setMask(const std::string& mask);
+        void setMask(const std::string& m);
 
         /*!
           \brief It returns the timezone of the dataset item.
@@ -148,30 +155,30 @@ namespace terrama2
         /*!
           \brief It sets the timezone of the dataset item.
 
-          \param The timezone of the dataset item.
+          \param tz The timezone of the dataset item.
         */
-        void setTimezone(const std::string& timezone);
+        void setTimezone(const std::string& tz);
 
         /*!
-          \brief It returns the the dataset.
+          \brief It returns the dataset to which this item belongs to.
 
           \return The the dataset.
         */
         DataSetPtr dataSet() const;
 
         /*!
-          \brief It returns the filter to be used when collecting data.
+          \brief It returns the filter to be used when collecting this data item.
 
-          \return The filter to used when collecting data.
+          \return The filter to used when collecting this data item.
         */
         FilterPtr filter() const;
 
         /*!
           \brief It sets the filter to be used when collecting data.
 
-          \param The filter to used when collecting data.
+          \param f The filter to used when collecting data.
         */
-        void setFilter(FilterPtr filter);
+        void setFilter(FilterPtr f);
 
         /*!
           \brief It returns the storage strategy metadata.
@@ -183,9 +190,9 @@ namespace terrama2
         /*!
           \brief It sets the storage strategy metadata.
 
-          \param The storage strategy metadata.
+          \param sm The storage strategy metadata.
         */
-        void setStorageMetadata(const std::map<std::string, std::string>& storageMetadata);
+        void setStorageMetadata(const std::map<std::string, std::string>& sm);
 
       protected:
 
@@ -195,7 +202,6 @@ namespace terrama2
           \param The identifier of the dataset item.
         */
         void setId(uint64_t id);
-
 
       private:
 
@@ -207,10 +213,9 @@ namespace terrama2
         std::string timezone_;
         FilterPtr filter_;
         std::map<std::string, std::string> storageMetadata_;
+        
 
       friend class DataSetDAO;
-
-        std::map<std::string, std::string> getStorageMetadata() const;
     };
 
     typedef std::shared_ptr<DataSetItem> DataSetItemPtr;

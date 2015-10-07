@@ -32,15 +32,14 @@
 #include "DataSet.hpp"
 
 
-terrama2::core::DataSetItem::DataSetItem(DataSetPtr dataSet, Kind kind, const uint64_t id)
+terrama2::core::DataSetItem::DataSetItem(DataSetPtr d, Kind k, const uint64_t id)
   : id_(id),
     status_(INACTIVE),
-    dataSet_(dataSet),
-    kind_(kind)
+    dataSet_(d),
+    kind_(k)
 {
 
 }
-
 
 terrama2::core::DataSetItem::~DataSetItem()
 {
@@ -52,29 +51,25 @@ uint64_t terrama2::core::DataSetItem::id() const
   return id_;
 }
 
-void terrama2::core::DataSetItem::setId(uint64_t id)
-{
-  id_ = id;
-}
-
 terrama2::core::DataSetItem::Kind terrama2::core::DataSetItem::kind() const
 {
   return kind_;
 }
 
-void terrama2::core::DataSetItem::setKind(const terrama2::core::DataSetItem::Kind& kind)
+void terrama2::core::DataSetItem::setKind(const Kind& k)
 {
-  kind_ = kind;
+  kind_ = k;
 }
 
-terrama2::core::DataSetItem::Status terrama2::core::DataSetItem::status() const
+terrama2::core::DataSetItem::Status
+terrama2::core::DataSetItem::status() const
 {
   return status_;
 }
 
-void terrama2::core::DataSetItem::setStatus(const terrama2::core::DataSetItem::Status& status)
+void terrama2::core::DataSetItem::setStatus(const Status s)
 {
-  status_ = status;
+  status_ = s;
 }
 
 std::string terrama2::core::DataSetItem::mask() const
@@ -82,9 +77,9 @@ std::string terrama2::core::DataSetItem::mask() const
   return mask_;
 }
 
-void terrama2::core::DataSetItem::setMask(const std::string& mask)
+void terrama2::core::DataSetItem::setMask(const std::string& m)
 {
-  mask_ = mask;
+  mask_ = m;
 }
 
 std::string terrama2::core::DataSetItem::timezone() const
@@ -92,9 +87,9 @@ std::string terrama2::core::DataSetItem::timezone() const
   return timezone_;
 }
 
-void terrama2::core::DataSetItem::setTimezone(const std::string& timezone)
+void terrama2::core::DataSetItem::setTimezone(const std::string& tz)
 {
-  timezone_ = timezone;
+  timezone_ = tz;
 }
 
 terrama2::core::DataSetPtr terrama2::core::DataSetItem::dataSet() const
@@ -102,14 +97,15 @@ terrama2::core::DataSetPtr terrama2::core::DataSetItem::dataSet() const
   return dataSet_;
 }
 
-terrama2::core::FilterPtr terrama2::core::DataSetItem::filter() const
+terrama2::core::FilterPtr
+terrama2::core::DataSetItem::filter() const
 {
   return filter_;
 }
 
-void terrama2::core::DataSetItem::setFilter(terrama2::core::FilterPtr filter)
+void terrama2::core::DataSetItem::setFilter(FilterPtr f)
 {
-  filter_ = filter;
+  filter_ = f;
 }
 
 std::map<std::string, std::string> terrama2::core::DataSetItem::storageMetadata() const
@@ -117,7 +113,12 @@ std::map<std::string, std::string> terrama2::core::DataSetItem::storageMetadata(
   return storageMetadata_;
 }
 
-void terrama2::core::DataSetItem::setStorageMetadata(const std::map<std::string, std::string>& storageMetadata)
+void terrama2::core::DataSetItem::setStorageMetadata(const std::map<std::string, std::string>& sm)
 {
-  storageMetadata_ = storageMetadata;
+  storageMetadata_ = sm;
+}
+
+void terrama2::core::DataSetItem::setId(uint64_t id)
+{
+  id_ = id;
 }
