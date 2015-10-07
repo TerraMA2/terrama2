@@ -30,13 +30,45 @@
 // STL
 #include <iostream>
 
+// Terralib
+#include "terralib/common/PlatformUtils.h"
+#include "terralib/common.h"
+#include "terralib/plugin.h"
+
 // TerraMA2
 #include "soapWebService.h"
+#include "../../../core/Utils.hpp"
+#include "../../../core/ApplicationController.hpp"
 
 
 int main(int argc, char* argv[])
 {
-  WebService server;
+
+  // Initialize the Terralib support
+  TerraLib::getInstance().initialize();
+
+  te::plugin::PluginInfo* info;
+  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  te::plugin::PluginManager::getInstance().loadAll();
+
+  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+
+  if(!terrama2::core::ApplicationController::getInstance().loadProject(path))
+    return EXIT_FAILURE;
+
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+  if(!dataSource.get())
+    return EXIT_FAILURE;
 
 // check if a port number was passed as parameter
   if(argv[1] == 0)
@@ -46,13 +78,23 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  WebService server;
+
 // run iterative server on port until fatal error
   if( server.run( std::stoi(argv[1]) ) )
   {
     server.soap_stream_fault(std::cerr);
 
+    TerraLib::getInstance().finalize();
+
+    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+
     return EXIT_FAILURE;
   }
+
+  TerraLib::getInstance().finalize();
+
+  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
 
   return EXIT_SUCCESS;
 }

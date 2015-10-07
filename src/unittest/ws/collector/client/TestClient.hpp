@@ -78,7 +78,6 @@ private slots:
     void TestWrongConection();
 
 
-
     /*!
      * \brief Test to add a normal DataProvider
      */
@@ -89,12 +88,6 @@ private slots:
      * \brief Test to add a null DataProvider
      */
     void TestAddNullDataProvider();
-
-
-    /*!
-     * \brief Test to add a DataProvider with an id
-     */
-    void TestAddDataProviderWithID();
 
 
     /*!
@@ -112,11 +105,6 @@ private slots:
      * \brief
      */
     void testUpdateDataProvider();
-
-    /*!
-     * \brief
-     */
-    void testUpdateDataProviderInvalidId();
 
 
     /*!

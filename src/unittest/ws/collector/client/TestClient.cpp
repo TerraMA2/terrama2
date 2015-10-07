@@ -130,6 +130,8 @@ void TestClient::TestAddDataProvider()
 
     wsClient_->addDataProvider(dataProviderPtr);
 
+    QVERIFY2(dataProviderPtr->id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
   }
   catch(terrama2::Exception &e)
   {
@@ -146,35 +148,19 @@ void TestClient::TestAddNullDataProvider()
 {
   try
   {
-    auto dataProviderPtr = buildDataProviderPtr();
+    terrama2::core::DataProviderPtr dataProviderPtr;
+
+    wsClient_->addDataProvider(dataProviderPtr);
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
     QFAIL("Exception unexpected!");
   }
-
-}
-
-
-void TestClient::TestAddDataProviderWithID()
-{
-  try
-  {
-    auto dataProviderPtr = buildDataProviderPtr();
-  }
-  catch(terrama2::Exception &e)
-  {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-  catch(...)
-  {
-    QFAIL("Exception unexpected!");
-  }
-
 }
 
 
@@ -183,10 +169,16 @@ void TestClient::testRemoveDataProvider()
   try
   {
     auto dataProviderPtr = buildDataProviderPtr();
+
+    wsClient_->addDataProvider(dataProviderPtr);
+
+    QVERIFY2(dataProviderPtr->id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
+    wsClient_->removeDataProvider(dataProviderPtr->id());
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -199,11 +191,12 @@ void TestClient::testRemoveDataProviderInvalidId()
 {
   try
   {
-    auto dataProviderPtr = buildDataProviderPtr();
+    wsClient_->removeDataProvider(1);
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -217,27 +210,32 @@ void TestClient::testUpdateDataProvider()
   try
   {
     auto dataProviderPtr = buildDataProviderPtr();
+
+    wsClient_->addDataProvider(dataProviderPtr);
+
+    QVERIFY2(dataProviderPtr->id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
+    uint64_t id = dataProviderPtr->id();
+
+    dataProviderPtr->setDescription("Description updated");
+    dataProviderPtr->setKind((terrama2::core::DataProvider::Kind)2);
+    dataProviderPtr->setName("Name updated");
+    dataProviderPtr->setStatus((terrama2::core::DataProvider::Status)2);
+    dataProviderPtr->setUri("C:/URI_updated");
+
+    wsClient_->updateDataProvider(dataProviderPtr);
+
+    QVERIFY2(dataProviderPtr->id() == id, "Update failed!");
+    QVERIFY2(dataProviderPtr->description() == "Description updated", "Update failed!");
+    QVERIFY2(dataProviderPtr->kind() == 2, "Update failed!");
+    QVERIFY2(dataProviderPtr->name() == "Name updated", "Update failed!");
+    QVERIFY2(dataProviderPtr->status() == 2, "Update failed!");
+    QVERIFY2(dataProviderPtr->uri() == "C:/URI_updated", "Update failed!");
+
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception!");
-  }
-}
-
-
-void TestClient::testUpdateDataProviderInvalidId()
-{
-  try
-  {
-    auto dataProviderPtr = buildDataProviderPtr();
-  }
-  catch(terrama2::Exception &e)
-  {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -251,10 +249,26 @@ void TestClient::testFindDataProvider()
   try
   {
     auto dataProviderPtr = buildDataProviderPtr();
+
+    wsClient_->addDataProvider(dataProviderPtr);
+
+    QVERIFY2(dataProviderPtr->id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
+    terrama2::core::DataProviderPtr dataProviderPtr_found;
+
+    wsClient_->findDataProvider(dataProviderPtr->id(), dataProviderPtr_found);
+
+    QVERIFY2(dataProviderPtr->id() == dataProviderPtr_found->id(), "Find failed!");
+    QVERIFY2(dataProviderPtr->description() == dataProviderPtr_found->description(), "Find failed!");
+    QVERIFY2(dataProviderPtr->kind() == dataProviderPtr_found->kind(), "Find failed!");
+    QVERIFY2(dataProviderPtr->name() == dataProviderPtr_found->name(), "Find failed!");
+    QVERIFY2(dataProviderPtr->status() == dataProviderPtr_found->status(), "Find failed!");
+    QVERIFY2(dataProviderPtr->uri() == dataProviderPtr_found->uri(), "Find failed!");
+
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -267,11 +281,16 @@ void TestClient::testFindDataProviderInvalidID()
 {
   try
   {
+    terrama2::core::DataProviderPtr dataProviderPtr_found;
 
+    wsClient_->findDataProvider(1, dataProviderPtr_found);
+
+    QFAIL("Should not find a invalid Data Provider!");
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -288,7 +307,7 @@ void TestClient::TestAddDataSet()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -305,7 +324,7 @@ void TestClient::TestAddNullDataSet()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -322,7 +341,7 @@ void TestClient::TestAddDataSetWithID()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -339,7 +358,7 @@ void TestClient::TestAddDataSetWithWrongDataProviderID()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -356,7 +375,7 @@ void TestClient::testRemoveDataSet()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -373,7 +392,7 @@ void TestClient::testRemoveDataSetInvalidId()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -391,7 +410,7 @@ void TestClient::testUpdateDataSet()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -409,7 +428,7 @@ void TestClient::testUpdateDataSetInvalidId()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -427,7 +446,7 @@ void TestClient::testFindDataSet()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -445,7 +464,7 @@ void TestClient::testFindDataSetInvalidID()
   }
   catch(terrama2::Exception &e)
   {
-QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
