@@ -28,6 +28,8 @@
 */
 
 #include "TsCollectorFile.hpp"
+#include "Utils.hpp"
+
 
 //Terrama2
 #include <terrama2/collector/CollectorFile.hpp>
@@ -66,7 +68,7 @@ void TsCollectorFile::TestNormalBehavior()
   }
   catch(...)
   {
-    QFAIL("Should not be here");
+    QFAIL(NO_EXCEPTION_EXPECTED);
   }
  
   return;
@@ -80,7 +82,7 @@ void TsCollectorFile::TestNullDataProvider()
   {
     terrama2::collector::CollectorFile invalidCollector(nullDataProvider);
 
-    QFAIL("Should not be here");
+    QFAIL(NO_EXCEPTION_THROWN);
   }
   catch(terrama2::collector::InvalidDataProviderError& e)
   {
@@ -88,16 +90,16 @@ void TsCollectorFile::TestNullDataProvider()
   }
   catch(...)
   {
-    QFAIL("Should not be here");
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
 
 
-  QFAIL("Should not be here");
+  QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
 void TsCollectorFile::TestInactiveDataSet()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::UNKNOWN_TYPE));
+  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
 
   try
   {
@@ -106,9 +108,11 @@ void TsCollectorFile::TestInactiveDataSet()
     terrama2::core::DataSetPtr dataset = std::make_shared<terrama2::core::DataSet>(terrama2::core::DataSet(dataProvider,"dummy", terrama2::core::DataSet::PCD_TYPE));
     dataset->setStatus(terrama2::core::DataSet::INACTIVE);
 
-    collector.collect(dataset);
+    terrama2::collector::DataSetTimerPtr datasetTimer(new terrama2::collector::DataSetTimer(dataset));
 
-    QFAIL("Should not be here");
+    collector.collect(datasetTimer);
+
+    QFAIL(NO_EXCEPTION_THROWN);
   }
   catch(terrama2::collector::InactiveDataSetError& e)
   {
@@ -116,11 +120,10 @@ void TsCollectorFile::TestInactiveDataSet()
   }
   catch(...)
   {
-    QFAIL("Should not be here");
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
 
-
-  QFAIL("Should not be here");
+  QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
 void TsCollectorFile::TestWrongDataProviderKind()
@@ -131,7 +134,7 @@ void TsCollectorFile::TestWrongDataProviderKind()
   {
     terrama2::collector::CollectorFile invalidCollector(dataProvider);
 
-    QFAIL("Should not be here");
+    QFAIL(NO_EXCEPTION_THROWN);
   }
   catch(terrama2::collector::WrongDataProviderKindError& e)
   {
@@ -139,11 +142,11 @@ void TsCollectorFile::TestWrongDataProviderKind()
   }
   catch(...)
   {
-    QFAIL("Should not be here");
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
 
 
-  QFAIL("Should not be here");
+  QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
 void TsCollectorFile::TestCheckConnection()
@@ -160,7 +163,7 @@ void TsCollectorFile::TestCheckConnection()
   }
   catch(...)
   {
-    QFAIL("Should not be here");
+    QFAIL(NO_EXCEPTION_EXPECTED);
   }
 
   return;
@@ -177,7 +180,7 @@ void TsCollectorFile::TestFailCheckConnection()
   }
   catch(...)
   {
-    QFAIL("Should not be here");
+    QFAIL(NO_EXCEPTION_EXPECTED);
   }
 
   return;

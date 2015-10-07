@@ -97,8 +97,7 @@ void TsParserOGR::TestEmptyFile()
 void TsParserOGR::TestDataSetNames()
 {
   QTemporaryDir dir;
-  QString baseName("test_XXXXXX");
-  QTemporaryFile file(dir.path()+"/" + baseName + ".csv");
+  QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
   file.open();
   file.write("lat,lon,sat,data_pas\n");
   file.write("-10.7030,  30.3750,AQUA_M,2015-08-26 11:35:00\n");
@@ -111,7 +110,7 @@ void TsParserOGR::TestDataSetNames()
   std::vector<std::string> datasetNames = parser.datasetNames(info.absolutePath().toStdString());
 
   QVERIFY(datasetNames.size() == 1);
-  QCOMPARE(datasetNames.at(0) , baseName.toStdString());
+  QCOMPARE(datasetNames.at(0) , info.baseName().toStdString());
 }
 
 void TsParserOGR::TestInpeCsvFile()

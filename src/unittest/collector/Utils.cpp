@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file unittest/core/TestUtils.cpp
+  \file unittest/collector/TestUtils.cpp
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Paulo R. M. Oliveira
+  \author Paulo R. M. Oliveira, Jano Simas
 */
 
 
@@ -43,6 +43,14 @@
 // STL
 #include <string>
 
+
+const char* NO_EXCEPTION_THROWN = "No exception thrown";
+
+const char* NO_EXCEPTION_EXPECTED = "No exception expected";
+
+const char* WRONG_TYPE_EXCEPTION = "Wrong exception type";
+
+const char* UNEXPECTED_BEHAVIOR = "Should not be here";
 
 void initializeTerralib()
 {

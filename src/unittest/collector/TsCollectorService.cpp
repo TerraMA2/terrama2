@@ -30,6 +30,7 @@
 #include "TsCollectorService.hpp"
 
 #include <terrama2/collector/CollectorService.hpp>
+#include <terrama2/collector/Exception.hpp>
 
 //QT
 #include <QApplication>
