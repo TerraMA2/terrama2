@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataProvider.cpp
 
-  \brief Metadata of a data server.
+  \brief Models the information of a data provider (or data server).
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -35,8 +35,7 @@
 #include "DataSet.hpp"
 
 terrama2::core::DataProvider::DataProvider(const std::string &name, Kind kind, const uint64_t id)
-  :
-    id_(id),
+  : id_(id),
     name_(name),
     kind_(kind),
     status_(INACTIVE)
@@ -84,9 +83,9 @@ terrama2::core::DataProvider::Kind terrama2::core::DataProvider::kind() const
   return kind_;
 }
 
-void terrama2::core::DataProvider::setKind(terrama2::core::DataProvider::Kind kind)
+void terrama2::core::DataProvider::setKind(Kind k)
 {
-  kind_ = kind;
+  kind_ = k;
 }
 
 std::string terrama2::core::DataProvider::uri() const
@@ -99,22 +98,26 @@ void terrama2::core::DataProvider::setUri(const std::string& uri)
   uri_ = uri;
 }
 
-terrama2::core::DataProvider::Status terrama2::core::DataProvider::status() const
+terrama2::core::DataProvider::Status
+terrama2::core::DataProvider::status() const
 {
   return status_;
 }
 
-void terrama2::core::DataProvider::setStatus(terrama2::core::DataProvider::Status status)
+void
+terrama2::core::DataProvider::setStatus(Status s)
 {
-  status_ = status;
+  status_ = s;
 }
 
-std::vector<terrama2::core::DataSetPtr> terrama2::core::DataProvider::dataSets() const
+std::vector<terrama2::core::DataSetPtr>
+terrama2::core::DataProvider::dataSets() const
 {
   return dataSets_;
 }
 
-void terrama2::core::DataProvider::setDataSets(const std::vector<terrama2::core::DataSetPtr>& dataSets)
+void
+terrama2::core::DataProvider::setDataSets(const std::vector<DataSetPtr>& dataSets)
 {
   dataSets_ = dataSets;
 }

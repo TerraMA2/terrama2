@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataProvider.hpp
 
-  \brief Metadata of a data server.
+  \brief Models the information of a data provider (or data server).
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -48,14 +48,15 @@ namespace terrama2
     /*!
       \class DataProvider
 
-      \brief Contains metadata about a data provider (or data server).
+      \brief Models the information of a data provider (or data server).
 
       A data provider can be a remote server that provides data through
       FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
 
       It can also be an URI for a folder into the file system.
 
-      It contains a list of datasets that belongs to this provider.
+      A data provider contains the list of datasets that belongs to this provider 
+      that should be collected for further analysis.
      */
     class DataProvider
     {
@@ -106,7 +107,7 @@ namespace terrama2
         /*!
           \brief It sets the name of the data provider.
 
-          \param The name of the data provider.
+          \param name The name of the data provider.
         */
         void setName(const std::string& name);
 
@@ -120,7 +121,7 @@ namespace terrama2
         /*!
           \brief It sets the the description of the data provider.
 
-          \param The the description of the data provider.
+          \param description The the description of the data provider.
         */
         void setDescription(const std::string& description);
 
@@ -134,9 +135,9 @@ namespace terrama2
         /*!
           \brief It sets the the kind of the data provider.
 
-          \param The the kind of the data provider.
+          \param k The the kind of the data provider.
         */
-        void setKind(Kind kind);
+        void setKind(Kind k);
 
         /*!
           \brief It returns the URI of the data provider.
@@ -148,7 +149,7 @@ namespace terrama2
         /*!
           \brief It sets the URI of the data provider.
 
-          \param The URI of the data provider.
+          \param uri The URI of the data provider.
         */
         void setUri(const std::string& uri);
 
@@ -162,9 +163,9 @@ namespace terrama2
         /*!
           \brief It sets the the status of the data provider.
 
-          \param The the status of the data provider.
+          \param s The the status of the data provider.
         */
-        void setStatus(Status status);
+        void setStatus(Status s);
 
         /*!
           \brief It returns the the dataset list.
