@@ -37,8 +37,6 @@ class TsParserOGR: public QObject
 {
   Q_OBJECT
 
-    void readCSV();
-
   private slots:
 
     void initTestCase(); // Run before all tests

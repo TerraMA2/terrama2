@@ -71,6 +71,35 @@ void TsCollectorService::TestStartServer()
 {
   terrama2::collector::CollectorService service;
   service.start();
+
+  try
+  {
+    service.start();
+  }
+  catch(terrama2::collector::ServiceAlreadyRunnningError& e)
+  {
+    return ;
+  }
+
+  QFAIL("Should not be here...");
+}
+
+void TsCollectorService::TestStopServer()
+{
+  terrama2::collector::CollectorService service;
+  service.start();
+  service.stop();
+
+  try
+  {
+    service.start();
+  }
+  catch(terrama2::collector::ServiceAlreadyRunnningError& e)
+  {
+    QFAIL("Should not be here...");
+  }
+
+  return ;
 }
 
 

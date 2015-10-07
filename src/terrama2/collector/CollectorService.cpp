@@ -73,11 +73,7 @@ terrama2::collector::CollectorService::CollectorService(QObject *parent)
 
 terrama2::collector::CollectorService::~CollectorService()
 {
-
   stop();
-
-  if(loopThread_.joinable())
-    loopThread_.join();
 }
 
 void terrama2::collector::CollectorService::start()
@@ -95,6 +91,9 @@ void terrama2::collector::CollectorService::stop()
   //Finish the thread
   stop_ = true;
   mutex_.unlock();
+
+  if(loopThread_.joinable())
+    loopThread_.join();
 }
 
 void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)

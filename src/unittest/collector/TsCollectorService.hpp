@@ -54,6 +54,7 @@ private slots:
 
     void TestStartServer();
 
+    void TestStopServer();
 
 
     //******End of Test functions****

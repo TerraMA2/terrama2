@@ -65,14 +65,14 @@ void TsDataSetTimer::TestNullDataSet()
 void TsDataSetTimer::TestTimerSignalEmit()
 {
   terrama2::core::DataSetPtr dataSet(new terrama2::core::DataSet(nullptr, "dummy", terrama2::core::DataSet::UNKNOWN_TYPE));
-  te::dt::TimeDuration freq(0,0,10);
+  te::dt::TimeDuration freq(0,0,5);
   dataSet->setDataFrequency(freq);
   terrama2::collector::DataSetTimer dataSetTimer(dataSet);
 
   qRegisterMetaType<uint64_t>("uint64_t");
   QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
 
-  QVERIFY(spy.wait(20000));
+  QVERIFY(spy.wait(10000));
 }
 
 

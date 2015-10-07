@@ -59,6 +59,11 @@ private slots:
     void TestNullDataProvider();
 
     /*!
+     * \brief Tests exception of an inactive dataset
+     */
+    void TestInactiveDataSet();
+
+    /*!
      * \brief Test DataProvider with kind different from file.
      */
     void TestWrongDataProviderKind();

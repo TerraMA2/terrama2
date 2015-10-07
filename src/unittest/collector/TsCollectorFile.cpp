@@ -32,6 +32,7 @@
 //Terrama2
 #include <terrama2/collector/CollectorFile.hpp>
 #include <terrama2/collector/Exception.hpp>
+#include <terrama2/core/DataSet.hpp>
 
 //Qt
 #include <QTemporaryDir>
@@ -82,6 +83,34 @@ void TsCollectorFile::TestNullDataProvider()
     QFAIL("Should not be here");
   }
   catch(terrama2::collector::InvalidDataProviderError& e)
+  {
+    return;
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here");
+  }
+
+
+  QFAIL("Should not be here");
+}
+
+void TsCollectorFile::TestInactiveDataSet()
+{
+  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::UNKNOWN_TYPE));
+
+  try
+  {
+    terrama2::collector::CollectorFile collector(dataProvider);
+
+    terrama2::core::DataSetPtr dataset = std::make_shared<terrama2::core::DataSet>(terrama2::core::DataSet(dataProvider,"dummy", terrama2::core::DataSet::PCD_TYPE));
+    dataset->setStatus(terrama2::core::DataSet::INACTIVE);
+
+    collector.collect(dataset);
+
+    QFAIL("Should not be here");
+  }
+  catch(terrama2::collector::InactiveDataSetError& e)
   {
     return;
   }
