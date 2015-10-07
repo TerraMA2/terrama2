@@ -68,6 +68,8 @@ namespace terrama2
     {
       Q_OBJECT
 
+      friend class te::common::Singleton<DataManager>;
+
       public:
 
         /*!
@@ -90,27 +92,27 @@ namespace terrama2
 
           Emits dataManagerUnloaded() signal when all the data from the database has been loaded.
 
-          \exception
-
           \note Thread-safe.
          */
-        void unload();
+        void unload() noexcept;
 
         /*!
           \brief Add the data provider to the database and register it in the manager.
 
-          It will also add the datasets.
+          This method will also add all the datasets contained in the data provider.
+         
+          At end it will emmit the following signals:
+          - dataProviderAdded(DataProviderPtr): signal if the data provider is saved and registered in the manager.
+          - dataSetAdded(DataSetPtr): one signal for each dataset in the data provider's list added to the database and registered in the manager.
+         
+          \param provider The data provider to be added to the database and registered into the manager.
 
-          Emits dataProviderAdded() signal if the data provider is saved and registered in the manager.
-
-          Emits dataSetAdded() signal if the data provider's dataset added.
-
-          \pre The provider must not have an ID.
+          \pre The provider must not have a valid ID (its ID must be zero).
           \pre A provider with the same name must not be already in the manager.
-          \pre The datasets must not have an ID.
+          \pre If there are contained datasets, they must not have a valid ID (all IDs must be zero).
 
-          \pos The informed data provider will have a valid ID.
-          \pos The datasets within this provider will have a valid ID.
+          \pos The informed data provider will have a valid ID (> 0).
+          \pos The datasets within this provider will have a valid ID (> 0).
 
           \exception InvalidDataProviderError, InvalidDataProviderIdError, InvalidDataSetError, InvalidDataSetIdError
 
@@ -120,10 +122,10 @@ namespace terrama2
 
         /*!
           \brief Add the dataset to the database and register it in the manager.
-
-          Emits dataSetAdded() signal if the dataset is saved and registered in the manager.
-
-          Emits dataProviderUpdated() signal to notify that there is a new dataset in the provider.
+         
+          At end it will emmit the following signals:
+          - dataSetAdded(): signal if the dataset is saved and registered in the manager.
+          - dataProviderUpdated(): signal to notify that there is a new dataset in the provider.
 
           \pre The dataset must not have an ID.
           \pre A provider with the same name must not be already in the manager.
@@ -142,18 +144,17 @@ namespace terrama2
           \brief Update a given data provider in the database.
 
           Emits dataProviderUpdated() signal if the data provider is updated successfully.
+         
+          \param provider The data provider to be updated.
 
-          \pre The data provider must have an valid ID.
-
+          \pre The data provider must have a valid ID.
           \pre The data provider must exist in the database.
-
-          \param dataProvider Data provider to update.
 
           \exception InvalidDataProviderError, InvalidDataProviderIdError
 
           \note Thread-safe.
          */
-        void update(DataProviderPtr dataProvider);
+        void update(DataProviderPtr provider);
 
         /*!
           \brief Update a given dataset in the database.
@@ -161,12 +162,11 @@ namespace terrama2
           Emits dataSetUpdated() signal if the dataset is updated successfully.
 
           It will not update the datasets.
+         
+          \param dataset Dataset to update.
 
           \pre The dataset must have an valid ID.
-
           \pre The dataset must exist in the database.
-
-          \param dataset Dataset to update.
 
           \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
 
@@ -306,14 +306,16 @@ namespace terrama2
 
 
       protected:
+
+        //! Default constructor: use the getInstance class method to get access to the singleton.
         DataManager();
+
+        //! Destructor.
         ~DataManager();
 
         struct Impl;
 
-        Impl* pimpl_;
-
-      friend class te::common::Singleton<DataManager>;
+        Impl* pimpl_;  //!< Using Pimpl idiom.
     };
 
   } // end namespace core
