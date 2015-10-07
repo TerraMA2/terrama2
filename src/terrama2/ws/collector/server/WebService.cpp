@@ -141,7 +141,7 @@ int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetRes
 }
 
 
-int WebService::removeDataProvider(uint64_t id, Web__removeDataProviderResponse *out)
+int WebService::removeDataProvider(uint64_t id)
 {
   try
   {
@@ -156,11 +156,13 @@ int WebService::removeDataProvider(uint64_t id, Web__removeDataProviderResponse 
     return soap_senderfault("Error to remove DataProvider", "Unknow error.");
   }
 
+  send_removeDataProvider_empty_response(SOAP_OK); // SOAP_OK: return HTTP 202 ACCEPTED
+
   return SOAP_OK;
 }
 
 
-int WebService::removeDataSet(uint64_t id, Web__removeDataSetResponse *out)
+int WebService::removeDataSet(uint64_t id)
 {
   try
   {
@@ -174,6 +176,8 @@ int WebService::removeDataSet(uint64_t id, Web__removeDataSetResponse *out)
   {
     return soap_senderfault("Error to remove DataSet", "Unknow error.");
   }
+
+  send_removeDataSet_empty_response(SOAP_OK); // SOAP_OK: return HTTP 202 ACCEPTED
 
   return SOAP_OK;
 }

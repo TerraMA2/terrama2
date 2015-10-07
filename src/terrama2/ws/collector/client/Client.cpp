@@ -146,7 +146,7 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSetPtr &
 
 void terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
 {
-  if(wsClient_->removeDataProvider(id, nullptr) != SOAP_OK)
+  if(wsClient_->removeDataProvider(id) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
@@ -158,7 +158,7 @@ void terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
 
 void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 {
-  if(wsClient_->removeDataSet(id, nullptr) != SOAP_OK)
+  if(wsClient_->removeDataSet(id) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
@@ -169,11 +169,14 @@ void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 
 
 void terrama2::ws::collector::Client::findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr)
-{
-  if(dataProviderPtr == nullptr)
+{  
+  /*
+    // VINICIUS: verify how to do this check
+    if(dataProviderPtr == nullptr)
     throw client::FindDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+  */
 
-  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
+  DataProvider struct_dataProvider;
 
   if(wsClient_->findDataProvider(id, struct_dataProvider) != SOAP_OK)
   {
