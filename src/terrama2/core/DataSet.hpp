@@ -70,6 +70,8 @@ namespace terrama2
      */
     class DataSet : public boost::noncopyable
     {
+      friend class DataSetDAO;
+
       public:
 
         //! Dataset type.
@@ -307,8 +309,6 @@ namespace terrama2
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
         std::vector<DataSetItemPtr> dataSetItemList_;
-
-        friend class DataSetDAO;
     };
 
     typedef std::shared_ptr<DataSet> DataSetPtr;
