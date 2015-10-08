@@ -350,11 +350,12 @@ void TestWebService::testFindDataProviderInvalidID()
 
     WebService webService;
 
-    // VINICIUS: check how it works in core the findDataProvider method
     if(webService.findDataProvider(0, struct_dataProvider) == SOAP_OK)
     {
       QFAIL("Should not find a invalid Data Provider!");
     }
+
+    // test OK
   }
   catch(...)
   {

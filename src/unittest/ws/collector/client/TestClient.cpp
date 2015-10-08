@@ -188,7 +188,7 @@ void TestClient::testRemoveDataProvider()
 
 
 void TestClient::testRemoveDataProviderInvalidId()
-{/*
+{
   try
   {
     wsClient_->removeDataProvider(1);
@@ -201,7 +201,7 @@ void TestClient::testRemoveDataProviderInvalidId()
   catch(...)
   {
     QFAIL("Unexpected exception !");
-  }*/
+  }
 }
 
 
@@ -300,7 +300,7 @@ void TestClient::testFindDataProviderInvalidID()
   {
     QFAIL("Unexpected exception!");
   }
-  */
+*/
 }
 
 

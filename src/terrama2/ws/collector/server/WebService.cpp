@@ -34,8 +34,6 @@
 // TerraMA2
 #include "../core/Utils.hpp"
 #include "../../../core/DataManager.hpp"
-//#include "../../../core/DataProvider.hpp"
-//#include "../../../core/DataSet.hpp"
 #include "../../../core/Exception.hpp"
 
 #include "soapWebService.h"
@@ -48,7 +46,7 @@ int WebService::ping(std::string &answer)
   return SOAP_OK;
 }
 
-
+// VINICIUS: Errors from TerraMA2 aren't been handled!!
 int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &struct_dataproviderResult)
 {
   try
