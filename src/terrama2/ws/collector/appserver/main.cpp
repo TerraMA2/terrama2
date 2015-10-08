@@ -43,7 +43,7 @@
 
 int main(int argc, char* argv[])
 {
-
+  std::cerr << "Initializating TerraLib...";
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
 
@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
 
   te::plugin::PluginManager::getInstance().loadAll();
 
+  std::cerr << "Loading TerraMA2 Project...";
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
 
   if(!terrama2::core::ApplicationController::getInstance().loadProject(path))
@@ -70,6 +71,7 @@ int main(int argc, char* argv[])
   if(!dataSource.get())
     return EXIT_FAILURE;
 
+  std::cerr << "Starting Webservice...";
 // check if a port number was passed as parameter
   if(argv[1] == 0)
   {
