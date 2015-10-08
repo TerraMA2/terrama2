@@ -45,13 +45,6 @@ namespace terrama2
   {
     namespace core
     {
-      enum ConnectionType
-      {
-        FTP,
-        LOCALFILES,
-        WEBSERVICE
-      };
-
       //! Function to generate file destination of TerraMA2 File
       void saveTerraMA2File(QMainWindow* appFocus, const QJsonObject& json);
 

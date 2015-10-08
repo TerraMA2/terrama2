@@ -16,7 +16,7 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
 {
   connect(ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onServerTabRequested()));
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-  connect(ui_->serverDescription, SIGNAL(textChanged(QString)), SLOT(onServerEdited()));
+  connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onServerEdited()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
@@ -37,21 +37,19 @@ void ConfigAppWeatherServer::load()
 
 void ConfigAppWeatherServer::save()
 {
-  // Load dataproviders
   terrama2::core::DataManager::getInstance().load();
-
   // If there data provider in database
-  if (terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
-      ui_->serverName->text().toStdString()))
+  terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
+      ui_->weatherDataTree->currentItem()->text(0).toStdString());
+  if (dataProvider != nullptr)
   {
     dataProvider->setName(ui_->serverName->text().toStdString());
     dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
-    dataProvider->setKind(static_cast<terrama2::core::DataProvider::Kind>(ui_->connectionProtocol->currentIndex()));
+    dataProvider->setKind(terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex()));
     dataProvider->setUri(ui_->connectionAddress->text().toStdString());
     dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
     terrama2::core::DataManager::getInstance().update(dataProvider);
-//    ui_->weatjerDataTree->find
     ui_->weatherDataTree->currentItem()->setText(0, ui_->serverName->text());
   }
   else
@@ -60,8 +58,7 @@ void ConfigAppWeatherServer::save()
                                                         terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())));
     dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
     dataProvider->setUri(ui_->connectionAddress->text().toStdString());
-    dataProvider->setStatus(ui_->serverActiveServer->isChecked() ? terrama2::core::DataProvider::ACTIVE :
-                            terrama2::core::DataProvider::INACTIVE);
+    dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
     terrama2::core::DataManager::getInstance().add(dataProvider);
 
@@ -100,29 +97,22 @@ bool ConfigAppWeatherServer::validate()
     return false;
   }
 
-  // Check if has already been saved before
-  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+  terrama2::core::DataProviderPtr dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
 
-  std::string sqlProvider("SELECT name FROM terrama2.data_provider WHERE name = '");
-  sqlProvider += ui_->serverName->text().toStdString() + "'";
-  std::auto_ptr<te::da::DataSet> dset = ds->query(sqlProvider);
-
-  if (dset->size() > 0)
+  if (dataProviderPtr != nullptr && ui_->weatherDataTree->currentItem() != nullptr)
   {
-    ui_->serverName->setFocus();
-    throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
+    if (ui_->weatherDataTree->currentItem()->text(0) != ui_->serverName->text())
+    {
+      ui_->serverName->setFocus();
+      throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
+    }
   }
   return true;
 }
 
-bool ConfigAppWeatherServer::dataChanged()
-{
-  return active_ && changed_;
-}
-
 void ConfigAppWeatherServer::onServerTabRequested()
 {
-//  ConfigAppWeatherTab::getInstance().displayOperationButtons(true);
+  app_->getWeatherTab()->displayOperationButtons(true);
   app_->getWeatherTab()->changeTab(*this, *ui_->ServerPage);
 }
 
@@ -171,9 +161,9 @@ void ConfigAppWeatherServer::validateConnection()
       break;
     case terrama2::core::DataProvider::HTTP_TYPE:
       terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
-                                                  ui_->connectionPort->text().toInt(),
-                                                  ui_->connectionUserName->text(),
-                                                  ui_->connectionPassword->text());
+                                                ui_->connectionPort->text().toInt(),
+                                                ui_->connectionUserName->text(),
+                                                ui_->connectionPassword->text());
       break;
     case terrama2::core::DataProvider::FILE_TYPE:
       terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());

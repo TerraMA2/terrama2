@@ -38,8 +38,8 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
 
   // Tabs
-  QSharedPointer<ConfigAppWeatherGridTab> gridTab(new ConfigAppWeatherGridTab(app, ui));
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
+  QSharedPointer<ConfigAppWeatherGridTab> gridTab(new ConfigAppWeatherGridTab(app, ui));
   subTabs_.append(gridTab);
   subTabs_.append(serverTab);
 
@@ -228,6 +228,8 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
     QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
 
     ui_->weatherDataTree->removeItemWidget(ui_->weatherDataTree->currentItem(), 0);
+
+    hidePanels(ui_->ServerGroupPage);
 
     delete selectedItem;
   }

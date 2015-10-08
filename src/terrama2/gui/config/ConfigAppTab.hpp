@@ -60,7 +60,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     virtual void load() = 0;
 
     //! It shows if data were changed by user
-    virtual bool dataChanged() = 0;
+    virtual bool dataChanged();
 
     //! Check if current data are valids and it may be saved
     //! This function is called by validateAndSaveChanges to validate display fields

@@ -33,13 +33,16 @@
 #include "../Exception.hpp"
 
 // QT
-#include <QString>
 #include <QDir>
 #include <QUrl>
 #include <QMainWindow>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFileDialog>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+
 
 void terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
 {
@@ -52,7 +55,16 @@ void terrama2::gui::core::checkServiceConnection(const QString& host, const int&
   if (!url.isValid())
     throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
 
-  // TODO: do remote connection
+  url.setUserName(user);
+  url.setPassword(password);
+  url.setPort(port);
+
+  QNetworkAccessManager manager;
+
+  QNetworkReply* reply = manager.get(QNetworkRequest(url));
+
+  if (reply->error() != QNetworkReply::NoError)
+    throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Invalid connection requested"));
 }
 
 void terrama2::gui::core::checkFTPConnection(const QString& host, const int& port, const QString& basepath,
@@ -69,7 +81,7 @@ void terrama2::gui::core::checkLocalFilesConnection(const QString& path)
   absolutePath.append("/");
   QDir directory(absolutePath);
 
-  if (!directory.exists())
+  if (!directory.exists() || directory.currentPath() == "/")
   {
     QString error(QObject::tr("Invalid directory typed: \"%1\""));
     error.arg(absolutePath);

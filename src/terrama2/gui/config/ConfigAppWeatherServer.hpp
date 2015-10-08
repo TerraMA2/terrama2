@@ -15,7 +15,6 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     void save();
     void discardChanges(bool restore);
     bool validate();
-    bool dataChanged();
 
   private:
     void validateConnection();
