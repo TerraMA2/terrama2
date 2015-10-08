@@ -71,7 +71,7 @@ struct ProjectionDialog::Impl
 
 
 ProjectionDialog::ProjectionDialog(QWidget* parent, Qt::WindowFlags f)
-: QDialog(parent, f), pimpl_(new Impl)
+  : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
 
@@ -85,6 +85,35 @@ ProjectionDialog::ProjectionDialog(QWidget* parent, Qt::WindowFlags f)
     pimpl_->ui_->cboBoxProjection->addItem(projection.name);
 
   connect(pimpl_->ui_->cboBoxProjection, SIGNAL(currentIndexChanged(int)), SLOT(onProjectionChanged(int)));
+  connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(onCancelClicked()));
+
+  QDoubleValidator* lineEdtLongValidator = new QDoubleValidator(pimpl_->ui_->lineEdtLongOrigem);
+  lineEdtLongValidator->setDecimals(3);
+  pimpl_->ui_->lineEdtLongOrigem->setValidator(lineEdtLongValidator);
+
+  QDoubleValidator* lineEdtLatValidator = new QDoubleValidator(pimpl_->ui_->lineEdtLongOrigem);
+  lineEdtLongValidator->setDecimals(3);
+  pimpl_->ui_->lineEdtLatOrigem->setValidator(lineEdtLatValidator);
+
+  QDoubleValidator* lineEdtParaleloPad1Validator = new QDoubleValidator(pimpl_->ui_->lineEdtParaleloPad1);
+  lineEdtParaleloPad1Validator->setDecimals(3);
+  pimpl_->ui_->lineEdtParaleloPad1->setValidator(lineEdtParaleloPad1Validator);
+
+  QDoubleValidator* lineEdtParaleloPad2Validator = new QDoubleValidator(pimpl_->ui_->lineEdtParaleloPad2);
+  lineEdtParaleloPad2Validator->setDecimals(3);
+  pimpl_->ui_->lineEdtParaleloPad2->setValidator(lineEdtParaleloPad2Validator);
+
+  QDoubleValidator* lineEdtOffsetXValidator = new QDoubleValidator(pimpl_->ui_->lineEdtOffsetX);
+  lineEdtParaleloPad2Validator->setDecimals(3);
+  pimpl_->ui_->lineEdtOffsetX->setValidator(lineEdtOffsetXValidator);
+
+  QDoubleValidator* lineEdtOffsetYValidator = new QDoubleValidator(pimpl_->ui_->lineEdtOffsetY);
+  lineEdtOffsetYValidator->setDecimals(3);
+  pimpl_->ui_->lineEdtOffsetY->setValidator(lineEdtOffsetYValidator);
+
+  QDoubleValidator* lineEdtEscalaValidator = new QDoubleValidator(pimpl_->ui_->lineEdtEscala);
+  lineEdtEscalaValidator->setDecimals(3);
+  pimpl_->ui_->lineEdtEscala->setValidator(lineEdtEscalaValidator);
 }
 
 ProjectionDialog::~ProjectionDialog()
@@ -104,6 +133,10 @@ void ProjectionDialog::onProjectionChanged(int i)
   if (projections[i].name == "UTM")
   {
     pimpl_->ui_->cboBoxZone->setCurrentIndex(22);
-//    cboBoxZone_activated(22);
   }
+}
+
+void ProjectionDialog::onCancelClicked()
+{
+  close();
 }

@@ -81,6 +81,7 @@ class ProjectionDialog : public QDialog, private boost::noncopyable
 
   private slots:
     void onProjectionChanged(int);
+    void onCancelClicked();
 
   private:
     struct Impl;

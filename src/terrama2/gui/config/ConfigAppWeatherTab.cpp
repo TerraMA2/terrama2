@@ -36,6 +36,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+  connect(ui_->weatherDataTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(onWeatherDataTreeDoubleClicked(QTreeWidgetItem*)));
 
   // Tabs
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
@@ -244,7 +245,7 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
   }
 }
 
-void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem)
+void ConfigAppWeatherTab::onWeatherDataTreeDoubleClicked(QTreeWidgetItem* selectedItem)
 {
   if (selectedItem->parent() != nullptr)
   {
@@ -366,4 +367,23 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
   sender.setActive(true);
   ui_->weatherPageStack->setCurrentWidget(&widget);
   hidePanels(&widget);
+}
+
+void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem)
+{
+  if (selectedItem->parent() != nullptr)
+  {
+    // If it does not have parent, so it has to be DataProvider. Otherwise, selectedItem is DataSet
+    if (selectedItem->parent()->parent() == nullptr)
+    {
+      showDataSeries(true);
+    }
+    else
+      showDataSeries(false);
+  }
+  else
+  {
+    showDataSeries(false);
+    discardChanges(true);
+  }
 }
