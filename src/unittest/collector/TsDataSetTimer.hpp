@@ -20,53 +20,45 @@
 */
 
 /*!
-  \file unittest/collector/TestCollectorService.cpp
+  \file terrama2/collector/TsDataSetTimer.hpp
 
-  \brief Test Collector Service...
+  \brief Tests for the DataSetTimer class.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#include "TestCollectorService.hpp"
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
 
-#include <terrama2/collector/CollectorService.hpp>
+//Qt
+#include <QtTest>
 
-//QT
-#include <QApplication>
-
-// STL
-#include <memory>
-
-//terralib
-#include <terralib/postgis/Utils.h>
-#include <terralib/postgis/Connection.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-#include <terralib/common/PlatformUtils.h>
-#include <terralib/common.h>
-#include <terralib/plugin.h>
-
-void TestCollectorService::initTestCase()
+class TsDataSetTimer: public QObject
 {
+  Q_OBJECT
 
-}
+private slots:
 
-void TestCollectorService::cleanupTestCase()
-{
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-}
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-void TestCollectorService::init()
-{
+    //******Test functions********
 
-}
+    /*!
+     * \brief Tests the behavior of a miscontructed DataSetTimer.
+     */
+    void TestNullDataSet();
 
-void TestCollectorService::cleanup()
-{
+    /*!
+     * \brief Tests the timer signal emition.
+     */
+    void TestTimerSignalEmit();
 
-}
 
+    //******End of Test functions****
+};
 
-QTEST_MAIN(TestCollectorService)
-//#include "TestCollectorService.moc"
+#endif//__TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__

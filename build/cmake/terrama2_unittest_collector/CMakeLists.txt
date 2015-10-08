@@ -24,16 +24,9 @@
 #  Author: Jano Simas
 #
 
-SET(TERRAMA2_TEST_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/collector/")
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}*.hpp)
-
-file(GLOB TERRAMA2_TEST_SRC_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}Test*.cpp)
-file(GLOB TERRAMA2_TEST_HDR_FILES ${TERRAMA2_TEST_COLLECTOR_DIR}Test*.hpp)
-
-list(REMOVE_ITEM TERRAMA2_SRC_FILES ${TERRAMA2_TEST_SRC_FILES})
-list(REMOVE_ITEM TERRAMA2_HDR_FILES ${TERRAMA2_TEST_HDR_FILES})
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/collector/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/collector/*.hpp)
 
 include_directories (
   ${Boost_INCLUDE_DIR}
@@ -48,22 +41,15 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-foreach(FILE ${TERRAMA2_TEST_SRC_FILES})
+add_executable(terrama2_unittest_collector ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-   STRING(REGEX REPLACE ".cpp" "" TEST "${FILE}")
-   SET(HEADER "${TEST}.hpp")
-   STRING(REGEX REPLACE "${TERRAMA2_TEST_COLLECTOR_DIR}" "" TEST "${TEST}")
+target_link_libraries(terrama2_unittest_collector terrama2_mod_core
+                                                  terrama2_mod_collector
+                                                  terralib_mod_plugin
+                                                  terralib_mod_common)
 
+qt5_use_modules(terrama2_unittest_collector Test)
 
-   add_executable(${TEST} ${FILE} ${HEADER} ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
-
-   target_link_libraries(${TEST} terrama2_mod_core
-                                 terrama2_mod_collector
-                                 terralib_mod_plugin
-                                 terralib_mod_common)
-   add_test(${TEST} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TEST}")
-
-   qt5_use_modules(${TEST} Test)
-endforeach()
+add_test(NAME terrama2_unittest_collector COMMAND terrama2_unittest_collector)
 
 

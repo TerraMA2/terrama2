@@ -20,19 +20,33 @@
 */
 
 /*!
-  \file terrama2/collector/Storager.cpp
+  \file terrama2/collector/StoragerFactory.cpp
 
-  \brief Store a temporary terralib DataSet into the permanent storage area.
+  \brief Instantiate storagers for DataProcessors.
 
   \author Jano Simas
 */
 
-#include "Storager.hpp"
+#include "StoragerFactory.hpp"
+#include "StoragerPostgis.hpp"
 
+#include "../core/DataSetItem.hpp"
 
-terrama2::collector::Storager::Storager(const std::map<std::string, std::string>& storageMetadata)
-  : storageMetadata_(storageMetadata)
-
+terrama2::collector::StoragerPtr terrama2::collector::StoragerFactory::getStorager(terrama2::core::DataSetItemPtr datasetItem)
 {
+  std::map<std::string, std::string> storageMetadata = datasetItem->storageMetadata();
 
+  //Exceptions
+
+  std::string storagerKind = storageMetadata.at("KIND");
+  if(storagerKind.empty())
+    return StoragerPtr();
+
+  if(storagerKind == "POSTGIS")
+  {
+    return StoragerPtr(new StoragerPostgis(storageMetadata));
+  }
+
+
+  return StoragerPtr();
 }

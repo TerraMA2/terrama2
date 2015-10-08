@@ -20,20 +20,20 @@
 */
 
 /*!
-  \file terrama2/collector/TestParserOGR.hpp
+  \file terrama2/collector/TsStoragerPostGis.hpp
 
-  \brief Tests for the ParserOGR class.
+  \brief Tests for the StoragerPostgis class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_STORAGERPOSTGIS_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_STORAGERPOSTGIS_HPP__
 
 //Qt
 #include <QtTest>
 
-class TestParserOGR: public QObject
+class TsStoragerPostGis : public QObject
 {
   Q_OBJECT
 
@@ -47,12 +47,9 @@ private slots:
 
     //******Test functions********
 
-    void TestNullDataSource();
-    void TestDataSourceNotOpen();
-    void TestEmptyFile();
 
 
     //******End of Test functions****
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_STORAGERPOSTGIS_HPP__

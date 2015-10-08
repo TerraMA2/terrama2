@@ -60,6 +60,8 @@ namespace terrama2
      */
     class DataProvider
     {
+      friend class DataProviderDAO;
+
       public:
 
         //! Data provider type.
@@ -199,8 +201,6 @@ namespace terrama2
         std::string uri_;
         Status status_;
         std::vector<DataSetPtr> dataSets_; //!< The list of datasets available in the data provider.
-
-      friend class DataProviderDAO; //review
     };
 
     typedef std::shared_ptr<DataProvider> DataProviderPtr;

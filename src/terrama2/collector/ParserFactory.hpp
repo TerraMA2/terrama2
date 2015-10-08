@@ -20,45 +20,30 @@
 */
 
 /*!
-  \file terrama2/collector/TestFilter.hpp
+  \file terrama2/collector/ParserFactory.hpp
 
-  \brief Tests for the TestFilter class.
+  \brief Instantiate parsers for DataProcessors.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
 
-//Qt
-#include <QtTest>
+#ifndef __TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
 
-class TestFilter: public QObject
+#include "Parser.hpp"
+#include "../core/DataSetItem.hpp"
+
+namespace terrama2
 {
-  Q_OBJECT
-
-private slots:
-
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
-
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Tests if the filter matches exact name.
-     */
-    void TestFilterNamesExact();
-
-    /*!
-     * \brief Tests behavior with no mask set.
-     */
-    void TestEmptyMask();
+  namespace collector
+  {
+    namespace ParserFactory
+    {
+      ParserPtr getParser(core::DataSetItem::Kind datasetItemKind);
+    }
+  }
+}
 
 
-    //******End of Test functions****
-};
-
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#endif //__TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__

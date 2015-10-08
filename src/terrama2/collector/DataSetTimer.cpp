@@ -49,7 +49,7 @@ terrama2::collector::DataSetTimer::DataSetTimer(terrama2::core::DataSetPtr dataS
 
   if(!dataSet)
   {
-    throw InvalidDataSetException() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
+    throw InvalidDataSetError() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
   }
 
   impl_->dataSet_ = dataSet;
@@ -79,7 +79,11 @@ void terrama2::collector::DataSetTimer::prepareTimer()
 
 void terrama2::collector::DataSetTimer::populateDataLst()
 {
-//JANO: implementar populateDataLst
+  for(auto dataSetItem : impl_->dataSet_->dataSetItemList())
+  {
+    DataProcessorPtr data(new DataProcessor(dataSetItem));
+    impl_->dataLst_.push_back(data);
+  }
 }
 
 

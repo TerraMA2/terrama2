@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file unittest/core/TestUtils.hpp
+  \file unittest/collector/TestUtils.hpp
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Paulo R. M. Oliveira
+  \author Paulo R. M. Oliveira, Jano Simas
 */
 
 #ifndef __TERRAMA2_UNITTEST_COLLECTOR_TESTUTILS_HPP__
@@ -37,5 +37,14 @@ void finalizeTerralib();
 void initializeTerraMA2();
 
 void finalizeTerraMA2();
+
+extern const char* NO_EXCEPTION_THROWN;
+
+extern const char* NO_EXCEPTION_EXPECTED;
+
+extern const char* WRONG_TYPE_EXCEPTION;
+
+extern const char* UNEXPECTED_BEHAVIOR;
+
 
 #endif // __TERRAMA2_UNITTEST_COLLECTOR_TESTUTILS_HPP__

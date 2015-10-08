@@ -20,47 +20,45 @@
 */
 
 /*!
-  \file terrama2/collector/TestFilter.hpp
+  \file terrama2/collector/TsParserOGR.hpp
 
-  \brief Tests for the TestFilter class.
+  \brief Tests for the ParserOGR class.
 
   \author Jano Simas
 */
 
-#include "TestFilter.hpp"
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
 
-//terrama2
-#include <terrama2/collector/Filter.hpp>
+//Qt
+#include <QtTest>
 
-//QT
-#include <QStringList>
-
-void TestFilter::TestFilterNamesExact()
+class TsParserOGR: public QObject
 {
-  QString exact("exact");
-  terrama2::collector::Filter filter;
-  filter.setMask(exact.toStdString());
+  Q_OBJECT
 
-  QStringList names;
-  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
+  private slots:
 
-  names = filter.filterNames(names);
+    void initTestCase(); // Run before all tests
+    void cleanupTestCase(); // Run after all tests
 
-  QCOMPARE(names.size(), 1);
-  QCOMPARE(names.at(0), exact);
-}
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-void TestFilter::TestEmptyMask()
-{
-  terrama2::collector::Filter filter;
+    //******Test functions********
 
-  QStringList names;
-  names << "teste1" << "teste2 " << "exc" << "exact" << "exact ";
+    void TestNullDataSource();
 
-  QStringList output = filter.filterNames(names);
+    void TestDataSourceNotOpen();
 
-  QCOMPARE(output, names);
-}
+    void TestInpeCsvFile();
 
-QTEST_MAIN(TestFilter)
-//#include "TestFilter.moc"
+    void TestEmptyFile();
+
+    void TestDataSetNames();
+
+
+    //******End of Test functions****
+};
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__

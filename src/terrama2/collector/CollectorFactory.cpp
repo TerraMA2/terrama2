@@ -29,12 +29,11 @@
 
 
 #include "CollectorFactory.hpp"
+#include "CollectorFile.hpp"
 #include "Exception.hpp"
 
 terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
 {
-  //JANO: implementar getCollector
-
   //If there is no collector for this DataProvider, create one.
   if(!collectorMap_.contains(dataProvider->id()))
   {
@@ -42,6 +41,16 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getColl
     //TODO: Throws if fail?
 
     //TODO: Throws UnknownDataProviderKindException
+    switch (dataProvider->kind()) {
+      case core::DataProvider::FILE_TYPE:
+      {
+        CollectorPtr newCollector(new CollectorFile(dataProvider));
+        collectorMap_.insert(dataProvider->id(), newCollector);
+        break;
+      }
+      default:
+        break;
+    }
   }
 
   return collectorMap_.value(dataProvider->id());

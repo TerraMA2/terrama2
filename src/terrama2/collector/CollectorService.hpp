@@ -41,6 +41,7 @@
 #include <QMap>
 
 // STL
+#include <atomic>
 #include <memory>
 #include <cstdint>
 
@@ -83,13 +84,14 @@ namespace terrama2
         /*!
          * \brief Creates a processloop thread and wait for signals.
          *
-         * Starts an QCoreApplication::exec(), won't exit! //TODO: should CollectorService.exec exit?
-         *
          * \exception terrama2::collector::ServiceAlreadyRunnningException Raise when the service is already runnning.
          */
-        void exec();
+        void start();
 
       public slots:
+
+        void stop();
+
         /*!
              * \brief Creates an instace of a collector of appropriate type for the dataProvider.
              * \param dataProvider The shared pointer to the data provider

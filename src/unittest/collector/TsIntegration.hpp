@@ -20,19 +20,37 @@
 */
 
 /*!
-  \file terrama2/collector/Storager.cpp
+  \file terrama2/collector/TsIntegration.hpp
 
-  \brief Store a temporary terralib DataSet into the permanent storage area.
+  \brief Integrated tests for collector module.
 
   \author Jano Simas
 */
 
-#include "Storager.hpp"
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_INTEGRETION_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_INTEGRETION_HPP__
 
+//Qt
+#include <QtTest> 
 
-terrama2::collector::Storager::Storager(const std::map<std::string, std::string>& storageMetadata)
-  : storageMetadata_(storageMetadata)
-
+class TsIntegration: public QObject
 {
+  Q_OBJECT
 
-}
+private slots:
+
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
+
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
+
+    //******Test functions********
+
+    void TestReadCsvStorePostGis();
+
+
+    //******End of Test functions****
+};
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_INTEGRETION_HPP__

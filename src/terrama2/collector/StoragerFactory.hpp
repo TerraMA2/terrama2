@@ -20,45 +20,30 @@
 */
 
 /*!
-  \file terrama2/collector/TestDataSetTimer.hpp
+  \file terrama2/collector/StoragerFactory.hpp
 
-  \brief Tests for the DataSetTimer class.
+  \brief Instantiate storagers for DataProcessors.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
 
-//Qt
-#include <QtTest>
+#ifndef __TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
+#define __TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
 
-class TestDataSetTimer: public QObject
+#include "Storager.hpp"
+#include "../core/DataSetItem.hpp"
+
+namespace terrama2
 {
-  Q_OBJECT
-
-private slots:
-
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
-
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Tests the behavior of a miscontructed DataSetTimer.
-     */
-    void TestNullDataSet();
-
-    /*!
-     * \brief Tests the timer signal emition.
-     */
-    void TestTimerSignalEmit();
+  namespace collector
+  {
+    namespace StoragerFactory
+    {
+      StoragerPtr getStorager(core::DataSetItemPtr datasetItem);
+    }
+  }
+}
 
 
-    //******End of Test functions****
-};
-
-#endif//__TERRAMA2_UNITTEST_COLLECTOR_DATASETTIMER_HPP__
+#endif //__TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
