@@ -85,3 +85,8 @@ void ConfigAppTab::setActive(bool state)
 bool ConfigAppTab::dataChanged() {
   return active_ && changed_;
 }
+
+void ConfigAppTab::setChanged(bool state)
+{
+  changed_ = state;
+}

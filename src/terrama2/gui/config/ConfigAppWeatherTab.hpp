@@ -79,9 +79,6 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! Triggered when click serverDeleteBtn to remove data provider
     void onDeleteServerClicked();
 
-    //! Triggered when double click in weatherTree to display metadata from DB
-    void onWeatherDataTreeDoubleClicked(QTreeWidgetItem*);
-
     //! Triggered when click in weatherTree to enable data series button
     void onWeatherDataTreeClicked(QTreeWidgetItem*);
 

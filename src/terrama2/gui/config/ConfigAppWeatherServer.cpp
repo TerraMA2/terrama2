@@ -15,7 +15,7 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   : ConfigAppTab(app, ui)
 {
   connect(ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onServerTabRequested()));
-  connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
+//  connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onServerEdited()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
@@ -24,6 +24,7 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
   connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
+  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), SLOT(onDataProviderClicked(QTreeWidgetItem*)));
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -40,7 +41,8 @@ void ConfigAppWeatherServer::save()
   terrama2::core::DataManager::getInstance().load();
   // If there data provider in database
   terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
-      ui_->weatherDataTree->currentItem()->text(0).toStdString());
+      //ui_->weatherDataTree->currentItem()->text(0).toStdString());
+      dataProviderSelected_.toStdString());
   if (dataProvider != nullptr)
   {
     dataProvider->setName(ui_->serverName->text().toStdString());
@@ -87,6 +89,7 @@ void ConfigAppWeatherServer::discardChanges(bool restore)
   }
 
   ui_->serverDescription->clear();
+  dataProviderSelected_.clear();
 }
 
 bool ConfigAppWeatherServer::validate()
@@ -99,9 +102,9 @@ bool ConfigAppWeatherServer::validate()
 
   terrama2::core::DataProviderPtr dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
 
-  if (dataProviderPtr != nullptr && ui_->weatherDataTree->currentItem() != nullptr)
+  if (dataProviderPtr != nullptr && !dataProviderSelected_.isEmpty())
   {
-    if (ui_->weatherDataTree->currentItem()->text(0) != ui_->serverName->text())
+    if (dataProviderSelected_ != ui_->serverName->text())
     {
       ui_->serverName->setFocus();
       throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
@@ -171,4 +174,13 @@ void ConfigAppWeatherServer::validateConnection()
     default:
       throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Not implemented yet"));
   }
+}
+
+void ConfigAppWeatherServer::onDataProviderClicked(QTreeWidgetItem* item)
+{
+  if (item->parent() != nullptr)
+    if (item->parent()->parent() == nullptr)
+    {
+      dataProviderSelected_ = item->text(0);
+    }
 }

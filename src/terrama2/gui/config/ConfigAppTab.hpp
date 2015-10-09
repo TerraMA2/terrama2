@@ -85,7 +85,10 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! It sets the tab state
     virtual void setActive(bool state);
 
-  public slots:
+    //! It sets the tab state
+    virtual void setChanged(bool state);
+
+public slots:
 
     //! Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
     virtual void onSaveRequested();

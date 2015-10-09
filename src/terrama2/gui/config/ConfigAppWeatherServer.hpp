@@ -4,6 +4,7 @@
 // TerraMA2
 #include "ConfigAppTab.hpp"
 
+class QTreeWidgetItem;
 
 class ConfigAppWeatherServer : public ConfigAppTab {
   Q_OBJECT
@@ -24,6 +25,10 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     void onServerEdited();
     //! Slot for handling if it is valid connection. TODO: ftp
     void onCheckConnectionClicked();
+    void onDataProviderClicked(QTreeWidgetItem*);
+
+  private:
+    QString dataProviderSelected_;
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERSERVER_HPP__
