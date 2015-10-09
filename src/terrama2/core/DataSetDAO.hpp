@@ -36,7 +36,6 @@
 
 // STL
 #include <memory>
-#include <vector>
 
 // Forward declaration
 namespace te { namespace da { class DataSourceTransactor; } }

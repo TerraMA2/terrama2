@@ -31,7 +31,6 @@
 
 //TerraMA2
 #include "DataSetDAO.hpp"
-#include "DataSet.hpp"
 #include "DataSetItem.hpp"
 #include "DataSetItemDAO.hpp"
 #include "Exception.hpp"
