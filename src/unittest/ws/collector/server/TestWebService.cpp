@@ -196,7 +196,7 @@ void TestWebService::testRemoveDataProvider()
       QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
 
-    if (webService.removeDataProvider(struct_dataProviderResult.id, nullptr) != SOAP_OK)
+    if (webService.removeDataProvider(struct_dataProviderResult.id) != SOAP_OK)
     {
       QFAIL("Fail to remove a Data Provider!");
     }
@@ -213,7 +213,7 @@ void TestWebService::testRemoveDataProviderInvalidId()
   {
     WebService webService;
 
-    if(webService.removeDataProvider(1,nullptr) == SOAP_OK)
+    if(webService.removeDataProvider(1) == SOAP_OK)
     {
       QFAIL("Should not remove a invalid Data Provider ID");
     }
@@ -343,23 +343,24 @@ void TestWebService::testFindDataProvider()
 
 
 void TestWebService::testFindDataProviderInvalidID()
-{/*
+{
   try
   {
     DataProvider struct_dataProvider;
 
     WebService webService;
 
-    // VINICIUS: check how it works in core the findDataProvider method
     if(webService.findDataProvider(0, struct_dataProvider) == SOAP_OK)
     {
       QFAIL("Should not find a invalid Data Provider!");
     }
+
+    // test OK
   }
   catch(...)
   {
     QFAIL("Unexpected exception!");
-  }*/
+  }
 }
 
 
@@ -564,7 +565,7 @@ void TestWebService::testRemoveDataSet()
       QFAIL("Add a Data Set failed!");
     }
 
-    if(webService.removeDataSet(struct_dataSetResult.id, nullptr) != SOAP_OK)
+    if(webService.removeDataSet(struct_dataSetResult.id) != SOAP_OK)
     {
       QFAIL("Fail to remove a Data Set!");
     }
@@ -582,7 +583,7 @@ void TestWebService::testRemoveDataSetInvalidId()
   {
     WebService webService;
 
-    if(webService.removeDataSet(1, nullptr) == SOAP_OK)
+    if(webService.removeDataSet(1) == SOAP_OK)
     {
       QFAIL("Should not remove a invalid Data Set!");
     }
