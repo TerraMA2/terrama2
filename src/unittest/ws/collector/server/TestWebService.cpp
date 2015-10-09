@@ -34,6 +34,7 @@
 #include "TestWebService.hpp"
 
 // TerraMA2
+#include <terrama2/core/Exception.hpp>
 #include "soapWebService.h"
 #include <terrama2/core/ApplicationController.hpp>
 
@@ -75,6 +76,10 @@ void TestWebService::TestStatus()
 
     std::cout << answer << std::endl;
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Should not be here");
@@ -115,6 +120,10 @@ void TestWebService::TestAddDataProvider()
     QVERIFY2(struct_dataProvider.uri == struct_dataProviderResult.uri, "URI changed after add!");
 
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Exception unexpected!");
@@ -135,6 +144,10 @@ void TestWebService::TestAddNullDataProvider()
     {
       QFAIL("Should not add a null Data Provider!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -162,6 +175,10 @@ void TestWebService::TestAddDataProviderWithID()
     {
       QFAIL("Should not add a Data Provider with ID!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -196,10 +213,14 @@ void TestWebService::testRemoveDataProvider()
       QFAIL("After added, a Data Providetr MUST have a valid ID!");
     }
 
-    if (webService.removeDataProvider(struct_dataProviderResult.id) != SOAP_OK)
+    if (webService.removeDataProvider(struct_dataProviderResult.id) != SOAP_STOP)
     {
       QFAIL("Fail to remove a Data Provider!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -213,10 +234,14 @@ void TestWebService::testRemoveDataProviderInvalidId()
   {
     WebService webService;
 
-    if(webService.removeDataProvider(1) == SOAP_OK)
+    if(webService.removeDataProvider(1) == SOAP_STOP)
     {
       QFAIL("Should not remove a invalid Data Provider ID");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -268,6 +293,10 @@ void TestWebService::testUpdateDataProvider()
     QVERIFY2(struct_dataproviderOLD.status != struct_dataProviderResult.status, "Data Provider status changed after update!" );
     QVERIFY2(struct_dataproviderOLD.uri != struct_dataProviderResult.uri, "Data Provider URI changed after update!" );
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -289,6 +318,10 @@ void TestWebService::testUpdateDataProviderInvalidId()
     {
       QFAIL("Should not update a invalid Data Provider!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -335,6 +368,10 @@ void TestWebService::testFindDataProvider()
     QVERIFY2(struct_dataProviderResult.uri == struct_dataProvider_found.uri, "URI is not the same inserted!");
 
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -356,6 +393,10 @@ void TestWebService::testFindDataProviderInvalidID()
     }
 
     // test OK
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -406,6 +447,10 @@ void TestWebService::TestAddDataSet()
     QVERIFY2(struct_dataSetResult.id != 0, "Data Set should have a valid ID!");
 
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -441,6 +486,10 @@ void TestWebService::TestAddNullDataSet()
     {
       QFAIL("Should not add a null Data Set!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -488,6 +537,10 @@ void TestWebService::TestAddDataSetWithID()
       QFAIL("Should not add a Data Set With an ID!");
     }
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -518,6 +571,10 @@ void TestWebService::TestAddDataSetWithWrongDataProviderID()
     {
       QFAIL("Should not add a Data Set With a wrong Data Provider ID!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -565,10 +622,14 @@ void TestWebService::testRemoveDataSet()
       QFAIL("Add a Data Set failed!");
     }
 
-    if(webService.removeDataSet(struct_dataSetResult.id) != SOAP_OK)
+    if(webService.removeDataSet(struct_dataSetResult.id) != SOAP_STOP)
     {
       QFAIL("Fail to remove a Data Set!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -583,10 +644,14 @@ void TestWebService::testRemoveDataSetInvalidId()
   {
     WebService webService;
 
-    if(webService.removeDataSet(1) == SOAP_OK)
+    if(webService.removeDataSet(1) == SOAP_STOP)
     {
       QFAIL("Should not remove a invalid Data Set!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -663,6 +728,10 @@ void TestWebService::testUpdateDataSet()
     QVERIFY2(struct_dataSetResult.schedule_timeout != struct_dataSet_check.schedule_timeout, "Schedule Timeout didn't update!");
 
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -694,6 +763,10 @@ void TestWebService::testUpdateDataSetInvalidId()
     {
       QFAIL("Should not update a invalid Data Set!");
     }
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
@@ -760,6 +833,10 @@ void TestWebService::testFindDataSet()
     QVERIFY2(struct_dataSetResult.schedule_timeout == struct_dataSet_found.schedule_timeout, "Error to find properly the Data Set!");
 
   }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -781,6 +858,10 @@ void TestWebService::testFindDataSetInvalidID()
       QFAIL("Should not find an invalid Data Set!");
     }
 */
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
