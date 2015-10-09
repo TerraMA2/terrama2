@@ -66,11 +66,18 @@ class AdminApp : public QMainWindow, private boost::noncopyable
 //! Fill fields
     void fillForm();
 
+signals:
+
+protected:
+    void closeEvent(QCloseEvent* close);
+
+
   private slots:
 
     void newRequested();
     void openRequested();
     void saveRequested();
+    void saveAsRequested();
     void renameRequested();
     void removeRequested();
     void cancelRequested();
@@ -82,6 +89,7 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     void setDataChanged();
     void clearDataChanged();
     void clearFormData();
+    void ondbTab();
 
     void itemClicked();
     void refresh();
@@ -93,8 +101,7 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     ConfigManager* configManager_;
 
     QString nameConfig_; //!< Current Configuration Name.
-    bool newData_; //!< Current new configuration.
-    bool ignoreChangeEvents_; //!< Indicates that modifications should be ignored by setDataChanged.
+    bool newData_; //!< Current new configuration.    
     bool dataChanged_; //!< Indicates that the data has changed.
     int CurrentConfigIndex_; //!< Indice current configuration.
 

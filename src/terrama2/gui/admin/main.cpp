@@ -87,9 +87,9 @@ int main(int argc, char* argv[])
    }
 
   catch(const std::exception& e)
-  {
+  {      
     QString messageError = "TerraMA2 finished with erros!\n\n%1";
-    messageError.arg(e.what());
+    messageError =  messageError.arg(e.what());
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
   }
 

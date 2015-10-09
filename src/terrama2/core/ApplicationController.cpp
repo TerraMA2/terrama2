@@ -140,3 +140,33 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
   }
 
 }
+
+bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port)
+{
+    std::map<std::string, std::string> connInfo;
+
+    connInfo["PG_HOST"] = host;
+    connInfo["PG_PORT"] = std::to_string(port);
+    connInfo["PG_USER"] = username;
+    connInfo["PG_DB_NAME"] = "postgres";
+    connInfo["PG_CONNECT_TIMEOUT"] = "4";
+    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+    connInfo["PG_NEWDB_NAME"] = dbName;
+
+    std::string dsType = "POSTGIS";
+
+
+    // Check the data source existence
+    connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
+    bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+    if(dsExists)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+
+}

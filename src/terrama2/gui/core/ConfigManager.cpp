@@ -58,7 +58,7 @@ void ConfigManager::loadConfiguration(QString filepath)
     QJsonObject metadata = terrama2::core::OpenFile(filepath.toStdString());
 
     name_ = metadata["name"].toString();
-
+    metadata.insert("path",filepath);
     fileList_.insert(name_, metadata);
     setDataForm(metadata);
 
@@ -73,6 +73,23 @@ void ConfigManager::loadConfiguration(QString filepath)
   {
     QMessageBox::information(app_, "TerraMA2", e.what());
   }
+}
+
+void ConfigManager::insertFile(QString newname, QJsonObject metatada)
+{ 
+ fileList_.insert(newname,metatada);
+ setDataForm(metatada);
+}
+
+void ConfigManager::renameFile(QString selectedName, QString newname)
+{
+ fileList_.insert(newname,fileList_[selectedName]);
+ fileList_.remove(selectedName);
+}
+
+void ConfigManager::removeFile(QString selectedName)
+{
+ fileList_.remove(selectedName);
 }
 
 void ConfigManager::setDataForm(QJsonObject metadata)
@@ -96,17 +113,16 @@ void ConfigManager::setDataForm(QJsonObject metadata)
       QJsonObject collectConfig = metadata["collector_web_service"].toObject();
 
       collection_->dirPath_ = collectConfig["data_path"].toString();
-      collection_->logFile_ = collectConfig["log_file"].toString();
-      collection_->timeout_ = collectConfig["connection_timeout"].toString().toInt();
+      collection_->logFile_ = collectConfig["log_file"].toString();     
+      collection_->timeout_ = collectConfig["connection_timeout"].toInt();
       collection_->address_ = collectConfig["address"].toString();
       collection_->servicePort_ = collectConfig["port"].toString().toInt();
     }
     else
       throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
 
-
 }
-//QMultiMap<QString, QJsonObject> ConfigManager::getfiles() const
+
 QMap<QString, QJsonObject> ConfigManager::getfiles() const
 {
   return fileList_;

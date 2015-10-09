@@ -77,6 +77,7 @@ namespace terrama2
           \return Returns true if the database was create successfully.
         */
         bool createDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port);
+        bool checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port);
 
       protected:
         std::string configFileName_; /*! Name of the configuration file.*/
