@@ -254,11 +254,11 @@ void TestClient::testFindDataProvider()
 
     QVERIFY2(dataProviderPtr->id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
-    terrama2::core::DataProviderPtr dataProviderPtr_found;
+
 
     dataProviderPtr->id();
 
-    wsClient_->findDataProvider(dataProviderPtr->id(), dataProviderPtr_found);
+    terrama2::core::DataProviderPtr dataProviderPtr_found = wsClient_->findDataProvider(dataProviderPtr->id());
 
     QVERIFY2(dataProviderPtr->id() == dataProviderPtr_found->id(), "Find failed!");
     QVERIFY2(dataProviderPtr->description() == dataProviderPtr_found->description(), "Find failed!");

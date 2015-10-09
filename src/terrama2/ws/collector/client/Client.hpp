@@ -141,7 +141,7 @@ namespace terrama2
 
             \return
           */
-          void findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr);
+          core::DataProviderPtr findDataProvider(uint64_t id);
 
           /*!
             \brief
@@ -152,7 +152,7 @@ namespace terrama2
 
             \return
           */
-          void findDataSet(uint64_t id, terrama2::core::DataSetPtr &dataSetPtr);
+          core::DataSetPtr findDataSet(uint64_t id);
 
           /*!
             \brief
