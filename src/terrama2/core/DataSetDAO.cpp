@@ -50,13 +50,13 @@
 #include <boost/format.hpp>
 
 void
-terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
+terrama2::core::DataSetDAO::save(DataSetPtr dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
-  if(dataset.id() != 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
+  //if(dataset.id() != 0)
+  //  throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
 
-  if(dataset.dataProvider() == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider  in order to be saved."));
+  //if(dataset.dataProvider() == nullptr)
+  //  throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider  in order to be saved."));
 /*
   boost::format query("INSERT INTO terrama2.dataset (kind, active, dataset_id, mask, timezone) VALUES(%1%, %2%, %3%, '%4%', '%5%')");
 
@@ -103,7 +103,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 }
 
 void
-terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
+terrama2::core::DataSetDAO::update(DataSetPtr dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
 /*  if(!dataSet.get())
   {
@@ -229,7 +229,7 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
 }
 
 void
-terrama2::core::DataSetDAO::load(DataProvider& provider, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetDAO::load(DataProviderPtr provider, te::da::DataSourceTransactor& transactor)
 {
 /*  if(provider == nullptr)
     throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not retrieve datasets for a NULL data provider."));

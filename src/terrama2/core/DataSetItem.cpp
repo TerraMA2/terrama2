@@ -92,7 +92,7 @@ void terrama2::core::DataSetItem::setTimezone(const std::string& tz)
   timezone_ = tz;
 }
 
-terrama2::core::DataSetPtr terrama2::core::DataSetItem::dataSet() const
+terrama2::core::DataSetPtr terrama2::core::DataSetItem::dataset() const
 {
   return dataSet_;
 }
@@ -108,10 +108,18 @@ void terrama2::core::DataSetItem::setFilter(FilterPtr f)
   filter_ = f;
 }
 
-std::map<std::string, std::string> terrama2::core::DataSetItem::storageMetadata() const
+const std::map<std::string, std::string>&
+terrama2::core::DataSetItem::storageMetadata() const
 {
   return storageMetadata_;
 }
+
+std::map<std::string, std::string>&
+terrama2::core::DataSetItem::storageMetadata()
+{
+  return storageMetadata_;
+}
+
 
 void terrama2::core::DataSetItem::setStorageMetadata(const std::map<std::string, std::string>& sm)
 {

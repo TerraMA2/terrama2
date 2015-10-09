@@ -33,7 +33,6 @@
 
 // TerraMA2
 #include "DataSet.hpp"
-#include "Filter.hpp"
 
 // STL
 #include <memory>
@@ -69,7 +68,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void save(DataSetPtr dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
 
         /*!
           \brief Update the dataset information in the database.
@@ -83,7 +82,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void update(DataSetPtr dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
 
         /*!
           \brief Removes the dataset from the database.
@@ -119,7 +118,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void load(DataProvider& provider, te::da::DataSourceTransactor& transactor);
+        static void load(DataProviderPtr provider, te::da::DataSourceTransactor& transactor);
 
       private:
 
