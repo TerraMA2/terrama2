@@ -381,7 +381,7 @@ if(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED)
 endif()
 
 if(TERRAMA2_DOXYGEN_ENABLED)
-  #add_subdirectory(terrama2_doxygen)
+  add_subdirectory(terrama2_doxygen)
 endif()
 
 if(TERRAMA2_UNITTEST_CORE_ENABLED)
