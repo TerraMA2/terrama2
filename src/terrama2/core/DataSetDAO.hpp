@@ -67,12 +67,12 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataSetPtr dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void save(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
 
         /*!
           \brief Update the dataset information in the database.
 
-          \param dataset     The dataset item to be updated.
+          \param dataset     The dataset to be updated.
           \param transactor  The data source transactor to be used to perform the update operation.
           \param shallowSave If true it will update only the dataset attributes into the database. Dataset items will not be updated.
 
@@ -81,7 +81,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataSetPtr dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void update(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
 
         /*!
           \brief Removes the dataset from the database.
@@ -108,16 +108,16 @@ namespace terrama2
         /*!
           \brief Load the list of datasets for the given data provider.
 
-          \param dataset    The dataset to load its items.
-          \param transactor The data source transactor to be used to perform the delete operation.
+          \param provider    The data provider to load its datasets.
+          \param transactor  The data source transactor to be used to perform the delete operation.
 
-          \pre The dataset must have a valid identifier (a value different than 0).
+          \pre The data provider must have a valid identifier (a value different than 0).
 
-          \pos If the load succeed, the items will be added to the dataset.
+          \pos If the load succeed, the datasets will be added to the provider.
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void load(DataProviderPtr provider, te::da::DataSourceTransactor& transactor);
+        static void load(DataProviderPtr& provider, te::da::DataSourceTransactor& transactor);
 
       private:
 
@@ -126,6 +126,77 @@ namespace terrama2
 
         //! Not instantiable.
         ~DataSetDAO();
+
+
+        /*!
+          \brief Load the list of collect rules for the given dataset.
+
+          \param dataSet    The dataset to load its collect rules.
+          \param transactor  The data source transactor to be used to perform the delete operation.
+
+          \pre The data provider must have a valid identifier (a value different than 0).
+
+          \pos If the load succeed, the collect rules will be added to the dataset.
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void loadCollectRules(DataSetPtr& dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+           \brief Insert the collect rules ofthe given dataset in the database.
+
+           \param dataset     The dataset with the collected rules to be inserted into the database.
+           \param transactor  The data source transactor to be used to perform the insert operation.
+
+           \pre The dataset must have a valid identifier (a value different than 0).
+
+           \pos On success the inserted collect rules will have a valid identifier (different from 0).
+
+           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+          */
+        static void saveCollectRules(DataSetPtr& dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Update the collect rules information in the database.
+
+          \param dataset     The dataset with the collect rules to be updated.
+          \param transactor  The data source transactor to be used to perform the update operation.
+
+          \pre The dataset must be associated to a valid data provider.
+          \pre The dataset must have a valid identifier (a value different from 0).
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void updateCollectRules(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor);
+
+
+        /*!
+          \brief Removes the dataset from the database.
+
+          \param id         The dataset to be removed from the database.
+          \param transactor The data source transactor to be used to perform the delete operation.
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void removeCollectRules(uint64_t id, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Load the metadata for the given dataset.
+
+          \param dataSet    The dataset to load its metadata.
+          \param transactor  The data source transactor to be used to perform the delete operation.
+
+          \pre The data provider must have a valid identifier (a value different than 0).
+
+          \pos If the load succeed, the collect rules will be added to the dataset.
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void loadMetadata(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor);
+
+
+        static void saveMetadata(DataSetPtr& dataSet, te::da::DataSourceTransactor& transactor);
+
     };
 
   } // end namespace core
