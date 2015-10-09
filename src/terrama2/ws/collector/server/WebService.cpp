@@ -34,8 +34,6 @@
 // TerraMA2
 #include "../core/Utils.hpp"
 #include "../../../core/DataManager.hpp"
-#include "../../../core/DataProvider.hpp"
-#include "../../../core/DataSet.hpp"
 #include "../../../core/Exception.hpp"
 
 #include "soapWebService.h"
@@ -48,7 +46,7 @@ int WebService::ping(std::string &answer)
   return SOAP_OK;
 }
 
-
+// VINICIUS: Errors from TerraMA2 aren't been handled!!
 int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &struct_dataproviderResult)
 {
   try
@@ -61,22 +59,22 @@ int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error at add DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error at add DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
-    return soap_senderfault("Error at add DataProvider", "Unknow error.");
+    soap_receiverfault("Error at add DataProvider", "Unknow error.");
   }
 
   return SOAP_OK;
 }
 
 
-int WebService::addDataSet(DataSet struct_dataset, DataSet &struct_datasetResult)
+int WebService::addDataSet(DataSet struct_dataSet, DataSet &struct_datasetResult)
 {
   try
   {
-    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataset);
+    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSet);
 
     terrama2::core::DataManager::getInstance().add(dataSetPtr);
 
@@ -84,11 +82,11 @@ int WebService::addDataSet(DataSet struct_dataset, DataSet &struct_datasetResult
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error at add DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error at add DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
-    return soap_senderfault("Error at add DataSet", "Unknow error.");
+    soap_receiverfault("Error at add DataSet", "Unknow error.");
   }
 
   return SOAP_OK;
@@ -107,11 +105,11 @@ int WebService::updateDataProvider(DataProvider struct_dataprovider, DataProvide
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error to update DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error to update DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
-    return soap_senderfault("Error to update DataProvider", "Unknow error.");
+    soap_receiverfault("Error to update DataProvider", "Unknow error.");
   }
 
   return SOAP_OK;
@@ -130,18 +128,18 @@ int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetRes
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error to update DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error to update DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
-    return soap_senderfault("Error to update DataSet", "Unknow error.");
+    soap_receiverfault("Error to update DataSet", "Unknow error.");
   }
 
   return SOAP_OK;
 }
 
 
-int WebService::removeDataProvider(uint64_t id, Web__removeDataProviderResponse *out)
+int WebService::removeDataProvider(uint64_t id)
 {
   try
   {
@@ -149,18 +147,21 @@ int WebService::removeDataProvider(uint64_t id, Web__removeDataProviderResponse 
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error to remove DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error to remove DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+
   }
   catch(...)
   {
-    return soap_senderfault("Error to remove DataProvider", "Unknow error.");
+    soap_receiverfault("Error to remove DataProvider", "Unknow error.");
   }
+
+  send_removeDataProvider_empty_response(SOAP_OK); // SOAP_OK: return HTTP 202 ACCEPTED
 
   return SOAP_OK;
 }
 
 
-int WebService::removeDataSet(uint64_t id, Web__removeDataSetResponse *out)
+int WebService::removeDataSet(uint64_t id)
 {
   try
   {
@@ -168,12 +169,14 @@ int WebService::removeDataSet(uint64_t id, Web__removeDataSetResponse *out)
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error to remove DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error to remove DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
-    return soap_senderfault("Error to remove DataSet", "Unknow error.");
+    soap_receiverfault("Error to remove DataSet", "Unknow error.");
   }
+
+  send_removeDataSet_empty_response(SOAP_OK); // SOAP_OK: return HTTP 202 ACCEPTED
 
   return SOAP_OK;
 }
@@ -183,17 +186,20 @@ int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
 {
   try
   {
-    auto dataproviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(id);
+    auto dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(id);
 
-    struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataproviderPtr);
+    if (dataProviderPtr == nullptr)
+      soap_receiverfault("Error at find Data Provider", "Data Provider don't exist!");
+
+    struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error at find DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error at find Data Provider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
-    return soap_senderfault("Error at find DataProvider", "Unknow error.");
+    soap_receiverfault("Error at find Data Provider", "Unknow error.");
   }
 
   return SOAP_OK;
@@ -210,11 +216,11 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
   }
   catch(terrama2::Exception &e)
   {
-    return soap_senderfault("Error at find DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    soap_receiverfault("Error at find DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {
-    return soap_senderfault("Error at find DataSet", "Unknow error.");
+    soap_receiverfault("Error at find DataSet", "Unknow error.");
   }
 
   return SOAP_OK;

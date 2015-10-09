@@ -89,7 +89,7 @@ int Web__updateDataSet(struct DataSet, struct DataSet&);
 
   \return
 */
-int Web__removeDataProvider(uint64_t id, struct Web__removeDataProviderResponse {} *out);
+int Web__removeDataProvider(uint64_t id, void);
 
 /*!
   \brief
@@ -98,7 +98,7 @@ int Web__removeDataProvider(uint64_t id, struct Web__removeDataProviderResponse 
 
   \return
 */
-int Web__removeDataSet(uint64_t id, struct Web__removeDataSetResponse{} *out);
+int Web__removeDataSet(uint64_t id, void);
 
 /*!
   \brief
