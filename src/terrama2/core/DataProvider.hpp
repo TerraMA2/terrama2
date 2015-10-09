@@ -174,7 +174,7 @@ namespace terrama2
 
           \return The the dataset list.
         */
-        std::vector<DataSetPtr> dataSets() const;
+        const std::vector<DataSetPtr>& dataSets() const;
 
         /*!
           \brief It sets the the dataset list.
@@ -182,6 +182,13 @@ namespace terrama2
           \param The the dataset list.
         */
         void setDataSets(const std::vector<DataSetPtr>& dataSets);
+
+        /*!
+          \brief Adds a new dataset to the data provider.
+
+          \param d The the dataset.
+        */
+        void add(DataSetPtr d);
 
       protected:
 

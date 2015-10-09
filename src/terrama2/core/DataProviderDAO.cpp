@@ -35,6 +35,7 @@
 #include "Utils.hpp"
 
 // TerraLib
+#include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/memory/DataSetItem.h>
@@ -44,61 +45,116 @@
 
 static const std::string dataSetName = "terrama2.data_provider";
 
-void terrama2::core::DataProviderDAO::save(terrama2::core::DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor)
+std::vector<terrama2::core::DataProviderPtr>
+terrama2::core::DataProviderDAO::load(te::da::DataSourceTransactor& transactor)
 {
+  std::vector<terrama2::core::DataProviderPtr> vecProviders;
 
-  if(dataProvider->id() != 0)
+  /*try
   {
-    throw InvalidDataProviderIdError() <<
+    std::auto_ptr<te::da::DataSet> dataSet = transactor.getDataSet(dataSetName);
+
+    while(dataSet->moveNext())
+    {
+      terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
+      std::string name = dataSet->getAsString("name");
+
+      DataProviderPtr provider(new DataProvider(name, kind));
+
+      provider->setId(dataSet->getInt32("id"));
+      provider->setDescription(dataSet->getString("description"));
+      provider->setUri(dataSet->getString("uri"));
+      provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
+
+      DataSetDAO::load(provider, transactor);
+
+      vecProviders.push_back(provider);
+    }
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
+  }*/
+
+  return std::move(vecProviders);
+}
+
+void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider, te::da::DataSourceTransactor& transactor, const bool shallowSave)
+{
+/*  if(dataProvider->id() != 0)
+  {
+    throw InvalidDataProviderError() <<
           ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
   }
 
-// Removes the column id because it's an auto number
-  std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
-  te::dt::Property* idProperty = dataSetType->getProperty(0);
-  dataSetType->remove(idProperty);
+  try
+  {
+// prepare dataset schema (obs: we remove the column id because it's an auto number!)
+    std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
+    te::dt::Property* idProperty = dataSetType->getProperty(0);
+    dataSetType->remove(idProperty);
 
 // Creates a memory dataset from the DataSetType without column id
-  std::shared_ptr<te::mem::DataSet> dataSet(new te::mem::DataSet(dataSetType.get()));
-  te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(dataSet.get());
+    std::unique_ptr<te::mem::DataSet> dataSet(new te::mem::DataSet(dataSetType.get()));
 
-// Sets the values in the item
-  dsItem->setString("name", dataProvider->name());
-  dsItem->setString("description", dataProvider->description());
-  dsItem->setInt32("kind", (int)dataProvider->kind());
-  dsItem->setString("uri", dataProvider->uri());
-  dsItem->setBool("active", DataProviderStatusToBool(dataProvider->status()));
+// Prepare a dataset item
+    te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(dataSet.get());
+
+    dsItem->setString("name", dataProvider.name());
+    dsItem->setString("description", dataProvider.description());
+    dsItem->setInt32("kind", (int)dataProvider.kind());
+    dsItem->setString("uri", dataProvider.uri());
+    dsItem->setBool("active", DataProviderStatusToBool(dataProvider.status()));
 
 // Adds it to the dataset
-  dataSet->add(dsItem);
-
-  std::map<std::string, std::string> options;
+    dataSet->add(dsItem);
 
 // Then, adds it to the data source
-  transactor.add(dataSetName, dataSet.get(), options);
+    std::map<std::string, std::string> options;
 
-  dataProvider->setId(transactor.getLastGeneratedId());
+    transactor.add(dataSetName, dataSet.get(), options);
 
-// save all datasets in this provider, it must be zero.
-  foreach (auto ds, dataProvider->dataSets())
-  {
-    if(ds->id() != 0)
+    dataProvider->setId(transactor.getLastGeneratedId());
+
+// save all datasets in this provider, their id must be zero.
+    foreach (auto ds, dataProvider->dataSets())
     {
-      throw InvalidDataSetIdError() <<
-            ErrorDescription(QObject::tr("Can not save a dataset with identifier different than 0."));
+      if(ds->id() != 0)
+      {
+        throw InvalidDataSetError() <<
+              ErrorDescription(QObject::tr("Can not save a dataset with identifier different than 0."));
+      }
+
+      DataSetDAO::save(*ds, transactor);
     }
-
-    DataSetDAO::save(ds, transactor);
   }
-
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
+  }*/
 }
 
-
-void terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor)
+void terrama2::core::DataProviderDAO::update(DataProvider& dataProvider, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
-  if(dataProvider->id() == 0)
+/*  if(dataProvider->id() == 0)
   {
-    throw InvalidDataProviderIdError() <<
+    throw InvalidDataProviderError() <<
           ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
   }
 
@@ -117,13 +173,12 @@ void terrama2::core::DataProviderDAO::update(terrama2::core::DataProviderPtr dat
   catch(...)
   {
     throw DataSetInUseError() << ErrorDescription(QObject::tr("Can not remove a data provider with datasets that are in use by analysis."));
-  }
+  }*/
 }
 
-
-void terrama2::core::DataProviderDAO::remove(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor)
+void terrama2::core::DataProviderDAO::remove(DataProvider& dataProvider, te::da::DataSourceTransactor& transactor)
 {
-  if(dataProvider->id() == 0)
+/*  if(dataProvider->id() == 0)
   {
     throw InvalidDataProviderIdError() <<
           ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
@@ -132,13 +187,14 @@ void terrama2::core::DataProviderDAO::remove(DataProviderPtr dataProvider, te::d
   std::string sql = "DELETE FROM " + dataSetName
                   + " WHERE id = " + std::to_string(dataProvider->id());
 
-  transactor.execute(sql);
+  transactor.execute(sql);*/
 }
 
 
-terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(const uint64_t id, te::da::DataSourceTransactor& transactor)
+std::unique_ptr<terrama2::core::DataProvider>
+terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
-  if(id == 0)
+/*  if(id == 0)
     throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Invalid identifier: 0."));
 
   std::string sql("SELECT * FROM " + dataSetName + " WHERE id = " + std::to_string(id));
@@ -157,29 +213,12 @@ terrama2::core::DataProviderPtr terrama2::core::DataProviderDAO::find(const uint
     provider->setDescription(dataSet->getString("description"));
     provider->setUri(dataSet->getString("uri"));
     provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
+
+    
   }
 
-  return provider;
+  return provider;*/
+  return nullptr;
 }
 
-std::vector<terrama2::core::DataProviderPtr> terrama2::core::DataProviderDAO::list(te::da::DataSourceTransactor& transactor)
-{
-  std::vector<terrama2::core::DataProviderPtr> vecProviders;
 
-  std::auto_ptr<te::da::DataSet> dataSet = transactor.getDataSet(dataSetName);
-
-  while(dataSet->moveNext())
-  {
-    DataProviderPtr provider;
-    terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
-    std::string name = dataSet->getAsString("name");
-    provider.reset(new DataProvider(name, kind));
-    provider->setId(dataSet->getInt32("id"));
-    provider->setDescription(dataSet->getString("description"));
-    provider->setUri(dataSet->getString("uri"));
-    provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
-    vecProviders.push_back(provider);
-  }
-
-  return vecProviders;
-}

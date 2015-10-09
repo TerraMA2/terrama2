@@ -81,7 +81,7 @@ namespace terrama2
 
           \pre The database with TerraMA2 metadata must have been initialized in the application controller.
 
-          \exception
+          \exception terrama2::Exception If it is not possible to load TerraMA2 metadata.
 
           \note Thread-safe.
          */

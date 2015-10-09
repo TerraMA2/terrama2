@@ -110,7 +110,7 @@ terrama2::core::DataProvider::setStatus(Status s)
   status_ = s;
 }
 
-std::vector<terrama2::core::DataSetPtr>
+const std::vector<terrama2::core::DataSetPtr>&
 terrama2::core::DataProvider::dataSets() const
 {
   return dataSets_;
@@ -120,5 +120,11 @@ void
 terrama2::core::DataProvider::setDataSets(const std::vector<DataSetPtr>& dataSets)
 {
   dataSets_ = dataSets;
+}
+
+void
+terrama2::core::DataProvider::add(DataSetPtr d)
+{
+  dataSets_.push_back(d);
 }
 

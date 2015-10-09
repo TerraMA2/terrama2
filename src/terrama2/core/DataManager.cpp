@@ -63,7 +63,7 @@ void terrama2::core::DataManager::load()
 // if the data has already been loaded there is nothing to be done.
   if(pimpl_->dataLoaded)
     return;
-  
+
   assert(pimpl_->providers.empty());
   assert(pimpl_->datasets.empty());
 
@@ -71,16 +71,19 @@ void terrama2::core::DataManager::load()
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
 // retrieve all data providers and keep a reference to them
-  std::vector<DataProviderPtr> vecProviders = DataProviderDAO::list(*transactor);
+  std::vector<DataProviderPtr> vecProviders = DataProviderDAO::load(*transactor);
 
   foreach(const DataProviderPtr& provider, vecProviders)
+  {
+// index provider
     pimpl_->providers[provider->id()] = provider;
 
-// retrieve all datasets and keep a reference to them
-  std::vector<DataSetPtr> vecDataSets = DataSetDAO::list(*transactor);
+// index all datasets
+    const std::vector<terrama2::core::DataSetPtr>& datasets = provider->dataSets();
 
-  foreach (const DataSetPtr& dataset, vecDataSets)
-    pimpl_->datasets[dataset->id()] = dataset;
+    foreach (const DataSetPtr& dataset, datasets)
+      pimpl_->datasets[dataset->id()] = dataset;
+  }
 
   pimpl_->dataLoaded = true;
 
@@ -108,17 +111,17 @@ void terrama2::core::DataManager::add(DataProviderPtr provider)
 // only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
-  if(provider == nullptr)
-    throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not register a NULL data provider."));
+  //if(provider == nullptr)
+  //  throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not register a NULL data provider."));
 
-  if(provider->id() != 0)
-    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not add the data provider with an identifier different than 0."));
+  //if(provider->id() != 0)
+  //  throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not add the data provider with an identifier different than 0."));
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
 
-  DataProviderDAO::save(provider, *transactor);
+  //DataProviderDAO::save(provider, *transactor);
 
   transactor->commit();
 
@@ -132,27 +135,27 @@ void terrama2::core::DataManager::add(DataSetPtr dataset)
 // only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
-  if(dataset == nullptr)
-    throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not register a NULL dataset."));
+  //if(dataset == nullptr)
+  //  throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not register a NULL dataset."));
 
-  if(dataset->id() != 0)
-    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
+  //if(dataset->id() != 0)
+  //  throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
 
   DataProviderPtr provider = dataset->dataProvider();
 
-  if(provider == nullptr)
-    throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not add a dataset with an invalid data provider."));
+  //if(provider == nullptr)
+  //  throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not add a dataset with an invalid data provider."));
 
   auto it = pimpl_->providers.find(provider->id());
 
-  if(it ==  pimpl_->providers.end())
-    throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not add a dataset with a non-existent data provider."));
+  //if(it ==  pimpl_->providers.end())
+  //  throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not add a dataset with a non-existent data provider."));
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
 
-  DataSetDAO::save(dataset, *transactor);
+  //DataSetDAO::save(dataset, *transactor);
 
   transactor->commit();
 
@@ -167,25 +170,25 @@ void terrama2::core::DataManager::update(DataProviderPtr provider)
 // only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
-  if(provider == nullptr)
-    throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not update a NULL data provider."));
+  //if(provider == nullptr)
+  //  throw InvalidDataProviderError() << ErrorDescription(QObject::tr("Can not update a NULL data provider."));
 
-  if(provider->id() == 0)
-    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
+  //if(provider->id() == 0)
+  //  throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
 
   auto it = pimpl_->providers.find(provider->id());
   
   if(it ==  pimpl_->providers.end())
   {
-    throw InvalidDataProviderError() <<
-          ErrorDescription(QObject::tr("Can not update a provider not registered in the data manager."));
+    //throw InvalidDataProviderError() <<
+    //      ErrorDescription(QObject::tr("Can not update a provider not registered in the data manager."));
   }
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
 
-  DataProviderDAO::update(provider, *transactor);
+  //DataProviderDAO::update(provider, *transactor);
 
   transactor->commit();
 
@@ -204,41 +207,41 @@ void terrama2::core::DataManager::update(DataSetPtr dataset)
 // only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
-  if(dataset == nullptr)
-    throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not update a NULL dataset."));
+  //if(dataset == nullptr)
+  //  throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not update a NULL dataset."));
 
   if(dataset->id() == 0)
   {
-    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
+    //throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
   }
 
   if(dataset->dataProvider() == nullptr)
   {
-    throw InvalidDataProviderError() <<
-          ErrorDescription(QObject::tr("Can not add a dataset with an invalid data provider."));
+    //throw InvalidDataProviderError() <<
+    //      ErrorDescription(QObject::tr("Can not add a dataset with an invalid data provider."));
   }
 
   auto itDp = pimpl_->providers.find(dataset->dataProvider()->id());
 
   if(itDp == pimpl_->providers.end())
   {
-    throw InvalidDataProviderError() <<
-          ErrorDescription(QObject::tr("Can not update a nonexistent data provider."));
+    //throw InvalidDataProviderError() <<
+    //      ErrorDescription(QObject::tr("Can not update a nonexistent data provider."));
   }
 
   auto itDs = pimpl_->datasets.find(dataset->id());
   
   if(itDs ==  pimpl_->datasets.end())
   {
-    throw InvalidDataSetError() <<
-          ErrorDescription(QObject::tr("Can not update a nonexistent dataset."));
+    //throw InvalidDataSetError() <<
+    //      ErrorDescription(QObject::tr("Can not update a nonexistent dataset."));
   }
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
 
-  DataSetDAO::update(dataset, *transactor);
+  //DataSetDAO::update(dataset, *transactor);
 
   transactor->commit();
 
@@ -254,8 +257,8 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 
   if(id == 0)
   {
-    throw InvalidDataProviderIdError() <<
-          ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+    //throw InvalidDataProviderIdError() <<
+    //      ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
   }
 
   DataProviderPtr dataProvider;
@@ -268,15 +271,15 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 
   if(!dataProvider.get())
   {
-    throw InvalidDataProviderError() <<
-          ErrorDescription(QObject::tr("Can not remove a nonexistent data provider."));
+    //throw InvalidDataProviderError() <<
+    //      ErrorDescription(QObject::tr("Can not remove a nonexistent data provider."));
   }
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
 
-  DataProviderDAO::remove(dataProvider, *transactor.get());
+  //DataProviderDAO::remove(dataProvider, *transactor.get());
 
   transactor->commit();
 
@@ -308,7 +311,7 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
 
   if(id == 0)
   {
-    throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not remove a dataset with identifier: 0."));
+    //throw InvalidDataSetIdError() << ErrorDescription(QObject::tr("Can not remove a dataset with identifier: 0."));
   }
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
@@ -317,7 +320,7 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
   auto it = pimpl_->datasets.find(id);
   if(it ==  pimpl_->datasets.end())
   {
-    throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not remove a nonexistent dataset."));
+    //throw InvalidDataSetError() << ErrorDescription(QObject::tr("Can not remove a nonexistent dataset."));
   }
 
   transactor->begin();

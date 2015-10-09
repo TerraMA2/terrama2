@@ -34,19 +34,14 @@
 #include <vector>
 #include <memory>
 
-namespace te
-{
-  namespace da
-  {
-    class DataSourceTransactor;
-  }
-}
+// Forward declaration
+namespace te { namespace da { class DataSourceTransactor; } }
 
 namespace terrama2
 {
   namespace core
   {
-
+// Forward declaration
     class DataProvider;
     typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
@@ -58,35 +53,53 @@ namespace terrama2
       Contains methods to persist and retrieve information about a data provider.
 
       It uses the connection to the database given by the application controller.
-
      */
     class DataProviderDAO
     {
       public:
 
         /*!
-          \brief Persists a given data provider.
+          \brief Load from database all registered data providers.
 
-          The identifier of the data provider must be zero.
+          In case there is no data provider in the database it will return an empty vector.
+
+          \param transactor The transactor to be used to perform the operation.
+
+          \return A list with all data providers.
+
+          \exception DataAccessError If the list of available data providers can not be retrieved it may throws an exception.
+         */
+        static std::vector<DataProviderPtr> load(te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Persists a given data provider.
 
           It will persist also the datasets existents in this data provider, the id of the datasets must be zero.
 
-          \exception InvalidDataProviderIdError, InvalidDataSetIdError
+          \param dataProvider The data provider to persist.
+          \param transactor The transactor to be used to perform the operation.
 
-          \param DataProviderPtr The data provider to persist.
-       */
-        static void save(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
+          \pre The identifier of the data provider must be zero.
+
+          \exception InvalidDataProviderError If the data provider has a valid id or a non-valid name.
+          \exception InvalidDataSetError
+          \exception DataAccessError
+         */
+        static void save(DataProvider& provider, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
 
         /*!
           \brief Updates a given data provider.
 
-          The data provider must have a valid identifier.
+          \param dataProvider The data provider to update.
+          \param transactor The transactor to be used to perform the operation.
 
-          \exception InvalidDataProviderIdError
+          \pre The data provider must have a valid identifier.
 
-          \param DataProviderPtr The data provider to update.
-       */
-        static void update(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
+          \exception InvalidDataProviderError
+          \exception InvalidDataSetError
+          \exception DataAccessError
+         */
+        static void update(DataProvider& provider, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
 
         /*!
           \brief Removes a given data provider.
@@ -96,11 +109,13 @@ namespace terrama2
           It will remove all datasets that belong to this data provider.
           In case there is an analysis that uses one these dataset an exception is thrown.
 
+          \param transactor The transactor to be used to perform the operation.
+
           \exception InvalidDataProviderIdError, DataSetInUseError
 
           \param DataProviderPtr The data provider to update.
-       */
-        static void remove(DataProviderPtr dataProvider, te::da::DataSourceTransactor& transactor);
+         */
+        static void remove(DataProvider& provider, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Retrieves the data provider with the given id.
@@ -110,21 +125,12 @@ namespace terrama2
           In case there is no data provider in the database with the given id it will return an empty smart pointer.
 
           \param id The data provider identifier.
+          \param transactor The transactor to be used to perform the operation.
 
           \return DataProviderPtr A smart pointer to the data provider
 
-       */
-        static DataProviderPtr find(const uint64_t id, te::da::DataSourceTransactor& transactor);
-
-        /*!
-          \brief Retrieves all data provider in the database.
-
-          In case there is no data provider in the database it will return an empty vector.
-
-          \return std::vector<DataProviderPtr> A list with all data providers.
-
-       */
-        static std::vector<DataProviderPtr> list(te::da::DataSourceTransactor& transactor);
+         */
+        static std::unique_ptr<DataProvider> load(const uint64_t id, te::da::DataSourceTransactor& transactor);
 
       private:
 
@@ -133,7 +139,6 @@ namespace terrama2
 
         //! Not instantiable.
         ~DataProviderDAO();
-
     };
 
   } // end namespace core
