@@ -67,68 +67,64 @@ namespace terrama2
 
           \return A list with all data providers.
 
-          \exception DataAccessError If the list of available data providers can not be retrieved it may throws an exception.
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static std::vector<DataProviderPtr> load(te::da::DataSourceTransactor& transactor);
 
         /*!
-          \brief Persists a given data provider.
+          \brief Insert the given data provider in the database.
 
-          It will persist also the datasets existents in this data provider, the id of the datasets must be zero.
+          \param dataProvider  The data provider to be inserted into the database.
+          \param transactor The data source transactor to be used to perform the insert operation.
+          \param shallowSave If true it will persist the datasets in this data provider.
 
-          \param dataProvider The data provider to persist.
-          \param transactor The transactor to be used to perform the operation.
+          \pre The data provider must have an identifier equals to 0 (considered invalid).
+          \pre Each dataset must have an identifier equals to 0 (considered invalid).
 
-          \pre The identifier of the data provider must be zero.
-
-          \exception InvalidDataProviderError If the data provider has a valid id or a non-valid name.
-          \exception InvalidDataSetError
-          \exception DataAccessError
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataProvider& provider, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void save(DataProviderPtr provider, te::da::DataSourceTransactor& transactor,
+                         const bool shallowSave = true);
 
         /*!
-          \brief Updates a given data provider.
+          \brief Update the given data provider in the database.
 
-          \param dataProvider The data provider to update.
-          \param transactor The transactor to be used to perform the operation.
+          \param dataProvider  The data provider to be updated.
+          \param transactor The data source transactor to be used to perform the operation.
+          \param shallowSave If true it will update the datasets in this data provider.
 
-          \pre The data provider must have a valid identifier.
+          \pre The data provider must have an identifier different than 0 (considered valid).
+          \pre Each dataset must have an identifier equals to 0 (considered invalid).
 
-          \exception InvalidDataProviderError
-          \exception InvalidDataSetError
-          \exception DataAccessError
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataProvider& provider, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void update(DataProviderPtr provider, te::da::DataSourceTransactor& transactor,
+                           const bool shallowSave = true);
 
         /*!
-          \brief Removes a given data provider.
+          \brief Remove the given data provider from the database.
 
-          \pre The data provider must have a valid identifier.
+          It will remove all datasets from this provider.
 
-          It will remove all datasets that belong to this data provider.
-          In case there is an analysis that uses one these dataset an exception is thrown.
+          \param id  The data provider identifier to be removed.
+          \param transactor The data source transactor to be used to perform the operation.
 
-          \param transactor The transactor to be used to perform the operation.
+          \pre The identifier must be different than 0 (considered valid).
+          \pre Should not exist an analysis using one of the datasets from this provider.
 
-          \exception InvalidDataProviderIdError, DataSetInUseError
-
-          \param DataProviderPtr The data provider to update.
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void remove(DataProvider& provider, te::da::DataSourceTransactor& transactor);
+        static void remove(const uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
-          \brief Retrieves the data provider with the given id.
+          \brief Retrieve the data provider with the given identifier from the database.
 
-          \exception InvalidDataProviderIdError
+          \param id  The data provider identifier to be loaded.
+          \param transactor The data source transactor to be used to perform the operation.
 
-          In case there is no data provider in the database with the given id it will return an empty smart pointer.
+          \pre The identifier must be different than 0 (considered valid).
 
-          \param id The data provider identifier.
-          \param transactor The transactor to be used to perform the operation.
-
-          \return DataProviderPtr A smart pointer to the data provider
-
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static std::unique_ptr<DataProvider> load(const uint64_t id, te::da::DataSourceTransactor& transactor);
 

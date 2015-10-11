@@ -43,6 +43,9 @@
 // Qt
 #include <QObject>
 
+//Boost
+#include <boost/format.hpp>
+
 static const std::string dataSetName = "terrama2.data_provider";
 
 std::vector<terrama2::core::DataProviderPtr>
@@ -50,7 +53,7 @@ terrama2::core::DataProviderDAO::load(te::da::DataSourceTransactor& transactor)
 {
   std::vector<terrama2::core::DataProviderPtr> vecProviders;
 
-  /*try
+  try
   {
     std::auto_ptr<te::da::DataSet> dataSet = transactor.getDataSet(dataSetName);
 
@@ -82,58 +85,88 @@ terrama2::core::DataProviderDAO::load(te::da::DataSourceTransactor& transactor)
   catch(...)
   {
     throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
-  }*/
+  }
 
   return std::move(vecProviders);
 }
 
-void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider, te::da::DataSourceTransactor& transactor, const bool shallowSave)
+void terrama2::core::DataProviderDAO::save(DataProviderPtr dataProvider,
+                                           te::da::DataSourceTransactor& transactor,
+                                           const bool shallowSave)
 {
-/*  if(dataProvider->id() != 0)
+  if(dataProvider->id() != 0)
   {
-    throw InvalidDataProviderError() <<
+    throw InvalidParameterError() <<
           ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
   }
 
   try
   {
-// prepare dataset schema (obs: we remove the column id because it's an auto number!)
-    std::auto_ptr<te::da::DataSetType> dataSetType = transactor.getDataSetType(dataSetName);
-    te::dt::Property* idProperty = dataSetType->getProperty(0);
-    dataSetType->remove(idProperty);
+    boost::format query("INSERT INTO terrama2.data_provider (name, description, kind, uri, active) VALUES('%1%', '%2%', %3%, '%4%', %5%)");
 
-// Creates a memory dataset from the DataSetType without column id
-    std::unique_ptr<te::mem::DataSet> dataSet(new te::mem::DataSet(dataSetType.get()));
+    query.bind_arg(1, dataProvider->name());
+    query.bind_arg(2, dataProvider->description());
+    query.bind_arg(3, (int)dataProvider->kind());
+    query.bind_arg(4, dataProvider->uri());
+    query.bind_arg(5, BoolToString(DataProviderStatusToBool(dataProvider->status())));
 
-// Prepare a dataset item
-    te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(dataSet.get());
-
-    dsItem->setString("name", dataProvider.name());
-    dsItem->setString("description", dataProvider.description());
-    dsItem->setInt32("kind", (int)dataProvider.kind());
-    dsItem->setString("uri", dataProvider.uri());
-    dsItem->setBool("active", DataProviderStatusToBool(dataProvider.status()));
-
-// Adds it to the dataset
-    dataSet->add(dsItem);
-
-// Then, adds it to the data source
-    std::map<std::string, std::string> options;
-
-    transactor.add(dataSetName, dataSet.get(), options);
+    transactor.execute(query.str());
 
     dataProvider->setId(transactor.getLastGeneratedId());
 
-// save all datasets in this provider, their id must be zero.
-    foreach (auto ds, dataProvider->dataSets())
+    if(!shallowSave)
     {
-      if(ds->id() != 0)
+      // save all datasets in this provider, their id must be zero
+      foreach (auto dataset, dataProvider->dataSets())
       {
-        throw InvalidDataSetError() <<
-              ErrorDescription(QObject::tr("Can not save a dataset with identifier different than 0."));
+        DataSetDAO::save(dataset, transactor);
       }
+    }
 
-      DataSetDAO::save(*ds, transactor);
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not save the data provider."));
+  }
+}
+
+void terrama2::core::DataProviderDAO::update(DataProviderPtr dataProvider,
+                                             te::da::DataSourceTransactor& transactor,
+                                             const bool shallowSave)
+{
+  if(dataProvider->id() == 0)
+  {
+    throw InvalidParameterError() <<
+          ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
+  }
+
+  try
+  {
+    boost::format query("UPDATE terrama2.data_provider SET name = '%1%', description = '%2%', kind = %3%, uri = '%4%', active = %5% WHERE id = %6%");
+
+    query.bind_arg(1, dataProvider->name());
+    query.bind_arg(2, dataProvider->description());
+    query.bind_arg(3, (int)dataProvider->kind());
+    query.bind_arg(4, dataProvider->uri());
+    query.bind_arg(5, BoolToString(DataProviderStatusToBool(dataProvider->status())));
+    query.bind_arg(6, dataProvider->id());
+
+    transactor.execute(query.str());
+
+    if(!shallowSave)
+    {
+      foreach(auto dataset, dataProvider->dataSets())
+      {
+        DataSetDAO::update(dataset, transactor);
+      }
     }
   }
   catch(const terrama2::Exception&)
@@ -146,79 +179,87 @@ void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider, te::da::D
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
-  }*/
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not update the data provider."));
+  }
 }
 
-void terrama2::core::DataProviderDAO::update(DataProvider& dataProvider, te::da::DataSourceTransactor& transactor, const bool shallowSave)
+void terrama2::core::DataProviderDAO::remove(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
-/*  if(dataProvider->id() == 0)
+  if(id == 0)
   {
-    throw InvalidDataProviderError() <<
-          ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
+    throw InvalidParameterError() <<
+          ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
   }
 
   try
   {
-    std::string sql = "UPDATE " + dataSetName + " SET"
-        + " name='" + dataProvider->name() + "'"
-        + ", description='" + dataProvider->description() + "'"
-        + ", kind=" + std::to_string(static_cast<int>(dataProvider->kind()))
-        + ", uri='" + dataProvider->uri() + "'"
-        + ", active=" + terrama2::core::BoolToString(DataProviderStatusToBool(dataProvider->status()))
-    + " WHERE id = " + std::to_string(dataProvider->id());
+    boost::format query("DELETE FROM terrama2.data_provider WHERE id = %1%");
+    query.bind_arg(1, id);
 
-    transactor.execute(sql);
+    transactor.execute(query.str());
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataSetInUseError() << ErrorDescription(QObject::tr("Can not remove a data provider with datasets that are in use by analysis."));
-  }*/
-}
-
-void terrama2::core::DataProviderDAO::remove(DataProvider& dataProvider, te::da::DataSourceTransactor& transactor)
-{
-/*  if(dataProvider->id() == 0)
-  {
-    throw InvalidDataProviderIdError() <<
-          ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not remove the data provider."));
   }
-
-  std::string sql = "DELETE FROM " + dataSetName
-                  + " WHERE id = " + std::to_string(dataProvider->id());
-
-  transactor.execute(sql);*/
 }
 
 
 std::unique_ptr<terrama2::core::DataProvider>
 terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
-/*  if(id == 0)
-    throw InvalidDataProviderIdError() << ErrorDescription(QObject::tr("Invalid identifier: 0."));
+  if(id == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load a data provider with identifier: 0."));
 
-  std::string sql("SELECT * FROM " + dataSetName + " WHERE id = " + std::to_string(id));
-
-  std::auto_ptr<te::da::DataSet> dataSet = transactor.query(sql);
-
-  DataProviderPtr provider;
-
-  if(dataSet->moveNext())
+  try
   {
+    boost::format query("SELECT * FROM terrama2.data_provider WHERE id = %1%");
+    query.bind_arg(1, id);
 
-    terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
-    std::string name = dataSet->getAsString("name");
-    provider.reset(new DataProvider(name, kind));
-    provider->setId(dataSet->getInt32("id"));
-    provider->setDescription(dataSet->getString("description"));
-    provider->setUri(dataSet->getString("uri"));
-    provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
+    std::auto_ptr<te::da::DataSet> dataSet = transactor.query(query.str());
 
-    
+    if(dataSet->moveNext())
+    {
+      terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
+      std::string name = dataSet->getAsString("name");
+
+      DataProviderPtr provider(new DataProvider(name, kind));
+      provider->setId(dataSet->getInt32("id"));
+      provider->setDescription(dataSet->getString("description"));
+      provider->setUri(dataSet->getString("uri"));
+      provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
+
+      DataSetDAO::load(provider, transactor);
+
+
+      std::unique_ptr<DataProvider> providerPtr(provider.get());
+      return providerPtr;
+    }
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not remove the data provider."));
   }
 
-  return provider;*/
-  return nullptr;
+  return std::unique_ptr<DataProvider>(nullptr);
+
+
 }
 
 
