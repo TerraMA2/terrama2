@@ -90,7 +90,7 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   {
     QString err_msg(QObject::tr("Unexpected error saving dataset item: %1"));
 
-    err_msg.arg(item.id());
+    err_msg = err_msg.arg(item.id());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -142,7 +142,7 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   {
     QString err_msg(QObject::tr("Unexpected error updating dataset item: %1"));
 
-    err_msg.arg(item.id());
+    err_msg = err_msg.arg(item.id());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -169,7 +169,7 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
   {
     QString err_msg(QObject::tr("Unexpected error removing dataset item: %1"));
 
-    err_msg.arg(itemId);
+    err_msg = err_msg.arg(itemId);
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -209,6 +209,8 @@ terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTr
 
       items.push_back(std::move(item));
     }
+    
+    return std::move(items);
   }
   catch(const terrama2::Exception&)
   {
@@ -222,7 +224,7 @@ terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTr
   {
     QString err_msg(QObject::tr("Unexpected error loading dataset items for dataset: %1"));
 
-    err_msg.arg(datasetId);
+    err_msg = err_msg.arg(datasetId);
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }

@@ -98,7 +98,7 @@ terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& t
   {
     QString err_msg(QObject::tr("Unexpected error saving filter information for dataset item: %1"));
 
-    err_msg.arg(f.datasetItem()->id());
+    err_msg = err_msg.arg(f.datasetItem()->id());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -162,7 +162,7 @@ terrama2::core::FilterDAO::update(const Filter& f, te::da::DataSourceTransactor&
   {
     QString err_msg(QObject::tr("Unexpected error updating filter information for dataset item: %1"));
 
-    err_msg.arg(f.datasetItem()->id());
+    err_msg = err_msg.arg(f.datasetItem()->id());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -189,7 +189,7 @@ terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTran
   {
     QString err_msg(QObject::tr("Unexpected error removing filter information for dataset item: %1"));
 
-    err_msg.arg(datasetItemId);
+    err_msg = err_msg.arg(datasetItemId);
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -209,9 +209,9 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     std::auto_ptr<te::da::DataSet> filter_result = transactor.query(sql);
 
     if(!filter_result->moveNext())
-      return std::unique_ptr<terrama2::core::Filter>(nullptr);
+      return std::unique_ptr<Filter>(nullptr);
 
-    FilterPtr filter(new Filter);
+    std::unique_ptr<Filter> filter(new Filter);
 
     filter->setDiscardBefore(filter_result->getDateTime("discard_before"));
     filter->setDiscardAfter(filter_result->getDateTime("discard_after"));
@@ -232,7 +232,10 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
       std::unique_ptr<double> byValue(nullptr);
       filter->setValue(std::move(byValue));
     }
+    
     filter->setBandFilter(filter_result->getString("band_filter"));
+    
+    return std::move(filter);
   }
   catch(const terrama2::Exception&)
   {
@@ -246,7 +249,7 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
   {
     QString err_msg(QObject::tr("Unexpected error loading filter information for dataset item: %1"));
 
-    err_msg.arg(datasetItemId);
+    err_msg = err_msg.arg(datasetItemId);
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }

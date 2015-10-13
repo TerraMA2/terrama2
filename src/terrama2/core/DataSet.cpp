@@ -37,10 +37,10 @@
 #include "DataSetItem.hpp"
 
 terrama2::core::DataSet::DataSet(Kind kind, DataProvider* provider, const uint64_t id)
-  : status_(INACTIVE),
+  : kind_(kind),
     provider_(provider),
     id_(id),
-    kind_(kind),
+    status_(INACTIVE),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),
     scheduleRetry_(0, 0, 0),
