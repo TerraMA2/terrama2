@@ -62,7 +62,7 @@ terrama2::core::DataSetDAO::save(DataSetPtr& dataset, te::da::DataSourceTransact
   {
     boost::format query("INSERT INTO terrama2.dataset "
                                 "(name, description, data_provider_id, kind, data_frequency, schedule, schedule_retry, schedule_timeout) "
-                                "VALUES(%1%', '%2%', %3%, %4%, %5%, '%6%', %7%, %8%)");
+                                "VALUES('%1%', '%2%', %3%, %4%, %5%, '%6%', %7%, %8%)");
 
 
 
@@ -134,7 +134,7 @@ terrama2::core::DataSetDAO::update(DataSetPtr& dataset, te::da::DataSourceTransa
                     + ", data_provider_id=" + std::to_string(dataset->dataProvider()->id())
                     + ", kind=" + std::to_string(static_cast<int>(dataset->kind()))
                     + ", data_frequency=" + std::to_string(dataset->dataFrequency().getTimeDuration().total_seconds())
-                    + ", schedule='"
+                    + ", schedule=NULL"
                     + ", schedule_retry=" + std::to_string(dataset->scheduleRetry().getTimeDuration().total_seconds())
                     + ", schedule_timeout=" + std::to_string(dataset->scheduleTimeout().getTimeDuration().total_seconds())
                     + " WHERE id = " + std::to_string(dataset->id());
