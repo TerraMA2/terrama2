@@ -620,7 +620,7 @@ void TsDataManager::testAddDataProviderWithDataSet()
   dataSets.push_back(dataSet);
   dataProvider->setDataSets(dataSets);
 
-  DataManager::getInstance().add(dataProvider);
+  DataManager::getInstance().add(dataProvider, true);
 
   QVERIFY2(dataProvider->dataSets().size() != 0, "The dataset was not persisted!");
 

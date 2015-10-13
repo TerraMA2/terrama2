@@ -69,7 +69,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
+        static void save(DataSetItem& item, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Update the dataset item information in the database.
@@ -82,7 +82,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
+        static void update(DataSetItem& item, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Removes the dataset item from the database.
@@ -106,7 +106,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void loadItems(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
+        static void loadItems(DataSet& dataset, te::da::DataSourceTransactor& transactor);
 
       private:
 
@@ -134,7 +134,7 @@ namespace terrama2
 
         /*!
          */
-        static void loadStorageMetadata(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
+        static void loadStorageMetadata(DataSetItem& item, te::da::DataSourceTransactor& transactor);
       
         /*!
          */
@@ -146,7 +146,7 @@ namespace terrama2
 
         /*!
          */
-        static void loadFilter(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
+        static void loadFilter(DataSetItem& item, te::da::DataSourceTransactor& transactor);
     };
 
   } // end namespace core

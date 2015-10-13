@@ -121,7 +121,7 @@ void terrama2::core::DataManager::add(DataProviderPtr provider, const bool shall
 
   transactor->begin();
 
-  DataProviderDAO::save(provider, *transactor, shallowSave);
+  DataProviderDAO::save(*provider, *transactor, shallowSave);
 
   transactor->commit();
 
@@ -155,7 +155,7 @@ void terrama2::core::DataManager::add(DataSetPtr dataset, const bool shallowSave
 
   transactor->begin();
 
-  DataSetDAO::save(dataset, *transactor, shallowSave);
+  DataSetDAO::save(*dataset, *transactor, shallowSave);
 
   transactor->commit();
 
@@ -188,7 +188,7 @@ void terrama2::core::DataManager::update(DataProviderPtr provider, const bool sh
 
   transactor->begin();
 
-  DataProviderDAO::update(provider, *transactor, shallowSave);
+  DataProviderDAO::update(*provider, *transactor, shallowSave);
 
   transactor->commit();
 

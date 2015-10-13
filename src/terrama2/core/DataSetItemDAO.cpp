@@ -44,36 +44,33 @@
 #include <boost/format.hpp>
 
 void
-terrama2::core::DataSetItemDAO::save(DataSetItemPtr item, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransactor& transactor)
 {
-  if(item == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset item with a NULL value."));
-    
-  if(item->id() != 0)
+  if(item.id() != 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset item with an identifier different than 0."));
 
-  if(item->dataset() == nullptr)
+  if(item.dataset() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be saved."));
 
   boost::format query("INSERT INTO terrama2.dataset_item (kind, active, dataset_id, mask, timezone) VALUES(%1%, %2%, %3%, '%4%', '%5%')");
 
-  query.bind_arg(1, static_cast<uint32_t>(item->kind()));
-  query.bind_arg(2, BoolToString(DataSetItemStatusToBool(item->status())));
-  query.bind_arg(3, item->dataset()->id());
-  query.bind_arg(4, item->mask());
-  query.bind_arg(5, item->timezone());
+  query.bind_arg(1, static_cast<uint32_t>(item.kind()));
+  query.bind_arg(2, BoolToString(DataSetItemStatusToBool(item.status())));
+  query.bind_arg(3, item.dataset()->id());
+  query.bind_arg(4, item.mask());
+  query.bind_arg(5, item.timezone());
 
   try
   {
     transactor.execute(query.str());
 
-    item->setId(transactor.getLastGeneratedId());
+    item.setId(transactor.getLastGeneratedId());
 
 // save the filter
-    if(item->filter() != nullptr)
-      save(item->id(), item->filter(), transactor);
+    if(item.filter() != nullptr)
+      save(item.id(), item.filter(), transactor);
 
-    saveStorageMetadata(item->id(), item->storageMetadata(), transactor);
+    saveStorageMetadata(item.id(), item.storageMetadata(), transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -90,35 +87,32 @@ terrama2::core::DataSetItemDAO::save(DataSetItemPtr item, te::da::DataSourceTran
 }
 
 void
-terrama2::core::DataSetItemDAO::update(DataSetItemPtr item, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTransactor& transactor)
 {
-  if(item == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset item with a NULL value."));
-
-  if(item->id() == 0)
+  if(item.id() == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset item with an identifier: 0."));
 
-  if(item->dataset() == nullptr)
+  if(item.dataset() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be updated."));
 
   boost::format query("UPDATE terrama2.dataset_item SET active = %1%, "
                       "dataset_id = %2%, , kind = %3%, mask = %4%, timezone = %5% WHERE id = %6%");
 
-  query.bind_arg(1, BoolToString(DataSetItemStatusToBool(item->status())));
-  query.bind_arg(2, item->dataset()->id());
-  query.bind_arg(3, static_cast<uint32_t>(item->kind()));
-  query.bind_arg(4, item->mask());
-  query.bind_arg(5, item->timezone());
-  query.bind_arg(6, item->id());
+  query.bind_arg(1, BoolToString(DataSetItemStatusToBool(item.status())));
+  query.bind_arg(2, item.dataset()->id());
+  query.bind_arg(3, static_cast<uint32_t>(item.kind()));
+  query.bind_arg(4, item.mask());
+  query.bind_arg(5, item.timezone());
+  query.bind_arg(6, item.id());
   
   try
   {
     transactor.execute(query.str());
 
-    if(item->filter() != nullptr)
-      update(item->filter(), transactor);
+    if(item.filter() != nullptr)
+      update(item.filter(), transactor);
 
-    updateStorageMetadata(item->id(), item->storageMetadata(), transactor);
+    updateStorageMetadata(item.id(), item.storageMetadata(), transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -158,16 +152,13 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
 }
 
 void
-terrama2::core::DataSetItemDAO::loadItems(DataSetPtr dataset, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetItemDAO::loadItems(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
-  if(dataset == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load dataset items for a NULL dataset."));
-
-  if(dataset->id() == 0)
+  if(dataset.id() == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load dataset items for a dataset with an invalid identifier: 0."));
 
   std::string sql ("SELECT * FROM terrama2.dataset_item WHERE dataset_id = ");
-              sql += std::to_string(dataset->id());
+              sql += std::to_string(dataset.id());
 
   try
   {
@@ -179,7 +170,7 @@ terrama2::core::DataSetItemDAO::loadItems(DataSetPtr dataset, te::da::DataSource
     {
       DataSetItem::Kind kind = IntToDataSetItemKind(items_result->getInt32("kind"));
 
-      DataSetItemPtr item(new DataSetItem(dataset, kind));
+      DataSetItemPtr item(new DataSetItem(&dataset, kind));
 
       item->setId(items_result->getInt32("id"));
       item->setStatus(BoolToDataSetItemStatus(items_result->getBool("active")));
@@ -187,13 +178,14 @@ terrama2::core::DataSetItemDAO::loadItems(DataSetPtr dataset, te::da::DataSource
       item->setTimezone(items_result->getString("timezone"));
 
 // retrieve the filter
-      loadFilter(item, transactor);
-      loadStorageMetadata(item, transactor);
+      FilterDAO::loadFilter(item, transactor);
+
+      loadStorageMetadata(*item, transactor);
 
       items.push_back(item);
     }
 
-    dataset->setDataSetItemList(items);
+    dataset.setDataSetItemList(items);
   }
   catch(const terrama2::Exception&)
   {

@@ -83,7 +83,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataProviderPtr provider, te::da::DataSourceTransactor& transactor,
+        static void save(DataProvider& provider, te::da::DataSourceTransactor& transactor,
                          const bool shallowSave = true);
 
         /*!
@@ -98,7 +98,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataProviderPtr provider, te::da::DataSourceTransactor& transactor,
+        static void update(DataProvider& provider, te::da::DataSourceTransactor& transactor,
                            const bool shallowSave = true);
 
         /*!
