@@ -223,10 +223,10 @@ void terrama2::core::DataManager::update(DataProviderPtr provider, const bool sh
 
     foreach(auto dataset, provider->datasets())
     {
-      pimpl_->datasets[dataset->id()] = dataset;
+      pimpl_->datasets[dataset->id()] = dataset;  // TODO: review this line
     }
 
-    pimpl_->providers[provider->id()] = provider;
+    pimpl_->providers[provider->id()] = provider;  // TODO: review this line
   }
   catch(const terrama2::Exception&)
   {
@@ -246,40 +246,28 @@ void terrama2::core::DataManager::update(DataProviderPtr provider, const bool sh
 
 void terrama2::core::DataManager::update(DataSetPtr dataset, const bool shallowSave)
 {
-// only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   if(dataset == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a NULL dataset."));
 
   if(dataset->id() == 0)
-  {
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
-  }
 
   if(dataset->provider() == nullptr)
-  {
-    throw terrama2::InvalidParameterError() <<
-          ErrorDescription(QObject::tr("Can not update a dataset with an invalid data provider."));
-  }
+    throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset with an invalid data provider."));
 
   try
   {
     auto itDp = pimpl_->providers.find(dataset->provider()->id());
 
     if(itDp == pimpl_->providers.end())
-    {
-      throw terrama2::InvalidParameterError() <<
-            ErrorDescription(QObject::tr("Can not update a nonexistent data provider."));
-    }
+      throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a nonexistent data provider."));
 
     auto itDs = pimpl_->datasets.find(dataset->id());
 
     if(itDs ==  pimpl_->datasets.end())
-    {
-      throw InvalidParameterError() <<
-            ErrorDescription(QObject::tr("Can not update a nonexistent dataset."));
-    }
+      throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a nonexistent dataset."));
 
     std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
@@ -289,7 +277,7 @@ void terrama2::core::DataManager::update(DataSetPtr dataset, const bool shallowS
 
     transactor->commit();
 
-    pimpl_->datasets[dataset->id()] = dataset;
+    pimpl_->datasets[dataset->id()] = dataset; // TODO: review this line
   }
   catch(const terrama2::Exception&)
   {
@@ -304,38 +292,27 @@ void terrama2::core::DataManager::update(DataSetPtr dataset, const bool shallowS
     throw DataAccessError() << ErrorDescription(QObject::tr("Unexpected error updating a dataset."));
   }
 
-
   emit dataSetUpdated(dataset);
 }
 
 void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 {
-// only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   if(id == 0)
-  {
-    throw terrama2::InvalidParameterError() <<
-          ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
-  }
-
+    throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
 
   try
   {
     DataProviderPtr dataProvider;
 
     auto itDp = pimpl_->providers.find(id);
+    
     if(itDp !=  pimpl_->providers.end())
-    {
       dataProvider = itDp->second;
-    }
 
     if(!dataProvider.get())
-    {
-      throw terrama2::InvalidParameterError() <<
-            ErrorDescription(QObject::tr("Can not remove a nonexistent data provider."));
-    }
-
+      throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not remove a nonexistent data provider."));
 
     std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
@@ -345,7 +322,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 
     transactor->commit();
 
-    // Removes all related datasets from the map
+// removes all related datasets from the map
     for(auto dataSet: dataProvider->datasets())
     {
       auto itDs = pimpl_->datasets.find(id);
@@ -374,8 +351,6 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
   {
     throw DataAccessError() << ErrorDescription(QObject::tr("Unexpected error removing a data provider."));
   }
-
-
 }
 
 void terrama2::core::DataManager::removeDataSet(const uint64_t id)

@@ -149,7 +149,6 @@ namespace terrama2
 
           \pre The data provider must have a valid ID.
           \pre The data provider must exist in the database.
-          \pre If not performing a shallow save, the datasets within this provider must have a valid ID (> 0).
 
           \exception terrama2::Exception If it is not possible to update the data provider.
 
@@ -162,12 +161,10 @@ namespace terrama2
 
           Emits dataSetUpdated() signal if the dataset is updated successfully.
 
-          It will not update the datasets.
-         
-          \param dataset Dataset to update.
-          \param shallowSave If true it will persist the datasets in this data provider.
+          \param dataset     Dataset to update.
+          \param shallowSave If true it will update only the dataset attributes.
 
-          \pre The dataset must have an valid ID.
+          \pre The dataset must have a valid ID.
           \pre The dataset must exist in the database.
 
           \exception terrama2::Exception If it is not possible to update the dataset.
@@ -178,17 +175,17 @@ namespace terrama2
 
         /*!
           \brief Removes a given data provider.
-
+         
+          Emits dataProviderRemoved() signal if the data provider is removed successfully.
+         
+          \param id ID of the data provider to remove.
+         
           \pre The data provider must have a valid ID.
 
-          Emits dataProviderRemoved() signal if the data provider is removed successfully.
-
-          It will remove all datasets that belong to this data provider.
-          In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
+          \pos It will remove all datasets that belong to this data provider.
+          \pos In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
 
           \exception terrama2::Exception If it is not possible to remove the data provider.
-
-          \param id ID of the data provider to remove.
 
           \note Thread-safe.
          */

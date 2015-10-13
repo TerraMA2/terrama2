@@ -110,9 +110,6 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
   {
     throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
   }
-
-
-
 }
 
 void
