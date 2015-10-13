@@ -35,13 +35,14 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
-  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
+          SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
 
   // Tabs
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
   QSharedPointer<ConfigAppWeatherGridTab> gridTab(new ConfigAppWeatherGridTab(app, ui));
-  subTabs_.append(gridTab);
   subTabs_.append(serverTab);
+  subTabs_.append(gridTab);
 
   // Lock for cannot allow multiple selection
   ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -251,6 +252,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
     // If it does not have parent, so it has to be DataProvider. Otherwise, selectedItem is DataSet
     if (selectedItem->parent()->parent() == nullptr)
     {
+      QObject::disconnect(ui_->serverDescription->document(), 0, 0, 0);
       showDataSeries(true);
       std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
       sql += selectedItem->text(0).toStdString() + "'";
@@ -264,13 +266,17 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
       dataSet->moveFirst();
 
       // Call for insert server to display server form
-      emit(ui_->insertServerBtn->clicked());
+//      emit(ui_->insertServerBtn->clicked());
+      displayOperationButtons(true);
+      changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
 
       ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
       ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
       ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
       ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
       ui_->serverActiveServer->setChecked(dataSet->getBool(5));
+
+      subTabs_[0]->load();
     }
     else
     {
@@ -280,7 +286,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
   else
   {
     showDataSeries(false);
-    emit(ui_->cancelBtn->clicked());
+    discardChanges(true);
   }
 }
 
@@ -365,6 +371,7 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
         }
       }
       tab->discardChanges(false);
+      tab->setActive(false);
     }
   }
   sender.setActive(true);

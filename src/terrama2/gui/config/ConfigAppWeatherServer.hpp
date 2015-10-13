@@ -23,6 +23,7 @@ class ConfigAppWeatherServer : public ConfigAppTab {
   private slots:
     void onServerTabRequested();
     void onServerEdited();
+    void onTextEditChanged();
     //! Slot for handling if it is valid connection. TODO: ftp
     void onCheckConnectionClicked();
     void onDataProviderClicked(QTreeWidgetItem*);

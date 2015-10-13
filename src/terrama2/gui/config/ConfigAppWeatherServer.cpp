@@ -15,8 +15,8 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   : ConfigAppTab(app, ui)
 {
   connect(ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onServerTabRequested()));
-//  connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-  connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onServerEdited()));
+  connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
+  connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onTextEditChanged()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
@@ -34,6 +34,7 @@ ConfigAppWeatherServer::~ConfigAppWeatherServer()
 
 void ConfigAppWeatherServer::load()
 {
+  connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onTextEditChanged()));
 }
 
 void ConfigAppWeatherServer::save()
@@ -90,6 +91,7 @@ void ConfigAppWeatherServer::discardChanges(bool restore)
 
   ui_->serverDescription->clear();
   dataProviderSelected_.clear();
+  changed_ = false;
 }
 
 bool ConfigAppWeatherServer::validate()
@@ -122,7 +124,6 @@ void ConfigAppWeatherServer::onServerTabRequested()
 void ConfigAppWeatherServer::onServerEdited()
 {
   changed_ = true;
-  ui_->saveBtn->setEnabled(true);
 }
 
 void ConfigAppWeatherServer::onCheckConnectionClicked()
@@ -180,7 +181,10 @@ void ConfigAppWeatherServer::onDataProviderClicked(QTreeWidgetItem* item)
 {
   if (item->parent() != nullptr)
     if (item->parent()->parent() == nullptr)
-    {
       dataProviderSelected_ = item->text(0);
-    }
+}
+
+void ConfigAppWeatherServer::onTextEditChanged()
+{
+  changed_ = true;
 }
