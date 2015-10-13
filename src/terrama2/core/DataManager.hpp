@@ -103,15 +103,15 @@ namespace terrama2
          
           At end it will emit dataProviderAdded(DataProviderPtr) signal.
          
-          \param provider The data provider to be added to the database and registered into the manager.
-          \param shallowSave If true it will update the datasets in this data provider.
+          \param provider    The data provider to be added to the database and registered into the manager.
+          \param shallowSave If true it will only save the data provider attributes.
 
           \pre The provider must not have a valid ID (its ID must be zero).
           \pre A provider with the same name must not be already in the manager.
-          \pre If there are contained datasets, they must not have a valid ID (all IDs must be zero).
+          \pre If not performing a shallow save, the contained datasets must not have a valid ID (all IDs must be zero).
 
           \pos The informed data provider will have a valid ID (> 0).
-          \pos The datasets within this provider will have a valid ID (> 0).
+          \pos If not performing a shallow save, the datasets within this provider will have a valid ID (> 0).
 
           \exception terrama2::Exception If it is not possible to add the data provider.
 
@@ -122,15 +122,16 @@ namespace terrama2
         /*!
           \brief Add the dataset to the database and register it in the manager.
          
-          At end it will emmit the dataSetAdded() signal.
+          Emmits the dataSetAdded() signal when finished.
+         
+          \param dataset     The dataset to be added.
+          \param shallowSave If true it will only save the dataset attributes.
 
           \pre The dataset must not have an ID.
-          \pre A provider with the same name must not be already in the manager.
+          \pre A dataset with the same name must not be already in the manager.
+          \pre The dataset must be associated to a valid and registered data provider.
 
           \pos The informed dataset will have a valid ID.
-
-          \param dataset Dataset to add.
-          \param shallowSave If true it will update the datasets in this data provider.
 
           \exception terrama2::Exception If it is not possible to load add the dataset.
 
@@ -143,11 +144,12 @@ namespace terrama2
 
           Emits dataProviderUpdated() signal if the data provider is updated successfully.
          
-          \param provider The data provider to be updated.
-          \param shallowSave If true it will persist the datasets in this data provider.
+          \param provider    The data provider to be updated.
+          \param shallowSave If true it will update only the data provider attributes.
 
           \pre The data provider must have a valid ID.
           \pre The data provider must exist in the database.
+          \pre If not performing a shallow save, the datasets within this provider must have a valid ID (> 0).
 
           \exception terrama2::Exception If it is not possible to update the data provider.
 
@@ -311,7 +313,7 @@ namespace terrama2
 
         struct Impl;
 
-        Impl* pimpl_;  //!< Using Pimpl idiom.
+        Impl* pimpl_;  //!< Pimpl idiom.
     };
 
   } // end namespace core

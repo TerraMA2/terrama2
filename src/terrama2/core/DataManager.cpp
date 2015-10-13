@@ -70,17 +70,16 @@ void terrama2::core::DataManager::load()
 // otherwise, we must search for and load all metadata information
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
-// retrieve all data providers and keep a reference to them
+// retrieve all data providers from database
   std::vector<std::unique_ptr<DataProvider> > providers = DataProviderDAO::load(*transactor);
 
+// index all data providers and theirs datasets
   for(std::unique_ptr<DataProvider>& provider : providers)
   {
     DataProviderPtr sprovider(std::move(provider));
 
-// index provider
     pimpl_->providers[provider->id()] = sprovider;
 
-// index all datasets
     const std::vector<DataSetPtr>& datasets = sprovider->datasets();
 
     for(auto dataset : datasets)
@@ -109,7 +108,6 @@ void terrama2::core::DataManager::unload() noexcept
 
 void terrama2::core::DataManager::add(DataProviderPtr provider, const bool shallowSave)
 {
-// only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   if(provider == nullptr)
@@ -148,7 +146,6 @@ void terrama2::core::DataManager::add(DataProviderPtr provider, const bool shall
 
 void terrama2::core::DataManager::add(DataSetPtr dataset, const bool shallowSave)
 {
-// only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   if(dataset == nullptr)
@@ -165,7 +162,7 @@ void terrama2::core::DataManager::add(DataSetPtr dataset, const bool shallowSave
   auto it = pimpl_->providers.find(provider->id());
 
   if(it ==  pimpl_->providers.end())
-    throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not add a dataset with a non-existent data provider."));
+    throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not add a dataset with a non-registered data provider."));
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
