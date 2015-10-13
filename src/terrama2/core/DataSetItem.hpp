@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSetItem.hpp
 
-  \brief Metadata about a given dataset item.
+  \brief Metadata about a dataset item.
 
   \author Paulo R. M. Oliveira
 */
@@ -30,11 +30,10 @@
 #ifndef __TERRAMA2_CORE_DATASETITEM_HPP__
 #define __TERRAMA2_CORE_DATASETITEM_HPP__
 
-
 // STL
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -45,23 +44,17 @@ namespace terrama2
   {
 // Forward declaration
     class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
     class Filter;
-    typedef std::shared_ptr<Filter> FilterPtr;
 
     /*!
       \class DataSetItem
 
-      \brief Contains metadata about a dataset item.
+      \brief Metadata about a dataset item.
 
       A dataset item can be a INPE Format PCD, TOA5 PCD, an occurrence of fire or an occurrence of diseases.
-
      */
-    class DataSetItem : boost::noncopyable
+    class DataSetItem : public boost::noncopyable
     {
-      friend class DataSetItemDAO;
-
       public:
 
         //! Dataset item type.
@@ -81,146 +74,77 @@ namespace terrama2
           INACTIVE
         };
 
-
       public:
 
         /*!
           \brief Constructor.
 
-          \param d  The dataset to which this item belongs to.
-          \param k  The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
           \param id The dataset item identifier or zero if it doesn't have a valid one.
+          \param k  The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
+          \param d  The dataset to which this item belongs to.
         */
-        DataSetItem(DataSet* d, Kind k, const uint64_t id = 0);
+        DataSetItem(const uint64_t id = 0, Kind k = UNKNOWN_TYPE, const DataSet* d = nullptr);
 
-        /*!
-          \brief Destructor.
-        */
-        virtual ~DataSetItem();
+        /*! \brief Destructor. */
+        ~DataSetItem();
 
-        /*!
-          \brief It returns the identifier of the dataset item.
-
-          \return The identifier of the dataset item.
-        */
+        /*! \brief Returns the identifier of the dataset item. */
         uint64_t id() const;
 
-        /*!
-          \brief It returns the the kind of the dataset item.
+        /*! \brief Sets the identifier of the dataset item. */
+        void setId(uint64_t id);
 
-          \return The kind of the dataset item.
-        */
+        /*! \brief Returns the kind of the dataset item. */
         Kind kind() const;
 
-        /*!
-          \brief It sets the the kind of the dataset item.
+        /*! \brief Sets the kind of the dataset item. */
+        void setKind(const Kind k);
 
-          \param k The kind of the dataset item.
-        */
-        void setKind(const Kind& k);
-
-        /*!
-          \brief It returns the the status of the dataset item.
-
-          \return The status of the dataset item.
-        */
+        /*! \brief Returns the status of the dataset item. */
         Status status() const;
 
-        /*!
-          \brief It sets the the status of the dataset item.
-
-          \param s The status of the dataset item.
-        */
+        /*! \brief Sets the the status of the dataset item. */
         void setStatus(const Status s);
 
-        /*!
-          \brief It returns the mask of the dataset item.
+        /*! \brief Returns the mask of the dataset item. */
+        const std::string& mask() const;
 
-          \return The mask of the dataset item.
-        */
-        std::string mask() const;
-
-        /*!
-          \brief It sets the mask of the dataset item.
-
-          \param m The mask of the dataset item.
-        */
+        /*! \brief Sets the mask of the dataset item. */
         void setMask(const std::string& m);
 
-        /*!
-          \brief It returns the timezone of the dataset item.
+        /*! \brief Returns the timezone of the dataset item. */
+        const std::string& timezone() const;
 
-          \return The timezone of the dataset item.
-        */
-        std::string timezone() const;
-
-        /*!
-          \brief It sets the timezone of the dataset item.
-
-          \param tz The timezone of the dataset item.
-        */
+        /*! \brief Sets the timezone of the dataset item. */
         void setTimezone(const std::string& tz);
 
-        /*!
-          \brief It returns the dataset to which this item belongs to.
+        /*! \brief Returns the dataset to which this item belongs to. */
+        const DataSet* dataset() const;
 
-          \return The the dataset.
-        */
-        DataSetPtr dataset() const;
+        /*! \brief Returns the filter to be used when collecting this data item. */
+        const Filter* filter() const;
 
-        /*!
-          \brief It returns the filter to be used when collecting this data item.
+        /*! \brief Sets the filter to be used when collecting data. */
+        void setFilter(std::unique_ptr<Filter> f);
 
-          \return The filter to used when collecting this data item.
-        */
-        FilterPtr filter() const;
-
-        /*!
-          \brief It sets the filter to be used when collecting data.
-
-          \param f The filter to used when collecting data.
-        */
-        void setFilter(FilterPtr f);
-
-        /*!
-          \brief It returns the storage strategy metadata.
-
-          \param The storage strategy metadata.
-        */
+        /*! \brief Returns the storage strategy metadata. */
         const std::map<std::string, std::string>& storageMetadata() const;
-      
-        /*!
-          \brief It returns the storage strategy metadata.
-         
-          \param The storage strategy metadata.
-         */
+
+        /*! \brief Returns the storage strategy metadata. */
         std::map<std::string, std::string>& storageMetadata();
 
-        /*!
-          \brief It sets the storage strategy metadata.
-
-          \param sm The storage strategy metadata.
-        */
+        /*! \brief Sets the storage strategy metadata. */
         void setStorageMetadata(const std::map<std::string, std::string>& sm);
-
-      protected:
-
-        /*!
-          \brief It sets the identifier of the dataset item.
-
-          \param The identifier of the dataset item.
-        */
-        void setId(uint64_t id);
 
       private:
 
         uint64_t id_;
-        Status status_;
-        DataSetPtr dataSet_;
         Kind kind_;
+        const DataSet* dataset_;
+        Status status_;
         std::string mask_;
         std::string timezone_;
-        FilterPtr filter_;
+        std::unique_ptr<Filter> filter_;
         std::map<std::string, std::string> storageMetadata_;
     };
 

@@ -31,11 +31,6 @@
 #ifndef __TERRAMA2_CORE_DATASETITEMDAO_HPP__
 #define __TERRAMA2_CORE_DATASETITEMDAO_HPP__
 
-// TerraMA2
-#include "DataSet.hpp"
-#include "DataSetItem.hpp"
-#include "Filter.hpp"
-
 // STL
 #include <memory>
 
@@ -46,7 +41,9 @@ namespace terrama2
 {
   namespace core
   {
-    
+// Forward declaration
+    class DataSetItem;
+
     /*!
       \class DataSetItemDAO
 

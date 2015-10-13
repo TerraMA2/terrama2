@@ -168,6 +168,33 @@ terrama2::core::FilterDAO::update(const Filter& f, te::da::DataSourceTransactor&
   }
 }
 
+void
+terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
+{
+  if(datasetItemId == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not remove filter information for an invalid dataset item identifier: 0."));
+
+  std::string sql("DELETE FROM terrama2.filter WHERE dataset_item_id = ");
+              sql += std::to_string(datasetItemId);
+
+  try
+  {
+    transactor.execute(sql.str());
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    QString err_msg(QObject::tr("Unexpected error removing filter information for dataset item: %1"));
+
+    err_msg.arg(f.datasetItem()->id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
+  }
+}
+
 std::unique_ptr<terrama2::core::Filter>
 terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
 {
@@ -206,7 +233,11 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    QString err_msg(QObject::tr("Unexpected error loading filter information for dataset item: %1"));
+
+    err_msg.arg(datasetItemId);
+
+    throw DataAccessError() << ErrorDescription(err_msg);
   }
 }
 

@@ -81,10 +81,22 @@ namespace terrama2
         static void update(const Filter& f, te::da::DataSourceTransactor& transactor);
 
         /*!
+          \brief Remove the filter information associated to the given dataset item if one exists.
+
+          \param datasetItemId The dataset item identifier used to remove the filter information.
+          \param transactor    The data source transactor to be used to perform the delete operation.
+
+          \pre The dataset item identifier must be a valid identifier (a value different than 0).
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void remove(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor);
+
+        /*!
           \brief Load the filter information for a given dataset item if one exists.
 
           \param datasetItemId The dataset item identifier used to search for filter information.
-          \param transactor    The data source transactor to be used to perform the delete operation.
+          \param transactor    The data source transactor to be used to perform the load operation.
 
           \pre The dataset item identifier must be a valid identifier (a value different than 0).
 

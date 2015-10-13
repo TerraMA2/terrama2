@@ -31,7 +31,9 @@
 
 //TerraMA2
 #include "DataSetItemDAO.hpp"
+#include "DataSetItem.hpp"
 #include "Exception.hpp"
+#include "FilterDAO.hpp"
 #include "Utils.hpp"
 
 // TerraLib
@@ -52,6 +54,9 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   if(item.dataset() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be saved."));
 
+  if(item.dataset().id() == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a valid dataset in order to be saved."));
+
   boost::format query("INSERT INTO terrama2.dataset_item (kind, active, dataset_id, mask, timezone) VALUES(%1%, %2%, %3%, '%4%', '%5%')");
 
   query.bind_arg(1, static_cast<uint32_t>(item.kind()));
@@ -68,7 +73,7 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
 
 // save the filter
     if(item.filter() != nullptr)
-      save(item.id(), item.filter(), transactor);
+      FilterDAO::save(*item.filter(), transactor);
 
     saveStorageMetadata(item.id(), item.storageMetadata(), transactor);
   }
@@ -82,7 +87,11 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not save dataset item."));
+    QString err_msg(QObject::tr("Unexpected error saving dataset item: %1"));
+
+    err_msg.arg(item.id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
   }
 }
 
@@ -95,8 +104,11 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   if(item.dataset() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be updated."));
 
+  if(item.dataset().id() == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a valid dataset in order to be updated."));
+
   boost::format query("UPDATE terrama2.dataset_item SET active = %1%, "
-                      "dataset_id = %2%, , kind = %3%, mask = %4%, timezone = %5% WHERE id = %6%");
+                      "dataset_id = %2%, , kind = %3%, mask = '%4%', timezone = '%5%' WHERE id = %6%");
 
   query.bind_arg(1, BoolToString(DataSetItemStatusToBool(item.status())));
   query.bind_arg(2, item.dataset()->id());
@@ -104,13 +116,16 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   query.bind_arg(4, item.mask());
   query.bind_arg(5, item.timezone());
   query.bind_arg(6, item.id());
-  
+
   try
   {
     transactor.execute(query.str());
 
+// update the filter if one exists and remove it to assure it was not changed.
     if(item.filter() != nullptr)
-      update(item.filter(), transactor);
+      FilterDAO::update(*item.filter(), transactor);
+    else
+      FilterDAO::remove(item.id(), transactor);
 
     updateStorageMetadata(item.id(), item.storageMetadata(), transactor);
   }
@@ -124,7 +139,11 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not update dataset item."));
+    QString err_msg(QObject::tr("Unexpected error updating dataset item: %1"));
+
+    err_msg.arg(item.id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
   }
 }
 
@@ -147,7 +166,11 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not update dataset item."));
+    QString err_msg(QObject::tr("Unexpected error removing dataset item: %1"));
+
+    err_msg.arg(item.id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
   }
 }
 
