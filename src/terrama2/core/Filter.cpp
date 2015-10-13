@@ -38,7 +38,7 @@
 
 terrama2::core::Filter::Filter(const DataSetItem* item)
   : datasetItem_(item),
-    value_(0.0),
+    value_(std::unique_ptr<double>(new double(0.0))),
     expressionType_(NONE_TYPE)
 {
 
@@ -49,7 +49,7 @@ terrama2::core::Filter::~Filter()
 
 }
 
-terrama2::core::DataSetItemPtr terrama2::core::Filter::datasetItem() const
+const terrama2::core::DataSetItem* terrama2::core::Filter::datasetItem() const
 {
   return datasetItem_;
 }
@@ -89,9 +89,9 @@ void terrama2::core::Filter::setGeometry(std::unique_ptr<te::gm::Geometry> geom)
   geometry_ = std::move(geom);
 }
 
-double terrama2::core::Filter::value() const
+const double* terrama2::core::Filter::value() const
 {
-  return value_;
+  return value_.get();
 }
 
 void terrama2::core::Filter::setValue(std::unique_ptr<double> v)

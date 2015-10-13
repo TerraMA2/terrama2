@@ -74,7 +74,7 @@ namespace terrama2
 
       \return Boolean that determine if the data provider is active.
      */
-    bool DataProviderStatusToBool(DataProvider::Status status);
+    bool ToBool(DataProvider::Status status);
 
     /*!
       \brief Returns a enum with the status of the server based on the given parameter.
@@ -83,7 +83,7 @@ namespace terrama2
 
       \return Enum with the status of the data provider.
      */
-    DataProvider::Status BoolToDataProviderStatus(bool active);
+    DataProvider::Status ToDataProviderStatus(bool active);
 
     /*!
       \brief Returns a enum with the kind of the server based on the given parameter.
@@ -92,7 +92,7 @@ namespace terrama2
 
       \return Enum with the type of the data provider.
      */
-    DataProvider::Kind IntToDataProviderKind(uint64_t kind);
+    DataProvider::Kind ToDataProviderKind(uint64_t kind);
 
     /*!
       \brief Function to convert a boolean to string format.

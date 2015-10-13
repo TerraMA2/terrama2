@@ -164,7 +164,7 @@ terrama2::core::IntToDataProviderKind(uint64_t kind)
 }
 
 std::string
-terrama2::core::BoolToString(bool b)
+terrama2::core::ToString(bool b)
 {
   return b ? "true" : "false";
 }

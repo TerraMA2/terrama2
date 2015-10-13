@@ -31,6 +31,8 @@
 #ifndef __TERRAMA2_CORE_FILTER_HPP__
 #define __TERRAMA2_CORE_FILTER_HPP__
 
+#include "DataSetItem.hpp"
+
 // STL
 #include <memory>
 #include <string>

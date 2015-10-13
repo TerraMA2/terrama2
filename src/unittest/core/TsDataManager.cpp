@@ -842,7 +842,7 @@ void TsDataManager::testAddDataSetWithNonexistentProvider()
   try
   {
     auto nonExistentProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 1));
-    DataSetPtr dataSet(new DataSet(nonExistentProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
+    DataSetPtr dataSet(new DataSet(nonExistentProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE));
 
     DataManager::getInstance().add(dataSet);
 
