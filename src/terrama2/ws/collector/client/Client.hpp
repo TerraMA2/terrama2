@@ -86,7 +86,7 @@ namespace terrama2
 
             \return
           */
-          void addDataset(terrama2::core::DataSetPtr &dataSetPtr);
+          void addDataSet(terrama2::core::DataSetPtr &dataSetPtr);
 
           /*!
             \brief

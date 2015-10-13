@@ -44,8 +44,6 @@
 #include "../../../core/DataProvider.hpp"
 #include "../../../core/DataSet.hpp"
 
-struct DataProvider;
-
 namespace terrama2
 {
 

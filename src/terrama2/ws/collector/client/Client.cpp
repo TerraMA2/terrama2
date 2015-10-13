@@ -81,7 +81,7 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
 }
 
 
-void terrama2::ws::collector::Client::addDataset(terrama2::core::DataSetPtr &dataSetPtr)
+void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSetPtr &dataSetPtr)
 {
   if(dataSetPtr == nullptr)
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
