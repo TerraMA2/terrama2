@@ -31,8 +31,8 @@
 #define __TERRAMA2_CORE_DATAPROVIDERDAO_HPP__
 
 // STL
-#include <vector>
 #include <memory>
+#include <vector>
 
 // Forward declaration
 namespace te { namespace da { class DataSourceTransactor; } }
@@ -43,7 +43,6 @@ namespace terrama2
   {
 // Forward declaration
     class DataProvider;
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
     /*!
       \class DataProviderDAO
@@ -69,7 +68,8 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::vector<DataProviderPtr> load(te::da::DataSourceTransactor& transactor);
+        static std::vector<std::unique_ptr<DataProvider> >
+        load(te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Insert the given data provider in the database.

@@ -35,10 +35,7 @@
 #include "Utils.hpp"
 
 // TerraLib
-#include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/memory/DataSet.h>
-#include <terralib/memory/DataSetItem.h>
 
 // Qt
 #include <QObject>
@@ -46,32 +43,29 @@
 //Boost
 #include <boost/format.hpp>
 
-static const std::string dataSetName = "terrama2.data_provider";
-
-std::vector<terrama2::core::DataProviderPtr>
+std::vector<std::unique_ptr<terrama2::core::DataProvider> >
 terrama2::core::DataProviderDAO::load(te::da::DataSourceTransactor& transactor)
 {
-  std::vector<terrama2::core::DataProviderPtr> vecProviders;
+  std::vector<std::unique_ptr<DataProvider> > providers;
 
   try
   {
-    std::auto_ptr<te::da::DataSet> dataSet = transactor.getDataSet(dataSetName);
+    std::auto_ptr<te::da::DataSet> provider_result = transactor.getDataSet("terrama2.data_provider");
 
-    while(dataSet->moveNext())
+    while(provider_result->moveNext())
     {
-      terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
-      std::string name = dataSet->getAsString("name");
+      std::unique_ptr<DataProvider> provider(new DataProvider);
 
-      DataProviderPtr provider(new DataProvider(name, kind));
+      provider->setKind(ToDataProviderKind(provider_result->getInt32("kind")));
+      provider->setName(provider_result->getAsString("name"));
+      provider->setId(provider_result->getInt32("id"));
+      provider->setDescription(provider_result->getString("description"));
+      provider->setUri(provider_result->getString("uri"));
+      provider->setStatus(ToDataProviderStatus(provider_result->getBool("active")));
 
-      provider->setId(dataSet->getInt32("id"));
-      provider->setDescription(dataSet->getString("description"));
-      provider->setUri(dataSet->getString("uri"));
-      provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
+      std::vector<std::unique_ptr<DataSet> > datasets = DataSetDAO::loadAll(provider->id(), transactor);
 
-      DataSetDAO::load(*provider, transactor);
-
-      vecProviders.push_back(provider);
+      providers.push_back(std::move(provider));
     }
   }
   catch(const terrama2::Exception&)
@@ -84,10 +78,10 @@ terrama2::core::DataProviderDAO::load(te::da::DataSourceTransactor& transactor)
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
+    throw DataAccessError() << ErrorDescription(QObject::tr("Unexpected error loading data providers."));
   }
 
-  return std::move(vecProviders);
+  return std::move(providers);
 }
 
 void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider,

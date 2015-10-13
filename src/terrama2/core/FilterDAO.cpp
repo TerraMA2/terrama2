@@ -44,7 +44,7 @@
 #include <boost/format.hpp>
 
 void
-terrama2::core::FilterDAO::save(Filter& f, te::da::DataSourceTransactor& transactor)
+terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& transactor)
 {
   if(f.datasetItem() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be saved."));

@@ -282,13 +282,13 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
   return std::unique_ptr<DataSet>(nullptr);
 }
 
-void
-terrama2::core::DataSetDAO::loadAll(DataProvider& provider, te::da::DataSourceTransactor& transactor)
+std::vector<std::unique_ptr<terrama2::core::DataSet> >
+terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor)
 {
   try
   {
     std::string query("SELECT * FROM terrama2.dataset WHERE data_provider_id = ");
-                query += std::to_string(provider.id());
+                query += std::to_string(providerId);
                 query += " ORDER BY id ASC"; 
 
     std::auto_ptr<te::da::DataSet> query_result = transactor.query(query);
