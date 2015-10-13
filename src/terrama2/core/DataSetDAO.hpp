@@ -118,8 +118,8 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::vector<unique_ptr<DataSet> >
-        load(uint64_t providerId, te::da::DataSourceTransactor& transactor);
+        static std::vector<std::unique_ptr<DataSet> >
+        loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor);
 
       private:
 

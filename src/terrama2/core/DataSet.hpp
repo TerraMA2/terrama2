@@ -246,7 +246,7 @@ namespace terrama2
         std::string name_;
         std::string description_;
         Status status_;
-        const DataProvider* dataProvider_;
+        const DataProvider* provider_;
         Kind kind_;
         te::dt::TimeDuration dataFrequency_;
         te::dt::TimeDuration schedule_;

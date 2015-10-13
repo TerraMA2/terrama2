@@ -39,7 +39,7 @@
 terrama2::core::DataSet::DataSet(const uint64_t id, Kind kind, const DataProvider* provider)
   : id_(id),
     status_(INACTIVE),
-    dataProvider_(provider),
+    provider_(provider),
     kind_(kind),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),
@@ -107,7 +107,7 @@ void terrama2::core::DataSet::setStatus(const Status s)
 const terrama2::core::DataProvider*
 terrama2::core::DataSet::provider() const
 {
-  return dataProvider_;
+  return provider_;
 }
 
 void
@@ -183,7 +183,7 @@ terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
   collectRules_ = rules;
 }
 
-std::vector<terrama2::core::DataSetItemPtr>
+const std::vector<std::unique_ptr<terrama2::core::DataSetItem> >&
 terrama2::core::DataSet::dataSetItems() const
 {
   return datasetItemList_;
@@ -192,5 +192,5 @@ terrama2::core::DataSet::dataSetItems() const
 void
 terrama2::core::DataSet::setDataSetItems(std::vector<std::unique_ptr<DataSetItem> > items)
 {
-  datasetItemList_ = std::move(dataSetItemList);
+  datasetItemList_ = std::move(items);
 }

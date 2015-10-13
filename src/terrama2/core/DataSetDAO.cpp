@@ -56,7 +56,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
   if(dataset.id() != 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
 
-  if(dataset.dataProvider() == nullptr)
+  if(dataset.provider() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider  in order to be saved."));
 
   try
@@ -67,7 +67,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
     query.bind_arg(1, dataset.name());
     query.bind_arg(2, dataset.description());
-    query.bind_arg(3, dataset.dataProvider()->id());
+    query.bind_arg(3, dataset.provider()->id());
     query.bind_arg(4, static_cast<int>(dataset.kind()));
     query.bind_arg(5, dataset.dataFrequency().getTimeDuration().total_seconds());
 
@@ -92,7 +92,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
     if(!shallowSave)
     {
-      for(auto item: dataset.dataSetItemList())
+      for(auto item: dataset.dataSetItems())
       {
         DataSetItemDAO::save(*item, transactor);
       }
@@ -138,7 +138,7 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
 
     query.bind_arg(1, dataset.name());
     query.bind_arg(2, dataset.description());
-    query.bind_arg(3, dataset.dataProvider()->id());
+    query.bind_arg(3, dataset.provider()->id());
     query.bind_arg(4, static_cast<int>(dataset.kind()));
     query.bind_arg(5, dataset.dataFrequency().getTimeDuration().total_seconds());
 
@@ -223,12 +223,12 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
       DataProviderPtr dataProvider = DataManager::getInstance().findDataProvider(id);
 
       std::string name = tempDataSet->getAsString("name");
-      terrama2::core::DataSet::Kind kind = IntToDataSetKind(tempDataSet->getInt32("kind"));
+      terrama2::core::DataSet::Kind kind = ToDataSetKind(tempDataSet->getInt32("kind"));
 
-      std::unique_ptr<DataSet> dataset(new DataSet(dataProvider.get(), name, kind));
+      std::unique_ptr<DataSet> dataset(new DataSet(provider.get(), name, kind));
       dataset->setId(tempDataSet->getInt32("id"));
       dataset->setDescription(tempDataSet->getString("description"));
-      dataset->setStatus(BoolToDataSetStatus(tempDataSet->getBool("active")));
+      dataset->setStatus(ToDataSetStatus(tempDataSet->getBool("active")));
 
       u_int64_t dataFrequency = tempDataSet->getInt32("data_frequency");
       boost::posix_time::time_duration tdDataFrequency = boost::posix_time::seconds(dataFrequency);
@@ -259,7 +259,9 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
       // Sets the metadata
       loadMetadata(*dataset, transactor);
 
-      DataSetItemDAO::loadItems(*dataset, transactor);
+      std::vector<std::unique_ptr<DataSetItem> > items = DataSetItemDAO::load(id, transactor);
+      
+      dataset->setDataSetItems(std::move(items));
 
       return dataset;
     }
@@ -281,7 +283,7 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
 }
 
 void
-terrama2::core::DataSetDAO::load(DataProvider& provider, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetDAO::loadAll(DataProvider& provider, te::da::DataSourceTransactor& transactor)
 {
   try
   {
@@ -293,14 +295,15 @@ terrama2::core::DataSetDAO::load(DataProvider& provider, te::da::DataSourceTrans
 
     while(query_result->moveNext())
     {
-      std::string name = query_result->getAsString("name");
-      terrama2::core::DataSet::Kind kind = IntToDataSetKind(query_result->getInt32("kind"));
 
-      DataSetPtr dataSet(new DataSet(&provider, name, kind));
+      terrama2::core::DataSet::Kind kind = ToDataSetKind(query_result->getInt32("kind"));
 
+      DataSetPtr dataSet(new DataSet(0, kind, &provider));
+
+      dataSet->setName(query_result->getAsString("name"));
       dataSet->setId(query_result->getInt32("id"));
       dataSet->setDescription(query_result->getString("description"));
-      dataSet->setStatus(BoolToDataSetStatus(query_result->getBool("active")));
+      dataSet->setStatus(ToDataSetStatus(query_result->getBool("active")));
 
       u_int64_t dataFrequency = query_result->getInt32("data_frequency");
       boost::posix_time::time_duration tdDataFrequency = boost::posix_time::seconds(dataFrequency);
