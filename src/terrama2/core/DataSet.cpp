@@ -36,7 +36,7 @@
 #include "DataSetItem.hpp"
 #include "DataProvider.hpp"
 
-terrama2::core::DataSet::DataSet(DataProviderPtr dataProvider, const std::string& name, Kind kind, const uint64_t id)
+terrama2::core::DataSet::DataSet(DataProvider* dataProvider, const std::string& name, Kind kind, const uint64_t id)
   : id_(id),
     name_(name),
     status_(INACTIVE),

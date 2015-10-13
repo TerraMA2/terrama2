@@ -241,7 +241,7 @@ void terrama2::core::DataManager::update(DataSetPtr dataset, const bool shallowS
 
   transactor->begin();
 
-  DataSetDAO::update(dataset, *transactor, shallowSave);
+  DataSetDAO::update(*dataset, *transactor, shallowSave);
 
   transactor->commit();
 

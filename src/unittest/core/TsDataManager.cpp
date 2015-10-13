@@ -106,7 +106,7 @@ DataSetPtr TsDataManager::createDataSet()
   DataManager::getInstance().add(dataProvider);
 
   // create a new dataset and save it to the database
-  DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
+  DataSetPtr dataSet(new DataSet(dataProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE));
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet->setDataFrequency(dataFrequency);
 
@@ -134,7 +134,7 @@ DataSetPtr TsDataManager::createDataSet()
   // Creates a data list with two DataSetItem
   std::vector<DataSetItemPtr> dataSetItemList;
 
-  DataSetItemPtr dataSetItem(new DataSetItem(dataSet, DataSetItem::PCD_INPE_TYPE));
+  DataSetItemPtr dataSetItem(new DataSetItem(dataSet.get(), DataSetItem::PCD_INPE_TYPE));
 
   FilterPtr filter(new Filter(dataSetItem));
   filter->setExpressionType(Filter::GREATER_THAN_TYPE);
@@ -144,7 +144,7 @@ DataSetPtr TsDataManager::createDataSet()
   dataSetItemList.push_back(dataSetItem);
 
 
-  DataSetItemPtr dataSetItem2(new DataSetItem(dataSet, DataSetItem::FIRE_POINTS_TYPE));
+  DataSetItemPtr dataSetItem2(new DataSetItem(dataSet.get(), DataSetItem::FIRE_POINTS_TYPE));
 
   std::map<std::string, std::string> storageMetadata;
   storageMetadata["key"] = "value";
@@ -488,7 +488,7 @@ void TsDataManager::testUpdateDataSet()
   dataSetItemList[0]->setMask("Queimadas_*");
 
   // Add a new dataset item of type PCD_TOA5_TYPE
-  DataSetItemPtr dataSetItem(new DataSetItem(dataSet, DataSetItem::PCD_TOA5_TYPE));
+  DataSetItemPtr dataSetItem(new DataSetItem(dataSet.get(), DataSetItem::PCD_TOA5_TYPE));
   dataSetItemList.push_back(dataSetItem);
   dataSet->setDataSetItemList(dataSetItemList);
 
@@ -594,7 +594,7 @@ void TsDataManager::testAddDataSetWihId()
     DataManager::getInstance().add(dataProvider);
 
     // create a new dataset and save it to the database
-    DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE, 1));
+    DataSetPtr dataSet(new DataSet(dataProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE, 1));
 
     DataManager::getInstance().add(dataSet);
 
@@ -616,7 +616,7 @@ void TsDataManager::testAddDataProviderWithDataSet()
 
   auto dataProvider = createDataProvider();
   auto dataSets = dataProvider->dataSets();
-  DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
+  DataSetPtr dataSet(new DataSet(dataProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE));
   dataSets.push_back(dataSet);
   dataProvider->setDataSets(dataSets);
 
@@ -818,8 +818,7 @@ void TsDataManager::testAddDataSetWithNullProvider()
   // Tries to add an dataset with an invalid data provider
   try
   {
-    DataProviderPtr nullProvider;
-    DataSetPtr dataSet(new DataSet(nullProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
+    DataSetPtr dataSet(new DataSet(nullptr, "Queimadas", DataSet::OCCURENCE_TYPE));
 
     DataManager::getInstance().add(dataSet);
 

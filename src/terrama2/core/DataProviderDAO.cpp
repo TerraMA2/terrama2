@@ -94,7 +94,7 @@ void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider,
                                            te::da::DataSourceTransactor& transactor,
                                            const bool shallowSave)
 {
-  if(dataProvider->id() != 0)
+  if(dataProvider.id() != 0)
   {
     throw InvalidParameterError() <<
           ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
@@ -104,15 +104,15 @@ void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider,
   {
     boost::format query("INSERT INTO terrama2.data_provider (name, description, kind, uri, active) VALUES('%1%', '%2%', %3%, '%4%', %5%)");
 
-    query.bind_arg(1, dataProvider->name());
-    query.bind_arg(2, dataProvider->description());
-    query.bind_arg(3, (int)dataProvider->kind());
-    query.bind_arg(4, dataProvider->uri());
-    query.bind_arg(5, BoolToString(DataProviderStatusToBool(dataProvider->status())));
+    query.bind_arg(1, dataProvider.name());
+    query.bind_arg(2, dataProvider.description());
+    query.bind_arg(3, (int)dataProvider.kind());
+    query.bind_arg(4, dataProvider.uri());
+    query.bind_arg(5, BoolToString(DataProviderStatusToBool(dataProvider.status())));
 
     transactor.execute(query.str());
 
-    dataProvider->setId(transactor.getLastGeneratedId());
+    dataProvider.setId(transactor.getLastGeneratedId());
 
     if(!shallowSave)
     {
@@ -237,7 +237,7 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
       provider->setUri(dataSet->getString("uri"));
       provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
 
-      DataSetDAO::load(provider, transactor);
+      DataSetDAO::load(*provider, transactor);
 
       return provider;
     }

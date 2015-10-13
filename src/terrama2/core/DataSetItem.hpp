@@ -91,7 +91,7 @@ namespace terrama2
           \param k  The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
           \param id The dataset item identifier or zero if it doesn't have a valid one.
         */
-        DataSetItem(DataSetPtr d, Kind k, const uint64_t id = 0);
+        DataSetItem(DataSet* d, Kind k, const uint64_t id = 0);
 
         /*!
           \brief Destructor.

@@ -85,16 +85,16 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
 
     // Persist the collect rules and sets the generated id
-    saveCollectRules(*dataset, transactor);
+    saveCollectRules(dataset, transactor);
 
     // Persist the metadata
-    saveMetadata(*dataset, transactor);
+    saveMetadata(dataset, transactor);
 
     if(!shallowSave)
     {
       for(auto item: dataset.dataSetItemList())
       {
-        DataSetItemDAO::save(item, transactor);
+        DataSetItemDAO::save(*item, transactor);
       }
     }
   }
@@ -118,11 +118,6 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 void
 terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
-  if(dataset == nullptr)
-  {
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update an invalid dataset."));
-  }
-
   if(dataset.id() == 0)
   {
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
@@ -230,7 +225,7 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
       std::string name = tempDataSet->getAsString("name");
       terrama2::core::DataSet::Kind kind = IntToDataSetKind(tempDataSet->getInt32("kind"));
 
-      std::unique_ptr<DataSet>(new DataSet(dataProvider, name, kind));
+      std::unique_ptr<DataSet> dataset(new DataSet(dataProvider.get(), name, kind));
       dataset->setId(tempDataSet->getInt32("id"));
       dataset->setDescription(tempDataSet->getString("description"));
       dataset->setStatus(BoolToDataSetStatus(tempDataSet->getBool("active")));
@@ -286,15 +281,12 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
 }
 
 void
-terrama2::core::DataSetDAO::load(DataProviderPtr& provider, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetDAO::load(DataProvider& provider, te::da::DataSourceTransactor& transactor)
 {
-  if(provider == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not retrieve datasets for a NULL data provider."));
-
   try
   {
     std::string query("SELECT * FROM terrama2.dataset WHERE data_provider_id = ");
-                query += std::to_string(provider->id());
+                query += std::to_string(provider.id());
                 query += " ORDER BY id ASC"; 
 
     std::auto_ptr<te::da::DataSet> query_result = transactor.query(query);
@@ -304,7 +296,7 @@ terrama2::core::DataSetDAO::load(DataProviderPtr& provider, te::da::DataSourceTr
       std::string name = query_result->getAsString("name");
       terrama2::core::DataSet::Kind kind = IntToDataSetKind(query_result->getInt32("kind"));
 
-      DataSetPtr dataSet(new DataSet(provider, name, kind));
+      DataSetPtr dataSet(new DataSet(&provider, name, kind));
 
       dataSet->setId(query_result->getInt32("id"));
       dataSet->setDescription(query_result->getString("description"));
@@ -331,12 +323,12 @@ terrama2::core::DataSetDAO::load(DataProviderPtr& provider, te::da::DataSourceTr
       dataSet->setScheduleTimeout(teTDScheduleTimeout);
 
 // Sets the collect rules
-      loadCollectRules(dataSet, transactor);
+      loadCollectRules(*dataSet, transactor);
 
 // Sets the metadata
-      loadMetadata(dataSet, transactor);
+      loadMetadata(*dataSet, transactor);
 
-      provider->add(dataSet);
+      provider.add(dataSet);
     }
   }
   catch(const std::exception& e)
@@ -355,7 +347,7 @@ void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::Data
 
   std::string dataSetName = "terrama2.dataset_collect_rule";
 
-  std::string sql("SELECT id, script FROM " + dataSetName + " WHERE dataset_id = " + std::to_string(dataSet->id()));
+  std::string sql("SELECT id, script FROM " + dataSetName + " WHERE dataset_id = " + std::to_string(dataSet.id()));
   std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
 
   while(tempDataSet->moveNext())
@@ -367,7 +359,7 @@ void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::Data
     collectRules.push_back(collectRule);
   }
 
-  dataSet->setCollectRules(collectRules);
+  dataSet.setCollectRules(collectRules);
 
 }
 
@@ -392,7 +384,7 @@ void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSour
 
   std::string dataSetName = "terrama2.dataset_metadata";
 
-  std::string sql("SELECT key, value FROM " + dataSetName + " WHERE dataset_id = " + std::to_string(dataSet->id()));
+  std::string sql("SELECT key, value FROM " + dataSetName + " WHERE dataset_id = " + std::to_string(dataSet.id()));
   std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
 
   while(tempDataSet->moveNext())
@@ -400,7 +392,7 @@ void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSour
     metadata[tempDataSet->getString("key")] = tempDataSet->getString("value");
   }
 
-  dataSet->setMetadata(metadata);
+  dataSet.setMetadata(metadata);
 
 }
 

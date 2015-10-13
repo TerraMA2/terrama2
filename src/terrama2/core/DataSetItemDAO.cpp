@@ -178,7 +178,7 @@ terrama2::core::DataSetItemDAO::loadItems(DataSet& dataset, te::da::DataSourceTr
       item->setTimezone(items_result->getString("timezone"));
 
 // retrieve the filter
-      FilterDAO::loadFilter(item, transactor);
+      // TODO : FilterDAO::loadFilter(item, transactor);
 
       loadStorageMetadata(*item, transactor);
 
@@ -272,18 +272,15 @@ terrama2::core::DataSetItemDAO::removeStorageMetadata(uint64_t datasetItemId,
 }
 
 void
-terrama2::core::DataSetItemDAO::loadStorageMetadata(DataSetItemPtr item,
+terrama2::core::DataSetItemDAO::loadStorageMetadata(DataSetItem& item,
                                                     te::da::DataSourceTransactor& transactor)
 {
-  if(item == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not metadata for a NULL dataset item."));
-  
-  if(item->id() == 0)
+  if(item.id() == 0)
     throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not load metadata information for a dataset item with an invalid identifier."));
   
  
   std::string sql("SELECT key, value FROM terrama2.storage_metadata WHERE dataset_item_id = ");
-              sql += std::to_string(item->id());
+              sql += std::to_string(item.id());
   
   try
   {
@@ -295,7 +292,7 @@ terrama2::core::DataSetItemDAO::loadStorageMetadata(DataSetItemPtr item,
       metadata[metadata_result->getString("key")] = metadata_result->getString("value");
   
     
-    item->setStorageMetadata(metadata);
+    item.setStorageMetadata(metadata);
   }
   catch(const std::exception& e)
   {
@@ -377,17 +374,14 @@ terrama2::core::DataSetItemDAO::update(FilterPtr f, te::da::DataSourceTransactor
 }
 
 void
-terrama2::core::DataSetItemDAO::loadFilter(DataSetItemPtr item,
+terrama2::core::DataSetItemDAO::loadFilter(DataSetItem& item,
                                            te::da::DataSourceTransactor& transactor)
 {
-  if(item == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load filter for a NULL dataset item."));
-
-  if(item->id() == 0)
+  if(item.id() == 0)
     throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not load filter information for a dataset item with an invalid identifier."));
 
   std::string sql("SELECT * FROM terrama2.filter WHERE dataset_item_id = ");
-              sql += std::to_string(item->id());
+              sql += std::to_string(item.id());
 
   try
   {
@@ -395,8 +389,10 @@ terrama2::core::DataSetItemDAO::loadFilter(DataSetItemPtr item,
     
     if(!filter_result->moveNext())
       return;
-    
-    FilterPtr filter(new Filter(item));
+
+    // TODO: Create filter
+    /*
+    FilterPtr filter(new Filter(&item));
     
     filter->setDiscardBefore(filter_result->getDateTime("discard_before"));
     filter->setDiscardAfter(filter_result->getDateTime("discard_after"));
@@ -407,6 +403,9 @@ terrama2::core::DataSetItemDAO::loadFilter(DataSetItemPtr item,
     filter->setExpressionType(IntToFilterExpressionType(filter_result->getInt32("by_value_type")));
     filter->setValue(atof(filter_result->getNumeric("by_value").c_str()));
     filter->setBandFilter(filter_result->getString("band_filter"));
+
+    item.setFilter(filter);
+     */
   }
   catch(const terrama2::Exception&)
   {

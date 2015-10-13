@@ -32,7 +32,7 @@
 #include "DataSet.hpp"
 
 
-terrama2::core::DataSetItem::DataSetItem(DataSetPtr d, Kind k, const uint64_t id)
+terrama2::core::DataSetItem::DataSetItem(DataSet* d, Kind k, const uint64_t id)
   : id_(id),
     status_(INACTIVE),
     dataSet_(d),

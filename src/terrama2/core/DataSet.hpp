@@ -106,7 +106,7 @@ namespace terrama2
           \param name The name of the dataset.
           \param kind The kind of the dataset.
         */
-        DataSet(DataProviderPtr provider, const std::string& name, Kind kind, const uint64_t id = 0);
+        DataSet(DataProvider* provider, const std::string& name, Kind kind, const uint64_t id = 0);
 
         /*!
           \brief Destructor
