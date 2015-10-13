@@ -55,13 +55,13 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   if(item.dataset() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be saved."));
 
-  if(item.dataset().id() == 0)
+  if(item.dataset()->id() == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a valid dataset in order to be saved."));
 
   boost::format query("INSERT INTO terrama2.dataset_item (kind, active, dataset_id, mask, timezone) VALUES(%1%, %2%, %3%, '%4%', '%5%')");
 
   query.bind_arg(1, static_cast<uint32_t>(item.kind()));
-  query.bind_arg(2, BoolToString(DataSetItemStatusToBool(item.status())));
+  query.bind_arg(2, ToString(ToBool(item.status())));
   query.bind_arg(3, item.dataset()->id());
   query.bind_arg(4, item.mask());
   query.bind_arg(5, item.timezone());
