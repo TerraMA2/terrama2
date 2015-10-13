@@ -81,7 +81,7 @@ namespace terrama2
 
           \pre The database with TerraMA2 metadata must have been initialized in the application controller.
 
-          \exception
+          \exception terrama2::Exception If it is not possible to load TerraMA2 metadata.
 
           \note Thread-safe.
          */
@@ -106,6 +106,7 @@ namespace terrama2
           - dataSetAdded(DataSetPtr): one signal for each dataset in the data provider's list added to the database and registered in the manager.
          
           \param provider The data provider to be added to the database and registered into the manager.
+          \param shallowSave If true it will update the datasets in this data provider.
 
           \pre The provider must not have a valid ID (its ID must be zero).
           \pre A provider with the same name must not be already in the manager.
@@ -118,7 +119,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void add(DataProviderPtr provider);
+        void add(DataProviderPtr provider, const bool shallowSave = true);
 
         /*!
           \brief Add the dataset to the database and register it in the manager.
@@ -133,12 +134,13 @@ namespace terrama2
           \pos The informed dataset will have a valid ID.
 
           \param dataset Dataset to add.
+          \param shallowSave If true it will update the datasets in this data provider.
 
           \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
 
           \note Thread-safe.
          */
-        void add(DataSetPtr dataset);
+        void add(DataSetPtr dataset, const bool shallowSave = true);
 
         /*!
           \brief Update a given data provider in the database.
@@ -146,6 +148,7 @@ namespace terrama2
           Emits dataProviderUpdated() signal if the data provider is updated successfully.
          
           \param provider The data provider to be updated.
+          \param shallowSave If true it will persist the datasets in this data provider.
 
           \pre The data provider must have a valid ID.
           \pre The data provider must exist in the database.
@@ -154,7 +157,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void update(DataProviderPtr provider);
+        void update(DataProviderPtr provider, const bool shallowSave = true);
 
         /*!
           \brief Update a given dataset in the database.
@@ -164,6 +167,7 @@ namespace terrama2
           It will not update the datasets.
          
           \param dataset Dataset to update.
+          \param shallowSave If true it will persist the datasets in this data provider.
 
           \pre The dataset must have an valid ID.
           \pre The dataset must exist in the database.
@@ -172,7 +176,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void update(DataSetPtr dataset);
+        void update(DataSetPtr dataset, const bool shallowSave = true);
 
         /*!
           \brief Removes a given data provider.

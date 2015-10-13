@@ -60,7 +60,7 @@ namespace terrama2
      */
     class DataSetItem : boost::noncopyable
     {
-      friend class DataSetDAO;
+      friend class DataSetItemDAO;
 
       public:
 
@@ -166,7 +166,7 @@ namespace terrama2
 
           \return The the dataset.
         */
-        DataSetPtr dataSet() const;
+        DataSetPtr dataset() const;
 
         /*!
           \brief It returns the filter to be used when collecting this data item.
@@ -187,7 +187,14 @@ namespace terrama2
 
           \param The storage strategy metadata.
         */
-        std::map<std::string, std::string> storageMetadata() const;
+        const std::map<std::string, std::string>& storageMetadata() const;
+      
+        /*!
+          \brief It returns the storage strategy metadata.
+         
+          \param The storage strategy metadata.
+         */
+        std::map<std::string, std::string>& storageMetadata();
 
         /*!
           \brief It sets the storage strategy metadata.
