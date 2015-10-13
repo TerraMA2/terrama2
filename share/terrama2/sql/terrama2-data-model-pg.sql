@@ -257,7 +257,7 @@ CREATE TABLE terrama2.filter
   value                             NUMERIC,
   expression_type                   INTEGER,
   within_external_data_id           INTEGER,
-  band_filter                       TEXT,
+  band_filter                       TEXT NOT NULL,
   CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_filter_with_expression_type FOREIGN KEY(expression_type) REFERENCES terrama2.filter_expression_type (id) ON UPDATE CASCADE ON DELETE CASCADE
   --CONSTRAINT fk_filter_external_data_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE

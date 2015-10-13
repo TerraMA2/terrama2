@@ -1,0 +1,214 @@
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
+
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
+
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file terrama2/core/FilterDAO.hpp
+
+  \brief Persistense layer for filter information associated to dataset items.
+
+  \author Paulo R. M. Oliveira
+  \author Gilberto Ribeiro de Queiroz
+*/
+
+
+//TerraMA2
+#include "FilterDAO.hpp"
+#include "Exception.hpp"
+#include "Utils.hpp"
+
+// TerraLib
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+
+// Qt
+#include <QObject>
+
+//Boost
+#include <boost/format.hpp>
+
+void
+terrama2::core::FilterDAO::save(Filter& f, te::da::DataSourceTransactor& transactor)
+{
+  if(f.datasetItem() == nullptr)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be saved."));
+
+  if(f.datasetItem()->id() == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
+
+  boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%, %9%)");
+
+  query.bind_arg(1, f.datasetItem()->id());
+
+  if(f.discardBefore())
+    query.bind_arg(2, "'" + f.discardBefore()->toString() + "'");
+  else
+    query.bind_arg(2, "NULL");
+
+  if(f.discardAfter())
+    query.bind_arg(3, "'" + f.discardAfter()->toString() + "'");
+  else
+    query.bind_arg(3, "NULL");
+
+// geom
+  query.bind_arg(4, "NULL");
+
+// external_data_id
+  query.bind_arg(5, "NULL");
+
+  if(f.value())
+    query.bind_arg(6, *f.value());
+  else
+    query.bind_arg(6, "NULL");
+
+// expression_type
+  query.bind_arg(7, static_cast<uint32_t>(f.expressionType()));
+
+// within_external_data_id
+  query.bind_arg(8, "NULL");
+
+// band_filter
+  query.bind_arg(9, "NULL");
+
+  try
+  {
+    transactor.execute(query.str());
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    QString err_msg(QObject::tr("Unexpected error saving filter information for dataset item: %1"));
+
+    err_msg.arg(f.datasetItem()->id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
+  }
+}
+
+void
+terrama2::core::FilterDAO::update(const Filter& f, te::da::DataSourceTransactor& transactor)
+{
+  if(f.datasetItem() == nullptr)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be updated."));
+
+  if(f.datasetItem()->id() == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
+
+  boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
+                      "discard_after = %2%, geom = %3%, external_data_id = %4%, "
+                      "value = %5%, expression_type = %6%, within_external_data_id = %7%, "
+                      "band_filter = %8% WHERE dataset_item_id = %9%)");
+
+  if(f.discardBefore())
+    query.bind_arg(1, "'" + f.discardBefore()->toString() + "'");
+  else
+    query.bind_arg(1, "NULL");
+
+  if(f.discardAfter())
+    query.bind_arg(2, "'" + f.discardAfter()->toString() + "'");
+  else
+    query.bind_arg(2, "NULL");
+
+// geom
+  query.bind_arg(3, "NULL");
+
+// external_data_id
+  query.bind_arg(4, "NULL");
+
+  if(f.value())
+    query.bind_arg(5, *f.value());
+  else
+    query.bind_arg(5, "NULL");
+
+// expression_type
+  query.bind_arg(6, static_cast<uint32_t>(f.expressionType()));
+
+// within_external_data_id
+  query.bind_arg(7, "NULL");
+
+// band_filter
+  query.bind_arg(8, "NULL");
+
+  query.bind_arg(9, f.datasetItem()->id());
+
+  try
+  {
+    transactor.execute(query.str());
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    QString err_msg(QObject::tr("Unexpected error updating filter information for dataset item: %1"));
+
+    err_msg.arg(f.datasetItem()->id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
+  }
+}
+
+std::unique_ptr<terrama2::core::Filter>
+terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
+{
+  if(datasetItemId == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load filter information for an invalid dataset item identifier: 0."));
+
+  std::string sql("SELECT * FROM terrama2.filter WHERE dataset_item_id = ");
+              sql += std::to_string(datasetItemId);
+
+  try
+  {
+    std::auto_ptr<te::da::DataSet> filter_result = transactor.query(sql);
+
+    if(!filter_result->moveNext())
+      return std::unique_ptr<terrama2::core::Filter>(nullptr);
+
+    FilterPtr filter(new Filter);
+
+    filter->setDiscardBefore(filter_result->getDateTime("discard_before"));
+    filter->setDiscardAfter(filter_result->getDateTime("discard_after"));
+    
+    if(!filter_result->isNull(3))
+      filter->setGeometry(filter_result->getGeometry("geom"));
+    
+    filter->setExpressionType(IntToFilterExpressionType(filter_result->getInt32("by_value_type")));
+    filter->setValue(atof(filter_result->getNumeric("by_value").c_str()));
+    filter->setBandFilter(filter_result->getString("band_filter"));
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
+  }
+}
+
+
+

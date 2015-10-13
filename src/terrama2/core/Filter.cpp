@@ -22,9 +22,10 @@
 /*!
   \file terrama2/core/Filter.cpp
 
-  \brief Contains the filters to be applied in a dataset item.
+  \brief Filter information of a given dataset item.
 
   \author Paulo R. M. Oliveira
+  \author Gilberto Ribeiro de Queiroz
 */
 
 // TerraMA2
@@ -35,7 +36,7 @@
 #include <terralib/datatype/DateTime.h>
 #include <terralib/geometry/Geometry.h>
 
-terrama2::core::Filter::Filter(const DataSetItemPtr& item)
+terrama2::core::Filter::Filter(const DataSetItem* item)
   : datasetItem_(item),
     value_(0.0),
     expressionType_(NONE_TYPE)
@@ -48,12 +49,12 @@ terrama2::core::Filter::~Filter()
 
 }
 
-terrama2::core::DataSetItemPtr terrama2::core::Filter::dataSetItem() const
+terrama2::core::DataSetItemPtr terrama2::core::Filter::datasetItem() const
 {
   return datasetItem_;
 }
 
-void terrama2::core::Filter::setDataSetItemPtr(const terrama2::core::DataSetItemPtr& datasetItem)
+void terrama2::core::Filter::setDataSetItem(const DataSetItem* datasetItem)
 {
   datasetItem_ = datasetItem;
 }
@@ -63,9 +64,9 @@ const te::dt::DateTime* terrama2::core::Filter::discardBefore() const
   return discardBefore_.get();
 }
 
-void terrama2::core::Filter::setDiscardBefore(std::unique_ptr<te::dt::DateTime> discardBefore)
+void terrama2::core::Filter::setDiscardBefore(std::unique_ptr<te::dt::DateTime> t)
 {
-  discardBefore_ = std::move(discardBefore);
+  discardBefore_ = std::move(t);
 }
 
 const te::dt::DateTime* terrama2::core::Filter::discardAfter() const
@@ -73,9 +74,9 @@ const te::dt::DateTime* terrama2::core::Filter::discardAfter() const
   return discardAfter_.get();
 }
 
-void terrama2::core::Filter::setDiscardAfter(std::unique_ptr<te::dt::DateTime> discardAfter)
+void terrama2::core::Filter::setDiscardAfter(std::unique_ptr<te::dt::DateTime> t)
 {
-  discardAfter_ = std::move(discardAfter);
+  discardAfter_ = std::move(t);
 }
 
 const te::gm::Geometry* terrama2::core::Filter::geometry() const
@@ -93,12 +94,13 @@ double terrama2::core::Filter::value() const
   return value_;
 }
 
-void terrama2::core::Filter::setValue(const double v)
+void terrama2::core::Filter::setValue(std::unique_ptr<double> v)
 {
-  value_ = v;
+  value_ = std::move(v);
 }
 
-terrama2::core::Filter::ExpressionType terrama2::core::Filter::expressionType() const
+terrama2::core::Filter::ExpressionType
+terrama2::core::Filter::expressionType() const
 {
   return expressionType_;
 }
@@ -108,12 +110,13 @@ void terrama2::core::Filter::setExpressionType(const ExpressionType t)
   expressionType_ = t;
 }
 
-std::string terrama2::core::Filter::bandFilter() const
+const std::string&
+terrama2::core::Filter::bandFilter() const
 {
   return bandFilter_;
 }
 
-void terrama2::core::Filter::setBandFilter(const std::string& bandFilter)
+void terrama2::core::Filter::setBandFilter(const std::string& f)
 {
-  bandFilter_ = bandFilter;
+  bandFilter_ = f;
 }

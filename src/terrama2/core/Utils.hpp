@@ -101,7 +101,7 @@ namespace terrama2
 
       \return string String representation of the given boolean.
      */
-    std::string BoolToString(bool b);
+    std::string ToString(bool b);
 
     /*!
       \brief Returns a boolean with the status of the dataset based on the given status.
@@ -110,7 +110,7 @@ namespace terrama2
 
       \return Boolean that determine if the dataset is active.
      */
-    bool DataSetStatusToBool(DataSet::Status status);
+    bool ToBool(DataSet::Status status);
 
     /*!
       \brief Returns a enum with the status of the dataset based on the given parameter.
@@ -119,7 +119,7 @@ namespace terrama2
 
       \return Enum with the status of the dataset.
      */
-    DataSet::Status BoolToDataSetStatus(bool active);
+    DataSet::Status ToDataSetStatus(bool active);
 
     /*!
       \brief Returns a enum with the kind of the dataset based on the given parameter.
@@ -128,7 +128,7 @@ namespace terrama2
 
       \return Enum with the type of the dataset.
      */
-    DataSet::Kind IntToDataSetKind(uint64_t kind);
+    DataSet::Kind ToDataSetKind(uint64_t kind);
 
     /*!
       \brief Returns a boolean with the status of the dataset item based on the given status.
@@ -137,7 +137,7 @@ namespace terrama2
 
       \return Boolean that determine if the dataset item is active.
      */
-    bool DataSetItemStatusToBool(DataSetItem::Status status);
+    bool ToBool(DataSetItem::Status status);
 
     /*!
       \brief Returns a enum with the status of the dataset item based on the given parameter.
@@ -146,7 +146,7 @@ namespace terrama2
 
       \return Enum with the status of the dataset item.
      */
-    DataSetItem::Status BoolToDataSetItemStatus(bool active);
+    DataSetItem::Status ToDataSetItemStatus(bool active);
 
     /*!
       \brief Returns a enum with the kind of the dataset item based on the given parameter.
@@ -155,7 +155,7 @@ namespace terrama2
 
       \return Enum with the type of the dataset item.
      */
-    DataSetItem::Kind IntToDataSetItemKind(uint64_t kind);
+    DataSetItem::Kind ToDataSetItemKind(uint64_t kind);
 
     /*!
       \brief Returns a enum with the type of filter based on the given parameter.
@@ -164,7 +164,7 @@ namespace terrama2
 
       \return Enum with the type of filter.
      */
-    Filter::ExpressionType IntToFilterExpressionType(uint64_t type);
+    Filter::ExpressionType ToFilterExpressionType(uint64_t type);
 
   } // end namespace core
 }   // end namespace terrama2
