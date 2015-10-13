@@ -306,6 +306,8 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
   {
     throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the dataset list."));
   }
+  
+  return std::move(datasets);
 }
 
 void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
@@ -370,7 +372,7 @@ void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataset, te::da::Data
   {
     QString err_msg(QObject::tr("Unexpected error saving the collect rules for the dataset: %1"));
 
-    err_msg.arg(dataset.id());
+    err_msg = err_msg.arg(dataset.id());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
