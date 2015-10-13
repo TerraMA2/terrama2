@@ -152,6 +152,7 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
 
     if(!shallowSave)
     {
+      // TODO: Verificar os existentes no banco pra ver oq precisa inserir/remove/atualizar
       for(auto dataset: provider.datasets())
       {
         DataSetDAO::update(*dataset, transactor);

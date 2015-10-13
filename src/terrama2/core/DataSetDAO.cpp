@@ -166,6 +166,7 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
 
     if(!shallowSave)
     {
+      // TODO: Verificar os existentes no banco pra ver oq precisa inserir/remove/atualizar
       for(auto item: dataset.dataSetItems())
       {
         DataSetItemDAO::save(*item, transactor);
