@@ -131,7 +131,7 @@ namespace terrama2
 
       private:
 
-        DataSetItemPtr datasetItem_;
+        const DataSetItem* datasetItem_;
         std::unique_ptr<te::dt::DateTime> discardBefore_;
         std::unique_ptr<te::dt::DateTime> discardAfter_;
         std::unique_ptr<te::gm::Geometry> geometry_;
