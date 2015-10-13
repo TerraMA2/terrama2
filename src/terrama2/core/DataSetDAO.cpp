@@ -368,7 +368,50 @@ void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::Data
 
 void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
 {
-  //TODO
+
+
+
+  if(dataset.id() != 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
+
+  if(dataset.provider() == nullptr)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider  in order to be saved."));
+
+  try
+  {
+    std::vector<terrama2::core::DataSet::CollectRule> collectRules = dataSet.collectRules();
+    for(auto collectRule : collectRules)
+    {
+      boost::format query("INSERT INTO terrama2.collect_rules "
+                                  "(script, id)"
+                                  "VALUES('%1%', %2%)");
+
+      query.bind_arg(1, collectRule.script);
+      query.bind_arg(2, dataSet.id());
+
+      transactor.execute(query.str());
+
+      collectRule.id = transactor.getLastGeneratedId();
+    }
+
+    dataSet.setCollectRules(collectRules);
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    QString err_msg(QObject::tr("Unexpected error saving the collect rules for the dataset: %1"));
+
+    err_msg.arg(dataSet.id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
+  }
 }
 
 void terrama2::core::DataSetDAO::updateCollectRules(DataSet& dataset, te::da::DataSourceTransactor& transactor)
