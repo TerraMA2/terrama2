@@ -44,7 +44,9 @@ namespace terrama2
 {
   namespace core
   {
-    
+    // forward declaration
+    class Filter;
+
     /*!
       \class FilterDAO
 
@@ -65,7 +67,8 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static save(const Filter& f, te::da::DataSourceTransactor& transactor);
+        static void save(const Filter& f, te::da::DataSourceTransactor& transactor);
+
 
         /*!
           \brief Update the filter information associated to a dataset item in the database.
