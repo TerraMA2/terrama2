@@ -33,6 +33,7 @@
 
 // STL
 #include <memory>
+#include <vector>
 
 // Forward declaration
 namespace te { namespace da { class DataSourceTransactor; } }
@@ -84,26 +85,25 @@ namespace terrama2
         /*!
           \brief Removes the dataset item from the database.
 
-          \param id         The dataset item to be removed from the database.
+          \param itemId     The dataset item to be removed from the database.
           \param transactor The data source transactor to be used to perform the delete operation.
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void remove(uint64_t id, te::da::DataSourceTransactor& transactor);
+        static void remove(uint64_t itemId, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Load the list of dataset items for the given dataset.
 
-          \param dataset    The dataset to load its items.
-          \param transactor The data source transactor to be used to perform the delete operation.
+          \param datasetId  The dataset identifier to load its items.
+          \param transactor The data source transactor to be used to perform the load operation.
 
           \pre The dataset must have a valid identifier (a value different than 0).
 
-          \pos If the load succeed, the items will be added to the dataset.
-
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void loadItems(DataSet& dataset, te::da::DataSourceTransactor& transactor);
+        static std::vector<std::unique_ptr<DataSetItem> >
+        load(uin64_t datasetId, te::da::DataSourceTransactor& transactor);
 
       private:
 
@@ -132,18 +132,6 @@ namespace terrama2
         /*!
          */
         static void loadStorageMetadata(DataSetItem& item, te::da::DataSourceTransactor& transactor);
-      
-        /*!
-         */
-        static void save(uint64_t datasetItemId, FilterPtr f, te::da::DataSourceTransactor& transactor);
-      
-        /*!
-         */
-        static void update(FilterPtr f, te::da::DataSourceTransactor& transactor);
-
-        /*!
-         */
-        static void loadFilter(DataSetItem& item, te::da::DataSourceTransactor& transactor);
     };
 
   } // end namespace core

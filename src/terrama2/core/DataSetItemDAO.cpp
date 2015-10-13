@@ -33,6 +33,7 @@
 #include "DataSetItemDAO.hpp"
 #include "DataSetItem.hpp"
 #include "Exception.hpp"
+#include "Filter.hpp"
 #include "FilterDAO.hpp"
 #include "Utils.hpp"
 
@@ -174,41 +175,40 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
   }
 }
 
-void
-terrama2::core::DataSetItemDAO::loadItems(DataSet& dataset, te::da::DataSourceTransactor& transactor)
+std::vector<std::unique_ptr<terrama2::core::DataSetItemDAO::DataSetItem> >
+terrama2::core::DataSetItemDAO::load(uin64_t datasetId, te::da::DataSourceTransactor& transactor)
 {
-  if(dataset.id() == 0)
+  if(datasetId == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load dataset items for a dataset with an invalid identifier: 0."));
 
   std::string sql ("SELECT * FROM terrama2.dataset_item WHERE dataset_id = ");
-              sql += std::to_string(dataset.id());
+              sql += std::to_string(datasetId);
 
   try
   {
     std::auto_ptr<te::da::DataSet> items_result = transactor.query(sql);
 
-    std::vector<DataSetItemPtr> items;
+    std::vector<std::unique_ptr<DataSetItem> > items;
 
     while(items_result->moveNext())
     {
-      DataSetItem::Kind kind = IntToDataSetItemKind(items_result->getInt32("kind"));
+      DataSetItem::Kind kind = ToDataSetItemKind(items_result->getInt32("kind"));
+      uint64_t id = items_result->getInt32("id")
 
-      DataSetItemPtr item(new DataSetItem(&dataset, kind));
+      std::unique_ptr<DataSetItem> item(new DataSetItem(id, kind, nullptr));
 
-      item->setId(items_result->getInt32("id"));
-      item->setStatus(BoolToDataSetItemStatus(items_result->getBool("active")));
+      item->setStatus(ToDataSetItemStatus(items_result->getBool("active")));
       item->setMask(items_result->getString("mask"));
       item->setTimezone(items_result->getString("timezone"));
 
 // retrieve the filter
-      // TODO : FilterDAO::loadFilter(item, transactor);
+      std::unique_ptr<Filter> f = FilterDAO::load(id, transactor);
+      item->setFilter(f);
 
       loadStorageMetadata(*item, transactor);
 
-      items.push_back(item);
+      items.push_back(std::move(item));
     }
-
-    dataset.setDataSetItemList(items);
   }
   catch(const terrama2::Exception&)
   {
@@ -220,7 +220,11 @@ terrama2::core::DataSetItemDAO::loadItems(DataSet& dataset, te::da::DataSourceTr
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    QString err_msg(QObject::tr("Unexpected error loading dataset items for dataset: %1"));
+
+    err_msg.arg(datasetId);
+
+    throw DataAccessError() << ErrorDescription(err_msg);
   }
 }
 
@@ -326,121 +330,3 @@ terrama2::core::DataSetItemDAO::loadStorageMetadata(DataSetItem& item,
     throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
   }
 }
-
-void
-terrama2::core::DataSetItemDAO::save(uint64_t datasetItemId, FilterPtr f,
-                                     te::da::DataSourceTransactor& transactor)
-{
-  if(datasetItemId == 0)
-    throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not save filter metadata for a dataset item with identifier: 0."));
-
-  if(f == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a NULL filter."));
-  
-  boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%, %9%)");
-  query.bind_arg(1, datasetItemId);
-  query.bind_arg(2, "NULL");
-  query.bind_arg(3, "NULL");
-  query.bind_arg(4, "NULL");
-  query.bind_arg(5, "NULL");
-  query.bind_arg(6, "NULL");
-  query.bind_arg(7, "NULL");
-  query.bind_arg(8, "NULL");
-  query.bind_arg(9, "NULL");
-  
-  try
-  {
-    transactor.execute(query.str());
-  }
-  catch(const std::exception& e)
-  {
-    throw DataAccessError() << ErrorDescription(e.what());
-  }
-  catch(...)
-  {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
-  }
-}
-
-void
-terrama2::core::DataSetItemDAO::update(FilterPtr f, te::da::DataSourceTransactor& transactor)
-{
-  if(f == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a NULL filter."));
-  
-  boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
-                      "discard_after = %2%, geom = %3%, external_data_id = %4%, "
-                      "value = %5%, expression_type = %6%, within_external_data_id = %7%, "
-                      "band_filter = %8% WHERE dataset_item_id = %9%)");
-  query.bind_arg(1, "NULL");
-  query.bind_arg(2, "NULL");
-  query.bind_arg(3, "NULL");
-  query.bind_arg(4, "NULL");
-  query.bind_arg(5, "NULL");
-  query.bind_arg(6, "NULL");
-  query.bind_arg(7, "NULL");
-  query.bind_arg(8, "NULL");
-  query.bind_arg(9, f->dataSetItem()->id());
-  
-  try
-  {
-    transactor.execute(query.str());
-  }
-  catch(const std::exception& e)
-  {
-    throw DataAccessError() << ErrorDescription(e.what());
-  }
-  catch(...)
-  {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
-  }
-}
-
-void
-terrama2::core::DataSetItemDAO::loadFilter(DataSetItem& item,
-                                           te::da::DataSourceTransactor& transactor)
-{
-  if(item.id() == 0)
-    throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not load filter information for a dataset item with an invalid identifier."));
-
-  std::string sql("SELECT * FROM terrama2.filter WHERE dataset_item_id = ");
-              sql += std::to_string(item.id());
-
-  try
-  {
-    std::auto_ptr<te::da::DataSet> filter_result = transactor.query(sql);
-    
-    if(!filter_result->moveNext())
-      return;
-
-    // TODO: Create filter
-    /*
-    FilterPtr filter(new Filter(&item));
-    
-    filter->setDiscardBefore(filter_result->getDateTime("discard_before"));
-    filter->setDiscardAfter(filter_result->getDateTime("discard_after"));
-    
-    if(!filter_result->isNull(3))
-      filter->setGeometry(filter_result->getGeometry("geom"));
-    
-    filter->setExpressionType(IntToFilterExpressionType(filter_result->getInt32("by_value_type")));
-    filter->setValue(atof(filter_result->getNumeric("by_value").c_str()));
-    filter->setBandFilter(filter_result->getString("band_filter"));
-
-    item.setFilter(filter);
-     */
-  }
-  catch(const terrama2::Exception&)
-  {
-    throw;
-  }
-  catch(const std::exception& e)
-  {
-    throw DataAccessError() << ErrorDescription(e.what());
-  }
-  catch(...)
-  {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
-  }
-}
-
