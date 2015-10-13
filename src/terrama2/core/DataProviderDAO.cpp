@@ -65,6 +65,9 @@ terrama2::core::DataProviderDAO::load(te::da::DataSourceTransactor& transactor)
 
       std::vector<std::unique_ptr<DataSet> > datasets = DataSetDAO::loadAll(provider->id(), transactor);
 
+      for(std::unique_ptr<DataSet>& dataset : datasets)
+        provider->add(std::move(dataset));
+
       providers.push_back(std::move(provider));
     }
   }
@@ -108,7 +111,7 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
     if(!shallow)
     {
 // save all datasets in this provider, their id must be zero
-      for(const std::unique_ptr<DataSet>& dataset: dataProvider.datasets())
+      for(auto dataset: dataProvider.datasets())
         DataSetDAO::save(*dataset, transactor);
     }
 
@@ -132,10 +135,7 @@ void terrama2::core::DataProviderDAO::update(DataProvider& dataProvider,
                                              const bool shallowSave)
 {
   if(dataProvider.id() == 0)
-  {
-    throw InvalidParameterError() <<
-          ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
-  }
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
 
   try
   {
@@ -152,7 +152,7 @@ void terrama2::core::DataProviderDAO::update(DataProvider& dataProvider,
 
     if(!shallowSave)
     {
-      for(auto dataset: dataProvider.dataSets())
+      for(auto dataset: dataProvider.datasets())
       {
         DataSetDAO::update(*dataset, transactor);
       }
@@ -217,16 +217,18 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
 
     if(dataSet->moveNext())
     {
-      terrama2::core::DataProvider::Kind kind = IntToDataProviderKind(dataSet->getInt32("kind"));
-      std::string name = dataSet->getAsString("name");
-
-      std::unique_ptr<DataProvider> provider(new DataProvider(name, kind));
+      std::unique_ptr<DataProvider> provider(new DataProvider);
+      provider->setKind(ToDataProviderKind(dataSet->getInt32("kind")));
+      provider->setName(dataSet->getAsString("name"));
       provider->setId(dataSet->getInt32("id"));
       provider->setDescription(dataSet->getString("description"));
       provider->setUri(dataSet->getString("uri"));
-      provider->setStatus(BoolToDataProviderStatus(dataSet->getBool("active")));
+      provider->setStatus(ToDataProviderStatus(dataSet->getBool("active")));
 
-      DataSetDAO::load(*provider, transactor);
+      std::vector<std::unique_ptr<DataSet> > datasets = DataSetDAO::loadAll(id, transactor);
+      
+      for(std::unique_ptr<DataSet>& dataset : datasets)
+        provider->add(std::move(dataset));
 
       return provider;
     }
@@ -245,8 +247,6 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
   }
 
   return std::unique_ptr<DataProvider>(nullptr);
-
-
 }
 
 

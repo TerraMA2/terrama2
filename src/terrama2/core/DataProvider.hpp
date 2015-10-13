@@ -45,7 +45,9 @@ namespace terrama2
 {
   namespace core
   {
+// Forward declaration
     class DataSet;
+    typedef std::shared_ptr<DataSet> DataSetPtr;
 
     /*!
       \class DataProvider
@@ -125,14 +127,7 @@ namespace terrama2
         void setStatus(Status s);
 
         /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
-        const std::vector<std::unique_ptr<DataSet> >& datasets() const;
-
-        /*!
-          \brief It sets the the dataset list.
-
-          \param The the dataset list.
-        */
-        void setDataSets(std::vector<std::unique_ptr<DataSet> > datasets);
+        const std::vector<DataSetPtr>& datasets() const;
 
         /*!
           \brief Adds a new dataset to the data provider.
@@ -149,7 +144,7 @@ namespace terrama2
         Kind kind_;
         std::string uri_;
         Status status_;
-        std::vector<std::unique_ptr<DataSet> > datasets_; //!< The list of datasets available in the data provider.
+        std::vector<DataSetPtr> datasets_; //!< The list of datasets available in the data provider.
     };
 
     typedef std::shared_ptr<DataProvider> DataProviderPtr;

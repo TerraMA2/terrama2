@@ -59,10 +59,10 @@ namespace terrama2
       \brief Manages all the metadata about data providers and its related datasets.
 
       The DataManager is a singleton responsible for loading metadata about
-      data providers and datasets.
-
-      It will load the metadata from a database and will keep them
-      synchronized.
+      data providers and datasets. It works like a database cache with TerraMA2
+      concepts.
+     
+      Take care to keep it synchronized.
      */
     class DataManager : public QObject, public te::common::Singleton<DataManager>
     {
@@ -101,9 +101,7 @@ namespace terrama2
 
           This method will also add all the datasets contained in the data provider.
          
-          At end it will emmit the following signals:
-          - dataProviderAdded(DataProviderPtr): signal if the data provider is saved and registered in the manager.
-          - dataSetAdded(DataSetPtr): one signal for each dataset in the data provider's list added to the database and registered in the manager.
+          At end it will emit dataProviderAdded(DataProviderPtr) signal.
          
           \param provider The data provider to be added to the database and registered into the manager.
           \param shallowSave If true it will update the datasets in this data provider.
@@ -124,9 +122,7 @@ namespace terrama2
         /*!
           \brief Add the dataset to the database and register it in the manager.
          
-          At end it will emmit the following signals:
-          - dataSetAdded(): signal if the dataset is saved and registered in the manager.
-          - dataProviderUpdated(): signal to notify that there is a new dataset in the provider.
+          At end it will emmit the dataSetAdded() signal.
 
           \pre The dataset must not have an ID.
           \pre A provider with the same name must not be already in the manager.

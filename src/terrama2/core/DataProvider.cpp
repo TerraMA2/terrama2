@@ -111,16 +111,10 @@ terrama2::core::DataProvider::setStatus(Status s)
   status_ = s;
 }
 
-const std::vector<std::unique_ptr<terrama2::core::DataSet> >&
+const std::vector<terrama2::core::DataSetPtr>&
 terrama2::core::DataProvider::datasets() const
 {
   return datasets_;
-}
-
-void
-terrama2::core::DataProvider::setDataSets(std::vector<std::unique_ptr<DataSet> > datasets)
-{
-  datasets_ = std::move(datasets);
 }
 
 void

@@ -50,7 +50,7 @@
 struct terrama2::core::DataManager::Impl
 {
   std::map<uint64_t, DataProviderPtr> providers; //!< A map from data-provider-id to data-provider.
-  std::map<uint64_t, DataSet*> datasets;       //!< A map from data-set-id to dataset.
+  std::map<uint64_t, DataSetPtr> datasets;       //!< A map from data-set-id to dataset.
   bool dataLoaded;                               //!< A boolean that defines if the data has already been loaded.
   std::mutex mtx;                                //!< A mutex to syncronize all operations.
 };
@@ -73,15 +73,17 @@ void terrama2::core::DataManager::load()
 // retrieve all data providers and keep a reference to them
   std::vector<std::unique_ptr<DataProvider> > providers = DataProviderDAO::load(*transactor);
 
-  foreach(const std::unique_ptr<DataProvider>& provider, providers)
+  for(std::unique_ptr<DataProvider>& provider : providers)
   {
+    DataProviderPtr sprovider(std::move(provider));
+
 // index provider
-    pimpl_->providers[provider->id()] = std::move(provider);
+    pimpl_->providers[provider->id()] = sprovider;
 
 // index all datasets
-    const std::vector<terrama2::core::DataSetPtr>& datasets = provider->dataSets();
+    const std::vector<DataSetPtr>& datasets = sprovider->datasets();
 
-    foreach (const DataSetPtr& dataset, datasets)
+    for(auto dataset : datasets)
       pimpl_->datasets[dataset->id()] = dataset;
   }
 
@@ -97,9 +99,8 @@ void terrama2::core::DataManager::unload() noexcept
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
 // clears references to data providers and their data
-  pimpl_->providers.clear();
   pimpl_->datasets.clear();
-
+  pimpl_->providers.clear();
   pimpl_->dataLoaded = false;
 
 // emits a signal in order to notify the application that the data manager has been unloaded.
@@ -117,15 +118,30 @@ void terrama2::core::DataManager::add(DataProviderPtr provider, const bool shall
   if(provider->id() != 0)
     throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not add the data provider with an identifier different than 0."));
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+  try
+  {
+    std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+  
+    transactor->begin();
+    
+    DataProviderDAO::save(*provider, *transactor, shallowSave);
 
-  transactor->begin();
+    transactor->commit();
 
-  DataProviderDAO::save(provider, *transactor, shallowSave);
-
-  transactor->commit();
-
-  pimpl_->providers[provider->id()] = provider;
+    pimpl_->providers[provider->id()] = provider;
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Unexpected error adding a data provider and registering it."));
+  }
 
   emit dataProviderAdded(provider);
 }
@@ -141,7 +157,7 @@ void terrama2::core::DataManager::add(DataSetPtr dataset, const bool shallowSave
   if(dataset->id() != 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
 
-  DataProviderPtr provider = dataset->dataProvider();
+  const DataProvider* provider = dataset->provider();
 
   if(provider == nullptr)
     throw terrama2::InvalidParameterError() << ErrorDescription(QObject::tr("Can not add a dataset with an invalid data provider."));
@@ -153,16 +169,30 @@ void terrama2::core::DataManager::add(DataSetPtr dataset, const bool shallowSave
 
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
-  transactor->begin();
+  try
+  {
+    transactor->begin();
 
-  DataSetDAO::save(dataset, *transactor, shallowSave);
+    DataSetDAO::save(*dataset, *transactor, shallowSave);
 
-  transactor->commit();
+    transactor->commit();
 
-  pimpl_->datasets[dataset->id()] = dataset;
-
+    pimpl_->datasets[dataset->id()] = dataset;
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Unexpected error adding a dataset and registering it."));
+  }
+  
   emit dataSetAdded(dataset);
-  emit dataProviderUpdated(provider);
 }
 
 void terrama2::core::DataManager::update(DataProviderPtr provider, const bool shallowSave)

@@ -51,6 +51,7 @@ namespace terrama2
 // Forward declaration
     class DataProvider;
     class DataSetItem;
+    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
 
     /*!
       \class DataSet
@@ -231,14 +232,10 @@ namespace terrama2
 
            \return The list of dataset items.
          */
-        const std::vector<std::unique_ptr<DataSetItem> >& dataSetItems() const;
+        const std::vector<DataSetItemPtr>& dataSetItems() const;
 
-        /*!
-          \brief Sets the list of dataset items.
-
-          \param items The list of dataset items.
-         */
-        void setDataSetItems(std::vector<std::unique_ptr<DataSetItem> > items);
+        /*! \brief Adds a new dataset item to the dataset. */
+        void add(std::unique_ptr<DataSetItem> d);
 
       private:
 
@@ -254,7 +251,7 @@ namespace terrama2
         te::dt::TimeDuration scheduleTimeout_;
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
-        std::vector<std::unique_ptr<DataSetItem> > datasetItemList_;
+        std::vector<DataSetItemPtr> datasetItemList_;
     };
 
     typedef std::shared_ptr<DataSet> DataSetPtr;

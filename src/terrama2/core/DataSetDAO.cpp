@@ -92,7 +92,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
     if(!shallowSave)
     {
-      for(const std::unique_ptr<terrama2::core::DataSetItem>& item: dataset.dataSetItems())
+      for(auto item: dataset.dataSetItems())
       {
         DataSetItemDAO::save(*item, transactor);
       }
@@ -166,7 +166,7 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
 
     if(!shallowSave)
     {
-      for(const std::unique_ptr<terrama2::core::DataSetItem>& item: dataset.dataSetItems())
+      for(auto item: dataset.dataSetItems())
       {
         DataSetItemDAO::save(*item, transactor);
       }
@@ -247,7 +247,6 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
       te::dt::TimeDuration teTDScheduleRetry(tdScheduleRetry);
       dataset->setScheduleRetry(teTDScheduleRetry);
 
-
       u_int64_t scheduleTimeout = tempDataSet->getInt32("schedule_timeout");
       boost::posix_time::time_duration tdScheduleTimeout = boost::posix_time::seconds(scheduleTimeout);
       te::dt::TimeDuration teTDScheduleTimeout(tdScheduleTimeout);
@@ -259,9 +258,10 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
       // Sets the metadata
       loadMetadata(*dataset, transactor);
 
-      std::vector<std::unique_ptr<DataSetItem> > items = DataSetItemDAO::load(id, transactor);
-      
-      dataset->setDataSetItems(std::move(items));
+      std::vector<std::unique_ptr<DataSetItem> > items = DataSetItemDAO::loadAll(id, transactor);
+
+      for(std::unique_ptr<DataSetItem>& item : items)
+        dataset->add(std::move(item));
 
       return dataset;
     }
@@ -285,6 +285,8 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
 std::vector<std::unique_ptr<terrama2::core::DataSet> >
 terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor)
 {
+  std::vector<std::unique_ptr<terrama2::core::DataSet> > datasets;
+
   try
   {
     std::string query("SELECT * FROM terrama2.dataset WHERE data_provider_id = ");
@@ -296,42 +298,7 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
     while(query_result->moveNext())
     {
 
-      terrama2::core::DataSet::Kind kind = ToDataSetKind(query_result->getInt32("kind"));
 
-      DataSetPtr dataSet(new DataSet(0, kind, &provider));
-
-      dataSet->setName(query_result->getAsString("name"));
-      dataSet->setId(query_result->getInt32("id"));
-      dataSet->setDescription(query_result->getString("description"));
-      dataSet->setStatus(ToDataSetStatus(query_result->getBool("active")));
-
-      u_int64_t dataFrequency = query_result->getInt32("data_frequency");
-      boost::posix_time::time_duration tdDataFrequency = boost::posix_time::seconds(dataFrequency);
-      te::dt::TimeDuration teTDDataFrequency(tdDataFrequency);
-      dataSet->setDataFrequency(teTDDataFrequency);
-
-      u_int64_t schedule = query_result->getInt32("schedule");
-      boost::posix_time::time_duration tdSchedule = boost::posix_time::seconds(schedule);
-      te::dt::TimeDuration teTDSchedule(tdSchedule);
-      dataSet->setSchedule(teTDSchedule);
-
-      u_int64_t scheduleRetry =  query_result->getInt32("schedule_retry");
-      boost::posix_time::time_duration tdScheduleRetry = boost::posix_time::seconds(scheduleRetry);
-      te::dt::TimeDuration teTDScheduleRetry(tdScheduleRetry);
-      dataSet->setScheduleRetry(teTDScheduleRetry);
-
-      u_int64_t scheduleTimeout = query_result->getInt32("schedule_timeout");
-      boost::posix_time::time_duration tdScheduleTimeout = boost::posix_time::seconds(scheduleTimeout);
-      te::dt::TimeDuration teTDScheduleTimeout(tdScheduleTimeout);
-      dataSet->setScheduleTimeout(teTDScheduleTimeout);
-
-// Sets the collect rules
-      loadCollectRules(*dataSet, transactor);
-
-// Sets the metadata
-      loadMetadata(*dataSet, transactor);
-
-      provider.add(dataSet);
     }
   }
   catch(const std::exception& e)

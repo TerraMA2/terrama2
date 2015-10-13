@@ -104,7 +104,7 @@ namespace terrama2
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static std::vector<std::unique_ptr<DataSetItem> >
-        load(uint64_t datasetId, te::da::DataSourceTransactor& transactor);
+        loadAll(uint64_t datasetId, te::da::DataSourceTransactor& transactor);
 
       private:
 

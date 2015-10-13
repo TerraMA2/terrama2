@@ -176,7 +176,7 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
 }
 
 std::vector<std::unique_ptr<terrama2::core::DataSetItemDAO::DataSetItem> >
-terrama2::core::DataSetItemDAO::load(uin64_t datasetId, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSetItemDAO::loadAll(uin64_t datasetId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetId == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load dataset items for a dataset with an invalid identifier: 0."));
