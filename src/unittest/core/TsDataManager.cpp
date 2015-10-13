@@ -92,7 +92,9 @@ void TsDataManager::clearDatabase()
 
 DataProviderPtr TsDataManager::createDataProvider()
 {
-  auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE));
+  auto dataProvider = DataProviderPtr(new DataProvider);
+  dataProvider->setName("Server 1");
+  dataProvider->setKind(DataProvider::FTP_TYPE);
   dataProvider->setStatus(DataProvider::ACTIVE);
   dataProvider->setDescription("This server...");
   dataProvider->setUri("localhost@...");
@@ -106,7 +108,9 @@ DataSetPtr TsDataManager::createDataSet()
   DataManager::getInstance().add(dataProvider);
 
   // create a new dataset and save it to the database
-  DataSetPtr dataSet(new DataSet(dataProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE));
+  DataSetPtr dataSet(new DataSet(DataSet::OCCURENCE_TYPE, dataProvider.get()));
+  dataSet->setName("Queimadas");
+
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet->setDataFrequency(dataFrequency);
 
@@ -134,11 +138,11 @@ DataSetPtr TsDataManager::createDataSet()
   // Creates a data list with two DataSetItem
   std::vector<DataSetItemPtr> dataSetItemList;
 
-  DataSetItemPtr dataSetItem(new DataSetItem(dataSet.get(), DataSetItem::PCD_INPE_TYPE));
+  DataSetItemPtr dataSetItem(new DataSetItem(DataSetItem::PCD_INPE_TYPE, dataSet.get()));
 
-  FilterPtr filter(new Filter(dataSetItem));
+  std::uniqu_ptr<Filter> filter(new Filter(dataSetItem.get()));
   filter->setExpressionType(Filter::GREATER_THAN_TYPE);
-  filter->setValue(100.);
+  filter->setValue(std::move(std::unique_ptr<double>(new double(100.))));
   dataSetItem->setFilter(filter);
 
   dataSetItemList.push_back(dataSetItem);

@@ -83,7 +83,7 @@ namespace terrama2
           \param k  The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
           \param d  The dataset to which this item belongs to.
         */
-        DataSetItem(const uint64_t id = 0, Kind k = UNKNOWN_TYPE, const DataSet* d = nullptr);
+        DataSetItem(Kind k = UNKNOWN_TYPE, const DataSet* d = nullptr, const uint64_t id = 0);
 
         /*! \brief Destructor. */
         ~DataSetItem();
@@ -138,9 +138,9 @@ namespace terrama2
 
       private:
 
-        uint64_t id_;
         Kind kind_;
         const DataSet* dataset_;
+        uint64_t id_;
         Status status_;
         std::string mask_;
         std::string timezone_;

@@ -105,13 +105,13 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   if(item.dataset() == nullptr)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be updated."));
 
-  if(item.dataset().id() == 0)
+  if(item.dataset()->id() == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item must be associated to a valid dataset in order to be updated."));
 
   boost::format query("UPDATE terrama2.dataset_item SET active = %1%, "
                       "dataset_id = %2%, , kind = %3%, mask = '%4%', timezone = '%5%' WHERE id = %6%");
 
-  query.bind_arg(1, BoolToString(DataSetItemStatusToBool(item.status())));
+  query.bind_arg(1, ToString(ToBool(item.status())));
   query.bind_arg(2, item.dataset()->id());
   query.bind_arg(3, static_cast<uint32_t>(item.kind()));
   query.bind_arg(4, item.mask());
@@ -169,14 +169,14 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
   {
     QString err_msg(QObject::tr("Unexpected error removing dataset item: %1"));
 
-    err_msg.arg(item.id());
+    err_msg.arg(itemId);
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
 }
 
-std::vector<std::unique_ptr<terrama2::core::DataSetItemDAO::DataSetItem> >
-terrama2::core::DataSetItemDAO::loadAll(uin64_t datasetId, te::da::DataSourceTransactor& transactor)
+std::vector<std::unique_ptr<terrama2::core::DataSetItem> >
+terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetId == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load dataset items for a dataset with an invalid identifier: 0."));
@@ -193,9 +193,9 @@ terrama2::core::DataSetItemDAO::loadAll(uin64_t datasetId, te::da::DataSourceTra
     while(items_result->moveNext())
     {
       DataSetItem::Kind kind = ToDataSetItemKind(items_result->getInt32("kind"));
-      uint64_t id = items_result->getInt32("id")
+      uint64_t id = items_result->getInt32("id");
 
-      std::unique_ptr<DataSetItem> item(new DataSetItem(id, kind, nullptr));
+      std::unique_ptr<DataSetItem> item(new DataSetItem(kind, nullptr, id));
 
       item->setStatus(ToDataSetItemStatus(items_result->getBool("active")));
       item->setMask(items_result->getString("mask"));
@@ -203,7 +203,7 @@ terrama2::core::DataSetItemDAO::loadAll(uin64_t datasetId, te::da::DataSourceTra
 
 // retrieve the filter
       std::unique_ptr<Filter> f = FilterDAO::load(id, transactor);
-      item->setFilter(f);
+      item->setFilter(std::move(f));
 
       loadStorageMetadata(*item, transactor);
 

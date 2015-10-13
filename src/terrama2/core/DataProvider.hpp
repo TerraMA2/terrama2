@@ -136,6 +136,13 @@ namespace terrama2
         */
         void add(std::unique_ptr<DataSet> d);
 
+        /*!
+          \brief Removes the given dataset from the provider list.
+
+          \param dataset The dataset to be removed.
+         */
+        void remove(DataSetPtr& dataset);
+
       private:
 
         uint64_t id_;

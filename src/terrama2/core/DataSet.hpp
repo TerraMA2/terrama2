@@ -100,7 +100,7 @@ namespace terrama2
           \param kind     The kind of dataset.
           \param provider The data provider associated to this dataset.
         */
-        DataSet(const uint64_t id = 0, Kind kind = UNKNOWN_TYPE, const DataProvider* provider = nullptr);
+        DataSet(Kind kind = UNKNOWN_TYPE, DataProvider* provider = nullptr, const uint64_t id = 0);
 
         /*! \brief Destructor. */
         ~DataSet();
@@ -138,10 +138,10 @@ namespace terrama2
         void setStatus(const Status s);
 
         /*! \brief Returns the asscociated data provider. */
-        const DataProvider* provider() const;
+        DataProvider* provider() const;
 
         /*! \brief Sets the asscociated data provider. */
-        void setProvider(const DataProvider* p);
+        void setProvider(DataProvider* p);
 
         /*!
           \brief It returns the time frequency that this dataset must try to acquire a new data.
@@ -239,12 +239,13 @@ namespace terrama2
 
       private:
 
+
+        Kind kind_;
+        DataProvider* provider_;
         uint64_t id_;
         std::string name_;
         std::string description_;
         Status status_;
-        const DataProvider* provider_;
-        Kind kind_;
         te::dt::TimeDuration dataFrequency_;
         te::dt::TimeDuration schedule_;
         te::dt::TimeDuration scheduleRetry_;

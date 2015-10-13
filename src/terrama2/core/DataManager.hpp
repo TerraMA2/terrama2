@@ -113,7 +113,7 @@ namespace terrama2
           \pos The informed data provider will have a valid ID (> 0).
           \pos The datasets within this provider will have a valid ID (> 0).
 
-          \exception InvalidDataProviderError, InvalidDataProviderIdError, InvalidDataSetError, InvalidDataSetIdError
+          \exception terrama2::Exception If it is not possible to add the data provider.
 
           \note Thread-safe.
          */
@@ -132,7 +132,7 @@ namespace terrama2
           \param dataset Dataset to add.
           \param shallowSave If true it will update the datasets in this data provider.
 
-          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
+          \exception terrama2::Exception If it is not possible to load add the dataset.
 
           \note Thread-safe.
          */
@@ -149,7 +149,7 @@ namespace terrama2
           \pre The data provider must have a valid ID.
           \pre The data provider must exist in the database.
 
-          \exception InvalidDataProviderError, InvalidDataProviderIdError
+          \exception terrama2::Exception If it is not possible to update the data provider.
 
           \note Thread-safe.
          */
@@ -168,7 +168,7 @@ namespace terrama2
           \pre The dataset must have an valid ID.
           \pre The dataset must exist in the database.
 
-          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
+          \exception terrama2::Exception If it is not possible to update the dataset.
 
           \note Thread-safe.
          */
@@ -181,12 +181,10 @@ namespace terrama2
 
           Emits dataProviderRemoved() signal if the data provider is removed successfully.
 
-          Emits dataSetRemoved() signal for each dataset that belongs to this data provider.
-
           It will remove all datasets that belong to this data provider.
           In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
 
-          \exception InvalidDataProviderIdError, DataSetInUseError
+          \exception terrama2::Exception If it is not possible to remove the data provider.
 
           \param id ID of the data provider to remove.
 
@@ -202,13 +200,11 @@ namespace terrama2
 
           Emits dataSetRemoved() signal if the dataset is removed successfully.
 
-          Emits dataProviderUpdated() signal to notify that a dataset was removed from the provider's list.
-
           In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
           \param id ID of the dataset to remove.
 
-          \exception InvalidDataSetIdError, DataSetInUseError
+          \exception terrama2::Exception If it is not possible to remove the dataset.
 
           \note Thread-safe.
          */
@@ -217,13 +213,13 @@ namespace terrama2
         /*!
           \brief Retrieves the data provider with the given name.
 
-          \exception InvalidDataProviderIdError
-
           In case there is no data provider in the database with the given name it will return an empty smart pointer.
 
           \param name The data provider name.
 
           \return DataProviderPtr A smart pointer to the data provider
+
+          \exception terrama2::Exception If some error occur when trying to find the data provider.
 
           \note Thread-safe.
          */
@@ -232,9 +228,9 @@ namespace terrama2
         /*!
           \brief Retrieves the data provider with the given id.
 
-          \exception InvalidDataProviderIdError
-
           In case there is no data provider in the database with the given id it will return an empty smart pointer.
+
+          \exception terrama2::Exception If some error occur when trying to find the data provider.
 
           \param id The data provider identifier.
 
@@ -251,7 +247,7 @@ namespace terrama2
           \param name Name of the dataset.
           \return A smart pointer to the dataset.
 
-          \exception InvalidDataSetIdError
+          \exception terrama2::Exception If some error occur when trying to find the dataset.
 
           \note Thread-safe.
          */
@@ -264,7 +260,7 @@ namespace terrama2
           \param id Identifier of the dataset.
           \return A smart pointer to the dataset.
 
-          \exception InvalidDataSetIdError
+          \exception terrama2::Exception If some error occur when trying to find the dataset.
 
           \note Thread-safe.
          */

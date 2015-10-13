@@ -36,10 +36,10 @@
 #include "DataProvider.hpp"
 #include "DataSetItem.hpp"
 
-terrama2::core::DataSet::DataSet(const uint64_t id, Kind kind, const DataProvider* provider)
-  : id_(id),
-    status_(INACTIVE),
+terrama2::core::DataSet::DataSet(Kind kind, DataProvider* provider, const uint64_t id)
+  : status_(INACTIVE),
     provider_(provider),
+    id_(id),
     kind_(kind),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),
@@ -104,14 +104,14 @@ void terrama2::core::DataSet::setStatus(const Status s)
   status_ = s;
 }
 
-const terrama2::core::DataProvider*
+terrama2::core::DataProvider*
 terrama2::core::DataSet::provider() const
 {
   return provider_;
 }
 
 void
-terrama2::core::DataSet::setProvider(const DataProvider* p)
+terrama2::core::DataSet::setProvider(DataProvider* p)
 {
   provider_ = p;
 }

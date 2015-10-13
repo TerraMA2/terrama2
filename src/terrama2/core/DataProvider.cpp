@@ -122,3 +122,8 @@ terrama2::core::DataProvider::add(std::unique_ptr<DataSet> d)
 {
   datasets_.push_back(std::move(d));
 }
+
+void terrama2::core::DataProvider::remove(terrama2::core::DataSetPtr& dataset)
+{
+  std::remove(datasets_.begin(), datasets_.end(), dataset);
+}

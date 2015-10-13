@@ -98,11 +98,11 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
   {
     boost::format query("INSERT INTO terrama2.data_provider (name, description, kind, uri, active) VALUES('%1%', '%2%', %3%, '%4%', %5%)");
 
-    query.bind_arg(1, dataProvider.name());
-    query.bind_arg(2, dataProvider.description());
-    query.bind_arg(3, (int)dataProvider.kind());
-    query.bind_arg(4, dataProvider.uri());
-    query.bind_arg(5, BoolToString(DataProviderStatusToBool(dataProvider.status())));
+    query.bind_arg(1, provider.name());
+    query.bind_arg(2, provider.description());
+    query.bind_arg(3, (int)provider.kind());
+    query.bind_arg(4, provider.uri());
+    query.bind_arg(5, ToString(ToBool(provider.status())));
 
     transactor.execute(query.str());
 
@@ -111,7 +111,7 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
     if(!shallow)
     {
 // save all datasets in this provider, their id must be zero
-      for(auto dataset: dataProvider.datasets())
+      for(auto dataset: provider.datasets())
         DataSetDAO::save(*dataset, transactor);
     }
 
@@ -130,29 +130,29 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
   }
 }
 
-void terrama2::core::DataProviderDAO::update(DataProvider& dataProvider,
+void terrama2::core::DataProviderDAO::update(DataProvider& provider,
                                              te::da::DataSourceTransactor& transactor,
                                              const bool shallowSave)
 {
-  if(dataProvider.id() == 0)
+  if(provider.id() == 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
 
   try
   {
     boost::format query("UPDATE terrama2.data_provider SET name = '%1%', description = '%2%', kind = %3%, uri = '%4%', active = %5% WHERE id = %6%");
 
-    query.bind_arg(1, dataProvider.name());
-    query.bind_arg(2, dataProvider.description());
-    query.bind_arg(3, (int)dataProvider.kind());
-    query.bind_arg(4, dataProvider.uri());
-    query.bind_arg(5, BoolToString(DataProviderStatusToBool(dataProvider.status())));
-    query.bind_arg(6, dataProvider.id());
+    query.bind_arg(1, provider.name());
+    query.bind_arg(2, provider.description());
+    query.bind_arg(3, (int)provider.kind());
+    query.bind_arg(4, provider.uri());
+    query.bind_arg(5, ToString(ToBool(provider.status())));
+    query.bind_arg(6, provider.id());
 
     transactor.execute(query.str());
 
     if(!shallowSave)
     {
-      for(auto dataset: dataProvider.datasets())
+      for(auto dataset: provider.datasets())
       {
         DataSetDAO::update(*dataset, transactor);
       }

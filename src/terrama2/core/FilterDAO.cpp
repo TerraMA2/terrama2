@@ -179,7 +179,7 @@ terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTran
 
   try
   {
-    transactor.execute(sql.str());
+    transactor.execute(sql);
   }
   catch(const std::exception& e)
   {
@@ -189,7 +189,7 @@ terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTran
   {
     QString err_msg(QObject::tr("Unexpected error removing filter information for dataset item: %1"));
 
-    err_msg.arg(f.datasetItem()->id());
+    err_msg.arg(datasetItemId);
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -219,8 +219,19 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     if(!filter_result->isNull(3))
       filter->setGeometry(filter_result->getGeometry("geom"));
     
-    filter->setExpressionType(IntToFilterExpressionType(filter_result->getInt32("by_value_type")));
-    filter->setValue(atof(filter_result->getNumeric("by_value").c_str()));
+    filter->setExpressionType(ToFilterExpressionType(filter_result->getInt32("by_value_type")));
+
+    if(!filter_result->isNull("by_value"))
+    {
+      double v = atof(filter_result->getNumeric("by_value").c_str());
+      std::unique_ptr<double> byValue(&v);
+      filter->setValue(std::move(byValue));
+    }
+    else
+    {
+      std::unique_ptr<double> byValue(nullptr);
+      filter->setValue(std::move(byValue));
+    }
     filter->setBandFilter(filter_result->getString("band_filter"));
   }
   catch(const terrama2::Exception&)

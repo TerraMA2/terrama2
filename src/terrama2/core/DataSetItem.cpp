@@ -32,10 +32,10 @@
 #include "DataSet.hpp"
 #include "Filter.hpp"
 
-terrama2::core::DataSetItem::DataSetItem(const uint64_t id, Kind k, const DataSet* d)
-  : id_(id),
-    kind_(k),
+terrama2::core::DataSetItem::DataSetItem(Kind k, const DataSet* d, const uint64_t id)
+  : kind_(k),
     dataset_(d),
+    id_(id),
     status_(INACTIVE)
 {
 }

@@ -219,13 +219,10 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
 
     if(tempDataSet->moveNext())
     {
-      int64_t id = tempDataSet->getInt32("data_provider_id");
-      DataProviderPtr dataProvider = DataManager::getInstance().findDataProvider(id);
-
       std::string name = tempDataSet->getAsString("name");
       terrama2::core::DataSet::Kind kind = ToDataSetKind(tempDataSet->getInt32("kind"));
 
-      std::unique_ptr<DataSet> dataset(new DataSet(provider.get(), name, kind));
+      std::unique_ptr<DataSet> dataset(new DataSet(kind));
       dataset->setId(tempDataSet->getInt32("id"));
       dataset->setDescription(tempDataSet->getString("description"));
       dataset->setStatus(ToDataSetStatus(tempDataSet->getBool("active")));
@@ -333,10 +330,8 @@ void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::Data
 
 }
 
-void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
+void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
-
-
 
   if(dataset.id() != 0)
     throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
@@ -346,7 +341,7 @@ void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataSet, te::da::Data
 
   try
   {
-    std::vector<terrama2::core::DataSet::CollectRule> collectRules = dataSet.collectRules();
+    std::vector<terrama2::core::DataSet::CollectRule> collectRules = dataset.collectRules();
     for(auto collectRule : collectRules)
     {
       boost::format query("INSERT INTO terrama2.collect_rules "
@@ -354,14 +349,14 @@ void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataSet, te::da::Data
                                   "VALUES('%1%', %2%)");
 
       query.bind_arg(1, collectRule.script);
-      query.bind_arg(2, dataSet.id());
+      query.bind_arg(2, dataset.id());
 
       transactor.execute(query.str());
 
       collectRule.id = transactor.getLastGeneratedId();
     }
 
-    dataSet.setCollectRules(collectRules);
+    dataset.setCollectRules(collectRules);
   }
   catch(const terrama2::Exception&)
   {
@@ -375,7 +370,7 @@ void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataSet, te::da::Data
   {
     QString err_msg(QObject::tr("Unexpected error saving the collect rules for the dataset: %1"));
 
-    err_msg.arg(dataSet.id());
+    err_msg.arg(dataset.id());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
