@@ -50,7 +50,7 @@
 struct terrama2::core::DataManager::Impl
 {
   std::map<uint64_t, DataProviderPtr> providers; //!< A map from data-provider-id to data-provider.
-  std::map<uint64_t, DataSetPtr> datasets;       //!< A map from data-set-id to dataset.
+  std::map<uint64_t, DataSet*> datasets;       //!< A map from data-set-id to dataset.
   bool dataLoaded;                               //!< A boolean that defines if the data has already been loaded.
   std::mutex mtx;                                //!< A mutex to syncronize all operations.
 };
@@ -71,12 +71,12 @@ void terrama2::core::DataManager::load()
   std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
 // retrieve all data providers and keep a reference to them
-  std::vector<DataProviderPtr> vecProviders = DataProviderDAO::load(*transactor);
+  std::vector<std::unique_ptr<DataProvider> > providers = DataProviderDAO::load(*transactor);
 
-  foreach(const DataProviderPtr& provider, vecProviders)
+  foreach(const std::unique_ptr<DataProvider>& provider, providers)
   {
 // index provider
-    pimpl_->providers[provider->id()] = provider;
+    pimpl_->providers[provider->id()] = std::move(provider);
 
 // index all datasets
     const std::vector<terrama2::core::DataSetPtr>& datasets = provider->dataSets();
