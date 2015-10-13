@@ -70,21 +70,46 @@ void ConfigAppWeatherTab::clearList()
 
 void ConfigAppWeatherTab::load()
 {
+  terrama2::core::DataManager::getInstance().load();
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-  std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.data_provider");
+  std::auto_ptr<te::da::DataSet> dataProviders = ds->getDataSet("terrama2.data_provider");
 
-  if (dataSet->size() > 0)
+  if (dataProviders->size() > 0)
     showDataSeries(true);
 
   // clear list
   clearList();
 
-  while(dataSet->moveNext())
+  while(dataProviders->moveNext())
   {
     QTreeWidgetItem* item = new QTreeWidgetItem;
     item->setIcon(0, QIcon::fromTheme("server"));
-    item->setText(0, QString(dataSet->getAsString(1).c_str()));
+    item->setText(0, QString(dataProviders->getAsString(1).c_str()));
     ui_->weatherDataTree->topLevelItem(0)->addChild(item);
+
+    // load data set
+    std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.dataset");
+
+    while (dataSet->moveNext() && dataSet->getInt32(4) == dataProviders->getInt32(0))
+    {
+      QTreeWidgetItem* subItem = new QTreeWidgetItem;
+      subItem->setText(0, QString(dataSet->getAsString("name").c_str()));
+      switch (terrama2::core::IntToDataSetKind(dataSet->getInt64(5)))
+      {
+        case terrama2::core::DataSet::GRID_TYPE:
+          subItem->setIcon(0, QIcon::fromTheme("grid"));
+          break;
+        case terrama2::core::DataSet::PCD_TYPE:
+          subItem->setIcon(0, QIcon::fromTheme("pcd"));
+          break;
+        case terrama2::core::DataSet::OCCURENCE_TYPE:
+          subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
+          break;
+        default:
+          break;
+      }
+      item->addChild(subItem);
+    }
   }
 }
 
@@ -249,38 +274,53 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 {
   if (selectedItem->parent() != nullptr)
   {
-    // If it does not have parent, so it has to be DataProvider. Otherwise, selectedItem is DataSet
-    if (selectedItem->parent()->parent() == nullptr)
+    terrama2::core::DataManager::getInstance().load();
+    try
     {
-      QObject::disconnect(ui_->serverDescription->document(), 0, 0, 0);
-      showDataSeries(true);
-      std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
-      sql += selectedItem->text(0).toStdString() + "'";
+      // If it does not have parent, so it has to be DataProvider. Otherwise, selectedItem is DataSet
+      if (selectedItem->parent()->parent() == nullptr) {
+        QObject::disconnect(ui_->serverDescription->document(), 0, 0, 0);
+        showDataSeries(true);
+        std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
+        sql += selectedItem->text(0).toStdString() + "'";
 
-      std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-      std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
+        std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+        std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
 
-      if (dataSet->size() != 1)
-        throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
+        if (dataSet->size() != 1)
+          throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
 
-      dataSet->moveFirst();
+        dataSet->moveFirst();
 
-      // Call for insert server to display server form
-//      emit(ui_->insertServerBtn->clicked());
-      displayOperationButtons(true);
-      changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
+        displayOperationButtons(true);
+        changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
 
-      ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
-      ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
-      ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
-      ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
-      ui_->serverActiveServer->setChecked(dataSet->getBool(5));
+        ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
+        ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
+        ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
+        ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
+        ui_->serverActiveServer->setChecked(dataSet->getBool(5));
 
-      subTabs_[0]->load();
+        subTabs_[0]->load();
+      }
+      else {
+        terrama2::core::DataSetPtr dset = terrama2::core::DataManager::getInstance().findDataSet(
+            selectedItem->text(0).toStdString());
+
+        if (dset == nullptr)
+          throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
+
+        displayOperationButtons(true);
+        changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
+
+        ui_->gridFormatDataName->setText(dset->name().c_str());
+        showDataSeries(false);
+      }
     }
-    else
+    catch (const terrama2::Exception& e)
     {
-      showDataSeries(false);
+      const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+      QMessageBox::warning(app_, tr("TerraMA2"), *message);
     }
   }
   else
