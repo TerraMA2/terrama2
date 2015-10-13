@@ -32,7 +32,6 @@
 #include "../Config.hpp"
 #include "Exception.hpp"
 
-
 // Boost
 #include <boost/filesystem.hpp>
 

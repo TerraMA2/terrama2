@@ -33,26 +33,23 @@
 
 // TerraMA2
 #include "DataSet.hpp"
-#include "DataSetItem.hpp"
 #include "DataProvider.hpp"
+#include "DataSetItem.hpp"
 
-terrama2::core::DataSet::DataSet(DataProvider* dataProvider, const std::string& name, Kind kind, const uint64_t id)
+terrama2::core::DataSet::DataSet(const uint64_t id, Kind kind, const DataProvider* provider)
   : id_(id),
-    name_(name),
     status_(INACTIVE),
-    dataProvider_(dataProvider),
+    dataProvider_(provider),
     kind_(kind),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),
     scheduleRetry_(0, 0, 0),
     scheduleTimeout_(0, 0, 0)
 {
-
 }
 
 terrama2::core::DataSet::~DataSet()
 {
-
 }
 
 uint64_t terrama2::core::DataSet::id() const
@@ -65,22 +62,24 @@ void terrama2::core::DataSet::setId(uint64_t id)
   id_ = id;
 }
 
-std::string terrama2::core::DataSet::name() const
+const std::string&
+terrama2::core::DataSet::name() const
 {
   return name_;
 }
 
-void terrama2::core::DataSet::setName(const std::string &name)
+void terrama2::core::DataSet::setName(const std::string& name)
 {
   name_ = name;
 }
 
-std::string terrama2::core::DataSet::description() const
+const std::string&
+terrama2::core::DataSet::description() const
 {
   return description_;
 }
 
-void terrama2::core::DataSet::setDescription(const std::string &d)
+void terrama2::core::DataSet::setDescription(const std::string& d)
 {
   description_ = d;
 }
@@ -90,7 +89,7 @@ terrama2::core::DataSet::Kind terrama2::core::DataSet::kind() const
   return kind_;
 }
 
-void terrama2::core::DataSet::setKind(const terrama2::core::DataSet::Kind &k)
+void terrama2::core::DataSet::setKind(const Kind k)
 {
   kind_ = k;
 }
@@ -105,10 +104,16 @@ void terrama2::core::DataSet::setStatus(const Status s)
   status_ = s;
 }
 
-terrama2::core::DataProviderPtr
-terrama2::core::DataSet::dataProvider() const
+const terrama2::core::DataProvider*
+terrama2::core::DataSet::provider() const
 {
   return dataProvider_;
+}
+
+void
+terrama2::core::DataSet::setProvider(const DataProvider* p)
+{
+  provider_ = p;
 }
 
 const te::dt::TimeDuration&
@@ -155,7 +160,7 @@ void terrama2::core::DataSet::setScheduleTimeout(const te::dt::TimeDuration& t)
   scheduleTimeout_ = t;
 }
 
-std::map<std::string, std::string>
+const std::map<std::string, std::string>&
 terrama2::core::DataSet::metadata() const
 {
   return metadata_;
@@ -166,7 +171,7 @@ void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::strin
   metadata_ = m;
 }
 
-std::vector<terrama2::core::DataSet::CollectRule>
+const std::vector<terrama2::core::DataSet::CollectRule>&
 terrama2::core::DataSet::collectRules() const
 {
   return collectRules_;
@@ -179,14 +184,13 @@ terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
 }
 
 std::vector<terrama2::core::DataSetItemPtr>
-terrama2::core::DataSet::dataSetItemList() const
+terrama2::core::DataSet::dataSetItems() const
 {
-  return dataSetItemList_;
+  return datasetItemList_;
 }
 
 void
-terrama2::core::DataSet::setDataSetItemList(const std::vector<DataSetItemPtr>& dataSetItemList)
+terrama2::core::DataSet::setDataSetItems(std::vector<std::unique_ptr<DataSetItem> > items)
 {
-  dataSetItemList_ = dataSetItemList;
+  datasetItemList_ = std::move(dataSetItemList);
 }
-

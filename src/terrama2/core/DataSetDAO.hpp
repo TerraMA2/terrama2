@@ -31,11 +31,9 @@
 #ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
 #define __TERRAMA2_CORE_DATASETDAO_HPP__
 
-// TerraMA2
-#include "DataSet.hpp"
-
 // STL
 #include <memory>
+#include <vector>
 
 // Forward declaration
 namespace te { namespace da { class DataSourceTransactor; } }
@@ -44,6 +42,9 @@ namespace terrama2
 {
   namespace core
   {
+// Forward declaration
+    class DataSet;
+
     /*!
       \class DataSetDAO
 
@@ -58,7 +59,7 @@ namespace terrama2
 
           \param dataset     The dataset to be inserted into the database.
           \param transactor  The data source transactor to be used to perform the insert operation.
-          \param shallowSave If true it will save only the dataset attributes into the database. Dataset items will not be saved.
+          \param shallow     If true it will save only the dataset attributes into the database. Dataset items will not be saved.
 
           \pre The dataset must be associated to a valid data provider.
           \pre The dataset must have an identifier equals to 0 (considered invalid).
@@ -67,7 +68,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallow = true);
 
         /*!
           \brief Update the dataset information in the database.
@@ -81,7 +82,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallow = true);
 
         /*!
           \brief Removes the dataset from the database.
@@ -117,7 +118,8 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void load(DataProvider& provider, te::da::DataSourceTransactor& transactor);
+        static std::vector<unique_ptr<DataSet> >
+        load(uint64_t providerId, te::da::DataSourceTransactor& transactor);
 
       private:
 

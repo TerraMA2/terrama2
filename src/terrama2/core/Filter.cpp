@@ -38,7 +38,6 @@
 
 terrama2::core::Filter::Filter(const DataSetItem* item)
   : datasetItem_(item),
-    value_(std::unique_ptr<double>(new double(0.0))),
     expressionType_(NONE_TYPE)
 {
 
