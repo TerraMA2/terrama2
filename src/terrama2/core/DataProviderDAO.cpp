@@ -84,15 +84,12 @@ terrama2::core::DataProviderDAO::load(te::da::DataSourceTransactor& transactor)
   return std::move(providers);
 }
 
-void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider,
+void terrama2::core::DataProviderDAO::save(DataProvider& provider,
                                            te::da::DataSourceTransactor& transactor,
-                                           const bool shallowSave)
+                                           const bool shallow)
 {
-  if(dataProvider.id() != 0)
-  {
-    throw InvalidParameterError() <<
-          ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
-  }
+  if(provider.id() != 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
 
   try
   {
@@ -106,15 +103,13 @@ void terrama2::core::DataProviderDAO::save(DataProvider& dataProvider,
 
     transactor.execute(query.str());
 
-    dataProvider.setId(transactor.getLastGeneratedId());
+    provider.setId(transactor.getLastGeneratedId());
 
-    if(!shallowSave)
+    if(!shallow)
     {
-      // save all datasets in this provider, their id must be zero
-      for(auto dataset: dataProvider.dataSets())
-      {
+// save all datasets in this provider, their id must be zero
+      for(const std::unique_ptr<DataSet>& dataset: dataProvider.datasets())
         DataSetDAO::save(*dataset, transactor);
-      }
     }
 
   }

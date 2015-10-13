@@ -92,7 +92,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
     if(!shallowSave)
     {
-      for(auto item: dataset.dataSetItems())
+      for(const std::unique_ptr<terrama2::core::DataSetItem>& item: dataset.dataSetItems())
       {
         DataSetItemDAO::save(*item, transactor);
       }
@@ -166,7 +166,7 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
 
     if(!shallowSave)
     {
-      for(auto item: dataset.dataSetItemList())
+      for(const std::unique_ptr<terrama2::core::DataSetItem>& item: dataset.dataSetItems())
       {
         DataSetItemDAO::save(*item, transactor);
       }

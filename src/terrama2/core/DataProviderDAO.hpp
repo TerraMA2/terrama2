@@ -74,9 +74,9 @@ namespace terrama2
         /*!
           \brief Insert the given data provider in the database.
 
-          \param dataProvider  The data provider to be inserted into the database.
-          \param transactor The data source transactor to be used to perform the insert operation.
-          \param shallowSave If true it will persist the datasets in this data provider.
+          \param provider    The data provider to be inserted into the database.
+          \param transactor  The data source transactor to be used to perform the insert operation.
+          \param shallow     If true it will persist the datasets in this data provider.
 
           \pre The data provider must have an identifier equals to 0 (considered invalid).
           \pre Each dataset must have an identifier equals to 0 (considered invalid).
@@ -84,7 +84,7 @@ namespace terrama2
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static void save(DataProvider& provider, te::da::DataSourceTransactor& transactor,
-                         const bool shallowSave = true);
+                         const bool shallow = true);
 
         /*!
           \brief Update the given data provider in the database.
