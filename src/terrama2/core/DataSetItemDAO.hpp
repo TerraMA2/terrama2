@@ -34,6 +34,7 @@
 // STL
 #include <memory>
 #include <vector>
+#include <map>
 
 // Forward declaration
 namespace te { namespace da { class DataSourceTransactor; } }
@@ -103,7 +104,7 @@ namespace terrama2
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static std::vector<std::unique_ptr<DataSetItem> >
-        load(uin64_t datasetId, te::da::DataSourceTransactor& transactor);
+        load(uint64_t datasetId, te::da::DataSourceTransactor& transactor);
 
       private:
 

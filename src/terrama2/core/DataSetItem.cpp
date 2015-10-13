@@ -30,11 +30,12 @@
 // TerraMA2
 #include "DataSetItem.hpp"
 #include "DataSet.hpp"
+#include "Filter.hpp"
 
 terrama2::core::DataSetItem::DataSetItem(const uint64_t id, Kind k, const DataSet* d)
   : id_(id),
     kind_(k),
-    dataSet_(d),
+    dataset_(d),
     status_(INACTIVE)
 {
 }
@@ -106,7 +107,7 @@ terrama2::core::DataSetItem::dataset() const
 const terrama2::core::Filter*
 terrama2::core::DataSetItem::filter() const
 {
-  return filter_;
+  return filter_.get();
 }
 
 void terrama2::core::DataSetItem::setFilter(std::unique_ptr<Filter> f)
