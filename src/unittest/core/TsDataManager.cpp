@@ -135,20 +135,17 @@ DataSetPtr TsDataManager::createDataSet()
   dataSet->setMetadata(metadata);
 
 
-  // Creates a data list with two DataSetItem
-  std::vector<DataSetItemPtr> dataSetItemList;
+  std::unique_ptr<DataSetItem> dataSetItem(new DataSetItem(DataSetItem::PCD_INPE_TYPE, dataSet.get()));
 
-  DataSetItemPtr dataSetItem(new DataSetItem(DataSetItem::PCD_INPE_TYPE, dataSet.get()));
-
-  std::uniqu_ptr<Filter> filter(new Filter(dataSetItem.get()));
+  std::unique_ptr<Filter> filter(new Filter(dataSetItem.get()));
   filter->setExpressionType(Filter::GREATER_THAN_TYPE);
   filter->setValue(std::move(std::unique_ptr<double>(new double(100.))));
-  dataSetItem->setFilter(filter);
+  dataSetItem->setFilter(std::move(filter));
 
-  dataSetItemList.push_back(dataSetItem);
+  dataSet->add(std::move(dataSetItem));
 
 
-  DataSetItemPtr dataSetItem2(new DataSetItem(dataSet.get(), DataSetItem::FIRE_POINTS_TYPE));
+  std::unique_ptr<DataSetItem> dataSetItem2(new DataSetItem(DataSetItem::FIRE_POINTS_TYPE, dataSet.get()));
 
   std::map<std::string, std::string> storageMetadata;
   storageMetadata["key"] = "value";
@@ -157,8 +154,7 @@ DataSetPtr TsDataManager::createDataSet()
 
   dataSetItem2->setStorageMetadata(storageMetadata);
 
-  dataSetItemList.push_back(dataSetItem2);
-  dataSet->setDataSetItemList(dataSetItemList);
+  dataSet->add(std::move(dataSetItem2));
 
   return dataSet;
 }
@@ -425,7 +421,7 @@ void TsDataManager::testFindDataSet()
     QCOMPARE(dsCollectRules[i].script, foundCollectRules[i].script);
   }
 
-  QCOMPARE(foundDataSet->dataSetItemList().size(), dataSet->dataSetItemList().size());
+  QCOMPARE(foundDataSet->dataSetItems().size(), dataSet->dataSetItems().size());
 
 }
 
@@ -451,7 +447,7 @@ void TsDataManager::testFindDataSetByName()
     QCOMPARE(dsCollectRules[i].script, foundCollectRules[i].script);
   }
 
-  QCOMPARE(foundDataSet->dataSetItemList().size(), dataSet->dataSetItemList().size());
+  QCOMPARE(foundDataSet->dataSetItems().size(), dataSet->dataSetItems().size());
 
 }
 
@@ -485,16 +481,15 @@ void TsDataManager::testUpdateDataSet()
 
   // Remove the dataset item PCD_INPE
 
-  auto dataSetItemList = dataSet->dataSetItemList();
-  dataSetItemList.erase(dataSetItemList.begin());
+  auto dataSetItems = dataSet->dataSetItems();
+  dataSet->remove(dataSetItems[0]);
 
   // Updates the data from FIRE_POINTS_TYPE
-  dataSetItemList[0]->setMask("Queimadas_*");
+  dataSetItems[0]->setMask("Queimadas_*");
 
   // Add a new dataset item of type PCD_TOA5_TYPE
-  DataSetItemPtr dataSetItem(new DataSetItem(dataSet.get(), DataSetItem::PCD_TOA5_TYPE));
-  dataSetItemList.push_back(dataSetItem);
-  dataSet->setDataSetItemList(dataSetItemList);
+  std::unique_ptr<DataSetItem> dataSetItem(new DataSetItem(DataSetItem::PCD_TOA5_TYPE, dataSet.get()));
+  dataSet->add(std::move(dataSetItem));
 
   DataManager::getInstance().update(dataSet);
 
@@ -516,20 +511,22 @@ void TsDataManager::testUpdateDataSet()
   QVERIFY2(collectRules[0].script == foundDataSet->collectRules()[0].script, "Collect rule script must be the same!");
 
   std::map<std::string, std::string> metadata = dataSet->metadata();
-  QVERIFY2(metadata["key"] == foundDataSet->metadata()["key"], "Metadata key/value must be the same!");
-  QVERIFY2(metadata["key1"] == foundDataSet->metadata()["key1"], "Metadata key1/value1 must be the same!");
-  QVERIFY2(metadata["key2"] == foundDataSet->metadata()["key2"], "Metadata key2/value2 must be the same!");
+  std::map<std::string, std::string> metadataFound = foundDataSet->metadata();
+
+  QVERIFY2(metadata["key"] == metadataFound["key"], "Metadata key/value must be the same!");
+  QVERIFY2(metadata["key1"] == metadataFound["key1"], "Metadata key1/value1 must be the same!");
+  QVERIFY2(metadata["key2"] == metadataFound["key2"], "Metadata key2/value2 must be the same!");
 
   // Expected result is to remove the data PCD_INPE, update the FIRE_POINTS  and insert PCD_TOA5.
 
-  QVERIFY2(foundDataSet->dataSetItemList().size() == 2, "dataSetItemList must have 2 itens!");
+  QVERIFY2(foundDataSet->dataSetItems().size() == 2, "dataSetItems must have 2 itens!");
 
-  auto dsItem0 = foundDataSet->dataSetItemList()[0];
-  auto dsItem1 = foundDataSet->dataSetItemList()[1];
+  auto dsItem0 = foundDataSet->dataSetItems()[0];
+  auto dsItem1 = foundDataSet->dataSetItems()[1];
 
-  QVERIFY2(dsItem0->kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItemList[0] must be of the type FIRE_POINTS!");
+  QVERIFY2(dsItem0->kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItems[0] must be of the type FIRE_POINTS!");
   QVERIFY2(dsItem0->mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
-  QVERIFY2(dsItem1->kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItemList[1] must be of the type PCD-TOA5!");
+  QVERIFY2(dsItem1->kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItems[1] must be of the type PCD-TOA5!");
 
   std::map<std::string, std::string> storageMetadata =  dsItem0->storageMetadata();
   QVERIFY2("value" == storageMetadata["key"], "Metadata key/value must be the same!");
@@ -574,7 +571,7 @@ void TsDataManager::testAddDataProviderWithId()
   // Tries to add a data provider with an Id different than 0
   try
   {
-    auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 1));
+    auto dataProvider = DataProviderPtr(new DataProvider(1, DataProvider::FTP_TYPE));
     DataManager::getInstance().add(dataProvider);
 
     // An exception should be thrown, if not the test fails.
@@ -598,7 +595,8 @@ void TsDataManager::testAddDataSetWihId()
     DataManager::getInstance().add(dataProvider);
 
     // create a new dataset and save it to the database
-    DataSetPtr dataSet(new DataSet(dataProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE, 1));
+    DataSetPtr dataSet(new DataSet(DataSet::OCCURENCE_TYPE, dataProvider.get(), 1));
+    dataSet->setName("Queimadas");
 
     DataManager::getInstance().add(dataSet);
 
@@ -619,16 +617,16 @@ void TsDataManager::testAddDataProviderWithDataSet()
   QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProviderPtr)));
 
   auto dataProvider = createDataProvider();
-  auto dataSets = dataProvider->dataSets();
-  DataSetPtr dataSet(new DataSet(dataProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE));
-  dataSets.push_back(dataSet);
-  dataProvider->setDataSets(dataSets);
+  auto dataSets = dataProvider->datasets();
+  std::unique_ptr<DataSet> dataSet(new DataSet( DataSet::OCCURENCE_TYPE, dataProvider.get()));
+  dataSet->setName("Queimadas");
+  dataProvider->add(std::move(dataSet));
 
   DataManager::getInstance().add(dataProvider, true);
 
-  QVERIFY2(dataProvider->dataSets().size() != 0, "The dataset was not persisted!");
+  QVERIFY2(dataProvider->datasets().size() != 0, "The dataset was not persisted!");
 
-  foreach(auto ds, dataProvider->dataSets())
+  for(auto ds: dataProvider->datasets())
   {
     QVERIFY2(ds->id() != 0, "DataSet id wasn't set in the provider after insert!");
   }
@@ -747,7 +745,8 @@ void TsDataManager::testUpdateNonexistentDataProvider()
   // Tries to update a data provider that doesn't have a valid ID
   try
   {
-    auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 10));
+    auto dataProvider = DataProviderPtr(new DataProvider(10, DataProvider::FTP_TYPE));
+    dataProvider->setName("Server 1");
 
     DataManager::getInstance().update(dataProvider);
 
@@ -822,7 +821,8 @@ void TsDataManager::testAddDataSetWithNullProvider()
   // Tries to add an dataset with an invalid data provider
   try
   {
-    DataSetPtr dataSet(new DataSet(nullptr, "Queimadas", DataSet::OCCURENCE_TYPE));
+    DataSetPtr dataSet(new DataSet(DataSet::OCCURENCE_TYPE));
+    dataSet->setName("Queimadas");
 
     DataManager::getInstance().add(dataSet);
 
@@ -845,8 +845,8 @@ void TsDataManager::testAddDataSetWithNonexistentProvider()
   // Tries to add an dataset with an invalid data provider
   try
   {
-    auto nonExistentProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 1));
-    DataSetPtr dataSet(new DataSet(nonExistentProvider.get(), "Queimadas", DataSet::OCCURENCE_TYPE));
+    auto nonExistentProvider = DataProviderPtr(new DataProvider(1, DataProvider::FTP_TYPE));
+    DataSetPtr dataSet(new DataSet( DataSet::OCCURENCE_TYPE, nonExistentProvider.get()));
 
     DataManager::getInstance().add(dataSet);
 
@@ -869,10 +869,11 @@ void TsDataManager::testRemoveDataProviderWithDataSet()
 
 
   auto dataProvider = createDataProvider();
-  auto dataSets = dataProvider->dataSets();
-  DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE));
-  dataSets.push_back(dataSet);
-  dataProvider->setDataSets(dataSets);
+  auto dataSets = dataProvider->datasets();
+  std::unique_ptr<DataSet> dataSet(new DataSet(DataSet::OCCURENCE_TYPE, dataProvider.get()));
+  dataSet->setName("Queimadas");
+
+  dataProvider->add(std::move(dataSet));
 
   DataManager::getInstance().add(dataProvider);
 
@@ -899,8 +900,8 @@ void TsDataManager::testUpdateDataSetWithNullProvider()
   // Tries to add an dataset with an invalid data provider
   try
   {
-    DataProviderPtr nullProvider;
-    DataSetPtr dataSet(new DataSet(nullProvider, "Queimadas", DataSet::OCCURENCE_TYPE, 1));
+
+    DataSetPtr dataSet(new DataSet(DataSet::OCCURENCE_TYPE));
 
     DataManager::getInstance().update(dataSet);
 
@@ -928,9 +929,9 @@ void TsDataManager::testUpdateDataSetWithNonexistentProvider()
   try
   {
     // Nonexistent data provider
-    auto dataProvider = DataProviderPtr(new DataProvider("Server 1", DataProvider::FTP_TYPE, 10));
+    auto dataProvider = DataProviderPtr(new DataProvider(10, DataProvider::FTP_TYPE));
 
-    DataSetPtr dataSet(new DataSet(dataProvider, "Queimadas", DataSet::OCCURENCE_TYPE, 1));
+    DataSetPtr dataSet(new DataSet(DataSet::OCCURENCE_TYPE, dataProvider.get(), 1));
 
     DataManager::getInstance().update(dataSet);
 
