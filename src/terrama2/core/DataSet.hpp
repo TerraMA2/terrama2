@@ -237,6 +237,10 @@ namespace terrama2
         /*! \brief Adds a new dataset item to the dataset. */
         void add(std::unique_ptr<DataSetItem> d);
 
+        /*! \brief Removes the give dataset item from the dataset. */
+        void remove(DataSetItemPtr d);
+
+
       private:
 
 
@@ -252,7 +256,7 @@ namespace terrama2
         te::dt::TimeDuration scheduleTimeout_;
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
-        std::vector<DataSetItemPtr> datasetItemList_;
+        std::vector<DataSetItemPtr> datasetItems_;
     };
 
     typedef std::shared_ptr<DataSet> DataSetPtr;

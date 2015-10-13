@@ -186,11 +186,16 @@ terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
 const std::vector<terrama2::core::DataSetItemPtr>&
 terrama2::core::DataSet::dataSetItems() const
 {
-  return datasetItemList_;
+  return datasetItems_;
 }
 
 void
 terrama2::core::DataSet::add(std::unique_ptr<DataSetItem> d)
 {
-  datasetItemList_.push_back(std::move(d));
+  datasetItems_.push_back(std::move(d));
+}
+
+void terrama2::core::DataSet::remove(DataSetItemPtr d)
+{
+  std::remove(datasetItems_.begin(), datasetItems_.end(), d);
 }
