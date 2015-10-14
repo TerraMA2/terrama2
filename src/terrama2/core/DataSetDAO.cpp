@@ -333,19 +333,16 @@ void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::Data
 void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
 
-  if(dataset.id() != 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
-
-  if(dataset.provider() == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider  in order to be saved."));
+  if(dataset.id() == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save the collect rules with dataset identifier equals 0."));
 
   try
   {
     std::vector<terrama2::core::DataSet::CollectRule> collectRules = dataset.collectRules();
     for(auto collectRule : collectRules)
     {
-      boost::format query("INSERT INTO terrama2.collect_rules "
-                                  "(script, id)"
+      boost::format query("INSERT INTO terrama2.dataset_collect_rule "
+                                  "(script, dataset_id)"
                                   "VALUES('%1%', %2%)");
 
       query.bind_arg(1, collectRule.script);
@@ -404,8 +401,43 @@ void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSour
 
 }
 
-void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
+void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
-  //TODO
+  if(dataset.id() == 0)
+    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save the metadata with dataset identifier equals 0."));
+
+  try
+  {
+    for (auto it = dataset.metadata().begin(); it!= dataset.metadata().end(); ++it)
+    {
+      boost::format query("INSERT INTO terrama2.dataset_metadata "
+                                  "(key, value, dataset_id)"
+                                  "VALUES('%1%', '%2%', %3%)");
+
+      query.bind_arg(1, it->first);
+      query.bind_arg(2, it->second);
+      query.bind_arg(3, dataset.id());
+
+      transactor.execute(query.str());
+
+    }
+
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    QString err_msg(QObject::tr("Unexpected error saving the metadata for the dataset: %1"));
+
+    err_msg = err_msg.arg(dataset.id());
+
+    throw DataAccessError() << ErrorDescription(err_msg);
+  }
 }
 

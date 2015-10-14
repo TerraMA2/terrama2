@@ -78,7 +78,7 @@ void terrama2::core::DataManager::load()
   {
     DataProviderPtr sprovider(std::move(provider));
 
-    pimpl_->providers[provider->id()] = sprovider;
+    pimpl_->providers[sprovider->id()] = sprovider;
 
     const std::vector<DataSetPtr>& datasets = sprovider->datasets();
 
