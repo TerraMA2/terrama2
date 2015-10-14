@@ -5,6 +5,7 @@
 #include "Exception.hpp"
 #include "../../core/DataSet.hpp"
 #include "../../core/DataManager.hpp"
+#include "../../core/Utils.hpp"
 
 // QT
 #include <QMessageBox>
@@ -41,6 +42,8 @@ void ConfigAppWeatherGridTab::save()
   std::string name = ui_->gridFormatDataName->text().toStdString();
 
   terrama2::core::DataSetPtr dataSetPtr(new terrama2::core::DataSet(dataProvider, name, kind));
+  dataSetPtr->setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
+  dataSetPtr->setStatus(terrama2::core::BoolToDataSetStatus(ui_->gridFormatStatus->isChecked()));
 
   terrama2::core::DataManager::getInstance().add(dataSetPtr);
 
@@ -65,7 +68,7 @@ void ConfigAppWeatherGridTab::discardChanges(bool restore_data)
 
 bool ConfigAppWeatherGridTab::validate()
 {
-  if (ui_->gridFormatDataName->text().isEmpty())
+  if (ui_->gridFormatDataName->text().trimmed().isEmpty())
   {
     ui_->gridFormatDataName->setFocus();
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The Data Set Item name cannot be empty."));

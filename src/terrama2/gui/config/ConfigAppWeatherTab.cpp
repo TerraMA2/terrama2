@@ -19,7 +19,9 @@
 #include <QJsonObject>
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+  : ConfigAppTab(app, ui),
+    serverTab_(new ConfigAppWeatherServer(app, ui)),
+    gridTab_(new ConfigAppWeatherGridTab(app, ui))
 {
   ui_->weatherDataTree->header()->hide();
   ui_->weatherDataTree->setCurrentItem(ui_->weatherDataTree->topLevelItem(0));
@@ -70,7 +72,6 @@ void ConfigAppWeatherTab::clearList()
 
 void ConfigAppWeatherTab::load()
 {
-  terrama2::core::DataManager::getInstance().load();
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
   std::auto_ptr<te::da::DataSet> dataProviders = ds->getDataSet("terrama2.data_provider");
 
@@ -94,7 +95,7 @@ void ConfigAppWeatherTab::load()
     {
       QTreeWidgetItem* subItem = new QTreeWidgetItem;
       subItem->setText(0, QString(dataSet->getAsString("name").c_str()));
-      switch (terrama2::core::IntToDataSetKind(dataSet->getInt64(5)))
+      switch (terrama2::core::IntToDataSetKind(dataSet->getInt32(5)))
       {
         case terrama2::core::DataSet::GRID_TYPE:
           subItem->setIcon(0, QIcon::fromTheme("grid"));
@@ -115,14 +116,24 @@ void ConfigAppWeatherTab::load()
 
 bool ConfigAppWeatherTab::dataChanged()
 {
-  for(const auto tab: subTabs_)
-    if (tab->isActive() && tab->dataChanged())
+  for(const auto tab: subTabs_) {
+    if (tab->isActive())// && tab->dataChanged())
+    {
       return true;
+    }
+  }
   return false;
+//  return serverTab_->isActive() || gridTab_->isActive();
 }
 
 bool ConfigAppWeatherTab::validate()
 {
+//  if (serverTab_->isActive() && serverTab_->dataChanged())
+//    return serverTab_->validate();
+//
+//  if (gridTab_->isActive() && gridTab_->dataChanged())
+//    return gridTab_->validate();
+
   for(const auto tab: subTabs_)
     if (tab->isActive() && tab->dataChanged())
     {
@@ -274,11 +285,11 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 {
   if (selectedItem->parent() != nullptr)
   {
-    terrama2::core::DataManager::getInstance().load();
     try
     {
       // If it does not have parent, so it has to be DataProvider. Otherwise, selectedItem is DataSet
-      if (selectedItem->parent()->parent() == nullptr) {
+      if (selectedItem->parent()->parent() == nullptr)
+      {
         QObject::disconnect(ui_->serverDescription->document(), 0, 0, 0);
         showDataSeries(true);
         std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
@@ -295,6 +306,9 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
 
+        ConfigAppWeatherServer* server = static_cast<ConfigAppWeatherServer*>(subTabs_[0].data());
+        server->setDataProviderSelected(selectedItem->text(0));
+
         ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
         ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
         ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
@@ -304,16 +318,22 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         subTabs_[0]->load();
       }
       else {
-        terrama2::core::DataSetPtr dset = terrama2::core::DataManager::getInstance().findDataSet(
-            selectedItem->text(0).toStdString());
 
-        if (dset == nullptr)
+        std::string sql = "SELECT * FROM terrama2.dataset WHERE name = '";
+        sql += selectedItem->text(0).toStdString() + "'";
+
+        std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+        std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
+
+        if (dataSet->size() != 1)
           throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
+
+        dataSet->moveFirst();
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
 
-        ui_->gridFormatDataName->setText(dset->name().c_str());
+        ui_->gridFormatDataName->setText(dataSet->getAsString("name").c_str());
         showDataSeries(false);
       }
     }
@@ -406,8 +426,18 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
                                       QMessageBox::Yes);
         if (reply == QMessageBox::Yes)
         {
-          // fix: temp code
-          emit ui_->saveBtn->clicked();
+          try
+          {
+            if (tab->validate())
+              tab->save();
+          }
+          catch (const terrama2::Exception& e)
+          {
+            QString message(tr("Error while saving. \n\n"));
+            message.append(boost::get_error_info<terrama2::ErrorDescription>(e));
+
+            QMessageBox::warning(app_, tr("TerraMA2"), message);
+          }
         }
       }
       tab->discardChanges(false);

@@ -24,7 +24,6 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
   connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
-  connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), SLOT(onDataProviderClicked(QTreeWidgetItem*)));
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -39,10 +38,10 @@ void ConfigAppWeatherServer::load()
 
 void ConfigAppWeatherServer::save()
 {
+  terrama2::core::DataManager::getInstance().unload();
   terrama2::core::DataManager::getInstance().load();
   // If there data provider in database
   terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
-      //ui_->weatherDataTree->currentItem()->text(0).toStdString());
       dataProviderSelected_.toStdString());
   if (dataProvider != nullptr)
   {
@@ -53,7 +52,20 @@ void ConfigAppWeatherServer::save()
     dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
     terrama2::core::DataManager::getInstance().update(dataProvider);
-    ui_->weatherDataTree->currentItem()->setText(0, ui_->serverName->text());
+
+    QTreeWidgetItemIterator it(ui_->weatherDataTree->topLevelItem(0));
+    while(*it)
+    {
+      if ((*it)->text(0) == dataProviderSelected_)
+      {
+        (*it)->setText(0, ui_->serverName->text());
+        break;
+      }
+      ++it;
+    }
+
+    dataProviderSelected_ = ui_->serverName->text();
+
   }
   else
   {
@@ -96,7 +108,7 @@ void ConfigAppWeatherServer::discardChanges(bool restore)
 
 bool ConfigAppWeatherServer::validate()
 {
-  if (ui_->serverName->text().isEmpty())
+  if (ui_->serverName->text().trimmed().isEmpty())
   {
     ui_->serverName->setFocus();
     return false;
@@ -177,14 +189,12 @@ void ConfigAppWeatherServer::validateConnection()
   }
 }
 
-void ConfigAppWeatherServer::onDataProviderClicked(QTreeWidgetItem* item)
-{
-  if (item->parent() != nullptr)
-    if (item->parent()->parent() == nullptr)
-      dataProviderSelected_ = item->text(0);
-}
-
 void ConfigAppWeatherServer::onTextEditChanged()
 {
   changed_ = true;
+}
+
+void ConfigAppWeatherServer::setDataProviderSelected(const QString& dataProvider)
+{
+  dataProviderSelected_ = dataProvider;
 }
