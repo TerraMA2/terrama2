@@ -31,8 +31,10 @@
 #ifndef __TERRAMA2_CORE_DATASETITEMDAO_HPP__
 #define __TERRAMA2_CORE_DATASETITEMDAO_HPP__
 
+// TerraMA2
+#include "DataSetItem.hpp"
+
 // STL
-#include <memory>
 #include <vector>
 #include <map>
 
@@ -103,7 +105,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::vector<std::unique_ptr<DataSetItem> >
+        static std::vector<DataSetItem>
         loadAll(uint64_t datasetId, te::da::DataSourceTransactor& transactor);
 
       private:

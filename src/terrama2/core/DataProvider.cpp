@@ -32,7 +32,6 @@
 
 // TerraMA2
 #include "DataProvider.hpp"
-#include "DataSet.hpp"
 
 terrama2::core::DataProvider::DataProvider(const uint64_t id, Kind k)
   : id_(id),
@@ -53,6 +52,9 @@ uint64_t terrama2::core::DataProvider::id() const
 void terrama2::core::DataProvider::setId(uint64_t id)
 {
   id_ = id;
+  
+  for(auto& dataset : datasets_)
+    dataset.setProvider(id);
 }
 
 const std::string&
@@ -111,19 +113,22 @@ terrama2::core::DataProvider::setStatus(Status s)
   status_ = s;
 }
 
-const std::vector<terrama2::core::DataSetPtr>&
+const std::vector<terrama2::core::DataSet>&
 terrama2::core::DataProvider::datasets() const
 {
   return datasets_;
 }
 
 void
-terrama2::core::DataProvider::add(std::unique_ptr<DataSet> d)
+terrama2::core::DataProvider::add(const DataSet& d)
 {
-  datasets_.push_back(std::move(d));
+  datasets_.push_back(d);
 }
 
-void terrama2::core::DataProvider::remove(terrama2::core::DataSetPtr& dataset)
+void terrama2::core::DataProvider::removeDataSet(uint64_t id)
 {
-  std::remove(datasets_.begin(), datasets_.end(), dataset);
+  datasets_.erase(std::remove_if(datasets_.begin(),
+                                datasets_.end(),
+                                [&id](const DataSet& dataset){ return (dataset.id() == id) ? true : false; }),
+                  datasets_.end());
 }

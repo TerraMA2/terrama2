@@ -33,13 +33,11 @@
 
 // TerraMA2
 #include "DataSet.hpp"
-#include "DataProvider.hpp"
-#include "DataSetItem.hpp"
 
-terrama2::core::DataSet::DataSet(Kind kind, DataProvider* provider, const uint64_t id)
+terrama2::core::DataSet::DataSet(Kind kind, uint64_t id, uint64_t providerId)
   : kind_(kind),
-    provider_(provider),
     id_(id),
+    provider_(providerId)
     status_(INACTIVE),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),
@@ -60,6 +58,9 @@ uint64_t terrama2::core::DataSet::id() const
 void terrama2::core::DataSet::setId(uint64_t id)
 {
   id_ = id;
+  
+  for(auto& item : datasetItems_)
+    item.setDataSet(id);
 }
 
 const std::string&
@@ -104,16 +105,15 @@ void terrama2::core::DataSet::setStatus(const Status s)
   status_ = s;
 }
 
-terrama2::core::DataProvider*
-terrama2::core::DataSet::provider() const
+uint64_t terrama2::core::DataSet::provider() const
 {
   return provider_;
 }
 
 void
-terrama2::core::DataSet::setProvider(DataProvider* p)
+terrama2::core::DataSet::setProvider(uint64_t id)
 {
-  provider_ = p;
+  provider_ = id;
 }
 
 const te::dt::TimeDuration&
@@ -183,19 +183,22 @@ terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
   collectRules_ = rules;
 }
 
-const std::vector<terrama2::core::DataSetItemPtr>&
+const std::vector<terrama2::core::DataSetItem>&
 terrama2::core::DataSet::dataSetItems() const
 {
   return datasetItems_;
 }
 
 void
-terrama2::core::DataSet::add(std::unique_ptr<DataSetItem> d)
+terrama2::core::DataSet::add(const DataSetItem& d)
 {
-  datasetItems_.push_back(std::move(d));
+  datasetItems_.push_back(d);
 }
 
-void terrama2::core::DataSet::remove(DataSetItemPtr d)
+void terrama2::core::DataSet::removeDataSetItem(uint64_t id)
 {
-  std::remove(datasetItems_.begin(), datasetItems_.end(), d);
+  datasetItems_.erase(std::remove_if(datasetItems_.begin(),
+                                     datasetItems_.end(),
+                                    [&id](const DataSetItem& item){ return (item.id() == id) ? true : false; }),
+                      datasetItems_.end());
 }

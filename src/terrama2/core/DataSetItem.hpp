@@ -30,21 +30,17 @@
 #ifndef __TERRAMA2_CORE_DATASETITEM_HPP__
 #define __TERRAMA2_CORE_DATASETITEM_HPP__
 
+// TerraLib
+#include "Filter.hpp"
+
 // STL
 #include <map>
-#include <memory>
 #include <string>
-
-// Boost
-#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataSet;
-    class Filter;
 
     /*!
       \class DataSetItem
@@ -53,7 +49,7 @@ namespace terrama2
 
       A dataset item can be a INPE Format PCD, TOA5 PCD, an occurrence of fire or an occurrence of diseases.
      */
-    class DataSetItem : public boost::noncopyable
+    class DataSetItem
     {
       public:
 
@@ -79,11 +75,11 @@ namespace terrama2
         /*!
           \brief Constructor.
 
-          \param id The dataset item identifier or zero if it doesn't have a valid one.
-          \param k  The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
-          \param d  The dataset to which this item belongs to.
+          \param k         The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
+          \param id        The dataset item identifier or zero if it doesn't have a valid one.
+          \param datasetId The dataset to which this item belongs to.
         */
-        DataSetItem(Kind k = UNKNOWN_TYPE, const DataSet* d = nullptr, const uint64_t id = 0);
+        DataSetItem(Kind k = UNKNOWN_TYPE, uint64_t id = 0, uint64_t datasetId = 0);
 
         /*! \brief Destructor. */
         ~DataSetItem();
@@ -119,13 +115,15 @@ namespace terrama2
         void setTimezone(const std::string& tz);
 
         /*! \brief Returns the dataset to which this item belongs to. */
-        const DataSet* dataset() const;
+        uint64_t dataset() const;
+      
+        void setDataSet(uint64_t id);
 
         /*! \brief Returns the filter to be used when collecting this data item. */
-        const Filter* filter() const;
+        const Filter& filter() const;
 
         /*! \brief Sets the filter to be used when collecting data. */
-        void setFilter(std::unique_ptr<Filter> f);
+        void setFilter(const Filter& f);
 
         /*! \brief Returns the storage strategy metadata. */
         const std::map<std::string, std::string>& storageMetadata() const;
@@ -139,16 +137,14 @@ namespace terrama2
       private:
 
         Kind kind_;
-        const DataSet* dataset_;
         uint64_t id_;
+        uint64_t dataset_;
         Status status_;
         std::string mask_;
         std::string timezone_;
-        std::unique_ptr<Filter> filter_;
+        Filter filter_;
         std::map<std::string, std::string> storageMetadata_;
     };
-
-    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
 
   } // end namespace core
 }   // end namespace terrama2

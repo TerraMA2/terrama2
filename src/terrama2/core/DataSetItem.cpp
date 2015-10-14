@@ -29,13 +29,11 @@
 
 // TerraMA2
 #include "DataSetItem.hpp"
-#include "DataSet.hpp"
-#include "Filter.hpp"
 
-terrama2::core::DataSetItem::DataSetItem(Kind k, const DataSet* d, const uint64_t id)
+terrama2::core::DataSetItem::DataSetItem(Kind k, uint64_t id, uint64_t datasetId)
   : kind_(k),
-    dataset_(d),
     id_(id),
+    dataset_(datasetId),
     status_(INACTIVE)
 {
 }
@@ -98,21 +96,25 @@ void terrama2::core::DataSetItem::setTimezone(const std::string& tz)
   timezone_ = tz;
 }
 
-const terrama2::core::DataSet* 
-terrama2::core::DataSetItem::dataset() const
+uint64_t terrama2::core::DataSetItem::dataset() const
 {
   return dataset_;
 }
 
-const terrama2::core::Filter*
-terrama2::core::DataSetItem::filter() const
+void terrama2::core::DataSetItem::setDataSet(uint64_t id)
 {
-  return filter_.get();
+  dataset_ = id;
 }
 
-void terrama2::core::DataSetItem::setFilter(std::unique_ptr<Filter> f)
+const terrama2::core::Filter&
+terrama2::core::DataSetItem::filter() const
 {
-  filter_ = std::move(f);
+  return filter_;
+}
+
+void terrama2::core::DataSetItem::setFilter(const Filter& f)
+{
+  filter_ = f;
 }
 
 const std::map<std::string, std::string>&

@@ -31,8 +31,6 @@
 
 //TerraMA2
 #include "DataSetDAO.hpp"
-#include "DataManager.hpp"
-#include "DataSet.hpp"
 #include "DataSetItem.hpp"
 #include "DataSetItemDAO.hpp"
 #include "Exception.hpp"
@@ -40,8 +38,6 @@
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/memory/DataSetItem.h>
-#include <terralib/memory/DataSet.h>
 
 // Qt
 #include <QObject>
@@ -54,10 +50,10 @@ void
 terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
   if(dataset.id() != 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
 
-  if(dataset.provider() == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider  in order to be saved."));
+  if(dataset.provider() == 0)
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider in order to be saved."));
 
   try
   {
@@ -67,7 +63,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
     query.bind_arg(1, dataset.name());
     query.bind_arg(2, dataset.description());
-    query.bind_arg(3, dataset.provider()->id());
+    query.bind_arg(3, dataset.provider());
     query.bind_arg(4, static_cast<int>(dataset.kind()));
     query.bind_arg(5, dataset.dataFrequency().getTimeDuration().total_seconds());
 
@@ -90,13 +86,11 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
     // Persist the metadata
     saveMetadata(dataset, transactor);
 
-    if(!shallowSave)
-    {
-      for(auto item: dataset.dataSetItems())
-      {
-        DataSetItemDAO::save(*item, transactor);
-      }
-    }
+    if(shallowSave)
+      return;
+    
+    for(auto& item: dataset.dataSetItems())
+      DataSetItemDAO::save(item, transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -116,9 +110,10 @@ void
 terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
   if(dataset.id() == 0)
-  {
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
-  }
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
+
+  if(dataset.provider() == 0)
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider in order to be updated."));
 
   try
   {
@@ -135,7 +130,7 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
 
     query.bind_arg(1, dataset.name());
     query.bind_arg(2, dataset.description());
-    query.bind_arg(3, dataset.provider()->id());
+    query.bind_arg(3, dataset.provider());
     query.bind_arg(4, static_cast<int>(dataset.kind()));
     query.bind_arg(5, dataset.dataFrequency().getTimeDuration().total_seconds());
 
@@ -161,14 +156,12 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
     transactor.execute(sql);
     saveMetadata(dataset, transactor);
 
-    if(!shallowSave)
-    {
-      // TODO: Verificar os existentes no banco pra ver oq precisa inserir/remove/atualizar
-      for(auto item: dataset.dataSetItems())
-      {
-        DataSetItemDAO::save(*item, transactor);
-      }
-    }
+    if(shallowSave)
+      return;
+    
+// TODO: Verificar os existentes no banco pra ver oq precisa inserir/remove/atualizar
+    for(auto& item: dataset.dataSetItems())
+      DataSetItemDAO::save(item, transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -189,7 +182,7 @@ void
 terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
 
   try
   {
@@ -202,12 +195,11 @@ terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& tr
   }
 }
 
-std::unique_ptr<terrama2::core::DataSet>
+terrama2::core::DataSet
 terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
-
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load a dataset with identifier: 0."));
 
   try
   {
@@ -220,43 +212,43 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
       std::string name = tempDataSet->getAsString("name");
       terrama2::core::DataSet::Kind kind = ToDataSetKind(tempDataSet->getInt32("kind"));
 
-      std::unique_ptr<DataSet> dataset(new DataSet(kind));
-      dataset->setId(tempDataSet->getInt32("id"));
-      dataset->setDescription(tempDataSet->getString("description"));
-      dataset->setStatus(ToDataSetStatus(tempDataSet->getBool("active")));
+      DataSet dataset(kind);
+      dataset.setId(tempDataSet->getInt32("id"));
+      dataset.setDescription(tempDataSet->getString("description"));
+      dataset.setStatus(ToDataSetStatus(tempDataSet->getBool("active")));
 
       u_int64_t dataFrequency = tempDataSet->getInt32("data_frequency");
       boost::posix_time::time_duration tdDataFrequency = boost::posix_time::seconds(dataFrequency);
       te::dt::TimeDuration teTDDataFrequency(tdDataFrequency);
-      dataset->setDataFrequency(teTDDataFrequency);
-
+      dataset.setDataFrequency(teTDDataFrequency);
+// TODO: use unique_ptr
       te::dt::TimeDuration* schedule = dynamic_cast<te::dt::TimeDuration*>(tempDataSet->getDateTime("schedule").get());
       if(schedule != nullptr)
       {
-        dataset->setSchedule(*schedule);
+        dataset.setSchedule(*schedule);
         delete schedule;
       }
 
       u_int64_t scheduleRetry = tempDataSet->getInt32("schedule_retry");
       boost::posix_time::time_duration tdScheduleRetry = boost::posix_time::seconds(scheduleRetry);
       te::dt::TimeDuration teTDScheduleRetry(tdScheduleRetry);
-      dataset->setScheduleRetry(teTDScheduleRetry);
+      dataset.setScheduleRetry(teTDScheduleRetry);
 
       u_int64_t scheduleTimeout = tempDataSet->getInt32("schedule_timeout");
       boost::posix_time::time_duration tdScheduleTimeout = boost::posix_time::seconds(scheduleTimeout);
       te::dt::TimeDuration teTDScheduleTimeout(tdScheduleTimeout);
-      dataset->setScheduleTimeout(teTDScheduleTimeout);
+      dataset.setScheduleTimeout(teTDScheduleTimeout);
 
       // Sets the collect rules
-      loadCollectRules(*dataset, transactor);
+      loadCollectRules(dataset, transactor);
 
       // Sets the metadata
-      loadMetadata(*dataset, transactor);
+      loadMetadata(dataset, transactor);
 
-      std::vector<std::unique_ptr<DataSetItem> > items = DataSetItemDAO::loadAll(id, transactor);
+      std::vector<DataSetItem> items = DataSetItemDAO::loadAll(id, transactor);
 
-      for(std::unique_ptr<DataSetItem>& item : items)
-        dataset->add(std::move(item));
+      for(const auto& item : items)
+        dataset.add(item);
 
       return dataset;
     }
@@ -274,13 +266,13 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
     throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
   }
 
-  return std::unique_ptr<DataSet>(nullptr);
+  return DataSet();
 }
 
-std::vector<std::unique_ptr<terrama2::core::DataSet> >
+std::vector<terrama2::core::DataSet>
 terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor)
 {
-  std::vector<std::unique_ptr<terrama2::core::DataSet> > datasets;
+  std::vector<terrama2::core::DataSet> datasets;
 
   try
   {
@@ -292,7 +284,7 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
 
     while(query_result->moveNext())
     {
-
+// TODO: use the same code as above    DataSet d = getDataSet(query_result); // privado
 
     }
   }
@@ -334,7 +326,7 @@ void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataset, te::da::Data
 {
 
   if(dataset.id() == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save the collect rules with dataset identifier equals 0."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save the collect rules with dataset identifier equals 0."));
 
   try
   {
@@ -404,7 +396,7 @@ void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSour
 void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
   if(dataset.id() == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not save the metadata with dataset identifier equals 0."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save the metadata with dataset identifier equals 0."));
 
   try
   {

@@ -31,8 +31,10 @@
 #ifndef __TERRAMA2_CORE_DATASETDAO_HPP__
 #define __TERRAMA2_CORE_DATASETDAO_HPP__
 
+// TerraMA2
+#include "DataSet.hpp"
+
 // STL
-#include <memory>
 #include <vector>
 
 // Forward declaration
@@ -42,8 +44,6 @@ namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataSet;
 
     /*!
       \class DataSetDAO
@@ -68,7 +68,9 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallow = true);
+        static void save(DataSet& dataset,
+                         te::da::DataSourceTransactor& transactor,
+                         const bool shallow = true);
 
         /*!
           \brief Update the dataset information in the database.
@@ -104,7 +106,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::unique_ptr<DataSet> load(uint64_t id, te::da::DataSourceTransactor& transactor);
+        static DataSet load(uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Load the list of datasets for the given data provider.
@@ -118,7 +120,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::vector<std::unique_ptr<DataSet> >
+        static std::vector<DataSet>
         loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor);
 
       private:

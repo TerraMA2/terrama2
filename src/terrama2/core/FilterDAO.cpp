@@ -47,10 +47,10 @@ void
 terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& transactor)
 {
   if(f.datasetItem() == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be saved."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be saved."));
 
   if(f.datasetItem()->id() == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%, %9%)");
 
@@ -108,10 +108,10 @@ void
 terrama2::core::FilterDAO::update(const Filter& f, te::da::DataSourceTransactor& transactor)
 {
   if(f.datasetItem() == nullptr)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be updated."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be updated."));
 
   if(f.datasetItem()->id() == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
                       "discard_after = %2%, geom = %3%, external_data_id = %4%, "
@@ -172,7 +172,7 @@ void
 terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetItemId == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not remove filter information for an invalid dataset item identifier: 0."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove filter information for an invalid dataset item identifier: 0."));
 
   std::string sql("DELETE FROM terrama2.filter WHERE dataset_item_id = ");
               sql += std::to_string(datasetItemId);
@@ -199,7 +199,7 @@ std::unique_ptr<terrama2::core::Filter>
 terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetItemId == 0)
-    throw InvalidParameterError() << ErrorDescription(QObject::tr("Can not load filter information for an invalid dataset item identifier: 0."));
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load filter information for an invalid dataset item identifier: 0."));
 
   std::string sql("SELECT * FROM terrama2.filter WHERE dataset_item_id = ");
               sql += std::to_string(datasetItemId);

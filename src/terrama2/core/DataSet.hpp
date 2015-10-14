@@ -33,13 +33,12 @@
 #ifndef __TERRAMA2_CORE_DATASET_HPP__
 #define __TERRAMA2_CORE_DATASET_HPP__
 
+// TerraMA2
+#include "DataSetItem.hpp"
+
 // STL
-#include <memory>
 #include <string>
 #include <vector>
-
-// Boost
-#include <boost/noncopyable.hpp>
 
 // TerraLib
 #include <terralib/datatype/TimeDuration.h>
@@ -48,10 +47,6 @@ namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataProvider;
-    class DataSetItem;
-    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
 
     /*!
       \class DataSet
@@ -66,7 +61,7 @@ namespace terrama2
 
       A dataset has an associated time interval (or frequency) for being collected.
      */
-    class DataSet : public boost::noncopyable
+    class DataSet
     {
       public:
 
@@ -96,11 +91,11 @@ namespace terrama2
         /*!
           \brief Constructor
 
-          \param id       The dataset identifier.
-          \param kind     The kind of dataset.
-          \param provider The data provider associated to this dataset.
+          \param kind       The kind of dataset.
+          \param id         The dataset identifier.
+          \param providerId The data provider associated to this dataset.
         */
-        DataSet(Kind kind = UNKNOWN_TYPE, DataProvider* provider = nullptr, const uint64_t id = 0);
+        DataSet(Kind kind = UNKNOWN_TYPE, uint64_t id = 0, uint64_t providerId = 0);
 
         /*! \brief Destructor. */
         ~DataSet();
@@ -138,10 +133,10 @@ namespace terrama2
         void setStatus(const Status s);
 
         /*! \brief Returns the asscociated data provider. */
-        DataProvider* provider() const;
+        uint64_t provider() const;
 
         /*! \brief Sets the asscociated data provider. */
-        void setProvider(DataProvider* p);
+        void setProvider(uint64_t id);
 
         /*!
           \brief It returns the time frequency that this dataset must try to acquire a new data.
@@ -232,21 +227,21 @@ namespace terrama2
 
            \return The list of dataset items.
          */
-        const std::vector<DataSetItemPtr>& dataSetItems() const;
+        const std::vector<DataSetItem>& dataSetItems() const;
 
         /*! \brief Adds a new dataset item to the dataset. */
-        void add(std::unique_ptr<DataSetItem> d);
+        void add(const DataSetItem& d);
 
         /*! \brief Removes the give dataset item from the dataset. */
-        void remove(DataSetItemPtr d);
+        void removeDataSetItem(uint64_t id);
 
 
       private:
 
 
         Kind kind_;
-        DataProvider* provider_;
         uint64_t id_;
+        uint64_t provider_;
         std::string name_;
         std::string description_;
         Status status_;
@@ -256,10 +251,8 @@ namespace terrama2
         te::dt::TimeDuration scheduleTimeout_;
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
-        std::vector<DataSetItemPtr> datasetItems_;
+        std::vector<DataSetItem> datasetItems_;
     };
-
-    typedef std::shared_ptr<DataSet> DataSetPtr;
 
   } // end namespace core
 }   // end namespace terrama2

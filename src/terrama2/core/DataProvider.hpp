@@ -33,22 +33,17 @@
 #ifndef __TERRAMA2_CORE_DATAPROVIDER_HPP__
 #define __TERRAMA2_CORE_DATAPROVIDER_HPP__
 
+// TerraMA2
+#include "DataSet.hpp"
+
 // STL
-#include <memory>
 #include <string>
 #include <vector>
-
-// Boost
-#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
     /*!
       \class DataProvider
 
@@ -62,7 +57,7 @@ namespace terrama2
       A data provider contains the list of datasets that belongs to this provider 
       that should be collected for further analysis.
      */
-    class DataProvider : public boost::noncopyable
+    class DataProvider
     {
       public:
 
@@ -74,7 +69,8 @@ namespace terrama2
           HTTP_TYPE,
           FILE_TYPE,
           WFS_TYPE,
-          WCS_TYPE
+          WCS_TYPE,
+          SOS_TYPE
         };
 
         //! Data provider status.
@@ -111,7 +107,7 @@ namespace terrama2
         /*! \brief Returns the the kind of the data provider. */
         Kind kind() const;
 
-        /*! Sets the the kind of the data provider.  */
+        /*! \brief Sets the the kind of the data provider.  */
         void setKind(Kind k);
 
         /*! \brief Returns the URI of the data provider. */
@@ -127,21 +123,21 @@ namespace terrama2
         void setStatus(Status s);
 
         /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
-        const std::vector<DataSetPtr>& datasets() const;
+        const std::vector<DataSet>& datasets() const;
 
         /*!
           \brief Adds a new dataset to the data provider.
 
           \param d The the dataset.
         */
-        void add(std::unique_ptr<DataSet> d);
+        void add(const DataSet& d);
 
         /*!
           \brief Removes the given dataset from the provider list.
 
-          \param dataset The dataset to be removed.
+          \param id The identifier of the dataset to be removed.
          */
-        void remove(DataSetPtr& dataset);
+        void removeDataSet(const uint64_t id);
 
       private:
 
@@ -151,10 +147,8 @@ namespace terrama2
         Kind kind_;
         std::string uri_;
         Status status_;
-        std::vector<DataSetPtr> datasets_; //!< The list of datasets available in the data provider.
+        std::vector<DataSet> datasets_; //!< The list of datasets available in the data provider.
     };
-
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
   } // end namespace core
 }   // end namespace terrama2
