@@ -123,7 +123,7 @@ namespace terrama2
         void setStatus(Status s);
 
         /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
-        const std::vector<DataSet>& datasets() const;
+        std::vector<DataSet>& datasets();
 
         /*!
           \brief Adds a new dataset to the data provider.

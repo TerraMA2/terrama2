@@ -50,6 +50,7 @@ uint64_t terrama2::core::DataSetItem::id() const
 void terrama2::core::DataSetItem::setId(uint64_t id)
 {
   id_ = id;
+  filter_.setDataSetItem(id);
 }
 
 terrama2::core::DataSetItem::Kind

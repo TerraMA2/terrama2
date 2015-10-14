@@ -46,15 +46,12 @@
 void
 terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& transactor)
 {
-  if(f.datasetItem() == nullptr)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be saved."));
-
-  if(f.datasetItem()->id() == 0)
+  if(f.datasetItem() == 0)
     throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%, %9%)");
 
-  query.bind_arg(1, f.datasetItem()->id());
+  query.bind_arg(1, f.datasetItem());
 
   if(f.discardBefore())
     query.bind_arg(2, "'" + f.discardBefore()->toString() + "'");
@@ -66,9 +63,11 @@ terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& t
   else
     query.bind_arg(3, "NULL");
 
+  // TODO: persist filter geometry
 // geom
   query.bind_arg(4, "NULL");
 
+  // TODO: persist fiter external data id
 // external_data_id
   query.bind_arg(5, "NULL");
 
@@ -98,7 +97,7 @@ terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& t
   {
     QString err_msg(QObject::tr("Unexpected error saving filter information for dataset item: %1"));
 
-    err_msg = err_msg.arg(f.datasetItem()->id());
+    err_msg = err_msg.arg(f.datasetItem());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -107,10 +106,7 @@ terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& t
 void
 terrama2::core::FilterDAO::update(const Filter& f, te::da::DataSourceTransactor& transactor)
 {
-  if(f.datasetItem() == nullptr)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The filter must be associated to a dataset item in order to be updated."));
-
-  if(f.datasetItem()->id() == 0)
+  if(f.datasetItem() == 0)
     throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
@@ -148,7 +144,7 @@ terrama2::core::FilterDAO::update(const Filter& f, te::da::DataSourceTransactor&
 // band_filter
   query.bind_arg(8, "NULL");
 
-  query.bind_arg(9, f.datasetItem()->id());
+  query.bind_arg(9, f.datasetItem());
 
   try
   {
@@ -162,7 +158,7 @@ terrama2::core::FilterDAO::update(const Filter& f, te::da::DataSourceTransactor&
   {
     QString err_msg(QObject::tr("Unexpected error updating filter information for dataset item: %1"));
 
-    err_msg = err_msg.arg(f.datasetItem()->id());
+    err_msg = err_msg.arg(f.datasetItem());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
@@ -195,7 +191,7 @@ terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTran
   }
 }
 
-std::unique_ptr<terrama2::core::Filter>
+terrama2::core::Filter
 terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetItemId == 0)
@@ -209,31 +205,31 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     std::auto_ptr<te::da::DataSet> filter_result = transactor.query(sql);
 
     if(!filter_result->moveNext())
-      return std::unique_ptr<Filter>(nullptr);
+      return std::move(Filter());
 
-    std::unique_ptr<Filter> filter(new Filter);
+    Filter filter(datasetItemId);
 
-    filter->setDiscardBefore(filter_result->getDateTime("discard_before"));
-    filter->setDiscardAfter(filter_result->getDateTime("discard_after"));
+    filter.setDiscardBefore(filter_result->getDateTime("discard_before"));
+    filter.setDiscardAfter(filter_result->getDateTime("discard_after"));
     
     if(!filter_result->isNull(3))
-      filter->setGeometry(filter_result->getGeometry("geom"));
+      filter.setGeometry(filter_result->getGeometry("geom"));
     
-    filter->setExpressionType(ToFilterExpressionType(filter_result->getInt32("by_value_type")));
+    filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("by_value_type")));
 
     if(!filter_result->isNull("by_value"))
     {
       double v = atof(filter_result->getNumeric("by_value").c_str());
       std::unique_ptr<double> byValue(&v);
-      filter->setValue(std::move(byValue));
+      filter.setValue(std::move(byValue));
     }
     else
     {
       std::unique_ptr<double> byValue(nullptr);
-      filter->setValue(std::move(byValue));
+      filter.setValue(std::move(byValue));
     }
     
-    filter->setBandFilter(filter_result->getString("band_filter"));
+    filter.setBandFilter(filter_result->getString("band_filter"));
     
     return std::move(filter);
   }

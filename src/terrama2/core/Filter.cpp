@@ -34,10 +34,12 @@
 
 // TerraLib
 #include <terralib/datatype/DateTime.h>
+#include <terralib/datatype/TimeDuration.h>
 #include <terralib/geometry/Geometry.h>
+#include <terralib/geometry/Polygon.h>
 
-terrama2::core::Filter::Filter(const DataSetItem* item)
-  : datasetItem_(item),
+terrama2::core::Filter::Filter(uint64_t dataSetItemId)
+  : datasetItem_(dataSetItemId),
     expressionType_(NONE_TYPE)
 {
 
@@ -48,12 +50,12 @@ terrama2::core::Filter::~Filter()
 
 }
 
-const terrama2::core::DataSetItem* terrama2::core::Filter::datasetItem() const
+uint64_t terrama2::core::Filter::datasetItem() const
 {
   return datasetItem_;
 }
 
-void terrama2::core::Filter::setDataSetItem(const DataSetItem* datasetItem)
+void terrama2::core::Filter::setDataSetItem(uint64_t datasetItem)
 {
   datasetItem_ = datasetItem;
 }
@@ -118,4 +120,88 @@ terrama2::core::Filter::bandFilter() const
 void terrama2::core::Filter::setBandFilter(const std::string& f)
 {
   bandFilter_ = f;
+}
+
+terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::Filter& rhs)
+{
+  if( this != &rhs )
+  {
+    datasetItem_ = rhs.datasetItem_;
+
+    if(rhs.discardBefore_ == nullptr)
+      discardBefore_.reset(nullptr);
+    else
+    {
+      te::dt::TimeDuration* discardBefore = dynamic_cast<te::dt::TimeDuration*>(rhs.discardBefore_.get());
+      discardBefore_.reset(new te::dt::TimeDuration(*discardBefore));
+    }
+
+    if(rhs.geometry_ == nullptr)
+      geometry_.reset(nullptr);
+    else
+    {
+      te::dt::TimeDuration* discardAfter = dynamic_cast<te::dt::TimeDuration*>(rhs.discardAfter_.get());
+      discardAfter_.reset(new te::dt::TimeDuration(*discardAfter));
+    }
+
+    if(rhs.geometry_ == nullptr)
+      geometry_.reset(nullptr);
+    else
+    {
+      te::gm::Polygon* geom = dynamic_cast<te::gm::Polygon*>(rhs.geometry_.get());
+      geometry_.reset(dynamic_cast<te::gm::Geometry*>(new te::gm::Polygon(*geom)));
+    }
+
+    if(rhs.value_ == nullptr)
+      value_.reset(nullptr);
+    else
+    {
+      value_.reset(new double(*rhs.value_));
+    }
+
+    expressionType_ = rhs.expressionType_;
+
+    bandFilter_ = rhs.bandFilter_;
+  }
+  return *this;
+}
+
+terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
+{
+  datasetItem_ = rhs.datasetItem_;
+
+  if(rhs.discardBefore_ == nullptr)
+    discardBefore_.reset(nullptr);
+  else
+  {
+    te::dt::TimeDuration* discardBefore = dynamic_cast<te::dt::TimeDuration*>(rhs.discardBefore_.get());
+    discardBefore_.reset(new te::dt::TimeDuration(*discardBefore));
+  }
+
+  if(rhs.geometry_ == nullptr)
+    geometry_.reset(nullptr);
+  else
+  {
+    te::dt::TimeDuration* discardAfter = dynamic_cast<te::dt::TimeDuration*>(rhs.discardAfter_.get());
+    discardAfter_.reset(new te::dt::TimeDuration(*discardAfter));
+  }
+
+  if(rhs.geometry_ == nullptr)
+    geometry_.reset(nullptr);
+  else
+  {
+    te::gm::Polygon* geom = dynamic_cast<te::gm::Polygon*>(rhs.geometry_.get());
+    geometry_.reset(dynamic_cast<te::gm::Geometry*>(new te::gm::Polygon(*geom)));
+  }
+
+  if(rhs.value_ == nullptr)
+    value_.reset(nullptr);
+  else
+  {
+    value_.reset(new double(*rhs.value_));
+  }
+
+  expressionType_ = rhs.expressionType_;
+
+  bandFilter_ = rhs.bandFilter_;
 }

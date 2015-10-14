@@ -156,12 +156,47 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
     transactor.execute(sql);
     saveMetadata(dataset, transactor);
 
+
     if(shallowSave)
       return;
-    
-// TODO: Verificar os existentes no banco pra ver oq precisa inserir/remove/atualizar
-    for(auto& item: dataset.dataSetItems())
-      DataSetItemDAO::save(item, transactor);
+
+
+    sql = "SELECT id FROM terrama2.dataset_item WHERE dataset_id = " + std::to_string(dataset.id());
+
+    std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+
+    std::vector<int> ids;
+    if(tempDataSet->moveNext())
+    {
+      uint64_t itemId = tempDataSet->getInt32(0);
+      ids.push_back(itemId);
+    }
+
+
+    for(auto item: dataset.dataSetItems())
+    {
+      // Id is 0 for new items
+      if(item.id() == 0)
+      {
+        DataSetItemDAO::save(item, transactor);
+      }
+
+      // Id exists just need to call update
+      auto it = find (ids.begin(), ids.end(), item.id());
+      if (it != ids.end())
+      {
+        DataSetItemDAO::update(item, transactor);
+
+        // Remove from the list, so what is left in this vector are the items to remove
+        ids.erase(it);
+      }
+    }
+
+    for(auto itemId : ids)
+    {
+      DataSetItemDAO::remove(itemId, transactor);
+    }
+
   }
   catch(const terrama2::Exception&)
   {
@@ -205,53 +240,9 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
   {
     std::string sql("SELECT * FROM terrama2.dataset WHERE id = " + std::to_string(id));
 
-    std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+    std::auto_ptr<te::da::DataSet> queryResult = transactor.query(sql);
 
-    if(tempDataSet->moveNext())
-    {
-      std::string name = tempDataSet->getAsString("name");
-      terrama2::core::DataSet::Kind kind = ToDataSetKind(tempDataSet->getInt32("kind"));
-
-      DataSet dataset(kind);
-      dataset.setId(tempDataSet->getInt32("id"));
-      dataset.setDescription(tempDataSet->getString("description"));
-      dataset.setStatus(ToDataSetStatus(tempDataSet->getBool("active")));
-
-      u_int64_t dataFrequency = tempDataSet->getInt32("data_frequency");
-      boost::posix_time::time_duration tdDataFrequency = boost::posix_time::seconds(dataFrequency);
-      te::dt::TimeDuration teTDDataFrequency(tdDataFrequency);
-      dataset.setDataFrequency(teTDDataFrequency);
-// TODO: use unique_ptr
-      te::dt::TimeDuration* schedule = dynamic_cast<te::dt::TimeDuration*>(tempDataSet->getDateTime("schedule").get());
-      if(schedule != nullptr)
-      {
-        dataset.setSchedule(*schedule);
-        delete schedule;
-      }
-
-      u_int64_t scheduleRetry = tempDataSet->getInt32("schedule_retry");
-      boost::posix_time::time_duration tdScheduleRetry = boost::posix_time::seconds(scheduleRetry);
-      te::dt::TimeDuration teTDScheduleRetry(tdScheduleRetry);
-      dataset.setScheduleRetry(teTDScheduleRetry);
-
-      u_int64_t scheduleTimeout = tempDataSet->getInt32("schedule_timeout");
-      boost::posix_time::time_duration tdScheduleTimeout = boost::posix_time::seconds(scheduleTimeout);
-      te::dt::TimeDuration teTDScheduleTimeout(tdScheduleTimeout);
-      dataset.setScheduleTimeout(teTDScheduleTimeout);
-
-      // Sets the collect rules
-      loadCollectRules(dataset, transactor);
-
-      // Sets the metadata
-      loadMetadata(dataset, transactor);
-
-      std::vector<DataSetItem> items = DataSetItemDAO::loadAll(id, transactor);
-
-      for(const auto& item : items)
-        dataset.add(item);
-
-      return dataset;
-    }
+    return getDataSet(queryResult, transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -280,12 +271,11 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
                 query += std::to_string(providerId);
                 query += " ORDER BY id ASC"; 
 
-    std::auto_ptr<te::da::DataSet> query_result = transactor.query(query);
+    std::auto_ptr<te::da::DataSet> queryResult = transactor.query(query);
 
-    while(query_result->moveNext())
+    while(queryResult->moveNext())
     {
-// TODO: use the same code as above    DataSet d = getDataSet(query_result); // privado
-
+      datasets.push_back(getDataSet(queryResult, transactor));
     }
   }
   catch(const std::exception& e)
@@ -367,12 +357,37 @@ void terrama2::core::DataSetDAO::saveCollectRules(DataSet& dataset, te::da::Data
 
 void terrama2::core::DataSetDAO::updateCollectRules(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
-  //TODO
+  removeCollectRules(dataset.id(), transactor);
+  saveCollectRules(dataset, transactor);
 }
 
 void terrama2::core::DataSetDAO::removeCollectRules(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
-  //TODO
+  if(id == 0)
+    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove the collect rules with dataset identifier equals 0."));
+
+  try
+  {
+    boost::format query("DELETE FROM terrama2.dataset_collect_rule WHERE id = %1%");
+    query.bind_arg(1, id);
+    transactor.execute(query.str());
+  }
+  catch(const terrama2::Exception&)
+  {
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    QString err_msg(QObject::tr("Unexpected error saving the collect rules for the dataset: %1"));
+
+    err_msg = err_msg.arg(id);
+
+    throw DataAccessError() << ErrorDescription(err_msg);
+  }
 }
 
 void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
@@ -400,7 +415,8 @@ void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSour
 
   try
   {
-    for (auto it = dataset.metadata().begin(); it!= dataset.metadata().end(); ++it)
+    auto metadata = dataset.metadata();
+    for (auto it = metadata.begin(); it!= metadata.end(); ++it)
     {
       boost::format query("INSERT INTO terrama2.dataset_metadata "
                                   "(key, value, dataset_id)"
@@ -433,3 +449,52 @@ void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSour
   }
 }
 
+terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te::da::DataSet>& queryResult, te::da::DataSourceTransactor& transactor)
+{
+  if(queryResult->moveNext())
+  {
+    std::string name = queryResult->getAsString("name");
+    terrama2::core::DataSet::Kind kind = ToDataSetKind(queryResult->getInt32("kind"));
+
+    DataSet dataset(kind);
+    dataset.setId(queryResult->getInt32("id"));
+    dataset.setDescription(queryResult->getString("description"));
+    dataset.setStatus(ToDataSetStatus(queryResult->getBool("active")));
+
+    u_int64_t dataFrequency = queryResult->getInt32("data_frequency");
+    boost::posix_time::time_duration tdDataFrequency = boost::posix_time::seconds(dataFrequency);
+    te::dt::TimeDuration teTDDataFrequency(tdDataFrequency);
+    dataset.setDataFrequency(teTDDataFrequency);
+
+    std::unique_ptr<te::dt::TimeDuration> schedule(dynamic_cast<te::dt::TimeDuration*>(queryResult->getDateTime("schedule").get()));
+    if(schedule != nullptr)
+    {
+      dataset.setSchedule(*schedule);
+    }
+
+    u_int64_t scheduleRetry = queryResult->getInt32("schedule_retry");
+    boost::posix_time::time_duration tdScheduleRetry = boost::posix_time::seconds(scheduleRetry);
+    te::dt::TimeDuration teTDScheduleRetry(tdScheduleRetry);
+    dataset.setScheduleRetry(teTDScheduleRetry);
+
+    u_int64_t scheduleTimeout = queryResult->getInt32("schedule_timeout");
+    boost::posix_time::time_duration tdScheduleTimeout = boost::posix_time::seconds(scheduleTimeout);
+    te::dt::TimeDuration teTDScheduleTimeout(tdScheduleTimeout);
+    dataset.setScheduleTimeout(teTDScheduleTimeout);
+
+    // Sets the collect rules
+    loadCollectRules(dataset, transactor);
+
+    // Sets the metadata
+    loadMetadata(dataset, transactor);
+
+    std::vector<DataSetItem> items = DataSetItemDAO::loadAll(dataset.id(), transactor);
+
+    for(const auto& item : items)
+      dataset.add(item);
+
+    return dataset;
+  }
+
+  return DataSet();
+}

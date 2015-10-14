@@ -37,7 +37,7 @@
 terrama2::core::DataSet::DataSet(Kind kind, uint64_t id, uint64_t providerId)
   : kind_(kind),
     id_(id),
-    provider_(providerId)
+    provider_(providerId),
     status_(INACTIVE),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),
@@ -172,7 +172,7 @@ void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::strin
 }
 
 const std::vector<terrama2::core::DataSet::CollectRule>&
-terrama2::core::DataSet::collectRules() const
+terrama2::core::DataSet::collectRules()
 {
   return collectRules_;
 }
@@ -183,8 +183,8 @@ terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
   collectRules_ = rules;
 }
 
-const std::vector<terrama2::core::DataSetItem>&
-terrama2::core::DataSet::dataSetItems() const
+std::vector<terrama2::core::DataSetItem>&
+terrama2::core::DataSet::dataSetItems()
 {
   return datasetItems_;
 }

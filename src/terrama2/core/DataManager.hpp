@@ -33,6 +33,10 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
+// TerraMA2
+#include "DataProvider.hpp"
+#include "DataSet.hpp"
+
 // TerraLib
 #include <terralib/common/Singleton.h>
 
@@ -46,13 +50,6 @@ namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataProvider;
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
-
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
     /*!
       \class DataManager
 
@@ -117,7 +114,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void add(DataProviderPtr provider, const bool shallowSave = true);
+        void add(DataProvider& provider, const bool shallowSave = false);
 
         /*!
           \brief Add the dataset to the database and register it in the manager.
@@ -137,7 +134,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void add(DataSetPtr dataset, const bool shallowSave = true);
+        void add(DataSet& dataset, const bool shallowSave = false);
 
         /*!
           \brief Update a given data provider in the database.
@@ -154,7 +151,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void update(DataProviderPtr provider, const bool shallowSave = true);
+        void update(DataProvider& provider, const bool shallowSave = false);
 
         /*!
           \brief Update a given dataset in the database.
@@ -171,7 +168,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void update(DataSetPtr dataset, const bool shallowSave = true);
+        void update(DataSet& dataset, const bool shallowSave = false);
 
         /*!
           \brief Removes a given data provider.
@@ -216,13 +213,13 @@ namespace terrama2
 
           \param name The data provider name.
 
-          \return DataProviderPtr A smart pointer to the data provider
+          \return DataProvider A smart pointer to the data provider
 
           \exception terrama2::Exception If some error occur when trying to find the data provider.
 
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(const std::string& name) const;
+        DataProvider findDataProvider(const std::string& name) const;
 
         /*!
           \brief Retrieves the data provider with the given id.
@@ -233,11 +230,11 @@ namespace terrama2
 
           \param id The data provider identifier.
 
-          \return DataProviderPtr A smart pointer to the data provider
+          \return DataProvider A smart pointer to the data provider
 
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(const uint64_t id) const;
+        DataProvider findDataProvider(const uint64_t id) const;
 
         /*!
           \brief Search for a dataset with the given name
@@ -250,7 +247,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(const std::string& name) const;
+        DataSet findDataSet(const std::string& name) const;
 
         /*!
           \brief Search for a dataset with the given id
@@ -263,18 +260,18 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(const uint64_t id) const;
+        DataSet findDataSet(const uint64_t id) const;
 
         /*!
           \brief Retrieves all data provider.
 
           In case there is no data provider in the database it will return an empty vector.
 
-          \return std::vector<DataProviderPtr> A list with all data providers.
+          \return std::vector<DataProvider> A list with all data providers.
 
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataProviderPtr> providers() const;
+        std::vector<terrama2::core::DataProvider> providers() const;
 
         /*!
           \brief Retrieve all datasets from the database.
@@ -284,20 +281,20 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataSetPtr> dataSets() const;
+        std::vector<terrama2::core::DataSet> dataSets() const;
 
       signals:
 
         void dataManagerLoaded();
         void dataManagerUnloaded();
 
-        void dataProviderAdded(DataProviderPtr);
-        void dataProviderRemoved(DataProviderPtr);
-        void dataProviderUpdated(DataProviderPtr);
+        void dataProviderAdded(DataProvider);
+        void dataProviderRemoved(DataProvider);
+        void dataProviderUpdated(DataProvider);
 
-        void dataSetAdded(DataSetPtr);
-        void dataSetRemoved(DataSetPtr);
-        void dataSetUpdated(DataSetPtr);
+        void dataSetAdded(DataSet);
+        void dataSetRemoved(DataSet);
+        void dataSetUpdated(DataSet);
 
 
       protected:

@@ -249,13 +249,13 @@ terrama2::core::ToFilterExpressionType(uint64_t type)
 {
   switch (type)
   {
-    case 1:
-      return Filter::LESS_THAN_TYPE;
     case 2:
-      return Filter::GREATER_THAN_TYPE;
+      return Filter::LESS_THAN_TYPE;
     case 3:
-      return Filter::MEAN_LESS_THAN_TYPE;
+      return Filter::GREATER_THAN_TYPE;
     case 4:
+      return Filter::MEAN_LESS_THAN_TYPE;
+    case 5:
       return Filter::MEAN_GREATER_THAN_TYPE;
     default:
       return Filter::NONE_TYPE;

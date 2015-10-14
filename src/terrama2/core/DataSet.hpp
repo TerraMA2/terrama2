@@ -213,7 +213,7 @@ namespace terrama2
 
            \return The collect rules.
          */
-        const std::vector<CollectRule>& collectRules() const;
+        const std::vector<CollectRule>& collectRules();
 
         /*!
            \brief Sets the collect rules.
@@ -227,7 +227,7 @@ namespace terrama2
 
            \return The list of dataset items.
          */
-        const std::vector<DataSetItem>& dataSetItems() const;
+        std::vector<DataSetItem>& dataSetItems();
 
         /*! \brief Adds a new dataset item to the dataset. */
         void add(const DataSetItem& d);

@@ -113,8 +113,8 @@ terrama2::core::DataProvider::setStatus(Status s)
   status_ = s;
 }
 
-const std::vector<terrama2::core::DataSet>&
-terrama2::core::DataProvider::datasets() const
+std::vector<terrama2::core::DataSet>&
+terrama2::core::DataProvider::datasets()
 {
   return datasets_;
 }

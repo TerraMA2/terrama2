@@ -105,7 +105,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::unique_ptr<Filter> load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor);
+        static Filter load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor);
 
       private:
 

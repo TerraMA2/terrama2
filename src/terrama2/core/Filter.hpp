@@ -32,11 +32,7 @@
 #define __TERRAMA2_CORE_FILTER_HPP__
 
 // STL
-#include <memory>
 #include <string>
-
-// Boost
-#include <boost/noncopyable.hpp>
 
 // Forward declaration
 namespace te
@@ -50,15 +46,13 @@ namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataSetItem;
 
     /*!
       \class Filter
 
       \brief Filter information of a given dataset item.
      */
-    class Filter : public boost::noncopyable
+    class Filter
     {
 
       public:
@@ -66,11 +60,11 @@ namespace terrama2
         //! Filter by value type.
         enum ExpressionType
         {
-          NONE_TYPE,
-          LESS_THAN_TYPE,
-          GREATER_THAN_TYPE,
-          MEAN_LESS_THAN_TYPE,
-          MEAN_GREATER_THAN_TYPE
+          NONE_TYPE = 1,
+          LESS_THAN_TYPE = 2,
+          GREATER_THAN_TYPE = 3,
+          MEAN_LESS_THAN_TYPE = 4,
+          MEAN_GREATER_THAN_TYPE = 5
         };
 
         /*!
@@ -78,20 +72,28 @@ namespace terrama2
 
           \param item The associated dataset item.
         */
-        Filter(const DataSetItem* item = nullptr);
+        Filter(uint64_t dataSetItemId = 0);
 
         /*! \brief Destructor. */
         ~Filter();
 
+
+        /*! Copy constructor */
+        Filter(const Filter& filter);
+
+        /*! Assignment operator */
+        Filter& operator=(const Filter& filter);
+
         /*! \brief Returns a pointer to the associated dataset item. */
-        const DataSetItem* datasetItem() const;
+        uint64_t datasetItem() const;
+
 
         /*!
           \brief Associates the filter to given dataset item.
 
           \param item The dataset item to be associated to this filter.
         */
-        void setDataSetItem(const DataSetItem* item);
+        void setDataSetItem(uint64_t item);
 
         /*! \brief Returns the initial date of interest for collecting data from the data item. */
         const te::dt::DateTime* discardBefore() const;
@@ -131,7 +133,7 @@ namespace terrama2
 
       private:
 
-        const DataSetItem* datasetItem_;
+        uint64_t datasetItem_;
         std::unique_ptr<te::dt::DateTime> discardBefore_;
         std::unique_ptr<te::dt::DateTime> discardAfter_;
         std::unique_ptr<te::gm::Geometry> geometry_;
@@ -139,8 +141,6 @@ namespace terrama2
         ExpressionType expressionType_;
         std::string bandFilter_;
     };
-
-    typedef std::shared_ptr<Filter> FilterPtr;
 
   } // end namespace core
 }   // end namespace terrama2

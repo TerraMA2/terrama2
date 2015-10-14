@@ -38,7 +38,14 @@
 #include <vector>
 
 // Forward declaration
-namespace te { namespace da { class DataSourceTransactor; } }
+namespace te
+{
+  namespace da
+  {
+    class DataSourceTransactor;
+    class DataSet;
+  }
+}
 
 namespace terrama2
 {
@@ -201,6 +208,7 @@ namespace terrama2
 
         static void saveMetadata(DataSet& dataSet, te::da::DataSourceTransactor& transactor);
 
+        static DataSet getDataSet(std::auto_ptr<te::da::DataSet>& queryResult, te::da::DataSourceTransactor& transactor);
     };
 
   } // end namespace core
