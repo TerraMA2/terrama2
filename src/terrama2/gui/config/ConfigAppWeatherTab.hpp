@@ -91,8 +91,6 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void onProjectionClicked();
 
   private:
-    QSharedPointer<ConfigAppWeatherServer> serverTab_;
-    QSharedPointer<ConfigAppWeatherGridTab> gridTab_;
     QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
 };
 

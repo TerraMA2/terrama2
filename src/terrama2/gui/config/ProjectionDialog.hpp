@@ -42,6 +42,7 @@
 // Forward Declaration
 class QDialog;
 class QWidget;
+class QLineEdit;
 
 struct ProjectionValue
 {
@@ -79,9 +80,13 @@ class ProjectionDialog : public QDialog, private boost::noncopyable
     ProjectionDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
     ~ProjectionDialog();
 
+  private:
+    void setEditValues(QLineEdit* ledtItem, bool enable, double value);
+
   private slots:
     void onProjectionChanged(int);
     void onCancelClicked();
+    void onComboboxZoneActivated(int);
 
   private:
     struct Impl;

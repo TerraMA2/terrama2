@@ -87,6 +87,8 @@ ProjectionDialog::ProjectionDialog(QWidget* parent, Qt::WindowFlags f)
   connect(pimpl_->ui_->cboBoxProjection, SIGNAL(currentIndexChanged(int)), SLOT(onProjectionChanged(int)));
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(onCancelClicked()));
 
+  connect(pimpl_->ui_->cboBoxZone, SIGNAL(activated(int)), SLOT(onComboboxZoneActivated(int)));
+
   QDoubleValidator* lineEdtLongValidator = new QDoubleValidator(pimpl_->ui_->lineEdtLongOrigem);
   lineEdtLongValidator->setDecimals(3);
   pimpl_->ui_->lineEdtLongOrigem->setValidator(lineEdtLongValidator);
@@ -123,8 +125,6 @@ ProjectionDialog::~ProjectionDialog()
 
 void ProjectionDialog::onProjectionChanged(int i)
 {
-  pimpl_->ui_->okBtn->setEnabled(true);
-
   pimpl_->ui_->cboBoxUnits->setCurrentIndex(projections[i].unit - 1);
   pimpl_->ui_->cboBoxUnits->setEnabled(false);
 
@@ -134,9 +134,49 @@ void ProjectionDialog::onProjectionChanged(int i)
   {
     pimpl_->ui_->cboBoxZone->setCurrentIndex(22);
   }
+
+  setEditValues(pimpl_->ui_->lineEdtLatOrigem,
+                projections[i].hasOriginLat,
+                projections[i].valueDef->valdefOriginLat);
+
+  setEditValues(pimpl_->ui_->lineEdtParaleloPad1,
+                projections[i].hasStandardPararel1,
+                projections[i].valueDef->valdefStandardPararel1);
+
+  setEditValues(pimpl_->ui_->lineEdtParaleloPad2,
+                projections[i].hasStandardPararel2,
+                projections[i].valueDef->valdefStandardPararel2);
+
+  setEditValues(pimpl_->ui_->lineEdtOffsetX,
+                projections[i].hasOffsetX,
+                projections[i].valueDef->valdefOffsetX);
+
+  setEditValues(pimpl_->ui_->lineEdtOffsetY,
+                projections[i].hasOffsetY,
+                projections[i].valueDef->valdefOffsetY);
+
+  pimpl_->ui_->grpBoxHemisferio->setEnabled(projections[i].hasHemisphere);
 }
 
 void ProjectionDialog::onCancelClicked()
 {
   close();
+}
+
+void ProjectionDialog::setEditValues(QLineEdit* edit, bool enable, double value)
+{
+  if (enable)
+    edit->setText(QString::number(value, 'f', 3));
+  else
+    edit->clear();
+}
+
+void ProjectionDialog::onComboboxZoneActivated(int i)
+{
+  pimpl_->ui_->lineEdtLongOrigem->clear();
+  float lo = -183. + 6.*(i+1);
+  QString aux;
+  aux.setNum(lo,'f',3);
+  pimpl_->ui_->lineEdtLongOrigem->setText(aux);
+  pimpl_->ui_->lineEdtLongOrigem->setEnabled(true);
 }

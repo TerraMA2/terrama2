@@ -19,9 +19,7 @@
 #include <QJsonObject>
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui),
-    serverTab_(new ConfigAppWeatherServer(app, ui)),
-    gridTab_(new ConfigAppWeatherGridTab(app, ui))
+  : ConfigAppTab(app, ui)
 {
   ui_->weatherDataTree->header()->hide();
   ui_->weatherDataTree->setCurrentItem(ui_->weatherDataTree->topLevelItem(0));
@@ -75,8 +73,7 @@ void ConfigAppWeatherTab::load()
   std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
   std::auto_ptr<te::da::DataSet> dataProviders = ds->getDataSet("terrama2.data_provider");
 
-  if (dataProviders->size() > 0)
-    showDataSeries(true);
+  showDataSeries(false);
 
   // clear list
   clearList();
@@ -117,23 +114,16 @@ void ConfigAppWeatherTab::load()
 bool ConfigAppWeatherTab::dataChanged()
 {
   for(const auto tab: subTabs_) {
-    if (tab->isActive())// && tab->dataChanged())
+    if (tab->isActive())
     {
       return true;
     }
   }
   return false;
-//  return serverTab_->isActive() || gridTab_->isActive();
 }
 
 bool ConfigAppWeatherTab::validate()
 {
-//  if (serverTab_->isActive() && serverTab_->dataChanged())
-//    return serverTab_->validate();
-//
-//  if (gridTab_->isActive() && gridTab_->dataChanged())
-//    return gridTab_->validate();
-
   for(const auto tab: subTabs_)
     if (tab->isActive() && tab->dataChanged())
     {
