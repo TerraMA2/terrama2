@@ -34,20 +34,21 @@
 
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
+#include "../core/DataManager.hpp"
 
 struct terrama2::collector::DataSetTimer::Impl
 {
-    core::DataSetPtr dataSet_;//<! Pointer to the Dataset.
+    core::DataSet    dataSet_;//<! Pointer to the Dataset.
     QTimer           timer_;//<! Timer to next collection.
 
     std::vector<DataProcessorPtr> dataLst_;
 };
 
-terrama2::collector::DataSetTimer::DataSetTimer(terrama2::core::DataSetPtr dataSet)
+terrama2::collector::DataSetTimer::DataSetTimer(terrama2::core::DataSet dataSet)
 {
   impl_ = new Impl();
 
-  if(!dataSet)
+  if(dataSet.id() == 0 || dataSet.name().empty())
   {
     throw InvalidDataSetError() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
   }
@@ -67,19 +68,19 @@ terrama2::collector::DataSetTimer::~DataSetTimer()
 
 void terrama2::collector::DataSetTimer::timeoutSlot() const
 {
-  emit timerSignal(impl_->dataSet_->id());
+  emit timerSignal(impl_->dataSet_.id());
 }
 
 void terrama2::collector::DataSetTimer::prepareTimer()
 {
   //JANO: implementar prepareTimer para schedule
-  te::dt::TimeDuration frequency = impl_->dataSet_->dataFrequency();
+  te::dt::TimeDuration frequency = impl_->dataSet_.dataFrequency();
   impl_->timer_.start(frequency.getSeconds()*1000);
 }
 
 void terrama2::collector::DataSetTimer::populateDataLst()
 {
-  for(auto dataSetItem : impl_->dataSet_->dataSetItemList())
+  for(auto dataSetItem : impl_->dataSet_.dataSetItems())
   {
     DataProcessorPtr data(new DataProcessor(dataSetItem));
     impl_->dataLst_.push_back(data);
@@ -89,11 +90,12 @@ void terrama2::collector::DataSetTimer::populateDataLst()
 
 terrama2::collector::CollectorPtr terrama2::collector::DataSetTimer::collector() const
 {
-  auto dataProvider = impl_->dataSet_->dataProvider();
-  return CollectorFactory::getInstance().getCollector(dataProvider);
+  uint64_t providerId = impl_->dataSet_.provider();
+  core::DataProvider provider = core::DataManager::getInstance().findDataProvider(providerId);
+  return CollectorFactory::getInstance().getCollector(provider);
 }
 
-terrama2::core::DataSetPtr terrama2::collector::DataSetTimer::dataSet() const
+terrama2::core::DataSet terrama2::collector::DataSetTimer::dataSet() const
 {
   return impl_->dataSet_;
 }

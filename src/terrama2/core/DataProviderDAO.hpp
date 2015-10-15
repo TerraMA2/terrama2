@@ -30,9 +30,11 @@
 #ifndef __TERRAMA2_CORE_DATAPROVIDERDAO_HPP__
 #define __TERRAMA2_CORE_DATAPROVIDERDAO_HPP__
 
+// TerraMA2
+#include "DataProvider.hpp"
+
 // STL
 #include <vector>
-#include <memory>
 
 // Forward declaration
 namespace te { namespace da { class DataSourceTransactor; } }
@@ -41,9 +43,6 @@ namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataProvider;
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
     /*!
       \class DataProviderDAO
@@ -59,47 +58,38 @@ namespace terrama2
       public:
 
         /*!
-          \brief Load from database all registered data providers.
-
-          In case there is no data provider in the database it will return an empty vector.
-
-          \param transactor The transactor to be used to perform the operation.
-
-          \return A list with all data providers.
-
-          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
-         */
-        static std::vector<DataProviderPtr> load(te::da::DataSourceTransactor& transactor);
-
-        /*!
           \brief Insert the given data provider in the database.
 
-          \param dataProvider  The data provider to be inserted into the database.
-          \param transactor The data source transactor to be used to perform the insert operation.
-          \param shallowSave If true it will persist the datasets in this data provider.
+          \param provider    The data provider to be inserted into the database.
+          \param transactor  The data source transactor to be used to perform the insert operation.
+          \param shallow     If true it will perform a deep persistence of the data provider,
+                             including datasets and all their contained data items.
 
           \pre The data provider must have an identifier equals to 0 (considered invalid).
           \pre Each dataset must have an identifier equals to 0 (considered invalid).
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataProviderPtr provider, te::da::DataSourceTransactor& transactor,
-                         const bool shallowSave = true);
+        static void save(DataProvider& provider,
+                         te::da::DataSourceTransactor& transactor,
+                         const bool shallow = true);
 
         /*!
           \brief Update the given data provider in the database.
 
-          \param dataProvider  The data provider to be updated.
-          \param transactor The data source transactor to be used to perform the operation.
-          \param shallowSave If true it will update the datasets in this data provider.
+          \param provider    The data provider to be updated.
+          \param transactor  The data source transactor to be used to perform the operation.
+          \param shallow     If true it will perform a deep persistence of the data provider,
+                             including datasets and all their contained data items.
 
           \pre The data provider must have an identifier different than 0 (considered valid).
           \pre Each dataset must have an identifier equals to 0 (considered invalid).
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataProviderPtr provider, te::da::DataSourceTransactor& transactor,
-                           const bool shallowSave = true);
+        static void update(DataProvider& provider,
+                           te::da::DataSourceTransactor& transactor,
+                           const bool shallow = true);
 
         /*!
           \brief Remove the given data provider from the database.
@@ -114,7 +104,8 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void remove(const uint64_t id, te::da::DataSourceTransactor& transactor);
+        static void remove(const uint64_t id,
+                           te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Retrieve the data provider with the given identifier from the database.
@@ -126,7 +117,22 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::unique_ptr<DataProvider> load(const uint64_t id, te::da::DataSourceTransactor& transactor);
+        static DataProvider load(const uint64_t id,
+                                 te::da::DataSourceTransactor& transactor);
+      
+        /*!
+          \brief Load from database all registered data providers.
+       
+          In case there is no data provider in the database it will return an empty vector.
+       
+          \param transactor The transactor to be used to perform the operation.
+       
+          \return A list with all data providers.
+       
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static std::vector<DataProvider>
+        loadAll(te::da::DataSourceTransactor& transactor);
 
       private:
 

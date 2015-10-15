@@ -69,8 +69,8 @@ namespace terrama2
   //! An exception indicating a serialization error.
   struct FileOpenError: virtual Exception { };
 
-  //! An exception indicating that a given parameter is missing or using a non-valid value.
-  struct InvalidParameterError: virtual Exception { };
+  //! An exception indicating that an argument is missing or violating any requirement.
+  struct InvalidArgumentError: virtual Exception { };
   
   //! The base type for error report messages.
   typedef boost::error_info<struct tag_error_description, QString> ErrorDescription;

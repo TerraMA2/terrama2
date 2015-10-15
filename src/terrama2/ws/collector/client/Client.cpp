@@ -60,12 +60,10 @@ void terrama2::ws::collector::Client::ping(std::string &answer)
 }
 
 
-void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr)
+void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider& dataProvider)
 {
-  if(dataProviderPtr == nullptr)
-    throw client::AddingDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
 
-  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
+  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProvider);
 
   DataProvider struct_dataProviderResult;
 
@@ -76,17 +74,17 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
     throw client::AddingDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
+  dataProvider = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
 
 }
 
 
-void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSetPtr &dataSetPtr)
+void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSet & dataSet)
 {
-  if(dataSetPtr == nullptr)
+  if(dataSet.name().empty())
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSetPtr);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -97,17 +95,17 @@ void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSetPtr &dat
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
 
 }
 
 
-void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr)
+void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataProvider & dataProvider)
 {
-  if(dataProviderPtr == nullptr)
+  if(dataProvider.name().empty())
     throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
 
-  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
+  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProvider);
 
   DataProvider struct_dataProviderResult;
 
@@ -118,17 +116,17 @@ void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataPro
     throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
+  dataProvider = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
 
 }
 
 
-void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSetPtr &dataSetPtr)
+void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSet & dataSet)
 {
-  if(dataSetPtr == nullptr)
-    throw client::UpdateDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+  if(dataSet.id() == 0)
+    throw client::UpdateDataSetError() << ErrorDescription(QObject::tr("Invalid dataset passed!"));
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSetPtr);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -139,7 +137,7 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSetPtr &
     throw client::UpdateDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
 
 }
 
@@ -167,7 +165,7 @@ void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 }
 
 
-terrama2::core::DataProviderPtr terrama2::ws::collector::Client::findDataProvider(uint64_t id)
+terrama2::core::DataProvider terrama2::ws::collector::Client::findDataProvider(uint64_t id)
 {
   DataProvider struct_dataProvider;
 
@@ -183,7 +181,7 @@ terrama2::core::DataProviderPtr terrama2::ws::collector::Client::findDataProvide
 }
 
 
-terrama2::core::DataSetPtr terrama2::ws::collector::Client::findDataSet(uint64_t id)
+terrama2::core::DataSet terrama2::ws::collector::Client::findDataSet(uint64_t id)
 {
   DataSet struct_dataSet;
 
@@ -199,10 +197,10 @@ terrama2::core::DataSetPtr terrama2::ws::collector::Client::findDataSet(uint64_t
 }
 
 
-void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList)
+void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::core::DataProvider > & providers)
 {
-  if(dataProviderPtrList.at(0) == nullptr)
-    throw client::ListDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+  if(providers.at(0).id() == 0)
+    throw client::ListDataProviderError() << ErrorDescription(QObject::tr("Invalid data provider passed!"));
 
   std::vector< DataProvider > struct_dataProviderList;
 
@@ -215,16 +213,16 @@ void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::co
 
   for(uint32_t i = 0; i < struct_dataProviderList.size() ; i++)
   {
-    dataProviderPtrList.push_back(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderList.at(i)));
+    providers.push_back(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderList.at(i)));
   }
 
 }
 
 
-void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList)
+void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::DataSet > & datasets)
 {
-  if(dataSetPtrList.at(0) == nullptr)
-    throw client::ListDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+  if(datasets.at(0).id() == 0)
+    throw client::ListDataSetError() << ErrorDescription(QObject::tr("Invalid dataset pased!"));
 
   std::vector< DataSet > struct_dataSetPtrList;
 
@@ -237,7 +235,7 @@ void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::D
 
   for(uint32_t i = 0; i < struct_dataSetPtrList.size() ; i++)
   {
-    dataSetPtrList.push_back(terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetPtrList.at(i)));
+    datasets.push_back(terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetPtrList.at(i)));
   }
 
 }

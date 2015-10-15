@@ -187,15 +187,15 @@ int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
 {
   try
   {
-    auto dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(id);
+    auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(id);
 
-    if (dataProviderPtr == nullptr)
+    if (dataProvider.id() == 0)
     {
       std::cerr << "Error at find Data Provider: Data Provider don't exist!" << std::endl;
       return soap_receiverfault("Error at find Data Provider", "Data Provider don't exist!");
     }
 
-    struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProviderPtr);
+    struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProvider);
   }
   catch(terrama2::Exception &e)
   {
@@ -215,9 +215,9 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
 {
   try
   {
-    auto datasetPtr = terrama2::core::DataManager::getInstance().findDataSet(id);
+    auto dataSet = terrama2::core::DataManager::getInstance().findDataSet(id);
 
-    struct_dataset = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(datasetPtr);
+    struct_dataset = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSet);
   }
   catch(terrama2::Exception &e)
   {
@@ -235,7 +235,7 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
 
 int WebService::listDataProvider(std::vector< DataProvider > &data_provider_list)
 {
-  std::vector<terrama2::core::DataProviderPtr> dataproviders = terrama2::core::DataManager::getInstance().providers();
+  std::vector<terrama2::core::DataProvider> dataproviders = terrama2::core::DataManager::getInstance().providers();
 
   for(uint32_t i = 0; i < dataproviders.size() ; i++)
   {
@@ -248,7 +248,7 @@ int WebService::listDataProvider(std::vector< DataProvider > &data_provider_list
 
 int WebService::listDataSet(std::vector< DataSet > &data_set_list)
 {
-  std::vector<terrama2::core::DataSetPtr> datasets = terrama2::core::DataManager::getInstance().dataSets();
+  std::vector<terrama2::core::DataSet> datasets = terrama2::core::DataManager::getInstance().dataSets();
 
   for(uint32_t i = 0; i < datasets.size() ; i++)
   {

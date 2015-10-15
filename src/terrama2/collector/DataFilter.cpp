@@ -61,12 +61,12 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
 }
 
 
-terrama2::collector::DataFilter::DataFilter(core::DataSetItemPtr datasetItem)
+terrama2::collector::DataFilter::DataFilter(core::DataSetItem datasetItem)
 {
   impl_ = new Impl();
   impl_->relationRule_ = te::gm::UNKNOWN_SPATIAL_RELATION;
 
-  setMask(datasetItem->mask());
+  setMask(datasetItem.mask());
   //TODO: set all filtering data
 }
 

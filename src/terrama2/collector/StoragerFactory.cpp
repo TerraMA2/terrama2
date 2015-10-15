@@ -32,9 +32,9 @@
 
 #include "../core/DataSetItem.hpp"
 
-terrama2::collector::StoragerPtr terrama2::collector::StoragerFactory::getStorager(terrama2::core::DataSetItemPtr datasetItem)
+terrama2::collector::StoragerPtr terrama2::collector::StoragerFactory::getStorager(terrama2::core::DataSetItem datasetItem)
 {
-  std::map<std::string, std::string> storageMetadata = datasetItem->storageMetadata();
+  std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
 
   //Exceptions
 

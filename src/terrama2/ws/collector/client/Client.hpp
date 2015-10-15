@@ -75,7 +75,7 @@ namespace terrama2
 
             \return
           */
-          void addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+          void addDataProvider(terrama2::core::DataProvider & dataProvider);
 
           /*!
             \brief
@@ -86,7 +86,7 @@ namespace terrama2
 
             \return
           */
-          void addDataSet(terrama2::core::DataSetPtr &dataSetPtr);
+          void addDataSet(terrama2::core::DataSet & dataSet);
 
           /*!
             \brief
@@ -97,7 +97,7 @@ namespace terrama2
 
             \return
           */
-          void updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+          void updateDataProvider(terrama2::core::DataProvider & dataProvider);
 
           /*!
             \brief
@@ -108,7 +108,7 @@ namespace terrama2
 
             \return
           */
-          void updateDataSet(terrama2::core::DataSetPtr &dataSetPtr);
+          void updateDataSet(terrama2::core::DataSet & dataSet);
 
           /*!
             \brief
@@ -141,7 +141,7 @@ namespace terrama2
 
             \return
           */
-          core::DataProviderPtr findDataProvider(uint64_t id);
+          core::DataProvider findDataProvider(uint64_t id);
 
           /*!
             \brief
@@ -152,7 +152,7 @@ namespace terrama2
 
             \return
           */
-          core::DataSetPtr findDataSet(uint64_t id);
+          core::DataSet findDataSet(uint64_t id);
 
           /*!
             \brief
@@ -161,7 +161,7 @@ namespace terrama2
 
             \return
           */
-          void listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList);
+          void listDataProvider(std::vector< terrama2::core::DataProvider > &dataProviderPtrList);
 
           /*!
             \brief
@@ -170,7 +170,7 @@ namespace terrama2
 
             \return
           */
-          void listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList);
+          void listDataSet(std::vector< terrama2::core::DataSet > &dataSetPtrList);
 
 
         private:

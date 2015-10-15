@@ -97,7 +97,7 @@ namespace terrama2
              * \param dataProvider The shared pointer to the data provider
              * \return Collector to the DataProvider.
              */
-        CollectorPtr addProvider(const core::DataProviderPtr dataProvider);
+        CollectorPtr addProvider(const core::DataProvider dataProvider);
 
         /*!
          * \brief Remove a [DataProvider]{\ref terrama2::core::DataProvider} and
@@ -109,7 +109,7 @@ namespace terrama2
          *
          * \param DataProvider to be removed.
          */
-        void removeProvider(const core::DataProviderPtr dataProvider);
+        void removeProvider(core::DataProvider dataProvider);
 
         /*!
          * \brief Updates a [DataProvider]{\ref terrama2::core::DataProvider}.
@@ -122,7 +122,7 @@ namespace terrama2
          *
          * \param Data provider to be updated.
          */
-        void updateProvider(const core::DataProviderPtr dataProvider);
+        void updateProvider(core::DataProvider dataProvider);
 
         /*!
              * \brief Creates a new DataSetTimer for the DataSet and listen to it's timer signal.
@@ -130,7 +130,7 @@ namespace terrama2
              *
              * \return DataSetTimer for the DataSet.
              */
-        DataSetTimerPtr addDataset(const core::DataSetPtr dataset);
+        DataSetTimerPtr addDataset(const core::DataSet dataset);
 
         /*!
          * \brief Removes a [DataSet]{\ref terrama2::core::DataSet}.
@@ -139,7 +139,7 @@ namespace terrama2
          *
          * \param Dataset to be removed.
          */
-        void removeDataset(const core::DataSetPtr dataset);
+        void removeDataset(const core::DataSet dataset);
 
         /*!
          * \brief Updates a [DataSet]{\ref terrama2::core::DataSet}.
@@ -151,7 +151,7 @@ namespace terrama2
          *
          * \param Dataset to be updated.
          */
-        void updateDataset(const core::DataSetPtr dataset);
+        void updateDataset(const core::DataSet dataset);
 
         /*!
              * \brief Slot to be called when a DataSetTimer times out.
@@ -179,12 +179,12 @@ namespace terrama2
          * \brief Make connections with the [DataManager]{\ref terrama2::core::DataManager}.
          *
          * Listens to:
-         *  - dataProviderAdded(DataProviderPtr);
-         *  - dataProviderRemoved(DataProviderPtr);
-         *  - dataProviderUpdated(DataProviderPtr);
-         *  - dataSetAdded(DataSetPtr);
-         *  - dataSetRemoved(DataSetPtr);
-         *  - dataSetUpdated(DataSetPtr);
+         *  - dataProviderAdded(DataProvider);
+         *  - dataProviderRemoved(DataProvider);
+         *  - dataProviderUpdated(DataProvider);
+         *  - dataSetAdded(DataSet);
+         *  - dataSetRemoved(DataSet);
+         *  - dataSetUpdated(DataSet);
          *
          */
         void connectDataManager();
