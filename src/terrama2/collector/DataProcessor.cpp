@@ -45,13 +45,13 @@
 
 struct terrama2::collector::DataProcessor::Impl
 {
-    core::DataSetItemPtr   data_;
+    core::DataSetItem      data_;
     DataFilterPtr          filter_;
     ParserPtr              parser_;
     StoragerPtr            storager_;
 };
 
-terrama2::collector::DataProcessor::DataProcessor(core::DataSetItemPtr data, QObject *parent)
+terrama2::collector::DataProcessor::DataProcessor(const core::DataSetItem& data, QObject *parent)
 {
   impl_ = new Impl();
   impl_->data_ = data;
@@ -66,7 +66,7 @@ terrama2::collector::DataProcessor::~DataProcessor()
   delete impl_;
 }
 
-terrama2::core::DataSetItemPtr terrama2::collector::DataProcessor::data() const
+terrama2::core::DataSetItem terrama2::collector::DataProcessor::data() const
 {
   return impl_->data_;
 }
@@ -115,7 +115,7 @@ void terrama2::collector::DataProcessor::initFilter()
 
 void terrama2::collector::DataProcessor::initParser()
 {
-  ParserPtr parser = ParserFactory::getParser(impl_->data_->kind());
+  ParserPtr parser = ParserFactory::getParser(impl_->data_.kind());
   impl_->parser_ = parser;
 }
 

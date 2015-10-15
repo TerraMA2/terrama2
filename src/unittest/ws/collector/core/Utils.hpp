@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file unittest/ws/collector/client/Utils.hpp
+  \file unittest/ws/collector/core/Utils.hpp
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
-#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__
 
 void initializeTerralib();
 
@@ -38,4 +38,4 @@ void initializeTerraMA2();
 
 void finalizeTerraMA2();
 
-#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__

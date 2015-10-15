@@ -51,7 +51,7 @@ namespace terrama2
     class DataFilter : public boost::noncopyable
     {
       public:
-        DataFilter(core::DataSetItemPtr datasetItem);
+        DataFilter(core::DataSetItem datasetItem);
         ~DataFilter();
 
         /*!

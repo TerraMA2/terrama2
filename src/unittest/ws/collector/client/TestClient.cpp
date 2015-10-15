@@ -77,6 +77,31 @@ terrama2::core::DataProviderPtr TestClient::buildDataProviderPtr()
   return dataProviderPtr;
 }
 
+terrama2::core::DataSetPtr TestClient::buildDataSetPtr()
+{
+  terrama2::core::DataProviderPtr dataProviderPtr = buildDataProviderPtr();
+
+  wsClient_->addDataProvider(dataProviderPtr);
+  // VINICIUS: check what happens in core after a bad sql command
+  // VINICIUS: Check why the name Data Set is not accepted, probably because of the missing quotes in sql command
+  terrama2::core::DataSetPtr dataSetPtr(new terrama2::core::DataSet(dataProviderPtr, "DataSetName", (terrama2::core::DataSet::Kind)1));
+
+  dataSetPtr->setDescription("Data Set Description");
+  dataSetPtr->setStatus((terrama2::core::DataSet::Status)1);
+
+  boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string("00:05:00.00"));
+  boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string("00:06:00.00"));
+  boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string("00:07:00.00"));
+  boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string("00:08:00.00"));
+
+  dataSetPtr->setDataFrequency(te::dt::TimeDuration(dataFrequency));
+  dataSetPtr->setSchedule(te::dt::TimeDuration(schedule));
+  dataSetPtr->setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
+  dataSetPtr->setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+  return dataSetPtr;
+}
+
 void TestClient::TestStatus()
 {
   std::string answer;
@@ -254,11 +279,11 @@ void TestClient::testFindDataProvider()
 
     QVERIFY2(dataProviderPtr->id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
-    terrama2::core::DataProviderPtr dataProviderPtr_found;
+
 
     dataProviderPtr->id();
 
-    wsClient_->findDataProvider(dataProviderPtr->id(), dataProviderPtr_found);
+    terrama2::core::DataProviderPtr dataProviderPtr_found = wsClient_->findDataProvider(dataProviderPtr->id());
 
     QVERIFY2(dataProviderPtr->id() == dataProviderPtr_found->id(), "Find failed!");
     QVERIFY2(dataProviderPtr->description() == dataProviderPtr_found->description(), "Find failed!");
@@ -308,6 +333,11 @@ void TestClient::TestAddDataSet()
 {
   try
   {
+    terrama2::core::DataSetPtr dataSetPtr = buildDataSetPtr();
+
+    wsClient_->addDataSet(dataSetPtr);
+
+    QVERIFY2(dataSetPtr->id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
   }
   catch(terrama2::Exception &e)

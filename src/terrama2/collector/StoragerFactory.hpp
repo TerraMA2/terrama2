@@ -40,7 +40,7 @@ namespace terrama2
   {
     namespace StoragerFactory
     {
-      StoragerPtr getStorager(core::DataSetItemPtr datasetItem);
+      StoragerPtr getStorager(core::DataSetItem datasetItem);
     }
   }
 }
