@@ -90,6 +90,46 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   }
 }
 
+
+void terrama2::core::DataSetItemDAO::updateDataSetItems(DataSet& dataset, te::da::DataSourceTransactor& transactor)
+{
+  std::string sql = "SELECT id FROM terrama2.dataset_item WHERE dataset_id = " + std::__1::to_string(dataset.id());
+
+  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+
+  std::vector<int32_t> ids;
+  if(tempDataSet->moveNext())
+  {
+    int32_t itemId = tempDataSet->getInt32(0);
+    ids.push_back(itemId);
+  }
+
+
+  for(auto item: dataset.dataSetItems())
+  {
+    // Id is 0 for new items
+    if(item.id() == 0)
+    {
+      save(item, transactor);
+    }
+
+    // Id exists just need to call update
+    auto it = find (ids.begin(), ids.end(), item.id());
+    if (it != ids.end())
+    {
+      update(item, transactor);
+
+      // Remove from the list, so what is left in this vector are the items to remove
+      ids.erase(it);
+    }
+  }
+
+  for(auto itemId : ids)
+  {
+    remove(itemId, transactor);
+  }
+}
+
 void
 terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTransactor& transactor)
 {

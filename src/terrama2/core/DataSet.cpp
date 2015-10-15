@@ -61,6 +61,9 @@ void terrama2::core::DataSet::setId(uint64_t id)
   
   for(auto& item : datasetItems_)
     item.setDataSet(id);
+
+  for(auto& collectRule : collectRules_)
+    collectRule.datasetId = id;
 }
 
 const std::string&
@@ -171,7 +174,7 @@ void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::strin
   metadata_ = m;
 }
 
-const std::vector<terrama2::core::DataSet::CollectRule>&
+std::vector<terrama2::core::DataSet::CollectRule>&
 terrama2::core::DataSet::collectRules()
 {
   return collectRules_;

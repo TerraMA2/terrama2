@@ -116,13 +116,11 @@ DataSet TsDataManager::createDataSet()
 
   std::vector<DataSet::CollectRule> collectRules;
   {
-    DataSet::CollectRule collectRule;
-    collectRule.script = "... LUA SCRIPT 1...";
+    DataSet::CollectRule collectRule = { 0, "... LUA SCRIPT 1...", 0 };
     collectRules.push_back(collectRule);
   }
   {
-    DataSet::CollectRule collectRule;
-    collectRule.script = "... LUA SCRIPT 2...";
+    DataSet::CollectRule collectRule = {0, "... LUA SCRIPT 2...", 0 };
     collectRules.push_back(collectRule);
   }
   dataSet.setCollectRules(collectRules);
@@ -360,7 +358,6 @@ void TsDataManager::testAddDataSet()
 
 void TsDataManager::testRemoveDataSet()
 {
-  qRegisterMetaType<DataProvider>("DataProvider");
   qRegisterMetaType<DataSet>("DataSet");
 
   DataSet dataSet = createDataSet();
@@ -368,16 +365,14 @@ void TsDataManager::testRemoveDataSet()
 
 
   QSignalSpy spyDataSet(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSet)));
-  QSignalSpy spyDataProvider(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProvider)));
 
   DataManager::getInstance().removeDataSet(dataSet.id());
 
-  QVERIFY2(spyDataProvider.count() == 1, "Expect an emitted signal for an updated data provider");
   QVERIFY2(spyDataSet.count() == 1, "Expect an emitted signal for a removed dataset");
 
   auto foundDataSet = DataManager::getInstance().findDataSet(dataSet.id());
 
-  QVERIFY2(foundDataSet.id() == dataSet.id(), "Find should return null after remove");
+  QVERIFY2(foundDataSet.id() == 0, "Find should return null after remove");
 
 }
 
@@ -481,11 +476,12 @@ void TsDataManager::testUpdateDataSet()
 
   // Remove the dataset item PCD_INPE
 
-  auto dataSetItems = dataSet.dataSetItems();
+  auto& dataSetItems = dataSet.dataSetItems();
   dataSet.removeDataSetItem(dataSetItems[0].id());
 
   // Updates the data from FIRE_POINTS_TYPE
-  dataSetItems[0].setMask("Queimadas_*");
+  auto& dsItem = dataSetItems[0];
+  dsItem.setMask("Queimadas_*");
 
   // Add a new dataset item of type PCD_TOA5_TYPE
   DataSetItem dataSetItem(DataSetItem::PCD_TOA5_TYPE, 0, dataSet.id());
@@ -727,13 +723,9 @@ void TsDataManager::testUpdateNullDataSet()
 
 void TsDataManager::testFindNonExistentDataSet()
 {
-  DataProvider foundDataProvider = DataManager::getInstance().findDataProvider(0);
+  DataProvider foundDataProvider = DataManager::getInstance().findDataProvider(999);
 
-  QVERIFY2(foundDataProvider.id()!= 0, "Should return an invalid provider");
-
-  foundDataProvider = DataManager::getInstance().findDataProvider(999);
-
-  QVERIFY2(foundDataProvider.id() != 0, "Should return an invalid provider");
+  QVERIFY2(foundDataProvider.id()== 0, "Should return an invalid provider");
 }
 
 void TsDataManager::testUpdateNonexistentDataProvider()
@@ -936,6 +928,10 @@ void TsDataManager::testUpdateDataSetWithNonexistentProvider()
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
+  }
+  catch (...)
+  {
+    QFAIL("terrama2::InvalidArgumentError not thrown");
   }
 }
 

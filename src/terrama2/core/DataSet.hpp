@@ -86,6 +86,7 @@ namespace terrama2
         {
           uint64_t id;
           std::string script;
+          uint64_t datasetId;
         };
 
         /*!
@@ -213,7 +214,7 @@ namespace terrama2
 
            \return The collect rules.
          */
-        const std::vector<CollectRule>& collectRules();
+        std::vector<CollectRule>& collectRules();
 
         /*!
            \brief Sets the collect rules.

@@ -387,12 +387,10 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
 
     if(it !=  pimpl_->datasets.end())
     {
-      DataSet& dataset = it->second;
+      DataSet dataset = it->second;
       pimpl_->datasets.erase(it);
 
-      std::lock_guard<std::mutex> lock(pimpl_->mtx);
-
-      auto it = pimpl_->providers.find(id);
+      auto it = pimpl_->providers.find(dataset.provider());
 
       if(it !=  pimpl_->providers.end())
       {

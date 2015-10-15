@@ -33,6 +33,7 @@
 
 // TerraMA2
 #include "DataSetItem.hpp"
+#include "DataSet.hpp"
 
 // STL
 #include <vector>
@@ -108,6 +109,19 @@ namespace terrama2
         static std::vector<DataSetItem>
         loadAll(uint64_t datasetId, te::da::DataSourceTransactor& transactor);
 
+        /*!
+        \brief Update all dataset items information in the database.
+
+        \param dataset       The dataset that the list of items to be updated to be updated.
+        \param transactor The data source transactor to be used to perform the update operation.
+
+        \pre The dataset item must be associated to a valid dataset.
+        \pre The identifier of the dataset must be valid (a value different from 0).
+
+        \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+        */
+        static void updateDataSetItems(DataSet& dataset, te::da::DataSourceTransactor& transactor);
+
       private:
 
         //! Not instantiable.
@@ -135,6 +149,7 @@ namespace terrama2
         /*!
          */
         static void loadStorageMetadata(DataSetItem& item, te::da::DataSourceTransactor& transactor);
+
     };
 
   } // end namespace core
