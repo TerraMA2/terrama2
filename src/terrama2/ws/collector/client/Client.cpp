@@ -81,7 +81,7 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
 }
 
 
-void terrama2::ws::collector::Client::addDataset(terrama2::core::DataSetPtr &dataSetPtr)
+void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSetPtr &dataSetPtr)
 {
   if(dataSetPtr == nullptr)
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
@@ -146,19 +146,18 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSetPtr &
 
 void terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
 {
-  if(wsClient_->removeDataProvider(id) != SOAP_OK)
+  if(wsClient_->send_removeDataProvider(id) != SOAP_OK || wsClient_->recv_removeDataProvider_empty_response() != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
     throw client::RemoveDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
-
 }
 
 
 void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 {
-  if(wsClient_->removeDataSet(id) != SOAP_OK)
+  if(wsClient_->removeDataSet(id) != SOAP_OK || wsClient_->recv_removeDataSet_empty_response() != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
@@ -168,14 +167,8 @@ void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 }
 
 
-void terrama2::ws::collector::Client::findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr)
-{  
-  /*
-    // VINICIUS: verify how to do this check
-    if(dataProviderPtr == nullptr)
-    throw client::FindDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
-  */
-
+terrama2::core::DataProviderPtr terrama2::ws::collector::Client::findDataProvider(uint64_t id)
+{
   DataProvider struct_dataProvider;
 
   if(wsClient_->findDataProvider(id, struct_dataProvider) != SOAP_OK)
@@ -185,17 +178,14 @@ void terrama2::ws::collector::Client::findDataProvider(uint64_t id, terrama2::co
     throw client::FindDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProvider);
+  return terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProvider);
 
 }
 
 
-void terrama2::ws::collector::Client::findDataSet(uint64_t id,terrama2::core::DataSetPtr &dataSetPtr)
+terrama2::core::DataSetPtr terrama2::ws::collector::Client::findDataSet(uint64_t id)
 {
-  if(dataSetPtr == nullptr)
-    throw client::FindDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
-
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSetPtr);
+  DataSet struct_dataSet;
 
   if(wsClient_->findDataSet(id, struct_dataSet) != SOAP_OK)
   {
@@ -204,7 +194,7 @@ void terrama2::ws::collector::Client::findDataSet(uint64_t id,terrama2::core::Da
     throw client::FindDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSet);
+  return terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSet);
 
 }
 

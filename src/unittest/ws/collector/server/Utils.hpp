@@ -24,7 +24,7 @@
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Paulo R. M. Oliveira
+  \author Vinicius Campanha
 */
 
 #ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER_UTILS_HPP__
