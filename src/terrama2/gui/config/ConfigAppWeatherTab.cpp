@@ -55,7 +55,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   // Disable series button
   showDataSeries(false);
-  hideDataSetButtons(false);
+  hideDataSetButtons();
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -75,7 +75,6 @@ void ConfigAppWeatherTab::load()
 
   showDataSeries(false);
 
-  // clear list
   clearList();
 
   while(dataProviders->moveNext())
@@ -109,15 +108,16 @@ void ConfigAppWeatherTab::load()
       item->addChild(subItem);
     }
   }
+
+  for(auto tab: subTabs_)
+    tab->load();
 }
 
 bool ConfigAppWeatherTab::dataChanged()
 {
   for(const auto tab: subTabs_) {
     if (tab->isActive())
-    {
       return true;
-    }
   }
   return false;
 }
@@ -126,9 +126,7 @@ bool ConfigAppWeatherTab::validate()
 {
   for(const auto tab: subTabs_)
     if (tab->isActive() && tab->dataChanged())
-    {
       return tab->validate();
-    }
   return false;
 }
 
@@ -154,10 +152,8 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
     if (tab->dataChanged())
       tab->discardChanges(restore_data);
 
-// Hide the form
   hidePanels(ui_->ServerGroupPage);
 
-// Set visible false on server buttons
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
@@ -169,20 +165,13 @@ void ConfigAppWeatherTab::showDataSeries(bool state)
   ui_->updateServerBtn->setVisible(state);
   ui_->serverDeleteBtn->setVisible(state);
 
-  (state) ? ui_->groupBox_25->show() : ui_->groupBox_25->hide();
+  (state) ? ui_->dataSeriesBtnGroupBox->show() : ui_->dataSeriesBtnGroupBox->hide();
 }
 
-void ConfigAppWeatherTab::hideDataSetButtons(const bool state)
+void ConfigAppWeatherTab::hideDataSetButtons()
 {
-  ui_->gridFormatDataDeleteBtn->setVisible(state);
-  ui_->pointFormatDataDeleteBtn->setVisible(state);
-  ui_->serverRemovePointDiffBtn->setVisible(state);
-  ui_->updateDataPointBtn->setVisible(state);
-  ui_->updateDataGridBtn->setVisible(state);
-  ui_->updateDataPointDiffBtn->setVisible(state);
-  ui_->exportDataGridBtn->setVisible(state);
-  ui_->exportDataPointBtn->setVisible(state);
-  ui_->exportDataPointDiffBtn->setVisible(state);
+  for(QPushButton* button: ui_->dataSeriesBtnGroupBox->findChildren<QPushButton*>())
+    button->setVisible(false);
 }
 
 void ConfigAppWeatherTab::hidePanels(QWidget* except)
@@ -207,13 +196,11 @@ void ConfigAppWeatherTab::onImportServer()
 
 void ConfigAppWeatherTab::onInsertPointBtnClicked()
 {
-  // Index 3 represents DataPointPage
   hidePanels(ui_->DataPointPage);
 }
 
 void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
 {
-  // Index 4 represents DataPointDiffPage
   hidePanels(ui_->DataPointDiffPage);
 }
 
@@ -281,7 +268,13 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
       if (selectedItem->parent()->parent() == nullptr)
       {
         QObject::disconnect(ui_->serverDescription->document(), 0, 0, 0);
+        hideDataSetButtons();
         showDataSeries(true);
+
+        ui_->serverInsertPointBtn->setVisible(true);
+        ui_->serverInsertGridBtn->setVisible(true);
+        ui_->serverInsertPointDiffBtn->setVisible(true);
+
         std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
         sql += selectedItem->text(0).toStdString() + "'";
 
@@ -296,9 +289,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
 
-        ConfigAppWeatherServer* server = static_cast<ConfigAppWeatherServer*>(subTabs_[0].data());
-        server->setDataProviderSelected(selectedItem->text(0));
-
+        subTabs_[0]->setSelectedData(selectedItem->text(0));
         ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
         ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
         ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
@@ -306,6 +297,10 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->serverActiveServer->setChecked(dataSet->getBool(5));
 
         subTabs_[0]->load();
+
+        ui_->updateDataGridBtn->hide();
+        ui_->exportDataGridBtn->hide();
+        ui_->gridFormatDataDeleteBtn->hide();
       }
       else {
 
@@ -322,9 +317,15 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
+        subTabs_[1]->setSelectedData(selectedItem->text(0));
 
         ui_->gridFormatDataName->setText(dataSet->getAsString("name").c_str());
+        hideDataSetButtons();
         showDataSeries(false);
+        ui_->dataSeriesBtnGroupBox->setVisible(true);
+        ui_->updateDataGridBtn->setVisible(true);
+        ui_->exportDataGridBtn->setVisible(true);
+        ui_->gridFormatDataDeleteBtn->setVisible(true);
       }
     }
     catch (const terrama2::Exception& e)
@@ -393,7 +394,6 @@ void ConfigAppWeatherTab::onProjectionClicked()
 
 void ConfigAppWeatherTab::displayOperationButtons(bool state)
 {
-  // Set visible the buttons
   ui_->saveBtn->setVisible(state);
   ui_->cancelBtn->setVisible(state);
 

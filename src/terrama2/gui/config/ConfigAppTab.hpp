@@ -88,6 +88,8 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! It sets the tab state
     virtual void setChanged(bool state);
 
+    virtual void setSelectedData(const QString selectedData);
+
 public slots:
 
     //! Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
@@ -98,9 +100,10 @@ public slots:
 
   protected:
     ConfigApp* app_;  //!< Main Window
-    Ui::ConfigAppForm* ui_;
-    bool active_;
-    bool changed_;
+    Ui::ConfigAppForm* ui_; //!< UI from ConfigApp
+    QString selectedData_; //!< It defines if there any selected name before to update;
+    bool active_; //!< It defines if the tab is active
+    bool changed_; //!< it defines if there any field changed
 };
 
 #endif

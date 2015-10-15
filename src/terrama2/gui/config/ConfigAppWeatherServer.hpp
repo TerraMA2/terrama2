@@ -25,9 +25,6 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     //! Validates the fields in server insertion
     bool validate();
 
-    //! Sets current dataprovider to the variable
-    void setDataProviderSelected(const QString&);
-
   private:
     //! It validates the connection type
     void validateConnection();

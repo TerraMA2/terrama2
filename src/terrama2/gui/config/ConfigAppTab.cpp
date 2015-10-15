@@ -90,3 +90,8 @@ void ConfigAppTab::setChanged(bool state)
 {
   changed_ = state;
 }
+
+void ConfigAppTab::setSelectedData(const QString selectedData)
+{
+  selectedData_ = selectedData;
+}

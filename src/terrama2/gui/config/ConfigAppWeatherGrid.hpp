@@ -50,6 +50,8 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
   private slots:
     void onDataGridClicked();
     void onSubTabChanged();
+    void onGridFormatChanged();
+    void onRemoveDataGridBtnClicked();
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__

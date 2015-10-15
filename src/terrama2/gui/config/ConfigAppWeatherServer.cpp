@@ -42,7 +42,7 @@ void ConfigAppWeatherServer::save()
   terrama2::core::DataManager::getInstance().load();
   // If there data provider in database
   terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
-      dataProviderSelected_.toStdString());
+      selectedData_.toStdString());
   if (dataProvider != nullptr)
   {
     dataProvider->setName(ui_->serverName->text().toStdString());
@@ -56,7 +56,7 @@ void ConfigAppWeatherServer::save()
     QTreeWidgetItemIterator it(ui_->weatherDataTree->topLevelItem(0));
     while(*it)
     {
-      if ((*it)->text(0) == dataProviderSelected_)
+      if ((*it)->text(0) == selectedData_)
       {
         (*it)->setText(0, ui_->serverName->text());
         break;
@@ -64,7 +64,7 @@ void ConfigAppWeatherServer::save()
       ++it;
     }
 
-    dataProviderSelected_ = ui_->serverName->text();
+    selectedData_ = ui_->serverName->text();
 
   }
   else
@@ -102,7 +102,7 @@ void ConfigAppWeatherServer::discardChanges(bool restore)
   }
 
   ui_->serverDescription->clear();
-  dataProviderSelected_.clear();
+  selectedData_.clear();
   changed_ = false;
 }
 
@@ -116,9 +116,9 @@ bool ConfigAppWeatherServer::validate()
 
   terrama2::core::DataProviderPtr dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
 
-  if (dataProviderPtr != nullptr && !dataProviderSelected_.isEmpty())
+  if (dataProviderPtr != nullptr && !selectedData_.isEmpty())
   {
-    if (dataProviderSelected_ != ui_->serverName->text())
+    if (selectedData_ != ui_->serverName->text())
     {
       ui_->serverName->setFocus();
       throw terrama2::Exception() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
@@ -192,9 +192,4 @@ void ConfigAppWeatherServer::validateConnection()
 void ConfigAppWeatherServer::onTextEditChanged()
 {
   changed_ = true;
-}
-
-void ConfigAppWeatherServer::setDataProviderSelected(const QString& dataProvider)
-{
-  dataProviderSelected_ = dataProvider;
 }
