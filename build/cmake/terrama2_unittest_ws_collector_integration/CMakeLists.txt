@@ -26,8 +26,8 @@
 
 
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/integration_test/ws/collector/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/integration_test/ws/collector/*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/integration/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/integration/*.hpp)
 
 
 include_directories (
@@ -44,12 +44,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-add_executable(terrama2_integration_test_ws_collector ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_executable(terrama2_unittest_ws_collector_integration ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_integration_test_ws_collector terrama2_mod_ws_collector_core
+target_link_libraries(terrama2_unittest_ws_collector_integration terrama2_mod_ws_collector_core
                                                              terrama2_mod_ws_collector_client
                                                              terrama2_mod_core
                                                              terralib_mod_plugin
                                                              terralib_mod_common)
 
-qt5_use_modules(terrama2_integration_test_ws_collector Test)
+qt5_use_modules(terrama2_unittest_ws_collector_integration Test)
