@@ -44,6 +44,19 @@
 int main(int argc, char* argv[])
 {
 
+  // check if the parameters was passed correctly
+    if(argc < 3)
+    {
+      std::cerr << "Inform a port and a project file in order to run the collector application server." << std::endl;
+      std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
+
+      return EXIT_FAILURE;
+    }
+
+  std::cerr << "Starting Webservice..." << std::endl;
+
+  std::cerr << "Initializating TerraLib..." << std::endl;
+
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
 
@@ -60,41 +73,43 @@ int main(int argc, char* argv[])
 
   te::plugin::PluginManager::getInstance().loadAll();
 
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+  std::cerr << "Loading TerraMA2 Project..." << std::endl;
 
-  if(!terrama2::core::ApplicationController::getInstance().loadProject(path))
+  if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[2]))
+  {
+    std::cerr << "TerraMA2 Project File is invalid or don't exist!" << std::endl;
     return EXIT_FAILURE;
+  }
 
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
   if(!dataSource.get())
     return EXIT_FAILURE;
 
-// check if a port number was passed as parameter
-  if(argv[1] == 0)
-  {
-    std::cerr << "Inform a port in order to run the collector application server.";
-
-    return EXIT_FAILURE;
-  }
-
   WebService server;
 
-// run iterative server on port until fatal error
-  if( server.run( std::stoi(argv[1]) ) )
+  if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, std::stoi(argv[1]), 100)))
   {
-    server.soap_stream_fault(std::cerr);
+    std::cerr << "Webservice Started, running on port " << argv[1] << std::endl;
 
-    TerraLib::getInstance().finalize();
+    for (;;)
+    {
+      if (!soap_valid_socket(server.accept()))
+        break;
 
-    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
-
-    return EXIT_FAILURE;
+      server.serve();
+      server.destroy();
+    }
   }
 
+  server.soap_stream_fault(std::cerr);
+
+  std::cerr << "Closing Webservice..." << std::endl;
   TerraLib::getInstance().finalize();
 
   terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+
+  std::cerr << "Webservice finished!" << std::endl;
 
   return EXIT_SUCCESS;
 }

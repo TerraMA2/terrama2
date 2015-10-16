@@ -188,7 +188,7 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
     datasetTimerQueue.append(datasetId);
 }
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
+terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProvider(const core::DataProvider dataProvider)
 {
   //TODO: Debug?
   //sanity check: valid dataprovider
@@ -202,48 +202,48 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
 
 }
 
-void terrama2::collector::CollectorService::removeProvider(const terrama2::core::DataProviderPtr dataProvider)
+void terrama2::collector::CollectorService::removeProvider(terrama2::core::DataProvider dataProvider)
 {
-  for(core::DataSetPtr dataSet : dataProvider->dataSets())
+  for(const core::DataSet dataSet : dataProvider.datasets())
     removeDataset(dataSet);
 
   CollectorFactory& factory = CollectorFactory::getInstance();
   factory.removeCollector(dataProvider);
 }
 
-void terrama2::collector::CollectorService::updateProvider(const terrama2::core::DataProviderPtr dataProvider)
+void terrama2::collector::CollectorService::updateProvider(const terrama2::core::DataProvider dataProvider)
 {
   CollectorFactory& factory = CollectorFactory::getInstance();
   factory.removeCollector(dataProvider);
   factory.getCollector(dataProvider);
 }
 
-terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSetPtr dataset)
+terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
 {
   //TODO: Debug?
   //sanity check: valid dataset
-//  assert(dataset->id());
+//  assert(dataset.id());
 
   //Create a new dataset timer and connect the timeout signal to queue
   auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
-  datasetTimerLst_.insert(dataset->id(), datasetTimer);
+  datasetTimerLst_.insert(dataset.id(), datasetTimer);
   connect(datasetTimer.get(), &terrama2::collector::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
 
   return datasetTimer;
 }
 
-void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSetPtr dataset)
+void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSet dataset)
 {
-  if(datasetTimerLst_.contains(dataset->id()))
+  if(datasetTimerLst_.contains(dataset.id()))
   {
-    DataSetTimerPtr datasetTimer = datasetTimerLst_.value(dataset->id());
+    DataSetTimerPtr datasetTimer = datasetTimerLst_.value(dataset.id());
     disconnect(datasetTimer.get(), nullptr, this, nullptr);
 
-    datasetTimerLst_.remove(dataset->id());
+    datasetTimerLst_.remove(dataset.id());
   }
 }
 
-void terrama2::collector::CollectorService::updateDataset(const terrama2::core::DataSetPtr dataset)
+void terrama2::collector::CollectorService::updateDataset(const terrama2::core::DataSet dataset)
 {
   removeDataset(dataset);
   addDataset(dataset);

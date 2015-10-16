@@ -32,7 +32,6 @@
 #include "../Config.hpp"
 #include "Exception.hpp"
 
-
 // Boost
 #include <boost/filesystem.hpp>
 
@@ -124,7 +123,7 @@ terrama2::core::ReadJsonFile(const std::string &file_name)
 }
 
 bool
-terrama2::core::DataProviderStatusToBool(DataProvider::Status status)
+terrama2::core::ToBool(DataProvider::Status status)
 {
   switch (status)
   {
@@ -138,13 +137,13 @@ terrama2::core::DataProviderStatusToBool(DataProvider::Status status)
 }
 
 terrama2::core::DataProvider::Status
-terrama2::core::BoolToDataProviderStatus(bool active)
+terrama2::core::ToDataProviderStatus(bool active)
 {
   return (active) ? DataProvider::ACTIVE : DataProvider::INACTIVE;
 }
 
 terrama2::core::DataProvider::Kind
-terrama2::core::IntToDataProviderKind(uint64_t kind)
+terrama2::core::ToDataProviderKind(uint64_t kind)
 {
   switch (kind)
   {
@@ -164,13 +163,13 @@ terrama2::core::IntToDataProviderKind(uint64_t kind)
 }
 
 std::string
-terrama2::core::BoolToString(bool b)
+terrama2::core::ToString(bool b)
 {
   return b ? "true" : "false";
 }
 
 bool
-terrama2::core::DataSetStatusToBool(DataSet::Status status)
+terrama2::core::ToBool(DataSet::Status status)
 {
   switch (status)
   {
@@ -184,7 +183,7 @@ terrama2::core::DataSetStatusToBool(DataSet::Status status)
 }
 
 
-terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(bool active)
+terrama2::core::DataSet::Status terrama2::core::ToDataSetStatus(bool active)
 {
   return (active) ? DataSet::ACTIVE : DataSet::INACTIVE;
 }
@@ -192,7 +191,7 @@ terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(bool active)
 
 
 terrama2::core::DataSet::Kind
-terrama2::core::IntToDataSetKind(uint64_t kind)
+terrama2::core::ToDataSetKind(uint64_t kind)
 {
   switch (kind)
   {
@@ -208,7 +207,7 @@ terrama2::core::IntToDataSetKind(uint64_t kind)
 }
 
 terrama2::core::DataSetItem::Kind
-terrama2::core::IntToDataSetItemKind(uint64_t kind)
+terrama2::core::ToDataSetItemKind(uint64_t kind)
 {
   switch (kind)
   {
@@ -226,13 +225,13 @@ terrama2::core::IntToDataSetItemKind(uint64_t kind)
 }
 
 terrama2::core::DataSetItem::Status
-terrama2::core::BoolToDataSetItemStatus(bool active)
+terrama2::core::ToDataSetItemStatus(bool active)
 {
   return (active) ? DataSetItem::ACTIVE : DataSetItem::INACTIVE;
 }
 
 bool
-terrama2::core::DataSetItemStatusToBool(DataSetItem::Status status)
+terrama2::core::ToBool(DataSetItem::Status status)
 {
   switch (status)
   {
@@ -246,17 +245,17 @@ terrama2::core::DataSetItemStatusToBool(DataSetItem::Status status)
 }
 
 terrama2::core::Filter::ExpressionType
-terrama2::core::IntToFilterExpressionType(uint64_t type)
+terrama2::core::ToFilterExpressionType(uint64_t type)
 {
   switch (type)
   {
-    case 1:
-      return Filter::LESS_THAN_TYPE;
     case 2:
-      return Filter::GREATER_THAN_TYPE;
+      return Filter::LESS_THAN_TYPE;
     case 3:
-      return Filter::MEAN_LESS_THAN_TYPE;
+      return Filter::GREATER_THAN_TYPE;
     case 4:
+      return Filter::MEAN_LESS_THAN_TYPE;
+    case 5:
       return Filter::MEAN_GREATER_THAN_TYPE;
     default:
       return Filter::NONE_TYPE;

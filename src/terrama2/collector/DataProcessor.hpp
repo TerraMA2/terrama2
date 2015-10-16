@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_COLLECTOR_DATAPROCESSOR_HPP__
 #define __TERRAMA2_COLLECTOR_DATAPROCESSOR_HPP__
 
+//TerraMA2
+#include "../core/DataSetItem.hpp"
+
 //Std
 #include <memory>
 #include <cstdint>
@@ -52,11 +55,6 @@ namespace te
 
 namespace terrama2
 {
-  namespace core {
-    class DataSetItem;
-    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
-  }
-
   namespace collector
   {
     class DataFilter;
@@ -80,7 +78,7 @@ namespace terrama2
 
       public:
         //! Constructor
-        DataProcessor(core::DataSetItemPtr data, QObject* parent = nullptr);
+        DataProcessor(const core::DataSetItem& data, QObject* parent = nullptr);
         //! Destructor
         ~DataProcessor();
 
@@ -88,7 +86,7 @@ namespace terrama2
          * \brief Data object being processed by this processor.
          * \return Shared pointer to the Data object.
          */
-        core::DataSetItemPtr data() const;
+        core::DataSetItem data() const;
 
         /*!
          * \brief Filtering rules for the data.

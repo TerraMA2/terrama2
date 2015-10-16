@@ -33,6 +33,10 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
+// TerraMA2
+#include "DataProvider.hpp"
+#include "DataSet.hpp"
+
 // TerraLib
 #include <terralib/common/Singleton.h>
 
@@ -46,23 +50,16 @@ namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataProvider;
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
-
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
     /*!
       \class DataManager
 
       \brief Manages all the metadata about data providers and its related datasets.
 
       The DataManager is a singleton responsible for loading metadata about
-      data providers and datasets.
-
-      It will load the metadata from a database and will keep them
-      synchronized.
+      data providers and datasets. It works like a database cache with TerraMA2
+      concepts.
+     
+      Take care to keep it synchronized.
      */
     class DataManager : public QObject, public te::common::Singleton<DataManager>
     {
@@ -81,7 +78,7 @@ namespace terrama2
 
           \pre The database with TerraMA2 metadata must have been initialized in the application controller.
 
-          \exception
+          \exception terrama2::Exception If it is not possible to load TerraMA2 metadata.
 
           \note Thread-safe.
          */
@@ -101,94 +98,91 @@ namespace terrama2
 
           This method will also add all the datasets contained in the data provider.
          
-          At end it will emmit the following signals:
-          - dataProviderAdded(DataProviderPtr): signal if the data provider is saved and registered in the manager.
-          - dataSetAdded(DataSetPtr): one signal for each dataset in the data provider's list added to the database and registered in the manager.
+          At end it will emit dataProviderAdded(DataProviderPtr) signal.
          
-          \param provider The data provider to be added to the database and registered into the manager.
+          \param provider    The data provider to be added to the database and registered into the manager.
+          \param shallowSave If true it will only save the data provider attributes.
 
           \pre The provider must not have a valid ID (its ID must be zero).
           \pre A provider with the same name must not be already in the manager.
-          \pre If there are contained datasets, they must not have a valid ID (all IDs must be zero).
+          \pre If not performing a shallow save, the contained datasets must not have a valid ID (all IDs must be zero).
 
           \pos The informed data provider will have a valid ID (> 0).
-          \pos The datasets within this provider will have a valid ID (> 0).
+          \pos If not performing a shallow save, the datasets within this provider will have a valid ID (> 0).
 
-          \exception InvalidDataProviderError, InvalidDataProviderIdError, InvalidDataSetError, InvalidDataSetIdError
+          \exception terrama2::Exception If it is not possible to add the data provider.
 
           \note Thread-safe.
          */
-        void add(DataProviderPtr provider);
+        void add(DataProvider& provider, const bool shallowSave = false);
 
         /*!
           \brief Add the dataset to the database and register it in the manager.
          
-          At end it will emmit the following signals:
-          - dataSetAdded(): signal if the dataset is saved and registered in the manager.
-          - dataProviderUpdated(): signal to notify that there is a new dataset in the provider.
+          Emmits the dataSetAdded() signal when finished.
+         
+          \param dataset     The dataset to be added.
+          \param shallowSave If true it will only save the dataset attributes.
 
           \pre The dataset must not have an ID.
-          \pre A provider with the same name must not be already in the manager.
+          \pre A dataset with the same name must not be already in the manager.
+          \pre The dataset must be associated to a valid and registered data provider.
 
           \pos The informed dataset will have a valid ID.
 
-          \param dataset Dataset to add.
-
-          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
+          \exception terrama2::Exception If it is not possible to load add the dataset.
 
           \note Thread-safe.
          */
-        void add(DataSetPtr dataset);
+        void add(DataSet& dataset, const bool shallowSave = false);
 
         /*!
           \brief Update a given data provider in the database.
 
           Emits dataProviderUpdated() signal if the data provider is updated successfully.
          
-          \param provider The data provider to be updated.
+          \param provider    The data provider to be updated.
+          \param shallowSave If true it will update only the data provider attributes.
 
           \pre The data provider must have a valid ID.
           \pre The data provider must exist in the database.
 
-          \exception InvalidDataProviderError, InvalidDataProviderIdError
+          \exception terrama2::Exception If it is not possible to update the data provider.
 
           \note Thread-safe.
          */
-        void update(DataProviderPtr provider);
+        void update(DataProvider& provider, const bool shallowSave = false);
 
         /*!
           \brief Update a given dataset in the database.
 
           Emits dataSetUpdated() signal if the dataset is updated successfully.
 
-          It will not update the datasets.
-         
-          \param dataset Dataset to update.
+          \param dataset     Dataset to update.
+          \param shallowSave If true it will update only the dataset attributes.
 
-          \pre The dataset must have an valid ID.
+          \pre The dataset must have a valid ID.
           \pre The dataset must exist in the database.
 
-          \exception InvalidDataSetError, InvalidDataSetIdError, InvalidDataProviderError
+          \exception terrama2::Exception If it is not possible to update the dataset.
 
           \note Thread-safe.
          */
-        void update(DataSetPtr dataset);
+        void update(DataSet& dataset, const bool shallowSave = false);
 
         /*!
           \brief Removes a given data provider.
-
+         
+          Emits dataProviderRemoved() signal if the data provider is removed successfully.
+         
+          \param id ID of the data provider to remove.
+         
           \pre The data provider must have a valid ID.
 
-          Emits dataProviderRemoved() signal if the data provider is removed successfully.
+          \pos It will remove all datasets that belong to this data provider.
+          \pos In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
 
-          Emits dataSetRemoved() signal for each dataset that belongs to this data provider.
-
-          It will remove all datasets that belong to this data provider.
-          In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
-
-          \exception InvalidDataProviderIdError, DataSetInUseError
-
-          \param id ID of the data provider to remove.
+          \exception terrama2::Exception If it is not possible to remove the data provider.
 
           \note Thread-safe.
          */
@@ -202,13 +196,11 @@ namespace terrama2
 
           Emits dataSetRemoved() signal if the dataset is removed successfully.
 
-          Emits dataProviderUpdated() signal to notify that a dataset was removed from the provider's list.
-
           In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
           \param id ID of the dataset to remove.
 
-          \exception InvalidDataSetIdError, DataSetInUseError
+          \exception terrama2::Exception If it is not possible to remove the dataset.
 
           \note Thread-safe.
          */
@@ -217,32 +209,32 @@ namespace terrama2
         /*!
           \brief Retrieves the data provider with the given name.
 
-          \exception InvalidDataProviderIdError
-
           In case there is no data provider in the database with the given name it will return an empty smart pointer.
 
           \param name The data provider name.
 
-          \return DataProviderPtr A smart pointer to the data provider
+          \return DataProvider A smart pointer to the data provider
+
+          \exception terrama2::Exception If some error occur when trying to find the data provider.
 
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(const std::string& name) const;
+        DataProvider findDataProvider(const std::string& name) const;
 
         /*!
           \brief Retrieves the data provider with the given id.
 
-          \exception InvalidDataProviderIdError
-
           In case there is no data provider in the database with the given id it will return an empty smart pointer.
+
+          \exception terrama2::Exception If some error occur when trying to find the data provider.
 
           \param id The data provider identifier.
 
-          \return DataProviderPtr A smart pointer to the data provider
+          \return DataProvider A smart pointer to the data provider
 
           \note Thread-safe.
          */
-        DataProviderPtr findDataProvider(const uint64_t id) const;
+        DataProvider findDataProvider(const uint64_t id) const;
 
         /*!
           \brief Search for a dataset with the given name
@@ -251,11 +243,11 @@ namespace terrama2
           \param name Name of the dataset.
           \return A smart pointer to the dataset.
 
-          \exception InvalidDataSetIdError
+          \exception terrama2::Exception If some error occur when trying to find the dataset.
 
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(const std::string& name) const;
+        DataSet findDataSet(const std::string& name) const;
 
         /*!
           \brief Search for a dataset with the given id
@@ -264,22 +256,22 @@ namespace terrama2
           \param id Identifier of the dataset.
           \return A smart pointer to the dataset.
 
-          \exception InvalidDataSetIdError
+          \exception terrama2::Exception If some error occur when trying to find the dataset.
 
           \note Thread-safe.
          */
-        DataSetPtr findDataSet(const uint64_t id) const;
+        DataSet findDataSet(const uint64_t id) const;
 
         /*!
           \brief Retrieves all data provider.
 
           In case there is no data provider in the database it will return an empty vector.
 
-          \return std::vector<DataProviderPtr> A list with all data providers.
+          \return std::vector<DataProvider> A list with all data providers.
 
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataProviderPtr> providers() const;
+        std::vector<terrama2::core::DataProvider> providers() const;
 
         /*!
           \brief Retrieve all datasets from the database.
@@ -289,20 +281,20 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataSetPtr> dataSets() const;
+        std::vector<terrama2::core::DataSet> dataSets() const;
 
       signals:
 
         void dataManagerLoaded();
         void dataManagerUnloaded();
 
-        void dataProviderAdded(DataProviderPtr);
-        void dataProviderRemoved(DataProviderPtr);
-        void dataProviderUpdated(DataProviderPtr);
+        void dataProviderAdded(DataProvider);
+        void dataProviderRemoved(DataProvider);
+        void dataProviderUpdated(DataProvider);
 
-        void dataSetAdded(DataSetPtr);
-        void dataSetRemoved(DataSetPtr);
-        void dataSetUpdated(DataSetPtr);
+        void dataSetAdded(DataSet);
+        void dataSetRemoved(DataSet);
+        void dataSetUpdated(DataSet);
 
 
       protected:
@@ -315,7 +307,7 @@ namespace terrama2
 
         struct Impl;
 
-        Impl* pimpl_;  //!< Using Pimpl idiom.
+        Impl* pimpl_;  //!< Pimpl idiom.
     };
 
   } // end namespace core
