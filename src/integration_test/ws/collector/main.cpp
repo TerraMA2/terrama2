@@ -37,6 +37,11 @@
 int main(int argc, char **argv)
 {
 
+// Define SERVER if you are running a server in 1989 port
+//#define SERVER server
+
+#ifndef SERVER
+
   QObject *parent = new QObject();
 
   QString program = "./terrama2_mod_ws_collector_appserver";
@@ -56,6 +61,7 @@ int main(int argc, char **argv)
   }
 
   std::cerr << "Web Service started!" << std::endl;
+#endif
 
   initializeTerraMA2();
 
@@ -64,10 +70,12 @@ int main(int argc, char **argv)
 
   finalizeTerraMA2();
 
+#ifndef SERVER
   service->close();
 
   delete service;
   delete parent;
+#endif
 
   return ret;
 }
