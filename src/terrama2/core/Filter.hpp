@@ -33,6 +33,7 @@
 
 // STL
 #include <string>
+#include <memory>
 
 // Forward declaration
 namespace te
