@@ -46,13 +46,13 @@ private:
    /*!
    * \brief Create a Data Provider Ptr
    */
-    terrama2::core::DataProvider buildDataProviderPtr();
+    terrama2::core::DataProvider buildDataProvider();
 
 
     /*!
      * \brief Create a Data Set Ptr
      */
-    terrama2::core::DataSet buildDataSetPtr();
+    terrama2::core::DataSet buildDataSet();
 
 
     /*!
@@ -74,25 +74,25 @@ private slots:
     /*!
      * \brief Test to convert a DataProviderPtr to a Data Provider Struct
      */
-    void TestConvertDataProviderPtrToDataProviderStruct();
+    void TestConvertDataProviderToDataProviderStruct();
 
 
     /*!
      * \brief Test to convert a Data Provider Struct to a DataProviderPtr
      */
-    void TestWrongConvertDataProviderStructToDataProviderPtr();
+    void TestWrongConvertDataProviderStructToDataProvider();
 
 
     /*!
      * \brief Test to convert a DataSetPtr to a Data Set Struct
      */
-    void TestConvertDataSetPtrToDataSetStruct();
+    void TestConvertDataSetToDataSetStruct();
 
 
     /*!
      * \brief Test to convert a Data Set Struct toa DataSetPtr
      */
-    void TestConvertDataSetStructToDataSetPtr();
+    void TestConvertDataSetStructToDataSet();
 
 
 
