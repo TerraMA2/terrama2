@@ -46,13 +46,13 @@ private:
    /*!
    * \brief Create a Data Provider Ptr
    */
-    terrama2::core::DataProviderPtr buildDataProviderPtr();
+    terrama2::core::DataProvider buildDataProviderPtr();
 
 
     /*!
      * \brief Create a Data Set Ptr
      */
-    terrama2::core::DataSetPtr buildDataSetPtr();
+    terrama2::core::DataSet buildDataSetPtr();
 
 
     /*!

@@ -65,54 +65,56 @@ void TestCore::clearDatabase()
   transactor->commit();
 }
 
-terrama2::core::DataProviderPtr TestCore::buildDataProviderPtr()
+terrama2::core::DataProvider TestCore::buildDataProviderPtr()
 {
 
-  terrama2::core::DataProviderPtr  dataProviderPtr(new terrama2::core::DataProvider("Data Provider", (terrama2::core::DataProvider::Kind)1));
+  terrama2::core::DataProvider  dataProviderPtr(0, (terrama2::core::DataProvider::Kind)1);
 
-  dataProviderPtr->setUri("C:/DataProvider/");
-  dataProviderPtr->setDescription("Data Provider Description");
-  dataProviderPtr->setStatus((terrama2::core::DataProvider::Status)1);
+  dataProviderPtr.setName("Data Provider");
+  dataProviderPtr.setUri("C:/DataProvider/");
+  dataProviderPtr.setDescription("Data Provider Description");
+  dataProviderPtr.setStatus((terrama2::core::DataProvider::Status)1);
 
   return dataProviderPtr;
 }
 
-terrama2::core::DataSetPtr TestCore::buildDataSetPtr()
+terrama2::core::DataSet TestCore::buildDataSetPtr()
 {
-  terrama2::core::DataProviderPtr dataProviderPtr = buildDataProviderPtr();
+  terrama2::core::DataProvider dataProviderPtr = buildDataProviderPtr();
 
   terrama2::core::DataManager::getInstance().add(dataProviderPtr);
 
-  terrama2::core::DataSetPtr dataSetPtr(new terrama2::core::DataSet(dataProviderPtr, "DataSet name", (terrama2::core::DataSet::Kind)1, 9));
+  terrama2::core::DataSet dataSetPtr((terrama2::core::DataSet::Kind)1, 9, dataProviderPtr.id());
 
-  dataSetPtr->setDescription("Data Set Description");
-  dataSetPtr->setStatus((terrama2::core::DataSet::Status)1);
+  dataSetPtr.setName("Data Set Name");
+  dataSetPtr.setDescription("Data Set Description");
+  dataSetPtr.setStatus((terrama2::core::DataSet::Status)1);
 
   boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string("00:05:00.00"));
   boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string("00:06:00.00"));
   boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string("00:07:00.00"));
   boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string("00:08:00.00"));
 
-  dataSetPtr->setDataFrequency(te::dt::TimeDuration(dataFrequency));
-  dataSetPtr->setSchedule(te::dt::TimeDuration(schedule));
-  dataSetPtr->setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
-  dataSetPtr->setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+  dataSetPtr.setDataFrequency(te::dt::TimeDuration(dataFrequency));
+  dataSetPtr.setSchedule(te::dt::TimeDuration(schedule));
+  dataSetPtr.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
+  dataSetPtr.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
   return dataSetPtr;
 }
 
 void TestCore::TestConvertDataProviderPtrToDataProviderStruct()
 {
-  terrama2::core::DataProviderPtr dataProviderPtr = buildDataProviderPtr();
+  terrama2::core::DataProvider dataProviderPtr = buildDataProviderPtr();
 
   DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProviderPtr);
 
-  QVERIFY2(struct_dataProvider.id == dataProviderPtr->id(), "Id changed after conversion!");
-  QVERIFY2(struct_dataProvider.name == dataProviderPtr->name(), "Name changed after conversion!");
-  QVERIFY2(struct_dataProvider.kind == dataProviderPtr->kind(), "Kind changed after conversion!");
-  QVERIFY2(struct_dataProvider.description == dataProviderPtr->description(), "Description changed after conversion!");
-  QVERIFY2(struct_dataProvider.status == dataProviderPtr->status(), "Status changed after conversion!");
-  QVERIFY2(struct_dataProvider.uri == dataProviderPtr->uri(), "URI changed after conversion!");
+  QVERIFY2(struct_dataProvider.id == dataProviderPtr.id(), "Id changed after conversion!");
+  QVERIFY2(struct_dataProvider.name == dataProviderPtr.name(), "Name changed after conversion!");
+  QVERIFY2(struct_dataProvider.kind == dataProviderPtr.kind(), "Kind changed after conversion!");
+  QVERIFY2(struct_dataProvider.description == dataProviderPtr.description(), "Description changed after conversion!");
+  QVERIFY2(struct_dataProvider.status == dataProviderPtr.status(), "Status changed after conversion!");
+  QVERIFY2(struct_dataProvider.uri == dataProviderPtr.uri(), "URI changed after conversion!");
 }
 
 
@@ -127,41 +129,41 @@ void TestCore::TestWrongConvertDataProviderStructToDataProviderPtr()
   struct_dataProvider.status = 1;
   struct_dataProvider.uri = "C:/Dataprovider/path";
 
-  terrama2::core::DataProviderPtr dataProviderPtr = terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataProvider);
+  terrama2::core::DataProvider dataProviderPtr = terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataProvider);
 
-  QVERIFY2(struct_dataProvider.id == dataProviderPtr->id(), "Id changed after conversion!");
-  QVERIFY2(struct_dataProvider.name == dataProviderPtr->name(), "Name changed after conversion!");
-  QVERIFY2(struct_dataProvider.kind == dataProviderPtr->kind(), "Kind changed after conversion!");
-  QVERIFY2(struct_dataProvider.description == dataProviderPtr->description(), "Description changed after conversion!");
-  QVERIFY2(struct_dataProvider.status == dataProviderPtr->status(), "Status changed after conversion!");
-  QVERIFY2(struct_dataProvider.uri == dataProviderPtr->uri(), "URI changed after conversion!");
+  QVERIFY2(struct_dataProvider.id == dataProviderPtr.id(), "Id changed after conversion!");
+  QVERIFY2(struct_dataProvider.name == dataProviderPtr.name(), "Name changed after conversion!");
+  QVERIFY2(struct_dataProvider.kind == dataProviderPtr.kind(), "Kind changed after conversion!");
+  QVERIFY2(struct_dataProvider.description == dataProviderPtr.description(), "Description changed after conversion!");
+  QVERIFY2(struct_dataProvider.status == dataProviderPtr.status(), "Status changed after conversion!");
+  QVERIFY2(struct_dataProvider.uri == dataProviderPtr.uri(), "URI changed after conversion!");
 
 }
 
 
 void TestCore::TestConvertDataSetPtrToDataSetStruct()
 {
-  terrama2::core::DataSetPtr dataSetPtr = buildDataSetPtr();
+  terrama2::core::DataSet dataSetPtr = buildDataSetPtr();
 
   DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSetPtr);
 
-  QVERIFY2(dataSetPtr->id() == struct_dataSet.id, "ID changed after conversion!");
-  QVERIFY2(dataSetPtr->dataProvider()->id() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
-  QVERIFY2(dataSetPtr->name() == struct_dataSet.name, "Name changed after conversion!");
-  QVERIFY2(dataSetPtr->kind() == struct_dataSet.kind, "Kind changed after conversion!");
-  QVERIFY2(dataSetPtr->status() == struct_dataSet.status, "Status changed after conversion!");
-  QVERIFY2(dataSetPtr->description() == struct_dataSet.description, "Description changed after conversion!");
-  QVERIFY2(dataSetPtr->dataFrequency().toString() == struct_dataSet.data_frequency, "Data Frequency changed after conversion!");
-  QVERIFY2(dataSetPtr->schedule().toString() == struct_dataSet.schedule, "Schedule changed after conversion!");
-  QVERIFY2(dataSetPtr->scheduleRetry().toString() == struct_dataSet.schedule_retry, "Schedule retry changed after conversion!");
-  QVERIFY2(dataSetPtr->scheduleTimeout().toString() == struct_dataSet.schedule_timeout, "Schedule Timeout changed after conversion!");
+  QVERIFY2(dataSetPtr.id() == struct_dataSet.id, "ID changed after conversion!");
+  QVERIFY2(dataSetPtr.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
+  QVERIFY2(dataSetPtr.name() == struct_dataSet.name, "Name changed after conversion!");
+  QVERIFY2(dataSetPtr.kind() == struct_dataSet.kind, "Kind changed after conversion!");
+  QVERIFY2(dataSetPtr.status() == struct_dataSet.status, "Status changed after conversion!");
+  QVERIFY2(dataSetPtr.description() == struct_dataSet.description, "Description changed after conversion!");
+  QVERIFY2(dataSetPtr.dataFrequency().toString() == struct_dataSet.data_frequency, "Data Frequency changed after conversion!");
+  QVERIFY2(dataSetPtr.schedule().toString() == struct_dataSet.schedule, "Schedule changed after conversion!");
+  QVERIFY2(dataSetPtr.scheduleRetry().toString() == struct_dataSet.schedule_retry, "Schedule retry changed after conversion!");
+  QVERIFY2(dataSetPtr.scheduleTimeout().toString() == struct_dataSet.schedule_timeout, "Schedule Timeout changed after conversion!");
 
 }
 
 
 void TestCore::TestConvertDataSetStructToDataSetPtr()
 {
-  terrama2::core::DataProviderPtr dataProviderPtr = buildDataProviderPtr();
+  terrama2::core::DataProvider dataProviderPtr = buildDataProviderPtr();
 
   terrama2::core::DataManager::getInstance().add(dataProviderPtr);
 
@@ -176,18 +178,18 @@ void TestCore::TestConvertDataSetStructToDataSetPtr()
   struct_dataSet.schedule = "00:02:00";
   struct_dataSet.schedule_retry = "00:03:00";
   struct_dataSet.schedule_timeout = "00:04:00";
-  struct_dataSet.data_provider_id = dataProviderPtr->id();
+  struct_dataSet.data_provider_id = dataProviderPtr.id();
 
-  terrama2::core::DataSetPtr dataSetPtr = terrama2::ws::collector::core::Struct2DataSet< DataSet >(struct_dataSet);
+  terrama2::core::DataSet dataSetPtr = terrama2::ws::collector::core::Struct2DataSet< DataSet >(struct_dataSet);
 
-  QVERIFY2(dataSetPtr->id() == struct_dataSet.id, "ID changed after conversion!");
-  QVERIFY2(dataSetPtr->dataProvider()->id() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
-  QVERIFY2(dataSetPtr->name() == struct_dataSet.name, "Name changed after conversion!");
-  QVERIFY2(dataSetPtr->kind() == struct_dataSet.kind, "Kind changed after conversion!");
-  QVERIFY2(dataSetPtr->status() == struct_dataSet.status, "Status changed after conversion!");
-  QVERIFY2(dataSetPtr->description() == struct_dataSet.description, "Description changed after conversion!");
-  QVERIFY2(dataSetPtr->dataFrequency().toString() == struct_dataSet.data_frequency, "Data Frequency changed after conversion!");
-  QVERIFY2(dataSetPtr->schedule().toString() == struct_dataSet.schedule, "Schedule changed after conversion!");
-  QVERIFY2(dataSetPtr->scheduleRetry().toString() == struct_dataSet.schedule_retry, "Schedule retry changed after conversion!");
-  QVERIFY2(dataSetPtr->scheduleTimeout().toString() == struct_dataSet.schedule_timeout, "Schedule Timeout changed after conversion!");
+  QVERIFY2(dataSetPtr.id() == struct_dataSet.id, "ID changed after conversion!");
+  QVERIFY2(dataSetPtr.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
+  QVERIFY2(dataSetPtr.name() == struct_dataSet.name, "Name changed after conversion!");
+  QVERIFY2(dataSetPtr.kind() == struct_dataSet.kind, "Kind changed after conversion!");
+  QVERIFY2(dataSetPtr.status() == struct_dataSet.status, "Status changed after conversion!");
+  QVERIFY2(dataSetPtr.description() == struct_dataSet.description, "Description changed after conversion!");
+  QVERIFY2(dataSetPtr.dataFrequency().toString() == struct_dataSet.data_frequency, "Data Frequency changed after conversion!");
+  QVERIFY2(dataSetPtr.schedule().toString() == struct_dataSet.schedule, "Schedule changed after conversion!");
+  QVERIFY2(dataSetPtr.scheduleRetry().toString() == struct_dataSet.schedule_retry, "Schedule retry changed after conversion!");
+  QVERIFY2(dataSetPtr.scheduleTimeout().toString() == struct_dataSet.schedule_timeout, "Schedule Timeout changed after conversion!");
 }
