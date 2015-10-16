@@ -105,7 +105,7 @@ void TestCore::TestConvertDataProviderPtrToDataProviderStruct()
 {
   terrama2::core::DataProviderPtr dataProviderPtr = buildDataProviderPtr();
 
-  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct< DataProvider >(dataProviderPtr);
+  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProviderPtr);
 
   QVERIFY2(struct_dataProvider.id == dataProviderPtr->id(), "Id changed after conversion!");
   QVERIFY2(struct_dataProvider.name == dataProviderPtr->name(), "Name changed after conversion!");
@@ -127,7 +127,7 @@ void TestCore::TestWrongConvertDataProviderStructToDataProviderPtr()
   struct_dataProvider.status = 1;
   struct_dataProvider.uri = "C:/Dataprovider/path";
 
-  terrama2::core::DataProviderPtr dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr< DataProvider >(struct_dataProvider);
+  terrama2::core::DataProviderPtr dataProviderPtr = terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataProvider);
 
   QVERIFY2(struct_dataProvider.id == dataProviderPtr->id(), "Id changed after conversion!");
   QVERIFY2(struct_dataProvider.name == dataProviderPtr->name(), "Name changed after conversion!");
@@ -143,7 +143,7 @@ void TestCore::TestConvertDataSetPtrToDataSetStruct()
 {
   terrama2::core::DataSetPtr dataSetPtr = buildDataSetPtr();
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct< DataSet >(dataSetPtr);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSetPtr);
 
   QVERIFY2(dataSetPtr->id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSetPtr->dataProvider()->id() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
@@ -178,7 +178,7 @@ void TestCore::TestConvertDataSetStructToDataSetPtr()
   struct_dataSet.schedule_timeout = "00:04:00";
   struct_dataSet.data_provider_id = dataProviderPtr->id();
 
-  terrama2::core::DataSetPtr dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr< DataSet >(struct_dataSet);
+  terrama2::core::DataSetPtr dataSetPtr = terrama2::ws::collector::core::Struct2DataSet< DataSet >(struct_dataSet);
 
   QVERIFY2(dataSetPtr->id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSetPtr->dataProvider()->id() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");

@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/server/TestClient.cpp
+  \file terrama2/integration_test/ws/TestClient.cpp
 
-  \brief Tests for the WebProxy class.
+  \brief Tests for the Web Server.
 
   \author Vinicius Campanha
 */

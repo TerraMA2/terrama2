@@ -64,7 +64,7 @@ namespace terrama2
 
         \return terrama2::core::DataProvider that contains the data in gSOAP struct DataProvider passed.
       */
-        template<typename T1> terrama2::core::DataProvider Struct2DataProviderPtr(T1 struct_dataprovider);
+        template<typename T1> terrama2::core::DataProvider Struct2DataProvider(T1 struct_dataprovider);
 
       /*!
         \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
@@ -73,7 +73,7 @@ namespace terrama2
 
         \return a gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
       */
-        template<typename T1> T1 DataProviderPtr2Struct(terrama2::core::DataProvider dataProvider);
+        template<typename T1> T1 DataProvider2Struct(terrama2::core::DataProvider dataProvider);
 
       /*!
         \brief Method to convert a gSOAP struct DataSet to a terrama2::core::DataSet.
@@ -82,7 +82,7 @@ namespace terrama2
 
         \return terrama2::core::DataSet that contains the data in gSOAP struct DataSet passed.
       */
-        template <typename T1> terrama2::core::DataSet Struct2DataSetPtr(T1 struct_dataset);
+        template <typename T1> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
 
 
       /*!
@@ -92,7 +92,7 @@ namespace terrama2
 
         \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
       */
-        template<typename T1> T1 DataSetPtr2Struct(terrama2::core::DataSet dataSet);
+        template<typename T1> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
 
       }
     }
@@ -101,7 +101,7 @@ namespace terrama2
 
 
 template <typename T1>
-terrama2::core::DataProvider terrama2::ws::collector::core::Struct2DataProviderPtr(T1 struct_dataprovider)
+terrama2::core::DataProvider terrama2::ws::collector::core::Struct2DataProvider(T1 struct_dataprovider)
 {
   terrama2::core::DataProvider dataProvider(struct_dataprovider.id, terrama2::core::ToDataProviderKind(struct_dataprovider.kind));
   dataProvider.setName(struct_dataprovider.name);
@@ -114,7 +114,7 @@ terrama2::core::DataProvider terrama2::ws::collector::core::Struct2DataProviderP
 
 
 template<typename T1>
-T1 terrama2::ws::collector::core::DataProviderPtr2Struct(terrama2::core::DataProvider dataProvider)
+T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvider dataProvider)
 {
   T1 struct_dataprovider = T1{
       dataProvider.id(),
@@ -130,7 +130,7 @@ T1 terrama2::ws::collector::core::DataProviderPtr2Struct(terrama2::core::DataPro
 
 
 template <typename T1>
-terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSetPtr(T1 struct_dataSet)
+terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_dataSet)
 {
   auto dataProvider= terrama2::core::DataManager::getInstance().findDataProvider(struct_dataSet.data_provider_id);
 
@@ -154,7 +154,7 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSetPtr(T1 stru
 
 
 template<typename T1>
-T1 terrama2::ws::collector::core::DataSetPtr2Struct(terrama2::core::DataSet dataSet)
+T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet)
 {
   T1 struct_dataSet;
 
