@@ -55,7 +55,7 @@ set(GSOAP_NSM_FILES ${CMAKE_CURRENT_BINARY_DIR}/gsoap/Web.nsmap)
 
 set(GSOAP_TEST_FILE ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapTester.cpp)
 
-add_custom_command(OUTPUT ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES}
+add_custom_command(OUTPUT ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES} ${GSOAP_TEST_FILE}
                    COMMAND ${COMMAND_LINE}
                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gsoap
                    COMMENT "Generating gSoap Web Service Files for Tests." VERBATIM USES_TERMINAL)
