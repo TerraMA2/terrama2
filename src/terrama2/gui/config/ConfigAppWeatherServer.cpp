@@ -41,15 +41,17 @@ void ConfigAppWeatherServer::save()
   terrama2::core::DataManager::getInstance().unload();
   terrama2::core::DataManager::getInstance().load();
   // If there data provider in database
-  terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
+  terrama2::core::DataProvider dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
       selectedData_.toStdString());
-  if (dataProvider != nullptr)
+
+  dataProvider.setName(ui_->serverName->text().toStdString());
+  dataProvider.setDescription(ui_->serverDescription->toPlainText().toStdString());
+  dataProvider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()));
+  dataProvider.setUri(ui_->connectionAddress->text().toStdString());
+  dataProvider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
+
+  if (dataProvider.id() >= 1)
   {
-    dataProvider->setName(ui_->serverName->text().toStdString());
-    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
-    dataProvider->setKind(terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex()));
-    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
-    dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
     terrama2::core::DataManager::getInstance().update(dataProvider);
 
@@ -69,11 +71,11 @@ void ConfigAppWeatherServer::save()
   }
   else
   {
-    dataProvider.reset(new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
-                                                        terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())));
-    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
-    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
-    dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
+//    dataProvider.reset(new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
+//                                                        terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())));
+//    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
+//    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
+//    dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
     terrama2::core::DataManager::getInstance().add(dataProvider);
 
@@ -114,9 +116,9 @@ bool ConfigAppWeatherServer::validate()
     return false;
   }
 
-  terrama2::core::DataProviderPtr dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
+  terrama2::core::DataProvider dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
 
-  if (dataProviderPtr != nullptr && !selectedData_.isEmpty())
+  if (dataProviderPtr.id() >= 1 && !selectedData_.isEmpty())
   {
     if (selectedData_ != ui_->serverName->text())
     {
@@ -166,7 +168,7 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
 
 void ConfigAppWeatherServer::validateConnection()
 {
-  switch (terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex()))
+  switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()))
   {
     case terrama2::core::DataProvider::FTP_TYPE:
       terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),

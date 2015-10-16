@@ -91,7 +91,7 @@ void ConfigAppWeatherTab::load()
     {
       QTreeWidgetItem* subItem = new QTreeWidgetItem;
       subItem->setText(0, QString(dataSet->getAsString("name").c_str()));
-      switch (terrama2::core::IntToDataSetKind(dataSet->getInt32(5)))
+      switch (terrama2::core::ToDataSetKind(dataSet->getInt32(5)))
       {
         case terrama2::core::DataSet::GRID_TYPE:
           subItem->setIcon(0, QIcon::fromTheme("grid"));

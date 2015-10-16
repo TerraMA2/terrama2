@@ -86,6 +86,7 @@ ProjectionDialog::ProjectionDialog(QWidget* parent, Qt::WindowFlags f)
 
   connect(pimpl_->ui_->cboBoxProjection, SIGNAL(currentIndexChanged(int)), SLOT(onProjectionChanged(int)));
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(onCancelClicked()));
+  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), SLOT(accept()));
 
   connect(pimpl_->ui_->cboBoxZone, SIGNAL(activated(int)), SLOT(onComboboxZoneActivated(int)));
 
@@ -116,6 +117,9 @@ ProjectionDialog::ProjectionDialog(QWidget* parent, Qt::WindowFlags f)
   QDoubleValidator* lineEdtEscalaValidator = new QDoubleValidator(pimpl_->ui_->lineEdtEscala);
   lineEdtEscalaValidator->setDecimals(3);
   pimpl_->ui_->lineEdtEscala->setValidator(lineEdtEscalaValidator);
+
+  pimpl_->ui_->cboBoxProjection->setCurrentIndex(0);
+
 }
 
 ProjectionDialog::~ProjectionDialog()

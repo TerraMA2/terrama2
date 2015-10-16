@@ -51,24 +51,23 @@ void ConfigAppWeatherGridTab::save()
   terrama2::core::DataManager::getInstance().unload();
   terrama2::core::DataManager::getInstance().load();
 
-  terrama2::core::DataProviderPtr dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
+  terrama2::core::DataProvider dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
       ui_->weatherDataTree->currentItem()->text(0).toStdString());
   terrama2::core::DataSet::Kind kind = terrama2::core::DataSet::GRID_TYPE;
   std::string name = ui_->gridFormatDataName->text().toStdString();
 
-  terrama2::core::DataSetPtr dataset = terrama2::core::DataManager::getInstance().findDataSet(name);
+  terrama2::core::DataSet dataset = terrama2::core::DataManager::getInstance().findDataSet(name);
 
-  if (dataset != nullptr)
-  {
-    dataset->setName(name);
-    dataset->setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
-    dataset->setStatus(terrama2::core::BoolToDataSetStatus(ui_->gridFormatStatus->isChecked()));
-  }
+  dataset.setName(name);
+  dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
+  dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
+  if (dataset.id() >= 1)
+    terrama2::core::DataManager::getInstance().update(dataset);
   else
   {
-    dataset.reset(new terrama2::core::DataSet(dataProvider, name, kind));
-    dataset->setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
-    dataset->setStatus(terrama2::core::BoolToDataSetStatus(ui_->gridFormatStatus->isChecked()));
+//    dataset.reset(new terrama2::core::DataSet(dataProvider, name, kind));
+//    dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
+//    dataset.setStatus(terrama2::core::BoolToDataSetStatus(ui_->gridFormatStatus->isChecked()));
 
     terrama2::core::DataManager::getInstance().add(dataset);
 
@@ -95,10 +94,10 @@ bool ConfigAppWeatherGridTab::validate()
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The Data Set Item name cannot be empty."));
   }
 
-  terrama2::core::DataSetPtr dataset = terrama2::core::DataManager::getInstance().findDataSet(
+  terrama2::core::DataSet dataset = terrama2::core::DataManager::getInstance().findDataSet(
       ui_->gridFormatDataName->text().toStdString());
 
-  if (dataset != nullptr && !selectedData_.isEmpty())
+  if (dataset.id() >= 1 && !selectedData_.isEmpty())
   {
     if (ui_->gridFormatDataName->text() != selectedData_)
     {
