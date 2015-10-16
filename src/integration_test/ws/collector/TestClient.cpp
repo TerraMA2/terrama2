@@ -152,11 +152,11 @@ void TestClient::TestAddDataProvider()
 {
   try
   {
-    terrama2::core::DataProvider dataProviderPtr = buildDataProvider();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
 
-    wsClient_->addDataProvider(dataProviderPtr);
+    wsClient_->addDataProvider(dataProvider);
 
-    QVERIFY2(dataProviderPtr.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+    QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
   }
   catch(terrama2::Exception &e)
@@ -174,9 +174,9 @@ void TestClient::TestAddNullDataProvider()
 {
   try
   {
-    terrama2::core::DataProvider dataProviderPtr;
+    terrama2::core::DataProvider dataProvider;
 
-    wsClient_->addDataProvider(dataProviderPtr);
+    wsClient_->addDataProvider(dataProvider);
   }
   catch(terrama2::Exception &e)
   {
@@ -194,14 +194,14 @@ void TestClient::testRemoveDataProvider()
 {
   try
   {
-    terrama2::core::DataProvider dataProviderPtr = buildDataProvider();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
 
-    wsClient_->addDataProvider(dataProviderPtr);
+    wsClient_->addDataProvider(dataProvider);
 
-    QVERIFY2(dataProviderPtr.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+    QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
     // VINICIUS: code to remove a data provider in core is in SEGMENTATION FAULT
-    //wsClient_->removeDataProvider(dataProviderPtr.id());
+    //wsClient_->removeDataProvider(dataProvider.id());
   }
   catch(terrama2::Exception &e)
   {
@@ -236,28 +236,28 @@ void TestClient::testUpdateDataProvider()
 {
   try
   {
-    terrama2::core::DataProvider dataProviderPtr = buildDataProvider();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
 
-    wsClient_->addDataProvider(dataProviderPtr);
+    wsClient_->addDataProvider(dataProvider);
 
-    QVERIFY2(dataProviderPtr.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+    QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
-    uint64_t id = dataProviderPtr.id();
+    uint64_t id = dataProvider.id();
 
-    dataProviderPtr.setDescription("Description updated");
-    dataProviderPtr.setKind((terrama2::core::DataProvider::Kind)2);
-    dataProviderPtr.setName("Name updated");
-    dataProviderPtr.setStatus((terrama2::core::DataProvider::Status)2);
-    dataProviderPtr.setUri("C:/URI_updated");
+    dataProvider.setDescription("Description updated");
+    dataProvider.setKind((terrama2::core::DataProvider::Kind)2);
+    dataProvider.setName("Name updated");
+    dataProvider.setStatus((terrama2::core::DataProvider::Status)2);
+    dataProvider.setUri("C:/URI_updated");
 
-    wsClient_->updateDataProvider(dataProviderPtr);
+    wsClient_->updateDataProvider(dataProvider);
 
-    QVERIFY2(dataProviderPtr.id() == id, "Update failed!");
-    QVERIFY2(dataProviderPtr.description() == "Description updated", "Update failed!");
-    QVERIFY2(dataProviderPtr.kind() == 2, "Update failed!");
-    QVERIFY2(dataProviderPtr.name() == "Name updated", "Update failed!");
-    QVERIFY2(dataProviderPtr.status() == 2, "Update failed!");
-    QVERIFY2(dataProviderPtr.uri() == "C:/URI_updated", "Update failed!");
+    QVERIFY2(dataProvider.id() == id, "Update failed!");
+    QVERIFY2(dataProvider.description() == "Description updated", "Update failed!");
+    QVERIFY2(dataProvider.kind() == 2, "Update failed!");
+    QVERIFY2(dataProvider.name() == "Name updated", "Update failed!");
+    QVERIFY2(dataProvider.status() == 2, "Update failed!");
+    QVERIFY2(dataProvider.uri() == "C:/URI_updated", "Update failed!");
 
   }
   catch(terrama2::Exception &e)
@@ -275,24 +275,24 @@ void TestClient::testFindDataProvider()
 {
   try
   {
-    terrama2::core::DataProvider dataProviderPtr = buildDataProvider();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
 
-    wsClient_->addDataProvider(dataProviderPtr);
+    wsClient_->addDataProvider(dataProvider);
 
-    QVERIFY2(dataProviderPtr.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+    QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
 
 
-    dataProviderPtr.id();
+    dataProvider.id();
 
-    terrama2::core::DataProvider dataProviderPtr_found = wsClient_->findDataProvider(dataProviderPtr.id());
+    terrama2::core::DataProvider dataProvider_found = wsClient_->findDataProvider(dataProvider.id());
 
-    QVERIFY2(dataProviderPtr.id() == dataProviderPtr_found.id(), "Find failed!");
-    QVERIFY2(dataProviderPtr.description() == dataProviderPtr_found.description(), "Find failed!");
-    QVERIFY2(dataProviderPtr.kind() == dataProviderPtr_found.kind(), "Find failed!");
-    QVERIFY2(dataProviderPtr.name() == dataProviderPtr_found.name(), "Find failed!");
-    QVERIFY2(dataProviderPtr.status() == dataProviderPtr_found.status(), "Find failed!");
-    QVERIFY2(dataProviderPtr.uri() == dataProviderPtr_found.uri(), "Find failed!");
+    QVERIFY2(dataProvider.id() == dataProvider_found.id(), "Find failed!");
+    QVERIFY2(dataProvider.description() == dataProvider_found.description(), "Find failed!");
+    QVERIFY2(dataProvider.kind() == dataProvider_found.kind(), "Find failed!");
+    QVERIFY2(dataProvider.name() == dataProvider_found.name(), "Find failed!");
+    QVERIFY2(dataProvider.status() == dataProvider_found.status(), "Find failed!");
+    QVERIFY2(dataProvider.uri() == dataProvider_found.uri(), "Find failed!");
 
   }
   catch(terrama2::Exception &e)
@@ -312,9 +312,9 @@ void TestClient::testFindDataProviderInvalidID()
   // VINICIUS: check terrama2 core handling to find invalids IDs
   try
   {
-    terrama2::core::DataProvider dataProviderPtr_found;
+    terrama2::core::DataProvider dataProvider_found;
 
-    wsClient_->findDataProvider(1, dataProviderPtr_found);
+    wsClient_->findDataProvider(1, dataProvider_found);
 
     QFAIL("Should not find a invalid Data Provider!");
   }
@@ -335,11 +335,11 @@ void TestClient::TestAddDataSet()
 {
   try
   {
-    terrama2::core::DataSet dataSetPtr = buildDataSet();
+    terrama2::core::DataSet dataSet = buildDataSet();
 
-    wsClient_->addDataSet(dataSetPtr);
+    wsClient_->addDataSet(dataSet);
 
-    QVERIFY2(dataSetPtr.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+    QVERIFY2(dataSet.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
   }
   catch(terrama2::Exception &e)
