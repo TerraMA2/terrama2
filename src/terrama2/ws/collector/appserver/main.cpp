@@ -30,29 +30,86 @@
 // STL
 #include <iostream>
 
+// Terralib
+#include "terralib/common/PlatformUtils.h"
+#include "terralib/common.h"
+#include "terralib/plugin.h"
+
 // TerraMA2
 #include "soapWebService.h"
+#include "../../../core/Utils.hpp"
+#include "../../../core/ApplicationController.hpp"
 
 
 int main(int argc, char* argv[])
 {
+
+  // check if the parameters was passed correctly
+    if(argc < 3)
+    {
+      std::cerr << "Inform a port and a project file in order to run the collector application server." << std::endl;
+      std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
+
+      return EXIT_FAILURE;
+    }
+
+  std::cerr << "Starting Webservice..." << std::endl;
+
+  std::cerr << "Initializating TerraLib..." << std::endl;
+
+  // Initialize the Terralib support
+  TerraLib::getInstance().initialize();
+
+  te::plugin::PluginInfo* info;
+  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  te::plugin::PluginManager::getInstance().loadAll();
+
+  std::cerr << "Loading TerraMA2 Project..." << std::endl;
+
+  if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[2]))
+  {
+    std::cerr << "TerraMA2 Project File is invalid or don't exist!" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+
+  if(!dataSource.get())
+    return EXIT_FAILURE;
+
   WebService server;
 
-// check if a port number was passed as parameter
-  if(argv[1] == 0)
+  if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, std::stoi(argv[1]), 100)))
   {
-    std::cerr << "Inform a port in order to run the collector application server.";
+    std::cerr << "Webservice Started, running on port " << argv[1] << std::endl;
 
-    return EXIT_FAILURE;
+    for (;;)
+    {
+      if (!soap_valid_socket(server.accept()))
+        break;
+
+      server.serve();
+      server.destroy();
+    }
   }
 
-// run iterative server on port until fatal error
-  if( server.run( std::stoi(argv[1]) ) )
-  {
-    server.soap_stream_fault(std::cerr);
+  server.soap_stream_fault(std::cerr);
 
-    return EXIT_FAILURE;
-  }
+  std::cerr << "Closing Webservice..." << std::endl;
+  TerraLib::getInstance().finalize();
+
+  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+
+  std::cerr << "Webservice finished!" << std::endl;
 
   return EXIT_SUCCESS;
 }

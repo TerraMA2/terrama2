@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSet.hpp
 
-  \brief Metadata about a given dataset.
+  \brief Models the information of given dataset from a data provider that should be collected by TerraMA2.
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -33,8 +33,10 @@
 #ifndef __TERRAMA2_CORE_DATASET_HPP__
 #define __TERRAMA2_CORE_DATASET_HPP__
 
+// TerraMA2
+#include "DataSetItem.hpp"
+
 // STL
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -46,20 +48,18 @@ namespace terrama2
   namespace core
   {
 
-    class DataProvider;
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
-
-    class DataSetItem;
-    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
-
     /*!
       \class DataSet
 
-      \brief Contains metadata about a dataset.
+      \brief Models the information of given dataset dataset from a data provider that should be collected by TerraMA2.
 
-      A dataset can be a PCD, occurence or a grid.
+      A dataset cmodels information about:
+      - PCDs: fixed location sensors that emmits their measures in the format known as PCD-INPE.
+      - Occurrences (or events): something that happens at a given place and time.
+      - Coverages: from OGC WCS servers.
+      - FeatureTypes: from OGC WFS server.
 
-      It has the time frequency that this dataset should be collected.
+      A dataset has an associated time interval (or frequency) for being collected.
      */
     class DataSet
     {
@@ -81,230 +81,179 @@ namespace terrama2
           INACTIVE
         };
 
-        /*!
-           \brief Struct to store the collect rules.
-         */
+        //! Struct to store the collect rules.
         struct CollectRule
         {
           uint64_t id;
           std::string script;
+          uint64_t datasetId;
         };
 
         /*!
           \brief Constructor
 
-          \param provider The data provider used obtain this dataset.
-          \param name The name of the dataset.
-          \param kind The kind of the dataset.
+          \param kind       The kind of dataset.
+          \param id         The dataset identifier.
+          \param providerId The data provider associated to this dataset.
         */
-        DataSet(DataProviderPtr provider, const std::string& name, Kind kind, const uint64_t id = 0);
+        DataSet(Kind kind = UNKNOWN_TYPE, uint64_t id = 0, uint64_t providerId = 0);
 
-        /*!
-          \brief Destructor
-        */
+        /*! \brief Destructor. */
         ~DataSet();
 
       public:
 
-        /*!
-          \brief It returns the identifier of the dataset.
-
-          \return The identifier of the dataset.
-        */
+        /*! \brief Returns the identifier of the dataset. */
         uint64_t id() const;
 
-        /*!
-          \brief It returns the name of the dataset.
+        /*! \brief Sets the identifier of the dataset. */
+        void setId(uint64_t id);
 
-          \return The name of the dataset.
-        */
-        std::string name() const;
+        /*! \brief Returns the name of the dataset. */
+        const std::string& name() const;
 
-        /*!
-          \brief It sets the name of the dataset.
-
-          \param The name of the dataset.
-        */
+        /*! \brief Sets the name of the dataset. */
         void setName(const std::string& name);
 
-        /*!
-          \brief It returns the the description of the dataset.
+        /*! \brief Returns the description of the dataset. */
+        const std::string& description() const;
 
-          \return The description of the dataset.
-        */
-        std::string description() const;
+        /*! \brief Sets the description of the dataset. */
+        void setDescription(const std::string& d);
 
-        /*!
-          \brief It sets the the description of the dataset.
-
-          \param The description of the dataset.
-        */
-        void setDescription(const std::string& description);
-
-        /*!
-          \brief It returns the the kind of the dataset.
-
-          \return The kind of the dataset.
-        */
+        /*! \brief Returns the kind of the dataset. */
         Kind kind() const;
 
-        /*!
-          \brief It sets the the kind of the dataset.
+        /*! \brief Sets the the kind of the dataset. */
+        void setKind(const Kind k);
 
-          \param The kind of the data provider.
-        */
-        void setKind(const Kind& kind);
-
-        /*!
-          \brief It returns the the status of the dataset.
-
-          \return The status of the dataset.
-        */
+        /*! \brief Returns the the status of the dataset. */
         Status status() const;
 
-        /*!
-          \brief It sets the the status of the dataset.
+        /*! \brief Sets the the status of the dataset. */
+        void setStatus(const Status s);
 
-          \param The status of the dataset.
-        */
-        void setStatus(const Status& status);
+        /*! \brief Returns the asscociated data provider. */
+        uint64_t provider() const;
 
-        /*!
-          \brief It returns the the data provider.
-
-          \return The data provider.
-        */
-        DataProviderPtr dataProvider() const;
+        /*! \brief Sets the asscociated data provider. */
+        void setProvider(uint64_t id);
 
         /*!
           \brief It returns the time frequency that this dataset must try to acquire a new data.
 
           \return The the time frequency that this dataset must try to acquire a new data.
         */
-        te::dt::TimeDuration dataFrequency() const;
+        const te::dt::TimeDuration& dataFrequency() const;
 
         /*!
           \brief It sets the time frequency that this dataset must try to acquire a new data.
 
-          \param The time frequency that this dataset must try to acquire a new data.
+          \param t The time frequency that this dataset must try to acquire a new data.
         */
-        void setDataFrequency(const te::dt::TimeDuration& dataFrequency);
+        void setDataFrequency(const te::dt::TimeDuration& t);
 
         /*!
           \brief It returns the time scheduled to the next collection.
 
           \return The time scheduled to the next collection.
         */
-        te::dt::TimeDuration schedule() const;
+        const te::dt::TimeDuration& schedule() const;
 
         /*!
           \brief It sets the time scheduled to the next collection.
 
-          \param The time scheduled to the next collection.
+          \param t The time scheduled to the next collection.
         */
-        void setSchedule(const te::dt::TimeDuration& schedule);
+        void setSchedule(const te::dt::TimeDuration& t);
 
         /*!
           \brief It returns the time frequency to retry a collection if the data wasn't available in the scheduled time.
 
           \return The time frequency to retry a collection if the data wasn't available in the scheduled time.
         */
-        te::dt::TimeDuration scheduleRetry() const;
+        const te::dt::TimeDuration& scheduleRetry() const;
 
         /*!
           \brief It sets the time frequency to retry a collection if the data wasn't available in the scheduled time.
 
-          \param The time frequency to retry a collection if the data wasn't available in the scheduled time.
+          \param t The time frequency to retry a collection if the data wasn't available in the scheduled time.
         */
-        void setScheduleRetry(const te::dt::TimeDuration& scheduleRetry);
+        void setScheduleRetry(const te::dt::TimeDuration& t);
 
         /*!
           \brief It returns the time limit to retry a scheduled collection.
 
           \return The time limit to retry a scheduled collection.
         */
-        te::dt::TimeDuration scheduleTimeout() const;
+        const te::dt::TimeDuration& scheduleTimeout() const;
 
         /*!
           \brief Sets the time limit to retry a scheduled collection.
 
-          \param The time limit to retry a scheduled collection.
+          \param t The time limit to retry a scheduled collection.
         */
-        void setScheduleTimeout(const te::dt::TimeDuration& scheduleTimeout);
+        void setScheduleTimeout(const te::dt::TimeDuration& t);
 
         /*!
           \brief Returns the map with the dataset metadata.
 
           \return The map with the dataset metadata.
          */
-        std::map<std::string, std::string> metadata() const;
+        const std::map<std::string, std::string>& metadata() const;
 
         /*!
            \brief Sets the dataset metadata.
 
-           \param The dataset metadata.
+           \param m The dataset metadata.
          */
-        void setMetadata(const std::map<std::string, std::string>& metadata);
+        void setMetadata(const std::map<std::string, std::string>& m);
 
         /*!
            \brief Returns the collect rules.
 
            \return The collect rules.
          */
-        std::vector<CollectRule> collectRules() const;
+        std::vector<CollectRule>& collectRules();
 
         /*!
            \brief Sets the collect rules.
 
-           \param The collect rules.
+           \param rules The collect rules.
          */
-        void setCollectRules(const std::vector<CollectRule>& collectRules);
+        void setCollectRules(const std::vector<CollectRule>& rules);
 
         /*!
-           \brief Returns the list of of dataset item.
+           \brief Returns the list of of dataset items.
 
-           \return The list of dataset item.
+           \return The list of dataset items.
          */
-        std::vector<DataSetItemPtr> dataSetItemList() const;
+        std::vector<DataSetItem>& dataSetItems();
 
-        /*!
-           \brief Sets the list of dataset item.
+        /*! \brief Adds a new dataset item to the dataset. */
+        void add(const DataSetItem& d);
 
-           \param The list of dataset item.
-         */
-        void setDataSetItemList(const std::vector<DataSetItemPtr>& dataSetItemList);
-
-
-      protected:
-
-        /*!
-          \brief It sets the identifier of the dataset.
-
-          \param The identifier of the dataset.
-        */
-        void setId(uint64_t id);
+        /*! \brief Removes the give dataset item from the dataset. */
+        void removeDataSetItem(uint64_t id);
 
 
       private:
 
+
+        Kind kind_;
         uint64_t id_;
+        uint64_t provider_;
         std::string name_;
         std::string description_;
         Status status_;
-        DataProviderPtr dataProvider_;
-        Kind kind_;
         te::dt::TimeDuration dataFrequency_;
         te::dt::TimeDuration schedule_;
         te::dt::TimeDuration scheduleRetry_;
         te::dt::TimeDuration scheduleTimeout_;
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
-        std::vector<DataSetItemPtr> dataSetItemList_;
-
-        friend class DataSetDAO;
+        std::vector<DataSetItem> datasetItems_;
     };
-
-    typedef std::shared_ptr<DataSet> DataSetPtr;
 
   } // end namespace core
 }   // end namespace terrama2

@@ -20,39 +20,33 @@
 */
 
 /*!
-  \file terrama2/collector/TestParserOGR.hpp
+  \file terrama2/collector/StoragerFactory.cpp
 
-  \brief Tests for the ParserOGR class.
+  \brief Instantiate storagers for DataProcessors.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#include "StoragerFactory.hpp"
+#include "StoragerPostgis.hpp"
 
-//Qt
-#include <QtTest>
+#include "../core/DataSetItem.hpp"
 
-class TestParserOGR: public QObject
+terrama2::collector::StoragerPtr terrama2::collector::StoragerFactory::getStorager(terrama2::core::DataSetItem datasetItem)
 {
-  Q_OBJECT
+  std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
 
-private slots:
+  //Exceptions
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+  std::string storagerKind = storageMetadata.at("KIND");
+  if(storagerKind.empty())
+    return StoragerPtr();
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    //******Test functions********
-
-    void TestNullDataSource();
-    void TestDataSourceNotOpen();
-    void TestEmptyFile();
+  if(storagerKind == "POSTGIS")
+  {
+    return StoragerPtr(new StoragerPostgis(storageMetadata));
+  }
 
 
-    //******End of Test functions****
-};
-
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+  return StoragerPtr();
+}

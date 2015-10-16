@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSet.cpp
 
-  \brief Metadata about a given dataset.
+  \brief Models the information of given dataset dataset from a data provider that should be collected by TerraMA2.
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -33,26 +33,21 @@
 
 // TerraMA2
 #include "DataSet.hpp"
-#include "DataSetItem.hpp"
-#include "DataProvider.hpp"
 
-terrama2::core::DataSet::DataSet(DataProviderPtr dataProvider, const std::string& name, Kind kind, const uint64_t id)
-  : id_(id),
-    name_(name),
+terrama2::core::DataSet::DataSet(Kind kind, uint64_t id, uint64_t providerId)
+  : kind_(kind),
+    id_(id),
+    provider_(providerId),
     status_(INACTIVE),
-    dataProvider_(dataProvider),
-    kind_(kind),
     dataFrequency_(0, 0, 0),
     schedule_(0, 0, 0),
     scheduleRetry_(0, 0, 0),
     scheduleTimeout_(0, 0, 0)
 {
-
 }
 
 terrama2::core::DataSet::~DataSet()
 {
-
 }
 
 uint64_t terrama2::core::DataSet::id() const
@@ -63,26 +58,34 @@ uint64_t terrama2::core::DataSet::id() const
 void terrama2::core::DataSet::setId(uint64_t id)
 {
   id_ = id;
+  
+  for(auto& item : datasetItems_)
+    item.setDataSet(id);
+
+  for(auto& collectRule : collectRules_)
+    collectRule.datasetId = id;
 }
 
-std::string terrama2::core::DataSet::name() const
+const std::string&
+terrama2::core::DataSet::name() const
 {
   return name_;
 }
 
-void terrama2::core::DataSet::setName(const std::string &name)
+void terrama2::core::DataSet::setName(const std::string& name)
 {
   name_ = name;
 }
 
-std::string terrama2::core::DataSet::description() const
+const std::string&
+terrama2::core::DataSet::description() const
 {
   return description_;
 }
 
-void terrama2::core::DataSet::setDescription(const std::string &description)
+void terrama2::core::DataSet::setDescription(const std::string& d)
 {
-  description_ = description;
+  description_ = d;
 }
 
 terrama2::core::DataSet::Kind terrama2::core::DataSet::kind() const
@@ -90,9 +93,9 @@ terrama2::core::DataSet::Kind terrama2::core::DataSet::kind() const
   return kind_;
 }
 
-void terrama2::core::DataSet::setKind(const terrama2::core::DataSet::Kind &kind)
+void terrama2::core::DataSet::setKind(const Kind k)
 {
-  kind_ = kind;
+  kind_ = k;
 }
 
 terrama2::core::DataSet::Status terrama2::core::DataSet::status() const
@@ -100,83 +103,105 @@ terrama2::core::DataSet::Status terrama2::core::DataSet::status() const
   return status_;
 }
 
-void terrama2::core::DataSet::setStatus(const terrama2::core::DataSet::Status &status)
+void terrama2::core::DataSet::setStatus(const Status s)
 {
-  status_ = status;
+  status_ = s;
 }
 
-terrama2::core::DataProviderPtr terrama2::core::DataSet::dataProvider() const
+uint64_t terrama2::core::DataSet::provider() const
 {
-  return dataProvider_;
+  return provider_;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::dataFrequency() const
+void
+terrama2::core::DataSet::setProvider(uint64_t id)
+{
+  provider_ = id;
+}
+
+const te::dt::TimeDuration&
+terrama2::core::DataSet::dataFrequency() const
 {
   return dataFrequency_;
 }
 
-void terrama2::core::DataSet::setDataFrequency(const te::dt::TimeDuration &dataFrequency)
+void terrama2::core::DataSet::setDataFrequency(const te::dt::TimeDuration& t)
 {
-  dataFrequency_ = dataFrequency;
+  dataFrequency_ = t;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::schedule() const
+const te::dt::TimeDuration&
+terrama2::core::DataSet::schedule() const
 {
   return schedule_;
 }
 
-void terrama2::core::DataSet::setSchedule(const te::dt::TimeDuration &schedule)
+void terrama2::core::DataSet::setSchedule(const te::dt::TimeDuration& t)
 {
-  schedule_ = schedule;
+  schedule_ = t;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::scheduleRetry() const
+const te::dt::TimeDuration&
+terrama2::core::DataSet::scheduleRetry() const
 {
   return scheduleRetry_;
 }
 
-void terrama2::core::DataSet::setScheduleRetry(const te::dt::TimeDuration &scheduleRetry)
+void terrama2::core::DataSet::setScheduleRetry(const te::dt::TimeDuration& t)
 {
-  scheduleRetry_ = scheduleRetry;
+  scheduleRetry_ = t;
 }
 
-te::dt::TimeDuration terrama2::core::DataSet::scheduleTimeout() const
+const te::dt::TimeDuration&
+terrama2::core::DataSet::scheduleTimeout() const
 {
   return scheduleTimeout_;
 }
 
-void terrama2::core::DataSet::setScheduleTimeout(const te::dt::TimeDuration &scheduleTimeout)
+void terrama2::core::DataSet::setScheduleTimeout(const te::dt::TimeDuration& t)
 {
-  scheduleTimeout_ = scheduleTimeout;
+  scheduleTimeout_ = t;
 }
 
-std::map<std::string, std::string> terrama2::core::DataSet::metadata() const
+const std::map<std::string, std::string>&
+terrama2::core::DataSet::metadata() const
 {
   return metadata_;
 }
 
-void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::string>& metadata)
+void terrama2::core::DataSet::setMetadata(const std::map<std::string, std::string>& m)
 {
-  metadata_ = metadata;
+  metadata_ = m;
 }
 
-std::vector<terrama2::core::DataSet::CollectRule> terrama2::core::DataSet::collectRules() const
+std::vector<terrama2::core::DataSet::CollectRule>&
+terrama2::core::DataSet::collectRules()
 {
   return collectRules_;
 }
 
-void terrama2::core::DataSet::setCollectRules(const std::vector<terrama2::core::DataSet::CollectRule>& collectRules)
+void
+terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
 {
-  collectRules_ = collectRules;
+  collectRules_ = rules;
 }
 
-std::vector<terrama2::core::DataSetItemPtr> terrama2::core::DataSet::dataSetItemList() const
+std::vector<terrama2::core::DataSetItem>&
+terrama2::core::DataSet::dataSetItems()
 {
-  return dataSetItemList_;
+  return datasetItems_;
 }
 
-void terrama2::core::DataSet::setDataSetItemList(const std::vector<terrama2::core::DataSetItemPtr>& dataSetItemList)
+void
+terrama2::core::DataSet::add(const DataSetItem& d)
 {
-  dataSetItemList_ = dataSetItemList;
+  datasetItems_.push_back(d);
 }
 
+void terrama2::core::DataSet::removeDataSetItem(uint64_t id)
+{
+  datasetItems_.erase(std::remove_if(datasetItems_.begin(),
+                                     datasetItems_.end(),
+                                    [&id](const DataSetItem& item){ return (item.id() == id) ? true : false; }),
+                      datasetItems_.end());
+}

@@ -53,14 +53,14 @@ void terrama2::collector::CollectorService::connectDataManager()
 {
   core::DataManager &dataManager = core::DataManager::getInstance();
   //DataProvider signals
-  connect(&dataManager, SIGNAL(dataProviderAdded(core::DataProviderPtr)), SLOT(addProvider(core::DataProviderPtr)),    Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataProviderRemoved(DataProviderPtr)),     SLOT(removeProvider(core::DataProviderPtr)), Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataProviderUpdated(DataProviderPtr)),     SLOT(updateProvider(core::DataProviderPtr)), Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderAdded,   this, &terrama2::collector::CollectorService::addProvider,    Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderRemoved, this, &terrama2::collector::CollectorService::removeProvider, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderUpdated, this, &terrama2::collector::CollectorService::updateProvider, Qt::UniqueConnection);
 
   //dataset signals
-  connect(&dataManager, SIGNAL(dataSetAdded(core::DataSetPtr)),   SLOT(addDataset(core::DataSetPtr)),    Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataSetRemoved(core::DataSetPtr)), SLOT(removeDataset(core::DataSetPtr)), Qt::UniqueConnection);
-  connect(&dataManager, SIGNAL(dataSetUpdated(core::DataSetPtr)), SLOT(updateDataset(core::DataSetPtr)), Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetAdded  , this, &terrama2::collector::CollectorService::addDataset   , Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetRemoved, this, &terrama2::collector::CollectorService::removeDataset, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetUpdated, this, &terrama2::collector::CollectorService::updateDataset, Qt::UniqueConnection);
 }
 
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
@@ -73,7 +73,20 @@ terrama2::collector::CollectorService::CollectorService(QObject *parent)
 
 terrama2::collector::CollectorService::~CollectorService()
 {
+  stop();
+}
 
+void terrama2::collector::CollectorService::start()
+{
+  //if service already running, throws
+  if(loopThread_.joinable())
+    throw ServiceAlreadyRunnningError() << terrama2::ErrorDescription(tr("Collector service already running."));
+
+  loopThread_ = std::thread(&CollectorService::processingLoop, this);
+}
+
+void terrama2::collector::CollectorService::stop()
+{
   mutex_.lock();
   //Finish the thread
   stop_ = true;
@@ -81,17 +94,6 @@ terrama2::collector::CollectorService::~CollectorService()
 
   if(loopThread_.joinable())
     loopThread_.join();
-}
-
-void terrama2::collector::CollectorService::exec()
-{
-  //if service already running, throws
-  if(loopThread_.joinable())
-    throw ServiceAlreadyRunnningException() << terrama2::ErrorDescription(tr("Collector service already running."));
-
-  loopThread_ = std::thread(&CollectorService::processingLoop, this);
-
-  QCoreApplication::exec();
 }
 
 void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
@@ -175,7 +177,8 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
 
   //Append the data provider to queue
   auto collector = datasetTimer->collector();
-  auto collectorQueue = collectorQueueMap_.value(collector->kind());
+  assert(collector);
+  auto& collectorQueue = collectorQueueMap_[collector->kind()];
   if(!collectorQueue.contains(collector))
     collectorQueue.append(collector);
 
@@ -185,10 +188,11 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
     datasetTimerQueue.append(datasetId);
 }
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProvider(const core::DataProviderPtr dataProvider)
+terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProvider(const core::DataProvider dataProvider)
 {
+  //TODO: Debug?
   //sanity check: valid dataprovider
-  assert(dataProvider->id());
+//  assert(dataProvider->id());
 
   //TODO: catch? rethrow?
   //Create a collector and add it to the list
@@ -198,47 +202,48 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
 
 }
 
-void terrama2::collector::CollectorService::removeProvider(const terrama2::core::DataProviderPtr dataProvider)
+void terrama2::collector::CollectorService::removeProvider(terrama2::core::DataProvider dataProvider)
 {
-  for(core::DataSetPtr dataSet : dataProvider->dataSets())
+  for(const core::DataSet dataSet : dataProvider.datasets())
     removeDataset(dataSet);
 
   CollectorFactory& factory = CollectorFactory::getInstance();
   factory.removeCollector(dataProvider);
 }
 
-void terrama2::collector::CollectorService::updateProvider(const terrama2::core::DataProviderPtr dataProvider)
+void terrama2::collector::CollectorService::updateProvider(const terrama2::core::DataProvider dataProvider)
 {
   CollectorFactory& factory = CollectorFactory::getInstance();
   factory.removeCollector(dataProvider);
   factory.getCollector(dataProvider);
 }
 
-terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSetPtr dataset)
+terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
 {
+  //TODO: Debug?
   //sanity check: valid dataset
-  assert(dataset->id());
+//  assert(dataset.id());
 
   //Create a new dataset timer and connect the timeout signal to queue
   auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
-  datasetTimerLst_.insert(dataset->id(), datasetTimer);
+  datasetTimerLst_.insert(dataset.id(), datasetTimer);
   connect(datasetTimer.get(), &terrama2::collector::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
 
   return datasetTimer;
 }
 
-void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSetPtr dataset)
+void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSet dataset)
 {
-  if(datasetTimerLst_.contains(dataset->id()))
+  if(datasetTimerLst_.contains(dataset.id()))
   {
-    DataSetTimerPtr datasetTimer = datasetTimerLst_.value(dataset->id());
+    DataSetTimerPtr datasetTimer = datasetTimerLst_.value(dataset.id());
     disconnect(datasetTimer.get(), nullptr, this, nullptr);
 
-    datasetTimerLst_.remove(dataset->id());
+    datasetTimerLst_.remove(dataset.id());
   }
 }
 
-void terrama2::collector::CollectorService::updateDataset(const terrama2::core::DataSetPtr dataset)
+void terrama2::collector::CollectorService::updateDataset(const terrama2::core::DataSet dataset)
 {
   removeDataset(dataset);
   addDataset(dataset);

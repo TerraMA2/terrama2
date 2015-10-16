@@ -20,20 +20,20 @@
 */
 
 /*!
-  \file terrama2/collector/TestCollectorFile.hpp
+  \file terrama2/collector/TsFilter.hpp
 
-  \brief Tests for the CollectorFile class.
+  \brief Tests for the TestFilter class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
 
 //Qt
 #include <QtTest>
 
-class TestCollectorFile: public QObject
+class TsDataFilter: public QObject
 {
   Q_OBJECT
 
@@ -48,27 +48,17 @@ private slots:
     //******Test functions********
 
     /*!
-     * \brief Tests a normal constructor.
+     * \brief Tests if the filter matches exact name.
      */
-    void TestNormalBehavior();
+    void TestFilterNamesExact();
 
     /*!
-     * \brief Tests an invalid dataprovider.
+     * \brief Tests behavior with no mask set.
      */
-    void TestNullDataProvider();
-
-    /*!
-     * \brief Test DataProvider with kind different from file.
-     */
-    void TestWrongDataProviderKind();
-
-    /*!
-     * \brief Test if a temporary dir exists.
-     */
-    void TestCheckConnection();
+    void TestEmptyMask();
 
 
     //******End of Test functions****
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_COLLECTORFILE_HPP__
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__

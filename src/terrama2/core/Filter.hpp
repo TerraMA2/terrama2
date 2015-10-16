@@ -22,33 +22,23 @@
 /*!
   \file terrama2/core/Filter.hpp
 
-  \brief Metadata about a given dataset item.
+  \brief Filter information of a given dataset item.
 
   \author Paulo R. M. Oliveira
+  \author Gilberto Ribeiro de Queiroz
 */
 
 #ifndef __TERRAMA2_CORE_FILTER_HPP__
 #define __TERRAMA2_CORE_FILTER_HPP__
 
 // STL
-#include <memory>
 #include <string>
-
-// TerraLib
-#include <terralib/datatype/DateTime.h>
 
 // Forward declaration
 namespace te
 {
-  namespace gm
-  {
-    class Geometry;
-  }
-
-  namespace dt
-  {
-    class DateTime;
-  }
+  namespace dt { class DateTime; }
+  namespace gm { class Geometry; }
 }
 
 
@@ -57,154 +47,100 @@ namespace terrama2
   namespace core
   {
 
-    class DataSetItem;
-    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
-
-
     /*!
       \class Filter
 
-      \brief Contains the filters to be applied in a dataset item.
-
+      \brief Filter information of a given dataset item.
      */
     class Filter
     {
 
       public:
 
-
         //! Filter by value type.
-        enum ByValueType
+        enum ExpressionType
         {
-          NONE_TYPE,
-          LESS_THAN_TYPE,
-          GREATER_THAN_TYPE,
-          MEAN_LESS_THAN_TYPE,
-          MEAN_GREATER_THAN_TYPE
+          NONE_TYPE = 1,
+          LESS_THAN_TYPE = 2,
+          GREATER_THAN_TYPE = 3,
+          MEAN_LESS_THAN_TYPE = 4,
+          MEAN_GREATER_THAN_TYPE = 5
         };
 
         /*!
-          \brief Constructor
-        */
-        Filter(DataSetItemPtr dataSetItemPtr);
+          \brief Constructor.
 
-        /*!
-          \brief Destructor
+          \param item The associated dataset item.
         */
+        Filter(uint64_t dataSetItemId = 0);
+
+        /*! \brief Destructor. */
         ~Filter();
 
-        /*!
-          \brief It returns the dataset item.
 
-          \return The dataset item.
-        */
-        DataSetItemPtr dataSetItemPtr() const;
+        /*! Copy constructor */
+        Filter(const Filter& filter);
 
-        /*!
-          \brief It sets the dataset item.
+        /*! Assignment operator */
+        Filter& operator=(const Filter& filter);
 
-          \param The dataset item.
-        */
-        void setDataSetItemPtr(const DataSetItemPtr& dataSetItemPtr);
+        /*! \brief Returns a pointer to the associated dataset item. */
+        uint64_t datasetItem() const;
+
 
         /*!
-          \brief It returns Initial date of interest.
+          \brief Associates the filter to given dataset item.
 
-          \return Initial date of interest.
+          \param item The dataset item to be associated to this filter.
         */
-        std::shared_ptr<te::dt::DateTime> discardBefore();
+        void setDataSetItem(uint64_t item);
 
-        /*!
-          \brief It sets Initial date of interest.
+        /*! \brief Returns the initial date of interest for collecting data from the data item. */
+        const te::dt::DateTime* discardBefore() const;
 
-          \param Initial date of interest.
-        */
-        void setDiscardBefore(std::shared_ptr<te::dt::DateTime> discardBefore);
+        /*! \brief Sets the initial date of interest for collecting data from the data item. */
+        void setDiscardBefore(std::unique_ptr<te::dt::DateTime> t);
 
-        /*!
-          \brief It returns the final date of interest.
+        /*! \brief Returns the final date of interest for collecting data from the data item. */
+        const te::dt::DateTime* discardAfter() const;
 
-          \return The final date of interest.
-        */
-        std::shared_ptr<te::dt::DateTime> discardAfter();
+        /*! \brief Sets the final date of interest for collecting data from the data item. */
+        void setDiscardAfter(std::unique_ptr<te::dt::DateTime> t);
 
-        /*!
-          \brief It sets the final date of interest.
+        /*! \brief Returns the geometry to be used as area of interest for filtering the data during its collect. */
+        const te::gm::Geometry* geometry() const;
 
-          \param The final date of interest.
-        */
-        void setDiscardAfter(std::shared_ptr<te::dt::DateTime> discardAfter);
+        /*! Sets the geometry to be used as area of interest for filtering the data during its collect. */
+        void setGeometry(std::unique_ptr<te::gm::Geometry> geom);
 
-        /*!
-          \brief It returns the geometry to be used as area of interest.
+        /*! \brief Returns the value to be used in a filter by value. */
+        const double* value() const;
 
-          \return The geometry to be used as area of interest.
-        */
-        std::shared_ptr<te::gm::Geometry> geometry();
+        /*! \brief Sets the value to be used in a filter by value. */
+        void setValue(std::unique_ptr<double> v);
 
-        /*!
-          \brief It sets the geometry to be used as area of interest.
+        /*! \brief Returns the type of filter by expression. */
+        ExpressionType expressionType() const;
 
-          \param The geometry to be used as area of interest.
-        */
-        void setGeometry(std::shared_ptr<te::gm::Geometry> geometry);
+        /*! \brief Sets the type of filter by expression. */
+        void setExpressionType(const ExpressionType t);
 
-        /*!
-          \brief It returns the value to be used in a filter by value.
+        /*! \brief Returns the band filter. */
+        const std::string& bandFilter() const;
 
-          \return The value to be used in a filter by value.
-        */
-        double byValue() const;
-
-        /*!
-          \brief It sets the value to be used in a filter by value.
-
-          \param The value to be used in a filter by value.
-        */
-        void setByValue(const double byValue);
-
-        /*!
-          \brief It returns the enum that defines the filter by value type.
-
-          \return The enum that defines the filter by value type.
-        */
-        ByValueType byValueType() const;
-
-        /*!
-          \brief It sets the enum that defines the filter by value type.
-
-          \param The enum that defines the filter by value type.
-        */
-        void setByValueType(const ByValueType byValueType);
-
-        /*!
-          \brief It returns the band filter.
-
-          \return The band filter.
-        */
-        std::string bandFilter() const;
-
-        /*!
-          \brief It sets the band filter.
-
-          \param The band filter.
-        */
-        void setBandFilter(const std::string& bandFilter);
+        /*! \brief Sets the band filter. */
+        void setBandFilter(const std::string& f);
 
       private:
 
-        DataSetItemPtr dataSetItemPtr_;
-        std::shared_ptr<te::dt::DateTime> discardBefore_;
-        std::shared_ptr<te::dt::DateTime> discardAfter_;
-        std::shared_ptr<te::gm::Geometry> geometry_;
-        double byValue_;
-        ByValueType byValueType_;
+        uint64_t datasetItem_;
+        std::unique_ptr<te::dt::DateTime> discardBefore_;
+        std::unique_ptr<te::dt::DateTime> discardAfter_;
+        std::unique_ptr<te::gm::Geometry> geometry_;
+        std::unique_ptr<double> value_;
+        ExpressionType expressionType_;
         std::string bandFilter_;
-
-
     };
-
-    typedef std::shared_ptr<Filter> FilterPtr;
 
   } // end namespace core
 }   // end namespace terrama2

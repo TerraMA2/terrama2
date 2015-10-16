@@ -35,7 +35,6 @@
 
 // gSOAP
 #include "soapWebProxy.h"
-#include "Web.nsmap"
 
 // TerraMA2
 #include "../../../core/DataProvider.hpp"
@@ -54,7 +53,7 @@ namespace terrama2
       {
         public:
 
-          Client(std::string url);
+          Client(const std::string url);
 
           ~Client();
 
@@ -76,7 +75,7 @@ namespace terrama2
 
             \return
           */
-          void addDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+          void addDataProvider(terrama2::core::DataProvider & dataProvider);
 
           /*!
             \brief
@@ -87,7 +86,7 @@ namespace terrama2
 
             \return
           */
-          void addDataset(terrama2::core::DataSetPtr &dataSetPtr);
+          void addDataSet(terrama2::core::DataSet & dataSet);
 
           /*!
             \brief
@@ -98,7 +97,7 @@ namespace terrama2
 
             \return
           */
-          void updateDataProvider(terrama2::core::DataProviderPtr &dataProviderPtr);
+          void updateDataProvider(terrama2::core::DataProvider & dataProvider);
 
           /*!
             \brief
@@ -109,7 +108,7 @@ namespace terrama2
 
             \return
           */
-          void updateDataSet(terrama2::core::DataSetPtr &dataSetPtr);
+          void updateDataSet(terrama2::core::DataSet & dataSet);
 
           /*!
             \brief
@@ -142,7 +141,7 @@ namespace terrama2
 
             \return
           */
-          void findDataProvider(uint64_t id, terrama2::core::DataProviderPtr &dataProviderPtr);
+          core::DataProvider findDataProvider(uint64_t id);
 
           /*!
             \brief
@@ -153,7 +152,7 @@ namespace terrama2
 
             \return
           */
-          void findDataSet(uint64_t id, terrama2::core::DataSetPtr &dataSetPtr);
+          core::DataSet findDataSet(uint64_t id);
 
           /*!
             \brief
@@ -162,7 +161,7 @@ namespace terrama2
 
             \return
           */
-          void listDataProvider(std::vector< terrama2::core::DataProviderPtr > &dataProviderPtrList);
+          void listDataProvider(std::vector< terrama2::core::DataProvider > &dataProviderPtrList);
 
           /*!
             \brief
@@ -171,11 +170,13 @@ namespace terrama2
 
             \return
           */
-          void listDataSet(std::vector< terrama2::core::DataSetPtr > &dataSetPtrList);
+          void listDataSet(std::vector< terrama2::core::DataSet > &dataSetPtrList);
+
 
         private:
 
           WebProxy* wsClient_;
+          std::string server_;
 
     };
 

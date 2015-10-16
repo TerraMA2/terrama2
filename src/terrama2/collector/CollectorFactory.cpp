@@ -29,25 +29,34 @@
 
 
 #include "CollectorFactory.hpp"
+#include "CollectorFile.hpp"
 #include "Exception.hpp"
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProviderPtr dataProvider)
+terrama2::collector::CollectorPtr terrama2::collector::CollectorFactory::getCollector(const core::DataProvider dataProvider)
 {
-  //JANO: implementar getCollector
-
   //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProvider->id()))
+  if(!collectorMap_.contains(dataProvider.id()))
   {
     //... instatiate a new collector
     //TODO: Throws if fail?
 
     //TODO: Throws UnknownDataProviderKindException
+    switch (dataProvider.kind()) {
+      case core::DataProvider::FILE_TYPE:
+      {
+        CollectorPtr newCollector(new CollectorFile(dataProvider));
+        collectorMap_.insert(dataProvider.id(), newCollector);
+        break;
+      }
+      default:
+        break;
+    }
   }
 
-  return collectorMap_.value(dataProvider->id());
+  return collectorMap_.value(dataProvider.id());
 }
 
-void terrama2::collector::CollectorFactory::removeCollector(const terrama2::core::DataProviderPtr dataProvider)
+void terrama2::collector::CollectorFactory::removeCollector(const terrama2::core::DataProvider dataProvider)
 {
-  collectorMap_.remove(dataProvider->id());
+  collectorMap_.remove(dataProvider.id());
 }

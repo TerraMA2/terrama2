@@ -29,6 +29,7 @@
 
 // TerraMA2
 #include "ApplicationController.hpp"
+#include "Exception.hpp"
 #include "Utils.hpp"
 
 // STL
@@ -37,63 +38,82 @@
 #include <string>
 
 // Qt
+#include <QJsonDocument>
 #include <QJsonObject>
+#include <QObject>
 #include <QString>
 
 // TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
 
 bool terrama2::core::ApplicationController::loadProject(const std::string &configFileName)
 {
-  configFileName_ = configFileName;
+  configFile_ = configFileName;
 
-  QJsonObject project = terrama2::core::OpenFile(configFileName);
 
-  if(project.contains("database"))
+  try
   {
-    QJsonObject databaseConfig = project["database"].toObject();
-    std::map<std::string, std::string> connInfo;
-    connInfo["PG_HOST"] = databaseConfig["hostName"].toString().toStdString();
-    connInfo["PG_PORT"] = databaseConfig["port"].toString().toStdString();
-    connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
-    connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
-    connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
-    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+    QJsonDocument jdoc = terrama2::core::ReadJsonFile(configFileName);
+    
+    QJsonObject project = jdoc.object();
 
-    dataSouce_ = te::da::DataSourceFactory::make("POSTGIS");
-    dataSouce_->setConnectionInfo(connInfo);
-    dataSouce_->open();
+    if(project.contains("database"))
+    {
+      QJsonObject databaseConfig = project["database"].toObject();
+      std::map<std::string, std::string> connInfo;
+      connInfo["PG_HOST"] = databaseConfig["hostName"].toString().toStdString();
+      connInfo["PG_PORT"] = databaseConfig["port"].toString().toStdString();
+      connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
+      connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
+      connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
+      connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
-    return true;
+      dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
+      dataSource_->setConnectionInfo(connInfo);
+      dataSource_->open();
+
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
+  catch(...)
   {
     return false;
   }
 
-
 }
 
-std::auto_ptr<te::da::DataSourceTransactor> terrama2::core::ApplicationController::getTransactor()
+std::auto_ptr<te::da::DataSourceTransactor>
+terrama2::core::ApplicationController::getTransactor()
 {
-
-  std::auto_ptr<te::da::DataSourceTransactor> ptr;
-  if(dataSouce_.get())
+  try
   {
-    if(dataSouce_->isOpened())
-    {
-      ptr = dataSouce_->getTransactor();
-    }
+    if((dataSource_ != nullptr) && (dataSource_->isOpened()))
+      return dataSource_->getTransactor();
+  }
+  //catch(const te::common::Exception& e)
+  //{
+  //  throw DataAccessError() << ErrorDescription(e.what());
+  //}
+  catch(const std::exception& e)
+  {
+    throw DataAccessError() << ErrorDescription(e.what());
+  }
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve a data source transactor."));
   }
 
-  return ptr;
+  throw DataAccessError() << ErrorDescription(QObject::tr("The data source is not valid or it is not open."));
 }
 
 std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDataSource()
 {
-  return dataSouce_;
+  return dataSource_;
 }
 
 bool terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
@@ -123,16 +143,16 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
   else
   {
     // Closes the previous data source
-    if(dataSouce_.get())
+    if(dataSource_.get())
     {
-      dataSouce_->close();
+      dataSource_->close();
     }
 
-    dataSouce_ = std::shared_ptr<te::da::DataSource>(te::da::DataSource::create(dsType, connInfo));
+    dataSource_ = std::shared_ptr<te::da::DataSource>(te::da::DataSource::create(dsType, connInfo));
 
-    dataSouce_->open();
+    dataSource_->open();
 
-    auto transactor = dataSouce_->getTransactor();
+    auto transactor = dataSource_->getTransactor();
 
     // TODO: Create the database model executing the script
 

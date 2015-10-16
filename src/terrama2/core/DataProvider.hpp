@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataProvider.hpp
 
-  \brief Metadata of a data server.
+  \brief Models the information of a data provider (or data server).
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -33,8 +33,10 @@
 #ifndef __TERRAMA2_CORE_DATAPROVIDER_HPP__
 #define __TERRAMA2_CORE_DATAPROVIDER_HPP__
 
+// TerraMA2
+#include "DataSet.hpp"
+
 // STL
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,20 +44,18 @@ namespace terrama2
 {
   namespace core
   {
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-
     /*!
       \class DataProvider
 
-      \brief Contains metadata about a data provider (or data server).
+      \brief Models the information of a data provider (or data server).
 
       A data provider can be a remote server that provides data through
       FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
 
       It can also be an URI for a folder into the file system.
 
-      It contains a list of datasets that belongs to this provider.
+      A data provider contains the list of datasets that belongs to this provider 
+      that should be collected for further analysis.
      */
     class DataProvider
     {
@@ -69,7 +69,8 @@ namespace terrama2
           HTTP_TYPE,
           FILE_TYPE,
           WFS_TYPE,
-          WCS_TYPE
+          WCS_TYPE,
+          SOS_TYPE
         };
 
         //! Data provider status.
@@ -79,115 +80,64 @@ namespace terrama2
           INACTIVE
         };
 
-        /*!
-          \brief Constructor
-        */
-        DataProvider(const std::string& name, Kind kind, const uint64_t id = 0);
+        /*! \brief Constructor. */
+        DataProvider(const uint64_t id = 0, Kind k = UNKNOWN_TYPE);
 
-        /*!
-          \brief Destructor.
-        */
+        /*! \brief Destructor. */
         ~DataProvider();
 
-        /*!
-          \brief It returns the identifier of the data provider.
-
-          \return The identifier of the data provider.
-        */
+        /*! \brief Returns the identifier of the data provider. */
         uint64_t id() const;
 
-        /*!
-          \brief It returns the name of the data provider.
+        /*! \brief Sets the identifier of the data provider. */
+        void setId(uint64_t id);
 
-          \return The name of the data provider.
-        */
-        std::string name() const;
+        /*! \brief Returns the name of the data provider. */
+        const std::string& name() const;
 
-        /*!
-          \brief It sets the name of the data provider.
-
-          \param The name of the data provider.
-        */
+        /*! \brief Sets the name of the data provider. */
         void setName(const std::string& name);
 
-        /*!
-          \brief It returns the the description of the data provider.
+        /*! \brief Returns the description of the data provider. */
+        const std::string& description() const;
 
-          \return The the description of the data provider.
-        */
-        std::string description() const;
-
-        /*!
-          \brief It sets the the description of the data provider.
-
-          \param The the description of the data provider.
-        */
+        /*! \brief Sets the the description of the data provider. */
         void setDescription(const std::string& description);
 
-        /*!
-          \brief It returns the the kind of the data provider.
-
-          \return The the kind of the data provider.
-        */
+        /*! \brief Returns the the kind of the data provider. */
         Kind kind() const;
 
-        /*!
-          \brief It sets the the kind of the data provider.
+        /*! \brief Sets the the kind of the data provider.  */
+        void setKind(Kind k);
 
-          \param The the kind of the data provider.
-        */
-        void setKind(Kind kind);
+        /*! \brief Returns the URI of the data provider. */
+        const std::string& uri() const;
 
-        /*!
-          \brief It returns the URI of the data provider.
-
-          \return The URI of the data provider.
-        */
-        std::string uri() const;
-
-        /*!
-          \brief It sets the URI of the data provider.
-
-          \param The URI of the data provider.
-        */
+        /*! \brief Sets the URI of the data provider. */
         void setUri(const std::string& uri);
 
-        /*!
-          \brief It returns the the status of the data provider.
-
-          \return The the status of the data provider.
-        */
+        /*! \brief Returns the the status of the data provider. */
         Status status() const;
 
-        /*!
-          \brief It sets the the status of the data provider.
+        /*! \brief Sets the the status of the data provider. */
+        void setStatus(Status s);
 
-          \param The the status of the data provider.
-        */
-        void setStatus(Status status);
-
-        /*!
-          \brief It returns the the dataset list.
-
-          \return The the dataset list.
-        */
-        std::vector<DataSetPtr> dataSets() const;
+        /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
+        std::vector<DataSet>& datasets();
 
         /*!
-          \brief It sets the the dataset list.
+          \brief Adds a new dataset to the data provider.
 
-          \param The the dataset list.
+          \param d The the dataset.
         */
-        void setDataSets(const std::vector<DataSetPtr>& dataSets);
-
-      protected:
+        void add(const DataSet& d);
 
         /*!
-          \brief It sets the identifier of the data provider.
+          \brief Removes the given dataset from the provider list.
 
-          \param The identifier of the data provider.
-        */
-        void setId(uint64_t id);
+          \param id The identifier of the dataset to be removed.
+         */
+        void removeDataSet(const uint64_t id);
 
       private:
 
@@ -197,12 +147,8 @@ namespace terrama2
         Kind kind_;
         std::string uri_;
         Status status_;
-        std::vector<DataSetPtr> dataSets_; //!< The list of datasets available in the data provider.
-
-      friend class DataProviderDAO; //review
+        std::vector<DataSet> datasets_; //!< The list of datasets available in the data provider.
     };
-
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
 
   } // end namespace core
 }   // end namespace terrama2

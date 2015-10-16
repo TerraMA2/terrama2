@@ -28,56 +28,89 @@
 */
 
 #include "ParserOGR.hpp"
+#include "Exception.hpp"
 
 //QT
 #include <QDir>
+#include <QDebug>
 
 //STD
 #include <memory>
 
+#include <boost/format/exceptions.hpp>
+
 //terralib
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/common/Exception.h>
 
-QStringList terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
+std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
 {
   QDir dir(uri.c_str());
 
-  return dir.entryList();
+  QFileInfoList entryList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files | QDir::Readable);
+  std::vector<std::string> names;
+  for(const QFileInfo& file : entryList)
+    names.push_back(file.baseName().toStdString());
+
+  return names;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::ParserOGR::read(const std::string &uri, const QStringList& names)
+void terrama2::collector::ParserOGR::read(const std::string &uri,
+                                          const std::vector<std::string> &names,
+                                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                          std::shared_ptr<te::da::DataSetType>& dataSetType)
 {
-  if(names.isEmpty())
+  if(names.empty())
   {
     //TODO: throw
   }
-
-  //create a datasource and open
-  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR").release());//FIXME: releasing auto_ptr to create a shared_ptr
-  std::map<std::string, std::string> connInfo;
-  connInfo["URI"] = uri;
-  datasource->setConnectionInfo(connInfo);
-  datasource->open(); //FIXME: close? where?
-
-  if(!datasource->isOpened())
-  {
-    //TODO: throw
-  }
-
-// get a transactor to interact to the data source
-  te::da::DataSourceTransactor* transactor = (datasource->getTransactor()).release();
 
   try
   {
-    assert(names.size() == 1);//TODO: remove this!
-    std::shared_ptr<te::da::DataSet> dataSet(datasource->getDataSet(names.front().toStdString()).release());//FIXME: releasing auto_ptr to create a shared_ptr
+    //create a datasource and open
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
+    std::map<std::string, std::string> connInfo;
+    connInfo["URI"] = uri;
+    datasource->setConnectionInfo(connInfo);
+    datasource->open(); //FIXME: close? where?
 
-    return dataSet;
+    if(!datasource->isOpened())
+    {
+      throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                            QObject::tr("DataProvider could not be opened."));
+    }
+
+    // get a transactor to interact to the data source
+    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+
+    for(const std::string& name : names)
+    {
+      std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
+      dataSetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
+
+      if(!dataSet || !dataSetType)
+      {
+        throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                              QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
+      }
+
+      datasetVec.push_back(dataSet);
+    }
+
+    return;
   }
-  catch(...)
+  catch(te::common::Exception& e)
   {
-    //TODO: error getting dataset...
-    return std::auto_ptr<te::da::DataSet>(nullptr);
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                          QObject::tr("Terralib exception: ") + e.what());
   }
+  catch(boost::io::format_error& e)
+  {
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                          QObject::tr("Boost exception: ") + e.what());
+  }
+
+  return;
 }

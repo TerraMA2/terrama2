@@ -20,45 +20,22 @@
 */
 
 /*!
-  \file terrama2/collector/TestFilter.hpp
+  \file unittest/ws/collector/client/Utils.hpp
 
-  \brief Tests for the TestFilter class.
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Jano Simas
+  \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
 
-//Qt
-#include <QtTest>
+void initializeTerralib();
 
-class TestFilter: public QObject
-{
-  Q_OBJECT
+void finalizeTerralib();
 
-private slots:
+void initializeTerraMA2();
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+void finalizeTerraMA2();
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    //******Test functions********
-
-    /*!
-     * \brief Tests if the filter matches exact name.
-     */
-    void TestFilterNamesExact();
-
-    /*!
-     * \brief Tests behavior with no mask set.
-     */
-    void TestEmptyMask();
-
-
-    //******End of Test functions****
-};
-
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__

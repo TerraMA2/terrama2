@@ -30,7 +30,8 @@
 #ifndef __TERRAMA2_COLLECTOR_STORAGER_HPP__
 #define __TERRAMA2_COLLECTOR_STORAGER_HPP__
 
-#include "terralib/dataaccess/dataset/DataSet.h"
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -50,15 +51,23 @@ namespace terrama2
     class Storager : public boost::noncopyable
     {
       public:
+        Storager(const std::map<std::string, std::string>& storageMetadata);
+
         /*!
              * \brief Store a temporary data set in it's final storage area and format.
              * \return Pointer to a te::da::DataSet of the final storage.
              *
              * \exception TODO: Storager::store exception...
              */
-        virtual std::shared_ptr<te::da::DataSet> store(const std::shared_ptr<te::da::DataSet> tempDataSet );
+        virtual void store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                           const std::shared_ptr<te::da::DataSetType>& dataSetType) = 0;
+
+      protected:
+        std::map<std::string, std::string> storageMetadata_;
 
     };
+
+    typedef std::shared_ptr<Storager> StoragerPtr;
   }
 }
 

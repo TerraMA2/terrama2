@@ -73,7 +73,7 @@ namespace terrama2
          *
          * \exception terrama2::collector::InvalidDataSetException Raise when constructed with an invalid DataSet or empty pointer.
          */
-        DataSetTimer(core::DataSetPtr dataSet);
+        DataSetTimer(core::DataSet dataSet);
         ~DataSetTimer();
 
         /*!
@@ -82,7 +82,7 @@ namespace terrama2
              */
         CollectorPtr                  collector() const;
         //! \brief Returns the original DataSet.
-        core::DataSetPtr              dataSet()   const;
+        core::DataSet              dataSet()   const;
         //! \brief List of DataProcessor that should be aquired and processed.
         std::vector<DataProcessorPtr> data()      const;
 

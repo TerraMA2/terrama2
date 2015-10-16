@@ -53,4 +53,3 @@ target_link_libraries(terrama2_unittest_ws_collector_server terrama2_mod_ws_coll
                                                           terralib_mod_common)
 
 qt5_use_modules(terrama2_unittest_ws_collector_server Test)
-

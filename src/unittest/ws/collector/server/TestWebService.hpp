@@ -106,9 +106,66 @@ private slots:
 
 
     /*!
+     * \brief
+     */
+    void testFindDataProviderInvalidID();
+
+
+    /*!
      * \brief Test to add a normal DataSet
      */
     void TestAddDataSet();
+
+    /*!
+     * \brief Test to add a null DataProvider
+     */
+    void TestAddNullDataSet();
+
+
+    /*!
+     * \brief Test to add a DataProvider with an id
+     */
+    void TestAddDataSetWithID();
+
+
+    /*!
+     * \brief Test to add a DataProvider with an id
+     */
+    void TestAddDataSetWithWrongDataProviderID();
+
+
+    /*!
+     * \brief
+     */
+    void testRemoveDataSet();
+
+    /*!
+     * \brief
+     */
+    void testRemoveDataSetInvalidId();
+
+
+    /*!
+     * \brief
+     */
+    void testUpdateDataSet();
+
+    /*!
+     * \brief
+     */
+    void testUpdateDataSetInvalidId();
+
+
+    /*!
+     * \brief
+     */
+    void testFindDataSet();
+
+
+    /*!
+     * \brief
+     */
+    void testFindDataSetInvalidID();
 
 
     //******End of Test functions****

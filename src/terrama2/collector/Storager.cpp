@@ -29,7 +29,10 @@
 
 #include "Storager.hpp"
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::Storager::store(const std::shared_ptr<te::da::DataSet> tempDataSet)
+
+terrama2::collector::Storager::Storager(const std::map<std::string, std::string>& storageMetadata)
+  : storageMetadata_(storageMetadata)
+
 {
 
 }

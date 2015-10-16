@@ -52,7 +52,7 @@ int Web__ping(std::string &answer);
 
   \return
 */
-int Web__addDataProvider(struct DataProvider&);
+int Web__addDataProvider(struct DataProvider, struct DataProvider&);
 
 /*!
   \brief
@@ -62,7 +62,7 @@ int Web__addDataProvider(struct DataProvider&);
   \return
 */
 
-int Web__addDataSet(struct DataSet&);
+int Web__addDataSet(struct DataSet, struct DataSet&);
 
 /*!
   \brief
@@ -71,7 +71,7 @@ int Web__addDataSet(struct DataSet&);
 
   \return
 */
-int Web__updateDataProvider(struct DataProvider&);
+int Web__updateDataProvider(struct DataProvider, struct DataProvider&);
 
 /*!
   \brief
@@ -80,7 +80,7 @@ int Web__updateDataProvider(struct DataProvider&);
 
   \return
 */
-int Web__updateDataSet(struct DataSet&);
+int Web__updateDataSet(struct DataSet, struct DataSet&);
 
 /*!
   \brief
@@ -89,7 +89,7 @@ int Web__updateDataSet(struct DataSet&);
 
   \return
 */
-int Web__removeDataProvider(uint64_t id, struct Web__removeDataProviderResponse {} *out);
+int Web__removeDataProvider(uint64_t id, void);
 
 /*!
   \brief
@@ -98,7 +98,7 @@ int Web__removeDataProvider(uint64_t id, struct Web__removeDataProviderResponse 
 
   \return
 */
-int Web__removeDataSet(uint64_t id, struct Web__removeDataSetResponse{} *out);
+int Web__removeDataSet(uint64_t id, void);
 
 /*!
   \brief

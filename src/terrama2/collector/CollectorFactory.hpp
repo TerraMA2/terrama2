@@ -32,6 +32,7 @@
 #define __TERRAMA2_COLLECTOR_COLLECTORFACTORY_HPP__
 
 #include "Collector.hpp"
+#include "../core/DataProvider.hpp"
 
 //Qt
 #include <QMap>
@@ -41,10 +42,6 @@
 
 namespace terrama2
 {
-  namespace core {
-    class DataSet;
-    class Data;
-  }
   namespace collector
   {
 
@@ -68,7 +65,7 @@ namespace terrama2
              *
              * \exception terrama2::collector::UnknownDataProviderKindException Raised when CollectorFactory cannot identify the right Collector type for the DataProvider.
              */
-        CollectorPtr getCollector(const core::DataProviderPtr dataProvider);
+        CollectorPtr getCollector(const core::DataProvider dataProvider);
 
         /*!
          * \brief Remove the collector from the list.
@@ -77,7 +74,7 @@ namespace terrama2
          *
          * \param dataProvider Collector's DataProvider.
          */
-        void removeCollector(const core::DataProviderPtr dataProvider);
+        void removeCollector(const core::DataProvider dataProvider);
 
       private:
 

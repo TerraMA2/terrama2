@@ -36,7 +36,7 @@
 #include <boost/log/trivial.hpp>
 
 
-terrama2::collector::Collector::Collector(const terrama2::core::DataProviderPtr dataProvider, QObject *parent)
+terrama2::collector::Collector::Collector(const terrama2::core::DataProvider dataProvider, QObject *parent)
   : QObject(parent),
     dataProvider_(dataProvider)
 {
@@ -52,10 +52,10 @@ terrama2::collector::Collector::~Collector()
 
 terrama2::core::DataProvider::Kind terrama2::collector::Collector::kind() const
 {
-  return dataProvider_->kind();
+  return dataProvider_.kind();
 }
 
-terrama2::core::DataProviderPtr terrama2::collector::Collector::dataProvider() const
+terrama2::core::DataProvider terrama2::collector::Collector::dataProvider() const
 {
   return dataProvider_;
 }
@@ -90,16 +90,16 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
 
 void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 {
-  if(datasetTimer->dataSet()->status() != terrama2::core::DataSet::ACTIVE)
+  if(datasetTimer->dataSet().status() != terrama2::core::DataSet::ACTIVE)
   {
-    throw InactiveDataSetException() << terrama2::ErrorDescription(
+    throw InactiveDataSetError() << terrama2::ErrorDescription(
                                          tr("Trying to collect an inactive dataset."));
   }
 
   //If can get lock creates a thread the collects the dataset
   if(!mutex_.try_lock())
   {
-    throw UnabletoGetLockException() << terrama2::ErrorDescription(
+    throw UnabletoGetLockError() << terrama2::ErrorDescription(
                                          tr("Unable to get lock."));
   }
 
@@ -112,6 +112,8 @@ void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
   if(collectingThread_.joinable())
     collectingThread_.join();
 
+  //JANO: Reabilitar thread na colleta
   //start a new thread
-  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
+//  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
+  collectAsThread(datasetTimer);
 }

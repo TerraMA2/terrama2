@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/Exception.hpp
 
-  \brief Exception classes for core module
+  \brief Specific exception classes from core module.
 
   \author Paulo R. M. Oliveira
  */
@@ -30,26 +30,18 @@
 #ifndef __TERRAMA2_CORE_EXCEPTION_HPP__
 #define __TERRAMA2_CORE_EXCEPTION_HPP__
 
+// TerraMA2
 #include "../Exception.hpp"
 
 namespace terrama2
 {
   namespace core
   {
+    //! Indicates that an exception comming from TerraLib Data Access module.
+    struct DataAccessError: virtual terrama2::Exception{ };
+
     //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
     struct DataSetInUseError: virtual terrama2::Exception{ };
-
-    //! Indicates that an invalid data provider identifier was used.
-    struct InvalidDataProviderIdError: virtual terrama2::Exception{ };
-
-    //! Indicates that an invalid data provider was used.
-    struct InvalidDataProviderError: virtual terrama2::Exception{ };
-
-    //! Indicates that an invalid dataset identifier was used.
-    struct InvalidDataSetIdError: virtual terrama2::Exception{ };
-
-    //! Indicates that an invalid dataset was used.
-    struct InvalidDataSetError: virtual terrama2::Exception{ };
 
   }  // end namespace core
 }  // end namespace terrama2

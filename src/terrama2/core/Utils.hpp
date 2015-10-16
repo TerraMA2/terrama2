@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_CORE_UTILS_HPP__
 #define __TERRAMA2_CORE_UTILS_HPP__
 
+// TerraMA2
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
 #include "DataSetItem.hpp"
@@ -38,7 +39,7 @@
 // STL
 #include <string>
 
-class QJsonObject;
+class QJsonDocument;
 
 namespace terrama2
 {
@@ -55,13 +56,25 @@ namespace terrama2
     std::string FindInTerraMA2Path(const std::string& p);
 
     /*!
+      \brief Read a JSON document and parse it.
+
+      \param file_name The file to be read (with absolute or relative path).
+
+      \return A valid JSON document or throws an exception.
+
+      \exception FileOpenError Throw this type of exception if a file could not be open.
+      \exception ParserError  Throw this type of exception if JSON document is not valid.
+     */
+    QJsonDocument ReadJsonFile(const std::string& file_name);
+
+    /*!
       \brief Returns a boolean with the status of the server based on the given status.
 
       \param status Enum with the status of the data provider.
 
       \return Boolean that determine if the data provider is active.
      */
-    bool DataProviderStatusToBool(terrama2::core::DataProvider::Status status);
+    bool ToBool(DataProvider::Status status);
 
     /*!
       \brief Returns a enum with the status of the server based on the given parameter.
@@ -70,102 +83,90 @@ namespace terrama2
 
       \return Enum with the status of the data provider.
      */
-   terrama2::core::DataProvider::Status BoolToDataProviderStatus(bool active);
+    DataProvider::Status ToDataProviderStatus(bool active);
 
-   /*!
-     \brief Returns a enum with the kind of the server based on the given parameter.
+    /*!
+      \brief Returns a enum with the kind of the server based on the given parameter.
 
-     \param kind Kind that determine the type of the data provider.
+      \param kind Kind that determine the type of the data provider.
 
-     \return Enum with the type of the data provider.
-    */
-   terrama2::core::DataProvider::Kind IntToDataProviderKind(uint64_t kind);
+      \return Enum with the type of the data provider.
+     */
+    DataProvider::Kind ToDataProviderKind(uint64_t kind);
 
-   /*!
-     \brief Function to convert a boolean to string format.
+    /*!
+      \brief Function to convert a boolean to string format.
 
-     \param b Boolean to converted.
+      \param b Boolean to converted.
 
-     \return string String representation of the given boolean.
-    */
-   std::string BoolToString(bool b);
+      \return string String representation of the given boolean.
+     */
+    std::string ToString(bool b);
 
-   /*!
-     \brief Returns a boolean with the status of the dataset based on the given status.
+    /*!
+      \brief Returns a boolean with the status of the dataset based on the given status.
 
-     \param status Enum with the status of the dataset.
+      \param status Enum with the status of the dataset.
 
-     \return Boolean that determine if the dataset is active.
-    */
-   bool DataSetStatusToBool(terrama2::core::DataSet::Status status);
+      \return Boolean that determine if the dataset is active.
+     */
+    bool ToBool(DataSet::Status status);
 
-   /*!
-    \brief Returns a enum with the status of the dataset based on the given parameter.
+    /*!
+      \brief Returns a enum with the status of the dataset based on the given parameter.
 
-    \param active Boolean that determine if the dataset is active.
+      \param active Boolean that determine if the dataset is active.
 
-    \return Enum with the status of the dataset.
-    */
-   terrama2::core::DataSet::Status BoolToDataSetStatus(bool active);
+      \return Enum with the status of the dataset.
+     */
+    DataSet::Status ToDataSetStatus(bool active);
 
-   /*!
-     \brief Returns a enum with the kind of the dataset based on the given parameter.
+    /*!
+      \brief Returns a enum with the kind of the dataset based on the given parameter.
 
-     \param kind Kind that determine the type of the dataset.
+      \param kind Kind that determine the type of the dataset.
 
-     \return Enum with the type of the dataset.
-    */
-   terrama2::core::DataSet::Kind IntToDataSetKind(uint64_t kind);
+      \return Enum with the type of the dataset.
+     */
+    DataSet::Kind ToDataSetKind(uint64_t kind);
 
-   /*!
-     \brief Returns a boolean with the status of the dataset item based on the given status.
+    /*!
+      \brief Returns a boolean with the status of the dataset item based on the given status.
 
-     \param status Enum with the status of the dataset item.
+      \param status Enum with the status of the dataset item.
 
-     \return Boolean that determine if the dataset item is active.
-    */
-   bool DataSetItemStatusToBool(terrama2::core::DataSetItem::Status status);
+      \return Boolean that determine if the dataset item is active.
+     */
+    bool ToBool(DataSetItem::Status status);
 
-   /*!
-    \brief Returns a enum with the status of the dataset item based on the given parameter.
+    /*!
+      \brief Returns a enum with the status of the dataset item based on the given parameter.
 
-    \param active Boolean that determine if the dataset item is active.
+      \param active Boolean that determine if the dataset item is active.
 
-    \return Enum with the status of the dataset item.
-    */
-   terrama2::core::DataSetItem::Status BoolToDataSetItemStatus(bool active);
+      \return Enum with the status of the dataset item.
+     */
+    DataSetItem::Status ToDataSetItemStatus(bool active);
 
-   /*!
-     \brief Returns a enum with the kind of the dataset item based on the given parameter.
+    /*!
+      \brief Returns a enum with the kind of the dataset item based on the given parameter.
 
-     \param kind Kind that determine the type of the dataset item.
+      \param kind Kind that determine the type of the dataset item.
 
-     \return Enum with the type of the dataset item.
-    */
-   terrama2::core::DataSetItem::Kind IntToDataSetItemKind(uint64_t kind);
+      \return Enum with the type of the dataset item.
+     */
+    DataSetItem::Kind ToDataSetItemKind(uint64_t kind);
 
-   /*!
-     \brief Returns a enum with the type of filter based on the given parameter.
+    /*!
+      \brief Returns a enum with the type of filter based on the given parameter.
 
-     \param kind Kind that determine the type of filter.
+      \param kind Kind that determine the type of filter.
 
-     \return Enum with the type of filter.
-    */
-
-   terrama2::core::Filter::ByValueType IntToFilterByValueType(uint64_t type);
-
-   /*!
-     \brief Returns a QJsonObject based on the given parameter
-
-     \param filepath const std::string that represents absolute file path.
-
-     \return QJsonObject with TerraMA2 JSON configuration
-   */
-   QJsonObject OpenFile(const std::string& filepath);
-
+      \return Enum with the type of filter.
+     */
+    Filter::ExpressionType ToFilterExpressionType(uint64_t type);
 
   } // end namespace core
 }   // end namespace terrama2
 
 #endif // __TERRAMA2_CORE_UTILS_HPP__
-

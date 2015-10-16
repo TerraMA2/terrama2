@@ -30,14 +30,16 @@
 // TerraMA2
 #include "Utils.hpp"
 #include "../Config.hpp"
+#include "Exception.hpp"
 
 // Boost
 #include <boost/filesystem.hpp>
 
 // QT
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QFile>
+#include <QString>
 
 std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 {
@@ -88,66 +90,92 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
   return "";
 }
 
+QJsonDocument
+terrama2::core::ReadJsonFile(const std::string &file_name)
+{
+  QFile file(file_name.c_str());
 
-bool terrama2::core::DataProviderStatusToBool(terrama2::core::DataProvider::Status status)
+  if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    QString err_msg(QObject::tr("Could not open file: %1."));
+    err_msg = err_msg.arg(file_name.c_str());
+
+    throw terrama2::FileOpenError() << terrama2::ErrorDescription(err_msg);
+  }
+
+  QByteArray doc_data = file.readAll();
+
+  file.close();
+  
+  QJsonParseError parse_error;
+
+  QJsonDocument jdocument = QJsonDocument::fromJson(doc_data, &parse_error);
+
+  if(jdocument.isNull())
+  {
+    QString err_msg(QObject::tr("Error parsing file '%1': %2."));
+    err_msg = err_msg.arg(file_name.c_str()).arg(parse_error.errorString());
+
+    throw terrama2::ParserError() << terrama2::ErrorDescription(err_msg);
+  }
+
+  return jdocument;
+}
+
+bool
+terrama2::core::ToBool(DataProvider::Status status)
 {
   switch (status)
   {
-    case terrama2::core::DataProvider::ACTIVE:
+    case DataProvider::ACTIVE:
       return true;
-    case terrama2::core::DataProvider::INACTIVE:
+    case DataProvider::INACTIVE:
       return false;
     default:
       return false;
   }
 }
 
-
-terrama2::core::DataProvider::Status terrama2::core::BoolToDataProviderStatus(bool active)
+terrama2::core::DataProvider::Status
+terrama2::core::ToDataProviderStatus(bool active)
 {
-  if(active)
+  return (active) ? DataProvider::ACTIVE : DataProvider::INACTIVE;
+}
+
+terrama2::core::DataProvider::Kind
+terrama2::core::ToDataProviderKind(uint64_t kind)
+{
+  switch (kind)
   {
-    return terrama2::core::DataProvider::ACTIVE;
-  }
-  else
-  {
-    return terrama2::core::DataProvider::INACTIVE;
+    case 1:
+      return DataProvider::FTP_TYPE;
+    case 2:
+      return DataProvider::HTTP_TYPE;
+    case 3:
+      return DataProvider::FILE_TYPE;
+    case 4:
+      return DataProvider::WFS_TYPE;
+    case 5:
+      return DataProvider::WCS_TYPE;
+    default:
+      return DataProvider::UNKNOWN_TYPE;
   }
 }
 
-
-terrama2::core::DataProvider::Kind terrama2::core::IntToDataProviderKind(uint64_t kind)
-{
-  switch (kind) {
-  case 1:
-    return terrama2::core::DataProvider::FTP_TYPE;
-  case 2:
-    return terrama2::core::DataProvider::HTTP_TYPE;
-  case 3:
-    return terrama2::core::DataProvider::FILE_TYPE;
-  case 4:
-    return terrama2::core::DataProvider::WFS_TYPE;
-  case 5:
-    return terrama2::core::DataProvider::WCS_TYPE;
-  default:
-    return terrama2::core::DataProvider::UNKNOWN_TYPE;
-  }
-}
-
-std::string terrama2::core::BoolToString(bool b)
+std::string
+terrama2::core::ToString(bool b)
 {
   return b ? "true" : "false";
 }
 
-
-
-bool terrama2::core::DataSetStatusToBool(terrama2::core::DataSet::Status status)
+bool
+terrama2::core::ToBool(DataSet::Status status)
 {
   switch (status)
   {
-    case terrama2::core::DataSet::ACTIVE:
+    case DataSet::ACTIVE:
       return true;
-    case terrama2::core::DataSet::INACTIVE:
+    case DataSet::INACTIVE:
       return false;
     default:
       return false;
@@ -155,106 +183,81 @@ bool terrama2::core::DataSetStatusToBool(terrama2::core::DataSet::Status status)
 }
 
 
-terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(bool active)
+terrama2::core::DataSet::Status terrama2::core::ToDataSetStatus(bool active)
 {
-  if(active)
-  {
-    return terrama2::core::DataSet::ACTIVE;
-  }
-  else
-  {
-    return terrama2::core::DataSet::INACTIVE;
-  }
+  return (active) ? DataSet::ACTIVE : DataSet::INACTIVE;
 }
 
 
 
-terrama2::core::DataSet::Kind terrama2::core::IntToDataSetKind(uint64_t kind)
+terrama2::core::DataSet::Kind
+terrama2::core::ToDataSetKind(uint64_t kind)
 {
   switch (kind)
   {
     case 1:
-      return terrama2::core::DataSet::PCD_TYPE;
+      return DataSet::PCD_TYPE;
     case 2:
-      return terrama2::core::DataSet::OCCURENCE_TYPE;
+      return DataSet::OCCURENCE_TYPE;
     case 3:
-      return terrama2::core::DataSet::GRID_TYPE;
+      return DataSet::GRID_TYPE;
     default:
-      return terrama2::core::DataSet::UNKNOWN_TYPE;
+      return DataSet::UNKNOWN_TYPE;
   }
 }
 
-
-terrama2::core::DataSetItem::Kind terrama2::core::IntToDataSetItemKind(uint64_t kind)
+terrama2::core::DataSetItem::Kind
+terrama2::core::ToDataSetItemKind(uint64_t kind)
 {
   switch (kind)
   {
     case 1:
-      return terrama2::core::DataSetItem::PCD_INPE_TYPE;
+      return DataSetItem::PCD_INPE_TYPE;
     case 2:
-      return terrama2::core::DataSetItem::PCD_TOA5_TYPE;
+      return DataSetItem::PCD_TOA5_TYPE;
     case 3:
-      return terrama2::core::DataSetItem::FIRE_POINTS_TYPE;
+      return DataSetItem::FIRE_POINTS_TYPE;
     case 4:
-      return terrama2::core::DataSetItem::DISEASE_OCCURRENCE_TYPE;
+      return DataSetItem::DISEASE_OCCURRENCE_TYPE;
     default:
-      return terrama2::core::DataSetItem::UNKNOWN_TYPE;
+      return DataSetItem::UNKNOWN_TYPE;
   }
 }
 
-
-terrama2::core::DataSetItem::Status terrama2::core::BoolToDataSetItemStatus(bool active)
+terrama2::core::DataSetItem::Status
+terrama2::core::ToDataSetItemStatus(bool active)
 {
-  if(active)
-  {
-    return terrama2::core::DataSetItem::ACTIVE;
-  }
-  else
-  {
-    return terrama2::core::DataSetItem::INACTIVE;
-  }
+  return (active) ? DataSetItem::ACTIVE : DataSetItem::INACTIVE;
 }
 
-
-bool terrama2::core::DataSetItemStatusToBool(terrama2::core::DataSetItem::Status status)
+bool
+terrama2::core::ToBool(DataSetItem::Status status)
 {
   switch (status)
   {
-    case terrama2::core::DataSetItem::ACTIVE:
+    case DataSetItem::ACTIVE:
       return true;
-    case terrama2::core::DataSetItem::INACTIVE:
+    case DataSetItem::INACTIVE:
       return false;
     default:
       return false;
   }
 }
 
-terrama2::core::Filter::ByValueType terrama2::core::IntToFilterByValueType(uint64_t type)
+terrama2::core::Filter::ExpressionType
+terrama2::core::ToFilterExpressionType(uint64_t type)
 {
   switch (type)
   {
-    case 1:
-      return terrama2::core::Filter::LESS_THAN_TYPE;
     case 2:
-      return terrama2::core::Filter::GREATER_THAN_TYPE;
+      return Filter::LESS_THAN_TYPE;
     case 3:
-      return terrama2::core::Filter::MEAN_LESS_THAN_TYPE;
+      return Filter::GREATER_THAN_TYPE;
     case 4:
-      return terrama2::core::Filter::MEAN_GREATER_THAN_TYPE;
+      return Filter::MEAN_LESS_THAN_TYPE;
+    case 5:
+      return Filter::MEAN_GREATER_THAN_TYPE;
     default:
-      return terrama2::core::Filter::NONE_TYPE;
+      return Filter::NONE_TYPE;
   }
-}
-
-QJsonObject terrama2::core::OpenFile(const std::string &filepath)
-{
-  QString settings;
-  QFile file;
-  file.setFileName(filepath.c_str());
-  file.open(QIODevice::ReadOnly | QIODevice::Text);
-  settings = file.readAll();
-  file.close();
-
-  QJsonDocument document = QJsonDocument::fromJson(settings.toUtf8());
-  return document.object();
 }
