@@ -66,6 +66,11 @@ class AdminApp : public QMainWindow, private boost::noncopyable
 //! Fill fields
     void fillForm();
 
+   // void save(const QString command = "", const QString parameters = "", const ConfigManager& newdata);
+    void save();
+
+    ConfigManager* getConfigManager();
+
 signals:
 
 protected:
@@ -81,8 +86,10 @@ protected:
     void renameRequested();
     void removeRequested();
     void cancelRequested();
+
     void dbCreateDatabaseRequested();
     void dbCheckConnectionRequested();
+
     void manageServices();
     void showConsoles();
 

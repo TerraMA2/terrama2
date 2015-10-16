@@ -332,7 +332,7 @@ void AdminApp::renameRequested()
 // Save file
 void AdminApp::saveRequested()
 { 
-  QString err;
+ /* QString err;
   if (!validateDbData(err))
   {
     if(!err.isEmpty())
@@ -353,6 +353,7 @@ void AdminApp::saveRequested()
 
     if(!newfilename.endsWith(".terrama2"))
          newfilename.append(".terrama2");
+
    }
    else
    { // Save file changed
@@ -362,10 +363,14 @@ void AdminApp::saveRequested()
 
    QJsonObject metadata;
    QString version = "4.0.0-alpha1";
+   QString params = "%c";
+   QString cmd = "coleta.exe";
 
    metadata["is_study"] = pimpl_->ui_->dbStudyChk->isChecked();
    metadata["name"] = nameConfig_;
    metadata["version"] = version;
+   metadata["parameters"] = params;
+   metadata["command"] = cmd;
 
    for(QSharedPointer<AdminAppTab> tab: tabs_)
    {
@@ -394,7 +399,90 @@ void AdminApp::saveRequested()
    pimpl_->ui_->saveAct->setEnabled(false);
 
    dataChanged_ = false;
+*/
+    save();
+}
 
+ConfigManager* AdminApp::getConfigManager()
+{
+ return configManager_;
+}
+
+void AdminApp::save()
+{
+    QJsonObject metadata;
+    QString err;
+    if (!validateDbData(err))
+    {
+      if(!err.isEmpty())
+       {
+        dataChanged_ = true;
+        QMessageBox::warning(this, tr("Error validating data to save..."), err);
+        return;
+       }
+    }
+    QString newfilename;
+
+    if (newData_) // Save new file or SaveAs file
+    {
+      newfilename = QFileDialog::getSaveFileName(this, tr("Enter the name for the configuration"),
+                                                  ".", tr("Configuration (*.terrama2)"));
+      if(newfilename.isEmpty())
+        return;
+
+      if(!newfilename.endsWith(".terrama2"))
+           newfilename.append(".terrama2");
+
+     }
+     else
+     { // Save file changed
+       QJsonObject fileSeleted = configManager_->getfiles().take(nameConfig_);
+       newfilename = fileSeleted.take("path").toString();
+     }
+
+     QString version = "4.0.0-alpha1";
+     metadata["is_study"] = pimpl_->ui_->dbStudyChk->isChecked();
+     metadata["name"] = nameConfig_;
+     metadata["version"] = version;
+
+     if (configManager_->getCollection()->params_ == "")
+       {
+        QString params = "%c";
+        QString cmd = "coleta.exe";
+        configManager_->getCollection()->params_ = params;
+        configManager_->getCollection()->cmd_ = cmd;
+      }
+
+     for(QSharedPointer<AdminAppTab> tab: tabs_)
+     {
+       QMap<QString, QJsonObject> tabJson = tab->toJson();
+       metadata[tabJson.firstKey()] = tabJson.first();
+     }
+
+     QFile saveFile(newfilename);
+
+     saveFile.open(QIODevice::WriteOnly);
+
+     QJsonDocument jsondoc(metadata);
+
+     saveFile.write(jsondoc.toJson());
+
+     saveFile.close();
+
+     metadata.insert("path",newfilename);
+     configManager_->insertFile(nameConfig_, metadata);
+
+     //QMessageBox::information(this, tr("TerraMA2"), tr("Configuration successfully saved!"));
+
+     pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
+     pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
+     pimpl_->ui_->saveBtn->setEnabled(false);
+     pimpl_->ui_->saveAct->setEnabled(false);
+
+     pimpl_->ui_->configListWidget->setCurrentRow(0);
+
+     dataChanged_ = false;
+     newData_= false;
 }
 
 // SaveAs file
@@ -535,8 +623,8 @@ void AdminApp::refresh()
   }
   else
   {
-    QString valor = pimpl_->ui_->configListWidget->currentItem()->text();
-    QJsonObject selectedMetadata = configManager_->getfiles().take(valor);
+    QString selectedname = pimpl_->ui_->configListWidget->currentItem()->text();
+    QJsonObject selectedMetadata = configManager_->getfiles().take(selectedname);
 
     configManager_->setDataForm(selectedMetadata);
 
@@ -561,6 +649,7 @@ void AdminApp::removeRequested()
 
   delete pimpl_->ui_->configListWidget->currentItem();
 
+// Atualiza a lista
   refresh();
 
   newData_= false;
@@ -569,8 +658,19 @@ void AdminApp::removeRequested()
 // Service Dialog
 void AdminApp::manageServices()
 {
-  ServicesDialog dlg(this);
-  dlg.exec();
+  if (dataChanged_)
+  {
+    QMessageBox::information(this, tr("TerraMA2"), tr("Save data changed!"));
+    pimpl_->ui_->saveBtn->setFocus();
+  }
+  else
+  {
+    QString nameConfig = pimpl_->ui_->configListWidget->currentItem()->text();
+
+    ServicesDialog dlg(this, *configManager_, nameConfig);
+
+    dlg.exec();
+  }
 }
 
 // Console Dialog
@@ -740,44 +840,43 @@ AdminApp::~AdminApp()
 //! Evento chamado quando o usuário solicita o encerramento da aplicação
 void AdminApp::closeEvent(QCloseEvent* close)
 {
- if (dataChanged_)
- {
-
-  int ret = QMessageBox::warning(this, tr("TerraMA2"),
+  if (dataChanged_)
+  {
+   int ret = QMessageBox::warning(this, tr("TerraMA2"),
                                   tr("Save changes to configuration before closing?"),
                                   QMessageBox::Save | QMessageBox::Discard
                                   | QMessageBox::Cancel,
                                   QMessageBox::Save);
-
-  switch (ret) {
-     case QMessageBox::Save:
-          {
-           // Save was clicked
-            saveRequested();
-            if (dataChanged_)
-            {
-              close->ignore();
-              pimpl_->ui_->dbAddressLed->setFocus();
-              break;
-            }
-            else
-            {
-              close->accept();
-              break;
-            }
-          }
-     case QMessageBox::Discard:
-         // Don't Save was clicked
-         close->accept();
-         break;
-     case QMessageBox::Cancel:
-         // Cancel was clicked
-         close->ignore();
-         pimpl_->ui_->dbAddressLed->setFocus();
-         break;
-     default:
-         // should never be reached
-         break;
+  switch (ret)
+  {
+    case QMessageBox::Save:
+    {
+      // Save was clicked
+      saveRequested();
+      if (dataChanged_)
+      {
+        close->ignore();
+        pimpl_->ui_->dbAddressLed->setFocus();
+        break;
+      }
+      else
+      {
+        close->accept();
+        break;
+      }
+    }
+    case QMessageBox::Discard:
+      // Don't Save was clicked
+      close->accept();
+      break;
+    case QMessageBox::Cancel:
+      // Cancel was clicked
+      close->ignore();
+      pimpl_->ui_->dbAddressLed->setFocus();
+      break;
+    default:
+      // should never be reached
+      break;
    }
  }
 }

@@ -117,6 +117,8 @@ void ConfigManager::setDataForm(QJsonObject metadata)
       collection_->timeout_ = collectConfig["connection_timeout"].toInt();
       collection_->address_ = collectConfig["address"].toString();
       collection_->servicePort_ = collectConfig["port"].toString().toInt();
+      collection_->cmd_ = collectConfig["command"].toString();
+      collection_->params_ = collectConfig["parameters"].toString();
     }
     else
       throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
