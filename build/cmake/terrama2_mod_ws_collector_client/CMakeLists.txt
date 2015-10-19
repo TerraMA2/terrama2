@@ -41,7 +41,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-TERRAMA2_GSOAP_SOAPCPP2(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp
+TERRAMA2_GSOAP_SOAPCPP2("${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp"
                         "Web" "client" "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core"
                         GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
 

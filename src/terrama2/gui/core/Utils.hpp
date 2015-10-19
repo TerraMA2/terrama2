@@ -36,6 +36,8 @@
 
 // Forward declaration
 class QString;
+class QMainWindow;
+class QJsonObject;
 
 namespace terrama2
 {
@@ -43,12 +45,8 @@ namespace terrama2
   {
     namespace core
     {
-      enum ConnectionType
-      {
-        FTP,
-        LOCALFILES,
-        WEBSERVICE
-      };
+      //! Function to generate file destination of TerraMA2 File
+      void saveTerraMA2File(QMainWindow* appFocus, const QJsonObject& json);
 
       /*! Function to check if there is any service listening on host (WebServices)
         \exception It may raise <terrama2::gui::URLError> when trying to request invalid url

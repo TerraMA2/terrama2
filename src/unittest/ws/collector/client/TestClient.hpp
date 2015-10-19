@@ -52,8 +52,8 @@ private:
      */
     void clearDatabase();
 
-    terrama2::core::DataProviderPtr buildDataProviderPtr();
-    terrama2::core::DataSetPtr buildDataSetPtr();
+    terrama2::core::DataProvider buildDataProvider();
+    terrama2::core::DataSet buildDataSet();
 
 private slots:
 

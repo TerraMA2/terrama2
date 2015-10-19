@@ -80,34 +80,29 @@ void ConfigManager::loadConfiguration(QString filepath)
 
 void ConfigManager::setDataForm(QJsonObject metadata)
 {
+  if (metadata.contains("database") && metadata.contains("collector_web_service"))
+  {
+    QJsonObject databaseConfig = metadata["database"].toObject();
+    database_->dbName_ = databaseConfig["name"].toString();
+    database_->host_ = databaseConfig["host"].toString();
+    database_->port_ = databaseConfig["port"].toString().toInt();
+    database_->user_ = databaseConfig["user"].toString();
+    database_->password_ = databaseConfig["password"].toString();
+    database_->driver_ = databaseConfig["driver"].toString();
+    database_->study_ = metadata["is_study"].toString();
+    database_->name_ = metadata["name"].toString();
+    database_->version_ = metadata["version"].toString();
 
-    if (metadata.contains("database"))
-    {
-      QJsonObject databaseConfig = metadata["database"].toObject();
-      database_->dbName_ = databaseConfig["name"].toString();
-      database_->host_ = databaseConfig["host"].toString();
-      database_->port_ = databaseConfig["port"].toString().toInt();
-      database_->user_ = databaseConfig["user"].toString();
-      database_->password_ = databaseConfig["password"].toString();
-      database_->driver_ = databaseConfig["driver"].toString();
-      database_->study_ = metadata["is_study"].toString();
-      database_->name_ = metadata["name"].toString();
-      database_->version_ = metadata["version"].toString();
-    }
-    if (metadata.contains("collector_web_service"))
-    {
-      QJsonObject collectConfig = metadata["collector_web_service"].toObject();
+    QJsonObject collectConfig = metadata["collector_web_service"].toObject();
 
-      collection_->dirPath_ = collectConfig["data_path"].toString();
-      collection_->logFile_ = collectConfig["log_file"].toString();
-      collection_->timeout_ = collectConfig["connection_timeout"].toString().toInt();
-      collection_->address_ = collectConfig["address"].toString();
-      collection_->servicePort_ = collectConfig["port"].toString().toInt();
-    }
-    else
-      throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
-
-
+    collection_->dirPath_ = collectConfig["data_path"].toString();
+    collection_->logFile_ = collectConfig["log_file"].toString();
+    collection_->timeout_ = collectConfig["connection_timeout"].toString().toInt();
+    collection_->address_ = collectConfig["address"].toString();
+    collection_->servicePort_ = collectConfig["port"].toString().toInt();
+  }
+  else
+    throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
 }
 
 QMap<QString, QJsonObject> ConfigManager::getfiles() const
