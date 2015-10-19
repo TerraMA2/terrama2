@@ -109,9 +109,10 @@ void terrama2::core::DataManager::unload() noexcept
     pimpl_->providers.clear();
     pimpl_->dataLoaded = false;
 
-    // emits a signal in order to notify the application that the data manager has been unloaded.
-    emit dataManagerUnloaded();
   }
+
+  // emits a signal in order to notify the application that the data manager has been unloaded.
+  emit dataManagerUnloaded();
 }
 
 void terrama2::core::DataManager::add(DataProvider& provider, const bool shallowSave)
