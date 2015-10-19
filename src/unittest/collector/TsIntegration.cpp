@@ -59,35 +59,35 @@ void TsIntegration::TestReadCsvStorePostGis()
 
   try
   {
-    terrama2::core::DataProviderPtr provider(new terrama2::core::DataProvider("TestProvider", terrama2::core::DataProvider::FILE_TYPE));
-    provider->setStatus(terrama2::core::DataProvider::ACTIVE);
-    provider->setUri(info.canonicalPath().toStdString());
+    terrama2::core::DataProvider provider(1, terrama2::core::DataProvider::FILE_TYPE);
+    provider.setName("dummy");
+    provider.setStatus(terrama2::core::DataProvider::ACTIVE);
+    provider.setUri(info.canonicalPath().toStdString());
 
-    terrama2::core::DataSetPtr dataset(new terrama2::core::DataSet(provider, "TestDataSet", terrama2::core::DataSet::PCD_TYPE));
-    dataset->setStatus(terrama2::core::DataSet::ACTIVE);
+    terrama2::core::DataSet dataset(terrama2::core::DataSet::PCD_TYPE, 1);
+    dataset.setName("dummy");
+    dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
     te::dt::TimeDuration frequency(0, 0, 5);
-    dataset->setDataFrequency(frequency);
+    dataset.setDataFrequency(frequency);
 
-    terrama2::core::DataSetItemPtr item(new terrama2::core::DataSetItem(dataset, terrama2::core::DataSetItem::PCD_INPE_TYPE));
+    terrama2::core::DataSetItem item(terrama2::core::DataSetItem::PCD_INPE_TYPE);
 
     std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
                                                         {"PG_HOST", "localhost"},
                                                         {"PG_PORT", "5432"},
                                                         {"PG_USER", "postgres"},
                                                         {"PG_PASSWORD", "postgres"},
-                                                        {"PG_DB_NAME", "terrama2"},
+                                                        {"PG_DB_NAME", "postgres"},
                                                         {"PG_CONNECT_TIMEOUT", "4"},
                                                         {"PG_CLIENT_ENCODING", "UTF-8"},
                                                         {"PG_SCHEME", "terrama2"},
                                                         {"PG_TABLENAME", "nome_teste"} };
-    item->setStorageMetadata(storageMetadata);
+    item.setStorageMetadata(storageMetadata);
 
-    std::vector<terrama2::core::DataSetItemPtr> datasetItemVect = {item};
-    dataset->setDataSetItemList(datasetItemVect);
+    dataset.add(item);
 
-    std::vector<terrama2::core::DataSetPtr> datasetVec = {dataset};
-    provider->setDataSets(datasetVec);
+    provider.add(dataset);
 
     terrama2::collector::CollectorService service;
     service.addDataset(dataset);

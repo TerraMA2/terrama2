@@ -44,7 +44,7 @@ struct terrama2::collector::DataSetTimer::Impl
     std::vector<DataProcessorPtr> dataLst_;
 };
 
-terrama2::collector::DataSetTimer::DataSetTimer(terrama2::core::DataSet dataSet)
+terrama2::collector::DataSetTimer::DataSetTimer(const terrama2::core::DataSet& dataSet)
 {
   impl_ = new Impl();
 
@@ -88,11 +88,9 @@ void terrama2::collector::DataSetTimer::populateDataLst()
 }
 
 
-terrama2::collector::CollectorPtr terrama2::collector::DataSetTimer::collector() const
+terrama2::core::DataProvider terrama2::collector::DataSetTimer::dataProvider() const
 {
-  uint64_t providerId = impl_->dataSet_.provider();
-  core::DataProvider provider = core::DataManager::getInstance().findDataProvider(providerId);
-  return CollectorFactory::getInstance().getCollector(provider);
+  return impl_->dataSet_.provider();
 }
 
 terrama2::core::DataSet terrama2::collector::DataSetTimer::dataSet() const

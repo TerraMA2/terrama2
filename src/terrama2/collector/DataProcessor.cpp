@@ -32,6 +32,7 @@
 #include "StoragerFactory.hpp"
 #include "ParserFactory.hpp"
 #include "DataFilter.hpp"
+#include "Exception.hpp"
 #include "Storager.hpp"
 #include "Parser.hpp"
 
@@ -40,8 +41,8 @@
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
-//std
-#include <atomic>
+//qt
+#include <QDebug>
 
 struct terrama2::collector::DataProcessor::Impl
 {
@@ -78,33 +79,42 @@ terrama2::collector::DataFilterPtr terrama2::collector::DataProcessor::filter() 
 
 void terrama2::collector::DataProcessor::import(const std::string &uri)
 {
+  //JANO: should run in thread ?
+  //Call a thread method?
+
   assert(impl_->parser_);
   assert(impl_->filter_);
   assert(impl_->storager_);
 
-  //get full name list
-  std::vector<std::string> names = impl_->parser_->datasetNames(uri);
-  //filter names
-  names = impl_->filter_->filterNames(names);
-  //get dataset
-  std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-  std::shared_ptr<te::da::DataSetType> datasetType;
-  impl_->parser_->read(uri, names, datasetVec, datasetType);
+try
+{
+    //get full name list
+    std::vector<std::string> names = impl_->parser_->datasetNames(uri);
+    //filter names
+    names = impl_->filter_->filterNames(names);
+    //get dataset
+    std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+    std::shared_ptr<te::da::DataSetType> datasetType;
+    impl_->parser_->read(uri, names, datasetVec, datasetType);
 
-  //filter dataset
-  for(int i = 0, size = datasetVec.size(); i < size; ++i)
-  {
-    std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+    //filter dataset
+    for(int i = 0, size = datasetVec.size(); i < size; ++i)
+    {
+      std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
 
-    //std::vector::at is NON-const, Qt containers use 'at' as const
-    datasetVec.at(i) = impl_->filter_->filterDataSet(tempDataSet);
-  }
+      //std::vector::at is NON-const, Qt containers use 'at' as const
+      datasetVec.at(i) = impl_->filter_->filterDataSet(tempDataSet);
+    }
 
   //store dataset
   impl_->storager_->store(datasetVec, datasetType);
-
-  //JANO: should run in thread ?
-  //Call a thread method?
+}
+  catch(UnableToReadDataSetError& e)
+  {
+    //TODO: log de erro
+    qDebug() << e.what();
+    assert(0);
+  }
 }
 
 void terrama2::collector::DataProcessor::initFilter()

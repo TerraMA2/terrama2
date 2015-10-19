@@ -56,6 +56,7 @@ namespace terrama2
   }
   namespace collector
   {
+    class CollectorFactory;
 
 
     /*!
@@ -190,10 +191,11 @@ namespace terrama2
         void connectDataManager();
 
         bool stop_;
+        std::shared_ptr<CollectorFactory> collectorFactory_;
         QMap<core::DataProvider::Kind, QList<CollectorPtr> >  collectorQueueMap_;
         QMap<CollectorPtr, QList<uint64_t /*DataSetId*/> >    datasetQueue_;
 
-        QMap<int /*DataSetId*/, DataSetTimerPtr>             datasetTimerLst_;
+        QMap<int /*DataSetId*/, DataSetTimerPtr>              datasetTimerLst_;
 
         std::mutex  mutex_;//!< mutex to thread safety
         std::thread loopThread_;//!< Thread that holds the loop of processing queued dataset.

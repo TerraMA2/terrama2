@@ -65,7 +65,8 @@ void terrama2::collector::CollectorService::connectDataManager()
 
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
-    stop_(false)
+    stop_(false),
+    collectorFactory_(new CollectorFactory())
 {
   connectDataManager();
 
@@ -176,7 +177,9 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
   assert(datasetTimer);
 
   //Append the data provider to queue
-  auto collector = datasetTimer->collector();
+  auto dataProvider = datasetTimer->dataProvider();
+  auto collector    = collectorFactory_->getCollector(dataProvider);
+
   assert(collector);
   auto& collectorQueue = collectorQueueMap_[collector->kind()];
   if(!collectorQueue.contains(collector))
@@ -196,10 +199,8 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
 
   //TODO: catch? rethrow?
   //Create a collector and add it to the list
-  CollectorPtr collector = CollectorFactory::getInstance().getCollector(dataProvider);
 
-  return collector;
-
+  return collectorFactory_->getCollector(dataProvider);
 }
 
 void terrama2::collector::CollectorService::removeProvider(terrama2::core::DataProvider dataProvider)
@@ -207,15 +208,13 @@ void terrama2::collector::CollectorService::removeProvider(terrama2::core::DataP
   for(const core::DataSet dataSet : dataProvider.datasets())
     removeDataset(dataSet);
 
-  CollectorFactory& factory = CollectorFactory::getInstance();
-  factory.removeCollector(dataProvider);
+  collectorFactory_->removeCollector(dataProvider);
 }
 
 void terrama2::collector::CollectorService::updateProvider(const terrama2::core::DataProvider dataProvider)
 {
-  CollectorFactory& factory = CollectorFactory::getInstance();
-  factory.removeCollector(dataProvider);
-  factory.getCollector(dataProvider);
+  collectorFactory_->removeCollector(dataProvider);
+  collectorFactory_->getCollector(dataProvider);
 }
 
 terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)

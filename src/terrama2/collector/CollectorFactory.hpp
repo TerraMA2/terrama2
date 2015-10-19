@@ -37,11 +37,15 @@
 //Qt
 #include <QMap>
 
-//Teralib
-#include <terralib/common/Singleton.h>
+//boost
+#include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
+  namespace core {
+    class DataSet;
+    class Data;
+  }
   namespace collector
   {
 
@@ -54,7 +58,7 @@ namespace terrama2
          * create an instace of a collector of the appropriate derived classe and return a shared pointer to it.
          *
          */
-    class CollectorFactory : public te::common::Singleton<CollectorFactory>
+    class CollectorFactory : public boost::noncopyable
     {
       public:
 
@@ -75,6 +79,8 @@ namespace terrama2
          * \param dataProvider Collector's DataProvider.
          */
         void removeCollector(const core::DataProvider dataProvider);
+
+        void removeAllCollectors();
 
       private:
 
