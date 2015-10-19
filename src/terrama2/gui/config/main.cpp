@@ -54,8 +54,8 @@ void initializeTerralib()
   info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
   te::plugin::PluginManager::getInstance().add(info);
 
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+//  te::plugin::PluginManager::getInstance().add(info);
 
 //  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
 //  te::plugin::PluginManager::getInstance().add(info);
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
   catch(const std::exception& e)
   {
     QString messageError = "TerraMA2 finished with errors!\n\n%1";
-    messageError.arg(e.what());
+    messageError.append(e.what());
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
   }
   catch(...)

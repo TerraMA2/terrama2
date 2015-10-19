@@ -20,28 +20,11 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/server/main.cpp
+  \file terrama2/unittest/ws/collector/client/Namespace.cpp
 
-  \brief Main class for tests in the WebService class.
+  \brief Include namespace file from gSOAP.
 
   \author Vinicius Campanha
 */
 
-// TerraMA2 Test
-#include "TestClient.hpp"
-#include "Utils.hpp"
-
-
-
-int main(int argc, char **argv)
-{
-//  initializeTerraMA2();
-
-//  TestClient testClient;
-//  int ret = QTest::qExec(&testClient, argc, argv);
-
-//  finalizeTerraMA2();
-
-//  return ret;
-  return EXIT_SUCCESS;
-}
+#include "Web.nsmap"

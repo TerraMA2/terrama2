@@ -30,17 +30,14 @@
 
 // TerraMA2
 #include "ConfigApp.hpp"
-#include "ui_ConfigAppForm.h"
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
 #include "../../core/ApplicationController.hpp"
 
 // TerraMA2 Tab controls
 #include "ConfigAppWeatherTab.hpp"
-#include "ConfigAppAdditionalTab.hpp"
 
 // Qt
-#include <QStringList>
 #include <QTranslator>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -63,7 +60,8 @@ struct ConfigApp::Impl
 
 ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   : QMainWindow(parent, flags),
-    pimpl_(new ConfigApp::Impl), currentTabIndex_(0)
+    pimpl_(new ConfigApp::Impl), currentTabIndex_(0),
+    weatherTab_(nullptr)
 {
 // Find TerraMA2 icon theme library
   std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
@@ -97,12 +95,7 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 // Initialize services
   services_ = new ServiceHandler(this);
 
-// Init services for each tab
-  QSharedPointer<ConfigAppWeatherTab> weatherTab(new ConfigAppWeatherTab(this, ui()));
-  QSharedPointer<ConfigAppAdditionalTab> additionalTab(new ConfigAppAdditionalTab(this, ui()));
-
-  tabList_.append(weatherTab);
-  tabList_.append(additionalTab);
+  weatherTab_.reset(new ConfigAppWeatherTab(this, pimpl_->ui_));
 
 // Connect tabs to changing index
   connect(pimpl_->ui_->mainTabWidget, SIGNAL(currentChanged(int)), SLOT(tabChangeRequested(int)));
@@ -138,32 +131,43 @@ void ConfigApp::tabChangeRequested(int index)
   if(index != currentTabIndex_)
   {
     // Check if the tab may be changed
-    QSharedPointer<ConfigAppTab> tab(tabList_.at(currentTabIndex_));
-
-    tab->askForChangeTab(index);
+    switch(index)
+    {
+      case 0:
+        weatherTab_->askForChangeTab(index);
+        break;
+      default:
+        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
+    }
   }
-}
-
-void ConfigApp::disableRefreshAction()
-{
-  pimpl_->ui_->refreshAct->setEnabled(false);
 }
 
 void ConfigApp::openRequested()
 {
-  QString file = QFileDialog::getOpenFileName(this, tr("Choice TerraMA2 file"),
-                                             ".", tr("TerraMA2 (*.terrama2)"));
-  if (!file.isEmpty())
+  try
   {
-    services_->loadConfiguration(file);
-    // Connect to database and list the values
-    std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+    QString file = QFileDialog::getOpenFileName(this, tr("Choice TerraMA2 file"),
+                                               ".", tr("TerraMA2 (*.terrama2)"));
+    if (!file.isEmpty())
+    {
+      services_->loadConfiguration(file);
 
-    // TEMP Harded code
-    terrama2::core::ApplicationController::getInstance().loadProject(path);
+      terrama2::core::ApplicationController::getInstance().loadProject(file.toStdString());
 
-    pimpl_->ui_->centralwidget->setEnabled(true);
-    for(QSharedPointer<ConfigAppTab> tab: tabList_)
-      tab->load();
+      pimpl_->ui_->centralwidget->setEnabled(true);
+
+      weatherTab_->load();
+
+    }
   }
+  catch(const terrama2::Exception& e)
+  {
+    const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(this, tr("TerraMA2"), *message);
+  }
+}
+
+QSharedPointer<ConfigAppWeatherTab> ConfigApp::getWeatherTab() const
+{
+  return weatherTab_;
 }
