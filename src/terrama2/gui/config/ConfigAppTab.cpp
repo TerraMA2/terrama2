@@ -1,12 +1,13 @@
 // TerraMA2
 #include "ConfigAppTab.hpp"
+#include "ConfigApp.hpp"
 #include "Exception.hpp"
 
 // QT
 #include <QMessageBox>
 
 ConfigAppTab::ConfigAppTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : QObject(app), app_(app), ui_(ui)
+  : QObject(app), app_(app), ui_(ui), active_(false), changed_(false)
 {
 
 }
@@ -69,4 +70,28 @@ void ConfigAppTab::onSaveRequested()
 void ConfigAppTab::onCancelRequested()
 {
   discardChanges(true);
+}
+
+bool ConfigAppTab::isActive() const
+{
+  return active_;
+}
+
+void ConfigAppTab::setActive(bool state)
+{
+  active_ = state;
+}
+
+bool ConfigAppTab::dataChanged() {
+  return active_ && changed_;
+}
+
+void ConfigAppTab::setChanged(bool state)
+{
+  changed_ = state;
+}
+
+void ConfigAppTab::setSelectedData(const QString selectedData)
+{
+  selectedData_ = selectedData;
 }

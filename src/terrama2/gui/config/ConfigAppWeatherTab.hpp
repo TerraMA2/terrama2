@@ -36,6 +36,14 @@
 
 // QT
 #include <QString>
+#include <QList>
+#include <QSharedPointer>
+
+
+class QTreeWidgetItem;
+class ConfigAppWeatherServer;
+class ConfigAppWeatherGridTab;
+
 
 class ConfigAppWeatherTab : public ConfigAppTab
 {
@@ -44,40 +52,25 @@ class ConfigAppWeatherTab : public ConfigAppTab
   public:
     ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
     ~ConfigAppWeatherTab();
-
     void load();
     bool dataChanged();
     bool validate();
     void save();
-    void saveServer();
-    void saveGridDataSeries();
     void discardChanges(bool restore_data);
 
-  private:
-    void isValidConnection();
-    void showDataSeries(bool state);
-    void hidePanels(QWidget* except);
-  signals:
-    void serverChanged();
+    //! It remove all children from QWidgetTree
+    void clearList();
+    void displayOperationButtons(bool state);
+    void changeTab(ConfigAppTab &sender, QWidget &widget);
 
-    //! It could be used in server operations when it was inserted or server was cancelled
-    void serverDone();
+  private:
+    void showDataSeries(bool state);
+    void hideDataSetButtons();
+    void hidePanels(QWidget* except);
 
   private slots:
-    //! It used when user click add server btn
-    void onEnteredWeatherTab();
-
-    //! Activated when user starting editing an input
-    void onWeatherTabEdited();
-
     //! Slot for handling importServer btn
     void onImportServer();
-
-    //! Slot for handling if it is valid connection. TODO: ftp
-    void onCheckConnection();
-
-    //! Triggered when click datagridbtn to show datagrid modal
-    void onDataGridBtnClicked();
 
     //! Triggered when click datapointbtn to show datapoint modal
     void onInsertPointBtnClicked();
@@ -88,15 +81,17 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! Triggered when click serverDeleteBtn to remove data provider
     void onDeleteServerClicked();
 
-    //! Triggered when click in weatherTree to display metadata from DB
+    //! Triggered when click in weatherTree to enable data series button
     void onWeatherDataTreeClicked(QTreeWidgetItem*);
 
-  private:
-    bool serverTabChanged_; //!< Defines if the user is inserting a server
-    bool dataGridSeriesChanged_; //!< Defines if the user is inserting datagrid series
-    bool dataPointSeriesChanged_; //!< Defines if the user is inserting data point series
-    bool dataPointDiffSeriesChanged_; //!< Defines if the user is inserting data point series
+    //! Triggered when click exportServerBtn to export DataProvider as TerraMA2 File
+    void onExportServerClicked();
 
+    //! Triggered when click projectionBtn to call projection gui window
+    void onProjectionClicked();
+
+  private:
+    QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
 };
 
 #endif
