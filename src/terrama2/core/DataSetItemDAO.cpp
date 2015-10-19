@@ -93,7 +93,7 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
 
 void terrama2::core::DataSetItemDAO::updateDataSetItems(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
-  std::string sql = "SELECT id FROM terrama2.dataset_item WHERE dataset_id = " + std::__1::to_string(dataset.id());
+  std::string sql = "SELECT id FROM terrama2.dataset_item WHERE dataset_id = " + std::to_string(dataset.id());
 
   std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
 

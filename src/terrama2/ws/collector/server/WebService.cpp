@@ -51,11 +51,11 @@ int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &
 {
   try
   {
-    auto dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr< DataProvider >(struct_dataprovider);
+    auto dataProviderPtr = terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider);
 
     terrama2::core::DataManager::getInstance().add(dataProviderPtr);
 
-    struct_dataproviderResult = terrama2::ws::collector::core::DataProviderPtr2Struct< DataProvider >(dataProviderPtr);
+    struct_dataproviderResult = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProviderPtr);
   }
   catch(terrama2::Exception &e)
   {
@@ -75,11 +75,11 @@ int WebService::addDataSet(DataSet struct_dataSet, DataSet &struct_datasetResult
 {
   try
   {
-    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSet);
+    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet);
 
     terrama2::core::DataManager::getInstance().add(dataSetPtr);
 
-    struct_datasetResult = terrama2::ws::collector::core::DataSetPtr2Struct< DataSet >(dataSetPtr);
+    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSetPtr);
   }
   catch(terrama2::Exception &e)
   {
@@ -99,11 +99,11 @@ int WebService::updateDataProvider(DataProvider struct_dataprovider, DataProvide
 {
   try
   {
-    auto dataProviderPtr = terrama2::ws::collector::core::Struct2DataProviderPtr< DataProvider >(struct_dataprovider);
+    auto dataProviderPtr = terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider);
 
     terrama2::core::DataManager::getInstance().update(dataProviderPtr);
 
-    struct_dataproviderResult = terrama2::ws::collector::core::DataProviderPtr2Struct< DataProvider >(dataProviderPtr);
+    struct_dataproviderResult = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProviderPtr);
   }
   catch(terrama2::Exception &e)
   {
@@ -123,11 +123,11 @@ int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetRes
 {
   try
   {
-    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataset);
+    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataset);
 
     terrama2::core::DataManager::getInstance().update(dataSetPtr);
 
-    struct_datasetResult = terrama2::ws::collector::core::DataSetPtr2Struct< DataSet >(dataSetPtr);
+    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSetPtr);
   }
   catch(terrama2::Exception &e)
   {
@@ -195,7 +195,7 @@ int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
       return soap_receiverfault("Error at find Data Provider", "Data Provider don't exist!");
     }
 
-    struct_dataprovider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProvider);
+    struct_dataprovider = terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataProvider);
   }
   catch(terrama2::Exception &e)
   {
@@ -217,7 +217,7 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
   {
     auto dataSet = terrama2::core::DataManager::getInstance().findDataSet(id);
 
-    struct_dataset = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSet);
+    struct_dataset = terrama2::ws::collector::core::DataSet2Struct<DataSet>(dataSet);
   }
   catch(terrama2::Exception &e)
   {
@@ -239,7 +239,7 @@ int WebService::listDataProvider(std::vector< DataProvider > &data_provider_list
 
   for(uint32_t i = 0; i < dataproviders.size() ; i++)
   {
-    data_provider_list.push_back(terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataproviders.at(i)));
+    data_provider_list.push_back(terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataproviders.at(i)));
   }
 
   return SOAP_OK;
@@ -252,7 +252,7 @@ int WebService::listDataSet(std::vector< DataSet > &data_set_list)
 
   for(uint32_t i = 0; i < datasets.size() ; i++)
   {
-    data_set_list.push_back(terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(datasets.at(i)));
+    data_set_list.push_back(terrama2::ws::collector::core::DataSet2Struct<DataSet>(datasets.at(i)));
   }
 
   return SOAP_OK;

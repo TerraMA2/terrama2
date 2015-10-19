@@ -63,7 +63,7 @@ void terrama2::ws::collector::Client::ping(std::string &answer)
 void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider& dataProvider)
 {
 
-  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProvider);
+  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataProvider);
 
   DataProvider struct_dataProviderResult;
 
@@ -74,7 +74,7 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
     throw client::AddingDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataProvider = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
+  dataProvider = terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProviderResult);
 
 }
 
@@ -84,7 +84,7 @@ void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSet & dataS
   if(dataSet.name().empty())
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct<DataSet>(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -95,7 +95,7 @@ void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSet & dataS
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataSet = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetResult);
 
 }
 
@@ -105,7 +105,7 @@ void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataPro
   if(dataProvider.name().empty())
     throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
 
-  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProviderPtr2Struct<DataProvider>(dataProvider);
+  DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataProvider);
 
   DataProvider struct_dataProviderResult;
 
@@ -116,7 +116,7 @@ void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataPro
     throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataProvider = terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderResult);
+  dataProvider = terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProviderResult);
 
 }
 
@@ -126,7 +126,7 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSet & da
   if(dataSet.id() == 0)
     throw client::UpdateDataSetError() << ErrorDescription(QObject::tr("Invalid dataset passed!"));
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSetPtr2Struct<DataSet>(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct<DataSet>(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -137,7 +137,7 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSet & da
     throw client::UpdateDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  dataSet = terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetResult);
 
 }
 
@@ -176,7 +176,7 @@ terrama2::core::DataProvider terrama2::ws::collector::Client::findDataProvider(u
     throw client::FindDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  return terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProvider);
+  return terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProvider);
 
 }
 
@@ -192,7 +192,7 @@ terrama2::core::DataSet terrama2::ws::collector::Client::findDataSet(uint64_t id
     throw client::FindDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  return terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSet);
+  return terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet);
 
 }
 
@@ -213,7 +213,7 @@ void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::co
 
   for(uint32_t i = 0; i < struct_dataProviderList.size() ; i++)
   {
-    providers.push_back(terrama2::ws::collector::core::Struct2DataProviderPtr<DataProvider>(struct_dataProviderList.at(i)));
+    providers.push_back(terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProviderList.at(i)));
   }
 
 }
@@ -235,7 +235,7 @@ void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::D
 
   for(uint32_t i = 0; i < struct_dataSetPtrList.size() ; i++)
   {
-    datasets.push_back(terrama2::ws::collector::core::Struct2DataSetPtr<DataSet>(struct_dataSetPtrList.at(i)));
+    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetPtrList.at(i)));
   }
 
 }
