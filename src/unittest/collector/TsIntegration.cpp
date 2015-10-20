@@ -59,8 +59,6 @@ void TsIntegration::TestReadCsvStorePostGis()
   file.close();
   QFileInfo info(file);
 
-  std::vector<std::string> names { info.baseName().toStdString() };
-
   try
   {
     terrama2::core::DataProvider provider("dummy", terrama2::core::DataProvider::FILE_TYPE);
@@ -87,10 +85,6 @@ void TsIntegration::TestReadCsvStorePostGis()
                                                         {"PG_TABLENAME", "nome_teste"} };
     item.setStorageMetadata(storageMetadata);
 
-    dataset.add(item);
-
-    provider.add(dataset);
-
     terrama2::collector::CollectorService service;
     service.start();
 
@@ -100,6 +94,9 @@ void TsIntegration::TestReadCsvStorePostGis()
 
     auto& dataManager = terrama2::core::DataManager::getInstance();
     dataManager.add(provider);
+    provider.add(dataset);
+
+    dataset.add(item);
     dataManager.add(dataset);
 
     QTimer timer;
@@ -107,15 +104,17 @@ void TsIntegration::TestReadCsvStorePostGis()
     timer.start(120000);
 
     QApplication::exec();
+
+    dataManager.removeDataProvider(provider.id());
   }
   catch(terrama2::Exception& e)
   {
-    qDebug() << e.what();
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     QFAIL("Terrama2 exception...");
   }
   catch(te::common::Exception& e)
   {
-    qDebug() << e.what();
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     QFAIL("Terralib exception...");
   }
   catch(...)

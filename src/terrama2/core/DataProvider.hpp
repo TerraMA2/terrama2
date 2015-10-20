@@ -130,7 +130,7 @@ namespace terrama2
 
           \param d The the dataset.
         */
-        void add(const DataSet& d);
+        void add(DataSet& d);
 
         /*!
           \brief Removes the given dataset from the provider list.

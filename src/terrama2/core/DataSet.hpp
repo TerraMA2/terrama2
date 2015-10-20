@@ -232,7 +232,7 @@ namespace terrama2
         std::vector<DataSetItem>& dataSetItems();
 
         /*! \brief Adds a new dataset item to the dataset. */
-        void add(const DataSetItem& d);
+        void add(DataSetItem& d);
 
         /*! \brief Removes the give dataset item from the dataset. */
         void removeDataSetItem(uint64_t id);

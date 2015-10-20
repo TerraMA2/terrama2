@@ -78,6 +78,13 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
 {
   //already locked by Collector::collect, lock_guard just to release when finished
   std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
+
+  if(datasetTimer->data().empty())
+  {
+    //TODO: LOG empty dataset
+    return;
+  }
+
   //aquire all data
   for(auto& data : datasetTimer->data())
   {

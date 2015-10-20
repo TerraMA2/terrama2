@@ -139,7 +139,7 @@ DataSet TsDataManager::createDataSet()
   filter.setValue(std::move(std::unique_ptr<double>(new double(100.))));
   dataSetItem.setFilter(filter);
 
-  dataSet.add(std::move(dataSetItem));
+  dataSet.add(dataSetItem);
 
 
   DataSetItem dataSetItem2(DataSetItem::FIRE_POINTS_TYPE, 0, dataSet.id());
@@ -854,7 +854,7 @@ void TsDataManager::testRemoveDataProviderWithDataSet()
   auto dataSets = dataProvider.datasets();
   DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
 
-  dataProvider.add(std::move(dataSet));
+  dataProvider.add(dataSet);
 
   DataManager::getInstance().add(dataProvider);
 
