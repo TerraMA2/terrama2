@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>656</width>
+    <width>688</width>
     <height>373</height>
    </rect>
   </property>
@@ -88,8 +88,7 @@ p, li { white-space: pre-wrap; }
       <string>Salvar</string>
      </property>
      <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/global/icons/salvar.png</normaloff>:/global/icons/salvar.png</iconset>
+      <iconset theme="save"/>
      </property>
     </widget>
    </item>
@@ -105,8 +104,7 @@ p, li { white-space: pre-wrap; }
       <string>Cancelar</string>
      </property>
      <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
+      <iconset theme="cancel"/>
      </property>
     </widget>
    </item>
@@ -205,8 +203,7 @@ Endereço da máquina onde o serviço deve ser executado</string>
          <string>Verificar conexão</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+         <iconset theme="confirm"/>
         </property>
        </widget>
       </item>
@@ -216,8 +213,7 @@ Endereço da máquina onde o serviço deve ser executado</string>
          <string>Executar</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/global/icons/wizard.png</normaloff>:/global/icons/wizard.png</iconset>
+         <iconset theme="wizard"/>
         </property>
        </widget>
       </item>
@@ -227,8 +223,7 @@ Endereço da máquina onde o serviço deve ser executado</string>
          <string>Solicitar finalização</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
+         <iconset theme="cancel"/>
         </property>
        </widget>
       </item>
@@ -237,8 +232,6 @@ Endereço da máquina onde o serviço deve ser executado</string>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

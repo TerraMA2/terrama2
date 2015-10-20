@@ -66,22 +66,40 @@ class AdminApp : public QMainWindow, private boost::noncopyable
 //! Fill fields
     void fillForm();
 
+   // void save(const QString command = "", const QString parameters = "", const ConfigManager& newdata);
+    void save();
+
+    ConfigManager* getConfigManager();
+
+signals:
+
+protected:
+    void closeEvent(QCloseEvent* close);
+
+
   private slots:
 
     void newRequested();
     void openRequested();
     void saveRequested();
+    void saveAsRequested();
     void renameRequested();
+    void removeRequested();
     void cancelRequested();
+
     void dbCreateDatabaseRequested();
+    void dbCheckConnectionRequested();
+
     void manageServices();
     void showConsoles();
 
     void setDataChanged();
     void clearDataChanged();
     void clearFormData();
+    void ondbTab();
 
     void itemClicked();
+    void refresh();
   
   private:
   
@@ -90,8 +108,7 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     ConfigManager* configManager_;
 
     QString nameConfig_; //!< Current Configuration Name.
-    bool newData_; //!< Current new configuration.
-    bool ignoreChangeEvents_; //!< Indicates that modifications should be ignored by setDataChanged.
+    bool newData_; //!< Current new configuration.    
     bool dataChanged_; //!< Indicates that the data has changed.
     int CurrentConfigIndex_; //!< Indice current configuration.
 
@@ -100,7 +117,8 @@ class AdminApp : public QMainWindow, private boost::noncopyable
     Impl* pimpl_;  //!< Pimpl idiom.
 
     void enableFields(bool mode);
-    bool searchDataList(int row_total, QString find_name);
+    bool searchDataList(int rowTotal, QString findName);
+    bool validateDbData(QString& err);
 
 };
 
