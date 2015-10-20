@@ -92,11 +92,12 @@ namespace terrama2
         /*!
           \brief Constructor
 
+          \param name       The name of the dataset.
           \param kind       The kind of dataset.
           \param id         The dataset identifier.
           \param providerId The data provider associated to this dataset.
         */
-        DataSet(Kind kind = UNKNOWN_TYPE, uint64_t id = 0, uint64_t providerId = 0);
+        DataSet(const std::string& name = "", Kind kind = UNKNOWN_TYPE, uint64_t id = 0, uint64_t providerId = 0);
 
         /*! \brief Destructor. */
         ~DataSet();
@@ -240,10 +241,10 @@ namespace terrama2
       private:
 
 
+        std::string name_;
         Kind kind_;
         uint64_t id_;
         uint64_t provider_;
-        std::string name_;
         std::string description_;
         Status status_;
         te::dt::TimeDuration dataFrequency_;

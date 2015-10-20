@@ -38,6 +38,7 @@
 #include <QJsonObject>
 #include <QMainWindow>
 #include <QMap>
+#include <QMultiMap>
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -65,11 +66,13 @@ class ConfigManager : private boost::noncopyable
 
     void setDataForm(QJsonObject metadata);
 
+    void insertFile(QString newname, QJsonObject metatada);
+
+    void renameFile(QString selectedName, QString newname);
+
+    void removeFile(QString selectedName);
+
     QMap<QString,QJsonObject> getfiles() const;
-
- //   QString configurationFile(int id) const { return fileList_.at(id);}
-
-    //QString getDataBaseDriver(DatabaseDriver id) const;
 
   private:
     QMainWindow* app_; //< Dialog to display error message if there is.
@@ -78,7 +81,7 @@ class ConfigManager : private boost::noncopyable
     Collection* collection_;
     Database* database_;
 
-    QMap<QString,QJsonObject> fileList_;
+    QMap<QString,QJsonObject> fileList_;   
 };
 
 #endif // __TERRAMA2_GUI_CORE_CONFIGMANAGER_HPP__

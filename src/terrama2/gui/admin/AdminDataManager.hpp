@@ -47,4 +47,4 @@ class AdminDataManager: public ConfigManager
 
 };
 
-#endif __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__
+#endif // __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINDATAMANAGER_HPP__
