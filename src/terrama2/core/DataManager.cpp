@@ -527,7 +527,7 @@ std::vector<terrama2::core::DataSet> terrama2::core::DataManager::dataSets() con
 terrama2::core::DataManager::DataManager()
   : pimpl_(new Impl)
 {
-
+  pimpl_->dataLoaded = false;
 }
 
 terrama2::core::DataManager::~DataManager()
