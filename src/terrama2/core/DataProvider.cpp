@@ -121,9 +121,10 @@ terrama2::core::DataProvider::datasets()
 }
 
 void
-terrama2::core::DataProvider::add(const DataSet& d)
+terrama2::core::DataProvider::add(DataSet& d)
 {
   datasets_.push_back(d);
+  d.setProvider(id());
 }
 
 void terrama2::core::DataProvider::removeDataSet(uint64_t id)

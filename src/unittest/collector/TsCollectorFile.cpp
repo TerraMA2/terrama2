@@ -51,16 +51,14 @@ void TsCollectorFile::TestNormalBehavior()
   file.close();
   QFileInfo info(file);
 
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
-  dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
-  dataProvider->setUri(info.canonicalPath().toStdString());
+  terrama2::core::DataProvider dataProvider(0, terrama2::core::DataProvider::FILE_TYPE);
+  dataProvider.setStatus(terrama2::core::DataProvider::ACTIVE);
+  dataProvider.setUri(info.canonicalPath().toStdString());
 
 
   try
   {
     terrama2::collector::CollectorFile collector(dataProvider);
-
-    QCOMPARE(dataProvider, collector.dataProvider());
 
     QVERIFY(collector.checkConnection());
 
@@ -76,7 +74,7 @@ void TsCollectorFile::TestNormalBehavior()
 
 void TsCollectorFile::TestNullDataProvider()
 {
-  terrama2::core::DataProviderPtr nullDataProvider;
+  terrama2::core::DataProvider nullDataProvider;
 
   try
   {
@@ -99,14 +97,14 @@ void TsCollectorFile::TestNullDataProvider()
 
 void TsCollectorFile::TestInactiveDataSet()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
+  terrama2::core::DataProvider dataProvider(0, terrama2::core::DataProvider::FILE_TYPE);
 
   try
   {
     terrama2::collector::CollectorFile collector(dataProvider);
 
-    terrama2::core::DataSetPtr dataset = std::make_shared<terrama2::core::DataSet>(terrama2::core::DataSet(dataProvider,"dummy", terrama2::core::DataSet::PCD_TYPE));
-    dataset->setStatus(terrama2::core::DataSet::INACTIVE);
+    terrama2::core::DataSet dataset("dummy", terrama2::core::DataSet::PCD_TYPE);
+    dataset.setStatus(terrama2::core::DataSet::INACTIVE);
 
     terrama2::collector::DataSetTimerPtr datasetTimer(new terrama2::collector::DataSetTimer(dataset));
 
@@ -128,7 +126,7 @@ void TsCollectorFile::TestInactiveDataSet()
 
 void TsCollectorFile::TestWrongDataProviderKind()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::UNKNOWN_TYPE));
+  terrama2::core::DataProvider dataProvider(0, terrama2::core::DataProvider::UNKNOWN_TYPE);
 
   try
   {
@@ -153,8 +151,8 @@ void TsCollectorFile::TestCheckConnection()
 {
   QTemporaryDir tempDir;
 
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
-  dataProvider->setUri(tempDir.path().toStdString());
+  terrama2::core::DataProvider dataProvider(0, terrama2::core::DataProvider::FILE_TYPE);
+  dataProvider.setUri(tempDir.path().toStdString());
 
   try
   {
@@ -171,7 +169,7 @@ void TsCollectorFile::TestCheckConnection()
 
 void TsCollectorFile::TestFailCheckConnection()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
+  terrama2::core::DataProvider dataProvider(0, terrama2::core::DataProvider::FILE_TYPE);
 
   try
   {

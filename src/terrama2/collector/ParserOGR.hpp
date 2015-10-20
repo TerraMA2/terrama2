@@ -32,6 +32,8 @@
 
 #include "Parser.hpp"
 
+#include <mutex>
+
 namespace terrama2
 {
   namespace collector
@@ -59,6 +61,10 @@ namespace terrama2
                           const std::vector<std::string> &names,
                           std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
                           std::shared_ptr<te::da::DataSetType> & datasetType) override;
+
+      private:
+        std::mutex mutex_;
+
     };
   }
 }
