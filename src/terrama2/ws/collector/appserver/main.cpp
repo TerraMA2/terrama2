@@ -42,8 +42,6 @@
 #include "../../../core/Utils.hpp"
 
 
-
-
 int main(int argc, char* argv[])
 {
 
@@ -83,11 +81,6 @@ int main(int argc, char* argv[])
     std::cerr << "TerraMA2 Project File is invalid or don't exist!" << std::endl;
     return EXIT_FAILURE;
   }
-
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-
-  if(!dataSource.get())
-    return EXIT_FAILURE;
 
   terrama2::core::DataManager::getInstance().load();
 

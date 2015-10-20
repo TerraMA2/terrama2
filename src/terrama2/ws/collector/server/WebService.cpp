@@ -72,7 +72,7 @@ int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &
 {
   try
   {
-    auto dataProviderPtr = terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider);
+    terrama2::core::DataProvider dataProviderPtr(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
 
     terrama2::core::DataManager::getInstance().add(dataProviderPtr);
 
@@ -120,7 +120,7 @@ int WebService::updateDataProvider(DataProvider struct_dataprovider, DataProvide
 {
   try
   {
-    auto dataProviderPtr = terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider);
+    terrama2::core::DataProvider dataProviderPtr(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
 
     terrama2::core::DataManager::getInstance().update(dataProviderPtr);
 
