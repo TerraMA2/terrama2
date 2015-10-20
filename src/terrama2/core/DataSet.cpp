@@ -34,8 +34,9 @@
 // TerraMA2
 #include "DataSet.hpp"
 
-terrama2::core::DataSet::DataSet(Kind kind, uint64_t id, uint64_t providerId)
-  : kind_(kind),
+terrama2::core::DataSet::DataSet(const std::string& name, Kind kind, uint64_t id, uint64_t providerId)
+  : name_(name),
+    kind_(kind),
     id_(id),
     provider_(providerId),
     status_(INACTIVE),
