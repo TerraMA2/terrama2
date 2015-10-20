@@ -37,12 +37,21 @@
 // QT
 #include <QString>
 #include <QList>
+#include <QMap>
 #include <QSharedPointer>
 
 
 class QTreeWidgetItem;
 class ConfigAppWeatherServer;
 class ConfigAppWeatherGridTab;
+
+namespace terrama2
+{
+  namespace core
+  {
+    class DataProvider;
+  }
+}
 
 
 class ConfigAppWeatherTab : public ConfigAppTab
@@ -62,6 +71,14 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void clearList();
     void displayOperationButtons(bool state);
     void changeTab(ConfigAppTab &sender, QWidget &widget);
+
+    QMap<std::string,terrama2::core::DataProvider> providers();
+
+    //! It is used for insert and update cached dataprovider list
+    terrama2::core::DataProvider getProvider(const std::string& identifier);
+    void addCachedProvider(const terrama2::core::DataProvider& provider);
+
+    void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
 
   private:
     void showDataSeries(bool state);
@@ -92,6 +109,7 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
   private:
     QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
+    QMap<std::string,terrama2::core::DataProvider> providers_;
 };
 
 #endif

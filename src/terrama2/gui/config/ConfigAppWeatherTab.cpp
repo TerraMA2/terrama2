@@ -13,6 +13,9 @@
 #include "ConfigAppWeatherServer.hpp"
 #include "ConfigAppWeatherGrid.hpp"
 
+// STL
+#include <vector>
+
 // QT
 #include <QMessageBox>
 #include <QFileDialog>
@@ -66,48 +69,101 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 void ConfigAppWeatherTab::clearList()
 {
   qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
+  providers_.clear();
 }
 
 void ConfigAppWeatherTab::load()
 {
-  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-  std::auto_ptr<te::da::DataSet> dataProviders = ds->getDataSet("terrama2.data_provider");
-
-  showDataSeries(false);
-
+  hideDataSetButtons();
+  showDataSeries(true);
   clearList();
-
-  while(dataProviders->moveNext())
+  try
   {
-    QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setIcon(0, QIcon::fromTheme("server"));
-    item->setText(0, QString(dataProviders->getAsString(1).c_str()));
-    ui_->weatherDataTree->topLevelItem(0)->addChild(item);
-
-    // load data set
-    std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.dataset");
-
-    while (dataSet->moveNext() && dataSet->getInt32(4) == dataProviders->getInt32(0))
+    std::vector<terrama2::core::DataProvider> providers;
+    std::vector<terrama2::core::DataSet> datasets;
+    app_->getClient()->listDataProvider(providers);
+    app_->getClient()->listDataSet(datasets);
+    for(std::vector<terrama2::core::DataProvider>::iterator it = providers.begin(); it != providers.end(); ++it)
     {
-      QTreeWidgetItem* subItem = new QTreeWidgetItem;
-      subItem->setText(0, QString(dataSet->getAsString("name").c_str()));
-      switch (terrama2::core::ToDataSetKind(dataSet->getInt32(5)))
+      QTreeWidgetItem* item = new QTreeWidgetItem;
+      item->setIcon(0, QIcon::fromTheme("server"));
+      item->setText(0, QString(it->name().c_str()));
+      ui_->weatherDataTree->topLevelItem(0)->addChild(item);
+
+      providers_.insert(it->name(), *it);
+
+      for(std::vector<terrama2::core::DataSet>::iterator dit = datasets.begin(); dit != datasets.end(); ++dit)
       {
-        case terrama2::core::DataSet::GRID_TYPE:
-          subItem->setIcon(0, QIcon::fromTheme("grid"));
-          break;
-        case terrama2::core::DataSet::PCD_TYPE:
-          subItem->setIcon(0, QIcon::fromTheme("pcd"));
-          break;
-        case terrama2::core::DataSet::OCCURENCE_TYPE:
-          subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
-          break;
-        default:
-          break;
+        if (dit->provider() == it->id())
+        {
+          QTreeWidgetItem* subItem = new QTreeWidgetItem;
+          subItem->setText(0, QString(dit->name().c_str()));
+          switch (dit->kind())
+          {
+            case terrama2::core::DataSet::GRID_TYPE:
+              subItem->setIcon(0, QIcon::fromTheme("grid"));
+              break;
+            case terrama2::core::DataSet::PCD_TYPE:
+              subItem->setIcon(0, QIcon::fromTheme("pcd"));
+              break;
+            case terrama2::core::DataSet::OCCURENCE_TYPE:
+              subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
+              break;
+            default:
+              break;
+          }
+          item->addChild(subItem);
+        }
       }
-      item->addChild(subItem);
     }
+//    if (ui_->weatherDataTree->size() > 1)
+//      ui_->importDataBtn->setVisible(true);
+
   }
+  catch (const terrama2::Exception& e)
+  {
+    const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::warning(app_, tr("TerraMA2"), *message);
+  }
+
+//  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+//  std::auto_ptr<te::da::DataSet> dataProviders = ds->getDataSet("terrama2.data_provider");
+//
+//  showDataSeries(false);
+//
+//  clearList();
+//
+//  while(dataProviders->moveNext())
+//  {
+//    QTreeWidgetItem* item = new QTreeWidgetItem;
+//    item->setIcon(0, QIcon::fromTheme("server"));
+//    item->setText(0, QString(dataProviders->getAsString(1).c_str()));
+//    ui_->weatherDataTree->topLevelItem(0)->addChild(item);
+//
+//    // load data set
+//    std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.dataset");
+//
+//    while (dataSet->moveNext() && dataSet->getInt32(4) == dataProviders->getInt32(0))
+//    {
+//      QTreeWidgetItem* subItem = new QTreeWidgetItem;
+//      subItem->setText(0, QString(dataSet->getAsString("name").c_str()));
+//      switch (terrama2::core::ToDataSetKind(dataSet->getInt32(5)))
+//      {
+//        case terrama2::core::DataSet::GRID_TYPE:
+//          subItem->setIcon(0, QIcon::fromTheme("grid"));
+//          break;
+//        case terrama2::core::DataSet::PCD_TYPE:
+//          subItem->setIcon(0, QIcon::fromTheme("pcd"));
+//          break;
+//        case terrama2::core::DataSet::OCCURENCE_TYPE:
+//          subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
+//          break;
+//        default:
+//          break;
+//      }
+//      item->addChild(subItem);
+//    }
+//  }
 
   for(auto tab: subTabs_)
     tab->load();
@@ -221,27 +277,20 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
     if (reply == QMessageBox::No || reply == QMessageBox::Cancel)
       return;
 
-    std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+    terrama2::core::DataProvider cachedProvider = providers_.take(selectedItem->text(0).toStdString());
 
-    std::string sql = "SELECT id FROM terrama2.data_provider WHERE name = '";
-    sql += selectedItem->text(0).toStdString() + "'";
-    std::auto_ptr<te::da::DataSet> dataSet = ds->query(sql);
+    try
+    {
+      app_->getClient()->removeDataProvider(cachedProvider.id());
+      QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
 
-    if (dataSet->size() != 1)
-      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid data provider"));
-
-    dataSet->moveFirst();
-    int64_t id = boost::lexical_cast<int64_t>(dataSet->getAsString(0));
-
-    // Load providers
-    terrama2::core::DataManager::getInstance().load();
-
-    // Remove from database and refresh providers list
-    terrama2::core::DataManager::getInstance().removeDataProvider(id);
-
-    QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
-
-    ui_->weatherDataTree->removeItemWidget(ui_->weatherDataTree->currentItem(), 0);
+      ui_->weatherDataTree->removeItemWidget(ui_->weatherDataTree->currentItem(), 0);
+    }
+    catch(const terrama2::Exception& e)
+    {
+      const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+      QMessageBox::warning(app_, tr("TerraMA2 Data Provider Remove Error"), *message);
+    }
 
     hidePanels(ui_->ServerGroupPage);
 
@@ -275,32 +324,47 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->serverInsertGridBtn->setVisible(true);
         ui_->serverInsertPointDiffBtn->setVisible(true);
 
-        std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
-        sql += selectedItem->text(0).toStdString() + "'";
+        if (providers_.empty())
+        {
+          std::cout << "Providers empty. Refreshing list..." << std::endl;
+          std::vector<terrama2::core::DataProvider> providers;
+          app_->getClient()->listDataProvider(providers);
+          for(std::vector<terrama2::core::DataProvider>::iterator it = providers.begin(); it != providers.end(); ++it)
+            providers_.insert(it->name(), *it);
+        }
 
-        std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-        std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
+        terrama2::core::DataProvider provider = getProvider(selectedItem->text(0).toStdString());
 
-        if (dataSet->size() != 1)
+        if (provider.id() == 0)
           throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
-
-        dataSet->moveFirst();
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
 
         subTabs_[0]->setSelectedData(selectedItem->text(0));
-        ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
-        ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
-        ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
-        ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
-        ui_->serverActiveServer->setChecked(dataSet->getBool(5));
+        ui_->serverName->setText(QString(provider.name().c_str()));
+        ui_->serverDescription->setText(QString(provider.description().c_str()));
+        ui_->connectionProtocol->setCurrentIndex(provider.kind());
+        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
+        ui_->serverActiveServer->setChecked(provider.status());
 
         subTabs_[0]->load();
 
         ui_->updateDataGridBtn->hide();
         ui_->exportDataGridBtn->hide();
         ui_->gridFormatDataDeleteBtn->hide();
+
+//        dataSet->moveFirst();
+
+//        terrama2::core::DataProvider provider = app_->getClient()->findDataProvider(dataSet->getInt32("id"));
+
+
+//        ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
+//        ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
+//        ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
+//        ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
+//        ui_->serverActiveServer->setChecked(dataSet->getBool(5));
+
       }
       else {
 
@@ -437,4 +501,27 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
   sender.setActive(true);
   ui_->weatherPageStack->setCurrentWidget(&widget);
   hidePanels(&widget);
+}
+
+QMap<std::string,terrama2::core::DataProvider> ConfigAppWeatherTab::providers()
+{
+  return providers_;
+}
+
+terrama2::core::DataProvider ConfigAppWeatherTab::getProvider(const std::string &identifier)
+{
+  for(auto& provider: providers_)
+    if (provider.name() == identifier)
+      return provider;
+  return terrama2::core::DataProvider();
+}
+
+void ConfigAppWeatherTab::addCachedProvider(const terrama2::core::DataProvider& provider)
+{
+  providers_.insert(provider.name(), provider);
+}
+
+void ConfigAppWeatherTab::removeCachedDataProvider(const terrama2::core::DataProvider &provider)
+{
+  providers_.take(provider.name());
 }

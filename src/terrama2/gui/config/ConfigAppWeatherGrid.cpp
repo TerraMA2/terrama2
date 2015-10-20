@@ -48,8 +48,8 @@ void ConfigAppWeatherGridTab::load()
 
 void ConfigAppWeatherGridTab::save()
 {
-  terrama2::core::DataManager::getInstance().unload();
-  terrama2::core::DataManager::getInstance().load();
+//  terrama2::core::DataManager::getInstance().unload();
+//  terrama2::core::DataManager::getInstance().load();
 
   terrama2::core::DataProvider dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
       ui_->weatherDataTree->currentItem()->text(0).toStdString());
@@ -65,9 +65,6 @@ void ConfigAppWeatherGridTab::save()
     terrama2::core::DataManager::getInstance().update(dataset);
   else
   {
-//    dataset.reset(new terrama2::core::DataSet(dataProvider, name, kind));
-//    dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
-//    dataset.setStatus(terrama2::core::BoolToDataSetStatus(ui_->gridFormatStatus->isChecked()));
 
     terrama2::core::DataManager::getInstance().add(dataset);
 
@@ -152,7 +149,7 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
   {
     // delete from db
     try {
-      terrama2::core::DataManager::getInstance().load();
+//      terrama2::core::DataManager::getInstance().load();
       std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
       std::string sql = "SELECT id FROM terrama2.dataset WHERE name = '";
       sql += currentItem->text(0).toStdString() + "'";
