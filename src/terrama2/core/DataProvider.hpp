@@ -81,7 +81,7 @@ namespace terrama2
         };
 
         /*! \brief Constructor. */
-        DataProvider(const uint64_t id = 0, Kind k = UNKNOWN_TYPE);
+        DataProvider(const std::string& name = "", Kind k = UNKNOWN_TYPE, const uint64_t id = 0);
 
         /*! \brief Destructor. */
         ~DataProvider();
@@ -130,7 +130,7 @@ namespace terrama2
 
           \param d The the dataset.
         */
-        void add(const DataSet& d);
+        void add(DataSet& d);
 
         /*!
           \brief Removes the given dataset from the provider list.
@@ -143,8 +143,8 @@ namespace terrama2
 
         uint64_t id_;
         std::string name_;
-        std::string description_;
         Kind kind_;
+        std::string description_;
         std::string uri_;
         Status status_;
         std::vector<DataSet> datasets_; //!< The list of datasets available in the data provider.

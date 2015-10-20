@@ -108,8 +108,7 @@ DataSet TsDataManager::createDataSet()
   DataManager::getInstance().add(dataProvider);
 
   // create a new dataset and save it to the database
-  DataSet dataSet(DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
-  dataSet.setName("Queimadas");
+  DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
 
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet.setDataFrequency(dataFrequency);
@@ -140,7 +139,7 @@ DataSet TsDataManager::createDataSet()
   filter.setValue(std::move(std::unique_ptr<double>(new double(100.))));
   dataSetItem.setFilter(filter);
 
-  dataSet.add(std::move(dataSetItem));
+  dataSet.add(dataSetItem);
 
 
   DataSetItem dataSetItem2(DataSetItem::FIRE_POINTS_TYPE, 0, dataSet.id());
@@ -567,7 +566,7 @@ void TsDataManager::testAddDataProviderWithId()
   // Tries to add a data provider with an Id different than 0
   try
   {
-    auto dataProvider = DataProvider(1, DataProvider::FTP_TYPE);
+    auto dataProvider = DataProvider("Provider", DataProvider::FTP_TYPE, 1);
     DataManager::getInstance().add(dataProvider);
 
     // An exception should be thrown, if not the test fails.
@@ -591,8 +590,7 @@ void TsDataManager::testAddDataSetWihId()
     DataManager::getInstance().add(dataProvider);
 
     // create a new dataset and save it to the database
-    DataSet dataSet(DataSet::OCCURENCE_TYPE, 1, dataProvider.id());
-    dataSet.setName("Queimadas");
+    DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 1, dataProvider.id());
 
     DataManager::getInstance().add(dataSet);
 
@@ -614,8 +612,7 @@ void TsDataManager::testAddDataProviderWithDataSet()
 
   auto dataProvider = createDataProvider();
 
-  DataSet dataSet(DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
-  dataSet.setName("Queimadas");
+  DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
   dataProvider.add(dataSet);
 
   DataManager::getInstance().add(dataProvider, false);
@@ -737,8 +734,7 @@ void TsDataManager::testUpdateNonexistentDataProvider()
   // Tries to update a data provider that doesn't have a valid ID
   try
   {
-    DataProvider dataProvider(10, DataProvider::FTP_TYPE);
-    dataProvider.setName("Server 1");
+    DataProvider dataProvider("Server 1", DataProvider::FTP_TYPE, 10);
 
     DataManager::getInstance().update(dataProvider);
 
@@ -810,8 +806,7 @@ void TsDataManager::testAddDataSetWithNullProvider()
   // Tries to add an dataset with an invalid data provider
   try
   {
-    DataSet dataSet(DataSet::OCCURENCE_TYPE);
-    dataSet.setName("Queimadas");
+    DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE);
 
     DataManager::getInstance().add(dataSet);
 
@@ -834,8 +829,8 @@ void TsDataManager::testAddDataSetWithNonexistentProvider()
   // Tries to add an dataset with an invalid data provider
   try
   {
-    DataProvider nonExistentProvider(1, DataProvider::FTP_TYPE);
-    DataSet dataSet(DataSet::OCCURENCE_TYPE, 0, nonExistentProvider.id());
+    DataProvider nonExistentProvider("Server 1", DataProvider::FTP_TYPE, 1);
+    DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, nonExistentProvider.id());
 
     DataManager::getInstance().add(dataSet);
 
@@ -857,10 +852,9 @@ void TsDataManager::testRemoveDataProviderWithDataSet()
 
   auto dataProvider = createDataProvider();
   auto dataSets = dataProvider.datasets();
-  DataSet dataSet(DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
-  dataSet.setName("Queimadas");
+  DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
 
-  dataProvider.add(std::move(dataSet));
+  dataProvider.add(dataSet);
 
   DataManager::getInstance().add(dataProvider);
 
@@ -887,7 +881,7 @@ void TsDataManager::testUpdateDataSetWithNullProvider()
   try
   {
 
-    DataSet dataSet(DataSet::OCCURENCE_TYPE);
+    DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE);
 
     DataManager::getInstance().update(dataSet);
 
@@ -915,9 +909,9 @@ void TsDataManager::testUpdateDataSetWithNonexistentProvider()
   try
   {
     // Nonexistent data provider
-    DataProvider dataProvider(10, DataProvider::FTP_TYPE);
+    DataProvider dataProvider("Server 1", DataProvider::FTP_TYPE, 10);
 
-    DataSet dataSet(DataSet::OCCURENCE_TYPE, 1, dataProvider.id());
+    DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 1, dataProvider.id());
 
     DataManager::getInstance().update(dataSet);
 

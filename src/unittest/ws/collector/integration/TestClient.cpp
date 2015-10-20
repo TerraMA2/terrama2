@@ -84,9 +84,8 @@ terrama2::core::DataSet TestClient::buildDataSet()
 
   wsClient_->addDataProvider(dataProvider);
 
-  terrama2::core::DataSet dataSet((terrama2::core::DataSet::Kind)1, 0, dataProvider.id());
+  terrama2::core::DataSet dataSet("Data Set Name", (terrama2::core::DataSet::Kind)1, 0, dataProvider.id());
 
-  dataSet.setName("Data Set Name");
   dataSet.setDescription("Data Set Description");
   dataSet.setStatus((terrama2::core::DataSet::Status)1);
 

@@ -33,8 +33,9 @@
 // TerraMA2
 #include "DataProvider.hpp"
 
-terrama2::core::DataProvider::DataProvider(const uint64_t id, Kind k)
+terrama2::core::DataProvider::DataProvider(const std::string& name, Kind k, const uint64_t id)
   : id_(id),
+    name_(name),
     kind_(k),
     status_(INACTIVE)
 {
@@ -120,9 +121,10 @@ terrama2::core::DataProvider::datasets()
 }
 
 void
-terrama2::core::DataProvider::add(const DataSet& d)
+terrama2::core::DataProvider::add(DataSet& d)
 {
   datasets_.push_back(d);
+  d.setProvider(id());
 }
 
 void terrama2::core::DataProvider::removeDataSet(uint64_t id)

@@ -480,7 +480,7 @@ terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te:
     std::string name = queryResult->getAsString("name");
     terrama2::core::DataSet::Kind kind = ToDataSetKind(queryResult->getInt32("kind"));
 
-    DataSet dataset(kind);
+    DataSet dataset(name, kind);
     dataset.setId(queryResult->getInt32("id"));
     dataset.setDescription(queryResult->getString("description"));
     dataset.setStatus(ToDataSetStatus(queryResult->getBool("active")));
@@ -514,7 +514,7 @@ terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te:
 
     std::vector<DataSetItem> items = DataSetItemDAO::loadAll(dataset.id(), transactor);
 
-    for(const auto& item : items)
+    for(auto& item : items)
       dataset.add(item);
 
     return dataset;
