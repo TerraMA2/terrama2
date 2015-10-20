@@ -26,7 +26,6 @@
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Carlos Augusto Teixeira Mendes
 */
 
 #ifndef __TERRAMA2_GUI_ADMIN_SERVICESDIALOG_HPP__
@@ -38,19 +37,48 @@
 // Boost
 #include <boost/noncopyable.hpp>  
 
+struct CommonData;
+class ConfigManager;
+class AdminApp;
+
 class ServicesDialog : public QDialog, private boost::noncopyable
 {
  Q_OBJECT
 
 public:
-  ServicesDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
-  ~ServicesDialog();
 
+  ServicesDialog(AdminApp *adminapp, ConfigManager&, QString nameConfig);
+  ~ServicesDialog();
+  //void setLine(int line, const QString& module, const CommonData& data);
+ // void getLine(int line, CommonData& data);
+ // void getSelectedLines(QList<int>& list);
+
+private slots:
+  void verifyRequested();
+  void saveRequested();
+  void execRequested();
+  void closeRequested();
+  void setDataChanged(int row, int col);
+  void clearDataChanged();
    
 private:
+  void setLine(int line, const QString& module, const CommonData& data);
+  void getLine(int line, CommonData& data);
+  void getSelectedLines(QList<int>& list);
+
+  void setDialogData(QString nameConfig);
+  void getDialogData(QString nameConfig);
+
+  bool runCmd(int line, QString cmd, QString param, QString& err);
+
  struct Impl;
  
  Impl* pimpl_;  //!< Pimpl idiom.
+
+ ConfigManager& configManager_; //!< Gerenciador de configurações
+ QString idNameConfig_; //!< identificador da cfg atual no gerenciador de configurações
+ bool changed_; //!< Flag indicando se os dados foram ou não alterados
+ AdminApp* adminapp_;
 };
 
 

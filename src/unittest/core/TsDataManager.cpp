@@ -935,3 +935,22 @@ void TsDataManager::testUpdateDataSetWithNonexistentProvider()
   }
 }
 
+void TsDataManager::testDataProviderValidName()
+{
+  auto dataProvider = createDataProvider();
+  DataManager::getInstance().add(dataProvider);
+
+  QVERIFY2(DataManager::getInstance().isDataProviderNameValid("Server 1") == false, "Should not be valid");
+  QVERIFY2(DataManager::getInstance().isDataProviderNameValid("Server 2") == true, "Should be valid");
+
+}
+
+void TsDataManager::testDatasetValidName()
+{
+  auto dataset = createDataSet();
+  DataManager::getInstance().add(dataset);
+
+  QVERIFY2(DataManager::getInstance().isDatasetNameValid("Queimadas") == false, "Should not be valid");
+  QVERIFY2(DataManager::getInstance().isDatasetNameValid("Queimadas 1") == true, "Should be valid");
+
+}

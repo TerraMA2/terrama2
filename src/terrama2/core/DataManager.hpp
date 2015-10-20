@@ -283,6 +283,10 @@ namespace terrama2
          */
         std::vector<terrama2::core::DataSet> dataSets() const;
 
+        bool isDatasetNameValid(const std::string& name) const;
+
+        bool isDataProviderNameValid(const std::string& name) const;
+
       signals:
 
         void dataManagerLoaded();

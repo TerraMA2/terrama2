@@ -91,14 +91,14 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 }
 
 QJsonDocument
-terrama2::core::ReadJsonFile(const std::string &file_name)
+terrama2::core::ReadJsonFile(const std::string & fileName)
 {
-  QFile file(file_name.c_str());
+  QFile file(fileName.c_str());
 
   if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     QString err_msg(QObject::tr("Could not open file: %1."));
-    err_msg = err_msg.arg(file_name.c_str());
+    err_msg = err_msg.arg(fileName.c_str());
 
     throw terrama2::FileOpenError() << terrama2::ErrorDescription(err_msg);
   }
@@ -114,7 +114,7 @@ terrama2::core::ReadJsonFile(const std::string &file_name)
   if(jdocument.isNull())
   {
     QString err_msg(QObject::tr("Error parsing file '%1': %2."));
-    err_msg = err_msg.arg(file_name.c_str()).arg(parse_error.errorString());
+    err_msg = err_msg.arg(fileName.c_str()).arg(parse_error.errorString());
 
     throw terrama2::ParserError() << terrama2::ErrorDescription(err_msg);
   }
