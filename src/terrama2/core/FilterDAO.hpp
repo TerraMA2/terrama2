@@ -67,7 +67,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(const Filter& f, te::da::DataSourceTransactor& transactor);
+        static void save(const Filter& filter, te::da::DataSourceTransactor& transactor);
 
 
         /*!

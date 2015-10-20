@@ -44,22 +44,22 @@
 #include <boost/format.hpp>
 
 void
-terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& transactor)
+terrama2::core::FilterDAO::save(const Filter& filter, te::da::DataSourceTransactor& transactor)
 {
-  if(f.datasetItem() == 0)
+  if(filter.datasetItem() == 0)
     throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%, %9%)");
 
-  query.bind_arg(1, f.datasetItem());
+  query.bind_arg(1, filter.datasetItem());
 
-  if(f.discardBefore())
-    query.bind_arg(2, "'" + f.discardBefore()->toString() + "'");
+  if(filter.discardBefore())
+    query.bind_arg(2, "'" + filter.discardBefore()->toString() + "'");
   else
     query.bind_arg(2, "NULL");
 
-  if(f.discardAfter())
-    query.bind_arg(3, "'" + f.discardAfter()->toString() + "'");
+  if(filter.discardAfter())
+    query.bind_arg(3, "'" + filter.discardAfter()->toString() + "'");
   else
     query.bind_arg(3, "NULL");
 
@@ -71,19 +71,19 @@ terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& t
 // external_data_id
   query.bind_arg(5, "NULL");
 
-  if(f.value())
-    query.bind_arg(6, *f.value());
+  if(filter.value())
+    query.bind_arg(6, *filter.value());
   else
     query.bind_arg(6, "NULL");
 
 // expression_type
-  query.bind_arg(7, static_cast<uint32_t>(f.expressionType()));
+  query.bind_arg(7, static_cast<uint32_t>(filter.expressionType()));
 
 // within_external_data_id
   query.bind_arg(8, "NULL");
 
 // band_filter
-  query.bind_arg(9, "NULL");
+  query.bind_arg(9, filter.bandFilter());
 
   try
   {
@@ -97,7 +97,7 @@ terrama2::core::FilterDAO::save(const Filter& f, te::da::DataSourceTransactor& t
   {
     QString err_msg(QObject::tr("Unexpected error saving filter information for dataset item: %1"));
 
-    err_msg = err_msg.arg(f.datasetItem());
+    err_msg = err_msg.arg(filter.datasetItem());
 
     throw DataAccessError() << ErrorDescription(err_msg);
   }
