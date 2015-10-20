@@ -27,14 +27,14 @@
   \author Jano Simas
 */
 
-#include "DataSetTimer.hpp"
 #include "DataProcessor.hpp"
-#include "CollectorFactory.hpp"
+#include "DataSetTimer.hpp"
 #include "Exception.hpp"
+#include "Factory.hpp"
 
-#include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
+#include "../core/DataSet.hpp"
 
 struct terrama2::collector::DataSetTimer::Impl
 {
@@ -88,7 +88,7 @@ void terrama2::collector::DataSetTimer::populateDataLst()
 }
 
 
-terrama2::core::DataProvider terrama2::collector::DataSetTimer::dataProvider() const
+uint64_t terrama2::collector::DataSetTimer::dataProvider() const
 {
   return impl_->dataSet_.provider();
 }

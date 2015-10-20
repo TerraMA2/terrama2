@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFactory.hpp
+  \file terrama2/collector/Factory.hpp
 
   \brief Instantiate collectors for DataProviders.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_COLLECTOR_COLLECTORFACTORY_HPP__
-#define __TERRAMA2_COLLECTOR_COLLECTORFACTORY_HPP__
+#ifndef __TERRAMA2_COLLECTOR_FACTORY_HPP__
+#define __TERRAMA2_COLLECTOR_FACTORY_HPP__
 
 #include "Collector.hpp"
 #include "../core/DataProvider.hpp"
@@ -58,7 +58,7 @@ namespace terrama2
          * create an instace of a collector of the appropriate derived classe and return a shared pointer to it.
          *
          */
-    class CollectorFactory : public boost::noncopyable
+    class Factory : public boost::noncopyable
     {
       public:
 
@@ -69,7 +69,7 @@ namespace terrama2
              *
              * \exception terrama2::collector::UnknownDataProviderKindException Raised when CollectorFactory cannot identify the right Collector type for the DataProvider.
              */
-        CollectorPtr getCollector(const core::DataProvider dataProvider);
+        CollectorPtr getCollector(uint64_t dataProviderId);
 
         /*!
          * \brief Remove the collector from the list.
@@ -78,9 +78,12 @@ namespace terrama2
          *
          * \param dataProvider Collector's DataProvider.
          */
-        void removeCollector(const core::DataProvider dataProvider);
+        void removeCollector(uint64_t dataProviderId);
 
         void removeAllCollectors();
+
+        static ParserPtr getParser(core::DataSetItem::Kind datasetItemKind);
+        static StoragerPtr getStorager(core::DataSetItem datasetItem);
 
       private:
 
@@ -91,4 +94,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_COLLECTOR_COLLECTORFACTORY_HPP__
+#endif //__TERRAMA2_COLLECTOR_FACTORY_HPP__

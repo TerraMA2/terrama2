@@ -29,11 +29,10 @@
 
 #include "DataProcessor.hpp"
 
-#include "StoragerFactory.hpp"
-#include "ParserFactory.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 #include "Storager.hpp"
+#include "Factory.hpp"
 #include "Parser.hpp"
 
 #include "../core/DataSetItem.hpp"
@@ -52,7 +51,7 @@ struct terrama2::collector::DataProcessor::Impl
     StoragerPtr            storager_;
 };
 
-terrama2::collector::DataProcessor::DataProcessor(const core::DataSetItem& data, QObject *parent)
+terrama2::collector::DataProcessor::DataProcessor(const core::DataSetItem& data)
 {
   impl_ = new Impl();
   impl_->data_ = data;
@@ -125,12 +124,12 @@ void terrama2::collector::DataProcessor::initFilter()
 
 void terrama2::collector::DataProcessor::initParser()
 {
-  ParserPtr parser = ParserFactory::getParser(impl_->data_.kind());
+  ParserPtr parser = Factory::getParser(impl_->data_.kind());
   impl_->parser_ = parser;
 }
 
 void terrama2::collector::DataProcessor::initStorager()
 {
-  StoragerPtr storager = StoragerFactory::getStorager(impl_->data_);
+  StoragerPtr storager = Factory::getStorager(impl_->data_);
   impl_->storager_ = storager;
 }

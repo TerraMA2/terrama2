@@ -32,9 +32,13 @@
 //terrama
 #include <terrama2/collector/CollectorService.hpp>
 #include <terrama2/collector/Exception.hpp>
+
+#include <terrama2/core/ApplicationController.hpp>
 #include <terrama2/core/DataProvider.hpp>
+#include <terrama2/core/DataManager.hpp>
 #include <terrama2/core/DataSetItem.hpp>
 #include <terrama2/core/DataSet.hpp>
+#include <terrama2/core/Utils.hpp>
 
 //terralib
 #include <terralib/datatype/TimeDuration.h>
@@ -59,12 +63,12 @@ void TsIntegration::TestReadCsvStorePostGis()
 
   try
   {
-    terrama2::core::DataProvider provider(1, terrama2::core::DataProvider::FILE_TYPE);
+    terrama2::core::DataProvider provider(0, terrama2::core::DataProvider::FILE_TYPE);
     provider.setName("dummy");
     provider.setStatus(terrama2::core::DataProvider::ACTIVE);
     provider.setUri(info.canonicalPath().toStdString());
 
-    terrama2::core::DataSet dataset(terrama2::core::DataSet::PCD_TYPE, 1);
+    terrama2::core::DataSet dataset(terrama2::core::DataSet::PCD_TYPE);
     dataset.setName("dummy");
     dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
@@ -90,9 +94,15 @@ void TsIntegration::TestReadCsvStorePostGis()
     provider.add(dataset);
 
     terrama2::collector::CollectorService service;
-    service.addDataset(dataset);
-
     service.start();
+
+    std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/collector/data/project.json");
+    bool ok = terrama2::core::ApplicationController::getInstance().loadProject(path);
+    QVERIFY(ok);
+
+    auto& dataManager = terrama2::core::DataManager::getInstance();
+    dataManager.add(provider);
+    dataManager.add(dataset);
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

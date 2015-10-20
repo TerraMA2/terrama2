@@ -56,7 +56,7 @@ namespace terrama2
   }
   namespace collector
   {
-    class CollectorFactory;
+    class Factory;
 
 
     /*!
@@ -141,6 +141,7 @@ namespace terrama2
          * \param Dataset to be removed.
          */
         void removeDataset(const core::DataSet dataset);
+        void removeDatasetById(uint64_t datasetId);
 
         /*!
          * \brief Updates a [DataSet]{\ref terrama2::core::DataSet}.
@@ -191,7 +192,7 @@ namespace terrama2
         void connectDataManager();
 
         bool stop_;
-        std::shared_ptr<CollectorFactory> collectorFactory_;
+        std::shared_ptr<Factory> factory_;
         QMap<core::DataProvider::Kind, QList<CollectorPtr> >  collectorQueueMap_;
         QMap<CollectorPtr, QList<uint64_t /*DataSetId*/> >    datasetQueue_;
 

@@ -79,7 +79,7 @@ namespace terrama2
              * \brief Recover the Collector from the CollectorFactory.
              * \return Collector for the DataSet.
              */
-        core::DataProvider            dataProvider() const;
+        uint64_t dataProvider() const;
         //! \brief Returns the original DataSet.
         core::DataSet                 dataSet()   const;
         //! \brief List of DataProcessor that should be aquired and processed.
