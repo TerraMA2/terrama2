@@ -35,14 +35,17 @@
 
 // TerraMA2
 #include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataManager.hpp>
 #include <terrama2/ws/collector/client/Exception.hpp>
+
 
 void TestClient::init()
 {
-  clearDatabase();
-
   wsClient_ = new terrama2::ws::collector::Client("http://localhost:1989");
+
+  clearDatabase();  
 }
+
 
 void TestClient::cleanup()
 {
@@ -63,20 +66,28 @@ void TestClient::clearDatabase()
   transactor->execute(query);
 
   transactor->commit();
+
+  query = "TRUNCATE TABLE terrama2.dataset CASCADE";
+  transactor->execute(query);
+
+  transactor->commit();
+
+  wsClient_->reload();
 }
+
 
 terrama2::core::DataProvider TestClient::buildDataProvider()
 {
 
-  terrama2::core::DataProvider  dataProvider(0, (terrama2::core::DataProvider::Kind)1);
+  terrama2::core::DataProvider  dataProvider("Data Provider", (terrama2::core::DataProvider::Kind)1, 0);
 
-  dataProvider.setName("Data Provider");
   dataProvider.setUri("C:/DataProvider/");
   dataProvider.setDescription("Data Provider Description");
   dataProvider.setStatus((terrama2::core::DataProvider::Status)1);
 
   return dataProvider;
 }
+
 
 terrama2::core::DataSet TestClient::buildDataSet()
 {
@@ -101,6 +112,7 @@ terrama2::core::DataSet TestClient::buildDataSet()
 
   return dataSet;
 }
+
 
 void TestClient::TestStatus()
 {
@@ -128,10 +140,9 @@ void TestClient::TestWrongConection()
   std::string answer;
   try
   {
-    delete wsClient_;
-    wsClient_ = new terrama2::ws::collector::Client("http://wrongaddress:00");
+    terrama2::ws::collector::Client wsClient("http://wrongaddress:00");
 
-    wsClient_->ping(answer);
+    wsClient.ping(answer);
 
     QFAIL("Can't connect to a wrong address!");
   }
@@ -173,9 +184,10 @@ void TestClient::TestAddNullDataProvider()
 {
   try
   {
-    terrama2::core::DataProvider dataProvider;
+    // VINICIUS: CHECK
+//    terrama2::core::DataProvider dataProvider;
 
-    wsClient_->addDataProvider(dataProvider);
+//    wsClient_->addDataProvider(dataProvider);
   }
   catch(terrama2::Exception &e)
   {
@@ -329,6 +341,36 @@ void TestClient::testFindDataProviderInvalidID()
 */
 }
 
+
+void TestClient::testListDataProvider()
+{
+  try
+  {
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
+
+    wsClient_->addDataProvider(dataProvider);
+
+    dataProvider.setId(0);
+    dataProvider.setName("Data Provider2");
+
+    wsClient_->addDataProvider(dataProvider);
+
+    std::vector< terrama2::core::DataProvider > list_dataProvider;
+
+    wsClient_->listDataProvider(list_dataProvider);
+
+    QCOMPARE(list_dataProvider.size(), 2uL);
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+
+}
 
 void TestClient::TestAddDataSet()
 {
@@ -506,4 +548,35 @@ void TestClient::testFindDataSetInvalidID()
   {
     QFAIL("Unexpected exception!");
   }
+}
+
+
+void TestClient::testListDataSet()
+{
+  try
+  {
+    terrama2::core::DataSet dataSet = buildDataSet();
+
+    wsClient_->addDataSet(dataSet);
+
+    dataSet.setId(0);
+    dataSet.setName("Data Set2");
+
+    wsClient_->addDataSet(dataSet);
+
+    std::vector< terrama2::core::DataSet > list_dataSet;
+
+    wsClient_->listDataSet(list_dataSet);
+
+    QCOMPARE(list_dataSet.size(), 2uL);
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+
 }

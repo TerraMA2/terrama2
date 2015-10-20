@@ -52,6 +52,15 @@ int Web__ping(std::string &answer);
 
   \return
 */
+int Web__reload(void);
+
+/*!
+  \brief
+
+  \param
+
+  \return
+*/
 int Web__addDataProvider(struct DataProvider, struct DataProvider&);
 
 /*!
