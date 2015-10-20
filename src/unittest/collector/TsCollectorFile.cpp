@@ -103,7 +103,7 @@ void TsCollectorFile::TestInactiveDataSet()
   {
     terrama2::collector::CollectorFile collector(dataProvider);
 
-    terrama2::core::DataSet dataset(terrama2::core::DataSet::PCD_TYPE);
+    terrama2::core::DataSet dataset("dummy", terrama2::core::DataSet::PCD_TYPE);
     dataset.setStatus(terrama2::core::DataSet::INACTIVE);
 
     terrama2::collector::DataSetTimerPtr datasetTimer(new terrama2::collector::DataSetTimer(dataset));

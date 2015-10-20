@@ -63,13 +63,11 @@ void TsIntegration::TestReadCsvStorePostGis()
 
   try
   {
-    terrama2::core::DataProvider provider(0, terrama2::core::DataProvider::FILE_TYPE);
-    provider.setName("dummy");
+    terrama2::core::DataProvider provider("dummy", terrama2::core::DataProvider::FILE_TYPE);
     provider.setStatus(terrama2::core::DataProvider::ACTIVE);
     provider.setUri(info.canonicalPath().toStdString());
 
-    terrama2::core::DataSet dataset(terrama2::core::DataSet::PCD_TYPE);
-    dataset.setName("dummy");
+    terrama2::core::DataSet dataset("dummy", terrama2::core::DataSet::PCD_TYPE);
     dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
     te::dt::TimeDuration frequency(0, 0, 5);
