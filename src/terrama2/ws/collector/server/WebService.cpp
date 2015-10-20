@@ -72,11 +72,11 @@ int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &
 {
   try
   {
-    terrama2::core::DataProvider dataProviderPtr(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
+    terrama2::core::DataProvider dataProvider(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
 
-    terrama2::core::DataManager::getInstance().add(dataProviderPtr);
+    terrama2::core::DataManager::getInstance().add(dataProvider);
 
-    struct_dataproviderResult = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProviderPtr);
+    struct_dataproviderResult = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProvider);
   }
   catch(terrama2::Exception &e)
   {
@@ -96,11 +96,11 @@ int WebService::addDataSet(DataSet struct_dataSet, DataSet &struct_datasetResult
 {
   try
   {
-    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet);
+    auto dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet);
 
-    terrama2::core::DataManager::getInstance().add(dataSetPtr);
+    terrama2::core::DataManager::getInstance().add(dataSet);
 
-    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSetPtr);
+    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSet);
   }
   catch(terrama2::Exception &e)
   {
@@ -120,11 +120,11 @@ int WebService::updateDataProvider(DataProvider struct_dataprovider, DataProvide
 {
   try
   {
-    terrama2::core::DataProvider dataProviderPtr(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
+    terrama2::core::DataProvider dataProvider(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
 
-    terrama2::core::DataManager::getInstance().update(dataProviderPtr);
+    terrama2::core::DataManager::getInstance().update(dataProvider);
 
-    struct_dataproviderResult = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProviderPtr);
+    struct_dataproviderResult = terrama2::ws::collector::core::DataProvider2Struct< DataProvider >(dataProvider);
   }
   catch(terrama2::Exception &e)
   {
@@ -144,11 +144,11 @@ int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetRes
 {
   try
   {
-    auto dataSetPtr = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataset);
+    auto dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataset);
 
-    terrama2::core::DataManager::getInstance().update(dataSetPtr);
+    terrama2::core::DataManager::getInstance().update(dataSet);
 
-    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSetPtr);
+    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSet);
   }
   catch(terrama2::Exception &e)
   {
@@ -208,7 +208,7 @@ int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
 {
   try
   {
-    auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(id);
+    terrama2::core::DataProvider dataProvider(terrama2::core::DataManager::getInstance().findDataProvider(id));
 
     if (dataProvider.id() == 0)
     {
