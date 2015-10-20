@@ -47,6 +47,27 @@ int WebService::ping(std::string &answer)
 }
 
 
+int WebService::reload()
+{
+  try
+  {
+    terrama2::core::DataManager::getInstance().unload();
+    terrama2::core::DataManager::getInstance().load();
+  }
+  catch(terrama2::Exception &e)
+  {
+    std::cerr <<  "Error at add DataProvider: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;
+    return soap_receiverfault("Error at add DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    return soap_receiverfault("Error at add DataProvider", "Unknow error.");
+  }
+
+  return send_reload_empty_response(SOAP_OK); // SOAP_OK: return HTTP 202 ACCEPTED
+}
+
+
 int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &struct_dataproviderResult)
 {
   try

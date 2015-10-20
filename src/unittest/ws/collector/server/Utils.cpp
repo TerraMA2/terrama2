@@ -30,8 +30,9 @@
 
 //TerrraMA2
 #include "Utils.hpp"
-#include <terrama2/core/Utils.hpp>
 #include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataManager.hpp>
+#include <terrama2/core/Utils.hpp>
 
 //terralib
 #include <terralib/common/PlatformUtils.h>
@@ -77,11 +78,15 @@ void initializeTerraMA2()
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
   QVERIFY(dataSource.get());
+
+  terrama2::core::DataManager::getInstance().load();
 }
 
 void finalizeTerraMA2()
 {
   finalizeTerralib();
+
+  terrama2::core::DataManager::getInstance().unload();
 
   terrama2::core::ApplicationController::getInstance().getDataSource()->close();
 }

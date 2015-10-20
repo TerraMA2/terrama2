@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 {
 
 // Define SERVER if you are running a server in 1989 port
-//#define SERVER server
+#define SERVER server
 
 #ifndef SERVER
 

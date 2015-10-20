@@ -60,6 +60,17 @@ void terrama2::ws::collector::Client::ping(std::string &answer)
 }
 
 
+void terrama2::ws::collector::Client::reload()
+{
+  if(wsClient_->send_reload() != SOAP_OK || wsClient_->recv_reload_empty_response() != SOAP_OK)
+  {
+    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+
+    throw client::reloadError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+  }
+}
+
+
 void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider& dataProvider)
 {
 
@@ -199,9 +210,6 @@ terrama2::core::DataSet terrama2::ws::collector::Client::findDataSet(uint64_t id
 
 void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::core::DataProvider > & providers)
 {
-  if(providers.at(0).id() == 0)
-    throw client::ListDataProviderError() << ErrorDescription(QObject::tr("Invalid data provider passed!"));
-
   std::vector< DataProvider > struct_dataProviderList;
 
   if(wsClient_->listDataProvider(struct_dataProviderList) != SOAP_OK)
@@ -221,21 +229,18 @@ void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::co
 
 void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::DataSet > & datasets)
 {
-  if(datasets.at(0).id() == 0)
-    throw client::ListDataSetError() << ErrorDescription(QObject::tr("Invalid dataset pased!"));
+  std::vector< DataSet > struct_dataSetList;
 
-  std::vector< DataSet > struct_dataSetPtrList;
-
-  if(wsClient_->listDataSet(struct_dataSetPtrList) != SOAP_OK)
+  if(wsClient_->listDataSet(struct_dataSetList) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
     throw client::ListDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
   }
 
-  for(uint32_t i = 0; i < struct_dataSetPtrList.size() ; i++)
+  for(uint32_t i = 0; i < struct_dataSetList.size() ; i++)
   {
-    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetPtrList.at(i)));
+    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetList.at(i)));
   }
 
 }
