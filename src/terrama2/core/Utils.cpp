@@ -145,6 +145,8 @@ terrama2::core::ToDataProviderStatus(bool active)
 terrama2::core::DataProvider::Kind
 terrama2::core::ToDataProviderKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
     case 2:
@@ -195,6 +197,8 @@ terrama2::core::DataSet::Status terrama2::core::ToDataSetStatus(bool active)
 terrama2::core::DataSet::Kind
 terrama2::core::ToDataSetKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
     case 2:
@@ -211,6 +215,8 @@ terrama2::core::ToDataSetKind(uint64_t kind)
 terrama2::core::DataSetItem::Kind
 terrama2::core::ToDataSetItemKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
     case 2:
@@ -249,6 +255,8 @@ terrama2::core::ToBool(DataSetItem::Status status)
 terrama2::core::Filter::ExpressionType
 terrama2::core::ToFilterExpressionType(uint64_t type)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (type)
   {
     case 2:

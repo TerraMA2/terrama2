@@ -61,7 +61,9 @@ namespace terrama2
     {
       public:
 
-        //! Data provider type.
+        /*! Data provider type.
+         Each constant must exist in table terrama2.data_provider_type and the value must be the same from column id.
+         */
         enum Kind
         {
           UNKNOWN_TYPE = 1,
