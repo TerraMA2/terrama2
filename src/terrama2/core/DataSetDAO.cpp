@@ -205,7 +205,12 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
 
     std::auto_ptr<te::da::DataSet> queryResult = transactor.query(sql);
 
-    return getDataSet(queryResult, transactor);
+    if(queryResult->moveNext())
+    {
+      return getDataSet(queryResult, transactor);
+    }
+
+    return DataSet();
   }
   catch(const terrama2::Exception&)
   {
@@ -257,7 +262,7 @@ void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::Data
 {
   std::vector<terrama2::core::DataSet::CollectRule> collectRules;
 
-  std::string sql("SELECT id, script FROM terrama2.dataset_collect_rule WHERE datasetId = " + std::to_string(dataSet.id()));
+  std::string sql("SELECT id, script FROM terrama2.dataset_collect_rule WHERE dataset_id = " + std::to_string(dataSet.id()));
   std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
 
   while(tempDataSet->moveNext())
@@ -475,13 +480,13 @@ void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSour
 
 terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te::da::DataSet>& queryResult, te::da::DataSourceTransactor& transactor)
 {
-  if(queryResult->moveNext())
-  {
+
     std::string name = queryResult->getAsString("name");
     terrama2::core::DataSet::Kind kind = ToDataSetKind(queryResult->getInt32("kind"));
 
-    DataSet dataset(kind);
+    DataSet dataset(name, kind);
     dataset.setId(queryResult->getInt32("id"));
+    dataset.setProvider(queryResult->getInt32("data_provider_id"));
     dataset.setDescription(queryResult->getString("description"));
     dataset.setStatus(ToDataSetStatus(queryResult->getBool("active")));
 
@@ -490,10 +495,15 @@ terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te:
     te::dt::TimeDuration teTDDataFrequency(tdDataFrequency);
     dataset.setDataFrequency(teTDDataFrequency);
 
-    std::unique_ptr<te::dt::TimeDuration> schedule(dynamic_cast<te::dt::TimeDuration*>(queryResult->getDateTime("schedule").get()));
-    if(schedule != nullptr)
+    if(!queryResult->isNull("schedule"))
     {
-      dataset.setSchedule(*schedule);
+      auto aptrDT = queryResult->getDateTime("schedule");
+      te::dt::DateTime* scheduleDT = aptrDT.release();
+      std::unique_ptr<te::dt::TimeDuration> schedule(dynamic_cast<te::dt::TimeDuration*>(scheduleDT));
+      if(schedule != nullptr)
+      {
+        dataset.setSchedule(*schedule);
+      }
     }
 
     u_int64_t scheduleRetry = queryResult->getInt32("schedule_retry");
@@ -514,13 +524,11 @@ terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te:
 
     std::vector<DataSetItem> items = DataSetItemDAO::loadAll(dataset.id(), transactor);
 
-    for(const auto& item : items)
+    for(auto& item : items)
       dataset.add(item);
 
     return dataset;
-  }
 
-  return DataSet();
 }
 
 void terrama2::core::DataSetDAO::updateMetadata(terrama2::core::DataSet& dataset,

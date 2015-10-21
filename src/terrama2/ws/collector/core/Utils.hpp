@@ -103,8 +103,7 @@ namespace terrama2
 template <typename T1>
 terrama2::core::DataProvider terrama2::ws::collector::core::Struct2DataProvider(T1 struct_dataprovider)
 {
-  terrama2::core::DataProvider dataProvider(struct_dataprovider.id, terrama2::core::ToDataProviderKind(struct_dataprovider.kind));
-  dataProvider.setName(struct_dataprovider.name);
+  terrama2::core::DataProvider dataProvider(struct_dataprovider.name, terrama2::core::ToDataProviderKind(struct_dataprovider.kind), struct_dataprovider.id);
   dataProvider.setDescription(struct_dataprovider.description);
   dataProvider.setUri(struct_dataprovider.uri);
   dataProvider.setStatus((terrama2::core::DataProvider::Status)struct_dataprovider.status);
@@ -132,10 +131,8 @@ T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvid
 template <typename T1>
 terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_dataSet)
 {
-  auto dataProvider= terrama2::core::DataManager::getInstance().findDataProvider(struct_dataSet.data_provider_id);
+  terrama2::core::DataSet dataSet(struct_dataSet.name, terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, struct_dataSet.data_provider_id);
 
-  terrama2::core::DataSet dataSet(terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, dataProvider.id());
-  dataSet.setName(struct_dataSet.name);
   dataSet.setDescription(struct_dataSet.description);
   dataSet.setStatus((terrama2::core::DataSet::Status)struct_dataSet.status);
 

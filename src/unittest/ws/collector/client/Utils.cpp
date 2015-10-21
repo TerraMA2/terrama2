@@ -30,8 +30,9 @@
 
 //TerrraMA2
 #include "Utils.hpp"
-#include <terrama2/core/Utils.hpp>
 #include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataManager.hpp>
+#include <terrama2/core/Utils.hpp>
 
 //terralib
 #include <terralib/common/PlatformUtils.h>

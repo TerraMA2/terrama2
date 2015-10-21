@@ -29,10 +29,10 @@
 
 #include "DataProcessor.hpp"
 
-#include "StoragerFactory.hpp"
-#include "ParserFactory.hpp"
 #include "DataFilter.hpp"
+#include "Exception.hpp"
 #include "Storager.hpp"
+#include "Factory.hpp"
 #include "Parser.hpp"
 
 #include "../core/DataSetItem.hpp"
@@ -40,18 +40,18 @@
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
-//std
-#include <atomic>
+//qt
+#include <QDebug>
 
 struct terrama2::collector::DataProcessor::Impl
 {
-    core::DataSetItem      data_;
-    DataFilterPtr          filter_;
-    ParserPtr              parser_;
-    StoragerPtr            storager_;
+  core::DataSetItem      data_;
+  DataFilterPtr          filter_;
+  ParserPtr              parser_;
+  StoragerPtr            storager_;
 };
 
-terrama2::collector::DataProcessor::DataProcessor(const core::DataSetItem& data, QObject *parent)
+terrama2::collector::DataProcessor::DataProcessor(const core::DataSetItem& data)
 {
   impl_ = new Impl();
   impl_->data_ = data;
@@ -78,33 +78,53 @@ terrama2::collector::DataFilterPtr terrama2::collector::DataProcessor::filter() 
 
 void terrama2::collector::DataProcessor::import(const std::string &uri)
 {
+  //JANO: should run in thread ?
+  //Call a thread method?
+
   assert(impl_->parser_);
   assert(impl_->filter_);
   assert(impl_->storager_);
 
-  //get full name list
-  std::vector<std::string> names = impl_->parser_->datasetNames(uri);
-  //filter names
-  names = impl_->filter_->filterNames(names);
-  //get dataset
-  std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-  std::shared_ptr<te::da::DataSetType> datasetType;
-  impl_->parser_->read(uri, names, datasetVec, datasetType);
-
-  //filter dataset
-  for(int i = 0, size = datasetVec.size(); i < size; ++i)
+  try
   {
-    std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+    //get full name list
+    std::vector<std::string> names = impl_->parser_->datasetNames(uri);
+    //filter names
+    names = impl_->filter_->filterNames(names);
+    //get dataset
+    std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+    std::shared_ptr<te::da::DataSetType> datasetType;
+    impl_->parser_->read(uri, names, datasetVec, datasetType);
 
-    //std::vector::at is NON-const, Qt containers use 'at' as const
-    datasetVec.at(i) = impl_->filter_->filterDataSet(tempDataSet);
+    //filter dataset
+    for(int i = 0, size = datasetVec.size(); i < size; ++i)
+    {
+      std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+
+      //std::vector::at is NON-const, Qt containers use 'at' as const
+      datasetVec.at(i) = impl_->filter_->filterDataSet(tempDataSet);
+    }
+
+    //store dataset
+    impl_->storager_->store(datasetVec, datasetType);
   }
-
-  //store dataset
-  impl_->storager_->store(datasetVec, datasetType);
-
-  //JANO: should run in thread ?
-  //Call a thread method?
+  catch(terrama2::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(te::common::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(...)
+  {
+    //TODO: log de erro
+    assert(0);
+  }
 }
 
 void terrama2::collector::DataProcessor::initFilter()
@@ -115,12 +135,52 @@ void terrama2::collector::DataProcessor::initFilter()
 
 void terrama2::collector::DataProcessor::initParser()
 {
-  ParserPtr parser = ParserFactory::getParser(impl_->data_.kind());
-  impl_->parser_ = parser;
+  try
+  {
+    ParserPtr parser = Factory::getParser(impl_->data_.kind());
+    impl_->parser_ = parser;
+  }
+  catch(terrama2::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(te::common::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(...)
+  {
+    //TODO: log de erro
+    assert(0);
+  }
 }
 
 void terrama2::collector::DataProcessor::initStorager()
 {
-  StoragerPtr storager = StoragerFactory::getStorager(impl_->data_);
-  impl_->storager_ = storager;
+  try
+  {
+    StoragerPtr storager = Factory::getStorager(impl_->data_);
+    impl_->storager_ = storager;
+  }
+  catch(terrama2::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(te::common::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(...)
+  {
+    //TODO: log de erro
+    assert(0);
+  }
 }

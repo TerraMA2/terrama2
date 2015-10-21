@@ -61,16 +61,18 @@ namespace terrama2
     {
       public:
 
-        //! Data provider type.
+        /*! Data provider type.
+         Each constant must exist in table terrama2.data_provider_type and the value must be the same from column id.
+         */
         enum Kind
         {
-          UNKNOWN_TYPE,
-          FTP_TYPE,
-          HTTP_TYPE,
-          FILE_TYPE,
-          WFS_TYPE,
-          WCS_TYPE,
-          SOS_TYPE
+          UNKNOWN_TYPE = 1,
+          FTP_TYPE = 2,
+          HTTP_TYPE = 3,
+          FILE_TYPE = 4,
+          WFS_TYPE = 5,
+          WCS_TYPE = 6,
+          SOS_TYPE = 7
         };
 
         //! Data provider status.
@@ -81,7 +83,7 @@ namespace terrama2
         };
 
         /*! \brief Constructor. */
-        DataProvider(const uint64_t id = 0, Kind k = UNKNOWN_TYPE);
+        DataProvider(const std::string& name = "", Kind k = UNKNOWN_TYPE, const uint64_t id = 0);
 
         /*! \brief Destructor. */
         ~DataProvider();
@@ -130,7 +132,7 @@ namespace terrama2
 
           \param d The the dataset.
         */
-        void add(const DataSet& d);
+        void add(DataSet& d);
 
         /*!
           \brief Removes the given dataset from the provider list.
@@ -143,8 +145,8 @@ namespace terrama2
 
         uint64_t id_;
         std::string name_;
-        std::string description_;
         Kind kind_;
+        std::string description_;
         std::string uri_;
         Status status_;
         std::vector<DataSet> datasets_; //!< The list of datasets available in the data provider.

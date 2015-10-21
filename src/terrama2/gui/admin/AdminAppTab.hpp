@@ -58,4 +58,4 @@ class AdminAppTab
   Ui::AdminAppForm* ui_;
 };
 
-#endif __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__
+#endif // __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__

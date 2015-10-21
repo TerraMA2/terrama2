@@ -78,13 +78,34 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
 {
   //already locked by Collector::collect, lock_guard just to release when finished
   std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
+
+  if(datasetTimer->data().empty())
+  {
+    //TODO: LOG empty dataset
+    return;
+  }
+
   //aquire all data
   for(auto& data : datasetTimer->data())
   {
+    try
+    {
     //TODO: conditions to collect Data?
-    std::string localUri = retrieveData(data);
+      std::string localUri = retrieveData(data);
 
-    data->import(localUri);
+      data->import(localUri);
+    }
+    catch(terrama2::Exception& e)
+    {
+      //TODO: log this
+      continue;
+    }
+    catch(...)
+    {
+      //TODO: log this
+      // Unkown exception ocurred while.....
+      continue;
+    }
   }
 }
 
@@ -114,6 +135,5 @@ void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 
   //JANO: Reabilitar thread na colleta
   //start a new thread
-//  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
-  collectAsThread(datasetTimer);
+  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
 }

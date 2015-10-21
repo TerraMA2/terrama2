@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   QApplication app(argc, argv);
 
 // initialize TerraLib
-   TerraLib::getInstance().initialize();
+  TerraLib::getInstance().initialize();
 
   te::plugin::PluginInfo* info;
   std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
@@ -66,7 +66,11 @@ int main(int argc, char* argv[])
   try
   {
     AdminApp terrama2_admin;
-    terrama2_admin.showMaximized();
+    QSize s_max = terrama2_admin.size();
+    terrama2_admin.statusBar()->setSizeGripEnabled(false);
+    terrama2_admin.show();
+    terrama2_admin.setFixedSize( s_max );
+
     int retval = app.exec();
 
 // finalize TerraLib
@@ -87,9 +91,9 @@ int main(int argc, char* argv[])
    }
 
   catch(const std::exception& e)
-  {
+  {      
     QString messageError = "TerraMA2 finished with erros!\n\n%1";
-    messageError.arg(e.what());
+    messageError =  messageError.arg(e.what());
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
   }
 

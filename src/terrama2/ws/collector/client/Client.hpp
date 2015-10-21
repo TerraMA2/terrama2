@@ -53,18 +53,39 @@ namespace terrama2
       {
         public:
 
+        /*!
+          \brief Constructor
+
+          \param
+
+          \return
+        */
           Client(const std::string url);
 
+          /*!
+            \brief Destructor
+
+            \param
+
+            \return
+          */
           ~Client();
+
 
           /*!
             \brief
 
             \param
 
+            \exception pingError
+
             \return
           */
           void ping(std::string &answer);
+
+          /*!
+            \brief
+
 
           /*!
             \brief

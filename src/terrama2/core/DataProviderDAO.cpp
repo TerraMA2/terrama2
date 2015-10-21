@@ -176,7 +176,7 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
 
       std::vector<DataSet> datasets = DataSetDAO::loadAll(id, transactor);
       
-      for(const auto& dataset : datasets)
+      for(auto& dataset : datasets)
         provider.add(dataset);
 
       return provider;
@@ -220,7 +220,7 @@ terrama2::core::DataProviderDAO::loadAll(te::da::DataSourceTransactor& transacto
       
       std::vector<DataSet> datasets = DataSetDAO::loadAll(provider.id(), transactor);
       
-      for(const auto& dataset : datasets)
+      for(auto& dataset : datasets)
         provider.add(dataset);
       
       providers.push_back(std::move(provider));

@@ -62,11 +62,11 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
     {
       QJsonObject databaseConfig = project["database"].toObject();
       std::map<std::string, std::string> connInfo;
-      connInfo["PG_HOST"] = databaseConfig["hostName"].toString().toStdString();
+      connInfo["PG_HOST"] = databaseConfig["host"].toString().toStdString();
       connInfo["PG_PORT"] = databaseConfig["port"].toString().toStdString();
       connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
       connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
-      connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
+      connInfo["PG_DB_NAME"] = databaseConfig["name"].toString().toStdString();
       connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
       dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
@@ -158,5 +158,33 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
 
     return true;
   }
+
+}
+
+bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port)
+{
+    std::map<std::string, std::string> connInfo;
+
+    connInfo["PG_HOST"] = host;
+    connInfo["PG_PORT"] = std::to_string(port);
+    connInfo["PG_USER"] = username;
+    connInfo["PG_DB_NAME"] = dbName;
+    connInfo["PG_CONNECT_TIMEOUT"] = "4";
+    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+
+    std::string dsType = "POSTGIS";
+
+    // Check the data source existence
+    connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
+    bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+    if(dsExists)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
 
 }

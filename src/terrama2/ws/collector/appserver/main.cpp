@@ -37,8 +37,9 @@
 
 // TerraMA2
 #include "soapWebService.h"
-#include "../../../core/Utils.hpp"
 #include "../../../core/ApplicationController.hpp"
+#include "../../../core/DataManager.hpp"
+#include "../../../core/Utils.hpp"
 
 
 int main(int argc, char* argv[])
@@ -81,10 +82,7 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-
-  if(!dataSource.get())
-    return EXIT_FAILURE;
+  terrama2::core::DataManager::getInstance().load();
 
   WebService server;
 
@@ -106,6 +104,8 @@ int main(int argc, char* argv[])
 
   std::cerr << "Closing Webservice..." << std::endl;
   TerraLib::getInstance().finalize();
+
+  terrama2::core::DataManager::getInstance().unload();
 
   terrama2::core::ApplicationController::getInstance().getDataSource()->close();
 

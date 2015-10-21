@@ -37,11 +37,11 @@ int main(int argc, char **argv)
 {
 //  initializeTerraMA2();
 
-//  TestClient testClient;
-//  int ret = QTest::qExec(&testClient, argc, argv);
+  TestClient testClient;
+  int ret = QTest::qExec(&testClient, argc, argv);
 
 //  finalizeTerraMA2();
 
-//  return ret;
-  return EXIT_SUCCESS;
+  return ret;
+//  return EXIT_SUCCESS;
 }
