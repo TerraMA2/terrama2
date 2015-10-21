@@ -88,6 +88,9 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
     void addCachedDataSet(const terrama2::core::DataSet& dataset);
 
+    //! It refresh the weatherdatalist from widget and string for replace
+    void refreshList(QTreeWidgetItem* widget, QString searchFor, QString replace);
+
   private:
     void showDataSeries(bool state);
     void hideDataSetButtons();

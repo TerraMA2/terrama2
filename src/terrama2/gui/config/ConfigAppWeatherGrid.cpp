@@ -59,7 +59,13 @@ void ConfigAppWeatherGridTab::save()
   dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
   if (dataset.id() >= 1)
+  {
     app_->getClient()->updateDataSet(dataset);
+    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(),
+                                       selectedData_,
+                                       ui_->gridFormatDataName->text());
+    selectedData_ =  ui_->gridFormatDataName->text();
+  }
   else
   {
     dataset.setProvider(provider.id());
@@ -71,6 +77,7 @@ void ConfigAppWeatherGridTab::save()
     ui_->weatherDataTree->currentItem()->addChild(item);
   }
   app_->getWeatherTab()->addCachedDataSet(dataset);
+  changed_ = false;
 }
 
 void ConfigAppWeatherGridTab::discardChanges(bool restore_data)

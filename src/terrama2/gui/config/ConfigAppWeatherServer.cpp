@@ -52,32 +52,32 @@ void ConfigAppWeatherServer::save()
   {
     app_->getClient()->updateDataProvider(provider);
 
+    // Refresh the weather list giving top level item and search for dataprovider selected
+    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->topLevelItem(0), selectedData_, ui_->serverName->text());
     QTreeWidgetItemIterator it(ui_->weatherDataTree->topLevelItem(0));
-    while(*it)
-    {
-      if ((*it)->text(0) == selectedData_)
-      {
-        (*it)->setText(0, ui_->serverName->text());
-        break;
-      }
-      ++it;
-    }
+//    while(*it)
+//    {
+//      if ((*it)->text(0) == selectedData_)
+//      {
+//        (*it)->setText(0, ui_->serverName->text());
+//        break;
+//      }
+//      ++it;
+//    }
 
     selectedData_ = ui_->serverName->text();
-
-    app_->getWeatherTab()->addCachedProvider(provider);
 
   }
   else
   {
     app_->getClient()->addDataProvider(provider);
-    app_->getWeatherTab()->addCachedProvider(provider);
 
     QTreeWidgetItem* newServer = new QTreeWidgetItem();
     newServer->setText(0, ui_->serverName->text());
     newServer->setIcon(0, QIcon::fromTheme("server"));
     ui_->weatherDataTree->topLevelItem(0)->addChild(newServer);
   }
+  app_->getWeatherTab()->addCachedProvider(provider);
   changed_ = false;
 }
 

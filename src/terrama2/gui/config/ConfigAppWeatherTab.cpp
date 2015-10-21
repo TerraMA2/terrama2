@@ -12,6 +12,7 @@
 // SubTabs
 #include "ConfigAppWeatherServer.hpp"
 #include "ConfigAppWeatherGrid.hpp"
+#include "ConfigAppWeatherPcd.hpp"
 
 // STL
 #include <vector>
@@ -43,8 +44,10 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Tabs
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
   QSharedPointer<ConfigAppWeatherGridTab> gridTab(new ConfigAppWeatherGridTab(app, ui));
+  QSharedPointer<ConfigAppWeatherPcd> pcdTab(new ConfigAppWeatherPcd(app, ui));
   subTabs_.append(serverTab);
   subTabs_.append(gridTab);
+  subTabs_.append(pcdTab);
 
   // Lock for cannot allow multiple selection
   ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -82,6 +85,7 @@ void ConfigAppWeatherTab::load()
 
     if (providers.size() > 0)
     {
+      // temp code
       showDataSeries(true);
       ui_->serverInsertPointBtn->setVisible(true);
       ui_->serverInsertGridBtn->setVisible(true);
@@ -520,4 +524,18 @@ void ConfigAppWeatherTab::removeCachedDataProvider(const terrama2::core::DataPro
 void ConfigAppWeatherTab::addCachedDataSet(const terrama2::core::DataSet &dataset)
 {
 
+}
+
+void ConfigAppWeatherTab::refreshList(QTreeWidgetItem* widget, const QString searchFor, const QString replace)
+{
+  QTreeWidgetItemIterator it(widget);
+  while(*it)
+  {
+    if ((*it)->text(0) == searchFor)
+    {
+      (*it)->setText(0, replace);
+      break;
+    }
+    ++it;
+  }
 }
