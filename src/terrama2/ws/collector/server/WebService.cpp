@@ -39,15 +39,7 @@
 #include "soapWebService.h"
 #include "Web.nsmap"
 
-
-int WebService::ping(std::string &answer)
-{
-  answer = "TerraMA2 pong!";
-  return SOAP_OK;
-}
-
-
-int WebService::reload()
+bool Reload()
 {
   try
   {
@@ -56,15 +48,23 @@ int WebService::reload()
   }
   catch(terrama2::Exception &e)
   {
-    std::cerr <<  "Error at add DataProvider: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;
-    return soap_receiverfault("Error at add DataProvider.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    std::cerr <<  "Error to update data: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;
+    return false;
   }
   catch(...)
   {
-    return soap_receiverfault("Error at add DataProvider", "Unknow error.");
+    std::cerr << "Error to update data: Unknow error.";
+    return false;
   }
 
-  return send_reload_empty_response(SOAP_OK); // SOAP_OK: return HTTP 202 ACCEPTED
+  return true;
+}
+
+
+int WebService::ping(std::string &answer)
+{
+  answer = "TerraMA2 pong!";
+  return SOAP_OK;
 }
 
 
@@ -72,6 +72,7 @@ int WebService::addDataProvider(DataProvider struct_dataprovider, DataProvider &
 {
   try
   {
+    Reload();
     terrama2::core::DataProvider dataProvider(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
 
     terrama2::core::DataManager::getInstance().add(dataProvider);
@@ -96,7 +97,8 @@ int WebService::addDataSet(DataSet struct_dataSet, DataSet &struct_datasetResult
 {
   try
   {
-    auto dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet);
+    Reload();
+    terrama2::core::DataSet dataSet(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet));
 
     terrama2::core::DataManager::getInstance().add(dataSet);
 
@@ -120,6 +122,7 @@ int WebService::updateDataProvider(DataProvider struct_dataprovider, DataProvide
 {
   try
   {
+    Reload();
     terrama2::core::DataProvider dataProvider(terrama2::ws::collector::core::Struct2DataProvider< DataProvider >(struct_dataprovider));
 
     terrama2::core::DataManager::getInstance().update(dataProvider);
@@ -144,7 +147,8 @@ int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetRes
 {
   try
   {
-    auto dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataset);
+    Reload();
+    terrama2::core::DataSet dataSet(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataset));
 
     terrama2::core::DataManager::getInstance().update(dataSet);
 
@@ -168,6 +172,7 @@ int WebService::removeDataProvider(uint64_t id)
 {
   try
   {
+    Reload();
     terrama2::core::DataManager::getInstance().removeDataProvider(id);
   }
   catch(terrama2::Exception &e)
@@ -188,7 +193,8 @@ int WebService::removeDataSet(uint64_t id)
 {
   try
   {
-    terrama2::core::DataManager::getInstance().removeDataSet(id);
+    Reload();
+     terrama2::core::DataManager::getInstance().removeDataSet(id);
   }
   catch(terrama2::Exception &e)
   {
@@ -208,6 +214,7 @@ int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
 {
   try
   {
+    Reload();
     terrama2::core::DataProvider dataProvider(terrama2::core::DataManager::getInstance().findDataProvider(id));
 
     if (dataProvider.id() == 0)
@@ -236,7 +243,8 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
 {
   try
   {
-    auto dataSet = terrama2::core::DataManager::getInstance().findDataSet(id);
+    Reload();
+    terrama2::core::DataSet dataSet(terrama2::core::DataManager::getInstance().findDataSet(id));
 
     struct_dataset = terrama2::ws::collector::core::DataSet2Struct<DataSet>(dataSet);
   }
@@ -256,24 +264,49 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
 
 int WebService::listDataProvider(std::vector< DataProvider > &data_provider_list)
 {
-  std::vector<terrama2::core::DataProvider> dataproviders = terrama2::core::DataManager::getInstance().providers();
-
-  for(uint32_t i = 0; i < dataproviders.size() ; i++)
+  try
   {
-    data_provider_list.push_back(terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataproviders.at(i)));
-  }
+    Reload();
+    std::vector<terrama2::core::DataProvider> dataproviders = terrama2::core::DataManager::getInstance().providers();
 
+    for(uint32_t i = 0; i < dataproviders.size() ; i++)
+    {
+      data_provider_list.push_back(terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataproviders.at(i)));
+    }
+  }
+  catch(terrama2::Exception &e)
+  {
+    std::cerr << "Error at list Data Providers: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;
+    return soap_receiverfault("Error at list Data Providers.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    return soap_receiverfault("Error at list Data Providers", "Unknow error.");
+  }
   return SOAP_OK;
 }
 
 
 int WebService::listDataSet(std::vector< DataSet > &data_set_list)
 {
-  std::vector<terrama2::core::DataSet> datasets = terrama2::core::DataManager::getInstance().dataSets();
-
-  for(uint32_t i = 0; i < datasets.size() ; i++)
+  try
   {
-    data_set_list.push_back(terrama2::ws::collector::core::DataSet2Struct<DataSet>(datasets.at(i)));
+    Reload();
+    std::vector<terrama2::core::DataSet> datasets = terrama2::core::DataManager::getInstance().dataSets();
+
+    for(uint32_t i = 0; i < datasets.size() ; i++)
+    {
+      data_set_list.push_back(terrama2::ws::collector::core::DataSet2Struct<DataSet>(datasets.at(i)));
+    }
+  }
+  catch(terrama2::Exception &e)
+  {
+    std::cerr << "Error at list DataSets: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;
+    return soap_receiverfault("Error at list DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    return soap_receiverfault("Error at list DataSet", "Unknow error.");
   }
 
   return SOAP_OK;

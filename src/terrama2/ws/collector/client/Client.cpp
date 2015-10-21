@@ -60,17 +60,6 @@ void terrama2::ws::collector::Client::ping(std::string &answer)
 }
 
 
-void terrama2::ws::collector::Client::reload()
-{
-  if(wsClient_->send_reload() != SOAP_OK || wsClient_->recv_reload_empty_response() != SOAP_OK)
-  {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
-
-    throw client::reloadError() << ErrorDescription(errorMessage.c_str());
-  }
-}
-
-
 void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider& dataProvider)
 {
 

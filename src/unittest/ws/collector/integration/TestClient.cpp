@@ -85,8 +85,6 @@ void TestClient::clearDatabase()
   transactor->execute(query);
 
   transactor->commit();
-
-  wsClient_->reload();
 }
 
 

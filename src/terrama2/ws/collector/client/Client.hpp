@@ -86,13 +86,6 @@ namespace terrama2
           /*!
             \brief
 
-            \param
-
-            \exception reloadError
-
-            \return
-          */
-          void reload();
 
           /*!
             \brief

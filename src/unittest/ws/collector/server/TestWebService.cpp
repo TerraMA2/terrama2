@@ -42,11 +42,13 @@
 void TestWebService::init()
 {
   clearDatabase();
+  terrama2::core::DataManager::getInstance().load();
 }
 
 void TestWebService::cleanup()
 {
   clearDatabase();
+  terrama2::core::DataManager::getInstance().unload();
 }
 
 
@@ -66,8 +68,6 @@ void TestWebService::clearDatabase()
   transactor->execute(query);
 
   transactor->commit();
-
-  terrama2::core::DataManager::getInstance().unload();
 }
 
 
@@ -892,7 +892,7 @@ void TestWebService::testFindDataSet()
       QFAIL("Failed to find the Data Set!");
     }
 
-    QVERIFY2(struct_dataSetResult.id == struct_dataSet_found.id, "Error to find properly the Data Set!");
+    QCOMPARE(struct_dataSetResult.id, struct_dataSet_found.id);
     QVERIFY2(struct_dataSetResult.data_provider_id == struct_dataSet_found.data_provider_id, "Error to find properly the Data Set!");
     QVERIFY2(struct_dataSetResult.name == struct_dataSet_found.name, "Error to find properly the Data Set!");
     QVERIFY2(struct_dataSetResult.kind == struct_dataSet_found.kind, "Error to find properly the Data Set!");
