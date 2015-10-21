@@ -73,7 +73,7 @@ namespace terrama2
              * \brief Constructor
              * \param dataProvider Server information for collecting.
              */
-        Collector(const core::DataProvider dataProvider, QObject* parent = nullptr);
+        Collector(const core::DataProvider& dataProvider, QObject* parent = nullptr);
         /*!
              * \brief Destructor
              */
