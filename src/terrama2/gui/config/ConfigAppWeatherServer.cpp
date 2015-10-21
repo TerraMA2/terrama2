@@ -39,8 +39,6 @@ void ConfigAppWeatherServer::load()
 void ConfigAppWeatherServer::save()
 {
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(selectedData_.toStdString());
-//  terrama2::core::DataProvider provider = terrama2::core::DataManager::getInstance().findDataProvider(
-//        selectedData_.toStdString());
 
   provider.setName(ui_->serverName->text().toStdString());
   provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
