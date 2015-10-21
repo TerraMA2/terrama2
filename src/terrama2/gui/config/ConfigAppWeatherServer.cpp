@@ -54,16 +54,6 @@ void ConfigAppWeatherServer::save()
 
     // Refresh the weather list giving top level item and search for dataprovider selected
     app_->getWeatherTab()->refreshList(ui_->weatherDataTree->topLevelItem(0), selectedData_, ui_->serverName->text());
-    QTreeWidgetItemIterator it(ui_->weatherDataTree->topLevelItem(0));
-//    while(*it)
-//    {
-//      if ((*it)->text(0) == selectedData_)
-//      {
-//        (*it)->setText(0, ui_->serverName->text());
-//        break;
-//      }
-//      ++it;
-//    }
 
     selectedData_ = ui_->serverName->text();
 

@@ -39,7 +39,7 @@ bool ConfigAppWeatherPcd::validate()
 void ConfigAppWeatherPcd::save()
 {
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
-  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(provider, selectedData_.toStdString());
+  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(selectedData_.toStdString());
 
   dataset.setName(ui_->pointFormatDataName->text().toStdString());
   dataset.setKind(terrama2::core::DataSet::PCD_TYPE);

@@ -50,7 +50,7 @@ void ConfigAppWeatherGridTab::save()
 {
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
   std::string name = ui_->gridFormatDataName->text().toStdString();
-  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(provider, selectedData_.toStdString());
+  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(selectedData_.toStdString());
 
   terrama2::core::DataSet::Kind kind = terrama2::core::DataSet::GRID_TYPE;
 

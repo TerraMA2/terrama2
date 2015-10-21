@@ -79,7 +79,7 @@ class ConfigAppWeatherTab : public ConfigAppTab
     terrama2::core::DataProvider getProvider(const std::string& identifier);
 
     //! It retrieves dataset from dataprovider list
-    terrama2::core::DataSet getDataSet(terrama2::core::DataProvider& provider, const std::string& identifier);
+    terrama2::core::DataSet getDataSet(const std::string& identifier);
 
     //! It is used for insert and update cached dataprovider list
     void addCachedProvider(const terrama2::core::DataProvider& provider);
@@ -87,6 +87,8 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
 
     void addCachedDataSet(const terrama2::core::DataSet& dataset);
+
+    void removeCachedDataSet(const terrama2::core::DataSet& dataset);
 
     //! It refresh the weatherdatalist from widget and string for replace
     void refreshList(QTreeWidgetItem* widget, QString searchFor, QString replace);
@@ -121,6 +123,7 @@ class ConfigAppWeatherTab : public ConfigAppTab
   private:
     QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
     QMap<std::string,terrama2::core::DataProvider> providers_;
+    QMap<std::string,terrama2::core::DataSet> datasets_;
 };
 
 #endif
