@@ -68,10 +68,10 @@ namespace terrama2
         //! Dataset type.
         enum Kind
         {
-          UNKNOWN_TYPE,
-          PCD_TYPE,
-          OCCURENCE_TYPE,
-          GRID_TYPE
+          UNKNOWN_TYPE = 1,
+          PCD_TYPE = 2,
+          OCCURENCE_TYPE = 3,
+          GRID_TYPE = 4
         };
 
         //! Dataset status.
