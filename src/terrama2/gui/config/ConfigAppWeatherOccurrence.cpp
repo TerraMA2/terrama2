@@ -61,6 +61,7 @@ void ConfigAppWeatherOccurrence::save()
     item->setText(0, ui_->pointDiffFormatDataName->text());
     ui_->weatherDataTree->currentItem()->addChild(item);
   }
+  app_->getWeatherTab()->addCachedDataSet(dataset);
   changed_ = false;
 }
 

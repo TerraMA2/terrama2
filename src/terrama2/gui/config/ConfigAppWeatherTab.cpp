@@ -112,7 +112,6 @@ void ConfigAppWeatherTab::load()
 
       for(std::vector<terrama2::core::DataSet>::iterator dit = datasets.begin(); dit != datasets.end(); ++dit)
       {
-        std::cout << dit->name() << " << " << dit->provider() << std::endl;
         if (dit->provider() == it->id())
         {
           datasets_.insert(dit->name(), *dit);
