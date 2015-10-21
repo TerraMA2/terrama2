@@ -147,16 +147,18 @@ terrama2::core::ToDataProviderKind(uint64_t kind)
 {
   switch (kind)
   {
-    case 1:
-      return DataProvider::FTP_TYPE;
     case 2:
-      return DataProvider::HTTP_TYPE;
+      return DataProvider::FTP_TYPE;
     case 3:
-      return DataProvider::FILE_TYPE;
+      return DataProvider::HTTP_TYPE;
     case 4:
-      return DataProvider::WFS_TYPE;
+      return DataProvider::FILE_TYPE;
     case 5:
+      return DataProvider::WFS_TYPE;
+    case 6:
       return DataProvider::WCS_TYPE;
+    case 7:
+      return DataProvider::SOS_TYPE;
     default:
       return DataProvider::UNKNOWN_TYPE;
   }
@@ -195,11 +197,11 @@ terrama2::core::ToDataSetKind(uint64_t kind)
 {
   switch (kind)
   {
-    case 1:
-      return DataSet::PCD_TYPE;
     case 2:
-      return DataSet::OCCURENCE_TYPE;
+      return DataSet::PCD_TYPE;
     case 3:
+      return DataSet::OCCURENCE_TYPE;
+    case 4:
       return DataSet::GRID_TYPE;
     default:
       return DataSet::UNKNOWN_TYPE;
@@ -211,13 +213,13 @@ terrama2::core::ToDataSetItemKind(uint64_t kind)
 {
   switch (kind)
   {
-    case 1:
-      return DataSetItem::PCD_INPE_TYPE;
     case 2:
-      return DataSetItem::PCD_TOA5_TYPE;
+      return DataSetItem::PCD_INPE_TYPE;
     case 3:
-      return DataSetItem::FIRE_POINTS_TYPE;
+      return DataSetItem::PCD_TOA5_TYPE;
     case 4:
+      return DataSetItem::FIRE_POINTS_TYPE;
+    case 5:
       return DataSetItem::DISEASE_OCCURRENCE_TYPE;
     default:
       return DataSetItem::UNKNOWN_TYPE;
