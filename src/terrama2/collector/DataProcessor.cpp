@@ -123,7 +123,6 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 }
@@ -156,7 +155,6 @@ void terrama2::collector::DataProcessor::initParser()
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 }
@@ -183,7 +181,6 @@ void terrama2::collector::DataProcessor::initStorager()
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 }

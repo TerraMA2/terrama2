@@ -39,6 +39,7 @@
 
 //Qt
 #include <QObject>
+#include <QDebug>
 
 terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string, std::string>& storageMetadata)
   : Storager(storageMetadata)
@@ -113,7 +114,6 @@ void terrama2::collector::StoragerPostgis::store(const std::vector<std::shared_p
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 

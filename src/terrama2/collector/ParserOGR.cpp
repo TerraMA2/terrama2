@@ -114,7 +114,7 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     //TODO: log de erro
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("Terralib exception: ") + boost::get_error_info< terrama2::ErrorDescription >(e));
+                                          QObject::tr("Terralib exception: ") + boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(...)
   {

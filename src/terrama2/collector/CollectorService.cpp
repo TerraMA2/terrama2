@@ -48,6 +48,9 @@
 //Boost
 #include <boost/log/trivial.hpp>
 
+//terralib
+#include <terralib/common/Exception.h>
+
 
 void terrama2::collector::CollectorService::connectDataManager()
 {
@@ -118,7 +121,6 @@ void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCo
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 
@@ -157,7 +159,6 @@ void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCo
     catch(...)
     {
       //TODO: log de erro
-      qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
       assert(0);
     }
 
@@ -209,7 +210,6 @@ void terrama2::collector::CollectorService::processingLoop()
         catch(...)
         {
           //TODO: log de erro
-          qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
           assert(0);
         }
 
@@ -272,7 +272,6 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 
@@ -306,7 +305,6 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 
@@ -343,7 +341,6 @@ void terrama2::collector::CollectorService::updateProvider(const terrama2::core:
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 }
@@ -378,7 +375,6 @@ terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addD
   catch(...)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 
