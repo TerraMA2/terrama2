@@ -55,7 +55,7 @@ void terrama2::ws::collector::Client::ping(std::string &answer)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::PingError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::PingError() << ErrorDescription(errorMessage.c_str());
   }
 }
 
@@ -71,7 +71,7 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::AddingDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::AddingDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
 
   dataProvider = terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProviderResult);
@@ -92,7 +92,7 @@ void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSet & dataS
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::AddingDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::AddingDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
   dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetResult);
@@ -113,7 +113,7 @@ void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataPro
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::UpdateDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
 
   dataProvider = terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProviderResult);
@@ -134,7 +134,7 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSet & da
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::UpdateDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::UpdateDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
   dataSet = terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetResult);
@@ -148,7 +148,7 @@ void terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::RemoveDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::RemoveDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
 }
 
@@ -159,7 +159,7 @@ void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::RemoveDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::RemoveDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
 }
@@ -173,7 +173,7 @@ terrama2::core::DataProvider terrama2::ws::collector::Client::findDataProvider(u
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::FindDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::FindDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
 
   return terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProvider);
@@ -189,7 +189,7 @@ terrama2::core::DataSet terrama2::ws::collector::Client::findDataSet(uint64_t id
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::FindDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::FindDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
   return terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet);
@@ -199,16 +199,13 @@ terrama2::core::DataSet terrama2::ws::collector::Client::findDataSet(uint64_t id
 
 void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::core::DataProvider > & providers)
 {
-  if(providers.at(0).id() == 0)
-    throw client::ListDataProviderError() << ErrorDescription(QObject::tr("Invalid data provider passed!"));
-
   std::vector< DataProvider > struct_dataProviderList;
 
   if(wsClient_->listDataProvider(struct_dataProviderList) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::ListDataProviderError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::ListDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
 
   for(uint32_t i = 0; i < struct_dataProviderList.size() ; i++)
@@ -221,21 +218,18 @@ void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::co
 
 void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::DataSet > & datasets)
 {
-  if(datasets.at(0).id() == 0)
-    throw client::ListDataSetError() << ErrorDescription(QObject::tr("Invalid dataset pased!"));
+  std::vector< DataSet > struct_dataSetList;
 
-  std::vector< DataSet > struct_dataSetPtrList;
-
-  if(wsClient_->listDataSet(struct_dataSetPtrList) != SOAP_OK)
+  if(wsClient_->listDataSet(struct_dataSetList) != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
-    throw client::ListDataSetError() << ErrorDescription(QObject::tr(errorMessage.c_str()));
+    throw client::ListDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
-  for(uint32_t i = 0; i < struct_dataSetPtrList.size() ; i++)
+  for(uint32_t i = 0; i < struct_dataSetList.size() ; i++)
   {
-    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetPtrList.at(i)));
+    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSetList.at(i)));
   }
 
 }

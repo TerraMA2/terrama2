@@ -45,6 +45,9 @@ namespace terrama2
         struct PingError: virtual terrama2::Exception{ };
 
         //! Exception to be used when receives a fault from WebService when request to add a DataProvider
+        struct reloadError: virtual terrama2::Exception{ };
+
+        //! Exception to be used when receives a fault from WebService when request to add a DataProvider
         struct AddingDataProviderError: virtual terrama2::Exception{ };
         
         //! Exception to be used when receives a fault from WebService when request to add a DataSet

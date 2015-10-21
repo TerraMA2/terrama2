@@ -37,15 +37,18 @@
 #include <terrama2/core/Exception.hpp>
 #include "soapWebService.h"
 #include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/core/DataManager.hpp>
 
 void TestWebService::init()
 {
   clearDatabase();
+  terrama2::core::DataManager::getInstance().load();
 }
 
 void TestWebService::cleanup()
 {
   clearDatabase();
+  terrama2::core::DataManager::getInstance().unload();
 }
 
 
@@ -57,6 +60,11 @@ void TestWebService::clearDatabase()
   transactor->begin();
 
   std::string query = "TRUNCATE TABLE terrama2.data_provider CASCADE";
+  transactor->execute(query);
+
+  transactor->commit();
+
+  query = "TRUNCATE TABLE terrama2.dataset CASCADE";
   transactor->execute(query);
 
   transactor->commit();
@@ -392,6 +400,69 @@ void TestWebService::testFindDataProviderInvalidID()
       QFAIL("Should not find a invalid Data Provider!");
     }
 
+    // test OK
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+}
+
+
+void TestWebService::testListDataProvider()
+{
+  try
+  {
+    DataProvider struct_dataProvider, struct_dataProviderResult;
+
+    struct_dataProvider.id = 0;
+    struct_dataProvider.name = "Data Provider";
+    struct_dataProvider.kind = 1;
+    struct_dataProvider.description = "Data Provider description";
+    struct_dataProvider.status = 1;
+    struct_dataProvider.uri = "C:/Dataprovider/path";
+
+    WebService webService;
+
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
+    {
+      QFAIL("Add a Data Provider failed!");
+    }
+
+    if(struct_dataProviderResult.id == 0)
+    {
+      QFAIL("After added, a Data Providetr MUST have a valid ID!");
+    }
+
+    struct_dataProvider.id = 0;
+    struct_dataProvider.name = "Data Provider2";
+    struct_dataProvider.kind = 1;
+    struct_dataProvider.description = "Data Provider description";
+    struct_dataProvider.status = 1;
+    struct_dataProvider.uri = "C:/Dataprovider/path";
+
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
+    {
+      QFAIL("Add a Data Provider failed!");
+    }
+
+    if(struct_dataProviderResult.id == 0)
+    {
+      QFAIL("After added, a Data Providetr MUST have a valid ID!");
+    }
+
+    std::vector<DataProvider> vector_struct_dataProvider;
+
+    if(webService.listDataProvider(vector_struct_dataProvider) != SOAP_OK)
+    {
+      QFAIL("Error to list Data Provider!");
+    }
+
+    QVERIFY2(vector_struct_dataProvider.size() == 2, "Error to list Data Providers, two expected!");
     // test OK
   }
   catch(terrama2::Exception &e)
@@ -821,7 +892,7 @@ void TestWebService::testFindDataSet()
       QFAIL("Failed to find the Data Set!");
     }
 
-    QVERIFY2(struct_dataSetResult.id == struct_dataSet_found.id, "Error to find properly the Data Set!");
+    QCOMPARE(struct_dataSetResult.id, struct_dataSet_found.id);
     QVERIFY2(struct_dataSetResult.data_provider_id == struct_dataSet_found.data_provider_id, "Error to find properly the Data Set!");
     QVERIFY2(struct_dataSetResult.name == struct_dataSet_found.name, "Error to find properly the Data Set!");
     QVERIFY2(struct_dataSetResult.kind == struct_dataSet_found.kind, "Error to find properly the Data Set!");
@@ -858,6 +929,78 @@ void TestWebService::testFindDataSetInvalidID()
       QFAIL("Should not find an invalid Data Set!");
     }
 */
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+}
+
+
+void TestWebService::testListDataSet()
+{
+  try
+  {
+    DataProvider struct_dataProvider, struct_dataProviderResult;
+
+    struct_dataProvider.id = 0;
+    struct_dataProvider.name = "Data Provider";
+    struct_dataProvider.kind = 1;
+    struct_dataProvider.description = "Data Provider description";
+    struct_dataProvider.status = 1;
+    struct_dataProvider.uri = "C:/Dataprovider/path";
+
+    WebService webService;
+
+    if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
+    {
+      QFAIL("Add a Data Provider failed!");
+    }
+
+    DataSet struct_dataSet, struct_dataSetResult;
+
+    struct_dataSet.id = 0;
+    struct_dataSet.name = "Data Set";
+    struct_dataSet.kind = 1;
+    struct_dataSet.status = 1;
+    struct_dataSet.description = "Data Set description";
+    struct_dataSet.data_frequency = "00:05:00.00";
+    struct_dataSet.schedule = "00:05:00.00";
+    struct_dataSet.schedule_retry = "00:05:00.00";
+    struct_dataSet.schedule_timeout = "00:05:00.00";
+    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
+
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
+    {
+      QFAIL("Add a Data Set failed!");
+    }
+
+    QVERIFY2(struct_dataSetResult.id != 0, "Data Set should have a valid ID!");
+
+    struct_dataSet.id = 0;
+    struct_dataSet.name = "Data Set2";
+
+    if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
+    {
+      QFAIL("Add a Data Set failed!");
+    }
+
+    QVERIFY2(struct_dataSetResult.id != 0, "Data Set should have a valid ID!");
+
+
+    std::vector<DataSet> vector_struct_dataSet;
+
+    if(webService.listDataSet(vector_struct_dataSet) != SOAP_OK)
+    {
+      QFAIL("Error to list Data Provider!");
+    }
+
+    QVERIFY2(vector_struct_dataSet.size() == 2, "Error to list Data Providers, two expected!");
+    // test OK
   }
   catch(terrama2::Exception &e)
   {

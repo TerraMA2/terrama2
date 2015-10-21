@@ -2,3 +2,4 @@
 .DS_Store
 *.user
 build/cmake/.idea/
+src/unittest/ws/collector/data/project.json~

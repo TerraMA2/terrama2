@@ -66,7 +66,11 @@ int main(int argc, char* argv[])
   try
   {
     AdminApp terrama2_admin;
-    terrama2_admin.showMaximized();
+    QSize s_max = terrama2_admin.size();
+    terrama2_admin.statusBar()->setSizeGripEnabled(false);
+    terrama2_admin.show();
+    terrama2_admin.setFixedSize( s_max );
+
     int retval = app.exec();
 
 // finalize TerraLib

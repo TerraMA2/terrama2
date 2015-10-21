@@ -131,9 +131,8 @@ T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvid
 template <typename T1>
 terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_dataSet)
 {
-  auto dataProvider= terrama2::core::DataManager::getInstance().findDataProvider(struct_dataSet.data_provider_id);
+  terrama2::core::DataSet dataSet(struct_dataSet.name, terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, struct_dataSet.data_provider_id);
 
-  terrama2::core::DataSet dataSet(struct_dataSet.name, terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, dataProvider.id());
   dataSet.setDescription(struct_dataSet.description);
   dataSet.setStatus((terrama2::core::DataSet::Status)struct_dataSet.status);
 
