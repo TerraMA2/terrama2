@@ -20,25 +20,25 @@
 */
 
 /*!
-  \file terrama2/gui/config/ConfigAppWeatherPcd.hpp
+  \file terrama2/gui/config/ConfigAppWeatherOccurrence.hpp
 
-  \brief Class responsible for handling PCD data inside WeatherTab
+  \brief Class responsible for handling Occurrence data set inside WeatherTab
 
   \author Raphael Willian da Costa
 */
 
 
-#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
-#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
 
 #include "ConfigAppTab.hpp"
 
-class ConfigAppWeatherPcd : public ConfigAppTab
+class ConfigAppWeatherOccurrence : public ConfigAppTab
 {
   Q_OBJECT
   public:
-    ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui);
-    ~ConfigAppWeatherPcd();
+    ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherOccurrence();
 
     void load();
     bool validate();
@@ -46,8 +46,7 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     void discardChanges(bool restore_data);
 
   private slots:
-    void onInsertPointBtnClicked();
-    void onDataPointBtnClicked();
+    void onDataSetBtnClicked();
 };
 
-#endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
+#endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__

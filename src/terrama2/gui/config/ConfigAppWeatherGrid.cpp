@@ -153,24 +153,27 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
   {
     // delete from db
-    try {
-//      terrama2::core::DataManager::getInstance().load();
-      std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-      std::string sql = "SELECT id FROM terrama2.dataset WHERE name = '";
-      sql += currentItem->text(0).toStdString() + "'";
+    try
+    {
+      terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(currentItem->text(0).toStdString());
 
-      std::auto_ptr<te::da::DataSet> dataset = ds->query(sql);
+      if (dataset.id() == 0 || dataset.kind() != terrama2::core::DataSet::GRID_TYPE)
+        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid PCD dataset selected"));
 
-      if (dataset->size() != 1)
-        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid dataset selected"));
+      QMessageBox::StandardButton reply;
+      reply = QMessageBox::question(app_, tr("TerraMA2"),
+                                    tr("Would you like to try save before cancel?"),
+                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                    QMessageBox::Yes);
+      if (reply == QMessageBox::Yes)
+      {
+        app_->getClient()->removeDataSet(dataset.id());
+        app_->getWeatherTab()->removeCachedDataSet(dataset);
 
-      dataset->moveFirst();
+        QMessageBox::warning(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
+        delete currentItem;
+      }
 
-      int id = atoi(dataset->getAsString(0).c_str());
-
-      terrama2::core::DataManager::getInstance().removeDataSet(id);
-      QMessageBox::warning(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
-      delete currentItem;
     }
     catch (const terrama2::Exception &e) {
       const QString *message = boost::get_error_info<terrama2::ErrorDescription>(e);

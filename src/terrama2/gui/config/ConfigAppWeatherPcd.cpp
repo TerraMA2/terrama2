@@ -13,6 +13,7 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui)
 {
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
+  connect(ui_->pointFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onDataPointBtnClicked()));
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -80,4 +81,39 @@ void ConfigAppWeatherPcd::onInsertPointBtnClicked()
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointPage);
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
+}
+
+void ConfigAppWeatherPcd::onDataPointBtnClicked()
+{
+  QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
+  if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
+  {
+    // delete from db
+    try
+    {
+      terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(currentItem->text(0).toStdString());
+
+      if (dataset.id() == 0 || dataset.kind() != terrama2::core::DataSet::PCD_TYPE)
+        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid PCD dataset selected"));
+
+      QMessageBox::StandardButton reply;
+      reply = QMessageBox::question(app_, tr("TerraMA2"),
+                                    tr("Would you like to try save before cancel?"),
+                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                    QMessageBox::Yes);
+      if (reply == QMessageBox::Yes)
+      {
+        app_->getClient()->removeDataSet(dataset.id());
+        app_->getWeatherTab()->removeCachedDataSet(dataset);
+
+        QMessageBox::warning(app_, tr("TerraMA2"), tr("DataSet PCD successfully removed!"));
+        delete currentItem;
+      }
+    }
+    catch(const terrama2::Exception& e)
+    {
+      const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+      QMessageBox::warning(app_, tr("TerraMA2"), *message);
+    }
+  }
 }

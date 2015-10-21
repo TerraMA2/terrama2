@@ -102,12 +102,6 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! Slot for handling importServer btn
     void onImportServer();
 
-    //! Triggered when click datapointbtn to show datapoint modal
-    void onInsertPointBtnClicked();
-
-    //! Triggered when click datapointdiffbtn to show datapointdiff modal
-    void onInsertPointDiffBtnClicked();
-
     //! Triggered when click serverDeleteBtn to remove data provider
     void onDeleteServerClicked();
 

@@ -13,6 +13,7 @@
 #include "ConfigAppWeatherServer.hpp"
 #include "ConfigAppWeatherGrid.hpp"
 #include "ConfigAppWeatherPcd.hpp"
+#include "ConfigAppWeatherOccurrence.hpp"
 
 // STL
 #include <vector>
@@ -35,7 +36,6 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   // Bind the data series type with respective group view
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
-  connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
@@ -45,9 +45,11 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
   QSharedPointer<ConfigAppWeatherGridTab> gridTab(new ConfigAppWeatherGridTab(app, ui));
   QSharedPointer<ConfigAppWeatherPcd> pcdTab(new ConfigAppWeatherPcd(app, ui));
+  QSharedPointer<ConfigAppWeatherOccurrence> occurrenceTab(new ConfigAppWeatherOccurrence(app, ui));
   subTabs_.append(serverTab);
   subTabs_.append(gridTab);
   subTabs_.append(pcdTab);
+  subTabs_.append(occurrenceTab);
 
   // Lock for cannot allow multiple selection
   ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -227,16 +229,6 @@ void ConfigAppWeatherTab::onImportServer()
   }
 }
 
-void ConfigAppWeatherTab::onInsertPointBtnClicked()
-{
-  hidePanels(ui_->DataPointPage);
-}
-
-void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
-{
-  hidePanels(ui_->DataPointDiffPage);
-}
-
 void ConfigAppWeatherTab::onDeleteServerClicked()
 {
   try
@@ -366,9 +358,19 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
                 ui_->updateDataGridBtn->setVisible(true);
                 ui_->exportDataGridBtn->setVisible(true);
-                ui_->gridFormatDataDeleteBtn->setVisible(true);
+                ui_->pointFormatDataDeleteBtn->setVisible(true);
                 break;
               case terrama2::core::DataSet::OCCURENCE_TYPE:
+                changeTab(*(subTabs_[3].data()), *ui_->DataPointDiffPage);
+                subTabs_[3]->setSelectedData(selectedItem->text(0));
+
+                ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
+                hideDataSetButtons();
+                showDataSeries(false);
+                ui_->dataSeriesBtnGroupBox->setVisible(true);
+                ui_->updateDataGridBtn->setVisible(true);
+                ui_->exportDataGridBtn->setVisible(true);
+                ui_->pointFormatDataDeleteBtn->setVisible(true);
                 break;
               default:
               {
