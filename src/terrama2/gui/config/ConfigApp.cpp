@@ -139,7 +139,10 @@ void ConfigApp::tabChangeRequested(int index)
         weatherTab_->askForChangeTab(index);
         break;
       default:
-        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
+      {
+        //TODO: tab handling
+      }
+//        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
     }
   }
 }

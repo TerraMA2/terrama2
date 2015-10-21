@@ -48,31 +48,29 @@ void ConfigAppWeatherGridTab::load()
 
 void ConfigAppWeatherGridTab::save()
 {
-//  terrama2::core::DataManager::getInstance().unload();
-//  terrama2::core::DataManager::getInstance().load();
-
-  terrama2::core::DataProvider dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
-      ui_->weatherDataTree->currentItem()->text(0).toStdString());
-  terrama2::core::DataSet::Kind kind = terrama2::core::DataSet::GRID_TYPE;
+  terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
   std::string name = ui_->gridFormatDataName->text().toStdString();
+  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(provider, selectedData_.toStdString());
 
-  terrama2::core::DataSet dataset = terrama2::core::DataManager::getInstance().findDataSet(name);
+  terrama2::core::DataSet::Kind kind = terrama2::core::DataSet::GRID_TYPE;
 
   dataset.setName(name);
+  dataset.setKind(kind);
   dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
   if (dataset.id() >= 1)
-    terrama2::core::DataManager::getInstance().update(dataset);
+    app_->getClient()->updateDataSet(dataset);
   else
   {
-
-    terrama2::core::DataManager::getInstance().add(dataset);
+    dataset.setProvider(provider.id());
+    app_->getClient()->addDataSet(dataset);
 
     QTreeWidgetItem* item = new QTreeWidgetItem;
     item->setIcon(0, QIcon::fromTheme("grid"));
     item->setText(0, ui_->gridFormatDataName->text());
     ui_->weatherDataTree->currentItem()->addChild(item);
   }
+  app_->getWeatherTab()->addCachedDataSet(dataset);
 }
 
 void ConfigAppWeatherGridTab::discardChanges(bool restore_data)
@@ -105,7 +103,7 @@ bool ConfigAppWeatherGridTab::validate()
 
   }
 
-  // TODO: Projection and Filter
+  // TODO: Complete validation with another fields and Projection and Filter validation
   return true;
 }
 

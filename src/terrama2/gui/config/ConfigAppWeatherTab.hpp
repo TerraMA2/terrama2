@@ -50,6 +50,7 @@ namespace terrama2
   namespace core
   {
     class DataProvider;
+    class DataSet;
   }
 }
 
@@ -74,11 +75,18 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
     QMap<std::string,terrama2::core::DataProvider> providers();
 
-    //! It is used for insert and update cached dataprovider list
+    //! It retrieves dataprovider from cached list
     terrama2::core::DataProvider getProvider(const std::string& identifier);
+
+    //! It retrieves dataset from dataprovider list
+    terrama2::core::DataSet getDataSet(terrama2::core::DataProvider& provider, const std::string& identifier);
+
+    //! It is used for insert and update cached dataprovider list
     void addCachedProvider(const terrama2::core::DataProvider& provider);
 
     void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
+
+    void addCachedDataSet(const terrama2::core::DataSet& dataset);
 
   private:
     void showDataSeries(bool state);
