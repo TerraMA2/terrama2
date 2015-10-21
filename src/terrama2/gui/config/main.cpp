@@ -74,8 +74,10 @@ int main(int argc, char* argv[])
   try
   {
     ConfigApp terrama2_config;
-  
-    terrama2_config.showMaximized();
+    QSize s_max = terrama2_config.size();
+    terrama2_config.statusBar()->setSizeGripEnabled(false);
+    terrama2_config.show();
+    terrama2_config.setFixedSize( s_max );
 
     int retval = app.exec();
 

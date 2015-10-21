@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>919</width>
-    <height>635</height>
+    <width>931</width>
+    <height>633</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>TerraMA² - Módulo de Administração</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_8">
+    <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -56,8 +56,49 @@
        <property name="title">
         <string> Propriedades da configuração selecionada: </string>
        </property>
-       <layout class="QVBoxLayout">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_13">
+        <item row="1" column="0">
+         <layout class="QHBoxLayout">
+          <item>
+           <spacer>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="saveBtn">
+            <property name="text">
+             <string>Salvar</string>
+            </property>
+            <property name="icon">
+             <iconset theme="save">
+              <normaloff/>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="cancelBtn">
+            <property name="text">
+             <string>Cancelar</string>
+            </property>
+            <property name="icon">
+             <iconset theme="cancel">
+              <normaloff/>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="0">
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
            <number>0</number>
@@ -67,12 +108,126 @@
             <string>Base de Dados</string>
            </attribute>
            <layout class="QGridLayout">
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="dbUserLed"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="dbAddressLed"/>
+            </item>
+            <item row="5" column="0">
+             <widget class="QPushButton" name="dbCheckConnectionBtn">
+              <property name="text">
+               <string>Verif. Conexão</string>
+              </property>
+              <property name="icon">
+               <iconset theme="confirm">
+                <normaloff/>
+               </iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="dbDatabaseLed"/>
+            </item>
             <item row="0" column="0">
              <widget class="QLabel" name="label_7">
               <property name="text">
                <string>Gerenciador: </string>
               </property>
              </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Endereço: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Porta: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <widget class="QLineEdit" name="dbPortLed"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Usuário: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Senha: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="4">
+             <widget class="QLineEdit" name="dbPasswordLed">
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Base de dados: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="3">
+             <widget class="QCheckBox" name="dbStudyChk">
+              <property name="text">
+               <string>Base de dados para estudos</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QPushButton" name="dbCreateDatabaseBtn">
+              <property name="text">
+               <string>Criar Base</string>
+              </property>
+              <property name="icon">
+               <iconset theme="create-database">
+                <normaloff/>
+               </iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="5" column="2" colspan="3">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item row="0" column="1">
              <widget class="QComboBox" name="dbTypeCmb">
@@ -91,163 +246,22 @@
               </item>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Endereço: </string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="dbAddressLed"/>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Porta: </string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QLineEdit" name="dbPortLed"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Usuário: </string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="dbUserLed"/>
-            </item>
-            <item row="2" column="2">
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Senha: </string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="3">
-             <widget class="QLineEdit" name="dbPasswordLed">
-              <property name="echoMode">
-               <enum>QLineEdit::Password</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="text">
-               <string>Base de dados: </string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="dbDatabaseLed"/>
-            </item>
-            <item row="4" column="1">
-             <spacer>
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QCheckBox" name="dbStudyChk">
-              <property name="text">
-               <string>Base de dados para estudos</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0" colspan="2">
-             <spacer>
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>137</width>
-                <height>41</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="7" column="0" colspan="2">
-             <spacer>
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>137</width>
-                <height>41</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="8" column="1" colspan="3">
-             <layout class="QHBoxLayout">
-              <item>
-               <widget class="QPushButton" name="dbCheckConnectionBtn">
-                <property name="text">
-                 <string>Verif. Conexão</string>
-                </property>
-                <property name="icon">
-                 <iconset theme="confirm">
-                  <normaloff/>
-                 </iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="dbCreateDatabaseBtn">
-                <property name="text">
-                 <string>Criar Base</string>
-                </property>
-                <property name="icon">
-                 <iconset theme="create-database">
-                  <normaloff/>
-                 </iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="analysisTab">
            <attribute name="title">
             <string>Análise</string>
            </attribute>
-           <layout class="QGridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_40">
-              <property name="text">
-               <string>Endereço: </string>
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="4" column="1" colspan="4">
+             <widget class="QLineEdit" name="anaDirNameLed"/>
+            </item>
+            <item row="3" column="1">
+             <widget class="QSpinBox" name="anaIntervalMinSpb">
+              <property name="maximum">
+               <number>9999</number>
               </property>
              </widget>
-            </item>
-            <item row="0" column="1" colspan="4">
-             <widget class="QLineEdit" name="anaAddressLed"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_23">
-              <property name="text">
-               <string>Porta do serviço: </string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="anaPortLed"/>
             </item>
             <item row="1" column="2" colspan="3">
              <spacer>
@@ -262,34 +276,38 @@
               </property>
              </spacer>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_21">
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_28">
               <property name="text">
-               <string>Arquivo de log: </string>
+               <string>Diretório para
+salvar imagens:</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="1" colspan="4">
-             <widget class="QLineEdit" name="anaLogFileLed"/>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_25">
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_23">
               <property name="text">
-               <string>Intervalo:</string>
+               <string>Porta do serviço: </string>
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="QSpinBox" name="anaIntervalMinSpb">
-              <property name="maximum">
-               <number>9999</number>
+            <item row="6" column="0">
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
               </property>
-             </widget>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
-            <item row="3" column="2">
-             <widget class="QLabel" name="label_24">
+            <item row="3" column="4">
+             <widget class="QLabel" name="label_22">
               <property name="text">
-               <string>minutos</string>
+               <string>segundos</string>
               </property>
              </widget>
             </item>
@@ -300,23 +318,12 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="4">
-             <widget class="QLabel" name="label_22">
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_25">
               <property name="text">
-               <string>segundos</string>
+               <string>Intervalo:</string>
               </property>
              </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_28">
-              <property name="text">
-               <string>Diretório para
-salvar imagens:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" colspan="4">
-             <widget class="QLineEdit" name="anaDirNameLed"/>
             </item>
             <item row="5" column="0" colspan="5">
              <widget class="QGroupBox" name="groupBox_3">
@@ -397,6 +404,9 @@ p, li { white-space: pre-wrap; }
                </item>
                <item row="2" column="0" colspan="4">
                 <widget class="QTableWidget" name="anaInstancesTable">
+                 <attribute name="horizontalHeaderStretchLastSection">
+                  <bool>true</bool>
+                 </attribute>
                  <column>
                   <property name="text">
                    <string>Instância</string>
@@ -420,6 +430,36 @@ p, li { white-space: pre-wrap; }
                 </widget>
                </item>
               </layout>
+             </widget>
+            </item>
+            <item row="2" column="1" colspan="4">
+             <widget class="QLineEdit" name="anaLogFileLed"/>
+            </item>
+            <item row="3" column="2">
+             <widget class="QLabel" name="label_24">
+              <property name="text">
+               <string>minutos</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="anaPortLed"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_21">
+              <property name="text">
+               <string>Arquivo de log: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" colspan="4">
+             <widget class="QLineEdit" name="anaAddressLed"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_40">
+              <property name="text">
+               <string>Endereço: </string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -446,9 +486,6 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="1" column="1" colspan="3">
-             <widget class="QLineEdit" name="aqPortLed"/>
-            </item>
             <item row="1" column="4">
              <spacer>
               <property name="orientation">
@@ -469,6 +506,9 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item row="3" column="1" colspan="4">
+             <widget class="QLineEdit" name="aqDirNameLed"/>
+            </item>
             <item row="2" column="1" colspan="4">
              <widget class="QLineEdit" name="aqLogFileLed"/>
             </item>
@@ -480,9 +520,6 @@ salvar dados
 coletados:</string>
               </property>
              </widget>
-            </item>
-            <item row="3" column="1" colspan="4">
-             <widget class="QLineEdit" name="aqDirNameLed"/>
             </item>
             <item row="4" column="0">
              <widget class="QLabel" name="label_3">
@@ -532,32 +569,28 @@ coletados:</string>
               </property>
              </spacer>
             </item>
+            <item row="1" column="1" colspan="3">
+             <widget class="QLineEdit" name="aqPortLed"/>
+            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="layersTab">
            <attribute name="title">
             <string>Planos</string>
            </attribute>
-           <layout class="QGridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_38">
-              <property name="text">
-               <string>Endereço: </string>
+           <layout class="QGridLayout" name="gridLayout_11">
+            <item row="3" column="1">
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
               </property>
-             </widget>
-            </item>
-            <item row="0" column="1" colspan="2">
-             <widget class="QLineEdit" name="layersAddressLed"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Porta do serviço: </string>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>153</width>
+                <height>211</height>
+               </size>
               </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="layersPortLed"/>
+             </spacer>
             </item>
             <item row="1" column="2">
              <spacer>
@@ -572,28 +605,35 @@ coletados:</string>
               </property>
              </spacer>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_5">
+            <item row="0" column="1" colspan="2">
+             <widget class="QLineEdit" name="layersAddressLed"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_6">
               <property name="text">
-               <string>Arquivo de log: </string>
+               <string>Porta do serviço: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_38">
+              <property name="text">
+               <string>Endereço: </string>
               </property>
              </widget>
             </item>
             <item row="2" column="1" colspan="2">
              <widget class="QLineEdit" name="layersLogFileLed"/>
             </item>
-            <item row="3" column="1">
-             <spacer>
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="layersPortLed"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Arquivo de log: </string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>153</width>
-                <height>211</height>
-               </size>
-              </property>
-             </spacer>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -690,6 +730,18 @@ coletados:</string>
                 <string>Servidor de Email</string>
                </attribute>
                <layout class="QGridLayout">
+                <item row="6" column="3">
+                 <widget class="QPushButton" name="testSendMailBtn">
+                  <property name="text">
+                   <string>Enviar Email de Teste</string>
+                  </property>
+                  <property name="icon">
+                   <iconset theme="confirm">
+                    <normaloff/>
+                   </iconset>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_19">
                   <property name="text">
@@ -727,6 +779,9 @@ coletados:</string>
                   </property>
                  </widget>
                 </item>
+                <item row="2" column="1">
+                 <widget class="QLineEdit" name="notifSmtpAliasLed"/>
+                </item>
                 <item row="1" column="3">
                  <widget class="QLineEdit" name="notifSmtpPsswrdLed">
                   <property name="echoMode">
@@ -741,9 +796,6 @@ coletados:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
-                 <widget class="QLineEdit" name="notifSmtpAliasLed"/>
-                </item>
                 <item row="2" column="2">
                  <widget class="QLabel" name="label_33">
                   <property name="text">
@@ -755,13 +807,6 @@ coletados:</string>
                  <widget class="QSpinBox" name="notifSmtpTimeOutSpb">
                   <property name="maximum">
                    <number>100000</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_34">
-                  <property name="text">
-                   <string>Prioridade:</string>
                   </property>
                  </widget>
                 </item>
@@ -784,6 +829,20 @@ coletados:</string>
                   </item>
                  </widget>
                 </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_34">
+                  <property name="text">
+                   <string>Prioridade:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_35">
+                  <property name="text">
+                   <string>Usuário do Proxy:</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="3" column="2" colspan="2">
                  <widget class="QCheckBox" name="notifSmtpSSLChk">
                   <property name="layoutDirection">
@@ -791,26 +850,6 @@ coletados:</string>
                   </property>
                   <property name="text">
                    <string>Usar Protocolo SSL?</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <spacer>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>64</width>
-                    <height>21</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QLabel" name="label_35">
-                  <property name="text">
-                   <string>Usuário do Proxy:</string>
                   </property>
                  </widget>
                 </item>
@@ -831,17 +870,18 @@ coletados:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="3">
-                 <widget class="QPushButton" name="testSendMailBtn">
-                  <property name="text">
-                   <string>Enviar Email de Teste</string>
+                <item row="7" column="3">
+                 <spacer>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="icon">
-                   <iconset theme="confirm">
-                    <normaloff/>
-                   </iconset>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>64</width>
+                    <height>21</height>
+                   </size>
                   </property>
-                 </widget>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -904,6 +944,9 @@ coletados:</string>
                      </property>
                     </widget>
                    </item>
+                   <item row="1" column="3">
+                    <widget class="QLineEdit" name="level4Led"/>
+                   </item>
                    <item row="1" column="1">
                     <widget class="QLineEdit" name="level1Led"/>
                    </item>
@@ -914,8 +957,8 @@ coletados:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="3">
-                    <widget class="QLineEdit" name="level4Led"/>
+                   <item row="2" column="1">
+                    <widget class="QLineEdit" name="level2Led"/>
                    </item>
                    <item row="2" column="0">
                     <widget class="QLabel" name="label_65">
@@ -923,9 +966,6 @@ coletados:</string>
                       <string>Nível 2:</string>
                      </property>
                     </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QLineEdit" name="level2Led"/>
                    </item>
                   </layout>
                  </widget>
@@ -949,107 +989,15 @@ coletados:</string>
                <attribute name="title">
                 <string>Boletim</string>
                </attribute>
-               <layout class="QVBoxLayout" name="verticalLayout_3">
-                <item>
-                 <layout class="QHBoxLayout">
-                  <item>
-                   <widget class="QLabel" name="label_44">
-                    <property name="text">
-                     <string>Horário:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="notifIntervalBulletinHouSpb">
-                    <property name="maximum">
-                     <number>23</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_45">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>horas</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="notifIntervalBulletinMinSpb">
-                    <property name="maximum">
-                     <number>59</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_43">
-                    <property name="text">
-                     <string>minutos</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="notifIntervalBulletinSecSpb">
-                    <property name="maximum">
-                     <number>59</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_42">
-                    <property name="text">
-                     <string>segundos</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="removeZeroChk">
+               <layout class="QGridLayout" name="gridLayout_6">
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_54">
                   <property name="text">
-                   <string>Retirar da tabela descritiva as análises apenas com Níveis de Alerta 0 (zero)</string>
+                   <string>Armazenar PDF:</string>
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QCheckBox" name="bulletinPDFChk">
-                  <property name="text">
-                   <string>Enviar o boletim no formato PDF?</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_2">
-                  <item>
-                   <widget class="QLabel" name="label_54">
-                    <property name="text">
-                     <string>Armazenar PDF:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="pdfPathLed"/>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="selectPDFDirectoryBtn">
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="open-config">
-                      <normaloff/>
-                     </iconset>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
+                <item row="4" column="1">
                  <spacer>
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
@@ -1062,89 +1010,153 @@ coletados:</string>
                   </property>
                  </spacer>
                 </item>
+                <item row="0" column="4">
+                 <widget class="QLabel" name="label_43">
+                  <property name="text">
+                   <string>minutos</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1" colspan="5">
+                 <widget class="QLineEdit" name="pdfPathLed"/>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_44">
+                  <property name="text">
+                   <string>Horário:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="notifIntervalBulletinHouSpb">
+                  <property name="maximum">
+                   <number>23</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="label_42">
+                  <property name="text">
+                   <string>segundos</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="7">
+                 <widget class="QCheckBox" name="removeZeroChk">
+                  <property name="text">
+                   <string>Retirar da tabela descritiva as análises apenas com Níveis de Alerta 0 (zero)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="5">
+                 <widget class="QCheckBox" name="bulletinPDFChk">
+                  <property name="text">
+                   <string>Enviar o boletim no formato PDF?</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_45">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>horas</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QSpinBox" name="notifIntervalBulletinSecSpb">
+                  <property name="maximum">
+                   <number>59</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QSpinBox" name="notifIntervalBulletinMinSpb">
+                  <property name="maximum">
+                   <number>59</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="6">
+                 <widget class="QPushButton" name="selectPDFDirectoryBtn">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset theme="open-config">
+                    <normaloff/>
+                   </iconset>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
               <widget class="QWidget" name="legendTab">
                <attribute name="title">
                 <string>Legenda</string>
                </attribute>
-               <layout class="QVBoxLayout">
-                <item>
-                 <layout class="QGridLayout">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_46">
-                    <property name="text">
-                     <string>Diretório que
+               <layout class="QGridLayout" name="gridLayout_7">
+                <item row="1" column="3">
+                 <widget class="QLabel" name="label_49">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Y:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="4">
+                 <widget class="QSpinBox" name="ylegendSpb">
+                  <property name="maximum">
+                   <number>768</number>
+                  </property>
+                  <property name="value">
+                   <number>500</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="label_50">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>X:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QSpinBox" name="xlegendSpb">
+                  <property name="maximum">
+                   <number>1024</number>
+                  </property>
+                  <property name="value">
+                   <number>600</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_46">
+                  <property name="text">
+                   <string>Diretório que
 armazena as
 legendas:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1" colspan="4">
-                   <widget class="QLineEdit" name="legendDirNameLed"/>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_48">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Posição:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLabel" name="label_50">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>X:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="2">
-                   <widget class="QSpinBox" name="xlegendSpb">
-                    <property name="maximum">
-                     <number>1024</number>
-                    </property>
-                    <property name="value">
-                     <number>600</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="3">
-                   <widget class="QLabel" name="label_49">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Y:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="4">
-                   <widget class="QSpinBox" name="ylegendSpb">
-                    <property name="maximum">
-                     <number>768</number>
-                    </property>
-                    <property name="value">
-                     <number>500</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
+                  </property>
+                 </widget>
                 </item>
-                <item>
+                <item row="2" column="0" colspan="5">
                  <widget class="QLabel" name="label_47">
                   <property name="text">
                    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1159,7 +1171,20 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_48">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Posição:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
                  <spacer>
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
@@ -1172,6 +1197,9 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </spacer>
                 </item>
+                <item row="0" column="1" colspan="4">
+                 <widget class="QLineEdit" name="legendDirNameLed"/>
+                </item>
                </layout>
               </widget>
              </widget>
@@ -1182,7 +1210,7 @@ p, li { white-space: pre-wrap; }
            <attribute name="title">
             <string>Bal. Carga</string>
            </attribute>
-           <layout class="QGridLayout">
+           <layout class="QGridLayout" name="gridLayout_12">
             <item row="0" column="0" colspan="2">
              <widget class="QLabel" name="label_31">
               <property name="text">
@@ -1201,23 +1229,38 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="1" column="1">
              <spacer>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Maximum</enum>
-              </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>20</height>
+                <height>131</height>
                </size>
               </property>
              </spacer>
             </item>
-            <item row="2" column="0" rowspan="2">
+            <item row="2" column="1">
+             <widget class="QToolButton" name="loadBalRefreshBtn">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Recarrega tabela com análises cadastradas na base de dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset theme="refresh">
+                <normaloff/>
+               </iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" rowspan="2">
              <widget class="QTableWidget" name="loadBalTable">
               <column>
                <property name="text">
@@ -1236,37 +1279,6 @@ p, li { white-space: pre-wrap; }
               </column>
              </widget>
             </item>
-            <item row="2" column="1">
-             <spacer>
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>131</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="1">
-             <widget class="QToolButton" name="loadBalRefreshBtn">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Recarrega tabela com análises cadastradas na base de dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset theme="refresh">
-                <normaloff/>
-               </iconset>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="animationTab">
@@ -1274,38 +1286,11 @@ p, li { white-space: pre-wrap; }
             <string>Animação</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="animAddressLbl">
-              <property name="text">
-               <string>Endereço:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1" colspan="2">
-             <widget class="QLineEdit" name="animAddressLed"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="animPortLbl">
-              <property name="text">
-               <string>Porta do serviço:</string>
-              </property>
-             </widget>
+            <item row="3" column="1" colspan="2">
+             <widget class="QLineEdit" name="animImageDirLed"/>
             </item>
             <item row="1" column="1">
              <widget class="QLineEdit" name="animPortLed"/>
-            </item>
-            <item row="1" column="2">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>166</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="animLogFileLbl">
@@ -1313,9 +1298,6 @@ p, li { white-space: pre-wrap; }
                <string>Arquivo de log:</string>
               </property>
              </widget>
-            </item>
-            <item row="2" column="1" colspan="2">
-             <widget class="QLineEdit" name="animLogFileLed"/>
             </item>
             <item row="4" column="1">
              <spacer name="verticalSpacer">
@@ -1330,6 +1312,9 @@ p, li { white-space: pre-wrap; }
               </property>
              </spacer>
             </item>
+            <item row="0" column="1" colspan="2">
+             <widget class="QLineEdit" name="animAddressLed"/>
+            </item>
             <item row="3" column="0">
              <widget class="QLabel" name="animImageDirLbl">
               <property name="text">
@@ -1337,8 +1322,35 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="3" column="1" colspan="2">
-             <widget class="QLineEdit" name="animImageDirLed"/>
+            <item row="2" column="1" colspan="2">
+             <widget class="QLineEdit" name="animLogFileLed"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="animPortLbl">
+              <property name="text">
+               <string>Porta do serviço:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>166</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="animAddressLbl">
+              <property name="text">
+               <string>Endereço:</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -1346,8 +1358,8 @@ p, li { white-space: pre-wrap; }
            <attribute name="title">
             <string>AlertasWEB</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="0">
              <widget class="QGroupBox" name="groupBox_4">
               <property name="title">
                <string>Configuração</string>
@@ -1366,19 +1378,6 @@ p, li { white-space: pre-wrap; }
                   <string>TerraMA²</string>
                  </property>
                 </widget>
-               </item>
-               <item row="0" column="3" colspan="4">
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>346</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
                <item row="1" column="0">
                 <widget class="QLabel" name="label_61">
@@ -1406,6 +1405,13 @@ p, li { white-space: pre-wrap; }
                   <iconset theme="open-config">
                    <normaloff/>
                   </iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="2" colspan="5">
+                <widget class="QLineEdit" name="webTerraOGCLed">
+                 <property name="text">
+                  <string>http://localhost/teogc/terraogcwmscgi.exe</string>
                  </property>
                 </widget>
                </item>
@@ -1481,17 +1487,17 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="3" column="2" colspan="5">
-                <widget class="QLineEdit" name="webTerraOGCLed">
-                 <property name="text">
-                  <string>http://localhost/teogc/terraogcwmscgi.exe</string>
-                 </property>
-                </widget>
-               </item>
                <item row="4" column="0" colspan="2">
                 <widget class="QLabel" name="label_58">
                  <property name="text">
                   <string>Opacidade:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="5" colspan="2">
+                <widget class="QLineEdit" name="webIntervalLed">
+                 <property name="text">
+                  <string>600000</string>
                  </property>
                 </widget>
                </item>
@@ -1509,22 +1515,40 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="4" column="5" colspan="2">
-                <widget class="QLineEdit" name="webIntervalLed">
-                 <property name="text">
-                  <string>600000</string>
+               <item row="0" column="3" colspan="5">
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
-                </widget>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>346</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>
             </item>
-            <item>
+            <item row="1" column="0">
              <widget class="QGroupBox" name="groupBox_6">
               <property name="title">
                <string>Saída</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_4">
+               <item row="1" column="2">
+                <widget class="QPushButton" name="generatePackageBtn">
+                 <property name="text">
+                  <string>Gerar Pacote</string>
+                 </property>
+                 <property name="icon">
+                  <iconset theme="package">
+                   <normaloff/>
+                  </iconset>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="0">
                 <widget class="QLabel" name="label_60">
                  <property name="text">
@@ -1551,39 +1575,10 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" colspan="3">
-                <layout class="QHBoxLayout" name="horizontalLayout">
-                 <item>
-                  <spacer name="horizontalSpacer_2">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="generatePackageBtn">
-                   <property name="text">
-                    <string>Gerar Pacote</string>
-                   </property>
-                   <property name="icon">
-                    <iconset theme="package">
-                     <normaloff/>
-                    </iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
               </layout>
              </widget>
             </item>
-            <item>
+            <item row="2" column="0">
              <spacer name="verticalSpacer_2">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -1600,47 +1595,6 @@ p, li { white-space: pre-wrap; }
           </widget>
          </widget>
         </item>
-        <item>
-         <layout class="QHBoxLayout">
-          <item>
-           <spacer>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="saveBtn">
-            <property name="text">
-             <string>Salvar</string>
-            </property>
-            <property name="icon">
-             <iconset theme="save">
-              <normaloff/>
-             </iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="cancelBtn">
-            <property name="text">
-             <string>Cancelar</string>
-            </property>
-            <property name="icon">
-             <iconset theme="cancel">
-              <normaloff/>
-             </iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
        </layout>
       </widget>
      </widget>
@@ -1652,7 +1606,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>919</width>
+     <width>931</width>
      <height>25</height>
     </rect>
    </property>
