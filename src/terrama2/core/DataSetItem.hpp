@@ -53,14 +53,16 @@ namespace terrama2
     {
       public:
 
-        //! Dataset item type.
+        /*! Dataset item type.
+         Each constant must exist in table terrama2.dataset_item_type and the value must be the same from column id.
+         */
         enum Kind
         {
-          UNKNOWN_TYPE,
-          PCD_INPE_TYPE,
-          PCD_TOA5_TYPE,
-          FIRE_POINTS_TYPE,
-          DISEASE_OCCURRENCE_TYPE
+          UNKNOWN_TYPE = 1,
+          PCD_INPE_TYPE = 2,
+          PCD_TOA5_TYPE = 3,
+          FIRE_POINTS_TYPE = 4,
+          DISEASE_OCCURRENCE_TYPE = 5
         };
 
         //! Dataset item status.

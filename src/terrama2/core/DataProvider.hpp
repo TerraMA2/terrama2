@@ -61,16 +61,18 @@ namespace terrama2
     {
       public:
 
-        //! Data provider type.
+        /*! Data provider type.
+         Each constant must exist in table terrama2.data_provider_type and the value must be the same from column id.
+         */
         enum Kind
         {
-          UNKNOWN_TYPE,
-          FTP_TYPE,
-          HTTP_TYPE,
-          FILE_TYPE,
-          WFS_TYPE,
-          WCS_TYPE,
-          SOS_TYPE
+          UNKNOWN_TYPE = 1,
+          FTP_TYPE = 2,
+          HTTP_TYPE = 3,
+          FILE_TYPE = 4,
+          WFS_TYPE = 5,
+          WCS_TYPE = 6,
+          SOS_TYPE = 7
         };
 
         //! Data provider status.
