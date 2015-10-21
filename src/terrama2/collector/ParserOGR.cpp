@@ -103,15 +103,22 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
 
     return;
   }
+  catch(terrama2::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
   catch(te::common::Exception& e)
   {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("Terralib exception: ") + e.what());
+                                          QObject::tr("Terralib exception: ") + boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
-  catch(boost::io::format_error& e)
+  catch(...)
   {
-    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("Boost exception: ") + e.what());
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("Unknown exception."));
   }
 
   return;

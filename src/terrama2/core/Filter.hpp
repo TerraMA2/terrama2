@@ -58,7 +58,9 @@ namespace terrama2
 
       public:
 
-        //! Filter by value type.
+        /*! Filter by value type.
+         Each constant must exist in table terrama2.filter_expression_type and the value must be the same from column id.
+         */
         enum ExpressionType
         {
           NONE_TYPE = 1,

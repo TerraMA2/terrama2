@@ -88,10 +88,24 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
   //aquire all data
   for(auto& data : datasetTimer->data())
   {
+    try
+    {
     //TODO: conditions to collect Data?
-    std::string localUri = retrieveData(data);
+      std::string localUri = retrieveData(data);
 
-    data->import(localUri);
+      data->import(localUri);
+    }
+    catch(terrama2::Exception& e)
+    {
+      //TODO: log this
+      continue;
+    }
+    catch(...)
+    {
+      //TODO: log this
+      // Unkown exception ocurred while.....
+      continue;
+    }
   }
 }
 
