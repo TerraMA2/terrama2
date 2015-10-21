@@ -45,10 +45,10 @@
 
 struct terrama2::collector::DataProcessor::Impl
 {
-    core::DataSetItem      data_;
-    DataFilterPtr          filter_;
-    ParserPtr              parser_;
-    StoragerPtr            storager_;
+  core::DataSetItem      data_;
+  DataFilterPtr          filter_;
+  ParserPtr              parser_;
+  StoragerPtr            storager_;
 };
 
 terrama2::collector::DataProcessor::DataProcessor(const core::DataSetItem& data)
@@ -85,8 +85,8 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
   assert(impl_->filter_);
   assert(impl_->storager_);
 
-try
-{
+  try
+  {
     //get full name list
     std::vector<std::string> names = impl_->parser_->datasetNames(uri);
     //filter names
@@ -105,13 +105,25 @@ try
       datasetVec.at(i) = impl_->filter_->filterDataSet(tempDataSet);
     }
 
-  //store dataset
-  impl_->storager_->store(datasetVec, datasetType);
-}
-  catch(UnableToReadDataSetError& e)
+    //store dataset
+    impl_->storager_->store(datasetVec, datasetType);
+  }
+  catch(terrama2::Exception& e)
   {
     //TODO: log de erro
-    qDebug() << e.what();
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(te::common::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(...)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 }
@@ -124,12 +136,54 @@ void terrama2::collector::DataProcessor::initFilter()
 
 void terrama2::collector::DataProcessor::initParser()
 {
-  ParserPtr parser = Factory::getParser(impl_->data_.kind());
-  impl_->parser_ = parser;
+  try
+  {
+    ParserPtr parser = Factory::getParser(impl_->data_.kind());
+    impl_->parser_ = parser;
+  }
+  catch(terrama2::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(te::common::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(...)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
 }
 
 void terrama2::collector::DataProcessor::initStorager()
 {
-  StoragerPtr storager = Factory::getStorager(impl_->data_);
-  impl_->storager_ = storager;
+  try
+  {
+    StoragerPtr storager = Factory::getStorager(impl_->data_);
+    impl_->storager_ = storager;
+  }
+  catch(terrama2::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(te::common::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(...)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
 }

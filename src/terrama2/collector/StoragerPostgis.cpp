@@ -98,9 +98,23 @@ void terrama2::collector::StoragerPostgis::store(const std::vector<std::shared_p
     transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
     transactorDestination->commit();
   }
+  catch(terrama2::Exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
   catch(te::common::Exception& e)
   {
-    throw StoragerConnectionError() << terrama2::ErrorDescription(QObject::tr("Terralib exception: %1").arg(e.what()));
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
+  }
+  catch(...)
+  {
+    //TODO: log de erro
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
   }
 
   return ;

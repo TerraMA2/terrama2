@@ -81,6 +81,7 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::getParser(terrama2:
       break;
   }
 
+  //FIXME: throw here
   return ParserPtr();
 }
 
@@ -100,5 +101,6 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::getStorager(terra
   }
 
 
+  //FIXME: throw here
   return StoragerPtr();
 }
