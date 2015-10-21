@@ -71,7 +71,7 @@ terrama2::core::DataProvider TestCore::buildDataProvider()
   terrama2::core::DataProvider  dataProvider(0, (terrama2::core::DataProvider::Kind)1);
 
   dataProvider.setName("Data Provider");
-  dataProvider.setUri("C:/DataProvider/");
+  dataProvider.setUri("pathDataProvider");
   dataProvider.setDescription("Data Provider Description");
   dataProvider.setStatus((terrama2::core::DataProvider::Status)1);
 

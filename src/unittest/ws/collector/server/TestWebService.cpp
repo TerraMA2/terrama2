@@ -107,7 +107,7 @@ void TestWebService::TestAddDataProvider()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -175,7 +175,7 @@ void TestWebService::TestAddDataProviderWithID()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -207,7 +207,7 @@ void TestWebService::testRemoveDataProvider()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -269,7 +269,7 @@ void TestWebService::testUpdateDataProvider()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -349,7 +349,7 @@ void TestWebService::testFindDataProvider()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -424,7 +424,7 @@ void TestWebService::testListDataProvider()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -443,7 +443,7 @@ void TestWebService::testListDataProvider()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     if (webService.addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
     {
@@ -487,7 +487,7 @@ void TestWebService::TestAddDataSet()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -539,7 +539,7 @@ void TestWebService::TestAddNullDataSet()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -580,7 +580,7 @@ void TestWebService::TestAddDataSetWithID()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -665,7 +665,7 @@ void TestWebService::testRemoveDataSet()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -742,7 +742,7 @@ void TestWebService::testUpdateDataSet()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -857,7 +857,7 @@ void TestWebService::testFindDataSet()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
@@ -952,7 +952,7 @@ void TestWebService::testListDataSet()
     struct_dataProvider.kind = 1;
     struct_dataProvider.description = "Data Provider description";
     struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "C:/Dataprovider/path";
+    struct_dataProvider.uri = "pathDataProvider";
 
     WebService webService;
 
