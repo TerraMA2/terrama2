@@ -32,18 +32,32 @@
 
 // TerraMA2 Test
 #include "TestClient.hpp"
+#include "Utils.hpp"
 
 // TerraMA2
 #include <terrama2/core/ApplicationController.hpp>
 #include <terrama2/core/DataManager.hpp>
 #include <terrama2/ws/collector/client/Exception.hpp>
 
+void TestClient::initTestCase()
+{
+  // VINICIUS: not working, depends on TerraLib5
+//  CreateDatabase();
+}
+
+
+void TestClient::cleanupTestCase()
+{
+  // VINICIUS: not working, depends on TerraLib5
+//  DropDatabase();
+}
+
 
 void TestClient::init()
 {
   wsClient_ = new terrama2::ws::collector::Client("http://localhost:1989");
 
-  clearDatabase();  
+  clearDatabase();
 }
 
 

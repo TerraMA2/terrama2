@@ -46,7 +46,7 @@
 #include <string>
 
 
-void initializeTerralib()
+void InitializeTerralib()
 {
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
@@ -65,16 +65,16 @@ void initializeTerralib()
   te::plugin::PluginManager::getInstance().loadAll();
 }
 
-void finalizeTerralib()
+void FinalizeTerralib()
 {
   TerraLib::getInstance().finalize();
 }
 
-void initializeTerraMA2()
+void InitializeTerraMA2()
 {
-  initializeTerralib();
+  InitializeTerralib();
 
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/ws/collector/data/project.json");
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
   QVERIFY(dataSource.get());
@@ -82,11 +82,47 @@ void initializeTerraMA2()
   terrama2::core::DataManager::getInstance().load();
 }
 
-void finalizeTerraMA2()
+void FinalizeTerraMA2()
 {
-  finalizeTerralib();
+  FinalizeTerralib();
 
   terrama2::core::DataManager::getInstance().unload();
 
   terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+}
+
+void DropDatabase()
+{
+  if(terrama2::core::ApplicationController::getInstance().getDataSource().get())
+  {
+    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+  }
+
+  std::map<std::string, std::string> connInfo;
+
+  connInfo["PG_HOST"] = "localhost";
+  connInfo["PG_PORT"] = "5432";
+  connInfo["PG_USER"] = "postgres";
+  connInfo["PG_DB_NAME"] = "postgres";
+  connInfo["PG_CONNECT_TIMEOUT"] = "4";
+  connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+  connInfo["PG_DB_TO_DROP"] = "terrama2_test_ws";
+
+  std::string dsType = "POSTGIS";
+
+  // Check the data source existence
+  connInfo["PG_CHECK_DB_EXISTENCE"] = "terrama2_test_ws";
+  bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+  if(dsExists)
+  {
+    te::da::DataSource::drop(dsType, connInfo);
+  }
+}
+
+void CreateDatabase()
+{
+  DropDatabase();
+
+  terrama2::core::ApplicationController::getInstance().createDatabase("terrama2_test_ws", "postgres", "postgres", "localhost", 5432);
 }
