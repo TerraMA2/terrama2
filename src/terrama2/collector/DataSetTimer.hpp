@@ -42,12 +42,11 @@
 //BOOST
 #include <boost/noncopyable.hpp>
 
+#include "../core/DataProvider.hpp"
+#include "../core/DataSet.hpp"
+
 namespace terrama2
 {
-  namespace core {
-    class DataSet;
-    typedef std::shared_ptr<DataSet> DataSetPtr;
-  }
   namespace collector
   {
     class Collector;
@@ -73,16 +72,16 @@ namespace terrama2
          *
          * \exception terrama2::collector::InvalidDataSetException Raise when constructed with an invalid DataSet or empty pointer.
          */
-        DataSetTimer(core::DataSet dataSet);
+        DataSetTimer(const core::DataSet &dataSet);
         ~DataSetTimer();
 
         /*!
              * \brief Recover the Collector from the CollectorFactory.
              * \return Collector for the DataSet.
              */
-        CollectorPtr                  collector() const;
+        uint64_t dataProvider() const;
         //! \brief Returns the original DataSet.
-        core::DataSet              dataSet()   const;
+        core::DataSet                 dataSet()   const;
         //! \brief List of DataProcessor that should be aquired and processed.
         std::vector<DataProcessorPtr> data()      const;
 

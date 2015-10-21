@@ -67,6 +67,8 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     //TODO: throw
   }
 
+  std::lock_guard<std::mutex> lock(mutex_);
+
   try
   {
     //create a datasource and open

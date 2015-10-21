@@ -194,15 +194,16 @@ terrama2::core::DataSet::dataSetItems()
 }
 
 void
-terrama2::core::DataSet::add(const DataSetItem& d)
+terrama2::core::DataSet::add(DataSetItem& d)
 {
   datasetItems_.push_back(d);
+  d.setDataSet(id());
 }
 
 void terrama2::core::DataSet::removeDataSetItem(uint64_t id)
 {
   datasetItems_.erase(std::remove_if(datasetItems_.begin(),
                                      datasetItems_.end(),
-                                    [&id](const DataSetItem& item){ return (item.id() == id) ? true : false; }),
+                                     [&id](const DataSetItem& item){ return (item.id() == id) ? true : false; }),
                       datasetItems_.end());
 }

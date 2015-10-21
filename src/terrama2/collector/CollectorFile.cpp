@@ -31,7 +31,7 @@
 #include "CollectorFile.hpp"
 #include "Exception.hpp"
 
-terrama2::collector::CollectorFile::CollectorFile(const terrama2::core::DataProvider dataProvider, QObject *parent)
+terrama2::collector::CollectorFile::CollectorFile(const core::DataProvider dataProvider, QObject *parent)
   : Collector(dataProvider, parent)
 {
 

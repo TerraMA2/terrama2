@@ -42,18 +42,16 @@
 
 void TsDataFilter::TestFilterNamesExact()
 {
-  terrama2::core::DataProviderPtr provider(new terrama2::core::DataProvider("TestProvider", terrama2::core::DataProvider::UNKNOWN_TYPE));
-  terrama2::core::DataSetPtr      dataset (new terrama2::core::DataSet     (provider, "TestDataSet", terrama2::core::DataSet::UNKNOWN_TYPE));
-  terrama2::core::DataSetItemPtr  dataItem(new terrama2::core::DataSetItem (dataset, terrama2::core::DataSetItem::UNKNOWN_TYPE));
-  terrama2::core::FilterPtr       filter(new terrama2::core::Filter(dataItem));
-  std::vector<terrama2::core::DataSetPtr>     datasets     = { dataset };
-  std::vector<terrama2::core::DataSetItemPtr> datasetitems = { dataItem };
-  provider->setDataSets(datasets);
-  dataset->setDataSetItemList(datasetitems);
-  dataItem->setFilter(filter);
+  terrama2::core::DataProvider provider;
+  terrama2::core::DataSet      dataset;
+  terrama2::core::DataSetItem  dataItem;
+  terrama2::core::Filter       filter;
+  provider.add(dataset);
+  dataset.add(dataItem);
+  dataItem.setFilter(filter);
 
   std::string exact("exact");
-  dataItem->setMask(exact);
+  dataItem.setMask(exact);
 
   terrama2::collector::DataFilter datafilter(dataItem);
 
@@ -67,15 +65,13 @@ void TsDataFilter::TestFilterNamesExact()
 
 void TsDataFilter::TestEmptyMask()
 {
-  terrama2::core::DataProviderPtr provider(new terrama2::core::DataProvider("TestProvider", terrama2::core::DataProvider::UNKNOWN_TYPE));
-  terrama2::core::DataSetPtr      dataset (new terrama2::core::DataSet     (provider, "TestDataSet", terrama2::core::DataSet::UNKNOWN_TYPE));
-  terrama2::core::DataSetItemPtr  dataItem(new terrama2::core::DataSetItem (dataset, terrama2::core::DataSetItem::UNKNOWN_TYPE));
-  terrama2::core::FilterPtr       filter(new terrama2::core::Filter(dataItem));
-  std::vector<terrama2::core::DataSetPtr>     datasets     = { dataset };
-  std::vector<terrama2::core::DataSetItemPtr> datasetitems = { dataItem };
-  provider->setDataSets(datasets);
-  dataset->setDataSetItemList(datasetitems);
-  dataItem->setFilter(filter);
+  terrama2::core::DataProvider provider;
+  terrama2::core::DataSet      dataset;
+  terrama2::core::DataSetItem  dataItem;
+  terrama2::core::Filter       filter;
+  provider.add(dataset);
+  dataset.add(dataItem);
+  dataItem.setFilter(filter);
 
   terrama2::collector::DataFilter datafilter(dataItem);
 

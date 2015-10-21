@@ -39,9 +39,6 @@
 #include <cstdint>
 #include <string>
 
-//Qt
-#include <QObject>
-
 //Boost
 #include <boost/noncopyable.hpp>
 
@@ -57,6 +54,7 @@ namespace terrama2
 {
   namespace collector
   {
+    class Factory;
     class DataFilter;
     typedef std::shared_ptr<DataFilter> DataFilterPtr;
     class Parser;
@@ -72,13 +70,11 @@ namespace terrama2
          * it is responsible for calling the appropriate storager.
          *
          */
-    class DataProcessor : public QObject, public boost::noncopyable
+    class DataProcessor : public boost::noncopyable
     {
-        Q_OBJECT
-
       public:
         //! Constructor
-        DataProcessor(const core::DataSetItem& data, QObject* parent = nullptr);
+        DataProcessor(const core::DataSetItem& data);
         //! Destructor
         ~DataProcessor();
 
