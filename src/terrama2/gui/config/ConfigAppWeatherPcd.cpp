@@ -30,6 +30,9 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->pointFormatDataFormat->setEnabled(false);
   ui_->btnPointPCDInsertFileNameLocation->setEnabled(false);
   ui_->pointParamsGbx->setEnabled(false);
+
+  ui_->updateDataPointBtn->setEnabled(false);
+  ui_->exportDataPointBtn->setEnabled(false);
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()

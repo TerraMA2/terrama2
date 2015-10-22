@@ -27,6 +27,9 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   ui_->pointDiffFormatDataFormat->setEnabled(false);
   ui_->intersectionBtn->setEnabled(false);
   ui_->filterPointDiffBtn->setEnabled(false);
+
+  ui_->updateDataPointDiffBtn->setEnabled(false);
+  ui_->exportDataPointDiffBtn->setEnabled(false);
 }
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()

@@ -3,7 +3,6 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
-#include "../../core/ApplicationController.hpp"
 #include "../../core/DataSet.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
@@ -42,6 +41,8 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   ui_->filterGridBtn->setEnabled(false);
   ui_->spbGridGrADSHeaderSize->setEnabled(false);
   ui_->spbGridGrADSTraillerSize->setEnabled(false);
+  ui_->exportDataGridBtn->setEnabled(false);
+  ui_->updateDataGridBtn->setEnabled(false);
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()

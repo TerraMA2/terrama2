@@ -4,7 +4,6 @@
 #include "ProjectionDialog.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
-#include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/DataProviderDAO.hpp"
@@ -63,6 +62,13 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Disable series button
   showDataSeries(false);
   hideDataSetButtons();
+
+  // disable menu buttons
+  ui_->showConsoleAct->setEnabled(false);
+  ui_->studyAct->setEnabled(false);
+  ui_->archivingAct->setEnabled(false);
+  ui_->terraMEPlayerAct->setEnabled(false);
+  ui_->refreshAct->setEnabled(false);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -89,16 +95,15 @@ void ConfigAppWeatherTab::load()
     {
       // temp code
       showDataSeries(true);
+      ui_->dataSeriesBtnGroupBox->hide();
       ui_->serverInsertPointBtn->setVisible(true);
       ui_->serverInsertGridBtn->setVisible(true);
       ui_->serverInsertPointDiffBtn->setVisible(true);
     }
-    else
-    {
-      hideDataSetButtons();
-    }
+    hideDataSetButtons();
 
-    ui_->importDataBtn->setVisible(true);
+    ui_->importServerBtn->setEnabled(false);
+    ui_->updateServerBtn->setEnabled(false);
 
     app_->getClient()->listDataSet(datasets);
     for(std::vector<terrama2::core::DataProvider>::iterator it = providers.begin(); it != providers.end(); ++it)
@@ -325,7 +330,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         }
 
         ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
-        ui_->serverActiveServer->setChecked(provider.status());
+        ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));
 
         subTabs_[0]->load();
 
