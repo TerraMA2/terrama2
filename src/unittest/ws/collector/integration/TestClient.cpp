@@ -86,11 +86,11 @@ void TestClient::clearDatabase()
 terrama2::core::DataProvider TestClient::buildDataProvider()
 {
 
-  terrama2::core::DataProvider  dataProvider("Data Provider", (terrama2::core::DataProvider::Kind)1, 0);
+  terrama2::core::DataProvider  dataProvider("Data Provider", terrama2::core::DataProvider::Kind::FILE_TYPE, 0);
 
   dataProvider.setUri("pathDataProvider");
   dataProvider.setDescription("Data Provider Description");
-  dataProvider.setStatus((terrama2::core::DataProvider::Status)1);
+  dataProvider.setStatus(terrama2::core::DataProvider::Status::ACTIVE);
 
   return dataProvider;
 }
@@ -102,10 +102,10 @@ terrama2::core::DataSet TestClient::buildDataSet()
 
   wsClient_->addDataProvider(dataProvider);
 
-  terrama2::core::DataSet dataSet("Data Set Name", (terrama2::core::DataSet::Kind)1, 0, dataProvider.id());
+  terrama2::core::DataSet dataSet("Data Set Name", terrama2::core::DataSet::Kind::GRID_TYPE, 0, dataProvider.id());
 
   dataSet.setDescription("Data Set Description");
-  dataSet.setStatus((terrama2::core::DataSet::Status)1);
+  dataSet.setStatus(terrama2::core::DataSet::Status::ACTIVE);
 
   boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string("00:05:00.00"));
   boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string("00:06:00.00"));
@@ -263,19 +263,21 @@ void TestClient::testUpdateDataProvider()
     uint64_t id = dataProvider.id();
 
     dataProvider.setDescription("Description updated");
-    dataProvider.setKind((terrama2::core::DataProvider::Kind)2);
+    dataProvider.setKind(terrama2::core::DataProvider::Kind::FTP_TYPE);
     dataProvider.setName("Name updated");
-    dataProvider.setStatus((terrama2::core::DataProvider::Status)2);
+    dataProvider.setStatus(terrama2::core::DataProvider::Status::INACTIVE);
     dataProvider.setUri("URI_updated");
 
-    wsClient_->updateDataProvider(dataProvider);
+    terrama2::core::DataProvider dataProvider_updated(dataProvider);
 
-    QVERIFY2(dataProvider.id() == id, "Update failed!");
-    QCOMPARE(dataProvider.description().c_str(), "Description updated");
-    QCOMPARE((int)dataProvider.kind(), 2);
-    QCOMPARE(dataProvider.name().c_str(), "Name updated");
-    QCOMPARE((int)dataProvider.status(), 2);
-    QCOMPARE(dataProvider.uri().c_str(), "URI_updated");
+    wsClient_->updateDataProvider(dataProvider_updated);
+
+    QCOMPARE(dataProvider.id(), dataProvider_updated.id());
+    QCOMPARE(dataProvider.description().c_str(), dataProvider_updated.description().c_str());
+    QCOMPARE(dataProvider.kind(), dataProvider_updated.kind());
+    QCOMPARE(dataProvider.name().c_str(), dataProvider_updated.name().c_str());
+    QCOMPARE(dataProvider.status(), dataProvider_updated.status());
+    QCOMPARE(dataProvider.uri().c_str(), dataProvider_updated.uri().c_str());
 
   }
   catch(terrama2::Exception &e)
@@ -446,11 +448,18 @@ void TestClient::TestAddDataSetWithID()
 {
   try
   {
+    terrama2::core::DataSet dataSet = buildDataSet();
 
+    dataSet.setId(1);
+
+    wsClient_->addDataSet(dataSet);
+
+    QFAIL("Should not add a Data Set with an ID!");
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -463,11 +472,18 @@ void TestClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
   {
+    terrama2::core::DataSet dataSet = buildDataSet();
 
+    dataSet.setProvider(1);
+
+    wsClient_->addDataSet(dataSet);
+
+    QFAIL("Should not add a Data Set with a wrong Data Provider ID!");
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -503,11 +519,14 @@ void TestClient::testRemoveDataSetInvalidId()
 {
   try
   {
+    wsClient_->removeDataSet(1);
 
+    QFAIL("Should not remove a Data Set with a invalid ID!");
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -520,8 +539,41 @@ void TestClient::testUpdateDataSet()
 {
   try
   {
+    terrama2::core::DataSet dataSet = buildDataSet();
 
+    wsClient_->addDataSet(dataSet);
 
+    QVERIFY2(dataSet.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
+    dataSet.setName("Data Set Updated");
+    dataSet.setKind(terrama2::core::DataSet::Kind::UNKNOWN_TYPE);
+    dataSet.setDescription("Data Set Description Updated");
+    dataSet.setStatus(terrama2::core::DataSet::Status::ACTIVE);
+
+    boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string("00:09:00.00"));
+    boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string("00:10:00.00"));
+    boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string("00:11:00.00"));
+    boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string("00:12:00.00"));
+
+    dataSet.setDataFrequency(te::dt::TimeDuration(dataFrequency));
+    dataSet.setSchedule(te::dt::TimeDuration(schedule));
+    dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
+    dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+    terrama2::core::DataSet dataSet_updated(dataSet);
+
+    wsClient_->updateDataSet(dataSet_updated);
+
+    QCOMPARE(dataSet.id(), dataSet_updated.id());
+    QCOMPARE(dataSet.name().c_str(), dataSet_updated.name().c_str());
+    QCOMPARE(dataSet.kind(), dataSet_updated.kind());
+    QCOMPARE(dataSet.description().c_str(), dataSet_updated.description().c_str());
+    QCOMPARE(dataSet.status(), dataSet_updated.status());
+    QCOMPARE(dataSet.provider(), dataSet_updated.provider());
+    QCOMPARE(dataSet.dataFrequency(), dataSet_updated.dataFrequency());
+    QCOMPARE(dataSet.schedule(), dataSet_updated.schedule());
+    QCOMPARE(dataSet.scheduleRetry(), dataSet_updated.scheduleRetry());
+    QCOMPARE(dataSet.scheduleTimeout(), dataSet_updated.scheduleTimeout());
   }
   catch(terrama2::Exception &e)
   {
@@ -556,7 +608,24 @@ void TestClient::testFindDataSet()
 {
   try
   {
+    terrama2::core::DataSet dataSet = buildDataSet();
 
+    wsClient_->addDataSet(dataSet);
+
+    QVERIFY2(dataSet.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
+    terrama2::core::DataSet dataSet_found(wsClient_->findDataSet(dataSet.id()));
+
+    QCOMPARE(dataSet.id(), dataSet_found.id());
+    QCOMPARE(dataSet.name().c_str(), dataSet_found.name().c_str());
+    QCOMPARE(dataSet.kind(), dataSet_found.kind());
+    QCOMPARE(dataSet.description().c_str(), dataSet_found.description().c_str());
+    QCOMPARE((int)dataSet.status(), (int)dataSet_found.status());
+    QCOMPARE(dataSet.provider(), dataSet_found.provider());
+    QCOMPARE(dataSet.dataFrequency(), dataSet_found.dataFrequency());
+    QCOMPARE(dataSet.schedule(), dataSet_found.schedule());
+    QCOMPARE(dataSet.scheduleRetry(), dataSet_found.scheduleRetry());
+    QCOMPARE(dataSet.scheduleTimeout(), dataSet_found.scheduleTimeout());
 
   }
   catch(terrama2::Exception &e)
@@ -574,12 +643,14 @@ void TestClient::testFindDataSetInvalidID()
 {
   try
   {
+    wsClient_->findDataSet(1);
 
-
+    QFAIL("Should not find a Data Set with a invalid ID!");
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
