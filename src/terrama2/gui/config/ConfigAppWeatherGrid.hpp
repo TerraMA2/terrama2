@@ -48,7 +48,9 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     void discardChanges(bool restore_data);
 
   private slots:
+    //! Slot triggered when data grid btn is clicked to display the Grid Widget
     void onDataGridClicked();
+
     void onSubTabChanged();
     void onGridFormatChanged();
     void onRemoveDataGridBtnClicked();
