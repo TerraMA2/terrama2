@@ -158,7 +158,7 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
       terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(currentItem->text(0).toStdString());
 
       if (dataset.id() == 0 || dataset.kind() != terrama2::core::DataSet::GRID_TYPE)
-        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid PCD dataset selected"));
+        throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("Invalid PCD dataset selected"));
 
       QMessageBox::StandardButton reply;
       reply = QMessageBox::question(app_, tr("TerraMA2"),
