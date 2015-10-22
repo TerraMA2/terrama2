@@ -83,9 +83,6 @@ namespace terrama2
           */
           void ping(std::string &answer);
 
-          /*!
-            \brief
-
 
           /*!
             \brief

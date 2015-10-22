@@ -155,7 +155,7 @@ void terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
 
 void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 {
-  if(wsClient_->removeDataSet(id) != SOAP_OK || wsClient_->recv_removeDataSet_empty_response() != SOAP_OK)
+  if(wsClient_->send_removeDataSet(id) != SOAP_OK || wsClient_->recv_removeDataSet_empty_response() != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
