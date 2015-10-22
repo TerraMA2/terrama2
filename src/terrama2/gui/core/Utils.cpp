@@ -77,13 +77,11 @@ void terrama2::gui::core::checkFTPConnection(const QString& host, const int& por
 
 void terrama2::gui::core::checkLocalFilesConnection(const QString& path)
 {
-  QString absolutePath = path;
-  absolutePath.append("/");
-  QDir directory(absolutePath);
+  QDir directory(path);
 
-  if (!directory.exists() || directory.path() == "/")
+  if (!directory.exists() || path.isEmpty())
   {
-    QString error = QObject::tr("Invalid directory typed: \"%1\"").arg(absolutePath);
+    QString error = QObject::tr("Invalid directory typed: \"%1\"").arg(path);
     throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(error);
   }
 }

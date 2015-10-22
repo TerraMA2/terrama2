@@ -150,7 +150,8 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
 
 void ConfigAppWeatherServer::validateConnection()
 {
-  switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()))
+  std::cout << ui_->connectionProtocol->currentIndex() << std::endl;
+  switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+1))
   {
     case terrama2::core::DataProvider::FTP_TYPE:
       terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
