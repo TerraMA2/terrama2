@@ -35,9 +35,7 @@
 #include "ServicesDialog.hpp"
 #include "../core/ConfigManager.hpp"
 #include "AdminApp.hpp"
-
-//#include "../core/DataType.hpp"
-//#include "ServiceManager.hpp"
+#include "../Exception.hpp"
 
 // QT
 #include <QMessageBox>
@@ -59,7 +57,7 @@ struct ServicesDialog::Impl
   }
 };
 
-//! Construtor
+//! Constructor
 ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QString nameConfig)
     : adminapp_(adminapp), pimpl_(new Impl), configManager_(configData), idNameConfig_(nameConfig), changed_(false)
 {
@@ -83,15 +81,17 @@ ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QS
  pimpl_->ui_->servicesTable->horizontalHeader()->setHighlightSections(false);
  pimpl_->ui_->servicesTable->horizontalHeader()->setStretchLastSection(true);
 
+ pimpl_->ui_->closeServiceBtn->setEnabled(false);
+
  setDialogData(nameConfig);
 }
 
-//! Destrutor
+//! Destructor
 ServicesDialog::~ServicesDialog()
 {
 }
 
-//! Marca que os dados da tabela foram alterados
+//! Mark the table data has changed
 void ServicesDialog::setDataChanged(int row, int col)
 {
   if(changed_ || col == 0)
@@ -100,7 +100,7 @@ void ServicesDialog::setDataChanged(int row, int col)
   pimpl_->ui_->saveBtn->setEnabled(true);
 }
 
-//! Marca que os dados não foram alterados
+//! Mark the data have not changed
 void ServicesDialog::clearDataChanged()
 {
   if(!changed_)
@@ -109,55 +109,54 @@ void ServicesDialog::clearDataChanged()
   pimpl_->ui_->saveBtn->setEnabled(false);
 }
 
-//! Preenche uma linha da tabela de dados
+//! Fills a line of the data table
 void ServicesDialog::setLine(int line, const QString& module, const CommonData& data)
 {
   QTableWidgetItem* item;
 
-// Coluna Ativo
+// Active column
   item = new QTableWidgetItem(QIcon::fromTheme("ping-unknown"), "");
   item->setFlags(item->flags() & ~Qt::ItemIsEditable);
   pimpl_->ui_->servicesTable->setItem(line, 0, item);
 
-// Coluna Modulo
+// Module column
   item = new QTableWidgetItem(module);
   item->setFlags(item->flags() & ~Qt::ItemIsEditable);
   pimpl_->ui_->servicesTable->setItem(line, 1, item);
 
-// Coluna Localização
+// Location column
   item = new QTableWidgetItem(data.address_ + QString(" : %1").arg(data.servicePort_));
   item->setFlags(item->flags() & ~Qt::ItemIsEditable);
   pimpl_->ui_->servicesTable->setItem(line, 2, item);
 
-// Coluna Comando
+// Command column
   pimpl_->ui_->servicesTable->setItem(line, 3, new QTableWidgetItem(data.cmd_));
 
-// Coluna Parâmetros
+// Parameters column
   pimpl_->ui_->servicesTable->setItem(line, 4, new QTableWidgetItem(data.params_));
 
 }
 
-//! Preenche tabela com dados de configuração
+//! Fill table with configuration data
 void ServicesDialog::setDialogData(QString nameConfig)
 {
-// Preenche nome da configuração
- pimpl_->ui_->configLbl->setText(nameConfig);
+// Fills configuration name
+  pimpl_->ui_->configLbl->setText(nameConfig);
 
-// Ajusta tamanho da tabela
- pimpl_->ui_->servicesTable->setRowCount(4);
+// Adjusting table size
+  pimpl_->ui_->servicesTable->setRowCount(4);
 
-// Preenche a tabela com dados da Coleta
- setLine(0, tr("Coleta"),*configManager_.getCollection());
+// Populates the table with data collection
+  setLine(0, tr("Coleta"),*configManager_.getCollection());
 
-// Ajusta espessura das linhas
- pimpl_->ui_->servicesTable->resizeRowsToContents();
+// Adjusting the thickness (espessura) of the lines
+  pimpl_->ui_->servicesTable->resizeRowsToContents();
 
-// Marca dados como não alterados
- clearDataChanged();
+// Mark data as unchanged
+  clearDataChanged();
 }
 
-
-//! Preenche estrutura com dados dos campos de comando e parâmetros da linha da tabela
+//! Structure fills with data from field commands and table line parameters
 void ServicesDialog::getLine(int line, CommonData& data)
 {
   QTableWidgetItem* item = pimpl_->ui_->servicesTable->item(line, 3);
@@ -167,7 +166,7 @@ void ServicesDialog::getLine(int line, CommonData& data)
   data.params_ = item->data(Qt::DisplayRole).toString().trimmed();
 }
 
-//! Retorna lista contendo indices das linhas selecionada
+//! Returns list with indices of selected lines
 void ServicesDialog::getSelectedLines(QList<int>& list)
 {
   list.clear();
@@ -178,85 +177,109 @@ void ServicesDialog::getSelectedLines(QList<int>& list)
     list.push_back(indexlist[i].row());
 }
 
-
-//! Preenche estrutura com dados obtidos do dialogo
-void ServicesDialog::getDialogData(QString nameConfig)
-{
-  // Obtem dados das linhas padronizadas
-  getLine(0, *configManager_.getCollection());
-
-}
-
-//! Sinal chamado quando o usuário solicita que as linhas marcadas sejam "pingadas"
+//! Signal called when the user requests that marked lines are "checked with ping"
 void ServicesDialog::verifyRequested()
 {
-  // Obtem lista das linhas selecionadas
+// Get list of selected lines
   QList<int> lines;
   getSelectedLines(lines);
+
   if(lines.isEmpty())
   {
-    QMessageBox::warning(this, tr("Erro..."),
-                               tr("Selecione na tabela um ou mais módulos a serem verificados."));
+    QMessageBox::warning(this, tr("Error..."),
+                               tr("Select the table one or more modules to be checked"));
     return;
   }
 
-  // Passa todas as linhas para o estado de ?
+// Changes all the lines for the state (ping-unknown)
   int size=lines.size();
+
   for(int i=0; i<size; i++)
   {
     QTableWidgetItem* item = pimpl_->ui_->servicesTable->item(lines[i], 0);
     item->setIcon(QIcon::fromTheme("ping-unknown"));
   }
+
   QCoreApplication::processEvents();
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  // Efetua o ping para cada linha selecionada
-  //const ConfigData& cfg = _configManager.configuration(_id);
-  for(int i=0; i<size; i++)
+  bool ok;
+  std::string answer;
+
+  if (client!= nullptr)
   {
-    //bool ok = ServiceManager::ping(cfg, lines[i]);
-      bool ok;
+    try
+    {
+      std::string host = "http://localhost:" + std::to_string(configManager_.getCollection()->servicePort_);
 
-    QTableWidgetItem* item = pimpl_->ui_->servicesTable->item(lines[i], 0);
-    item->setIcon(QIcon::fromTheme(ok ? "ping-success" : "ping-error"));
-    QCoreApplication::processEvents();
+      client = new terrama2::ws::collector::Client(host);
+
+      for(int i=0; i<size; i++)
+      {
+
+        client->ping(answer);
+
+        if (answer.empty())
+          ok = false;
+        else ok = true;
+
+        QTableWidgetItem* item = pimpl_->ui_->servicesTable->item(lines[i], 0);
+        item->setIcon(QIcon::fromTheme(ok ? "ping-success" : "ping-error"));
+        QCoreApplication::processEvents();
+      }
+    }
+    catch(const terrama2::Exception& e)
+    {
+      QString messageError = "TerraMA2 finished with errors!\n\n";
+
+      if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
+      {
+        messageError.append(d);
+      }
+
+      QMessageBox::critical(nullptr, "TerraMA2", messageError);
+    }
+    catch(...)
+    {
+      throw;
+    }
   }
-
   QApplication::restoreOverrideCursor();
 }
 
-//! Salva dados alterados no diálogo
+//! Save changed data in the dialog
 void ServicesDialog::saveRequested()
 {
   getLine(0, *configManager_.getCollection());
 
   adminapp_->save();
 
-// Desmarca alterações
+// clear changes
   clearDataChanged();
 }
 
-//! Executa o comando recebido como parâmetro
+//! Executes the command received as a parameter
 bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
 {
-  // Verifica se o comando existe e é executável
+// Check if the command exists and is executable
+  cmd = "terrama2_mod_ws_collector_appserver";
   QFileInfo info(cmd);
   QString dir = QCoreApplication::applicationDirPath();
   if(!info.exists())
   {
- // Procura no diretório do executável
+ // Find the executable directory
     info.setFile(dir + "/" + cmd);
     if(!info.exists())
     {
-      err = tr("Comando inexistente: %1").arg(cmd);
+      err = tr("Command does not exist: %1").arg(cmd);
           return false;
     }
     cmd = dir + "/" + cmd;
   }
   if(!info.isExecutable())
   {
-    err = tr("Comando não é executável: %1").arg(cmd);
+    err = tr("Command is not executable: %1").arg(cmd);
     return false;
   }
 
@@ -269,52 +292,51 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
   {
     static const char* module_names[] = {"coleta", "planos", "notificacao", "animacao", "analise"};
 
-   // const ConfigData& conf = _configManager.configuration(_id);
+    QString address;    
+    QString filename;
+    QString dirfilename;
 
+    filename = configManager_.getName();
 
-    QString address;
+    QJsonObject fileSeleted = configManager_.getfiles().take(filename);
+    dirfilename = fileSeleted.take("path").toString();
 
     if (line == 0)
       address = configManager_.getCollection()->address_;
 
-  //  else if(line == 1) address = conf.plans()._address;
-  //  else if(line == 2) address = conf.notification()._address;
-  //  else if(line == 3) address = conf.animation()._address;
-  //  else if(line == 4) address = conf.analysis()._address;
-  //  else               address = conf.analysis()._instanceData[line-5]._address;
+    param.replace("%c", QString("\"%1\"").arg(dirfilename), Qt::CaseInsensitive);
+    param.replace("%m", module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
+    param.replace("%p", dir + "/" + module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
+    param.replace("%a", address, Qt::CaseInsensitive);
 
-  //  param.replace("%c", QString("\"%1\"").arg(_configManager.configurationFile(_id)), Qt::CaseInsensitive);
-  //  param.replace("%i", (line<4) ? "0" : QString::number(line-3), Qt::CaseInsensitive);
-  //  param.replace("%m", module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
-  //  param.replace("%p", dir + "/" + module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
-  //  param.replace("%a", address, Qt::CaseInsensitive);
   }
 
-  // Executa
-  QString cmdline = cmd + " " + param;
+// Execute
+  QString cmdline = "./" + cmd + " " + QString::number(configManager_.getCollection()->servicePort_) + " " + param;
+
   if(!QProcess::startDetached(cmdline))
   {
-    err = tr("Erro executando comando: %1").arg(cmdline);
+    err = tr("Error executing command: %1").arg(cmdline);
     return false;
   }
   return true;
 }
 
-//! Sinal chamado quando o usuário solicita que as linhas marcadas sejam executadas
+//! Signal called when the user requests that marked lines are executed
 void ServicesDialog::execRequested()
 {
-  // Obtem lista das linhas selecionadas
+// Get list of selected lines
   QList<int> lines;
   getSelectedLines(lines);
 
   if(lines.isEmpty())
   {
-    QMessageBox::warning(this, tr("Erro..."),
-                               tr("Selecione na tabela um ou mais módulos a serem executados."));
+    QMessageBox::warning(this, tr("Error..."),
+                               tr("Select the table one or more modules to be executed."));
     return;
   }
 
-  // Executa comandos
+// Execute commands
   QString err;
   int errCount = 0;
   for(int i=0, size=lines.size(); i<size; i++)
@@ -330,48 +352,48 @@ void ServicesDialog::execRequested()
     }
   }
 
-  // Mostra mensagens de erro
+// Show error messages
   if(errCount)
   {
     if(errCount == lines.size())
     {
-      QMessageBox::warning(this, tr("Erro executando comandos..."),
-                                 tr("Nenhum dos módulos selecionados foi executado com sucesso.\n"
-                                    "Erros:\n\n%1").arg(err));
+      QMessageBox::warning(this, tr("Error executing commands..."),
+                                 tr("None of the selected modules was successful.\n"
+                                    "Error:\n\n%1").arg(err));
     }
     else
     {
-      QMessageBox::warning(this, tr("Erro executando comandos..."),
-                                 tr("%1 dos %2 módulos selecionados foram executados com sucesso.\n"
-                                    "Utilize a ferramenta 'Verificar conexão' para testar\n"
-                                    "se estes serviços foram inicializados corretamente.\n\n"
-                                    "Erros na inicialização dos demais módulos:\n\n%3")
+      QMessageBox::warning(this, tr("Error executing commands..."),
+                                 tr("%1 of %2 selected modules were successfully executed.\n"
+                                    "Use the tool 'Check Connection' to test\n"
+                                    "Those services have been initialized correctly.\n\n"
+                                    "Errors at startup of the other modules:\n\n%3")
                                     .arg(lines.size()-errCount).arg(lines.size()).arg(err));
     }
   }
   else
   {
-    QMessageBox::information(this, tr("Inicialização concluída"),
-                                   tr("Módulos executados com sucesso.\n\n"
-                                      "Utilize a ferramenta 'Verificar conexão' para testar\n"
-                                      "se todos os serviços foram inicializados corretamente."));
+    QMessageBox::information(this, tr("Initialization completed"),
+                                   tr("Successfully executed modules.\n\n"
+                                      "Use the tool 'Check Connection' to test\n"
+                                      "if all services were initialized correctly."));
   }
 }
 
-//! Sinal chamado quando o usuário solicita que as linhas marcadas sejam "fechadas"
+//! Signal called when the user requests that marked lines are "closed"
 void ServicesDialog::closeRequested()
 {
-// Obtem lista das linhas selecionadas
+// Get list of selected lines
   QList<int> lines;
   getSelectedLines(lines);
   if(lines.isEmpty())
   {
-    QMessageBox::warning(this, tr("Erro..."),
-                               tr("Selecione na tabela um ou mais módulos a serem finalizados."));
+    QMessageBox::warning(this, tr("Error..."),
+                               tr("Select the table one or more modules to be finalized."));
     return;
   }
 
-// Passa todas as linhas para o estado de ?
+// Change all the lines to the state (ping-unknown)
   int size=lines.size();
   for(int i=0; i<size; i++)
   {
@@ -382,48 +404,56 @@ void ServicesDialog::closeRequested()
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-// Envia solicitação de finalização para cada linha selecionada
+// Send completion request for each selected row
   QString err;
   int errCount = 0;
 
- // const ConfigData& cfg = _configManager.configuration(_id);
+  std::string host = "http://localhost:" + std::to_string(configManager_.getCollection()->servicePort_);
 
+  client = new terrama2::ws::collector::Client(host);
+
+  bool ok;
+// TODO: create the function in close connection module SOAP
   for(int i=0; i<size; i++)
   {
-   // bool ok = ServiceManager::close(cfg, lines[i]);
-      bool ok;
+     // client->close(answer);
+
+     // if (answer.empty())
+     //   ok = false;
+     // else ok = true;
+
     if(!ok)
     {
       QString modname = pimpl_->ui_->servicesTable->item(lines[i], 1)->text();
-      err += tr("Erro enviando solicitação de finalização para o módulo %1\n").arg(modname);
+      err += tr("Error sending termination request to the module %1\n").arg(modname);
       errCount++;
     }
   }
   QApplication::restoreOverrideCursor();
 
-  // Mostra mensagens de erro ou sucesso
+// Shows error messages or success
   if(errCount)
   {
     if(errCount == lines.size())
     {
-      QMessageBox::warning(this, tr("Erro enviando solicitações..."),
-                                 tr("Nenhum dos módulos selecionados foi notificado com sucesso.\n"));
+      QMessageBox::warning(this, tr("Error sending requests..."),
+                                 tr("None of the selected module has been successfully notified.\n"));
     }
     else
     {
-      QMessageBox::warning(this, tr("Erro enviando solicitações..."),
-                                 tr("%1 dos %2 módulos selecionados foram notificados com sucesso.\n"
-                                    "Utilize a ferramenta 'Verificar conexão' para testar\n"
-                                    "se estes serviços foram finalizados corretamente.\n\n"
-                                    "Erros no envio de solicitação aos demais módulos:\n\n%3")
+      QMessageBox::warning(this, tr("Error sending requests..."),
+                                 tr("%1 of %2 selected modes were successfully notified.\n"
+                                    "Use the tool 'Check Connection' to test\n"
+                                    "those services have been finalized.\n\n"
+                                    "Errors in the request to send to the other modules:\n\n%3")
                                     .arg(lines.size()-errCount).arg(lines.size()).arg(err));
     }
   }
   else
   {
-    QMessageBox::information(this, tr("Solicitação concluída"),
+    QMessageBox::information(this, tr("Completed request"),
                                    tr("Solicitações de finalização enviadas com sucesso.\n\n"
-                                      "Utilize a ferramenta 'Verificar conexão' para testar\n"
-                                      "se todos os serviços foram finalizados corretamente."));
+                                      "Use the tool 'Check Connection' to test\n"
+                                      "if all services properly terminated."));
   }
 }

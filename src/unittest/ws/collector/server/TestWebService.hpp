@@ -112,6 +112,12 @@ private slots:
 
 
     /*!
+     * \brief
+     */
+    void testListDataProvider();
+
+
+    /*!
      * \brief Test to add a normal DataSet
      */
     void TestAddDataSet();
@@ -168,6 +174,10 @@ private slots:
     void testFindDataSetInvalidID();
 
 
+    /*!
+     * \brief
+     */
+    void testListDataSet();
     //******End of Test functions****
 };
 

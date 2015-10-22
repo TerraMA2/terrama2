@@ -26,14 +26,17 @@
 
   \author Vinicius Campanha
 */
+// STL
+#include <iostream>
 
 // TerraMA2 Test
+#include <terrama2/core/Exception.hpp>
 #include "TestWebService.hpp"
 #include "Utils.hpp"
 
 int main(int argc, char **argv)
 {
-  initializeTerraMA2();
+    initializeTerraMA2();
 
   TestWebService testWebService;
   int ret = QTest::qExec(&testWebService, argc, argv);

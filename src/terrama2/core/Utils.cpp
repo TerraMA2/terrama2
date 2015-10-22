@@ -145,18 +145,22 @@ terrama2::core::ToDataProviderStatus(bool active)
 terrama2::core::DataProvider::Kind
 terrama2::core::ToDataProviderKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
-    case 1:
-      return DataProvider::FTP_TYPE;
     case 2:
-      return DataProvider::HTTP_TYPE;
+      return DataProvider::FTP_TYPE;
     case 3:
-      return DataProvider::FILE_TYPE;
+      return DataProvider::HTTP_TYPE;
     case 4:
-      return DataProvider::WFS_TYPE;
+      return DataProvider::FILE_TYPE;
     case 5:
+      return DataProvider::WFS_TYPE;
+    case 6:
       return DataProvider::WCS_TYPE;
+    case 7:
+      return DataProvider::SOS_TYPE;
     default:
       return DataProvider::UNKNOWN_TYPE;
   }
@@ -193,13 +197,15 @@ terrama2::core::DataSet::Status terrama2::core::ToDataSetStatus(bool active)
 terrama2::core::DataSet::Kind
 terrama2::core::ToDataSetKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
-    case 1:
-      return DataSet::PCD_TYPE;
     case 2:
-      return DataSet::OCCURENCE_TYPE;
+      return DataSet::PCD_TYPE;
     case 3:
+      return DataSet::OCCURENCE_TYPE;
+    case 4:
       return DataSet::GRID_TYPE;
     default:
       return DataSet::UNKNOWN_TYPE;
@@ -209,15 +215,17 @@ terrama2::core::ToDataSetKind(uint64_t kind)
 terrama2::core::DataSetItem::Kind
 terrama2::core::ToDataSetItemKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
-    case 1:
-      return DataSetItem::PCD_INPE_TYPE;
     case 2:
-      return DataSetItem::PCD_TOA5_TYPE;
+      return DataSetItem::PCD_INPE_TYPE;
     case 3:
-      return DataSetItem::FIRE_POINTS_TYPE;
+      return DataSetItem::PCD_TOA5_TYPE;
     case 4:
+      return DataSetItem::FIRE_POINTS_TYPE;
+    case 5:
       return DataSetItem::DISEASE_OCCURRENCE_TYPE;
     default:
       return DataSetItem::UNKNOWN_TYPE;
@@ -247,6 +255,8 @@ terrama2::core::ToBool(DataSetItem::Status status)
 terrama2::core::Filter::ExpressionType
 terrama2::core::ToFilterExpressionType(uint64_t type)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (type)
   {
     case 2:

@@ -288,7 +288,6 @@ if(DOXYGEN_FOUND)
 endif()
 
 option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
-option(TERRAMA2_GUI_CORE_ENABLED "Build TerraMA2 GUI Core module?" ON)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_COLLECTOR_ENABLED "Build Collector module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
@@ -300,7 +299,9 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Application Server?" ON "TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
 
-CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CORE_ENABLED "Build TerraMA2 GUI Core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED;TERRAMA2_GUI_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration GUI?" ON "TERRAMA2_GUI_CORE_ENABLED" OFF)
 
@@ -346,14 +347,6 @@ configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Version.hpp.in
 # build modules
 #
 
-if(TERRAMA2_GUI_ADMIN_ENABLED)
-  add_subdirectory(terrama2_gui_admin)
-endif()
-
-if(TERRAMA2_GUI_CONFIG_ENABLED)
-  add_subdirectory(terrama2_gui_config)
-endif()
-
 if(TERRAMA2_MOD_CORE_ENABLED)
   add_subdirectory(terrama2_mod_core)
 endif()
@@ -380,6 +373,14 @@ endif()
 
 if(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED)
   add_subdirectory(terrama2_mod_ws_collector_appserver)
+endif()
+
+if(TERRAMA2_GUI_ADMIN_ENABLED)
+  add_subdirectory(terrama2_gui_admin)
+endif()
+
+if(TERRAMA2_GUI_CONFIG_ENABLED)
+  add_subdirectory(terrama2_gui_config)
 endif()
 
 if(TERRAMA2_DOXYGEN_ENABLED)
