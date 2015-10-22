@@ -320,14 +320,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
 
-        switch(provider.kind())
-        {
-          case terrama2::core::DataProvider::FILE_TYPE:
-            ui_->serverDataBasePath->setText(QString(provider.uri().c_str()));
-            break;
-          default:
-            ui_->connectionAddress->setText(QString(provider.uri().c_str()));
-        }
+        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
 
         ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
         ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));
@@ -424,17 +417,10 @@ void ConfigAppWeatherTab::onExportServerClicked()
     json["description"] = ui_->serverDescription->toPlainText();
 
     json["kind"] = ui_->connectionProtocol->currentText();
-    switch((terrama2::core::DataProvider::Kind) ui_->connectionProtocol->currentIndex())
-    {
-      case terrama2::core::DataProvider::FILE_TYPE:
-        json["path"] = ui_->serverDataBasePath->text();
-        break;
-      default:
-        json["address"] = ui_->connectionAddress->text();
-        json["port"] = ui_->connectionPort->text();
-        json["username"] = ui_->connectionUserName->text();
-        json["password"] = ui_->connectionPort->text();
-    }
+    json["address"] = ui_->connectionAddress->text();
+    json["port"] = ui_->connectionPort->text();
+    json["username"] = ui_->connectionUserName->text();
+    json["password"] = ui_->connectionPort->text();
 
     json["interval"] = ui_->serverIntervalData->text();
 
