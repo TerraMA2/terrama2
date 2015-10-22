@@ -314,8 +314,17 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         subTabs_[0]->setSelectedData(selectedItem->text(0));
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
-        ui_->connectionProtocol->setCurrentIndex(provider.kind());
-        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
+
+        switch(provider.kind())
+        {
+          case terrama2::core::DataProvider::FILE_TYPE:
+            ui_->serverDataBasePath->setText(QString(provider.uri().c_str()));
+            break;
+          default:
+            ui_->connectionAddress->setText(QString(provider.uri().c_str()));
+        }
+
+        ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
         ui_->serverActiveServer->setChecked(provider.status());
 
         subTabs_[0]->load();
@@ -355,8 +364,8 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
-                ui_->updateDataGridBtn->setVisible(true);
-                ui_->exportDataGridBtn->setVisible(true);
+                ui_->updateDataPointBtn->setVisible(true);
+                ui_->exportDataPointBtn->setVisible(true);
                 ui_->pointFormatDataDeleteBtn->setVisible(true);
                 break;
               case terrama2::core::DataSet::OCCURENCE_TYPE:
@@ -367,9 +376,9 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
-                ui_->updateDataGridBtn->setVisible(true);
-                ui_->exportDataGridBtn->setVisible(true);
-                ui_->pointFormatDataDeleteBtn->setVisible(true);
+                ui_->updateDataPointDiffBtn->setVisible(true);
+                ui_->exportDataPointDiffBtn->setVisible(true);
+                ui_->serverRemovePointDiffBtn->setVisible(true);
                 break;
               default:
               {

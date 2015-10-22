@@ -42,8 +42,8 @@ void ConfigAppWeatherServer::save()
 
   provider.setName(ui_->serverName->text().toStdString());
   provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
-  provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()));
-  provider.setUri(ui_->connectionAddress->text().toStdString());
+  provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+1));
+  provider.setUri(ui_->serverDataBasePath->text().toStdString());
   provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
   if (provider.id() > 0)

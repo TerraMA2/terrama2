@@ -12,6 +12,21 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   : ConfigAppTab(app, ui)
 {
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onDataSetBtnClicked()));
+  connect(ui_->serverRemovePointDiffBtn, SIGNAL(clicked()), SLOT(onRemoveOccurrenceBtnClicked()));
+
+  ui_->pointDiffFormatDataType->setEnabled(false);
+  ui_->pointDiffFormatDataUnit->setEnabled(false);
+  ui_->projectionPointDiffBtn->setEnabled(false);
+  ui_->pointDiffFormatDataPrefix->setEnabled(false);
+  ui_->pointDiffFormatDataUnit->setEnabled(false);
+  ui_->pointDiffFormatDataFrequency->setEnabled(false);
+  ui_->pointDiffFormatDataTimeZoneCmb->setEnabled(false);
+  ui_->pointDiffFormatDataDescription->setEnabled(false);
+  ui_->pointDiffFormatDataPath->setEnabled(false);
+  ui_->pointDiffFormatDataMask->setEnabled(false);
+  ui_->pointDiffFormatDataFormat->setEnabled(false);
+  ui_->intersectionBtn->setEnabled(false);
+  ui_->filterPointDiffBtn->setEnabled(false);
 }
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
@@ -57,7 +72,7 @@ void ConfigAppWeatherOccurrence::save()
     dataset.setProvider(provider.id());
     app_->getClient()->addDataSet(dataset);
     QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setIcon(0, QIcon::fromTheme("occurrence"));
+    item->setIcon(0, QIcon::fromTheme("ocurrence-data"));
     item->setText(0, ui_->pointDiffFormatDataName->text());
     ui_->weatherDataTree->currentItem()->addChild(item);
   }
@@ -80,4 +95,31 @@ void ConfigAppWeatherOccurrence::onDataSetBtnClicked()
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointDiffPage);
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
+}
+
+void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
+{
+  QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
+  if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
+  {
+    try
+    {
+      terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(currentItem->text(0).toStdString());
+
+      if (removeDataSet(dataset))
+      {
+        app_->getClient()->removeDataSet(dataset.id());
+        app_->getWeatherTab()->removeCachedDataSet(dataset);
+
+        QMessageBox::information(app_, tr("TerraMA2"), tr("DataSet Occurrence successfully removed!"));
+        delete currentItem;
+      }
+    }
+    catch(const terrama2::Exception& e)
+    {
+      const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+      QMessageBox::warning(app_, tr("TerraMA2"), *message);
+    }
+  }
+  ui_->cancelBtn->clicked();
 }
