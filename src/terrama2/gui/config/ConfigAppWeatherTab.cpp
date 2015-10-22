@@ -4,7 +4,6 @@
 #include "ProjectionDialog.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
-#include "../../core/ApplicationController.hpp"
 #include "../../core/Utils.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/DataProviderDAO.hpp"
@@ -63,6 +62,13 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Disable series button
   showDataSeries(false);
   hideDataSetButtons();
+
+  // disable menu buttons
+  ui_->showConsoleAct->setEnabled(false);
+  ui_->studyAct->setEnabled(false);
+  ui_->archivingAct->setEnabled(false);
+  ui_->terraMEPlayerAct->setEnabled(false);
+  ui_->refreshAct->setEnabled(false);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -89,16 +95,15 @@ void ConfigAppWeatherTab::load()
     {
       // temp code
       showDataSeries(true);
+      ui_->dataSeriesBtnGroupBox->hide();
       ui_->serverInsertPointBtn->setVisible(true);
       ui_->serverInsertGridBtn->setVisible(true);
       ui_->serverInsertPointDiffBtn->setVisible(true);
     }
-    else
-    {
-      hideDataSetButtons();
-    }
+    hideDataSetButtons();
 
-    ui_->importDataBtn->setVisible(true);
+    ui_->importServerBtn->setEnabled(false);
+    ui_->updateServerBtn->setEnabled(false);
 
     app_->getClient()->listDataSet(datasets);
     for(std::vector<terrama2::core::DataProvider>::iterator it = providers.begin(); it != providers.end(); ++it)
@@ -314,9 +319,18 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         subTabs_[0]->setSelectedData(selectedItem->text(0));
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
-        ui_->connectionProtocol->setCurrentIndex(provider.kind());
-        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
-        ui_->serverActiveServer->setChecked(provider.status());
+
+        switch(provider.kind())
+        {
+          case terrama2::core::DataProvider::FILE_TYPE:
+            ui_->serverDataBasePath->setText(QString(provider.uri().c_str()));
+            break;
+          default:
+            ui_->connectionAddress->setText(QString(provider.uri().c_str()));
+        }
+
+        ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
+        ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));
 
         subTabs_[0]->load();
 
@@ -355,8 +369,8 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
-                ui_->updateDataGridBtn->setVisible(true);
-                ui_->exportDataGridBtn->setVisible(true);
+                ui_->updateDataPointBtn->setVisible(true);
+                ui_->exportDataPointBtn->setVisible(true);
                 ui_->pointFormatDataDeleteBtn->setVisible(true);
                 break;
               case terrama2::core::DataSet::OCCURENCE_TYPE:
@@ -367,9 +381,9 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
-                ui_->updateDataGridBtn->setVisible(true);
-                ui_->exportDataGridBtn->setVisible(true);
-                ui_->pointFormatDataDeleteBtn->setVisible(true);
+                ui_->updateDataPointDiffBtn->setVisible(true);
+                ui_->exportDataPointDiffBtn->setVisible(true);
+                ui_->serverRemovePointDiffBtn->setVisible(true);
                 break;
               default:
               {

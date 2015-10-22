@@ -43,6 +43,14 @@ namespace Ui
   class ConfigAppForm;
 }
 
+namespace terrama2
+{
+  namespace core
+  {
+    class DataSet;
+  }
+}
+
 class ConfigAppTab : public QObject, private boost::noncopyable
 {
   Q_OBJECT
@@ -89,6 +97,8 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     virtual void setChanged(bool state);
 
     virtual void setSelectedData(const QString selectedData);
+
+    virtual bool removeDataSet(const terrama2::core::DataSet&);
 
 public slots:
 

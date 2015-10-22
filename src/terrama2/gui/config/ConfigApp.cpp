@@ -137,8 +137,13 @@ void ConfigApp::tabChangeRequested(int index)
       default:
       {
         //TODO: tab handling
+        pimpl_->ui_->RiskDataTab->setEnabled(false);
+        pimpl_->ui_->AditionalDataTab->setEnabled(false);
+        pimpl_->ui_->tab->setEnabled(false);
+        pimpl_->ui_->AnalysisTab->setEnabled(false);
+        pimpl_->ui_->UsersTab->setEnabled(false);
+        pimpl_->ui_->BulletinsTab->setEnabled(false);
       }
-//        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
     }
   }
 }

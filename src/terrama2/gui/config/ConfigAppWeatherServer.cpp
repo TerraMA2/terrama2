@@ -3,7 +3,6 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "../core/Utils.hpp"
-#include "../../core/ApplicationController.hpp"
 #include "../../core/DataManager.hpp"
 #include "Exception.hpp"
 #include "../../core/Utils.hpp"
@@ -19,11 +18,12 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onTextEditChanged()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
+  // TODO: implement onchange for specific fields below
+//  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
+//  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
+//  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
   connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-  connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
+//  connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -42,8 +42,8 @@ void ConfigAppWeatherServer::save()
 
   provider.setName(ui_->serverName->text().toStdString());
   provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
-  provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()));
-  provider.setUri(ui_->connectionAddress->text().toStdString());
+  provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+1));
+  provider.setUri(ui_->serverDataBasePath->text().toStdString());
   provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
   if (provider.id() > 0)
