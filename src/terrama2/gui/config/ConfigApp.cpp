@@ -32,7 +32,7 @@
 #include "ConfigApp.hpp"
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
-#include "../../core/ApplicationController.hpp"
+#include "../core/ConfigManager.hpp"
 
 // TerraMA2 Tab controls
 #include "ConfigAppWeatherTab.hpp"
@@ -61,6 +61,7 @@ struct ConfigApp::Impl
 ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   : QMainWindow(parent, flags),
     pimpl_(new ConfigApp::Impl), currentTabIndex_(0),
+    configManager_(nullptr),
     weatherTab_(nullptr)
 {
 // Find TerraMA2 icon theme library
@@ -92,9 +93,6 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
   pimpl_->ui_->setupUi(this);
 
-// Initialize services
-  services_ = new ServiceHandler(this);
-
   weatherTab_.reset(new ConfigAppWeatherTab(this, pimpl_->ui_));
 
 // Connect tabs to changing index
@@ -103,11 +101,11 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
   // Disable form until load terrama2 config file
   pimpl_->ui_->centralwidget->setEnabled(false);
+
 }
 
 ConfigApp::~ConfigApp()
 {
-  delete services_;
   delete pimpl_;
 }
 
@@ -137,7 +135,10 @@ void ConfigApp::tabChangeRequested(int index)
         weatherTab_->askForChangeTab(index);
         break;
       default:
-        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
+      {
+        //TODO: tab handling
+      }
+//        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
     }
   }
 }
@@ -150,14 +151,23 @@ void ConfigApp::openRequested()
                                                ".", tr("TerraMA2 (*.terrama2)"));
     if (!file.isEmpty())
     {
-      services_->loadConfiguration(file);
+      configManager_.reset(new ConfigManager(this));
+      configManager_->loadConfiguration(file);
 
-      terrama2::core::ApplicationController::getInstance().loadProject(file.toStdString());
+      if (configManager_->getCollection()->address_.isEmpty())
+        return;
 
       pimpl_->ui_->centralwidget->setEnabled(true);
 
-      weatherTab_->load();
+      if (client_ != nullptr)
+        client_.clear();
 
+      std::string destination = "http://" + configManager_->getCollection()->address_.toStdString() + ":";
+      destination += std::to_string(configManager_->getCollection()->servicePort_);
+
+      client_.reset(new terrama2::ws::collector::Client(destination));
+
+      weatherTab_->load();
     }
   }
   catch(const terrama2::Exception& e)
@@ -170,4 +180,9 @@ void ConfigApp::openRequested()
 QSharedPointer<ConfigAppWeatherTab> ConfigApp::getWeatherTab() const
 {
   return weatherTab_;
+}
+
+QSharedPointer<terrama2::ws::collector::Client> ConfigApp::getClient() const
+{
+  return client_;
 }

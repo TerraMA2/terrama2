@@ -20,29 +20,34 @@
 */
 
 /*!
-  \file terrama2/gui/config/ServiceHandler.cpp
+  \file terrama2/gui/config/ConfigAppWeatherPcd.hpp
 
-  \brief This class contains all TerraMA2 Services implementation
+  \brief Class responsible for handling PCD data inside WeatherTab
 
   \author Raphael Willian da Costa
 */
 
-// TerraMA2
-#include "ServiceHandler.hpp"
-#include "../core/ConfigManager.hpp"
 
-ServiceHandler::ServiceHandler(QMainWindow* app)
-  : configManager_(new ConfigManager(app))
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
+
+#include "ConfigAppTab.hpp"
+
+class ConfigAppWeatherPcd : public ConfigAppTab
 {
+  Q_OBJECT
+  public:
+    ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherPcd();
 
-}
+    void load();
+    bool validate();
+    void save();
+    void discardChanges(bool restore_data);
 
-ServiceHandler::~ServiceHandler()
-{
+  private slots:
+    void onInsertPointBtnClicked();
+    void onDataPointBtnClicked();
+};
 
-}
-
-void ServiceHandler::loadConfiguration(QString filepath)
-{
-  configManager_->loadConfiguration(filepath);
-}
+#endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__

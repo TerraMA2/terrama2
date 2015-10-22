@@ -20,43 +20,33 @@
 */
 
 /*!
-  \file terrama2/gui/config/ServiceHandler.cpp
+  \file terrama2/gui/config/ConfigAppWeatherOccurrence.hpp
 
-  \brief This class contains all TerraMA2 Services
+  \brief Class responsible for handling Occurrence data set inside WeatherTab
 
   \author Raphael Willian da Costa
 */
 
-#ifndef __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
-#define __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
 
-// TerraMA2
-#include <QString>
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
 
-// Boost
-#include <boost/noncopyable.hpp>
+#include "ConfigAppTab.hpp"
 
-// QT
-#include <QMainWindow>
-#include <QSharedPointer>
-
-
-// Forward declaration
-class ConfigManager;
-
-class ServiceHandler
+class ConfigAppWeatherOccurrence : public ConfigAppTab
 {
+  Q_OBJECT
   public:
-    ServiceHandler(QMainWindow* app);
+    ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherOccurrence();
 
-    ~ServiceHandler();
+    void load();
+    bool validate();
+    void save();
+    void discardChanges(bool restore_data);
 
-    void loadConfiguration(QString filepath);
-
-  private:
-    QSharedPointer<ConfigManager> configManager_;
-    // Pointer for each service
-    //Collector* coll;
+  private slots:
+    void onDataSetBtnClicked();
 };
 
-#endif // __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
+#endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__

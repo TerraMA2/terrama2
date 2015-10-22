@@ -83,8 +83,17 @@ namespace terrama2
           */
           void ping(std::string &answer);
 
+
           /*!
             \brief
+
+            \param
+
+            \exception pingError
+
+            \return
+          */
+          void shutdown();
 
 
           /*!
