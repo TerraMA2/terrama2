@@ -264,10 +264,11 @@ void AdminApp::openRequested()
 
     configManager_->loadConfiguration(filename);
 
-    QFileInfo info(filename);
-    nameConfig_ = info.baseName(); // pega somente o nome do arquivo
+// Get file name
+    QFileInfo info(filename);    
+    nameConfig_ = info.baseName();
 
-// fills fields
+// Fills fields
     fillForm();
 
     pimpl_->ui_->configListWidget->addItem(configManager_->getDatabase()->name_);
@@ -332,75 +333,7 @@ void AdminApp::renameRequested()
 // Save file
 void AdminApp::saveRequested()
 { 
- /* QString err;
-  if (!validateDbData(err))
-  {
-    if(!err.isEmpty())
-     {
-      dataChanged_ = true;
-      QMessageBox::warning(this, tr("Error validating data to save..."), err);
-      return;
-     }
-  }
-  QString newfilename;
-
-  if (newData_) // Save new file or SaveAs file
-  {
-    newfilename = QFileDialog::getSaveFileName(this, tr("Enter the name for the configuration"),
-                                                ".", tr("Configuration (*.terrama2)"));
-    if(newfilename.isEmpty())
-      return;
-
-    if(!newfilename.endsWith(".terrama2"))
-         newfilename.append(".terrama2");
-
-   }
-   else
-   { // Save file changed
-     QJsonObject fileSeleted = configManager_->getfiles().take(nameConfig_);
-     newfilename = fileSeleted.take("path").toString();
-   }
-
-   QJsonObject metadata;
-   QString version = "4.0.0-alpha1";
-   QString params = "%c";
-   QString cmd = "coleta.exe";
-
-   metadata["is_study"] = pimpl_->ui_->dbStudyChk->isChecked();
-   metadata["name"] = nameConfig_;
-   metadata["version"] = version;
-   metadata["parameters"] = params;
-   metadata["command"] = cmd;
-
-   for(QSharedPointer<AdminAppTab> tab: tabs_)
-   {
-     QMap<QString, QJsonObject> tabJson = tab->toJson();
-     metadata[tabJson.firstKey()] = tabJson.first();
-   }
-
-   QFile saveFile(newfilename);
-
-   saveFile.open(QIODevice::WriteOnly);
-
-   QJsonDocument jsondoc(metadata);
-
-   saveFile.write(jsondoc.toJson());
-
-   saveFile.close();
-
-   metadata.insert("path",newfilename);
-   configManager_->insertFile(nameConfig_, metadata);
-
-   QMessageBox::information(this, tr("TerraMA2"), tr("Configuration successfully saved!"));
-
-   pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
-   pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
-   pimpl_->ui_->saveBtn->setEnabled(false);
-   pimpl_->ui_->saveAct->setEnabled(false);
-
-   dataChanged_ = false;
-*/
-    save();
+  save();
 }
 
 ConfigManager* AdminApp::getConfigManager()
@@ -649,7 +582,7 @@ void AdminApp::removeRequested()
 
   delete pimpl_->ui_->configListWidget->currentItem();
 
-// Atualiza a lista
+// Refresh list
   refresh();
 
   newData_= false;

@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_GUI_ADMIN_SERVICESDIALOG_HPP__
 #define __TERRAMA2_GUI_ADMIN_SERVICESDIALOG_HPP__  
 
+// TerraMA2
+#include "../../ws/collector/client/Client.hpp"
+
 // QT
 #include "ui_ServicesDialogForm.h"
 
@@ -46,12 +49,8 @@ class ServicesDialog : public QDialog, private boost::noncopyable
  Q_OBJECT
 
 public:
-
   ServicesDialog(AdminApp *adminapp, ConfigManager&, QString nameConfig);
   ~ServicesDialog();
-  //void setLine(int line, const QString& module, const CommonData& data);
- // void getLine(int line, CommonData& data);
- // void getSelectedLines(QList<int>& list);
 
 private slots:
   void verifyRequested();
@@ -65,20 +64,18 @@ private:
   void setLine(int line, const QString& module, const CommonData& data);
   void getLine(int line, CommonData& data);
   void getSelectedLines(QList<int>& list);
-
-  void setDialogData(QString nameConfig);
-  void getDialogData(QString nameConfig);
-
+  void setDialogData(QString nameConfig); 
   bool runCmd(int line, QString cmd, QString param, QString& err);
 
  struct Impl;
  
  Impl* pimpl_;  //!< Pimpl idiom.
 
- ConfigManager& configManager_; //!< Gerenciador de configurações
- QString idNameConfig_; //!< identificador da cfg atual no gerenciador de configurações
- bool changed_; //!< Flag indicando se os dados foram ou não alterados
+ ConfigManager& configManager_; //!< Configuration Manager
+ QString idNameConfig_; //!<  current identifier in config settings manager
+ bool changed_; //!< Flag indicating the data have been changed
  AdminApp* adminapp_;
+ terrama2::ws::collector::Client* client;
 };
 
 
