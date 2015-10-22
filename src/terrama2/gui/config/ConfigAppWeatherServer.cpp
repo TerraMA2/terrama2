@@ -18,6 +18,7 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onTextEditChanged()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
+  // TODO: implement onchange for specific fields below
 //  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
 //  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
 //  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
