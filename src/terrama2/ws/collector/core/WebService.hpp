@@ -44,6 +44,17 @@
 */
 int Web__ping(std::string &answer);
 
+
+/*!
+  \brief gSOAP Test Ping, write in 'answer' and return SOAP_OK if executed whitout error.
+
+  \param answer Referenced string where will be the ping answer after method execution
+
+  \return Integer that inform that the method was executed whitout error.
+*/
+int Web__shutdown(void);
+
+
 // VINICIUS: write the methods documentation
 /*!
   \brief

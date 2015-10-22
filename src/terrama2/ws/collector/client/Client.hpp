@@ -89,6 +89,18 @@ namespace terrama2
 
             \param
 
+            \exception pingError
+
+            \return
+          */
+          void shutdown();
+
+
+          /*!
+            \brief
+
+            \param
+
             \exception AddingDataProviderError
 
             \return

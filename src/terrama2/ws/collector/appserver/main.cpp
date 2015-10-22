@@ -37,6 +37,7 @@
 
 // TerraMA2
 #include "soapWebService.h"
+#include "../core/Codes.hpp"
 #include "../../../core/ApplicationController.hpp"
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Utils.hpp"
@@ -44,7 +45,7 @@
 
 int main(int argc, char* argv[])
 {
-
+  // VINICIUS: get the port number from the project file
   // check if the parameters was passed correctly
     if(argc < 3)
     {
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
 
   te::plugin::PluginManager::getInstance().loadAll();
 
-  std::cerr << "Loading TerraMA2 Project..." << std::endl;
+  std::cout << "Loading TerraMA2 Project..." << std::endl;
 
   if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[2]))
   {
@@ -88,28 +89,37 @@ int main(int argc, char* argv[])
 
   if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, std::stoi(argv[1]), 100)))
   {
-    std::cerr << "Webservice Started, running on port " << argv[1] << std::endl;
+    std::cout << "Webservice Started, running on port " << argv[1] << std::endl;
 
     for (;;)
     {
       if (!soap_valid_socket(server.accept()))
         break;
 
-      server.serve();
+      int server_response = server.serve();
+
+      if(server_response == terrama2::ws::collector::core::EXIT_REQUESTED)
+        break;
+
+      if(server_response != SOAP_OK)
+      {
+        server.soap_stream_fault(std::cerr);
+      }
+
       server.destroy();
     }
   }
 
-  server.soap_stream_fault(std::cerr);
+  std::cout << "Shutdown Webservice..." << std::endl;
 
-  std::cerr << "Closing Webservice..." << std::endl;
+  server.destroy();
   TerraLib::getInstance().finalize();
 
   terrama2::core::DataManager::getInstance().unload();
 
   terrama2::core::ApplicationController::getInstance().getDataSource()->close();
 
-  std::cerr << "Webservice finished!" << std::endl;
+  std::cout << "Webservice finished!" << std::endl;
 
   return EXIT_SUCCESS;
 }
