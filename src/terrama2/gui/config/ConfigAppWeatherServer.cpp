@@ -46,7 +46,7 @@ void ConfigAppWeatherServer::save()
   provider.setUri(ui_->connectionAddress->text().toStdString());
   provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
-  if (provider.id() >= 1)
+  if (provider.id() > 0)
   {
     app_->getClient()->updateDataProvider(provider);
 
