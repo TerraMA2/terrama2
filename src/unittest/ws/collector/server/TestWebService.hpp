@@ -93,6 +93,7 @@ private slots:
      */
     void testUpdateDataProvider();
 
+
     /*!
      * \brief
      */

@@ -199,8 +199,7 @@ void TestClient::testRemoveDataProvider()
 
     QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
-    // VINICIUS: code to remove a data provider in core is in SEGMENTATION FAULT
-    //wsClient_->removeDataProvider(dataProvider.id());
+    wsClient_->removeDataProvider(dataProvider.id());
   }
   catch(terrama2::Exception &e)
   {
