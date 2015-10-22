@@ -28,6 +28,7 @@ include_directories (
   ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_client/gsoap"
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -48,7 +49,8 @@ add_executable(terrama2_admin ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERR
 
 target_link_libraries(terrama2_admin terrama2_gui_core 
                                      terralib_mod_common 
-                                     terralib_mod_plugin)
+                                     terralib_mod_plugin
+                                     terrama2_mod_ws_collector_client)
 
 qt5_use_modules(terrama2_admin Widgets Network)
 
