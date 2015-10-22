@@ -28,10 +28,11 @@
 */
 
 #include "TsDataSetTimer.hpp"
+#include "Utils.hpp"
 
-#include <terrama2/core/DataSet.hpp>
 #include <terrama2/collector/DataSetTimer.hpp>
 #include <terrama2/collector/Exception.hpp>
+#include <terrama2/core/DataSet.hpp>
 
 //Qt
 #include <QtTest>
@@ -42,37 +43,54 @@
 
 void TsDataSetTimer::TestNullDataSet()
 {
-  terrama2::core::DataSet nullDataSet;
-
   try
   {
+    terrama2::core::DataSet nullDataSet;
+
     terrama2::collector::DataSetTimer nullDataSetTimer(nullDataSet);
 
-    QFAIL("Should not be here!");
+    QFAIL(UNEXPECTED_BEHAVIOR);
   }
   catch(terrama2::collector::InvalidDataSetError& e)
   {
     return;
   }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
   catch(...)
   {
-    QFAIL("Should not be here!");
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
 
-  QFAIL("Should not be here!");
+  QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
 void TsDataSetTimer::TestTimerSignalEmit()
 {
-  terrama2::core::DataSet dataSet;
-  te::dt::TimeDuration freq(0,0,5);
-  dataSet.setDataFrequency(freq);
-  terrama2::collector::DataSetTimer dataSetTimer(dataSet);
+  try
+  {
+    terrama2::core::DataSet dataSet("dummy", terrama2::core::DataSet::PCD_TYPE, 1);
+    te::dt::TimeDuration freq(0,0,5);
+    dataSet.setDataFrequency(freq);
+    terrama2::collector::DataSetTimer dataSetTimer(dataSet);
 
-  qRegisterMetaType<uint64_t>("uint64_t");
-  QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
+    qRegisterMetaType<uint64_t>("uint64_t");
+    QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
 
-  QVERIFY(spy.wait(10000));
+    QVERIFY(spy.wait(10000));
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+  catch(...)
+  {
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
 }
 
 

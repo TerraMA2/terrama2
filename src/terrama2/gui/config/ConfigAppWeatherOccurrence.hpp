@@ -47,6 +47,7 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
 
   private slots:
     void onDataSetBtnClicked();
+    void onRemoveOccurrenceBtnClicked();
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__

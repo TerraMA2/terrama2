@@ -36,7 +36,7 @@
 #include <boost/log/trivial.hpp>
 
 
-terrama2::collector::Collector::Collector(const terrama2::core::DataProvider dataProvider, QObject *parent)
+terrama2::collector::Collector::Collector(const core::DataProvider &dataProvider, QObject *parent)
   : QObject(parent),
     dataProvider_(dataProvider)
 {
