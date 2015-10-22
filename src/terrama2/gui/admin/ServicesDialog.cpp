@@ -83,6 +83,10 @@ ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QS
 
  pimpl_->ui_->closeServiceBtn->setEnabled(false);
 
+ std::string host = "http://localhost:" + std::to_string(configManager_.getCollection()->servicePort_);
+
+ client = new terrama2::ws::collector::Client(host);
+
  setDialogData(nameConfig);
 }
 
@@ -211,10 +215,6 @@ void ServicesDialog::verifyRequested()
   {
     try
     {
-      std::string host = "http://localhost:" + std::to_string(configManager_.getCollection()->servicePort_);
-
-      client = new terrama2::ws::collector::Client(host);
-
       for(int i=0; i<size; i++)
       {
 
@@ -231,14 +231,9 @@ void ServicesDialog::verifyRequested()
     }
     catch(const terrama2::Exception& e)
     {
-      QString messageError = "TerraMA2 finished with errors!\n\n";
-
-      if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
-      {
-        messageError.append(d);
-      }
-
-      QMessageBox::critical(nullptr, "TerraMA2", messageError);
+      QTableWidgetItem* item = pimpl_->ui_->servicesTable->item(lines[0], 0);
+      item->setIcon(QIcon::fromTheme("ping-error"));
+      QCoreApplication::processEvents();
     }
     catch(...)
     {
@@ -263,6 +258,7 @@ void ServicesDialog::saveRequested()
 bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
 {
 // Check if the command exists and is executable
+// TODO: verify function for Windows;
   cmd = "terrama2_mod_ws_collector_appserver";
   QFileInfo info(cmd);
   QString dir = QCoreApplication::applicationDirPath();
@@ -289,7 +285,9 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
        %m = Nome do módulo [analise, coleta, planos ou notificacao]
        %a = Nome da máquina
   */
+
   {
+
     static const char* module_names[] = {"coleta", "planos", "notificacao", "animacao", "analise"};
 
     QString address;    
@@ -312,12 +310,23 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
   }
 
 // Execute
-  QString cmdline = "./" + cmd + " " + QString::number(configManager_.getCollection()->servicePort_) + " " + param;
-
-  if(!QProcess::startDetached(cmdline))
+  if (param == "")
   {
-    err = tr("Error executing command: %1").arg(cmdline);
-    return false;
+   QMessageBox::warning(this, tr("Error..."),
+                              tr("Parameters not exists!."));
+  return false;
+  }
+  else
+  {
+    QString cmdline = "./" + cmd + " " + QString::number(configManager_.getCollection()->servicePort_) + " " + param;
+
+    pimpl_->ui_->closeServiceBtn->setEnabled(true);
+
+    if(!QProcess::startDetached(cmdline))
+    {
+      err = tr("Error executing command: %1").arg(cmdline);
+      return false;
+    }
   }
   return true;
 }
@@ -408,27 +417,29 @@ void ServicesDialog::closeRequested()
   QString err;
   int errCount = 0;
 
-  std::string host = "http://localhost:" + std::to_string(configManager_.getCollection()->servicePort_);
-
-  client = new terrama2::ws::collector::Client(host);
-
-  bool ok;
-// TODO: create the function in close connection module SOAP
-  for(int i=0; i<size; i++)
+  if (client!= nullptr)
   {
-     // client->close(answer);
-
-     // if (answer.empty())
-     //   ok = false;
-     // else ok = true;
-
-    if(!ok)
+    try
     {
-      QString modname = pimpl_->ui_->servicesTable->item(lines[i], 1)->text();
-      err += tr("Error sending termination request to the module %1\n").arg(modname);
-      errCount++;
+      client->shutdown();
+    }
+    catch(const terrama2::Exception& e)
+    {
+      QString messageError = "TerraMA2 finished with errors!\n\n";
+
+      if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
+      {
+        messageError.append(d);
+      }
+
+      QMessageBox::critical(nullptr, "TerraMA2", messageError);
+    }
+    catch(...)
+    {
+      throw;
     }
   }
+
   QApplication::restoreOverrideCursor();
 
 // Shows error messages or success
@@ -452,7 +463,7 @@ void ServicesDialog::closeRequested()
   else
   {
     QMessageBox::information(this, tr("Completed request"),
-                                   tr("Solicitações de finalização enviadas com sucesso.\n\n"
+                                   tr("Termination requests sent successfully.\n\n"
                                       "Use the tool 'Check Connection' to test\n"
                                       "if all services properly terminated."));
   }
