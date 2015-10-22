@@ -32,7 +32,7 @@
 #include "ConfigApp.hpp"
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
-#include "../../core/ApplicationController.hpp"
+#include "../core/ConfigManager.hpp"
 
 // TerraMA2 Tab controls
 #include "ConfigAppWeatherTab.hpp"
@@ -61,8 +61,8 @@ struct ConfigApp::Impl
 ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   : QMainWindow(parent, flags),
     pimpl_(new ConfigApp::Impl), currentTabIndex_(0),
+    configManager_(nullptr),
     weatherTab_(nullptr)
-    //client_() // Harded code
 {
 // Find TerraMA2 icon theme library
   std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
@@ -93,9 +93,6 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
   pimpl_->ui_->setupUi(this);
 
-// Initialize services
-  services_ = new ServiceHandler(this);
-
   weatherTab_.reset(new ConfigAppWeatherTab(this, pimpl_->ui_));
 
 // Connect tabs to changing index
@@ -109,7 +106,6 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
 ConfigApp::~ConfigApp()
 {
-  delete services_;
   delete pimpl_;
 }
 
@@ -155,21 +151,23 @@ void ConfigApp::openRequested()
                                                ".", tr("TerraMA2 (*.terrama2)"));
     if (!file.isEmpty())
     {
-      services_->loadConfiguration(file);
+      configManager_.reset(new ConfigManager(this));
+      configManager_->loadConfiguration(file);
 
-      terrama2::core::ApplicationController::getInstance().loadProject(file.toStdString());
+      if (configManager_->getCollection()->address_.isEmpty())
+        return;
 
       pimpl_->ui_->centralwidget->setEnabled(true);
 
       if (client_ != nullptr)
         client_.clear();
 
-      // TODO: temp code for dev. It will get port from file future commits
-      client_.reset(new terrama2::ws::collector::Client("http://localhost:17000"));
+      std::string destination = "http://" + configManager_->getCollection()->address_.toStdString() + ":";
+      destination += std::to_string(configManager_->getCollection()->servicePort_);
+
+      client_.reset(new terrama2::ws::collector::Client(destination));
 
       weatherTab_->load();
-
-      // TODO: load configuration to the client
     }
   }
   catch(const terrama2::Exception& e)

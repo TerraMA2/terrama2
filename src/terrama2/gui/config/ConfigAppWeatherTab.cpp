@@ -171,7 +171,7 @@ void ConfigAppWeatherTab::save()
     if (tab->isActive())
     {
       if (!tab->validate())
-        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+        throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
       tab->save();
       showDataSeries(true);
       discardChanges(false);
@@ -234,7 +234,7 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
   {
     QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
     if (selectedItem == nullptr || selectedItem->parent() == nullptr)
-      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(app_, tr("TerraMA2 Remove Data Provider"),
@@ -306,7 +306,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         terrama2::core::DataProvider provider = getProvider(selectedItem->text(0).toStdString());
 
         if (provider.id() == 0)
-          throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
+          throw terrama2::gui::DataProviderError() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
@@ -380,7 +380,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
           }
         }
 
-        throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
+        throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
 
       }
     }
@@ -403,7 +403,7 @@ void ConfigAppWeatherTab::onExportServerClicked()
   {
     QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
     if (selectedItem == nullptr || selectedItem->parent() == nullptr)
-      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
 
     QJsonObject json;
     json["name"] = ui_->serverName->text();

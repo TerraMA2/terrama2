@@ -33,7 +33,6 @@
 
 // TerraMA2
 #include "ui_ConfigAppForm.h"
-#include "ServiceHandler.hpp"
 
 // TerraMA2 Services
 #include "../../ws/collector/client/Client.hpp"
@@ -48,6 +47,7 @@
 
 class ConfigAppTab;
 class ConfigAppWeatherTab;
+class ConfigManager;
 
 class ConfigApp : public QMainWindow, private  boost::noncopyable
 {
@@ -95,11 +95,11 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
 
     int currentTabIndex_; //!< index of active tab
 
-    ServiceHandler* services_; //!< attribute for handling terrama2 services
+    QSharedPointer<ConfigManager> configManager_; //! It contains metadata from terrama2 administration file
 
     QSharedPointer<ConfigAppWeatherTab> weatherTab_; //! Attribute for handling WeatherTab
 
-    QSharedPointer<terrama2::ws::collector::Client> client_;
+    QSharedPointer<terrama2::ws::collector::Client> client_;  //! gsoap collector client
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

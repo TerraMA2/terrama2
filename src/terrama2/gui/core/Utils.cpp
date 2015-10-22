@@ -94,7 +94,7 @@ void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QJsonObj
   QString fileDestination = QFileDialog::getSaveFileName(appFocus, QObject::tr("TerraMA2 Export Data Provider"));
   if (fileDestination.isEmpty())
   {
-    throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
+    throw terrama2::gui::FileError() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
   }
 
   QDir dir(fileDestination);
