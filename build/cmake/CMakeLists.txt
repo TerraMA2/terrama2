@@ -203,7 +203,7 @@ include(terrama2_macros.cmake)
 # first check of libraries
 #
 
-find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools Test)
+find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools Sql Test)
 
 if(NOT Qt5_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Qt 5 libraries!")
