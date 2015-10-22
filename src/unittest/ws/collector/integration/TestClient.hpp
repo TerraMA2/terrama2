@@ -110,6 +110,12 @@ private slots:
     /*!
      * \brief
      */
+    void testUpdateDataProviderWrongID();
+
+
+    /*!
+     * \brief
+     */
     void testFindDataProvider();
 
 
@@ -187,6 +193,11 @@ private slots:
      */
     void testListDataSet();
 
+
+    /*!
+     * \brief
+     */
+    void testShutdownWebService();
 
     //******End of Test functions****
 

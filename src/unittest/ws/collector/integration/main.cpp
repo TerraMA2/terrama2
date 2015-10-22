@@ -36,8 +36,10 @@
 
 int main(int argc, char **argv)
 {
+  // VINICIUS: use 'port' to set server and client
+  int port = 1989;
 
-// Define SERVER if you are running a server in 1989 port
+// Define SERVER if you are running a server on seted port
 //#define SERVER server
 
 #ifndef SERVER

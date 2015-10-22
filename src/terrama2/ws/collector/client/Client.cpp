@@ -30,8 +30,10 @@
 // TerraMA2
 #include "Client.hpp"
 #include "Exception.hpp"
-#include "../core/Utils.hpp"
 #include "Web.nsmap"
+#include "../core/Codes.hpp"
+#include "../core/Utils.hpp"
+
 
 terrama2::ws::collector::Client::Client(const std::string url)
 {
@@ -56,6 +58,17 @@ void terrama2::ws::collector::Client::ping(std::string &answer)
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 
     throw client::PingError() << ErrorDescription(errorMessage.c_str());
+  }
+}
+
+
+void terrama2::ws::collector::Client::shutdown()
+{
+  if(wsClient_->send_shutdown() != SOAP_OK || wsClient_->recv_shutdown_empty_response() != SOAP_OK)
+  {
+    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+
+    throw client::ShutdownError() << ErrorDescription(errorMessage.c_str());
   }
 }
 
@@ -155,7 +168,7 @@ void terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
 
 void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 {
-  if(wsClient_->removeDataSet(id) != SOAP_OK || wsClient_->recv_removeDataSet_empty_response() != SOAP_OK)
+  if(wsClient_->send_removeDataSet(id) != SOAP_OK || wsClient_->recv_removeDataSet_empty_response() != SOAP_OK)
   {
     std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
 

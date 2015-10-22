@@ -32,12 +32,13 @@
 #include <vector>
 
 // TerraMA2
+#include "soapWebService.h"
+#include "Web.nsmap"
+#include "../core/Codes.hpp"
 #include "../core/Utils.hpp"
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Exception.hpp"
 
-#include "soapWebService.h"
-#include "Web.nsmap"
 
 bool Reload()
 {
@@ -65,6 +66,16 @@ int WebService::ping(std::string &answer)
 {
   answer = "TerraMA2 pong!";
   return SOAP_OK;
+}
+
+
+int WebService::shutdown()
+{
+  std::cout << "Received shutdown request." << std::endl;
+
+  send_shutdown_empty_response(SOAP_OK); // SOAP_OK: return HTTP 202 ACCEPTED
+
+  return terrama2::ws::collector::core::EXIT_REQUESTED;
 }
 
 
