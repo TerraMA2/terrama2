@@ -3,6 +3,9 @@
 #include "ConfigApp.hpp"
 #include "Exception.hpp"
 
+
+#include "../../core/DataSet.hpp"
+
 // QT
 #include <QMessageBox>
 
@@ -94,4 +97,23 @@ void ConfigAppTab::setChanged(bool state)
 void ConfigAppTab::setSelectedData(const QString selectedData)
 {
   selectedData_ = selectedData;
+}
+
+bool ConfigAppTab::removeDataSet(const terrama2::core::DataSet& dataset)
+{
+  QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
+  if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
+  {
+    if (dataset.id() == 0)
+      throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("Invalid dataset selected"));
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(app_, tr("TerraMA2"),
+                                  tr("Would you like to remove dataset?"),
+                                  QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                  QMessageBox::Yes);
+
+    return reply == QMessageBox::Yes;
+  }
+  return false;
 }

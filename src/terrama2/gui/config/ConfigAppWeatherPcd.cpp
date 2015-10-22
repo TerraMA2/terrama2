@@ -14,6 +14,25 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 {
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->pointFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onDataPointBtnClicked()));
+  ui_->pointFormatDataType->setEnabled(false);
+  ui_->projectionPointBtn->setEnabled(false);
+  ui_->pointFormatDataInfluenceCmb->setEnabled(false);
+  ui_->pointFormatDataThemeCmb->setEnabled(false);
+  ui_->pointFormatDataFrequency->setEnabled(false);
+  ui_->pointFormatDataAttributeCmb->setEnabled(false);
+  ui_->pointFormatDataDescription->setEnabled(false);
+  ui_->pointFormatDataTimeZoneCmb->setEnabled(false);
+  ui_->pointFormatDataPrefix->setEnabled(false);
+  ui_->pointFormatDataUnit->setEnabled(false);
+  ui_->pointFormatSurfaceConfigBtn->setEnabled(false);
+  ui_->pointFormatDataPath->setEnabled(false);
+  ui_->pointFormatDataMask->setEnabled(false);
+  ui_->pointFormatDataFormat->setEnabled(false);
+  ui_->btnPointPCDInsertFileNameLocation->setEnabled(false);
+  ui_->pointParamsGbx->setEnabled(false);
+
+  ui_->updateDataPointBtn->setEnabled(false);
+  ui_->exportDataPointBtn->setEnabled(false);
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -88,25 +107,16 @@ void ConfigAppWeatherPcd::onDataPointBtnClicked()
   QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
   {
-    // delete from db
     try
     {
       terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(currentItem->text(0).toStdString());
 
-      if (dataset.id() == 0 || dataset.kind() != terrama2::core::DataSet::PCD_TYPE)
-        throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("Invalid PCD dataset selected"));
-
-      QMessageBox::StandardButton reply;
-      reply = QMessageBox::question(app_, tr("TerraMA2"),
-                                    tr("Would you like to try save before cancel?"),
-                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                                    QMessageBox::Yes);
-      if (reply == QMessageBox::Yes)
+      if (removeDataSet(dataset))
       {
         app_->getClient()->removeDataSet(dataset.id());
         app_->getWeatherTab()->removeCachedDataSet(dataset);
 
-        QMessageBox::warning(app_, tr("TerraMA2"), tr("DataSet PCD successfully removed!"));
+        QMessageBox::information(app_, tr("TerraMA2"), tr("DataSet PCD successfully removed!"));
         delete currentItem;
       }
     }
@@ -116,4 +126,5 @@ void ConfigAppWeatherPcd::onDataPointBtnClicked()
       QMessageBox::warning(app_, tr("TerraMA2"), *message);
     }
   }
+  ui_->cancelBtn->clicked();
 }

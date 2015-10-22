@@ -3,7 +3,6 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
-#include "../../core/ApplicationController.hpp"
 #include "../../core/DataSet.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
@@ -19,6 +18,31 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabChanged()));
   connect(ui_->gridFormatDataFormat, SIGNAL(currentIndexChanged(const QString&)), SLOT(onGridFormatChanged()));
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
+
+  ui_->gridFormatDataType->setEnabled(false);
+  ui_->projectionGridBtn->setEnabled(false);
+  ui_->gridFormatDataResolution->setEnabled(false);
+  ui_->gridFormatDataPrefix->setEnabled(false);
+  ui_->gridFormatDataFrequency->setEnabled(false);
+  ui_->gridFormatDataTimeZoneCmb->setEnabled(false);
+  ui_->gridFormatDataUnit->setEnabled(false);
+  ui_->gridFormatDataDescription->setEnabled(false);
+  ui_->gridFormatDataPath->setEnabled(false);
+  ui_->gridFormatDataMask->setEnabled(false);
+  ui_->gridFormatDataFormat->setEnabled(false);
+  ui_->ledGridGrADSArqControle->setEnabled(false);
+  ui_->ledGridGrADSMultiplicador->setEnabled(false);
+  ui_->cmbGridGrADSByteOrder->setEnabled(false);
+  ui_->rbGridGrADSTipoDadosFloat->setEnabled(false);
+  ui_->rbGridGrADSTipoDadosInt->setEnabled(false);
+  ui_->spbGridGrADSNumBands->setEnabled(false);
+  ui_->spbGridGrADSTimeOffset->setEnabled(false);
+  ui_->ledGridWCSDummy->setEnabled(false);
+  ui_->filterGridBtn->setEnabled(false);
+  ui_->spbGridGrADSHeaderSize->setEnabled(false);
+  ui_->spbGridGrADSTraillerSize->setEnabled(false);
+  ui_->exportDataGridBtn->setEnabled(false);
+  ui_->updateDataGridBtn->setEnabled(false);
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
@@ -152,32 +176,24 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
   QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
   {
-    // delete from db
     try
     {
       terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(currentItem->text(0).toStdString());
 
-      if (dataset.id() == 0 || dataset.kind() != terrama2::core::DataSet::GRID_TYPE)
-        throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("Invalid PCD dataset selected"));
-
-      QMessageBox::StandardButton reply;
-      reply = QMessageBox::question(app_, tr("TerraMA2"),
-                                    tr("Would you like to try save before cancel?"),
-                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                                    QMessageBox::Yes);
-      if (reply == QMessageBox::Yes)
+      if (removeDataSet(dataset))
       {
         app_->getClient()->removeDataSet(dataset.id());
         app_->getWeatherTab()->removeCachedDataSet(dataset);
 
-        QMessageBox::warning(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
+        QMessageBox::information(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
         delete currentItem;
       }
-
     }
-    catch (const terrama2::Exception &e) {
-      const QString *message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    catch(const terrama2::Exception& e)
+    {
+      const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
       QMessageBox::warning(app_, tr("TerraMA2"), *message);
     }
   }
+  ui_->cancelBtn->clicked();
 }
