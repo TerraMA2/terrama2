@@ -317,8 +317,7 @@ void TestWebService::testUpdateDataProviderInvalidId()
   {
     DataProvider struct_dataProvider, struct_dataProviderResult;
 
-    // VINICIUS: check the core method to update a Data Provider, the only check is if the ID is not 0, should it test if the data provider exist?
-    struct_dataProvider.id = 0;
+    struct_dataProvider.id = 1;
 
     WebService webService;
 
@@ -395,7 +394,7 @@ void TestWebService::testFindDataProviderInvalidID()
 
     WebService webService;
 
-    if(webService.findDataProvider(0, struct_dataProvider) == SOAP_OK)
+    if(webService.findDataProvider(1, struct_dataProvider) == SOAP_OK)
     {
       QFAIL("Should not find a invalid Data Provider!");
     }
@@ -922,13 +921,12 @@ void TestWebService::testFindDataSetInvalidID()
     DataSet struct_dataSet;
     WebService webService;
 
-    /*
     // VINICIUS: check findDataSet in terrma2/core method, it dont check if the data Set don't exist
     if(webService.findDataSet(1, struct_dataSet) == SOAP_OK)
     {
       QFAIL("Should not find an invalid Data Set!");
     }
-*/
+
   }
   catch(terrama2::Exception &e)
   {

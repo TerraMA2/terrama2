@@ -36,7 +36,7 @@
 
 int main(int argc, char **argv)
 {
-    initializeTerraMA2();
+  initializeTerraMA2();
 
   TestWebService testWebService;
   int ret = QTest::qExec(&testWebService, argc, argv);

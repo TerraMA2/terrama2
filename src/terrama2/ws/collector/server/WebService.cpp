@@ -257,6 +257,12 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
     Reload();
     terrama2::core::DataSet dataSet(terrama2::core::DataManager::getInstance().findDataSet(id));
 
+    if (dataSet.id() == 0)
+    {
+      std::cerr << "Error at find Data Set: Data Set don't exist!" << std::endl;
+      return soap_receiverfault("Error at find Data Set", "Data Set don't exist!");
+    }
+
     struct_dataset = terrama2::ws::collector::core::DataSet2Struct<DataSet>(dataSet);
   }
   catch(terrama2::Exception &e)

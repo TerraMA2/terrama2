@@ -41,14 +41,14 @@
 
 void TestClient::initTestCase()
 {
-  // VINICIUS: don't working, depends on TerraLib5
+  // VINICIUS: don't work, depends on TerraLib5
 //  CreateDatabase();
 }
 
 
 void TestClient::cleanupTestCase()
 {
-  // VINICIUS: don't working, depends on TerraLib5
+  // VINICIUS: don't work, depends on TerraLib5
 //  DropDatabase();
 }
 
