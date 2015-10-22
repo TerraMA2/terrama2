@@ -76,22 +76,23 @@ void TsParserOGR::TestEmptyFile()
     std::shared_ptr<te::da::DataSetType>          datasetType;
     parser.read(info.absolutePath().toStdString(), names, datasetVec, datasetType);
 
-    QFAIL("Should not be here.");
+    QFAIL(UNEXPECTED_BEHAVIOR);
   }
   catch(terrama2::collector::UnableToReadDataSetError& e)
   {
     return;
   }
-  catch(te::common::Exception& e)
+  catch(boost::exception& e)
   {
-    QFAIL("Teralib Exception...Should not be here.");
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
   catch(...)
   {
-    QFAIL("Unknown Exception...Should not be here.");
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
 
-  QFAIL("End of test... Should not be here.");
+  QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
 void TsParserOGR::TestDataSetNames()
@@ -106,11 +107,23 @@ void TsParserOGR::TestDataSetNames()
   file.close();
   QFileInfo info(file);
 
-  terrama2::collector::ParserOGR parser;
-  std::vector<std::string> datasetNames = parser.datasetNames(info.absolutePath().toStdString());
+  try
+  {
+    terrama2::collector::ParserOGR parser;
+    std::vector<std::string> datasetNames = parser.datasetNames(info.absolutePath().toStdString());
 
-  QVERIFY(datasetNames.size() == 1);
-  QCOMPARE(datasetNames.at(0) , info.baseName().toStdString());
+    QVERIFY(datasetNames.size() == 1);
+    QCOMPARE(datasetNames.at(0) , info.baseName().toStdString());
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+  catch(...)
+  {
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
 }
 
 void TsParserOGR::TestInpeCsvFile()
@@ -137,17 +150,14 @@ void TsParserOGR::TestInpeCsvFile()
     QVERIFY(datasetVec.size() == 1);
     //TODO: test datasettype
   }
-  catch(terrama2::collector::UnableToReadDataSetError& e)
+  catch(boost::exception& e)
   {
-    QFAIL(e.what());
-  }
-  catch(te::common::Exception& e)
-  {
-    QFAIL("Teralib Exception...Should not be here.");
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
   catch(...)
   {
-    QFAIL("Unknown Exception...Should not be here.");
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
 
   return;
