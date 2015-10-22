@@ -81,10 +81,9 @@ void terrama2::gui::core::checkLocalFilesConnection(const QString& path)
   absolutePath.append("/");
   QDir directory(absolutePath);
 
-  if (!directory.exists() || directory.currentPath() == "/")
+  if (!directory.exists() || directory.path() == "/")
   {
-    QString error(QObject::tr("Invalid directory typed: \"%1\""));
-    error.arg(absolutePath);
+    QString error = QObject::tr("Invalid directory typed: \"%1\"").arg(absolutePath);
     throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(error);
   }
 }

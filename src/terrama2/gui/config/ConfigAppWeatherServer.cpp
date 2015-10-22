@@ -38,52 +38,34 @@ void ConfigAppWeatherServer::load()
 
 void ConfigAppWeatherServer::save()
 {
-  terrama2::core::DataManager::getInstance().unload();
-  terrama2::core::DataManager::getInstance().load();
-  // If there data provider in database
-  terrama2::core::DataProvider dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
-      selectedData_.toStdString());
+  terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(selectedData_.toStdString());
 
-  dataProvider.setName(ui_->serverName->text().toStdString());
-  dataProvider.setDescription(ui_->serverDescription->toPlainText().toStdString());
-  dataProvider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()));
-  dataProvider.setUri(ui_->connectionAddress->text().toStdString());
-  dataProvider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
+  provider.setName(ui_->serverName->text().toStdString());
+  provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
+  provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()));
+  provider.setUri(ui_->connectionAddress->text().toStdString());
+  provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
-  if (dataProvider.id() >= 1)
+  if (provider.id() >= 1)
   {
+    app_->getClient()->updateDataProvider(provider);
 
-    terrama2::core::DataManager::getInstance().update(dataProvider);
-
-    QTreeWidgetItemIterator it(ui_->weatherDataTree->topLevelItem(0));
-    while(*it)
-    {
-      if ((*it)->text(0) == selectedData_)
-      {
-        (*it)->setText(0, ui_->serverName->text());
-        break;
-      }
-      ++it;
-    }
+    // Refresh the weather list giving top level item and search for dataprovider selected
+    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->topLevelItem(0), selectedData_, ui_->serverName->text());
 
     selectedData_ = ui_->serverName->text();
 
   }
   else
   {
-//    dataProvider.reset(new terrama2::core::DataProvider(ui_->serverName->text().toStdString(),
-//                                                        terrama2::core::IntToDataProviderKind(ui_->connectionProtocol->currentIndex())));
-//    dataProvider->setDescription(ui_->serverDescription->toPlainText().toStdString());
-//    dataProvider->setUri(ui_->connectionAddress->text().toStdString());
-//    dataProvider->setStatus(terrama2::core::BoolToDataProviderStatus(ui_->serverActiveServer->isChecked()));
-
-    terrama2::core::DataManager::getInstance().add(dataProvider);
+    app_->getClient()->addDataProvider(provider);
 
     QTreeWidgetItem* newServer = new QTreeWidgetItem();
     newServer->setText(0, ui_->serverName->text());
     newServer->setIcon(0, QIcon::fromTheme("server"));
     ui_->weatherDataTree->topLevelItem(0)->addChild(newServer);
   }
+  app_->getWeatherTab()->addCachedProvider(provider);
   changed_ = false;
 }
 

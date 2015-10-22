@@ -12,6 +12,11 @@
 // SubTabs
 #include "ConfigAppWeatherServer.hpp"
 #include "ConfigAppWeatherGrid.hpp"
+#include "ConfigAppWeatherPcd.hpp"
+#include "ConfigAppWeatherOccurrence.hpp"
+
+// STL
+#include <vector>
 
 // QT
 #include <QMessageBox>
@@ -31,8 +36,6 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   // Bind the data series type with respective group view
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
-  connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
-  connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onInsertPointDiffBtnClicked()));
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
@@ -41,8 +44,12 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Tabs
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
   QSharedPointer<ConfigAppWeatherGridTab> gridTab(new ConfigAppWeatherGridTab(app, ui));
+  QSharedPointer<ConfigAppWeatherPcd> pcdTab(new ConfigAppWeatherPcd(app, ui));
+  QSharedPointer<ConfigAppWeatherOccurrence> occurrenceTab(new ConfigAppWeatherOccurrence(app, ui));
   subTabs_.append(serverTab);
   subTabs_.append(gridTab);
+  subTabs_.append(pcdTab);
+  subTabs_.append(occurrenceTab);
 
   // Lock for cannot allow multiple selection
   ui_->weatherDataTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -66,47 +73,74 @@ ConfigAppWeatherTab::~ConfigAppWeatherTab()
 void ConfigAppWeatherTab::clearList()
 {
   qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
+  providers_.clear();
 }
 
 void ConfigAppWeatherTab::load()
 {
-  std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-  std::auto_ptr<te::da::DataSet> dataProviders = ds->getDataSet("terrama2.data_provider");
-
-  showDataSeries(false);
-
   clearList();
-
-  while(dataProviders->moveNext())
+  try
   {
-    QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setIcon(0, QIcon::fromTheme("server"));
-    item->setText(0, QString(dataProviders->getAsString(1).c_str()));
-    ui_->weatherDataTree->topLevelItem(0)->addChild(item);
+    std::vector<terrama2::core::DataProvider> providers;
+    std::vector<terrama2::core::DataSet> datasets;
+    app_->getClient()->listDataProvider(providers);
 
-    // load data set
-    std::auto_ptr<te::da::DataSet> dataSet = ds->getDataSet("terrama2.dataset");
-
-    while (dataSet->moveNext() && dataSet->getInt32(4) == dataProviders->getInt32(0))
+    if (providers.size() > 0)
     {
-      QTreeWidgetItem* subItem = new QTreeWidgetItem;
-      subItem->setText(0, QString(dataSet->getAsString("name").c_str()));
-      switch (terrama2::core::ToDataSetKind(dataSet->getInt32(5)))
-      {
-        case terrama2::core::DataSet::GRID_TYPE:
-          subItem->setIcon(0, QIcon::fromTheme("grid"));
-          break;
-        case terrama2::core::DataSet::PCD_TYPE:
-          subItem->setIcon(0, QIcon::fromTheme("pcd"));
-          break;
-        case terrama2::core::DataSet::OCCURENCE_TYPE:
-          subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
-          break;
-        default:
-          break;
-      }
-      item->addChild(subItem);
+      // temp code
+      showDataSeries(true);
+      ui_->serverInsertPointBtn->setVisible(true);
+      ui_->serverInsertGridBtn->setVisible(true);
+      ui_->serverInsertPointDiffBtn->setVisible(true);
     }
+    else
+    {
+      hideDataSetButtons();
+    }
+
+    ui_->importDataBtn->setVisible(true);
+
+    app_->getClient()->listDataSet(datasets);
+    for(std::vector<terrama2::core::DataProvider>::iterator it = providers.begin(); it != providers.end(); ++it)
+    {
+      QTreeWidgetItem* item = new QTreeWidgetItem;
+      item->setIcon(0, QIcon::fromTheme("server"));
+      item->setText(0, QString(it->name().c_str()));
+      ui_->weatherDataTree->topLevelItem(0)->addChild(item);
+
+      providers_.insert(it->name(), *it);
+
+      for(std::vector<terrama2::core::DataSet>::iterator dit = datasets.begin(); dit != datasets.end(); ++dit)
+      {
+        if (dit->provider() == it->id())
+        {
+          datasets_.insert(dit->name(), *dit);
+          QTreeWidgetItem* subItem = new QTreeWidgetItem;
+          subItem->setText(0, QString(dit->name().c_str()));
+          switch (dit->kind())
+          {
+            case terrama2::core::DataSet::GRID_TYPE:
+              subItem->setIcon(0, QIcon::fromTheme("grid"));
+              break;
+            case terrama2::core::DataSet::PCD_TYPE:
+              subItem->setIcon(0, QIcon::fromTheme("pcd"));
+              break;
+            case terrama2::core::DataSet::OCCURENCE_TYPE:
+              subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
+              break;
+            default:
+              break;
+          }
+          item->addChild(subItem);
+        }
+      }
+    }
+  }
+  catch (const terrama2::Exception& e)
+  {
+    const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::warning(app_, tr("TerraMA2"), *message);
+    showDataSeries(false);
   }
 
   for(auto tab: subTabs_)
@@ -194,16 +228,6 @@ void ConfigAppWeatherTab::onImportServer()
   }
 }
 
-void ConfigAppWeatherTab::onInsertPointBtnClicked()
-{
-  hidePanels(ui_->DataPointPage);
-}
-
-void ConfigAppWeatherTab::onInsertPointDiffBtnClicked()
-{
-  hidePanels(ui_->DataPointDiffPage);
-}
-
 void ConfigAppWeatherTab::onDeleteServerClicked()
 {
   try
@@ -221,31 +245,26 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
     if (reply == QMessageBox::No || reply == QMessageBox::Cancel)
       return;
 
-    std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
+    terrama2::core::DataProvider cachedProvider = providers_.take(selectedItem->text(0).toStdString());
 
-    std::string sql = "SELECT id FROM terrama2.data_provider WHERE name = '";
-    sql += selectedItem->text(0).toStdString() + "'";
-    std::auto_ptr<te::da::DataSet> dataSet = ds->query(sql);
+    try
+    {
+      //FIXME: It throws exception at Server side and shutdown both
+      app_->getClient()->removeDataProvider(cachedProvider.id());
+      QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
 
-    if (dataSet->size() != 1)
-      throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid data provider"));
-
-    dataSet->moveFirst();
-    int64_t id = boost::lexical_cast<int64_t>(dataSet->getAsString(0));
-
-    // Load providers
-    terrama2::core::DataManager::getInstance().load();
-
-    // Remove from database and refresh providers list
-    terrama2::core::DataManager::getInstance().removeDataProvider(id);
-
-    QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
-
-    ui_->weatherDataTree->removeItemWidget(ui_->weatherDataTree->currentItem(), 0);
+      ui_->weatherDataTree->removeItemWidget(ui_->weatherDataTree->currentItem(), 0);
+    }
+    catch(const terrama2::Exception& e)
+    {
+      const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+      QMessageBox::warning(app_, tr("TerraMA2 Data Provider Remove Error"), *message);
+    }
 
     hidePanels(ui_->ServerGroupPage);
 
     delete selectedItem;
+    displayOperationButtons(false);
   }
   catch(const terrama2::Exception& e)
   {
@@ -275,57 +294,94 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->serverInsertGridBtn->setVisible(true);
         ui_->serverInsertPointDiffBtn->setVisible(true);
 
-        std::string sql = "SELECT * FROM terrama2.data_provider WHERE name = '";
-        sql += selectedItem->text(0).toStdString() + "'";
+        if (providers_.empty())
+        {
+          std::cout << "Providers empty. Refreshing list..." << std::endl;
+          std::vector<terrama2::core::DataProvider> providers;
+          app_->getClient()->listDataProvider(providers);
+          for(std::vector<terrama2::core::DataProvider>::iterator it = providers.begin(); it != providers.end(); ++it)
+            providers_.insert(it->name(), *it);
+        }
 
-        std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-        std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
+        terrama2::core::DataProvider provider = getProvider(selectedItem->text(0).toStdString());
 
-        if (dataSet->size() != 1)
+        if (provider.id() == 0)
           throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
-
-        dataSet->moveFirst();
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
 
         subTabs_[0]->setSelectedData(selectedItem->text(0));
-        ui_->serverName->setText(QString(dataSet->getAsString(1).c_str()));
-        ui_->serverDescription->setText(QString(dataSet->getAsString(2).c_str()));
-        ui_->connectionProtocol->setCurrentIndex(dataSet->getInt32(3));
-        ui_->connectionAddress->setText(QString(dataSet->getAsString(4).c_str()));
-        ui_->serverActiveServer->setChecked(dataSet->getBool(5));
+        ui_->serverName->setText(QString(provider.name().c_str()));
+        ui_->serverDescription->setText(QString(provider.description().c_str()));
+        ui_->connectionProtocol->setCurrentIndex(provider.kind());
+        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
+        ui_->serverActiveServer->setChecked(provider.status());
 
         subTabs_[0]->load();
 
         ui_->updateDataGridBtn->hide();
         ui_->exportDataGridBtn->hide();
         ui_->gridFormatDataDeleteBtn->hide();
+
       }
-      else {
+      else
+      {
+        for(auto dataset: datasets_)
+        {
+          if (dataset.name() == selectedItem->text(0).toStdString())
+          {
+            displayOperationButtons(true);
+            //TODO: generic function giving dataprovider
+            switch(dataset.kind())
+            {
+              case terrama2::core::DataSet::GRID_TYPE:
+                changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
+                subTabs_[1]->setSelectedData(selectedItem->text(0));
 
-        std::string sql = "SELECT * FROM terrama2.dataset WHERE name = '";
-        sql += selectedItem->text(0).toStdString() + "'";
+                ui_->gridFormatDataName->setText(dataset.name().c_str());
+                hideDataSetButtons();
+                showDataSeries(false);
+                ui_->dataSeriesBtnGroupBox->setVisible(true);
+                ui_->updateDataGridBtn->setVisible(true);
+                ui_->exportDataGridBtn->setVisible(true);
+                ui_->gridFormatDataDeleteBtn->setVisible(true);
+                break;
+              case terrama2::core::DataSet::PCD_TYPE:
+                changeTab(*(subTabs_[2].data()), *ui_->DataPointPage);
+                subTabs_[2]->setSelectedData(selectedItem->text(0));
 
-        std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-        std::auto_ptr<te::da::DataSet> dataSet = dataSource->query(sql);
+                ui_->pointFormatDataName->setText(dataset.name().c_str());
+                hideDataSetButtons();
+                showDataSeries(false);
+                ui_->dataSeriesBtnGroupBox->setVisible(true);
+                ui_->updateDataGridBtn->setVisible(true);
+                ui_->exportDataGridBtn->setVisible(true);
+                ui_->pointFormatDataDeleteBtn->setVisible(true);
+                break;
+              case terrama2::core::DataSet::OCCURENCE_TYPE:
+                changeTab(*(subTabs_[3].data()), *ui_->DataPointDiffPage);
+                subTabs_[3]->setSelectedData(selectedItem->text(0));
 
-        if (dataSet->size() != 1)
-          throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
+                ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
+                hideDataSetButtons();
+                showDataSeries(false);
+                ui_->dataSeriesBtnGroupBox->setVisible(true);
+                ui_->updateDataGridBtn->setVisible(true);
+                ui_->exportDataGridBtn->setVisible(true);
+                ui_->pointFormatDataDeleteBtn->setVisible(true);
+                break;
+              default:
+              {
+                // UNKNOWN
+              }
+            }
+            return;
+          }
+        }
 
-        dataSet->moveFirst();
+        throw terrama2::Exception() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
 
-        displayOperationButtons(true);
-        changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
-        subTabs_[1]->setSelectedData(selectedItem->text(0));
-
-        ui_->gridFormatDataName->setText(dataSet->getAsString("name").c_str());
-        hideDataSetButtons();
-        showDataSeries(false);
-        ui_->dataSeriesBtnGroupBox->setVisible(true);
-        ui_->updateDataGridBtn->setVisible(true);
-        ui_->exportDataGridBtn->setVisible(true);
-        ui_->gridFormatDataDeleteBtn->setVisible(true);
       }
     }
     catch (const terrama2::Exception& e)
@@ -437,4 +493,62 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
   sender.setActive(true);
   ui_->weatherPageStack->setCurrentWidget(&widget);
   hidePanels(&widget);
+}
+
+QMap<std::string,terrama2::core::DataProvider> ConfigAppWeatherTab::providers()
+{
+  return providers_;
+}
+
+terrama2::core::DataProvider ConfigAppWeatherTab::getProvider(const std::string &identifier)
+{
+  for(auto& provider: providers_)
+    if (provider.name() == identifier)
+      return provider;
+  return terrama2::core::DataProvider();
+}
+
+terrama2::core::DataSet ConfigAppWeatherTab::getDataSet(const std::string& identifier)
+{
+  for(auto dataset: datasets_)
+  {
+    if (dataset.name() == identifier)
+      return dataset;
+  }
+
+  return terrama2::core::DataSet();
+}
+
+void ConfigAppWeatherTab::addCachedProvider(const terrama2::core::DataProvider& provider)
+{
+  providers_.insert(provider.name(), provider);
+}
+
+void ConfigAppWeatherTab::removeCachedDataProvider(const terrama2::core::DataProvider &provider)
+{
+  providers_.take(provider.name());
+}
+
+void ConfigAppWeatherTab::addCachedDataSet(const terrama2::core::DataSet &dataset)
+{
+  datasets_.insert(dataset.name(), dataset);
+}
+
+void ConfigAppWeatherTab::removeCachedDataSet(const terrama2::core::DataSet &dataset)
+{
+  datasets_.take(dataset.name());
+}
+
+void ConfigAppWeatherTab::refreshList(QTreeWidgetItem* widget, const QString searchFor, const QString replace)
+{
+  QTreeWidgetItemIterator it(widget);
+  while(*it)
+  {
+    if ((*it)->text(0) == searchFor)
+    {
+      (*it)->setText(0, replace);
+      break;
+    }
+    ++it;
+  }
 }

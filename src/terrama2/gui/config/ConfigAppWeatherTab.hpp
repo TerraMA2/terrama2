@@ -37,12 +37,22 @@
 // QT
 #include <QString>
 #include <QList>
+#include <QMap>
 #include <QSharedPointer>
 
 
 class QTreeWidgetItem;
 class ConfigAppWeatherServer;
 class ConfigAppWeatherGridTab;
+
+namespace terrama2
+{
+  namespace core
+  {
+    class DataProvider;
+    class DataSet;
+  }
+}
 
 
 class ConfigAppWeatherTab : public ConfigAppTab
@@ -63,6 +73,26 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void displayOperationButtons(bool state);
     void changeTab(ConfigAppTab &sender, QWidget &widget);
 
+    QMap<std::string,terrama2::core::DataProvider> providers();
+
+    //! It retrieves dataprovider from cached list
+    terrama2::core::DataProvider getProvider(const std::string& identifier);
+
+    //! It retrieves dataset from dataprovider list
+    terrama2::core::DataSet getDataSet(const std::string& identifier);
+
+    //! It is used for insert and update cached dataprovider list
+    void addCachedProvider(const terrama2::core::DataProvider& provider);
+
+    void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
+
+    void addCachedDataSet(const terrama2::core::DataSet& dataset);
+
+    void removeCachedDataSet(const terrama2::core::DataSet& dataset);
+
+    //! It refresh the weatherdatalist from widget and string for replace
+    void refreshList(QTreeWidgetItem* widget, QString searchFor, QString replace);
+
   private:
     void showDataSeries(bool state);
     void hideDataSetButtons();
@@ -71,12 +101,6 @@ class ConfigAppWeatherTab : public ConfigAppTab
   private slots:
     //! Slot for handling importServer btn
     void onImportServer();
-
-    //! Triggered when click datapointbtn to show datapoint modal
-    void onInsertPointBtnClicked();
-
-    //! Triggered when click datapointdiffbtn to show datapointdiff modal
-    void onInsertPointDiffBtnClicked();
 
     //! Triggered when click serverDeleteBtn to remove data provider
     void onDeleteServerClicked();
@@ -92,6 +116,8 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
   private:
     QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
+    QMap<std::string,terrama2::core::DataProvider> providers_;
+    QMap<std::string,terrama2::core::DataSet> datasets_;
 };
 
 #endif

@@ -62,6 +62,7 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   : QMainWindow(parent, flags),
     pimpl_(new ConfigApp::Impl), currentTabIndex_(0),
     weatherTab_(nullptr)
+    //client_() // Harded code
 {
 // Find TerraMA2 icon theme library
   std::string icon_path = terrama2::core::FindInTerraMA2Path("share/terrama2/icons");
@@ -103,6 +104,7 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
   // Disable form until load terrama2 config file
   pimpl_->ui_->centralwidget->setEnabled(false);
+
 }
 
 ConfigApp::~ConfigApp()
@@ -137,7 +139,10 @@ void ConfigApp::tabChangeRequested(int index)
         weatherTab_->askForChangeTab(index);
         break;
       default:
-        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
+      {
+        //TODO: tab handling
+      }
+//        QMessageBox::information(this, tr("TerraMA2"), tr("Not Implemented yet"));
     }
   }
 }
@@ -156,8 +161,15 @@ void ConfigApp::openRequested()
 
       pimpl_->ui_->centralwidget->setEnabled(true);
 
+      if (client_ != nullptr)
+        client_.clear();
+
+      // TODO: temp code for dev. It will get port from file future commits
+      client_.reset(new terrama2::ws::collector::Client("http://localhost:17000"));
+
       weatherTab_->load();
 
+      // TODO: load configuration to the client
     }
   }
   catch(const terrama2::Exception& e)
@@ -170,4 +182,9 @@ void ConfigApp::openRequested()
 QSharedPointer<ConfigAppWeatherTab> ConfigApp::getWeatherTab() const
 {
   return weatherTab_;
+}
+
+QSharedPointer<terrama2::ws::collector::Client> ConfigApp::getClient() const
+{
+  return client_;
 }

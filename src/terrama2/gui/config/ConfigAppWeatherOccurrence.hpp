@@ -20,40 +20,33 @@
 */
 
 /*!
-  \file terrama2/gui/config/ConfigAppWeatherGrid.hpp
+  \file terrama2/gui/config/ConfigAppWeatherOccurrence.hpp
 
-  \brief Class responsible for handling DataGrid inside WeatherTab
+  \brief Class responsible for handling Occurrence data set inside WeatherTab
 
   \author Raphael Willian da Costa
 */
 
-#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
-#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
 
-// TerraMA2
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
+
 #include "ConfigAppTab.hpp"
 
-
-class ConfigAppWeatherGridTab : public ConfigAppTab {
+class ConfigAppWeatherOccurrence : public ConfigAppTab
+{
   Q_OBJECT
   public:
-    ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
-    ~ConfigAppWeatherGridTab();
+    ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherOccurrence();
 
     void load();
-    bool dataChanged();
     bool validate();
     void save();
-
     void discardChanges(bool restore_data);
 
   private slots:
-    //! Slot triggered when data grid btn is clicked to display the Grid Widget
-    void onDataGridClicked();
-
-    void onSubTabChanged();
-    void onGridFormatChanged();
-    void onRemoveDataGridBtnClicked();
+    void onDataSetBtnClicked();
 };
 
-#endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
+#endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__

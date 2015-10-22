@@ -48,34 +48,36 @@ void ConfigAppWeatherGridTab::load()
 
 void ConfigAppWeatherGridTab::save()
 {
-  terrama2::core::DataManager::getInstance().unload();
-  terrama2::core::DataManager::getInstance().load();
-
-  terrama2::core::DataProvider dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(
-      ui_->weatherDataTree->currentItem()->text(0).toStdString());
-  terrama2::core::DataSet::Kind kind = terrama2::core::DataSet::GRID_TYPE;
+  terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
   std::string name = ui_->gridFormatDataName->text().toStdString();
+  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(selectedData_.toStdString());
 
-  terrama2::core::DataSet dataset = terrama2::core::DataManager::getInstance().findDataSet(name);
+  terrama2::core::DataSet::Kind kind = terrama2::core::DataSet::GRID_TYPE;
 
   dataset.setName(name);
+  dataset.setKind(kind);
   dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
   if (dataset.id() >= 1)
-    terrama2::core::DataManager::getInstance().update(dataset);
+  {
+    app_->getClient()->updateDataSet(dataset);
+    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(),
+                                       selectedData_,
+                                       ui_->gridFormatDataName->text());
+    selectedData_ =  ui_->gridFormatDataName->text();
+  }
   else
   {
-//    dataset.reset(new terrama2::core::DataSet(dataProvider, name, kind));
-//    dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
-//    dataset.setStatus(terrama2::core::BoolToDataSetStatus(ui_->gridFormatStatus->isChecked()));
-
-    terrama2::core::DataManager::getInstance().add(dataset);
+    dataset.setProvider(provider.id());
+    app_->getClient()->addDataSet(dataset);
 
     QTreeWidgetItem* item = new QTreeWidgetItem;
     item->setIcon(0, QIcon::fromTheme("grid"));
     item->setText(0, ui_->gridFormatDataName->text());
     ui_->weatherDataTree->currentItem()->addChild(item);
   }
+  app_->getWeatherTab()->addCachedDataSet(dataset);
+  changed_ = false;
 }
 
 void ConfigAppWeatherGridTab::discardChanges(bool restore_data)
@@ -108,7 +110,7 @@ bool ConfigAppWeatherGridTab::validate()
 
   }
 
-  // TODO: Projection and Filter
+  // TODO: Complete validation with another fields and Projection and Filter validation
   return true;
 }
 
@@ -151,24 +153,27 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
   {
     // delete from db
-    try {
-      terrama2::core::DataManager::getInstance().load();
-      std::shared_ptr<te::da::DataSource> ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-      std::string sql = "SELECT id FROM terrama2.dataset WHERE name = '";
-      sql += currentItem->text(0).toStdString() + "'";
+    try
+    {
+      terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(currentItem->text(0).toStdString());
 
-      std::auto_ptr<te::da::DataSet> dataset = ds->query(sql);
+      if (dataset.id() == 0 || dataset.kind() != terrama2::core::DataSet::GRID_TYPE)
+        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid PCD dataset selected"));
 
-      if (dataset->size() != 1)
-        throw terrama2::Exception() << terrama2::ErrorDescription(tr("Invalid dataset selected"));
+      QMessageBox::StandardButton reply;
+      reply = QMessageBox::question(app_, tr("TerraMA2"),
+                                    tr("Would you like to try save before cancel?"),
+                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                    QMessageBox::Yes);
+      if (reply == QMessageBox::Yes)
+      {
+        app_->getClient()->removeDataSet(dataset.id());
+        app_->getWeatherTab()->removeCachedDataSet(dataset);
 
-      dataset->moveFirst();
+        QMessageBox::warning(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
+        delete currentItem;
+      }
 
-      int id = atoi(dataset->getAsString(0).c_str());
-
-      terrama2::core::DataManager::getInstance().removeDataSet(id);
-      QMessageBox::warning(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
-      delete currentItem;
     }
     catch (const terrama2::Exception &e) {
       const QString *message = boost::get_error_info<terrama2::ErrorDescription>(e);
