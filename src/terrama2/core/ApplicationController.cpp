@@ -42,6 +42,7 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
+#include <QMessageBox>
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -154,7 +155,7 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
 
     auto transactor = dataSource_->getTransactor();
 
-    // TODO: Create the database model executing the script
+   // TODO: Create the database model executing the script and dataSource_->close();
 
     return true;
   }
