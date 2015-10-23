@@ -75,7 +75,7 @@ private:
  QString idNameConfig_; //!<  current identifier in config settings manager
  bool changed_; //!< Flag indicating the data have been changed
  AdminApp* adminapp_;
- terrama2::ws::collector::Client* client;
+ terrama2::ws::collector::client::Client* client;
 };
 
 
