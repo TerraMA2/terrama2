@@ -70,101 +70,101 @@ class TsClient: public QObject
      * \brief Test to add a normal DataProvider
      */
     void testAddDataProvider();
-//
-//
-//    /*!
-//     * \brief Test to add a null DataProvider
-//     */
-//    void testAddNullDataProvider();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testRemoveDataProvider();
-//
-//    /*!
-//     * \brief
-//     */
-//    void testRemoveDataProviderInvalidId();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testUpdateDataProvider();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testFindDataProvider();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testFindDataProviderInvalidID();
-//
-//
-//    /*!
-//     * \brief Test to add a normal DataSet
-//     */
-//    void testAddDataSet();
-//
-//    /*!
-//     * \brief Test to add a null DataProvider
-//     */
-//    void testAddNullDataSet();
-//
-//
-//    /*!
-//     * \brief Test to add a DataProvider with an id
-//     */
-//    void testAddDataSetWithID();
-//
-//
-//    /*!
-//     * \brief Test to add a DataProvider with an id
-//     */
-//    void testAddDataSetWithWrongDataProviderID();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testRemoveDataSet();
-//
-//    /*!
-//     * \brief
-//     */
-//    void testRemoveDataSetInvalidId();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testUpdateDataSet();
-//
-//    /*!
-//     * \brief
-//     */
-//    void testUpdateDataSetInvalidId();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testFindDataSet();
-//
-//
-//    /*!
-//     * \brief
-//     */
-//    void testFindDataSetInvalidID();
-//
-//
-//    //******End of Test functions****
+
+
+   /*!
+    * \brief Test to add a null DataProvider
+    */
+   void testAddNullDataProvider();
+
+
+   /*!
+    * \brief
+    */
+   void testRemoveDataProvider();
+
+   /*!
+    * \brief
+    */
+   void testRemoveDataProviderInvalidId();
+
+
+   /*!
+    * \brief
+    */
+   void testUpdateDataProvider();
+
+
+   /*!
+    * \brief
+    */
+   void testFindDataProvider();
+
+
+   /*!
+    * \brief
+    */
+   void testFindDataProviderInvalidID();
+
+
+   /*!
+    * \brief Test to add a normal DataSet
+    */
+   void testAddDataSet();
+
+   /*!
+    * \brief Test to add a null DataProvider
+    */
+   void testAddNullDataSet();
+
+
+   /*!
+    * \brief Test to add a DataProvider with an id
+    */
+   void testAddDataSetWithID();
+
+
+   /*!
+    * \brief Test to add a DataProvider with an id
+    */
+   void testAddDataSetWithWrongDataProviderID();
+
+
+   /*!
+    * \brief
+    */
+   void testRemoveDataSet();
+
+   /*!
+    * \brief
+    */
+   void testRemoveDataSetInvalidId();
+
+
+   /*!
+    * \brief
+    */
+   void testUpdateDataSet();
+
+   /*!
+    * \brief
+    */
+   void testUpdateDataSetInvalidId();
+
+
+   /*!
+    * \brief
+    */
+   void testFindDataSet();
+
+
+   /*!
+    * \brief
+    */
+   void testFindDataSetInvalidID();
+
+
+   //******End of Test functions****
 
 
 
