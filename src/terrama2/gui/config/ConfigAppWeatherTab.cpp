@@ -317,10 +317,15 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
 
         subTabs_[0]->setSelectedData(selectedItem->text(0));
+
+        QUrl url(provider.uri().c_str());
+
+        ui_->connectionAddress->setText(url.host().isEmpty() ? url.path() : url.host());
+
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
 
-        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
+//        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
 
         ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
         ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));

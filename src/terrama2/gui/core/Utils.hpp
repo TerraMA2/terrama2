@@ -47,17 +47,6 @@ namespace terrama2
     {
       //! Function to generate file destination of TerraMA2 File
       void saveTerraMA2File(QMainWindow* appFocus, const QJsonObject& json);
-
-      /*! Function to check if there is any service listening on host (WebServices)
-        \exception It may raise <terrama2::gui::URLError> when trying to request invalid url
-      */
-      void checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password);
-
-      //! Function to check if there is any in FTP connections
-      void checkFTPConnection(const QString& host, const int& port, const QString& basepath, const QString& user, const QString& password);
-
-      //! Function to check if there is a valid path
-      void checkLocalFilesConnection(const QString& path);
     }
   }
 }

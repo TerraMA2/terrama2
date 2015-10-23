@@ -9,6 +9,10 @@
 
 // QT
 #include <QMessageBox>
+#include <QUrl>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui)
@@ -26,9 +30,9 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
 
   // temp code
-  ui_->connectionPort->setEnabled(false);
-  ui_->connectionUserName->setEnabled(false);
-  ui_->connectionPassword->setEnabled(false);
+//  ui_->connectionPort->setEnabled(false);
+//  ui_->connectionUserName->setEnabled(false);
+//  ui_->connectionPassword->setEnabled(false);
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -51,7 +55,7 @@ void ConfigAppWeatherServer::save()
   provider.setName(ui_->serverName->text().toStdString());
   provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
   provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+1));
-  provider.setUri(ui_->connectionAddress->text().toStdString());
+  provider.setUri(uri_.toStdString());
   provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
   if (provider.id() > 0)
@@ -62,7 +66,6 @@ void ConfigAppWeatherServer::save()
     app_->getWeatherTab()->refreshList(ui_->weatherDataTree->topLevelItem(0), selectedData_, ui_->serverName->text());
 
     selectedData_ = ui_->serverName->text();
-
   }
   else
   {
@@ -158,27 +161,24 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
 
 void ConfigAppWeatherServer::validateConnection()
 {
-  switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+1))
-  {
-    case terrama2::core::DataProvider::FTP_TYPE:
-      terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
-                                              ui_->connectionPort->text().toInt(),
-                                              ui_->connectionAddress->text(),
-                                              ui_->connectionUserName->text(),
-                                              ui_->connectionPassword->text());
-      break;
-    case terrama2::core::DataProvider::HTTP_TYPE:
-      terrama2::gui::core::checkServiceConnection(ui_->connectionAddress->text(),
-                                                ui_->connectionPort->text().toInt(),
-                                                ui_->connectionUserName->text(),
-                                                ui_->connectionPassword->text());
-      break;
-    case terrama2::core::DataProvider::FILE_TYPE:
-      terrama2::gui::core::checkLocalFilesConnection(ui_->connectionAddress->text());
-      break;
-    default:
-      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Not implemented yet"));
-  }
+  QUrl url(ui_->connectionAddress->text());
+  url.setScheme(ui_->connectionProtocol->currentText().toLower());
+
+  url.setUserName(ui_->connectionUserName->text());
+  url.setPassword(ui_->connectionPassword->text());
+  url.setPort(ui_->connectionPort->text().toInt());
+
+  if (!url.isValid())
+    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
+
+  QNetworkAccessManager manager;
+
+  QNetworkReply* reply = manager.get(QNetworkRequest(url));
+
+  if (reply->error() != QNetworkReply::NoError)
+    throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Invalid connection requested"));
+
+  uri_ = url.url();
 }
 
 void ConfigAppWeatherServer::onTextEditChanged()
