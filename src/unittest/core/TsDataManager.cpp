@@ -1104,26 +1104,24 @@ void TsDataManager::testFindNonExistentDataProvider()
 
 void TsDataManager::testRemoveNonExistentDataSet()
 {
+  qRegisterMetaType<DataSet>("DataSet");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSet)));
+
+  // Tries to remove an nonexistent dataset
   try
   {
-    qRegisterMetaType<DataSet>("DataSet");
-    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSet)));
+    DataManager::getInstance().removeDataSet(1);
 
-    // Tries to remove an nonexistent dataset
-    try
-    {
-      DataManager::getInstance().removeDataSet(1);
-
-      // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
-    }
-    catch (terrama2::InvalidArgumentError /*ex*/)
-    {
-      QVERIFY2(spy.count() == 0, "Should not emit a signal");
-
-      // test ok
-    }
+    // An exception should be thrown, if not the test fails.
+    QFAIL("terrama2::InvalidArgumentError not thrown");
   }
+  catch (terrama2::InvalidArgumentError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+
+    // test ok
+  }
+
   catch(boost::exception& e)
   {
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
@@ -1138,25 +1136,23 @@ void TsDataManager::testRemoveNonExistentDataSet()
 
 void TsDataManager::testRemoveNonExistentDataProvider()
 {
+  qRegisterMetaType<DataProvider>("DataProvider");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProvider)));
+
+  // Tries to update a data provider that doesn't have a valid ID
   try
   {
-    qRegisterMetaType<DataProvider>("DataProvider");
-    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProvider)));
+    // Removes the data provider
+    DataManager::getInstance().removeDataProvider(1);
 
-    // Tries to update a data provider that doesn't have a valid ID
-    try
-    {
-      // Removes the data provider
-      DataManager::getInstance().removeDataProvider(1);
+    // An exception should be thrown, if not the test fails.
+    QFAIL("terrama2::InvalidArgumentError not thrown");
+  }
+  catch (terrama2::InvalidArgumentError /*ex*/)
+  {
+    QVERIFY2(spy.count() == 0, "Should not emit a signal");
+    // test ok
 
-      // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
-    }
-    catch (terrama2::InvalidArgumentError /*ex*/)
-    {
-      QVERIFY2(spy.count() == 0, "Should not emit a signal");
-      // test ok
-    }
   }
   catch(boost::exception& e)
   {
