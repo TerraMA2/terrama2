@@ -42,6 +42,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QRegExpValidator>
 
 
 void terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
@@ -52,7 +53,12 @@ void terrama2::gui::core::checkServiceConnection(const QString& host, const int&
   address.append(host);
 
   QUrl url(address);
-  if (!url.isValid())
+
+  QRegExp validURLRegex("^(http|https)://[a-z0-9]+([-.]{1}[a-z0-9]+)*.[a-z]{2,5}(([0-9]{1,5})?/?.*)$");
+  QRegExpValidator validator(validURLRegex);
+  int index = 0;
+
+  if (validator.validate(address, index) != QValidator::Acceptable)
     throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
 
   url.setUserName(user);
