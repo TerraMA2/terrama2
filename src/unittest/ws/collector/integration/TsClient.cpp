@@ -220,7 +220,6 @@ void TsClient::testRemoveDataProvider()
     QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
     wsClient_->removeDataProvider(dataProvider.id());
-
   }
   catch(terrama2::Exception &e)
   {
@@ -349,7 +348,6 @@ void TsClient::testFindDataProviderInvalidID()
 {
   try
   {
-
     terrama2::core::DataProvider dataProvider_found(wsClient_->findDataProvider(1));
 
     QFAIL("Should not find a invalid Data Provider!");
