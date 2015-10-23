@@ -51,17 +51,9 @@ int main(int argc, char* argv[])
   // VINICIUS: get the port number from the project file
   // check if the parameters was passed correctly
 
-  if(argc < 3)
+  if(argc < 3 || std::stoi(argv[1]) < 1024 || std::stoi(argv[1]) > 49151)
   {
-    std::cerr << "Inform a valid port and a project file in order to run the collector application server." << std::endl;
-    std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
-
-    return EXIT_FAILURE;
-  }
-
-  if(std::stoi(argv[1]) == 0)
-  {
-    std::cerr << "Inform a valid port (not " << argv[1] <<") and a project file in order to run the collector application server." << std::endl;
+    std::cerr << "Inform a valid port (between 1024 and 49151) and a project file in order to run the collector application server." << std::endl;
     std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
 
     return EXIT_FAILURE;
@@ -70,7 +62,7 @@ int main(int argc, char* argv[])
   qDebug() << "Starting Webservice...";
 
   qDebug() << "Initializating TerraLib...";
-
+  // VINICIUS: replace the initialize terralib and terrama2 for the method in terrama2:core (when implemented)
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
 
@@ -108,23 +100,34 @@ int main(int argc, char* argv[])
       if (!soap_valid_socket(server.accept()))
         break;
 
-      int server_response = server.serve();
-
-      if(server_response == terrama2::ws::collector::core::EXIT_REQUESTED)
+      if(server.serve() == terrama2::ws::collector::core::EXIT_REQUESTED)
         break;
-
-      if(server_response != SOAP_OK)
-      {
-        server.soap_stream_fault(std::cerr);
-      }
 
       server.destroy();
     }
+  }
+  else
+  {
+    server.soap_stream_fault(std::cerr);
+
+    server.destroy();
+    // VINICIUS: replace the finalize terralib and terrama2 for the method in terrama2:core (when implemented)
+    TerraLib::getInstance().finalize();
+
+    terrama2::core::DataManager::getInstance().unload();
+
+    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+
+    qDebug() << "Webservice finished!";
+
+    return EXIT_FAILURE;
   }
 
   qDebug() << "Shutdown Webservice...";
 
   server.destroy();
+
+  // VINICIUS: replace the finalize terralib and terrama2 for the method in terrama2:core (when implemented)
   TerraLib::getInstance().finalize();
 
   terrama2::core::DataManager::getInstance().unload();
