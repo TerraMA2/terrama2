@@ -215,7 +215,7 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     if(!filter_result->isNull(3))
       filter.setGeometry(filter_result->getGeometry("geom"));
     
-    filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("by_value_type")));
+    filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
 
     if(!filter_result->isNull("by_value"))
     {

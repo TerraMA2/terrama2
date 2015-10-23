@@ -31,58 +31,55 @@
 #include "Client.hpp"
 #include "Exception.hpp"
 #include "Web.nsmap"
-#include "../core/Codes.hpp"
+#include "WebProxyAdapter.hpp"
 #include "../core/Utils.hpp"
 
-
-terrama2::ws::collector::Client::Client(const std::string url)
+terrama2::ws::collector::client::Client::Client(WebProxyAdapter* webProxy)
+: webProxy_(webProxy)
 {
-  server_ = url;
-
-  wsClient_ = new WebProxy(server_.c_str());
 }
 
 
-terrama2::ws::collector::Client::~Client()
+terrama2::ws::collector::client::Client::~Client()
 {
-  wsClient_->destroy();
+  webProxy_->destroy();
 
-  delete wsClient_;
+  delete webProxy_;
 }
 
 
-void terrama2::ws::collector::Client::ping(std::string &answer)
+void terrama2::ws::collector::client::Client::ping(std::string &answer)
 {
-  if(wsClient_->ping(answer) != SOAP_OK)
+  if(webProxy_->ping(answer) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::PingError() << ErrorDescription(errorMessage.c_str());
   }
 }
 
 
-void terrama2::ws::collector::Client::shutdown()
+void terrama2::ws::collector::client::Client::shutdown()
 {
-  if(wsClient_->send_shutdown() != SOAP_OK || wsClient_->recv_shutdown_empty_response() != SOAP_OK)
+  if(webProxy_->shutdown() != SOAP_OK || webProxy_->recvShutdownEmptyResponse() != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::ShutdownError() << ErrorDescription(errorMessage.c_str());
   }
 }
 
 
-void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvider& dataProvider)
+void terrama2::ws::collector::client::Client::addDataProvider(terrama2::core::DataProvider& dataProvider)
 {
 
   DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataProvider);
 
   DataProvider struct_dataProviderResult;
 
-  if(wsClient_->addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
+  if(webProxy_->addDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::AddingDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
@@ -92,7 +89,7 @@ void terrama2::ws::collector::Client::addDataProvider(terrama2::core::DataProvid
 }
 
 
-void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSet & dataSet)
+void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet & dataSet)
 {
   if(dataSet.name().empty())
     throw client::AddingDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
@@ -101,9 +98,9 @@ void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSet & dataS
 
   DataSet struct_dataSetResult;
 
-  if(wsClient_->addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
+  if(webProxy_->addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::AddingDataSetError() << ErrorDescription(errorMessage.c_str());
   }
@@ -113,7 +110,7 @@ void terrama2::ws::collector::Client::addDataSet(terrama2::core::DataSet & dataS
 }
 
 
-void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataProvider & dataProvider)
+void terrama2::ws::collector::client::Client::updateDataProvider(terrama2::core::DataProvider & dataProvider)
 {
   if(dataProvider.name().empty())
     throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
@@ -122,9 +119,9 @@ void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataPro
 
   DataProvider struct_dataProviderResult;
 
-  if(wsClient_->updateDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
+  if(webProxy_->updateDataProvider(struct_dataProvider, struct_dataProviderResult) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::UpdateDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
@@ -134,7 +131,7 @@ void terrama2::ws::collector::Client::updateDataProvider(terrama2::core::DataPro
 }
 
 
-void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSet & dataSet)
+void terrama2::ws::collector::client::Client::updateDataSet(terrama2::core::DataSet & dataSet)
 {
   if(dataSet.id() == 0)
     throw client::UpdateDataSetError() << ErrorDescription(QObject::tr("Invalid dataset passed!"));
@@ -143,9 +140,9 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSet & da
 
   DataSet struct_dataSetResult;
 
-  if(wsClient_->updateDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
+  if(webProxy_->updateDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::UpdateDataSetError() << ErrorDescription(errorMessage.c_str());
   }
@@ -155,22 +152,22 @@ void terrama2::ws::collector::Client::updateDataSet(terrama2::core::DataSet & da
 }
 
 
-void terrama2::ws::collector::Client::removeDataProvider(uint64_t id)
+void terrama2::ws::collector::client::Client::removeDataProvider(uint64_t id)
 {
-  if(wsClient_->send_removeDataProvider(id) != SOAP_OK || wsClient_->recv_removeDataProvider_empty_response() != SOAP_OK)
+  if(webProxy_->removeDataProvider(id) != SOAP_OK || webProxy_->recvRemoveDataProviderEmptyResponse() != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::RemoveDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
 }
 
 
-void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
+void terrama2::ws::collector::client::Client::removeDataSet(uint64_t id)
 {
-  if(wsClient_->send_removeDataSet(id) != SOAP_OK || wsClient_->recv_removeDataSet_empty_response() != SOAP_OK)
+  if(webProxy_->removeDataSet(id) != SOAP_OK || webProxy_->recvRemoveDatasetEmptyResponse() != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::RemoveDataSetError() << ErrorDescription(errorMessage.c_str());
   }
@@ -178,13 +175,13 @@ void terrama2::ws::collector::Client::removeDataSet(uint64_t id)
 }
 
 
-terrama2::core::DataProvider terrama2::ws::collector::Client::findDataProvider(uint64_t id)
+terrama2::core::DataProvider terrama2::ws::collector::client::Client::findDataProvider(uint64_t id)
 {
   DataProvider struct_dataProvider;
 
-  if(wsClient_->findDataProvider(id, struct_dataProvider) != SOAP_OK)
+  if(webProxy_->findDataProvider(id, struct_dataProvider) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::FindDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
@@ -194,13 +191,13 @@ terrama2::core::DataProvider terrama2::ws::collector::Client::findDataProvider(u
 }
 
 
-terrama2::core::DataSet terrama2::ws::collector::Client::findDataSet(uint64_t id)
+terrama2::core::DataSet terrama2::ws::collector::client::Client::findDataSet(uint64_t id)
 {
   DataSet struct_dataSet;
 
-  if(wsClient_->findDataSet(id, struct_dataSet) != SOAP_OK)
+  if(webProxy_->findDataSet(id, struct_dataSet) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::FindDataSetError() << ErrorDescription(errorMessage.c_str());
   }
@@ -210,13 +207,13 @@ terrama2::core::DataSet terrama2::ws::collector::Client::findDataSet(uint64_t id
 }
 
 
-void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::core::DataProvider > & providers)
+void terrama2::ws::collector::client::Client::listDataProvider(std::vector< terrama2::core::DataProvider > & providers)
 {
   std::vector< DataProvider > struct_dataProviderList;
 
-  if(wsClient_->listDataProvider(struct_dataProviderList) != SOAP_OK)
+  if(webProxy_->listDataProvider(struct_dataProviderList) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::ListDataProviderError() << ErrorDescription(errorMessage.c_str());
   }
@@ -229,13 +226,13 @@ void terrama2::ws::collector::Client::listDataProvider(std::vector< terrama2::co
 }
 
 
-void terrama2::ws::collector::Client::listDataSet(std::vector< terrama2::core::DataSet > & datasets)
+void terrama2::ws::collector::client::Client::listDataSet(std::vector< terrama2::core::DataSet > & datasets)
 {
   std::vector< DataSet > struct_dataSetList;
 
-  if(wsClient_->listDataSet(struct_dataSetList) != SOAP_OK)
+  if(webProxy_->listDataSet(struct_dataSetList) != SOAP_OK)
   {
-    std::string errorMessage = std::string(wsClient_->soap_fault_string()) + ": " + std::string(wsClient_->soap_fault_detail());
+    std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
     throw client::ListDataSetError() << ErrorDescription(errorMessage.c_str());
   }
