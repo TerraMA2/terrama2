@@ -24,6 +24,11 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
 //  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
+
+  // temp code
+  ui_->connectionPort->setEnabled(false);
+  ui_->connectionUserName->setEnabled(false);
+  ui_->connectionPassword->setEnabled(false);
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
