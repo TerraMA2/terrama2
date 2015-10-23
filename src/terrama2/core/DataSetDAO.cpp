@@ -58,22 +58,23 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
   try
   {
     boost::format query("INSERT INTO terrama2.dataset "
-                                "(name, description, data_provider_id, kind, data_frequency, schedule, schedule_retry, schedule_timeout) "
-                                "VALUES('%1%', '%2%', %3%, %4%, %5%, '%6%', %7%, %8%)");
+                                "(name, description, data_provider_id, kind, active, data_frequency, schedule, schedule_retry, schedule_timeout) "
+                                "VALUES('%1%', '%2%', %3%, %4%, %5%, %6%, '%7%', %8%, %9%)");
 
     query.bind_arg(1, dataset.name());
     query.bind_arg(2, dataset.description());
     query.bind_arg(3, dataset.provider());
     query.bind_arg(4, static_cast<int>(dataset.kind()));
-    query.bind_arg(5, dataset.dataFrequency().getTimeDuration().total_seconds());
+    query.bind_arg(5, ToString(ToBool(dataset.status())));
+    query.bind_arg(6, dataset.dataFrequency().getTimeDuration().total_seconds());
 
     std::string schedule = std::to_string(dataset.schedule().getTimeDuration().hours()) + ":" +
                            std::to_string(dataset.schedule().getTimeDuration().minutes()) + ":" +
                            std::to_string(dataset.schedule().getTimeDuration().seconds());
 
-    query.bind_arg(6, schedule);
-    query.bind_arg(7, dataset.scheduleRetry().getTimeDuration().total_seconds());
-    query.bind_arg(8, dataset.scheduleTimeout().getTimeDuration().total_seconds());
+    query.bind_arg(7, schedule);
+    query.bind_arg(8, dataset.scheduleRetry().getTimeDuration().total_seconds());
+    query.bind_arg(9, dataset.scheduleTimeout().getTimeDuration().total_seconds());
 
     transactor.execute(query.str());
 
@@ -125,27 +126,29 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
                                 "description = '%2%',"
                                 "data_provider_id = %3%,"
                                 "kind = %4%,"
-                                "data_frequency = %5%,"
-                                "schedule = '%6%',"
-                                "schedule_retry = %7%,"
-                                "schedule_timeout =%8% "
-                                "WHERE id = %9%");
+                                "active = %5%,"
+                                "data_frequency = %6%,"
+                                "schedule = '%7%',"
+                                "schedule_retry = %8%,"
+                                "schedule_timeout =%9% "
+                                "WHERE id = %10%");
 
 
     query.bind_arg(1, dataset.name());
     query.bind_arg(2, dataset.description());
     query.bind_arg(3, dataset.provider());
     query.bind_arg(4, static_cast<int>(dataset.kind()));
-    query.bind_arg(5, dataset.dataFrequency().getTimeDuration().total_seconds());
+    query.bind_arg(5, ToString(ToBool(dataset.status())));
+    query.bind_arg(6, dataset.dataFrequency().getTimeDuration().total_seconds());
 
     std::string schedule = std::to_string(dataset.schedule().getTimeDuration().hours()) + ":" +
                            std::to_string(dataset.schedule().getTimeDuration().minutes()) + ":" +
                            std::to_string(dataset.schedule().getTimeDuration().seconds());
 
-    query.bind_arg(6, schedule);
-    query.bind_arg(7, dataset.scheduleRetry().getTimeDuration().total_seconds());
-    query.bind_arg(8, dataset.scheduleTimeout().getTimeDuration().total_seconds());
-    query.bind_arg(9, dataset.id());
+    query.bind_arg(7, schedule);
+    query.bind_arg(8, dataset.scheduleRetry().getTimeDuration().total_seconds());
+    query.bind_arg(9, dataset.scheduleTimeout().getTimeDuration().total_seconds());
+    query.bind_arg(10, dataset.id());
 
     transactor.execute(query.str());
 
