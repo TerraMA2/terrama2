@@ -218,7 +218,6 @@ void AdminApp::newRequested()
     if (!ok || newname.isEmpty())
     {
       clearDataChanged();
-      //enableFields(false);
       return;
     }
 
@@ -293,8 +292,7 @@ void AdminApp::renameRequested()
 
   if (!ok || newname.isEmpty())
   {
-    clearDataChanged();
-    //enableFields(false);
+    clearDataChanged();   
     return;
   }
 
@@ -429,8 +427,6 @@ void AdminApp::saveAsRequested()
 void AdminApp::cancelRequested()
 {
   newData_= false;
-
-  delete pimpl_->ui_->configListWidget->currentItem();
 
   refresh();
 
@@ -672,7 +668,7 @@ void AdminApp::enableFields(bool mode)
   pimpl_->ui_->removeAct->setEnabled(mode);
   pimpl_->ui_->saveAsAct->setEnabled(mode);
   pimpl_->ui_->servicesAct->setEnabled(mode);
-  pimpl_->ui_->consoleAct->setEnabled(mode);
+  pimpl_->ui_->consoleAct->setEnabled(false);
   pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(mode);
   pimpl_->ui_->dbCheckConnectionBtn->setEnabled(mode);
   pimpl_->ui_->saveBtn->setEnabled(mode);

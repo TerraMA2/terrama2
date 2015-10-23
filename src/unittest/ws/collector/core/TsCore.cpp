@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/server/TestClient.cpp
+  \file terrama2/unittest/ws/server/TsCore.cpp
 
   \brief Tests for the WebProxy class.
 
@@ -39,20 +39,20 @@
 #include "soapWebService.h"
 
 // TerraMA2 Test
-#include "TestCore.hpp"
+#include "TsCore.hpp"
 
 
-void TestCore::init()
+void TsCore::init()
 {
   clearDatabase();
 }
 
-void TestCore::cleanup()
+void TsCore::cleanup()
 {
   clearDatabase();
 }
 
-void TestCore::clearDatabase()
+void TsCore::clearDatabase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -65,7 +65,7 @@ void TestCore::clearDatabase()
   transactor->commit();
 }
 
-terrama2::core::DataProvider TestCore::buildDataProvider()
+terrama2::core::DataProvider TsCore::buildDataProvider()
 {
 
   terrama2::core::DataProvider  dataProvider(0, (terrama2::core::DataProvider::Kind)1);
@@ -78,7 +78,7 @@ terrama2::core::DataProvider TestCore::buildDataProvider()
   return dataProvider;
 }
 
-terrama2::core::DataSet TestCore::buildDataSet()
+terrama2::core::DataSet TsCore::buildDataSet()
 {
   terrama2::core::DataProvider dataProvider = buildDataProvider();
 
@@ -102,7 +102,7 @@ terrama2::core::DataSet TestCore::buildDataSet()
   return dataSet;
 }
 
-void TestCore::TestConvertDataProviderToDataProviderStruct()
+void TsCore::TestConvertDataProviderToDataProviderStruct()
 {
   terrama2::core::DataProvider dataProvider = buildDataProvider();
 
@@ -117,7 +117,7 @@ void TestCore::TestConvertDataProviderToDataProviderStruct()
 }
 
 
-void TestCore::TestWrongConvertDataProviderStructToDataProvider()
+void TsCore::TestWrongConvertDataProviderStructToDataProvider()
 {
   DataProvider struct_dataProvider;
 
@@ -140,7 +140,7 @@ void TestCore::TestWrongConvertDataProviderStructToDataProvider()
 }
 
 
-void TestCore::TestConvertDataSetToDataSetStruct()
+void TsCore::TestConvertDataSetToDataSetStruct()
 {
   terrama2::core::DataSet dataSet = buildDataSet();
 
@@ -160,7 +160,7 @@ void TestCore::TestConvertDataSetToDataSetStruct()
 }
 
 
-void TestCore::TestConvertDataSetStructToDataSet()
+void TsCore::TestConvertDataSetStructToDataSet()
 {
   terrama2::core::DataProvider dataProvider = buildDataProvider();
 

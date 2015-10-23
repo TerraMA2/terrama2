@@ -22,8 +22,8 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
 //  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
 //  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
 //  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
-  connect(ui_->serverDataBasePath, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-//  connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
+  connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
+  connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -38,12 +38,15 @@ void ConfigAppWeatherServer::load()
 
 void ConfigAppWeatherServer::save()
 {
+
+  validateConnection();
+
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(selectedData_.toStdString());
 
   provider.setName(ui_->serverName->text().toStdString());
   provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
   provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+1));
-  provider.setUri(ui_->serverDataBasePath->text().toStdString());
+  provider.setUri(ui_->connectionAddress->text().toStdString());
   provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
   if (provider.id() > 0)
@@ -155,7 +158,7 @@ void ConfigAppWeatherServer::validateConnection()
     case terrama2::core::DataProvider::FTP_TYPE:
       terrama2::gui::core::checkFTPConnection(ui_->connectionAddress->text(),
                                               ui_->connectionPort->text().toInt(),
-                                              ui_->serverDataBasePath->text(),
+                                              ui_->connectionAddress->text(),
                                               ui_->connectionUserName->text(),
                                               ui_->connectionPassword->text());
       break;
@@ -166,7 +169,7 @@ void ConfigAppWeatherServer::validateConnection()
                                                 ui_->connectionPassword->text());
       break;
     case terrama2::core::DataProvider::FILE_TYPE:
-      terrama2::gui::core::checkLocalFilesConnection(ui_->serverDataBasePath->text());
+      terrama2::gui::core::checkLocalFilesConnection(ui_->connectionAddress->text());
       break;
     default:
       throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Not implemented yet"));

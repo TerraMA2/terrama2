@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/integration_test/ws/TestClient.cpp
+  \file terrama2/integration_test/ws/TsClient.cpp
 
   \brief Tests for the Web Server.
 
@@ -31,20 +31,20 @@
 #include <memory>
 
 // TerraMA2 Test
-#include "TestClient.hpp"
+#include "TsClient.hpp"
 
 // TerraMA2
 #include <terrama2/core/ApplicationController.hpp>
 #include <terrama2/ws/collector/client/Exception.hpp>
 
-void TestClient::init()
+void TsClient::init()
 {
   clearDatabase();
 
   wsClient_ = new terrama2::ws::collector::Client("http://localhost:1989");
 }
 
-void TestClient::cleanup()
+void TsClient::cleanup()
 {
   clearDatabase();
 
@@ -52,7 +52,7 @@ void TestClient::cleanup()
 }
 
 
-void TestClient::clearDatabase()
+void TsClient::clearDatabase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -65,7 +65,7 @@ void TestClient::clearDatabase()
   transactor->commit();
 }
 
-terrama2::core::DataProvider TestClient::buildDataProvider()
+terrama2::core::DataProvider TsClient::buildDataProvider()
 {
 
   terrama2::core::DataProvider  dataProvider(0, (terrama2::core::DataProvider::Kind)1);
@@ -78,7 +78,7 @@ terrama2::core::DataProvider TestClient::buildDataProvider()
   return dataProvider;
 }
 
-terrama2::core::DataSet TestClient::buildDataSet()
+terrama2::core::DataSet TsClient::buildDataSet()
 {
   terrama2::core::DataProvider dataProvider = buildDataProvider();
 
@@ -102,7 +102,7 @@ terrama2::core::DataSet TestClient::buildDataSet()
   return dataSet;
 }
 
-void TestClient::TestStatus()
+void TsClient::TestStatus()
 {
   std::string answer;
 
@@ -123,7 +123,7 @@ void TestClient::TestStatus()
 }
 
 
-void TestClient::TestWrongConection()
+void TsClient::TestWrongConection()
 {
   std::string answer;
   try
@@ -147,7 +147,7 @@ void TestClient::TestWrongConection()
 }
 
 
-void TestClient::TestAddDataProvider()
+void TsClient::TestAddDataProvider()
 {
   try
   {
@@ -169,7 +169,7 @@ void TestClient::TestAddDataProvider()
 }
 
 
-void TestClient::TestAddNullDataProvider()
+void TsClient::TestAddNullDataProvider()
 {
   try
   {
@@ -189,7 +189,7 @@ void TestClient::TestAddNullDataProvider()
 }
 
 
-void TestClient::testRemoveDataProvider()
+void TsClient::testRemoveDataProvider()
 {
   try
   {
@@ -212,7 +212,7 @@ void TestClient::testRemoveDataProvider()
 }
 
 
-void TestClient::testRemoveDataProviderInvalidId()
+void TsClient::testRemoveDataProviderInvalidId()
 {
   try
   {
@@ -230,7 +230,7 @@ void TestClient::testRemoveDataProviderInvalidId()
 }
 
 
-void TestClient::testUpdateDataProvider()
+void TsClient::testUpdateDataProvider()
 {
   try
   {
@@ -269,7 +269,7 @@ void TestClient::testUpdateDataProvider()
 }
 
 
-void TestClient::testFindDataProvider()
+void TsClient::testFindDataProvider()
 {
   try
   {
@@ -304,7 +304,7 @@ void TestClient::testFindDataProvider()
 }
 
 
-void TestClient::testFindDataProviderInvalidID()
+void TsClient::testFindDataProviderInvalidID()
 {
   /*
   // VINICIUS: check terrama2 core handling to find invalids IDs
@@ -329,7 +329,7 @@ void TestClient::testFindDataProviderInvalidID()
 }
 
 
-void TestClient::TestAddDataSet()
+void TsClient::TestAddDataSet()
 {
   try
   {
@@ -351,7 +351,7 @@ void TestClient::TestAddDataSet()
 }
 
 
-void TestClient::TestAddNullDataSet()
+void TsClient::TestAddNullDataSet()
 {
   try
   {
@@ -368,7 +368,7 @@ void TestClient::TestAddNullDataSet()
 }
 
 
-void TestClient::TestAddDataSetWithID()
+void TsClient::TestAddDataSetWithID()
 {
   try
   {
@@ -385,7 +385,7 @@ void TestClient::TestAddDataSetWithID()
 }
 
 
-void TestClient::TestAddDataSetWithWrongDataProviderID()
+void TsClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
   {
@@ -402,7 +402,7 @@ void TestClient::TestAddDataSetWithWrongDataProviderID()
 }
 
 
-void TestClient::testRemoveDataSet()
+void TsClient::testRemoveDataSet()
 {
   try
   {
@@ -419,7 +419,7 @@ void TestClient::testRemoveDataSet()
 }
 
 
-void TestClient::testRemoveDataSetInvalidId()
+void TsClient::testRemoveDataSetInvalidId()
 {
   try
   {
@@ -436,25 +436,7 @@ void TestClient::testRemoveDataSetInvalidId()
 }
 
 
-void TestClient::testUpdateDataSet()
-{
-  try
-  {
-
-
-  }
-  catch(terrama2::Exception &e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception!");
-  }
-}
-
-
-void TestClient::testUpdateDataSetInvalidId()
+void TsClient::testUpdateDataSet()
 {
   try
   {
@@ -472,7 +454,7 @@ void TestClient::testUpdateDataSetInvalidId()
 }
 
 
-void TestClient::testFindDataSet()
+void TsClient::testUpdateDataSetInvalidId()
 {
   try
   {
@@ -490,7 +472,25 @@ void TestClient::testFindDataSet()
 }
 
 
-void TestClient::testFindDataSetInvalidID()
+void TsClient::testFindDataSet()
+{
+  try
+  {
+
+
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+}
+
+
+void TsClient::testFindDataSetInvalidID()
 {
   try
   {

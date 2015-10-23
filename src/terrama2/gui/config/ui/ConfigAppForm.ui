@@ -809,10 +809,10 @@ p, li { white-space: pre-wrap; }
                   <string> Parâmetros de busca: </string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_20">
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_15">
+                  <item row="0" column="0">
+                   <widget class="QCheckBox" name="serverActiveServer">
                     <property name="text">
-                     <string>Caminho base:</string>
+                     <string>Servidor ativo</string>
                     </property>
                    </widget>
                   </item>
@@ -835,16 +835,6 @@ p, li { white-space: pre-wrap; }
                      <number>999</number>
                     </property>
                    </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QCheckBox" name="serverActiveServer">
-                    <property name="text">
-                     <string>Servidor ativo</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1" colspan="2">
-                   <widget class="QLineEdit" name="serverDataBasePath"/>
                   </item>
                  </layout>
                 </widget>
@@ -6574,7 +6564,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>connectionPassword</tabstop>
   <tabstop>serverActiveServer</tabstop>
   <tabstop>serverIntervalData</tabstop>
-  <tabstop>serverDataBasePath</tabstop>
   <tabstop>serverCheckConnectionBtn</tabstop>
   <tabstop>gridFormatDataName</tabstop>
   <tabstop>gridFormatDataType</tabstop>
