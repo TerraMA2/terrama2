@@ -30,9 +30,7 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
 
   // temp code
-//  ui_->connectionPort->setEnabled(false);
-//  ui_->connectionUserName->setEnabled(false);
-//  ui_->connectionPassword->setEnabled(false);
+  ui_->serverIntervalData->setEnabled(false);
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -161,8 +159,10 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
 
 void ConfigAppWeatherServer::validateConnection()
 {
-  QUrl url(ui_->connectionAddress->text());
-  url.setScheme(ui_->connectionProtocol->currentText().toLower());
+  QString path = ui_->connectionProtocol->currentText().toLower();
+  path.append("://");
+  path.append(ui_->connectionAddress->text());
+  QUrl url(path);
 
   url.setUserName(ui_->connectionUserName->text());
   url.setPassword(ui_->connectionPassword->text());

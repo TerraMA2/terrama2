@@ -320,7 +320,6 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 
         QUrl url(provider.uri().c_str());
 
-//        ui_->connectionAddress->setText(url.url(QUrl::RemoveScheme | QUrl::RemovePassword | QUrl::RemoveUserInfo | QUrl::RemovePort));
         ui_->connectionAddress->setText(url.host() + url.path());
 
         ui_->connectionPort->setText(QString::number(url.port()));
