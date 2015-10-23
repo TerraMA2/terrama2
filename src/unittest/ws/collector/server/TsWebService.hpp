@@ -20,30 +20,21 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/client/TestClient.hpp
+  \file terrama2/unittest/ws/server/TsWebService.hpp
 
-  \brief Tests for the WebService Client class.
+  \brief Tests for the WebService class.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT__
-#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT__
+#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER__
+#define __TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER__
 
-// Qt
 #include <QtTest>
 
-// TerraMA2
-#include <terrama2/ws/collector/client/Client.hpp>
-
-
-class TestClient: public QObject
+class TsWebService: public QObject
 {
   Q_OBJECT
-
-private:
-
-  terrama2::ws::collector::Client* wsClient_;
 
 private:
 
@@ -51,9 +42,6 @@ private:
      * \brief Clear all the data in TerraMA2 database
      */
     void clearDatabase();
-
-    terrama2::core::DataProvider buildDataProvider();
-    terrama2::core::DataSet buildDataSet();
 
 private slots:
 
@@ -65,17 +53,10 @@ private slots:
 
     //******Test functions********;
 
-
     /*!
      * \brief Test to request the WebService status
      */
     void TestStatus();
-
-
-    /*!
-     * \brief Test to request the WebService status
-     */
-    void TestWrongConection();
 
 
     /*!
@@ -88,6 +69,12 @@ private slots:
      * \brief Test to add a null DataProvider
      */
     void TestAddNullDataProvider();
+
+
+    /*!
+     * \brief Test to add a DataProvider with an id
+     */
+    void TestAddDataProviderWithID();
 
 
     /*!
@@ -110,6 +97,12 @@ private slots:
     /*!
      * \brief
      */
+    void testUpdateDataProviderInvalidId();
+
+
+    /*!
+     * \brief
+     */
     void testFindDataProvider();
 
 
@@ -117,6 +110,12 @@ private slots:
      * \brief
      */
     void testFindDataProviderInvalidID();
+
+
+    /*!
+     * \brief
+     */
+    void testListDataProvider();
 
 
     /*!
@@ -176,11 +175,12 @@ private slots:
     void testFindDataSetInvalidID();
 
 
+    /*!
+     * \brief
+     */
+    void testListDataSet();
     //******End of Test functions****
-
-
-
 };
 
-#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT__
+#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER__
 

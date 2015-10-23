@@ -34,6 +34,8 @@ In the root directory of TerraMA² codebase (the source code tree) there are som
 
 - **[README:](https://github.com/TerraMA2/terrama2/blob/master/README)** Contains instructions about how to build and how is organized TerraMA² plataform source code.
 
+If you want to build TerraMA² from source, first take a look at the section **Dependencies** (below in this document) and read the right tip for automatically building the dependencies in your platform.
+
 ## Source Code Organization
 
 - **[build/cmake:](https://github.com/TerraMA2/terrama2/tree/master/build/cmake)** Contains the CMake scripts with commands, macros and functions used to build the environment for compiling libraries and executables in different platforms using the CMake tool.
@@ -80,13 +82,17 @@ $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-
 
 **Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
 
-### Bash script for building all dependencies on Mac OS X Yosemite
+### Bash script for building all dependencies on Mac OS X
 
-We have prepared a special bash script for building and installing the dependencies on Mac OS X Yosemite. This script can be found in TerraMA² source tree under *install* folder. Follow the steps below:
+We have prepared a special bash script for building and installing the dependencies on Mac OS X. This script can be found in TerraMA² source tree under *install* folder. Follow the steps below:
 
-- Download the third-party libraries package used by the development team: [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz).
+- Download the third-party libraries package used by the development team:
+  - [terrama2-3rdparty-macosx-yosemite.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-yosemite.tar.gz).
+  - [terrama2-3rdparty-macosx-el-capitan.tar.gz](http://www.dpi.inpe.br/terrama2-devel/terrama2-3rdparty-macosx-el-capitan.tar.gz).
 
-- Copy the script [install-3rdparty-macosx-yosemite.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-macosx-yosemite.sh) to the same folder you have downloaded the *terrama2-3rdparty-macosx-yosemite.tar.gz* package.
+- Copy one of the scripts to the same folder you have downloaded the 3rd-party package:
+  - [install-3rdparty-macosx-yosemite.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-macosx-yosemite.sh)
+  - [install-3rdparty-macosx-el-capitan.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-macosx-el-capitan.sh) 
 
 - Open the shell command line.
 
@@ -95,7 +101,7 @@ We have prepared a special bash script for building and installing the dependenc
 $ export PATH=$PATH:/Users/user/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app/Contents/bin
 ```
 
-- In the shell command line, call the script *install-3rdparty-macosx-yosemite.sh* setting the target to install all the stuffs from these third-party libraries and tools:
+- In the shell command line, call the script *install-3rdparty-macosx-yosemite.sh* (or the El-Capitan one) setting the target to install all the stuffs from these third-party libraries and tools:
 ```
 $ TERRAMA2_DEPENDENCIES_DIR="/Users/user/mylibs" ./install-3rdparty-macosx-yosemite.sh
 ```

@@ -20,18 +20,18 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: Install all required software for TerraMA2 on MAC OS X Yosemite.
+#  Description: Install all required software for TerraMA2 on MAC OS X El Capitan.
 #
 #  Author: Gilberto Ribeiro de Queiroz
 #
 #
 #  Example:
-#  $ TERRAMA2_DEPENDENCIES_DIR="/Users/gribeiro/MyLibs" ./install-3rdparty-macosx-yosemite.sh
+#  $ TERRAMA2_DEPENDENCIES_DIR="/Users/gribeiro/MyLibs" ./install-3rdparty-macosx-el-capitan.sh
 #
 
-echo "********************************************"
-echo "* TerraMA2 Installer for Mac OS X Yosemite *"
-echo "********************************************"
+echo "**********************************************"
+echo "* TerraMA2 Installer for Mac OS X El Capitan *"
+echo "**********************************************"
 echo ""
 sleep 1s
 
@@ -51,10 +51,10 @@ function valid()
 
 
 #
-# Check for terrama2-3rdparty-macosx-yosemite.tar.gz
+# Check for terrama2-3rdparty-macosx-el-capitan.tar.gz
 #
-if [ ! -f ./terrama2-3rdparty-macosx-yosemite.tar.gz ]; then
-  echo "Please, make sure to have terrama2-3rdparty-macosx-yosemite.tar.gz in the current directory!"
+if [ ! -f ./terrama2-3rdparty-macosx-el-capitan.tar.gz ]; then
+  echo "Please, make sure to have terrama2-3rdparty-macosx-el-capitan.tar.gz in the current directory!"
   exit
 fi
 
@@ -65,8 +65,8 @@ fi
 echo "extracting packages..."
 sleep 1s
 
-tar xzvf terrama2-3rdparty-macosx-yosemite.tar.gz
-valid $? "Error: could not extract 3rd party libraries (terrama2-3rdparty-macosx-yosemite.tar.gz)"
+tar xzvf terrama2-3rdparty-macosx-el-capitan.tar.gz
+valid $? "Error: could not extract 3rd party libraries (terrama2-3rdparty-macosx-el-capitan.tar.gz)"
 
 echo "packages extracted!"
 sleep 1s
@@ -75,8 +75,8 @@ sleep 1s
 #
 # Go to 3rd party libraries dir
 #
-cd terrama2-3rdparty-macosx-yosemite
-valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-macosx-yosemite)"
+cd terrama2-3rdparty-macosx-el-capitan
+valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-macosx-el-capitan)"
 
 
 #
@@ -614,7 +614,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
   cd gsoap-2.8
   valid $? "Error: could not enter gsoap-2.8!"
 
-  ./configure --disable-ssl --disable-samples --prefix=$TERRAMA2_DEPENDENCIES_DIR
+  ./configure --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure gSOAP!"
 
   make
@@ -640,9 +640,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/pgsql/lib/libpq.dylib" ]; then
   cd postgresql-9.4.1
   valid $? "Error: could not enter postgresql-9.4.1!"
 
-# add --with-openssl if you need
-
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS="-lstdc++ -L$TERRAMA2_DEPENDENCIES_DIR/lib" ./configure --with-libxml --with-libxslt --with-uuid=e2fs --prefix=$TERRAMA2_DEPENDENCIES_DIR/pgsql --with-includes=$TERRAMA2_DEPENDENCIES_DIR/include --with-libraries=$TERRAMA2_DEPENDENCIES_DIR/lib
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS="-lstdc++ -L$TERRAMA2_DEPENDENCIES_DIR/lib" ./configure --with-libxml --with-libxslt --with-uuid=e2fs --with-openssl --prefix=$TERRAMA2_DEPENDENCIES_DIR/pgsql --with-includes=$TERRAMA2_DEPENDENCIES_DIR/include --with-libraries=$TERRAMA2_DEPENDENCIES_DIR/lib
   valid $? "Error: could not configure postgresql!"
 
   make -j 4
