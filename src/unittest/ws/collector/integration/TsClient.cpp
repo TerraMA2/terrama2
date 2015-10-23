@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/integration_test/ws/TestClient.cpp
+  \file terrama2/ws/integration/TsClient.cpp
 
   \brief Tests for the Web Server.
 
@@ -31,7 +31,7 @@
 #include <memory>
 
 // TerraMA2 Test
-#include "TestClient.hpp"
+#include "TsClient.hpp"
 #include "Utils.hpp"
 
 // TerraMA2
@@ -39,21 +39,21 @@
 #include <terrama2/core/DataManager.hpp>
 #include <terrama2/ws/collector/client/Exception.hpp>
 
-void TestClient::initTestCase()
+void TsClient::initTestCase()
 {
-  // VINICIUS: don't working, depends on TerraLib5
+  // VINICIUS: not working, depends on TerraLib5
 //  CreateDatabase();
 }
 
 
-void TestClient::cleanupTestCase()
+void TsClient::cleanupTestCase()
 {
-  // VINICIUS: don't working, depends on TerraLib5
+  // VINICIUS: not working, depends on TerraLib5
 //  DropDatabase();
 }
 
 
-void TestClient::init()
+void TsClient::init()
 {
   wsClient_ = new terrama2::ws::collector::Client("http://localhost:1989");
 
@@ -61,7 +61,7 @@ void TestClient::init()
 }
 
 
-void TestClient::cleanup()
+void TsClient::cleanup()
 {
   clearDatabase();
 
@@ -69,7 +69,7 @@ void TestClient::cleanup()
 }
 
 
-void TestClient::clearDatabase()
+void TsClient::clearDatabase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -83,29 +83,29 @@ void TestClient::clearDatabase()
 }
 
 
-terrama2::core::DataProvider TestClient::buildDataProvider()
+terrama2::core::DataProvider TsClient::buildDataProvider()
 {
 
-  terrama2::core::DataProvider  dataProvider("Data Provider", (terrama2::core::DataProvider::Kind)1, 0);
+  terrama2::core::DataProvider  dataProvider("Data Provider", terrama2::core::DataProvider::Kind::FILE_TYPE, 0);
 
   dataProvider.setUri("pathDataProvider");
   dataProvider.setDescription("Data Provider Description");
-  dataProvider.setStatus((terrama2::core::DataProvider::Status)1);
+  dataProvider.setStatus(terrama2::core::DataProvider::Status::ACTIVE);
 
   return dataProvider;
 }
 
 
-terrama2::core::DataSet TestClient::buildDataSet()
+terrama2::core::DataSet TsClient::buildDataSet()
 {
   terrama2::core::DataProvider dataProvider = buildDataProvider();
 
   wsClient_->addDataProvider(dataProvider);
 
-  terrama2::core::DataSet dataSet("Data Set Name", (terrama2::core::DataSet::Kind)1, 0, dataProvider.id());
+  terrama2::core::DataSet dataSet("Data Set Name", terrama2::core::DataSet::Kind::GRID_TYPE, 0, dataProvider.id());
 
   dataSet.setDescription("Data Set Description");
-  dataSet.setStatus((terrama2::core::DataSet::Status)1);
+  dataSet.setStatus(terrama2::core::DataSet::Status::ACTIVE);
 
   boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string("00:05:00.00"));
   boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string("00:06:00.00"));
@@ -121,7 +121,7 @@ terrama2::core::DataSet TestClient::buildDataSet()
 }
 
 
-void TestClient::TestStatus()
+void TsClient::TestStatus()
 {
   std::string answer;
 
@@ -142,7 +142,7 @@ void TestClient::TestStatus()
 }
 
 
-void TestClient::TestWrongConection()
+void TsClient::TestWrongConection()
 {
   std::string answer;
   try
@@ -165,7 +165,7 @@ void TestClient::TestWrongConection()
 }
 
 
-void TestClient::TestAddDataProvider()
+void TsClient::TestAddDataProvider()
 {
   try
   {
@@ -187,7 +187,7 @@ void TestClient::TestAddDataProvider()
 }
 
 
-void TestClient::TestAddNullDataProvider()
+void TsClient::TestAddNullDataProvider()
 {
   try
   {
@@ -209,7 +209,7 @@ void TestClient::TestAddNullDataProvider()
 }
 
 
-void TestClient::testRemoveDataProvider()
+void TsClient::testRemoveDataProvider()
 {
   try
   {
@@ -232,7 +232,7 @@ void TestClient::testRemoveDataProvider()
 }
 
 
-void TestClient::testRemoveDataProviderInvalidId()
+void TsClient::testRemoveDataProviderInvalidId()
 {
   try
   {
@@ -250,7 +250,7 @@ void TestClient::testRemoveDataProviderInvalidId()
 }
 
 
-void TestClient::testUpdateDataProvider()
+void TsClient::testUpdateDataProvider()
 {
   try
   {
@@ -260,22 +260,22 @@ void TestClient::testUpdateDataProvider()
 
     QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
-    uint64_t id = dataProvider.id();
-
     dataProvider.setDescription("Description updated");
-    dataProvider.setKind((terrama2::core::DataProvider::Kind)2);
+    dataProvider.setKind(terrama2::core::DataProvider::Kind::FTP_TYPE);
     dataProvider.setName("Name updated");
-    dataProvider.setStatus((terrama2::core::DataProvider::Status)2);
+    dataProvider.setStatus(terrama2::core::DataProvider::Status::INACTIVE);
     dataProvider.setUri("URI_updated");
 
-    wsClient_->updateDataProvider(dataProvider);
+    terrama2::core::DataProvider dataProvider_updated(dataProvider);
 
-    QVERIFY2(dataProvider.id() == id, "Update failed!");
-    QCOMPARE(dataProvider.description().c_str(), "Description updated");
-    QCOMPARE((int)dataProvider.kind(), 2);
-    QCOMPARE(dataProvider.name().c_str(), "Name updated");
-    QCOMPARE((int)dataProvider.status(), 2);
-    QCOMPARE(dataProvider.uri().c_str(), "URI_updated");
+    wsClient_->updateDataProvider(dataProvider_updated);
+
+    QCOMPARE(dataProvider.id(), dataProvider_updated.id());
+    QCOMPARE(dataProvider.description().c_str(), dataProvider_updated.description().c_str());
+    QCOMPARE(dataProvider.kind(), dataProvider_updated.kind());
+    QCOMPARE(dataProvider.name().c_str(), dataProvider_updated.name().c_str());
+    QCOMPARE(dataProvider.status(), dataProvider_updated.status());
+    QCOMPARE(dataProvider.uri().c_str(), dataProvider_updated.uri().c_str());
 
   }
   catch(terrama2::Exception &e)
@@ -289,7 +289,7 @@ void TestClient::testUpdateDataProvider()
 }
 
 
-void TestClient::testUpdateDataProviderWrongID()
+void TsClient::testUpdateDataProviderWrongID()
 {
   try
   {
@@ -313,7 +313,7 @@ void TestClient::testUpdateDataProviderWrongID()
 }
 
 
-void TestClient::testFindDataProvider()
+void TsClient::testFindDataProvider()
 {
   try
   {
@@ -322,10 +322,6 @@ void TestClient::testFindDataProvider()
     wsClient_->addDataProvider(dataProvider);
 
     QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
-
-
-
-    dataProvider.id();
 
     terrama2::core::DataProvider dataProvider_found = wsClient_->findDataProvider(dataProvider.id());
 
@@ -348,7 +344,7 @@ void TestClient::testFindDataProvider()
 }
 
 
-void TestClient::testFindDataProviderInvalidID()
+void TsClient::testFindDataProviderInvalidID()
 {
   try
   {
@@ -369,7 +365,7 @@ void TestClient::testFindDataProviderInvalidID()
 }
 
 
-void TestClient::testListDataProvider()
+void TsClient::testListDataProvider()
 {
   try
   {
@@ -399,7 +395,7 @@ void TestClient::testListDataProvider()
 
 }
 
-void TestClient::TestAddDataSet()
+void TsClient::TestAddDataSet()
 {
   try
   {
@@ -420,7 +416,7 @@ void TestClient::TestAddDataSet()
 }
 
 
-void TestClient::TestAddNullDataSet()
+void TsClient::TestAddNullDataSet()
 {
   try
   {
@@ -442,15 +438,22 @@ void TestClient::TestAddNullDataSet()
 }
 
 
-void TestClient::TestAddDataSetWithID()
+void TsClient::TestAddDataSetWithID()
 {
   try
   {
+    terrama2::core::DataSet dataSet = buildDataSet();
 
+    dataSet.setId(1);
+
+    wsClient_->addDataSet(dataSet);
+
+    QFAIL("Should not add a Data Set with an ID!");
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -459,15 +462,22 @@ void TestClient::TestAddDataSetWithID()
 }
 
 
-void TestClient::TestAddDataSetWithWrongDataProviderID()
+void TsClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
   {
+    terrama2::core::DataSet dataSet = buildDataSet();
 
+    dataSet.setProvider(1);
+
+    wsClient_->addDataSet(dataSet);
+
+    QFAIL("Should not add a Data Set with a wrong Data Provider ID!");
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -476,7 +486,7 @@ void TestClient::TestAddDataSetWithWrongDataProviderID()
 }
 
 
-void TestClient::testRemoveDataSet()
+void TsClient::testRemoveDataSet()
 {
   try
   {
@@ -499,10 +509,82 @@ void TestClient::testRemoveDataSet()
 }
 
 
-void TestClient::testRemoveDataSetInvalidId()
+void TsClient::testRemoveDataSetInvalidId()
 {
   try
   {
+    wsClient_->removeDataSet(1);
+
+    QFAIL("Should not remove a Data Set with a invalid ID!");
+  }
+  catch(terrama2::Exception &e)
+  {
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+}
+
+
+void TsClient::testUpdateDataSet()
+{
+  try
+  {
+    terrama2::core::DataSet dataSet = buildDataSet();
+
+    wsClient_->addDataSet(dataSet);
+
+    QVERIFY2(dataSet.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
+    dataSet.setName("Data Set Updated");
+    dataSet.setKind(terrama2::core::DataSet::Kind::UNKNOWN_TYPE);
+    dataSet.setDescription("Data Set Description Updated");
+    dataSet.setStatus(terrama2::core::DataSet::Status::ACTIVE);
+
+    boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string("00:09:00.00"));
+    boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string("00:10:00.00"));
+    boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string("00:11:00.00"));
+    boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string("00:12:00.00"));
+
+    dataSet.setDataFrequency(te::dt::TimeDuration(dataFrequency));
+    dataSet.setSchedule(te::dt::TimeDuration(schedule));
+    dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
+    dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+    terrama2::core::DataSet dataSet_updated(dataSet);
+
+    wsClient_->updateDataSet(dataSet_updated);
+
+    QCOMPARE(dataSet.id(), dataSet_updated.id());
+    QCOMPARE(dataSet.name().c_str(), dataSet_updated.name().c_str());
+    QCOMPARE(dataSet.kind(), dataSet_updated.kind());
+    QCOMPARE(dataSet.description().c_str(), dataSet_updated.description().c_str());
+    QCOMPARE(dataSet.status(), dataSet_updated.status());
+    QCOMPARE(dataSet.provider(), dataSet_updated.provider());
+    QCOMPARE(dataSet.dataFrequency(), dataSet_updated.dataFrequency());
+    QCOMPARE(dataSet.schedule(), dataSet_updated.schedule());
+    QCOMPARE(dataSet.scheduleRetry(), dataSet_updated.scheduleRetry());
+    QCOMPARE(dataSet.scheduleTimeout(), dataSet_updated.scheduleTimeout());
+  }
+  catch(terrama2::Exception &e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+}
+
+
+void TsClient::testUpdateDataSetInvalidId()
+{
+  try
+  {
+
 
   }
   catch(terrama2::Exception &e)
@@ -516,11 +598,28 @@ void TestClient::testRemoveDataSetInvalidId()
 }
 
 
-void TestClient::testUpdateDataSet()
+void TsClient::testFindDataSet()
 {
   try
   {
+    terrama2::core::DataSet dataSet = buildDataSet();
 
+    wsClient_->addDataSet(dataSet);
+
+    QVERIFY2(dataSet.id() != 0 , "Can't create a Data Provider with a invalid ID!");
+
+    terrama2::core::DataSet dataSet_found(wsClient_->findDataSet(dataSet.id()));
+
+    QCOMPARE(dataSet.id(), dataSet_found.id());
+    QCOMPARE(dataSet.name().c_str(), dataSet_found.name().c_str());
+    QCOMPARE(dataSet.kind(), dataSet_found.kind());
+    QCOMPARE(dataSet.description().c_str(), dataSet_found.description().c_str());
+    QCOMPARE((int)dataSet.status(), (int)dataSet_found.status());
+    QCOMPARE(dataSet.provider(), dataSet_found.provider());
+    QCOMPARE(dataSet.dataFrequency(), dataSet_found.dataFrequency());
+    QCOMPARE(dataSet.schedule(), dataSet_found.schedule());
+    QCOMPARE(dataSet.scheduleRetry(), dataSet_found.scheduleRetry());
+    QCOMPARE(dataSet.scheduleTimeout(), dataSet_found.scheduleTimeout());
 
   }
   catch(terrama2::Exception &e)
@@ -534,16 +633,18 @@ void TestClient::testUpdateDataSet()
 }
 
 
-void TestClient::testUpdateDataSetInvalidId()
+void TsClient::testFindDataSetInvalidID()
 {
   try
   {
+    wsClient_->findDataSet(1);
 
-
+    QFAIL("Should not find a Data Set with a invalid ID!");
   }
   catch(terrama2::Exception &e)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    // test OK
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(...)
   {
@@ -552,43 +653,7 @@ void TestClient::testUpdateDataSetInvalidId()
 }
 
 
-void TestClient::testFindDataSet()
-{
-  try
-  {
-
-
-  }
-  catch(terrama2::Exception &e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception!");
-  }
-}
-
-
-void TestClient::testFindDataSetInvalidID()
-{
-  try
-  {
-
-
-  }
-  catch(terrama2::Exception &e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception!");
-  }
-}
-
-
-void TestClient::testListDataSet()
+void TsClient::testListDataSet()
 {
   try
   {
@@ -618,7 +683,7 @@ void TestClient::testListDataSet()
 }
 
 
-void TestClient::testShutdownWebService()
+void TsClient::testShutdownWebService()
 {
   try
   {

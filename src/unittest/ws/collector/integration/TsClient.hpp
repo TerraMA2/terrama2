@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/client/TestClient.hpp
+  \file terrama2/unittest/ws/integration/TsClient.hpp
 
   \brief Tests for the WebService Client class.
 
@@ -37,7 +37,7 @@
 #include <terrama2/ws/collector/client/Client.hpp>
 
 
-class TestClient: public QObject
+class TsClient: public QObject
 {
   Q_OBJECT
 
