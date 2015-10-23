@@ -41,6 +41,11 @@ namespace terrama2
     struct URLError: virtual terrama2::Exception{ };
     struct FieldError: virtual terrama2::Exception{ };
     struct DirectoryError: virtual terrama2::Exception{ };
+    struct FileError: virtual terrama2::Exception{ };
+    struct ConnectionError: virtual terrama2::Exception{ };
+    struct DataProviderError: virtual terrama2::Exception{ };
+    struct DataSetError: virtual terrama2::Exception{ };
+    struct ValueError: virtual terrama2::Exception{ };
   }
 }
 

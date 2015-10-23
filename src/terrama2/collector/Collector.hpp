@@ -73,7 +73,7 @@ namespace terrama2
              * \brief Constructor
              * \param dataProvider Server information for collecting.
              */
-        Collector(const core::DataProviderPtr dataProvider, QObject* parent = nullptr);
+        Collector(const core::DataProvider& dataProvider, QObject* parent = nullptr);
         /*!
              * \brief Destructor
              */
@@ -91,7 +91,7 @@ namespace terrama2
         /*!
              * \brief Data provider containing the information of this collector.
              */
-        core::DataProviderPtr dataProvider() const;
+        core::DataProvider dataProvider() const;
 
         /*!
              * \brief Verifies if the collector is collecting.
@@ -134,7 +134,7 @@ namespace terrama2
         //! \brief Aquired the data specified in dataProcessor.
         virtual std::string retrieveData(const DataProcessorPtr dataProcessor) = 0;
 
-        core::DataProviderPtr dataProvider_; //!< Data provider information.
+        core::DataProvider dataProvider_; //!< Data provider information.
 
       private:
         //! \brief Internal method to collect a dataset, should be started as a thread.

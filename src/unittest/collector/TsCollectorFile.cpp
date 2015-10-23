@@ -36,35 +36,40 @@
 #include <terrama2/collector/Exception.hpp>
 #include <terrama2/core/DataSet.hpp>
 
+//Terralib
+#include <terralib/common/Exception.h>
+
 //Qt
 #include <QTemporaryDir>
 
 void TsCollectorFile::TestNormalBehavior()
 {
-  QTemporaryDir dir;
-  QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
-  file.open();
-  file.write("lat,lon,sat,data_pas\n");
-  file.write("-10.7030,  30.3750,AQUA_M,2015-08-26 11:35:00\n");
-  file.write("-10.7020,  30.3840,AQUA_M,2015-08-26 11:35:00\n");
-  file.write("-10.4870,  30.4070,AQUA_M,2015-08-26 11:35:00\n");
-  file.close();
-  QFileInfo info(file);
-
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
-  dataProvider->setStatus(terrama2::core::DataProvider::ACTIVE);
-  dataProvider->setUri(info.canonicalPath().toStdString());
-
-
   try
   {
-    terrama2::collector::CollectorFile collector(dataProvider);
+    QTemporaryDir dir;
+    QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
+    file.open();
+    file.write("lat,lon,sat,data_pas\n");
+    file.write("-10.7030,  30.3750,AQUA_M,2015-08-26 11:35:00\n");
+    file.write("-10.7020,  30.3840,AQUA_M,2015-08-26 11:35:00\n");
+    file.write("-10.4870,  30.4070,AQUA_M,2015-08-26 11:35:00\n");
+    file.close();
+    QFileInfo info(file);
 
-    QCOMPARE(dataProvider, collector.dataProvider());
+    terrama2::core::DataProvider dataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE, 1);
+    dataProvider.setStatus(terrama2::core::DataProvider::ACTIVE);
+    dataProvider.setUri(info.canonicalPath().toStdString());
+
+    terrama2::collector::CollectorFile collector(dataProvider);
 
     QVERIFY(collector.checkConnection());
 
     QVERIFY(collector.isOpen());
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(NO_EXCEPTION_EXPECTED);
   }
   catch(...)
   {
@@ -76,7 +81,7 @@ void TsCollectorFile::TestNormalBehavior()
 
 void TsCollectorFile::TestNullDataProvider()
 {
-  terrama2::core::DataProviderPtr nullDataProvider;
+  terrama2::core::DataProvider nullDataProvider;
 
   try
   {
@@ -88,25 +93,29 @@ void TsCollectorFile::TestNullDataProvider()
   {
     return;
   }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
   catch(...)
   {
     QFAIL(WRONG_TYPE_EXCEPTION);
   }
-
 
   QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
 void TsCollectorFile::TestInactiveDataSet()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
-
   try
   {
+    terrama2::core::DataProvider dataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE, 1);
+
     terrama2::collector::CollectorFile collector(dataProvider);
 
-    terrama2::core::DataSetPtr dataset = std::make_shared<terrama2::core::DataSet>(terrama2::core::DataSet(dataProvider,"dummy", terrama2::core::DataSet::PCD_TYPE));
-    dataset->setStatus(terrama2::core::DataSet::INACTIVE);
+    terrama2::core::DataSet dataset("dummy", terrama2::core::DataSet::PCD_TYPE, 1);
+    dataset.setStatus(terrama2::core::DataSet::INACTIVE);
 
     terrama2::collector::DataSetTimerPtr datasetTimer(new terrama2::collector::DataSetTimer(dataset));
 
@@ -118,6 +127,11 @@ void TsCollectorFile::TestInactiveDataSet()
   {
     return;
   }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
   catch(...)
   {
     QFAIL(WRONG_TYPE_EXCEPTION);
@@ -128,10 +142,10 @@ void TsCollectorFile::TestInactiveDataSet()
 
 void TsCollectorFile::TestWrongDataProviderKind()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::UNKNOWN_TYPE));
-
   try
   {
+    terrama2::core::DataProvider dataProvider("dummy", terrama2::core::DataProvider::UNKNOWN_TYPE, 1);
+
     terrama2::collector::CollectorFile invalidCollector(dataProvider);
 
     QFAIL(NO_EXCEPTION_THROWN);
@@ -139,6 +153,11 @@ void TsCollectorFile::TestWrongDataProviderKind()
   catch(terrama2::collector::WrongDataProviderKindError& e)
   {
     return;
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
   }
   catch(...)
   {
@@ -153,13 +172,18 @@ void TsCollectorFile::TestCheckConnection()
 {
   QTemporaryDir tempDir;
 
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
-  dataProvider->setUri(tempDir.path().toStdString());
+  terrama2::core::DataProvider dataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE, 1);
+  dataProvider.setUri(tempDir.path().toStdString());
 
   try
   {
     terrama2::collector::CollectorFile collector(dataProvider);
     QVERIFY(collector.checkConnection());
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(NO_EXCEPTION_EXPECTED);
   }
   catch(...)
   {
@@ -171,12 +195,17 @@ void TsCollectorFile::TestCheckConnection()
 
 void TsCollectorFile::TestFailCheckConnection()
 {
-  terrama2::core::DataProviderPtr dataProvider(new terrama2::core::DataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE));
+  terrama2::core::DataProvider dataProvider("dummy", terrama2::core::DataProvider::FILE_TYPE, 1);
 
   try
   {
     terrama2::collector::CollectorFile collector(dataProvider);
     QVERIFY(!collector.checkConnection());
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(NO_EXCEPTION_EXPECTED);
   }
   catch(...)
   {

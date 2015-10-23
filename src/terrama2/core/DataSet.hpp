@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSet.hpp
 
-  \brief Models the information of given dataset dataset from a data provider that should be collected by TerraMA2.
+  \brief Models the information of given dataset from a data provider that should be collected by TerraMA2.
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -33,13 +33,12 @@
 #ifndef __TERRAMA2_CORE_DATASET_HPP__
 #define __TERRAMA2_CORE_DATASET_HPP__
 
+// TerraMA2
+#include "DataSetItem.hpp"
+
 // STL
-#include <memory>
 #include <string>
 #include <vector>
-
-// Boost
-#include <boost/noncopyable.hpp>
 
 // TerraLib
 #include <terralib/datatype/TimeDuration.h>
@@ -48,12 +47,6 @@ namespace terrama2
 {
   namespace core
   {
-// Forward declaration
-    class DataProvider;
-    typedef std::shared_ptr<DataProvider> DataProviderPtr;
-
-    class DataSetItem;
-    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
 
     /*!
       \class DataSet
@@ -68,19 +61,19 @@ namespace terrama2
 
       A dataset has an associated time interval (or frequency) for being collected.
      */
-    class DataSet : public boost::noncopyable
+    class DataSet
     {
-      friend class DataSetDAO;
-
       public:
 
-        //! Dataset type.
+        /*! Dataset type.
+         Each constant must exist in table terrama2.dataset_type and the value must be the same from column id.
+         */
         enum Kind
         {
-          UNKNOWN_TYPE,
-          PCD_TYPE,
-          OCCURENCE_TYPE,
-          GRID_TYPE
+          UNKNOWN_TYPE = 1,
+          PCD_TYPE = 2,
+          OCCURENCE_TYPE = 3,
+          GRID_TYPE = 4
         };
 
         //! Dataset status.
@@ -90,100 +83,64 @@ namespace terrama2
           INACTIVE
         };
 
-        /*!
-          \brief Struct to store the collect rules.
-         */
+        //! Struct to store the collect rules.
         struct CollectRule
         {
           uint64_t id;
           std::string script;
+          uint64_t datasetId;
         };
 
         /*!
           \brief Constructor
 
-          \param provider The data provider used obtain this dataset.
-          \param name The name of the dataset.
-          \param kind The kind of the dataset.
+          \param name       The name of the dataset.
+          \param kind       The kind of dataset.
+          \param id         The dataset identifier.
+          \param providerId The data provider associated to this dataset.
         */
-        DataSet(DataProviderPtr provider, const std::string& name, Kind kind, const uint64_t id = 0);
+        DataSet(const std::string& name = "", Kind kind = UNKNOWN_TYPE, uint64_t id = 0, uint64_t providerId = 0);
 
-        /*!
-          \brief Destructor
-        */
+        /*! \brief Destructor. */
         ~DataSet();
 
       public:
 
-        /*!
-          \brief It returns the identifier of the dataset.
-
-          \return The identifier of the dataset.
-        */
+        /*! \brief Returns the identifier of the dataset. */
         uint64_t id() const;
 
-        /*!
-          \brief It returns the name of the dataset.
+        /*! \brief Sets the identifier of the dataset. */
+        void setId(uint64_t id);
 
-          \return The name of the dataset.
-        */
-        std::string name() const;
+        /*! \brief Returns the name of the dataset. */
+        const std::string& name() const;
 
-        /*!
-          \brief It sets the name of the dataset.
-
-          \param name The name of the dataset.
-        */
+        /*! \brief Sets the name of the dataset. */
         void setName(const std::string& name);
 
-        /*!
-          \brief It returns the the description of the dataset.
+        /*! \brief Returns the description of the dataset. */
+        const std::string& description() const;
 
-          \return The description of the dataset.
-        */
-        std::string description() const;
-
-        /*!
-          \brief It sets the the description of the dataset.
-
-          \param d The description of the dataset.
-        */
+        /*! \brief Sets the description of the dataset. */
         void setDescription(const std::string& d);
 
-        /*!
-          \brief It returns the the kind of the dataset.
-
-          \return The kind of the dataset.
-        */
+        /*! \brief Returns the kind of the dataset. */
         Kind kind() const;
 
-        /*!
-          \brief It sets the the kind of the dataset.
+        /*! \brief Sets the the kind of the dataset. */
+        void setKind(const Kind k);
 
-          \param k The kind of the data provider.
-        */
-        void setKind(const Kind& k);
-
-        /*!
-          \brief It returns the the status of the dataset.
-
-          \return The status of the dataset.
-        */
+        /*! \brief Returns the the status of the dataset. */
         Status status() const;
 
-        /*!
-          \brief It sets the the status of the dataset.
-
-          \param s The status of the dataset.
-        */
+        /*! \brief Sets the the status of the dataset. */
         void setStatus(const Status s);
 
-        /*!
-          \brief It returns the the data provider.
+        /*! \brief Returns the asscociated data provider. */
+        uint64_t provider() const;
 
-          \return The data provider.
-        */
-        DataProviderPtr dataProvider() const;
+        /*! \brief Sets the asscociated data provider. */
+        void setProvider(uint64_t id);
 
         /*!
           \brief It returns the time frequency that this dataset must try to acquire a new data.
@@ -246,7 +203,7 @@ namespace terrama2
 
           \return The map with the dataset metadata.
          */
-        std::map<std::string, std::string> metadata() const;
+        const std::map<std::string, std::string>& metadata() const;
 
         /*!
            \brief Sets the dataset metadata.
@@ -260,7 +217,7 @@ namespace terrama2
 
            \return The collect rules.
          */
-        std::vector<CollectRule> collectRules() const;
+        std::vector<CollectRule>& collectRules();
 
         /*!
            \brief Sets the collect rules.
@@ -274,44 +231,32 @@ namespace terrama2
 
            \return The list of dataset items.
          */
-        std::vector<DataSetItemPtr> dataSetItemList() const;
+        std::vector<DataSetItem>& dataSetItems();
 
-        /*!
-           \brief Sets the list of dataset items.
+        /*! \brief Adds a new dataset item to the dataset. */
+        void add(DataSetItem& d);
 
-           \param items The list of dataset items.
-         */
-        void setDataSetItemList(const std::vector<DataSetItemPtr>& items);
-
-
-      protected:
-
-        /*!
-          \brief It sets the identifier of the dataset.
-
-          \param The identifier of the dataset.
-        */
-        void setId(uint64_t id);
+        /*! \brief Removes the give dataset item from the dataset. */
+        void removeDataSetItem(uint64_t id);
 
 
       private:
 
-        uint64_t id_;
+
         std::string name_;
+        Kind kind_;
+        uint64_t id_;
+        uint64_t provider_;
         std::string description_;
         Status status_;
-        DataProviderPtr dataProvider_;
-        Kind kind_;
         te::dt::TimeDuration dataFrequency_;
         te::dt::TimeDuration schedule_;
         te::dt::TimeDuration scheduleRetry_;
         te::dt::TimeDuration scheduleTimeout_;
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
-        std::vector<DataSetItemPtr> dataSetItemList_;
+        std::vector<DataSetItem> datasetItems_;
     };
-
-    typedef std::shared_ptr<DataSet> DataSetPtr;
 
   } // end namespace core
 }   // end namespace terrama2

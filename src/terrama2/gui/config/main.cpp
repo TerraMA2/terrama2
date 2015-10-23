@@ -54,8 +54,8 @@ void initializeTerralib()
   info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
   te::plugin::PluginManager::getInstance().add(info);
 
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+//  te::plugin::PluginManager::getInstance().add(info);
 
 //  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
 //  te::plugin::PluginManager::getInstance().add(info);
@@ -74,8 +74,10 @@ int main(int argc, char* argv[])
   try
   {
     ConfigApp terrama2_config;
-  
-    terrama2_config.showMaximized();
+    QSize s_max = terrama2_config.size();
+    terrama2_config.statusBar()->setSizeGripEnabled(false);
+    terrama2_config.show();
+    terrama2_config.setFixedSize( s_max );
 
     int retval = app.exec();
 
@@ -96,7 +98,7 @@ int main(int argc, char* argv[])
   catch(const std::exception& e)
   {
     QString messageError = "TerraMA2 finished with errors!\n\n%1";
-    messageError.arg(e.what());
+    messageError.append(e.what());
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
   }
   catch(...)

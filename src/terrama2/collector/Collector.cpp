@@ -36,7 +36,7 @@
 #include <boost/log/trivial.hpp>
 
 
-terrama2::collector::Collector::Collector(const terrama2::core::DataProviderPtr dataProvider, QObject *parent)
+terrama2::collector::Collector::Collector(const core::DataProvider &dataProvider, QObject *parent)
   : QObject(parent),
     dataProvider_(dataProvider)
 {
@@ -52,10 +52,10 @@ terrama2::collector::Collector::~Collector()
 
 terrama2::core::DataProvider::Kind terrama2::collector::Collector::kind() const
 {
-  return dataProvider_->kind();
+  return dataProvider_.kind();
 }
 
-terrama2::core::DataProviderPtr terrama2::collector::Collector::dataProvider() const
+terrama2::core::DataProvider terrama2::collector::Collector::dataProvider() const
 {
   return dataProvider_;
 }
@@ -78,19 +78,40 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
 {
   //already locked by Collector::collect, lock_guard just to release when finished
   std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
+
+  if(datasetTimer->data().empty())
+  {
+    //TODO: LOG empty dataset
+    return;
+  }
+
   //aquire all data
   for(auto& data : datasetTimer->data())
   {
+    try
+    {
     //TODO: conditions to collect Data?
-    std::string localUri = retrieveData(data);
+      std::string localUri = retrieveData(data);
 
-    data->import(localUri);
+      data->import(localUri);
+    }
+    catch(terrama2::Exception& e)
+    {
+      //TODO: log this
+      continue;
+    }
+    catch(...)
+    {
+      //TODO: log this
+      // Unkown exception ocurred while.....
+      continue;
+    }
   }
 }
 
 void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 {
-  if(datasetTimer->dataSet()->status() != terrama2::core::DataSet::ACTIVE)
+  if(datasetTimer->dataSet().status() != terrama2::core::DataSet::ACTIVE)
   {
     throw InactiveDataSetError() << terrama2::ErrorDescription(
                                          tr("Trying to collect an inactive dataset."));
@@ -114,6 +135,5 @@ void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 
   //JANO: Reabilitar thread na colleta
   //start a new thread
-//  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
-  collectAsThread(datasetTimer);
+  collectingThread_ = std::thread(&Collector::collectAsThread, this, datasetTimer);
 }

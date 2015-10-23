@@ -30,6 +30,9 @@
 // STL
 #include <iostream>
 
+// Qt
+#include <QDebug>
+
 // Terralib
 #include "terralib/common/PlatformUtils.h"
 #include "terralib/common.h"
@@ -37,13 +40,37 @@
 
 // TerraMA2
 #include "soapWebService.h"
-#include "../../../core/Utils.hpp"
+#include "../core/Codes.hpp"
 #include "../../../core/ApplicationController.hpp"
+#include "../../../core/DataManager.hpp"
+#include "../../../core/Utils.hpp"
 
 
 int main(int argc, char* argv[])
 {
-  std::cerr << "Initializating TerraLib...";
+  // VINICIUS: get the port number from the project file
+  // check if the parameters was passed correctly
+
+  if(argc < 3)
+  {
+    std::cerr << "Inform a valid port and a project file in order to run the collector application server." << std::endl;
+    std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
+
+    return EXIT_FAILURE;
+  }
+
+  if(std::stoi(argv[1]) == 0)
+  {
+    std::cerr << "Inform a valid port (not " << argv[1] <<") and a project file in order to run the collector application server." << std::endl;
+    std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
+
+    return EXIT_FAILURE;
+  }
+
+  qDebug() << "Starting Webservice...";
+
+  qDebug() << "Initializating TerraLib...";
+
   // Initialize the Terralib support
   TerraLib::getInstance().initialize();
 
@@ -60,43 +87,51 @@ int main(int argc, char* argv[])
 
   te::plugin::PluginManager::getInstance().loadAll();
 
-  std::cerr << "Loading TerraMA2 Project...";
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
+  qDebug() << "Loading TerraMA2 Project...";
 
-  if(!terrama2::core::ApplicationController::getInstance().loadProject(path))
-    return EXIT_FAILURE;
-
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-
-  if(!dataSource.get())
-    return EXIT_FAILURE;
-
-  std::cerr << "Starting Webservice...";
-// check if a port number was passed as parameter
-  if(argv[1] == 0)
+  if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[2]))
   {
-    std::cerr << "Inform a port in order to run the collector application server.";
-
+    qDebug() << "TerraMA2 Project File is invalid or don't exist!";
     return EXIT_FAILURE;
   }
+
+  terrama2::core::DataManager::getInstance().load();
 
   WebService server;
 
-// run iterative server on port until fatal error
-  if( server.run( std::stoi(argv[1]) ) )
+  if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, std::stoi(argv[1]), 100)))
   {
-    server.soap_stream_fault(std::cerr);
+    qDebug() << "Webservice Started, running on port " << argv[1];
 
-    TerraLib::getInstance().finalize();
+    for (;;)
+    {
+      if (!soap_valid_socket(server.accept()))
+        break;
 
-    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+      int server_response = server.serve();
 
-    return EXIT_FAILURE;
+      if(server_response == terrama2::ws::collector::core::EXIT_REQUESTED)
+        break;
+
+      if(server_response != SOAP_OK)
+      {
+        server.soap_stream_fault(std::cerr);
+      }
+
+      server.destroy();
+    }
   }
 
+  qDebug() << "Shutdown Webservice...";
+
+  server.destroy();
   TerraLib::getInstance().finalize();
 
+  terrama2::core::DataManager::getInstance().unload();
+
   terrama2::core::ApplicationController::getInstance().getDataSource()->close();
+
+  qDebug() << "Webservice finished!";
 
   return EXIT_SUCCESS;
 }

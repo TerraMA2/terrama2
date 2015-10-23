@@ -24,9 +24,10 @@ QMap<QString, QJsonObject> AdminAppCollectTab::toJson()
   collect["data_path"] = ui_->aqDirNameLed->text();
   collect["log_file"] = ui_->aqLogFileLed->text();
   collect["connection_timeout"] = ui_->aqTimeoutMinSpb->value() * 60 + ui_->aqTimeoutSecSpb->value();
-  collect["connection_timeout"] = ui_->aqTimeoutMinSpb->text();
   collect["address"] = ui_->aqAddressLed->text();
-  collect["port"] = ui_->aqPortLed->text();
+  collect["port"] = ui_->aqPortLed->text(); 
+  collect["parameters"] = app_->getConfigManager()->getCollection()->params_;
+  collect["command"] = app_->getConfigManager()->getCollection()->cmd_;
 
   QMap<QString, QJsonObject> json;
   json.insert(QString("collector_web_service"), collect);

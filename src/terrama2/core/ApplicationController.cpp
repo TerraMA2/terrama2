@@ -47,6 +47,73 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
 
+
+#include <QSqlDatabase>
+#include <QStringList>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
+#include <QFile>
+
+
+
+
+
+//**************************************************************************
+//FIXME: temporary, should removed. Only used while not using batch executor
+
+/**
+* @brief executeQueriesFromFile Read each line from a .sql QFile
+* (assumed to not have been opened before this function), and when ; is reached, execute
+* the SQL gathered until then on the query object. Then do this until a COMMIT SQL
+* statement is found. In other words, this function assumes each file is a single
+* SQL transaction, ending with a COMMIT line.
+*/
+
+void executeQueriesFromFile(QFile *file, QSqlQuery *query)
+{
+    while (!file->atEnd()){
+        QByteArray readLine="";
+        QString cleanedLine;
+        QString line="";
+        bool finished=false;
+        while(!finished){
+            readLine = file->readLine();
+            cleanedLine=readLine.trimmed();
+            // remove comments at end of line
+            QStringList strings=cleanedLine.split("--");
+            cleanedLine=strings.at(0);
+
+            // remove lines with only comment, and DROP lines
+            if(!cleanedLine.startsWith("--")
+                    && !cleanedLine.startsWith("DROP")
+                    && !cleanedLine.isEmpty()){
+                line+=cleanedLine;
+            }
+            if(cleanedLine.endsWith(";")){
+                break;
+            }
+            if(cleanedLine.startsWith("COMMIT")){
+                finished=true;
+            }
+        }
+
+        if(!line.isEmpty()){
+            query->exec(line);
+        }
+        if(!query->isActive()){
+            qDebug() << QSqlDatabase::drivers();
+            qDebug() <<  query->lastError();
+            qDebug() << "test executed query:"<< query->executedQuery();
+            qDebug() << "test last query:"<< query->lastQuery();
+        }
+    }
+}
+//**************************************************************************
+
+
+
+
 bool terrama2::core::ApplicationController::loadProject(const std::string &configFileName)
 {
   configFile_ = configFileName;
@@ -62,11 +129,11 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
     {
       QJsonObject databaseConfig = project["database"].toObject();
       std::map<std::string, std::string> connInfo;
-      connInfo["PG_HOST"] = databaseConfig["hostName"].toString().toStdString();
+      connInfo["PG_HOST"] = databaseConfig["host"].toString().toStdString();
       connInfo["PG_PORT"] = databaseConfig["port"].toString().toStdString();
       connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
       connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
-      connInfo["PG_DB_NAME"] = databaseConfig["dbName"].toString().toStdString();
+      connInfo["PG_DB_NAME"] = databaseConfig["name"].toString().toStdString();
       connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
       dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
@@ -148,15 +215,75 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
       dataSource_->close();
     }
 
-    dataSource_ = std::shared_ptr<te::da::DataSource>(te::da::DataSource::create(dsType, connInfo));
+    try
+    {
+      dataSource_ = std::shared_ptr<te::da::DataSource>(te::da::DataSource::create(dsType, connInfo));
 
-    dataSource_->open();
+      //**************************************************************************
+      //FIXME: temporary, should be executed with batch executor
+      //FIXME: Remove includes from CMakeList (project and module)
+      QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
+      db.setHostName(host.c_str());
+      db.setDatabaseName(dbName.c_str());
+      db.setUserName(username.c_str());
+      db.setPassword(password.c_str());
+      db.open();
 
-    auto transactor = dataSource_->getTransactor();
+      QString scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/sql/terrama2-data-model-pg_oneline.sql").c_str();
+      QFile sqlScript(scriptPath);
+      sqlScript.open(QIODevice::ReadOnly);
+      QSqlQuery query(db);
 
-    // TODO: Create the database model executing the script
+      query.exec("CREATE EXTENSION postgis");
+
+      executeQueriesFromFile(&sqlScript, &query);
+      sqlScript.close();
+      db.close();
+      //**************************************************************************
+
+      // TODO: Create the database model executing the script
+    }
+    catch(te::common::Exception& e)
+    {
+      //TODO: log de erro
+      qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+      assert(0);
+    }
+    catch(...)
+    {
+      //TODO: log this
+    }
+
 
     return true;
   }
+
+}
+
+bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port)
+{
+    std::map<std::string, std::string> connInfo;
+
+    connInfo["PG_HOST"] = host;
+    connInfo["PG_PORT"] = std::to_string(port);
+    connInfo["PG_USER"] = username;
+    connInfo["PG_DB_NAME"] = dbName;
+    connInfo["PG_CONNECT_TIMEOUT"] = "4";
+    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+
+    std::string dsType = "POSTGIS";
+
+    // Check the data source existence
+    connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
+    bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+    if(dsExists)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
 
 }

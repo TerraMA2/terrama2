@@ -20,50 +20,34 @@
 */
 
 /*!
-  \file terrama2/gui/config/ConfigAppAdditionalTab.cpp
+  \file terrama2/gui/config/ConfigAppWeatherOccurrence.hpp
 
-  \brief Definition of Class ConfigAppAdditionalTab.hpp
+  \brief Class responsible for handling Occurrence data set inside WeatherTab
 
   \author Raphael Willian da Costa
-  \author Evandro Delatin
 */
 
-// TerraMA2
-#include "ConfigAppAdditionalTab.hpp"
 
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
 
-ConfigAppAdditionalTab::ConfigAppAdditionalTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+#include "ConfigAppTab.hpp"
+
+class ConfigAppWeatherOccurrence : public ConfigAppTab
 {
+  Q_OBJECT
+  public:
+    ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherOccurrence();
 
-}
+    void load();
+    bool validate();
+    void save();
+    void discardChanges(bool restore_data);
 
-ConfigAppAdditionalTab::~ConfigAppAdditionalTab()
-{
-}
+  private slots:
+    void onDataSetBtnClicked();
+    void onRemoveOccurrenceBtnClicked();
+};
 
-
-void ConfigAppAdditionalTab::load()
-{
-
-}
-
-bool ConfigAppAdditionalTab::dataChanged()
-{
-  return false;
-}
-
-bool ConfigAppAdditionalTab::validate()
-{
-  return true;
-}
-
-void ConfigAppAdditionalTab::save()
-{
-
-}
-
-void ConfigAppAdditionalTab::discardChanges(bool restore_data)
-{
-
-}
+#endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__

@@ -27,6 +27,10 @@
   \author Paulo R. M. Oliveira
 */
 
+//TerraMA2
+#include <terrama2/core/DataProvider.hpp>
+#include <terrama2/core/DataSet.hpp>
+
 //QT
 #include <QtTest/QTest>
 
@@ -85,6 +89,8 @@ class TsDataManager : public QObject
     void testFindNonExistentDataProvider();
     void testFindDataProviderByName();
 
+    void testDataProviderValidName();
+
     //Dataset tests
 
     // Tests for add
@@ -112,9 +118,11 @@ class TsDataManager : public QObject
     void testFindNonExistentDataSet();
     void testFindDataSetByName();
 
+    void testDatasetValidName();
 
-    terrama2::core::DataProviderPtr createDataProvider();
-    terrama2::core::DataSetPtr createDataSet();
+
+    terrama2::core::DataProvider createDataProvider();
+    terrama2::core::DataSet createDataSet();
 
 
 };

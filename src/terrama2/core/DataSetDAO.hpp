@@ -35,15 +35,23 @@
 #include "DataSet.hpp"
 
 // STL
-#include <memory>
+#include <vector>
 
 // Forward declaration
-namespace te { namespace da { class DataSourceTransactor; } }
+namespace te
+{
+  namespace da
+  {
+    class DataSourceTransactor;
+    class DataSet;
+  }
+}
 
 namespace terrama2
 {
   namespace core
   {
+
     /*!
       \class DataSetDAO
 
@@ -58,7 +66,7 @@ namespace terrama2
 
           \param dataset     The dataset to be inserted into the database.
           \param transactor  The data source transactor to be used to perform the insert operation.
-          \param shallowSave If true it will save only the dataset attributes into the database. Dataset items will not be saved.
+          \param shallow     If true it will save only the dataset attributes into the database. Dataset items will not be saved.
 
           \pre The dataset must be associated to a valid data provider.
           \pre The dataset must have an identifier equals to 0 (considered invalid).
@@ -67,7 +75,9 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void save(DataSet& dataset,
+                         te::da::DataSourceTransactor& transactor,
+                         const bool shallow = true);
 
         /*!
           \brief Update the dataset information in the database.
@@ -81,7 +91,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave = true);
+        static void update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallow = true);
 
         /*!
           \brief Removes the dataset from the database.
@@ -103,7 +113,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static std::unique_ptr<DataSet> load(uint64_t id, te::da::DataSourceTransactor& transactor);
+        static DataSet load(uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Load the list of datasets for the given data provider.
@@ -117,7 +127,8 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void load(DataProviderPtr& provider, te::da::DataSourceTransactor& transactor);
+        static std::vector<DataSet>
+        loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor);
 
       private:
 
@@ -140,24 +151,25 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void loadCollectRules(DataSetPtr& dataSet, te::da::DataSourceTransactor& transactor);
+        static void loadCollectRules(DataSet& dataSet, te::da::DataSourceTransactor& transactor);
 
         /*!
-           \brief Insert the collect rules ofthe given dataset in the database.
+           \brief Insert the given collect rule in the database.
 
-           \param dataset     The dataset with the collected rules to be inserted into the database.
+           \param collectRule The collect rule to be inserted into the database.
            \param transactor  The data source transactor to be used to perform the insert operation.
 
            \pre The dataset must have a valid identifier (a value different than 0).
 
-           \pos On success the inserted collect rules will have a valid identifier (different from 0).
+           \pos On success the inserted collect rule will have a valid identifier (different from 0).
 
            \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
           */
-        static void saveCollectRules(DataSetPtr& dataSet, te::da::DataSourceTransactor& transactor);
+        static void saveCollectRule(DataSet::CollectRule& collectRule, te::da::DataSourceTransactor& transactor);
+
 
         /*!
-          \brief Update the collect rules information in the database.
+          \brief Update the collect rules information of the given dataset in the database.
 
           \param dataset     The dataset with the collect rules to be updated.
           \param transactor  The data source transactor to be used to perform the update operation.
@@ -167,18 +179,31 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void updateCollectRules(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor);
+        static void updateCollectRules(DataSet& dataset, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Update the collect rule information in the database.
+
+          \param collectRule The collect rule to be updated.
+          \param transactor  The data source transactor to be used to perform the update operation.
+
+          \pre The collect rule must be associated to a valid dataset.
+          \pre The collect rule must have a valid identifier (a value different from 0).
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void updateCollectRule(DataSet::CollectRule& collectRule, te::da::DataSourceTransactor& transactor);
 
 
         /*!
-          \brief Removes the dataset from the database.
+          \brief Removes the collect rule of a dataset from the database.
 
-          \param id         The dataset to be removed from the database.
+          \param id         The id of the collect rule to be removed.
           \param transactor The data source transactor to be used to perform the delete operation.
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void removeCollectRules(uint64_t id, te::da::DataSourceTransactor& transactor);
+        static void removeCollectRule(uint64_t id, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Load the metadata for the given dataset.
@@ -192,11 +217,52 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void loadMetadata(DataSetPtr& dataset, te::da::DataSourceTransactor& transactor);
+        static void loadMetadata(DataSet& dataset, te::da::DataSourceTransactor& transactor);
 
+        /*!
+          \brief Insert the metadata of the given dataset in the database.
 
-        static void saveMetadata(DataSetPtr& dataSet, te::da::DataSourceTransactor& transactor);
+          \param dataset     The dataset with the metadata to be inserted into the database.
+          \param transactor  The data source transactor to be used to perform the insert operation.
 
+          \pre The dataset must have a valid identifier (a value different than 0).
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void saveMetadata(DataSet& dataSet, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Update the metadata of the given dataset in the database.
+
+          \param dataset     The dataset with the metadata to be updated into the database.
+          \param transactor  The data source transactor to be used to perform the insert operation.
+
+          \pre The dataset must have a valid identifier (a value different than 0).
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void updateMetadata(DataSet& dataset, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Removes the metadata of a dataset from the database.
+
+          \param id         The identifier of the dataset.
+          \param transactor The data source transactor to be used to perform the delete operation.
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static void removeMetadata(uint64_t id, te::da::DataSourceTransactor& transactor);
+
+        /*!
+          \brief Reads all columns from the current row of the query result and creates a dataset.
+
+          \param queryResult The terralib dataset with the query result.
+          \param transactor  The data source transactor to be used to perform the insert operation.
+
+          \return The dataset created for the current row of the query result.
+
+         */
+        static DataSet getDataSet(std::auto_ptr<te::da::DataSet>& queryResult, te::da::DataSourceTransactor& transactor);
     };
 
   } // end namespace core

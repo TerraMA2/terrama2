@@ -20,30 +20,34 @@
 */
 
 /*!
-  \file terrama2/collector/ParserFactory.hpp
+  \file terrama2/gui/config/ConfigAppWeatherPcd.hpp
 
-  \brief Instantiate parsers for DataProcessors.
+  \brief Class responsible for handling PCD data inside WeatherTab
 
-  \author Jano Simas
+  \author Raphael Willian da Costa
 */
 
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
 
-#include "Parser.hpp"
-#include "../core/DataSetItem.hpp"
+#include "ConfigAppTab.hpp"
 
-namespace terrama2
+class ConfigAppWeatherPcd : public ConfigAppTab
 {
-  namespace collector
-  {
-    namespace ParserFactory
-    {
-      ParserPtr getParser(core::DataSetItem::Kind datasetItemKind);
-    }
-  }
-}
+  Q_OBJECT
+  public:
+    ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherPcd();
 
+    void load();
+    bool validate();
+    void save();
+    void discardChanges(bool restore_data);
 
-#endif //__TERRAMA2_COLLECTOR_PARSERFACTORY_HPP__
+  private slots:
+    void onInsertPointBtnClicked();
+    void onDataPointBtnClicked();
+};
+
+#endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__

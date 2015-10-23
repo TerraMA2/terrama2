@@ -31,13 +31,13 @@
 #ifndef __TERRAMA2_COLLECTOR_DATAPROCESSOR_HPP__
 #define __TERRAMA2_COLLECTOR_DATAPROCESSOR_HPP__
 
+//TerraMA2
+#include "../core/DataSetItem.hpp"
+
 //Std
 #include <memory>
 #include <cstdint>
 #include <string>
-
-//Qt
-#include <QObject>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -52,13 +52,9 @@ namespace te
 
 namespace terrama2
 {
-  namespace core {
-    class DataSetItem;
-    typedef std::shared_ptr<DataSetItem> DataSetItemPtr;
-  }
-
   namespace collector
   {
+    class Factory;
     class DataFilter;
     typedef std::shared_ptr<DataFilter> DataFilterPtr;
     class Parser;
@@ -74,13 +70,11 @@ namespace terrama2
          * it is responsible for calling the appropriate storager.
          *
          */
-    class DataProcessor : public QObject, public boost::noncopyable
+    class DataProcessor : public boost::noncopyable
     {
-        Q_OBJECT
-
       public:
         //! Constructor
-        DataProcessor(core::DataSetItemPtr data, QObject* parent = nullptr);
+        DataProcessor(const core::DataSetItem& data);
         //! Destructor
         ~DataProcessor();
 
@@ -88,7 +82,7 @@ namespace terrama2
          * \brief Data object being processed by this processor.
          * \return Shared pointer to the Data object.
          */
-        core::DataSetItemPtr data() const;
+        core::DataSetItem data() const;
 
         /*!
          * \brief Filtering rules for the data.

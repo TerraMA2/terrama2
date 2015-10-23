@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/client/TestClient.hpp
+  \file terrama2/unittest/ws/integration/TsClient.hpp
 
   \brief Tests for the WebService Client class.
 
@@ -37,7 +37,7 @@
 #include <terrama2/ws/collector/client/Client.hpp>
 
 
-class TestClient: public QObject
+class TsClient: public QObject
 {
   Q_OBJECT
 
@@ -52,13 +52,13 @@ private:
      */
     void clearDatabase();
 
-    terrama2::core::DataProviderPtr buildDataProviderPtr();
-    terrama2::core::DataSetPtr buildDataSetPtr();
+    terrama2::core::DataProvider buildDataProvider();
+    terrama2::core::DataSet buildDataSet();
 
 private slots:
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+    void initTestCase(); // Run before all tests
+    void cleanupTestCase(); // Run after all tests
 
     void init(); //run before each test
     void cleanup(); //run before each test
@@ -110,6 +110,12 @@ private slots:
     /*!
      * \brief
      */
+    void testUpdateDataProviderWrongID();
+
+
+    /*!
+     * \brief
+     */
     void testFindDataProvider();
 
 
@@ -117,6 +123,12 @@ private slots:
      * \brief
      */
     void testFindDataProviderInvalidID();
+
+
+    /*!
+     * \brief
+     */
+    void testListDataProvider();
 
 
     /*!
@@ -175,6 +187,17 @@ private slots:
      */
     void testFindDataSetInvalidID();
 
+
+    /*!
+     * \brief
+     */
+    void testListDataSet();
+
+
+    /*!
+     * \brief
+     */
+    void testShutdownWebService();
 
     //******End of Test functions****
 

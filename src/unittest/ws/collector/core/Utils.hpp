@@ -20,33 +20,22 @@
 */
 
 /*!
-  \file terrama2/collector/StoragerFactory.cpp
+  \file unittest/ws/collector/core/Utils.hpp
 
-  \brief Instantiate storagers for DataProcessors.
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Jano Simas
+  \author Vinicius Campanha
 */
 
-#include "StoragerFactory.hpp"
-#include "StoragerPostgis.hpp"
+#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__
 
-#include "../core/DataSetItem.hpp"
+void initializeTerralib();
 
-terrama2::collector::StoragerPtr terrama2::collector::StoragerFactory::getStorager(terrama2::core::DataSetItemPtr datasetItem)
-{
-  std::map<std::string, std::string> storageMetadata = datasetItem->storageMetadata();
+void finalizeTerralib();
 
-  //Exceptions
+void initializeTerraMA2();
 
-  std::string storagerKind = storageMetadata.at("KIND");
-  if(storagerKind.empty())
-    return StoragerPtr();
+void finalizeTerraMA2();
 
-  if(storagerKind == "POSTGIS")
-  {
-    return StoragerPtr(new StoragerPostgis(storageMetadata));
-  }
-
-
-  return StoragerPtr();
-}
+#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__

@@ -58,7 +58,7 @@ namespace terrama2
          * \exception InvalidDataProviderException
          * \exception WrongDataProviderKindException
          */
-        CollectorFile(const terrama2::core::DataProviderPtr dataProvider, QObject *parent = nullptr);
+        CollectorFile(const core::DataProvider &dataProvider, QObject *parent = nullptr);
         virtual ~CollectorFile(){}
 
         virtual bool checkConnection() const override;

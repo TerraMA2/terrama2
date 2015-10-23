@@ -32,7 +32,6 @@
 #include "../Config.hpp"
 #include "Exception.hpp"
 
-
 // Boost
 #include <boost/filesystem.hpp>
 
@@ -92,14 +91,14 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 }
 
 QJsonDocument
-terrama2::core::ReadJsonFile(const std::string &file_name)
+terrama2::core::ReadJsonFile(const std::string & fileName)
 {
-  QFile file(file_name.c_str());
+  QFile file(fileName.c_str());
 
   if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     QString err_msg(QObject::tr("Could not open file: %1."));
-    err_msg = err_msg.arg(file_name.c_str());
+    err_msg = err_msg.arg(fileName.c_str());
 
     throw terrama2::FileOpenError() << terrama2::ErrorDescription(err_msg);
   }
@@ -115,7 +114,7 @@ terrama2::core::ReadJsonFile(const std::string &file_name)
   if(jdocument.isNull())
   {
     QString err_msg(QObject::tr("Error parsing file '%1': %2."));
-    err_msg = err_msg.arg(file_name.c_str()).arg(parse_error.errorString());
+    err_msg = err_msg.arg(fileName.c_str()).arg(parse_error.errorString());
 
     throw terrama2::ParserError() << terrama2::ErrorDescription(err_msg);
   }
@@ -124,7 +123,7 @@ terrama2::core::ReadJsonFile(const std::string &file_name)
 }
 
 bool
-terrama2::core::DataProviderStatusToBool(DataProvider::Status status)
+terrama2::core::ToBool(DataProvider::Status status)
 {
   switch (status)
   {
@@ -138,39 +137,43 @@ terrama2::core::DataProviderStatusToBool(DataProvider::Status status)
 }
 
 terrama2::core::DataProvider::Status
-terrama2::core::BoolToDataProviderStatus(bool active)
+terrama2::core::ToDataProviderStatus(bool active)
 {
   return (active) ? DataProvider::ACTIVE : DataProvider::INACTIVE;
 }
 
 terrama2::core::DataProvider::Kind
-terrama2::core::IntToDataProviderKind(uint64_t kind)
+terrama2::core::ToDataProviderKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
-    case 1:
-      return DataProvider::FTP_TYPE;
     case 2:
-      return DataProvider::HTTP_TYPE;
+      return DataProvider::FTP_TYPE;
     case 3:
-      return DataProvider::FILE_TYPE;
+      return DataProvider::HTTP_TYPE;
     case 4:
-      return DataProvider::WFS_TYPE;
+      return DataProvider::FILE_TYPE;
     case 5:
+      return DataProvider::WFS_TYPE;
+    case 6:
       return DataProvider::WCS_TYPE;
+    case 7:
+      return DataProvider::SOS_TYPE;
     default:
       return DataProvider::UNKNOWN_TYPE;
   }
 }
 
 std::string
-terrama2::core::BoolToString(bool b)
+terrama2::core::ToString(bool b)
 {
   return b ? "true" : "false";
 }
 
 bool
-terrama2::core::DataSetStatusToBool(DataSet::Status status)
+terrama2::core::ToBool(DataSet::Status status)
 {
   switch (status)
   {
@@ -184,7 +187,7 @@ terrama2::core::DataSetStatusToBool(DataSet::Status status)
 }
 
 
-terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(bool active)
+terrama2::core::DataSet::Status terrama2::core::ToDataSetStatus(bool active)
 {
   return (active) ? DataSet::ACTIVE : DataSet::INACTIVE;
 }
@@ -192,15 +195,17 @@ terrama2::core::DataSet::Status terrama2::core::BoolToDataSetStatus(bool active)
 
 
 terrama2::core::DataSet::Kind
-terrama2::core::IntToDataSetKind(uint64_t kind)
+terrama2::core::ToDataSetKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
-    case 1:
-      return DataSet::PCD_TYPE;
     case 2:
-      return DataSet::OCCURENCE_TYPE;
+      return DataSet::PCD_TYPE;
     case 3:
+      return DataSet::OCCURENCE_TYPE;
+    case 4:
       return DataSet::GRID_TYPE;
     default:
       return DataSet::UNKNOWN_TYPE;
@@ -208,17 +213,19 @@ terrama2::core::IntToDataSetKind(uint64_t kind)
 }
 
 terrama2::core::DataSetItem::Kind
-terrama2::core::IntToDataSetItemKind(uint64_t kind)
+terrama2::core::ToDataSetItemKind(uint64_t kind)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (kind)
   {
-    case 1:
-      return DataSetItem::PCD_INPE_TYPE;
     case 2:
-      return DataSetItem::PCD_TOA5_TYPE;
+      return DataSetItem::PCD_INPE_TYPE;
     case 3:
-      return DataSetItem::FIRE_POINTS_TYPE;
+      return DataSetItem::PCD_TOA5_TYPE;
     case 4:
+      return DataSetItem::FIRE_POINTS_TYPE;
+    case 5:
       return DataSetItem::DISEASE_OCCURRENCE_TYPE;
     default:
       return DataSetItem::UNKNOWN_TYPE;
@@ -226,13 +233,13 @@ terrama2::core::IntToDataSetItemKind(uint64_t kind)
 }
 
 terrama2::core::DataSetItem::Status
-terrama2::core::BoolToDataSetItemStatus(bool active)
+terrama2::core::ToDataSetItemStatus(bool active)
 {
   return (active) ? DataSetItem::ACTIVE : DataSetItem::INACTIVE;
 }
 
 bool
-terrama2::core::DataSetItemStatusToBool(DataSetItem::Status status)
+terrama2::core::ToBool(DataSetItem::Status status)
 {
   switch (status)
   {
@@ -246,17 +253,19 @@ terrama2::core::DataSetItemStatusToBool(DataSetItem::Status status)
 }
 
 terrama2::core::Filter::ExpressionType
-terrama2::core::IntToFilterExpressionType(uint64_t type)
+terrama2::core::ToFilterExpressionType(uint64_t type)
 {
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
   switch (type)
   {
-    case 1:
-      return Filter::LESS_THAN_TYPE;
     case 2:
-      return Filter::GREATER_THAN_TYPE;
+      return Filter::LESS_THAN_TYPE;
     case 3:
-      return Filter::MEAN_LESS_THAN_TYPE;
+      return Filter::GREATER_THAN_TYPE;
     case 4:
+      return Filter::MEAN_LESS_THAN_TYPE;
+    case 5:
       return Filter::MEAN_GREATER_THAN_TYPE;
     default:
       return Filter::NONE_TYPE;

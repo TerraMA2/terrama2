@@ -20,43 +20,11 @@
 */
 
 /*!
-  \file terrama2/gui/config/ServiceHandler.cpp
+  \file terrama2/unittest/ws/collector/client/Namespace.cpp
 
-  \brief This class contains all TerraMA2 Services
+  \brief Include namespace file from gSOAP.
 
-  \author Raphael Willian da Costa
+  \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
-#define __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
-
-// TerraMA2
-#include <QString>
-
-// Boost
-#include <boost/noncopyable.hpp>
-
-// QT
-#include <QMainWindow>
-#include <QSharedPointer>
-
-
-// Forward declaration
-class ConfigManager;
-
-class ServiceHandler
-{
-  public:
-    ServiceHandler(QMainWindow* app);
-
-    ~ServiceHandler();
-
-    void loadConfiguration(QString filepath);
-
-  private:
-    QSharedPointer<ConfigManager> configManager_;
-    // Pointer for each service
-    //Collector* coll;
-};
-
-#endif // __TERRAMA2_GUI_CONFIG_SERVICEHANDLER_HPP__
+#include "Web.nsmap"

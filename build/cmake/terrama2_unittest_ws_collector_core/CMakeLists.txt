@@ -32,6 +32,8 @@ include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${GSOAP_INCLUDE_DIR}
+  "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_server/gsoap"
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -42,7 +44,10 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 add_executable(terrama2_unittest_ws_collector_core ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collector_core)
+target_link_libraries(terrama2_unittest_ws_collector_core terrama2_mod_ws_collector_core
+                                                          terrama2_mod_core
+                                                          terralib_mod_plugin
+                                                          terralib_mod_common)
 
 qt5_use_modules(terrama2_unittest_ws_collector_core Test)
 

@@ -20,29 +20,26 @@
 */
 
 /*!
-  \file terrama2/gui/config/ServiceHandler.cpp
+  \file unittest/ws/collector/client/Utils.hpp
 
-  \brief This class contains all TerraMA2 Services implementation
+  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
-  \author Raphael Willian da Costa
+  \author Vinicius Campanha
 */
 
-// TerraMA2
-#include "ServiceHandler.hpp"
-#include "../core/ConfigManager.hpp"
+#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
 
-ServiceHandler::ServiceHandler(QMainWindow* app)
-  : configManager_(new ConfigManager(app))
-{
+void InitializeTerralib();
 
-}
+void FinalizeTerralib();
 
-ServiceHandler::~ServiceHandler()
-{
+void InitializeTerraMA2();
 
-}
+void FinalizeTerraMA2();
 
-void ServiceHandler::loadConfiguration(QString filepath)
-{
-  configManager_->loadConfiguration(filepath);
-}
+void DropDatabase();
+
+void CreateDatabase();
+
+#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__

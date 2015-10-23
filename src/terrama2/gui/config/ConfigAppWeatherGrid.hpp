@@ -20,30 +20,40 @@
 */
 
 /*!
-  \file terrama2/collector/StoragerFactory.hpp
+  \file terrama2/gui/config/ConfigAppWeatherGrid.hpp
 
-  \brief Instantiate storagers for DataProcessors.
+  \brief Class responsible for handling DataGrid inside WeatherTab
 
-  \author Jano Simas
+  \author Raphael Willian da Costa
 */
 
+#ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
+#define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__
 
-#ifndef __TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
-#define __TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
-
-#include "Storager.hpp"
-#include "../core/DataSetItem.hpp"
-
-namespace terrama2
-{
-  namespace collector
-  {
-    namespace StoragerFactory
-    {
-      StoragerPtr getStorager(core::DataSetItemPtr datasetItem);
-    }
-  }
-}
+// TerraMA2
+#include "ConfigAppTab.hpp"
 
 
-#endif //__TERRAMA2_COLLECTOR_STORAGERFACTORY_HPP__
+class ConfigAppWeatherGridTab : public ConfigAppTab {
+  Q_OBJECT
+  public:
+    ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+    ~ConfigAppWeatherGridTab();
+
+    void load();
+    bool dataChanged();
+    bool validate();
+    void save();
+
+    void discardChanges(bool restore_data);
+
+  private slots:
+    //! Slot triggered when data grid btn is clicked to display the Grid Widget
+    void onDataGridClicked();
+
+    void onSubTabChanged();
+    void onGridFormatChanged();
+    void onRemoveDataGridBtnClicked();
+};
+
+#endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__

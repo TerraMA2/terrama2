@@ -42,8 +42,18 @@
 
 namespace terrama2
 {
+  //! The base type for error report messages.
+  typedef boost::error_info<struct tag_error_description, QString> ErrorDescription;
+
   //! Base exception class for TerraMA2.
-  struct Exception: virtual std::exception, virtual boost::exception { };
+  struct Exception: virtual std::exception, virtual boost::exception
+  {
+  public:
+    virtual const char* what() const noexcept
+    {
+      return boost::get_error_info< terrama2::ErrorDescription >(*this)->toStdString().c_str();
+    }
+  };
 
   //! An exception indicating that a slot connection was not stablished.
   struct SlotConnectionError: virtual Exception { };
@@ -69,11 +79,8 @@ namespace terrama2
   //! An exception indicating a serialization error.
   struct FileOpenError: virtual Exception { };
 
-  //! An exception indicating that a given parameter is missing or using a non-valid value.
-  struct InvalidParameterError: virtual Exception { };
-  
-  //! The base type for error report messages.
-  typedef boost::error_info<struct tag_error_description, QString> ErrorDescription;
+  //! An exception indicating that an argument is missing or violating any requirement.
+  struct InvalidArgumentError: virtual Exception { };
 
 }  // end namespace terrama2
 

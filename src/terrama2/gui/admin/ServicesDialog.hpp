@@ -26,11 +26,13 @@
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Carlos Augusto Teixeira Mendes
 */
 
 #ifndef __TERRAMA2_GUI_ADMIN_SERVICESDIALOG_HPP__
 #define __TERRAMA2_GUI_ADMIN_SERVICESDIALOG_HPP__  
+
+// TerraMA2
+#include "../../ws/collector/client/Client.hpp"
 
 // QT
 #include "ui_ServicesDialogForm.h"
@@ -38,19 +40,42 @@
 // Boost
 #include <boost/noncopyable.hpp>  
 
+struct CommonData;
+class ConfigManager;
+class AdminApp;
+
 class ServicesDialog : public QDialog, private boost::noncopyable
 {
  Q_OBJECT
 
 public:
-  ServicesDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+  ServicesDialog(AdminApp *adminapp, ConfigManager&, QString nameConfig);
   ~ServicesDialog();
 
+private slots:
+  void verifyRequested();
+  void saveRequested();
+  void execRequested();
+  void closeRequested();
+  void setDataChanged(int row, int col);
+  void clearDataChanged();
    
 private:
+  void setLine(int line, const QString& module, const CommonData& data);
+  void getLine(int line, CommonData& data);
+  void getSelectedLines(QList<int>& list);
+  void setDialogData(QString nameConfig); 
+  bool runCmd(int line, QString cmd, QString param, QString& err);
+
  struct Impl;
  
  Impl* pimpl_;  //!< Pimpl idiom.
+
+ ConfigManager& configManager_; //!< Configuration Manager
+ QString idNameConfig_; //!<  current identifier in config settings manager
+ bool changed_; //!< Flag indicating the data have been changed
+ AdminApp* adminapp_;
+ terrama2::ws::collector::Client* client;
 };
 
 

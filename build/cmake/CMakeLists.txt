@@ -203,7 +203,7 @@ include(terrama2_macros.cmake)
 # first check of libraries
 #
 
-find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools Test)
+find_package(Qt5 5.2 REQUIRED COMPONENTS Core Gui Widgets Network LinguistTools Sql Test)
 
 if(NOT Qt5_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Qt 5 libraries!")
@@ -288,7 +288,6 @@ if(DOXYGEN_FOUND)
 endif()
 
 option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
-option(TERRAMA2_GUI_CORE_ENABLED "Build TerraMA2 GUI Core module?" ON)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_COLLECTOR_ENABLED "Build Collector module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
@@ -300,7 +299,9 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED "Build Collector
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED "Build Collector Application Server?" ON "TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
 
-CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CORE_ENABLED "Build TerraMA2 GUI Core module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED;TERRAMA2_GUI_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration GUI?" ON "TERRAMA2_GUI_CORE_ENABLED" OFF)
 
@@ -313,6 +314,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_ENABLED "Build unitte
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_SERVER_ENABLED "Build unittest for Collector Web Service Server module?" ON ";TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_ENABLED "Build unittest for Collector Web Service Client module?" ON "TERRAMA2_BUILD_UNITTEST_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_INTEGRATION_ENABLED "Build integration test for Collector Web Service?" ON "TERRAMA2_BUILD_UNITTEST_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
 
 
 #
@@ -344,14 +347,6 @@ configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Version.hpp.in
 # build modules
 #
 
-if(TERRAMA2_GUI_ADMIN_ENABLED)
-  add_subdirectory(terrama2_gui_admin)
-endif()
-
-if(TERRAMA2_GUI_CONFIG_ENABLED)
-  add_subdirectory(terrama2_gui_config)
-endif()
-
 if(TERRAMA2_MOD_CORE_ENABLED)
   add_subdirectory(terrama2_mod_core)
 endif()
@@ -380,6 +375,14 @@ if(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED)
   add_subdirectory(terrama2_mod_ws_collector_appserver)
 endif()
 
+if(TERRAMA2_GUI_ADMIN_ENABLED)
+  add_subdirectory(terrama2_gui_admin)
+endif()
+
+if(TERRAMA2_GUI_CONFIG_ENABLED)
+  add_subdirectory(terrama2_gui_config)
+endif()
+
 if(TERRAMA2_DOXYGEN_ENABLED)
   add_subdirectory(terrama2_doxygen)
 endif()
@@ -402,6 +405,10 @@ endif()
 
 if(TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_ENABLED)
   add_subdirectory(terrama2_unittest_ws_collector_client)
+endif()
+
+if(TERRAMA2_UNITTEST_WS_COLLECTOR_INTEGRATION_ENABLED)
+  add_subdirectory(terrama2_unittest_ws_collector_integration)
 endif()
 
 

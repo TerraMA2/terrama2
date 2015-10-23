@@ -30,12 +30,18 @@
 
 // TerraMA2
 #include "Utils.hpp"
+#include "../Exception.hpp"
 
 // QT
-#include <QString>
 #include <QDir>
 #include <QUrl>
-#include "../Exception.hpp"
+#include <QMainWindow>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFileDialog>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 
 void terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
@@ -49,7 +55,16 @@ void terrama2::gui::core::checkServiceConnection(const QString& host, const int&
   if (!url.isValid())
     throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
 
-  // TODO: do remote connection
+  url.setUserName(user);
+  url.setPassword(password);
+  url.setPort(port);
+
+  QNetworkAccessManager manager;
+
+  QNetworkReply* reply = manager.get(QNetworkRequest(url));
+
+  if (reply->error() != QNetworkReply::NoError)
+    throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Invalid connection requested"));
 }
 
 void terrama2::gui::core::checkFTPConnection(const QString& host, const int& port, const QString& basepath,
@@ -62,14 +77,34 @@ void terrama2::gui::core::checkFTPConnection(const QString& host, const int& por
 
 void terrama2::gui::core::checkLocalFilesConnection(const QString& path)
 {
-  QString absolutePath = path;
-  absolutePath.append("/");
-  QDir directory(absolutePath);
+  QDir directory(path);
 
-  if (!directory.exists())
+  if (!directory.exists() || path.isEmpty())
   {
-    QString error(QObject::tr("Invalid directory typed: \"%1\""));
-    error.arg(absolutePath);
+    QString error = QObject::tr("Invalid directory typed: \"%1\"").arg(path);
     throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(error);
   }
+}
+
+
+void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QJsonObject& json)
+{
+  QString fileDestination = QFileDialog::getSaveFileName(appFocus, QObject::tr("TerraMA2 Export Data Provider"));
+  if (fileDestination.isEmpty())
+  {
+    throw terrama2::gui::FileError() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
+  }
+
+  QDir dir(fileDestination);
+  if (dir.exists())
+    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(QObject::tr("Invalid directory typed"));
+
+  if (!fileDestination.endsWith(".terrama2"))
+      fileDestination.append(".terrama2");
+
+  QFile file(fileDestination);
+  file.open(QIODevice::WriteOnly);
+  QJsonDocument document = QJsonDocument(json);
+  file.write(document.toJson());
+  file.close();
 }

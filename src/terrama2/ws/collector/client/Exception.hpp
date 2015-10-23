@@ -41,8 +41,11 @@ namespace terrama2
     {
       namespace client
       {
-        //! Exception to be used when receives a fault from WebService when request to add a DataProvider
+        //! Exception to be used when receives a fault from WebService when request to ping the WebService
         struct PingError: virtual terrama2::Exception{ };
+
+        //! Exception to be used when receives a fault from WebService when request to shutdown the WebService
+        struct ShutdownError: virtual terrama2::Exception{ };
 
         //! Exception to be used when receives a fault from WebService when request to add a DataProvider
         struct AddingDataProviderError: virtual terrama2::Exception{ };

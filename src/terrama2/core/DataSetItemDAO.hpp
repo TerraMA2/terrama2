@@ -32,12 +32,12 @@
 #define __TERRAMA2_CORE_DATASETITEMDAO_HPP__
 
 // TerraMA2
-#include "DataSet.hpp"
 #include "DataSetItem.hpp"
-#include "Filter.hpp"
+#include "DataSet.hpp"
 
 // STL
-#include <memory>
+#include <vector>
+#include <map>
 
 // Forward declaration
 namespace te { namespace da { class DataSourceTransactor; } }
@@ -46,7 +46,9 @@ namespace terrama2
 {
   namespace core
   {
-    
+// Forward declaration
+    class DataSetItem;
+
     /*!
       \class DataSetItemDAO
 
@@ -69,7 +71,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void save(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
+        static void save(DataSetItem& item, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Update the dataset item information in the database.
@@ -82,31 +84,43 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void update(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
+        static void update(DataSetItem& item, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Removes the dataset item from the database.
 
-          \param id         The dataset item to be removed from the database.
+          \param itemId     The dataset item to be removed from the database.
           \param transactor The data source transactor to be used to perform the delete operation.
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void remove(uint64_t id, te::da::DataSourceTransactor& transactor);
+        static void remove(uint64_t itemId, te::da::DataSourceTransactor& transactor);
 
         /*!
           \brief Load the list of dataset items for the given dataset.
 
-          \param dataset    The dataset to load its items.
-          \param transactor The data source transactor to be used to perform the delete operation.
+          \param datasetId  The dataset identifier to load its items.
+          \param transactor The data source transactor to be used to perform the load operation.
 
           \pre The dataset must have a valid identifier (a value different than 0).
 
-          \pos If the load succeed, the items will be added to the dataset.
-
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void loadItems(DataSetPtr dataset, te::da::DataSourceTransactor& transactor);
+        static std::vector<DataSetItem>
+        loadAll(uint64_t datasetId, te::da::DataSourceTransactor& transactor);
+
+        /*!
+        \brief Update all dataset items information in the database.
+
+        \param dataset       The dataset that the list of items to be updated to be updated.
+        \param transactor The data source transactor to be used to perform the update operation.
+
+        \pre The dataset item must be associated to a valid dataset.
+        \pre The identifier of the dataset must be valid (a value different from 0).
+
+        \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+        */
+        static void updateDataSetItems(DataSet& dataset, te::da::DataSourceTransactor& transactor);
 
       private:
 
@@ -117,36 +131,59 @@ namespace terrama2
         ~DataSetItemDAO();
 
         /*!
+          \brief Insert the given storage metadata in the database.
+
+          \param datasetItemId  The identifier of the dataset item.
+          \param metadata       The storage strategy metadata to be inserted into the database.
+          \param transactor     The data source transactor to be used to perform the insert operation.
+
+          \pre The identifier of the dataset item must be valid.
+
+          \pos On success the inserted dataset item will have a valid identifier (different from 0).
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static void saveStorageMetadata(uint64_t datasetItemId,
                                         const std::map<std::string, std::string>& metadata,
                                         te::da::DataSourceTransactor& transactor);
 
         /*!
+          \brief Update the storage strategy metadata information in the database.
+
+          \param datasetItemId  The identifier of the dataset item.
+          \param metadata       The storage strategy metadata to be updated into the database.
+          \param transactor     The data source transactor to be used to perform the update operation.
+
+          \pre The identifier of the dataset item must be valid.
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static void updateStorageMetadata(uint64_t datasetItemId,
                                           std::map<std::string, std::string>& metadata,
                                           te::da::DataSourceTransactor& transactor);
 
         /*!
+          \brief Removes the storage strategy information from the database.
+
+          \param datasetItemId  The identifier of the dataset item.
+          \param transactor     The data source transactor to be used to perform the delete operation.
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
         static void removeStorageMetadata(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor);
 
         /*!
-         */
-        static void loadStorageMetadata(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
-      
-        /*!
-         */
-        static void save(uint64_t datasetItemId, FilterPtr f, te::da::DataSourceTransactor& transactor);
-      
-        /*!
-         */
-        static void update(FilterPtr f, te::da::DataSourceTransactor& transactor);
+          \brief Load the storage metadata of the informed dataset item.
 
-        /*!
+          \param item       The dataset item to loaded with the storage metadata information.
+          \param transactor The data source transactor to be used to perform the delete operation.
+
+          \pre The identifier of the dataset item must be valid (a value different than 0).
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static void loadFilter(DataSetItemPtr item, te::da::DataSourceTransactor& transactor);
+        static void loadStorageMetadata(DataSetItem& item, te::da::DataSourceTransactor& transactor);
+
     };
 
   } // end namespace core

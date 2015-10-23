@@ -31,20 +31,20 @@
 #include "CollectorFile.hpp"
 #include "Exception.hpp"
 
-terrama2::collector::CollectorFile::CollectorFile(const terrama2::core::DataProviderPtr dataProvider, QObject *parent)
+terrama2::collector::CollectorFile::CollectorFile(const core::DataProvider& dataProvider, QObject *parent)
   : Collector(dataProvider, parent)
 {
 
-  if(!dataProvider)
+  if(dataProvider.id() == 0 || dataProvider.name().empty())
     throw InvalidDataProviderError() << terrama2::ErrorDescription(
                                                 tr("Invalid DataProvider received in CollectorFile constructor."));
 
 
-  if(dataProvider->kind() != core::DataProvider::FILE_TYPE)
+  if(dataProvider.kind() != core::DataProvider::FILE_TYPE)
     throw WrongDataProviderKindError() << terrama2::ErrorDescription(
                                                 tr("Wrong DataProvider Kind received in CollectorFile constructor."));
 
-  dir_.setPath(dataProvider->uri().c_str());
+  dir_.setPath(dataProvider.uri().c_str());
 }
 
 bool terrama2::collector::CollectorFile::checkConnection() const
