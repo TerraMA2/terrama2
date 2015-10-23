@@ -219,12 +219,8 @@ void TsClient::testRemoveDataProvider()
 
     QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
 
-<<<<<<< Updated upstream
     wsClient_->removeDataProvider(dataProvider.id());
-=======
-    // VINICIUS: code to remove a data provider in core is in SEGMENTATION FAULT
-    //webServer_->removeDataProvider(dataProvider.id());
->>>>>>> Stashed changes
+
   }
   catch(terrama2::Exception &e)
   {
@@ -353,13 +349,8 @@ void TsClient::testFindDataProviderInvalidID()
 {
   try
   {
-<<<<<<< Updated upstream
-    terrama2::core::DataProvider dataProvider_found(wsClient_->findDataProvider(1));
-=======
-    terrama2::core::DataProvider dataProvider_found;
 
-    webServer_->findDataProvider(1, dataProvider_found);
->>>>>>> Stashed changes
+    terrama2::core::DataProvider dataProvider_found(wsClient_->findDataProvider(1));
 
     QFAIL("Should not find a invalid Data Provider!");
   }
