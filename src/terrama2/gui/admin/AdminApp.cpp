@@ -112,6 +112,13 @@ AdminApp::AdminApp(QWidget* parent)
 
 // Init variable
   pimpl_->ui_->configListWidget->clear();
+  pimpl_->ui_->analysisTab->setEnabled(false);
+  pimpl_->ui_->layersTab->setEnabled(false);
+  pimpl_->ui_->notificationTab->setEnabled(false);
+  pimpl_->ui_->configTab->setEnabled(false);
+  pimpl_->ui_->animationTab->setEnabled(false);
+  pimpl_->ui_->webTab->setEnabled(false);
+
   nameConfig_ = "";
   CurrentConfigIndex_ = 0;  
   clearDataChanged();
@@ -216,8 +223,10 @@ void AdminApp::newRequested()
                                          QLineEdit::Normal, nameConfig_, &ok);
 
     if (!ok || newname.isEmpty())
-    {
-      clearDataChanged();
+    {      
+      enableFields(false);
+      pimpl_->ui_->renameAct->setEnabled(true);
+      pimpl_->ui_->removeAct->setEnabled(true);
       return;
     }
 
@@ -292,7 +301,7 @@ void AdminApp::renameRequested()
 
   if (!ok || newname.isEmpty())
   {
-    clearDataChanged();   
+    clearDataChanged();
     return;
   }
 
@@ -427,6 +436,8 @@ void AdminApp::saveAsRequested()
 void AdminApp::cancelRequested()
 {
   newData_= false;
+
+//  delete pimpl_->ui_->configListWidget->currentItem();
 
   refresh();
 
@@ -831,5 +842,9 @@ void AdminApp::fillForm()
   pimpl_->ui_->aqTimeoutSecSpb->setValue(configManager_->getCollection()->timeout_ % 60);
 
   clearDataChanged();
+
+  pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
+  pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
+
 }
 
