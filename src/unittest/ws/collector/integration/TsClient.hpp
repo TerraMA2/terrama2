@@ -65,7 +65,7 @@ private slots:
 
     //******Test functions********;
 
-/*
+
     /*!
      * \brief Test to request the WebService status
      */
@@ -201,7 +201,7 @@ private slots:
 
     //******End of Test functions****
 
-*/
+
 
 };
 
