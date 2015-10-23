@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/client/TestCore.hpp
+  \file terrama2/unittest/ws/client/TsCore.hpp
 
   \brief Tests for the WebService Core class.
 
@@ -37,7 +37,7 @@
 #include <terrama2/core/DataManager.hpp>
 
 
-class TestCore: public QObject
+class TsCore: public QObject
 {
   Q_OBJECT
 
