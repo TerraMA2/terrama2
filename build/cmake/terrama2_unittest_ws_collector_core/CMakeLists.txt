@@ -32,6 +32,7 @@ include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${GSOAP_INCLUDE_DIR}
   "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_server/gsoap"
 )
 
