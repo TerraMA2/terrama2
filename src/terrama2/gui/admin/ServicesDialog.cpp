@@ -221,8 +221,15 @@ void ServicesDialog::verifyRequested()
         client->ping(answer);
 
         if (answer.empty())
+         {
           ok = false;
-        else ok = true;
+          pimpl_->ui_->closeServiceBtn->setEnabled(false);
+         }
+        else
+         {
+          ok = true;
+          pimpl_->ui_->closeServiceBtn->setEnabled(true);
+         }
 
         QTableWidgetItem* item = pimpl_->ui_->servicesTable->item(lines[i], 0);
         item->setIcon(QIcon::fromTheme(ok ? "ping-success" : "ping-error"));
@@ -422,6 +429,7 @@ void ServicesDialog::closeRequested()
     try
     {
       client->shutdown();
+      pimpl_->ui_->closeServiceBtn->setEnabled(false);
     }
     catch(const terrama2::Exception& e)
     {

@@ -726,7 +726,7 @@ coletados:</string>
             <item row="4" column="0" colspan="6">
              <widget class="QTabWidget" name="tabWidget_2">
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="serverTab">
                <attribute name="title">
@@ -1751,6 +1751,93 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>configListWidget</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>dbTypeCmb</tabstop>
+  <tabstop>dbAddressLed</tabstop>
+  <tabstop>dbPortLed</tabstop>
+  <tabstop>dbUserLed</tabstop>
+  <tabstop>dbPasswordLed</tabstop>
+  <tabstop>dbDatabaseLed</tabstop>
+  <tabstop>dbStudyChk</tabstop>
+  <tabstop>dbCheckConnectionBtn</tabstop>
+  <tabstop>dbCreateDatabaseBtn</tabstop>
+  <tabstop>saveBtn</tabstop>
+  <tabstop>cancelBtn</tabstop>
+  <tabstop>anaAddressLed</tabstop>
+  <tabstop>anaPortLed</tabstop>
+  <tabstop>anaLogFileLed</tabstop>
+  <tabstop>anaIntervalMinSpb</tabstop>
+  <tabstop>anaIntervalSecSpb</tabstop>
+  <tabstop>anaDirNameLed</tabstop>
+  <tabstop>anaInstancesSpb</tabstop>
+  <tabstop>anaInstancesRefreshBtn</tabstop>
+  <tabstop>anaInstancesTable</tabstop>
+  <tabstop>aqAddressLed</tabstop>
+  <tabstop>aqPortLed</tabstop>
+  <tabstop>aqLogFileLed</tabstop>
+  <tabstop>aqDirNameLed</tabstop>
+  <tabstop>aqTimeoutMinSpb</tabstop>
+  <tabstop>aqTimeoutSecSpb</tabstop>
+  <tabstop>layersAddressLed</tabstop>
+  <tabstop>layersPortLed</tabstop>
+  <tabstop>layersLogFileLed</tabstop>
+  <tabstop>notifAddressLed</tabstop>
+  <tabstop>notifPortLed</tabstop>
+  <tabstop>notifLogFileLed</tabstop>
+  <tabstop>notifIntervalMinSpb</tabstop>
+  <tabstop>notifIntervalSecSpb</tabstop>
+  <tabstop>tabWidget_2</tabstop>
+  <tabstop>notifSmtpServerLed</tabstop>
+  <tabstop>notifSmtpPortLed</tabstop>
+  <tabstop>notifSmtpMailLed</tabstop>
+  <tabstop>notifSmtpPsswrdLed</tabstop>
+  <tabstop>notifSmtpAliasLed</tabstop>
+  <tabstop>notifSmtpTimeOutSpb</tabstop>
+  <tabstop>notifSmtpPriorityLed</tabstop>
+  <tabstop>notifSmtpSSLChk</tabstop>
+  <tabstop>notifProxyUserLed</tabstop>
+  <tabstop>notifProxyPsswrdLed</tabstop>
+  <tabstop>testSendMailBtn</tabstop>
+  <tabstop>readConfirmationChk</tabstop>
+  <tabstop>sendUpEmailChk</tabstop>
+  <tabstop>imagePDFChk</tabstop>
+  <tabstop>level0Led</tabstop>
+  <tabstop>level3Led</tabstop>
+  <tabstop>level1Led</tabstop>
+  <tabstop>level4Led</tabstop>
+  <tabstop>level2Led</tabstop>
+  <tabstop>notifIntervalBulletinHouSpb</tabstop>
+  <tabstop>notifIntervalBulletinMinSpb</tabstop>
+  <tabstop>notifIntervalBulletinSecSpb</tabstop>
+  <tabstop>removeZeroChk</tabstop>
+  <tabstop>bulletinPDFChk</tabstop>
+  <tabstop>pdfPathLed</tabstop>
+  <tabstop>selectPDFDirectoryBtn</tabstop>
+  <tabstop>legendDirNameLed</tabstop>
+  <tabstop>xlegendSpb</tabstop>
+  <tabstop>ylegendSpb</tabstop>
+  <tabstop>loadBalTable</tabstop>
+  <tabstop>loadBalRefreshBtn</tabstop>
+  <tabstop>animAddressLed</tabstop>
+  <tabstop>animPortLed</tabstop>
+  <tabstop>animLogFileLed</tabstop>
+  <tabstop>animImageDirLed</tabstop>
+  <tabstop>webTitleLed</tabstop>
+  <tabstop>webLogoLed</tabstop>
+  <tabstop>selectLogoBtn</tabstop>
+  <tabstop>webLongitudeLed</tabstop>
+  <tabstop>webLatitudeLed</tabstop>
+  <tabstop>webZoomLed</tabstop>
+  <tabstop>webGoogleLed</tabstop>
+  <tabstop>webTerraOGCLed</tabstop>
+  <tabstop>webOpacityLed</tabstop>
+  <tabstop>webIntervalLed</tabstop>
+  <tabstop>webOutputLed</tabstop>
+  <tabstop>selectDirectoryBtn</tabstop>
+  <tabstop>generatePackageBtn</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
