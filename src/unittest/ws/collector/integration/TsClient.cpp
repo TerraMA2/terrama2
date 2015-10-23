@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/integration_test/ws/TestClient.cpp
+  \file terrama2/ws/integration/TsClient.cpp
 
   \brief Tests for the Web Server.
 
@@ -31,7 +31,7 @@
 #include <memory>
 
 // TerraMA2 Test
-#include "TestClient.hpp"
+#include "TsClient.hpp"
 #include "Utils.hpp"
 
 // TerraMA2
@@ -39,21 +39,21 @@
 #include <terrama2/core/DataManager.hpp>
 #include <terrama2/ws/collector/client/Exception.hpp>
 
-void TestClient::initTestCase()
+void TsClient::initTestCase()
 {
-  // VINICIUS: don't work, depends on TerraLib5
+  // VINICIUS: not working, depends on TerraLib5
 //  CreateDatabase();
 }
 
 
-void TestClient::cleanupTestCase()
+void TsClient::cleanupTestCase()
 {
-  // VINICIUS: don't work, depends on TerraLib5
+  // VINICIUS: not working, depends on TerraLib5
 //  DropDatabase();
 }
 
 
-void TestClient::init()
+void TsClient::init()
 {
   wsClient_ = new terrama2::ws::collector::Client("http://localhost:1989");
 
@@ -61,7 +61,7 @@ void TestClient::init()
 }
 
 
-void TestClient::cleanup()
+void TsClient::cleanup()
 {
   clearDatabase();
 
@@ -69,7 +69,7 @@ void TestClient::cleanup()
 }
 
 
-void TestClient::clearDatabase()
+void TsClient::clearDatabase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -83,7 +83,7 @@ void TestClient::clearDatabase()
 }
 
 
-terrama2::core::DataProvider TestClient::buildDataProvider()
+terrama2::core::DataProvider TsClient::buildDataProvider()
 {
 
   terrama2::core::DataProvider  dataProvider("Data Provider", terrama2::core::DataProvider::Kind::FILE_TYPE, 0);
@@ -96,7 +96,7 @@ terrama2::core::DataProvider TestClient::buildDataProvider()
 }
 
 
-terrama2::core::DataSet TestClient::buildDataSet()
+terrama2::core::DataSet TsClient::buildDataSet()
 {
   terrama2::core::DataProvider dataProvider = buildDataProvider();
 
@@ -121,7 +121,7 @@ terrama2::core::DataSet TestClient::buildDataSet()
 }
 
 
-void TestClient::TestStatus()
+void TsClient::TestStatus()
 {
   std::string answer;
 
@@ -142,7 +142,7 @@ void TestClient::TestStatus()
 }
 
 
-void TestClient::TestWrongConection()
+void TsClient::TestWrongConection()
 {
   std::string answer;
   try
@@ -165,7 +165,7 @@ void TestClient::TestWrongConection()
 }
 
 
-void TestClient::TestAddDataProvider()
+void TsClient::TestAddDataProvider()
 {
   try
   {
@@ -187,7 +187,7 @@ void TestClient::TestAddDataProvider()
 }
 
 
-void TestClient::TestAddNullDataProvider()
+void TsClient::TestAddNullDataProvider()
 {
   try
   {
@@ -209,7 +209,7 @@ void TestClient::TestAddNullDataProvider()
 }
 
 
-void TestClient::testRemoveDataProvider()
+void TsClient::testRemoveDataProvider()
 {
   try
   {
@@ -232,7 +232,7 @@ void TestClient::testRemoveDataProvider()
 }
 
 
-void TestClient::testRemoveDataProviderInvalidId()
+void TsClient::testRemoveDataProviderInvalidId()
 {
   try
   {
@@ -250,7 +250,7 @@ void TestClient::testRemoveDataProviderInvalidId()
 }
 
 
-void TestClient::testUpdateDataProvider()
+void TsClient::testUpdateDataProvider()
 {
   try
   {
@@ -259,8 +259,6 @@ void TestClient::testUpdateDataProvider()
     wsClient_->addDataProvider(dataProvider);
 
     QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
-
-    uint64_t id = dataProvider.id();
 
     dataProvider.setDescription("Description updated");
     dataProvider.setKind(terrama2::core::DataProvider::Kind::FTP_TYPE);
@@ -291,7 +289,7 @@ void TestClient::testUpdateDataProvider()
 }
 
 
-void TestClient::testUpdateDataProviderWrongID()
+void TsClient::testUpdateDataProviderWrongID()
 {
   try
   {
@@ -315,7 +313,7 @@ void TestClient::testUpdateDataProviderWrongID()
 }
 
 
-void TestClient::testFindDataProvider()
+void TsClient::testFindDataProvider()
 {
   try
   {
@@ -324,10 +322,6 @@ void TestClient::testFindDataProvider()
     wsClient_->addDataProvider(dataProvider);
 
     QVERIFY2(dataProvider.id() != 0 , "Can't create a Data Provider with a invalid ID!");
-
-
-
-    dataProvider.id();
 
     terrama2::core::DataProvider dataProvider_found = wsClient_->findDataProvider(dataProvider.id());
 
@@ -350,7 +344,7 @@ void TestClient::testFindDataProvider()
 }
 
 
-void TestClient::testFindDataProviderInvalidID()
+void TsClient::testFindDataProviderInvalidID()
 {
   try
   {
@@ -371,7 +365,7 @@ void TestClient::testFindDataProviderInvalidID()
 }
 
 
-void TestClient::testListDataProvider()
+void TsClient::testListDataProvider()
 {
   try
   {
@@ -401,7 +395,7 @@ void TestClient::testListDataProvider()
 
 }
 
-void TestClient::TestAddDataSet()
+void TsClient::TestAddDataSet()
 {
   try
   {
@@ -422,7 +416,7 @@ void TestClient::TestAddDataSet()
 }
 
 
-void TestClient::TestAddNullDataSet()
+void TsClient::TestAddNullDataSet()
 {
   try
   {
@@ -444,7 +438,7 @@ void TestClient::TestAddNullDataSet()
 }
 
 
-void TestClient::TestAddDataSetWithID()
+void TsClient::TestAddDataSetWithID()
 {
   try
   {
@@ -468,7 +462,7 @@ void TestClient::TestAddDataSetWithID()
 }
 
 
-void TestClient::TestAddDataSetWithWrongDataProviderID()
+void TsClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
   {
@@ -492,7 +486,7 @@ void TestClient::TestAddDataSetWithWrongDataProviderID()
 }
 
 
-void TestClient::testRemoveDataSet()
+void TsClient::testRemoveDataSet()
 {
   try
   {
@@ -515,7 +509,7 @@ void TestClient::testRemoveDataSet()
 }
 
 
-void TestClient::testRemoveDataSetInvalidId()
+void TsClient::testRemoveDataSetInvalidId()
 {
   try
   {
@@ -535,7 +529,7 @@ void TestClient::testRemoveDataSetInvalidId()
 }
 
 
-void TestClient::testUpdateDataSet()
+void TsClient::testUpdateDataSet()
 {
   try
   {
@@ -586,7 +580,7 @@ void TestClient::testUpdateDataSet()
 }
 
 
-void TestClient::testUpdateDataSetInvalidId()
+void TsClient::testUpdateDataSetInvalidId()
 {
   try
   {
@@ -604,7 +598,7 @@ void TestClient::testUpdateDataSetInvalidId()
 }
 
 
-void TestClient::testFindDataSet()
+void TsClient::testFindDataSet()
 {
   try
   {
@@ -639,7 +633,7 @@ void TestClient::testFindDataSet()
 }
 
 
-void TestClient::testFindDataSetInvalidID()
+void TsClient::testFindDataSetInvalidID()
 {
   try
   {
@@ -659,7 +653,7 @@ void TestClient::testFindDataSetInvalidID()
 }
 
 
-void TestClient::testListDataSet()
+void TsClient::testListDataSet()
 {
   try
   {
@@ -689,7 +683,7 @@ void TestClient::testListDataSet()
 }
 
 
-void TestClient::testShutdownWebService()
+void TsClient::testShutdownWebService()
 {
   try
   {

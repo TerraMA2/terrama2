@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/server/TestWebService.cpp
+  \file terrama2/unittest/ws/server/TsWebService.cpp
 
   \brief Tests for the WebService class.
 
@@ -31,7 +31,7 @@
 #include <memory>
 
 // TerraMA2 Test
-#include "TestWebService.hpp"
+#include "TsWebService.hpp"
 
 // TerraMA2
 #include <terrama2/core/Exception.hpp>
@@ -39,20 +39,20 @@
 #include <terrama2/core/ApplicationController.hpp>
 #include <terrama2/core/DataManager.hpp>
 
-void TestWebService::init()
+void TsWebService::init()
 {
   clearDatabase();
   terrama2::core::DataManager::getInstance().load();
 }
 
-void TestWebService::cleanup()
+void TsWebService::cleanup()
 {
   clearDatabase();
   terrama2::core::DataManager::getInstance().unload();
 }
 
 
-void TestWebService::clearDatabase()
+void TsWebService::clearDatabase()
 {
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
 
@@ -71,7 +71,7 @@ void TestWebService::clearDatabase()
 }
 
 
-void TestWebService::TestStatus()
+void TsWebService::TestStatus()
 {
   std::string answer;
 
@@ -95,7 +95,7 @@ void TestWebService::TestStatus()
 }
 
 
-void TestWebService::TestAddDataProvider()
+void TsWebService::TestAddDataProvider()
 {
   try
   {
@@ -138,7 +138,7 @@ void TestWebService::TestAddDataProvider()
   }
 }
 
-void TestWebService::TestAddNullDataProvider()
+void TsWebService::TestAddNullDataProvider()
 {
   try
   {
@@ -164,7 +164,7 @@ void TestWebService::TestAddNullDataProvider()
 
 }
 
-void TestWebService::TestAddDataProviderWithID()
+void TsWebService::TestAddDataProviderWithID()
 {
   try
   {
@@ -196,7 +196,7 @@ void TestWebService::TestAddDataProviderWithID()
 }
 
 
-void TestWebService::testRemoveDataProvider()
+void TsWebService::testRemoveDataProvider()
 {
   try
   {
@@ -236,7 +236,7 @@ void TestWebService::testRemoveDataProvider()
   }
 }
 
-void TestWebService::testRemoveDataProviderInvalidId()
+void TsWebService::testRemoveDataProviderInvalidId()
 {
   try
   {
@@ -258,7 +258,7 @@ void TestWebService::testRemoveDataProviderInvalidId()
 }
 
 
-void TestWebService::testUpdateDataProvider()
+void TsWebService::testUpdateDataProvider()
 {
   try
   {
@@ -311,7 +311,7 @@ void TestWebService::testUpdateDataProvider()
   }
 }
 
-void TestWebService::testUpdateDataProviderInvalidId()
+void TsWebService::testUpdateDataProviderInvalidId()
 {
   try
   {
@@ -337,7 +337,7 @@ void TestWebService::testUpdateDataProviderInvalidId()
 }
 
 
-void TestWebService::testFindDataProvider()
+void TsWebService::testFindDataProvider()
 {
   try
   {
@@ -386,7 +386,7 @@ void TestWebService::testFindDataProvider()
 }
 
 
-void TestWebService::testFindDataProviderInvalidID()
+void TsWebService::testFindDataProviderInvalidID()
 {
   try
   {
@@ -412,7 +412,7 @@ void TestWebService::testFindDataProviderInvalidID()
 }
 
 
-void TestWebService::testListDataProvider()
+void TsWebService::testListDataProvider()
 {
   try
   {
@@ -475,7 +475,7 @@ void TestWebService::testListDataProvider()
 }
 
 
-void TestWebService::TestAddDataSet()
+void TsWebService::TestAddDataSet()
 {
   try
   {
@@ -527,7 +527,7 @@ void TestWebService::TestAddDataSet()
   }
 }
 
-void TestWebService::TestAddNullDataSet()
+void TsWebService::TestAddNullDataSet()
 {
   try
   {
@@ -568,7 +568,7 @@ void TestWebService::TestAddNullDataSet()
 }
 
 
-void TestWebService::TestAddDataSetWithID()
+void TsWebService::TestAddDataSetWithID()
 {
   try
   {
@@ -617,7 +617,7 @@ void TestWebService::TestAddDataSetWithID()
   }
 }
 
-void TestWebService::TestAddDataSetWithWrongDataProviderID()
+void TsWebService::TestAddDataSetWithWrongDataProviderID()
 {
   try
   {
@@ -653,7 +653,7 @@ void TestWebService::TestAddDataSetWithWrongDataProviderID()
 }
 
 
-void TestWebService::testRemoveDataSet()
+void TsWebService::testRemoveDataSet()
 {
   try
   {
@@ -708,7 +708,7 @@ void TestWebService::testRemoveDataSet()
 }
 
 
-void TestWebService::testRemoveDataSetInvalidId()
+void TsWebService::testRemoveDataSetInvalidId()
 {
   try
   {
@@ -730,7 +730,7 @@ void TestWebService::testRemoveDataSetInvalidId()
 }
 
 
-void TestWebService::testUpdateDataSet()
+void TsWebService::testUpdateDataSet()
 {
   try
   {
@@ -809,7 +809,7 @@ void TestWebService::testUpdateDataSet()
 }
 
 
-void TestWebService::testUpdateDataSetInvalidId()
+void TsWebService::testUpdateDataSetInvalidId()
 {
   try
   {
@@ -845,7 +845,7 @@ void TestWebService::testUpdateDataSetInvalidId()
 }
 
 
-void TestWebService::testFindDataSet()
+void TsWebService::testFindDataSet()
 {
   try
   {
@@ -914,7 +914,7 @@ void TestWebService::testFindDataSet()
 }
 
 
-void TestWebService::testFindDataSetInvalidID()
+void TsWebService::testFindDataSetInvalidID()
 {
   try
   {
@@ -939,7 +939,7 @@ void TestWebService::testFindDataSetInvalidID()
 }
 
 
-void TestWebService::testListDataSet()
+void TsWebService::testListDataSet()
 {
   try
   {

@@ -28,7 +28,7 @@
 */
 
 // TerraMA2 Test
-#include "TestClient.hpp"
+#include "TsClient.hpp"
 #include "Utils.hpp"
 
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 {
 //  initializeTerraMA2();
 
-  TestClient testClient;
+  TsClient testClient;
   int ret = QTest::qExec(&testClient, argc, argv);
 
 //  finalizeTerraMA2();

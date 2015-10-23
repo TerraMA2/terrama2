@@ -31,14 +31,14 @@
 
 // TerraMA2 Test
 #include <terrama2/core/Exception.hpp>
-#include "TestWebService.hpp"
+#include "TsWebService.hpp"
 #include "Utils.hpp"
 
 int main(int argc, char **argv)
 {
   initializeTerraMA2();
 
-  TestWebService testWebService;
+  TsWebService testWebService;
   int ret = QTest::qExec(&testWebService, argc, argv);
 
   finalizeTerraMA2();

@@ -28,14 +28,14 @@
 */
 
 // TerraMA2 Test
-#include "TestCore.hpp"
+#include "TsCore.hpp"
 #include "Utils.hpp"
 
 int main(int argc, char **argv)
 {
   initializeTerraMA2();
 
-  TestCore testCore;
+  TsCore testCore;
   int ret = QTest::qExec(&testCore, argc, argv);
 
   finalizeTerraMA2();

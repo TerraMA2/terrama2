@@ -227,7 +227,7 @@ int WebService::findDataProvider(uint64_t id, DataProvider &struct_dataprovider)
   {
     Reload();
     terrama2::core::DataProvider dataProvider(terrama2::core::DataManager::getInstance().findDataProvider(id));
-
+    // VINICIUS: change to catch a exception, need changes in terrama2:core
     if (dataProvider.id() == 0)
     {
       std::cerr << "Error at find Data Provider: Data Provider don't exist!" << std::endl;
@@ -256,7 +256,7 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
   {
     Reload();
     terrama2::core::DataSet dataSet(terrama2::core::DataManager::getInstance().findDataSet(id));
-
+    // VINICIUS: change to catch a exception, need changes in terrama2:core
     if (dataSet.id() == 0)
     {
       std::cerr << "Error at find Data Set: Data Set don't exist!" << std::endl;
