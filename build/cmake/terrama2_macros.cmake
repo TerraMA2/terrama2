@@ -66,7 +66,9 @@ MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path namespace type include_dirs GSOAP_HDR_FI
 
   set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/gsoap/${namespace}.nsmap)
 
-  add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
+# always_rebuild.h : This fake file is to force the add_custom_command to run in every build
+
+  add_custom_command(OUTPUT always_rebuild.h ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
                      COMMAND ${COMMAND_LINE}
                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gsoap
                      COMMENT "Generating gSoap Web Service Files." VERBATIM)
