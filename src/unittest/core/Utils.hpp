@@ -42,4 +42,12 @@ void dropDatabase();
 
 void createDatabase();
 
+extern const char* NO_EXCEPTION_THROWN;
+
+extern const char* NO_EXCEPTION_EXPECTED;
+
+extern const char* WRONG_TYPE_EXCEPTION;
+
+extern const char* UNEXPECTED_BEHAVIOR;
+
 #endif // __TERRAMA2_UNITTEST_CORE_UTILS_HPP__

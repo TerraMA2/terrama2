@@ -31,17 +31,22 @@
 #include "TsClient.hpp"
 #include "Utils.hpp"
 
+// GoogleMock
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 
 int main(int argc, char **argv)
 {
-//  initializeTerraMA2();
+  ::testing::GTEST_FLAG(throw_on_failure) = true;
+  ::testing::InitGoogleMock(&argc, argv);
+
+  initializeTerraMA2();
 
   TsClient testClient;
   int ret = QTest::qExec(&testClient, argc, argv);
 
-//  finalizeTerraMA2();
+  finalizeTerraMA2();
 
   return ret;
-//  return EXIT_SUCCESS;
 }

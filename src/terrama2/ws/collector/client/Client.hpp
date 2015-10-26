@@ -42,177 +42,161 @@
 
 namespace terrama2
 {
-
   namespace ws
   {
-
     namespace collector
     {
-
-      class Client
+      namespace client
       {
-        public:
+        // Forward declaration
+        class WebProxyAdapter;
 
-        /*!
-          \brief Constructor
+        class Client
+        {
+          public:
 
-          \param
+            Client(WebProxyAdapter* webProxy);
 
-          \return
-        */
-          Client(const std::string url);
-
-          /*!
-            \brief Destructor
-
-            \param
-
-            \return
-          */
-          ~Client();
+            ~Client();
 
 
-          /*!
-            \brief
+            /*!
+              \brief
 
-            \param
+              \exception pingError
 
-            \exception pingError
-
-            \return
-          */
-          void ping(std::string &answer);
+              \return
+            */
+            void ping(std::string &answer);
 
 
-          /*!
-            \brief
+            /*!
+              \brief
 
-            \param
+              \param
 
-            \exception pingError
+              \exception pingError
 
-            \return
-          */
-          void shutdown();
-
-
-          /*!
-            \brief
-
-            \param
-
-            \exception AddingDataProviderError
-
-            \return
-          */
-          void addDataProvider(terrama2::core::DataProvider & dataProvider);
-
-          /*!
-            \brief
-
-            \param
-
-            \exception AddingDataSetError
-
-            \return
-          */
-          void addDataSet(terrama2::core::DataSet & dataSet);
-
-          /*!
-            \brief
-
-            \param
-
-            \exception UpdateDataProviderError
-
-            \return
-          */
-          void updateDataProvider(terrama2::core::DataProvider & dataProvider);
-
-          /*!
-            \brief
-
-            \param
-
-            \exception UpdateDataSetError
-
-            \return
-          */
-          void updateDataSet(terrama2::core::DataSet & dataSet);
-
-          /*!
-            \brief
-
-            \param
-
-            \exception RemoveDataProviderError
-
-            \return
-          */
-          void removeDataProvider(uint64_t id);
-
-          /*!
-            \brief
-
-            \param
-
-            \exception RemoveDataSetError
-
-            \return
-          */
-          void removeDataSet(uint64_t id);
-
-          /*!
-            \brief
-
-            \param
-
-            \exception FindDataProviderError
-
-            \return
-          */
-          core::DataProvider findDataProvider(uint64_t id);
-
-          /*!
-            \brief
-
-            \param
-
-            \exception FindDataSetError
-
-            \return
-          */
-          core::DataSet findDataSet(uint64_t id);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          void listDataProvider(std::vector< terrama2::core::DataProvider > &dataProviderPtrList);
-
-          /*!
-            \brief
-
-            \param
-
-            \return
-          */
-          void listDataSet(std::vector< terrama2::core::DataSet > &dataSetPtrList);
+              \return
+            */
+            void shutdown();
 
 
-        private:
+            /*!
+              \brief
 
-          WebProxy* wsClient_;
-          std::string server_;
+              \param
 
-    };
+              \exception AddingDataProviderError
 
+              \return
+            */
+            void addDataProvider(terrama2::core::DataProvider & dataProvider);
+
+            /*!
+              \brief
+
+              \param
+
+              \exception AddingDataSetError
+
+              \return
+            */
+            void addDataSet(terrama2::core::DataSet & dataSet);
+
+            /*!
+              \brief
+
+              \param
+
+              \exception UpdateDataProviderError
+
+              \return
+            */
+            void updateDataProvider(terrama2::core::DataProvider & dataProvider);
+
+            /*!
+              \brief
+
+              \param
+
+              \exception UpdateDataSetError
+
+              \return
+            */
+            void updateDataSet(terrama2::core::DataSet & dataSet);
+
+            /*!
+              \brief
+
+              \param
+
+              \exception RemoveDataProviderError
+
+              \return
+            */
+            void removeDataProvider(uint64_t id);
+
+            /*!
+              \brief
+
+              \param
+
+              \exception RemoveDataSetError
+
+              \return
+            */
+            void removeDataSet(uint64_t id);
+
+            /*!
+              \brief
+
+              \param
+
+              \exception FindDataProviderError
+
+              \return
+            */
+            core::DataProvider findDataProvider(uint64_t id);
+
+            /*!
+              \brief
+
+              \param
+
+              \exception FindDataSetError
+
+              \return
+            */
+            core::DataSet findDataSet(uint64_t id);
+
+            /*!
+              \brief
+
+              \param
+
+              \return
+            */
+            void listDataProvider(std::vector< terrama2::core::DataProvider > &dataProviderPtrList);
+
+            /*!
+              \brief
+
+              \param
+
+              \return
+            */
+            void listDataSet(std::vector< terrama2::core::DataSet > &dataSetPtrList);
+
+
+          private:
+
+            WebProxyAdapter* webProxy_;
+
+        };
+      }
     }
   }
-
 }
 
 #endif // __TERRAMA2_WS_COLLECTOR_CLIENT_HPP__

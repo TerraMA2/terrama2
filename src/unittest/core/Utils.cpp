@@ -45,6 +45,14 @@
 #include <string>
 
 
+const char* NO_EXCEPTION_THROWN = "No exception thrown";
+
+const char* NO_EXCEPTION_EXPECTED = "No exception expected";
+
+const char* WRONG_TYPE_EXCEPTION = "Wrong exception type";
+
+const char* UNEXPECTED_BEHAVIOR = "Should not be here";
+
 void initializeTerralib()
 {
   // Initialize the Terralib support

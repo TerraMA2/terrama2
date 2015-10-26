@@ -175,7 +175,10 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
   else
   {
     te::dt::TimeDuration* discardBefore = dynamic_cast<te::dt::TimeDuration*>(rhs.discardBefore_.get());
-    discardBefore_.reset(new te::dt::TimeDuration(*discardBefore));
+    if(discardBefore != nullptr)
+      discardBefore_.reset(new te::dt::TimeDuration(*discardBefore));
+    else
+      discardBefore_.reset(nullptr);
   }
 
   if(rhs.geometry_ == nullptr)
@@ -183,7 +186,10 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
   else
   {
     te::dt::TimeDuration* discardAfter = dynamic_cast<te::dt::TimeDuration*>(rhs.discardAfter_.get());
-    discardAfter_.reset(new te::dt::TimeDuration(*discardAfter));
+    if(discardAfter != nullptr)
+      discardAfter_.reset(new te::dt::TimeDuration(*discardAfter));
+    else
+      discardAfter_.reset(nullptr);
   }
 
   if(rhs.geometry_ == nullptr)
@@ -191,7 +197,10 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
   else
   {
     te::gm::Polygon* geom = dynamic_cast<te::gm::Polygon*>(rhs.geometry_.get());
-    geometry_.reset(dynamic_cast<te::gm::Geometry*>(new te::gm::Polygon(*geom)));
+    if(geom != nullptr)
+      geometry_.reset(dynamic_cast<te::gm::Geometry*>(new te::gm::Polygon(*geom)));
+    else
+      geometry_.reset(nullptr);
   }
 
   if(rhs.value_ == nullptr)
