@@ -6,8 +6,9 @@ terrama2::ws::collector::client::WebProxyAdapter::WebProxyAdapter()
 }
 
 terrama2::ws::collector::client::WebProxyAdapter::WebProxyAdapter(const std::string server)
+: server_(server)
 {
-  webProxy_ = new WebProxy(server.c_str());
+  webProxy_ = new WebProxy(server_.c_str());
 }
 
 terrama2::ws::collector::client::WebProxyAdapter::~WebProxyAdapter()
