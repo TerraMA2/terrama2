@@ -1037,7 +1037,7 @@ fi
 # GMock 
 # Site: https://github.com/google/googletest
 #
-if [ ! d "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
+if [ ! f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
   echo "installing GMock..."
   sleep 1s
 
