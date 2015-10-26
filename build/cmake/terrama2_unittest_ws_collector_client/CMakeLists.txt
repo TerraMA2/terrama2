@@ -24,9 +24,6 @@
 #  Author: Vinicius Camapanha
 #
 
-find_package(GTest REQUIRED)
-find_package(GMock REQUIRED)
-
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/client/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/client/*.hpp)
 
