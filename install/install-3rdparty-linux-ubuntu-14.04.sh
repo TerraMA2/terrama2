@@ -350,7 +350,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libpcre.a" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure PCRE!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make PCRE!"
 
   make install
@@ -378,7 +378,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/bin/swig" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-pcre-prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure SWIG!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make SWIG!"
 
   make install
@@ -405,7 +405,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libfreexl.so" ]; then
   CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure FreeXL!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make FreeXL!"
 
   make install
@@ -432,7 +432,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libuuid.so" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-cxx
   valid $? "Error: could not configure OOSP-UUID!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make OOSP-UUID!"
 
   make install
@@ -483,7 +483,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libproj.so" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure Proj4!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make Proj4!"
 
   make install
@@ -510,7 +510,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgeos.so" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure GEOS!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make GEOS!"
 
   make install
@@ -564,7 +564,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libpng.so" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure libPNG!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make libPNG!"
 
   make install
@@ -591,7 +591,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libjpeg.so" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure JPEG!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make JPEG!"
 
   make install
@@ -618,7 +618,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libtiff.so" ]; then
   ./configure --enable-cxx --with-jpeg-include-dir=$TERRAMA2_DEPENDENCIES_DIR/include --with-jpeg-lib-dir=$TERRAMA2_DEPENDENCIES_DIR/lib --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure TIFF!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make TIFF!"
 
   make install
@@ -645,7 +645,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgeotiff.so" ]; then
   ./configure --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR --with-zlib --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-proj=$TERRAMA2_DEPENDENCIES_DIR --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure GeoTIFF!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make GeoTIFF!"
 
   make install
@@ -672,7 +672,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libsz.so" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure SZIP!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make SZIP!"
 
   make install
@@ -699,7 +699,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libcurl.so" ]; then
   ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure CURL!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make CURL!"
 
   make install
@@ -729,7 +729,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libicuuc.so" ]; then
   CPPFLAGS="-DU_USING_ICU_NAMESPACE=0 -DU_CHARSET_IS_UTF8=1 -DU_NO_DEFAULT_INCLUDE_UTF_HEADERS=1" ./runConfigureICU Linux/gcc --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not runConfigureICU!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make ICU!"
 
   #make check
@@ -759,7 +759,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxerces-c.so" ]; then
   CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --enable-netaccessor-curl --disable-static --enable-msgloader-icu --with-icu=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure Xerces-c!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make Xerces-c!"
 
   make install
@@ -786,7 +786,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxml2.so" ]; then
   CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-icu --without-python
   valid $? "Error: could not configure libxml2!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make libxml2"
 
   make install
@@ -813,7 +813,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libxslt.so" ]; then
   CPPFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-libxml-prefix=$TERRAMA2_DEPENDENCIES_DIR --without-debug
   valid $? "Error: could not configure libxslt!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make libxslt"
 
   make install
@@ -891,7 +891,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/pgsql/lib/libpq.so" ]; then
   CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS="-lstdc++ -L$TERRAMA2_DEPENDENCIES_DIR/lib" ./configure --with-libxml2 --with-libxslt --with-ossp-uuid --with-openssl --prefix=$TERRAMA2_DEPENDENCIES_DIR/pgsql --with-includes=$TERRAMA2_DEPENDENCIES_DIR/include --with-libraries=$TERRAMA2_DEPENDENCIES_DIR/lib
   valid $? "Error: could not configure postgresql!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make postgresql"
 
   make install
@@ -927,7 +927,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libmfhdf.a" ]; then
   CFLAGS=-fPIC ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-szlib=$TERRAMA2_DEPENDENCIES_DIR --with-zlib --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR --enable-netcdf --disable-fortran
   valid $? "Error: could not configure hdf-4!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make hdf-4"
 
   make install
@@ -954,7 +954,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libsqlite3.so" ]; then
   CFLAGS="-Os -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE -DSQLITE_SOUNDEX -DSQLITE_OMIT_AUTOINIT" ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure sqlite!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make sqlite"
 
   make install
@@ -982,7 +982,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libspatialite.so" ]; then
   CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR -I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2 -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2/libxml" LDFLAGS="-L$TERRAMA2_DEPENDENCIES_DIR/lib"  ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR --enable-proj --enable-geos --enable-geosadvanced --enable-iconv --enable-freexl --enable-geocallbacks --enable-epsg --enable-gcov --enable-mathsql --enable-libxml2=no --enable-geopackage --with-geosconfig=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config
   valid $? "Error: could not configure libspatialite!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make libspatialite"
 
   make install
@@ -1009,7 +1009,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib/libgdal.so" ]; then
   CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --without-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal1 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf 
   valid $? "Error: could not configure gdal!"
 
-  make -j 16 -s
+  make -j 4 -s
   valid $? "Error: could not make gdal"
 
   make install
@@ -1035,7 +1035,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/gdal2/lib/libgdal.so" ]; then
   CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --with-pg=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-png=$TERRAMA2_DEPENDENCIES_DIR --with-libtiff=$TERRAMA2_DEPENDENCIES_DIR --with-geotiff=$TERRAMA2_DEPENDENCIES_DIR --with-jpeg=$TERRAMA2_DEPENDENCIES_DIR  --with-gif --with-ecw=yes --with-xerces=$TERRAMA2_DEPENDENCIES_DIR --with-expat=yes --with-curl=$TERRAMA2_DEPENDENCIES_DIR/bin/curl-config --with-sqlite3=$TERRAMA2_DEPENDENCIES_DIR --with-geos=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-threads --with-spatialite=$TERRAMA2_DEPENDENCIES_DIR --with-freexl=$TERRAMA2_DEPENDENCIES_DIR --without-python --prefix=$TERRAMA2_DEPENDENCIES_DIR/gdal2 --with-xml2=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config --with-libkml --with-hdf4=$TERRAMA2_DEPENDENCIES_DIR --without-netcdf
   valid $? "Error: could not configure gdal!"
 
-  make -j 16 -s
+  make -j 4 -s
   valid $? "Error: could not make gdal"
 
   make install
@@ -1062,7 +1062,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libcppunit.so" ]; then
   LDFLAGS="-ldl" ./configure --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure cppunit!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make cppunit"
 
   make install
@@ -1089,7 +1089,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/liblwgeom.so" ]; then
   CFLAGS=-I$TERRAMA2_DEPENDENCIES_DIR/include CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/gdal1 -I$TERRAMA2_DEPENDENCIES_DIR/gdal1/include" LDFLAGS="-L$TERRAMA2_DEPENDENCIES_DIR/lib -L$TERRAMA2_DEPENDENCIES_DIR/gdal1/lib" ./configure --with-pgconfig=$TERRAMA2_DEPENDENCIES_DIR/pgsql/bin/pg_config --with-gdalconfig=$TERRAMA2_DEPENDENCIES_DIR/gdal1/bin/gdal-config --with-geosconfig=$TERRAMA2_DEPENDENCIES_DIR/bin/geos-config --with-projdir=$TERRAMA2_DEPENDENCIES_DIR --with-raster --with-topology --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-xml2config=$TERRAMA2_DEPENDENCIES_DIR/bin/xml2-config
   valid $? "Error: could not configure postgis!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make postgis"
 
   make install
@@ -1142,7 +1142,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqjson.so" ]; then
   cmake ../ -DCMAKE_BUILD_TYPE:String=Release -DCMAKE_INSTALL_PREFIX:Path="$TERRAMA2_DEPENDENCIES_DIR"
   valid $? "Error: could not prepare qjson build with CMake"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make qjson!"
 
   make install
@@ -1169,7 +1169,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqt_property_browser.so" ]; then
   qmake "TERRALIB_DIR=$TERRAMA2_DEPENDENCIES_DIR"
   valid $? "Error: could not run qmake for qt-property-browser!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make qt-property-browser!"
 
   make install
@@ -1196,7 +1196,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqscintilla2.so" ]; then
   qmake "TERRALIB_DIR=$TERRAMA2_DEPENDENCIES_DIR"
   valid $? "Error: could not prepare QScintilla build with qmake!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make QScintilla!"
 
   make install
@@ -1247,7 +1247,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqtlua.so" ]; then
   LDFLAGS=-L$TERRAMA2_DEPENDENCIES_DIR/lib ./configure --enable-qtrelease --disable-examples --enable-shared --with-lua-inc-dir=$TERRAMA2_DEPENDENCIES_DIR/include --prefix=$TERRAMA2_DEPENDENCIES_DIR --with-lua-lib=lua
   valid $? "Error: could not configure QtLua!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make QtLua!"
 
   make install
@@ -1277,7 +1277,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libqwt.so" ]; then
   qmake qwt.pro "QWT_INSTALL_PREFIX_TARGET=$TERRAMA2_DEPENDENCIES_DIR"
   valid $? "Error: could not configure Qwt!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make Qwt!"
 
   make install
@@ -1359,7 +1359,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libterralib_mod_common.so" ]; then
   cmake ../terralib5/build/cmake -DCMAKE_BUILD_TYPE:STRING='Release' -DCMAKE_INSTALL_PREFIX:PATH="$TERRAMA2_DEPENDENCIES_DIR/terralib5" -DCMAKE_PREFIX_PATH:PATH="$TERRAMA2_DEPENDENCIES_DIR;$TERRAMA2_DEPENDENCIES_DIR/lib;$TERRAMA2_DEPENDENCIES_DIR/gdal2;$TERRAMA2_DEPENDENCIES_DIR/pgsql" -DTERRALIB_BUILD_EXAMPLES_ENABLED:BOOL=OFF -DTERRALIB_BUILD_UNITTEST_ENABLED:BOOL=OFF -DTERRALIB_DOXYGEN_ENABLED:BOOL=OFF -DTERRALIB_QHELP_ENABLED:BOOL=OFF -DTERRALIB_QTRANSLATION_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_JAVA_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_PYTHON_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_LUA_ENABLED:BOOL=OFF -DGEOS_INCLUDE_DIR:PATH="$TERRAMA2_DEPENDENCIES_DIR/include/geos" -DGNUGETTEXT_INCLUDE_DIR:PATH="/usr/include" -DGNUGETTEXT_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libgettextpo.so' -DGNUICONV_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libc.so'
   valid $? "Error: could not configure terralib5!"
 
-  make -j 16
+  make -j 4
   valid $? "Error: could not make terralib5"
 
   make install
