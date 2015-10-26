@@ -163,6 +163,8 @@ void ConfigApp::openRequested()
       if (configManager_->getCollection()->address_.isEmpty())
         return;
 
+      pimpl_->ui_->cancelBtn->clicked();
+
       pimpl_->ui_->centralwidget->setEnabled(true);
 
       if (client_ != nullptr)

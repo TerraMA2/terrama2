@@ -34,57 +34,10 @@
 
 // QT
 #include <QDir>
-#include <QUrl>
 #include <QMainWindow>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFileDialog>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-
-
-void terrama2::gui::core::checkServiceConnection(const QString& host, const int& port, const QString& user, const QString& password)
-{
-  QString address;
-  if (!host.startsWith("http://") && !host.startsWith("https://"))
-    address.append("http://");
-  address.append(host);
-
-  QUrl url(address);
-  if (!url.isValid())
-    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
-
-  url.setUserName(user);
-  url.setPassword(password);
-  url.setPort(port);
-
-  QNetworkAccessManager manager;
-
-  QNetworkReply* reply = manager.get(QNetworkRequest(url));
-
-  if (reply->error() != QNetworkReply::NoError)
-    throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Invalid connection requested"));
-}
-
-void terrama2::gui::core::checkFTPConnection(const QString& host, const int& port, const QString& basepath,
-                                             const QString& user, const QString& password)
-{
-  // TODO
-  throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
-}
-
-
-void terrama2::gui::core::checkLocalFilesConnection(const QString& path)
-{
-  QDir directory(path);
-
-  if (!directory.exists() || path.isEmpty())
-  {
-    QString error = QObject::tr("Invalid directory typed: \"%1\"").arg(path);
-    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(error);
-  }
-}
 
 
 void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QJsonObject& json)
