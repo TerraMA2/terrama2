@@ -35,6 +35,7 @@
 
 // TerraMA2
 #include <terrama2/ws/collector/client/Client.hpp>
+#include <terrama2/ws/collector/client/WebProxyAdapter.hpp>
 
 
 class TsClient: public QObject
@@ -42,8 +43,8 @@ class TsClient: public QObject
   Q_OBJECT
 
 private:
-
-  terrama2::ws::collector::Client* wsClient_;
+  terrama2::ws::collector::client::WebProxyAdapter* adapter_;
+  terrama2::ws::collector::client::Client* wsClient_;
 
 private:
 
