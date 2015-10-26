@@ -614,7 +614,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
   cd gsoap-2.8
   valid $? "Error: could not enter gsoap-2.8!"
 
-  ./configure --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR
+  ./configure --disable-ssl --disable-samples --prefix=$TERRAMA2_DEPENDENCIES_DIR
   valid $? "Error: could not configure gSOAP!"
 
   make
@@ -640,7 +640,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/pgsql/lib/libpq.dylib" ]; then
   cd postgresql-9.4.1
   valid $? "Error: could not enter postgresql-9.4.1!"
 
-  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS="-lstdc++ -L$TERRAMA2_DEPENDENCIES_DIR/lib" ./configure --with-libxml --with-libxslt --with-uuid=e2fs --with-openssl --prefix=$TERRAMA2_DEPENDENCIES_DIR/pgsql --with-includes=$TERRAMA2_DEPENDENCIES_DIR/include --with-libraries=$TERRAMA2_DEPENDENCIES_DIR/lib
+  CPPFLAGS="-I$TERRAMA2_DEPENDENCIES_DIR/include -I$TERRAMA2_DEPENDENCIES_DIR/include/libxml2" LDFLAGS="-lstdc++ -L$TERRAMA2_DEPENDENCIES_DIR/lib" ./configure --with-libxml --with-libxslt --with-uuid=e2fs --prefix=$TERRAMA2_DEPENDENCIES_DIR/pgsql --with-includes=$TERRAMA2_DEPENDENCIES_DIR/include --with-libraries=$TERRAMA2_DEPENDENCIES_DIR/lib
   valid $? "Error: could not configure postgresql!"
 
   make -j 4
@@ -1029,6 +1029,56 @@ if [ ! -d "$TERRAMA2_DEPENDENCIES_DIR/lib/qwt.framework" ]; then
 
   make install
   valid $? "Error: could not copy Qwt internal folder!"
+
+  cd ..
+fi
+
+
+#
+# GMock 
+# Site: https://github.com/google/googletest
+#
+if [ ! d "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
+  echo "installing GMock..."
+  sleep 1s
+
+  unzip googletestmaster.zip
+  valid $? "Error: could not uncompress googletestmaster.zip!"
+
+  cd googletestmaster/googletest
+  valid $? "Error: could not enter googletestmaster!"
+
+  cmake .
+  valid $? "Error: could not configure googletest!"
+
+  make
+  valid $? "Error: could not make googletest!"
+
+  cp libgtest.a $TERRAMA2_DEPENDENCIES_DIR/lib/
+  valid $? "Error: could not copy libgtest.a!"
+
+  cp libgtest_main.a $TERRAMA2_DEPENDENCIES_DIR/lib/
+  valid $? "Error: could not copy libgtest_main.a!"
+
+  cp -r include $TERRAMA2_DEPENDENCIES_DIR/include/
+  valid $? "Error: could not copy include dir!"
+
+  cd ../googlemock
+
+  cmake .
+  valid $? "Error: could not configure googlemock!"
+
+  make
+  valid $? "Error: could not make googlemock!"
+
+  cp libgmock.a $TERRAMA2_DEPENDENCIES_DIR/lib/
+  valid $? "Error: could not copy libgmock.a!"
+
+  cp libgmock_main.a $TERRAMA2_DEPENDENCIES_DIR/lib/
+  valid $? "Error: could not copy libgmock_main.a!"
+
+  cp -r include $TERRAMA2_DEPENDENCIES_DIR/include/
+  valid $? "Error: could not copy include dir!"
 
   cd ..
 fi

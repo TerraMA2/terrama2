@@ -480,7 +480,9 @@ terrama2::core::DataManager::findDataProvider(const uint64_t id) const
   if(it !=  pimpl_->providers.end())
     return it->second;
 
-  return DataProvider();
+  QString err_msg(QObject::tr("Could not find a data provider with id:: %1"));
+  err_msg = err_msg.arg(id);
+  throw InvalidArgumentError() << ErrorDescription(err_msg);
 }
 
 terrama2::core::DataProvider
@@ -499,7 +501,9 @@ terrama2::core::DataManager::findDataProvider(const std::string& name) const
     ++it;
   }
 
-  return DataProvider();
+  QString err_msg(QObject::tr("Could not find a data provider with name:: %1"));
+  err_msg = err_msg.arg(name.c_str());
+  throw InvalidArgumentError() << ErrorDescription(err_msg);
 }
 
 terrama2::core::DataSet
@@ -518,7 +522,9 @@ terrama2::core::DataManager::findDataSet(const std::string& name) const
     ++it;
   }
 
-  return DataSet();
+  QString err_msg(QObject::tr("Could not find a dataset with name:: %1"));
+  err_msg = err_msg.arg(name.c_str());
+  throw InvalidArgumentError() << ErrorDescription(err_msg);
 }
 
 terrama2::core::DataSet terrama2::core::DataManager::findDataSet(const uint64_t id) const
@@ -536,8 +542,10 @@ terrama2::core::DataSet terrama2::core::DataManager::findDataSet(const uint64_t 
   
   if(it !=  pimpl_->datasets.end())
     return it->second;
-    
-  return DataSet();
+
+  QString err_msg(QObject::tr("Could not find a dataset with id:: %1"));
+  err_msg = err_msg.arg(id);
+  throw InvalidArgumentError() << ErrorDescription(err_msg);
 }
 
 std::vector<terrama2::core::DataProvider> terrama2::core::DataManager::providers() const

@@ -53,7 +53,8 @@ INSERT INTO terrama2.data_provider_type (name, description)
             ('HTTP', 'Hyper Text Transfer Protocol'),
             ('FILE', 'Local File System'),
             ('WFS', 'OGC Web Feature Service'),
-            ('WCS', 'OGC Web Coverage Service');
+            ('WCS', 'OGC Web Coverage Service'),
+            ('SOS', 'OGC Sensor Observation Service');
 
 CREATE TABLE terrama2.data_provider
 (
