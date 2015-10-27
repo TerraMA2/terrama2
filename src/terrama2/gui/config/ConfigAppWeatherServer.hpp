@@ -44,6 +44,7 @@ class ConfigAppWeatherServer : public ConfigAppTab {
 
   private:
     QString dataProviderSelected_; //!< Value used for detects whether it is new dataprovider or not
+    QString uri_;
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERSERVER_HPP__
