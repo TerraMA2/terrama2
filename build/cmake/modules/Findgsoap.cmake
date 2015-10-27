@@ -41,8 +41,7 @@ find_path(GSOAP_IMPORT_DIR
           NAMES stlvector.h
           PATHS /usr
                 /usr/local
-                /usr/local/share/gsoap
-          PATH_SUFFIXES import)
+          PATH_SUFFIXES /share/gsoap/import)
 
 if(UNIX)
 

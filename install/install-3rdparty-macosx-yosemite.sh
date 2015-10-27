@@ -1059,7 +1059,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
   cp libgtest_main.a $TERRAMA2_DEPENDENCIES_DIR/lib/
   valid $? "Error: could not copy libgtest_main.a!"
 
-  cp -r include $TERRAMA2_DEPENDENCIES_DIR/include/
+  cp -r include/gtest $TERRAMA2_DEPENDENCIES_DIR/include/
   valid $? "Error: could not copy include dir!"
 
   cd ../googlemock
@@ -1076,7 +1076,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
   cp libgmock_main.a $TERRAMA2_DEPENDENCIES_DIR/lib/
   valid $? "Error: could not copy libgmock_main.a!"
 
-  cp -r include $TERRAMA2_DEPENDENCIES_DIR/include/
+  cp -r include/gmock $TERRAMA2_DEPENDENCIES_DIR/include/
   valid $? "Error: could not copy include dir!"
 
   cd ../..
