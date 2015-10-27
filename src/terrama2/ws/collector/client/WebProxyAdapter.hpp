@@ -93,6 +93,7 @@ namespace terrama2
 
           private:
             WebProxy* webProxy_;
+            std::string server_;
         };
       }
     }
