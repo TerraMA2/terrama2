@@ -349,6 +349,8 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
           {
             displayOperationButtons(true);
             //TODO: generic function giving dataprovider
+
+            //fill up fields
             switch(dataset.kind())
             {
               case terrama2::core::DataSet::GRID_TYPE:
@@ -356,12 +358,16 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 subTabs_[1]->setSelectedData(selectedItem->text(0));
 
                 ui_->gridFormatDataName->setText(dataset.name().c_str());
+                ui_->gridFormatDataDescription->setText(dataset.description().c_str());
+                ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getMinutes()));
+
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
                 ui_->updateDataGridBtn->setVisible(true);
                 ui_->exportDataGridBtn->setVisible(true);
                 ui_->gridFormatDataDeleteBtn->setVisible(true);
+
                 break;
               case terrama2::core::DataSet::PCD_TYPE:
                 changeTab(*(subTabs_[2].data()), *ui_->DataPointPage);

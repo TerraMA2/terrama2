@@ -81,6 +81,7 @@ class ProjectionDialog : public QDialog, private boost::noncopyable
     ~ProjectionDialog();
 
   private:
+    void setupProjection(int);
     void setEditValues(QLineEdit* ledtItem, bool enable, double value);
 
   private slots:
