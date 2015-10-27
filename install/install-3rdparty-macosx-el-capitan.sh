@@ -1042,10 +1042,10 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
   echo "installing GMock..."
   sleep 1s
 
-  unzip googletestmaster.zip
-  valid $? "Error: could not uncompress googletestmaster.zip!"
+  unzip googletest-master.zip
+  valid $? "Error: could not uncompress googletest-master.zip!"
 
-  cd googletestmaster/googletest
+  cd googletest-master/googletest
   valid $? "Error: could not enter googletestmaster!"
 
   cmake .
@@ -1080,14 +1080,14 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
   cp -r include $TERRAMA2_DEPENDENCIES_DIR/include/
   valid $? "Error: could not copy include dir!"
 
-  cd ..
+  cd ../..
 fi
 
 
 #
 # TerraLib
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libterralib_mod_common.dylib" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/terralib5/lib/libterralib_mod_common.dylib" ]; then
   echo "installing TerraLib..."
   echo ""
   sleep 1s

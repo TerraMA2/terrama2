@@ -1294,8 +1294,6 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
   echo "installing GMock..."
   sleep 1s
 
-cd terrama2-3rdparty-linux-ubuntu-14.04
-
   unzip googletest-master.zip
   valid $? "Error: could not uncompress googletestmaster.zip!"
 
@@ -1334,7 +1332,7 @@ cd terrama2-3rdparty-linux-ubuntu-14.04
   cp -r include/gmock $TERRAMA2_DEPENDENCIES_DIR/include/
   valid $? "Error: could not copy include dir!"
 
-  cd ..
+  cd ../..
 fi
 
 
@@ -1342,7 +1340,7 @@ fi
 #
 # TerraLib
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libterralib_mod_common.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/terralib5/lib/libterralib_mod_common.so" ]; then
   echo "installing TerraLib..."
   echo ""
   sleep 1s
