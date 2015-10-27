@@ -55,7 +55,8 @@ void TsClient::cleanupTestCase()
 
 void TsClient::init()
 {
-  wsClient_ = new terrama2::ws::collector::Client("http://localhost:1989");
+  adapter_ = new terrama2::ws::collector::client::WebProxyAdapter("http://localhost:1989");
+  wsClient_ = new terrama2::ws::collector::client::Client(adapter_);
 
   clearDatabase();
 }
@@ -65,7 +66,7 @@ void TsClient::cleanup()
 {
   clearDatabase();
 
-  delete wsClient_;
+  delete wsClient_;  
 }
 
 
@@ -147,7 +148,8 @@ void TsClient::TestWrongConection()
   std::string answer;
   try
   {
-    terrama2::ws::collector::Client wsClient("http://wrongaddress:00");
+    terrama2::ws::collector::client::WebProxyAdapter* adapter= new terrama2::ws::collector::client::WebProxyAdapter("http://wrongaddress:00");
+    terrama2::ws::collector::client::Client wsClient(adapter);
 
     wsClient.ping(answer);
 
