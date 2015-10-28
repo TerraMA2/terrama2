@@ -387,6 +387,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 subTabs_[3]->setSelectedData(selectedItem->text(0));
 
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
+                ui_->pointDiffFormatDataDescription->setText(dataset.description().c_str());
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);

@@ -582,7 +582,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="4" rowspan="3">
             <widget class="QStackedWidget" name="weatherPageStack">
              <property name="currentIndex">
-              <number>0</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="ServerGroupPage">
               <property name="enabled">
@@ -2499,12 +2499,12 @@ p, li { white-space: pre-wrap; }
                    <widget class="QComboBox" name="pointDiffFormatDataType">
                     <item>
                      <property name="text">
-                      <string>Queimadas</string>
+                      <string>Focos de Doença</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>Focos de Doença</string>
+                      <string>Queimadas</string>
                      </property>
                     </item>
                     <item>

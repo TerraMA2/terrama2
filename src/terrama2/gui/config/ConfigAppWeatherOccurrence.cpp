@@ -48,6 +48,14 @@ void ConfigAppWeatherOccurrence::save()
 
   dataset.setName(ui_->pointDiffFormatDataName->text().toStdString());
   dataset.setKind(terrama2::core::DataSet::OCCURENCE_TYPE);
+  dataset.setDescription(ui_->pointDiffFormatDataDescription->toPlainText().toStdString());
+
+  terrama2::core::DataSetItem datasetItem;
+  // TODO: fix it with datasetitem value
+  datasetItem.setKind(terrama2::core::ToDataSetItemKind(ui_->pointDiffFormatDataType->currentIndex()+4));
+  datasetItem.setMask(ui_->pointDiffFormatDataMask->text().toStdString());
+  datasetItem.setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
+  dataset.add(datasetItem);
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
   if (dataset.id() > 0)
