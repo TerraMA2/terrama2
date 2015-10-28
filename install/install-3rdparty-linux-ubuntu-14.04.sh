@@ -218,7 +218,7 @@ fi
 qt5_dev_test=`dpkg -s qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5 | grep Status`
 
 if [ "$qt5_dev_test" != "Status: install ok installed" ]; then
-  sudo apt-get -y install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5
+  sudo apt-get -y install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5 libqt5sql5-psql
   valid $? "Error: could not install qt5-default! Please, install Qt 5 support: sudo apt-get -y install qt5-default qttools5-dev qttools5-dev-tools libqt5svg5-dev libqt5designer5"
   echo "qt5-dev-tools installed!"
 else
