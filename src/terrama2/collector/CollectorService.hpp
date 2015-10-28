@@ -76,16 +76,16 @@ namespace terrama2
         Q_OBJECT
 
       public:
-        /*!
-            * \brief Constructor
-            */
+        //! Constructor.
         CollectorService(QObject* parent = nullptr);
+
+        //! Destructor.
         ~CollectorService();
 
         /*!
-         * \brief Creates a processloop thread and wait for signals.
-         *
-         * \exception terrama2::collector::ServiceAlreadyRunnningException Raise when the service is already runnning.
+          \brief Creates a processloop thread and wait for signals.
+
+          \exception terrama2::collector::ServiceAlreadyRunnningException Raise when the service is already runnning.
          */
         void start();
 
@@ -155,39 +155,38 @@ namespace terrama2
          */
         void updateDataset(const core::DataSet dataset);
 
-        /*!
-             * \brief Slot to be called when a DataSetTimer times out.
-             */
+        //! Slot to be called when a DataSetTimer times out.
         void addToQueueSlot(const uint64_t datasetId);
 
       private:
+
         /*!
-             * \brief Start do collect queued datasets
-             * \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
-             */
+          \brief Start do collect queued datasets
+
+          \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
+         */
         void assignCollector(CollectorPtr firstCollectorInQueue);
 
         /*!
-             * \brief Contains an infinite loop that will keep the service collecting data.
-             *
-             * For each provider type verifies if the first provider in the queue is acquiring new data,
-             * in case it's collecting moves to next type of provider, when it's done remove it from the queue,
-             * in case it's not collecting, starts the collection calling the collect method.
-             * It allows multiples providers to collect at the same time but only one provider of each type.
-             */
+          \brief Contains an infinite loop that will keep the service collecting data.
+
+          For each provider type verifies if the first provider in the queue is acquiring new data,
+          in case it's collecting moves to next type of provider, when it's done remove it from the queue,
+          in case it's not collecting, starts the collection calling the collect method.
+          It allows multiples providers to collect at the same time but only one provider of each type.
+         */
         void processingLoop();
 
         /*!
-         * \brief Make connections with the [DataManager]{\ref terrama2::core::DataManager}.
-         *
-         * Listens to:
-         *  - dataProviderAdded(DataProvider);
-         *  - dataProviderRemoved(DataProvider);
-         *  - dataProviderUpdated(DataProvider);
-         *  - dataSetAdded(DataSet);
-         *  - dataSetRemoved(DataSet);
-         *  - dataSetUpdated(DataSet);
-         *
+          \brief Make connections with the [DataManager]{\ref terrama2::core::DataManager}.
+
+          Listens to:
+          - dataProviderAdded(DataProvider);
+          - dataProviderRemoved(DataProvider);
+          - dataProviderUpdated(DataProvider);
+          - dataSetAdded(DataSet);
+          - dataSetRemoved(DataSet);
+          - dataSetUpdated(DataSet);
          */
         void connectDataManager();
 
