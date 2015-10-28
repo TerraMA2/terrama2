@@ -96,17 +96,22 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! It sets the tab state
     virtual void setChanged(bool state);
 
+    //! It sets the current selected data. It is used when one Item from WeatherTree has been clicked
     virtual void setSelectedData(const QString selectedData);
 
+    //! It displays a messagebox showing whether would like to remove
     virtual bool removeDataSet(const terrama2::core::DataSet&);
 
-public slots:
+  public slots:
 
     //! Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
     virtual void onSaveRequested();
 
     //! Slot triggered on cancel button to check if the user wish cancel and save.
     virtual void onCancelRequested();
+
+    //! Slot triggered on filter button in tabs to show filter dialog
+    virtual void onFilterClicked();
 
   protected:
     ConfigApp* app_;  //!< Main Window

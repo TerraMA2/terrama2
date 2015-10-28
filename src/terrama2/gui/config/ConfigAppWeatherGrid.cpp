@@ -7,6 +7,7 @@
 #include "../../core/DataSetItem.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
+#include "FilterDialog.hpp"
 
 // QT
 #include <QMessageBox>
@@ -16,34 +17,10 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   : ConfigAppTab(app, ui)
 {
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridClicked()));
+  connect(ui_->filterGridBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
   connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabChanged()));
   connect(ui_->gridFormatDataFormat, SIGNAL(currentIndexChanged(const QString&)), SLOT(onGridFormatChanged()));
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
-
-//  ui_->gridFormatDataType->setEnabled(false);
-//  ui_->projectionGridBtn->setEnabled(false);
-//  ui_->gridFormatDataResolution->setEnabled(false);
-//  ui_->gridFormatDataPrefix->setEnabled(false);
-//  ui_->gridFormatDataFrequency->setEnabled(false);
-//  ui_->gridFormatDataTimeZoneCmb->setEnabled(false);
-//  ui_->gridFormatDataUnit->setEnabled(false);
-//  ui_->gridFormatDataDescription->setEnabled(false);
-//  ui_->gridFormatDataPath->setEnabled(false);
-//  ui_->gridFormatDataMask->setEnabled(false);
-//  ui_->gridFormatDataFormat->setEnabled(false);
-//  ui_->ledGridGrADSArqControle->setEnabled(false);
-//  ui_->ledGridGrADSMultiplicador->setEnabled(false);
-//  ui_->cmbGridGrADSByteOrder->setEnabled(false);
-//  ui_->rbGridGrADSTipoDadosFloat->setEnabled(false);
-//  ui_->rbGridGrADSTipoDadosInt->setEnabled(false);
-//  ui_->spbGridGrADSNumBands->setEnabled(false);
-//  ui_->spbGridGrADSTimeOffset->setEnabled(false);
-//  ui_->ledGridWCSDummy->setEnabled(false);
-//  ui_->filterGridBtn->setEnabled(false);
-//  ui_->spbGridGrADSHeaderSize->setEnabled(false);
-//  ui_->spbGridGrADSTraillerSize->setEnabled(false);
-//  ui_->exportDataGridBtn->setEnabled(false);
-//  ui_->updateDataGridBtn->setEnabled(false);
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
@@ -214,4 +191,11 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
     }
   }
   ui_->cancelBtn->clicked();
+}
+
+void ConfigAppWeatherGridTab::onFilterClicked()
+{
+  FilterDialog dialog(app_);
+
+  dialog.exec();
 }

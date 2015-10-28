@@ -75,6 +75,11 @@ void ConfigAppTab::onCancelRequested()
   discardChanges(true);
 }
 
+void ConfigAppTab::onFilterClicked()
+{
+
+}
+
 bool ConfigAppTab::isActive() const
 {
   return active_;

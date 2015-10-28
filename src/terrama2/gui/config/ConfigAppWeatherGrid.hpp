@@ -44,8 +44,10 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     bool dataChanged();
     bool validate();
     void save();
-
     void discardChanges(bool restore_data);
+
+  public slots:
+    void onFilterClicked();
 
   private slots:
     //! Slot triggered when data grid btn is clicked to display the Grid Widget

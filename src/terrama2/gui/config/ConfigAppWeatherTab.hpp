@@ -62,17 +62,32 @@ class ConfigAppWeatherTab : public ConfigAppTab
   public:
     ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
     ~ConfigAppWeatherTab();
+
+    //! Implemented from ConfigAppTab. It is loading each subtab
     void load();
+
+    //! Implemented from ConfigAppTab. It detects if the there any data changed at form
     bool dataChanged();
+
+    //! Implemented from ConfigAppTab. Validate each widget filled
     bool validate();
+
+    //! Implemented from ConfigAppTab.
     void save();
+
+    //! Discard changes of form and clean all
     void discardChanges(bool restore_data);
 
     //! It remove all children from QWidgetTree
     void clearList();
+
+    //! Set visible of operations buttons
     void displayOperationButtons(bool state);
+
+    //! It handles when the subtab can change
     void changeTab(ConfigAppTab &sender, QWidget &widget);
 
+    //! Retrieve cached map of providers
     QMap<std::string,terrama2::core::DataProvider> providers();
 
     //! It retrieves dataprovider from cached list
@@ -84,10 +99,13 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! It is used for insert and update cached dataprovider list
     void addCachedProvider(const terrama2::core::DataProvider& provider);
 
+    //! Remove provider from cached map
     void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
 
+    //! Add a dataset in cached map of datasets
     void addCachedDataSet(const terrama2::core::DataSet& dataset);
 
+    //! Remove a dataset from cached dataset map
     void removeCachedDataSet(const terrama2::core::DataSet& dataset);
 
     //! It refresh the weatherdatalist from widget and string for replace
@@ -116,8 +134,8 @@ class ConfigAppWeatherTab : public ConfigAppTab
 
   private:
     QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
-    QMap<std::string,terrama2::core::DataProvider> providers_;
-    QMap<std::string,terrama2::core::DataSet> datasets_;
+    QMap<std::string,terrama2::core::DataProvider> providers_; //!< Cached providers map
+    QMap<std::string,terrama2::core::DataSet> datasets_; //!< Cached datasets map
 };
 
 #endif

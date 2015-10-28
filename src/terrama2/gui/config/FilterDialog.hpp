@@ -31,38 +31,25 @@
 #ifndef _FilterDialog_H_
 #define _FilterDialog_H_
 
-#include "ui_FilterDialog.h"
+// TerraMA2
+#include "ui_FilterDialogForm.h"
 
-#include "soapH.h"
+// boost
+#include <boost/noncopyable.hpp>
 
-enum FilterDialogType {
-	FULLFILTER = 0,
-	DATEFILTER = 1,
-	AREAFILTER = 2,
-	NO_BANDFILTER = 3
-};
+class QDialog;
 
-class FilterDialog : public QDialog, private Ui::FilterDialog
+class FilterDialog : public QDialog, private boost::noncopyable
 {
-Q_OBJECT
+  Q_OBJECT
 
-public:
-  FilterDialog(FilterDialogType fType, QWidget* parent = 0, Qt::WFlags f = 0 );
-  ~FilterDialog();
-  void setFields(const wsWeatherDataSourceFilter& filterParams, std::vector<struct wsTheme>);
-  void getFields(wsWeatherDataSourceFilter *filterParams, bool &changed);
+  public:
+    FilterDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    ~FilterDialog();
 
-private slots:
-  void filterTypeToggled();
-  void setFilterChanged();
-  void enablePAThemeBox();
-  void disablePAThemeBox();
-  void setToday();
-  
-private:
-	bool _filterChanged;
-	bool _ignoreChangeEvents;
-	void fillThemeList(std::vector<struct wsTheme>);
+  private:
+    struct Impl;
+    Impl* pimpl_;
 };
 
 
