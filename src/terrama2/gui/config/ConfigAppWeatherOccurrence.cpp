@@ -4,6 +4,7 @@
 #include "../../core/Utils.hpp"
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
+#include "FilterDialog.hpp"
 
 // Qt
 #include <QMessageBox>
@@ -13,20 +14,7 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
 {
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onDataSetBtnClicked()));
   connect(ui_->serverRemovePointDiffBtn, SIGNAL(clicked()), SLOT(onRemoveOccurrenceBtnClicked()));
-
-  ui_->pointDiffFormatDataType->setEnabled(false);
-  ui_->pointDiffFormatDataUnit->setEnabled(false);
-  ui_->projectionPointDiffBtn->setEnabled(false);
-  ui_->pointDiffFormatDataPrefix->setEnabled(false);
-  ui_->pointDiffFormatDataUnit->setEnabled(false);
-  ui_->pointDiffFormatDataFrequency->setEnabled(false);
-  ui_->pointDiffFormatDataTimeZoneCmb->setEnabled(false);
-  ui_->pointDiffFormatDataDescription->setEnabled(false);
-  ui_->pointDiffFormatDataPath->setEnabled(false);
-  ui_->pointDiffFormatDataMask->setEnabled(false);
-  ui_->pointDiffFormatDataFormat->setEnabled(false);
-  ui_->intersectionBtn->setEnabled(false);
-  ui_->filterPointDiffBtn->setEnabled(false);
+  connect(ui_->filterPointDiffBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
 
   ui_->updateDataPointDiffBtn->setEnabled(false);
   ui_->exportDataPointDiffBtn->setEnabled(false);
@@ -88,6 +76,32 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
   for(QLineEdit* widget: ui_->DataPointDiffPage->findChildren<QLineEdit*>())
     widget->clear();
   changed_ = false;
+}
+
+void ConfigAppWeatherOccurrence::onFilterClicked()
+{
+  FilterDialog dialog(app_);
+  dialog.exec();
+
+  if (dialog.isFilterByDate())
+    ui_->dateFilterLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByArea())
+    ui_->areaFilterLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByLayer())
+    ui_->bandFilterLabel->setText(tr("Yes"));
+  else
+    ui_->bandFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByPreAnalyse())
+    ui_->preAnalysisLabel->setText(tr("Yes"));
+  else
+    ui_->preAnalysisLabel->setText(tr("No"));
 }
 
 void ConfigAppWeatherOccurrence::onDataSetBtnClicked()

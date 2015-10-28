@@ -47,8 +47,30 @@ class FilterDialog : public QDialog, private boost::noncopyable
     FilterDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
     ~FilterDialog();
 
+    //! It checks if there any filter by date
+    bool isFilterByDate() const;
+
+    //! It checks if there any filter by layer
+    bool isFilterByLayer() const;
+
+    //! It checks if there any filter by analyse before
+    bool isFilterByPreAnalyse() const;
+
+    //! It checks if there any filter by field
+    bool isFilterByArea() const;
+
+  private slots:
+    //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date neither true or false.
+    void onFilteredByDate();
+
+    //! Slot triggered whether filter by layer.
+    void onFilteredByLayer();
+
+    //! Slot triggered whether filter by area.
+    void onFilteredByArea();
+
   private:
-    struct Impl;
+    struct Impl; //!< Pimpl idiom
     Impl* pimpl_;
 };
 

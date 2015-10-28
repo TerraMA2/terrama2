@@ -22,7 +22,7 @@
 /*!
   \file terrama2/gui/config/FilterDialog.cpp
 
-  \brief Definition of Class FilterDialog.hpp
+  \brief Manages the filters typed by users
 
   \author Raphael Willian da Costa  
 */
@@ -35,17 +35,23 @@
 struct FilterDialog::Impl
 {
   Impl()
-    : ui_(new Ui::FilterDialogForm)
+    : ui_(new Ui::FilterDialogForm),
+      filterByDate_(false),
+      filterByLayer_(false),
+      filterByArea_(false),
+      filterBypreAnalyse_(false)
   {
-
   }
 
   ~Impl()
   {
-
   }
 
   Ui::FilterDialogForm* ui_;
+  bool filterByDate_;
+  bool filterByLayer_;
+  bool filterByArea_;
+  bool filterBypreAnalyse_;
 };
 
 //! Construtor
@@ -53,9 +59,72 @@ FilterDialog::FilterDialog(QWidget* parent, Qt::WindowFlags f)
   : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
+
+  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
+
+  // TODO: improve this and check with service???
+  connect(pimpl_->ui_->dateBeforeFilterCbx, SIGNAL(clicked()), this, SLOT(onFilteredByDate()));
+  connect(pimpl_->ui_->dateAfterFilterCbx, SIGNAL(clicked()), this, SLOT(onFilteredByDate()));
+  connect(pimpl_->ui_->bandFilterLed, SIGNAL(textEdited(QString)), this, SLOT(onFilteredByLayer()));
+
+  // FilterByArea
+  connect(pimpl_->ui_->noAreaFilterRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
+  connect(pimpl_->ui_->areaRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
+  connect(pimpl_->ui_->planeRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
 }
 
 FilterDialog::~FilterDialog()
 {
   delete pimpl_;
+}
+
+bool FilterDialog::isFilterByDate() const
+{
+  return pimpl_->filterByDate_;
+}
+
+bool FilterDialog::isFilterByArea() const
+{
+  return pimpl_->filterByArea_;
+}
+
+bool FilterDialog::isFilterByLayer() const
+{
+  return pimpl_->filterByLayer_;
+}
+
+bool FilterDialog::isFilterByPreAnalyse() const
+{
+  return pimpl_->filterBypreAnalyse_;
+}
+
+void FilterDialog::onFilteredByDate()
+{
+  pimpl_->filterByDate_ = pimpl_->ui_->dateBeforeFilterCbx->isChecked() || pimpl_->ui_->dateAfterFilterCbx->isChecked();
+}
+
+void FilterDialog::onFilteredByLayer()
+{
+  pimpl_->filterByLayer_ = !pimpl_->ui_->bandFilterLed->text().trimmed().isEmpty();
+}
+
+void FilterDialog::onFilteredByArea()
+{
+  // TODO: validate the filter limits
+  if (pimpl_->ui_->noAreaFilterRdb->isChecked())
+  {
+    pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page_3); 
+    pimpl_->filterByArea_ = false;
+  }
+  else if (pimpl_->ui_->areaRdb->isChecked())
+  {
+    pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page_2);
+    pimpl_->filterByArea_ = true;
+  }
+  else
+  {
+    pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page);
+    pimpl_->filterByArea_ = true;
+  }
 }

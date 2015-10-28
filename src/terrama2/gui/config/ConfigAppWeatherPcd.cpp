@@ -4,6 +4,7 @@
 #include "../../core/Utils.hpp"
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
+#include "ProjectionDialog.hpp"
 
 // Qt
 #include <QMessageBox>
@@ -14,8 +15,9 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 {
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->pointFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onDataPointBtnClicked()));
+  connect(ui_->projectionPointBtn, SIGNAL(clicked()), SLOT(onProjectionClicked()));
   ui_->pointFormatDataType->setEnabled(false);
-  ui_->projectionPointBtn->setEnabled(false);
+//  ui_->projectionPointBtn->setEnabled(false);
   ui_->pointFormatDataInfluenceCmb->setEnabled(false);
   ui_->pointFormatDataThemeCmb->setEnabled(false);
   ui_->pointFormatDataFrequency->setEnabled(false);
@@ -127,4 +129,10 @@ void ConfigAppWeatherPcd::onDataPointBtnClicked()
     }
   }
   ui_->cancelBtn->clicked();
+}
+
+void ConfigAppWeatherPcd::onProjectionClicked()
+{
+  ProjectionDialog dialog(app_);
+  dialog.exec();
 }

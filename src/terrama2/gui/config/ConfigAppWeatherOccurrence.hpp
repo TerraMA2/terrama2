@@ -45,6 +45,9 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     void save();
     void discardChanges(bool restore_data);
 
+  public:
+    void onFilterClicked();
+
   private slots:
     void onDataSetBtnClicked();
     void onRemoveOccurrenceBtnClicked();

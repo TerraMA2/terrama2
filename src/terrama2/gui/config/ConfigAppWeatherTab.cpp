@@ -359,7 +359,8 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 
                 ui_->gridFormatDataName->setText(dataset.name().c_str());
                 ui_->gridFormatDataDescription->setText(dataset.description().c_str());
-                ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getMinutes()));
+                ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+                ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
 
                 hideDataSetButtons();
                 showDataSeries(false);
@@ -430,13 +431,11 @@ void ConfigAppWeatherTab::onExportServerClicked()
     QJsonObject json;
     json["name"] = ui_->serverName->text();
     json["description"] = ui_->serverDescription->toPlainText();
-
     json["kind"] = ui_->connectionProtocol->currentText();
     json["address"] = ui_->connectionAddress->text();
     json["port"] = ui_->connectionPort->text();
     json["username"] = ui_->connectionUserName->text();
     json["password"] = ui_->connectionPort->text();
-
     json["interval"] = ui_->serverIntervalData->text();
 
     terrama2::gui::core::saveTerraMA2File(app_, json);
@@ -467,7 +466,6 @@ void ConfigAppWeatherTab::displayOperationButtons(bool state)
 {
   ui_->saveBtn->setVisible(state);
   ui_->cancelBtn->setVisible(state);
-
   ui_->saveBtn->setEnabled(state);
   ui_->cancelBtn->setEnabled(state);
 }
@@ -479,7 +477,6 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
     {
       if (tab->dataChanged())
       {
-        // todo: ASK FOR would like to save
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(app_, tr("TerraMA2"),
                                       tr("Would you like to try save before cancel?"),

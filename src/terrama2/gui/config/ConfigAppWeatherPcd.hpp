@@ -48,6 +48,7 @@ class ConfigAppWeatherPcd : public ConfigAppTab
   private slots:
     void onInsertPointBtnClicked();
     void onDataPointBtnClicked();
+    void onProjectionClicked();
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__

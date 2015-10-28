@@ -65,7 +65,7 @@ void ConfigAppWeatherGridTab::save()
   terrama2::core::DataSetItem datasetItem;
 
   // temp code
-  datasetItem.setKind(terrama2::core::DataSetItem::UNKNOWN_TYPE);
+  datasetItem.setKind(terrama2::core::DataSetItem::DISEASE_OCCURRENCE_TYPE);
 
   datasetItem.setMask(ui_->gridFormatDataMask->text().toStdString());
   datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
@@ -73,9 +73,12 @@ void ConfigAppWeatherGridTab::save()
 
   dataset.add(datasetItem);
 
-  // minutes to secs
-  te::dt::TimeDuration dataFrequency(0, ui_->gridFormatDataFrequency->text().toInt(), 0);
+  te::dt::TimeDuration dataFrequency(ui_->gridFormatDataFrequency->text().toInt(), 0, 0);
+  te::dt::TimeDuration schedule(0, ui_->gridFormatDataInterval->value(), 0);
   dataset.setDataFrequency(dataFrequency);
+
+  // todo: get value from db
+  dataset.setSchedule(schedule);
   if (dataset.id() >= 1)
   {
     app_->getClient()->updateDataSet(dataset);
@@ -115,8 +118,6 @@ bool ConfigAppWeatherGridTab::validate()
   }
 
   terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(ui_->gridFormatDataName->text().toStdString());
-//  terrama2::core::DataSet dataset = terrama2::core::DataManager::getInstance().findDataSet(
-//      ui_->gridFormatDataName->text().toStdString());
 
   if (dataset.id() != 0 && !selectedData_.isEmpty())
   {
@@ -198,4 +199,24 @@ void ConfigAppWeatherGridTab::onFilterClicked()
   FilterDialog dialog(app_);
 
   dialog.exec();
+
+  if (dialog.isFilterByDate())
+    ui_->dateFilterLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByArea())
+    ui_->areaFilterLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByLayer())
+    ui_->bandFilterLabel->setText(tr("Yes"));
+  else
+    ui_->bandFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByPreAnalyse())
+    ui_->preAnalysisLabel->setText(tr("Yes"));
+  else
+    ui_->preAnalysisLabel->setText(tr("No"));
 }
