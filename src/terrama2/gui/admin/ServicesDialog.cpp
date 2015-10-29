@@ -41,6 +41,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QProcess>
+#include <QThread>
 
 struct ServicesDialog::Impl
 {
@@ -63,7 +64,7 @@ ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QS
 {
  pimpl_->ui_->setupUi(this);
 
- QJsonObject selectedMetadata = configManager_.getfiles().take(nameConfig);
+ QJsonObject selectedMetadata = configManager_.getfiles().take(idNameConfig_);
  configManager_.setDataForm(selectedMetadata);
 
  connect(pimpl_->ui_->cancelBtn,       SIGNAL(clicked()), SLOT(reject()));
@@ -87,7 +88,7 @@ ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QS
 
  client = new terrama2::ws::collector::Client(host);
 
- setDialogData(nameConfig);
+ setDialogData(idNameConfig_);
 }
 
 //! Destructor
@@ -264,19 +265,19 @@ void ServicesDialog::saveRequested()
 //! Executes the command received as a parameter
 bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
 {
-// Check if the command exists and is executable
-// TODO: verify function for Windows;
+  // Check if the command exists and is executable
+  // TODO: verify function for Windows;
   cmd = "terrama2_mod_ws_collector_appserver";
   QFileInfo info(cmd);
   QString dir = QCoreApplication::applicationDirPath();
   if(!info.exists())
   {
- // Find the executable directory
+    // Find the executable directory
     info.setFile(dir + "/" + cmd);
     if(!info.exists())
     {
       err = tr("Command does not exist: %1").arg(cmd);
-          return false;
+      return false;
     }
     cmd = dir + "/" + cmd;
   }
@@ -297,13 +298,13 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
 
     static const char* module_names[] = {"coleta", "planos", "notificacao", "animacao", "analise"};
 
-    QString address;    
-    QString filename;
+    QString address;
+    //  QString filename;
     QString dirfilename;
 
-    filename = configManager_.getName();
+    // filename = configManager_.getName();
 
-    QJsonObject fileSeleted = configManager_.getfiles().take(filename);
+    QJsonObject fileSeleted = configManager_.getfiles().take(idNameConfig_);
     dirfilename = fileSeleted.take("path").toString();
 
     if (line == 0)
@@ -316,12 +317,12 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
 
   }
 
-// Execute
+  // Execute
   if (param == "")
   {
-   QMessageBox::warning(this, tr("Error..."),
-                              tr("Parameters not exists!."));
-  return false;
+    QMessageBox::warning(this, tr("Error..."),
+                         tr("Parameters not exists!."));
+    return false;
   }
   else
   {
@@ -335,6 +336,7 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
       return false;
     }
   }
+  // verifyRequested();
   return true;
 }
 
@@ -367,9 +369,12 @@ void ServicesDialog::execRequested()
       errCount++;
     }
   }
-
+// FIXME: temporary, sleep function
+// Wait a second to receive the SOAP response
+  QThread::sleep(1);
+  verifyRequested();
 // Show error messages
-  if(errCount)
+/*  if(errCount)
   {
     if(errCount == lines.size())
     {
@@ -389,11 +394,12 @@ void ServicesDialog::execRequested()
   }
   else
   {
+    verifyRequested();
     QMessageBox::information(this, tr("Initialization completed"),
                                    tr("Successfully executed modules.\n\n"
                                       "Use the tool 'Check Connection' to test\n"
                                       "if all services were initialized correctly."));
-  }
+  }*/
 }
 
 //! Signal called when the user requests that marked lines are "closed"
@@ -439,8 +445,8 @@ void ServicesDialog::closeRequested()
       {
         messageError.append(d);
       }
-
-      QMessageBox::critical(nullptr, "TerraMA2", messageError);
+      errCount++;
+     // QMessageBox::critical(nullptr, "TerraMA2", messageError);
     }
     catch(...)
     {
@@ -450,8 +456,10 @@ void ServicesDialog::closeRequested()
 
   QApplication::restoreOverrideCursor();
 
+  verifyRequested();
+
 // Shows error messages or success
-  if(errCount)
+/*  if(errCount)
   {
     if(errCount == lines.size())
     {
@@ -474,5 +482,5 @@ void ServicesDialog::closeRequested()
                                    tr("Termination requests sent successfully.\n\n"
                                       "Use the tool 'Check Connection' to test\n"
                                       "if all services properly terminated."));
-  }
+  }*/
 }

@@ -43,6 +43,7 @@
 #include <QObject>
 #include <QString>
 
+
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
@@ -72,42 +73,42 @@
 
 void executeQueriesFromFile(QFile *file, QSqlQuery *query)
 {
-    while (!file->atEnd()){
-        QByteArray readLine="";
-        QString cleanedLine;
-        QString line="";
-        bool finished=false;
-        while(!finished){
-            readLine = file->readLine();
-            cleanedLine=readLine.trimmed();
-            // remove comments at end of line
-            QStringList strings=cleanedLine.split("--");
-            cleanedLine=strings.at(0);
+  while (!file->atEnd()){
+    QByteArray readLine="";
+    QString cleanedLine;
+    QString line="";
+    bool finished=false;
+    while(!finished){
+      readLine = file->readLine();
+      cleanedLine=readLine.trimmed();
+      // remove comments at end of line
+      QStringList strings=cleanedLine.split("--");
+      cleanedLine=strings.at(0);
 
-            // remove lines with only comment, and DROP lines
-            if(!cleanedLine.startsWith("--")
-                    && !cleanedLine.startsWith("DROP")
-                    && !cleanedLine.isEmpty()){
-                line+=cleanedLine;
-            }
-            if(cleanedLine.endsWith(";")){
-                break;
-            }
-            if(cleanedLine.startsWith("COMMIT")){
-                finished=true;
-            }
-        }
-
-        if(!line.isEmpty()){
-            query->exec(line);
-        }
-        if(!query->isActive()){
-            qDebug() << QSqlDatabase::drivers();
-            qDebug() <<  query->lastError();
-            qDebug() << "test executed query:"<< query->executedQuery();
-            qDebug() << "test last query:"<< query->lastQuery();
-        }
+      // remove lines with only comment, and DROP lines
+      if(!cleanedLine.startsWith("--")
+         && !cleanedLine.startsWith("DROP")
+         && !cleanedLine.isEmpty()){
+        line+=cleanedLine;
+      }
+      if(cleanedLine.endsWith(";")){
+        break;
+      }
+      if(cleanedLine.startsWith("COMMIT")){
+        finished=true;
+      }
     }
+
+    if(!line.isEmpty()){
+      query->exec(line);
+    }
+    if(!query->isActive()){
+      qDebug() << QSqlDatabase::drivers();
+      qDebug() <<  query->lastError();
+      qDebug() << "test executed query:"<< query->executedQuery();
+      qDebug() << "test last query:"<< query->lastQuery();
+    }
+  }
 }
 //**************************************************************************
 
@@ -183,7 +184,7 @@ std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDa
   return dataSource_;
 }
 
-bool terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
+void terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
 {
 
   std::map<std::string, std::string> connInfo;
@@ -198,21 +199,63 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
 
   std::string dsType = "POSTGIS";
 
-
   // Check the data source existence
   connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
-  bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+  bool dsExists = true;
+  try
+  {
+    dsExists = te::da::DataSource::exists(dsType, connInfo);
+  }
+
+  catch(const te::common::Exception& e)
+  {
+    QString messageError = QObject::tr("Invalid data from the database interface! \n\n Details: \n");
+    messageError.append(e.what());
+
+   throw DataAccessError() << ErrorDescription(messageError);
+  }
+
+  catch(const std::exception& e)
+  {
+    QString messageError = QObject::tr("Could not connect to the database! \n\n Details: \n");
+    messageError.append(e.what());
+
+    throw DataAccessError() << ErrorDescription(messageError);
+  }
+
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not connect to the database!"));
+  }
 
   if(dsExists)
   {
-    return false;
+    //return false;
+    throw DataAccessError() << ErrorDescription(QObject::tr("Database exists!"));
   }
   else
   {
     // Closes the previous data source
     if(dataSource_.get())
     {
-      dataSource_->close();
+      try
+      {
+        dataSource_->close();
+      }
+
+      catch(const te::common::Exception& e)
+      {
+        QString messageError = QObject::tr("Could not close the database! \n\n Details: \n");
+        messageError.append(e.what());
+
+        throw DataAccessError() << ErrorDescription(messageError);
+      }
+
+      catch(...)
+      {
+        throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not close the database!"));
+      }
     }
 
     try
@@ -243,38 +286,45 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
 
       // TODO: Create the database model executing the script
     }
+
     catch(te::common::Exception& e)
     {
-      //TODO: log de erro
+      QString messageError = QObject::tr("Could not create the database! \n\n Details: \n");
+      messageError.append(e.what());
+
+      throw DataAccessError() << ErrorDescription(messageError);
+
+      //TODO: log error
       qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
       assert(0);
     }
+
     catch(...)
     {
       //TODO: log this
+      throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not create the database!"));
     }
-
-
-    return true;
   }
-
 }
 
 bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port)
 {
-    std::map<std::string, std::string> connInfo;
+  std::map<std::string, std::string> connInfo;
 
-    connInfo["PG_HOST"] = host;
-    connInfo["PG_PORT"] = std::to_string(port);
-    connInfo["PG_USER"] = username;
-    connInfo["PG_DB_NAME"] = dbName;
-    connInfo["PG_CONNECT_TIMEOUT"] = "4";
-    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+  connInfo["PG_HOST"] = host;
+  connInfo["PG_PORT"] = std::to_string(port);
+  connInfo["PG_USER"] = username;
+  connInfo["PG_DB_NAME"] = dbName;
+  connInfo["PG_CONNECT_TIMEOUT"] = "4";
+  connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
-    std::string dsType = "POSTGIS";
+  std::string dsType = "POSTGIS";
 
-    // Check the data source existence
-    connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
+  // Check the data source existence
+  connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
+
+  try
+  {
     bool dsExists = te::da::DataSource::exists(dsType, connInfo);
 
     if(dsExists)
@@ -285,5 +335,18 @@ bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::s
     {
       return false;
     }
+  }
+  catch(const te::common::Exception& e)
+  {
+    QString messageError;
 
+    messageError.append(e.what());
+  }
+
+  catch(...)
+  {
+    throw;
+  }
+
+  return false;
 }

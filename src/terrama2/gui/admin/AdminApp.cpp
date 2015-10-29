@@ -124,6 +124,16 @@ AdminApp::AdminApp(QWidget* parent)
   clearDataChanged();
   enableFields(false);
 
+// Tips
+  pimpl_->ui_->dbTab->setToolTip(tr("Aba Base de Dados"));
+  pimpl_->ui_->aquisitionTab->setToolTip(tr("Aba Coleta"));
+  pimpl_->ui_->analysisTab->setToolTip(tr("Aba Análises"));
+  pimpl_->ui_->layersTab->setToolTip(tr("Aba Planos"));
+  pimpl_->ui_->notificationTab->setToolTip(tr("Aba Notificação"));
+  pimpl_->ui_->configTab->setToolTip(tr("Aba Balanceamento de Carga"));
+  pimpl_->ui_->animationTab->setToolTip(tr("Aba Animação"));
+  pimpl_->ui_->webTab->setToolTip(tr("Aba Alertas WEB"));
+
  // Init services for each tab
   QSharedPointer<AdminAppTab> dbTab(new AdminAppDBTab(this,pimpl_->ui_));
   QSharedPointer<AdminAppTab> collectTab(new AdminAppCollectTab(this,pimpl_->ui_));
@@ -223,8 +233,11 @@ void AdminApp::newRequested()
                                          QLineEdit::Normal, nameConfig_, &ok);
 
     if (!ok || newname.isEmpty())
-    {      
+    {
+      refresh();
       enableFields(false);
+      newData_ = false;
+      dataChanged_ = false;
       pimpl_->ui_->renameAct->setEnabled(true);
       pimpl_->ui_->removeAct->setEnabled(true);
       return;
@@ -328,12 +341,11 @@ void AdminApp::renameRequested()
 
   pimpl_->ui_->configListWidget->item(row)->setText(nameConfig_);
 
-  newData_ = true;
-
   dataChanged_ = true;
 
   setDataChanged();
 
+  pimpl_->ui_->cancelBtn->setEnabled(false);
   pimpl_->ui_->dbAddressLed->setFocus();
 }
 
@@ -376,7 +388,9 @@ void AdminApp::save()
      }
      else
      { // Save file changed
-       QJsonObject fileSeleted = configManager_->getfiles().take(nameConfig_);
+       QString selectedname = pimpl_->ui_->configListWidget->currentItem()->text();
+       QJsonObject fileSeleted = configManager_->getfiles().take(selectedname);
+       //QJsonObject fileSeleted = configManager_->getfiles().take(nameConfig_);
        newfilename = fileSeleted.take("path").toString();
      }
 
@@ -388,7 +402,7 @@ void AdminApp::save()
      if (configManager_->getCollection()->params_ == "")
        {
         QString params = "%c";
-        QString cmd = "coleta.exe";
+        QString cmd = "coleta";
         configManager_->getCollection()->params_ = params;
         configManager_->getCollection()->cmd_ = cmd;
       }
@@ -418,6 +432,7 @@ void AdminApp::save()
      pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
      pimpl_->ui_->saveBtn->setEnabled(false);
      pimpl_->ui_->saveAct->setEnabled(false);
+     pimpl_->ui_->cancelBtn->setEnabled(false);
 
      pimpl_->ui_->configListWidget->setCurrentRow(0);
 
@@ -435,14 +450,21 @@ void AdminApp::saveAsRequested()
 // Cancel
 void AdminApp::cancelRequested()
 {
-  newData_= false;
+  if(newData_)
+  {
+   int row = pimpl_->ui_->configListWidget->count();
+   delete pimpl_->ui_->configListWidget->takeItem(row-1);
 
-//  delete pimpl_->ui_->configListWidget->currentItem();
+   refresh();
 
-  refresh();
-
-  pimpl_->ui_->dbAddressLed->setFocus();
-
+   enableFields(false);
+  }
+  else
+  {
+    refresh();
+    pimpl_->ui_->dbAddressLed->setFocus();
+  }
+  newData_ = false;
   dataChanged_ = false;
 }
 
@@ -469,27 +491,43 @@ void AdminApp::dbCreateDatabaseRequested()
                                                                         database->host_.toStdString(),
                                                                         database->port_ );
 
-    QMessageBox::information(this, tr("TerraMA2"), tr("Success Create Database!"));
+   QMessageBox::information(this, tr("TerraMA2"), tr("Database created successfully!"));
   }
+
   catch(const terrama2::Exception& e)
   {
-    QString messageError = "TerraMA2 finished with errors!\n\n";
+    QString messageError = "TerraMA2\n\n";
 
     if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
     {
       messageError.append(d);
     }
 
-    QMessageBox::critical(nullptr, "TerraMA2", messageError);
+    QMessageBox::warning(nullptr, "TerraMA2", messageError);
   }
 
   catch(const te::common::Exception& e)
   {
-    QString messageError;
+    QString messageError = "TerraMA2\n\n";
 
-    messageError.append(e.what());
+    if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
+    {
+      messageError.append(d);
+    }
 
-    QMessageBox::critical(nullptr, "TerraMA2", messageError);
+    QMessageBox::warning(nullptr, "TerraMA2", messageError);
+  }
+
+  catch(const std::exception& e)
+  {
+    QString messageError = "TerraMA2\n\n";
+
+    if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
+    {
+      messageError.append(d);
+    }
+
+    QMessageBox::warning(nullptr, "TerraMA2", messageError);
   }
 
   catch(...)
@@ -501,6 +539,7 @@ void AdminApp::dbCreateDatabaseRequested()
 // Check connection Database
 void AdminApp::dbCheckConnectionRequested()
 {
+  bool ok;
   try
   {
     QString err;
@@ -515,13 +554,16 @@ void AdminApp::dbCheckConnectionRequested()
 
     Database* database = configManager_->getDatabase();
 
-    terrama2::core::ApplicationController::getInstance().checkConnectionDatabase(database->dbName_.toStdString(),
+    ok = terrama2::core::ApplicationController::getInstance().checkConnectionDatabase(database->dbName_.toStdString(),
                                                                                  database->user_.toStdString(),
                                                                                  database->password_.toStdString(),
                                                                                  database->host_.toStdString(),
                                                                                  database->port_ );
 
-    QMessageBox::information(this, tr("TerraMA2"), tr("Success connection!"));
+    if (ok)
+      QMessageBox::information(this, tr("TerraMA2"), tr("Connection exists!"));
+    else
+      QMessageBox::information(this, tr("TerraMA2"), tr("Connection not exists!"));
   }
 
   catch(const terrama2::Exception& e)
@@ -555,7 +597,9 @@ void AdminApp::dbCheckConnectionRequested()
 // Refresh
 void AdminApp::refresh()
 {
-  int row = pimpl_->ui_->configListWidget->currentRow();
+ // int row = pimpl_->ui_->configListWidget->currentRow();
+
+  int row = pimpl_->ui_->configListWidget->count()-1;
 
   if (row < 0)
   {
@@ -563,6 +607,8 @@ void AdminApp::refresh()
   }
   else
   {
+    pimpl_->ui_->configListWidget->setCurrentRow(row);
+    //QString selectedname = pimpl_->ui_->configListWidget->takeItem(row)->text();
     QString selectedname = pimpl_->ui_->configListWidget->currentItem()->text();
     QJsonObject selectedMetadata = configManager_->getfiles().take(selectedname);
 
@@ -728,8 +774,10 @@ void AdminApp::ondbTab()
   pimpl_->ui_->saveBtn->setEnabled(true);
   pimpl_->ui_->saveAct->setEnabled(true);
   pimpl_->ui_->cancelBtn->setEnabled(true);
+  pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
+  pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
   dataChanged_ = true;
-  newData_ = true;
+  //newData_ = true;
 }
 
 // Clear Form Data
@@ -760,6 +808,8 @@ void AdminApp::itemClicked()
 {
   QString selectedName = pimpl_->ui_->configListWidget->currentItem()->text();
   QMap<QString,QJsonObject> fileList = configManager_->getfiles();
+
+  nameConfig_ = selectedName;
 
   if (!fileList.contains(selectedName))
     return;
@@ -842,9 +892,9 @@ void AdminApp::fillForm()
   pimpl_->ui_->aqTimeoutSecSpb->setValue(configManager_->getCollection()->timeout_ % 60);
 
   clearDataChanged();
-
-  pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
-  pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
+  enableFields(true);
+  //pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
+ // pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
 
 }
 
