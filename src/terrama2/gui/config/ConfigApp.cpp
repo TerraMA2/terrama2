@@ -33,6 +33,7 @@
 #include "../../core/Utils.hpp"
 #include "Exception.hpp"
 #include "../core/ConfigManager.hpp"
+#include "../../ws/collector/client/WebProxyAdapter.hpp"
 
 // TerraMA2 Tab controls
 #include "ConfigAppWeatherTab.hpp"
@@ -162,6 +163,8 @@ void ConfigApp::openRequested()
       if (configManager_->getCollection()->address_.isEmpty())
         return;
 
+      pimpl_->ui_->cancelBtn->clicked();
+
       pimpl_->ui_->centralwidget->setEnabled(true);
 
       if (client_ != nullptr)
@@ -170,7 +173,10 @@ void ConfigApp::openRequested()
       std::string destination = "http://" + configManager_->getCollection()->address_.toStdString() + ":";
       destination += std::to_string(configManager_->getCollection()->servicePort_);
 
-      client_.reset(new terrama2::ws::collector::Client(destination));
+
+      terrama2::ws::collector::client::WebProxyAdapter* webProxyAdapter = new terrama2::ws::collector::client::WebProxyAdapter(destination);
+
+      client_.reset(new terrama2::ws::collector::client::Client(webProxyAdapter));
 
       weatherTab_->load();
     }
@@ -187,7 +193,7 @@ QSharedPointer<ConfigAppWeatherTab> ConfigApp::getWeatherTab() const
   return weatherTab_;
 }
 
-QSharedPointer<terrama2::ws::collector::Client> ConfigApp::getClient() const
+QSharedPointer<terrama2::ws::collector::client::Client> ConfigApp::getClient() const
 {
   return client_;
 }

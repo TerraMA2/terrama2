@@ -36,6 +36,7 @@
 #include "../core/ConfigManager.hpp"
 #include "AdminApp.hpp"
 #include "../Exception.hpp"
+#include "../../ws/collector/client/WebProxyAdapter.hpp"
 
 // QT
 #include <QMessageBox>
@@ -85,8 +86,8 @@ ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QS
  pimpl_->ui_->closeServiceBtn->setEnabled(false);
 
  std::string host = "http://localhost:" + std::to_string(configManager_.getCollection()->servicePort_);
-
- client = new terrama2::ws::collector::Client(host);
+ terrama2::ws::collector::client::WebProxyAdapter* webProxyAdapter = new terrama2::ws::collector::client::WebProxyAdapter(host);
+ client = new terrama2::ws::collector::client::Client(webProxyAdapter);
 
  setDialogData(idNameConfig_);
 }

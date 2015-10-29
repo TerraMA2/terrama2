@@ -24,63 +24,33 @@
 #  Author: Vinicius Camapanha
 #
 
-include_directories (
-  ${Boost_INCLUDE_DIR}
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
-  ${GSOAP_INCLUDE_DIR}
-  ${terralib_INCLUDE_DIRS}
-  ${terralib_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}/gsoap)
-
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/client/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/client/*.hpp)
+
+include_directories (
+        ${Boost_INCLUDE_DIR}
+        ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+        ${GSOAP_INCLUDE_DIR}
+        ${terralib_INCLUDE_DIRS}
+        ${terralib_DIR}
+        "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_client/gsoap"
+        ${GTEST_INCLUDE_DIRS}
+        ${GMOCK_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -T -i -w -x -I${GSOAP_IMPORT_DIR} -I${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp)
-
-make_directory(${CMAKE_CURRENT_BINARY_DIR}/gsoap)
-
-set(GSOAP_HDR_FILES ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapWebService.h
-                    ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapH.h
-                    ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapStub.h)
-
-set(GSOAP_SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapWebService.cpp
-                    ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapC.cpp)
-
-set(GSOAP_NSM_FILES ${CMAKE_CURRENT_BINARY_DIR}/gsoap/Web.nsmap)
-
-set(GSOAP_TEST_FILE ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapTester.cpp)
-
-add_custom_command(OUTPUT ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES} ${GSOAP_TEST_FILE} ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapWebProxy.cpp ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapWebProxy.h
-                   COMMAND ${COMMAND_LINE}
-                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gsoap
-                   COMMENT "Generating gSoap Web Service Files for Tests." VERBATIM USES_TERMINAL)
-
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
-source_group("gSOAP Files"   FILES ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES})
 
-add_executable(terrama2_unittest_ws_collector_server_autotest ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_TEST_FILE} ${GSOAP_NSM_FILES} ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/ws/collector/client/Namespace.cpp)
+add_executable(terrama2_unittest_ws_collector_client ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_unittest_ws_collector_server_autotest ${GSOAP_CPP_LIBRARY})
-
-qt5_use_modules(terrama2_unittest_ws_collector_server_autotest Test)
-
-set(GSOAP_HDR_FILES ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapWebProxy.h
-                    ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapH.h
-                    ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapStub.h)
-
-set(GSOAP_SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapWebProxy.cpp
-                    ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapC.cpp)
-
-add_executable(terrama2_unittest_ws_collector_client ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${GSOAP_HDR_FILES} ${GSOAP_SRC_FILES} ${GSOAP_NSM_FILES})
-
-target_link_libraries(terrama2_unittest_ws_collector_client terrama2_mod_ws_collector_client
-                                                            terrama2_mod_core
-                                                            terralib_mod_plugin
-                                                            terralib_mod_common
-                                                            ${GSOAP_CPP_LIBRARY})
+target_link_libraries(terrama2_unittest_ws_collector_client terrama2_mod_ws_collector_core
+        terrama2_mod_ws_collector_client
+        terrama2_mod_core
+        terralib_mod_plugin
+        terralib_mod_common
+        ${GTEST_BOTH_LIBRARIES}
+        ${GMOCK_BOTH_LIBRARIES})
 
 qt5_use_modules(terrama2_unittest_ws_collector_client Test)

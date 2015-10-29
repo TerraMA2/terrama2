@@ -31,6 +31,7 @@
 //TerrraMA2
 #include <terrama2/core/Utils.hpp>
 #include <terrama2/core/ApplicationController.hpp>
+#include <terrama2/Exception.hpp>
 
 //terralib
 #include <terralib/common/PlatformUtils.h>
@@ -74,7 +75,7 @@ void initializeTerralib()
   }
   catch(te::plugin::Exception& e)
   {
-    qDebug() << e.what();
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
 }

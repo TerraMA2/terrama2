@@ -43,7 +43,6 @@
 #include <QObject>
 #include <QString>
 
-
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
@@ -199,6 +198,7 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
 
   std::string dsType = "POSTGIS";
 
+
   // Check the data source existence
   connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
 
@@ -286,7 +286,6 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
 
       // TODO: Create the database model executing the script
     }
-
     catch(te::common::Exception& e)
     {
       QString messageError = QObject::tr("Could not create the database! \n\n Details: \n");
@@ -298,7 +297,6 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
       qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
       assert(0);
     }
-
     catch(...)
     {
       //TODO: log this
