@@ -345,7 +345,8 @@ void terrama2::collector::CollectorService::updateProvider(const terrama2::core:
   }
 }
 
-terrama2::collector::DataSetTimerPtr terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
+terrama2::collector::DataSetTimerPtr
+terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
 {
   //TODO: Debug?
   //sanity check: valid dataset

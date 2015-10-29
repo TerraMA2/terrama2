@@ -55,28 +55,25 @@ namespace terrama2
   namespace collector
   {
 
-
     /*!
-         * \brief The Collector class is responsible for aquiring the data from a remote server.
-         *
-         * This class is an interface to open a connection with a [DataProvider](\ref terrama2::core::DataProvider)
-         * and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
-         *
-         *
-         */
+      \brief The Collector class is responsible for aquiring the data from a remote server.
+
+      This class is an interface to open a connection with a [DataProvider](\ref terrama2::core::DataProvider)
+      and collect the data from a DataSetTimer (see [DataSet](\ref terrama2::core::DataSet)).
+     */
     class Collector : public QObject, public boost::noncopyable
     {
         Q_OBJECT
 
       public:
         /*!
-             * \brief Constructor
-             * \param dataProvider Server information for collecting.
-             */
+          \brief Constructor
+
+          \param dataProvider Server information for collecting.
+         */
         Collector(const core::DataProvider& dataProvider, QObject* parent = nullptr);
-        /*!
-             * \brief Destructor
-             */
+
+        /*! \brief Virtual destructor. */
         virtual ~Collector();
 
         /*!
@@ -98,6 +95,7 @@ namespace terrama2
              * \return Returns true if is collecting.
              */
         bool isCollecting() const;
+
         /*!
              * \brief Prepare and start to collect the data required by the [DataSet](\ref terrama2::core::DataSet).
              *
@@ -124,20 +122,22 @@ namespace terrama2
              */
         virtual void open()  = 0;
 
-        //! \brief Close the connection, if not open, does nothing.
+        //! Close the connection, if not open, does nothing.
         virtual void close() = 0;
 
-        //! \brief Check if possible to connect
+        //! Check if possible to connect
         virtual bool checkConnection() const = 0;
 
       protected:
-        //! \brief Aquired the data specified in dataProcessor.
+
+        //! Aquired the data specified in dataProcessor.
         virtual std::string retrieveData(const DataProcessorPtr dataProcessor) = 0;
 
         core::DataProvider dataProvider_; //!< Data provider information.
 
       private:
-        //! \brief Internal method to collect a dataset, should be started as a thread.
+
+        //! Internal method to collect a dataset, should be started as a thread.
         void collectAsThread(const DataSetTimerPtr datasetTimer);
 
         mutable std::mutex mutex_; //!< Mutex for thread safety.

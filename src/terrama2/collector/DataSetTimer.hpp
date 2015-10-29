@@ -86,11 +86,13 @@ namespace terrama2
         std::vector<DataProcessorPtr> data()      const;
 
       signals:
-        //! \brief Signal emited when the DataSet should be collected.
+
+        //! Signal emited when the DataSet should be collected.
         void timerSignal(uint64_t DatasetID) const;
 
       private slots:
-        //! \brief Slot called when the timer_ times out, emits timerSignal.
+
+        //! Slot called when the timer_ times out, emits timerSignal.
         void timeoutSlot() const;
 
       private:

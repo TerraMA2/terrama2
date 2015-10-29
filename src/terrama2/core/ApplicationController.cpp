@@ -70,44 +70,45 @@
 * SQL transaction, ending with a COMMIT line.
 */
 
-void executeQueriesFromFile(QFile *file, QSqlQuery *query)
+bool executeQueriesFromFile(QFile *file, QSqlQuery *query)
 {
-    while (!file->atEnd()){
-        QByteArray readLine="";
-        QString cleanedLine;
-        QString line="";
-        bool finished=false;
-        while(!finished){
-            readLine = file->readLine();
-            cleanedLine=readLine.trimmed();
-            // remove comments at end of line
-            QStringList strings=cleanedLine.split("--");
-            cleanedLine=strings.at(0);
+  while (!file->atEnd()){
+    QByteArray readLine="";
+    QString cleanedLine;
+    QString line="";
+    bool finished=false;
+    while(!finished){
+      readLine = file->readLine();
+      cleanedLine=readLine.trimmed();
+      // remove comments at end of line
+      QStringList strings=cleanedLine.split("--");
+      cleanedLine=strings.at(0);
 
-            // remove lines with only comment, and DROP lines
-            if(!cleanedLine.startsWith("--")
-                    && !cleanedLine.startsWith("DROP")
-                    && !cleanedLine.isEmpty()){
-                line+=cleanedLine;
-            }
-            if(cleanedLine.endsWith(";")){
-                break;
-            }
-            if(cleanedLine.startsWith("COMMIT")){
-                finished=true;
-            }
-        }
-
-        if(!line.isEmpty()){
-            query->exec(line);
-        }
-        if(!query->isActive()){
-            qDebug() << QSqlDatabase::drivers();
-            qDebug() <<  query->lastError();
-            qDebug() << "test executed query:"<< query->executedQuery();
-            qDebug() << "test last query:"<< query->lastQuery();
-        }
+      // remove lines with only comment, and DROP lines
+      if(!cleanedLine.startsWith("--")
+         && !cleanedLine.startsWith("DROP")
+         && !cleanedLine.isEmpty()){
+        line+=cleanedLine;
+      }
+      if(cleanedLine.endsWith(";")){
+        break;
+      }
+      if(cleanedLine.startsWith("COMMIT")){
+        finished=true;
+      }
     }
+
+    if(!line.isEmpty()){
+      query->exec(line);
+    }
+    if(!query->isActive()){
+      qDebug() << QSqlDatabase::drivers();
+      qDebug() <<  query->lastError();
+      qDebug() << "test executed query:"<< query->executedQuery();
+      qDebug() << "test last query:"<< query->lastQuery();
+      return false;
+    }
+  }
 }
 //**************************************************************************
 
@@ -203,6 +204,7 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
   connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
   bool dsExists = te::da::DataSource::exists(dsType, connInfo);
 
+  //FIXME: remove return bool, implement exceptions!!!
   if(dsExists)
   {
     return false;
@@ -223,20 +225,52 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
       //FIXME: temporary, should be executed with batch executor
       //FIXME: Remove includes from CMakeList (project and module)
       QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
+      if(!db.isValid())
+      {
+        qDebug() << "Qt Postgres extension no found. Install libqt5sql5-psql.";
+        return false;
+      }
+
       db.setHostName(host.c_str());
       db.setDatabaseName(dbName.c_str());
       db.setUserName(username.c_str());
       db.setPassword(password.c_str());
-      db.open();
+      if(!db.open())
+      {
+        qDebug() << "Can't open database: " << dbName.c_str();
+        return false;
+      }
 
       QString scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/sql/terrama2-data-model-pg_oneline.sql").c_str();
+
+      if(scriptPath.isEmpty())
+      {
+        qDebug() << "Unable to find data model script.";
+        return false;
+      }
+
       QFile sqlScript(scriptPath);
-      sqlScript.open(QIODevice::ReadOnly);
+      if(!sqlScript.open(QIODevice::ReadOnly))
+      {
+        qDebug() << "Can't open data model script.";
+        return false;
+      }
+
       QSqlQuery query(db);
 
       query.exec("CREATE EXTENSION postgis");
+      if(!query.isActive()){
+        qDebug() << QSqlDatabase::drivers();
+        qDebug() <<  query.lastError();
+        qDebug() << "test executed query:"<< query.executedQuery();
+        qDebug() << "test last query:"<< query.lastQuery();
+        return false;
+      }
 
-      executeQueriesFromFile(&sqlScript, &query);
+
+      if(!executeQueriesFromFile(&sqlScript, &query))
+        return false;
+
       sqlScript.close();
       db.close();
       //**************************************************************************
@@ -262,28 +296,28 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
 
 bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port)
 {
-    std::map<std::string, std::string> connInfo;
+  std::map<std::string, std::string> connInfo;
 
-    connInfo["PG_HOST"] = host;
-    connInfo["PG_PORT"] = std::to_string(port);
-    connInfo["PG_USER"] = username;
-    connInfo["PG_DB_NAME"] = dbName;
-    connInfo["PG_CONNECT_TIMEOUT"] = "4";
-    connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+  connInfo["PG_HOST"] = host;
+  connInfo["PG_PORT"] = std::to_string(port);
+  connInfo["PG_USER"] = username;
+  connInfo["PG_DB_NAME"] = dbName;
+  connInfo["PG_CONNECT_TIMEOUT"] = "4";
+  connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
 
-    std::string dsType = "POSTGIS";
+  std::string dsType = "POSTGIS";
 
-    // Check the data source existence
-    connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
-    bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+  // Check the data source existence
+  connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
+  bool dsExists = te::da::DataSource::exists(dsType, connInfo);
 
-    if(dsExists)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+  if(dsExists)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 
 }
