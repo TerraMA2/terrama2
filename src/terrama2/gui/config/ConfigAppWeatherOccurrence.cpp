@@ -55,6 +55,7 @@ void ConfigAppWeatherOccurrence::save()
   datasetItem.setKind(terrama2::core::ToDataSetItemKind(ui_->pointDiffFormatDataType->currentIndex()+4));
   datasetItem.setMask(ui_->pointDiffFormatDataMask->text().toStdString());
   datasetItem.setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
+  datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
   dataset.add(datasetItem);
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
