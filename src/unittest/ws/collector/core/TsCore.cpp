@@ -67,10 +67,8 @@ void TsCore::clearDatabase()
 
 terrama2::core::DataProvider TsCore::buildDataProvider()
 {
+  terrama2::core::DataProvider  dataProvider("Data Provider", terrama2::core::DataProvider::Kind(1), 0);
 
-  terrama2::core::DataProvider  dataProvider(0, (terrama2::core::DataProvider::Kind)1);
-
-  dataProvider.setName("Data Provider");
   dataProvider.setUri("pathDataProvider");
   dataProvider.setDescription("Data Provider Description");
   dataProvider.setStatus((terrama2::core::DataProvider::Status)1);
@@ -98,6 +96,38 @@ terrama2::core::DataSet TsCore::buildDataSet()
   dataSet.setSchedule(te::dt::TimeDuration(schedule));
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+  terrama2::core::DataSetItem dataSetItem1(terrama2::core::DataSetItem::Kind(1), 0, dataSet.id());
+  dataSetItem1.setMask("mask1");
+  dataSetItem1.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem1.setTimezone("-1");
+
+  terrama2::core::DataSetItem dataSetItem2(terrama2::core::DataSetItem::Kind(2), 0, dataSet.id());
+  dataSetItem2.setMask("mask2");
+  dataSetItem2.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem2.setTimezone("-2");
+
+  terrama2::core::DataSetItem dataSetItem3(terrama2::core::DataSetItem::Kind(3), 0, dataSet.id());
+  dataSetItem3.setMask("mask3");
+  dataSetItem3.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem3.setTimezone("-3");
+
+  terrama2::core::DataSetItem dataSetItem4(terrama2::core::DataSetItem::Kind(4), 0, dataSet.id());
+  dataSetItem4.setMask("mask4");
+  dataSetItem4.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem4.setTimezone("-4");
+
+  terrama2::core::DataSetItem dataSetItem5(terrama2::core::DataSetItem::Kind(5), 0, dataSet.id());
+  dataSetItem5.setMask("mask5");
+  dataSetItem5.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem5.setTimezone("-5");
+
+  dataSet.add(dataSetItem1);
+  dataSet.add(dataSetItem2);
+  dataSet.add(dataSetItem3);
+  dataSet.add(dataSetItem4);
+  dataSet.add(dataSetItem5);
+
 
   return dataSet;
 }
@@ -144,7 +174,7 @@ void TsCore::TestConvertDataSetToDataSetStruct()
 {
   terrama2::core::DataSet dataSet = buildDataSet();
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem >(dataSet);
 
   QVERIFY2(dataSet.id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSet.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
@@ -157,18 +187,24 @@ void TsCore::TestConvertDataSetToDataSetStruct()
   QVERIFY2(dataSet.scheduleRetry().toString() == struct_dataSet.schedule_retry, "Schedule retry changed after conversion!");
   QVERIFY2(dataSet.scheduleTimeout().toString() == struct_dataSet.schedule_timeout, "Schedule Timeout changed after conversion!");
 
+  for(unsigned int i = 0; i < struct_dataSet.dataset_items.size(); i++)
+  {
+    QCOMPARE(dataSet.dataSetItems().at(i).dataset() , struct_dataSet.dataset_items.at(i).dataset);
+    QCOMPARE(dataSet.dataSetItems().at(i).id() , struct_dataSet.dataset_items.at(i).id);
+    QCOMPARE(dataSet.dataSetItems().at(i).kind(), terrama2::core::DataSetItem::Kind(struct_dataSet.dataset_items.at(i).kind));
+    QCOMPARE(dataSet.dataSetItems().at(i).mask() , struct_dataSet.dataset_items.at(i).mask);
+    QCOMPARE(dataSet.dataSetItems().at(i).status() , terrama2::core::DataSetItem::Status(struct_dataSet.dataset_items.at(i).status));
+    QCOMPARE(dataSet.dataSetItems().at(i).timezone() , struct_dataSet.dataset_items.at(i).timezone);
+  }
+
 }
 
 
 void TsCore::TestConvertDataSetStructToDataSet()
 {
-  terrama2::core::DataProvider dataProvider = buildDataProvider();
-
-  terrama2::core::DataManager::getInstance().add(dataProvider);
-
   DataSet struct_dataSet;
 
-  struct_dataSet.id = 0;
+  struct_dataSet.id = 1;
   struct_dataSet.name = "Data Set";
   struct_dataSet.kind = 1;
   struct_dataSet.status = 1;
@@ -177,9 +213,19 @@ void TsCore::TestConvertDataSetStructToDataSet()
   struct_dataSet.schedule = "00:02:00";
   struct_dataSet.schedule_retry = "00:03:00";
   struct_dataSet.schedule_timeout = "00:04:00";
-  struct_dataSet.data_provider_id = dataProvider.id();
+  struct_dataSet.data_provider_id = 1;
 
-  terrama2::core::DataSet dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet >(struct_dataSet);
+  for(int i = 1; i == 5; i++)
+  {
+    struct_dataSet.dataset_items.at(i).dataset = struct_dataSet.id;
+    struct_dataSet.dataset_items.at(i).id = i;
+    struct_dataSet.dataset_items.at(i).kind = i;
+    struct_dataSet.dataset_items.at(i).mask = "mask" + i;
+    struct_dataSet.dataset_items.at(i).status = 2;
+    struct_dataSet.dataset_items.at(i).timezone = "-3";
+  }
+
+  terrama2::core::DataSet dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet , DataSetItem >(struct_dataSet);
 
   QVERIFY2(dataSet.id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSet.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
@@ -191,4 +237,14 @@ void TsCore::TestConvertDataSetStructToDataSet()
   QVERIFY2(dataSet.schedule().toString() == struct_dataSet.schedule, "Schedule changed after conversion!");
   QVERIFY2(dataSet.scheduleRetry().toString() == struct_dataSet.schedule_retry, "Schedule retry changed after conversion!");
   QVERIFY2(dataSet.scheduleTimeout().toString() == struct_dataSet.schedule_timeout, "Schedule Timeout changed after conversion!");
+
+  for(unsigned int i = 0; i < struct_dataSet.dataset_items.size(); i++)
+  {
+    QCOMPARE(dataSet.dataSetItems().at(i).dataset() , struct_dataSet.dataset_items.at(i).dataset);
+    QCOMPARE(dataSet.dataSetItems().at(i).id() , struct_dataSet.dataset_items.at(i).id);
+    QCOMPARE(dataSet.dataSetItems().at(i).kind(), terrama2::core::DataSetItem::Kind(struct_dataSet.dataset_items.at(i).kind));
+    QCOMPARE(dataSet.dataSetItems().at(i).mask() , struct_dataSet.dataset_items.at(i).mask);
+    QCOMPARE(dataSet.dataSetItems().at(i).status() , terrama2::core::DataSetItem::Status(struct_dataSet.dataset_items.at(i).status));
+    QCOMPARE(dataSet.dataSetItems().at(i).timezone() , struct_dataSet.dataset_items.at(i).timezone);
+  }
 }

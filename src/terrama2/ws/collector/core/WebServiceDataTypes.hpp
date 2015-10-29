@@ -37,6 +37,19 @@ struct DataProvider
   uint32_t      status;
 };
 
+// VINICIUS: work with Filter and std::map
+struct DataSetItem
+{
+  uint32_t kind;
+  uint64_t id;
+  uint64_t dataset;
+  uint32_t status;
+  std::string mask;
+  std::string timezone;
+  //Filter filter;
+  //std::map<std::string, std::string> storageMetadata;
+};
+
 
 struct DataSet
 {
@@ -50,6 +63,7 @@ struct DataSet
   std::string   schedule;
   std::string   schedule_retry;
   std::string   schedule_timeout;
+  std::vector<struct DataSetItem> dataset_items;
 };
 
 
