@@ -37,32 +37,52 @@ struct DataProvider
   uint32_t      status;
 };
 
+
+struct Filter
+{
+  uint64_t          datasetItem;
+  std::string       discardBefore;
+  std::string       discardAfter;
+  std::string       geometry;
+  double            value;
+  uint32_t          expressionType;
+  std::string       bandFilter;
+};
+
 // VINICIUS: work with Filter and std::map
 struct DataSetItem
 {
-  uint32_t kind;
-  uint64_t id;
-  uint64_t dataset;
-  uint32_t status;
-  std::string mask;
-  std::string timezone;
-  //Filter filter;
+  uint32_t      kind;
+  uint64_t      id;
+  uint64_t      dataset;
+  uint32_t      status;
+  std::string   mask;
+  std::string   timezone;
+
   //std::map<std::string, std::string> storageMetadata;
+
+  uint64_t          filter_datasetItem;
+  std::string       filter_discardBefore;
+  std::string       filter_discardAfter;
+  std::string       filter_geometry;
+  double            filter_value;
+  uint32_t          filter_expressionType;
+  std::string       filter_bandFilter;
 };
 
 
 struct DataSet
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      status;
-  uint64_t      data_provider_id;
-  uint32_t      kind;
-  std::string   data_frequency;
-  std::string   schedule;
-  std::string   schedule_retry;
-  std::string   schedule_timeout;
+  uint64_t                        id;
+  std::string                     name;
+  std::string                     description;
+  uint32_t                        status;
+  uint64_t                        data_provider_id;
+  uint32_t                        kind;
+  std::string                     data_frequency;
+  std::string                     schedule;
+  std::string                     schedule_retry;
+  std::string                     schedule_timeout;
   std::vector<struct DataSetItem> dataset_items;
 };
 

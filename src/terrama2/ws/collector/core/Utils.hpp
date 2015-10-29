@@ -37,6 +37,7 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 // TerraLib
+#include <terralib/geometry/Geometry.h>
 #include <terralib/datatype/TimeDuration.h>
 
 // TerraMA2
@@ -218,7 +219,17 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
     struct_dataset_item.mask = dataset_items.at(i).mask();
     struct_dataset_item.kind = (int) dataset_items.at(i).kind();
     struct_dataset_item.timezone = dataset_items.at(i).timezone();
-    //struct_dataset_item.filter = dataset_items.at(i).filter();
+
+    terrama2::core::Filter filter = dataset_items.at(i).filter();
+
+    struct_dataset_item.filter_datasetItem = filter.datasetItem();
+    struct_dataset_item.filter_discardBefore = filter.discardBefore()->toString();
+    struct_dataset_item.filter_discardAfter = filter.discardAfter()->toString();
+    struct_dataset_item.filter_geometry = filter.geometry()->toString();
+    struct_dataset_item.filter_value = *filter.value();
+    struct_dataset_item.filter_expressionType = (int) filter.expressionType();
+    struct_dataset_item.filter_bandFilter = filter.bandFilter();
+
     //struct_dataset_item.storageMetadata = dataset_items.at(i).storageMetadata();
 
     struct_dataset_items.push_back(struct_dataset_item);
@@ -244,8 +255,30 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
     dataset_item.setMask(struct_dataset_items.at(i).mask);
     dataset_item.setKind((terrama2::core::DataSetItem::Kind) struct_dataset_items.at(i).kind);
     dataset_item.setTimezone(struct_dataset_items.at(i).timezone);
-    //struct_dataset_item.setFilter(dataset_items.at(i).filter());
+
+    terrama2::core::Filter filter(struct_dataset_items.at(i).filter_datasetItem);
+
+    boost::posix_time::time_duration timeBefore(boost::posix_time::duration_from_string(struct_dataset_items.at(i).filter_discardBefore));
+    te::dt::TimeDuration* td = new te::dt::TimeDuration(timeBefore);
+    std::unique_ptr< te::dt::DateTime > discardBefore(dynamic_cast<te::dt::DateTime*>(td));
+
+    filter.setDiscardBefore(std::move(discardBefore));
+
+    boost::posix_time::time_duration timeAfter(boost::posix_time::duration_from_string(struct_dataset_items.at(i).filter_discardAfter));
+    delete td;
+    td = new te::dt::TimeDuration(timeAfter);
+    std::unique_ptr< te::dt::DateTime > discardAfter(dynamic_cast<te::dt::DateTime*>(td));
+
+    filter.setDiscardAfter(std::move(discardAfter));
+
+//    std::unique_ptr< double > value(struct_dataset_items.at(i).filter_value);
+//    filter.setValue(value);
+    filter.setExpressionType(terrama2::core::Filter::ExpressionType(struct_dataset_items.at(i).filter_expressionType));
+    filter.setBandFilter(struct_dataset_items.at(i).filter_bandFilter);
+    //    struct_dataset_item.filter_geometry = filter.geometry()->toString();
     //struct_dataset_item.setStorageMetadata(dataset_items.at(i).storageMetadata());
+
+    dataset_item.setFilter(filter);
 
     dataset_items.push_back(dataset_item);
   }
