@@ -37,6 +37,8 @@
 // boost
 #include <boost/noncopyable.hpp>
 
+
+// Forward
 class QDialog;
 
 class FilterDialog : public QDialog, private boost::noncopyable
@@ -44,7 +46,16 @@ class FilterDialog : public QDialog, private boost::noncopyable
   Q_OBJECT
 
   public:
-    FilterDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
+
+    enum FilterType
+    {
+      FULL,
+      AREA,
+      BAND,
+      DATE
+    };
+
+    FilterDialog(FilterType type, QWidget* parent = 0, Qt::WindowFlags f = 0 );
     ~FilterDialog();
 
     //! It checks if there any filter by date
@@ -59,6 +70,9 @@ class FilterDialog : public QDialog, private boost::noncopyable
     //! It checks if there any filter by field
     bool isFilterByArea() const;
 
+    //! It checks if there any filter active
+    bool isAnyFilter() const;
+
   private slots:
     //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date neither true or false.
     void onFilteredByDate();
@@ -68,6 +82,10 @@ class FilterDialog : public QDialog, private boost::noncopyable
 
     //! Slot triggered whether filter by area.
     void onFilteredByArea();
+
+    void onAfterBtnClicked();
+
+    void onBeforeBtnClicked();
 
   private:
     struct Impl; //!< Pimpl idiom

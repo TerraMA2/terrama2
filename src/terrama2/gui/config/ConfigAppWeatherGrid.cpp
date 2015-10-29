@@ -196,7 +196,7 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
 
 void ConfigAppWeatherGridTab::onFilterClicked()
 {
-  FilterDialog dialog(app_);
+  FilterDialog dialog(FilterDialog::FULL, app_);
 
   dialog.exec();
 

@@ -254,7 +254,6 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
 
     try
     {
-      //FIXME: It throws exception at Server side and shutdown both
       app_->getClient()->removeDataProvider(cachedProvider.id());
       QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
 
@@ -329,8 +328,6 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
 
-//        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
-
         ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
         ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));
 
@@ -339,8 +336,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->updateDataGridBtn->hide();
         ui_->exportDataGridBtn->hide();
         ui_->gridFormatDataDeleteBtn->hide();
-
-      }
+      } // endif
       else
       {
         for(auto dataset: datasets_)
@@ -388,6 +384,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
                 ui_->pointDiffFormatDataDescription->setText(dataset.description().c_str());
+                ui_->pointDiffFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
@@ -401,12 +398,12 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
               }
             }
             return;
-          }
-        }
+          } // endif
+        } // endfor
 
         throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
 
-      }
+      } //end else
     }
     catch (const terrama2::Exception& e)
     {

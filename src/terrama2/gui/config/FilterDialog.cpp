@@ -55,7 +55,7 @@ struct FilterDialog::Impl
 };
 
 //! Construtor
-FilterDialog::FilterDialog(QWidget* parent, Qt::WindowFlags f)
+FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
@@ -67,11 +67,31 @@ FilterDialog::FilterDialog(QWidget* parent, Qt::WindowFlags f)
   connect(pimpl_->ui_->dateBeforeFilterCbx, SIGNAL(clicked()), this, SLOT(onFilteredByDate()));
   connect(pimpl_->ui_->dateAfterFilterCbx, SIGNAL(clicked()), this, SLOT(onFilteredByDate()));
   connect(pimpl_->ui_->bandFilterLed, SIGNAL(textEdited(QString)), this, SLOT(onFilteredByLayer()));
+  connect(pimpl_->ui_->beforeTodayBtn, SIGNAL(clicked()), this, SLOT(onBeforeBtnClicked()));
+  connect(pimpl_->ui_->afterTodayBtn, SIGNAL(clicked()), this, SLOT(onAfterBtnClicked()));
 
   // FilterByArea
   connect(pimpl_->ui_->noAreaFilterRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
   connect(pimpl_->ui_->areaRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
   connect(pimpl_->ui_->planeRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
+
+  switch(type)
+  {
+    case DATE:
+      pimpl_->ui_->tabWidget->setTabEnabled(1,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(2,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(3,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(4,false);
+      break;
+    case BAND:
+      pimpl_->ui_->tabWidget->setTabEnabled(0,false); // date
+      pimpl_->ui_->tabWidget->setTabEnabled(2,false); // pre
+      pimpl_->ui_->tabWidget->setTabEnabled(3,false); // band
+      pimpl_->ui_->tabWidget->setTabEnabled(4,false); // dummy
+      break;
+    default:
+      ;
+  }
 }
 
 FilterDialog::~FilterDialog()
@@ -87,6 +107,11 @@ bool FilterDialog::isFilterByDate() const
 bool FilterDialog::isFilterByArea() const
 {
   return pimpl_->filterByArea_;
+}
+
+bool FilterDialog::isAnyFilter() const
+{
+  return isFilterByArea() || isFilterByDate() || isFilterByLayer() || isFilterByPreAnalyse();
 }
 
 bool FilterDialog::isFilterByLayer() const
@@ -127,4 +152,14 @@ void FilterDialog::onFilteredByArea()
     pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page);
     pimpl_->filterByArea_ = true;
   }
+}
+
+void FilterDialog::onBeforeBtnClicked()
+{
+  pimpl_->ui_->dateBeforeFilterDed->setDate(QDate::currentDate());
+}
+
+void FilterDialog::onAfterBtnClicked()
+{
+  pimpl_->ui_->dateAfterFilterDed->setDate(QDate::currentDate());
 }

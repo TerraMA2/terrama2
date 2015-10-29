@@ -1,4 +1,5 @@
 #include "ConfigAppWeatherOccurrence.hpp"
+#include "../../core/Filter.hpp"
 #include "Exception.hpp"
 #include "../../core/DataProvider.hpp"
 #include "../../core/Utils.hpp"
@@ -10,7 +11,7 @@
 #include <QMessageBox>
 
 ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+  : ConfigAppTab(app, ui), filter_(nullptr)
 {
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onDataSetBtnClicked()));
   connect(ui_->serverRemovePointDiffBtn, SIGNAL(clicked()), SLOT(onRemoveOccurrenceBtnClicked()));
@@ -22,12 +23,11 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
 {
-
+  delete filter_;
 }
 
 void ConfigAppWeatherOccurrence::load()
 {
-
 }
 
 bool ConfigAppWeatherOccurrence::validate()
@@ -37,6 +37,19 @@ bool ConfigAppWeatherOccurrence::validate()
     ui_->pointDiffFormatDataName->setFocus();
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Occurence Name is invalid"));
   }
+
+  if (ui_->pointDiffFormatDataFrequency->text().trimmed().isEmpty())
+  {
+    ui_->pointDiffFormatDataFrequency->setFocus();
+    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The data frequency is invalid."));
+  }
+
+  if (ui_->pointDiffFormatDataMask->text().trimmed().isEmpty())
+  {
+    ui_->pointDiffFormatDataMask->setFocus();
+    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The occurrence data mask is invalid."));
+  }
+
   //TODO: validate correctly all fields
   return true;
 }
@@ -50,13 +63,24 @@ void ConfigAppWeatherOccurrence::save()
   dataset.setKind(terrama2::core::DataSet::OCCURENCE_TYPE);
   dataset.setDescription(ui_->pointDiffFormatDataDescription->toPlainText().toStdString());
 
+  te::dt::TimeDuration dataFrequency(ui_->pointDiffFormatDataFrequency->text().toInt(), 0, 0);
+  dataset.setDataFrequency(dataFrequency);
+
   terrama2::core::DataSetItem datasetItem;
   // TODO: fix it with datasetitem value
-  datasetItem.setKind(terrama2::core::ToDataSetItemKind(ui_->pointDiffFormatDataType->currentIndex()+4));
+  int index;
+
+  if (ui_->pointDiffFormatDataType->currentIndex() == 2)
+    index = 1;
+  else
+    index = ui_->pointDiffFormatDataType->currentIndex()+5;
+
+  dataset.add(datasetItem);
+  datasetItem.setKind(terrama2::core::ToDataSetItemKind(index));
   datasetItem.setMask(ui_->pointDiffFormatDataMask->text().toStdString());
   datasetItem.setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
-  datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
-  dataset.add(datasetItem);
+  datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE) ;
+//  datasetItem.setFilter(*filter_);
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
   if (dataset.id() > 0)
@@ -89,28 +113,23 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
 
 void ConfigAppWeatherOccurrence::onFilterClicked()
 {
-  FilterDialog dialog(app_);
+  FilterDialog dialog(FilterDialog::DATE, app_);
   dialog.exec();
 
-  if (dialog.isFilterByDate())
-    ui_->dateFilterLabel->setText(tr("Yes"));
-  else
-    ui_->dateFilterLabel->setText(tr("No"));
+  if (dialog.isAnyFilter())
+  {
+    if (filter_ != nullptr)
+      delete filter_;
 
-  if (dialog.isFilterByArea())
-    ui_->areaFilterLabel->setText(tr("Yes"));
-  else
-    ui_->areaFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByLayer())
-    ui_->bandFilterLabel->setText(tr("Yes"));
-  else
-    ui_->bandFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByPreAnalyse())
-    ui_->preAnalysisLabel->setText(tr("Yes"));
-  else
-    ui_->preAnalysisLabel->setText(tr("No"));
+    filter_ = new terrama2::core::Filter();
+    //TODO: fill up the filter_ object with metadata from form
+    if (dialog.isFilterByDate())
+    {
+      ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
+    }
+    else
+      ui_->dateFilterPointDiffLabel->setText(tr("No"));
+  }
 }
 
 void ConfigAppWeatherOccurrence::onDataSetBtnClicked()

@@ -118,8 +118,7 @@ p, li { white-space: pre-wrap; }
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>:/data/icons/today.png</normaloff>:/data/icons/today.png</iconset>
+          <iconset theme="today"/>
          </property>
          <property name="iconSize">
           <size>
@@ -138,8 +137,7 @@ p, li { white-space: pre-wrap; }
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>:/data/icons/today.png</normaloff>:/data/icons/today.png</iconset>
+          <iconset theme="today"/>
          </property>
          <property name="iconSize">
           <size>
@@ -546,7 +544,9 @@ p, li { white-space: pre-wrap; }
         <string>Ok</string>
        </property>
        <property name="icon">
-        <iconset theme="confirm"/>
+        <iconset theme="confirm">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -562,7 +562,9 @@ p, li { white-space: pre-wrap; }
         <string>Cancelar</string>
        </property>
        <property name="icon">
-        <iconset theme="cancel"/>
+        <iconset theme="cancel">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
