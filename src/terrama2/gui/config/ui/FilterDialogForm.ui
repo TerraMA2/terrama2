@@ -17,7 +17,7 @@
    <item>
     <layout class="QHBoxLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="labelFilterIcon">
        <property name="maximumSize">
         <size>
          <width>80</width>

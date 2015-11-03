@@ -41,6 +41,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <QDialog>
+#include <QIcon>
 
 struct FilterDialog::Impl
 {
@@ -84,6 +85,10 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   connect(pimpl_->ui_->noAreaFilterRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
   connect(pimpl_->ui_->areaRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
   connect(pimpl_->ui_->planeRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
+
+  // TODO: load pixelmap from theme to label
+//  QPixmap pixmap = QIcon::fromTheme("filter-big").pixmap(80);
+//  pimpl_->ui_->labelFilterIcon->setPixmap(pixmap);
 
   switch(type)
   {
@@ -129,9 +134,8 @@ void FilterDialog::fillDateFilter(terrama2::core::Filter& filter)
   // TODO: fill up with before/after date
   if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
   {
-//    boost::posix_time::time_duration beforeDate(
-//          boost::posix_time::duration_from_string(pimpl_->ui_->dateBeforeFilterDed->date().toString().toStdString()));
-//    filter.setDiscardBefore(beforeDate);
+    std::unique_ptr<te::dt::TimeDuration> dt (new te::dt::TimeDuration(pimpl_->ui_->dateBeforeFilterDed->date().day(), 0, 0));
+    filter.setDiscardBefore(std::move(dt));
   }
 
   if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
