@@ -70,7 +70,7 @@ namespace terrama2
         /*!
          * TODO: document DataSetTimer
          *
-         * \exception terrama2::collector::InvalidDataSetException Raise when constructed with an invalid DataSet or empty pointer.
+         * \exception terrama2::collector::InvalidDataSetError Raise when constructed with an invalid DataSet.
          */
         DataSetTimer(const core::DataSet &dataSet);
         ~DataSetTimer();

@@ -119,8 +119,8 @@ namespace terrama2
              *
              * Trys to open the connection, returns false if fails
              *
+             * \exception terrama2::collector::UnableToOpenCollectorError Raise when cannot open a collector connection.
              * \return True if the connection is open. If not appliable, returns true.
-             * //TODO: Exception if cannot open?
              */
         virtual void open()  = 0;
 
