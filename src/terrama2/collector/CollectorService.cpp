@@ -100,38 +100,15 @@ void terrama2::collector::CollectorService::stop()
     loopThread_.join();
 }
 
-void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCollectorInQueue)
+void terrama2::collector::CollectorService::assignCollector(CollectorPtr collector)
 {
-  try
-  {
-    firstCollectorInQueue->open();
-  }
-  catch(terrama2::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(te::common::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(...)
-  {
-    //TODO: log de erro
-    assert(0);
-  }
-
-
-  assert(datasetQueue_.contains(firstCollectorInQueue));
-  auto& datasetTimerQueue = datasetQueue_[firstCollectorInQueue];
+  assert(datasetQueue_.contains(collector));
+  auto& datasetTimerQueue = datasetQueue_[collector];
 
   while(!datasetTimerQueue.isEmpty())
   {
     //if dataprovider is already getting some file
-    if(firstCollectorInQueue->isCollecting())
+    if(collector->isCollecting())
       break;
 
     assert(!datasetTimerQueue.isEmpty());
@@ -142,24 +119,17 @@ void terrama2::collector::CollectorService::assignCollector(CollectorPtr firstCo
     try
     {
       //aquire dataset files
-      firstCollectorInQueue->collect(datasetTimer);
+      collector->collect(datasetTimer);
     }
     catch(terrama2::Exception& e)
     {
       //TODO: log de erro
       qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-      assert(0);
-    }
-    catch(te::common::Exception& e)
-    {
-      //TODO: log de erro
-      qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-      assert(0);
     }
     catch(...)
     {
-      //TODO: log de erro
-      assert(0);
+      //TODO: log de erro: Erro desconhecido ao coletar DataSet: datasetTimer
+      qDebug() << "Erro desconhecido ao coletar DataSet: datasetTimer";
     }
 
     //remove first dataset from queue
@@ -175,14 +145,14 @@ void terrama2::collector::CollectorService::processingLoop()
     if(stop_)
       return;
 
+    std::lock_guard<std::mutex> lock(mutex_);
+
     // For each provider type verifies if the first provider in the queue is acquiring new data,
     // in case it's collecting moves to next type of provider, when it's done remove it from the queue
     // in case it's not collecting, starts the collection calling the collect method.
     // It allows multiples providers to collect at the same time but only one provider of each type.
     for (auto it = collectorQueueMap_.begin(); it != collectorQueueMap_.end(); ++it)
     {
-      std::lock_guard<std::mutex> lock(mutex_);
-
       auto collectorQueueByType = it.value();
       if(collectorQueueByType.size())
       {
@@ -192,25 +162,23 @@ void terrama2::collector::CollectorService::processingLoop()
 
         try
         {
+          firstCollectorInQueue->open();
           //start collecting
           assignCollector(firstCollectorInQueue);
         }
-        catch(terrama2::Exception& e)
+        catch(terrama2::collector::UnableToOpenCollectorError& e)
         {
           //TODO: log de erro
           qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-          assert(0);
-        }
-        catch(te::common::Exception& e)
-        {
-          //TODO: log de erro
-          qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-          assert(0);
+
+          firstCollectorInQueue->close();
+          collectorQueueByType.pop_front();
+          continue;
         }
         catch(...)
         {
           //TODO: log de erro
-          assert(0);
+          qDebug() << "Erro desconhecido ao iniciar ao acessar o provedor: firstCollectorInQueue";
         }
 
         //It remains in the queue until it's done collecting
@@ -281,7 +249,7 @@ terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProv
 {
   //TODO: Debug?
   //sanity check: valid dataprovider
-//  assert(dataProvider->id());
+  //  assert(dataProvider->id());
 
   //TODO: catch? rethrow?
   //Create a collector and add it to the list
@@ -350,7 +318,7 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
 {
   //TODO: Debug?
   //sanity check: valid dataset
-//  assert(dataset.id());
+  //  assert(dataset.id());
 
   try
   {
@@ -361,13 +329,7 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
 
     return datasetTimer;
   }
-  catch(terrama2::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(te::common::Exception& e)
+  catch(terrama2::collector::InvalidDataSetError& e)
   {
     //TODO: log de erro
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();

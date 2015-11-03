@@ -37,6 +37,7 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 // TerraLib
+#include <terralib/geometry/Geometry.h>
 #include <terralib/datatype/TimeDuration.h>
 
 // TerraMA2
@@ -66,6 +67,7 @@ namespace terrama2
       */
         template<typename T1> terrama2::core::DataProvider Struct2DataProvider(T1 struct_dataprovider);
 
+
       /*!
         \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
 
@@ -75,24 +77,47 @@ namespace terrama2
       */
         template<typename T1> T1 DataProvider2Struct(terrama2::core::DataProvider dataProvider);
 
+
       /*!
         \brief Method to convert a gSOAP struct DataSet to a terrama2::core::DataSet.
 
         \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+        \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
 
         \return terrama2::core::DataSet that contains the data in gSOAP struct DataSet passed.
       */
-        template <typename T1> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
+        template <typename T1, typename T2> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
 
 
       /*!
         \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
 
         \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+        \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
 
         \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
       */
-        template<typename T1> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
+        template<typename T1, typename T2> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
+
+
+      /*!
+        \brief Method to convert a terrama2::core::DataSetItem to a gSOAP struct DataSetItem.
+
+        \param T1 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
+
+        \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
+      */
+       template<typename T1> std::vector< T1 > DataSetItem2Struct(std::vector< terrama2::core::DataSetItem >& dataset_items);
+
+
+      /*!
+        \brief Method to convert a gSOAP struct DataSetItem to a terrama2::core::DataSetItem.
+
+        \param T1 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
+
+        \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
+      */
+       template<typename T1> std::vector< terrama2::core::DataSetItem > Struct2DataSetItem(std::vector< T1 >& struct_dataset_items);
 
       }
     }
@@ -128,7 +153,7 @@ T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvid
 }
 
 
-template <typename T1>
+template <typename T1, typename T2>
 terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_dataSet)
 {
   terrama2::core::DataSet dataSet(struct_dataSet.name, terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, struct_dataSet.data_provider_id);
@@ -146,11 +171,18 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
+  std::vector< terrama2::core::DataSetItem > dataSetItems = Struct2DataSetItem< T2 >(struct_dataSet.dataset_items);
+
+  for(int i = 0; i < dataSetItems.size(); i++)
+  {
+    dataSet.add(dataSetItems.at(i));
+  }
+
   return dataSet;
 }
 
 
-template<typename T1>
+template<typename T1, typename T2>
 T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet)
 {
   T1 struct_dataSet;
@@ -166,7 +198,92 @@ T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet
   struct_dataSet.schedule_retry = dataSet.scheduleRetry().toString();
   struct_dataSet.schedule_timeout = dataSet.scheduleTimeout().toString();
 
+  struct_dataSet.dataset_items = DataSetItem2Struct< T2 >(dataSet.dataSetItems());
+
   return struct_dataSet;
+}
+
+
+template<typename T1>
+std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<terrama2::core::DataSetItem>& dataset_items)
+{
+  std::vector< T1 > struct_dataset_items;
+
+  for(int i = 0; i < dataset_items.size(); i++)
+  {
+    T1 struct_dataset_item;
+
+    struct_dataset_item.id = dataset_items.at(i).id();
+    struct_dataset_item.dataset = dataset_items.at(i).dataset();
+    struct_dataset_item.status = (int) dataset_items.at(i).status();
+    struct_dataset_item.mask = dataset_items.at(i).mask();
+    struct_dataset_item.kind = (int) dataset_items.at(i).kind();
+    struct_dataset_item.timezone = dataset_items.at(i).timezone();
+
+    terrama2::core::Filter filter = dataset_items.at(i).filter();
+
+    struct_dataset_item.filter_datasetItem = filter.datasetItem();
+    struct_dataset_item.filter_discardBefore = filter.discardBefore()->toString();
+    struct_dataset_item.filter_discardAfter = filter.discardAfter()->toString();
+    struct_dataset_item.filter_geometry = filter.geometry()->toString();
+    struct_dataset_item.filter_value = *filter.value();
+    struct_dataset_item.filter_expressionType = (int) filter.expressionType();
+    struct_dataset_item.filter_bandFilter = filter.bandFilter();
+
+    //struct_dataset_item.storageMetadata = dataset_items.at(i).storageMetadata();
+
+    struct_dataset_items.push_back(struct_dataset_item);
+  }
+  // VINICIUS: work with filter and storageMetadata
+  return struct_dataset_items;
+}
+
+
+template<typename T1>
+std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct2DataSetItem(std::vector< T1 >& struct_dataset_items)
+
+{
+  std::vector< terrama2::core::DataSetItem > dataset_items;
+
+  for(int i = 0; i < dataset_items.size(); i++)
+  {
+    terrama2::core::DataSetItem dataset_item;
+
+    dataset_item.setId(struct_dataset_items.at(i).id);
+    dataset_item.setDataSet(struct_dataset_items.at(i).dataset);
+    dataset_item.setStatus((terrama2::core::DataSetItem::Status) struct_dataset_items.at(i).status);
+    dataset_item.setMask(struct_dataset_items.at(i).mask);
+    dataset_item.setKind((terrama2::core::DataSetItem::Kind) struct_dataset_items.at(i).kind);
+    dataset_item.setTimezone(struct_dataset_items.at(i).timezone);
+
+    terrama2::core::Filter filter(struct_dataset_items.at(i).filter_datasetItem);
+
+    boost::posix_time::time_duration timeBefore(boost::posix_time::duration_from_string(struct_dataset_items.at(i).filter_discardBefore));
+    te::dt::TimeDuration* td = new te::dt::TimeDuration(timeBefore);
+    std::unique_ptr< te::dt::DateTime > discardBefore(dynamic_cast<te::dt::DateTime*>(td));
+
+    filter.setDiscardBefore(std::move(discardBefore));
+
+    boost::posix_time::time_duration timeAfter(boost::posix_time::duration_from_string(struct_dataset_items.at(i).filter_discardAfter));
+    delete td;
+    td = new te::dt::TimeDuration(timeAfter);
+    std::unique_ptr< te::dt::DateTime > discardAfter(dynamic_cast<te::dt::DateTime*>(td));
+
+    filter.setDiscardAfter(std::move(discardAfter));
+
+//    std::unique_ptr< double > value(struct_dataset_items.at(i).filter_value);
+//    filter.setValue(value);
+    filter.setExpressionType(terrama2::core::Filter::ExpressionType(struct_dataset_items.at(i).filter_expressionType));
+    filter.setBandFilter(struct_dataset_items.at(i).filter_bandFilter);
+    //    struct_dataset_item.filter_geometry = filter.geometry()->toString();
+    //struct_dataset_item.setStorageMetadata(dataset_items.at(i).storageMetadata());
+
+    dataset_item.setFilter(filter);
+
+    dataset_items.push_back(dataset_item);
+  }
+  // VINICIUS: work with filter and storageMetadata
+  return dataset_items;
 }
 
 #endif // __TERRAMA2_WS_COLLECTOR_CORE_UTILS_HPP__

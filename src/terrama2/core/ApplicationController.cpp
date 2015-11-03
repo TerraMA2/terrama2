@@ -70,7 +70,7 @@
 * SQL transaction, ending with a COMMIT line.
 */
 
-bool executeQueriesFromFile(QFile *file, QSqlQuery *query)
+void executeQueriesFromFile(QFile *file, QSqlQuery *query)
 {
   while (!file->atEnd()){
     QByteArray readLine="";
@@ -106,7 +106,6 @@ bool executeQueriesFromFile(QFile *file, QSqlQuery *query)
       qDebug() <<  query->lastError();
       qDebug() << "test executed query:"<< query->executedQuery();
       qDebug() << "test last query:"<< query->lastQuery();
-      return false;
     }
   }
 }
@@ -184,7 +183,7 @@ std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDa
   return dataSource_;
 }
 
-bool terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
+void terrama2::core::ApplicationController::createDatabase(const std::string &dbName, const std::string &username, const std::string &password, const std::string &host, const int port)
 {
 
   std::map<std::string, std::string> connInfo;
@@ -202,19 +201,61 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
 
   // Check the data source existence
   connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
-  bool dsExists = te::da::DataSource::exists(dsType, connInfo);
 
-  //FIXME: remove return bool, implement exceptions!!!
+  bool dsExists = true;
+  try
+  {
+    dsExists = te::da::DataSource::exists(dsType, connInfo);
+  }
+
+  catch(const te::common::Exception& e)
+  {
+    QString messageError = QObject::tr("Invalid data from the database interface! \n\n Details: \n");
+    messageError.append(e.what());
+
+   throw DataAccessError() << ErrorDescription(messageError);
+  }
+
+  catch(const std::exception& e)
+  {
+    QString messageError = QObject::tr("Could not connect to the database! \n\n Details: \n");
+    messageError.append(e.what());
+
+    throw DataAccessError() << ErrorDescription(messageError);
+  }
+
+  catch(...)
+  {
+    throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not connect to the database!"));
+  }
+
   if(dsExists)
   {
-    return false;
+    //return false;
+    throw DataAccessError() << ErrorDescription(QObject::tr("Database exists!"));
   }
   else
   {
     // Closes the previous data source
     if(dataSource_.get())
     {
-      dataSource_->close();
+      try
+      {
+        dataSource_->close();
+      }
+
+      catch(const te::common::Exception& e)
+      {
+        QString messageError = QObject::tr("Could not close the database! \n\n Details: \n");
+        messageError.append(e.what());
+
+        throw DataAccessError() << ErrorDescription(messageError);
+      }
+
+      catch(...)
+      {
+        throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not close the database!"));
+      }
     }
 
     try
@@ -225,52 +266,20 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
       //FIXME: temporary, should be executed with batch executor
       //FIXME: Remove includes from CMakeList (project and module)
       QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
-      if(!db.isValid())
-      {
-        qDebug() << "Qt Postgres extension no found. Install libqt5sql5-psql.";
-        return false;
-      }
-
       db.setHostName(host.c_str());
       db.setDatabaseName(dbName.c_str());
       db.setUserName(username.c_str());
       db.setPassword(password.c_str());
-      if(!db.open())
-      {
-        qDebug() << "Can't open database: " << dbName.c_str();
-        return false;
-      }
+      db.open();
 
       QString scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/sql/terrama2-data-model-pg_oneline.sql").c_str();
-
-      if(scriptPath.isEmpty())
-      {
-        qDebug() << "Unable to find data model script.";
-        return false;
-      }
-
       QFile sqlScript(scriptPath);
-      if(!sqlScript.open(QIODevice::ReadOnly))
-      {
-        qDebug() << "Can't open data model script.";
-        return false;
-      }
-
+      sqlScript.open(QIODevice::ReadOnly);
       QSqlQuery query(db);
 
       query.exec("CREATE EXTENSION postgis");
-      if(!query.isActive()){
-        qDebug() << QSqlDatabase::drivers();
-        qDebug() <<  query.lastError();
-        qDebug() << "test executed query:"<< query.executedQuery();
-        qDebug() << "test last query:"<< query.lastQuery();
-        return false;
-      }
 
-
-      if(!executeQueriesFromFile(&sqlScript, &query))
-        return false;
-
+      executeQueriesFromFile(&sqlScript, &query);
       sqlScript.close();
       db.close();
       //**************************************************************************
@@ -279,19 +288,21 @@ bool terrama2::core::ApplicationController::createDatabase(const std::string &db
     }
     catch(te::common::Exception& e)
     {
-      //TODO: log de erro
+      QString messageError = QObject::tr("Could not create the database! \n\n Details: \n");
+      messageError.append(e.what());
+
+      throw DataAccessError() << ErrorDescription(messageError);
+
+      //TODO: log error
       qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
       assert(0);
     }
     catch(...)
     {
       //TODO: log this
+      throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not create the database!"));
     }
-
-
-    return true;
   }
-
 }
 
 bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port)
@@ -309,15 +320,31 @@ bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::s
 
   // Check the data source existence
   connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
-  bool dsExists = te::da::DataSource::exists(dsType, connInfo);
 
-  if(dsExists)
+  try
   {
-    return true;
+    bool dsExists = te::da::DataSource::exists(dsType, connInfo);
+
+    if(dsExists)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
+  catch(const te::common::Exception& e)
   {
-    return false;
+    QString messageError;
+
+    messageError.append(e.what());
   }
 
+  catch(...)
+  {
+    throw;
+  }
+
+  return false;
 }

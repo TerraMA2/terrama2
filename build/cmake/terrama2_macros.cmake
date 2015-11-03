@@ -68,7 +68,7 @@ MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path namespace type include_dirs GSOAP_HDR_FI
 
   add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
                      COMMAND ${COMMAND_LINE}
-                     DEPENDS ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp
+                     DEPENDS ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebServiceDataTypes.hpp
                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gsoap
                      COMMENT "Generating gSoap Web Service Files." VERBATIM)
 

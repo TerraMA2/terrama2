@@ -921,7 +921,6 @@ void TsWebService::testFindDataSetInvalidID()
     DataSet struct_dataSet;
     WebService webService;
 
-    // VINICIUS: check findDataSet in terrma2/core method, it dont check if the data Set don't exist
     if(webService.findDataSet(1, struct_dataSet) == SOAP_OK)
     {
       QFAIL("Should not find an invalid Data Set!");

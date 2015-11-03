@@ -39,7 +39,7 @@
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Exception.hpp"
 
-
+// VINICIUS: change the reload to change only when receives a signal from data changed in terrama2::core
 bool Reload()
 {
   try
@@ -109,11 +109,11 @@ int WebService::addDataSet(DataSet struct_dataSet, DataSet &struct_datasetResult
   try
   {
     Reload();
-    terrama2::core::DataSet dataSet(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataSet));
+    terrama2::core::DataSet dataSet(terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem >(struct_dataSet));
 
     terrama2::core::DataManager::getInstance().add(dataSet);
 
-    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSet);
+    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem >(dataSet);
   }
   catch(terrama2::Exception &e)
   {
@@ -159,11 +159,11 @@ int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetRes
   try
   {
     Reload();
-    terrama2::core::DataSet dataSet(terrama2::ws::collector::core::Struct2DataSet<DataSet>(struct_dataset));
+    terrama2::core::DataSet dataSet(terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem >(struct_dataset));
 
     terrama2::core::DataManager::getInstance().update(dataSet);
 
-    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet >(dataSet);
+    struct_datasetResult = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem >(dataSet);
   }
   catch(terrama2::Exception &e)
   {
@@ -263,7 +263,7 @@ int WebService::findDataSet(uint64_t id,DataSet &struct_dataset)
       return soap_receiverfault("Error at find Data Set", "Data Set don't exist!");
     }
 
-    struct_dataset = terrama2::ws::collector::core::DataSet2Struct<DataSet>(dataSet);
+    struct_dataset = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem >(dataSet);
   }
   catch(terrama2::Exception &e)
   {
@@ -313,7 +313,7 @@ int WebService::listDataSet(std::vector< DataSet > &data_set_list)
 
     for(uint32_t i = 0; i < datasets.size() ; i++)
     {
-      data_set_list.push_back(terrama2::ws::collector::core::DataSet2Struct<DataSet>(datasets.at(i)));
+      data_set_list.push_back(terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem >(datasets.at(i)));
     }
   }
   catch(terrama2::Exception &e)
