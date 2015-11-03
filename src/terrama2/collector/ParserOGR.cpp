@@ -28,7 +28,9 @@
 */
 
 #include "ParserOGR.hpp"
+#include "DataFilter.hpp"
 #include "Exception.hpp"
+
 
 //QT
 #include <QDir>
@@ -58,10 +60,14 @@ std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std:
 }
 
 void terrama2::collector::ParserOGR::read(const std::string &uri,
-                                          const std::vector<std::string> &names,
+                                          DataFilterPtr filter,
                                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                          std::shared_ptr<te::da::DataSetType>& dataSetType)
+                                          std::shared_ptr<te::da::DataSetType>& datasetTypeVec)
 {
+
+  std::vector<std::string> allNames = datasetNames(uri);
+  std::vector<std::string> names = filter->filterNames(allNames);
+
   if(names.empty())
   {
     //TODO: throw
@@ -90,9 +96,9 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     for(const std::string& name : names)
     {
       std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
-      dataSetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
+      datasetTypeVec = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
 
-      if(!dataSet || !dataSetType)
+      if(!dataSet || !datasetTypeVec)
       {
         throw UnableToReadDataSetError() << terrama2::ErrorDescription(
                                               QObject::tr("DataSet: %1 is null.").arg(name.c_str()));

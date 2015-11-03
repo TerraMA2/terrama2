@@ -58,9 +58,9 @@ namespace terrama2
          * \exception UnableToReadDataSetError Raised if could not open the datasource, dataset is empty, terralib exception.
          */
         virtual void read(const std::string& uri,
-                          const std::vector<std::string> &names,
-                          std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
-                          std::shared_ptr<te::da::DataSetType> & datasetType) override;
+                          DataFilterPtr filter,
+                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                          std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
 
       private:
         std::mutex mutex_;
