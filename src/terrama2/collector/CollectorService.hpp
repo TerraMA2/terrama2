@@ -159,13 +159,12 @@ namespace terrama2
         void addToQueueSlot(const uint64_t datasetId);
 
       private:
-
         /*!
           \brief Start do collect queued datasets
 
           \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
          */
-        void assignCollector(CollectorPtr firstCollectorInQueue);
+        void assignCollector(CollectorPtr collector);
 
         /*!
           \brief Contains an infinite loop that will keep the service collecting data.

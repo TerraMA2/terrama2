@@ -47,6 +47,7 @@ terrama2::collector::CollectorPtr terrama2::collector::Factory::getCollector(uin
     //TODO: Throws if fail?
 
     //TODO: Throws UnknownDataProviderKindException
+    //TODO: Use URI scheme to switch?
     switch (provider.kind()) {
       case core::DataProvider::FILE_TYPE:
       {

@@ -53,6 +53,9 @@ namespace terrama2
     struct UnableToReadDataSetError: virtual Exception { };
 
     struct StoragerConnectionError: virtual Exception { };
+
+    //! Exception to be used when a collector connection cannot be open
+    struct UnableToOpenCollectorError: virtual Exception{ };
   }
 }
 
