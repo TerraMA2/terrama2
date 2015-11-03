@@ -88,7 +88,7 @@ class FilterDialog : public QDialog, private boost::noncopyable
     void fillUpAreaFilter(terrama2::core::Filter& filter);
 
   private slots:
-    //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date neither true or false.
+    //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date either true or false.
     void onFilteredByDate();
 
     //! Slot triggered whether filter by layer.

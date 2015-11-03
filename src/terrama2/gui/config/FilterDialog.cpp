@@ -197,12 +197,12 @@ void FilterDialog::onFilteredByArea()
   }
   else if (pimpl_->ui_->areaRdb->isChecked())
   {
-    pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page_2);
+    pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page);
     pimpl_->filterByArea_ = true;
   }
   else
   {
-    pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page);
+    pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page_2);
     pimpl_->filterByArea_ = true;
   }
 }
