@@ -44,7 +44,21 @@ ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
 
 void ConfigAppWeatherPcd::load()
 {
+  QMenu* menuMask = new QMenu(tr("Máscaras"));
+  menuMask->addAction(tr("%a - ano com dois digitos"));
+  menuMask->addAction(tr("%A - ano com quatro digitos"));
+  menuMask->addAction(tr("%d - dia com dois digitos"));
+  menuMask->addAction(tr("%M - mes com dois digitos"));
+  menuMask->addAction(tr("%h - hora com dois digitos"));
+  menuMask->addAction(tr("%m - minuto com dois digitos"));
+  menuMask->addAction(tr("%s - segundo com dois digitos"));
+  menuMask->addAction(tr("%. - um caracter qualquer"));
 
+  ui_->filePointDiffMaskBtn->setMenu(menuMask);
+  ui_->filePointDiffMaskBtn->setPopupMode(QToolButton::InstantPopup);
+
+  // connecting the menumask to display mask field values
+  connect(menuMask, SIGNAL(triggered(QAction*)), SLOT(onMenuMaskClicked(QAction*)));
 }
 
 bool ConfigAppWeatherPcd::validate()
@@ -99,7 +113,10 @@ void ConfigAppWeatherPcd::onInsertPointBtnClicked()
   if (ui_->weatherDataTree->currentItem() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
+  {
+    selectedData_.clear();
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointPage);
+  }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
 }
@@ -135,4 +152,10 @@ void ConfigAppWeatherPcd::onProjectionClicked()
 {
   ProjectionDialog dialog(app_);
   dialog.exec();
+}
+
+void ConfigAppWeatherPcd::onMenuMaskClicked(QAction* action)
+{
+  ui_->pointDiffFormatDataMask->setText(
+        ui_->pointDiffFormatDataMask->text() + action->text().left(2));
 }

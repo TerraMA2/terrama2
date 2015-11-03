@@ -4,28 +4,32 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
 #include "../../core/DataSet.hpp"
+#include "../../core/Filter.hpp"
 #include "../../core/DataSetItem.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
 #include "FilterDialog.hpp"
+#include "ProjectionDialog.hpp"
 
 // QT
 #include <QMessageBox>
 
 
 ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+  : ConfigAppTab(app, ui), filter_(new terrama2::core::Filter)
 {
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridClicked()));
   connect(ui_->filterGridBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
   connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabChanged()));
   connect(ui_->gridFormatDataFormat, SIGNAL(currentIndexChanged(const QString&)), SLOT(onGridFormatChanged()));
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
+
+  connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
 {
-
+  delete filter_;
 }
 
 bool ConfigAppWeatherGridTab::dataChanged()
@@ -44,8 +48,12 @@ void ConfigAppWeatherGridTab::load()
   menuMask->addAction(tr("%m - minuto com dois digitos"));
   menuMask->addAction(tr("%s - segundo com dois digitos"));
   menuMask->addAction(tr("%. - um caracter qualquer"));
+
   ui_->fileGridMaskBtn->setMenu(menuMask);
   ui_->fileGridMaskBtn->setPopupMode(QToolButton::InstantPopup);
+
+  // connecting the menumask to display mask field values
+  connect(menuMask, SIGNAL(triggered(QAction*)), SLOT(onMenuMaskClicked(QAction*)));
 }
 
 void ConfigAppWeatherGridTab::save()
@@ -65,8 +73,8 @@ void ConfigAppWeatherGridTab::save()
   terrama2::core::DataSetItem datasetItem;
 
   // temp code
+  datasetItem.setFilter(*filter_);
   datasetItem.setKind(terrama2::core::DataSetItem::DISEASE_OCCURRENCE_TYPE);
-
   datasetItem.setMask(ui_->gridFormatDataMask->text().toStdString());
   datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem.setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
@@ -139,7 +147,10 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
   if (ui_->weatherDataTree->currentItem() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
-    app_->getWeatherTab()->changeTab(*this, *ui_->DataGridPage);
+  {
+    selectedData_.clear();
+        app_->getWeatherTab()->changeTab(*this, *ui_->DataGridPage);
+  }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
 }
@@ -194,6 +205,12 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
   ui_->cancelBtn->clicked();
 }
 
+void ConfigAppWeatherGridTab::onMenuMaskClicked(QAction* action)
+{
+  ui_->gridFormatDataMask->setText(
+        ui_->gridFormatDataMask->text() + action->text().left(2));
+}
+
 void ConfigAppWeatherGridTab::onFilterClicked()
 {
   FilterDialog dialog(FilterDialog::FULL, app_);
@@ -201,12 +218,18 @@ void ConfigAppWeatherGridTab::onFilterClicked()
   dialog.exec();
 
   if (dialog.isFilterByDate())
+  {
     ui_->dateFilterLabel->setText(tr("Yes"));
+    dialog.fillDateFilter(*filter_);
+  }
   else
     ui_->dateFilterLabel->setText(tr("No"));
 
   if (dialog.isFilterByArea())
+  {
     ui_->areaFilterLabel->setText(tr("Yes"));
+    dialog.fillUpAreaFilter(*filter_);
+  }
   else
     ui_->areaFilterLabel->setText(tr("No"));
 
@@ -219,4 +242,12 @@ void ConfigAppWeatherGridTab::onFilterClicked()
     ui_->preAnalysisLabel->setText(tr("Yes"));
   else
     ui_->preAnalysisLabel->setText(tr("No"));
+}
+
+void ConfigAppWeatherGridTab::onProjectionClicked()
+{
+  ProjectionDialog projectionDialog(app_);
+
+  projectionDialog.show();
+  projectionDialog.exec();
 }

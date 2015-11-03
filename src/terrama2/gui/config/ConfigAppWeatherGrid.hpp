@@ -34,6 +34,16 @@
 #include "ConfigAppTab.hpp"
 
 
+namespace terrama2
+{
+  namespace core
+  {
+    class Filter;
+  }
+}
+
+class QAction;
+
 class ConfigAppWeatherGridTab : public ConfigAppTab {
   Q_OBJECT
   public:
@@ -48,6 +58,7 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
 
   public slots:
     void onFilterClicked();
+    void onProjectionClicked();
 
   private slots:
     //! Slot triggered when data grid btn is clicked to display the Grid Widget
@@ -56,6 +67,10 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     void onSubTabChanged();
     void onGridFormatChanged();
     void onRemoveDataGridBtnClicked();
+    void onMenuMaskClicked(QAction* action);
+
+  private:
+    terrama2::core::Filter* filter_;
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__

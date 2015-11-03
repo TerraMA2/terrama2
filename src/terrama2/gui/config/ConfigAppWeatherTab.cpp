@@ -1,7 +1,6 @@
 // TerraMA2
 #include "ConfigAppWeatherTab.hpp"
 #include "ConfigApp.hpp"
-#include "ProjectionDialog.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
 #include "../../core/Utils.hpp"
@@ -34,7 +33,6 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->importServerBtn, SIGNAL(clicked()), SLOT(onImportServer()));
 
   // Bind the data series type with respective group view
-  connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
@@ -385,6 +383,8 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
                 ui_->pointDiffFormatDataDescription->setText(dataset.description().c_str());
                 ui_->pointDiffFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+                if (dataset.dataSetItems().size() > 0)
+                  ui_->pointDiffFormatDataMask->setText(dataset.dataSetItems().at(0).mask().c_str());
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
@@ -450,14 +450,6 @@ void ConfigAppWeatherTab::onExportServerClicked()
   {
     throw;
   }
-}
-
-void ConfigAppWeatherTab::onProjectionClicked()
-{
-  ProjectionDialog projectionDialog(app_);
-
-  projectionDialog.show();
-  projectionDialog.exec();
 }
 
 void ConfigAppWeatherTab::displayOperationButtons(bool state)

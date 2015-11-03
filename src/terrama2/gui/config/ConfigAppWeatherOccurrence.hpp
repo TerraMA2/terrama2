@@ -56,6 +56,7 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
 
   public:
     void onFilterClicked();
+    void onProjectionClicked();
 
   private slots:
     void onDataSetBtnClicked();

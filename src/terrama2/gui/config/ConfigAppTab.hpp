@@ -113,6 +113,9 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! Slot triggered on filter button in tabs to show filter dialog
     virtual void onFilterClicked();
 
+    //! Slot triggered on projection button in tabs to show projection dialog
+    virtual void onProjectionClicked();
+
   protected:
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_; //!< UI from ConfigApp

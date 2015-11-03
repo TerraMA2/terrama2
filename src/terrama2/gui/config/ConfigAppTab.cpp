@@ -80,6 +80,11 @@ void ConfigAppTab::onFilterClicked()
 
 }
 
+void ConfigAppTab::onProjectionClicked()
+{
+
+}
+
 bool ConfigAppTab::isActive() const
 {
   return active_;

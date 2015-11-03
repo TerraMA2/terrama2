@@ -29,6 +29,16 @@
 
 // TerraMA2
 #include "FilterDialog.hpp"
+#include "../../core/Filter.hpp"
+
+// Terralib
+#include <terralib/geometry/Polygon.h>
+#include <terralib/geometry/LinearRing.h>
+
+#include <terralib/datatype/TimeDuration.h>
+
+// boost
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <QDialog>
 
@@ -112,6 +122,49 @@ bool FilterDialog::isFilterByArea() const
 bool FilterDialog::isAnyFilter() const
 {
   return isFilterByArea() || isFilterByDate() || isFilterByLayer() || isFilterByPreAnalyse();
+}
+
+void FilterDialog::fillDateFilter(terrama2::core::Filter& filter)
+{
+  // TODO: fill up with before/after date
+  if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
+  {
+//    boost::posix_time::time_duration beforeDate(
+//          boost::posix_time::duration_from_string(pimpl_->ui_->dateBeforeFilterDed->date().toString().toStdString()));
+//    filter.setDiscardBefore(beforeDate);
+  }
+
+  if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
+  {
+
+  }
+}
+
+void FilterDialog::fillUpAreaFilter(terrama2::core::Filter& filter)
+{
+  std::unique_ptr<te::gm::Polygon> polygon(new te::gm::Polygon(0, te::gm::PolygonType));
+
+  double minX = pimpl_->ui_->xMinLed->text().toDouble();
+  double minY = pimpl_->ui_->yMinLed->text().toDouble();
+  double maxX = pimpl_->ui_->xMaxLed->text().toDouble();
+  double maxY = pimpl_->ui_->yMaxLed->text().toDouble();
+
+  te::gm::LinearRing* square = new te::gm::LinearRing(5, te::gm::LineStringType);
+
+  square->setPoint(0, minX, minY); // lower left
+  square->setPoint(1, minX, maxY); // upper left
+  square->setPoint(2, maxX, maxY); // upper rigth
+  square->setPoint(3, maxX, minY); // lower rigth
+
+  polygon->push_back(square);
+
+  filter.setGeometry(std::move(polygon));
+
+  if (filter.discardBefore() == nullptr)
+    filter.setDiscardBefore(std::unique_ptr<te::dt::TimeDuration>(new te::dt::TimeDuration(0,0,0)));
+
+  if (filter.discardAfter() == nullptr)
+    filter.setDiscardAfter(std::unique_ptr<te::dt::TimeDuration>(new te::dt::TimeDuration(0,0,0)));
 }
 
 bool FilterDialog::isFilterByLayer() const

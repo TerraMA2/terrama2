@@ -129,9 +129,6 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! Triggered when click exportServerBtn to export DataProvider as TerraMA2 File
     void onExportServerClicked();
 
-    //! Triggered when click projectionBtn to call projection gui window
-    void onProjectionClicked();
-
   private:
     QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
     QMap<std::string,terrama2::core::DataProvider> providers_; //!< Cached providers map

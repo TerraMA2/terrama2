@@ -33,6 +33,8 @@
 
 #include "ConfigAppTab.hpp"
 
+class QAction;
+
 class ConfigAppWeatherPcd : public ConfigAppTab
 {
   Q_OBJECT
@@ -49,6 +51,7 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     void onInsertPointBtnClicked();
     void onDataPointBtnClicked();
     void onProjectionClicked();
+    void onMenuMaskClicked(QAction*);
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
