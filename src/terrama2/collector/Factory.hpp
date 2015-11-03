@@ -82,7 +82,7 @@ namespace terrama2
 
         void removeAllCollectors();
 
-        static ParserPtr getParser(core::DataSetItem::Kind datasetItemKind);
+        static ParserPtr getParser(core::DataSetItem datasetItem);
         static StoragerPtr getStorager(core::DataSetItem datasetItem);
 
       private:

@@ -95,6 +95,8 @@ namespace terrama2
          * \return Shared pointer to a filter object.
          */
         DataFilterPtr filter() const;
+        ParserPtr     parser() const;
+        StoragerPtr   storager() const;
 
         /*!
              * \brief Calls the process and filtering objecs, after they finish calls the storager.

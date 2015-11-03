@@ -68,9 +68,9 @@ void terrama2::collector::Factory::removeCollector(uint64_t dataProviderId)
   collectorMap_.remove(dataProviderId);
 }
 
-terrama2::collector::ParserPtr terrama2::collector::Factory::getParser(terrama2::core::DataSetItem::Kind datasetItemKind)
+terrama2::collector::ParserPtr terrama2::collector::Factory::getParser(terrama2::core::DataSetItem datasetItem)
 {
-  switch (datasetItemKind) {
+  switch (datasetItem.kind()) {
     case core::DataSetItem::PCD_INPE_TYPE:
     case core::DataSetItem::PCD_TOA5_TYPE:
     {

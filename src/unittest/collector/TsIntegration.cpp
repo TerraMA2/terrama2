@@ -124,6 +124,3 @@ void TsIntegration::TestReadCsvStorePostGis()
 }
 
 
-
-//QTEST_MAIN(TsIntegration)
-#include "TsIntegration.moc"

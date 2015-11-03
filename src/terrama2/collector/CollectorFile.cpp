@@ -68,7 +68,7 @@ void terrama2::collector::CollectorFile::close()
   //nothing to do
 }
 
-std::string terrama2::collector::CollectorFile::retrieveData(const terrama2::collector::DataProcessorPtr /*dataProcessor*/)
+std::string terrama2::collector::CollectorFile::retrieveData(const DataFilterPtr /*filter*/)
 {
   return dir_.absolutePath().toStdString();
 }

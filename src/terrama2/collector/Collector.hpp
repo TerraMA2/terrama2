@@ -131,7 +131,7 @@ namespace terrama2
       protected:
 
         //! Aquired the data specified in dataProcessor.
-        virtual std::string retrieveData(const DataProcessorPtr dataProcessor) = 0;
+        virtual std::string retrieveData(const DataFilterPtr filter) = 0;
 
         core::DataProvider dataProvider_; //!< Data provider information.
 
