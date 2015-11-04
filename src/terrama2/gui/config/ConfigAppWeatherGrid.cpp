@@ -74,7 +74,7 @@ void ConfigAppWeatherGridTab::save()
 
   // temp code
   datasetItem.setFilter(*filter_);
-  datasetItem.setKind(terrama2::core::DataSetItem::DISEASE_OCCURRENCE_TYPE);
+  datasetItem.setKind(terrama2::core::DataSetItem::UNKNOWN_TYPE);
   datasetItem.setMask(ui_->gridFormatDataMask->text().toStdString());
   datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem.setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
@@ -215,21 +215,19 @@ void ConfigAppWeatherGridTab::onFilterClicked()
 {
   FilterDialog dialog(FilterDialog::FULL, app_);
 
+  dialog.fillGUI(*filter_);
+
   dialog.exec();
 
+  dialog.fillObject(*filter_);
+
   if (dialog.isFilterByDate())
-  {
     ui_->dateFilterLabel->setText(tr("Yes"));
-    dialog.fillDateFilter(*filter_);
-  }
   else
     ui_->dateFilterLabel->setText(tr("No"));
 
   if (dialog.isFilterByArea())
-  {
     ui_->areaFilterLabel->setText(tr("Yes"));
-    dialog.fillUpAreaFilter(*filter_);
-  }
   else
     ui_->areaFilterLabel->setText(tr("No"));
 

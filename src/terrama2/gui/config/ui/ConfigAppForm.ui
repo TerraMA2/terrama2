@@ -2762,7 +2762,9 @@ p, li { white-space: pre-wrap; }
                      <string>Projeção...</string>
                     </property>
                     <property name="icon">
-                     <iconset theme="projection"/>
+                     <iconset theme="projection">
+                      <normaloff/>
+                     </iconset>
                     </property>
                    </widget>
                   </item>

@@ -118,20 +118,28 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
 void ConfigAppWeatherOccurrence::onFilterClicked()
 {
   FilterDialog dialog(FilterDialog::DATE, app_);
+  dialog.fillGUI(*filter_);
   dialog.exec();
 
-  if (dialog.isAnyFilter())
-  {
-    //TODO: fill up the filter_ object with metadata from form
-    if (dialog.isFilterByDate())
-    {
-      ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
+  dialog.fillObject(*filter_);
 
-      dialog.fillDateFilter(*filter_);
-    }
-    else
-      ui_->dateFilterPointDiffLabel->setText(tr("No"));
-  }
+  if (dialog.isFilterByDate())
+    ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterPointDiffLabel->setText(tr("No"));
+
+//  if (dialog.isAnyFilter())
+//  {
+//    //TODO: fill up the filter_ object with metadata from form
+//    if (dialog.isFilterByDate())
+//    {
+//      ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
+
+//      dialog.fillDateFilter(*filter_);
+//    }
+//    else
+//      ui_->dateFilterPointDiffLabel->setText(tr("No"));
+//  }
 }
 
 void ConfigAppWeatherOccurrence::onDataSetBtnClicked()

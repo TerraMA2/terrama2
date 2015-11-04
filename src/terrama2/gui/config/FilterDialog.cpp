@@ -35,13 +35,17 @@
 #include <terralib/geometry/Polygon.h>
 #include <terralib/geometry/LinearRing.h>
 
-#include <terralib/datatype/TimeDuration.h>
+#include <terralib/datatype/Date.h>
 
 // boost
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include "boost/date_time/gregorian/gregorian.hpp"
 
 #include <QDialog>
 #include <QIcon>
+
+
+#include <iostream>
 
 struct FilterDialog::Impl
 {
@@ -129,46 +133,83 @@ bool FilterDialog::isAnyFilter() const
   return isFilterByArea() || isFilterByDate() || isFilterByLayer() || isFilterByPreAnalyse();
 }
 
-void FilterDialog::fillDateFilter(terrama2::core::Filter& filter)
+void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
 {
-  // TODO: fill up with before/after date
-  if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
+  // If there some geometry at filter, fill field limits
+  if (filter.geometry() != nullptr)
   {
-    std::unique_ptr<te::dt::TimeDuration> dt (new te::dt::TimeDuration(pimpl_->ui_->dateBeforeFilterDed->date().day(), 0, 0));
-    filter.setDiscardBefore(std::move(dt));
+    pimpl_->ui_->areaRdb->setChecked(true);
+    pimpl_->ui_->areaRdb->clicked();
   }
 
-  if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
+  //TODO: improve date convertion. This code just uses boost to convert te::Date
+  if (filter.discardBefore())
   {
+    const te::dt::Date* dt = static_cast<const te::dt::Date*>(filter.discardBefore());
+    pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
+    QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
+    pimpl_->ui_->dateBeforeFilterDed->setDate(date);
+  }
 
+  if (filter.discardAfter())
+  {
+    const te::dt::Date* dt = static_cast<const te::dt::Date*>(filter.discardAfter());
+    pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
+    QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
+    pimpl_->ui_->dateAfterFilterDed->setDate(date);
   }
 }
 
-void FilterDialog::fillUpAreaFilter(terrama2::core::Filter& filter)
+void FilterDialog::fillObject(terrama2::core::Filter &filter)
 {
-  std::unique_ptr<te::gm::Polygon> polygon(new te::gm::Polygon(0, te::gm::PolygonType));
+  if (pimpl_->filterByArea_)
+  {
+    std::unique_ptr<te::gm::Polygon> polygon(new te::gm::Polygon(0, te::gm::PolygonType));
 
-  double minX = pimpl_->ui_->xMinLed->text().toDouble();
-  double minY = pimpl_->ui_->yMinLed->text().toDouble();
-  double maxX = pimpl_->ui_->xMaxLed->text().toDouble();
-  double maxY = pimpl_->ui_->yMaxLed->text().toDouble();
+    double minX = pimpl_->ui_->xMinLed->text().toDouble();
+    double minY = pimpl_->ui_->yMinLed->text().toDouble();
+    double maxX = pimpl_->ui_->xMaxLed->text().toDouble();
+    double maxY = pimpl_->ui_->yMaxLed->text().toDouble();
 
-  te::gm::LinearRing* square = new te::gm::LinearRing(5, te::gm::LineStringType);
+    te::gm::LinearRing* square = new te::gm::LinearRing(5, te::gm::LineStringType);
 
-  square->setPoint(0, minX, minY); // lower left
-  square->setPoint(1, minX, maxY); // upper left
-  square->setPoint(2, maxX, maxY); // upper rigth
-  square->setPoint(3, maxX, minY); // lower rigth
+    square->setPoint(0, minX, minY); // lower left
+    square->setPoint(1, minX, maxY); // upper left
+    square->setPoint(2, maxX, maxY); // upper rigth
+    square->setPoint(3, maxX, minY); // lower rigth
 
-  polygon->push_back(square);
+    polygon->push_back(square);
 
-  filter.setGeometry(std::move(polygon));
+    filter.setGeometry(std::move(polygon));
+  }
 
-  if (filter.discardBefore() == nullptr)
-    filter.setDiscardBefore(std::unique_ptr<te::dt::TimeDuration>(new te::dt::TimeDuration(0,0,0)));
+  // TODO: fill up with before/after date. TimeDuration??
+  if (pimpl_->filterByDate_)
+  {
+    if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
+    {
+      QDate beforeDate = pimpl_->ui_->dateBeforeFilterDed->date();
+      std::unique_ptr<te::dt::Date> datePtr (new te::dt::Date(
+                                          beforeDate.year(), beforeDate.month(), beforeDate.day()));
+      filter.setDiscardBefore(std::move(datePtr));
+    }
 
-  if (filter.discardAfter() == nullptr)
-    filter.setDiscardAfter(std::unique_ptr<te::dt::TimeDuration>(new te::dt::TimeDuration(0,0,0)));
+    if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
+    {
+      QDate afterDate = pimpl_->ui_->dateAfterFilterDed->date();
+      std::unique_ptr<te::dt::Date> datePtr (new te::dt::Date(
+                                          afterDate.year(), afterDate.month(), afterDate.day()));
+      filter.setDiscardAfter(std::move(datePtr));
+    }
+
+  }
+
+  // TODO: filter by layer
+  if (pimpl_->filterByLayer_)
+  {
+
+  }
+
 }
 
 bool FilterDialog::isFilterByLayer() const

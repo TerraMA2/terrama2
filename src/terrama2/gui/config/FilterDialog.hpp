@@ -81,11 +81,11 @@ class FilterDialog : public QDialog, private boost::noncopyable
     //! It checks if there any filter active
     bool isAnyFilter() const;
 
-    //! It will fill up the filter object with before/after date
-    void fillDateFilter(terrama2::core::Filter& filter);
+    //! It will fill up the gui fields with terrama2 filter object
+    void fillGUI(const terrama2::core::Filter &filter);
 
-    //! It will fill up the filter object with geo limits
-    void fillUpAreaFilter(terrama2::core::Filter& filter);
+    //! It will populate the filter object with filter values
+    void fillObject(terrama2::core::Filter& filter);
 
   private slots:
     //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date either true or false.
