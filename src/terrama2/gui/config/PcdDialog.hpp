@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/gui/config/ColPointDialog.hpp
+  \file terrama2/gui/config/PcdDialog.hpp
 
-  \brief Definition of methods in class ColPointDialog.hpp
+  \brief Class responsible to handle the PCD insertion/modification file
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
@@ -30,32 +30,44 @@
 */
 
 
-#ifndef _ColPointDialog_H_
-#define _ColPointDialog_H_
+#ifndef __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
+#define __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
 
-#include "ui_ColPointDialog.h"
+// TerraMA2
+#include "ui_PcdForm.h"
 
-#include "soapServPlanosProxy.h"
+// Boost
+#include <boost/noncopyable.hpp>
 
-class ColPointDialog : public QDialog, private Ui::ColPointDialog
+// temp struct for stores the pcd meta
+struct PCD
 {
-Q_OBJECT
+  QString file;
+  QString latitude;
+  QString longitude;
+  bool active;
+};
 
-public:
-  ColPointDialog(QWidget* parent = 0, Qt::WFlags f = 0 );
-  ~ColPointDialog();
+class PcdDialog : public QDialog, private boost::noncopyable
+{
+  Q_OBJECT
 
-  void setFields(const wsPCD& colPoint);
-  void getFields(wsPCD* colPoint, bool& changed);
+  public:
+    PcdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    ~PcdDialog();
 
-private slots:
-  void setColPointChanged();
-  
-private:
-  bool _ignoreChangeEvents;
-  bool _collectionPointChanged;
+    void fill(const PCD& pcd);
+    void fillObject(PCD& pcd);
+
+  private slots:
+    void onPcdChanged();
+    void onConfirmClicked();
+
+  private:
+    struct Impl;
+    Impl* pimpl_;
 };
 
 
-#endif
+#endif // __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
 

@@ -582,7 +582,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="4" rowspan="3">
             <widget class="QStackedWidget" name="weatherPageStack">
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="ServerGroupPage">
               <property name="enabled">
@@ -682,12 +682,20 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </spacer>
                </item>
+               <item row="2" column="3">
+                <widget class="QLabel" name="labelServerInfo">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
               </layout>
               <zorder>label_9</zorder>
               <zorder>spacer</zorder>
               <zorder>insertServerBtn</zorder>
               <zorder>importServerBtn</zorder>
               <zorder>spacerWeatherButton</zorder>
+              <zorder>labelServerInfo</zorder>
              </widget>
              <widget class="QWidget" name="ServerPage">
               <layout class="QGridLayout" name="gridLayout_12">
@@ -1700,42 +1708,41 @@ p, li { white-space: pre-wrap; }
                   <string> Dado: </string>
                  </property>
                  <layout class="QGridLayout">
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_58">
+                  <item row="6" column="1">
+                   <widget class="QLineEdit" name="pointFormatDataUnit"/>
+                  </item>
+                  <item row="4" column="1" colspan="6">
+                   <widget class="QTextEdit" name="pointFormatDataDescription"/>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="label_63">
                     <property name="text">
-                     <string>Tipo:</string>
+                     <string>Descrição:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="0">
-                   <widget class="QLabel" name="label_83">
+                  <item row="5" column="2" colspan="2">
+                   <widget class="QLabel" name="label_79">
                     <property name="text">
-                     <string>Unidade:</string>
+                     <string>Prefixo:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="6">
-                   <widget class="QPushButton" name="projectionPointBtn">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <item row="6" column="6">
+                   <widget class="QPushButton" name="pointFormatSurfaceConfigBtn">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>Projeção...</string>
+                     <string>Superfícies</string>
                     </property>
                     <property name="icon">
-                     <iconset theme="projection">
+                     <iconset theme="surface">
                       <normaloff/>
                      </iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="2">
-                   <widget class="QLabel" name="label_62">
-                    <property name="text">
-                     <string>h</string>
                     </property>
                    </widget>
                   </item>
@@ -1871,23 +1878,6 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </widget>
                   </item>
-                  <item row="5" column="2" colspan="2">
-                   <widget class="QLabel" name="label_79">
-                    <property name="text">
-                     <string>Prefixo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="label_63">
-                    <property name="text">
-                     <string>Descrição:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1" colspan="6">
-                   <widget class="QTextEdit" name="pointFormatDataDescription"/>
-                  </item>
                   <item row="5" column="0">
                    <widget class="QLabel" name="label_77">
                     <property name="text">
@@ -1895,8 +1885,76 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1">
-                   <widget class="QLineEdit" name="pointFormatDataUnit"/>
+                  <item row="1" column="6">
+                   <widget class="QPushButton" name="projectionPointBtn">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Projeção...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset theme="projection">
+                      <normaloff/>
+                     </iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="5">
+                   <widget class="QComboBox" name="pointFormatDataType">
+                    <item>
+                     <property name="text">
+                      <string>Previsão</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Observação</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Outros</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="3" column="2">
+                   <widget class="QLabel" name="label_62">
+                    <property name="text">
+                     <string>h</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="pointFormatDataFrequency"/>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="label_83">
+                    <property name="text">
+                     <string>Unidade:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="4" colspan="3">
+                   <widget class="QLineEdit" name="pointFormatDataPrefix"/>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_58">
+                    <property name="text">
+                     <string>Tipo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_57">
+                    <property name="text">
+                     <string>Nome:</string>
+                    </property>
+                   </widget>
                   </item>
                   <item row="2" column="1">
                    <widget class="QComboBox" name="pointFormatDataInfluenceCmb">
@@ -1923,31 +1981,10 @@ p, li { white-space: pre-wrap; }
                   <item row="0" column="1" colspan="6">
                    <widget class="QLineEdit" name="pointFormatDataName"/>
                   </item>
-                  <item row="6" column="6">
-                   <widget class="QPushButton" name="pointFormatSurfaceConfigBtn">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_61">
                     <property name="text">
-                     <string>Superfícies</string>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="surface">
-                      <normaloff/>
-                     </iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="4" colspan="3">
-                   <widget class="QLineEdit" name="pointFormatDataPrefix"/>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_57">
-                    <property name="text">
-                     <string>Nome:</string>
+                     <string>Freq. Atualiz.:</string>
                     </property>
                    </widget>
                   </item>
@@ -2053,35 +2090,6 @@ p, li { white-space: pre-wrap; }
                     </widget>
                    </widget>
                   </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="pointFormatDataFrequency"/>
-                  </item>
-                  <item row="1" column="1" colspan="5">
-                   <widget class="QComboBox" name="pointFormatDataType">
-                    <item>
-                     <property name="text">
-                      <string>Previsão</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Observação</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Outros</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_61">
-                    <property name="text">
-                     <string>Freq. Atualiz.:</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="2" column="0">
                    <widget class="QLabel" name="label_59">
                     <property name="text">
@@ -2163,8 +2171,28 @@ p, li { white-space: pre-wrap; }
                  <property name="title">
                   <string> Parâmetros: </string>
                  </property>
-                 <layout class="QGridLayout" name="gridLayout_37">
+                 <layout class="QGridLayout" name="gridLayout_21">
                   <item row="0" column="0">
+                   <widget class="QCheckBox" name="pointFormatStatus">
+                    <property name="text">
+                     <string>Série de dados ativo</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <spacer name="verticalSpacer_6">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>31</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="0">
                    <widget class="QTableWidget" name="tblPointPCDFileNameLocation">
                     <property name="contextMenuPolicy">
                      <enum>Qt::CustomContextMenu</enum>
@@ -2284,7 +2312,7 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </widget>
                   </item>
-                  <item row="0" column="1">
+                  <item row="1" column="1">
                    <layout class="QGridLayout" name="gridLayout_38">
                     <item row="0" column="0">
                      <widget class="QPushButton" name="btnPointPCDInsertFileNameLocation">

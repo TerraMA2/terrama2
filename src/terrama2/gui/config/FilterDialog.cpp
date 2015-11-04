@@ -90,9 +90,9 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   connect(pimpl_->ui_->areaRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
   connect(pimpl_->ui_->planeRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
 
-  // TODO: load pixelmap from theme to label
-//  QPixmap pixmap = QIcon::fromTheme("filter-big").pixmap(80);
-//  pimpl_->ui_->labelFilterIcon->setPixmap(pixmap);
+  // loading pixmap icon from theme and set it to label
+  QPixmap pixmap = QIcon::fromTheme("filter-big").pixmap(80);
+  pimpl_->ui_->labelFilterIcon->setPixmap(pixmap);
 
   switch(type)
   {
@@ -175,15 +175,15 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
     square->setPoint(0, minX, minY); // lower left
     square->setPoint(1, minX, maxY); // upper left
-    square->setPoint(2, maxX, maxY); // upper rigth
-    square->setPoint(3, maxX, minY); // lower rigth
+    square->setPoint(2, maxX, maxY); // upper right
+    square->setPoint(3, maxX, minY); // lower right
 
     polygon->push_back(square);
 
     filter.setGeometry(std::move(polygon));
   }
 
-  // TODO: fill up with before/after date. TimeDuration??
+  // TODO: is there another way fill up with before/after date?.
   if (pimpl_->filterByDate_)
   {
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())

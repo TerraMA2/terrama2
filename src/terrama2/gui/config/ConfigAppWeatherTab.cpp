@@ -67,6 +67,10 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->archivingAct->setEnabled(false);
   ui_->terraMEPlayerAct->setEnabled(false);
   ui_->refreshAct->setEnabled(false);
+
+  //loading server pixmap from icon theme and set it to label
+  QPixmap pixmap = QIcon::fromTheme("servers").pixmap(64);
+  ui_->labelServerInfo->setPixmap(pixmap);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
@@ -355,6 +359,13 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->gridFormatDataDescription->setText(dataset.description().c_str());
                 ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
                 ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
+
+                // temp code
+                if (dataset.dataSetItems().size() > 0)
+                {
+                  terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
+                  ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
+                }
 
                 hideDataSetButtons();
                 showDataSeries(false);

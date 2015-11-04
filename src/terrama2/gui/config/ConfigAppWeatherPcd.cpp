@@ -5,9 +5,11 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "ProjectionDialog.hpp"
+#include "PcdDialog.hpp"
 
 // Qt
 #include <QMessageBox>
+#include <QTableWidgetItem>
 
 
 ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
@@ -16,7 +18,11 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->pointFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onDataPointBtnClicked()));
   connect(ui_->projectionPointBtn, SIGNAL(clicked()), SLOT(onProjectionClicked()));
-  ui_->pointFormatDataType->setEnabled(false);
+
+  connect(ui_->btnPointPCDInsertFileNameLocation, SIGNAL(clicked()), SLOT(onPCDInsertFileClicked()));
+  connect(ui_->btnPointPCDDeleteFileNameLocation, SIGNAL(clicked()), SLOT(onPCDRemoveClicked()));
+  connect(ui_->tblPointPCDFileNameLocation, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(onPCDTableDoubleClicked(QTableWidgetItem*)));
+//  ui_->pointFormatDataType->setEnabled(false);
 //  ui_->projectionPointBtn->setEnabled(false);
 //  ui_->pointFormatDataInfluenceCmb->setEnabled(false);
 //  ui_->pointFormatDataThemeCmb->setEnabled(false);
@@ -28,13 +34,17 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 //  ui_->pointFormatDataUnit->setEnabled(false);
 //  ui_->pointFormatSurfaceConfigBtn->setEnabled(false);
 //  ui_->pointFormatDataPath->setEnabled(false);
-//  ui_->pointFormatDataMask->setEnabled(false);
-//  ui_->pointFormatDataFormat->setEnabled(false);
+  ui_->pointFormatDataMask->setEnabled(false);
+  ui_->pointFormatDataFormat->setEnabled(false);
 //  ui_->btnPointPCDInsertFileNameLocation->setEnabled(false);
 //  ui_->pointParamsGbx->setEnabled(false);
 
   ui_->updateDataPointBtn->setEnabled(false);
   ui_->exportDataPointBtn->setEnabled(false);
+
+  // Clear the pcd table
+  while(ui_->tblPointPCDFileNameLocation->rowCount() > 0)
+    ui_->tblPointPCDFileNameLocation->removeRow(0);
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -66,7 +76,7 @@ bool ConfigAppWeatherPcd::validate()
   if (ui_->pointFormatDataName->text().trimmed().isEmpty())
   {
     ui_->pointFormatDataName->setFocus();
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Name is invalid"));
+    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD Name cannot be empty"));
   }
   //TODO: validate correctly all fields
   return true;
@@ -78,9 +88,18 @@ void ConfigAppWeatherPcd::save()
   terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(selectedData_.toStdString());
 
   dataset.setName(ui_->pointFormatDataName->text().toStdString());
+  dataset.setDescription(ui_->pointFormatDataDescription->toPlainText().toStdString());
   dataset.setKind(terrama2::core::DataSet::PCD_TYPE);
-  //TODO: add checkbox in UI for data series status
-  dataset.setStatus(terrama2::core::DataSet::ACTIVE);
+
+  dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->pointFormatStatus->isChecked()));
+
+  te::dt::TimeDuration dataFrequency(ui_->pointFormatDataFrequency->text().toInt(), 0, 0);
+  dataset.setDataFrequency(dataFrequency);
+
+  terrama2::core::DataSetItem datasetItem;
+  datasetItem.setDataSet(dataset.id());
+  datasetItem.setMask(ui_->pointFormatDataMask->text().toStdString());
+
   if (dataset.id() > 0)
   {
     app_->getClient()->updateDataSet(dataset);
@@ -158,4 +177,58 @@ void ConfigAppWeatherPcd::onMenuMaskClicked(QAction* action)
 {
   ui_->pointDiffFormatDataMask->setText(
         ui_->pointDiffFormatDataMask->text() + action->text().left(2));
+}
+
+void ConfigAppWeatherPcd::onPCDInsertFileClicked()
+{
+  PCD pcd;
+  pcdFormCreation(pcd);
+}
+
+void ConfigAppWeatherPcd::onPCDRemoveClicked()
+{
+  int row = ui_->tblPointPCDFileNameLocation->currentRow();
+  if (row != -1)
+    ui_->tblPointPCDFileNameLocation->removeRow(row);
+}
+
+void ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
+{
+  if (item != nullptr)
+  {
+    PCD pcd;
+    pcd.file = ui_->tblPointPCDFileNameLocation->item(item->row(), 0)->text();
+    pcd.latitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 1)->text();
+    pcd.longitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 2)->text();
+//    pcd.active = ui_->tblPointPCDFileNameLocation->item(item->row(), 3)->text();
+    pcdFormCreation(pcd);
+  }
+}
+
+void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd)
+{
+  PcdDialog dialog(app_);
+  //TODO: fill the form with data and then, populate the table widget
+  dialog.fill(pcd);
+  if (dialog.exec() == QDialog::Accepted)
+  {
+    dialog.fillObject(pcd);
+    QTableWidgetItem* item = new QTableWidgetItem(pcd.file);
+
+    int line = ui_->tblPointPCDFileNameLocation->rowCount();
+    ui_->tblPointPCDFileNameLocation->insertRow(line);
+    ui_->tblPointPCDFileNameLocation->setItem(line, 0, item);
+
+    item = new QTableWidgetItem();
+    item->setText(pcd.latitude);
+    ui_->tblPointPCDFileNameLocation->setItem(line, 1, item);
+
+    item = new QTableWidgetItem();
+    item->setText(pcd.longitude);
+    ui_->tblPointPCDFileNameLocation->setItem(line, 2, item);
+
+    item = new QTableWidgetItem();
+    item->setText(pcd.active ? tr("true") : tr("false"));
+    ui_->tblPointPCDFileNameLocation->setItem(line, 3, item);
+  }
 }
