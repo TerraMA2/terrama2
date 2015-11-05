@@ -81,7 +81,7 @@ class ConfigAppWeatherPcd : public ConfigAppTab
 
     void onPCDTableDoubleClicked(QTableWidgetItem*);
 
-    void pcdFormCreation(PCD&);
+    void pcdFormCreation(PCD&, bool editing = false);
 
   private:
     QList<PCD> pcds_;

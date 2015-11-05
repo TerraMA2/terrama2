@@ -49,9 +49,8 @@ struct PcdDialog::Impl
   Ui::PcdForm* ui_;
 };
 
-//! Construtor
 PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
-: QDialog(parent, f), pimpl_(new Impl)
+  : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
 
@@ -70,7 +69,6 @@ PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
   pimpl_->ui_->ledColPointLongitude->setValidator(new QDoubleValidator(pimpl_->ui_->ledColPointLongitude));
 }
 
-//! Destrutor
 PcdDialog::~PcdDialog()
 {
 }
@@ -80,6 +78,7 @@ void PcdDialog::fill(const PCD& pcd)
   pimpl_->ui_->ledColPointFileName->setText(pcd.file);
   pimpl_->ui_->ledColPointLatitude->setText(pcd.latitude);
   pimpl_->ui_->ledColPointLongitude->setText(pcd.longitude);
+  pimpl_->ui_->activeCmb->setCurrentIndex(pcd.active ? 0 : 1);
 }
 
 void PcdDialog::fillObject(PCD &pcd)
@@ -87,6 +86,7 @@ void PcdDialog::fillObject(PCD &pcd)
   pcd.file = pimpl_->ui_->ledColPointFileName->text();
   pcd.latitude = pimpl_->ui_->ledColPointLatitude->text();
   pcd.longitude = pimpl_->ui_->ledColPointLongitude->text();
+  pcd.active = pimpl_->ui_->activeCmb->currentIndex() == 0;
 }
 
 void PcdDialog::onPcdChanged()

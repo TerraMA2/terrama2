@@ -2469,9 +2469,7 @@ p, li { white-space: pre-wrap; }
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset theme="punctual-data">
-                        <normaloff/>
-                       </iconset>
+                       <iconset theme="pcd"/>
                       </property>
                      </widget>
                     </item>

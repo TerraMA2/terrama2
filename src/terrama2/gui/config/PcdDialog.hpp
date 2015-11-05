@@ -53,7 +53,7 @@ class PcdDialog : public QDialog, private boost::noncopyable
   Q_OBJECT
 
   public:
-    PcdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    PcdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~PcdDialog();
 
     void fill(const PCD& pcd);
