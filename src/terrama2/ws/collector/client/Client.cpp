@@ -91,9 +91,6 @@ void terrama2::ws::collector::client::Client::addDataProvider(terrama2::core::Da
 
 void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet & dataSet)
 {
-  if(dataSet.name().empty())
-    throw client::AddingDataSetError() << ErrorDescription(QObject::tr("Null parameter passed!"));
-
   DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem >(dataSet);
 
   DataSet struct_dataSetResult;
