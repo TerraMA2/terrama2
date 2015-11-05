@@ -24,9 +24,7 @@
 
   \brief Class responsible to handle the PCD insertion/modification file
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Celso Luiz Ramos Cruz
 */
 
 

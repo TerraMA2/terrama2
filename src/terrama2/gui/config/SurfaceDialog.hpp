@@ -20,17 +20,16 @@
 */
 
 /*!
-  \file terrama2/gui/config/SurfacesConfigDialog.hpp
+  \file terrama2/gui/config/SurfaceDialog.hpp
 
-  \brief Definition of Class SurfacesConfigDialog.hpp
+  \brief Definition of Class SurfaceDialog.hpp
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa  
   
 */
 
-#ifndef _GRIDCONFIGDLG_H_
-#define _GRIDCONFIGDLG_H_
+#ifndef __TERRAMA2_GUI_CONFIG_SURFACEDIALOG_HPP__
+#define __TERRAMA2_GUI_CONFIG_SURFACEDIALOG_HPP__
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -53,6 +52,9 @@ class SurfaceDialog : public QDialog, private boost::noncopyable
     ~SurfaceDialog();
 
   private slots:
+    /*!
+     * \brief It defines constants mask to format the mask field. Like %a %d
+     */
     void onMenuMaskClicked(QAction*);
 
   private:
@@ -61,4 +63,4 @@ class SurfaceDialog : public QDialog, private boost::noncopyable
     Impl* pimpl_;
 };
 
-#endif
+#endif // __TERRAMA2_GUI_CONFIG_SURFACEDIALOG_HPP__

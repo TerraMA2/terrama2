@@ -24,7 +24,6 @@
 
   \brief Definition of Class ProjectionDialog.hpp
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa    
 */
 

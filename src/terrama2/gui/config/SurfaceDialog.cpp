@@ -20,11 +20,10 @@
 */
 
 /*!
-  \file terrama2/gui/config/SurfacesConfigDialog.cpp
+  \file terrama2/gui/config/SurfaceDialog.cpp
 
-  \brief Definition of Class SurfacesConfigDialog.hpp
+  \brief Definition of Class SurfaceDialog.cpp
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa  
   
 */
@@ -60,15 +59,10 @@ SurfaceDialog::SurfaceDialog(QWidget* parent, Qt::WindowFlags f)
   for(auto widget: pimpl_->ui_->groupBox->findChildren<QWidget*>())
     widget->setEnabled(false);
 
-  // métodos de interpolação
   pimpl_->ui_->interpCmb->addItem(tr("Vizinho mais próximo"));
   pimpl_->ui_->interpCmb->addItem(tr("K-vizinhos mais próximos"));
   pimpl_->ui_->interpCmb->addItem(tr("K-vizinhos mais próximos ponderados"));
-//#ifndef _WIN64
-//  pimpl_->ui_->interpCmb->addItem(tr("Superfície de tendência"));
-//#endif
 
-  // Menus associados a botões
   QMenu* menuMask = new QMenu(tr("Máscaras"), this);
   menuMask->addAction(tr("%a - ano com dois digitos"));
   menuMask->addAction(tr("%A - ano com quatro digitos"));

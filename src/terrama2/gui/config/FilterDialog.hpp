@@ -24,12 +24,11 @@
 
   \brief Definition of Class FilterDialog.hpp
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa  
 */
 
-#ifndef _FilterDialog_H_
-#define _FilterDialog_H_
+#ifndef __TERRAMA2_GUI_CONFIG_FILTERDIALOG_HPP__
+#define __TERRAMA2_GUI_CONFIG_FILTERDIALOG_HPP__
 
 // TerraMA2
 #include "ui_FilterDialogForm.h"
@@ -107,5 +106,5 @@ class FilterDialog : public QDialog, private boost::noncopyable
 };
 
 
-#endif
+#endif // __TERRAMA2_GUI_CONFIG_FILTERDIALOG_HPP__
 
