@@ -103,6 +103,3 @@ void TsCollectorService::TestStopServer()
   return ;
 }
 
-
-//QTEST_MAIN(TsCollectorService)
-#include "TsCollectorService.moc"

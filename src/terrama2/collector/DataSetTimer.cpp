@@ -40,8 +40,6 @@ struct terrama2::collector::DataSetTimer::Impl
 {
     core::DataSet    dataSet_;//<! Pointer to the Dataset.
     QTimer           timer_;//<! Timer to next collection.
-
-    std::vector<DataProcessorPtr> dataLst_;
 };
 
 terrama2::collector::DataSetTimer::DataSetTimer(const terrama2::core::DataSet& dataSet)
@@ -57,7 +55,6 @@ terrama2::collector::DataSetTimer::DataSetTimer(const terrama2::core::DataSet& d
 
   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
 
-  populateDataLst();
   prepareTimer();
 }
 
@@ -78,16 +75,6 @@ void terrama2::collector::DataSetTimer::prepareTimer()
   impl_->timer_.start(frequency.getSeconds()*1000);
 }
 
-void terrama2::collector::DataSetTimer::populateDataLst()
-{
-  for(auto dataSetItem : impl_->dataSet_.dataSetItems())
-  {
-    DataProcessorPtr data(new DataProcessor(dataSetItem));
-    impl_->dataLst_.push_back(data);
-  }
-}
-
-
 uint64_t terrama2::collector::DataSetTimer::dataProvider() const
 {
   return impl_->dataSet_.provider();
@@ -98,7 +85,3 @@ terrama2::core::DataSet terrama2::collector::DataSetTimer::dataSet() const
   return impl_->dataSet_;
 }
 
-std::vector<terrama2::collector::DataProcessorPtr> terrama2::collector::DataSetTimer::data() const
-{
-  return impl_->dataLst_;
-}

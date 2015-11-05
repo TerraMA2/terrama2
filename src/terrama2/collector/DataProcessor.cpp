@@ -76,6 +76,16 @@ terrama2::collector::DataFilterPtr terrama2::collector::DataProcessor::filter() 
   return impl_->filter_;
 }
 
+terrama2::collector::ParserPtr terrama2::collector::DataProcessor::parser() const
+{
+  return impl_->parser_;
+}
+
+terrama2::collector::StoragerPtr terrama2::collector::DataProcessor::storager() const
+{
+  return impl_->storager_;
+}
+
 void terrama2::collector::DataProcessor::import(const std::string &uri)
 {
   //JANO: should run in thread ?
@@ -87,14 +97,10 @@ void terrama2::collector::DataProcessor::import(const std::string &uri)
 
   try
   {
-    //get full name list
-    std::vector<std::string> names = impl_->parser_->datasetNames(uri);
-    //filter names
-    names = impl_->filter_->filterNames(names);
     //get dataset
     std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
     std::shared_ptr<te::da::DataSetType> datasetType;
-    impl_->parser_->read(uri, names, datasetVec, datasetType);
+    impl_->parser_->read(uri, impl_->filter_, datasetVec, datasetType);
 
     //filter dataset
     for(int i = 0, size = datasetVec.size(); i < size; ++i)

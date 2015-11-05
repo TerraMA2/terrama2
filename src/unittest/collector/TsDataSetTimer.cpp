@@ -93,6 +93,3 @@ void TsDataSetTimer::TestTimerSignalEmit()
   }
 }
 
-
-//QTEST_MAIN(TsDataSetTimer)
-#include "TsDataSetTimer.moc"

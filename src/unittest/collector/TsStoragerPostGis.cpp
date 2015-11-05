@@ -30,5 +30,3 @@
 #include "TsStoragerPostGis.hpp"
 
 
-//QTEST_MAIN(TsStoragerPostGis)
-#include "TsStoragerPostGis.moc"

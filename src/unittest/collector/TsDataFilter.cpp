@@ -82,5 +82,3 @@ void TsDataFilter::TestEmptyMask()
   QCOMPARE(output, names);
 }
 
-//QTEST_MAIN(TsDataFilter)
-#include "TsDataFilter.moc"

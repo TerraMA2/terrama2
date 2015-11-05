@@ -67,7 +67,7 @@ namespace terrama2
         virtual void close() override;
 
       protected:
-        virtual std::string retrieveData(const DataProcessorPtr) override;
+        virtual std::string retrieveData(const DataFilterPtr /*filter*/) override;
 
         QDir dir_;
     };

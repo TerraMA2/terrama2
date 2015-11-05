@@ -27,14 +27,22 @@
   \author Jano Simas
 */
 
-
 #include "Collector.hpp"
+
+#include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "Storager.hpp"
+#include "Factory.hpp"
+#include "Parser.hpp"
+
 #include "../core/DataSet.hpp"
 
 //Boost
 #include <boost/log/trivial.hpp>
 
+//terralib
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
 
 terrama2::collector::Collector::Collector(const core::DataProvider &dataProvider, QObject *parent)
   : QObject(parent),
@@ -79,21 +87,46 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
   //already locked by Collector::collect, lock_guard just to release when finished
   std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
 
-  if(datasetTimer->data().empty())
+  core::DataSet localDataSet = datasetTimer->dataSet();
+
+  if(localDataSet.dataSetItems().empty())
   {
     //TODO: LOG empty dataset
     return;
   }
 
   //aquire all data
-  for(auto& data : datasetTimer->data())
+  for(auto& dataSetItem : localDataSet.dataSetItems())
   {
+
     try
     {
-    //TODO: conditions to collect Data?
-      std::string localUri = retrieveData(data);
+      ParserPtr     parser = Factory::getParser(dataSetItem);
+      StoragerPtr   storager = Factory::getStorager(dataSetItem);
+      DataFilterPtr filter(new DataFilter(dataSetItem));
 
-      data->import(localUri);
+      //TODO: conditions to collect Data?
+      //retrieve remote data to local temp file
+      std::string uri = retrieveData(filter);
+
+      //read data and create a terralib dataset
+      std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+      std::shared_ptr<te::da::DataSetType> datasetType;
+      parser->read(uri, filter, datasetVec, datasetType);
+
+      //filter dataset data (date, geometry, ...)
+      for(int i = 0, size = datasetVec.size(); i < size; ++i)
+      {
+        std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+
+        //std::vector::at is NON-const, Qt containers use 'at' as const
+        datasetVec.at(i) = filter->filterDataSet(tempDataSet);
+      }
+
+      //store dataset
+      storager->store(datasetVec, datasetType);
+
+//      data->import(localUri);
     }
     catch(terrama2::Exception& e)
     {

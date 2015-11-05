@@ -215,5 +215,3 @@ void TsCollectorFile::TestFailCheckConnection()
   return;
 }
 
-//QTEST_MAIN(TsCollectorFile)
-#include "TsCollectorFile.moc"
