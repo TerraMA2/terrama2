@@ -27,63 +27,51 @@
   \author Vinicius Campanha
  */
 
+
 struct DataProvider
 {
-  uint64_t      id;
-  std::string   name;
-  std::string   description;
-  uint32_t      kind;
-  std::string   uri;
-  uint32_t      status;
+  uint64_t      id = 0;
+  std::string   name = "";
+  std::string   description = "";
+  uint32_t      kind = 0;
+  std::string   uri = "";
+  uint32_t      status = 0;
 };
 
 
-struct Filter
-{
-  uint64_t          datasetItem;
-  std::string       discardBefore;
-  std::string       discardAfter;
-  std::string       geometry;
-  double            value;
-  uint32_t          expressionType;
-  std::string       bandFilter;
-};
-
-// VINICIUS: work with Filter and std::map
 struct DataSetItem
 {
-  uint32_t      kind;
-  uint64_t      id;
-  uint64_t      dataset;
-  uint32_t      status;
-  std::string   mask;
-  std::string   timezone;
+  uint32_t      kind = 0;
+  uint64_t      id = 0;
+  uint64_t      dataset = 0;
+  uint32_t      status = 0;
+  std::string   mask = "";
+  std::string   timezone = "";
 
-  //std::map<std::string, std::string> storageMetadata;
-
-  uint64_t          filter_datasetItem;
-  std::string       filter_discardBefore;
-  std::string       filter_discardAfter;
-  std::string       filter_geometry;
+  uint64_t          filter_datasetItem = 0;
+  std::string       filter_discardBefore = "";
+  std::string       filter_discardAfter = "";
+  std::string       filter_geometry = "";
   double            filter_value;
-  uint32_t          filter_expressionType;
-  std::string       filter_bandFilter;
+  uint32_t          filter_expressionType = 0;
+  std::string       filter_bandFilter = "";
+
+  std::vector< std::string > storageMetadata_keys;
+  std::vector< std::string > storageMetadata_values;
 };
 
 
 struct DataSet
 {
-  uint64_t                        id;
-  std::string                     name;
-  std::string                     description;
-  uint32_t                        status;
-  uint64_t                        data_provider_id;
-  uint32_t                        kind;
-  std::string                     data_frequency;
-  std::string                     schedule;
-  std::string                     schedule_retry;
-  std::string                     schedule_timeout;
-  std::vector<struct DataSetItem> dataset_items;
+  uint64_t                          id = 0;
+  std::string                       name = "";
+  std::string                       description = "";
+  uint32_t                          status = 0;
+  uint64_t                          data_provider_id = 0;
+  uint32_t                          kind = 0;
+  std::string                       data_frequency = "";
+  std::string                       schedule = "";
+  std::string                       schedule_retry = "";
+  std::string                       schedule_timeout = "";
+  std::vector< struct DataSetItem > dataset_items;
 };
-
-
