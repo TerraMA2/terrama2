@@ -27,10 +27,10 @@
   \author Jano Simas, Paulo R. M. Oliveira, Vinicius Campanha
 */
 
+// TerraMA2
 #include "CollectorService.hpp"
 #include "Exception.hpp"
 #include "Factory.hpp"
-
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
@@ -45,26 +45,8 @@
 #include <cassert>
 #include <iostream>
 
-//Boost
-#include <boost/log/trivial.hpp>
-
 //terralib
 #include <terralib/common/Exception.h>
-
-
-void terrama2::collector::CollectorService::connectDataManager()
-{
-  core::DataManager &dataManager = core::DataManager::getInstance();
-  //DataProvider signals
-  connect(&dataManager, &terrama2::core::DataManager::dataProviderAdded,   this, &terrama2::collector::CollectorService::addProvider,    Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataProviderRemoved, this, &terrama2::collector::CollectorService::removeProvider, Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataProviderUpdated, this, &terrama2::collector::CollectorService::updateProvider, Qt::UniqueConnection);
-
-  //dataset signals
-  connect(&dataManager, &terrama2::core::DataManager::dataSetAdded  , this, &terrama2::collector::CollectorService::addDataset   , Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataSetRemoved, this, &terrama2::collector::CollectorService::removeDataset, Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataSetUpdated, this, &terrama2::collector::CollectorService::updateDataset, Qt::UniqueConnection);
-}
 
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
@@ -72,7 +54,6 @@ terrama2::collector::CollectorService::CollectorService(QObject *parent)
     factory_(new Factory())
 {
   connectDataManager();
-
 }
 
 terrama2::collector::CollectorService::~CollectorService()
@@ -82,22 +63,49 @@ terrama2::collector::CollectorService::~CollectorService()
 
 void terrama2::collector::CollectorService::start()
 {
-  //if service already running, throws
+// if service already running, throws
   if(loopThread_.joinable())
     throw ServiceAlreadyRunnningError() << terrama2::ErrorDescription(tr("Collector service already running."));
 
-  loopThread_ = std::thread(&CollectorService::processingLoop, this);
+  try
+  {
+    loopThread_ = std::thread(&CollectorService::processingLoop, this);
+  }
+  catch(const std::exception& e)
+  {
+    QString errMsg(tr("Unable to start collector service: %1."));
+    errMsg = errMsg.arg(e.what());
+    
+    throw UnableToStartServiceError() << terrama2::ErrorDescription(errMsg);
+  }
 }
 
-void terrama2::collector::CollectorService::stop()
+void terrama2::collector::CollectorService::stop() noexcept
 {
   mutex_.lock();
-  //Finish the thread
+// finish the thread
   stop_ = true;
   mutex_.unlock();
 
   if(loopThread_.joinable())
     loopThread_.join();
+}
+
+void terrama2::collector::CollectorService::addProvider(const core::DataProvider& provider)
+{
+// TODO: check if provider-id is already registered and log it
+
+  try
+  {
+    std::lock_guard<std::mutex> l(mutex_);
+    
+    dataproviders_.insert(std::make_pair(provider.id(), provider));
+  }
+  catch(const std::exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << e.what();
+  }
 }
 
 void terrama2::collector::CollectorService::assignCollector(CollectorPtr collector)
@@ -193,6 +201,21 @@ void terrama2::collector::CollectorService::processingLoop()
   }
 }
 
+void terrama2::collector::CollectorService::connectDataManager()
+{
+  core::DataManager &dataManager = core::DataManager::getInstance();
+  
+  //DataProvider signals
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderAdded,   this, &terrama2::collector::CollectorService::addProvider,    Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderRemoved, this, &terrama2::collector::CollectorService::removeProvider, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderUpdated, this, &terrama2::collector::CollectorService::updateProvider, Qt::UniqueConnection);
+  
+  //dataset signals
+  connect(&dataManager, &terrama2::core::DataManager::dataSetAdded  , this, &terrama2::collector::CollectorService::addDataset   , Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetRemoved, this, &terrama2::collector::CollectorService::removeDataset, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetUpdated, this, &terrama2::collector::CollectorService::updateDataset, Qt::UniqueConnection);
+}
+
 void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datasetId)
 {
   try
@@ -245,39 +268,7 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
 
 }
 
-terrama2::collector::CollectorPtr terrama2::collector::CollectorService::addProvider(const core::DataProvider dataProvider)
-{
-  //TODO: Debug?
-  //sanity check: valid dataprovider
-  //  assert(dataProvider->id());
 
-  //TODO: catch? rethrow?
-  //Create a collector and add it to the list
-
-  try
-  {
-    return factory_->getCollector(dataProvider.id());
-  }
-  catch(terrama2::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(te::common::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(...)
-  {
-    //TODO: log de erro
-    assert(0);
-  }
-
-  return CollectorPtr();
-}
 
 void terrama2::collector::CollectorService::removeProvider(terrama2::core::DataProvider dataProvider)
 {

@@ -36,7 +36,10 @@ namespace terrama2
 {
   namespace collector
   {
-    struct ServiceAlreadyRunnningError: virtual Exception { };
+    
+    struct UnableToStartServiceError : virtual Exception { };
+
+    struct ServiceAlreadyRunnningError: virtual UnableToStartServiceError { };
 
     struct InvalidDataSetError: virtual Exception { };
 
