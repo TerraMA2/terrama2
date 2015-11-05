@@ -70,10 +70,11 @@ class TsDataManager : public QObject
     void testAddDataProvider();
     void testAddNullDataProvider();
     void testAddDataProviderWithId();
-    void testAddDataProviderWithDataSet();
+    void testAddDataProviderShallow();
 
     // Tests for update
     void testUpdateDataProvider();
+    void testUpdateDataProviderShallow();
     void testUpdateNonexistentDataProvider();
     void testUpdateNullDataProvider();
     void testUpdateDataProviderInvalidId();
