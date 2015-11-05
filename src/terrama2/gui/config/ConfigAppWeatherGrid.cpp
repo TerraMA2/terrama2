@@ -217,9 +217,8 @@ void ConfigAppWeatherGridTab::onFilterClicked()
 
   dialog.fillGUI(*filter_);
 
-  dialog.exec();
-
-  dialog.fillObject(*filter_);
+  if (dialog.exec() == QDialog::Accepted)
+    dialog.fillObject(*filter_);
 
   if (dialog.isFilterByDate())
     ui_->dateFilterLabel->setText(tr("Yes"));

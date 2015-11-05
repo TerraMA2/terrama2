@@ -119,27 +119,13 @@ void ConfigAppWeatherOccurrence::onFilterClicked()
 {
   FilterDialog dialog(FilterDialog::DATE, app_);
   dialog.fillGUI(*filter_);
-  dialog.exec();
-
-  dialog.fillObject(*filter_);
+  if (dialog.exec() == QDialog::Accepted)
+    dialog.fillObject(*filter_);
 
   if (dialog.isFilterByDate())
     ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
   else
     ui_->dateFilterPointDiffLabel->setText(tr("No"));
-
-//  if (dialog.isAnyFilter())
-//  {
-//    //TODO: fill up the filter_ object with metadata from form
-//    if (dialog.isFilterByDate())
-//    {
-//      ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
-
-//      dialog.fillDateFilter(*filter_);
-//    }
-//    else
-//      ui_->dateFilterPointDiffLabel->setText(tr("No"));
-//  }
 }
 
 void ConfigAppWeatherOccurrence::onDataSetBtnClicked()

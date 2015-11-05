@@ -32,6 +32,7 @@
 #include "../../core/Filter.hpp"
 
 // Terralib
+#include <terralib/geometry/Point.h>
 #include <terralib/geometry/Polygon.h>
 #include <terralib/geometry/LinearRing.h>
 
@@ -140,6 +141,14 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
   {
     pimpl_->ui_->areaRdb->setChecked(true);
     pimpl_->ui_->areaRdb->clicked();
+    //todo:  it is temp code for convertion and get the limits
+    const te::gm::Polygon* geom = dynamic_cast<const te::gm::Polygon*>(filter.geometry());
+    const te::gm::LinearRing* square = dynamic_cast<const te::gm::LinearRing*>(geom->getRingN(0));
+
+    pimpl_->ui_->xMinLed->setText(QString::number(square->getPointN(0)->getX()));
+    pimpl_->ui_->yMinLed->setText(QString::number(square->getPointN(0)->getY()));
+    pimpl_->ui_->xMaxLed->setText(QString::number(square->getPointN(2)->getX()));
+    pimpl_->ui_->yMaxLed->setText(QString::number(square->getPointN(2)->getY()));
   }
 
   //TODO: improve date convertion. This code just uses boost to convert te::Date
@@ -149,6 +158,7 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
     pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
     QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
     pimpl_->ui_->dateBeforeFilterDed->setDate(date);
+    emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
   }
 
   if (filter.discardAfter())
@@ -157,6 +167,7 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
     pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
     QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
     pimpl_->ui_->dateAfterFilterDed->setDate(date);
+    emit pimpl_->ui_->dateAfterFilterCbx->clicked();
   }
 }
 
@@ -170,13 +181,13 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     double minY = pimpl_->ui_->yMinLed->text().toDouble();
     double maxX = pimpl_->ui_->xMaxLed->text().toDouble();
     double maxY = pimpl_->ui_->yMaxLed->text().toDouble();
-
     te::gm::LinearRing* square = new te::gm::LinearRing(5, te::gm::LineStringType);
 
     square->setPoint(0, minX, minY); // lower left
     square->setPoint(1, minX, maxY); // upper left
     square->setPoint(2, maxX, maxY); // upper right
     square->setPoint(3, maxX, minY); // lower right
+    square->setPoint(4, minX, minY); // lower right
 
     polygon->push_back(square);
 
@@ -203,13 +214,17 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     }
 
   }
+  else
+  {
+    filter.setDiscardBefore(nullptr);
+    filter.setDiscardAfter(nullptr);
+  }
 
   // TODO: filter by layer
   if (pimpl_->filterByLayer_)
   {
 
   }
-
 }
 
 bool FilterDialog::isFilterByLayer() const

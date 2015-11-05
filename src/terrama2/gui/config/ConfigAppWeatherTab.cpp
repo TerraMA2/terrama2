@@ -36,7 +36,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-          SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+                                SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
 
   // Tabs
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
@@ -71,22 +71,25 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   //loading server pixmap from icon theme and set it to label
   QPixmap pixmap = QIcon::fromTheme("servers").pixmap(64);
   ui_->labelServerInfo->setPixmap(pixmap);
+
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
 {
-
+//  delete timer_;
 }
 
 void ConfigAppWeatherTab::clearList()
 {
   qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
   providers_.clear();
+  datasets_.clear();
 }
 
 void ConfigAppWeatherTab::load()
 {
   clearList();
+
   try
   {
     std::vector<terrama2::core::DataProvider> providers;
@@ -141,7 +144,7 @@ void ConfigAppWeatherTab::load()
           item->addChild(subItem);
         }
       }
-    }
+    } // endfor
   }
   catch (const terrama2::Exception& e)
   {
