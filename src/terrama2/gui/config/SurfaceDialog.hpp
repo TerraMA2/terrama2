@@ -20,57 +20,45 @@
 */
 
 /*!
-  \file terrama2/gui/config/PcdDialog.hpp
+  \file terrama2/gui/config/SurfacesConfigDialog.hpp
 
-  \brief Class responsible to handle the PCD insertion/modification file
+  \brief Definition of Class SurfacesConfigDialog.hpp
 
   \author Evandro Delatin
-  \author Raphael Willian da Costa
-  \author Celso Luiz Ramos Cruz
+  \author Raphael Willian da Costa  
+  
 */
 
-
-#ifndef __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
-#define __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
-
+#ifndef _GRIDCONFIGDLG_H_
+#define _GRIDCONFIGDLG_H_
 
 // Boost
 #include <boost/noncopyable.hpp>
 
+// Forward declarations
 namespace Ui
 {
-  class PcdDialogForm;
+  class SurfaceDialogForm;
 }
+class QAction;
 
-// temp struct for stores the pcd meta
-struct PCD
-{
-  QString file;
-  QString latitude;
-  QString longitude;
-  bool active;
-};
 
-class PcdDialog : public QDialog, private boost::noncopyable
+class SurfaceDialog : public QDialog, private boost::noncopyable
 {
   Q_OBJECT
-
+  
   public:
-    PcdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
-    ~PcdDialog();
+    SurfaceDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
-    void fill(const PCD& pcd);
-    void fillObject(PCD& pcd);
+    ~SurfaceDialog();
 
   private slots:
-    void onPcdChanged();
-    void onConfirmClicked();
+    void onMenuMaskClicked(QAction*);
 
   private:
     struct Impl;
+
     Impl* pimpl_;
 };
 
-
-#endif // __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
-
+#endif

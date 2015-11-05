@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PcdForm</class>
- <widget class="QDialog" name="PcdForm">
+ <class>PcdDialogForm</class>
+ <widget class="QDialog" name="PcdDialogForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -104,7 +104,9 @@ p, li { white-space: pre-wrap; }
         <string>OK</string>
        </property>
        <property name="icon">
-        <iconset theme="confirm"/>
+        <iconset theme="confirm">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -120,7 +122,9 @@ p, li { white-space: pre-wrap; }
         <string>Cancelar</string>
        </property>
        <property name="icon">
-        <iconset theme="cancel"/>
+        <iconset theme="cancel">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -128,8 +132,6 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

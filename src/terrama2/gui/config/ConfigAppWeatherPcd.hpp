@@ -55,6 +55,9 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     void save();
     void discardChanges(bool restore_data);
 
+  private:
+    void pcdFormCreation(PCD&, bool editing = false);
+
   private slots:
     void onInsertPointBtnClicked();
     void onDataPointBtnClicked();
@@ -79,9 +82,15 @@ class ConfigAppWeatherPcd : public ConfigAppTab
      */
     void onPCDRemoveClicked();
 
+    /*!
+      \brief Slot triggered when double clicked at pcd table widget and it displays the pcd dialog with filled fields
+     */
     void onPCDTableDoubleClicked(QTableWidgetItem*);
 
-    void pcdFormCreation(PCD&, bool editing = false);
+    /*!
+      \brief Slot triggered to display SurfaceDialog
+     */
+    void onSurfaceBtnClicked();
 
   private:
     QList<PCD> pcds_;

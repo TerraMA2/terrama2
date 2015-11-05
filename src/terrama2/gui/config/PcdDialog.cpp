@@ -29,24 +29,26 @@
   \author Celso Luiz Ramos Cruz
 */
 
+// TerraMA2
+#include "ui_PcdDialogForm.h"
+#include "PcdDialog.hpp"
+
 // QT
 #include <QDoubleValidator>
-
-// TerraMA2  
-#include "PcdDialog.hpp"
 
 struct PcdDialog::Impl
 {
   Impl()
-    : ui_(new Ui::PcdForm)
+    : ui_(new Ui::PcdDialogForm)
   {
   }
 
   ~Impl()
   {
+    delete ui_;
   }
 
-  Ui::PcdForm* ui_;
+  Ui::PcdDialogForm* ui_;
 };
 
 PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
@@ -71,6 +73,7 @@ PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
 
 PcdDialog::~PcdDialog()
 {
+  delete pimpl_;
 }
 
 void PcdDialog::fill(const PCD& pcd)

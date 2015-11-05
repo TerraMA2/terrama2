@@ -6,6 +6,7 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "ProjectionDialog.hpp"
 #include "PcdDialog.hpp"
+#include "SurfaceDialog.hpp"
 
 // Qt
 #include <QMessageBox>
@@ -22,6 +23,7 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->btnPointPCDInsertFileNameLocation, SIGNAL(clicked()), SLOT(onPCDInsertFileClicked()));
   connect(ui_->btnPointPCDDeleteFileNameLocation, SIGNAL(clicked()), SLOT(onPCDRemoveClicked()));
   connect(ui_->tblPointPCDFileNameLocation, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(onPCDTableDoubleClicked(QTableWidgetItem*)));
+  connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
 //  ui_->pointFormatDataType->setEnabled(false);
 //  ui_->projectionPointBtn->setEnabled(false);
 //  ui_->pointFormatDataInfluenceCmb->setEnabled(false);
@@ -202,7 +204,13 @@ void ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
     pcd.longitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 2)->text();
     pcd.active = ui_->tblPointPCDFileNameLocation->item(item->row(), 3)->text() == tr("true") ? true : false;
     pcdFormCreation(pcd, true);
-  }
+    }
+}
+
+void ConfigAppWeatherPcd::onSurfaceBtnClicked()
+{
+  SurfaceDialog dialog(app_);
+  dialog.exec();
 }
 
 void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd, bool editing)
