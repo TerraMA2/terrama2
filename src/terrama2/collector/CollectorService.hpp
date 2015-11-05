@@ -30,75 +30,82 @@
 #ifndef __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
 #define __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
 
-
+// TerraMA2
 #include "../core/DataProvider.hpp"
 #include "../core/DataSet.hpp"
-
-#include "Collector.hpp"
+#include "DataSetTimer.hpp"
 
 // QT
 #include <QObject>
-#include <QMap>
 
 // STL
-#include <atomic>
-#include <memory>
 #include <cstdint>
+#include <map>
+#include <memory>
+#include <thread>
+#include <vector>
 
 //Boost
 #include <boost/noncopyable.hpp>
 
 namespace terrama2
 {
-  namespace core
-  {
-    class DataSet;
-  }
   namespace collector
   {
-    class Factory;
+// Forward declaration
+    class Factory; // FIXME: redesign factory for global registration of concrete factories
 
 
     /*!
-          \class CollectorService
+      \class CollectorService
 
-          \brief Defines the base abstraction of a collector service.
+      \brief Defines the base abstraction of a collector service.
 
-          The collector service is a singleton responsible for
-          scheduling collectors for each active dataset.
-
-          Once this service starts collecting data it will
-          remains in a loop waiting for a notification that new datasets
-          must be collected or .
-         */
+      The collector service is responsible for scheduling collectors for each active dataset.
+     
+      Once the service starts collecting data it will
+      remain in a loop waiting for notification of datasets to be collected.
+     
+      It may also be signaled of new datasets to be added to the collect list
+      or removed from the list.
+     */
     class CollectorService : public QObject, public boost::noncopyable
     {
-        Q_OBJECT
+      Q_OBJECT
 
-      public:
-        //! Constructor.
-        CollectorService(QObject* parent = nullptr);
+    public:
+      
+      //! Constructor.
+      CollectorService(QObject* parent = nullptr);
 
-        //! Destructor.
-        ~CollectorService();
+      //! Destructor.
+      ~CollectorService();
 
-        /*!
-          \brief Creates a processloop thread and wait for signals.
+      /*!
+        \brief Start the main loop thread for collecting data.
 
-          \exception terrama2::collector::ServiceAlreadyRunnningException Raise when the service is already runnning.
-         */
-        void start();
+        \exception ServiceAlreadyRunnningError Raise when the service is already runnning.
+        \exception UnableToStartServiceError Raise when the system can not create a thread or acquire resources to initialize the service.
+       */
+      void start();
 
-      public slots:
+    public slots:
 
-        void stop();
+      /*!
+        \brief Stop the service and release the thread loop.
+         
+        \note It can block the caller waiting for any pending data collection.
+       */
+      void stop() noexcept;
 
-        /*!
-             * \brief Creates an instace of a collector of appropriate type for the dataProvider.
-             * \param dataProvider The shared pointer to the data provider
-             * \return Collector to the DataProvider.
-             */
-        CollectorPtr addProvider(const core::DataProvider dataProvider);
+      /*!
+        \brief Register the data provider into the service.
+        
+        \param provider The data provider to be registered by the service.
+         
+        \note Doesn't add provider's dataset to the list of datasets to be collected.
+       */
+      void addProvider(const core::DataProvider& provider);
 
         /*!
          * \brief Remove a [DataProvider]{\ref terrama2::core::DataProvider} and
@@ -189,15 +196,17 @@ namespace terrama2
          */
         void connectDataManager();
 
+      private:
+
         bool stop_;
         std::shared_ptr<Factory> factory_;
-        QMap<core::DataProvider::Kind, QList<CollectorPtr> >  collectorQueueMap_;
-        QMap<CollectorPtr, QList<uint64_t /*DataSetId*/> >    datasetQueue_;
-
-        QMap<int /*DataSetId*/, DataSetTimerPtr>              datasetTimerLst_;
-
-        std::mutex  mutex_;//!< mutex to thread safety
-        std::thread loopThread_;//!< Thread that holds the loop of processing queued dataset.
+      std::map<uint64_t, core::DataProvider> dataproviders_;  //!< The list of data providers. [dataprovider-id] -> dataprovider.
+      std::map<uint64_t, core::DataSet> datasets_;            //!< The list of dataset to be collected. [dataset-id] -> dataset.
+      std::map<uint64_t, DataSetTimerPtr> timers_;            //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
+      std::map<uint64_t, std::list<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
+        std::mutex mutex_;                                     //!< mutex to thread safety
+        std::thread loopThread_;                               //!< Thread that holds the loop of processing queued dataset.
+      
     };
   }
 }
