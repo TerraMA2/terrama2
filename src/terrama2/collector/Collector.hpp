@@ -33,7 +33,6 @@
 
 #include "../core/DataProvider.hpp"
 #include "DataSetTimer.hpp"
-#include "DataProcessor.hpp"
 
 //Qt
 #include <QObject>
@@ -54,6 +53,8 @@ namespace terrama2
 
   namespace collector
   {
+    class DataFilter;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
 
     /*!
       \brief The Collector class is responsible for aquiring the data from a remote server.

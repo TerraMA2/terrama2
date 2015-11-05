@@ -27,7 +27,6 @@
   \author Jano Simas
 */
 
-#include "DataProcessor.hpp"
 #include "DataSetTimer.hpp"
 #include "Exception.hpp"
 #include "Factory.hpp"

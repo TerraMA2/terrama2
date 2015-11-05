@@ -48,6 +48,10 @@ namespace terrama2
   }
   namespace collector
   {
+    class Parser;
+    class Storager;
+    typedef std::shared_ptr<Parser> ParserPtr;
+    typedef std::shared_ptr<Storager> StoragerPtr;
 
     /*!
          * \brief The CollectorFactory class is responsible for creating the appropriate type of Collector.
