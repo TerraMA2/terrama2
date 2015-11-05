@@ -450,7 +450,9 @@ void ConfigAppWeatherTab::onExportServerClicked()
     json["password"] = ui_->connectionPort->text();
     json["interval"] = ui_->serverIntervalData->text();
 
-    terrama2::gui::core::saveTerraMA2File(app_, json);
+    QString path = QFileDialog::getSaveFileName(app_, tr("Type where is to save dataprovider"), ".", "TerraMA2 (*.terrama2)");
+
+    terrama2::gui::core::saveTerraMA2File(app_, path, json);
 
     QMessageBox::information(app_, tr("TerraMA2 Export Data Provider"), tr("The data provider has been successfully exported!"));
 

@@ -46,7 +46,7 @@ namespace terrama2
     namespace core
     {
       //! Function to generate file destination of TerraMA2 File
-      void saveTerraMA2File(QMainWindow* appFocus, const QJsonObject& json);
+      void saveTerraMA2File(QMainWindow* appFocus, const QString& destination, const QJsonObject& json);
     }
   }
 }

@@ -92,6 +92,11 @@ class ConfigAppWeatherPcd : public ConfigAppTab
      */
     void onSurfaceBtnClicked();
 
+    /*!
+      \brief Slot triggered at pcdexport button to export pcd in terrama2 format
+     */
+    void onPCDExportClicked();
+
   private:
     QList<PCD> pcds_;
 };

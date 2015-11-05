@@ -7,10 +7,13 @@
 #include "ProjectionDialog.hpp"
 #include "PcdDialog.hpp"
 #include "SurfaceDialog.hpp"
+#include "../core/Utils.hpp"
 
 // Qt
 #include <QMessageBox>
 #include <QTableWidgetItem>
+#include <QJsonObject>
+#include <QFileDialog>
 
 
 ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
@@ -25,11 +28,13 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->tblPointPCDFileNameLocation, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(onPCDTableDoubleClicked(QTableWidgetItem*)));
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
 
+  // export pcd button
+  connect(ui_->exportDataPointBtn, SIGNAL(clicked()), SLOT(onPCDExportClicked()));
+
   ui_->pointFormatDataMask->setEnabled(false);
   ui_->pointFormatDataFormat->setEnabled(false);
 
   ui_->updateDataPointBtn->setEnabled(false);
-  ui_->exportDataPointBtn->setEnabled(false);
 
   // Clear the pcd table
   while(ui_->tblPointPCDFileNameLocation->rowCount() > 0)
@@ -198,6 +203,38 @@ void ConfigAppWeatherPcd::onSurfaceBtnClicked()
 {
   SurfaceDialog dialog(app_);
   dialog.exec();
+}
+
+void ConfigAppWeatherPcd::onPCDExportClicked()
+{
+  QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
+  if (currentItem == nullptr || currentItem->parent() == nullptr || currentItem->parent()->parent() == nullptr)
+    throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("Please selected a valid PCD dataset"));
+
+  QString path = QFileDialog::getSaveFileName(app_ ,
+                                              tr("Type name and where you intend to save this PCD"),
+                                              QString(("./" + currentItem->text(0).toStdString() + ".terrama2").c_str()),
+                                              tr("TerraMA2 (*.terrama2)"));
+
+  if (path.isEmpty())
+    return;
+
+  QJsonObject json;
+  json["name"] = ui_->pointFormatDataName->text();
+  json["description"] = ui_->pointFormatDataDescription->toPlainText();
+
+  try
+  {
+    terrama2::gui::core::saveTerraMA2File(app_, path, json);
+    QMessageBox::information(app_, tr("TerraMA2 PCD Export"), tr("The pcd has successfully saved"));
+  }
+  catch(const terrama2::Exception& e)
+  {
+    QString message = "TerraMA2 error while exporting pcd file. \n\n";
+    if (const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e))
+      message.append(*msg);
+    QMessageBox::warning(app_, tr("TerraMA2 Error"), message);
+  }
 }
 
 void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd, bool editing)
