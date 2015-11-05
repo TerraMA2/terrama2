@@ -32,7 +32,7 @@
 #define __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__
 
 // TerraMA2
-#include "ui_AdminAppForm.h";
+#include "ui_AdminAppForm.h"
 #include "../core/ConfigManager.hpp"
 
 // Boost

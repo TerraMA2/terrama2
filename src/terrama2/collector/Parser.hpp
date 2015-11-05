@@ -49,6 +49,8 @@ namespace terrama2
 {
   namespace collector
   {
+    class DataFilter;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
     /*!
          * \brief The Parser class interpret the origin format and returns a te::da::DataSet.
          *
@@ -70,7 +72,7 @@ namespace terrama2
              * \exception TODO: Parser::read exception...
              */
         virtual void read(const std::string& uri,
-                          const std::vector<std::string> &names,
+                          DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                           std::shared_ptr<te::da::DataSetType> &datasetTypeVec) = 0;
     };

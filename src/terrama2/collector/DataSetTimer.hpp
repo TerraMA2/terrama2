@@ -70,7 +70,7 @@ namespace terrama2
         /*!
          * TODO: document DataSetTimer
          *
-         * \exception terrama2::collector::InvalidDataSetException Raise when constructed with an invalid DataSet or empty pointer.
+         * \exception terrama2::collector::InvalidDataSetError Raise when constructed with an invalid DataSet.
          */
         DataSetTimer(const core::DataSet &dataSet);
         ~DataSetTimer();
@@ -82,8 +82,6 @@ namespace terrama2
         uint64_t dataProvider() const;
         //! \brief Returns the original DataSet.
         core::DataSet                 dataSet()   const;
-        //! \brief List of DataProcessor that should be aquired and processed.
-        std::vector<DataProcessorPtr> data()      const;
 
       signals:
 
@@ -98,8 +96,6 @@ namespace terrama2
       private:
         //! \brief Prepare and starts timer following the DataSet information.
         void prepareTimer();
-        //! \brief Populates dataLst_ based on DataSet's Data information.
-        void populateDataLst();
 
         struct Impl;
         Impl* impl_;
