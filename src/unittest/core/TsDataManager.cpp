@@ -390,9 +390,53 @@ void TsDataManager::testUpdateDataProvider()
     QFAIL(NO_EXCEPTION_EXPECTED);
   }
 
+}
 
+
+void TsDataManager::testUpdateDataProviderShallow()
+{
+  try
+  {
+    qRegisterMetaType<DataProvider>("DataProvider");
+    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProvider)));
+    
+    DataProvider dataProvider = createDataProvider();
+    
+    DataManager::getInstance().add(dataProvider);
+    
+    dataProvider.setName("New server");
+    dataProvider.setStatus(DataProvider::INACTIVE);
+    dataProvider.setDescription("New server is ...");
+    dataProvider.setUri("myserver@...");
+    
+    DataManager::getInstance().update(dataProvider);
+    
+    QVERIFY2(spy.count() == 1, "Expect an emitted signal");
+    
+    
+    // Find the same data provider by id
+    DataProvider foundDataProvider = DataManager::getInstance().findDataProvider(dataProvider.id());
+    
+    QVERIFY2(foundDataProvider.id() == dataProvider.id(), "Could not recover the data provider by id!");
+    
+    QVERIFY2(dataProvider.description() == foundDataProvider.description(), "Wrong Description after update");
+    QVERIFY2(dataProvider.name() == foundDataProvider.name(), "Wrong name after update");
+    QVERIFY2(dataProvider.kind() == foundDataProvider.kind(), "Wrong type after update");
+    QVERIFY2(dataProvider.status() == foundDataProvider.status(), "Wrong status after update");
+    QVERIFY2(dataProvider.uri() == foundDataProvider.uri(), "Wrong uri after update");
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(NO_EXCEPTION_EXPECTED);
+  }
+  catch(...)
+  {
+    QFAIL(NO_EXCEPTION_EXPECTED);
+  }
 
 }
+
 
 
 void TsDataManager::testUpdateDataProviderInvalidId()
@@ -452,14 +496,19 @@ void TsDataManager::testAddDataSet()
 {
   try
   {
+
+    qRegisterMetaType<DataProvider>("DataProvider");
+    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProvider)));
+
     qRegisterMetaType<DataSet>("DataSet");
-    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSet)));
+    QSignalSpy spy2(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSet)));
 
     DataSet dataSet = createDataSet();
 
     DataManager::getInstance().add(dataSet);
 
-    QVERIFY2(spy.count() == 1, "Expect an emitted signal");
+    QVERIFY2(spy.count() == 1, "Provider signal emitted");
+    QVERIFY2(spy2.count() == 1, "DataSet signal emitted!");
 
 // assure we have a valid dataset identifier
     QVERIFY2(dataSet.id() > 0, "Id must be different than zero after save()!");
@@ -485,7 +534,8 @@ void TsDataManager::testRemoveDataSet()
 {
   try
   {
-    qRegisterMetaType<DataSet>("DataSet");
+    qRegisterMetaType<DataProvider>("DataProvider");
+    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProvider)));
 
     DataSet dataSet = createDataSet();
     DataManager::getInstance().add(dataSet);
@@ -498,6 +548,8 @@ void TsDataManager::testRemoveDataSet()
     QVERIFY2(spyDataSet.count() == 1, "Expect an emitted signal for a removed dataset");
 
     auto foundDataSet = DataManager::getInstance().findDataSet(dataSet.id());
+
+    QVERIFY2(spy.count() == 1, "Provider signal emitted");
 
     // An exception should be thrown, if not the test fails.
     QFAIL("terrama2::InvalidArgumentError not thrown");
@@ -835,12 +887,15 @@ void TsDataManager::testAddDataSetWihId()
 
 }
 
-void TsDataManager::testAddDataProviderWithDataSet()
+void TsDataManager::testAddDataProviderShallow()
 {
   try
   {
     qRegisterMetaType<DataProvider>("DataProvider");
     QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderAdded(DataProvider)));
+
+    qRegisterMetaType<DataSet>("DataSet");
+    QSignalSpy spy2(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSet)));
 
     auto dataProvider = createDataProvider();
 
@@ -849,6 +904,7 @@ void TsDataManager::testAddDataProviderWithDataSet()
 
     DataManager::getInstance().add(dataProvider, false);
 
+    QVERIFY2(DataManager::getInstance().dataSets().size() == 1,  "The dataset was not added to the data manager!");
     QVERIFY2(dataProvider.datasets().size() != 0, "The dataset was not persisted!");
 
     for(auto ds: dataProvider.datasets())
@@ -857,7 +913,9 @@ void TsDataManager::testAddDataProviderWithDataSet()
     }
 
 
-    QVERIFY2(spy.count() == 1, "Expect an emitted signal");
+    QVERIFY2(spy.count() == 1, "Expect an emitted signal for an added provider");
+
+    QVERIFY2(spy2.count() == 1, "Expect an emitted signal for an added dataset");
 
     QVERIFY2(dataProvider.id() != 0, "The id wasn't set in the provider after insert!");
   }
