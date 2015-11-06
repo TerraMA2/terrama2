@@ -136,8 +136,8 @@ terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::
       discardBefore_.reset(new te::dt::TimeDuration(*discardBefore));
     }
 
-    if(rhs.geometry_ == nullptr)
-      geometry_.reset(nullptr);
+    if(rhs.discardAfter_ == nullptr)
+      discardAfter_.reset(nullptr);
     else
     {
       te::dt::TimeDuration* discardAfter = dynamic_cast<te::dt::TimeDuration*>(rhs.discardAfter_.get());
