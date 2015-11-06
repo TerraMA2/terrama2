@@ -373,13 +373,17 @@ void TsCore::TestConvertDataSetStructToDataSet()
     QCOMPARE(dataSet.dataSetItems().at(i).timezone() , struct_dataSet.dataset_items.at(i).timezone);
 
     QCOMPARE(dataSet.dataSetItems().at(i).filter().datasetItem(), struct_dataSet.dataset_items.at(i).filter_datasetItem);
-    QCOMPARE(dataSet.dataSetItems().at(i).filter().expressionType(), terrama2::core::Filter::ExpressionType(struct_dataSet.dataset_items.at(i).filter_expressionType));
+
+    if(struct_dataSet.dataset_items.at(i).filter_expressionType == 0)
+      QCOMPARE(dataSet.dataSetItems().at(i).filter().expressionType(), terrama2::core::Filter::ExpressionType::NONE_TYPE);
+    else
+      QCOMPARE(dataSet.dataSetItems().at(i).filter().expressionType(), terrama2::core::Filter::ExpressionType(struct_dataSet.dataset_items.at(i).filter_expressionType));
+
     QCOMPARE(dataSet.dataSetItems().at(i).filter().bandFilter(), struct_dataSet.dataset_items.at(i).filter_bandFilter);
 
     if(!struct_dataSet.dataset_items.at(i).filter_discardBefore.empty())
     {
       QVERIFY(dataSet.dataSetItems().at(i).filter().discardBefore() != nullptr);
-      std::string n = dataSet.dataSetItems().at(i).filter().discardBefore()->toString();
       QCOMPARE(dataSet.dataSetItems().at(i).filter().discardBefore()->toString() , struct_dataSet.dataset_items.at(i).filter_discardBefore);
     }
     else
