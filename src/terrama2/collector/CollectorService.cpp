@@ -97,7 +97,7 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
 
   try
   {
-    std::lock_guard<std::mutex> l(mutex_);
+    std::lock_guard<std::mutex> lock (mutex_);
     
     dataproviders_.insert(std::make_pair(provider.id(), provider));
   }
@@ -108,43 +108,15 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   }
 }
 
-void terrama2::collector::CollectorService::assignCollector(CollectorPtr collector)
+void terrama2::collector::CollectorService::assignCollector(uint64_t dataProviderID, const std::vector<uint64_t> &dataSetVect)
 {
-  assert(datasetQueue_.contains(collector));
-  auto& datasetTimerQueue = datasetQueue_[collector];
+  std::list<core::DataSet> datasetLst;
+  for(auto datasetID : dataSetVect)
+    datasetLst.push_back(datasets_.at(datasetID));
 
-  while(!datasetTimerQueue.isEmpty())
-  {
-    //if dataprovider is already getting some file
-    if(collector->isCollecting())
-      break;
-
-    assert(!datasetTimerQueue.isEmpty());
-    //first dataset on queue
-    auto datasetTimer = datasetTimerLst_.value(datasetTimerQueue.front());
-    assert(datasetTimer);
-
-    try
-    {
-      //aquire dataset files
-      collector->collect(datasetTimer);
-    }
-    catch(terrama2::Exception& e)
-    {
-      //TODO: log de erro
-      qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    }
-    catch(...)
-    {
-      //TODO: log de erro: Erro desconhecido ao coletar DataSet: datasetTimer
-      qDebug() << "Erro desconhecido ao coletar DataSet: datasetTimer";
-    }
-
-    //remove first dataset from queue
-    datasetTimerQueue.pop_front();
-  }
-
+  Collector::collectAsThreadST(dataproviders_.at(dataProviderID), datasetLst);
 }
+
 
 void terrama2::collector::CollectorService::processingLoop()
 {
@@ -159,44 +131,13 @@ void terrama2::collector::CollectorService::processingLoop()
     // in case it's collecting moves to next type of provider, when it's done remove it from the queue
     // in case it's not collecting, starts the collection calling the collect method.
     // It allows multiples providers to collect at the same time but only one provider of each type.
-    for (auto it = collectorQueueMap_.begin(); it != collectorQueueMap_.end(); ++it)
+    for (auto it = collectQueue_.begin(); it != collectQueue_.end(); ++it)
     {
-      auto collectorQueueByType = it.value();
-      if(collectorQueueByType.size())
-      {
-        assert(collectorQueueByType.size() > 0);
+      auto dataProviderId = (*it).first;
+      auto dataSetQueue = (*it).second;
 
-        auto firstCollectorInQueue = collectorQueueByType.front();
-
-        try
-        {
-          firstCollectorInQueue->open();
-          //start collecting
-          assignCollector(firstCollectorInQueue);
-        }
-        catch(terrama2::collector::UnableToOpenCollectorError& e)
-        {
-          //TODO: log de erro
-          qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-
-          firstCollectorInQueue->close();
-          collectorQueueByType.pop_front();
-          continue;
-        }
-        catch(...)
-        {
-          //TODO: log de erro
-          qDebug() << "Erro desconhecido ao iniciar ao acessar o provedor: firstCollectorInQueue";
-        }
-
-        //It remains in the queue until it's done collecting
-        if(!firstCollectorInQueue->isCollecting())
-        {
-          //close dataprovider connection
-          firstCollectorInQueue->close();
-          collectorQueueByType.pop_front();
-        }
-      }
+      assignCollector(dataProviderId, dataSetQueue);
+      collectQueue_.erase(it);
     }
   }
 }
@@ -223,42 +164,15 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
     //Lock Thread and add to the queue
     std::lock_guard<std::mutex> lock(mutex_);
 
-    auto datasetTimer = datasetTimerLst_.value(datasetId);
+    auto datasetTimer = timers_.at(datasetId);
     assert(datasetTimer);
 
-    //Append the data provider to queue
-    uint64_t dataProvider = datasetTimer->dataProvider();
-    auto collector    = factory_->getCollector(dataProvider);
-
-    assert(collector);
-    auto& collectorQueue = collectorQueueMap_[collector->kind()];
-    if(!collectorQueue.contains(collector))
-      collectorQueue.append(collector);
+    auto dataset = datasets_.at(datasetId);
 
     //Append the dataset to queue
-    auto& datasetTimerQueue = datasetQueue_[collector];
-    if(!datasetTimerQueue.contains(datasetId))
-      datasetTimerQueue.append(datasetId);
-  }
-  catch(InvalidArgumentError& e)
-  {
-    //invalid dataProvider
-
-    //TODO: log this
-
-    removeDatasetById(datasetId);
-  }
-  catch(terrama2::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(te::common::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
+    auto& datasetQueue = collectQueue_[dataset.provider()];
+    //TODO: multiple copies of dataset can occur in the queue, is this the expected behavior?
+    datasetQueue.push_back(datasetId);
   }
   catch(...)
   {
@@ -268,44 +182,42 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
 
 }
 
-
-
-void terrama2::collector::CollectorService::removeProvider(terrama2::core::DataProvider dataProvider)
+void terrama2::collector::CollectorService::removeProvider(const terrama2::core::DataProvider &dataProvider)
 {
   for(const core::DataSet dataSet : dataProvider.datasets())
-    removeDataset(dataSet);
+    removeDatasetById(dataSet.id());
 
-  factory_->removeCollector(dataProvider.id());
+
+  std::lock_guard<std::mutex> lock (mutex_);
+
+  try
+  {
+    dataproviders_.erase(dataProvider.id());
+  }
+  catch(const std::exception& e)
+  {
+    //TODO: log de erro
+    qDebug() << e.what();
+  }
 }
 
-void terrama2::collector::CollectorService::updateProvider(const terrama2::core::DataProvider dataProvider)
+void terrama2::collector::CollectorService::updateProvider(const core::DataProvider &dataProvider)
 {
   try
   {
-    factory_->removeCollector(dataProvider.id());
-    factory_->getCollector(dataProvider.id());
+    std::lock_guard<std::mutex> lock (mutex_);
+
+    dataproviders_.at(dataProvider.id()) = dataProvider;
   }
-  catch(terrama2::Exception& e)
+  catch(const std::exception& e)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(te::common::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
-  }
-  catch(...)
-  {
-    //TODO: log de erro
-    assert(0);
+    qDebug() << e.what();
   }
 }
 
 terrama2::collector::DataSetTimerPtr
-terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
+terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 {
   //TODO: Debug?
   //sanity check: valid dataset
@@ -313,10 +225,15 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
 
   try
   {
+    std::lock_guard<std::mutex> lock (mutex_);
+
     //Create a new dataset timer and connect the timeout signal to queue
     auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
-    datasetTimerLst_.insert(dataset.id(), datasetTimer);
+    timers_.at(dataset.id()) = datasetTimer;
     connect(datasetTimer.get(), &terrama2::collector::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
+
+    //Add to queue to collect a first time
+    addToQueueSlot(dataset.id());
 
     return datasetTimer;
   }
@@ -335,23 +252,24 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet dataset)
   return DataSetTimerPtr();
 }
 
-void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSet dataset)
+void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSet &dataset)
 {
   removeDatasetById(dataset.id());
 }
 
 void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId)
 {
-  if(datasetTimerLst_.contains(datasetId))
-  {
-    DataSetTimerPtr datasetTimer = datasetTimerLst_.value(datasetId);
-    disconnect(datasetTimer.get(), nullptr, this, nullptr);
+  std::lock_guard<std::mutex> lock (mutex_);
 
-    datasetTimerLst_.remove(datasetId);
-  }
+
+  DataSetTimerPtr datasetTimer = timers_.at(datasetId);
+  disconnect(datasetTimer.get(), nullptr, this, nullptr);
+
+  datasets_.erase(datasetId);
+  timers_.erase(datasetId);
 }
 
-void terrama2::collector::CollectorService::updateDataset(const terrama2::core::DataSet dataset)
+void terrama2::collector::CollectorService::updateDataset(const core::DataSet &dataset)
 {
   removeDataset(dataset);
   addDataset(dataset);

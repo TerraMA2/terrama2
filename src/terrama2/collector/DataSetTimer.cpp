@@ -37,7 +37,7 @@
 
 struct terrama2::collector::DataSetTimer::Impl
 {
-    core::DataSet    dataSet_;//<! Pointer to the Dataset.
+    uint64_t         dataSetId_;//<! Id of the Dataset.
     QTimer           timer_;//<! Timer to next collection.
 };
 
@@ -50,11 +50,11 @@ terrama2::collector::DataSetTimer::DataSetTimer(const terrama2::core::DataSet& d
     throw InvalidDataSetError() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
   }
 
-  impl_->dataSet_ = dataSet;
+  impl_->dataSetId_ = dataSet.id();
 
   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
 
-  prepareTimer();
+  prepareTimer(dataSet);
 }
 
 terrama2::collector::DataSetTimer::~DataSetTimer()
@@ -64,23 +64,18 @@ terrama2::collector::DataSetTimer::~DataSetTimer()
 
 void terrama2::collector::DataSetTimer::timeoutSlot() const
 {
-  emit timerSignal(impl_->dataSet_.id());
+  emit timerSignal(impl_->dataSetId_);
 }
 
-void terrama2::collector::DataSetTimer::prepareTimer()
+void terrama2::collector::DataSetTimer::prepareTimer(const terrama2::core::DataSet &dataSet)
 {
   //JANO: implementar prepareTimer para schedule
-  te::dt::TimeDuration frequency = impl_->dataSet_.dataFrequency();
+  te::dt::TimeDuration frequency = dataSet.dataFrequency();
   impl_->timer_.start(frequency.getSeconds()*1000);
 }
 
-uint64_t terrama2::collector::DataSetTimer::dataProvider() const
+uint64_t terrama2::collector::DataSetTimer::dataSet() const
 {
-  return impl_->dataSet_.provider();
-}
-
-terrama2::core::DataSet terrama2::collector::DataSetTimer::dataSet() const
-{
-  return impl_->dataSet_;
+  return impl_->dataSetId_;
 }
 

@@ -40,10 +40,11 @@
 
 // STL
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <thread>
 #include <vector>
+#include <mutex>
+#include <map>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -52,7 +53,7 @@ namespace terrama2
 {
   namespace collector
   {
-// Forward declaration
+    // Forward declaration
     class Factory; // FIXME: redesign factory for global registration of concrete factories
 
 
@@ -62,10 +63,10 @@ namespace terrama2
       \brief Defines the base abstraction of a collector service.
 
       The collector service is responsible for scheduling collectors for each active dataset.
-     
+
       Once the service starts collecting data it will
       remain in a loop waiting for notification of datasets to be collected.
-     
+
       It may also be signaled of new datasets to be added to the collect list
       or removed from the list.
      */
@@ -93,87 +94,87 @@ namespace terrama2
 
       /*!
         \brief Stop the service and release the thread loop.
-         
+
         \note It can block the caller waiting for any pending data collection.
        */
       void stop() noexcept;
 
       /*!
-        \brief Register the data provider into the service.
+        \brief Register the dataprovider into the service.
         
-        \param provider The data provider to be registered by the service.
-         
+        \param provider The dataprovider to be registered by the service.
+
         \note Doesn't add provider's dataset to the list of datasets to be collected.
        */
-      void addProvider(const core::DataProvider& provider);
+      void addProvider(const core::DataProvider &provider);
 
-        /*!
-         * \brief Remove a [DataProvider]{\ref terrama2::core::DataProvider} and
-         *  all associated [DataSet]{\ref terrama2::core::DataSet}.
-         *
-         * The associated DataSet will be removed first.
-         *
-         * If the DataProvider does not exist nothing is done.
-         *
-         * \param DataProvider to be removed.
+      /*!
+          \brief Remove a [DataProvider]{\ref terrama2::core::DataProvider} and
+           all associated [DataSet]{\ref terrama2::core::DataSet}.
+
+          The associated DataSet will be removed first.
+
+          \note If the DataProvider does not exist nothing is done.
+
+          \param DataProvider to be removed.
          */
-        void removeProvider(core::DataProvider dataProvider);
+      void removeProvider(const core::DataProvider &dataProvider);
 
-        /*!
-         * \brief Updates a [DataProvider]{\ref terrama2::core::DataProvider}.
-         *
-         * The Collector is destroyed ad recreated.
-         *
-         * No change is made to the associated [DataSet]{\ref terrama2::core::DataSet}.
-         *
-         * If the DataProvider does not exist nothing is done.
-         *
-         * \param Data provider to be updated.
+      /*!
+          \brief Updates a [DataProvider]{\ref terrama2::core::DataProvider}.
+
+          \note No change is made to the associated [DataSet]{\ref terrama2::core::DataSet}.
+
+          \note If the DataProvider does not exist nothing is done.
+
+          \param Data provider to be updated.
          */
-        void updateProvider(core::DataProvider dataProvider);
+      void updateProvider(const core::DataProvider &dataProvider);
 
-        /*!
-             * \brief Creates a new DataSetTimer for the DataSet and listen to it's timer signal.
-             * \param dataset The shared pointer to the dataset
-             *
-             * \return DataSetTimer for the DataSet.
-             */
-        DataSetTimerPtr addDataset(const core::DataSet dataset);
+      /*!
+         \brief Creates a new DataSetTimer for the DataSet and connect to it's timer signal.
+         \param dataset The dataset
 
-        /*!
-         * \brief Removes a [DataSet]{\ref terrama2::core::DataSet}.
-         *
-         * If the DataSet does not exist nothing is done.
-         *
-         * \param Dataset to be removed.
+         \note Adds the dataset to queue to be collected.
+         \return DataSetTimer for the DataSet.
+      */
+      DataSetTimerPtr addDataset(const core::DataSet &dataset);
+
+      /*!
+        \brief Removes a [DataSet]{\ref terrama2::core::DataSet}.
+
+        If the DataSet does not exist nothing is done.
+
+        \param Dataset to be removed.
+       */
+      void removeDataset(const core::DataSet &dataset);
+      void removeDatasetById(uint64_t datasetId);
+
+      /*!
+        \brief Updates a [DataSet]{\ref terrama2::core::DataSet}.
+
+        The [DataSet]{\ref terrama2::core::DataSet} will be destroyed
+        and recreated.
+
+        If the DataSet does not exist nothing is done.
+
+        \note Adds the dataset to queue to be collected.
+        \param Dataset to be updated.
          */
-        void removeDataset(const core::DataSet dataset);
-        void removeDatasetById(uint64_t datasetId);
+      void updateDataset(const core::DataSet &dataset);
 
-        /*!
-         * \brief Updates a [DataSet]{\ref terrama2::core::DataSet}.
-         *
-         * The [DataSet]{\ref terrama2::core::DataSet} will be destroyed
-         * and recreated.
-         *
-         * If the DataSet does not exist nothing is done.
-         *
-         * \param Dataset to be updated.
-         */
-        void updateDataset(const core::DataSet dataset);
+      //! Slot to be called when a DataSetTimer times out.
+      void addToQueueSlot(const uint64_t datasetId);
 
-        //! Slot to be called when a DataSetTimer times out.
-        void addToQueueSlot(const uint64_t datasetId);
-
-      private:
-        /*!
+    private:
+      /*!
           \brief Start do collect queued datasets
 
           \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
          */
-        void assignCollector(CollectorPtr collector);
+      void assignCollector(uint64_t dataProviderID, const std::vector<uint64_t> &dataSetVect);
 
-        /*!
+      /*!
           \brief Contains an infinite loop that will keep the service collecting data.
 
           For each provider type verifies if the first provider in the queue is acquiring new data,
@@ -181,9 +182,9 @@ namespace terrama2
           in case it's not collecting, starts the collection calling the collect method.
           It allows multiples providers to collect at the same time but only one provider of each type.
          */
-        void processingLoop();
+      void processingLoop();
 
-        /*!
+      /*!
           \brief Make connections with the [DataManager]{\ref terrama2::core::DataManager}.
 
           Listens to:
@@ -194,18 +195,18 @@ namespace terrama2
           - dataSetRemoved(DataSet);
           - dataSetUpdated(DataSet);
          */
-        void connectDataManager();
+      void connectDataManager();
 
-      private:
+    private:
 
-        bool stop_;
-        std::shared_ptr<Factory> factory_;
+      bool stop_;
+      std::shared_ptr<Factory> factory_;
       std::map<uint64_t, core::DataProvider> dataproviders_;  //!< The list of data providers. [dataprovider-id] -> dataprovider.
       std::map<uint64_t, core::DataSet> datasets_;            //!< The list of dataset to be collected. [dataset-id] -> dataset.
       std::map<uint64_t, DataSetTimerPtr> timers_;            //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
-      std::map<uint64_t, std::list<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
-        std::mutex mutex_;                                     //!< mutex to thread safety
-        std::thread loopThread_;                               //!< Thread that holds the loop of processing queued dataset.
+      std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
+      std::mutex mutex_;                                     //!< mutex to thread safety
+      std::thread loopThread_;                               //!< Thread that holds the loop of processing queued dataset.
       
     };
   }

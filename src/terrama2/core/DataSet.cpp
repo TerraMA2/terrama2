@@ -193,6 +193,11 @@ terrama2::core::DataSet::dataSetItems()
   return datasetItems_;
 }
 
+const std::vector<terrama2::core::DataSetItem> &terrama2::core::DataSet::dataSetItems() const
+{
+  return datasetItems_;
+}
+
 void
 terrama2::core::DataSet::add(DataSetItem& d)
 {

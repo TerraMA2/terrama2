@@ -68,7 +68,7 @@ void terrama2::collector::Factory::removeCollector(uint64_t dataProviderId)
   collectorMap_.remove(dataProviderId);
 }
 
-terrama2::collector::ParserPtr terrama2::collector::Factory::getParser(terrama2::core::DataSetItem datasetItem)
+terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const terrama2::core::DataSetItem &datasetItem)
 {
   switch (datasetItem.kind()) {
     case core::DataSetItem::PCD_INPE_TYPE:
@@ -86,7 +86,7 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::getParser(terrama2:
   return ParserPtr();
 }
 
-terrama2::collector::StoragerPtr terrama2::collector::Factory::getStorager(terrama2::core::DataSetItem datasetItem)
+terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
 {
   std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
 

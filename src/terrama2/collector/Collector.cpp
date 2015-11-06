@@ -29,6 +29,7 @@
 
 #include "Collector.hpp"
 
+#include "DataRetriever.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 #include "Storager.hpp"
@@ -84,10 +85,11 @@ bool terrama2::collector::Collector::isCollecting() const
 
 void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datasetTimer)
 {
+  /*
   //already locked by Collector::collect, lock_guard just to release when finished
   std::lock_guard<std::mutex> lock(mutex_, std::adopt_lock);
 
-  core::DataSet dataSet = datasetTimer->dataSet();
+  uint64_t dataSetId = datasetTimer->dataSet();
 
   if(dataSet.dataSetItems().empty())
   {
@@ -140,15 +142,77 @@ void terrama2::collector::Collector::collectAsThread(const DataSetTimerPtr datas
       continue;
     }
   }
+  */
+}
+
+void terrama2::collector::Collector::collectAsThreadST(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet> &dataSetList)
+{
+  DataRetrieverPtr retriever = Factory::makeRetriever(dataProvider);
+  retriever->open();
+
+  for(auto &dataSet : dataSetList)
+  {
+    if(dataSet.dataSetItems().empty())
+    {
+      //TODO: LOG empty dataset
+      continue;
+    }
+
+    //aquire all data
+    for(auto& dataSetItem : dataSet.dataSetItems())
+    {
+
+      try
+      {
+        ParserPtr     parser = Factory::makeParser(dataSetItem);
+        StoragerPtr   storager = Factory::makeStorager(dataSetItem);
+        DataFilterPtr filter(new DataFilter(dataSetItem));
+
+        //TODO: conditions to collect Data?
+        //retrieve remote data to local temp file
+        std::string uri = retriever->retrieveData(filter);
+
+        //read data and create a terralib dataset
+        std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+        std::shared_ptr<te::da::DataSetType> datasetType;
+        parser->read(uri, filter, datasetVec, datasetType);
+
+        //filter dataset data (date, geometry, ...)
+        for(int i = 0, size = datasetVec.size(); i < size; ++i)
+        {
+          std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+
+          //std::vector::at is NON-const, Qt containers use 'at' as const
+          datasetVec.at(i) = filter->filterDataSet(tempDataSet);
+        }
+
+        //store dataset
+        storager->store(datasetVec, datasetType);
+
+        //      data->import(localUri);
+      }
+      catch(terrama2::Exception& e)
+      {
+        //TODO: log this
+        continue;
+      }
+      catch(...)
+      {
+        //TODO: log this
+        // Unkown exception ocurred while.....
+        continue;
+      }
+    }
+  }
 }
 
 void terrama2::collector::Collector::collect(const DataSetTimerPtr datasetTimer)
 {
-  if(datasetTimer->dataSet().status() != terrama2::core::DataSet::ACTIVE)
-  {
-    throw InactiveDataSetError() << terrama2::ErrorDescription(
-                                         tr("Trying to collect an inactive dataset."));
-  }
+//  if(datasetTimer->dataSet().status() != terrama2::core::DataSet::ACTIVE)
+//  {
+//    throw InactiveDataSetError() << terrama2::ErrorDescription(
+//                                         tr("Trying to collect an inactive dataset."));
+//  }
 
   //If can get lock creates a thread the collects the dataset
   if(!mutex_.try_lock())

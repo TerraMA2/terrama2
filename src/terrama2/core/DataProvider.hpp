@@ -126,6 +126,7 @@ namespace terrama2
 
         /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
         std::vector<DataSet>& datasets();
+        const std::vector<DataSet>& datasets() const;
 
         /*!
           \brief Adds a new dataset to the data provider.

@@ -50,8 +50,10 @@ namespace terrama2
   {
     class Parser;
     class Storager;
+    class DataRetriever;
     typedef std::shared_ptr<Parser> ParserPtr;
     typedef std::shared_ptr<Storager> StoragerPtr;
+    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
 
     /*!
          * \brief The CollectorFactory class is responsible for creating the appropriate type of Collector.
@@ -86,8 +88,9 @@ namespace terrama2
 
         void removeAllCollectors();
 
-        static ParserPtr getParser(core::DataSetItem datasetItem);
-        static StoragerPtr getStorager(core::DataSetItem datasetItem);
+        static ParserPtr makeParser(const core::DataSetItem &datasetItem);
+        static StoragerPtr makeStorager(const core::DataSetItem &datasetItem);
+        static DataRetrieverPtr makeRetriever(const core::DataProvider &/*dataProvider*/) { return DataRetrieverPtr();}
 
       private:
 

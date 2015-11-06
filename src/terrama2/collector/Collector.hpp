@@ -129,7 +129,9 @@ namespace terrama2
         //! Check if possible to connect
         virtual bool checkConnection() const = 0;
 
-      protected:
+        static void collectAsThreadST(const core::DataProvider &dataProvider, const std::list<core::DataSet> &dataSetList);
+
+    protected:
 
         //! Aquired the data specified in dataProcessor.
         virtual std::string retrieveData(const DataFilterPtr filter) = 0;

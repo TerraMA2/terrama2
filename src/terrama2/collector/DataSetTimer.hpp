@@ -75,13 +75,8 @@ namespace terrama2
         DataSetTimer(const core::DataSet &dataSet);
         ~DataSetTimer();
 
-        /*!
-             * \brief Recover the Collector from the CollectorFactory.
-             * \return Collector for the DataSet.
-             */
-        uint64_t dataProvider() const;
-        //! \brief Returns the original DataSet.
-        core::DataSet                 dataSet()   const;
+        //! \brief Returns the id of the original DataSet.
+        uint64_t dataSet()   const;
 
       signals:
 
@@ -95,7 +90,7 @@ namespace terrama2
 
       private:
         //! \brief Prepare and starts timer following the DataSet information.
-        void prepareTimer();
+        void prepareTimer(const terrama2::core::DataSet &dataSet);
 
         struct Impl;
         Impl* impl_;

@@ -119,7 +119,7 @@ void TsCollectorFile::TestInactiveDataSet()
 
     terrama2::collector::DataSetTimerPtr datasetTimer(new terrama2::collector::DataSetTimer(dataset));
 
-    collector.collect(datasetTimer);
+//    collector.collect(datasetTimer);
 
     QFAIL(NO_EXCEPTION_THROWN);
   }

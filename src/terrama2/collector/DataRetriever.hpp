@@ -26,3 +26,24 @@
 
   \author Jano Simas
 */
+
+#include <memory>
+
+namespace terrama2
+{
+  namespace collector
+  {
+    class DataFilter;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
+
+    class DataRetriever
+    {
+    public:
+      void open(){}
+      std::string retrieveData(DataFilterPtr filter){ return "";}
+
+    };
+
+    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
+  }
+}
