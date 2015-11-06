@@ -40,7 +40,8 @@
 
 terrama2::core::Filter::Filter(uint64_t dataSetItemId)
   : datasetItem_(dataSetItemId),
-    expressionType_(NONE_TYPE)
+    expressionType_(NONE_TYPE),
+    value_(nullptr)
 {
 
 }
