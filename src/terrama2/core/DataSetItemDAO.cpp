@@ -140,7 +140,7 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
     throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be updated."));
 
   boost::format query("UPDATE terrama2.dataset_item SET active = %1%, "
-                      "dataset_id = %2%, , kind = %3%, mask = '%4%', timezone = '%5%' WHERE id = %6%");
+                      "dataset_id = %2%, kind = %3%, mask = '%4%', timezone = '%5%' WHERE id = %6%");
 
   query.bind_arg(1, ToString(ToBool(item.status())));
   query.bind_arg(2, item.dataset());

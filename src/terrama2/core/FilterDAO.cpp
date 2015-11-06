@@ -112,7 +112,7 @@ terrama2::core::FilterDAO::update(const Filter& filter, te::da::DataSourceTransa
   boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
                       "discard_after = %2%, geom = %3%, external_data_id = %4%, "
                       "value = %5%, expression_type = %6%, within_external_data_id = %7%, "
-                      "band_filter = %8% WHERE dataset_item_id = %9%)");
+                      "band_filter = %8% WHERE dataset_item_id = %9%");
 
   if(filter.discardBefore())
     query.bind_arg(1, "'" + filter.discardBefore()->toString() + "'");
