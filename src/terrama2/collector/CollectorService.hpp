@@ -106,39 +106,40 @@ namespace terrama2
 
         \note Doesn't add provider's dataset to the list of datasets to be collected.
        */
-      void addProvider(const core::DataProvider &provider);
+      void addProvider(const core::DataProvider& provider);
 
       /*!
-          \brief Remove a [DataProvider]{\ref terrama2::core::DataProvider} and
-           all associated [DataSet]{\ref terrama2::core::DataSet}.
+        \brief Remove a DataProvider and all associated DataSet.
 
-          The associated DataSet will be removed first.
+        The associated DataSet will be removed first.
 
           \note If the DataProvider does not exist nothing is done.
 
           \param DataProvider to be removed.
          */
-      void removeProvider(const core::DataProvider &dataProvider);
+      void removeProvider(const core::DataProvider& dataProvider);
 
       /*!
-          \brief Updates a [DataProvider]{\ref terrama2::core::DataProvider}.
+        \brief Updates a [DataProvider]{\ref terrama2::core::DataProvider}.
 
-          \note No change is made to the associated [DataSet]{\ref terrama2::core::DataSet}.
+        \note No change is made to the associated [DataSet]{\ref terrama2::core::DataSet}.
 
-          \note If the DataProvider does not exist nothing is done.
+        \note If the DataProvider does not exist nothing is done.
 
-          \param Data provider to be updated.
-         */
-      void updateProvider(const core::DataProvider &dataProvider);
+        \param Data provider to be updated.
+       */
+      void updateProvider(const core::DataProvider& dataProvider);
 
       /*!
-         \brief Creates a new DataSetTimer for the DataSet and connect to it's timer signal.
-         \param dataset The dataset
+        \brief Creates a new DataSetTimer for the DataSet and connect to it's timer signal.
+        
+        \param dataset The dataset
+       
+        \return DataSetTimer for the DataSet.
 
-         \note Adds the dataset to queue to be collected.
-         \return DataSetTimer for the DataSet.
-      */
-      DataSetTimerPtr addDataset(const core::DataSet &dataset);
+        \note Adds the dataset to queue to be collected.
+       */
+      void addDataset(const core::DataSet& dataset);
 
       /*!
         \brief Removes a [DataSet]{\ref terrama2::core::DataSet}.
@@ -147,7 +148,7 @@ namespace terrama2
 
         \param Dataset to be removed.
        */
-      void removeDataset(const core::DataSet &dataset);
+      void removeDataset(const core::DataSet& dataset);
       void removeDatasetById(uint64_t datasetId);
 
       /*!
@@ -164,49 +165,51 @@ namespace terrama2
       void updateDataset(const core::DataSet &dataset);
 
       //! Slot to be called when a DataSetTimer times out.
-      void addToQueueSlot(const uint64_t datasetId);
+      void addToQueue(uint64_t datasetId);
 
     private:
+      
       /*!
-          \brief Start do collect queued datasets
+        \brief Start a new thread for collecting the datasets in the queue from the data-provider.
 
-          \param firstCollectorInQueue Fist collector in queue for DataProvider::Kind.
-         */
-      void assignCollector(uint64_t dataProviderID, const std::vector<uint64_t> &dataSetVect);
+        \param provider Dataprovider .....
+        \param datasets Fila de datasets do provider que iremos coletar....
+       */
+      void process(uint64_t provider, const std::vector<uint64_t>& datasets);
 
       /*!
-          \brief Contains an infinite loop that will keep the service collecting data.
+         \brief Contains an infinite loop that will keep the service collecting data.
 
-          For each provider type verifies if the first provider in the queue is acquiring new data,
-          in case it's collecting moves to next type of provider, when it's done remove it from the queue,
-          in case it's not collecting, starts the collection calling the collect method.
-          It allows multiples providers to collect at the same time but only one provider of each type.
-         */
+         For each provider type verifies if the first provider in the queue is acquiring new data,
+         in case it's collecting moves to next type of provider, when it's done remove it from the queue,
+         in case it's not collecting, starts the collection calling the collect method.
+         It allows multiples providers to collect at the same time but only one provider of each type.
+       */
       void processingLoop();
 
       /*!
-          \brief Make connections with the [DataManager]{\ref terrama2::core::DataManager}.
+        \brief Make connections with the [DataManager]{\ref terrama2::core::DataManager}.
 
-          Listens to:
-          - dataProviderAdded(DataProvider);
-          - dataProviderRemoved(DataProvider);
-          - dataProviderUpdated(DataProvider);
-          - dataSetAdded(DataSet);
-          - dataSetRemoved(DataSet);
-          - dataSetUpdated(DataSet);
-         */
+        Listens to:
+        - dataProviderAdded(DataProvider);
+        - dataProviderRemoved(DataProvider);
+        - dataProviderUpdated(DataProvider);
+        - dataSetAdded(DataSet);
+        - dataSetRemoved(DataSet);
+        - dataSetUpdated(DataSet);
+       */
       void connectDataManager();
 
     private:
 
-      bool stop_;
+      bool stop_;                                             //!< Controls the service thread.
       std::shared_ptr<Factory> factory_;
-      std::map<uint64_t, core::DataProvider> dataproviders_;  //!< The list of data providers. [dataprovider-id] -> dataprovider.
-      std::map<uint64_t, core::DataSet> datasets_;            //!< The list of dataset to be collected. [dataset-id] -> dataset.
-      std::map<uint64_t, DataSetTimerPtr> timers_;            //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
+      std::map<uint64_t, core::DataProvider> dataproviders_;    //!< The list of data providers. [dataprovider-id] -> dataprovider.
+      std::map<uint64_t, core::DataSet> datasets_;              //!< The list of dataset to be collected. [dataset-id] -> dataset.
+      std::map<uint64_t, DataSetTimerPtr> timers_;              //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
       std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
-      std::mutex mutex_;                                     //!< mutex to thread safety
-      std::thread loopThread_;                               //!< Thread that holds the loop of processing queued dataset.
+      std::mutex mutex_;                                        //!< mutex to thread safety
+      std::thread loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
       
     };
   }

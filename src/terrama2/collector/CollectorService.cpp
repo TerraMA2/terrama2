@@ -69,6 +69,7 @@ void terrama2::collector::CollectorService::start()
 
   try
   {
+    stop_ = false;
     loopThread_ = std::thread(&CollectorService::processingLoop, this);
   }
   catch(const std::exception& e)
@@ -99,7 +100,7 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   {
     std::lock_guard<std::mutex> lock (mutex_);
     
-    dataproviders_.insert(std::make_pair(provider.id(), provider));
+    dataproviders_.insert(std::make_pair(provider.id(), provider)); // register the data provider
   }
   catch(const std::exception& e)
   {
@@ -108,7 +109,7 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   }
 }
 
-void terrama2::collector::CollectorService::assignCollector(uint64_t dataProviderID, const std::vector<uint64_t> &dataSetVect)
+void terrama2::collector::CollectorService::process(uint64_t dataProviderID, const std::vector<uint64_t> &dataSetVect)
 {
   std::list<core::DataSet> datasetLst;
   for(auto datasetID : dataSetVect)
@@ -133,10 +134,11 @@ void terrama2::collector::CollectorService::processingLoop()
     // It allows multiples providers to collect at the same time but only one provider of each type.
     for (auto it = collectQueue_.begin(); it != collectQueue_.end(); ++it)
     {
-      auto dataProviderId = (*it).first;
-      auto dataSetQueue = (*it).second;
+      auto dataProviderId = it->first;
+      const auto& dataSetQueue = it->second;
 
-      assignCollector(dataProviderId, dataSetQueue);
+      process(dataProviderId, dataSetQueue);
+
       collectQueue_.erase(it);
     }
   }
@@ -157,17 +159,14 @@ void terrama2::collector::CollectorService::connectDataManager()
   connect(&dataManager, &terrama2::core::DataManager::dataSetUpdated, this, &terrama2::collector::CollectorService::updateDataset, Qt::UniqueConnection);
 }
 
-void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datasetId)
+void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
 {
   try
   {
     //Lock Thread and add to the queue
     std::lock_guard<std::mutex> lock(mutex_);
 
-    auto datasetTimer = timers_.at(datasetId);
-    assert(datasetTimer);
-
-    auto dataset = datasets_.at(datasetId);
+    const auto& dataset = datasets_.at(datasetId);
 
     //Append the dataset to queue
     auto& datasetQueue = collectQueue_[dataset.provider()];
@@ -182,9 +181,9 @@ void terrama2::collector::CollectorService::addToQueueSlot(const uint64_t datase
 
 }
 
-void terrama2::collector::CollectorService::removeProvider(const terrama2::core::DataProvider &dataProvider)
+void terrama2::collector::CollectorService::removeProvider(const terrama2::core::DataProvider& dataProvider)
 {
-  for(const core::DataSet dataSet : dataProvider.datasets())
+  for(const core::DataSet& dataSet : dataProvider.datasets())
     removeDatasetById(dataSet.id());
 
 
@@ -216,7 +215,7 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
   }
 }
 
-terrama2::collector::DataSetTimerPtr
+void
 terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 {
   //TODO: Debug?
@@ -225,17 +224,18 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 
   try
   {
-    std::lock_guard<std::mutex> lock (mutex_);
+    {
+      std::lock_guard<std::mutex> lock (mutex_);
 
-    //Create a new dataset timer and connect the timeout signal to queue
-    auto datasetTimer = std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
-    timers_.at(dataset.id()) = datasetTimer;
-    connect(datasetTimer.get(), &terrama2::collector::DataSetTimer::timerSignal, this, &CollectorService::addToQueueSlot, Qt::UniqueConnection);
-
-    //Add to queue to collect a first time
-    addToQueueSlot(dataset.id());
-
-    return datasetTimer;
+// create a new dataset timer and connect the timeout signal to queue
+      auto datasetTimer = std::make_shared<DataSetTimer>(dataset); // std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
+      timers_.at(dataset.id()) = datasetTimer;
+    
+      connect(datasetTimer.get(), SIGNAL(timerSignal(uint64_t)), this, SLOT(addToQueue(uint64_t)), Qt::UniqueConnection);
+    }
+    
+// add to queue to collect a first time
+    addToQueue(dataset.id());
   }
   catch(terrama2::collector::InvalidDataSetError& e)
   {
@@ -249,10 +249,10 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
     assert(0);
   }
 
-  return DataSetTimerPtr();
+  return;
 }
 
-void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSet &dataset)
+void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSet& dataset)
 {
   removeDatasetById(dataset.id());
 }
@@ -261,8 +261,7 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
 {
   std::lock_guard<std::mutex> lock (mutex_);
 
-
-  DataSetTimerPtr datasetTimer = timers_.at(datasetId);
+  const DataSetTimerPtr& datasetTimer = timers_.at(datasetId);
   disconnect(datasetTimer.get(), nullptr, this, nullptr);
 
   datasets_.erase(datasetId);
