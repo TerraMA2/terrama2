@@ -137,8 +137,8 @@ terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::
       discardBefore_.reset(new te::dt::TimeInstant(*discardBefore));
     }
 
-    if(rhs.geometry_ == nullptr)
-      geometry_.reset(nullptr);
+    if(rhs.discardAfter_ == nullptr)
+      discardAfter_.reset(nullptr);
     else
     {
       te::dt::TimeInstant* discardAfter = dynamic_cast<te::dt::TimeInstant*>(rhs.discardAfter_.get());
@@ -182,8 +182,8 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
       discardBefore_.reset(nullptr);
   }
 
-  if(rhs.geometry_ == nullptr)
-    geometry_.reset(nullptr);
+  if(rhs.discardAfter_ == nullptr)
+    discardAfter_.reset(nullptr);
   else
   {
     te::dt::TimeInstant* discardAfter = dynamic_cast<te::dt::TimeInstant*>(rhs.discardAfter_.get());

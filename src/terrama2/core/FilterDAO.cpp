@@ -209,8 +209,11 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
 
     Filter filter(datasetItemId);
 
-    filter.setDiscardBefore(filter_result->getDateTime("discard_before"));
-    filter.setDiscardAfter(filter_result->getDateTime("discard_after"));
+    if(!filter_result->isNull("discard_before"))
+      filter.setDiscardBefore(filter_result->getDateTime("discard_before"));
+
+    if(!filter_result->isNull("discard_after"))
+      filter.setDiscardAfter(filter_result->getDateTime("discard_after"));
     
     if(!filter_result->isNull(3))
       filter.setGeometry(filter_result->getGeometry("geom"));
@@ -229,7 +232,8 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
       filter.setValue(std::move(byValue));
     }
     
-    filter.setBandFilter(filter_result->getString("band_filter"));
+    if(!filter_result->isNull("band_filter"))
+      filter.setBandFilter(filter_result->getString("band_filter"));
     
     return std::move(filter);
   }
