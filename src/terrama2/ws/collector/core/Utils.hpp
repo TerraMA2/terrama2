@@ -214,7 +214,8 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
 
   for(int i = 0; i < dataset_items.size(); i++)
   {
-    T1 struct_dataset_item;
+    // need to initialize the struct to avoid to create non-existent filters
+    T1 struct_dataset_item{0,0,0,0,"","",0,"","","",std::nan(""),0,""};
 
     struct_dataset_item.id = dataset_items.at(i).id();
     struct_dataset_item.dataset = dataset_items.at(i).dataset();
@@ -265,7 +266,6 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
 
 template<typename T1>
 std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct2DataSetItem(std::vector< T1 >& struct_dataset_items)
-
 {
   std::vector< terrama2::core::DataSetItem > dataset_items;
 
@@ -282,7 +282,13 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
 
     terrama2::core::Filter filter(struct_dataset_items.at(i).filter_datasetItem);
 
-    filter.setExpressionType(terrama2::core::Filter::ExpressionType(struct_dataset_items.at(i).filter_expressionType));
+    if(struct_dataset_items.at(i).filter_expressionType == 0)
+    {
+      filter.setExpressionType(terrama2::core::Filter::ExpressionType::NONE_TYPE);
+    }
+    else
+      filter.setExpressionType(terrama2::core::Filter::ExpressionType(struct_dataset_items.at(i).filter_expressionType));
+
     filter.setBandFilter(struct_dataset_items.at(i).filter_bandFilter);
 
     if(!struct_dataset_items.at(i).filter_discardBefore.empty())

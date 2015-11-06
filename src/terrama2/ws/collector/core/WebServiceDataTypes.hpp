@@ -30,31 +30,32 @@
 
 struct DataProvider
 {
-  uint64_t      id = 0;
-  std::string   name = "";
-  std::string   description = "";
-  uint32_t      kind = 0;
-  std::string   uri = "";
-  uint32_t      status = 0;
+  uint64_t      id;
+  std::string   name;
+  std::string   description;
+  uint32_t      kind;
+  std::string   uri;
+  uint32_t      status;
 };
 
 
 struct DataSetItem
 {
-  uint32_t      kind = 0;
-  uint64_t      id = 0;
-  uint64_t      dataset = 0;
-  uint32_t      status = 0;
-  std::string   mask = "";
-  std::string   timezone = "";
+  uint32_t      kind;
+  uint64_t      id;
+  uint64_t      dataset;
+  uint32_t      status;
+  std::string   mask;
+  std::string   timezone;
 
-  uint64_t          filter_datasetItem = 0;
-  std::string       filter_discardBefore = "";
-  std::string       filter_discardAfter = "";
-  std::string       filter_geometry = "";
+// the filters values need to be initialized to avoid to create non-existent filters
+  uint64_t          filter_datasetItem;
+  std::string       filter_discardBefore;
+  std::string       filter_discardAfter;
+  std::string       filter_geometry;
   double            filter_value;
-  uint32_t          filter_expressionType = 0;
-  std::string       filter_bandFilter = "";
+  uint32_t          filter_expressionType;
+  std::string       filter_bandFilter;
 
   std::vector< std::string > storageMetadata_keys;
   std::vector< std::string > storageMetadata_values;
@@ -63,15 +64,15 @@ struct DataSetItem
 
 struct DataSet
 {
-  uint64_t                          id = 0;
-  std::string                       name = "";
-  std::string                       description = "";
-  uint32_t                          status = 0;
-  uint64_t                          data_provider_id = 0;
-  uint32_t                          kind = 0;
-  std::string                       data_frequency = "";
-  std::string                       schedule = "";
-  std::string                       schedule_retry = "";
-  std::string                       schedule_timeout = "";
+  uint64_t                          id;
+  std::string                       name;
+  std::string                       description;
+  uint32_t                          status;
+  uint64_t                          data_provider_id;
+  uint32_t                          kind;
+  std::string                       data_frequency;
+  std::string                       schedule;
+  std::string                       schedule_retry;
+  std::string                       schedule_timeout;
   std::vector< struct DataSetItem > dataset_items;
 };
