@@ -80,19 +80,12 @@ void ConfigAppWeatherServer::save()
 
 void ConfigAppWeatherServer::discardChanges(bool restore)
 {
-  if (restore)
-  {
-    // DO SOME OPERATION
-  }
-
   // Clear all inputs
   const auto* tab = ui_->ServerPage;
 
 // Clear QLineEdits
   for(QLineEdit* widget: tab->findChildren<QLineEdit*>())
-  {
     widget->clear();
-  }
 
   ui_->serverDescription->clear();
   selectedData_.clear();
@@ -107,9 +100,9 @@ bool ConfigAppWeatherServer::validate()
     return false;
   }
 
-  terrama2::core::DataProvider dataProviderPtr = terrama2::core::DataManager::getInstance().findDataProvider(ui_->serverName->text().toStdString());
+  terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->serverName->text().toStdString());
 
-  if (dataProviderPtr.id() >= 1 && !selectedData_.isEmpty())
+  if (provider.id() != 0 && !selectedData_.isEmpty())
   {
     if (selectedData_ != ui_->serverName->text())
     {

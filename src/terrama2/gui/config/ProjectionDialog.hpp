@@ -22,9 +22,8 @@
 /*!
   \file terrama2/gui/config/ProjectionDialog.hpp
 
-  \brief Definition of Class ProjectionDialog.hpp
+  \brief This class represents the Projection GUI
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa  
   
 */
@@ -81,11 +80,23 @@ class ProjectionDialog : public QDialog, private boost::noncopyable
     ~ProjectionDialog();
 
   private:
+    void setupProjection(int);
     void setEditValues(QLineEdit* ledtItem, bool enable, double value);
 
   private slots:
+    /*!
+      \brief Slot triggered when the projection combobox state has been changed
+     */
     void onProjectionChanged(int);
+
+    /*!
+      \brief Slot triggered on cancel btn clicked and it discard changes
+     */
     void onCancelClicked();
+
+    /*!
+      \brief Slot triggered on combobox zone index has changed and it displays respectively visible state
+     */
     void onComboboxZoneActivated(int);
 
   private:
