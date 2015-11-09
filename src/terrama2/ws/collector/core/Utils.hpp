@@ -89,7 +89,7 @@ namespace terrama2
 
                 \return terrama2::core::DataSet that contains the data in gSOAP struct DataSet passed.
               */
-        template <typename T1, typename T2> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
+        template<typename T1, typename T2, typename StructDataSetCollectRule> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
 
 
         /*!
@@ -100,7 +100,27 @@ namespace terrama2
 
                 \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
               */
-        template<typename T1, typename T2> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
+        template<typename T1, typename T2, typename StructDataSetCollectRule> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
+
+
+        /*!
+          \brief
+
+          \param
+
+          \return
+        */
+        template<typename StructDataSetCollectRule> std::vector< StructDataSetCollectRule > DataSetCollectRules2Struct(std::vector< terrama2::core::DataSet::CollectRule >& collectorRules);
+
+
+        /*!
+         \brief
+
+         \param
+
+         \return
+       */
+        template<typename StructDataSetCollectRule> std::vector< terrama2::core::DataSet::CollectRule > Struct2DataSetCollectRules(std::vector< StructDataSetCollectRule >& struct_collectorRules);
 
 
         /*!
@@ -156,7 +176,7 @@ T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvid
 }
 
 
-template <typename T1, typename T2>
+template<typename T1, typename T2, typename StructDataSetCollectRule>
 terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_dataSet)
 {
   terrama2::core::DataSet dataSet(struct_dataSet.name, terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, struct_dataSet.data_provider_id);
@@ -174,6 +194,17 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
+  dataSet.setCollectRules(Struct2DataSetCollectRules< StructDataSetCollectRule >(struct_dataSet.dataset_collectRules));
+
+  std::map< std::string, std::string > metadata;
+
+  for(int i = 0; i < struct_dataSet.metadata_keys.size(); i++)
+  {
+    metadata[struct_dataSet.metadata_keys.at(i)] = struct_dataSet.metadata_values.at(i);
+  }
+
+  dataSet.setMetadata(metadata);
+
   std::vector< terrama2::core::DataSetItem > dataSetItems = Struct2DataSetItem< T2 >(struct_dataSet.dataset_items);
 
   for(int i = 0; i < dataSetItems.size(); i++)
@@ -185,7 +216,7 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_
 }
 
 
-template<typename T1, typename T2>
+template<typename T1, typename T2, typename StructDataSetCollectRule>
 T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet)
 {
   T1 struct_dataSet;
@@ -201,11 +232,59 @@ T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet
   struct_dataSet.schedule_retry = dataSet.scheduleRetry().toString();
   struct_dataSet.schedule_timeout = dataSet.scheduleTimeout().toString();
 
+  struct_dataSet.dataset_collectRules = DataSetCollectRules2Struct< StructDataSetCollectRule >(dataSet.collectRules());
+
+  std::map< std::string, std::string > metadata(dataSet.metadata());
+
+  for(auto& x: metadata)
+  {
+    struct_dataSet.metadata_keys.push_back(x.first);
+    struct_dataSet.metadata_values.push_back(x.second);
+  }
+
   struct_dataSet.dataset_items = DataSetItem2Struct< T2 >(dataSet.dataSetItems());
 
   return struct_dataSet;
 }
 
+
+template<typename StructDataSetCollectRule>
+std::vector< StructDataSetCollectRule > terrama2::ws::collector::core::DataSetCollectRules2Struct(std::vector< terrama2::core::DataSet::CollectRule >& collectRules)
+{
+  std::vector< StructDataSetCollectRule > struct_dataset_colletRules;
+
+  for(int i = 0; i < collectRules.size(); i++)
+  {
+    StructDataSetCollectRule struct_collectRule;
+
+    struct_collectRule.id = collectRules.at(i).id;
+    struct_collectRule.script = collectRules.at(i).script;
+    struct_collectRule.datasetId = collectRules.at(i).datasetId;
+
+   struct_dataset_colletRules.push_back(struct_collectRule);
+  }
+
+  return struct_dataset_colletRules;
+}
+
+template<typename StructDataSetCollectRule>
+std::vector< terrama2::core::DataSet::CollectRule > terrama2::ws::collector::core::Struct2DataSetCollectRules(std::vector< StructDataSetCollectRule >& struct_collectRules)
+{
+  std::vector< terrama2::core::DataSet::CollectRule > collectRules;
+
+  for(int i = 0; i < struct_collectRules.size(); i++)
+  {
+    terrama2::core::DataSet::CollectRule collectRule;
+
+    collectRule.id = struct_collectRules.at(i).id;
+    collectRule.script = struct_collectRules.at(i).script;
+    collectRule.datasetId = struct_collectRules.at(i).datasetId;
+
+    collectRules.push_back(collectRule);
+  }
+
+  return collectRules;
+}
 
 template<typename T1>
 std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<terrama2::core::DataSetItem>& dataset_items)
