@@ -107,6 +107,9 @@
            <number>0</number>
           </property>
           <widget class="QWidget" name="dbTab">
+           <property name="toolTip">
+            <string/>
+           </property>
            <attribute name="title">
             <string>Base de Dados</string>
            </attribute>
