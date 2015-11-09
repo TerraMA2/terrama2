@@ -220,10 +220,10 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     
     filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
 
-    if(!filter_result->isNull("by_value"))
+    if(!filter_result->isNull("value"))
     {
-      double v = atof(filter_result->getNumeric("by_value").c_str());
-      std::unique_ptr<double> byValue(&v);
+      double* v = new double(atof(filter_result->getNumeric("value").c_str()));
+      std::unique_ptr<double> byValue(v);
       filter.setValue(std::move(byValue));
     }
     else
