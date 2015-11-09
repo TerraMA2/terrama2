@@ -72,6 +72,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   QPixmap pixmap = QIcon::fromTheme("servers").pixmap(64);
   ui_->labelServerInfo->setPixmap(pixmap);
 
+  ui_->weatherPageStack->setCurrentWidget(ui_->ServerPage);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()

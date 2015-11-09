@@ -63,6 +63,11 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     void onDataPointBtnClicked();
 
     /*!
+      \brief Slot triggered when the collector rule form is requested and it displays GUI form
+    */
+    void onCollectorRuleClicked();
+
+    /*!
       \brief Slot triggered when the projection button has been clicked and it displays the DataSet Projection GUI
     */
     void onProjectionClicked();
@@ -99,6 +104,7 @@ class ConfigAppWeatherPcd : public ConfigAppTab
 
   private:
     QList<PCD> pcds_;
+    QString luaScript_;
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__

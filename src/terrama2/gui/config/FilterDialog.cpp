@@ -169,6 +169,12 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
     pimpl_->ui_->dateAfterFilterDed->setDate(date);
     emit pimpl_->ui_->dateAfterFilterCbx->clicked();
   }
+
+  if (!filter.bandFilter().empty())
+  {
+    pimpl_->ui_->bandFilterLed->setText(filter.bandFilter().c_str());
+    pimpl_->filterByLayer_ = true;
+  }
 }
 
 void FilterDialog::fillObject(terrama2::core::Filter &filter)
@@ -223,8 +229,9 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
   // TODO: filter by layer
   if (pimpl_->filterByLayer_)
   {
-
+    filter.setBandFilter(pimpl_->ui_->bandFilterLed->text().toStdString());
   }
+
 }
 
 bool FilterDialog::isFilterByLayer() const

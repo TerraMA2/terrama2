@@ -7,17 +7,19 @@
 #include "ProjectionDialog.hpp"
 #include "PcdDialog.hpp"
 #include "SurfaceDialog.hpp"
+#include "CollectorRuleDialog.hpp"
 #include "../core/Utils.hpp"
 
 // Qt
 #include <QMessageBox>
 #include <QTableWidgetItem>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QFileDialog>
 
 
 ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+  : ConfigAppTab(app, ui), luaScript_("")
 {
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->pointFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onDataPointBtnClicked()));
@@ -27,6 +29,7 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->btnPointPCDDeleteFileNameLocation, SIGNAL(clicked()), SLOT(onPCDRemoveClicked()));
   connect(ui_->tblPointPCDFileNameLocation, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(onPCDTableDoubleClicked(QTableWidgetItem*)));
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
+  connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
 
   // export pcd button
   connect(ui_->exportDataPointBtn, SIGNAL(clicked()), SLOT(onPCDExportClicked()));
@@ -93,6 +96,8 @@ void ConfigAppWeatherPcd::save()
   terrama2::core::DataSetItem datasetItem;
   datasetItem.setDataSet(dataset.id());
   datasetItem.setMask(ui_->pointFormatDataMask->text().toStdString());
+
+  //TODO: save the lua script in table
 
   if (dataset.id() > 0)
   {
@@ -161,6 +166,16 @@ void ConfigAppWeatherPcd::onDataPointBtnClicked()
   ui_->cancelBtn->clicked();
 }
 
+void ConfigAppWeatherPcd::onCollectorRuleClicked()
+{
+  CollectorRuleDialog dialog(app_);
+  dialog.fillGUI(luaScript_);
+  if (dialog.exec() == QDialog::Accepted)
+    dialog.fillObject(luaScript_);
+  else
+    luaScript_.clear();
+}
+
 void ConfigAppWeatherPcd::onProjectionClicked()
 {
   ProjectionDialog dialog(app_);
@@ -222,6 +237,11 @@ void ConfigAppWeatherPcd::onPCDExportClicked()
   QJsonObject json;
   json["name"] = ui_->pointFormatDataName->text();
   json["description"] = ui_->pointFormatDataDescription->toPlainText();
+  json["path"] = ui_->pointFormatDataPath->text();
+  QJsonObject datasetItemArray;
+  datasetItemArray["mask"] = ui_->pointFormatDataMask->text();
+
+  json["datasetItems"] = datasetItemArray;
 
   try
   {
