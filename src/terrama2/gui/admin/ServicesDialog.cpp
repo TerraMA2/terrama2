@@ -61,7 +61,7 @@ struct ServicesDialog::Impl
 
 //! Constructor
 ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QString nameConfig)
-    : adminapp_(adminapp), pimpl_(new Impl), configManager_(configData), idNameConfig_(nameConfig), changed_(false)
+    : QDialog(adminapp), adminapp_(adminapp), pimpl_(new Impl), configManager_(configData), idNameConfig_(nameConfig), changed_(false)
 {
  pimpl_->ui_->setupUi(this);
 
@@ -86,6 +86,7 @@ ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QS
  pimpl_->ui_->closeServiceBtn->setEnabled(false);
 
  std::string host = "http://localhost:" + std::to_string(configManager_.getCollection()->servicePort_);
+// std::string host = "http://" + configManager_.getCollection()->address_.toStdString() + ":" + std::to_string(configManager_.getCollection()->servicePort_);
  terrama2::ws::collector::client::WebProxyAdapter* webProxyAdapter = new terrama2::ws::collector::client::WebProxyAdapter(host);
  client = new terrama2::ws::collector::client::Client(webProxyAdapter);
 
@@ -266,8 +267,8 @@ void ServicesDialog::saveRequested()
 //! Executes the command received as a parameter
 bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
 {
-  // Check if the command exists and is executable
-  // TODO: verify function for Windows;
+// Check if the command exists and is executable
+// TODO: verify function for Windows;
   cmd = "terrama2_mod_ws_collector_appserver";
   QFileInfo info(cmd);
   QString dir = QCoreApplication::applicationDirPath();
@@ -296,14 +297,10 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
   */
 
   {
-
     static const char* module_names[] = {"coleta", "planos", "notificacao", "animacao", "analise"};
 
     QString address;
-    //  QString filename;
     QString dirfilename;
-
-    // filename = configManager_.getName();
 
     QJsonObject fileSeleted = configManager_.getfiles().take(idNameConfig_);
     dirfilename = fileSeleted.take("path").toString();
@@ -311,11 +308,19 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
     if (line == 0)
       address = configManager_.getCollection()->address_;
 
-    param.replace("%c", QString("\"%1\"").arg(dirfilename), Qt::CaseInsensitive);
-    param.replace("%m", module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
-    param.replace("%p", dir + "/" + module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
-    param.replace("%a", address, Qt::CaseInsensitive);
-
+    if (param != "%c")
+    {
+      QMessageBox::warning(this, tr("Error..."),
+                           tr("Parameters not exists!."));
+      return false;
+    }
+    else
+    {
+      param.replace("%c", QString("\"%1\"").arg(dirfilename), Qt::CaseInsensitive);
+      param.replace("%m", module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
+      param.replace("%p", dir + "/" + module_names[line<=4 ? line : 4], Qt::CaseInsensitive);
+      param.replace("%a", address, Qt::CaseInsensitive);
+    }
   }
 
   // Execute
@@ -337,7 +342,6 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
       return false;
     }
   }
-  // verifyRequested();
   return true;
 }
 
@@ -374,33 +378,6 @@ void ServicesDialog::execRequested()
 // Wait a second to receive the SOAP response
   QThread::sleep(1);
   verifyRequested();
-// Show error messages
-/*  if(errCount)
-  {
-    if(errCount == lines.size())
-    {
-      QMessageBox::warning(this, tr("Error executing commands..."),
-                                 tr("None of the selected modules was successful.\n"
-                                    "Error:\n\n%1").arg(err));
-    }
-    else
-    {
-      QMessageBox::warning(this, tr("Error executing commands..."),
-                                 tr("%1 of %2 selected modules were successfully executed.\n"
-                                    "Use the tool 'Check Connection' to test\n"
-                                    "Those services have been initialized correctly.\n\n"
-                                    "Errors at startup of the other modules:\n\n%3")
-                                    .arg(lines.size()-errCount).arg(lines.size()).arg(err));
-    }
-  }
-  else
-  {
-    verifyRequested();
-    QMessageBox::information(this, tr("Initialization completed"),
-                                   tr("Successfully executed modules.\n\n"
-                                      "Use the tool 'Check Connection' to test\n"
-                                      "if all services were initialized correctly."));
-  }*/
 }
 
 //! Signal called when the user requests that marked lines are "closed"
@@ -427,8 +404,7 @@ void ServicesDialog::closeRequested()
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-// Send completion request for each selected row
-  QString err;
+// Send completion request for each selected row  
   int errCount = 0;
 
   if (client!= nullptr)
@@ -446,8 +422,7 @@ void ServicesDialog::closeRequested()
       {
         messageError.append(d);
       }
-      errCount++;
-     // QMessageBox::critical(nullptr, "TerraMA2", messageError);
+      errCount++;     
     }
     catch(...)
     {
@@ -459,29 +434,4 @@ void ServicesDialog::closeRequested()
 
   verifyRequested();
 
-// Shows error messages or success
-/*  if(errCount)
-  {
-    if(errCount == lines.size())
-    {
-      QMessageBox::warning(this, tr("Error sending requests..."),
-                                 tr("None of the selected module has been successfully notified.\n"));
-    }
-    else
-    {
-      QMessageBox::warning(this, tr("Error sending requests..."),
-                                 tr("%1 of %2 selected modes were successfully notified.\n"
-                                    "Use the tool 'Check Connection' to test\n"
-                                    "those services have been finalized.\n\n"
-                                    "Errors in the request to send to the other modules:\n\n%3")
-                                    .arg(lines.size()-errCount).arg(lines.size()).arg(err));
-    }
-  }
-  else
-  {
-    QMessageBox::information(this, tr("Completed request"),
-                                   tr("Termination requests sent successfully.\n\n"
-                                      "Use the tool 'Check Connection' to test\n"
-                                      "if all services properly terminated."));
-  }*/
 }
