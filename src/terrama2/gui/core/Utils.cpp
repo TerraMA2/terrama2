@@ -37,25 +37,24 @@
 #include <QMainWindow>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QFileDialog>
 
 
-void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QJsonObject& json)
+void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString& destination, const QJsonObject& json)
 {
-  QString fileDestination = QFileDialog::getSaveFileName(appFocus, QObject::tr("TerraMA2 Export Data Provider"));
-  if (fileDestination.isEmpty())
+  if (destination.isEmpty())
   {
     throw terrama2::gui::FileError() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
   }
 
-  QDir dir(fileDestination);
+  QDir dir(destination);
   if (dir.exists())
     throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(QObject::tr("Invalid directory typed"));
 
-  if (!fileDestination.endsWith(".terrama2"))
-      fileDestination.append(".terrama2");
+  QString path(destination);
+  if (!path.endsWith(".terrama2"))
+    path.append(".terrama2");
 
-  QFile file(fileDestination);
+  QFile file(path);
   file.open(QIODevice::WriteOnly);
   QJsonDocument document = QJsonDocument(json);
   file.write(document.toJson());

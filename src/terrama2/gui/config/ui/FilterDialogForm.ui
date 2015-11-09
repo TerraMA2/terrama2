@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
+    <width>485</width>
     <height>489</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <item>
     <layout class="QHBoxLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="labelFilterIcon">
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -28,7 +28,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="icons.qrc">:/global/icons/filter_big.png</pixmap>
+        <pixmap>:/global/icons/filter_big.png</pixmap>
        </property>
       </widget>
      </item>
@@ -118,8 +118,9 @@ p, li { white-space: pre-wrap; }
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/data/icons/today.png</normaloff>:/data/icons/today.png</iconset>
+          <iconset theme="today">
+           <normaloff/>
+          </iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -138,8 +139,9 @@ p, li { white-space: pre-wrap; }
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/data/icons/today.png</normaloff>:/data/icons/today.png</iconset>
+          <iconset theme="today">
+           <normaloff/>
+          </iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -546,8 +548,9 @@ p, li { white-space: pre-wrap; }
         <string>Ok</string>
        </property>
        <property name="icon">
-        <iconset resource="../../admin/ui/icons.qrc">
-         <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+        <iconset theme="confirm">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -563,8 +566,9 @@ p, li { white-space: pre-wrap; }
         <string>Cancelar</string>
        </property>
        <property name="icon">
-        <iconset resource="../../admin/ui/icons.qrc">
-         <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
+        <iconset theme="cancel">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -572,9 +576,6 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../admin/ui/icons.qrc"/>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

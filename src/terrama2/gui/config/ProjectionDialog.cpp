@@ -24,7 +24,6 @@
 
   \brief Definition of Class ProjectionDialog.hpp
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa    
 */
 
@@ -35,22 +34,25 @@
 #include <QDialog>
 
 
+//todo: get it from terralib
+const double  TeCDR = 0.01745329251994329576;   //!< Conversion factor: degrees to radians
+const double  TeCRD = 57.29577951308232087679;  //!< Conversion factor: radians to degrees
+
 static ProjectionValue valueDef = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-static ProjectionValue valueDefUTM = { -39.0, -45.00, 0.0, 0.0, 500000.00, 10000000.000, 0.9996};
-//static ProjectionValue valueDefUTM = { TeCDR*-39.0, -45.00, 0.0, 0.0, 500000.00, 10000000.000, 0.9996  };
+static ProjectionValue valueDefUTM = { TeCDR*-39.0, -45.00, 0.0, 0.0, 500000.00, 10000000.000, 0.9996  };
 
 static Projection projections[] = {
-    {"NoProjection", 1, false, false, false, false, false, false, false, false, false, false, &valueDef},
-    {"Albers", 1, true, false, true, true, true, true, true, true, false, false, &valueDef},
-    {"LatLong", 2, true, false, false, false, false, false, false, false, false, false, &valueDef},
-    {"LambertConformal", 1, true, false, true, true, true, true, true, true, false, false, &valueDef},
-    {"Mercator", 1, true, false, true, true, true, false, true, true, false, false, &valueDef},
-    {"Miller", 1, true, false, false, true, false, false, true, true, false, false, &valueDef},
-    {"UTM", 1, true, true, false, true, false, false, true,  true, false, true, &valueDefUTM},
-    {"Polyconic", 1, true, false, true, true, false, false, true, true, false, false, &valueDef},
-    {"Sinusoidal", 1, true, false, false, true, false, false, true, true, false, false, &valueDef},
-    {"CylindricalEquidistant", 1, true, false, false, true, true, false, true, true, false, false, &valueDef},
-    {"PolarStereographic", 1, true, false, false, true, false, false, true,  true, false, true, &valueDef},
+  {"NoProjection", 1, false, false, false, false, false, false, false, false, false, false, &valueDef},
+  {"Albers", 1, true, false, true, true, true, true, true, true, false, false, &valueDef},
+  {"LatLong", 2, true, false, false, false, false, false, false, false, false, false, &valueDef},
+  {"LambertConformal", 1, true, false, true, true, true, true, true, true, false, false, &valueDef},
+  {"Mercator", 1, true, false, true, true, true, false, true, true, false, false, &valueDef},
+  {"Miller", 1, true, false, false, true, false, false, true, true, false, false, &valueDef},
+  {"UTM", 1, true, true, false, true, false, false, true,  true, false, true, &valueDefUTM},
+  {"Polyconic", 1, true, false, true, true, false, false, true, true, false, false, &valueDef},
+  {"Sinusoidal", 1, true, false, false, true, false, false, true, true, false, false, &valueDef},
+  {"CylindricalEquidistant", 1, true, false, false, true, true, false, true, true, false, false, &valueDef},
+  {"PolarStereographic", 1, true, false, false, true, false, false, true,  true, false, true, &valueDef},
 };
 
 struct ProjectionDialog::Impl
@@ -125,6 +127,31 @@ ProjectionDialog::ProjectionDialog(QWidget* parent, Qt::WindowFlags f)
 ProjectionDialog::~ProjectionDialog()
 {
   delete pimpl_;
+}
+
+void ProjectionDialog::setupProjection(int index)
+{
+  pimpl_->ui_->cboBoxUnits->setCurrentIndex(projections[index].unit -1);
+  pimpl_->ui_->cboBoxUnits->setEnabled(false);
+
+  pimpl_->ui_->cboBoxZone->setEnabled(projections[index].hasZone);
+  if (projections[index].name == "UTM")
+  {
+    pimpl_->ui_->cboBoxZone->setCurrentIndex(22);
+    onComboboxZoneActivated(22);
+  }
+  else
+    setEditValues(pimpl_->ui_->lineEdtLongOrigem, projections[index].hasOriginLong, projections[index].valueDef->valdefOriginLong*TeCRD);
+
+  setEditValues(pimpl_->ui_->lineEdtLatOrigem, projections[index].hasOriginLat, projections[index].valueDef->valdefOriginLat*TeCRD);
+  setEditValues(pimpl_->ui_->lineEdtParaleloPad1, projections[index].hasStandardPararel1, projections[index].valueDef->valdefStandardPararel1*TeCRD);
+  setEditValues(pimpl_->ui_->lineEdtParaleloPad2, projections[index].hasStandardPararel2, projections[index].valueDef->valdefStandardPararel2*TeCRD);
+  setEditValues(pimpl_->ui_->lineEdtOffsetX, projections[index].hasOffsetX, projections[index].valueDef->valdefOffsetX);
+  setEditValues(pimpl_->ui_->lineEdtOffsetY, projections[index].hasOffsetY, projections[index].valueDef->valdefOffsetY);
+  setEditValues(pimpl_->ui_->lineEdtEscala, projections[index].hasScale, projections[index].valueDef->valdefScale);
+
+  pimpl_->ui_->grpBoxHemisferio->setEnabled(projections[index].hasHemisphere);
+
 }
 
 void ProjectionDialog::onProjectionChanged(int i)

@@ -139,6 +139,14 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
       transactor->commit();
 
+      if(!shallowSave)
+      {
+        for (auto& dataset : provider.datasets())
+        {
+          pimpl_->datasets[dataset.id()] = dataset;
+        }
+      }
+
       pimpl_->providers[provider.id()] = provider;
     }
     catch(const terrama2::Exception&)
@@ -156,11 +164,22 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
     }
   }
 
+  if(!shallowSave)
+  {
+    for (auto& dataset : provider.datasets())
+    {
+      emit dataSetAdded(dataset);
+    }
+  }
+
   emit dataProviderAdded(provider);
 }
 
 void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
 {
+
+  DataProvider provider;
+
 // Inside a block so the lock is released before emitting the signal
   {
     std::lock_guard<std::mutex> lock(pimpl_->mtx);
@@ -181,6 +200,9 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
     if(it == pimpl_->providers.end())
       throw terrama2::InvalidArgumentError() <<
             ErrorDescription(QObject::tr("Can not add a dataset with a non-registered data provider."));
+
+    provider = it->second;
+
 
     std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
@@ -209,6 +231,7 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
     }
   }
 
+  emit dataProviderUpdated(provider);
   emit dataSetAdded(dataset);
 }
 
@@ -246,10 +269,10 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
 
       transactor->commit();
 
-              foreach(auto dataset, provider.datasets())
-        {
-          pimpl_->datasets[dataset.id()] = dataset;
-        }
+      for(auto& dataset: provider.datasets())
+      {
+        pimpl_->datasets[dataset.id()] = dataset;
+      }
 
       pimpl_->providers[provider.id()] = provider;
     }
@@ -267,6 +290,13 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
     }
   }
 
+  if(!shallowSave)
+  {
+    for(auto dataset: provider.datasets())
+    {
+      dataSetUpdated(dataset);
+    }
+  }
   emit dataProviderUpdated(provider);
 }
 
@@ -360,7 +390,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
         // removes all related datasets from the map
         for(auto dataSet: dataProvider.datasets())
         {
-          auto itDs = pimpl_->datasets.find(id);
+          auto itDs = pimpl_->datasets.find(dataSet.id());
           if(itDs != pimpl_->datasets.end())
           {
             pimpl_->datasets.erase(itDs);
@@ -399,6 +429,8 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 void terrama2::core::DataManager::removeDataSet(const uint64_t id)
 {
   DataSet dataset;
+  DataProvider provider;
+
 // Inside a block so the lock is released before emitting the signal
   {
 // only one thread at time can access the data
@@ -437,8 +469,8 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
 
         if(it != pimpl_->providers.end())
         {
-          auto dataProvider = it->second;
-          dataProvider.removeDataSet(dataset.id());
+          provider = it->second;
+          provider.removeDataSet(dataset.id());
         }
         else
         {
@@ -461,6 +493,7 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
     }
   }
 
+  emit dataProviderUpdated(provider);
   emit dataSetRemoved(dataset);
 }
 
@@ -476,7 +509,7 @@ terrama2::core::DataManager::findDataProvider(const uint64_t id) const
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   auto it = pimpl_->providers.find(id);
-  
+
   if(it !=  pimpl_->providers.end())
     return it->second;
 
@@ -492,7 +525,7 @@ terrama2::core::DataManager::findDataProvider(const std::string& name) const
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   auto it = pimpl_->providers.begin();
-  
+
   while(it !=  pimpl_->providers.end())
   {
     if(it->second.name() == name)
@@ -513,7 +546,7 @@ terrama2::core::DataManager::findDataSet(const std::string& name) const
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   auto it = pimpl_->datasets.begin();
-  
+
   while(it !=  pimpl_->datasets.end())
   {
     if(it->second.name() == name)
@@ -539,7 +572,7 @@ terrama2::core::DataSet terrama2::core::DataManager::findDataSet(const uint64_t 
 
 
   auto it = pimpl_->datasets.find(id);
-  
+
   if(it !=  pimpl_->datasets.end())
     return it->second;
 
@@ -552,9 +585,9 @@ std::vector<terrama2::core::DataProvider> terrama2::core::DataManager::providers
 {
 // only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
-  
+
   std::vector<DataProvider> providers;
-  
+
   std::transform(pimpl_->providers.begin(), pimpl_->providers.end(), std::back_inserter(providers),
                  [](const std::map<uint64_t, DataProvider>::value_type& v) { return v.second; } );
 
@@ -567,10 +600,10 @@ std::vector<terrama2::core::DataSet> terrama2::core::DataManager::dataSets() con
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   std::vector<DataSet> datasets;
-  
+
   std::for_each(pimpl_->datasets.begin(), pimpl_->datasets.end(),
                 [&datasets](const std::map<uint64_t, DataSet>::value_type& v){ datasets.push_back(v.second); });
-  
+
   return datasets;
 }
 
