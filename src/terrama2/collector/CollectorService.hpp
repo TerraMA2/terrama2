@@ -177,6 +177,8 @@ namespace terrama2
        */
       void process(uint64_t provider, const std::vector<uint64_t>& datasets);
 
+      void collectAsThread(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet> &dataSetList);
+
       /*!
          \brief Contains an infinite loop that will keep the service collecting data.
 
