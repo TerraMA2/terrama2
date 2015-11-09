@@ -20,42 +20,47 @@
 */
 
 /*!
-  \file terrama2/gui/config/ColPointDialog.hpp
+  \file terrama2/gui/config/SurfaceDialog.hpp
 
-  \brief Definition of methods in class ColPointDialog.hpp
+  \brief Definition of Class SurfaceDialog.hpp
 
-  \author Evandro Delatin
-  \author Raphael Willian da Costa
-  \author Celso Luiz Ramos Cruz
+  \author Raphael Willian da Costa  
+  
 */
 
+#ifndef __TERRAMA2_GUI_CONFIG_SURFACEDIALOG_HPP__
+#define __TERRAMA2_GUI_CONFIG_SURFACEDIALOG_HPP__
 
-#ifndef _ColPointDialog_H_
-#define _ColPointDialog_H_
+// Boost
+#include <boost/noncopyable.hpp>
 
-#include "ui_ColPointDialog.h"
-
-#include "soapServPlanosProxy.h"
-
-class ColPointDialog : public QDialog, private Ui::ColPointDialog
+// Forward declarations
+namespace Ui
 {
-Q_OBJECT
+  class SurfaceDialogForm;
+}
+class QAction;
 
-public:
-  ColPointDialog(QWidget* parent = 0, Qt::WFlags f = 0 );
-  ~ColPointDialog();
 
-  void setFields(const wsPCD& colPoint);
-  void getFields(wsPCD* colPoint, bool& changed);
-
-private slots:
-  void setColPointChanged();
+class SurfaceDialog : public QDialog, private boost::noncopyable
+{
+  Q_OBJECT
   
-private:
-  bool _ignoreChangeEvents;
-  bool _collectionPointChanged;
+  public:
+    SurfaceDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+
+    ~SurfaceDialog();
+
+  private slots:
+    /*!
+     * \brief It defines constants mask to format the mask field. Like %a %d
+     */
+    void onMenuMaskClicked(QAction*);
+
+  private:
+    struct Impl;
+
+    Impl* pimpl_;
 };
 
-
-#endif
-
+#endif // __TERRAMA2_GUI_CONFIG_SURFACEDIALOG_HPP__

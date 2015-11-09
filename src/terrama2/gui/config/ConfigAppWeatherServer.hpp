@@ -26,7 +26,7 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     bool validate();
 
   private:
-    //! It validates the connection type
+    //! It validates the connection type and stores the URI value in uri_ member
     void validateConnection();
 
   private slots:

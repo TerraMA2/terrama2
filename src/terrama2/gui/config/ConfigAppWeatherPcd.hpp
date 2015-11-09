@@ -31,7 +31,17 @@
 #ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
 #define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
 
+// TerraMA2
 #include "ConfigAppTab.hpp"
+
+// QT
+#include <QList>
+
+
+// Forward declaration
+class QAction;
+class QTableWidgetItem;
+struct PCD;
 
 class ConfigAppWeatherPcd : public ConfigAppTab
 {
@@ -45,9 +55,50 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     void save();
     void discardChanges(bool restore_data);
 
+  private:
+    void pcdFormCreation(PCD&, bool editing = false);
+
   private slots:
     void onInsertPointBtnClicked();
     void onDataPointBtnClicked();
+
+    /*!
+      \brief Slot triggered when the projection button has been clicked and it displays the DataSet Projection GUI
+    */
+    void onProjectionClicked();
+
+    /*!
+      \brief It populates the msak field with menu mask values, like "%d %a"
+    */
+    void onMenuMaskClicked(QAction*);
+
+    /*!
+      \brief Slot triggered when the PCD plus button has been clicked and it displays the Insertion/Modification PCD GUI
+     */
+    void onPCDInsertFileClicked();
+
+    /*!
+     * \brief Slot triggered when click on remove selected pcd from table widget
+     */
+    void onPCDRemoveClicked();
+
+    /*!
+      \brief Slot triggered when double clicked at pcd table widget and it displays the pcd dialog with filled fields
+     */
+    void onPCDTableDoubleClicked(QTableWidgetItem*);
+
+    /*!
+      \brief Slot triggered to display SurfaceDialog
+     */
+    void onSurfaceBtnClicked();
+
+    /*!
+      \brief Slot triggered at pcdexport button to export pcd in terrama2 format
+     */
+    void onPCDExportClicked();
+
+  private:
+    QList<PCD> pcds_;
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
