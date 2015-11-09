@@ -34,7 +34,7 @@
 
 // TerraLib
 #include <terralib/datatype/DateTime.h>
-#include <terralib/datatype/TimeDuration.h>
+#include <terralib/datatype/TimeInstant.h>
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/Polygon.h>
 
@@ -132,16 +132,16 @@ terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::
       discardBefore_.reset(nullptr);
     else
     {
-      te::dt::TimeDuration* discardBefore = dynamic_cast<te::dt::TimeDuration*>(rhs.discardBefore_.get());
-      discardBefore_.reset(new te::dt::TimeDuration(*discardBefore));
+      te::dt::TimeInstant* discardBefore = dynamic_cast<te::dt::TimeInstant*>(rhs.discardBefore_.get());
+      discardBefore_.reset(new te::dt::TimeInstant(*discardBefore));
     }
 
     if(rhs.discardAfter_ == nullptr)
       discardAfter_.reset(nullptr);
     else
     {
-      te::dt::TimeDuration* discardAfter = dynamic_cast<te::dt::TimeDuration*>(rhs.discardAfter_.get());
-      discardAfter_.reset(new te::dt::TimeDuration(*discardAfter));
+      te::dt::TimeInstant* discardAfter = dynamic_cast<te::dt::TimeInstant*>(rhs.discardAfter_.get());
+      discardAfter_.reset(new te::dt::TimeInstant(*discardAfter));
     }
 
     if(rhs.geometry_ == nullptr)
@@ -174,20 +174,20 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
     discardBefore_.reset(nullptr);
   else
   {
-    te::dt::TimeDuration* discardBefore = dynamic_cast<te::dt::TimeDuration*>(rhs.discardBefore_.get());
+    te::dt::TimeInstant* discardBefore = dynamic_cast<te::dt::TimeInstant*>(rhs.discardBefore_.get());
     if(discardBefore != nullptr)
-      discardBefore_.reset(new te::dt::TimeDuration(*discardBefore));
+      discardBefore_.reset(new te::dt::TimeInstant(*discardBefore));
     else
       discardBefore_.reset(nullptr);
   }
 
-  if(rhs.geometry_ == nullptr)
-    geometry_.reset(nullptr);
+  if(rhs.discardAfter_ == nullptr)
+    discardAfter_.reset(nullptr);
   else
   {
-    te::dt::TimeDuration* discardAfter = dynamic_cast<te::dt::TimeDuration*>(rhs.discardAfter_.get());
+    te::dt::TimeInstant* discardAfter = dynamic_cast<te::dt::TimeInstant*>(rhs.discardAfter_.get());
     if(discardAfter != nullptr)
-      discardAfter_.reset(new te::dt::TimeDuration(*discardAfter));
+      discardAfter_.reset(new te::dt::TimeInstant(*discardAfter));
     else
       discardAfter_.reset(nullptr);
   }

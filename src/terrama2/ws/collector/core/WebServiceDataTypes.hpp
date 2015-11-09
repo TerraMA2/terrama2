@@ -27,6 +27,7 @@
   \author Vinicius Campanha
  */
 
+
 struct DataProvider
 {
   uint64_t      id;
@@ -38,18 +39,6 @@ struct DataProvider
 };
 
 
-struct Filter
-{
-  uint64_t          datasetItem;
-  std::string       discardBefore;
-  std::string       discardAfter;
-  std::string       geometry;
-  double            value;
-  uint32_t          expressionType;
-  std::string       bandFilter;
-};
-
-// VINICIUS: work with Filter and std::map
 struct DataSetItem
 {
   uint32_t      kind;
@@ -59,8 +48,7 @@ struct DataSetItem
   std::string   mask;
   std::string   timezone;
 
-  //std::map<std::string, std::string> storageMetadata;
-
+// the filters values need to be initialized to avoid to create non-existent filters
   uint64_t          filter_datasetItem;
   std::string       filter_discardBefore;
   std::string       filter_discardAfter;
@@ -68,22 +56,23 @@ struct DataSetItem
   double            filter_value;
   uint32_t          filter_expressionType;
   std::string       filter_bandFilter;
+
+  std::vector< std::string > storageMetadata_keys;
+  std::vector< std::string > storageMetadata_values;
 };
 
 
 struct DataSet
 {
-  uint64_t                        id;
-  std::string                     name;
-  std::string                     description;
-  uint32_t                        status;
-  uint64_t                        data_provider_id;
-  uint32_t                        kind;
-  std::string                     data_frequency;
-  std::string                     schedule;
-  std::string                     schedule_retry;
-  std::string                     schedule_timeout;
-  std::vector<struct DataSetItem> dataset_items;
+  uint64_t                          id;
+  std::string                       name;
+  std::string                       description;
+  uint32_t                          status;
+  uint64_t                          data_provider_id;
+  uint32_t                          kind;
+  std::string                       data_frequency;
+  std::string                       schedule;
+  std::string                       schedule_retry;
+  std::string                       schedule_timeout;
+  std::vector< struct DataSetItem > dataset_items;
 };
-
-

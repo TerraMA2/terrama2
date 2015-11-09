@@ -80,7 +80,7 @@ private slots:
     /*!
      * \brief Test to convert a Data Provider Struct to a DataProviderPtr
      */
-    void TestWrongConvertDataProviderStructToDataProvider();
+    void TestConvertDataProviderStructToDataProvider();
 
 
     /*!
