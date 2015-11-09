@@ -125,16 +125,31 @@ AdminApp::AdminApp(QWidget* parent)
   enableFields(false);
 
 // Tips
-  pimpl_->ui_->dbTab->setToolTip(tr("Aba Base de Dados"));
-  pimpl_->ui_->aquisitionTab->setToolTip(tr("Aba Coleta"));
-  pimpl_->ui_->analysisTab->setToolTip(tr("Aba Análises"));
-  pimpl_->ui_->layersTab->setToolTip(tr("Aba Planos"));
-  pimpl_->ui_->notificationTab->setToolTip(tr("Aba Notificação"));
-  pimpl_->ui_->configTab->setToolTip(tr("Aba Balanceamento de Carga"));
-  pimpl_->ui_->animationTab->setToolTip(tr("Aba Animação"));
-  pimpl_->ui_->webTab->setToolTip(tr("Aba Alertas WEB"));
+  pimpl_->ui_->dbTab->setToolTip(tr("Dados necessários para conexão com o banco de dados."));
+  pimpl_->ui_->dbTypeCmb->setToolTip(tr("Sistema Gerenciador de banco de dados."));
+  pimpl_->ui_->dbAddressLed->setToolTip(tr("Endereço de acesso ao banco de dados."));
+  pimpl_->ui_->dbPortLed->setToolTip(tr("Porta de acesso do Sistema Gerenciador de banco de dados."));
+  pimpl_->ui_->dbUserLed->setToolTip(tr("Usuário do sistema gerenciador de banco de dados."));
+  pimpl_->ui_->dbPasswordLed->setToolTip(tr("Senha do sistema gerenciador de banco de dados."));
+  pimpl_->ui_->dbDatabaseLed->setToolTip(tr("Nome da base de dados."));
+  pimpl_->ui_->dbCreateDatabaseBtn->setToolTip(tr("Criar base de dados."));
+  pimpl_->ui_->dbCheckConnectionBtn->setToolTip(tr("Testa a conexão com o banco de dados."));
+  pimpl_->ui_->dbStudyChk->setToolTip(tr("A Base de dados para estudo utilizam dados históricos."));
+  pimpl_->ui_->aquisitionTab->setToolTip(tr("Dados necessários do servidor que irá realizar a coleta."));
+  pimpl_->ui_->aqAddressLed->setToolTip(tr("Endereço do servidor de coleta."));
+  pimpl_->ui_->aqPortLed->setToolTip(tr("Porta de serviço do servidor de coleta."));
+  pimpl_->ui_->aqLogFileLed->setToolTip(tr("Nome do arquivo de log."));
+  pimpl_->ui_->aqDirNameLed->setToolTip(tr("Diretório para salvar dados coletados."));
+  pimpl_->ui_->aqTimeoutMinSpb->setToolTip(tr("Tempo máximo de espera por uma resposta do servidor."));
+  pimpl_->ui_->aqTimeoutSecSpb->setToolTip(tr("Tempo máximo de espera por uma resposta do servidor."));
+  pimpl_->ui_->analysisTab->setToolTip(tr("Configuração do servidor que irá realizar os serviços de análise."));
+  pimpl_->ui_->layersTab->setToolTip(tr("Configuração do servidor que irá realizar o serviço de gerencia de planos."));
+  pimpl_->ui_->notificationTab->setToolTip(tr("Configuração do servidor que irá realizar o serviço de notificação."));
+  pimpl_->ui_->configTab->setToolTip(tr("Associação de cada regra de análise a uma instância do serviço de análise."));
+  pimpl_->ui_->animationTab->setToolTip(tr("Configuração do servidor que irá realizar o serviço de animação."));
+  pimpl_->ui_->webTab->setToolTip(tr("Customização do módulo de apresentação WEB."));
 
- // Init services for each tab
+// Init services for each tab
   QSharedPointer<AdminAppTab> dbTab(new AdminAppDBTab(this,pimpl_->ui_));
   QSharedPointer<AdminAppTab> collectTab(new AdminAppCollectTab(this,pimpl_->ui_));
 
@@ -212,7 +227,7 @@ void AdminApp::newRequested()
 {
   if (dataChanged_)
   {
-     QMessageBox::information(this, tr("TerraMA2"), tr("Save data changed!"));
+     QMessageBox::warning(this, tr("TerraMA2"), tr("The configuration must be saved before performing this action."));
      pimpl_->ui_->saveBtn->setFocus();
   }
   else
@@ -235,7 +250,10 @@ void AdminApp::newRequested()
     if (!ok || newname.isEmpty())
     {
       refresh();
-      enableFields(false);
+      int row = pimpl_->ui_->configListWidget->count()-1;
+
+      if (row < 0)
+        enableFields(false);
       newData_ = false;
       dataChanged_ = false;
       pimpl_->ui_->renameAct->setEnabled(true);
@@ -273,7 +291,7 @@ void AdminApp::openRequested()
 {
   if (dataChanged_)
   {
-    QMessageBox::information(this, tr("TerraMA2"), tr("Save data changed!"));
+    QMessageBox::warning(this, tr("TerraMA2"), tr("The configuration must be saved before performing this action."));
     pimpl_->ui_->saveBtn->setFocus();
   }
   else
@@ -390,7 +408,6 @@ void AdminApp::save()
      { // Save file changed
        QString selectedname = pimpl_->ui_->configListWidget->currentItem()->text();
        QJsonObject fileSeleted = configManager_->getfiles().take(selectedname);
-       //QJsonObject fileSeleted = configManager_->getfiles().take(nameConfig_);
        newfilename = fileSeleted.take("path").toString();
      }
 
@@ -426,8 +443,6 @@ void AdminApp::save()
      metadata.insert("path",newfilename);
      configManager_->insertFile(nameConfig_, metadata);
 
-     //QMessageBox::information(this, tr("TerraMA2"), tr("Configuration successfully saved!"));
-
      pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
      pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
      pimpl_->ui_->saveBtn->setEnabled(false);
@@ -457,7 +472,10 @@ void AdminApp::cancelRequested()
 
    refresh();
 
-   enableFields(false);
+   row = pimpl_->ui_->configListWidget->count();
+
+   if (row <= 0)
+     enableFields(false);
   }
   else
   {
@@ -597,8 +615,6 @@ void AdminApp::dbCheckConnectionRequested()
 // Refresh
 void AdminApp::refresh()
 {
- // int row = pimpl_->ui_->configListWidget->currentRow();
-
   int row = pimpl_->ui_->configListWidget->count()-1;
 
   if (row < 0)
@@ -608,7 +624,6 @@ void AdminApp::refresh()
   else
   {
     pimpl_->ui_->configListWidget->setCurrentRow(row);
-    //QString selectedname = pimpl_->ui_->configListWidget->takeItem(row)->text();
     QString selectedname = pimpl_->ui_->configListWidget->currentItem()->text();
     QJsonObject selectedMetadata = configManager_->getfiles().take(selectedname);
 
@@ -638,7 +653,13 @@ void AdminApp::removeRequested()
 // Refresh list
   refresh();
 
+  int row = pimpl_->ui_->configListWidget->count();
+
+  if (row <= 0)
+    enableFields(false);
+
   newData_= false;
+  dataChanged_ = false;
 }
 
 // Service Dialog
@@ -646,7 +667,7 @@ void AdminApp::manageServices()
 {
   if (dataChanged_)
   {
-    QMessageBox::information(this, tr("TerraMA2"), tr("Save data changed!"));
+    QMessageBox::warning(this, tr("TerraMA2"), tr("The configuration must be saved before performing this action."));
     pimpl_->ui_->saveBtn->setFocus();
   }
   else
@@ -660,6 +681,7 @@ void AdminApp::manageServices()
 }
 
 // Console Dialog
+// TODO: use the show consoles when you have logs;
 void AdminApp::showConsoles()
 {
 // ConsoleDialog dlg(this);
@@ -771,13 +793,26 @@ void AdminApp::clearDataChanged()
 
 void AdminApp::ondbTab()
 {
-  pimpl_->ui_->saveBtn->setEnabled(true);
-  pimpl_->ui_->saveAct->setEnabled(true);
-  pimpl_->ui_->cancelBtn->setEnabled(true);
-  pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
-  pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
+  if (pimpl_->ui_->dbAddressLed->text().isEmpty() || pimpl_->ui_->dbUserLed->text().isEmpty()
+                                                  || pimpl_->ui_->dbPasswordLed->text().isEmpty()
+                                                  || pimpl_->ui_->dbDatabaseLed->text().isEmpty()
+                                                  || pimpl_->ui_->dbPortLed->text().isEmpty())
+  {
+    pimpl_->ui_->saveBtn->setEnabled(true);
+    pimpl_->ui_->saveAct->setEnabled(true);
+    pimpl_->ui_->cancelBtn->setEnabled(true);
+    pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(false);
+    pimpl_->ui_->dbCheckConnectionBtn->setEnabled(false);
+  }
+  else
+  {
+    pimpl_->ui_->saveBtn->setEnabled(true);
+    pimpl_->ui_->saveAct->setEnabled(true);
+    pimpl_->ui_->cancelBtn->setEnabled(true);
+    pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
+    pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
+  }
   dataChanged_ = true;
-  //newData_ = true;
 }
 
 // Clear Form Data
@@ -827,7 +862,7 @@ AdminApp::~AdminApp()
   delete pimpl_;
 }
 
-//! Evento chamado quando o usuário solicita o encerramento da aplicação
+//! Event called when the user requests to quit the application
 void AdminApp::closeEvent(QCloseEvent* close)
 {
   if (dataChanged_)
@@ -893,8 +928,5 @@ void AdminApp::fillForm()
 
   clearDataChanged();
   enableFields(true);
-  //pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
- // pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
-
 }
 

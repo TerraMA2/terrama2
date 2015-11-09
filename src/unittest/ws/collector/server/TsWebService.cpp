@@ -71,6 +71,87 @@ void TsWebService::clearDatabase()
 }
 
 
+DataProvider BuildStructDataProvider()
+{
+  DataProvider struct_dataProvider;
+
+  struct_dataProvider.id = 0;
+  struct_dataProvider.name = "Data Provider";
+  struct_dataProvider.kind = 1;
+  struct_dataProvider.description = "Data Provider description";
+  struct_dataProvider.status = 1;
+  struct_dataProvider.uri = "pathDataProvider";
+
+  return struct_dataProvider;
+}
+
+DataSet BuildStructDataSet(int providerId)
+{
+  DataSet struct_dataSet;
+
+  struct_dataSet.id = 0;
+  struct_dataSet.name = "Data Set";
+  struct_dataSet.kind = 1;
+  struct_dataSet.status = 1;
+  struct_dataSet.description = "Data Set description";
+  struct_dataSet.data_frequency = "00:01:00";
+  struct_dataSet.schedule = "00:02:00";
+  struct_dataSet.schedule_retry = "00:03:00";
+  struct_dataSet.schedule_timeout = "00:04:00";
+  struct_dataSet.data_provider_id = providerId;
+
+  for(int i = 0; i < 5; i++)
+  {
+    DataSetItem dataset_item{0,0,0,0,"","",0,"","","",std::nan(""),0,""};
+
+    dataset_item.kind = i + 1;
+    dataset_item.id = 0;
+    dataset_item.dataset = struct_dataSet.id;
+    dataset_item.status = 1;
+    dataset_item.mask = "mask" + i;
+    dataset_item.timezone = "-3";
+
+    if(i == 1)
+    {
+      dataset_item.filter_datasetItem = dataset_item.id;
+      dataset_item.filter_discardBefore = "2002-Jan-20 23:59:59";
+      dataset_item.filter_discardAfter = "2002-Jan-21 23:59:59";
+
+      te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
+
+      const double &xc(5), &yc(5), &halfSize(5);
+      s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
+      s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
+      s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
+      s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
+      s->setPoint(4, xc - halfSize, yc - halfSize); // closing
+
+      te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
+      p->push_back(s);
+
+      // VINICIUS: toString() is generating a wrong WKT, need to replace '\n' for ','
+      std::string geom = p->toString();
+      std::replace( geom.begin(), geom.end(), '\n', ',');
+      dataset_item.filter_geometry = geom;
+      dataset_item.filter_value = 10;
+      dataset_item.filter_expressionType = 2;
+      dataset_item.filter_bandFilter = "filter_bandFilter";
+    }
+
+    if(i == 2)
+      dataset_item.filter_value = std::nan("");
+
+    dataset_item.storageMetadata_keys.push_back("one");
+    dataset_item.storageMetadata_values.push_back("two");
+    dataset_item.storageMetadata_keys.push_back("two");
+    dataset_item.storageMetadata_values.push_back("one");
+
+    struct_dataSet.dataset_items.push_back(dataset_item);
+  }
+
+  return struct_dataSet;
+}
+
 void TsWebService::TestStatus()
 {
   std::string answer;
@@ -289,7 +370,7 @@ void TsWebService::testUpdateDataProvider()
     struct_dataProvider.name = "Data Provider Updated";
     struct_dataProvider.kind = 2;
     struct_dataProvider.description = "Data Provider description Updated";
-    struct_dataProvider.status = 2;
+    struct_dataProvider.status = 0;
     struct_dataProvider.uri = "C:/Dataprovider/path/updated";
 
     webService.updateDataProvider(struct_dataProvider, struct_dataProviderResult);
@@ -479,14 +560,8 @@ void TsWebService::TestAddDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider, struct_dataProviderResult;
-
-    struct_dataProvider.id = 0;
-    struct_dataProvider.name = "Data Provider";
-    struct_dataProvider.kind = 1;
-    struct_dataProvider.description = "Data Provider description";
-    struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "pathDataProvider";
+    DataProvider struct_dataProvider = BuildStructDataProvider();
+    DataProvider struct_dataProviderResult;
 
     WebService webService;
 
@@ -495,20 +570,9 @@ void TsWebService::TestAddDataSet()
       QFAIL("Add a Data Provider failed!");
     }
 
-    DataSet struct_dataSet;
-
-    struct_dataSet.id = 0;
-    struct_dataSet.name = "Data Set";
-    struct_dataSet.kind = 1;
-    struct_dataSet.status = 1;
-    struct_dataSet.description = "Data Set description";
-    struct_dataSet.data_frequency = "00:05:00.00";
-    struct_dataSet.schedule = "00:05:00.00";
-    struct_dataSet.schedule_retry = "00:05:00.00";
-    struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
-
+    DataSet struct_dataSet = BuildStructDataSet(struct_dataProviderResult.id);
     DataSet struct_dataSetResult;
+
     if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
@@ -531,14 +595,8 @@ void TsWebService::TestAddNullDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider, struct_dataProviderResult;
-
-    struct_dataProvider.id = 0;
-    struct_dataProvider.name = "Data Provider";
-    struct_dataProvider.kind = 1;
-    struct_dataProvider.description = "Data Provider description";
-    struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "pathDataProvider";
+    DataProvider struct_dataProvider = BuildStructDataProvider();
+    DataProvider struct_dataProviderResult;
 
     WebService webService;
 
@@ -572,14 +630,8 @@ void TsWebService::TestAddDataSetWithID()
 {
   try
   {
-    DataProvider struct_dataProvider, struct_dataProviderResult;
-
-    struct_dataProvider.id = 0;
-    struct_dataProvider.name = "Data Provider";
-    struct_dataProvider.kind = 1;
-    struct_dataProvider.description = "Data Provider description";
-    struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "pathDataProvider";
+    DataProvider struct_dataProvider = BuildStructDataProvider();
+    DataProvider struct_dataProviderResult;
 
     WebService webService;
 
@@ -588,20 +640,11 @@ void TsWebService::TestAddDataSetWithID()
       QFAIL("Add a Data Provider failed!");
     }
 
-    DataSet struct_dataSet;
+    DataSet struct_dataSet = BuildStructDataSet(struct_dataProviderResult.id);
+    DataSet struct_dataSetResult;
 
     struct_dataSet.id = 1;
-    struct_dataSet.name = "Data Set";
-    struct_dataSet.kind = 1;
-    struct_dataSet.status = 1;
-    struct_dataSet.description = "Data Set description";
-    struct_dataSet.data_frequency = "00:05:00.00";
-    struct_dataSet.schedule = "00:05:00.00";
-    struct_dataSet.schedule_retry = "00:05:00.00";
-    struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProvider.id;
 
-    DataSet struct_dataSetResult;
     if(webService.addDataSet(struct_dataSet, struct_dataSetResult) == SOAP_OK)
     {
       QFAIL("Should not add a Data Set With an ID!");
@@ -621,22 +664,11 @@ void TsWebService::TestAddDataSetWithWrongDataProviderID()
 {
   try
   {
+    DataSet struct_dataSet = BuildStructDataSet(1);
+    DataSet struct_dataSetResult;
+
     WebService webService;
 
-    DataSet struct_dataSet;
-
-    struct_dataSet.id = 0;
-    struct_dataSet.name = "Data Set";
-    struct_dataSet.kind = 1;
-    struct_dataSet.status = 1;
-    struct_dataSet.description = "Data Set description";
-    struct_dataSet.data_frequency = "00:05:00.00";
-    struct_dataSet.schedule = "00:05:00.00";
-    struct_dataSet.schedule_retry = "00:05:00.00";
-    struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = 1;
-
-    DataSet struct_dataSetResult;
     if(webService.addDataSet(struct_dataSet, struct_dataSetResult) == SOAP_OK)
     {
       QFAIL("Should not add a Data Set With a wrong Data Provider ID!");
@@ -657,14 +689,8 @@ void TsWebService::testRemoveDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider, struct_dataProviderResult;
-
-    struct_dataProvider.id = 0;
-    struct_dataProvider.name = "Data Provider";
-    struct_dataProvider.kind = 1;
-    struct_dataProvider.description = "Data Provider description";
-    struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "pathDataProvider";
+    DataProvider struct_dataProvider = BuildStructDataProvider();
+    DataProvider struct_dataProviderResult;
 
     WebService webService;
 
@@ -673,20 +699,9 @@ void TsWebService::testRemoveDataSet()
       QFAIL("Add a Data Provider failed!");
     }
 
-    DataSet struct_dataSet;
-
-    struct_dataSet.id = 0;
-    struct_dataSet.name = "Data Set";
-    struct_dataSet.kind = 1;
-    struct_dataSet.status = 1;
-    struct_dataSet.description = "Data Set description";
-    struct_dataSet.data_frequency = "00:05:00.00";
-    struct_dataSet.schedule = "00:05:00.00";
-    struct_dataSet.schedule_retry = "00:05:00.00";
-    struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
-
+    DataSet struct_dataSet = BuildStructDataSet(struct_dataProviderResult.id);
     DataSet struct_dataSetResult;
+
     if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
@@ -734,14 +749,8 @@ void TsWebService::testUpdateDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider, struct_dataProviderResult;
-
-    struct_dataProvider.id = 0;
-    struct_dataProvider.name = "Data Provider";
-    struct_dataProvider.kind = 1;
-    struct_dataProvider.description = "Data Provider description";
-    struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "pathDataProvider";
+    DataProvider struct_dataProvider = BuildStructDataProvider();
+    DataProvider struct_dataProviderResult;
 
     WebService webService;
 
@@ -750,38 +759,69 @@ void TsWebService::testUpdateDataSet()
       QFAIL("Add a Data Provider failed!");
     }
 
-    DataSet struct_dataSet, struct_dataSet_check;
-
-    struct_dataSet.id = 0;
-    struct_dataSet.name = "Data Set";
-    struct_dataSet.kind = 1;
-    struct_dataSet.status = 1;
-    struct_dataSet.description = "Data Set description";
-    struct_dataSet.data_frequency = "00:05:00.00";
-    struct_dataSet.schedule = "00:05:00.00";
-    struct_dataSet.schedule_retry = "00:05:00.00";
-    struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
-
+    DataSet struct_dataSet = BuildStructDataSet(struct_dataProviderResult.id);
     DataSet struct_dataSetResult;
+
     if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
     }
 
-    struct_dataSet_check = struct_dataSetResult;
+    DataSet struct_dataSet_check = struct_dataSetResult;
 
-    struct_dataSet.id = struct_dataSetResult.id;
-    struct_dataSet.name = "Data Set Updated";
-    struct_dataSet.kind = 2;
-    struct_dataSet.status = 2;
-    struct_dataSet.description = "Data Set description Updated";
-    struct_dataSet.data_frequency = "00:06:00.00";
-    struct_dataSet.schedule = "00:06:00.00";
-    struct_dataSet.schedule_retry = "00:06:00.00";
-    struct_dataSet.schedule_timeout = "00:06:00.00";
+    struct_dataSetResult.name = "Data Set Updated";
+    struct_dataSetResult.kind = 2;
+    struct_dataSetResult.status = 2;
+    struct_dataSetResult.description = "Data Set description Updated";
+    struct_dataSetResult.data_frequency = "00:06:00.00";
+    struct_dataSetResult.schedule = "00:06:00.00";
+    struct_dataSetResult.schedule_retry = "00:06:00.00";
+    struct_dataSetResult.schedule_timeout = "00:06:00.00";
 
-    if(webService.updateDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
+
+    for(unsigned int i = 0; i < struct_dataSetResult.dataset_items.size(); i++)
+    {
+      struct_dataSetResult.dataset_items.at(i).kind = (i != 5 ? struct_dataSetResult.dataset_items.at(i).kind +1 : 1);
+      struct_dataSetResult.dataset_items.at(i).status = 0;
+      struct_dataSetResult.dataset_items.at(i).mask = "mask_update";
+      struct_dataSetResult.dataset_items.at(i).timezone = "-4";
+
+      if(i == 1)
+      {
+        struct_dataSetResult.dataset_items.at(i).filter_discardBefore = "2015-Jan-20 23:59:59";
+        struct_dataSetResult.dataset_items.at(i).filter_discardAfter = "2015-Jan-21 23:59:59";
+
+        te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
+
+        const double &xc(7), &yc(7), &halfSize(7);
+        s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
+        s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
+        s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
+        s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
+        s->setPoint(4, xc - halfSize, yc - halfSize); // closing
+
+        te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
+        p->push_back(s);
+
+        // VINICIUS: toString() is generating a wrong WKT, need to replace '\n' for ','
+        std::string geom = p->toString();
+        std::replace( geom.begin(), geom.end(), '\n', ',');
+        struct_dataSetResult.dataset_items.at(i).filter_geometry = geom;
+        struct_dataSetResult.dataset_items.at(i).filter_value = std::nan("");
+        struct_dataSetResult.dataset_items.at(i).filter_expressionType = 3;
+        struct_dataSetResult.dataset_items.at(i).filter_bandFilter = "filter_bandFilter_update";
+      }
+
+      if(i == 2)
+        struct_dataSetResult.dataset_items.at(i).filter_value = 15;
+
+      struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(0) = "three";
+      struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(0) = "four";
+      struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(1) = "four";
+      struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(1) = "three";
+    }
+
+    if(webService.updateDataSet(struct_dataSetResult, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Fail to update Data Set");
     }
@@ -796,6 +836,61 @@ void TsWebService::testUpdateDataSet()
     QVERIFY2(struct_dataSetResult.schedule != struct_dataSet_check.schedule, "Schedule didn't update!");
     QVERIFY2(struct_dataSetResult.schedule_retry != struct_dataSet_check.schedule_retry, "Schedule retry didn't update!");
     QVERIFY2(struct_dataSetResult.schedule_timeout != struct_dataSet_check.schedule_timeout, "Schedule Timeout didn't update!");
+
+    QCOMPARE(struct_dataSet_check.dataset_items.size(), struct_dataSetResult.dataset_items.size());
+
+    for(unsigned int i = 0; i < struct_dataSetResult.dataset_items.size(); i++)
+    {
+      QVERIFY(struct_dataSet_check.dataset_items.at(i).dataset == struct_dataSetResult.dataset_items.at(i).dataset);
+      QVERIFY(struct_dataSet_check.dataset_items.at(i).id == struct_dataSetResult.dataset_items.at(i).id);
+      QVERIFY(struct_dataSet_check.dataset_items.at(i).kind != struct_dataSetResult.dataset_items.at(i).kind);
+      QVERIFY(struct_dataSet_check.dataset_items.at(i).mask != struct_dataSetResult.dataset_items.at(i).mask);
+      QVERIFY(struct_dataSet_check.dataset_items.at(i).status != struct_dataSetResult.dataset_items.at(i).status);
+      QVERIFY(struct_dataSet_check.dataset_items.at(i).timezone != struct_dataSetResult.dataset_items.at(i).timezone);
+
+      QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_datasetItem == struct_dataSetResult.dataset_items.at(i).filter_datasetItem);
+
+      if(struct_dataSet_check.dataset_items.at(i).filter_expressionType != terrama2::core::Filter::NONE_TYPE)
+        QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_expressionType != struct_dataSetResult.dataset_items.at(i).filter_expressionType);
+      else
+        QCOMPARE(struct_dataSet_check.dataset_items.at(i).filter_expressionType, struct_dataSetResult.dataset_items.at(i).filter_expressionType);
+
+      if(struct_dataSet_check.dataset_items.at(i).filter_bandFilter != "")
+        QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_bandFilter != struct_dataSetResult.dataset_items.at(i).filter_bandFilter);
+      else
+        QCOMPARE(struct_dataSet_check.dataset_items.at(i).filter_bandFilter, struct_dataSetResult.dataset_items.at(i).filter_bandFilter);
+
+      if(struct_dataSet_check.dataset_items.at(i).filter_discardBefore != "")
+        QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_discardBefore != struct_dataSetResult.dataset_items.at(i).filter_discardBefore);
+      else
+        QCOMPARE(struct_dataSet_check.dataset_items.at(i).filter_discardBefore, struct_dataSetResult.dataset_items.at(i).filter_discardBefore);
+
+      if(struct_dataSet_check.dataset_items.at(i).filter_discardAfter != "")
+        QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_discardAfter != struct_dataSetResult.dataset_items.at(i).filter_discardAfter);
+      else
+        QCOMPARE(struct_dataSet_check.dataset_items.at(i).filter_discardAfter, struct_dataSetResult.dataset_items.at(i).filter_discardAfter);
+
+      if(struct_dataSet_check.dataset_items.at(i).filter_geometry != "")
+        QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_geometry != struct_dataSetResult.dataset_items.at(i).filter_geometry);
+      else
+        QCOMPARE(struct_dataSet_check.dataset_items.at(i).filter_geometry, struct_dataSetResult.dataset_items.at(i).filter_geometry);
+
+      if(!(std::isnan(struct_dataSet_check.dataset_items.at(i).filter_value) && std::isnan(struct_dataSet_check.dataset_items.at(i).filter_value)))
+        QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_value != struct_dataSetResult.dataset_items.at(i).filter_value);
+
+      QCOMPARE(struct_dataSet_check.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size());
+      QCOMPARE(struct_dataSet_check.dataset_items.at(i).storageMetadata_values.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+
+      QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+
+      for(unsigned int j = 0; j < struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(); j++)
+      {
+        QVERIFY(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(j) != struct_dataSet_check.dataset_items.at(i).storageMetadata_keys.at(j));
+        QVERIFY(struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(j) != struct_dataSet_check.dataset_items.at(i).storageMetadata_values.at(j));
+
+        j++;
+      }
+    }
 
   }
   catch(terrama2::Exception &e)
@@ -849,14 +944,8 @@ void TsWebService::testFindDataSet()
 {
   try
   {
-    DataProvider struct_dataProvider, struct_dataProviderResult;
-
-    struct_dataProvider.id = 0;
-    struct_dataProvider.name = "Data Provider";
-    struct_dataProvider.kind = 1;
-    struct_dataProvider.description = "Data Provider description";
-    struct_dataProvider.status = 1;
-    struct_dataProvider.uri = "pathDataProvider";
+    DataProvider struct_dataProvider = BuildStructDataProvider();
+    DataProvider struct_dataProviderResult;
 
     WebService webService;
 
@@ -865,20 +954,9 @@ void TsWebService::testFindDataSet()
       QFAIL("Add a Data Provider failed!");
     }
 
-    DataSet struct_dataSet, struct_dataSet_found;
-
-    struct_dataSet.id = 0;
-    struct_dataSet.name = "Data Set";
-    struct_dataSet.kind = 1;
-    struct_dataSet.status = 1;
-    struct_dataSet.description = "Data Set description";
-    struct_dataSet.data_frequency = "00:05:00.00";
-    struct_dataSet.schedule = "00:05:00.00";
-    struct_dataSet.schedule_retry = "00:05:00.00";
-    struct_dataSet.schedule_timeout = "00:05:00.00";
-    struct_dataSet.data_provider_id = struct_dataProviderResult.id;
-
+    DataSet struct_dataSet = BuildStructDataSet(struct_dataProviderResult.id);
     DataSet struct_dataSetResult;
+
     if(webService.addDataSet(struct_dataSet, struct_dataSetResult) != SOAP_OK)
     {
       QFAIL("Add a Data Set failed!");
@@ -886,22 +964,63 @@ void TsWebService::testFindDataSet()
 
     QVERIFY2(struct_dataSetResult.id != 0, "Data Set have a invalid ID!");
 
+    DataSet struct_dataSet_found;
+
     if(webService.findDataSet(struct_dataSetResult.id, struct_dataSet_found) != SOAP_OK)
     {
       QFAIL("Failed to find the Data Set!");
     }
 
     QCOMPARE(struct_dataSetResult.id, struct_dataSet_found.id);
-    QVERIFY2(struct_dataSetResult.data_provider_id == struct_dataSet_found.data_provider_id, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.name == struct_dataSet_found.name, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.kind == struct_dataSet_found.kind, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.status == struct_dataSet_found.status, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.description == struct_dataSet_found.description, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.data_frequency == struct_dataSet_found.data_frequency, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.schedule == struct_dataSet_found.schedule, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.schedule_retry == struct_dataSet_found.schedule_retry, "Error to find properly the Data Set!");
-    QVERIFY2(struct_dataSetResult.schedule_timeout == struct_dataSet_found.schedule_timeout, "Error to find properly the Data Set!");
+    QCOMPARE(struct_dataSetResult.data_provider_id, struct_dataSet_found.data_provider_id);
+    QCOMPARE(struct_dataSetResult.name, struct_dataSet_found.name);
+    QCOMPARE(struct_dataSetResult.kind, struct_dataSet_found.kind);
+    QCOMPARE(struct_dataSetResult.status, struct_dataSet_found.status);
+    QCOMPARE(struct_dataSetResult.description, struct_dataSet_found.description);
+    QCOMPARE(struct_dataSetResult.data_frequency, struct_dataSet_found.data_frequency);
+    QCOMPARE(struct_dataSetResult.schedule, struct_dataSet_found.schedule);
+    QCOMPARE(struct_dataSetResult.schedule_retry, struct_dataSet_found.schedule_retry);
+    QCOMPARE(struct_dataSetResult.schedule_timeout, struct_dataSet_found.schedule_timeout);
 
+    QCOMPARE(struct_dataSet_found.dataset_items.size(), struct_dataSetResult.dataset_items.size());
+
+    for(unsigned int i = 0; i < struct_dataSetResult.dataset_items.size(); i++)
+    {
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).dataset, struct_dataSetResult.dataset_items.at(i).dataset);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).id, struct_dataSetResult.dataset_items.at(i).id);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).kind, struct_dataSetResult.dataset_items.at(i).kind);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).mask, struct_dataSetResult.dataset_items.at(i).mask);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).status, struct_dataSetResult.dataset_items.at(i).status);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).timezone, struct_dataSetResult.dataset_items.at(i).timezone);
+
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).filter_datasetItem, struct_dataSetResult.dataset_items.at(i).filter_datasetItem);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).filter_expressionType, struct_dataSetResult.dataset_items.at(i).filter_expressionType);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).filter_bandFilter, struct_dataSetResult.dataset_items.at(i).filter_bandFilter);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).filter_discardBefore, struct_dataSetResult.dataset_items.at(i).filter_discardBefore);
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).filter_discardAfter, struct_dataSetResult.dataset_items.at(i).filter_discardAfter);
+
+      // VINICIUS: terrama2::core don't save geometry yet
+      //QCOMPARE(struct_dataSet_found.dataset_items.at(i).filter_geometry, struct_dataSetResult.dataset_items.at(i).filter_geometry);
+
+      if(!std::isnan(struct_dataSetResult.dataset_items.at(i).filter_value))
+        QCOMPARE(struct_dataSet_found.dataset_items.at(i).filter_value, struct_dataSetResult.dataset_items.at(i).filter_value);
+      else
+        if(!std::isnan(struct_dataSet_found.dataset_items.at(i).filter_value))
+          QFAIL("Compared filter values are not the same");
+
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size());
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).storageMetadata_values.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+
+      QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+
+      for(unsigned int j = 0; j < struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(); j++)
+      {
+        QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(j), struct_dataSet_found.dataset_items.at(i).storageMetadata_keys.at(j));
+        QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(j), struct_dataSet_found.dataset_items.at(i).storageMetadata_values.at(j));
+
+        j++;
+      }
+    }
   }
   catch(terrama2::Exception &e)
   {
