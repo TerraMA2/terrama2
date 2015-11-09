@@ -1,7 +1,6 @@
 // TerraMA2
 #include "ConfigAppWeatherTab.hpp"
 #include "ConfigApp.hpp"
-#include "ProjectionDialog.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
 #include "../../core/Utils.hpp"
@@ -34,11 +33,10 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->importServerBtn, SIGNAL(clicked()), SLOT(onImportServer()));
 
   // Bind the data series type with respective group view
-  connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-          SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
+                                SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
 
   // Tabs
   QSharedPointer<ConfigAppWeatherServer> serverTab(new ConfigAppWeatherServer(app, ui));
@@ -69,22 +67,29 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->archivingAct->setEnabled(false);
   ui_->terraMEPlayerAct->setEnabled(false);
   ui_->refreshAct->setEnabled(false);
+
+  //loading server pixmap from icon theme and set it to label
+  QPixmap pixmap = QIcon::fromTheme("servers").pixmap(64);
+  ui_->labelServerInfo->setPixmap(pixmap);
+
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
 {
-
+//  delete timer_;
 }
 
 void ConfigAppWeatherTab::clearList()
 {
   qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
   providers_.clear();
+  datasets_.clear();
 }
 
 void ConfigAppWeatherTab::load()
 {
   clearList();
+
   try
   {
     std::vector<terrama2::core::DataProvider> providers;
@@ -139,7 +144,7 @@ void ConfigAppWeatherTab::load()
           item->addChild(subItem);
         }
       }
-    }
+    } // endfor
   }
   catch (const terrama2::Exception& e)
   {
@@ -254,7 +259,6 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
 
     try
     {
-      //FIXME: It throws exception at Server side and shutdown both
       app_->getClient()->removeDataProvider(cachedProvider.id());
       QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
 
@@ -329,8 +333,6 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
 
-//        ui_->connectionAddress->setText(QString(provider.uri().c_str()));
-
         ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
         ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));
 
@@ -339,8 +341,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->updateDataGridBtn->hide();
         ui_->exportDataGridBtn->hide();
         ui_->gridFormatDataDeleteBtn->hide();
-
-      }
+      } // endif
       else
       {
         for(auto dataset: datasets_)
@@ -349,6 +350,8 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
           {
             displayOperationButtons(true);
             //TODO: generic function giving dataprovider
+
+            //fill up fields
             switch(dataset.kind())
             {
               case terrama2::core::DataSet::GRID_TYPE:
@@ -356,12 +359,24 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 subTabs_[1]->setSelectedData(selectedItem->text(0));
 
                 ui_->gridFormatDataName->setText(dataset.name().c_str());
+                ui_->gridFormatDataDescription->setText(dataset.description().c_str());
+                ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+                ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
+
+                // temp code
+                if (dataset.dataSetItems().size() > 0)
+                {
+                  terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
+                  ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
+                }
+
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
                 ui_->updateDataGridBtn->setVisible(true);
                 ui_->exportDataGridBtn->setVisible(true);
                 ui_->gridFormatDataDeleteBtn->setVisible(true);
+
                 break;
               case terrama2::core::DataSet::PCD_TYPE:
                 changeTab(*(subTabs_[2].data()), *ui_->DataPointPage);
@@ -380,6 +395,10 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 subTabs_[3]->setSelectedData(selectedItem->text(0));
 
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
+                ui_->pointDiffFormatDataDescription->setText(dataset.description().c_str());
+                ui_->pointDiffFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+                if (dataset.dataSetItems().size() > 0)
+                  ui_->pointDiffFormatDataMask->setText(dataset.dataSetItems().at(0).mask().c_str());
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
@@ -393,12 +412,12 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
               }
             }
             return;
-          }
-        }
+          } // endif
+        } // endfor
 
         throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
 
-      }
+      } //end else
     }
     catch (const terrama2::Exception& e)
     {
@@ -424,16 +443,16 @@ void ConfigAppWeatherTab::onExportServerClicked()
     QJsonObject json;
     json["name"] = ui_->serverName->text();
     json["description"] = ui_->serverDescription->toPlainText();
-
     json["kind"] = ui_->connectionProtocol->currentText();
     json["address"] = ui_->connectionAddress->text();
     json["port"] = ui_->connectionPort->text();
     json["username"] = ui_->connectionUserName->text();
     json["password"] = ui_->connectionPort->text();
-
     json["interval"] = ui_->serverIntervalData->text();
 
-    terrama2::gui::core::saveTerraMA2File(app_, json);
+    QString path = QFileDialog::getSaveFileName(app_, tr("Type where is to save dataprovider"), ".", "TerraMA2 (*.terrama2)");
+
+    terrama2::gui::core::saveTerraMA2File(app_, path, json);
 
     QMessageBox::information(app_, tr("TerraMA2 Export Data Provider"), tr("The data provider has been successfully exported!"));
 
@@ -449,19 +468,10 @@ void ConfigAppWeatherTab::onExportServerClicked()
   }
 }
 
-void ConfigAppWeatherTab::onProjectionClicked()
-{
-  ProjectionDialog projectionDialog(app_);
-
-  projectionDialog.show();
-  projectionDialog.exec();
-}
-
 void ConfigAppWeatherTab::displayOperationButtons(bool state)
 {
   ui_->saveBtn->setVisible(state);
   ui_->cancelBtn->setVisible(state);
-
   ui_->saveBtn->setEnabled(state);
   ui_->cancelBtn->setEnabled(state);
 }
@@ -473,7 +483,6 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
     {
       if (tab->dataChanged())
       {
-        // todo: ASK FOR would like to save
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(app_, tr("TerraMA2"),
                                       tr("Would you like to try save before cancel?"),

@@ -4,50 +4,32 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
 #include "../../core/DataSet.hpp"
+#include "../../core/Filter.hpp"
+#include "../../core/DataSetItem.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
+#include "FilterDialog.hpp"
+#include "ProjectionDialog.hpp"
 
 // QT
 #include <QMessageBox>
 
 
 ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+  : ConfigAppTab(app, ui), filter_(new terrama2::core::Filter)
 {
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridClicked()));
+  connect(ui_->filterGridBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
   connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabChanged()));
   connect(ui_->gridFormatDataFormat, SIGNAL(currentIndexChanged(const QString&)), SLOT(onGridFormatChanged()));
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
 
-  ui_->gridFormatDataType->setEnabled(false);
-  ui_->projectionGridBtn->setEnabled(false);
-  ui_->gridFormatDataResolution->setEnabled(false);
-  ui_->gridFormatDataPrefix->setEnabled(false);
-  ui_->gridFormatDataFrequency->setEnabled(false);
-  ui_->gridFormatDataTimeZoneCmb->setEnabled(false);
-  ui_->gridFormatDataUnit->setEnabled(false);
-  ui_->gridFormatDataDescription->setEnabled(false);
-  ui_->gridFormatDataPath->setEnabled(false);
-  ui_->gridFormatDataMask->setEnabled(false);
-  ui_->gridFormatDataFormat->setEnabled(false);
-  ui_->ledGridGrADSArqControle->setEnabled(false);
-  ui_->ledGridGrADSMultiplicador->setEnabled(false);
-  ui_->cmbGridGrADSByteOrder->setEnabled(false);
-  ui_->rbGridGrADSTipoDadosFloat->setEnabled(false);
-  ui_->rbGridGrADSTipoDadosInt->setEnabled(false);
-  ui_->spbGridGrADSNumBands->setEnabled(false);
-  ui_->spbGridGrADSTimeOffset->setEnabled(false);
-  ui_->ledGridWCSDummy->setEnabled(false);
-  ui_->filterGridBtn->setEnabled(false);
-  ui_->spbGridGrADSHeaderSize->setEnabled(false);
-  ui_->spbGridGrADSTraillerSize->setEnabled(false);
-  ui_->exportDataGridBtn->setEnabled(false);
-  ui_->updateDataGridBtn->setEnabled(false);
+  connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
 {
-
+  delete filter_;
 }
 
 bool ConfigAppWeatherGridTab::dataChanged()
@@ -66,8 +48,12 @@ void ConfigAppWeatherGridTab::load()
   menuMask->addAction(tr("%m - minuto com dois digitos"));
   menuMask->addAction(tr("%s - segundo com dois digitos"));
   menuMask->addAction(tr("%. - um caracter qualquer"));
+
   ui_->fileGridMaskBtn->setMenu(menuMask);
   ui_->fileGridMaskBtn->setPopupMode(QToolButton::InstantPopup);
+
+  // connecting the menumask to display mask field values
+  connect(menuMask, SIGNAL(triggered(QAction*)), SLOT(onMenuMaskClicked(QAction*)));
 }
 
 void ConfigAppWeatherGridTab::save()
@@ -82,6 +68,25 @@ void ConfigAppWeatherGridTab::save()
   dataset.setKind(kind);
   dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
+  dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
+
+  terrama2::core::DataSetItem datasetItem;
+
+  // temp code
+  datasetItem.setFilter(*filter_);
+  datasetItem.setKind(terrama2::core::DataSetItem::UNKNOWN_TYPE);
+  datasetItem.setMask(ui_->gridFormatDataMask->text().toStdString());
+  datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
+  datasetItem.setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
+
+  dataset.add(datasetItem);
+
+  te::dt::TimeDuration dataFrequency(ui_->gridFormatDataFrequency->text().toInt(), 0, 0);
+  te::dt::TimeDuration schedule(0, ui_->gridFormatDataInterval->value(), 0);
+  dataset.setDataFrequency(dataFrequency);
+
+  // todo: get value from db
+  dataset.setSchedule(schedule);
   if (dataset.id() >= 1)
   {
     app_->getClient()->updateDataSet(dataset);
@@ -120,10 +125,9 @@ bool ConfigAppWeatherGridTab::validate()
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The Data Set Item name cannot be empty."));
   }
 
-  terrama2::core::DataSet dataset = terrama2::core::DataManager::getInstance().findDataSet(
-      ui_->gridFormatDataName->text().toStdString());
+  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(ui_->gridFormatDataName->text().toStdString());
 
-  if (dataset.id() >= 1 && !selectedData_.isEmpty())
+  if (dataset.id() != 0 && !selectedData_.isEmpty())
   {
     if (ui_->gridFormatDataName->text() != selectedData_)
     {
@@ -143,7 +147,10 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
   if (ui_->weatherDataTree->currentItem() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
-    app_->getWeatherTab()->changeTab(*this, *ui_->DataGridPage);
+  {
+    selectedData_.clear();
+        app_->getWeatherTab()->changeTab(*this, *ui_->DataGridPage);
+  }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
 }
@@ -196,4 +203,48 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
     }
   }
   ui_->cancelBtn->clicked();
+}
+
+void ConfigAppWeatherGridTab::onMenuMaskClicked(QAction* action)
+{
+  ui_->gridFormatDataMask->setText(
+        ui_->gridFormatDataMask->text() + action->text().left(2));
+}
+
+void ConfigAppWeatherGridTab::onFilterClicked()
+{
+  FilterDialog dialog(FilterDialog::FULL, app_);
+
+  dialog.fillGUI(*filter_);
+
+  if (dialog.exec() == QDialog::Accepted)
+    dialog.fillObject(*filter_);
+
+  if (dialog.isFilterByDate())
+    ui_->dateFilterLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByArea())
+    ui_->areaFilterLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByLayer())
+    ui_->bandFilterLabel->setText(tr("Yes"));
+  else
+    ui_->bandFilterLabel->setText(tr("No"));
+
+  if (dialog.isFilterByPreAnalyse())
+    ui_->preAnalysisLabel->setText(tr("Yes"));
+  else
+    ui_->preAnalysisLabel->setText(tr("No"));
+}
+
+void ConfigAppWeatherGridTab::onProjectionClicked()
+{
+  ProjectionDialog projectionDialog(app_);
+
+  projectionDialog.show();
+  projectionDialog.exec();
 }

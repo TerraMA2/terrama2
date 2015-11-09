@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SurfacesConfigDialogForm</class>
- <widget class="QDialog" name="SurfacesConfigDialogForm">
+ <class>SurfaceDialogForm</class>
+ <widget class="QDialog" name="SurfaceDialogForm">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>515</width>
-    <height>301</height>
+    <width>599</width>
+    <height>348</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Superfícies</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
-    <normaloff>:/data/icons/surface.png</normaloff>:/data/icons/surface.png</iconset>
+   <iconset theme="surface">
+    <normaloff/>
+   </iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_3" columnstretch="0,0">
    <item row="3" column="0" colspan="2">
@@ -36,11 +37,12 @@
      <item>
       <widget class="QPushButton" name="okBtn">
        <property name="text">
-        <string>Ok</string>
+        <string>OK</string>
        </property>
        <property name="icon">
-        <iconset resource="../../admin/ui/icons.qrc">
-         <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+        <iconset theme="confirm">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -50,8 +52,9 @@
         <string>Cancelar</string>
        </property>
        <property name="icon">
-        <iconset resource="../../admin/ui/icons.qrc">
-         <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
+        <iconset theme="cancel">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -386,7 +389,16 @@
           </sizepolicy>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
            <number>0</number>
           </property>
           <item>
@@ -462,7 +474,16 @@
           </sizepolicy>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
            <number>0</number>
           </property>
           <item>
@@ -579,8 +600,9 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../../admin/ui/icons.qrc">
-            <normaloff>:/global/icons/add.png</normaloff>:/global/icons/add.png</iconset>
+           <iconset theme="add">
+            <normaloff/>
+           </iconset>
           </property>
          </widget>
         </item>
@@ -590,8 +612,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../../admin/ui/icons.qrc">
-            <normaloff>:/global/icons/remove.png</normaloff>:/global/icons/remove.png</iconset>
+           <iconset theme="remove"/>
           </property>
          </widget>
         </item>
@@ -602,9 +623,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../admin/ui/icons.qrc"/>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

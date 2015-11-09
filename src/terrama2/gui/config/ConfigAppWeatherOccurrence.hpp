@@ -33,6 +33,15 @@
 
 #include "ConfigAppTab.hpp"
 
+// Forward Declaration
+namespace terrama2
+{
+  namespace core
+  {
+    class Filter;
+  }
+}
+
 class ConfigAppWeatherOccurrence : public ConfigAppTab
 {
   Q_OBJECT
@@ -45,9 +54,16 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     void save();
     void discardChanges(bool restore_data);
 
+  public:
+    void onFilterClicked();
+    void onProjectionClicked();
+
   private slots:
     void onDataSetBtnClicked();
     void onRemoveOccurrenceBtnClicked();
+
+  private:
+    terrama2::core::Filter* filter_; //!< Occurrence filter defined
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
