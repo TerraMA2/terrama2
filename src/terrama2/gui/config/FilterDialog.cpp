@@ -36,7 +36,7 @@
 #include <terralib/geometry/Polygon.h>
 #include <terralib/geometry/LinearRing.h>
 
-#include <terralib/datatype/Date.h>
+#include <terralib/datatype/TimeInstant.h>
 
 // boost
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -154,19 +154,20 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
   //TODO: improve date convertion. This code just uses boost to convert te::Date
   if (filter.discardBefore())
   {
-    const te::dt::Date* dt = static_cast<const te::dt::Date*>(filter.discardBefore());
+    const te::dt::TimeInstant* dt = dynamic_cast<const te::dt::TimeInstant*>(filter.discardBefore());
     pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
-    QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
-    pimpl_->ui_->dateBeforeFilterDed->setDate(date);
+    std::cout << dt->toString() << std::endl;
+    QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
+    pimpl_->ui_->datetimeBefore->setDateTime(date);
     emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
   }
 
   if (filter.discardAfter())
   {
-    const te::dt::Date* dt = static_cast<const te::dt::Date*>(filter.discardAfter());
+    const te::dt::TimeInstant* dt = dynamic_cast<const te::dt::TimeInstant*>(filter.discardAfter());
     pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
-    QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
-    pimpl_->ui_->dateAfterFilterDed->setDate(date);
+    QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
+    pimpl_->ui_->datetimeAfter->setDateTime(date);
     emit pimpl_->ui_->dateAfterFilterCbx->clicked();
   }
 
@@ -205,17 +206,17 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
   {
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
     {
-      QDate beforeDate = pimpl_->ui_->dateBeforeFilterDed->date();
-      std::unique_ptr<te::dt::Date> datePtr (new te::dt::Date(
-                                          beforeDate.year(), beforeDate.month(), beforeDate.day()));
+      QDateTime beforeDate = pimpl_->ui_->datetimeBefore->dateTime();
+      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(
+                                          boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardBefore(std::move(datePtr));
     }
 
     if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
     {
-      QDate afterDate = pimpl_->ui_->dateAfterFilterDed->date();
-      std::unique_ptr<te::dt::Date> datePtr (new te::dt::Date(
-                                          afterDate.year(), afterDate.month(), afterDate.day()));
+      QDateTime afterDate = pimpl_->ui_->datetimeAfter->dateTime();
+      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(
+                                          boost::posix_time::time_from_string(afterDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardAfter(std::move(datePtr));
     }
 
@@ -276,10 +277,10 @@ void FilterDialog::onFilteredByArea()
 
 void FilterDialog::onBeforeBtnClicked()
 {
-  pimpl_->ui_->dateBeforeFilterDed->setDate(QDate::currentDate());
+  pimpl_->ui_->datetimeBefore->setDate(QDate::currentDate());
 }
 
 void FilterDialog::onAfterBtnClicked()
 {
-  pimpl_->ui_->dateAfterFilterDed->setDate(QDate::currentDate());
+  pimpl_->ui_->datetimeAfter->setDate(QDate::currentDate());
 }

@@ -56,6 +56,8 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     void save();
     void discardChanges(bool restore_data);
 
+    void fillFilter(const terrama2::core::Filter&);
+
   public slots:
     void onFilterClicked();
     void onProjectionClicked();

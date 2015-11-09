@@ -582,7 +582,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="4" rowspan="3">
             <widget class="QStackedWidget" name="weatherPageStack">
              <property name="currentIndex">
-              <number>3</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="ServerGroupPage">
               <property name="enabled">
@@ -919,7 +919,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1" colspan="7">
+                  <item row="0" column="1" colspan="5">
                    <widget class="QLineEdit" name="gridFormatDataName"/>
                   </item>
                   <item row="1" column="0">
@@ -929,7 +929,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1" colspan="5">
+                  <item row="1" column="1" colspan="4">
                    <widget class="QComboBox" name="gridFormatDataType">
                     <item>
                      <property name="text">
@@ -948,7 +948,7 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </widget>
                   </item>
-                  <item row="1" column="7">
+                  <item row="1" column="5">
                    <widget class="QPushButton" name="projectionGridBtn">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -976,14 +976,14 @@ p, li { white-space: pre-wrap; }
                   <item row="2" column="1">
                    <widget class="QLineEdit" name="gridFormatDataResolution"/>
                   </item>
-                  <item row="2" column="2" colspan="2">
+                  <item row="2" column="2">
                    <widget class="QLabel" name="label_53">
                     <property name="text">
                      <string>Km</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="4">
+                  <item row="2" column="3">
                    <spacer>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -996,15 +996,19 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </spacer>
                   </item>
-                  <item row="2" column="5">
-                   <widget class="QLabel" name="label_55">
+                  <item row="2" column="4">
+                   <widget class="QLabel" name="label_10">
                     <property name="text">
-                     <string>Prefixo:</string>
+                     <string>Intervalo:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="6" colspan="2">
-                   <widget class="QLineEdit" name="gridFormatDataPrefix"/>
+                  <item row="2" column="5">
+                   <widget class="QSpinBox" name="gridFormatDataInterval">
+                    <property name="suffix">
+                     <string>min</string>
+                    </property>
+                   </widget>
                   </item>
                   <item row="3" column="0">
                    <widget class="QLabel" name="label_22">
@@ -1023,7 +1027,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="3" colspan="2">
+                  <item row="3" column="3">
                    <spacer>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -1036,38 +1040,14 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </spacer>
                   </item>
-                  <item row="3" column="5">
-                   <widget class="QLabel" name="label_10">
-                    <property name="text">
-                     <string>Intervalo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="7">
-                   <widget class="QSpinBox" name="gridFormatDataInterval">
-                    <property name="suffix">
-                     <string>min</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="label_82">
-                    <property name="text">
-                     <string>Unidade:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1" colspan="4">
-                   <widget class="QLineEdit" name="gridFormatDataUnit"/>
-                  </item>
-                  <item row="4" column="5" colspan="2">
+                  <item row="3" column="4">
                    <widget class="QLabel" name="label_56">
                     <property name="text">
                      <string>Fuso Horário:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="7">
+                  <item row="3" column="5">
                    <widget class="QComboBox" name="gridFormatDataTimeZoneCmb">
                     <property name="currentIndex">
                      <number>0</number>
@@ -1199,14 +1179,14 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </widget>
                   </item>
-                  <item row="5" column="0">
+                  <item row="4" column="0">
                    <widget class="QLabel" name="label_18">
                     <property name="text">
                      <string>Descrição:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1" colspan="7">
+                  <item row="4" column="1" colspan="5">
                    <widget class="QTextEdit" name="gridFormatDataDescription">
                     <property name="maximumSize">
                      <size>
@@ -1258,13 +1238,6 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="3">
-                   <widget class="QLabel" name="gridFormatDataFormatLabel">
-                    <property name="text">
-                     <string>Formato:</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="4">
                    <widget class="QComboBox" name="gridFormatDataFormat">
                     <item>
@@ -1282,6 +1255,13 @@ p, li { white-space: pre-wrap; }
                       <string>GrADS</string>
                      </property>
                     </item>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QLabel" name="gridFormatDataFormatLabel">
+                    <property name="text">
+                     <string>Formato:</string>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -2469,7 +2449,9 @@ p, li { white-space: pre-wrap; }
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset theme="pcd"/>
+                       <iconset theme="pcd">
+                        <normaloff/>
+                       </iconset>
                       </property>
                      </widget>
                     </item>
@@ -6610,10 +6592,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>gridFormatDataType</tabstop>
   <tabstop>projectionGridBtn</tabstop>
   <tabstop>gridFormatDataResolution</tabstop>
-  <tabstop>gridFormatDataPrefix</tabstop>
   <tabstop>gridFormatDataFrequency</tabstop>
   <tabstop>gridFormatDataTimeZoneCmb</tabstop>
-  <tabstop>gridFormatDataUnit</tabstop>
   <tabstop>gridFormatDataDescription</tabstop>
   <tabstop>gridFormatDataPath</tabstop>
   <tabstop>gridFormatDataMask</tabstop>

@@ -356,28 +356,35 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
             switch(dataset.kind())
             {
               case terrama2::core::DataSet::GRID_TYPE:
-                changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
-                subTabs_[1]->setSelectedData(selectedItem->text(0));
-
-                ui_->gridFormatDataName->setText(dataset.name().c_str());
-                ui_->gridFormatDataDescription->setText(dataset.description().c_str());
-                ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
-                ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
-
-                // temp code
-                if (dataset.dataSetItems().size() > 0)
                 {
-                  terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
-                  ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
+                  changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
+                  ConfigAppWeatherGridTab* gridTab = dynamic_cast<ConfigAppWeatherGridTab*>(subTabs_[1].data());
+
+                  gridTab->setSelectedData(selectedItem->text(0));
+
+                  ui_->gridFormatDataName->setText(dataset.name().c_str());
+                  ui_->gridFormatDataDescription->setText(dataset.description().c_str());
+                  ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+                  ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
+
+                  // temp code
+                  if (dataset.dataSetItems().size() > 0)
+                  {
+                    terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
+                    ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
+                    ui_->gridFormatDataMask->setText(datasetItem.mask().c_str());
+                    ui_->gridFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
+                    gridTab->fillFilter(datasetItem.filter());
+                  }
+
+                  hideDataSetButtons();
+                  showDataSeries(false);
+                  ui_->dataSeriesBtnGroupBox->setVisible(true);
+                  ui_->updateDataGridBtn->setVisible(true);
+                  ui_->exportDataGridBtn->setVisible(true);
+                  ui_->gridFormatDataDeleteBtn->setVisible(true);
+
                 }
-
-                hideDataSetButtons();
-                showDataSeries(false);
-                ui_->dataSeriesBtnGroupBox->setVisible(true);
-                ui_->updateDataGridBtn->setVisible(true);
-                ui_->exportDataGridBtn->setVisible(true);
-                ui_->gridFormatDataDeleteBtn->setVisible(true);
-
                 break;
               case terrama2::core::DataSet::PCD_TYPE:
                 changeTab(*(subTabs_[2].data()), *ui_->DataPointPage);

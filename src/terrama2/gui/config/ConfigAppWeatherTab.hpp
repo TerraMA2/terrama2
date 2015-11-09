@@ -111,8 +111,9 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! It refresh the weatherdatalist from widget and string for replace
     void refreshList(QTreeWidgetItem* widget, QString searchFor, QString replace);
 
-  private:
     void showDataSeries(bool state);
+
+  private:
     void hideDataSetButtons();
     void hidePanels(QWidget* except);
 
