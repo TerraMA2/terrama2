@@ -25,6 +25,8 @@
   \brief The base API for TerraMA2 application.
 
   \author Paulo R. M. Oliveira
+  \author Evandro Delatin
+  \author Jano Simas
 */
 
 // TerraMA2

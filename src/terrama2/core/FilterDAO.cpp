@@ -112,7 +112,7 @@ terrama2::core::FilterDAO::update(const Filter& filter, te::da::DataSourceTransa
   boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
                       "discard_after = %2%, geom = %3%, external_data_id = %4%, "
                       "value = %5%, expression_type = %6%, within_external_data_id = %7%, "
-                      "band_filter = %8% WHERE dataset_item_id = %9%)");
+                      "band_filter = %8% WHERE dataset_item_id = %9%");
 
   if(filter.discardBefore())
     query.bind_arg(1, "'" + filter.discardBefore()->toString() + "'");
@@ -209,18 +209,21 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
 
     Filter filter(datasetItemId);
 
-    filter.setDiscardBefore(filter_result->getDateTime("discard_before"));
-    filter.setDiscardAfter(filter_result->getDateTime("discard_after"));
+    if(!filter_result->isNull("discard_before"))
+      filter.setDiscardBefore(filter_result->getDateTime("discard_before"));
+
+    if(!filter_result->isNull("discard_after"))
+      filter.setDiscardAfter(filter_result->getDateTime("discard_after"));
     
     if(!filter_result->isNull(3))
       filter.setGeometry(filter_result->getGeometry("geom"));
     
     filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
 
-    if(!filter_result->isNull("by_value"))
+    if(!filter_result->isNull("value"))
     {
-      double v = atof(filter_result->getNumeric("by_value").c_str());
-      std::unique_ptr<double> byValue(&v);
+      double* v = new double(atof(filter_result->getNumeric("value").c_str()));
+      std::unique_ptr<double> byValue(v);
       filter.setValue(std::move(byValue));
     }
     else
@@ -229,7 +232,8 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
       filter.setValue(std::move(byValue));
     }
     
-    filter.setBandFilter(filter_result->getString("band_filter"));
+    if(!filter_result->isNull("band_filter"))
+      filter.setBandFilter(filter_result->getString("band_filter"));
     
     return std::move(filter);
   }

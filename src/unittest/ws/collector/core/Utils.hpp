@@ -30,12 +30,12 @@
 #ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__
 #define __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__
 
-void initializeTerralib();
+void InitializeTerralib();
 
-void finalizeTerralib();
+void FinalizeTerralib();
 
-void initializeTerraMA2();
+void InitializeTerraMA2();
 
-void finalizeTerraMA2();
+void FinalizeTerraMA2();
 
 #endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CORE_UTILS_HPP__

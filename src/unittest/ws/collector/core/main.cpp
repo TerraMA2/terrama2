@@ -33,12 +33,12 @@
 
 int main(int argc, char **argv)
 {
-  initializeTerraMA2();
+  InitializeTerraMA2();
 
   TsCore testCore;
   int ret = QTest::qExec(&testCore, argc, argv);
 
-  finalizeTerraMA2();
+  FinalizeTerraMA2();
 
   return ret;
 }
