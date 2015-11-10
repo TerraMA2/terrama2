@@ -30,6 +30,10 @@
 // STL
 #include <memory>
 
+// TerraLib
+#include <terralib/datatype.h>
+#include <terralib/geometry/Polygon.h>
+
 // TerraMA2 Test
 #include "TsClient.hpp"
 #include "Utils.hpp"
@@ -97,13 +101,9 @@ terrama2::core::DataProvider TsClient::buildDataProvider()
 }
 
 
-terrama2::core::DataSet TsClient::buildDataSet()
+terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
 {
-  terrama2::core::DataProvider dataProvider = buildDataProvider();
-
-  wsClient_->addDataProvider(dataProvider);
-
-  terrama2::core::DataSet dataSet("Data Set Name", terrama2::core::DataSet::Kind::GRID_TYPE, 0, dataProvider.id());
+  terrama2::core::DataSet dataSet("Data Set Name", terrama2::core::DataSet::Kind::GRID_TYPE, 0, dataProvider_id);
 
   dataSet.setDescription("Data Set Description");
   dataSet.setStatus(terrama2::core::DataSet::Status::ACTIVE);
@@ -117,6 +117,77 @@ terrama2::core::DataSet TsClient::buildDataSet()
   dataSet.setSchedule(te::dt::TimeDuration(schedule));
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+  terrama2::core::DataSetItem dataSetItem1(terrama2::core::DataSetItem::Kind(1), 0, 0);
+  dataSetItem1.setMask("mask1");
+  dataSetItem1.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem1.setTimezone("-1");
+
+  terrama2::core::Filter filter(0);
+
+  te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2002-01-20 23:59:59.000")));
+  std::unique_ptr< te::dt::DateTime > discardBefore(td);
+  filter.setDiscardBefore(std::move(discardBefore));
+
+  te::dt::DateTime* td2 = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2002-01-21 23:59:59.000")));
+  std::unique_ptr< te::dt::DateTime > timeAfter(td2);
+  filter.setDiscardAfter(std::move(timeAfter));
+
+  std::unique_ptr< double > value(new double(5.1));
+  filter.setValue(std::move(value));
+
+  filter.setExpressionType(terrama2::core::Filter::ExpressionType(1));
+  filter.setBandFilter("filter_bandFilter");
+
+  te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
+
+  const double &xc(5), &yc(5), &halfSize(5);
+  s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
+  s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
+  s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
+  s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
+  s->setPoint(4, xc - halfSize, yc - halfSize); // closing
+
+  te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
+  p->push_back(s);
+
+  std::unique_ptr< te::gm::Geometry > geom(p);
+  filter.setGeometry(std::move(geom));
+
+  dataSetItem1.setFilter(filter);
+
+  std::map< std::string, std::string > storageMetadata;
+
+  storageMetadata["one"] = "two";
+  storageMetadata["two"] = "one";
+
+  dataSetItem1.setStorageMetadata(storageMetadata);
+
+  terrama2::core::DataSetItem dataSetItem2(terrama2::core::DataSetItem::Kind(2), 0, 0);
+  dataSetItem2.setMask("mask2");
+  dataSetItem2.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem2.setTimezone("-2");
+
+  terrama2::core::DataSetItem dataSetItem3(terrama2::core::DataSetItem::Kind(3), 0, 0);
+  dataSetItem3.setMask("mask3");
+  dataSetItem3.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem3.setTimezone("-3");
+
+  terrama2::core::DataSetItem dataSetItem4(terrama2::core::DataSetItem::Kind(4), 0, 0);
+  dataSetItem4.setMask("mask4");
+  dataSetItem4.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem4.setTimezone("-4");
+
+  terrama2::core::DataSetItem dataSetItem5(terrama2::core::DataSetItem::Kind(1), 0, 0);
+  dataSetItem5.setMask("mask5");
+  dataSetItem5.setStatus(terrama2::core::DataSetItem::Status(2));
+  dataSetItem5.setTimezone("-5");
+
+  dataSet.add(dataSetItem1);
+  dataSet.add(dataSetItem2);
+  dataSet.add(dataSetItem3);
+  dataSet.add(dataSetItem4);
+  dataSet.add(dataSetItem5);
 
   return dataSet;
 }
@@ -401,7 +472,11 @@ void TsClient::TestAddDataSet()
 {
   try
   {
-    terrama2::core::DataSet dataSet = buildDataSet();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
+
+    wsClient_->addDataProvider(dataProvider);
+
+    terrama2::core::DataSet dataSet = buildDataSet(dataProvider.id());
 
     wsClient_->addDataSet(dataSet);
 
@@ -444,7 +519,11 @@ void TsClient::TestAddDataSetWithID()
 {
   try
   {
-    terrama2::core::DataSet dataSet = buildDataSet();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
+
+    wsClient_->addDataProvider(dataProvider);
+
+    terrama2::core::DataSet dataSet = buildDataSet(dataProvider.id());
 
     dataSet.setId(1);
 
@@ -467,10 +546,8 @@ void TsClient::TestAddDataSetWithID()
 void TsClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
-  {
-    terrama2::core::DataSet dataSet = buildDataSet();
-
-    dataSet.setProvider(1);
+  {    
+    terrama2::core::DataSet dataSet = buildDataSet(1);
 
     wsClient_->addDataSet(dataSet);
 
@@ -492,7 +569,11 @@ void TsClient::testRemoveDataSet()
 {
   try
   {
-    terrama2::core::DataSet dataSet = buildDataSet();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
+
+    wsClient_->addDataProvider(dataProvider);
+
+    terrama2::core::DataSet dataSet = buildDataSet(dataProvider.id());
 
     wsClient_->addDataSet(dataSet);
 
@@ -535,7 +616,11 @@ void TsClient::testUpdateDataSet()
 {
   try
   {
-    terrama2::core::DataSet dataSet = buildDataSet();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
+
+    wsClient_->addDataProvider(dataProvider);
+
+    terrama2::core::DataSet dataSet = buildDataSet(dataProvider.id());
 
     wsClient_->addDataSet(dataSet);
 
@@ -604,7 +689,11 @@ void TsClient::testFindDataSet()
 {
   try
   {
-    terrama2::core::DataSet dataSet = buildDataSet();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
+
+    wsClient_->addDataProvider(dataProvider);
+
+    terrama2::core::DataSet dataSet = buildDataSet(dataProvider.id());
 
     wsClient_->addDataSet(dataSet);
 
@@ -659,20 +748,25 @@ void TsClient::testListDataSet()
 {
   try
   {
-    terrama2::core::DataSet dataSet = buildDataSet();
+    terrama2::core::DataProvider dataProvider = buildDataProvider();
 
-    wsClient_->addDataSet(dataSet);
+    wsClient_->addDataProvider(dataProvider);
 
-    dataSet.setId(0);
-    dataSet.setName("Data Set2");
+    terrama2::core::DataSet dataSet1 = buildDataSet(dataProvider.id());
+    terrama2::core::DataSet dataSet2 = buildDataSet(dataProvider.id());
+    dataSet2.setName("dataset2");
+    terrama2::core::DataSet dataSet3 = buildDataSet(dataProvider.id());
+    dataSet3.setName("dataset3");
 
-    wsClient_->addDataSet(dataSet);
+    wsClient_->addDataSet(dataSet1);
+    wsClient_->addDataSet(dataSet2);
+    wsClient_->addDataSet(dataSet3);
 
     std::vector< terrama2::core::DataSet > list_dataSet;
 
     wsClient_->listDataSet(list_dataSet);
 
-    QCOMPARE(list_dataSet.size(), 2uL);
+    QCOMPARE(list_dataSet.size(), 3uL);
   }
   catch(terrama2::Exception &e)
   {

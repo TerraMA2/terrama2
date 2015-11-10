@@ -174,7 +174,8 @@ COMMENT ON COLUMN terrama2.dataset_item_type.name IS 'Name that identifies the d
 COMMENT ON COLUMN terrama2.dataset_item_type.description IS 'Brief description about the dataset item type';
 
 INSERT INTO terrama2.dataset_item_type(name, description)
-     VALUES('PCD-INPE', 'INPE Format'),
+     VALUES('UNKNOWN_TYPE', 'Unknow format'),
+           ('PCD-INPE', 'INPE Format'),
            ('PCD-TOA5', 'TOA5'),
            ('FIRE POINTS', 'Occurrence of fire'),
            ('DISEASE OCCURRENCE', 'Occurrence of diseases');
