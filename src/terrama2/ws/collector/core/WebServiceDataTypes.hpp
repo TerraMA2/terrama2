@@ -39,6 +39,14 @@ struct DataProvider
 };
 
 
+struct CollectRule
+{
+  uint64_t      id;
+  std::string   script;
+  uint64_t      datasetId;
+};
+
+
 struct DataSetItem
 {
   uint32_t      kind;
@@ -75,4 +83,9 @@ struct DataSet
   std::string                       schedule_retry;
   std::string                       schedule_timeout;
   std::vector< struct DataSetItem > dataset_items;
+  std::vector< struct CollectRule > dataset_collectRules;
+
+  std::vector< std::string > metadata_keys;
+  std::vector< std::string > metadata_values;
+
 };

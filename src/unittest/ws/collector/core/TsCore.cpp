@@ -219,7 +219,7 @@ void TsCore::TestConvertDataSetToDataSetStruct()
 {
   terrama2::core::DataSet dataSet = buildDataSet();
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem >(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule >(dataSet);
 
   QVERIFY2(dataSet.id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSet.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
@@ -350,7 +350,7 @@ void TsCore::TestConvertDataSetStructToDataSet()
     struct_dataSet.dataset_items.push_back(dataset_item);
   }
 
-  terrama2::core::DataSet dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet , DataSetItem >(struct_dataSet);
+  terrama2::core::DataSet dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet , DataSetItem, CollectRule >(struct_dataSet);
 
   QVERIFY2(dataSet.id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSet.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
