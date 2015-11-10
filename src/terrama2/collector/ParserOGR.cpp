@@ -27,10 +27,10 @@
   \author Jano Simas
 */
 
-#include "ParserOGR.hpp"
 #include "DataFilter.hpp"
+#include "ParserOGR.hpp"
 #include "Exception.hpp"
-
+#include "Utils.hpp"
 
 //QT
 #include <QDir>
@@ -44,36 +44,16 @@
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/common/Exception.h>
-
-std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
-{
-  QDir dir(uri.c_str());
-
-  QFileInfoList entryList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files | QDir::Readable);
-  std::vector<std::string> names;
-  for(const QFileInfo& file : entryList)
-    names.push_back(file.baseName().toStdString());
-
-  return names;
-}
 
 void terrama2::collector::ParserOGR::read(const std::string &uri,
                                           DataFilterPtr filter,
                                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                                           std::shared_ptr<te::da::DataSetType>& datasetTypeVec)
 {
-
-  std::vector<std::string> allNames = datasetNames(uri);
-  std::vector<std::string> names = filter->filterNames(allNames);
-
-  if(names.empty())
-  {
-    //TODO: throw
-  }
-
   std::lock_guard<std::mutex> lock(mutex_);
 
   try
@@ -83,7 +63,9 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     std::map<std::string, std::string> connInfo;
     connInfo["URI"] = uri;
     datasource->setConnectionInfo(connInfo);
-    datasource->open(); //FIXME: close? where?
+
+    //RAII for open/closing the datasource
+    OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
     if(!datasource->isOpened())
     {
@@ -93,6 +75,14 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
 
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+    std::vector<std::string> names = transactor->getDataSetNames();
+    names = filter->filterNames(names);
+
+    if(names.empty())
+    {
+      //TODO: throw no dataset found
+      return;
+    }
 
     for(const std::string& name : names)
     {
@@ -117,10 +107,11 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
                                           QObject::tr("Terralib exception: ") +e.what());
   }
-  catch(...)
+  catch(std::exception& e)
   {
-    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("Unknown exception."));
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("Std exception.")+e.what());
   }
 
   return;
 }
+

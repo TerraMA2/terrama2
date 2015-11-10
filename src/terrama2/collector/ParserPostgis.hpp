@@ -45,11 +45,8 @@ namespace terrama2
         ParserPostgis() : Parser(){}
         virtual ~ParserPostgis(){}
 
-        virtual std::vector<std::string> datasetNames(const std::string &uri) const override;
-
-
         /*!
-         * \brief TODO: document ParserOGR
+         * \brief TODO: document ParserPostgis
          * \param uri
          * \return Dataset of the temporary file.
          *
@@ -61,9 +58,6 @@ namespace terrama2
                           DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                           std::shared_ptr<te::da::DataSetType> &datasetTypePtr) override;
-
-      private:
-        std::mutex mutex_;
 
     };
   }

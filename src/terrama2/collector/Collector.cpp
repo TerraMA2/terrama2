@@ -164,7 +164,7 @@ void terrama2::collector::Collector::collectAsThreadST(const terrama2::core::Dat
 
       try
       {
-        ParserPtr     parser = Factory::makeParser(dataSetItem);
+        ParserPtr     parser = Factory::makeParser("", dataSetItem);
         StoragerPtr   storager = Factory::makeStorager(dataSetItem);
         DataFilterPtr filter(new DataFilter(dataSetItem));
 

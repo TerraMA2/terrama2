@@ -40,6 +40,10 @@
 
 //std
 #include <memory>
+#include <algorithm>
+
+//Qt
+#include <QUrl>
 
 
 terrama2::collector::CollectorPtr terrama2::collector::Factory::getCollector(uint64_t dataProviderId)
@@ -56,7 +60,7 @@ terrama2::collector::CollectorPtr terrama2::collector::Factory::getCollector(uin
     switch (provider.kind()) {
       case core::DataProvider::FILE_TYPE:
       {
-        CollectorPtr newCollector(new CollectorFile(provider));
+        CollectorPtr newCollector = std::make_shared<CollectorFile>(provider);
         collectorMap_.insert(dataProviderId, newCollector);
         break;
       }
@@ -73,22 +77,28 @@ void terrama2::collector::Factory::removeCollector(uint64_t dataProviderId)
   collectorMap_.remove(dataProviderId);
 }
 
-terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const terrama2::core::DataSetItem &datasetItem)
+terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const std::string& uri, const terrama2::core::DataSetItem& datasetItem)
 {
-  switch (datasetItem.kind()) {
-    case core::DataSetItem::PCD_INPE_TYPE:
-    case core::DataSetItem::PCD_TOA5_TYPE:
-    {
-      ParserPtr newParser = std::make_shared<ParserOGR>();
-      return newParser;
+  QUrl url(uri.c_str());
+  if(url.scheme().toLower() == "postgis")
+  {
+    ParserPtr newParser = std::make_shared<ParserPostgis>();
+    return newParser;
+  }
+
+  if(url.scheme().toLower() == "file")
+  {
+    switch (datasetItem.kind()) {
+      case core::DataSetItem::PCD_INPE_TYPE:
+      case core::DataSetItem::PCD_TOA5_TYPE:
+      case core::DataSetItem::FIRE_POINTS_TYPE:
+      {
+        ParserPtr newParser = std::make_shared<ParserOGR>();
+        return newParser;
+      }
+      default:
+        break;
     }
-    case core::DataSetItem::FIRE_POINTS_TYPE:
-    {
-      ParserPtr newParser = std::make_shared<ParserPostgis>();
-      return newParser;
-    }
-    default:
-      break;
   }
 
   //FIXME: throw here
@@ -105,9 +115,11 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
   if(storagerKind.empty())
     return StoragerPtr();
 
-  if(storagerKind == "POSTGIS")
+  //to lower case
+  std::transform(storagerKind.begin(), storagerKind.end(), storagerKind.begin(), ::tolower);
+  if(storagerKind == "postgis")
   {
-    return StoragerPtr(new StoragerPostgis(storageMetadata));
+    return std::make_shared<StoragerPostgis>(storageMetadata);
   }
 
 

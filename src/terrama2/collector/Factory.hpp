@@ -88,7 +88,7 @@ namespace terrama2
 
         void removeAllCollectors();
 
-        static ParserPtr makeParser(const core::DataSetItem &datasetItem);
+        static ParserPtr makeParser(const std::string& uri, const core::DataSetItem &datasetItem);
         static StoragerPtr makeStorager(const core::DataSetItem &datasetItem);
         static DataRetrieverPtr makeRetriever(const core::DataProvider& dataProvider);
 

@@ -49,7 +49,8 @@ COMMENT ON COLUMN terrama2.data_provider_type.name IS 'Name that identifies the 
 COMMENT ON COLUMN terrama2.data_provider_type.description IS 'Description of the data server type';
 
 INSERT INTO terrama2.data_provider_type (name, description)
-     VALUES ('FTP', 'File Transfer Protocol'),
+     VALUES ('UNKNOWN_TYPE', 'Unknow format'),
+            ('FTP', 'File Transfer Protocol'),
             ('HTTP', 'Hyper Text Transfer Protocol'),
             ('FILE', 'Local File System'),
             ('WFS', 'OGC Web Feature Service'),
@@ -92,7 +93,8 @@ COMMENT ON COLUMN terrama2.dataset_type.name IS 'Name that identifies the datase
 COMMENT ON COLUMN terrama2.dataset_type.description IS 'Brief description about the dataset type';
 
 INSERT INTO terrama2.dataset_type (name, description)
-     VALUES ('PCD', 'Identifies a PCD dataset'),
+     VALUES ('UNKNOWN_TYPE', 'Unknow format'),
+            ('PCD', 'Identifies a PCD dataset'),
             ('Occurrence', 'Identifies a dataset for occurrences'),
             ('Grid', 'Identifies a grid dataset');
 

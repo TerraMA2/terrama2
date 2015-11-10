@@ -30,7 +30,7 @@ COMMENT ON COLUMN terrama2.data_provider_type.id IS 'Type identifier';
 COMMENT ON COLUMN terrama2.data_provider_type.name IS 'Name that identifies the data server type';
 COMMENT ON COLUMN terrama2.data_provider_type.description IS 'Description of the data server type';
 
-INSERT INTO terrama2.data_provider_type (name, description) VALUES ('FTP', 'File Transfer Protocol'), ('HTTP', 'Hyper Text Transfer Protocol'), ('FILE', 'Local File System'), ('WFS', 'OGC Web Feature Service'), ('WCS', 'OGC Web Coverage Service'), ('SOS', 'OGC Sensor Observation Service'), ('POSTGIS', 'PostgreSQL/POSTGIS database');
+INSERT INTO terrama2.data_provider_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('FTP', 'File Transfer Protocol'), ('HTTP', 'Hyper Text Transfer Protocol'), ('FILE', 'Local File System'), ('WFS', 'OGC Web Feature Service'), ('WCS', 'OGC Web Coverage Service'), ('SOS', 'OGC Sensor Observation Service'), ('POSTGIS', 'PostgreSQL/POSTGIS database');
 
 CREATE TABLE terrama2.data_provider ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(60) NOT NULL UNIQUE, description TEXT, kind INTEGER NOT NULL, uri  TEXT, active BOOLEAN NOT NULL, CONSTRAINT fk_data_provider_kind FOREIGN KEY(kind) REFERENCES terrama2.data_provider_type(id) ON UPDATE CASCADE ON DELETE RESTRICT);
 
@@ -49,7 +49,7 @@ COMMENT ON COLUMN terrama2.dataset_type.id IS 'Type identifier';
 COMMENT ON COLUMN terrama2.dataset_type.name IS 'Name that identifies the dataset type';
 COMMENT ON COLUMN terrama2.dataset_type.description IS 'Brief description about the dataset type';
 
-INSERT INTO terrama2.dataset_type (name, description) VALUES ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset');
+INSERT INTO terrama2.dataset_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset');
 
 CREATE TABLE terrama2.dataset ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(20) NOT NULL UNIQUE, description  TEXT, active BOOLEAN, data_provider_id INTEGER NOT NULL, kind INTEGER NOT NULL, data_frequency INTEGER, schedule TIME, schedule_retry INTEGER, schedule_timeout INTEGER, CONSTRAINT fk_dataset_data_provider_id FOREIGN KEY(data_provider_id) REFERENCES terrama2.data_provider(id) ON UPDATE CASCADE ON DELETE CASCADE);
 
@@ -89,7 +89,7 @@ COMMENT ON COLUMN terrama2.dataset_item_type.id IS 'Dataset item type identifier
 COMMENT ON COLUMN terrama2.dataset_item_type.name IS 'Name that identifies the dataset item type';
 COMMENT ON COLUMN terrama2.dataset_item_type.description IS 'Brief description about the dataset item type';
 
-INSERT INTO terrama2.dataset_item_type(name, description) VALUES('PCD-INPE', 'INPE Format'), ('PCD-TOA5', 'TOA5'), ('FIRE POINTS', 'Occurrence of fire'), ('DISEASE OCCURRENCE', 'Occurrence of diseases');
+INSERT INTO terrama2.dataset_item_type(name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD-INPE', 'INPE Format'), ('PCD-TOA5', 'TOA5'), ('FIRE POINTS', 'Occurrence of fire'), ('DISEASE OCCURRENCE', 'Occurrence of diseases');
 
 
 CREATE TABLE terrama2.dataset_item ( id  SERIAL NOT NULL PRIMARY KEY, kind  INTEGER NOT NULL, active  BOOLEAN, dataset_id INTEGER, mask  VARCHAR(255), timezone text DEFAULT '+00:00', CONSTRAINT fk_dataset_data_type_id FOREIGN KEY(kind) REFERENCES terrama2.dataset_item_type(id) ON UPDATE CASCADE ON DELETE RESTRICT, CONSTRAINT fk_data_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset(id) ON UPDATE CASCADE ON DELETE CASCADE);

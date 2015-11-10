@@ -111,9 +111,10 @@ void terrama2::collector::StoragerPostgis::store(const std::vector<std::shared_p
     qDebug() << e.what();
     assert(0);
   }
-  catch(...)
+  catch(std::exception& e)
   {
     //TODO: log de erro
+    qDebug() << e.what();
     assert(0);
   }
 

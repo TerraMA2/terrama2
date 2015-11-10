@@ -71,7 +71,7 @@ terrama2::collector::CollectorService::~CollectorService()
   stop();
 }
 
-void terrama2::collector::CollectorService::start()
+void terrama2::collector::CollectorService::start(int threadNumber)
 {
 // if service already running, throws
   if(loopThread_.joinable())
@@ -82,10 +82,9 @@ void terrama2::collector::CollectorService::start()
     stop_ = false;
     loopThread_ = std::thread(&CollectorService::processingLoop, this);
 
-    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
-    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
-    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
-    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
+    for (int i = 0; i < threadNumber; ++i) {
+      threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
+    }
   }
   catch(const std::exception& e)
   {
@@ -159,13 +158,17 @@ void terrama2::collector::CollectorService::collectAsThread(const terrama2::core
 
       try
       {
-        ParserPtr     parser = Factory::makeParser(dataSetItem);
-        StoragerPtr   storager = Factory::makeStorager(dataSetItem);
         DataFilterPtr filter(new DataFilter(dataSetItem));
 
         //TODO: conditions to collect Data?
         //retrieve remote data to local temp file
         std::string uri = retriever->retrieveData(filter);
+
+        ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
+
+        StoragerPtr   storager = Factory::makeStorager(dataSetItem);
+
+
 
         //read data and create a terralib dataset
         std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
@@ -214,7 +217,10 @@ void terrama2::collector::CollectorService::threadProcess()
     }
 
     if(task.valid())
+    {
+      std::cout << std::this_thread::get_id() << std::endl;
       task();
+    }
     else
       std::this_thread::yield();
   }

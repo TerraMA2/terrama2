@@ -71,18 +71,18 @@ void TsIntegration::TestReadCsvStorePostGis()
     te::dt::TimeDuration frequency(0, 0, 5);
     dataset.setDataFrequency(frequency);
 
-    terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
+    terrama2::core::DataSetItem item(terrama2::core::DataSetItem::PCD_INPE_TYPE);
 
     std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
                                                         {"PG_HOST", "localhost"},
                                                         {"PG_PORT", "5432"},
                                                         {"PG_USER", "postgres"},
                                                         {"PG_PASSWORD", "postgres"},
-                                                        {"PG_DB_NAME", "postgres"},
+                                                        {"PG_DB_NAME", "basedeteste"},
                                                         {"PG_CONNECT_TIMEOUT", "4"},
                                                         {"PG_CLIENT_ENCODING", "UTF-8"},
                                                         {"PG_SCHEME", "terrama2"},
-                                                        {"PG_TABLENAME", "nome_teste2"} };
+                                                        {"PG_TABLENAME", "nome_teste"} };
     item.setStorageMetadata(storageMetadata);
 
     terrama2::collector::CollectorService service;
@@ -128,17 +128,18 @@ void TsIntegration::TestReadPostgisStorePostGis()
 {
 
   QUrl uri;
+  uri.setScheme("postgis");
   uri.setHost("localhost");
   uri.setPort(5432);
   uri.setUserName("postgres");
   uri.setPassword("postgres");
-  uri.setPath("postgres");
+  uri.setPath("/basedeteste");
 
   try
   {
     terrama2::core::DataProvider provider("dummy", terrama2::core::DataProvider::POSTGIS_TYPE);
     provider.setStatus(terrama2::core::DataProvider::ACTIVE);
-    provider.setUri(uri.toString().toStdString());
+    provider.setUri(uri.url().toStdString());
 
     terrama2::core::DataSet dataset("dummy", terrama2::core::DataSet::OCCURENCE_TYPE);
     dataset.setStatus(terrama2::core::DataSet::ACTIVE);
@@ -153,12 +154,13 @@ void TsIntegration::TestReadPostgisStorePostGis()
                                                         {"PG_PORT", "5432"},
                                                         {"PG_USER", "postgres"},
                                                         {"PG_PASSWORD", "postgres"},
-                                                        {"PG_DB_NAME", "postgres"},
+                                                        {"PG_DB_NAME", "basedeteste"},
                                                         {"PG_CONNECT_TIMEOUT", "4"},
                                                         {"PG_CLIENT_ENCODING", "UTF-8"},
                                                         {"PG_SCHEME", "terrama2"},
                                                         {"PG_TABLENAME", "nome_teste2"} };
     item.setStorageMetadata(storageMetadata);
+    item.setMask("terrama2.nome_teste");
 
     terrama2::collector::CollectorService service;
     service.start();
@@ -176,7 +178,7 @@ void TsIntegration::TestReadPostgisStorePostGis()
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
-    timer.start(120000);
+    timer.start(150000);
 
     QApplication::exec();
 

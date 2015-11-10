@@ -90,7 +90,7 @@ namespace terrama2
         \exception ServiceAlreadyRunnningError Raise when the service is already runnning.
         \exception UnableToStartServiceError Raise when the system can not create a thread or acquire resources to initialize the service.
        */
-      void start();
+      void start(int threadNumber = 4);
 
     public slots:
 
@@ -214,7 +214,7 @@ namespace terrama2
       std::map<uint64_t, DataSetTimerPtr> timers_;              //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
       std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
 
-      std::mutex mutex_;                                        //!< mutex to thread safety
+      std::mutex  mutex_;                                        //!< mutex to thread safety
       std::thread loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
 
       std::queue<std::packaged_task<void()> > taskQueue_;

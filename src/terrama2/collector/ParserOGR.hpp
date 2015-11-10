@@ -45,9 +45,6 @@ namespace terrama2
         ParserOGR() : Parser(){}
         virtual ~ParserOGR(){}
 
-        virtual std::vector<std::string> datasetNames(const std::string &uri) const override;
-
-
         /*!
          * \brief TODO: document ParserOGR
          * \param uri
@@ -61,10 +58,6 @@ namespace terrama2
                           DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                           std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
-
-      private:
-        std::mutex mutex_;
-
     };
   }
 }

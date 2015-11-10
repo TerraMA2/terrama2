@@ -75,10 +75,6 @@ namespace terrama2
              */
         std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const;
 
-        //TODO: should have static methods for easy access?
-        static std::vector<std::string> filterNamesByMask(const std::vector<std::string>& namesList, const std::string& mask);
-        static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
-
       private:
 
         /*!
