@@ -20,6 +20,11 @@ ConfigAppTab::~ConfigAppTab()
 
 }
 
+void ConfigAppTab::load(const terrama2::core::DataSet& dataset)
+{
+
+}
+
 void ConfigAppTab::validateAndSaveChanges()
 {
   try

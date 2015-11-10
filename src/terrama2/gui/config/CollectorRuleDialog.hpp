@@ -63,7 +63,7 @@ class CollectorRuleDialog : public QDialog, private boost::noncopyable
 
   private slots:
     void onAddScript(QAction*);
-    void onCollectorRuleScriptChanged();
+    void onOkBtnClicked();
     
   private:
     struct Impl;

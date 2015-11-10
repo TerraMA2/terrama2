@@ -77,7 +77,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
 {
-//  delete timer_;
+
 }
 
 void ConfigAppWeatherTab::clearList()
@@ -334,7 +334,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
 
-        ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
+        ui_->connectionProtocol->setCurrentIndex(provider.kind() - 2);
         ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));
 
         subTabs_[0]->load();
@@ -389,6 +389,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
               case terrama2::core::DataSet::PCD_TYPE:
                 changeTab(*(subTabs_[2].data()), *ui_->DataPointPage);
                 subTabs_[2]->setSelectedData(selectedItem->text(0));
+                subTabs_[2]->load();
 
                 ui_->pointFormatDataName->setText(dataset.name().c_str());
                 hideDataSetButtons();

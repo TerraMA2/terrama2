@@ -582,7 +582,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="4" rowspan="3">
             <widget class="QStackedWidget" name="weatherPageStack">
              <property name="currentIndex">
-              <number>2</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="ServerGroupPage">
               <property name="enabled">
@@ -759,13 +759,8 @@ p, li { white-space: pre-wrap; }
                   <item row="1" column="3">
                    <widget class="QComboBox" name="connectionProtocol">
                     <property name="currentIndex">
-                     <number>3</number>
+                     <number>0</number>
                     </property>
-                    <item>
-                     <property name="text">
-                      <string>UNKNOWN</string>
-                     </property>
-                    </item>
                     <item>
                      <property name="text">
                       <string>FTP</string>
@@ -789,6 +784,11 @@ p, li { white-space: pre-wrap; }
                     <item>
                      <property name="text">
                       <string>WCS</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>SOS</string>
                      </property>
                     </item>
                    </widget>
@@ -906,299 +906,6 @@ p, li { white-space: pre-wrap; }
              </widget>
              <widget class="QWidget" name="DataGridPage">
               <layout class="QGridLayout" name="gridLayout_16">
-               <item row="0" column="0">
-                <widget class="QGroupBox" name="groupBox_7">
-                 <property name="title">
-                  <string> Dado: </string>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_13">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_14">
-                    <property name="text">
-                     <string>Nome:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1" colspan="5">
-                   <widget class="QLineEdit" name="gridFormatDataName"/>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_20">
-                    <property name="text">
-                     <string>Tipo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1" colspan="4">
-                   <widget class="QComboBox" name="gridFormatDataType">
-                    <item>
-                     <property name="text">
-                      <string>Previsão</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Observação</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Outros</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item row="1" column="5">
-                   <widget class="QPushButton" name="projectionGridBtn">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Projeção...</string>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="projection">
-                      <normaloff/>
-                     </iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_21">
-                    <property name="text">
-                     <string>Res. Esp.:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="gridFormatDataResolution"/>
-                  </item>
-                  <item row="2" column="2">
-                   <widget class="QLabel" name="label_53">
-                    <property name="text">
-                     <string>Km</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="3">
-                   <spacer>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="2" column="4">
-                   <widget class="QLabel" name="label_10">
-                    <property name="text">
-                     <string>Intervalo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="5">
-                   <widget class="QSpinBox" name="gridFormatDataInterval">
-                    <property name="suffix">
-                     <string>min</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_22">
-                    <property name="text">
-                     <string>Freq. Atualiz.:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="gridFormatDataFrequency"/>
-                  </item>
-                  <item row="3" column="2">
-                   <widget class="QLabel" name="label_54">
-                    <property name="text">
-                     <string>h</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="3">
-                   <spacer>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="3" column="4">
-                   <widget class="QLabel" name="label_56">
-                    <property name="text">
-                     <string>Fuso Horário:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="5">
-                   <widget class="QComboBox" name="gridFormatDataTimeZoneCmb">
-                    <property name="currentIndex">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <property name="text">
-                      <string>+12:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+11:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+10:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+09:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+08:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+07:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+06:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+05:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+04:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+03:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+02:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+01:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+00:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-01:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-02:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-03:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-04:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-05:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-06:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-07:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-08:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-09:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-10:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-11:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-12:00</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="label_18">
-                    <property name="text">
-                     <string>Descrição:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1" colspan="5">
-                   <widget class="QTextEdit" name="gridFormatDataDescription">
-                    <property name="maximumSize">
-                     <size>
-                      <width>16777215</width>
-                      <height>45</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
                <item row="1" column="0">
                 <widget class="QGroupBox" name="groupBox_8">
                  <property name="title">
@@ -1273,13 +980,6 @@ p, li { white-space: pre-wrap; }
                   <string> Parâmetros: </string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_11">
-                  <item row="0" column="0">
-                   <widget class="QCheckBox" name="gridFormatStatus">
-                    <property name="text">
-                     <string>Série de dados ativo</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0">
                    <widget class="QStackedWidget" name="stkwGridTipoFormato">
                     <property name="currentIndex">
@@ -1301,13 +1001,6 @@ p, li { white-space: pre-wrap; }
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="2">
-                       <widget class="QRadioButton" name="rbGridAscUnidGrausMil">
-                        <property name="text">
-                         <string>Milésimos de grau</string>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="1" column="0">
                        <spacer>
                         <property name="orientation">
@@ -1320,6 +1013,13 @@ p, li { white-space: pre-wrap; }
                          </size>
                         </property>
                        </spacer>
+                      </item>
+                      <item row="0" column="2">
+                       <widget class="QRadioButton" name="rbGridAscUnidGrausMil">
+                        <property name="text">
+                         <string>Milésimos de grau</string>
+                        </property>
+                       </widget>
                       </item>
                      </layout>
                     </widget>
@@ -1547,6 +1247,13 @@ p, li { white-space: pre-wrap; }
                     </widget>
                    </widget>
                   </item>
+                  <item row="0" column="0">
+                   <widget class="QCheckBox" name="gridFormatStatus">
+                    <property name="text">
+                     <string>Série de dados ativo</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </widget>
                </item>
@@ -1674,6 +1381,332 @@ p, li { white-space: pre-wrap; }
                      <string>Não</string>
                     </property>
                    </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QGroupBox" name="groupBox_7">
+                 <property name="title">
+                  <string> Dado: </string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_13">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_14">
+                    <property name="text">
+                     <string>Nome:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" colspan="9">
+                   <widget class="QLineEdit" name="gridFormatDataName"/>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_20">
+                    <property name="text">
+                     <string>Tipo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="7">
+                   <widget class="QComboBox" name="gridFormatDataType">
+                    <item>
+                     <property name="text">
+                      <string>Previsão</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Observação</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Outros</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="1" column="8" colspan="2">
+                   <widget class="QPushButton" name="projectionGridBtn">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Projeção...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset theme="projection">
+                      <normaloff/>
+                     </iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_21">
+                    <property name="text">
+                     <string>Res. Esp.:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="gridFormatDataResolution"/>
+                  </item>
+                  <item row="2" column="2">
+                   <widget class="QLabel" name="label_53">
+                    <property name="text">
+                     <string>Km</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="7" colspan="3">
+                   <widget class="QLineEdit" name="gridFormatDataPrefix"/>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_22">
+                    <property name="text">
+                     <string>Freq. Atualiz.:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1" colspan="3">
+                   <widget class="QLineEdit" name="gridFormatDataFrequency"/>
+                  </item>
+                  <item row="3" column="4">
+                   <widget class="QLabel" name="label_54">
+                    <property name="text">
+                     <string>h</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="5" colspan="2">
+                   <spacer>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="3" column="7" colspan="2">
+                   <widget class="QLabel" name="label_10">
+                    <property name="text">
+                     <string>Intervalo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="9">
+                   <widget class="QSpinBox" name="gridFormatDataInterval">
+                    <property name="suffix">
+                     <string>min</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="label_34">
+                    <property name="text">
+                     <string>Unidade:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1" colspan="3">
+                   <widget class="QLineEdit" name="gridFormatDataUnit"/>
+                  </item>
+                  <item row="4" column="5">
+                   <spacer name="horizontalSpacer_5">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>175</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="4" column="6" colspan="3">
+                   <widget class="QLabel" name="label_56">
+                    <property name="text">
+                     <string>Fuso Horário:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="9">
+                   <widget class="QComboBox" name="gridFormatDataTimeZoneCmb">
+                    <property name="currentIndex">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>+12:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+11:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+10:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+09:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+08:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+07:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+06:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+05:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+04:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+03:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+02:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+01:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>+00:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-01:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-02:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-03:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-04:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-05:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-06:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-07:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-08:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-09:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-10:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-11:00</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>-12:00</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_18">
+                    <property name="text">
+                     <string>Descrição:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1" colspan="9">
+                   <widget class="QTextEdit" name="gridFormatDataDescription">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>45</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="6">
+                   <widget class="QLabel" name="label_15">
+                    <property name="text">
+                     <string>Prefixo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="5">
+                   <spacer>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </widget>

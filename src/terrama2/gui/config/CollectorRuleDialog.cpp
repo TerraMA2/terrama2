@@ -36,6 +36,7 @@
 // QT
 #include <QAction>
 #include <QMenu>
+#include <QMessageBox>
 
 struct CollectorRuleDialog::Impl
 {
@@ -57,14 +58,10 @@ CollectorRuleDialog::CollectorRuleDialog(QWidget* parent, Qt::WindowFlags f)
 {
   pimpl_->ui_->setupUi(this);
 
-   pimpl_->ui_->okBtn->setEnabled(false);
+  pimpl_->ui_->okBtn->setEnabled(true);
 
-  connect( pimpl_->ui_->okBtn,     SIGNAL(clicked()), SLOT(accept()));
-  connect( pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(reject()));
-
-  connect( pimpl_->ui_->txtLuaScript,   SIGNAL(textChanged()), SLOT(onCollectorRuleScriptChanged()));
-
-  pimpl_->ui_->syntaxBtn->setEnabled(false);
+  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), SLOT(onOkBtnClicked()));
+  connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(reject()));
 
   luaHighlighter_.reset(new LuaSyntaxHighlighter(pimpl_->ui_->txtLuaScript));
 
@@ -86,11 +83,6 @@ void CollectorRuleDialog::fillGUI(const QString script)
 void CollectorRuleDialog::fillObject(QString &script)
 {
   script = pimpl_->ui_->txtLuaScript->toPlainText();
-}
-
-void CollectorRuleDialog::onCollectorRuleScriptChanged()
-{
-//   pimpl_->ui_->okBtn->setEnabled(true);
 }
 
 void CollectorRuleDialog::init()
@@ -140,6 +132,19 @@ void CollectorRuleDialog::init()
   
   pimpl_->ui_->functionsBtn->setMenu(funcOpMenu);
   pimpl_->ui_->functionsBtn->setPopupMode(QToolButton::InstantPopup);
+
+  QMenu* luaCommands = new QMenu(tr("Comandos"), this);
+  luaCommands->addAction(tr("if then end"))->setProperty("added_text", "if _condicao_ then\n  _comandos_\nend\n");
+  luaCommands->addAction(tr("if then else end"))->setProperty("added_text", "if _condicao_ then\n  _comandos_\nelse\n  _comandos_\nend\n");
+  luaCommands->addAction(tr("if then elseif then else end"))->setProperty("added_text", "if _condicao_ then\n  _comandos_\nelseif _condicao_ then\n  _comandos_\nelse\n  _comandos_\nend\n");
+  luaCommands->addSeparator();
+  luaCommands->addAction(tr("and"))->setProperty("added_text", "(_condicao_ and _condicao_)");
+  luaCommands->addAction(tr("or"))->setProperty("added_text", "(_condicao_ or _condicao_)");
+
+  connect(luaCommands, SIGNAL(triggered(QAction*)), SLOT(onAddScript(QAction*)));
+
+  pimpl_->ui_->commandsBtn->setMenu(luaCommands);
+  pimpl_->ui_->commandsBtn->setPopupMode(QToolButton::InstantPopup);
 }
 
 void CollectorRuleDialog::onAddScript(QAction* action)
@@ -148,4 +153,14 @@ void CollectorRuleDialog::onAddScript(QAction* action)
 
   pimpl_->ui_->txtLuaScript->insertPlainText(value);
   pimpl_->ui_->txtLuaScript->setFocus();
+}
+
+void CollectorRuleDialog::onOkBtnClicked()
+{
+  if (pimpl_->ui_->txtLuaScript->toPlainText().trimmed().isEmpty())
+  {
+    QMessageBox::warning(this, tr("TerraMA2 Collector Rule Error"), tr("The lua script cannot be empty"));
+    return;
+  }
+  accept();
 }

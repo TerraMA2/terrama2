@@ -67,6 +67,8 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     */
     virtual void load() = 0;
 
+    virtual void load(const terrama2::core::DataSet&);
+
     //! It shows if data were changed by user
     virtual bool dataChanged();
 

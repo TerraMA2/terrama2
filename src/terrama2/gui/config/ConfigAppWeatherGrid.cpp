@@ -91,6 +91,12 @@ void ConfigAppWeatherGridTab::save()
   te::dt::TimeDuration schedule(0, ui_->gridFormatDataInterval->value(), 0);
   dataset.setDataFrequency(dataFrequency);
 
+  // todo: define a common key pattern to metadata
+  std::map<std::string, std::string> metadata;
+  metadata["KIND"] = ui_->gridFormatDataFormat->currentText().toStdString();
+  metadata["PREFIX"] = ui_->gridFormatDataPrefix->text().toStdString();
+  metadata["UNIT"] = ui_->gridFormatDataUnit->text().toStdString();
+
   // todo: get value from db
   dataset.setSchedule(schedule);
   if (dataset.id() >= 1)
@@ -195,6 +201,10 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
     ui_->areaFilterLabel->setText(tr("No"));
     ui_->bandFilterLabel->setText(tr("No"));
     ui_->preAnalysisLabel->setText(tr("No"));
+    if (filter_ != nullptr)
+      delete filter_;
+
+    filter_ = new terrama2::core::Filter;
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));

@@ -52,7 +52,7 @@ void ConfigAppWeatherServer::save()
 
   provider.setName(ui_->serverName->text().toStdString());
   provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
-  provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+1));
+  provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+2));
   provider.setUri(uri_.toStdString());
   provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 
@@ -80,7 +80,6 @@ void ConfigAppWeatherServer::save()
 
 void ConfigAppWeatherServer::discardChanges(bool restore)
 {
-  // Clear all inputs
   const auto* tab = ui_->ServerPage;
 
 // Clear QLineEdits
@@ -131,7 +130,6 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
   try
   {
     validateConnection();
-    // FIX
     QMessageBox::information(app_, tr("TerraMA2"), tr("Connection OK"));
     return;
   }
@@ -152,10 +150,9 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
 
 void ConfigAppWeatherServer::validateConnection()
 {
-  QString path = ui_->connectionProtocol->currentText().toLower();
-  path.append("://");
-  path.append(ui_->connectionAddress->text());
-  QUrl url(path);
+  QUrl url;
+  url.setScheme(ui_->connectionProtocol->currentText());
+  url.setHost(ui_->connectionAddress->text());
 
   url.setUserName(ui_->connectionUserName->text());
   url.setPassword(ui_->connectionPassword->text());

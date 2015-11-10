@@ -38,7 +38,7 @@
 #include <QList>
 
 
-// Forward declaration
+// Forward declarations
 class QAction;
 class QTableWidgetItem;
 struct PCD;
@@ -51,9 +51,15 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     ~ConfigAppWeatherPcd();
 
     void load();
+    void load(const terrama2::core::DataSet& dataset);
     bool validate();
     void save();
     void discardChanges(bool restore_data);
+
+    /*!
+      \brief It cleans up the pcd table widget
+    */
+    void tableClean();
 
   private:
     void pcdFormCreation(PCD&, bool editing = false);

@@ -68,6 +68,9 @@ void ConfigAppWeatherOccurrence::save()
   te::dt::TimeDuration dataFrequency(ui_->pointDiffFormatDataFrequency->text().toInt(), 0, 0);
   dataset.setDataFrequency(dataFrequency);
 
+  std::map<std::string, std::string> metadata;
+  metadata["KIND"] = ui_->pointDiffFormatDataFormat->currentText().toStdString();
+
   terrama2::core::DataSetItem datasetItem;
   // TODO: fix it with datasetitem value
   int index;
