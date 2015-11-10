@@ -397,13 +397,34 @@ void TsDataManager::testUpdateDataProviderShallow()
 {
   try
   {
-    qRegisterMetaType<DataProvider>("DataProvider");
-    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProvider)));
     
     DataProvider dataProvider = createDataProvider();
-    
+
+    DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
+    dataSet.setStatus(DataSet::Status::ACTIVE);
+    dataProvider.add(dataSet);
+
+    DataSet dataSet2("Queimadas2", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
+    dataSet.setStatus(DataSet::Status::ACTIVE);
+    dataProvider.add(dataSet2);
+
     DataManager::getInstance().add(dataProvider);
-    
+
+    // Remove the first dataset
+    dataProvider.removeDataSet(dataProvider.datasets()[0].id());
+
+    // Update the name of the second
+    auto& ds2 = dataProvider.datasets()[0];
+    ds2.setName("New Queimadas");
+
+    // Add a new dataset
+    DataSet dataSet3("Queimadas3", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
+    dataSet.setStatus(DataSet::Status::ACTIVE);
+    dataProvider.add(dataSet3);
+
+    qRegisterMetaType<DataProvider>("DataProvider");
+    QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProvider)));
+
     dataProvider.setName("New server");
     dataProvider.setStatus(DataProvider::INACTIVE);
     dataProvider.setDescription("New server is ...");
@@ -424,6 +445,10 @@ void TsDataManager::testUpdateDataProviderShallow()
     QVERIFY2(dataProvider.kind() == foundDataProvider.kind(), "Wrong type after update");
     QVERIFY2(dataProvider.status() == foundDataProvider.status(), "Wrong status after update");
     QVERIFY2(dataProvider.uri() == foundDataProvider.uri(), "Wrong uri after update");
+
+    QVERIFY2(dataProvider.datasets().size() == 2, "Wrong number of datasets after update");
+    QCOMPARE("New Queimadas", dataProvider.datasets()[0].name().c_str());
+    QCOMPARE("Queimadas3", dataProvider.datasets()[1].name().c_str());
   }
   catch(boost::exception& e)
   {

@@ -67,7 +67,7 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
       return;
 
     for(auto& dataset: provider.datasets())
-      DataSetDAO::save(dataset, transactor);
+      DataSetDAO::save(dataset, transactor, shallow);
   }
   catch(const terrama2::Exception&)
   {
@@ -106,9 +106,41 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
     if(shallow)
       return;
 
-// TODO: Verificar os existentes no banco pra ver oq precisa inserir/remove/atualizar
+    std::string sql = "SELECT id FROM terrama2.dataset WHERE data_provider_id = " + std::to_string(provider.id());
+
+    std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+
+    std::vector<int32_t> ids;
+    if(tempDataSet->moveNext())
+    {
+      int32_t itemId = tempDataSet->getInt32(0);
+      ids.push_back(itemId);
+    }
+
+
     for(auto& dataset: provider.datasets())
-      DataSetDAO::update(dataset, transactor);
+    {
+      // Id exists just need to call update
+      auto it = find (ids.begin(), ids.end(), dataset.id());
+      if (it != ids.end())
+      {
+        DataSetDAO::update(dataset, transactor, shallow);
+
+        // Remove from the list, so what is left in this vector are the datasets to remove
+        ids.erase(it);
+      }
+
+      // Id is 0 for new items
+      if(dataset.id() == 0)
+      {
+        DataSetDAO::save(dataset, transactor, shallow);
+      }
+    }
+
+    for(auto datasetId : ids)
+    {
+      DataSetDAO::remove(datasetId, transactor);
+    }
   }
   catch(const terrama2::Exception&)
   {
