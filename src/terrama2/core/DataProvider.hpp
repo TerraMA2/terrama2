@@ -72,7 +72,8 @@ namespace terrama2
           FILE_TYPE = 4,
           WFS_TYPE = 5,
           WCS_TYPE = 6,
-          SOS_TYPE = 7
+          SOS_TYPE = 7,
+          POSTGIS_TYPE = 8
         };
 
         //! Data provider status.

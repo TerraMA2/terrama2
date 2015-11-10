@@ -147,8 +147,15 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
       return false;
     }
   }
+  catch(te::common::Exception& e)
+  {
+    //TODO: Log this
+    qDebug() << e.what();
+    return false;
+  }
   catch(...)
   {
+    //TODO: Log this
     return false;
   }
 
@@ -294,7 +301,7 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
       throw DataAccessError() << ErrorDescription(messageError);
 
       //TODO: log error
-      qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+      qDebug() << e.what();
       assert(0);
     }
     catch(...)

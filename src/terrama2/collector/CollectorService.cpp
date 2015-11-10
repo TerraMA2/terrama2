@@ -52,6 +52,8 @@
 #include <memory>
 #include <cassert>
 #include <iostream>
+#include <functional>
+#include <utility>
 
 //terralib
 #include <terralib/common/Exception.h>
@@ -79,6 +81,11 @@ void terrama2::collector::CollectorService::start()
   {
     stop_ = false;
     loopThread_ = std::thread(&CollectorService::processingLoop, this);
+
+    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
+    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
+    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
+    threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
   }
   catch(const std::exception& e)
   {
@@ -91,13 +98,20 @@ void terrama2::collector::CollectorService::start()
 
 void terrama2::collector::CollectorService::stop() noexcept
 {
-  mutex_.lock();
-// finish the thread
-  stop_ = true;
-  mutex_.unlock();
+  {
+    std::lock_guard<std::mutex> lock (mutex_);
+    // finish the thread
+    stop_ = true;
+  }
 
   if(loopThread_.joinable())
     loopThread_.join();
+
+  for(auto & thread : threadPool_)
+  {
+    if(thread.joinable())
+      thread.join();
+  }
 }
 
 void terrama2::collector::CollectorService::addProvider(const core::DataProvider& provider)
@@ -123,7 +137,7 @@ void terrama2::collector::CollectorService::process(uint64_t dataProviderID, con
   for(auto datasetID : dataSetVect)
     datasetLst.push_back(datasets_.at(datasetID));
 
-  collectAsThread(dataproviders_.at(dataProviderID), datasetLst);
+  taskQueue_.emplace(std::bind(&collectAsThread, dataproviders_.at(dataProviderID), datasetLst));
 }
 
 void terrama2::collector::CollectorService::collectAsThread(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet> &dataSetList)
@@ -185,13 +199,31 @@ void terrama2::collector::CollectorService::collectAsThread(const terrama2::core
   }
 }
 
+void terrama2::collector::CollectorService::threadProcess()
+{
+  while (!stop_) {
+    std::packaged_task<void()> task;
+
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      if(!taskQueue_.empty())
+      {
+        task = std::move(taskQueue_.front());
+        taskQueue_.pop();
+      }
+    }
+
+    if(task.valid())
+      task();
+    else
+      std::this_thread::yield();
+  }
+}
+
 void terrama2::collector::CollectorService::processingLoop()
 {
-  while(true)
+  while(!stop_)
   {
-    if(stop_)
-      return;
-
     std::lock_guard<std::mutex> lock(mutex_);
 
     // For each provider type verifies if the first provider in the queue is acquiring new data,
@@ -239,8 +271,9 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
     //TODO: multiple copies of dataset can occur in the queue, is this the expected behavior?
     datasetQueue.push_back(datasetId);
   }
-  catch(...)
+  catch(std::exception& e)
   {
+    qDebug() << e.what();
     //TODO: log de erro
     assert(0);
   }
@@ -293,9 +326,11 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
     {
       std::lock_guard<std::mutex> lock (mutex_);
 
+      datasets_.insert(std::make_pair(dataset.id(), dataset));
+
 // create a new dataset timer and connect the timeout signal to queue
       auto datasetTimer = std::make_shared<DataSetTimer>(dataset); // std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
-      timers_.at(dataset.id()) = datasetTimer;
+      timers_.insert(std::make_pair(dataset.id(), datasetTimer));
     
       connect(datasetTimer.get(), SIGNAL(timerSignal(uint64_t)), this, SLOT(addToQueue(uint64_t)), Qt::UniqueConnection);
     }
@@ -309,8 +344,9 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
-  catch(...)
+  catch(std::exception& e)
   {
+    qDebug() << e.what();
     //TODO: log de erro
     assert(0);
   }

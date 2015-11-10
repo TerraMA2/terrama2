@@ -90,7 +90,7 @@ namespace terrama2
 
         static ParserPtr makeParser(const core::DataSetItem &datasetItem);
         static StoragerPtr makeStorager(const core::DataSetItem &datasetItem);
-        static DataRetrieverPtr makeRetriever(const core::DataProvider &/*dataProvider*/) { return DataRetrieverPtr();}
+        static DataRetrieverPtr makeRetriever(const core::DataProvider& dataProvider);
 
       private:
 

@@ -45,6 +45,8 @@
 #include <vector>
 #include <mutex>
 #include <map>
+#include <future>
+#include <queue>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -177,7 +179,8 @@ namespace terrama2
        */
       void process(uint64_t provider, const std::vector<uint64_t>& datasets);
 
-      void collectAsThread(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet> &dataSetList);
+      static void collectAsThread(const terrama2::core::DataProvider& dataProvider, const std::list<terrama2::core::DataSet>& dataSetList);
+      void threadProcess();
 
       /*!
          \brief Contains an infinite loop that will keep the service collecting data.
@@ -210,9 +213,13 @@ namespace terrama2
       std::map<uint64_t, core::DataSet> datasets_;              //!< The list of dataset to be collected. [dataset-id] -> dataset.
       std::map<uint64_t, DataSetTimerPtr> timers_;              //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
       std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
+
       std::mutex mutex_;                                        //!< mutex to thread safety
       std::thread loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
-      
+
+      std::queue<std::packaged_task<void()> > taskQueue_;
+      std::vector<std::thread> threadPool_;
+
     };
   }
 }

@@ -44,6 +44,7 @@
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/common/Exception.h>
 
@@ -112,9 +113,9 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
   catch(te::common::Exception& e)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    qDebug() << e.what();
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("Terralib exception: ") + boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+                                          QObject::tr("Terralib exception: ") +e.what());
   }
   catch(...)
   {

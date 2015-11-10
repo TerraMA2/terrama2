@@ -32,9 +32,14 @@
 
 #include "StoragerPostgis.hpp"
 #include "CollectorFile.hpp"
-#include "Exception.hpp"
+#include "DataRetriever.hpp"
+#include "ParserPostgis.hpp"
 #include "ParserOGR.hpp"
+#include "Exception.hpp"
 #include "Factory.hpp"
+
+//std
+#include <memory>
 
 
 terrama2::collector::CollectorPtr terrama2::collector::Factory::getCollector(uint64_t dataProviderId)
@@ -74,10 +79,14 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const te
     case core::DataSetItem::PCD_INPE_TYPE:
     case core::DataSetItem::PCD_TOA5_TYPE:
     {
-      ParserPtr newParser(new ParserOGR());
+      ParserPtr newParser = std::make_shared<ParserOGR>();
       return newParser;
     }
-
+    case core::DataSetItem::FIRE_POINTS_TYPE:
+    {
+      ParserPtr newParser = std::make_shared<ParserPostgis>();
+      return newParser;
+    }
     default:
       break;
   }
@@ -104,4 +113,9 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
 
   //FIXME: throw here
   return StoragerPtr();
+}
+
+terrama2::collector::DataRetrieverPtr terrama2::collector::Factory::makeRetriever(const terrama2::core::DataProvider& dataProvider)
+{
+  return std::make_shared<DataRetriever>(dataProvider);
 }

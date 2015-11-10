@@ -27,7 +27,14 @@
   \author Jano Simas
 */
 
+
+#ifndef __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
+#define __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
+
 #include <memory>
+#include <cassert>
+
+#include "../core/DataProvider.hpp"
 
 namespace terrama2
 {
@@ -39,11 +46,20 @@ namespace terrama2
     class DataRetriever
     {
     public:
-      void open(){}
-      std::string retrieveData(DataFilterPtr filter){ return "";}
+      explicit DataRetriever(const core::DataProvider& dataprovider);
+
+      void open();
+      void close();
+      std::string retrieveData(DataFilterPtr filter);
+
+    private:
+      struct Impl;
+      Impl* impl_;
 
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
   }
 }
+
+#endif //__TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__

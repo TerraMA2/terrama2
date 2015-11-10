@@ -26,3 +26,31 @@
 
   \author Jano Simas
 */
+
+#include "DataRetriever.hpp"
+
+struct terrama2::collector::DataRetriever::Impl
+{
+    terrama2::core::DataProvider dataprovider;
+};
+
+terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
+{
+  impl_ = new Impl;
+  impl_->dataprovider = dataprovider;
+}
+
+std::string terrama2::collector::DataRetriever::retrieveData(terrama2::collector::DataFilterPtr filter)
+{
+  return impl_->dataprovider.uri();
+}
+
+void terrama2::collector::DataRetriever::open()
+{
+
+}
+
+void terrama2::collector::DataRetriever::close()
+{
+
+}

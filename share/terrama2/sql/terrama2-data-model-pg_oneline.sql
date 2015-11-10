@@ -30,7 +30,7 @@ COMMENT ON COLUMN terrama2.data_provider_type.id IS 'Type identifier';
 COMMENT ON COLUMN terrama2.data_provider_type.name IS 'Name that identifies the data server type';
 COMMENT ON COLUMN terrama2.data_provider_type.description IS 'Description of the data server type';
 
-INSERT INTO terrama2.data_provider_type (name, description) VALUES ('FTP', 'File Transfer Protocol'), ('HTTP', 'Hyper Text Transfer Protocol'), ('FILE', 'Local File System'), ('WFS', 'OGC Web Feature Service'), ('WCS', 'OGC Web Coverage Service');
+INSERT INTO terrama2.data_provider_type (name, description) VALUES ('FTP', 'File Transfer Protocol'), ('HTTP', 'Hyper Text Transfer Protocol'), ('FILE', 'Local File System'), ('WFS', 'OGC Web Feature Service'), ('WCS', 'OGC Web Coverage Service'), ('SOS', 'OGC Sensor Observation Service'), ('POSTGIS', 'PostgreSQL/POSTGIS database');
 
 CREATE TABLE terrama2.data_provider ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(60) NOT NULL UNIQUE, description TEXT, kind INTEGER NOT NULL, uri  TEXT, active BOOLEAN NOT NULL, CONSTRAINT fk_data_provider_kind FOREIGN KEY(kind) REFERENCES terrama2.data_provider_type(id) ON UPDATE CASCADE ON DELETE RESTRICT);
 
