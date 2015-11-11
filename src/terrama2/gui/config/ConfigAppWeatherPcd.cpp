@@ -7,17 +7,19 @@
 #include "ProjectionDialog.hpp"
 #include "PcdDialog.hpp"
 #include "SurfaceDialog.hpp"
+#include "CollectorRuleDialog.hpp"
 #include "../core/Utils.hpp"
 
 // Qt
 #include <QMessageBox>
 #include <QTableWidgetItem>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QFileDialog>
 
 
 ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+  : ConfigAppTab(app, ui), luaScript_("")
 {
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->pointFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onDataPointBtnClicked()));
@@ -27,6 +29,9 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->btnPointPCDDeleteFileNameLocation, SIGNAL(clicked()), SLOT(onPCDRemoveClicked()));
   connect(ui_->tblPointPCDFileNameLocation, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(onPCDTableDoubleClicked(QTableWidgetItem*)));
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
+  connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
+
+  ui_->projectionPointBtn->setEnabled(false);
 
   // export pcd button
   connect(ui_->exportDataPointBtn, SIGNAL(clicked()), SLOT(onPCDExportClicked()));
@@ -34,20 +39,18 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->pointFormatDataMask->setEnabled(false);
   ui_->pointFormatDataFormat->setEnabled(false);
 
+  // todo: implement it to list pcd attributes after collection
   ui_->updateDataPointBtn->setEnabled(false);
+  ui_->pointFormatDataThemeCmb->setEnabled(false);
+  ui_->pointFormatDataAttributeCmb->setEnabled(false);
+  ui_->pointFormatDataPrefix->setEnabled(false);
+  ui_->pointFormatDataUnit->setEnabled(false);
 
-  // Clear the pcd table
-  while(ui_->tblPointPCDFileNameLocation->rowCount() > 0)
-    ui_->tblPointPCDFileNameLocation->removeRow(0);
-}
+  ui_->btnPCDWFSConfiguration->setEnabled(false);
+  ui_->btnPCDInformationPlane->setEnabled(false);
 
-ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
-{
+  tableClean();
 
-}
-
-void ConfigAppWeatherPcd::load()
-{
   QMenu* menuMask = new QMenu(tr("Máscaras"));
   menuMask->addAction(tr("%a - ano com dois digitos"));
   menuMask->addAction(tr("%A - ano com quatro digitos"));
@@ -65,6 +68,21 @@ void ConfigAppWeatherPcd::load()
   connect(menuMask, SIGNAL(triggered(QAction*)), SLOT(onMenuMaskClicked(QAction*)));
 }
 
+ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
+{
+
+}
+
+void ConfigAppWeatherPcd::load()
+{
+  tableClean();
+}
+
+void ConfigAppWeatherPcd::load(const terrama2::core::DataSet &dataset)
+{
+  // TODO: fill the combobox with pcd attribute after the first collect
+}
+
 bool ConfigAppWeatherPcd::validate()
 {
   if (ui_->pointFormatDataName->text().trimmed().isEmpty())
@@ -72,7 +90,12 @@ bool ConfigAppWeatherPcd::validate()
     ui_->pointFormatDataName->setFocus();
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD Name cannot be empty"));
   }
-  //TODO: validate correctly all fields
+
+  if (ui_->tblPointPCDFileNameLocation->rowCount() == 0)
+    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD table must have at least one row"));
+
+  // TODO: validate all fields
+
   return true;
 }
 
@@ -90,9 +113,36 @@ void ConfigAppWeatherPcd::save()
   te::dt::TimeDuration dataFrequency(ui_->pointFormatDataFrequency->text().toInt(), 0, 0);
   dataset.setDataFrequency(dataFrequency);
 
-  terrama2::core::DataSetItem datasetItem;
-  datasetItem.setDataSet(dataset.id());
-  datasetItem.setMask(ui_->pointFormatDataMask->text().toStdString());
+  terrama2::core::DataSetItem* datasetItem;
+  if (dataset.dataSetItems().size() > 0)
+    datasetItem = &dataset.dataSetItems()[0];
+  else
+    datasetItem = new terrama2::core::DataSetItem;
+
+  datasetItem->setKind(terrama2::core::ToDataSetItemKind(ui_->pointFormatDataFormat->currentIndex() + 2));
+  datasetItem->setMask(ui_->pointFormatDataMask->text().toStdString());
+  datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
+  datasetItem->setTimezone(ui_->pointFormatDataTimeZoneCmb->currentText().toStdString());
+
+  //TODO: save the lua script in table
+  terrama2::core::DataSet::CollectRule* rule;
+
+  std::map<std::string, std::string> datasetMetadata;
+  datasetMetadata["PATH"] = ui_->pointFormatDataPath->text().toStdString();
+  datasetMetadata["PREFIX"] = ui_->pointFormatDataPrefix->text().toStdString();
+  datasetMetadata["UNIT"] = ui_->pointFormatDataUnit->text().toStdString();
+
+  dataset.setMetadata(datasetMetadata);
+
+  if (!luaScript_.trimmed().isEmpty())
+  {
+    rule = new terrama2::core::DataSet::CollectRule;
+    rule->id = 0;
+    rule->script = luaScript_.toStdString();
+    std::vector<terrama2::core::DataSet::CollectRule> rules(dataset.collectRules());
+    rules.push_back(*rule);
+    dataset.setCollectRules(rules);
+  }
 
   if (dataset.id() > 0)
   {
@@ -109,6 +159,7 @@ void ConfigAppWeatherPcd::save()
     item->setIcon(0, QIcon::fromTheme("pcd"));
     item->setText(0, ui_->pointFormatDataName->text());
     ui_->weatherDataTree->currentItem()->addChild(item);
+
   }
   app_->getWeatherTab()->addCachedDataSet(dataset);
   changed_ = false;
@@ -129,6 +180,7 @@ void ConfigAppWeatherPcd::onInsertPointBtnClicked()
   {
     selectedData_.clear();
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointPage);
+    tableClean();
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
@@ -159,6 +211,16 @@ void ConfigAppWeatherPcd::onDataPointBtnClicked()
     }
   }
   ui_->cancelBtn->clicked();
+}
+
+void ConfigAppWeatherPcd::onCollectorRuleClicked()
+{
+  CollectorRuleDialog dialog(app_);
+  dialog.fillGUI(luaScript_);
+  if (dialog.exec() == QDialog::Accepted)
+    dialog.fillObject(luaScript_);
+  else
+    luaScript_.clear();
 }
 
 void ConfigAppWeatherPcd::onProjectionClicked()
@@ -222,6 +284,11 @@ void ConfigAppWeatherPcd::onPCDExportClicked()
   QJsonObject json;
   json["name"] = ui_->pointFormatDataName->text();
   json["description"] = ui_->pointFormatDataDescription->toPlainText();
+  json["path"] = ui_->pointFormatDataPath->text();
+  QJsonObject datasetItemArray;
+  datasetItemArray["mask"] = ui_->pointFormatDataMask->text();
+
+  json["datasetItems"] = datasetItemArray;
 
   try
   {
@@ -273,5 +340,12 @@ void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd, bool editing)
     item = new QTableWidgetItem();
     item->setText(pcd.active ? tr("true") : tr("false"));
     ui_->tblPointPCDFileNameLocation->setItem(line, 3, item);
-  }
+    }
+}
+
+void ConfigAppWeatherPcd::tableClean()
+{
+  // Clear the pcd table
+  while(ui_->tblPointPCDFileNameLocation->rowCount() > 0)
+    ui_->tblPointPCDFileNameLocation->removeRow(0);
 }

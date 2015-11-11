@@ -20,46 +20,45 @@
 */
 
 /*!
-  \file terrama2/gui/config/ColRuleDialog.hpp
+  \file terrama2/gui/config/LuaSyntaxHighlighter.hpp
 
-  \brief Definition of methods in class ColRuleDialog.hpp
+  \brief Class responsible for highlight the lua syntax
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Pedro Luchini de Moraes
+  \author Carlos Augusto Teixeira Mendes
 */
 
-#ifndef _ColRuleDialog_H_
-#define _ColRuleDialog_H_
 
-#include "ui_ColRuleDialog.h"
+#ifndef __TERRAMA2_GUI_CONFIG_LUAHIGHLIGHTER_HPP__
+#define __TERRAMA2_GUI_CONFIG_LUAHIGHLIGHTER_HPP__
 
-class QAction;
+// QT
+#include <QSyntaxHighlighter>
+#include <QVector>
 
-class ColRuleDialog : public QDialog, private Ui::ColRuleDialog
+class QRegExp;
+class QTextCharFormat;
+class QTextEdit;
+
+class LuaSyntaxHighlighter : public QSyntaxHighlighter
 {
-Q_OBJECT
+  Q_OBJECT
 
-public:
-  ColRuleDialog(QWidget* parent = 0, Qt::WFlags f = 0 );
-  ~ColRuleDialog();
+  public:
+    LuaSyntaxHighlighter(QTextEdit* widget = 0);
 
-  void setFields(const QString& colRule);
-  void getFields(QString* colRule, bool& changed);
+  protected:
+    void highlightBlock(const QString& text);
 
-private slots:
-  void setColRuleChanged();
-  void addTextToScript(QAction* act);
-  void syntaxCheckRequested();
-  
-private:
-  void fillFunctionsMenu();
-  void fillCommandsMenu();
-
-  bool _ignoreChangeEvents;
-  bool _collectionRuleChanged;
+  private:
+    struct HighlightingRule
+    {
+      QRegExp pattern;
+      QTextCharFormat format;
+    };
+    
+    QVector<HighlightingRule> rules;
 };
 
-
-#endif
+#endif // __TERRAMA2_GUI_CONFIG_LUAHIGHLIGHTER_HPP__
 

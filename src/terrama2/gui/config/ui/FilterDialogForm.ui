@@ -62,7 +62,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Data</string>
       </attribute>
-      <layout class="QGridLayout">
+      <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QCheckBox" name="dateBeforeFilterCbx">
          <property name="text">
@@ -71,43 +71,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QDateEdit" name="dateBeforeFilterDed"/>
-       </item>
-       <item row="0" column="3">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>131</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="dateAfterFilterCbx">
-         <property name="text">
-          <string>Eliminar dados posteriores a: </string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QDateEdit" name="dateAfterFilterDed"/>
-       </item>
-       <item row="2" column="0">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>221</height>
-          </size>
-         </property>
-        </spacer>
+        <widget class="QDateTimeEdit" name="datetimeBefore"/>
        </item>
        <item row="0" column="2">
         <widget class="QToolButton" name="beforeTodayBtn">
@@ -130,6 +94,29 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
        </item>
+       <item row="0" column="3">
+        <spacer>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>131</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="dateAfterFilterCbx">
+         <property name="text">
+          <string>Eliminar dados posteriores a: </string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QDateTimeEdit" name="datetimeAfter"/>
+       </item>
        <item row="1" column="2">
         <widget class="QToolButton" name="afterTodayBtn">
          <property name="toolTip">
@@ -150,6 +137,19 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
         </widget>
+       </item>
+       <item row="2" column="0">
+        <spacer>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>221</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

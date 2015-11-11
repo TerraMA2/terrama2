@@ -11,6 +11,9 @@
 #include "FilterDialog.hpp"
 #include "ProjectionDialog.hpp"
 
+// Terralib
+#include <terralib/datatype/TimeInstant.h>
+
 // QT
 #include <QMessageBox>
 
@@ -20,21 +23,18 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
 {
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridClicked()));
   connect(ui_->filterGridBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
-  connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabChanged()));
+  connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabEdited()));
   connect(ui_->gridFormatDataFormat, SIGNAL(currentIndexChanged(const QString&)), SLOT(onGridFormatChanged()));
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
 
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
+
+  ui_->projectionGridBtn->setEnabled(false);
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
 {
   delete filter_;
-}
-
-bool ConfigAppWeatherGridTab::dataChanged()
-{
-  return active_ && changed_;
 }
 
 void ConfigAppWeatherGridTab::load()
@@ -68,27 +68,40 @@ void ConfigAppWeatherGridTab::save()
   dataset.setKind(kind);
   dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
-  dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
 
-  terrama2::core::DataSetItem datasetItem;
+  terrama2::core::DataSetItem* datasetItem;
+  if (dataset.dataSetItems().size() > 0)
+    datasetItem = &dataset.dataSetItems()[0];
+  else
+    datasetItem = new terrama2::core::DataSetItem;
 
   // temp code
-  datasetItem.setFilter(*filter_);
-  datasetItem.setKind(terrama2::core::DataSetItem::UNKNOWN_TYPE);
-  datasetItem.setMask(ui_->gridFormatDataMask->text().toStdString());
-  datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
-  datasetItem.setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
+  datasetItem->setFilter(*filter_);
+  datasetItem->setKind(terrama2::core::DataSetItem::UNKNOWN_TYPE);
+  datasetItem->setMask(ui_->gridFormatDataMask->text().toStdString());
+  datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
+  datasetItem->setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
 
-  dataset.add(datasetItem);
+  dataset.add(*datasetItem);
 
   te::dt::TimeDuration dataFrequency(ui_->gridFormatDataFrequency->text().toInt(), 0, 0);
   te::dt::TimeDuration schedule(0, ui_->gridFormatDataInterval->value(), 0);
   dataset.setDataFrequency(dataFrequency);
 
+  // todo: define a common key pattern to metadata
+  std::map<std::string, std::string> metadata;
+  metadata["KIND"] = ui_->gridFormatDataFormat->currentText().toStdString();
+  metadata["PREFIX"] = ui_->gridFormatDataPrefix->text().toStdString();
+  metadata["UNIT"] = ui_->gridFormatDataUnit->text().toStdString();
+  metadata["PATH"] = ui_->gridFormatDataPath->text().toStdString();
+  metadata["RESOLUTION"] = ui_->gridFormatDataResolution->text().toStdString();
+  dataset.setMetadata(metadata);
+
   // todo: get value from db
   dataset.setSchedule(schedule);
   if (dataset.id() >= 1)
   {
+    datasetItem->setDataSet(dataset.id());
     app_->getClient()->updateDataSet(dataset);
     app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(),
                                        selectedData_,
@@ -114,7 +127,40 @@ void ConfigAppWeatherGridTab::discardChanges(bool restore_data)
   for(QLineEdit* widget: ui_->DataGridPage->findChildren<QLineEdit*>())
     widget->clear();
 
+  ui_->gridFormatDataDescription->setText("");
+  ui_->gridFormatDataTimeZoneCmb->setCurrentIndex(0);
+
   changed_ = false;
+  ui_->dataSeriesBtnGroupBox->setVisible(false);
+  ui_->updateDataGridBtn->setVisible(false);
+  ui_->exportDataGridBtn->setVisible(false);
+  ui_->gridFormatDataDeleteBtn->setVisible(false);
+  app_->getWeatherTab()->showDataSeries(true);
+}
+
+void ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
+{
+  *filter_ = filter;
+
+  if (filter.discardAfter() != nullptr || filter.discardBefore() != nullptr)
+    ui_->dateFilterLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterLabel->setText(tr("No"));
+
+  if (filter.geometry() != nullptr)
+    ui_->areaFilterLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterLabel->setText(tr("No"));
+
+  if (!filter.bandFilter().empty())
+    ui_->bandFilterLabel->setText(tr("Yes"));
+  else
+    ui_->bandFilterLabel->setText(tr("No"));
+
+  if (filter.value() != nullptr)
+    ui_->preAnalysisLabel->setText(tr("Yes"));
+  else
+    ui_->preAnalysisLabel->setText(tr("No"));
 }
 
 bool ConfigAppWeatherGridTab::validate()
@@ -135,7 +181,6 @@ bool ConfigAppWeatherGridTab::validate()
       throw terrama2::gui::FieldError() << terrama2::ErrorDescription(
           tr("The data set grid name has already been saved. Please change server name"));
     }
-
   }
 
   // TODO: Complete validation with another fields and Projection and Filter validation
@@ -149,15 +194,19 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
   {
     selectedData_.clear();
-        app_->getWeatherTab()->changeTab(*this, *ui_->DataGridPage);
+    app_->getWeatherTab()->changeTab(*this, *ui_->DataGridPage);
+
+    ui_->dateFilterLabel->setText(tr("No"));
+    ui_->areaFilterLabel->setText(tr("No"));
+    ui_->bandFilterLabel->setText(tr("No"));
+    ui_->preAnalysisLabel->setText(tr("No"));
+    if (filter_ != nullptr)
+      delete filter_;
+
+    filter_ = new terrama2::core::Filter;
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
-}
-
-void ConfigAppWeatherGridTab::onSubTabChanged()
-{
-  changed_ = true;
 }
 
 void ConfigAppWeatherGridTab::onGridFormatChanged()

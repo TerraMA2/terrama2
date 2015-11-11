@@ -76,9 +76,11 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
     //! It retrieves the weather tab
     QSharedPointer<ConfigAppWeatherTab> getWeatherTab() const;
 
+    //! It retrieves the collector client
     QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
 
   signals:
+    //! It
     void notifyActiveTab(ConfigAppTab&, QWidget&);
 
   private slots:

@@ -86,6 +86,10 @@ class FilterDialog : public QDialog, private boost::noncopyable
     //! It will populate the filter object with filter values
     void fillObject(terrama2::core::Filter& filter);
 
+  private:
+    void setFilterByPreAnalyse();
+    void disablePreFields();
+
   private slots:
     //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date either true or false.
     void onFilteredByDate();
@@ -99,6 +103,21 @@ class FilterDialog : public QDialog, private boost::noncopyable
     void onAfterBtnClicked();
 
     void onBeforeBtnClicked();
+
+    //! Slot triggered when there is no pre analyse filter
+    void onNoPreAnalyse();
+
+    //! Slot triggered when there filter by less than values
+    void onFilterByLessThan();
+
+    //! Slot triggered when there filter by greater than values
+    void onFilterByGreaterThan();
+
+    //! Slot triggered when there filter by mean less than values
+    void onFilterByMeanLessThan();
+
+    //! Slot triggered when there filter by mean greater than values
+    void onFilterByMeanGreaterThan();
 
   private:
     struct Impl; //!< Pimpl idiom
