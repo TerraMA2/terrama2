@@ -36,7 +36,7 @@
             "address": "eymar-dell",
             "command": "coleta.exe",
             "parameters": "%c",
-            "portNumber": "32100"
+            "portNumber": "1989"
         }
     },
     "database": {
