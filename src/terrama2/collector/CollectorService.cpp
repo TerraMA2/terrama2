@@ -181,7 +181,7 @@ void terrama2::collector::CollectorService::collectAsThread(const terrama2::core
           std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
 
           //std::vector::at is NON-const, Qt containers use 'at' as const
-          datasetVec.at(i) = filter->filterDataSet(tempDataSet);
+          datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
         }
 
         //store dataset
