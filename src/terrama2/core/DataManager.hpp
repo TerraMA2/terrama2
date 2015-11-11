@@ -142,6 +142,9 @@ namespace terrama2
           \brief Update a given data provider in the database.
 
           Emits dataProviderUpdated() signal if the data provider is updated successfully.
+          Emits dataSetAdded() signal if a dataset was added to the provider and it's not a shallow save.
+          Emits dataSetRemoved() signal if a dataset was removed from the provider and it's not a shallow save.
+          Emits dataSetUpdated() signal if a dataset was updated and it's not a shallow save.
 
           \param provider    The data provider to be updated.
           \param shallowSave If true it will update only the data provider attributes.
