@@ -82,7 +82,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
 
     // Persist the collect rules and sets the generated id
-    for(auto collectRule : dataset.collectRules())
+    for(auto& collectRule : dataset.collectRules())
     {
       saveCollectRule(collectRule, transactor);
     }
@@ -341,12 +341,6 @@ void terrama2::core::DataSetDAO::updateCollectRules(terrama2::core::DataSet& dat
 
   for(auto& rule: dataset.collectRules())
   {
-    // Id is 0 for new items
-    if(rule.id == 0)
-    {
-      saveCollectRule(rule, transactor);
-    }
-
     // Id exists just need to call update
     auto it = find (ids.begin(), ids.end(), rule.id);
     if (it != ids.end())
@@ -355,6 +349,12 @@ void terrama2::core::DataSetDAO::updateCollectRules(terrama2::core::DataSet& dat
 
       // Remove from the list, so what is left in this vector are the items to remove
       ids.erase(it);
+    }
+
+    // Id is 0 for new items
+    if(rule.id == 0)
+    {
+      saveCollectRule(rule, transactor);
     }
   }
 
@@ -376,7 +376,7 @@ void terrama2::core::DataSetDAO::updateCollectRule(DataSet::CollectRule& collect
   try
   {
     boost::format query("UPDATE terrama2.dataset_collect_rule SET "
-                                "script ='%1%',"
+                                "script ='%1%' "
                                 "WHERE id = %2%");
 
 
