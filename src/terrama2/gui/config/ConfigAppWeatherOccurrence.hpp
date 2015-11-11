@@ -31,7 +31,11 @@
 #ifndef __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
 #define __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
 
+// TerraMA2
 #include "ConfigAppTab.hpp"
+
+// QT
+#include <QSharedPointer>
 
 // Forward Declaration
 namespace terrama2
@@ -61,9 +65,10 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
   private slots:
     void onDataSetBtnClicked();
     void onRemoveOccurrenceBtnClicked();
+    void onIntersectionBtnClicked();
 
   private:
-    terrama2::core::Filter* filter_; //!< Occurrence filter defined
+    QSharedPointer<terrama2::core::Filter> filter_; //!< Occurrence filter defined
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__

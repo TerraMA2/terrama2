@@ -400,12 +400,19 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->pointFormatDataDeleteBtn->setVisible(true);
                 break;
               case terrama2::core::DataSet::OCCURENCE_TYPE:
+              {
                 changeTab(*(subTabs_[3].data()), *ui_->DataPointDiffPage);
                 subTabs_[3]->setSelectedData(selectedItem->text(0));
 
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
                 ui_->pointDiffFormatDataDescription->setText(dataset.description().c_str());
                 ui_->pointDiffFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+
+                const std::map<std::string, std::string> metadata = dataset.metadata();
+                auto it = metadata.find("PATH");
+                if (it != metadata.end())
+                  ui_->pointDiffFormatDataPath->setText(it->second.c_str());
+
                 if (dataset.dataSetItems().size() > 0)
                   ui_->pointDiffFormatDataMask->setText(dataset.dataSetItems().at(0).mask().c_str());
                 hideDataSetButtons();
@@ -415,6 +422,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->exportDataPointDiffBtn->setVisible(true);
                 ui_->serverRemovePointDiffBtn->setVisible(true);
                 break;
+              }
               default:
               {
                 // UNKNOWN

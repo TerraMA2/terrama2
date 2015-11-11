@@ -2540,12 +2540,12 @@ p, li { white-space: pre-wrap; }
                    <widget class="QComboBox" name="pointDiffFormatDataType">
                     <item>
                      <property name="text">
-                      <string>Focos de Doença</string>
+                      <string>Queimadas</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>Queimadas</string>
+                      <string>Focos de Doença</string>
                      </property>
                     </item>
                     <item>

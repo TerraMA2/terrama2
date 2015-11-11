@@ -7,6 +7,7 @@
 #include "ConfigAppWeatherTab.hpp"
 #include "FilterDialog.hpp"
 #include "ProjectionDialog.hpp"
+#include "IntersectionDialog.hpp"
 
 // Qt
 #include <QMessageBox>
@@ -18,6 +19,7 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   connect(ui_->serverRemovePointDiffBtn, SIGNAL(clicked()), SLOT(onRemoveOccurrenceBtnClicked()));
   connect(ui_->filterPointDiffBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
   connect(ui_->projectionPointDiffBtn, SIGNAL(clicked()), SLOT(onProjectionClicked()));
+  connect(ui_->intersectionBtn, SIGNAL(clicked()), SLOT(onIntersectionBtnClicked()));
 
   ui_->updateDataPointDiffBtn->setEnabled(false);
   ui_->exportDataPointDiffBtn->setEnabled(false);
@@ -25,7 +27,7 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
 {
-  delete filter_;
+
 }
 
 void ConfigAppWeatherOccurrence::load()
@@ -68,27 +70,34 @@ void ConfigAppWeatherOccurrence::save()
   te::dt::TimeDuration dataFrequency(ui_->pointDiffFormatDataFrequency->text().toInt(), 0, 0);
   dataset.setDataFrequency(dataFrequency);
 
-  std::map<std::string, std::string> metadata;
+  std::map<std::string, std::string> metadata(dataset.metadata());
+  metadata["PATH"] = ui_->pointDiffFormatDataPath->text().toStdString();
   metadata["KIND"] = ui_->pointDiffFormatDataFormat->currentText().toStdString();
+  dataset.setMetadata(metadata);
 
-  terrama2::core::DataSetItem datasetItem;
+  terrama2::core::DataSetItem* datasetItem;
+  if (dataset.dataSetItems().size() > 0)
+    datasetItem = &dataset.dataSetItems()[0];
+  else
+    datasetItem = new terrama2::core::DataSetItem;
+
   // TODO: fix it with datasetitem value
   int index;
 
   if (ui_->pointDiffFormatDataType->currentIndex() == 2)
     index = 1;
   else
-    index = ui_->pointDiffFormatDataType->currentIndex()+5;
+    index = ui_->pointDiffFormatDataType->currentIndex()+4;
 
-  datasetItem.setKind(terrama2::core::ToDataSetItemKind(index));
-  datasetItem.setMask(ui_->pointDiffFormatDataMask->text().toStdString());
-  datasetItem.setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
-  datasetItem.setStatus(terrama2::core::DataSetItem::ACTIVE);
-  datasetItem.setFilter(*filter_);
+  datasetItem->setKind(terrama2::core::ToDataSetItemKind(index));
+  datasetItem->setMask(ui_->pointDiffFormatDataMask->text().toStdString());
+  datasetItem->setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
+  datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
+  datasetItem->setFilter(*filter_);
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
-  dataset.add(datasetItem);
+  dataset.add(*datasetItem);
 
   if (dataset.id() > 0)
   {
@@ -96,7 +105,6 @@ void ConfigAppWeatherOccurrence::save()
     app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(),
                                        selectedData_,
                                        ui_->pointDiffFormatDataName->text());
-//    selectedData_ =  ui_->pointDiffFormatDataName->text();
   }
   else
   {
@@ -116,6 +124,8 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
   for(QLineEdit* widget: ui_->DataPointDiffPage->findChildren<QLineEdit*>())
     widget->clear();
   changed_ = false;
+
+  filter_.reset(new terrama2::core::Filter);
 }
 
 void ConfigAppWeatherOccurrence::onFilterClicked()
@@ -139,6 +149,8 @@ void ConfigAppWeatherOccurrence::onDataSetBtnClicked()
   {
     selectedData_.clear();
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointDiffPage);
+
+    filter_.reset(new terrama2::core::Filter);
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
@@ -169,6 +181,12 @@ void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
     }
   }
   ui_->cancelBtn->clicked();
+}
+
+void ConfigAppWeatherOccurrence::onIntersectionBtnClicked()
+{
+  IntersectionDialog dialog;
+  dialog.exec();
 }
 
 void ConfigAppWeatherOccurrence::onProjectionClicked()

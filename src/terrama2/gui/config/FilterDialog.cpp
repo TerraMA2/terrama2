@@ -108,16 +108,22 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   switch(type)
   {
     case DATE:
-      pimpl_->ui_->tabWidget->setTabEnabled(1,false);
       pimpl_->ui_->tabWidget->setTabEnabled(2,false);
       pimpl_->ui_->tabWidget->setTabEnabled(3,false);
       pimpl_->ui_->tabWidget->setTabEnabled(4,false);
       break;
     case BAND:
+      pimpl_->ui_->bandTab->setEnabled(true);
       pimpl_->ui_->tabWidget->setTabEnabled(0,false); // date
-      pimpl_->ui_->tabWidget->setTabEnabled(2,false); // pre
-      pimpl_->ui_->tabWidget->setTabEnabled(3,false); // band
+      pimpl_->ui_->tabWidget->setTabEnabled(1,false); // pre
+      pimpl_->ui_->tabWidget->setTabEnabled(2,false); // band
       pimpl_->ui_->tabWidget->setTabEnabled(4,false); // dummy
+      break;
+    case AREA:
+      pimpl_->ui_->tabWidget->setTabEnabled(0,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(2,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(3,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(4,false);
       break;
     default:
       ;
@@ -343,7 +349,7 @@ void FilterDialog::onFilteredByArea()
 
 void FilterDialog::onBeforeBtnClicked()
 {
-  pimpl_->ui_->datetimeBefore->setDate(QDate::currentDate());
+  pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTime());
 }
 
 void FilterDialog::onNoPreAnalyse()
@@ -394,5 +400,5 @@ void FilterDialog::disablePreFields()
 
 void FilterDialog::onAfterBtnClicked()
 {
-  pimpl_->ui_->datetimeAfter->setDate(QDate::currentDate());
+  pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTime());
 }
