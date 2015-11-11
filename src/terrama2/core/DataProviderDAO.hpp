@@ -134,6 +134,20 @@ namespace terrama2
         static std::vector<DataProvider>
         loadAll(te::da::DataSourceTransactor& transactor);
 
+        /*!
+          \brief Return a list with all dataset identifiers for the given data provider.
+
+          \param providerId  The data provider identifier.
+          \param transactor The transactor to be used to perform the operation.
+
+          \return A list with all dataset identifiers for the given data provider identifier.
+
+          \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
+         */
+        static std::vector<uint64_t> getDatasetsIds(const uint64_t providerId,
+                                             te::da::DataSourceTransactor& transactor);
+
+
       private:
 
         //! Not instantiable.
