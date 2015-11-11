@@ -207,18 +207,18 @@ namespace terrama2
 
     private:
 
-      bool stop_;                                             //!< Controls the service thread.
-      std::shared_ptr<Factory> factory_;
+      bool stop_;                                               //!< Controls the service thread.
+      std::shared_ptr<Factory> factory_;                        //!< Factory for Parsers, Storagers and Retrievers
       std::map<uint64_t, core::DataProvider> dataproviders_;    //!< The list of data providers. [dataprovider-id] -> dataprovider.
       std::map<uint64_t, core::DataSet> datasets_;              //!< The list of dataset to be collected. [dataset-id] -> dataset.
       std::map<uint64_t, DataSetTimerPtr> timers_;              //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
       std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
 
-      std::mutex  mutex_;                                        //!< mutex to thread safety
+      std::mutex  mutex_;                                       //!< mutex to thread safety
       std::thread loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
 
-      std::queue<std::packaged_task<void()> > taskQueue_;
-      std::vector<std::thread> threadPool_;
+      std::queue<std::packaged_task<void()> > taskQueue_;       //!< Pool of collecting tasks.
+      std::vector<std::thread> threadPool_;                     //!< Pool of collecting threads
 
     };
   }

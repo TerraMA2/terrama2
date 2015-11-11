@@ -31,7 +31,6 @@
 #include "../core/DataSetItem.hpp"
 
 #include "StoragerPostgis.hpp"
-#include "CollectorFile.hpp"
 #include "DataRetriever.hpp"
 #include "ParserPostgis.hpp"
 #include "ParserOGR.hpp"
@@ -45,37 +44,6 @@
 //Qt
 #include <QUrl>
 
-
-terrama2::collector::CollectorPtr terrama2::collector::Factory::getCollector(uint64_t dataProviderId)
-{
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProviderId))
-  {
-    core::DataProvider provider = core::DataManager::getInstance().findDataProvider(dataProviderId);
-    //... instatiate a new collector
-    //TODO: Throws if fail?
-
-    //TODO: Throws UnknownDataProviderKindException
-    //TODO: Use URI scheme to switch?
-    switch (provider.kind()) {
-      case core::DataProvider::FILE_TYPE:
-      {
-        CollectorPtr newCollector = std::make_shared<CollectorFile>(provider);
-        collectorMap_.insert(dataProviderId, newCollector);
-        break;
-      }
-      default:
-        break;
-    }
-  }
-
-  return collectorMap_.value(dataProviderId);
-}
-
-void terrama2::collector::Factory::removeCollector(uint64_t dataProviderId)
-{
-  collectorMap_.remove(dataProviderId);
-}
 
 terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const std::string& uri, const terrama2::core::DataSetItem& datasetItem)
 {

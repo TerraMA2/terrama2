@@ -190,12 +190,13 @@ void terrama2::collector::CollectorService::collectAsThread(const terrama2::core
       catch(terrama2::Exception& e)
       {
         //TODO: log this
+        qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
         continue;
       }
-      catch(...)
+      catch(std::exception& e)
       {
         //TODO: log this
-        // Unkown exception ocurred while.....
+        qDebug() << e.what();
         continue;
       }
     }
@@ -217,10 +218,7 @@ void terrama2::collector::CollectorService::threadProcess()
     }
 
     if(task.valid())
-    {
-      std::cout << std::this_thread::get_id() << std::endl;
       task();
-    }
     else
       std::this_thread::yield();
   }

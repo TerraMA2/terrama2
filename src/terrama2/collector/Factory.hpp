@@ -31,7 +31,6 @@
 #ifndef __TERRAMA2_COLLECTOR_FACTORY_HPP__
 #define __TERRAMA2_COLLECTOR_FACTORY_HPP__
 
-#include "Collector.hpp"
 #include "../core/DataProvider.hpp"
 
 //Qt
@@ -68,33 +67,9 @@ namespace terrama2
     {
       public:
 
-        /*!
-             * \brief Returns the instace of the collector or instatiate a new collector of the appropriate derived classe and return a shared pointer to it.
-             * \param dataProvider Data provider information.
-             * \return Shared pointer to the new collector.
-             *
-             * \exception terrama2::collector::UnknownDataProviderKindException Raised when CollectorFactory cannot identify the right Collector type for the DataProvider.
-             */
-        CollectorPtr getCollector(uint64_t dataProviderId);
-
-        /*!
-         * \brief Remove the collector from the list.
-         *
-         * If there is no collector for the dataProvider, nothing is done.
-         *
-         * \param dataProvider Collector's DataProvider.
-         */
-        void removeCollector(uint64_t dataProviderId);
-
-        void removeAllCollectors();
-
         static ParserPtr makeParser(const std::string& uri, const core::DataSetItem &datasetItem);
         static StoragerPtr makeStorager(const core::DataSetItem &datasetItem);
         static DataRetrieverPtr makeRetriever(const core::DataProvider& dataProvider);
-
-      private:
-
-        QMap<int /*DataProviderId*/, CollectorPtr> collectorMap_;
 
     };
   }

@@ -28,14 +28,16 @@
   \author Evandro Delatin
 */
 
-#include "ParserOGR.hpp"
 #include "DataFilter.hpp"
+#include "ParserOGR.hpp"
 #include "Exception.hpp"
+#include "Utils.hpp"
 
 
 //QT
 #include <QDir>
 #include <QDebug>
+#include <QUrl>
 
 //STD
 #include <memory>
@@ -45,38 +47,47 @@
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/common/Exception.h>
 
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/dataaccess/dataset/DataSetAdapter.h>
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/dataaccess/utils/Utils.h>
-
-
-
-void terrama2::collector::ParserOGR::datasetupdate(std::shared_ptr<te::da::DataSet>& dataset, std::shared_ptr<te::da::DataSetType>& datasetTypeVec)
+void terrama2::collector::ParserOGR::getDataSet(std::shared_ptr<te::da::DataSourceTransactor>& transactor,
+                                                const std::string& name,
+                                                std::shared_ptr<te::da::DataSet>& dataset,
+                                                std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  te::da::DataSetTypeConverter converter(datasetTypeVec.get());
+  std::unique_ptr<te::da::DataSet> datasetOrig = transactor->getDataSet(name);
+  datasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
 
-  for(std::size_t i = 0; i < datasetTypeVec->size(); ++i)
-    {
-      te::dt::Property* p = datasetTypeVec->getProperty(i);
+  if(!datasetOrig || !datasetType)
+  {
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                          QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
+  }
 
-      converter.add(i,p->clone());
-    }
+
+  te::da::DataSetTypeConverter converter(datasetType.get());
+
+  for(std::size_t i = 0; i < datasetType->size(); ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+    converter.add(i,p->clone());
+  }
 
   converter.remove("FID");
 
-  std::shared_ptr<te::da::DataSetAdapter> dsAdapter(te::da::CreateAdapter(dataset.get(), &converter, false));
-  dataset = dsAdapter;
-  datasetTypeVec = std::shared_ptr<te::da::DataSetType> (converter.getResult());
+  adapt(converter);
+
+  dataset = std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), &converter, true));
+  datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter.getResult()->clone()));
 }
 
 void terrama2::collector::ParserOGR::read(const std::string &uri,
                                           DataFilterPtr filter,
                                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                          std::shared_ptr<te::da::DataSetType>& datasetTypeVec)
+                                          std::shared_ptr<te::da::DataSetType>& datasetType)
 {
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -85,7 +96,8 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     //create a datasource and open
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
     std::map<std::string, std::string> connInfo;
-    connInfo["URI"] = uri;
+    QUrl url(uri.c_str());
+    connInfo["URI"] = url.path().toStdString();
     datasource->setConnectionInfo(connInfo);
 
     //RAII for open/closing the datasource
@@ -110,19 +122,10 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
 
     for(const std::string& name : names)
     {
-      std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
-      datasetTypeVec = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
+      std::shared_ptr<te::da::DataSet> dataset;
+      getDataSet(transactor, name, dataset, datasetType);
 
-      if(!dataSet || !datasetTypeVec)
-      {
-        throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                              QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
-      }
-
-      // Dataset update - remove primary key of DataSet
-      datasetupdate(dataSet, datasetTypeVec);
-
-      datasetVec.push_back(dataSet);
+      datasetVec.push_back(dataset);
     }
 
     return;

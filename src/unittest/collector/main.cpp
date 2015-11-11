@@ -1,6 +1,5 @@
 
 #include "TsCollectorService.hpp"
-#include "TsCollectorFile.hpp"
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
@@ -17,9 +16,6 @@ int main(int argc, char *argv[])
 
   int returnVal = 0;
   QApplication app(argc, argv);
-
-//  TsCollectorFile tsCollectorFile;
-//  returnVal += QTest::qExec(&tsCollectorFile, argc, argv);
 
 //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
