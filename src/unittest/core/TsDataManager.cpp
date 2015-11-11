@@ -397,7 +397,7 @@ void TsDataManager::testUpdateDataProviderShallow()
 {
   try
   {
-    
+
     DataProvider dataProvider = createDataProvider();
 
     DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
@@ -410,12 +410,14 @@ void TsDataManager::testUpdateDataProviderShallow()
 
     DataManager::getInstance().add(dataProvider);
 
+    // Update the name of the second
+    auto& ds2 = dataProvider.datasets()[1];
+    ds2.setName("New Queimadas");
+
+
     // Remove the first dataset
     dataProvider.removeDataSet(dataProvider.datasets()[0].id());
 
-    // Update the name of the second
-    auto& ds2 = dataProvider.datasets()[0];
-    ds2.setName("New Queimadas");
 
     // Add a new dataset
     DataSet dataSet3("Queimadas3", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
@@ -425,21 +427,30 @@ void TsDataManager::testUpdateDataProviderShallow()
     qRegisterMetaType<DataProvider>("DataProvider");
     QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataProviderUpdated(DataProvider)));
 
+    qRegisterMetaType<DataSet>("DataSet");
+    qRegisterMetaType<uint64_t>("uint64_t");
+    QSignalSpy spyAdded(&DataManager::getInstance(), SIGNAL(dataSetAdded(DataSet)));
+    QSignalSpy spyRemoved(&DataManager::getInstance(), SIGNAL(dataSetRemoved(uint64_t)));
+    QSignalSpy spyUpdated(&DataManager::getInstance(), SIGNAL(dataSetUpdated(DataSet)));
+
     dataProvider.setName("New server");
     dataProvider.setStatus(DataProvider::INACTIVE);
     dataProvider.setDescription("New server is ...");
     dataProvider.setUri("myserver@...");
-    
+
     DataManager::getInstance().update(dataProvider);
-    
+
     QVERIFY2(spy.count() == 1, "Expect an emitted signal");
-    
-    
+    QVERIFY2(spyAdded.count() == 1, "Expect an emitted signal for an added dataset");
+    QVERIFY2(spyRemoved.count() == 1, "Expect an emitted signal for an removed dataset");
+    QVERIFY2(spyUpdated.count() == 1, "Expect an emitted signal for an updated dataset");
+
+
     // Find the same data provider by id
     DataProvider foundDataProvider = DataManager::getInstance().findDataProvider(dataProvider.id());
-    
+
     QVERIFY2(foundDataProvider.id() == dataProvider.id(), "Could not recover the data provider by id!");
-    
+
     QVERIFY2(dataProvider.description() == foundDataProvider.description(), "Wrong Description after update");
     QVERIFY2(dataProvider.name() == foundDataProvider.name(), "Wrong name after update");
     QVERIFY2(dataProvider.kind() == foundDataProvider.kind(), "Wrong type after update");
@@ -565,8 +576,8 @@ void TsDataManager::testRemoveDataSet()
     DataSet dataSet = createDataSet();
     DataManager::getInstance().add(dataSet);
 
-
-    QSignalSpy spyDataSet(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSet)));
+    qRegisterMetaType<uint64_t>("uint64_t");
+    QSignalSpy spyDataSet(&DataManager::getInstance(), SIGNAL(dataSetRemoved(uint64_t)));
 
     DataManager::getInstance().removeDataSet(dataSet.id());
 
@@ -596,9 +607,8 @@ void TsDataManager::testRemoveDataSet()
 
 void TsDataManager::testRemoveDataSetInvalidId()
 {
-
-  qRegisterMetaType<DataSet>("DataSet");
-  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSet)));
+  qRegisterMetaType<uint64_t>("uint64_t");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(uint64_t)));
 
   try
   {
@@ -927,9 +937,12 @@ void TsDataManager::testAddDataProviderShallow()
     DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
     dataProvider.add(dataSet);
 
+    DataSet dataSet2("Queimadas2", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
+    dataProvider.add(dataSet2);
+
     DataManager::getInstance().add(dataProvider, false);
 
-    QVERIFY2(DataManager::getInstance().dataSets().size() == 1,  "The dataset was not added to the data manager!");
+    QVERIFY2(DataManager::getInstance().dataSets().size() == 2,  "The dataset was not added to the data manager!");
     QVERIFY2(dataProvider.datasets().size() != 0, "The dataset was not persisted!");
 
     for(auto ds: dataProvider.datasets())
@@ -940,7 +953,7 @@ void TsDataManager::testAddDataProviderShallow()
 
     QVERIFY2(spy.count() == 1, "Expect an emitted signal for an added provider");
 
-    QVERIFY2(spy2.count() == 1, "Expect an emitted signal for an added dataset");
+    QVERIFY2(spy2.count() == 2, "Expect two emitted signals for added datasets");
 
     QVERIFY2(dataProvider.id() != 0, "The id wasn't set in the provider after insert!");
   }
@@ -1187,8 +1200,8 @@ void TsDataManager::testFindNonExistentDataProvider()
 
 void TsDataManager::testRemoveNonExistentDataSet()
 {
-  qRegisterMetaType<DataSet>("DataSet");
-  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(DataSet)));
+  qRegisterMetaType<uint64_t>("uint64_t");
+  QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataSetRemoved(uint64_t)));
 
   // Tries to remove an nonexistent dataset
   try

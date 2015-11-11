@@ -326,7 +326,7 @@ namespace terrama2
         void dataSetAdded(DataSet);
 
         //! Signal to notify that a dataset has been removed.
-        void dataSetRemoved(DataSet);
+        void dataSetRemoved(uint64_t);
 
         //! Signal to notify that a dataset has been updated.
         void dataSetUpdated(DataSet);

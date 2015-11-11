@@ -141,8 +141,10 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
       if(!shallowSave)
       {
-        for (auto& dataset : provider.datasets())
+        for(auto& dataset: provider.datasets())
         {
+          DataSetDAO::save(dataset, *transactor, shallowSave);
+
           pimpl_->datasets[dataset.id()] = dataset;
         }
       }
@@ -237,6 +239,10 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
 
 void terrama2::core::DataManager::update(DataProvider& provider, const bool shallowSave)
 {
+
+  std::vector<DataSet> added, updated;
+  std::vector<uint64_t> removed;
+
 // Inside a block so the lock is released before emitting the signal
   {
 
@@ -267,12 +273,56 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
 
       DataProviderDAO::update(provider, *transactor, shallowSave);
 
-      transactor->commit();
-
-      for(auto& dataset: provider.datasets())
+      if(!shallowSave)
       {
-        pimpl_->datasets[dataset.id()] = dataset;
+        std::vector<uint64_t> ids = DataProviderDAO::getDatasetsIds(provider.id(), *transactor);
+
+
+        for(auto& dataset: provider.datasets())
+        {
+          // Id exists just need to call update
+          auto it = find (ids.begin(), ids.end(), dataset.id());
+          if (it != ids.end())
+          {
+            // Remove from the list, so what is left in this vector are the datasets to remove
+            ids.erase(it);
+
+            DataSetDAO::update(dataset, *transactor, shallowSave);
+            pimpl_->datasets[dataset.id()] = dataset;
+            updated.push_back(dataset);
+          }
+
+          // Id is 0 for new items
+          if(dataset.id() == 0)
+          {
+            DataSetDAO::save(dataset, *transactor, shallowSave);
+            added.push_back(dataset);
+          }
+        }
+
+        // What's is left in vector are the the removed datasets.
+        for(auto datasetId : ids)
+        {
+          DataSetDAO::remove(datasetId, *transactor);
+          removed.push_back(datasetId);
+
+// removes dataset from the map
+
+          auto it = pimpl_->datasets.find(datasetId);
+          if(it == pimpl_->datasets.end())
+          {
+            throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove a nonexistent dataset."));
+          }
+
+          if(it != pimpl_->datasets.end())
+          {
+            auto& dataset = it->second;
+            pimpl_->datasets.erase(it);
+          }
+        }
       }
+
+      transactor->commit();
 
       pimpl_->providers[provider.id()] = provider;
     }
@@ -292,9 +342,19 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
 
   if(!shallowSave)
   {
-    for(auto dataset: provider.datasets())
+    for(auto& dataset: added)
+    {
+      dataSetAdded(dataset);
+    }
+
+    for(auto& dataset: updated)
     {
       dataSetUpdated(dataset);
+    }
+
+    for(auto& id: removed)
+    {
+      dataSetRemoved(id);
     }
   }
   emit dataProviderUpdated(provider);
@@ -494,7 +554,7 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
   }
 
   emit dataProviderUpdated(provider);
-  emit dataSetRemoved(dataset);
+  emit dataSetRemoved(dataset.id());
 }
 
 terrama2::core::DataProvider
