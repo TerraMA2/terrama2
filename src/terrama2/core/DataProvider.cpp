@@ -120,6 +120,11 @@ terrama2::core::DataProvider::datasets()
   return datasets_;
 }
 
+const std::vector<terrama2::core::DataSet> &terrama2::core::DataProvider::datasets() const
+{
+  return datasets_;
+}
+
 void
 terrama2::core::DataProvider::add(DataSet& d)
 {

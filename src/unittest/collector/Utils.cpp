@@ -75,7 +75,7 @@ void initializeTerralib()
   }
   catch(te::plugin::Exception& e)
   {
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    qDebug() << e.what();
     assert(0);
   }
 }

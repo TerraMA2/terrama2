@@ -34,8 +34,10 @@
 #include "../core/DataSetItem.hpp"
 
 //Terralib
-#include "terralib/dataaccess/dataset/DataSet.h"
-#include "terralib/geometry.h"
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype/TimeDuration.h>
+#include <terralib/geometry.h>
 
 //STD
 #include <string>
@@ -51,7 +53,7 @@ namespace terrama2
     class DataFilter : public boost::noncopyable
     {
       public:
-        DataFilter(core::DataSetItem datasetItem);
+        DataFilter(const core::DataSetItem& datasetItem);
         ~DataFilter();
 
         /*!
@@ -73,44 +75,11 @@ namespace terrama2
              *
              * \return Filtered DataSet.
              */
-        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const;
-
-        //TODO: should have static methods for easy access?
-        static std::vector<std::string> filterNamesByMask(const std::vector<std::string>& namesList, const std::string& mask);
-        static te::da::DataSetPtr filterDataSetByIntersection(const te::da::DataSetPtr dataset, const te::gm::GeometryShrPtr geometry);
+        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
 
       private:
 
-        /*!
-             * \brief Sets the mask the names should match
-             * .
-             * //TODO: define the wild cards to mask may have
-             *
-             */
-        void setMask(const std::string& mask);
-
-        /*!
-             * \brief Sets the geometry and the relation rule the data must comply to be accepted
-             * \param geometry Geometry to be confronted with the data.
-             * \param relationRule Relation rule the data must comply.
-             *
-             * //TODO: enum the possible relations
-             */
-        void setGeometry(const te::gm::GeometryShrPtr geometry, te::gm::SpatialRelation relationRule);
-
-        /*!
-             * \brief Sets the date/time that should be used as starting date/time of valid data.
-             * \param startDateTime Starting valid data date/time.
-             */
-        void setDataStartDate();//TODO: What datetime format? : Boost
-        /*!
-             * \brief Sets the date/time that should be used as last date/time of valid data.
-             * \param endDateTime Last valid data date/time.
-             */
-        void setDataEndDate();//TODO: What datetime format? : Boost
-
-        struct Impl;
-        Impl* impl_;
+        const core::DataSetItem& datasetItem_;
     };
 
     typedef std::shared_ptr<DataFilter> DataFilterPtr;

@@ -32,7 +32,11 @@
 
 #include "Parser.hpp"
 
+//std
 #include <mutex>
+
+//terralib
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 
 namespace terrama2
 {
@@ -44,9 +48,6 @@ namespace terrama2
       public:
         ParserOGR() : Parser(){}
         virtual ~ParserOGR(){}
-
-        virtual std::vector<std::string> datasetNames(const std::string &uri) const override;
-
 
         /*!
          * \brief TODO: document ParserOGR
@@ -60,13 +61,14 @@ namespace terrama2
         virtual void read(const std::string& uri,
                           DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                          std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
+                          std::shared_ptr<te::da::DataSetType> &datasetType) override;
 
-        void datasetupdate(std::shared_ptr<te::da::DataSet>& dataset, std::shared_ptr<te::da::DataSetType>& datasetTypeVec);
+        virtual void getDataSet(std::shared_ptr<te::da::DataSourceTransactor>& transactor,
+                                const std::string& name,
+                                std::shared_ptr<te::da::DataSet>& dataset,
+                                std::shared_ptr<te::da::DataSetType>& datasetTypeVec);
 
-      private:
-        std::mutex mutex_;
-
+        virtual void adapt(te::da::DataSetTypeConverter& /*converter*/){ }
     };
   }
 }

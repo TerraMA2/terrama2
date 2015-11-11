@@ -28,54 +28,95 @@
 */
 
 #include "../core/DataSetItem.hpp"
+#include "../core/Filter.hpp"
 #include "DataFilter.hpp"
 
-struct terrama2::collector::DataFilter::Impl
-{
-    std::string mask_;
-    te::gm::GeometryShrPtr  geometry_;
-    te::gm::SpatialRelation relationRule_;
-};
+//terralib
+#include <terralib/memory/DataSet.h>
+#include <terralib/datatype/Enums.h>
 
 std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std::vector<std::string>& namesList) const
 {
+  std::string mask = datasetItem_.mask();
+
   //TODO: Implement filterNames
-  if(impl_->mask_.empty())
+  if(mask.empty())
     return namesList;
+
 
   std::vector<std::string> matchNames;
   for(const std::string &name : namesList)
   {
     //TODO: how is the match? regex?
-    if(name == impl_->mask_)
+    if(name == mask)
       matchNames.push_back(name);
   }
 
   return matchNames;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet) const
+std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
-  //TODO: Implement filterDataSet
-  return dataSet;
+  //Find DateTime column
+  int dateColumn = -1;
+  for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
+  {
+    if( dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    {
+      dateColumn = i;
+      break;
+    }
+  }
+
+  //Find Geometry column
+  int geomColumn = -1;
+  for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
+  {
+    if( dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
+    {
+      geomColumn = i;
+      break;
+    }
+  }
+
+  //If there is no DateTime or geometry column, nothing to be done
+  if(dateColumn < 0 && geomColumn < 0)
+    return dataSet;
+
+  //Copy dataset to an in-memory dataset filtering the data
+  const core::Filter& filter = datasetItem_.filter();
+  auto memDataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
+  while(dataSet->moveNext())
+  {
+    //Filter Time
+    if(dateColumn > 0)
+    {
+      std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
+      if(*dateTime < *filter.discardBefore())
+        continue;
+
+      if(*dateTime > *filter.discardAfter())
+        continue;
+
+      //TODO: filter last collection time
+    }
+
+    //Copy each property
+    for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
+      memDataSet->add(dataSet->getPropertyName(i), dataSet->getPropertyDataType(i), dataSet->getValue(i).release());
+  }
+
+  //TODO: Implement filter geometry
+  return memDataSet;
 }
 
-
-terrama2::collector::DataFilter::DataFilter(core::DataSetItem datasetItem)
+terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem)
+  : datasetItem_(datasetItem)
 {
-  impl_ = new Impl();
-  impl_->relationRule_ = te::gm::UNKNOWN_SPATIAL_RELATION;
 
-  setMask(datasetItem.mask());
-  //TODO: set all filtering data
 }
 
 terrama2::collector::DataFilter::~DataFilter()
 {
-  delete impl_;
-}
 
-void terrama2::collector::DataFilter::setMask(const std::string &mask)
-{
-  impl_->mask_ = mask;
 }
