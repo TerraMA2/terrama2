@@ -129,6 +129,9 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
       ;
   }
 
+  pimpl_->ui_->planeRdb->setEnabled(false);
+  pimpl_->ui_->preAnalysisThemeBox->setEnabled(false);
+
   pimpl_->ui_->allSmallerThanLed->setValidator(new QIntValidator(pimpl_->ui_->allSmallerThanLed));
   pimpl_->ui_->allLargerThanLed->setValidator(new QIntValidator(pimpl_->ui_->allLargerThanLed));
   pimpl_->ui_->belowAverageLed->setValidator(new QIntValidator(pimpl_->ui_->belowAverageLed));
@@ -248,6 +251,8 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
     filter.setGeometry(std::move(polygon));
   }
+  else
+    filter.setGeometry(nullptr);
 
   // TODO: is there another way fill up with before/after date?.
   if (pimpl_->filterByDate_)
@@ -279,6 +284,8 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
   {
     filter.setBandFilter(pimpl_->ui_->bandFilterLed->text().toStdString());
   }
+  else
+    filter.setBandFilter("");
 
   if (pimpl_->filterBypreAnalyse_)
   {
@@ -304,6 +311,8 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
     filter.setValue(std::unique_ptr<double>(value));
   }
+  else
+    filter.setValue(nullptr);
 
 }
 

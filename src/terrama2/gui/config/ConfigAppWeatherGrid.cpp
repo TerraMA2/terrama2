@@ -28,6 +28,8 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
 
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
+
+  ui_->projectionGridBtn->setEnabled(false);
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
@@ -96,6 +98,9 @@ void ConfigAppWeatherGridTab::save()
   metadata["KIND"] = ui_->gridFormatDataFormat->currentText().toStdString();
   metadata["PREFIX"] = ui_->gridFormatDataPrefix->text().toStdString();
   metadata["UNIT"] = ui_->gridFormatDataUnit->text().toStdString();
+  metadata["PATH"] = ui_->gridFormatDataPath->text().toStdString();
+  metadata["RESOLUTION"] = ui_->gridFormatDataResolution->text().toStdString();
+  dataset.setMetadata(metadata);
 
   // todo: get value from db
   dataset.setSchedule(schedule);
@@ -181,7 +186,6 @@ bool ConfigAppWeatherGridTab::validate()
       throw terrama2::gui::FieldError() << terrama2::ErrorDescription(
           tr("The data set grid name has already been saved. Please change server name"));
     }
-
   }
 
   // TODO: Complete validation with another fields and Projection and Filter validation

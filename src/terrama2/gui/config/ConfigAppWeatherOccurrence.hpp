@@ -58,7 +58,13 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     void save();
     void discardChanges(bool restore_data);
 
-  public:
+    void fillFilter(const terrama2::core::Filter&);
+
+  private:
+    //! It reset filter label state
+    void resetFilterState();
+
+  public slots:
     void onFilterClicked();
     void onProjectionClicked();
 

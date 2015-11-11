@@ -21,6 +21,9 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   connect(ui_->projectionPointDiffBtn, SIGNAL(clicked()), SLOT(onProjectionClicked()));
   connect(ui_->intersectionBtn, SIGNAL(clicked()), SLOT(onIntersectionBtnClicked()));
 
+  //todo: implement intersection dialog and then, enabled it again
+  ui_->intersectionBtn->setEnabled(false);
+
   ui_->updateDataPointDiffBtn->setEnabled(false);
   ui_->exportDataPointDiffBtn->setEnabled(false);
 }
@@ -72,14 +75,22 @@ void ConfigAppWeatherOccurrence::save()
 
   std::map<std::string, std::string> metadata(dataset.metadata());
   metadata["PATH"] = ui_->pointDiffFormatDataPath->text().toStdString();
+  metadata["UNIT"] = ui_->pointDiffFormatDataUnit->text().toStdString();
   metadata["KIND"] = ui_->pointDiffFormatDataFormat->currentText().toStdString();
+  metadata["PREFIX"] = ui_->pointDiffFormatDataPrefix->text().toStdString();\
   dataset.setMetadata(metadata);
 
   terrama2::core::DataSetItem* datasetItem;
   if (dataset.dataSetItems().size() > 0)
-    datasetItem = &dataset.dataSetItems()[0];
+  {
+    datasetItem = &dataset.dataSetItems()[dataset.dataSetItems().size() - 1];
+    filter_->setDataSetItem(datasetItem->id());
+  }
   else
+  {
     datasetItem = new terrama2::core::DataSetItem;
+    dataset.add(*datasetItem);
+  }
 
   // TODO: fix it with datasetitem value
   int index;
@@ -93,11 +104,10 @@ void ConfigAppWeatherOccurrence::save()
   datasetItem->setMask(ui_->pointDiffFormatDataMask->text().toStdString());
   datasetItem->setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
-  datasetItem->setFilter(*filter_);
+
+  datasetItem->setFilter(*filter_.data());
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
-
-  dataset.add(*datasetItem);
 
   if (dataset.id() > 0)
   {
@@ -126,6 +136,29 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
   changed_ = false;
 
   filter_.reset(new terrama2::core::Filter);
+
+  resetFilterState();
+}
+
+void ConfigAppWeatherOccurrence::fillFilter(const terrama2::core::Filter& filter)
+{
+  filter_.reset(new terrama2::core::Filter(filter));
+
+  if (filter.discardBefore() != nullptr || filter.discardAfter() != nullptr)
+    ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterPointDiffLabel->setText(tr("No"));
+
+  if (filter.geometry() != nullptr)
+    ui_->areaFilterPointDiffLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterPointDiffLabel->setText(tr("No"));
+}
+
+void ConfigAppWeatherOccurrence::resetFilterState()
+{
+  ui_->dateFilterPointDiffLabel->setText(tr("No"));
+  ui_->areaFilterPointDiffLabel->setText(tr("No"));
 }
 
 void ConfigAppWeatherOccurrence::onFilterClicked()
@@ -139,6 +172,11 @@ void ConfigAppWeatherOccurrence::onFilterClicked()
     ui_->dateFilterPointDiffLabel->setText(tr("Yes"));
   else
     ui_->dateFilterPointDiffLabel->setText(tr("No"));
+
+  if (dialog.isFilterByArea())
+    ui_->areaFilterPointDiffLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterPointDiffLabel->setText(tr("No"));
 }
 
 void ConfigAppWeatherOccurrence::onDataSetBtnClicked()
@@ -151,6 +189,7 @@ void ConfigAppWeatherOccurrence::onDataSetBtnClicked()
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointDiffPage);
 
     filter_.reset(new terrama2::core::Filter);
+    resetFilterState();
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
