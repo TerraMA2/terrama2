@@ -22,7 +22,7 @@
 /*!
   \file terrama2/gui/config/CollectorRuleDialog.hpp
 
-  \brief Definition of methods in class CollectorRuleDialog.hpp
+  \brief It defines the CollectorRule GUI interface to enable a collector lua script filter
 
   \author Raphael Willian da Costa
   \author Pedro Luchini de Moraes
@@ -55,21 +55,41 @@ class CollectorRuleDialog : public QDialog, private boost::noncopyable
     CollectorRuleDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~CollectorRuleDialog();
 
+    /*!
+      \brief It fill
+      \param script: const string variable containing lua script and it fill the plain text
+     */
     void fillGUI(const QString script);
+
+    /*!
+      \brief It will fill a QString reference with lua script
+      \param script: a QString reference to be filled out
+     */
     void fillObject(QString& script);
 
   private:
+    /*!
+      \brief It initialize all lua collector help functions, such math expressions and lua blocks
+    */
     void init();
 
   private slots:
+    /*!
+      \brief It is triggered when some of help scripts buttons has been clicked and fill up the plain text
+     */
     void onAddScript(QAction*);
+
+    /*!
+      \brief It is triggered when the OK btn is clicked and it will checks if there any syntax error or empty value
+      \todo validate lua syntax
+    */
     void onOkBtnClicked();
     
   private:
     struct Impl;
-    Impl* pimpl_;
+    Impl* pimpl_; //!< pimpl idiom
 
-    QSharedPointer<LuaSyntaxHighlighter> luaHighlighter_;
+    QSharedPointer<LuaSyntaxHighlighter> luaHighlighter_; //!< it contains lua syntax highlighter commands
 
 };
 
