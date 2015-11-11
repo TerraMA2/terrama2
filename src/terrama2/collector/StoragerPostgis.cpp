@@ -108,12 +108,13 @@ void terrama2::collector::StoragerPostgis::store(const std::vector<std::shared_p
   catch(te::common::Exception& e)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    qDebug() << e.what();
     assert(0);
   }
-  catch(...)
+  catch(std::exception& e)
   {
     //TODO: log de erro
+    qDebug() << e.what();
     assert(0);
   }
 

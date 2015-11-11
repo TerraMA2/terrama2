@@ -200,7 +200,6 @@ namespace terrama2
           \pre The dataset must have a valid ID.
 
           Emits dataSetRemoved() signal if the dataset is removed successfully.
-          At end it will emit the dataProviderUpdated() signal.
 
           In case there is an analysis configured to use this dataset, the dataset will not be removed.
 
@@ -316,23 +315,23 @@ namespace terrama2
         void dataManagerUnloaded();
 
         //! Signal to notify that a provider has been added.
-        void dataProviderAdded(DataProvider);
+        void dataProviderAdded(const DataProvider&);
 
         //! Signal to notify that a provider has been removed.
-        void dataProviderRemoved(DataProvider);
+        void dataProviderRemoved(const DataProvider&);
 
         //! Signal to notify that a provider has been updated.
-        void dataProviderUpdated(DataProvider);
+        void dataProviderUpdated(const DataProvider&);
 
 
         //! Signal to notify that a dataset has been added.
-        void dataSetAdded(DataSet);
+        void dataSetAdded(const DataSet&);
 
         //! Signal to notify that a dataset has been removed.
         void dataSetRemoved(uint64_t);
 
         //! Signal to notify that a dataset has been updated.
-        void dataSetUpdated(DataSet);
+        void dataSetUpdated(const DataSet&);
 
 
       protected:

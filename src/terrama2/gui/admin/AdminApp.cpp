@@ -528,10 +528,7 @@ void AdminApp::dbCreateDatabaseRequested()
   {
     QString messageError = "TerraMA2\n\n";
 
-    if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
-    {
-      messageError.append(d);
-    }
+    messageError.append(e.what());
 
     QMessageBox::warning(nullptr, "TerraMA2", messageError);
   }

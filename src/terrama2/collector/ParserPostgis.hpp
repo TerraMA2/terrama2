@@ -20,60 +20,49 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorFile.hpp
+  \file terrama2/collector/ParserPostgis.hpp
 
-  \brief Aquire data from server.
+  \brief Parsers postgres/postgis data and create a terralib DataSet.
 
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
 
-#ifndef __TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
-#define __TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
+#include "Parser.hpp"
 
-#include "Collector.hpp"
-
-//Qt
-#include <QDir>
-
-namespace te
-{
-  namespace da {
-    class DataSource;
-  }
-}
+#include <mutex>
 
 namespace terrama2
 {
   namespace collector
   {
-    class CollectorFile : public Collector
+
+    class ParserPostgis : public Parser
     {
       public:
+        ParserPostgis() : Parser(){}
+        virtual ~ParserPostgis(){}
+
         /*!
-         * \brief TODO: document CollectorFile
-         * \param dataProvider
-         * \param parent
+         * \brief TODO: document ParserPostgis
+         * \param uri
+         * \return Dataset of the temporary file.
          *
-         * \exception InvalidDataProviderException
-         * \exception WrongDataProviderKindException
+         * \pre TerrLib should be initialized.
+         *
+         * \exception UnableToReadDataSetError Raised if could not open the datasource, dataset is empty, terralib exception.
          */
-        CollectorFile(const core::DataProvider &dataProvider, QObject *parent = nullptr);
-        virtual ~CollectorFile(){}
+        virtual void read(const std::string& uri,
+                          DataFilterPtr filter,
+                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                          std::shared_ptr<te::da::DataSetType> &datasetTypePtr) override;
 
-        virtual bool checkConnection() const override;
-        virtual bool isOpen() const override;
-        virtual void open() override;
-        virtual void close() override;
-
-      protected:
-        virtual std::string retrieveData(const DataFilterPtr /*filter*/) override;
-
-        QDir dir_;
     };
   }
 }
 
 
 
-#endif //__TERRAMA2_COLLECTOR_COLLECTORFILE_HPP__
+#endif //__TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
