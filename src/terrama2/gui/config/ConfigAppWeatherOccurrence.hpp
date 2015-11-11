@@ -54,10 +54,21 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     ~ConfigAppWeatherOccurrence();
 
     void load();
+
+    /*!
+      \brief It validates the GUI input values.
+      \exception terrama2::gui::FieldError
+      \return true if the whole interface is valid. Otherwise, it throws exception
+    */
     bool validate();
+
+    //! It applies save operation, sending the dataset to gsoap client
     void save();
+
+    //! It discards the widget values and set to initial state
     void discardChanges(bool restore_data);
 
+    //! It fills the terrama2 filter object
     void fillFilter(const terrama2::core::Filter&);
 
   private:
@@ -69,8 +80,16 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     void onProjectionClicked();
 
   private slots:
+    //! Slot triggered when insert occurrence data button has been clicked. It displays the Occurrence Tab.
     void onDataSetBtnClicked();
+
+    //! Slot triggered when remove occurrence data button has been clicked. It removes selected dataset from database
     void onRemoveOccurrenceBtnClicked();
+
+    /*!
+      \brief Slot triggered when intersection button has been clicked. It displays the Intersection Gui Form.
+      \todo Implement that interface in new TerraMA2 model
+    */
     void onIntersectionBtnClicked();
 
   private:

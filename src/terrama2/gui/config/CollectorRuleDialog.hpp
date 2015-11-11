@@ -56,7 +56,7 @@ class CollectorRuleDialog : public QDialog, private boost::noncopyable
     ~CollectorRuleDialog();
 
     /*!
-      \brief It fill
+      \brief It fill lua script plain text of interface
       \param script: const string variable containing lua script and it fill the plain text
      */
     void fillGUI(const QString script);

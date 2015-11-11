@@ -114,7 +114,9 @@ class ConfigAppWeatherTab : public ConfigAppTab
     void showDataSeries(bool state);
 
   private:
+    //! It hides each one data series button
     void hideDataSetButtons();
+
     void hidePanels(QWidget* except);
 
   private slots:

@@ -37,11 +37,6 @@ ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
   delete filter_;
 }
 
-bool ConfigAppWeatherGridTab::dataChanged()
-{
-  return active_ && changed_;
-}
-
 void ConfigAppWeatherGridTab::load()
 {
   QMenu* menuMask = new QMenu(tr("Máscaras"));
