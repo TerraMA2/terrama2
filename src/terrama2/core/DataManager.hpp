@@ -292,13 +292,13 @@ namespace terrama2
         void dataManagerLoaded();
         void dataManagerUnloaded();
 
-        void dataProviderAdded(DataProvider);
-        void dataProviderRemoved(DataProvider);
-        void dataProviderUpdated(DataProvider);
+        void dataProviderAdded(const DataProvider&);
+        void dataProviderRemoved(const DataProvider&);
+        void dataProviderUpdated(const DataProvider&);
 
-        void dataSetAdded(DataSet);
-        void dataSetRemoved(DataSet);
-        void dataSetUpdated(DataSet);
+        void dataSetAdded(const DataSet&);
+        void dataSetRemoved(const DataSet&);
+        void dataSetUpdated(const DataSet&);
 
 
       protected:

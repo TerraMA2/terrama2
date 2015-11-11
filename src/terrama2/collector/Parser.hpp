@@ -37,6 +37,9 @@
 //Boost
 #include <boost/noncopyable.hpp>
 
+//std
+#include <mutex>
+
 namespace te
 {
   namespace da
@@ -62,8 +65,6 @@ namespace terrama2
     {
       public:
 
-
-        virtual std::vector<std::string> datasetNames(const std::string& uri) const = 0;
         /*!
              * \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
              * \param uri Uri to the temporary data.
@@ -75,7 +76,11 @@ namespace terrama2
                           DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                           std::shared_ptr<te::da::DataSetType> &datasetTypeVec) = 0;
+
+    protected:
+      std::mutex mutex_;
     };
+
 
     typedef std::shared_ptr<Parser> ParserPtr;
   }
