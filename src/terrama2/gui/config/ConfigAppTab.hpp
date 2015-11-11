@@ -118,6 +118,9 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! Slot triggered on projection button in tabs to show projection dialog
     virtual void onProjectionClicked();
 
+    //! Slot triggered whenever any widget is changed
+    virtual void onSubTabEdited();
+
   protected:
     ConfigApp* app_;  //!< Main Window
     Ui::ConfigAppForm* ui_; //!< UI from ConfigApp

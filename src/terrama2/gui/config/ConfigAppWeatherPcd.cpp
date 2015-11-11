@@ -31,13 +31,23 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
   connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
 
+  ui_->projectionPointBtn->setEnabled(false);
+
   // export pcd button
   connect(ui_->exportDataPointBtn, SIGNAL(clicked()), SLOT(onPCDExportClicked()));
 
   ui_->pointFormatDataMask->setEnabled(false);
   ui_->pointFormatDataFormat->setEnabled(false);
 
+  // todo: implement it to list pcd attributes after collection
   ui_->updateDataPointBtn->setEnabled(false);
+  ui_->pointFormatDataThemeCmb->setEnabled(false);
+  ui_->pointFormatDataAttributeCmb->setEnabled(false);
+  ui_->pointFormatDataPrefix->setEnabled(false);
+  ui_->pointFormatDataUnit->setEnabled(false);
+
+  ui_->btnPCDWFSConfiguration->setEnabled(false);
+  ui_->btnPCDInformationPlane->setEnabled(false);
 
   tableClean();
 

@@ -131,6 +131,7 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
 
   pimpl_->ui_->planeRdb->setEnabled(false);
   pimpl_->ui_->preAnalysisThemeBox->setEnabled(false);
+  pimpl_->ui_->dummyTab->setEnabled(false);
 
   pimpl_->ui_->allSmallerThanLed->setValidator(new QIntValidator(pimpl_->ui_->allSmallerThanLed));
   pimpl_->ui_->allLargerThanLed->setValidator(new QIntValidator(pimpl_->ui_->allLargerThanLed));
@@ -264,6 +265,8 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
                                           boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardBefore(std::move(datePtr));
     }
+    else
+      filter.setDiscardBefore(nullptr);
 
     if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
     {
@@ -272,7 +275,8 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
                                           boost::posix_time::time_from_string(afterDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardAfter(std::move(datePtr));
     }
-
+    else
+      filter.setDiscardAfter(nullptr);
   }
   else
   {
@@ -359,6 +363,8 @@ void FilterDialog::onFilteredByArea()
 void FilterDialog::onBeforeBtnClicked()
 {
   pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTime());
+  pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
+  emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
 }
 
 void FilterDialog::onNoPreAnalyse()
@@ -410,4 +416,6 @@ void FilterDialog::disablePreFields()
 void FilterDialog::onAfterBtnClicked()
 {
   pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTime());
+  pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
+  emit pimpl_->ui_->dateAfterFilterCbx->clicked();
 }

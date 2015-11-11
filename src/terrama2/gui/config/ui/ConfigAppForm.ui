@@ -2530,13 +2530,160 @@ p, li { white-space: pre-wrap; }
              </widget>
              <widget class="QWidget" name="DataPointDiffPage">
               <layout class="QGridLayout" name="gridLayout_24">
+               <item row="2" column="0">
+                <widget class="QGroupBox" name="groupBox_39">
+                 <property name="title">
+                  <string>Pré-processamento - Interseção</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_23">
+                  <item row="0" column="0">
+                   <widget class="QPushButton" name="intersectionBtn">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset theme="intersection">
+                      <normaloff/>
+                     </iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <spacer name="horizontalSpacer_2">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>133</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QGroupBox" name="groupBox_32">
+                 <property name="title">
+                  <string> Filtros: </string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_3">
+                  <item row="0" column="0" rowspan="2">
+                   <widget class="QPushButton" name="filterPointDiffBtn">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Filtrar dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset theme="filter">
+                      <normaloff/>
+                     </iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" rowspan="2">
+                   <spacer>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="label_94">
+                    <property name="text">
+                     <string>Filtro por data: </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="3">
+                   <widget class="QLabel" name="dateFilterPointDiffLabel">
+                    <property name="text">
+                     <string>Não</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QLabel" name="label_36">
+                    <property name="text">
+                     <string>Filtro por área:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QLabel" name="areaFilterPointDiffLabel">
+                    <property name="text">
+                     <string>Não</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>17</width>
+                   <height>290</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
                <item row="0" column="0" colspan="3">
                 <widget class="QGroupBox" name="groupBox_30">
                  <property name="title">
                   <string> Dado: </string>
                  </property>
-                 <layout class="QGridLayout" name="gridLayoutabc">
-                  <item row="1" column="1" colspan="5">
+                 <layout class="QGridLayout" name="gridLayout_26">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_84">
+                    <property name="text">
+                     <string>Nome:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" colspan="6">
+                   <widget class="QLineEdit" name="pointDiffFormatDataName"/>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_85">
+                    <property name="text">
+                     <string>Tipo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="3">
                    <widget class="QComboBox" name="pointDiffFormatDataType">
                     <item>
                      <property name="text">
@@ -2555,10 +2702,21 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </widget>
                   </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_84">
+                  <item row="1" column="6">
+                   <widget class="QPushButton" name="projectionPointDiffBtn">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="text">
-                     <string>Nome:</string>
+                     <string>Projeção...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset theme="projection">
+                      <normaloff/>
+                     </iconset>
                     </property>
                    </widget>
                   </item>
@@ -2566,26 +2724,6 @@ p, li { white-space: pre-wrap; }
                    <widget class="QLabel" name="label_86">
                     <property name="text">
                      <string>Unidade:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_89">
-                    <property name="text">
-                     <string>Freq. Atualiz.:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1" colspan="6">
-                   <widget class="QLineEdit" name="pointDiffFormatDataName"/>
-                  </item>
-                  <item row="2" column="5" colspan="2">
-                   <widget class="QLineEdit" name="pointDiffFormatDataPrefix"/>
-                  </item>
-                  <item row="3" column="2">
-                   <widget class="QLabel" name="label_90">
-                    <property name="text">
-                     <string>h</string>
                     </property>
                    </widget>
                   </item>
@@ -2604,6 +2742,33 @@ p, li { white-space: pre-wrap; }
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item row="2" column="4">
+                   <widget class="QLabel" name="label_88">
+                    <property name="text">
+                     <string>Prefixo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="5" colspan="2">
+                   <widget class="QLineEdit" name="pointDiffFormatDataPrefix"/>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_89">
+                    <property name="text">
+                     <string>Freq. Atualiz.:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="pointDiffFormatDataFrequency"/>
+                  </item>
+                  <item row="3" column="2">
+                   <widget class="QLabel" name="label_90">
+                    <property name="text">
+                     <string>h</string>
+                    </property>
+                   </widget>
                   </item>
                   <item row="3" column="3">
                    <spacer>
@@ -2774,38 +2939,10 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="pointDiffFormatDataFrequency"/>
-                  </item>
-                  <item row="2" column="4">
-                   <widget class="QLabel" name="label_88">
+                  <item row="5" column="0" colspan="2">
+                   <widget class="QCheckBox" name="pointDiffFormatStatus">
                     <property name="text">
-                     <string>Prefixo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_85">
-                    <property name="text">
-                     <string>Tipo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="6">
-                   <widget class="QPushButton" name="projectionPointDiffBtn">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Projeção...</string>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="projection">
-                      <normaloff/>
-                     </iconset>
+                     <string>Série de dados ativo</string>
                     </property>
                    </widget>
                   </item>
@@ -2869,136 +3006,6 @@ p, li { white-space: pre-wrap; }
                   </item>
                  </layout>
                 </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QGroupBox" name="groupBox_39">
-                 <property name="title">
-                  <string>Pré-processamento - Interseção</string>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_23">
-                  <item row="0" column="0">
-                   <widget class="QPushButton" name="intersectionBtn">
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="intersection">
-                      <normaloff/>
-                     </iconset>
-                    </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>24</width>
-                      <height>24</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <spacer name="horizontalSpacer_2">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>133</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item row="2" column="2">
-                <widget class="QGroupBox" name="groupBox_32">
-                 <property name="title">
-                  <string> Filtros: </string>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_3">
-                  <item row="0" column="0" rowspan="2">
-                   <widget class="QPushButton" name="filterPointDiffBtn">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;Filtrar dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="filter">
-                      <normaloff/>
-                     </iconset>
-                    </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>24</width>
-                      <height>24</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1" rowspan="2">
-                   <spacer>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_94">
-                    <property name="text">
-                     <string>Filtro por data: </string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="3">
-                   <widget class="QLabel" name="dateFilterPointDiffLabel">
-                    <property name="text">
-                     <string>Não</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="2">
-                   <widget class="QLabel" name="label_36">
-                    <property name="text">
-                     <string>Filtro por área:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="3">
-                   <widget class="QLabel" name="areaFilterPointDiffLabel">
-                    <property name="text">
-                     <string>Não</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <spacer name="verticalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>17</width>
-                   <height>290</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
               </layout>
              </widget>

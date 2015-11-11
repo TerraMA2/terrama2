@@ -23,7 +23,7 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
 {
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridClicked()));
   connect(ui_->filterGridBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
-  connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabChanged()));
+  connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabEdited()));
   connect(ui_->gridFormatDataFormat, SIGNAL(currentIndexChanged(const QString&)), SLOT(onGridFormatChanged()));
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
 
@@ -212,11 +212,6 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
-}
-
-void ConfigAppWeatherGridTab::onSubTabChanged()
-{
-  changed_ = true;
 }
 
 void ConfigAppWeatherGridTab::onGridFormatChanged()

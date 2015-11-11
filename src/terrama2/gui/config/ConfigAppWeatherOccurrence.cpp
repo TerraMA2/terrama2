@@ -20,9 +20,12 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   connect(ui_->filterPointDiffBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
   connect(ui_->projectionPointDiffBtn, SIGNAL(clicked()), SLOT(onProjectionClicked()));
   connect(ui_->intersectionBtn, SIGNAL(clicked()), SLOT(onIntersectionBtnClicked()));
+  connect(ui_->pointDiffFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabEdited()));
 
   //todo: implement intersection dialog and then, enabled it again
   ui_->intersectionBtn->setEnabled(false);
+
+  ui_->projectionPointDiffBtn->setEnabled(false);
 
   ui_->updateDataPointDiffBtn->setEnabled(false);
   ui_->exportDataPointDiffBtn->setEnabled(false);
@@ -103,7 +106,7 @@ void ConfigAppWeatherOccurrence::save()
   datasetItem->setKind(terrama2::core::ToDataSetItemKind(index));
   datasetItem->setMask(ui_->pointDiffFormatDataMask->text().toStdString());
   datasetItem->setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
-  datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
+  datasetItem->setStatus(terrama2::core::ToDataSetItemStatus(ui_->pointDiffFormatStatus->isChecked()));
 
   datasetItem->setFilter(*filter_.data());
 
@@ -136,6 +139,9 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
   changed_ = false;
 
   filter_.reset(new terrama2::core::Filter);
+
+  ui_->pointDiffFormatDataDescription->setText("");
+  ui_->pointDiffFormatDataTimeZoneCmb->setCurrentIndex(0);
 
   resetFilterState();
 }

@@ -66,7 +66,6 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     //! Slot triggered when data grid btn is clicked to display the Grid Widget
     void onDataGridClicked();
 
-    void onSubTabChanged();
     void onGridFormatChanged();
     void onRemoveDataGridBtnClicked();
     void onMenuMaskClicked(QAction* action);

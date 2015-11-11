@@ -90,6 +90,11 @@ void ConfigAppTab::onProjectionClicked()
 
 }
 
+void ConfigAppTab::onSubTabEdited()
+{
+  changed_ = true;
+}
+
 bool ConfigAppTab::isActive() const
 {
   return active_;
