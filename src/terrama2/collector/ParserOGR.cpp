@@ -25,10 +25,11 @@
   \brief Parsers OGR data and create a terralib DataSet.
 
   \author Jano Simas
+  \author Evandro Delatin
 */
 
-#include "DataFilter.hpp"
 #include "ParserOGR.hpp"
+#include "DataFilter.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
 
@@ -47,7 +48,9 @@
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/common/Exception.h>
+
 
 void terrama2::collector::ParserOGR::read(const std::string &uri,
                                           DataFilterPtr filter,
@@ -95,6 +98,8 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
                                               QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
       }
 
+      datasetupdate(dataSet, datasetTypeVec);
+
       datasetVec.push_back(dataSet);
     }
 
@@ -113,5 +118,21 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
   }
 
   return;
+}
+
+void terrama2::collector::ParserOGR::datasetupdate(std::shared_ptr<te::da::DataSet> dataset, std::shared_ptr<te::da::DataSetType> datasetTypeVec)
+{
+  te::da::DataSetAdapter* adaptedDataSet = new te::da::DataSetAdapter(dataset.get());
+
+  te::da::DataSetTypeConverter converter(datasetTypeVec.get());
+  const std::vector<std::vector<std::size_t> >& indexes = converter.getConvertedPropertyIndexes();
+  const std::vector<te::da::AttributeConverter>& funcs = converter.getConverters();
+
+  for(std::size_t i = 0; i < datasetTypeVec->size(); ++i)
+    {
+      te::dt::Property* p = datasetTypeVec->getProperty(i);
+      if (p->getName() != "FID")
+         adaptedDataSet->add(p->getName(), p->getType(), indexes[i], funcs[i]);
+    }
 }
 

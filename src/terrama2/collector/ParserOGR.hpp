@@ -58,6 +58,8 @@ namespace terrama2
                           DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                           std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
+
+        void datasetupdate(std::shared_ptr<te::da::DataSet> dataset, std::shared_ptr<te::da::DataSetType> datasetTypeVec);
     };
   }
 }
