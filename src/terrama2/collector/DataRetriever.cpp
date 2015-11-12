@@ -28,6 +28,10 @@
 */
 
 #include "DataRetriever.hpp"
+#include "Exception.hpp"
+
+//Qt
+#include <QObject>
 
 struct terrama2::collector::DataRetriever::Impl
 {
@@ -36,6 +40,11 @@ struct terrama2::collector::DataRetriever::Impl
 
 terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
 {
+  if(dataprovider.id() == 0 || dataprovider.name().empty())
+  {
+    throw InvalidDataProviderError() << terrama2::ErrorDescription(QObject::tr("Invalid dataprovider in DataRetriever constructor."));
+  }
+
   impl_ = new Impl;
   impl_->dataprovider = dataprovider;
 }
@@ -48,6 +57,11 @@ std::string terrama2::collector::DataRetriever::retrieveData(terrama2::collector
 void terrama2::collector::DataRetriever::open()
 {
 
+}
+
+bool terrama2::collector::DataRetriever::isOpen()
+{
+  return true;
 }
 
 void terrama2::collector::DataRetriever::close()

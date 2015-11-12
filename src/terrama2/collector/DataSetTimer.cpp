@@ -43,13 +43,12 @@ struct terrama2::collector::DataSetTimer::Impl
 
 terrama2::collector::DataSetTimer::DataSetTimer(const terrama2::core::DataSet& dataSet)
 {
-  impl_ = new Impl();
-
   if(dataSet.id() == 0 || dataSet.name().empty())
   {
     throw InvalidDataSetError() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
   }
 
+  impl_ = new Impl();
   impl_->dataSetId_ = dataSet.id();
 
   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);

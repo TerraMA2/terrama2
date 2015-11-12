@@ -35,6 +35,7 @@
 #include "Storager.hpp"
 #include "Factory.hpp"
 #include "Parser.hpp"
+#include "Utils.hpp"
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
@@ -80,11 +81,18 @@ void terrama2::collector::CollectorService::start(int threadNumber)
   try
   {
     stop_ = false;
+    //start the loop thread
     loopThread_ = std::thread(&CollectorService::processingLoop, this);
 
-    for (int i = 0; i < threadNumber; ++i) {
+    //check for the number o threads to create
+    if(threadNumber)
+      threadNumber = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
+    if(!threadNumber)
+      threadNumber = 1; //if not able to find out set to 1
+
+    //Starts collection threads
+    for (int i = 0; i < threadNumber; ++i)
       threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
-    }
   }
   catch(const std::exception& e)
   {
@@ -103,9 +111,11 @@ void terrama2::collector::CollectorService::stop() noexcept
     stop_ = true;
   }
 
+  //wait for the loop thread
   if(loopThread_.joinable())
     loopThread_.join();
 
+  //wait for each collectiing thread
   for(auto & thread : threadPool_)
   {
     if(thread.joinable())
@@ -142,7 +152,12 @@ void terrama2::collector::CollectorService::process(uint64_t dataProviderID, con
 void terrama2::collector::CollectorService::collectAsThread(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet> &dataSetList)
 {
   DataRetrieverPtr retriever = Factory::makeRetriever(dataProvider);
-  retriever->open();
+  OpenClose<DataRetrieverPtr> openClose(retriever);
+  if(!retriever->isOpen())
+  {
+    //TODO: log this
+    return;
+  }
 
   for(auto &dataSet : dataSetList)
   {
