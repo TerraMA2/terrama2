@@ -67,6 +67,8 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     */
     virtual void load() = 0;
 
+    virtual void load(const terrama2::core::DataSet&);
+
     //! It shows if data were changed by user
     virtual bool dataChanged();
 
@@ -115,6 +117,9 @@ class ConfigAppTab : public QObject, private boost::noncopyable
 
     //! Slot triggered on projection button in tabs to show projection dialog
     virtual void onProjectionClicked();
+
+    //! Slot triggered whenever any widget is changed
+    virtual void onSubTabEdited();
 
   protected:
     ConfigApp* app_;  //!< Main Window

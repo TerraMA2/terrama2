@@ -20,46 +20,37 @@
 */
 
 /*!
-  \file terrama2/gui/config/LuaSyntaxHighlighter.hpp
+  \file terrama2/gui/config/IntersectionDialog.hpp
 
-  \brief Definition of Class LuaSyntaxHighlighter.hpp
+  \brief It defines the Intersection Form Dialog for Occurrence datasets 
 
-  \author Evandro Delatin
-  \author Raphael Willian da Costa
-  \author Carlos Augusto Teixeira Mendes
+  \author Raphael Willian da Costa  
 */
 
+#ifndef __TERRAMA2_GUI_CONFIG_INTERSECTIONDIALOG_HPP__
+#define __TERRAMA2_GUI_CONFIG_INTERSECTIONDIALOG_HPP__
 
-#ifndef _LUA_SYNTAX_HIGHLIGHTER_H_
-#define _LUA_SYNTAX_HIGHLIGHTER_H_
 
-// QT
-#include <QSyntaxHighlighter>
-#include <QRegExp>
-#include <QTextCharFormat>
-#include <QVector>
+// boost
+#include <boost/noncopyable.hpp>
 
-//! Classe responsável por efetuar o highlight de scripts Lua
-class LuaSyntaxHighlighter : public QSyntaxHighlighter
+
+class IntersectionDialog : public QDialog, private boost::noncopyable
 {
   Q_OBJECT
 
-public:
-  LuaSyntaxHighlighter(QTextEdit* parent = 0);
+  public:
+    IntersectionDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    ~IntersectionDialog();
 
-protected:
-  void highlightBlock(const QString &text);
+  private slots:
+    void onOkBtnClicked();
 
-private:
-  struct HighlightingRule
-  {
-    QRegExp         _pattern;
-    QTextCharFormat _format;
-  };
-  
-  QVector<HighlightingRule> _rules;
+  private:
+    struct Impl;
+    Impl* pimpl_;
 };
 
 
-#endif
+#endif // __TERRAMA2_GUI_CONFIG_INTERSECTIONDIALOG_HPP__
 
