@@ -52,8 +52,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="icons.qrc">
-              <normaloff>:/global/icons/next.png</normaloff>:/global/icons/next.png</iconset>
+             <iconset theme="next"/>
             </property>
            </widget>
           </item>
@@ -106,7 +105,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="icons.qrc">
+             <iconset>
               <normaloff>:/global/icons/previous.png</normaloff>:/global/icons/previous.png</iconset>
             </property>
            </widget>
@@ -304,8 +303,7 @@ p, li { white-space: pre-wrap; }
         <string>Ok</string>
        </property>
        <property name="icon">
-        <iconset resource="icons.qrc">
-         <normaloff>:/global/icons/ok.png</normaloff>:/global/icons/ok.png</iconset>
+        <iconset theme="confirm"/>
        </property>
       </widget>
      </item>
@@ -321,8 +319,7 @@ p, li { white-space: pre-wrap; }
         <string>Cancelar</string>
        </property>
        <property name="icon">
-        <iconset resource="icons.qrc">
-         <normaloff>:/global/icons/cancel.png</normaloff>:/global/icons/cancel.png</iconset>
+        <iconset theme="cancel"/>
        </property>
       </widget>
      </item>
@@ -330,8 +327,6 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

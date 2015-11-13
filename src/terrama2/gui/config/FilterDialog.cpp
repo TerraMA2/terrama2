@@ -36,17 +36,18 @@
 #include <terralib/geometry/Polygon.h>
 #include <terralib/geometry/LinearRing.h>
 
-#include <terralib/datatype/Date.h>
+#include <terralib/datatype/TimeInstant.h>
 
 // boost
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "boost/date_time/gregorian/gregorian.hpp"
 
+#include <QMessageBox>
 #include <QDialog>
 #include <QIcon>
+#include <QLineEdit>
+#include <QIntValidator>
 
-
-#include <iostream>
 
 struct FilterDialog::Impl
 {
@@ -55,7 +56,8 @@ struct FilterDialog::Impl
       filterByDate_(false),
       filterByLayer_(false),
       filterByArea_(false),
-      filterBypreAnalyse_(false)
+      filterBypreAnalyse_(false),
+      expressionType(terrama2::core::Filter::NONE_TYPE)
   {
   }
 
@@ -68,6 +70,7 @@ struct FilterDialog::Impl
   bool filterByLayer_;
   bool filterByArea_;
   bool filterBypreAnalyse_;
+  terrama2::core::Filter::ExpressionType expressionType;
 };
 
 //! Construtor
@@ -91,6 +94,13 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   connect(pimpl_->ui_->areaRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
   connect(pimpl_->ui_->planeRdb, SIGNAL(clicked()), this, SLOT(onFilteredByArea()));
 
+  // pre-filter
+  connect(pimpl_->ui_->noPreAnalysisRdb, SIGNAL(clicked()), this, SLOT(onNoPreAnalyse()));
+  connect(pimpl_->ui_->allSmallerThanRdb, SIGNAL(clicked()), this, SLOT(onFilterByLessThan()));
+  connect(pimpl_->ui_->allLargerThanRdb, SIGNAL(clicked()), this, SLOT(onFilterByGreaterThan()));
+  connect(pimpl_->ui_->belowAverageRdb, SIGNAL(clicked()), this, SLOT(onFilterByMeanLessThan()));
+  connect(pimpl_->ui_->aboveAverageRdb, SIGNAL(clicked()), this, SLOT(onFilterByMeanGreaterThan()));
+
   // loading pixmap icon from theme and set it to label
   QPixmap pixmap = QIcon::fromTheme("filter-big").pixmap(80);
   pimpl_->ui_->labelFilterIcon->setPixmap(pixmap);
@@ -98,20 +108,36 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   switch(type)
   {
     case DATE:
-      pimpl_->ui_->tabWidget->setTabEnabled(1,false);
       pimpl_->ui_->tabWidget->setTabEnabled(2,false);
       pimpl_->ui_->tabWidget->setTabEnabled(3,false);
       pimpl_->ui_->tabWidget->setTabEnabled(4,false);
       break;
     case BAND:
+      pimpl_->ui_->bandTab->setEnabled(true);
       pimpl_->ui_->tabWidget->setTabEnabled(0,false); // date
-      pimpl_->ui_->tabWidget->setTabEnabled(2,false); // pre
-      pimpl_->ui_->tabWidget->setTabEnabled(3,false); // band
+      pimpl_->ui_->tabWidget->setTabEnabled(1,false); // pre
+      pimpl_->ui_->tabWidget->setTabEnabled(2,false); // band
       pimpl_->ui_->tabWidget->setTabEnabled(4,false); // dummy
+      break;
+    case AREA:
+      pimpl_->ui_->tabWidget->setTabEnabled(0,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(2,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(3,false);
+      pimpl_->ui_->tabWidget->setTabEnabled(4,false);
       break;
     default:
       ;
   }
+
+  pimpl_->ui_->planeRdb->setEnabled(false);
+  pimpl_->ui_->preAnalysisThemeBox->setEnabled(false);
+  pimpl_->ui_->dummyTab->setEnabled(false);
+
+  pimpl_->ui_->allSmallerThanLed->setValidator(new QIntValidator(pimpl_->ui_->allSmallerThanLed));
+  pimpl_->ui_->allLargerThanLed->setValidator(new QIntValidator(pimpl_->ui_->allLargerThanLed));
+  pimpl_->ui_->belowAverageLed->setValidator(new QIntValidator(pimpl_->ui_->belowAverageLed));
+  pimpl_->ui_->aboveAverageLed->setValidator(new QIntValidator(pimpl_->ui_->aboveAverageLed));
+
 }
 
 FilterDialog::~FilterDialog()
@@ -154,20 +180,53 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
   //TODO: improve date convertion. This code just uses boost to convert te::Date
   if (filter.discardBefore())
   {
-    const te::dt::Date* dt = static_cast<const te::dt::Date*>(filter.discardBefore());
+    const te::dt::TimeInstant* dt = dynamic_cast<const te::dt::TimeInstant*>(filter.discardBefore());
     pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
-    QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
-    pimpl_->ui_->dateBeforeFilterDed->setDate(date);
+
+    QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
+    pimpl_->ui_->datetimeBefore->setDateTime(date);
     emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
   }
 
   if (filter.discardAfter())
   {
-    const te::dt::Date* dt = static_cast<const te::dt::Date*>(filter.discardAfter());
+    const te::dt::TimeInstant* dt = dynamic_cast<const te::dt::TimeInstant*>(filter.discardAfter());
     pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
-    QDate date = QDate::fromString(boost::gregorian::to_iso_string(dt->getDate()).c_str(), "yyyyMMdd");
-    pimpl_->ui_->dateAfterFilterDed->setDate(date);
+    QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
+    pimpl_->ui_->datetimeAfter->setDateTime(date);
     emit pimpl_->ui_->dateAfterFilterCbx->clicked();
+  }
+
+  if (!filter.bandFilter().empty())
+  {
+    pimpl_->ui_->bandFilterLed->setText(filter.bandFilter().c_str());
+    pimpl_->filterByLayer_ = true;
+  }
+
+  if (filter.value() != nullptr)
+  {
+    pimpl_->expressionType = filter.expressionType();
+    switch(pimpl_->expressionType)
+    {
+      case terrama2::core::Filter::LESS_THAN_TYPE:
+        pimpl_->ui_->allSmallerThanRdb->setChecked(true);
+        pimpl_->ui_->allSmallerThanLed->setText(QString::number(*filter.value()));
+        break;
+      case terrama2::core::Filter::GREATER_THAN_TYPE:
+        pimpl_->ui_->allLargerThanRdb->setChecked(true);
+        pimpl_->ui_->allLargerThanLed->setText(QString::number(*filter.value()));
+        break;
+      case terrama2::core::Filter::MEAN_LESS_THAN_TYPE:
+        pimpl_->ui_->belowAverageRdb->setChecked(true);
+        pimpl_->ui_->belowAverageLed->setText(QString::number(*filter.value()));
+        break;
+      case terrama2::core::Filter::MEAN_GREATER_THAN_TYPE:
+        pimpl_->ui_->aboveAverageRdb->setChecked(true);
+        pimpl_->ui_->aboveAverageLed->setText(QString::number(*filter.value()));
+        break;
+      default:
+        pimpl_->ui_->noPreAnalysisRdb->setChecked(true);
+    }
   }
 }
 
@@ -193,26 +252,31 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
     filter.setGeometry(std::move(polygon));
   }
+  else
+    filter.setGeometry(nullptr);
 
   // TODO: is there another way fill up with before/after date?.
   if (pimpl_->filterByDate_)
   {
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
     {
-      QDate beforeDate = pimpl_->ui_->dateBeforeFilterDed->date();
-      std::unique_ptr<te::dt::Date> datePtr (new te::dt::Date(
-                                          beforeDate.year(), beforeDate.month(), beforeDate.day()));
+      QDateTime beforeDate = pimpl_->ui_->datetimeBefore->dateTime();
+      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(
+                                          boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardBefore(std::move(datePtr));
     }
+    else
+      filter.setDiscardBefore(nullptr);
 
     if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
     {
-      QDate afterDate = pimpl_->ui_->dateAfterFilterDed->date();
-      std::unique_ptr<te::dt::Date> datePtr (new te::dt::Date(
-                                          afterDate.year(), afterDate.month(), afterDate.day()));
+      QDateTime afterDate = pimpl_->ui_->datetimeAfter->dateTime();
+      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(
+                                          boost::posix_time::time_from_string(afterDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardAfter(std::move(datePtr));
     }
-
+    else
+      filter.setDiscardAfter(nullptr);
   }
   else
   {
@@ -220,11 +284,40 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     filter.setDiscardAfter(nullptr);
   }
 
-  // TODO: filter by layer
   if (pimpl_->filterByLayer_)
   {
-
+    filter.setBandFilter(pimpl_->ui_->bandFilterLed->text().toStdString());
   }
+  else
+    filter.setBandFilter("");
+
+  if (pimpl_->filterBypreAnalyse_)
+  {
+    filter.setExpressionType(pimpl_->expressionType);
+    double* value;
+    switch(pimpl_->expressionType)
+    {
+      case terrama2::core::Filter::LESS_THAN_TYPE:
+        value = new double(pimpl_->ui_->allSmallerThanLed->text().toDouble());
+        break;
+      case terrama2::core::Filter::GREATER_THAN_TYPE:
+        value = new double(pimpl_->ui_->allLargerThanLed->text().toDouble());
+        break;
+      case terrama2::core::Filter::MEAN_LESS_THAN_TYPE:
+        value = new double(pimpl_->ui_->belowAverageLed->text().toDouble());
+        break;
+      case terrama2::core::Filter::MEAN_GREATER_THAN_TYPE:
+        value = new double(pimpl_->ui_->aboveAverageLed->text().toDouble());
+        break;
+      default:
+        ;
+    }
+
+    filter.setValue(std::unique_ptr<double>(value));
+  }
+  else
+    filter.setValue(nullptr);
+
 }
 
 bool FilterDialog::isFilterByLayer() const
@@ -269,10 +362,60 @@ void FilterDialog::onFilteredByArea()
 
 void FilterDialog::onBeforeBtnClicked()
 {
-  pimpl_->ui_->dateBeforeFilterDed->setDate(QDate::currentDate());
+  pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTime());
+  pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
+  emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
+}
+
+void FilterDialog::onNoPreAnalyse()
+{
+  pimpl_->expressionType = terrama2::core::Filter::NONE_TYPE;
+  setFilterByPreAnalyse();
+}
+
+void FilterDialog::onFilterByLessThan()
+{
+  pimpl_->expressionType = terrama2::core::Filter::LESS_THAN_TYPE;
+  setFilterByPreAnalyse();
+  pimpl_->ui_->allSmallerThanLed->setEnabled(true);
+}
+
+void FilterDialog::onFilterByGreaterThan()
+{
+  pimpl_->expressionType = terrama2::core::Filter::GREATER_THAN_TYPE;
+  setFilterByPreAnalyse();
+  pimpl_->ui_->allLargerThanLed->setEnabled(true);
+}
+
+void FilterDialog::onFilterByMeanLessThan()
+{
+  pimpl_->expressionType = terrama2::core::Filter::MEAN_LESS_THAN_TYPE;
+  setFilterByPreAnalyse();
+  pimpl_->ui_->belowAverageLed->setEnabled(true);
+}
+
+void FilterDialog::onFilterByMeanGreaterThan()
+{
+  pimpl_->expressionType = terrama2::core::Filter::MEAN_GREATER_THAN_TYPE;
+  setFilterByPreAnalyse();
+  pimpl_->ui_->aboveAverageLed->setEnabled(true);
+}
+
+void FilterDialog::setFilterByPreAnalyse()
+{
+  disablePreFields();
+  pimpl_->filterBypreAnalyse_ = true;
+}
+
+void FilterDialog::disablePreFields()
+{
+  for(QLineEdit* widget: pimpl_->ui_->preTab->findChildren<QLineEdit*>())
+    widget->setEnabled(false);
 }
 
 void FilterDialog::onAfterBtnClicked()
 {
-  pimpl_->ui_->dateAfterFilterDed->setDate(QDate::currentDate());
+  pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTime());
+  pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
+  emit pimpl_->ui_->dateAfterFilterCbx->clicked();
 }

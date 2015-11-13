@@ -232,6 +232,7 @@ namespace terrama2
            \return The list of dataset items.
          */
         std::vector<DataSetItem>& dataSetItems();
+        const std::vector<DataSetItem>& dataSetItems() const;
 
         /*! \brief Adds a new dataset item to the dataset. */
         void add(DataSetItem& d);

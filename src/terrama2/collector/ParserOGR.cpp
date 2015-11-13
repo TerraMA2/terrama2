@@ -28,14 +28,16 @@
   \author Evandro Delatin
 */
 
-#include "ParserOGR.hpp"
 #include "DataFilter.hpp"
+#include "ParserOGR.hpp"
 #include "Exception.hpp"
+#include "Utils.hpp"
 
 
 //QT
 #include <QDir>
 #include <QDebug>
+#include <QUrl>
 
 //STD
 #include <memory>
@@ -45,61 +47,48 @@
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/common/Exception.h>
 
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/dataaccess/dataset/DataSetAdapter.h>
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/dataaccess/utils/Utils.h>
-
-
-
-std::vector<std::string> terrama2::collector::ParserOGR::datasetNames(const std::string &uri) const
+void terrama2::collector::ParserOGR::getDataSet(std::shared_ptr<te::da::DataSourceTransactor>& transactor,
+                                                const std::string& name,
+                                                std::shared_ptr<te::da::DataSet>& dataset,
+                                                std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  QDir dir(uri.c_str());
+  std::unique_ptr<te::da::DataSet> datasetOrig = transactor->getDataSet(name);
+  datasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
 
-  QFileInfoList entryList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files | QDir::Readable);
-  std::vector<std::string> names;
-  for(const QFileInfo& file : entryList)
-    names.push_back(file.baseName().toStdString());
-
-  return names;
-}
+  if(!datasetOrig || !datasetType)
+  {
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                          QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
+  }
 
 
-void terrama2::collector::ParserOGR::datasetupdate(std::shared_ptr<te::da::DataSet>& dataset, std::shared_ptr<te::da::DataSetType>& datasetTypeVec)
-{
-  te::da::DataSetTypeConverter converter(datasetTypeVec.get());
+  te::da::DataSetTypeConverter converter(datasetType.get());
 
-  for(std::size_t i = 0; i < datasetTypeVec->size(); ++i)
-    {
-      te::dt::Property* p = datasetTypeVec->getProperty(i);
-
-      converter.add(i,p->clone());
-    }
+  for(std::size_t i = 0; i < datasetType->size(); ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+    converter.add(i,p->clone());
+  }
 
   converter.remove("FID");
 
-  std::shared_ptr<te::da::DataSetAdapter> dsAdapter(te::da::CreateAdapter(dataset.get(), &converter, false));
-  dataset = dsAdapter;
-  datasetTypeVec = std::shared_ptr<te::da::DataSetType> (converter.getResult());
+  adapt(converter);
+
+  dataset = std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), &converter, true));
+  datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter.getResult()->clone()));
 }
 
 void terrama2::collector::ParserOGR::read(const std::string &uri,
                                           DataFilterPtr filter,
                                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                          std::shared_ptr<te::da::DataSetType>& datasetTypeVec)
+                                          std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-
-  std::vector<std::string> allNames = datasetNames(uri);
-  std::vector<std::string> names = filter->filterNames(allNames);
-
-  if(names.empty())
-  {
-    //TODO: throw
-  }
-
   std::lock_guard<std::mutex> lock(mutex_);
 
   try
@@ -107,9 +96,12 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     //create a datasource and open
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
     std::map<std::string, std::string> connInfo;
-    connInfo["URI"] = uri;
+    QUrl url(uri.c_str());
+    connInfo["URI"] = url.path().toStdString();
     datasource->setConnectionInfo(connInfo);
-    datasource->open(); //FIXME: close? where?
+
+    //RAII for open/closing the datasource
+    OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
     if(!datasource->isOpened())
     {
@@ -119,22 +111,21 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
 
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+    std::vector<std::string> names = transactor->getDataSetNames();
+    names = filter->filterNames(names);
+
+    if(names.empty())
+    {
+      //TODO: throw no dataset found
+      return;
+    }
 
     for(const std::string& name : names)
     {
-      std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
-      datasetTypeVec = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
+      std::shared_ptr<te::da::DataSet> dataset;
+      getDataSet(transactor, name, dataset, datasetType);
 
-      if(!dataSet || !datasetTypeVec)
-      {
-        throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                              QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
-      }
-
-      // Dataset update - remove primary key of DataSet
-      datasetupdate(dataSet, datasetTypeVec);
-
-      datasetVec.push_back(dataSet);
+      datasetVec.push_back(dataset);
     }
 
     return;
@@ -142,13 +133,13 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
   catch(te::common::Exception& e)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    qDebug() << e.what();
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("Terralib exception: ") + boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+                                          QObject::tr("Terralib exception: ") +e.what());
   }
-  catch(...)
+  catch(std::exception& e)
   {
-    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("Unknown exception."));
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("Std exception.")+e.what());
   }
 
   return;

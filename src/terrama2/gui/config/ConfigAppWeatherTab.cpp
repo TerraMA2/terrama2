@@ -72,11 +72,12 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   QPixmap pixmap = QIcon::fromTheme("servers").pixmap(64);
   ui_->labelServerInfo->setPixmap(pixmap);
 
+  ui_->weatherPageStack->setCurrentWidget(ui_->ServerGroupPage);
 }
 
 ConfigAppWeatherTab::~ConfigAppWeatherTab()
 {
-//  delete timer_;
+
 }
 
 void ConfigAppWeatherTab::clearList()
@@ -201,6 +202,8 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
   ui_->saveBtn->setVisible(false);
   ui_->cancelBtn->setVisible(false);
 
+  hideDataSetButtons();
+  showDataSeries(false);
 }
 
 void ConfigAppWeatherTab::showDataSeries(bool state)
@@ -319,21 +322,17 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
-
         subTabs_[0]->setSelectedData(selectedItem->text(0));
 
         QUrl url(provider.uri().c_str());
 
         ui_->connectionAddress->setText(url.host() + url.path());
-
         ui_->connectionPort->setText(QString::number(url.port()));
         ui_->connectionUserName->setText(url.userName());
         ui_->connectionPassword->setText(url.password());
-
         ui_->serverName->setText(QString(provider.name().c_str()));
         ui_->serverDescription->setText(QString(provider.description().c_str()));
-
-        ui_->connectionProtocol->setCurrentIndex(provider.kind() - 1);
+        ui_->connectionProtocol->setCurrentIndex(provider.kind() - 2);
         ui_->serverActiveServer->setChecked(terrama2::core::ToBool(provider.status()));
 
         subTabs_[0]->load();
@@ -355,19 +354,42 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
             switch(dataset.kind())
             {
               case terrama2::core::DataSet::GRID_TYPE:
+              {
                 changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
-                subTabs_[1]->setSelectedData(selectedItem->text(0));
+                ConfigAppWeatherGridTab* gridTab = dynamic_cast<ConfigAppWeatherGridTab*>(subTabs_[1].data());
+
+                gridTab->setSelectedData(selectedItem->text(0));
 
                 ui_->gridFormatDataName->setText(dataset.name().c_str());
                 ui_->gridFormatDataDescription->setText(dataset.description().c_str());
                 ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
                 ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
 
+                const std::map<std::string, std::string> metadata = dataset.metadata();
+                auto it = metadata.find("PATH");
+                if (it != metadata.end())
+                  ui_->gridFormatDataPath->setText(it->second.c_str());
+
+                it = metadata.find("UNIT");
+                if (it != metadata.end())
+                  ui_->gridFormatDataUnit->setText(it->second.c_str());
+
+                it = metadata.find("PREFIX");
+                if (it != metadata.end())
+                  ui_->gridFormatDataPrefix->setText(it->second.c_str());
+
+                it = metadata.find("RESOLUTION");
+                if (it != metadata.end())
+                  ui_->gridFormatDataResolution->setText(it->second.c_str());
+
                 // temp code
                 if (dataset.dataSetItems().size() > 0)
                 {
                   terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
                   ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
+                  ui_->gridFormatDataMask->setText(datasetItem.mask().c_str());
+                  ui_->gridFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
+                  gridTab->fillFilter(datasetItem.filter());
                 }
 
                 hideDataSetButtons();
@@ -378,9 +400,11 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->gridFormatDataDeleteBtn->setVisible(true);
 
                 break;
+              }
               case terrama2::core::DataSet::PCD_TYPE:
                 changeTab(*(subTabs_[2].data()), *ui_->DataPointPage);
                 subTabs_[2]->setSelectedData(selectedItem->text(0));
+                subTabs_[2]->load();
 
                 ui_->pointFormatDataName->setText(dataset.name().c_str());
                 hideDataSetButtons();
@@ -391,14 +415,37 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->pointFormatDataDeleteBtn->setVisible(true);
                 break;
               case terrama2::core::DataSet::OCCURENCE_TYPE:
+              {
                 changeTab(*(subTabs_[3].data()), *ui_->DataPointDiffPage);
                 subTabs_[3]->setSelectedData(selectedItem->text(0));
 
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
                 ui_->pointDiffFormatDataDescription->setText(dataset.description().c_str());
                 ui_->pointDiffFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+
+                const std::map<std::string, std::string> metadata = dataset.metadata();
+                auto it = metadata.find("PATH");
+                if (it != metadata.end())
+                  ui_->pointDiffFormatDataPath->setText(it->second.c_str());
+
+                it = metadata.find("UNIT");
+                if (it != metadata.end())
+                  ui_->pointDiffFormatDataUnit->setText(it->second.c_str());
+
+                it = metadata.find("PREFIX");
+                if (it != metadata.end())
+                  ui_->pointDiffFormatDataPrefix->setText(it->second.c_str());
+
+                ConfigAppWeatherOccurrence* occurrenceTab = dynamic_cast<ConfigAppWeatherOccurrence*>(subTabs_[3].data());
                 if (dataset.dataSetItems().size() > 0)
-                  ui_->pointDiffFormatDataMask->setText(dataset.dataSetItems().at(0).mask().c_str());
+                {
+                  terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(dataset.dataSetItems().size() - 1);
+                  occurrenceTab->fillFilter(datasetItem.filter());
+                  ui_->pointDiffFormatDataMask->setText(datasetItem.mask().c_str());
+                  ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
+                  ui_->pointDiffFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
+                }
+
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
@@ -406,6 +453,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->exportDataPointDiffBtn->setVisible(true);
                 ui_->serverRemovePointDiffBtn->setVisible(true);
                 break;
+              }
               default:
               {
                 // UNKNOWN
@@ -503,10 +551,10 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
             QMessageBox::warning(app_, tr("TerraMA2"), message);
           }
         }
-      }
+      } // endif tab->dataChanged()
       tab->discardChanges(false);
       tab->setActive(false);
-    }
+    } // endif tab->isActive()
   }
   sender.setActive(true);
   ui_->weatherPageStack->setCurrentWidget(&widget);

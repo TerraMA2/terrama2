@@ -20,6 +20,11 @@ ConfigAppTab::~ConfigAppTab()
 
 }
 
+void ConfigAppTab::load(const terrama2::core::DataSet& dataset)
+{
+
+}
+
 void ConfigAppTab::validateAndSaveChanges()
 {
   try
@@ -83,6 +88,11 @@ void ConfigAppTab::onFilterClicked()
 void ConfigAppTab::onProjectionClicked()
 {
 
+}
+
+void ConfigAppTab::onSubTabEdited()
+{
+  changed_ = true;
 }
 
 bool ConfigAppTab::isActive() const

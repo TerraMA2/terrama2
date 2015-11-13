@@ -63,11 +63,6 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
 
     provider.setId(transactor.getLastGeneratedId());
 
-    if(shallow)
-      return;
-
-    for(auto& dataset: provider.datasets())
-      DataSetDAO::save(dataset, transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -103,12 +98,6 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
 
     transactor.execute(query.str());
 
-    if(shallow)
-      return;
-
-// TODO: Verificar os existentes no banco pra ver oq precisa inserir/remove/atualizar
-    for(auto& dataset: provider.datasets())
-      DataSetDAO::update(dataset, transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -122,6 +111,22 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
   {
     throw DataAccessError() << ErrorDescription(QObject::tr("Could not update the data provider."));
   }
+}
+
+std::vector<uint64_t> terrama2::core::DataProviderDAO::getDatasetsIds(const uint64_t providerId, te::da::DataSourceTransactor& transactor)
+{
+  std::string sql = "SELECT id FROM terrama2.dataset WHERE data_provider_id = " + std::to_string(providerId);
+
+  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+
+  std::vector<uint64_t> ids;
+  while(tempDataSet->moveNext())
+  {
+    uint64_t itemId = tempDataSet->getInt32(0);
+    ids.push_back(itemId);
+  }
+
+  return ids;
 }
 
 void terrama2::core::DataProviderDAO::remove(const uint64_t id, te::da::DataSourceTransactor& transactor)
@@ -175,7 +180,7 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
       provider.setStatus(ToDataProviderStatus(provider_result->getBool("active")));
 
       std::vector<DataSet> datasets = DataSetDAO::loadAll(id, transactor);
-      
+
       for(auto& dataset : datasets)
         provider.add(dataset);
 
@@ -202,27 +207,27 @@ std::vector<terrama2::core::DataProvider>
 terrama2::core::DataProviderDAO::loadAll(te::da::DataSourceTransactor& transactor)
 {
   std::vector<DataProvider> providers;
-  
+
   try
   {
     std::auto_ptr<te::da::DataSet> provider_result = transactor.getDataSet("terrama2.data_provider");
-    
+
     while(provider_result->moveNext())
     {
       DataProvider provider;
-      
+
       provider.setKind(ToDataProviderKind(provider_result->getInt32("kind")));
       provider.setName(provider_result->getAsString("name"));
       provider.setId(provider_result->getInt32("id"));
       provider.setDescription(provider_result->getString("description"));
       provider.setUri(provider_result->getString("uri"));
       provider.setStatus(ToDataProviderStatus(provider_result->getBool("active")));
-      
+
       std::vector<DataSet> datasets = DataSetDAO::loadAll(provider.id(), transactor);
-      
+
       for(auto& dataset : datasets)
         provider.add(dataset);
-      
+
       providers.push_back(std::move(provider));
     }
   }
@@ -238,6 +243,6 @@ terrama2::core::DataProviderDAO::loadAll(te::da::DataSourceTransactor& transacto
   {
     throw DataAccessError() << ErrorDescription(QObject::tr("Unexpected error loading data providers."));
   }
-  
+
   return std::move(providers);
 }

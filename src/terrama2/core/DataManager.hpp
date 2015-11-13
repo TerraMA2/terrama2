@@ -58,7 +58,7 @@ namespace terrama2
       The DataManager is a singleton responsible for loading metadata about
       data providers and datasets. It works like a database cache with TerraMA2
       concepts.
-     
+
       Take care to keep it synchronized.
      */
     class DataManager : public QObject, public te::common::Singleton<DataManager>
@@ -97,9 +97,10 @@ namespace terrama2
           \brief Add the data provider to the database and register it in the manager.
 
           This method will also add all the datasets contained in the data provider.
-         
-          At end it will emit dataProviderAdded(DataProviderPtr) signal.
-         
+
+          At end it will emit dataProviderAdded(DataProvider) signal.
+          At end it will emit datasetAdded(DataSet) for each dataset added if it's not a shallow save.
+
           \param provider    The data provider to be added to the database and registered into the manager.
           \param shallowSave If true it will only save the data provider attributes.
 
@@ -118,9 +119,10 @@ namespace terrama2
 
         /*!
           \brief Add the dataset to the database and register it in the manager.
-         
-          Emmits the dataSetAdded() signal when finished.
-         
+
+          Emits the dataSetAdded() signal when finished.
+          Emits the dataProviderUpdated() signal when finished.
+
           \param dataset     The dataset to be added.
           \param shallowSave If true it will only save the dataset attributes.
 
@@ -140,7 +142,10 @@ namespace terrama2
           \brief Update a given data provider in the database.
 
           Emits dataProviderUpdated() signal if the data provider is updated successfully.
-         
+          Emits dataSetAdded() signal if a dataset was added to the provider and it's not a shallow save.
+          Emits dataSetRemoved() signal if a dataset was removed from the provider and it's not a shallow save.
+          Emits dataSetUpdated() signal if a dataset was updated and it's not a shallow save.
+
           \param provider    The data provider to be updated.
           \param shallowSave If true it will update only the data provider attributes.
 
@@ -172,11 +177,11 @@ namespace terrama2
 
         /*!
           \brief Removes a given data provider.
-         
+
           Emits dataProviderRemoved() signal if the data provider is removed successfully.
-         
+
           \param id ID of the data provider to remove.
-         
+
           \pre The data provider must have a valid ID.
 
           \pos It will remove all datasets that belong to this data provider.
@@ -283,22 +288,50 @@ namespace terrama2
          */
         std::vector<terrama2::core::DataSet> dataSets() const;
 
+        /*!
+         \brief Verify if the given name is being used by another dataset.
+
+         \return True if the given name is available.
+
+         \param name The dataset name.
+        */
         bool isDatasetNameValid(const std::string& name) const;
 
+        /*!
+         \brief Verify if the given name is being used by another data provider.
+
+         \return True if the given name is available.
+
+         \param name The data provider name.
+         */
         bool isDataProviderNameValid(const std::string& name) const;
 
       signals:
 
+        //! Signal to notify that the data manager has been loaded.
         void dataManagerLoaded();
+
+        //! Signal to notify that the data manager has been unloaded.
         void dataManagerUnloaded();
 
-        void dataProviderAdded(DataProvider);
-        void dataProviderRemoved(DataProvider);
-        void dataProviderUpdated(DataProvider);
+        //! Signal to notify that a provider has been added.
+        void dataProviderAdded(const DataProvider&);
 
-        void dataSetAdded(DataSet);
-        void dataSetRemoved(DataSet);
-        void dataSetUpdated(DataSet);
+        //! Signal to notify that a provider has been removed.
+        void dataProviderRemoved(const DataProvider&);
+
+        //! Signal to notify that a provider has been updated.
+        void dataProviderUpdated(const DataProvider&);
+
+
+        //! Signal to notify that a dataset has been added.
+        void dataSetAdded(const DataSet&);
+
+        //! Signal to notify that a dataset has been removed.
+        void dataSetRemoved(uint64_t);
+
+        //! Signal to notify that a dataset has been updated.
+        void dataSetUpdated(const DataSet&);
 
 
       protected:
