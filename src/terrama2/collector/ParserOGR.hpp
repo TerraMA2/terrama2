@@ -69,7 +69,7 @@ namespace terrama2
                                 std::shared_ptr<te::da::DataSet>& dataset,
                                 std::shared_ptr<te::da::DataSetType>& datasetTypeVec);
 
-        virtual void adapt(te::da::DataSetTypeConverter& /*converter*/){ }
+        virtual void adapt(te::da::DataSetTypeConverter& converter){ }
     };
   }
 }
