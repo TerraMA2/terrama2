@@ -78,9 +78,10 @@ void terrama2::collector::ParserOGR::datasetupdate(std::shared_ptr<te::da::DataS
 
       converter.add(i,p->clone());
     }
-
+// Remove Primary Key
   converter.remove("FID");
 
+// New create dataset without Primary Key
   std::shared_ptr<te::da::DataSetAdapter> dsAdapter(te::da::CreateAdapter(dataset.get(), &converter, false));
   dataset = dsAdapter;
   datasetTypeVec = std::shared_ptr<te::da::DataSetType> (converter.getResult());
