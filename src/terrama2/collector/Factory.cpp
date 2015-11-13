@@ -31,62 +31,49 @@
 #include "../core/DataSetItem.hpp"
 
 #include "StoragerPostgis.hpp"
-#include "CollectorFile.hpp"
-#include "Exception.hpp"
+#include "DataRetriever.hpp"
+#include "ParserPostgis.hpp"
 #include "ParserOGR.hpp"
+#include "Exception.hpp"
 #include "Factory.hpp"
 
+//std
+#include <memory>
+#include <algorithm>
 
-terrama2::collector::CollectorPtr terrama2::collector::Factory::getCollector(uint64_t dataProviderId)
+//Qt
+#include <QUrl>
+
+
+terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const std::string& uri, const terrama2::core::DataSetItem& datasetItem)
 {
-  //If there is no collector for this DataProvider, create one.
-  if(!collectorMap_.contains(dataProviderId))
+  QUrl url(uri.c_str());
+  if(url.scheme().toLower() == "postgis")
   {
-    core::DataProvider provider = core::DataManager::getInstance().findDataProvider(dataProviderId);
-    //... instatiate a new collector
-    //TODO: Throws if fail?
+    ParserPtr newParser = std::make_shared<ParserPostgis>();
+    return newParser;
+  }
 
-    //TODO: Throws UnknownDataProviderKindException
-    //TODO: Use URI scheme to switch?
-    switch (provider.kind()) {
-      case core::DataProvider::FILE_TYPE:
+  if(url.scheme().toLower() == "file")
+  {
+    switch (datasetItem.kind()) {
+      case core::DataSetItem::PCD_INPE_TYPE:
+      case core::DataSetItem::PCD_TOA5_TYPE:
+      case core::DataSetItem::FIRE_POINTS_TYPE:
       {
-        CollectorPtr newCollector(new CollectorFile(provider));
-        collectorMap_.insert(dataProviderId, newCollector);
-        break;
+        ParserPtr newParser = std::make_shared<ParserOGR>();
+        return newParser;
       }
       default:
         break;
     }
   }
 
-  return collectorMap_.value(dataProviderId);
-}
-
-void terrama2::collector::Factory::removeCollector(uint64_t dataProviderId)
-{
-  collectorMap_.remove(dataProviderId);
-}
-
-terrama2::collector::ParserPtr terrama2::collector::Factory::getParser(terrama2::core::DataSetItem datasetItem)
-{
-  switch (datasetItem.kind()) {
-    case core::DataSetItem::PCD_INPE_TYPE:
-    case core::DataSetItem::PCD_TOA5_TYPE:
-    {
-      ParserPtr newParser(new ParserOGR());
-      return newParser;
-    }
-
-    default:
-      break;
-  }
-
   //FIXME: throw here
   return ParserPtr();
 }
 
-terrama2::collector::StoragerPtr terrama2::collector::Factory::getStorager(terrama2::core::DataSetItem datasetItem)
+terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
 {
   std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
 
@@ -96,12 +83,19 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::getStorager(terra
   if(storagerKind.empty())
     return StoragerPtr();
 
-  if(storagerKind == "POSTGIS")
+  //to lower case
+  std::transform(storagerKind.begin(), storagerKind.end(), storagerKind.begin(), ::tolower);
+  if(storagerKind == "postgis")
   {
-    return StoragerPtr(new StoragerPostgis(storageMetadata));
+    return std::make_shared<StoragerPostgis>(storageMetadata);
   }
 
 
   //FIXME: throw here
   return StoragerPtr();
+}
+
+terrama2::collector::DataRetrieverPtr terrama2::collector::Factory::makeRetriever(const terrama2::core::DataProvider& dataProvider)
+{
+  return std::make_shared<DataRetriever>(dataProvider);
 }

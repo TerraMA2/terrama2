@@ -99,6 +99,7 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 // Connect tabs to changing index
   connect(pimpl_->ui_->mainTabWidget, SIGNAL(currentChanged(int)), SLOT(tabChangeRequested(int)));
   connect(pimpl_->ui_->openAct, SIGNAL(triggered()), SLOT(openRequested()));
+  connect(pimpl_->ui_->exitAct, SIGNAL(triggered()), SLOT(close()));
 
   // Disable form until load terrama2 config file
   pimpl_->ui_->centralwidget->setEnabled(false);

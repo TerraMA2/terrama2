@@ -24,34 +24,23 @@
 
   \brief Definition of Class LuaSyntaxHighlighter
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa
   \author Carlos Augusto Teixeira Mendes
 */
 
-/*!
-\class LuaSyntaxHighlighter
-
-Utiliza as regras do Qt para efetuar o highlight de um script em Lua
-Efetua a marcação de:
-
-- Comandos (if, for, while, ...)
-- Strings
-- Comentários
-- Parâmetros a serem preenchidos (na forma _xxxx_)
-*/
-
-
+// TerraMA2
 #include "LuaSyntaxHighlighter.hpp"
 
+// QT
+#include <QRegExp>
+#include <QTextCharFormat>
+#include <QTextEdit>
 
-//! Construtor
-LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextEdit* parent)
- : QSyntaxHighlighter(parent)
+LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextEdit* widget)
+ : QSyntaxHighlighter(widget->document())
 {
   HighlightingRule rule;
 
-  // Comandos 
   QTextCharFormat keywordFormat;
   keywordFormat.setForeground(Qt::darkBlue);
   keywordFormat.setFontWeight(QFont::Bold);
@@ -67,50 +56,51 @@ LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextEdit* parent)
 
   foreach(QString pattern, keywordPatterns)
   {
-    rule._pattern = QRegExp(pattern);
-    rule._format  = keywordFormat;
-    _rules.append(rule);
+    rule.pattern = QRegExp(pattern);
+    rule.format  = keywordFormat;
+    rules.append(rule);
   } 
 
-  // Strings
   QTextCharFormat quotationFormat;
   quotationFormat.setForeground(Qt::darkGreen);
-  rule._pattern = QRegExp("\"[^\"]*\"");
-  rule._format = quotationFormat;
-  _rules.append(rule);
-  rule._pattern = QRegExp("'[^']*'");
-  rule._format = quotationFormat;
-  _rules.append(rule);
-  
-  // Comentários
+
+  rule.pattern = QRegExp("\"[^\"]*\"");
+  rule.format = quotationFormat;
+  rules.append(rule);
+
+  rule.pattern = QRegExp("'[^']*'");
+  rule.format = quotationFormat;
+  rules.append(rule);
+
   QTextCharFormat commentFormat;
   commentFormat.setForeground(Qt::red);
-  rule._pattern = QRegExp("--[^\n]*");
-  rule._format  = commentFormat;
-  _rules.append(rule);
+  rule.pattern = QRegExp("--[^\n]*");
+  rule.format  = commentFormat;
+  rules.append(rule);
   
-  // Parâmetros a serem preenchidos
+  // Parameters to fill up
   QTextCharFormat gapFormat;
   gapFormat.setBackground(Qt::yellow);
-  rule._pattern = QRegExp("\\b_\\w+_\\b");
-  rule._format  = gapFormat;
-  _rules.append(rule);
-  rule._pattern = QRegExp("\\b_\\.\\.\\._\\b");
-  rule._format  = gapFormat;
-  _rules.append(rule); 
+  rule.pattern = QRegExp("\\b_\\w+_\\b");
+  rule.format  = gapFormat;
+
+  rules.append(rule);
+  rule.pattern = QRegExp("\\b_\\.\\.\\._\\b");
+  rule.format  = gapFormat;
+
+  rules.append(rule); 
 }
 
-//! Implementa regras de formatação configuradas
-void LuaSyntaxHighlighter::highlightBlock(const QString &text)
+void LuaSyntaxHighlighter::highlightBlock(const QString& text)
 {
-  foreach(HighlightingRule rule, _rules)
+  for(HighlightingRule rule: rules)
   {
-    QRegExp expression(rule._pattern);
+    QRegExp expression(rule.pattern);
     int index = text.indexOf(expression);
     while(index >= 0)
     {
       int length = expression.matchedLength();
-      setFormat(index, length, rule._format);
+      setFormat(index, length, rule.format);
       index = text.indexOf(expression, index + length);
     }
   } 

@@ -34,6 +34,7 @@
 #include "ConfigAppTab.hpp"
 
 
+// Forward declarations
 namespace terrama2
 {
   namespace core
@@ -41,8 +42,8 @@ namespace terrama2
     class Filter;
   }
 }
-
 class QAction;
+
 
 class ConfigAppWeatherGridTab : public ConfigAppTab {
   Q_OBJECT
@@ -50,11 +51,23 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
     ~ConfigAppWeatherGridTab();
 
+    //! It initializes the interface, mask button values and connect to onMenuMaskClicked
     void load();
-    bool dataChanged();
+
+    /*!
+      \brief It validates each one gui fields
+      \exception terrama2::gui::FieldError
+     */
     bool validate();
+
+    //! It applies save operation, sending the dataset to gsoap client
     void save();
+
+    //! It discards the widget values and set to initial state
     void discardChanges(bool restore_data);
+
+    //! It fills the terrama2 filter object
+    void fillFilter(const terrama2::core::Filter&);
 
   public slots:
     void onFilterClicked();
@@ -64,13 +77,17 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     //! Slot triggered when data grid btn is clicked to display the Grid Widget
     void onDataGridClicked();
 
-    void onSubTabChanged();
+    //! Slot triggered when combobox format has been changed. It displays an hidden widget containing format values
     void onGridFormatChanged();
+
+    //! Slot triggered when remove button has been clicked. It removes dataset
     void onRemoveDataGridBtnClicked();
+
+    //! Slot triggered when mask button has been clicked. It fills out the mask input from mask menu
     void onMenuMaskClicked(QAction* action);
 
   private:
-    terrama2::core::Filter* filter_;
+    terrama2::core::Filter* filter_; //!< Object used to store dataset grid filter
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__

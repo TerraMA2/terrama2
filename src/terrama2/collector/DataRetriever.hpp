@@ -20,37 +20,46 @@
 */
 
 /*!
-  \file terrama2/collector/TsIntegration.hpp
+  \file terrama2/collector/DataRetriever.hpp
 
-  \brief Integrated tests for collector module.
+  \brief Interface for getting remote data to a local temporary file.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_INTEGRETION_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_INTEGRETION_HPP__
 
-//Qt
-#include <QtTest> 
+#ifndef __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
+#define __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
 
-class TsIntegration: public QObject
+#include <memory>
+#include <cassert>
+
+#include "../core/DataProvider.hpp"
+
+namespace terrama2
 {
-  Q_OBJECT
+  namespace collector
+  {
+    class DataFilter;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
 
-private slots:
+    class DataRetriever
+    {
+    public:
+      explicit DataRetriever(const core::DataProvider& dataprovider);
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+      void open();
+      void close();
+      std::string retrieveData(DataFilterPtr filter);
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+    private:
+      struct Impl;
+      Impl* impl_;
 
-    //******Test functions********
+    };
 
-    void TestReadCsvStorePostGis();
-    void TestReadPostgisStorePostGis();
+    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
+  }
+}
 
-    //******End of Test functions****
-};
-
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_INTEGRETION_HPP__
+#endif //__TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
