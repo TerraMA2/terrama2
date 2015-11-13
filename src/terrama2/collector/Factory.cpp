@@ -60,6 +60,7 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
       case core::DataSetItem::PCD_INPE_TYPE:
       case core::DataSetItem::PCD_TOA5_TYPE:
       case core::DataSetItem::FIRE_POINTS_TYPE:
+      case core::DataSetItem::UNKNOWN_TYPE:
       {
         ParserPtr newParser = std::make_shared<ParserOGR>();
         return newParser;
@@ -77,11 +78,28 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
 {
   std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
 
+  if(storageMetadata.empty())
+  {
+    storageMetadata = { {"KIND", "POSTGIS"},
+                        {"PG_HOST", "localhost"},
+                        {"PG_PORT", "5432"},
+                        {"PG_USER", "postgres"},
+                        {"PG_PASSWORD", "postgres"},
+                        {"PG_DB_NAME", "basedeteste"},
+                        {"PG_CONNECT_TIMEOUT", "4"},
+                        {"PG_CLIENT_ENCODING", "UTF-8"},
+                        {"PG_SCHEME", "terrama2"},
+                        {"PG_TABLENAME", "teste_ogr"} };
+  }
+
   //Exceptions
 
-  std::string storagerKind = storageMetadata.at("KIND");
-  if(storagerKind.empty())
+  std::map<std::string, std::string>::const_iterator localFind = storageMetadata.find("KIND");
+
+  if(localFind == storageMetadata.cend())
     return StoragerPtr();
+
+  std::string storagerKind = localFind->second;
 
   //to lower case
   std::transform(storagerKind.begin(), storagerKind.end(), storagerKind.begin(), ::tolower);

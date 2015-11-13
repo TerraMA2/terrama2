@@ -222,6 +222,7 @@ namespace terrama2
       std::queue<std::packaged_task<void()> > taskQueue_;       //!< Pool of collecting tasks.
       std::vector<std::thread> threadPool_;                     //!< Pool of collecting threads
 
+      void populateData();
     };
   }
 }

@@ -70,7 +70,14 @@ void terrama2::collector::DataSetTimer::prepareTimer(const terrama2::core::DataS
 {
   //JANO: implementar prepareTimer para schedule
   te::dt::TimeDuration frequency = dataSet.dataFrequency();
-  impl_->timer_.start(frequency.getSeconds()*1000);
+  long seconds = frequency.getTimeDuration().total_seconds();
+  if(seconds > 0)
+    impl_->timer_.start(seconds*1000);
+  else
+  {
+    //TODO: throw, invalida collect frequency
+  }
+
 }
 
 uint64_t terrama2::collector::DataSetTimer::dataSet() const
