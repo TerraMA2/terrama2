@@ -64,6 +64,7 @@ terrama2::collector::CollectorService::CollectorService(QObject *parent)
     factory_(new Factory())
 {
   connectDataManager();
+
 }
 
 terrama2::collector::CollectorService::~CollectorService()
@@ -222,12 +223,14 @@ void terrama2::collector::CollectorService::threadProcess()
     else
       std::this_thread::yield();
   }
+
 }
 
 void terrama2::collector::CollectorService::processingLoop()
 {
   while(!stop_)
   {
+   
     std::lock_guard<std::mutex> lock(mutex_);
 
     // For each provider type verifies if the first provider in the queue is acquiring new data,
@@ -301,6 +304,7 @@ void terrama2::collector::CollectorService::removeProvider(const terrama2::core:
     //TODO: log de erro
     qDebug() << e.what();
   }
+  
 }
 
 void terrama2::collector::CollectorService::updateProvider(const core::DataProvider &dataProvider)
