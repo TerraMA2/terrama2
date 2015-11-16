@@ -25,6 +25,7 @@
   \brief Parsers OGR data and create a terralib DataSet.
 
   \author Jano Simas
+  \author Evandro Delatin
 */
 
 #ifndef __TERRAMA2_COLLECTOR_PARSEROGR_HPP__
@@ -59,7 +60,7 @@ namespace terrama2
                                 std::shared_ptr<te::da::DataSet>& dataset,
                                 std::shared_ptr<te::da::DataSetType>& datasetTypeVec);
 
-        virtual void adapt(te::da::DataSetTypeConverter& /*converter*/){ }
+        virtual void adapt(te::da::DataSetTypeConverter& converter){ }
     };
   }
 }
