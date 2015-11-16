@@ -31,6 +31,7 @@
 #include "../core/DataSetItem.hpp"
 
 #include "StoragerPostgis.hpp"
+#include "ParserFirePoint.hpp"
 #include "DataRetriever.hpp"
 #include "ParserPostgis.hpp"
 #include "ParserOGR.hpp"
@@ -59,10 +60,14 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
     switch (datasetItem.kind()) {
       case core::DataSetItem::PCD_INPE_TYPE:
       case core::DataSetItem::PCD_TOA5_TYPE:
-      case core::DataSetItem::FIRE_POINTS_TYPE:
       case core::DataSetItem::UNKNOWN_TYPE:
       {
         ParserPtr newParser = std::make_shared<ParserOGR>();
+        return newParser;
+      }
+      case core::DataSetItem::FIRE_POINTS_TYPE:
+      {
+        ParserPtr newParser = std::make_shared<ParserFirePoint>();
         return newParser;
       }
       default:
@@ -78,21 +83,8 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
 {
   std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
 
-  if(storageMetadata.empty())
-  {
-    storageMetadata = { {"KIND", "POSTGIS"},
-                        {"PG_HOST", "localhost"},
-                        {"PG_PORT", "5432"},
-                        {"PG_USER", "postgres"},
-                        {"PG_PASSWORD", "postgres"},
-                        {"PG_DB_NAME", "basedeteste"},
-                        {"PG_CONNECT_TIMEOUT", "4"},
-                        {"PG_CLIENT_ENCODING", "UTF-8"},
-                        {"PG_SCHEME", "terrama2"},
-                        {"PG_TABLENAME", "teste_ogr"} };
-  }
 
-  //Exceptions
+  //TODO: Exceptions
 
   std::map<std::string, std::string>::const_iterator localFind = storageMetadata.find("KIND");
 

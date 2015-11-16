@@ -52,20 +52,33 @@
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/dataaccess/dataset/AttributeConverters.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/geometry.h>
 
+te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
+{
+  assert(dataset);
+  assert(indexes.size() == 2);
+
+  te::dt::AbstractData* point = te::da::XYToPointConverter(dataset, indexes, dstType);
+
+  static_cast<te::gm::Point*>(point)->setSRID(4326);
+
+  return point;
+}
+
 void terrama2::collector::ParserFirePoint::adapt(te::da::DataSetTypeConverter&converter)
 {
-  converter.remove("LAT");
-  converter.remove("LONG");
+  converter.remove("lat");
+  converter.remove("lon");
 
 // Generates a point through the x and y coordinates
- te::gm::GeometryProperty* gm = new te::gm::GeometryProperty("", 0, te::gm::PointType);
+ te::gm::GeometryProperty* gm = new te::gm::GeometryProperty("geom", 4326, te::gm::PointType);
 
- std::vector<std::string> latLonAttributes;
- latLonAttributes.push_back("LONGITUDES");
- latLonAttributes.push_back("LATITUDESE");
+ std::vector<size_t> latLonAttributes;
+ latLonAttributes.push_back(2);
+ latLonAttributes.push_back(1);
 
- converter.add(latLonAttributes ,gm, "te::da::XYToPointConverter");
+ converter.add(latLonAttributes ,gm, XYTo4326PointConverter);
 }
