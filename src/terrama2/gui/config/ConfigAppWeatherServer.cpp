@@ -162,7 +162,7 @@ void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
 void ConfigAppWeatherServer::onAddressFileBtnClicked()
 {
   QString dir = QFileDialog::getExistingDirectory(app_, tr("Open Directory"),
-                                               ".",
+                                               ui_->connectionAddress->text(),
                                                QFileDialog::ShowDirsOnly);
   if (dir.isEmpty())
     return;
