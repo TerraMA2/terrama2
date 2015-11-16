@@ -30,6 +30,11 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
 
   ui_->projectionGridBtn->setEnabled(false);
+
+  // data frequency int validator
+  ui_->gridFormatDataHour->setValidator(new QIntValidator(ui_->gridFormatDataHour));
+  ui_->gridFormatDataMinute->setValidator(new QIntValidator(ui_->gridFormatDataMinute));
+  ui_->gridFormatDataSecond->setValidator(new QIntValidator(ui_->gridFormatDataSecond));
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
@@ -84,7 +89,10 @@ void ConfigAppWeatherGridTab::save()
 
   dataset.add(*datasetItem);
 
-  te::dt::TimeDuration dataFrequency(ui_->gridFormatDataFrequency->text().toInt(), 0, 0);
+  te::dt::TimeDuration dataFrequency(ui_->gridFormatDataHour->text().toInt(),
+                                     ui_->gridFormatDataMinute->text().toInt(),
+                                     ui_->gridFormatDataSecond->text().toInt());
+
   te::dt::TimeDuration schedule(0, ui_->gridFormatDataInterval->value(), 0);
   dataset.setDataFrequency(dataFrequency);
 

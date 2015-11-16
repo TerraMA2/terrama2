@@ -261,8 +261,8 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
     {
       QDateTime beforeDate = pimpl_->ui_->datetimeBefore->dateTime();
-      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(
-                                          boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
+      std::unique_ptr<te::dt::TimeInstant> datePtr (
+            new te::dt::TimeInstant(boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardBefore(std::move(datePtr));
     }
     else
