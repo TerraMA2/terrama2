@@ -325,9 +325,13 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         subTabs_[0]->setSelectedData(selectedItem->text(0));
 
         QUrl url(provider.uri().c_str());
+        int port = url.port();
 
         ui_->connectionAddress->setText(url.host() + url.path());
-        ui_->connectionPort->setText(QString::number(url.port()));
+
+        if (port > 0)
+          ui_->connectionPort->setText(QString::number(port));
+
         ui_->connectionUserName->setText(url.userName());
         ui_->connectionPassword->setText(url.password());
         ui_->serverName->setText(QString(provider.name().c_str()));
@@ -362,7 +366,10 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 
                 ui_->gridFormatDataName->setText(dataset.name().c_str());
                 ui_->gridFormatDataDescription->setText(dataset.description().c_str());
-                ui_->gridFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+                ui_->gridFormatDataHour->setText(QString::number(dataset.dataFrequency().getHours()));
+                ui_->gridFormatDataMinute->setText(QString::number(dataset.dataFrequency().getMinutes()));
+                ui_->gridFormatDataSecond->setText(QString::number(dataset.dataFrequency().getSeconds()));
+
                 ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
 
                 const std::map<std::string, std::string> metadata = dataset.metadata();
@@ -407,6 +414,10 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 subTabs_[2]->load();
 
                 ui_->pointFormatDataName->setText(dataset.name().c_str());
+                ui_->pointFormatDataHour->setText(QString::number(dataset.dataFrequency().getHours()));
+                ui_->pointFormatDataMinute->setText(QString::number(dataset.dataFrequency().getMinutes()));
+                ui_->pointFormatDataSecond->setText(QString::number(dataset.dataFrequency().getSeconds()));
+
                 hideDataSetButtons();
                 showDataSeries(false);
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
@@ -421,7 +432,10 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
 
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
                 ui_->pointDiffFormatDataDescription->setText(dataset.description().c_str());
-                ui_->pointDiffFormatDataFrequency->setText(QString::number(dataset.dataFrequency().getHours()));
+
+                ui_->pointDiffFormatDataHour->setText(QString::number(dataset.dataFrequency().getHours()));
+                ui_->pointDiffFormatDataMinute->setText(QString::number(dataset.dataFrequency().getMinutes()));
+                ui_->pointDiffFormatDataSecond->setText(QString::number(dataset.dataFrequency().getSeconds()));
 
                 const std::map<std::string, std::string> metadata = dataset.metadata();
                 auto it = metadata.find("PATH");
@@ -444,6 +458,18 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                   ui_->pointDiffFormatDataMask->setText(datasetItem.mask().c_str());
                   ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
                   ui_->pointDiffFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
+
+                  switch(datasetItem.kind())
+                    {
+                      case terrama2::core::DataSetItem::UNKNOWN_TYPE:
+                        ui_->pointDiffFormatDataType->setCurrentIndex(2);
+                        break;
+                      case terrama2::core::DataSetItem::FIRE_POINTS_TYPE:
+                        ui_->pointDiffFormatDataType->setCurrentIndex(0);
+                        break;
+                      default:
+                        ui_->pointDiffFormatDataType->setCurrentIndex(1);
+                    }
                 }
 
                 hideDataSetButtons();

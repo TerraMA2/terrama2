@@ -6,6 +6,7 @@
 
 // Forward declaration
 class QTreeWidgetItem;
+class QNetworkAccessManager;
 
 class ConfigAppWeatherServer : public ConfigAppTab {
   Q_OBJECT
@@ -42,9 +43,15 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     //! Slot for handling if it is valid connection. TODO: ftp
     void onCheckConnectionClicked();
 
+    void onConnectionTypeChanged(int);
+
+    void onAddressFileBtnClicked();
+
   private:
     QString dataProviderSelected_; //!< Value used for detects whether it is new dataprovider or not
     QString uri_; //!< Value used for store uri parsed value
+
+    QNetworkAccessManager* manager_;
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERSERVER_HPP__

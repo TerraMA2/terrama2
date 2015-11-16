@@ -66,6 +66,10 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   // connecting the menumask to display mask field values
   connect(menuMask, SIGNAL(triggered(QAction*)), SLOT(onMenuMaskClicked(QAction*)));
+
+  ui_->pointFormatDataHour->setValidator(new QIntValidator(ui_->pointFormatDataHour));
+  ui_->pointFormatDataMinute->setValidator(new QIntValidator(ui_->pointFormatDataMinute));
+  ui_->pointFormatDataSecond->setValidator(new QIntValidator(ui_->pointFormatDataSecond));
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -110,7 +114,10 @@ void ConfigAppWeatherPcd::save()
 
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->pointFormatStatus->isChecked()));
 
-  te::dt::TimeDuration dataFrequency(ui_->pointFormatDataFrequency->text().toInt(), 0, 0);
+  te::dt::TimeDuration dataFrequency(ui_->pointFormatDataHour->text().toInt(),
+                                     ui_->pointFormatDataMinute->text().toInt(),
+                                     ui_->pointFormatDataSecond->text().toInt());
+
   dataset.setDataFrequency(dataFrequency);
 
   terrama2::core::DataSetItem* datasetItem;

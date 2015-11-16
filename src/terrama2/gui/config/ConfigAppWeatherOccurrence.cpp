@@ -29,6 +29,10 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
 
   ui_->updateDataPointDiffBtn->setEnabled(false);
   ui_->exportDataPointDiffBtn->setEnabled(false);
+
+  ui_->pointDiffFormatDataHour->setValidator(new QIntValidator(ui_->pointDiffFormatDataHour));
+  ui_->pointDiffFormatDataMinute->setValidator(new QIntValidator(ui_->pointDiffFormatDataMinute));
+  ui_->pointDiffFormatDataSecond->setValidator(new QIntValidator(ui_->pointDiffFormatDataSecond));
 }
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
@@ -46,12 +50,6 @@ bool ConfigAppWeatherOccurrence::validate()
   {
     ui_->pointDiffFormatDataName->setFocus();
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Occurence Name is invalid"));
-  }
-
-  if (ui_->pointDiffFormatDataFrequency->text().trimmed().isEmpty())
-  {
-    ui_->pointDiffFormatDataFrequency->setFocus();
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The data frequency is invalid."));
   }
 
   if (ui_->pointDiffFormatDataMask->text().trimmed().isEmpty())
@@ -73,7 +71,10 @@ void ConfigAppWeatherOccurrence::save()
   dataset.setKind(terrama2::core::DataSet::OCCURENCE_TYPE);
   dataset.setDescription(ui_->pointDiffFormatDataDescription->toPlainText().toStdString());
 
-  te::dt::TimeDuration dataFrequency(ui_->pointDiffFormatDataFrequency->text().toInt(), 0, 0);
+  te::dt::TimeDuration dataFrequency(ui_->pointDiffFormatDataHour->text().toInt(),
+                                     ui_->pointDiffFormatDataMinute->text().toInt(),
+                                     ui_->pointDiffFormatDataSecond->text().toInt());
+
   dataset.setDataFrequency(dataFrequency);
 
   std::map<std::string, std::string> metadata(dataset.metadata());
@@ -90,25 +91,28 @@ void ConfigAppWeatherOccurrence::save()
     filter_->setDataSetItem(datasetItem->id());
   }
   else
-  {
     datasetItem = new terrama2::core::DataSetItem;
-    dataset.add(*datasetItem);
-  }
 
   // TODO: fix it with datasetitem value
-  int index;
+  terrama2::core::DataSetItem::Kind kind;
+  int index = ui_->pointDiffFormatDataType->currentIndex();
 
-  if (ui_->pointDiffFormatDataType->currentIndex() == 2)
-    index = 1;
+  if (index == 0)
+    kind = terrama2::core::DataSetItem::FIRE_POINTS_TYPE;
+  else if (index == 1)
+    kind = terrama2::core::DataSetItem::DISEASE_OCCURRENCE_TYPE;
   else
-    index = ui_->pointDiffFormatDataType->currentIndex()+4;
+    kind = terrama2::core::DataSetItem::UNKNOWN_TYPE;
 
-  datasetItem->setKind(terrama2::core::ToDataSetItemKind(index));
+  datasetItem->setKind(kind);
   datasetItem->setMask(ui_->pointDiffFormatDataMask->text().toStdString());
   datasetItem->setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
   datasetItem->setStatus(terrama2::core::ToDataSetItemStatus(ui_->pointDiffFormatStatus->isChecked()));
 
-  datasetItem->setFilter(*filter_.data());
+  datasetItem->setFilter(*filter_);
+
+  if (datasetItem->id() == 0)
+    dataset.add(*datasetItem);
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
