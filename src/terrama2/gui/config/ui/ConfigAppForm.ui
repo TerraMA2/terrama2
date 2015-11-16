@@ -796,7 +796,7 @@ p, li { white-space: pre-wrap; }
                   <item row="0" column="2">
                    <widget class="QPushButton" name="fileServerButton">
                     <property name="toolTip">
-                     <string extracomment="Select a directory from system"/>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a directory from system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>...</string>
