@@ -6,7 +6,6 @@
 
 // Forward declaration
 class QTreeWidgetItem;
-class QNetworkReply;
 class QNetworkAccessManager;
 
 class ConfigAppWeatherServer : public ConfigAppTab {
