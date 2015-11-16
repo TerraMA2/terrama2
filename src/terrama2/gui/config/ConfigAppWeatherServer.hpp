@@ -43,6 +43,10 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     //! Slot for handling if it is valid connection. TODO: ftp
     void onCheckConnectionClicked();
 
+    void onConnectionTypeChanged(int);
+
+    void onAddressFileBtnClicked();
+
   private:
     QString dataProviderSelected_; //!< Value used for detects whether it is new dataprovider or not
     QString uri_; //!< Value used for store uri parsed value

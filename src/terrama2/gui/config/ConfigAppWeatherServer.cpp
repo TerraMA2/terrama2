@@ -14,8 +14,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-#include <QEventLoop>
-#include <QTimer>
+#include <QFileDialog>
 
 ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui), manager_(new QNetworkAccessManager(this))
@@ -27,9 +26,14 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
+  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onConnectionTypeChanged(int)));
+
+  connect(ui_->fileServerButton, SIGNAL(clicked()), SLOT(onAddressFileBtnClicked()));
 
   // temp code
   ui_->serverIntervalData->setEnabled(false);
+
+  ui_->fileServerButton->setVisible(false);
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -147,6 +151,24 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
   QMessageBox::critical(app_, tr("TerraMA2 Error"), message);
 }
 
+void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
+{
+  if (index == 2)
+    ui_->fileServerButton->setVisible(true);
+  else
+    ui_->fileServerButton->setVisible(false);
+}
+
+void ConfigAppWeatherServer::onAddressFileBtnClicked()
+{
+  QString dir = QFileDialog::getExistingDirectory(app_, tr("Open Directory"),
+                                               ".",
+                                               QFileDialog::ShowDirsOnly);
+  if (dir.isEmpty())
+    return;
+  ui_->connectionAddress->setText(dir);
+}
+
 void ConfigAppWeatherServer::validateConnection()
 {
   QUrl url;
@@ -155,7 +177,7 @@ void ConfigAppWeatherServer::validateConnection()
   if (ui_->connectionAddress->text().trimmed().isEmpty())
   {
     ui_->connectionAddress->setFocus();
-    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("Adress field cannot be empty"));
+    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("Address field cannot be empty"));
   }
 
   switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+2))
