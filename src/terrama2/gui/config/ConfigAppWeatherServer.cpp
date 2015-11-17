@@ -35,6 +35,10 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   ui_->serverIntervalData->setEnabled(false);
 
   ui_->fileServerButton->setVisible(false);
+
+  QIntValidator* portValidator = new QIntValidator(ui_->connectionPort);
+  portValidator->setRange(0, 65535);
+  ui_->connectionPort->setValidator(portValidator);
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
@@ -154,10 +158,20 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
 
 void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
 {
-  if (index == 2)
+  if (index == 2) // FILE
+  {
+    ui_->connectionUserName->setEnabled(false);
+    ui_->connectionPort->setEnabled(false);
+    ui_->connectionPassword->setEnabled(false);
     ui_->fileServerButton->setVisible(true);
+  }
   else
+  {
+    ui_->connectionUserName->setEnabled(true);
+    ui_->connectionPort->setEnabled(true);
+    ui_->connectionPassword->setEnabled(true);
     ui_->fileServerButton->setVisible(false);
+  }
 }
 
 void ConfigAppWeatherServer::onAddressFileBtnClicked()
@@ -212,7 +226,6 @@ void ConfigAppWeatherServer::validateConnection()
 
         CURL *curl;
         CURLcode res;
-//        curl_global_init(CURL_GLOBAL_ALL);
         curl = curl_easy_init();
         if(curl)
         {
