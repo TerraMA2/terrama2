@@ -73,6 +73,7 @@ void terrama2::collector::ParserOGR::getDataSet(std::shared_ptr<te::da::DataSour
   for(std::size_t i = 0; i < datasetType->size(); ++i)
   {
     te::dt::Property* p = datasetType->getProperty(i);
+
     converter.add(i,p->clone());
   }
 
