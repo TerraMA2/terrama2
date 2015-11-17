@@ -55,30 +55,38 @@ namespace terrama2
     class DataFilter;
     typedef std::shared_ptr<DataFilter> DataFilterPtr;
     /*!
-         * \brief The Parser class interpret the origin format and returns a te::da::DataSet.
-         *
-         * This class is responsible for interpreting the data to use with te::da::DataSet,
-         * if not compatible it will convert to a caompatible format.
-         *
+          \brief The Parser class interprets the origin format and returns a te::da::DataSet.
+
+          This class is responsible for interpreting the data to use with te::da::DataSet,
+          if not compatible it will convert to a compatible format.
+
          */
     class Parser : public boost::noncopyable
     {
-      public:
+    public:
 
-        /*!
-             * \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
-             * \param uri Uri to the temporary data.
-             * \return Pointer to an te::da::DataSet, can be invalid.
-             *
-             * \exception TODO: Parser::read exception...
-             */
-        virtual void read(const std::string& uri,
-                          DataFilterPtr filter,
-                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                          std::shared_ptr<te::da::DataSetType> &datasetTypeVec) = 0;
+      /*!
+       \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
+
+       If the datatype is known the parser will identify the data and convert to better data types.
+       ex: date string to Date format and lat long strings to point geometry.
+
+       \param uri URI to the data.
+       \param filter Used to identify the file/table names to be collected.
+       \param datasetVec Will be populated with parsed datasets.
+       \param datasetType DataSetType of found datasets
+
+       \exception UnableToReadDataSetError Raised if could not open the dataset, read error message for more information.
+       \pre Tarralib should be initialized.
+       */
+
+      virtual void read(const std::string& uri,
+                        DataFilterPtr filter,
+                        std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                        std::shared_ptr<te::da::DataSetType> &datasetType) = 0;
 
     protected:
-      std::mutex mutex_;
+      std::mutex mutex_;//TODO: needed?
     };
 
 

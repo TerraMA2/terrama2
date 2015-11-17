@@ -45,15 +45,6 @@ namespace terrama2
         ParserPostgis() : Parser(){}
         virtual ~ParserPostgis(){}
 
-        /*!
-         * \brief TODO: document ParserPostgis
-         * \param uri
-         * \return Dataset of the temporary file.
-         *
-         * \pre TerrLib should be initialized.
-         *
-         * \exception UnableToReadDataSetError Raised if could not open the datasource, dataset is empty, terralib exception.
-         */
         virtual void read(const std::string& uri,
                           DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,

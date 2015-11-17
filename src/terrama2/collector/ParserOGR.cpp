@@ -64,7 +64,7 @@ void terrama2::collector::ParserOGR::getDataSet(std::shared_ptr<te::da::DataSour
   if(!datasetOrig || !datasetType)
   {
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
+                                          QObject::tr("Could not retrieve dataser %1 from transactor.").arg(name.c_str()));
   }
 
 

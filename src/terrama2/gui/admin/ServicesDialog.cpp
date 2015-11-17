@@ -43,6 +43,7 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QThread>
+#include <QDebug>
 
 struct ServicesDialog::Impl
 {
@@ -245,9 +246,13 @@ void ServicesDialog::verifyRequested()
       item->setIcon(QIcon::fromTheme("ping-error"));
       QCoreApplication::processEvents();
     }
+    catch(std::exception& e)
+    {
+      qDebug() << "ServicesDialog::verifyRequested " << e.what();
+    }
     catch(...)
     {
-      throw;
+      qDebug() << "ServicesDialog::verifyRequested unkown error";
     }
   }
   QApplication::restoreOverrideCursor();
@@ -405,8 +410,6 @@ void ServicesDialog::closeRequested()
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 // Send completion request for each selected row  
-  int errCount = 0;
-
   if (client!= nullptr)
   {
     try
@@ -416,17 +419,21 @@ void ServicesDialog::closeRequested()
     }
     catch(const terrama2::Exception& e)
     {
-      QString messageError = "TerraMA2 finished with errors!\n\n";
+      //TODO: review error message
+      //TODO: log thid
 
-      if (const QString* d = boost::get_error_info<terrama2::ErrorDescription>(e))
-      {
-        messageError.append(d);
-      }
-      errCount++;     
+      qDebug() << "ServicesDialog::closeRequested " << boost::get_error_info<terrama2::ErrorDescription>(e);
+    }
+    catch(std::exception& e)
+    {
+      //TODO: review error message
+      //TODO: log thid
+
+      qDebug() << "ServicesDialog::closeRequested " << e.what();
     }
     catch(...)
     {
-      throw;
+      qDebug() << "ServicesDialog::verifyRequested unkown error";
     }
   }
 

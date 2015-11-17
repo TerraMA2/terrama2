@@ -170,9 +170,14 @@ int WebService::updateDataSet(DataSet struct_dataset, DataSet &struct_datasetRes
     std::cerr << "Error to update DataSet: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;
     return soap_receiverfault("Error to update DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
-  catch(...)
+  catch(boost::exception& e)
   {
-    return soap_receiverfault("Error to update DataSet", "Unknow error.");
+    std::cerr << "Error to update DataSet: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;
+    return soap_receiverfault("Error to update DataSet.", boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(std::exception& e)
+  {
+    return soap_receiverfault("Error to update DataSet", e.what());
   }
 
   return SOAP_OK;

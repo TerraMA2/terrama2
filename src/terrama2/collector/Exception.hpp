@@ -36,29 +36,51 @@ namespace terrama2
 {
   namespace collector
   {
-    
-    struct UnableToStartServiceError : virtual Exception { };
+    //! Base exception for CollectorService exceptions
+    struct CollectorServiceError : virtual Exception { };
 
+    /*!
+       \brief Raised when the collector service could not be started.
+
+       Check error info for more information.
+
+     */
+    struct UnableToStartServiceError : virtual CollectorServiceError { };
+    //! Raised when start() is callend and the CollectorService is already running.
     struct ServiceAlreadyRunnningError: virtual UnableToStartServiceError { };
 
-    struct InvalidDataSetError: virtual Exception { };
 
-    struct InactiveDataSetError: virtual Exception { };
+    //! Base exception for DataSetTimer exceptions
+    struct DataSetTimerError: virtual Exception { };
+    //! Raised when a dataset has id == 0 or doesn't have a name.
+    struct InvalidDataSetError: virtual DataSetTimerError { };
 
-    struct UnabletoGetLockError: virtual Exception { };
 
-    struct InvalidDataProviderError: virtual Exception { };
+    //! Base exception for DataRetriever exceptions
+    struct DataRetrieverError: virtual Exception { };
+    //! Raised when dataprovider doesn't have an id or a name.
+    struct InvalidDataProviderError: virtual DataRetrieverError { };
 
-    struct UnknownDataProviderKindError: virtual Exception { };
+    struct WrongDataProviderKindError: virtual DataRetrieverError { };
 
-    struct WrongDataProviderKindError: virtual Exception { };
+    //! Base exception for ParserError exceptions
+    struct ParserError: virtual Exception { };
+    /*!
+       \brief Raised when the DataSet could not be read.
 
-    struct UnableToReadDataSetError: virtual Exception { };
+       Check error info for more information.
 
-    struct StoragerConnectionError: virtual Exception { };
+     */
+    struct UnableToReadDataSetError: virtual ParserError { };
 
-    //! Exception to be used when a collector connection cannot be open
+
+
+    //TODO: Not in use
     struct UnableToOpenCollectorError: virtual Exception{ };
+    //TODO: Not in use
+    struct InactiveDataSetError: virtual DataSetTimerError { };
+    //TODO: Not in use
+    struct UnabletoGetLockError: virtual Exception { };
   }
 }
 

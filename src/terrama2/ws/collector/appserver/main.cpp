@@ -21,17 +21,19 @@
 
 /*!
   \file terrama2/ws/collector/appserver/main.cpp
-
+  
   \brief Main routine for TerraMA2 Collector Web Service.
-
+  
   \author Vinicius Campanha
  */
 
 // STL
 #include <iostream>
+#include <future>
 
 // Qt
 #include <QDebug>
+#include <QApplication>
 
 // Terralib
 #include "terralib/common/PlatformUtils.h"
@@ -41,100 +43,196 @@
 // TerraMA2
 #include "soapWebService.h"
 #include "../core/Codes.hpp"
+#include "../Exception.hpp"
 #include "../../../core/ApplicationController.hpp"
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Utils.hpp"
+#include "../../../collector/CollectorService.hpp"
 
+const int TERRALIB_LOAD_ERROR = 101;
+const int COLLECTOR_SERVICE_STAR_ERROR = 102;
+const int TERRALIB_UNLOAD_ERROR = 103;
+
+
+class QCloser
+{
+public:
+  QCloser(){}
+  ~QCloser()
+  {
+    QApplication::exit();
+  }
+};
+
+bool gSoapThread(char** argv)
+{
+  try
+  {
+    //Finixes the QApplication when the gsoap server is over
+    QCloser qCloser;
+    qDebug() << "Starting Webservice...";
+    
+    qDebug() << "Initializating TerraLib...";
+
+    WebService server;
+    
+    if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, std::stoi(argv[1]), 100)))
+    {
+      qDebug() << "Webservice Started, running on port " << argv[1];
+      
+      for (;;)
+      {
+        if (!soap_valid_socket(server.accept()))
+          break;
+        
+        if(server.serve() == terrama2::ws::collector::core::EXIT_REQUESTED)
+          break;
+        
+        server.destroy();
+        //process signal and QT events
+        QCoreApplication::processEvents();
+      }
+    }
+    else
+    {
+      server.soap_stream_fault(std::cerr);
+      
+      server.destroy();
+
+      qDebug() << "Webservice finished!";
+      
+      return false;
+    }
+    
+    qDebug() << "Shutdown Webservice...";
+    
+    server.destroy();
+
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    return false;
+  }
+  catch(std::exception& e)
+  {
+    qDebug() << e.what();
+    return false;
+  }
+  
+  qDebug() << "Webservice finished!";
+  
+  return true;
+}
 
 int main(int argc, char* argv[])
 {
   // VINICIUS: get the port number from the project file
   // check if the parameters was passed correctly
-
+  
   if(argc < 3 || std::stoi(argv[1]) < 1024 || std::stoi(argv[1]) > 49151)
   {
     std::cerr << "Inform a valid port (between 1024 and 49151) and a project file in order to run the collector application server." << std::endl;
     std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
-
+    
     return EXIT_FAILURE;
   }
-
-  qDebug() << "Starting Webservice...";
-
-  qDebug() << "Initializating TerraLib...";
-  // VINICIUS: replace the initialize terralib and terrama2 for the method in terrama2:core (when implemented)
-  // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
-
-  te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  te::plugin::PluginManager::getInstance().loadAll();
-
-  qDebug() << "Loading TerraMA2 Project...";
-
-  if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[2]))
+  
+  try
   {
-    qDebug() << "TerraMA2 Project File is invalid or don't exist!";
-    return EXIT_FAILURE;
-  }
+    // VINICIUS: replace the initialize terralib and terrama2 for the method in terrama2:core (when implemented)
+    // Initialize the Terralib support
+    TerraLib::getInstance().initialize();
 
-  terrama2::core::DataManager::getInstance().load();
+    te::plugin::PluginInfo* info;
+    std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+    info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
+    te::plugin::PluginManager::getInstance().add(info);
 
-  WebService server;
+    info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+    te::plugin::PluginManager::getInstance().add(info);
 
-  if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, std::stoi(argv[1]), 100)))
-  {
-    qDebug() << "Webservice Started, running on port " << argv[1];
+    info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+    te::plugin::PluginManager::getInstance().add(info);
 
-    for (;;)
+    te::plugin::PluginManager::getInstance().loadAll();
+
+    qDebug() << "Loading TerraMA2 Project...";
+
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[2]))
     {
-      if (!soap_valid_socket(server.accept()))
-        break;
-
-      if(server.serve() == terrama2::ws::collector::core::EXIT_REQUESTED)
-        break;
-
-      server.destroy();
+      qDebug() << "TerraMA2 Project File is invalid or don't exist!";
+      return false;
     }
-  }
-  else
-  {
-    server.soap_stream_fault(std::cerr);
 
-    server.destroy();
+    terrama2::core::DataManager::getInstance().load();
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << "1\t" << "gSoapServer " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    exit(TERRALIB_LOAD_ERROR);
+  }
+  catch(std::exception& e)
+  {
+    qDebug() << "1\t" << "gSoapServer " << e.what();
+    exit(TERRALIB_LOAD_ERROR);
+  }
+  catch(...)
+  {
+    qDebug() << "1\t" << "gSoapServer unkown error";
+    exit(TERRALIB_LOAD_ERROR);
+  }
+
+  QApplication app(argc, argv);
+  auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, argv);
+
+  try
+  {
+    terrama2::collector::CollectorService collectorService;
+    collectorService.start();
+
+    app.exec();
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << "2\t" << "gSoapServer " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    exit(COLLECTOR_SERVICE_STAR_ERROR);
+  }
+  catch(std::exception& e)
+  {
+    qDebug() << "2\t" << "gSoapServer " << e.what();
+    exit(COLLECTOR_SERVICE_STAR_ERROR);
+  }
+  catch(...)
+  {
+    qDebug() << "2\t" << "gSoapServer unkown error";
+    exit(COLLECTOR_SERVICE_STAR_ERROR);
+  }
+
+  try
+  {
     // VINICIUS: replace the finalize terralib and terrama2 for the method in terrama2:core (when implemented)
     TerraLib::getInstance().finalize();
 
     terrama2::core::DataManager::getInstance().unload();
 
     terrama2::core::ApplicationController::getInstance().getDataSource()->close();
-
-    qDebug() << "Webservice finished!";
-
-    return EXIT_FAILURE;
   }
-
-  qDebug() << "Shutdown Webservice...";
-
-  server.destroy();
-
-  // VINICIUS: replace the finalize terralib and terrama2 for the method in terrama2:core (when implemented)
-  TerraLib::getInstance().finalize();
-
-  terrama2::core::DataManager::getInstance().unload();
-
-  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
-
-  qDebug() << "Webservice finished!";
-
-  return EXIT_SUCCESS;
+  catch(boost::exception& e)
+  {
+    qDebug() << "3\t" << "gSoapServer " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    exit(TERRALIB_UNLOAD_ERROR);
+  }
+  catch(std::exception& e)
+  {
+    qDebug() << "3\t" << "gSoapServer " << e.what();
+    exit(TERRALIB_UNLOAD_ERROR);
+  }
+  catch(...)
+  {
+    qDebug() << "3\t" << "gSoapServer";
+    exit(TERRALIB_UNLOAD_ERROR);
+  }
+  
+  return gSoapThreadHandle.get() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

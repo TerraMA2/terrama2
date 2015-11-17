@@ -671,6 +671,9 @@ terrama2::core::DataManager::DataManager()
   : pimpl_(new Impl)
 {
   pimpl_->dataLoaded = false;
+  qRegisterMetaType<DataProvider>("DataProvider");
+  qRegisterMetaType<DataSet>("DataSet");
+  qRegisterMetaType<uint64_t>("uint64_t");
 }
 
 terrama2::core::DataManager::~DataManager()
