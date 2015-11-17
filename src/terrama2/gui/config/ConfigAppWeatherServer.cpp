@@ -10,32 +10,35 @@
 // QT
 #include <QMessageBox>
 #include <QUrl>
+#include <QDir>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QFileDialog>
 
 ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui)
+  : ConfigAppTab(app, ui), manager_(new QNetworkAccessManager(this))
 {
   connect(ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onServerTabRequested()));
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onTextEditChanged()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->connectionPort, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-  // TODO: implement onchange for specific fields below
-//  connect(ui_->connectionUserName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-//  connect(ui_->connectionPassword, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
-//  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onServerEdited()));
   connect(ui_->connectionAddress, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
   connect(ui_->serverCheckConnectionBtn, SIGNAL(clicked()), SLOT(onCheckConnectionClicked()));
+  connect(ui_->connectionProtocol, SIGNAL(currentIndexChanged(int)), SLOT(onConnectionTypeChanged(int)));
+
+  connect(ui_->fileServerButton, SIGNAL(clicked()), SLOT(onAddressFileBtnClicked()));
 
   // temp code
   ui_->serverIntervalData->setEnabled(false);
+
+  ui_->fileServerButton->setVisible(false);
 }
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
 {
-
+  delete manager_;
 }
 
 void ConfigAppWeatherServer::load()
@@ -148,25 +151,67 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
   QMessageBox::critical(app_, tr("TerraMA2 Error"), message);
 }
 
+void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
+{
+  if (index == 2)
+    ui_->fileServerButton->setVisible(true);
+  else
+    ui_->fileServerButton->setVisible(false);
+}
+
+void ConfigAppWeatherServer::onAddressFileBtnClicked()
+{
+  QString dir = QFileDialog::getExistingDirectory(app_, tr("Open Directory"),
+                                               ui_->connectionAddress->text(),
+                                               QFileDialog::ShowDirsOnly);
+  if (dir.isEmpty())
+    return;
+  ui_->connectionAddress->setText(dir);
+}
+
 void ConfigAppWeatherServer::validateConnection()
 {
   QUrl url;
-  url.setScheme(ui_->connectionProtocol->currentText());
-  url.setHost(ui_->connectionAddress->text());
+  url.setScheme(ui_->connectionProtocol->currentText().toLower());
 
-  url.setUserName(ui_->connectionUserName->text());
-  url.setPassword(ui_->connectionPassword->text());
-  url.setPort(ui_->connectionPort->text().toInt());
+  if (ui_->connectionAddress->text().trimmed().isEmpty())
+  {
+    ui_->connectionAddress->setFocus();
+    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("Address field cannot be empty"));
+  }
 
-  if (!url.isValid())
-    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
+  switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+2))
+  {
+    case terrama2::core::DataProvider::FILE_TYPE:
+      {
+        QDir directory(ui_->connectionAddress->text());
+        if (!directory.exists())
+          throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("It is an invalid path"));
 
-  QNetworkAccessManager manager;
+        url.setPath(ui_->connectionAddress->text());
+      }
+      break;
 
-  QNetworkReply* reply = manager.get(QNetworkRequest(url));
+    case terrama2::core::DataProvider::SOS_TYPE:
+    case terrama2::core::DataProvider::POSTGIS_TYPE:
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Not implemented yet."));
+      break;
 
-  if (reply->error() != QNetworkReply::NoError)
-    throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Invalid connection requested"));
+    default:
+      url.setHost(ui_->connectionAddress->text());
+      url.setUserName(ui_->connectionUserName->text());
+      url.setPassword(ui_->connectionPassword->text());
+      url.setPort(ui_->connectionPort->text().toInt());
+
+      if (!url.isValid())
+        throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
+
+      QNetworkReply* reply = manager_->get(QNetworkRequest(url));
+
+      if (reply->error() != QNetworkReply::NoError)
+        QMessageBox::warning(app_, tr("TerraMA2 Connection Error"), tr("Error connecting"));
+
+  }
 
   uri_ = url.url();
 }
