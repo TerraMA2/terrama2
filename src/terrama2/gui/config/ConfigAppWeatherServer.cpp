@@ -11,13 +11,14 @@
 #include <QMessageBox>
 #include <QUrl>
 #include <QDir>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QFileDialog>
 
+// libcurl
+#include <curl/curl.h>
+
+
 ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui), manager_(new QNetworkAccessManager(this))
+  : ConfigAppTab(app, ui)
 {
   connect(ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onServerTabRequested()));
   connect(ui_->serverName, SIGNAL(textEdited(QString)), SLOT(onServerEdited()));
@@ -38,7 +39,7 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
 
 ConfigAppWeatherServer::~ConfigAppWeatherServer()
 {
-  delete manager_;
+
 }
 
 void ConfigAppWeatherServer::load()
@@ -186,30 +187,69 @@ void ConfigAppWeatherServer::validateConnection()
       {
         QDir directory(ui_->connectionAddress->text());
         if (!directory.exists())
+        {
+          ui_->connectionAddress->setFocus();
           throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("It is an invalid path"));
+        }
 
         url.setPath(ui_->connectionAddress->text());
       }
       break;
 
-    case terrama2::core::DataProvider::SOS_TYPE:
-    case terrama2::core::DataProvider::POSTGIS_TYPE:
-      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Not implemented yet."));
-      break;
+    case terrama2::core::DataProvider::HTTP_TYPE:
+    case terrama2::core::DataProvider::FTP_TYPE:
+      {
+        url.setHost(ui_->connectionAddress->text());
+        url.setUserName(ui_->connectionUserName->text());
+        url.setPassword(ui_->connectionPassword->text());
+        url.setPort(ui_->connectionPort->text().toInt()); // 0
 
+        if (!url.isValid())
+        {
+          ui_->connectionAddress->setFocus();
+          throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
+        }
+
+        CURL *curl;
+        CURLcode res;
+//        curl_global_init(CURL_GLOBAL_ALL);
+        curl = curl_easy_init();
+        if(curl)
+        {
+          curl_easy_setopt(curl, CURLOPT_URL, url.toString(QUrl::RemovePassword | QUrl::RemoveUserInfo | QUrl::RemovePort).toStdString().c_str());
+          curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
+          curl_easy_setopt(curl, CURLOPT_PORT, url.port());
+          curl_easy_setopt(curl, CURLOPT_USERNAME, url.userName().toStdString().c_str());
+          curl_easy_setopt(curl, CURLOPT_PASSWORD, url.password().toStdString().c_str());
+          curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+          res = curl_easy_perform(curl);
+
+          // check: should it error handling each one common code?
+          switch(res)
+          {
+            case CURLE_OK:
+              break;
+
+            case CURLE_OPERATION_TIMEDOUT:
+              throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Timeout!"));
+              break;
+
+            case CURLE_LOGIN_DENIED:
+              throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Login denied!"));
+              break;
+            default:
+              throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error in connection..."));
+          }
+
+          curl_easy_cleanup(curl);
+        }
+        else
+          throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error to ping"));
+
+        break;
+      }
     default:
-      url.setHost(ui_->connectionAddress->text());
-      url.setUserName(ui_->connectionUserName->text());
-      url.setPassword(ui_->connectionPassword->text());
-      url.setPort(ui_->connectionPort->text().toInt());
-
-      if (!url.isValid())
-        throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
-
-      QNetworkReply* reply = manager_->get(QNetworkRequest(url));
-
-      if (reply->error() != QNetworkReply::NoError)
-        QMessageBox::warning(app_, tr("TerraMA2 Connection Error"), tr("Error connecting"));
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Not implemented yet."));
 
   }
 
