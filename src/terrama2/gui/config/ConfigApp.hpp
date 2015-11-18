@@ -97,11 +97,11 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
 
     int currentTabIndex_; //!< index of active tab
 
-    QSharedPointer<ConfigManager> configManager_; //! It contains metadata from terrama2 administration file
+    QSharedPointer<ConfigManager> configManager_; //!< It contains metadata from terrama2 administration file
 
-    QSharedPointer<ConfigAppWeatherTab> weatherTab_; //! Attribute for handling WeatherTab
+    QSharedPointer<ConfigAppWeatherTab> weatherTab_; //!< Attribute for handling WeatherTab
 
-    QSharedPointer<terrama2::ws::collector::client::Client> client_;  //! gsoap collector client
+    QSharedPointer<terrama2::ws::collector::client::Client> client_;  //!< gsoap collector client
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__
