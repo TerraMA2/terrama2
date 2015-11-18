@@ -74,11 +74,12 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
         return newParser;
       }
       default:
+        assert(0);//TODO: throw, should not be here
         break;
     }
   }
 
-  //FIXME: throw here
+  assert(0);//TODO: throw, should not be here
   return ParserPtr();
 }
 
