@@ -179,9 +179,9 @@ namespace terrama2
         \param provider Dataprovider .....
         \param datasets Fila de datasets do provider que iremos coletar....
        */
-      void process(uint64_t provider, const std::vector<uint64_t>& datasets);
+      void process(const uint64_t provider, const std::vector<uint64_t>& datasets);
 
-      static void collectAsThread(const terrama2::core::DataProvider& dataProvider, const std::list<terrama2::core::DataSet>& dataSetList);
+      static void collect(const terrama2::core::DataProvider& dataProvider, const std::list<terrama2::core::DataSet>& dataSetList);
       void threadProcess();
 
       /*!
@@ -217,10 +217,10 @@ namespace terrama2
       std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
 
       std::mutex  mutex_;                                       //!< mutex to thread safety
-      std::thread loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
+      std::future<void> loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
 
       std::queue<std::packaged_task<void()> > taskQueue_;       //!< Pool of collecting tasks.
-      std::vector<std::thread> threadPool_;                     //!< Pool of collecting threads
+      std::vector<std::future<void> > threadPool_;                     //!< Pool of collecting threads
 
       void populateData();
     };

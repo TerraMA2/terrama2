@@ -82,8 +82,8 @@ namespace terrama2
 
       virtual void read(const std::string& uri,
                         DataFilterPtr filter,
-                        std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                        std::shared_ptr<te::da::DataSetType> &datasetType) = 0;
+                        std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
+                        std::shared_ptr<te::da::DataSetType>& datasetType) = 0;
 
     protected:
       std::mutex mutex_;//TODO: needed?

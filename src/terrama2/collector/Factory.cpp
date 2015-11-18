@@ -27,6 +27,9 @@
   \author Jano Simas
 */
 
+//TODO: review, should it be kept here?
+#include "../core/ApplicationController.hpp"
+
 #include "../core/DataManager.hpp"
 #include "../core/DataSetItem.hpp"
 
@@ -71,17 +74,26 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
         return newParser;
       }
       default:
+        assert(0);//TODO: throw, should not be here
         break;
     }
   }
 
-  //FIXME: throw here
+  assert(0);//TODO: throw, should not be here
   return ParserPtr();
 }
 
 terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
 {
   std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
+
+  if(storageMetadata.empty())
+  {
+    //TODO: review, should it be kept here?
+
+    //If no storage metadata use standard storage as postgis in the same storage as TerraMA2 datamodel
+    return std::make_shared<StoragerPostgis>(core::ApplicationController::getInstance().getDataSource());
+  }
 
 
   //TODO: Exceptions
