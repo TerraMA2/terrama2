@@ -6,7 +6,6 @@
 
 // Forward declaration
 class QTreeWidgetItem;
-class QNetworkAccessManager;
 
 class ConfigAppWeatherServer : public ConfigAppTab {
   Q_OBJECT
@@ -43,15 +42,18 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     //! Slot for handling if it is valid connection. TODO: ftp
     void onCheckConnectionClicked();
 
+    //! Slot triggered when connection type combobox index has been changed and it displays hidden widgets
     void onConnectionTypeChanged(int);
 
+    /*!
+      \brief Slot triggered when connection address button has been clicked. It opens FileDialog
+             to select specific folder and fill connection address out
+    */
     void onAddressFileBtnClicked();
 
   private:
     QString dataProviderSelected_; //!< Value used for detects whether it is new dataprovider or not
     QString uri_; //!< Value used for store uri parsed value
-
-    QNetworkAccessManager* manager_;
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERSERVER_HPP__

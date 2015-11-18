@@ -20,6 +20,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QJsonObject>
+#include <QJsonDocument>
 
 ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui)
@@ -35,6 +36,7 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   // Bind the data series type with respective group view
   connect(ui_->serverDeleteBtn, SIGNAL(clicked()), SLOT(onDeleteServerClicked()));
   connect(ui_->exportServerBtn, SIGNAL(clicked()), SLOT(onExportServerClicked()));
+  connect(ui_->updateServerBtn, SIGNAL(clicked()), SLOT(onUpdateServerClicked()));
   connect(ui_->weatherDataTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
                                 SLOT(onWeatherDataTreeClicked(QTreeWidgetItem*)));
 
@@ -512,7 +514,7 @@ void ConfigAppWeatherTab::onExportServerClicked()
   {
     QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
     if (selectedItem == nullptr || selectedItem->parent() == nullptr)
-      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to export"));
 
     QJsonObject json;
     json["name"] = ui_->serverName->text();
@@ -521,14 +523,56 @@ void ConfigAppWeatherTab::onExportServerClicked()
     json["address"] = ui_->connectionAddress->text();
     json["port"] = ui_->connectionPort->text();
     json["username"] = ui_->connectionUserName->text();
-    json["password"] = ui_->connectionPort->text();
-    json["interval"] = ui_->serverIntervalData->text();
+    json["password"] = ui_->connectionPassword->text();
 
-    QString path = QFileDialog::getSaveFileName(app_, tr("Type where is to save dataprovider"), ".", "TerraMA2 (*.terrama2)");
+    QString path = QFileDialog::getSaveFileName(app_, tr("Type where is to save dataprovider"),
+                                                QString(("./" + selectedItem->text(0).toStdString() + ".terrama2").c_str()),
+                                                "TerraMA2 (*.terrama2)");
+
+    if (path.isEmpty())
+      return;
 
     terrama2::gui::core::saveTerraMA2File(app_, path, json);
 
     QMessageBox::information(app_, tr("TerraMA2 Export Data Provider"), tr("The data provider has been successfully exported!"));
+
+  }
+  catch(const terrama2::Exception& e)
+  {
+    const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
+    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+  }
+  catch(...)
+  {
+    throw;
+  }
+}
+
+void ConfigAppWeatherTab::onUpdateServerClicked()
+{
+  try
+  {
+    QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
+    if (selectedItem == nullptr || selectedItem->parent() == nullptr)
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to update"));
+
+    QString path = QFileDialog::getOpenFileName(app_, tr("Open dataprovider file"), ".", "TerraMA2 (*.terrama2)");
+
+    if (path.isEmpty())
+      return;
+
+    QJsonDocument document = terrama2::core::ReadJsonFile(path.toStdString());
+    QJsonObject json = document.object();
+
+    ui_->serverName->setText(json["name"].toString());
+    ui_->serverDescription->setText(json["description"].toString());
+    ui_->connectionProtocol->setCurrentText(json["kind"].toString());
+    ui_->connectionAddress->setText(json["address"].toString());
+    ui_->connectionPort->setText(json["port"].toString());
+    ui_->connectionUserName->setText(json["username"].toString());
+    ui_->connectionPassword->setText(json["password"].toString());
+
+    setChanged(true);
 
   }
   catch(const terrama2::Exception& e)
