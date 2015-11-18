@@ -29,9 +29,11 @@
 
 #include "StoragerPostgis.hpp"
 #include "Exception.hpp"
+#include "Utils.hpp"
 
 //Terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/geometry/GeometryProperty.h>
@@ -47,57 +49,88 @@ terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string
 
 }
 
-void terrama2::collector::StoragerPostgis::store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+terrama2::collector::StoragerPostgis::StoragerPostgis(const std::shared_ptr<te::da::DataSource>& dataSource)
+  : Storager({}),
+    dataSource_(dataSource)
+{
+
+}
+
+void terrama2::collector::StoragerPostgis::commitData(const std::string& destinationDataSetName,
+                                                      std::shared_ptr<te::da::DataSource> datasourceDestination,
+                                                      const std::shared_ptr<te::da::DataSetType> &dataSetType,
+                                                      const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec)
+{
+  std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
+  te::da::ScopedTransaction scopedTransaction(*transactorDestination);
+
+
+
+  std::map<std::string, std::string> options;
+  std::shared_ptr<te::da::DataSetType> newDataSetType;
+
+  if (!transactorDestination->dataSetExists(destinationDataSetName))
+  {
+    // create and save datasettype in the datasource destination
+    newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(dataSetType->clone()));
+
+    newDataSetType->setName(destinationDataSetName);
+    transactorDestination->createDataSet(newDataSetType.get(),options);
+  }
+  else
+  {
+    newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
+  }
+
+  //Get original geometry to get srid
+  te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
+  //configure if there is a geometry property
+  if(geom)
+  {
+    GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
+    GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
+  }
+
+  const std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(0);
+  transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
+
+  scopedTransaction.commit();
+}
+
+void terrama2::collector::StoragerPostgis::store(const std::string& standardDataSetName,
+                                                 const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                                                  const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
-  assert(datasetVec.size() == 1);//TODO: remove this!
+  assert(datasetVec.size() == 1);//FIXME: remove this!
 
   try
   {
-    const std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(0);
-
-    std::string dataSetName   = storageMetadata_.at("PG_TABLENAME");
-
-    // let's open the destination datasource
-    std::map<std::string, std::string>::const_iterator schemeIt = storageMetadata_.find("PG_SCHEME");
-    if(schemeIt != storageMetadata_.end())
-        dataSetName = schemeIt->second+"."+dataSetName;
-
-    std::auto_ptr<te::da::DataSource> datasourceDestination = te::da::DataSourceFactory::make("POSTGIS");
-    datasourceDestination->setConnectionInfo(storageMetadata_);
-    datasourceDestination->open();
-
-    // get a transactor to interact to the data source
-    std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
-    transactorDestination->begin();
-
-    std::map<std::string, std::string> options;
-    std::shared_ptr<te::da::DataSetType> newDataSetType;
-
-    if (!transactorDestination->dataSetExists(dataSetName))
+    if(!dataSource_)
     {
-      // create and save datasettype in the datasource destination
-      newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(dataSetType->clone()));
+      std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
+      datasourceDestination->setConnectionInfo(storageMetadata_);
+      OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination);
 
-      newDataSetType->setName(dataSetName);
-      transactorDestination->createDataSet(newDataSetType.get(),options);
+
+      std::string dataSetName = standardDataSetName;
+      std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("PG_TABLENAME");
+      if(dataSetNameIt != storageMetadata_.end())
+      {
+        dataSetName = dataSetNameIt->second;
+
+        // let's open the destination datasource
+        std::map<std::string, std::string>::const_iterator schemeIt = storageMetadata_.find("PG_SCHEME");
+        if(schemeIt != storageMetadata_.end())
+          dataSetName = schemeIt->second+"."+dataSetName;
+      }
+
+      // get a transactor to interact to the data source
+      commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
     }
     else
-    {
-      newDataSetType = transactorDestination->getDataSetType(dataSetName);
-    }
+      commitData(standardDataSetName, dataSource_, dataSetType, datasetVec);
 
-    //Get original geometry to get srid
-    te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
-    //configure if there is a geometry property
-    if(geom)
-    {
-      GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
-      GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
-    }
 
-    transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
-    transactorDestination->commit();
   }
   catch(terrama2::Exception& e)
   {

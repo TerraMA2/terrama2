@@ -54,13 +54,17 @@ namespace terrama2
         Storager(const std::map<std::string, std::string>& storageMetadata);
 
         /*!
-             * \brief Store a temporary data set in it's final storage area and format.
-             * \return Pointer to a te::da::DataSet of the final storage.
-             *
-             * \exception TODO: Storager::store exception...
-             */
-        virtual void store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                           const std::shared_ptr<te::da::DataSetType>& dataSetType) = 0;
+          \brief Store a temporary data set in it's final storage area and format.
+          \param Code name for the storage dataset, may not be used if defined in the storage metadata
+
+          \return Pointer to a te::da::DataSet of the final storage.
+
+
+          \exception TODO: Storager::store exception...
+         */
+        virtual void store(const std::string& standardDataSetName,
+                           const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                           const std::shared_ptr<te::da::DataSetType> &dataSetType) = 0;
 
       protected:
         std::map<std::string, std::string> storageMetadata_;
