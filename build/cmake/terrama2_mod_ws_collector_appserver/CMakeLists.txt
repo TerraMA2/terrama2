@@ -46,7 +46,8 @@ add_executable(terrama2_mod_ws_collector_appserver ${TERRAMA2_SRC_FILES} ${TERRA
 target_link_libraries(terrama2_mod_ws_collector_appserver terrama2_mod_ws_collector_server
                                                           terrama2_mod_core
                                                           terralib_mod_plugin
-                                                          terralib_mod_common)
+                                                          terralib_mod_common
+                                                          terrama2_mod_collector)
 
 qt5_use_modules(terrama2_mod_ws_collector_appserver Widgets)
 

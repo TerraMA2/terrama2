@@ -55,12 +55,12 @@ namespace terrama2
     class DataProcessor;
     typedef std::shared_ptr<DataProcessor> DataProcessorPtr;
 
-    /*!
-         * \brief The DataSetTimer class is a wrapper to a [DataSet](\ref terrama2::core::DataSet) with timer capabilities.
-         *
-         * The DataSetTimer class has an internal timer that emits a signal when
-         * it's time to collect the data.
-         *
+         /*!
+          \brief The DataSetTimer class is a timer to a DataSet.
+
+          The DataSetTimer class has an internal timer that emits a signal when
+          it's time to collect the data.
+
          */
     class DataSetTimer : public QObject, public boost::noncopyable
     {
@@ -68,14 +68,14 @@ namespace terrama2
 
       public:
         /*!
-         * TODO: document DataSetTimer
-         *
-         * \exception terrama2::collector::InvalidDataSetError Raise when constructed with an invalid DataSet.
+          \brief Constructor, start the timer for collecting.
+
+          \exception terrama2::collector::InvalidDataSetError Raise when constructed with an invalid DataSet.
          */
         DataSetTimer(const core::DataSet &dataSet);
         ~DataSetTimer();
 
-        //! \brief Returns the id of the original DataSet.
+        //! Returns the id of the original DataSet.
         uint64_t dataSet()   const;
 
       signals:
@@ -89,7 +89,7 @@ namespace terrama2
         void timeoutSlot() const;
 
       private:
-        //! \brief Prepare and starts timer following the DataSet information.
+        //! Prepare and starts timer following the DataSet information.
         void prepareTimer(const terrama2::core::DataSet &dataSet);
 
         struct Impl;

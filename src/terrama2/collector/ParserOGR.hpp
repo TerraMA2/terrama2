@@ -50,15 +50,6 @@ namespace terrama2
         ParserOGR() : Parser(){}
         virtual ~ParserOGR(){}
 
-        /*!
-         * \brief TODO: document ParserOGR
-         * \param uri
-         * \return Dataset of the temporary file.
-         *
-         * \pre TerrLib should be initialized.
-         *
-         * \exception UnableToReadDataSetError Raised if could not open the datasource, dataset is empty, terralib exception.
-         */
         virtual void read(const std::string& uri,
                           DataFilterPtr filter,
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
@@ -70,6 +61,10 @@ namespace terrama2
                                 std::shared_ptr<te::da::DataSetType>& datasetTypeVec);
 
         virtual void adapt(te::da::DataSetTypeConverter& converter){ }
+
+      protected:
+        te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
+
     };
   }
 }

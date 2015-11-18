@@ -35,6 +35,7 @@
 #include "Storager.hpp"
 #include "Factory.hpp"
 #include "Parser.hpp"
+#include "Utils.hpp"
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
@@ -58,13 +59,24 @@
 //terralib
 #include <terralib/common/Exception.h>
 
+void terrama2::collector::CollectorService::populateData()
+{
+  const auto& dataManager = core::DataManager::getInstance();
+  const std::vector<terrama2::core::DataProvider>& dataproviderVec = dataManager.providers();
+  foreach (const auto& dataprovider, dataproviderVec)
+    addProvider(dataprovider);
+
+  std::vector<terrama2::core::DataSet> datasetVec = dataManager.dataSets();
+  foreach (const auto& dataset, datasetVec)
+    addDataset(dataset);
+}
+
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
     stop_(false),
     factory_(new Factory())
 {
   connectDataManager();
-
 }
 
 terrama2::collector::CollectorService::~CollectorService()
@@ -81,11 +93,18 @@ void terrama2::collector::CollectorService::start(int threadNumber)
   try
   {
     stop_ = false;
+    //start the loop thread
     loopThread_ = std::thread(&CollectorService::processingLoop, this);
 
-    for (int i = 0; i < threadNumber; ++i) {
+    //check for the number o threads to create
+    if(threadNumber)
+      threadNumber = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
+    if(!threadNumber)
+      threadNumber = 1; //if not able to find out set to 1
+
+    //Starts collection threads
+    for (int i = 0; i < threadNumber; ++i)
       threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
-    }
   }
   catch(const std::exception& e)
   {
@@ -94,6 +113,8 @@ void terrama2::collector::CollectorService::start(int threadNumber)
     
     throw UnableToStartServiceError() << terrama2::ErrorDescription(errMsg);
   }
+
+  populateData();
 }
 
 void terrama2::collector::CollectorService::stop() noexcept
@@ -104,9 +125,11 @@ void terrama2::collector::CollectorService::stop() noexcept
     stop_ = true;
   }
 
+  //wait for the loop thread
   if(loopThread_.joinable())
     loopThread_.join();
 
+  //wait for each collectiing thread
   for(auto & thread : threadPool_)
   {
     if(thread.joinable())
@@ -128,123 +151,169 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   {
     //TODO: log de erro
     qDebug() << e.what();
+    assert(0);
   }
 }
 
 void terrama2::collector::CollectorService::process(uint64_t dataProviderID, const std::vector<uint64_t> &dataSetVect)
 {
-  std::list<core::DataSet> datasetLst;
-  for(auto datasetID : dataSetVect)
-    datasetLst.push_back(datasets_.at(datasetID));
+  try
+  {
+    std::list<core::DataSet> datasetLst;
+    for(auto datasetID : dataSetVect)
+      datasetLst.push_back(datasets_.at(datasetID));
 
-  taskQueue_.emplace(std::bind(&collectAsThread, dataproviders_.at(dataProviderID), datasetLst));
+    taskQueue_.emplace(std::bind(&collectAsThread, dataproviders_.at(dataProviderID), datasetLst));
+  }
+  catch(std::exception& e)
+  {
+    //TODO: log this
+    qDebug() << "terrama2::collector::CollectorService::process " << e.what();
+    assert(0);
+  }
 }
 
 void terrama2::collector::CollectorService::collectAsThread(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet> &dataSetList)
 {
-  DataRetrieverPtr retriever = Factory::makeRetriever(dataProvider);
-  retriever->open();
-
-  for(auto &dataSet : dataSetList)
+  try
   {
-    if(dataSet.dataSetItems().empty())
+    DataRetrieverPtr retriever = Factory::makeRetriever(dataProvider);
+    assert(retriever);
+
+    OpenClose<DataRetrieverPtr> openClose(retriever);
+    if(!retriever->isOpen())
     {
-      //TODO: LOG empty dataset
-      continue;
+      //TODO: log this
+      return;
     }
 
-    //aquire all data
-    for(auto& dataSetItem : dataSet.dataSetItems())
+    for(auto &dataSet : dataSetList)
     {
-
-      try
+      if(dataSet.dataSetItems().empty())
       {
-        DataFilterPtr filter(new DataFilter(dataSetItem));
+        //TODO: LOG empty dataset
+        continue;
+      }
 
-        //TODO: conditions to collect Data?
-        //retrieve remote data to local temp file
-        std::string uri = retriever->retrieveData(filter);
+      //aquire all data
+      for(auto& dataSetItem : dataSet.dataSetItems())
+      {
 
-        ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
-
-        StoragerPtr   storager = Factory::makeStorager(dataSetItem);
-
-
-
-        //read data and create a terralib dataset
-        std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-        std::shared_ptr<te::da::DataSetType> datasetType;
-        parser->read(uri, filter, datasetVec, datasetType);
-
-        //filter dataset data (date, geometry, ...)
-        for(int i = 0, size = datasetVec.size(); i < size; ++i)
+        try
         {
-          std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+          DataFilterPtr filter(new DataFilter(dataSetItem));
+          assert(filter);
 
-          //std::vector::at is NON-const, Qt containers use 'at' as const
-          datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
+          //TODO: conditions to collect Data?
+          //retrieve remote data to local temp file
+          std::string uri = retriever->retrieveData(filter);
+
+          ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
+          assert(parser);
+
+          StoragerPtr   storager = Factory::makeStorager(dataSetItem);
+          assert(storager);
+
+          //read data and create a terralib dataset
+          std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+          std::shared_ptr<te::da::DataSetType> datasetType;
+          parser->read(uri, filter, datasetVec, datasetType);
+
+          //filter dataset data (date, geometry, ...)
+          for(int i = 0, size = datasetVec.size(); i < size; ++i)
+          {
+            std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
+
+            //std::vector::at is NON-const, Qt containers use 'at' as const
+            datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
+          }
+
+          //store dataset
+          qDebug() << "starting storager...";
+          storager->store(datasetVec, datasetType);
         }
-
-        //store dataset
-        storager->store(datasetVec, datasetType);
-      }
-      catch(terrama2::Exception& e)
-      {
-        //TODO: log this
-        qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-        continue;
-      }
-      catch(std::exception& e)
-      {
-        //TODO: log this
-        qDebug() << e.what();
-        continue;
+        catch(terrama2::Exception& e)
+        {
+          //TODO: log this
+          qDebug() << "terrama2::collector::CollectorService::collectAsThread " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+          assert(0);
+          continue;
+        }
+        catch(std::exception& e)
+        {
+          //TODO: log this
+          qDebug() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
+          assert(0);
+          continue;
+        }
       }
     }
+  }
+  catch(std::exception& e)
+  {
+    //TODO: log this
+    qDebug() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
+    assert(0);
   }
 }
 
 void terrama2::collector::CollectorService::threadProcess()
 {
-  while (!stop_) {
-    std::packaged_task<void()> task;
+  try
+  {
+    while (!stop_) {
+      std::packaged_task<void()> task;
 
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-      if(!taskQueue_.empty())
       {
-        task = std::move(taskQueue_.front());
-        taskQueue_.pop();
+        std::lock_guard<std::mutex> lock(mutex_);
+        if(!taskQueue_.empty())
+        {
+          task = std::move(taskQueue_.front());
+          taskQueue_.pop();
+        }
       }
+
+      if(task.valid())
+        task();
+      else
+        std::this_thread::yield();
     }
-
-    if(task.valid())
-      task();
-    else
-      std::this_thread::yield();
   }
-
+  catch(std::exception& e)
+  {
+    //TODO: log this
+    qDebug() << "terrama2::collector::CollectorService::threadProcess " << e.what();
+    assert(0);
+  }
 }
 
 void terrama2::collector::CollectorService::processingLoop()
 {
   while(!stop_)
   {
-   
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    // For each provider type verifies if the first provider in the queue is acquiring new data,
-    // in case it's collecting moves to next type of provider, when it's done remove it from the queue
-    // in case it's not collecting, starts the collection calling the collect method.
-    // It allows multiples providers to collect at the same time but only one provider of each type.
-    for (auto it = collectQueue_.begin(); it != collectQueue_.end(); ++it)
+    try
     {
-      auto dataProviderId = it->first;
-      const auto& dataSetQueue = it->second;
+      std::lock_guard<std::mutex> lock(mutex_);
 
-      process(dataProviderId, dataSetQueue);
+      // For each provider type verifies if the first provider in the queue is acquiring new data,
+      // in case it's collecting moves to next type of provider, when it's done remove it from the queue
+      // in case it's not collecting, starts the collection calling the collect method.
+      // It allows multiples providers to collect at the same time but only one provider of each type.
+      for (auto it = collectQueue_.begin(); it != collectQueue_.end(); ++it)
+      {
+        auto dataProviderId = it->first;
+        const auto& dataSetQueue = it->second;
 
-      collectQueue_.erase(it);
+        process(dataProviderId, dataSetQueue);
+
+        collectQueue_.erase(it);
+      }
+    }
+    catch(std::exception& e)
+    {
+      //TODO: log this
+      qDebug() << "terrama2::collector::CollectorService::processingLoop " << e.what();
+      assert(0);
     }
   }
 }
@@ -280,7 +349,7 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
   }
   catch(std::exception& e)
   {
-    qDebug() << e.what();
+    qDebug() << "terrama2::collector::CollectorService::addToQueue " << e.what();
     //TODO: log de erro
     assert(0);
   }
@@ -302,9 +371,9 @@ void terrama2::collector::CollectorService::removeProvider(const terrama2::core:
   catch(const std::exception& e)
   {
     //TODO: log de erro
-    qDebug() << e.what();
+    qDebug() << "terrama2::collector::CollectorService::removeProvider " << e.what();
+    assert(0);
   }
-  
 }
 
 void terrama2::collector::CollectorService::updateProvider(const core::DataProvider &dataProvider)
@@ -318,7 +387,8 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
   catch(const std::exception& e)
   {
     //TODO: log de erro
-    qDebug() << e.what();
+    qDebug() << "terrama2::collector::CollectorService::updateProvider " << e.what();
+    assert(0);
   }
 }
 
@@ -349,12 +419,12 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
   catch(terrama2::collector::InvalidDataSetError& e)
   {
     //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     assert(0);
   }
   catch(std::exception& e)
   {
-    qDebug() << e.what();
+    qDebug() << "terrama2::collector::CollectorService::addDataset " << e.what();
     //TODO: log de erro
     assert(0);
   }
@@ -371,11 +441,21 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
 {
   std::lock_guard<std::mutex> lock (mutex_);
 
-  const DataSetTimerPtr& datasetTimer = timers_.at(datasetId);
-  disconnect(datasetTimer.get(), nullptr, this, nullptr);
+  try
+  {
+    const DataSetTimerPtr& datasetTimer = timers_.at(datasetId);
+    disconnect(datasetTimer.get(), nullptr, this, nullptr);
 
-  datasets_.erase(datasetId);
-  timers_.erase(datasetId);
+    datasets_.erase(datasetId);
+    timers_.erase(datasetId);
+  }
+  catch(std::exception& e)
+  {
+    //TODO: log this
+    qDebug() << "terrama2::collector::CollectorService::removeDatasetById " << e.what();
+    assert(0);
+  }
+
 }
 
 void terrama2::collector::CollectorService::updateDataset(const core::DataSet &dataset)

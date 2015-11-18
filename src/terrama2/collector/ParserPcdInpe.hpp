@@ -20,40 +20,40 @@
 */
 
 /*!
-  \file terrama2/collector/ParserPostgis.hpp
+  \file terrama2/collector/ParserPcdInpe.hpp
 
-  \brief Parsers postgres/postgis data and create a terralib DataSet.
+  \brief Parser of occurrences of fires file
 
   \author Jano Simas
+  \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+
+#ifndef __TERRAMA2_COLLECTOR_PARSERPCDINPE_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERPCDINPE_HPP__
 
 #include "Parser.hpp"
 
 #include <mutex>
 
+#include "Parser.hpp"
+#include "ParserOGR.hpp"
+
+#include <mutex>
+
 namespace terrama2
 {
-  namespace collector
+ namespace collector
+ {
+  class ParserPcdInpe: public ParserOGR
   {
+   public:
+    virtual void adapt(te::da::DataSetTypeConverter& converter) override;
 
-    class ParserPostgis : public Parser
-    {
-      public:
-        ParserPostgis() : Parser(){}
-        virtual ~ParserPostgis(){}
-
-        virtual void read(const std::string& uri,
-                          DataFilterPtr filter,
-                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                          std::shared_ptr<te::da::DataSetType> &datasetTypePtr) override;
-
-    };
-  }
+    te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
+  };
+ }
 }
 
 
-
-#endif //__TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+#endif // __TERRAMA2_COLLECTOR_PARSERPCDINPE_HPP__
