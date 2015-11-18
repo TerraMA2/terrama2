@@ -87,10 +87,12 @@ namespace terrama2
       /*!
         \brief Start the main loop thread for collecting data.
 
+        \param Number of collecting threads in the threadpool, if 0 trys to find number of system supported threads else 1 thread.
+
         \exception ServiceAlreadyRunnningError Raise when the service is already runnning.
         \exception UnableToStartServiceError Raise when the system can not create a thread or acquire resources to initialize the service.
        */
-      void start(int threadNumber = 4);
+      void start(int threadNumber = 0);
 
     public slots:
 
@@ -220,6 +222,7 @@ namespace terrama2
       std::queue<std::packaged_task<void()> > taskQueue_;       //!< Pool of collecting tasks.
       std::vector<std::thread> threadPool_;                     //!< Pool of collecting threads
 
+      void populateData();
     };
   }
 }

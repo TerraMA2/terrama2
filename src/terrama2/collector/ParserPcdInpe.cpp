@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/collector/ParserFirePoint.cpp
+  \file terrama2/collector/ParserPcdInpe.cpp
 
-  \brief Parser of occurrences of fires file
+  \brief Parser PCD INPE file
 
   \author Jano Simas
   \author Evandro Delatin
@@ -30,7 +30,7 @@
 
 
 #include "ParserOGR.hpp"
-#include "ParserFirePoint.hpp"
+#include "ParserPcdInpe.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 
@@ -52,33 +52,31 @@
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/dataaccess/dataset/AttributeConverters.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/geometry.h>
+#include <terralib/geometry.h>
+#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype.h>
 
-te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
+te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
 {
-  assert(dataset);
-  assert(indexes.size() == 2);
+  assert(indexes.size() == 1);
 
-  te::dt::AbstractData* point = te::da::XYToPointConverter(dataset, indexes, dstType);
+  std::string dateTime = dataset->getAsString(indexes[0]);
 
-  static_cast<te::gm::Point*>(point)->setSRID(4326);
+  te::dt::DateTime* dt = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(dateTime)));
 
-  return point;
+  return dt;
 }
 
-void terrama2::collector::ParserFirePoint::adapt(te::da::DataSetTypeConverter&converter)
+// Change the string 07/21/2015 17:13:00 - PCD INPE format for timestamp
+void terrama2::collector::ParserPcdInpe::adapt(te::da::DataSetTypeConverter&converter)
 {
-  converter.remove("lat");
-  converter.remove("lon");
+  converter.remove("TIMESTAMP");
 
-// Generates a point through the x and y coordinates
- te::gm::GeometryProperty* gm = new te::gm::GeometryProperty("geom", 4326, te::gm::PointType);
+  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
- std::vector<size_t> latLonAttributes;
- latLonAttributes.push_back(2);
- latLonAttributes.push_back(1);
+  converter.add(0, dtProperty, boost::bind(&terrama2::collector::ParserPcdInpe::StringToTimestamp, this, _1, _2, _3));
 
- converter.add(latLonAttributes ,gm, XYTo4326PointConverter);
 }

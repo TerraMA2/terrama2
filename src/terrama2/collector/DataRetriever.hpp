@@ -43,14 +43,35 @@ namespace terrama2
     class DataFilter;
     typedef std::shared_ptr<DataFilter> DataFilterPtr;
 
+    /*!
+      \brief The DataRetriever class should be used as a base class for retrieving remote data from servers. ex: FTP servers.
+
+      The default behavior is isOpen = true and retrieveData = dataprovider.uri
+
+     */
     class DataRetriever
     {
     public:
+      /*!
+        \brief Constructor, store DataProvider information.
+        \param dataprovider DataProvider information
+
+        \exception InvalidDataProviderError Raised when dataprovider doesn't have an id or a name.
+       */
       explicit DataRetriever(const core::DataProvider& dataprovider);
 
-      void open();
-      void close();
-      std::string retrieveData(DataFilterPtr filter);
+      //! Does nothing. In derived classes opens the connectin to the server.
+      virtual void open();
+      //! Always returns true. In derived classes checks the connectin to the server.
+      virtual bool isOpen();
+      //! Does nothing. In derived classes closes the connection to the server.
+      virtual void close();
+      /*!
+       * \brief Returns DataProvider uri. In derived classes retrieves remote data to a local temporary archive.
+       * \param Filter to the data files.
+       * \return Returns a standard Uniform Resource Identifier to the data.
+       */
+      virtual std::string retrieveData(DataFilterPtr filter);
 
     private:
       struct Impl;
