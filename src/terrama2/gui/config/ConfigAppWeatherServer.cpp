@@ -230,7 +230,7 @@ void ConfigAppWeatherServer::validateConnection()
         if(curl)
         {
           curl_easy_setopt(curl, CURLOPT_URL, url.toString(QUrl::RemovePassword | QUrl::RemoveUserInfo | QUrl::RemovePort).toStdString().c_str());
-          curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
+          curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
           curl_easy_setopt(curl, CURLOPT_PORT, url.port());
           curl_easy_setopt(curl, CURLOPT_USERNAME, url.userName().toStdString().c_str());
           curl_easy_setopt(curl, CURLOPT_PASSWORD, url.password().toStdString().c_str());
