@@ -57,6 +57,13 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 
 std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
+  //FIXME: not working!!!
+  return dataSet;
+
+
+
+
+
   //Find DateTime column
   int dateColumn = -1;
   for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)

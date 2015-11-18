@@ -53,24 +53,11 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/common/Exception.h>
 
-void terrama2::collector::ParserOGR::getDataSet(std::shared_ptr<te::da::DataSourceTransactor>& transactor,
-                                                const std::string& name,
-                                                std::shared_ptr<te::da::DataSet>& dataset,
-                                                std::shared_ptr<te::da::DataSetType>& datasetType)
+te::da::DataSetTypeConverter terrama2::collector::ParserOGR::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  std::unique_ptr<te::da::DataSet> datasetOrig = transactor->getDataSet(name);
-  datasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
-
-  if(!datasetOrig || !datasetType)
-  {
-    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("Could not retrieve dataser %1 from transactor.").arg(name.c_str()));
-  }
-
-
   te::da::DataSetTypeConverter converter(datasetType.get());
 
-  for(std::size_t i = 0; i < datasetType->size(); ++i)
+  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
   {
     te::dt::Property* p = datasetType->getProperty(i);
 
@@ -78,11 +65,9 @@ void terrama2::collector::ParserOGR::getDataSet(std::shared_ptr<te::da::DataSour
   }
 
   converter.remove("FID");
-
   adapt(converter);
 
-  dataset = std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), &converter, true));
-  datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter.getResult()->clone()));
+  return converter;
 }
 
 void terrama2::collector::ParserOGR::read(const std::string &uri,
@@ -121,10 +106,16 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
       return;
     }
 
+
+    //prepare the converter to adapt the dataset
+    te::da::DataSetTypeConverter converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(names.at(0))));
+    datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter.getResult()->clone()));
+
+
     for(const std::string& name : names)
     {
-      std::shared_ptr<te::da::DataSet> dataset;
-      getDataSet(transactor, name, dataset, datasetType);
+      std::unique_ptr<te::da::DataSet> datasetOrig = transactor->getDataSet(name);
+      std::shared_ptr<te::da::DataSet> dataset = std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), &converter, true));
 
       datasetVec.push_back(dataset);
     }
