@@ -36,9 +36,6 @@
 
 int main(int argc, char **argv)
 {
-  // VINICIUS: use 'port' to set server and client
-  int port = 1989;
-
 // Define SERVER if you are running a server on seted port
 //#define SERVER server
 
@@ -48,7 +45,6 @@ int main(int argc, char **argv)
 
   QString program = "./terrama2_mod_ws_collector_appserver";
   QStringList arguments;
-  arguments.append("1989");
   arguments.append("../../codebase/src/unittest/ws/collector/data/project.json");
 
 

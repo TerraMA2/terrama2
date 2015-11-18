@@ -32,8 +32,10 @@
 #include <future>
 
 // Qt
-#include <QDebug>
 #include <QApplication>
+#include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 // Terralib
 #include "terralib/common/PlatformUtils.h"
@@ -42,6 +44,7 @@
 
 // TerraMA2
 #include "soapWebService.h"
+#include "../Exception.hpp"
 #include "../core/Codes.hpp"
 #include "../Exception.hpp"
 #include "../../../core/ApplicationController.hpp"
@@ -64,7 +67,7 @@ public:
   }
 };
 
-bool gSoapThread(char** argv)
+bool gSoapThread(int port)
 {
   try
   {
@@ -76,9 +79,9 @@ bool gSoapThread(char** argv)
 
     WebService server;
     
-    if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, std::stoi(argv[1]), 100)))
+    if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, port, 100)))
     {
-      qDebug() << "Webservice Started, running on port " << argv[1];
+      qDebug() << "Webservice Started, running on port " << port;
       
       for (;;)
       {
@@ -127,14 +130,48 @@ bool gSoapThread(char** argv)
 
 int main(int argc, char* argv[])
 {
-  // VINICIUS: get the port number from the project file
   // check if the parameters was passed correctly
-  
-  if(argc < 3 || std::stoi(argv[1]) < 1024 || std::stoi(argv[1]) > 49151)
+  if(argc < 2)
+  {    
+    std::cerr << "Usage: terrama2_mod_ws_collector_appserver <project_File>" << std::endl;
+
+    return EXIT_FAILURE;
+  }  
+
+  int port = 0;
+
+  try
   {
-    std::cerr << "Inform a valid port (between 1024 and 49151) and a project file in order to run the collector application server." << std::endl;
-    std::cerr << "Usage: terrama2_mod_ws_collector_appserver <port> <project_File>" << std::endl;
-    
+    QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
+
+    QJsonObject project = jdoc.object();
+
+    if(project.contains("collection"))
+    {
+      QJsonObject collectionConfig = project["collection"].toObject();
+      QJsonObject collectionWebserviceConfig = collectionConfig["webservice"].toObject();
+      port = collectionWebserviceConfig["portNumber"].toString().toInt();
+
+      if( port < 1024 || port > 49151)
+      {
+        std::cerr << "Inform a valid port (between 1024 and 49151) and into the project file in order to run the collector application server." << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      std::cerr << "Inform a valid port (between 1024 and 49151) and into the project file in order to run the collector application server." << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  catch(terrama2::Exception &e)
+  {
+    std::cerr << "Error at reading port from project: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;;
+    return EXIT_FAILURE;
+  }
+  catch(...)
+  {
+    std::cerr << "Unknow error at reading port from project!" << std::endl;
     return EXIT_FAILURE;
   }
   
@@ -159,7 +196,7 @@ int main(int argc, char* argv[])
 
     qDebug() << "Loading TerraMA2 Project...";
 
-    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[2]))
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
     {
       qDebug() << "TerraMA2 Project File is invalid or don't exist!";
       return false;
@@ -184,7 +221,7 @@ int main(int argc, char* argv[])
   }
 
   QApplication app(argc, argv);
-  auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, argv);
+  auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
 
   try
   {
