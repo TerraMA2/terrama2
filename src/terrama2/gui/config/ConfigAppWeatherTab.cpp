@@ -111,7 +111,7 @@ void ConfigAppWeatherTab::load()
     hideDataSetButtons();
 
     ui_->importServerBtn->setEnabled(false);
-    ui_->updateServerBtn->setEnabled(true);
+    ui_->updateServerBtn->setEnabled(false);
 
     app_->getClient()->listDataSet(datasets);
     for(std::vector<terrama2::core::DataProvider>::iterator it = providers.begin(); it != providers.end(); ++it)
