@@ -123,6 +123,10 @@ void terrama2::collector::CollectorService::stop() noexcept
     std::lock_guard<std::mutex> lock (mutex_);
     // finish the thread
     stop_ = true;
+
+    //wake loop thread and collecting threads
+    loop_condition_.notify_one();
+    thread_condition_.notify_all();
   }
 
   //wait for the loop thread
@@ -219,7 +223,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::shared_ptr<te::da::DataSetType> datasetType;
           parser->read(uri, filter, datasetVec, datasetType);
 
-          //filter dataset data (date, geometry, ...)
+//          filter dataset data (date, geometry, ...)
           for(int i = 0, size = datasetVec.size(); i < size; ++i)
           {
             std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
@@ -268,7 +272,10 @@ void terrama2::collector::CollectorService::threadProcess()
       std::packaged_task<void()> task;
 
       {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::mutex> lock(mutex_);
+        //wait for new data to be collected
+        thread_condition_.wait(lock, [this] { return !taskQueue_.empty(); });
+
         if(stop_)
           break;
 
@@ -281,8 +288,6 @@ void terrama2::collector::CollectorService::threadProcess()
 
       if(task.valid())
         task();
-      else
-        std::this_thread::yield();
     }
   }
   catch(std::exception& e)
@@ -299,7 +304,10 @@ void terrama2::collector::CollectorService::processingLoop()
   {
     try
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::unique_lock<std::mutex> lock(mutex_);
+      //wait for new data to collect
+      loop_condition_.wait(lock, [this]{ return !collectQueue_.empty(); });
+
       if(stop_)
         break;
 
@@ -316,6 +324,9 @@ void terrama2::collector::CollectorService::processingLoop()
 
         collectQueue_.erase(it);
       }
+
+      //wake collecting threads
+      thread_condition_.notify_all();
     }
     catch(std::exception& e)
     {
@@ -354,6 +365,9 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
     auto& datasetQueue = collectQueue_[dataset.provider()];
     //TODO: multiple copies of dataset can occur in the queue, is this the expected behavior?
     datasetQueue.push_back(datasetId);
+
+    //wake loop thread
+    loop_condition_.notify_one();
   }
   catch(std::exception& e)
   {

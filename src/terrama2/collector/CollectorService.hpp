@@ -41,12 +41,12 @@
 // STL
 #include <cstdint>
 #include <memory>
-#include <thread>
 #include <vector>
 #include <mutex>
 #include <map>
 #include <future>
 #include <queue>
+#include <condition_variable>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -218,9 +218,11 @@ namespace terrama2
 
       std::mutex  mutex_;                                       //!< mutex to thread safety
       std::future<void> loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
+      std::condition_variable loop_condition_;
 
       std::queue<std::packaged_task<void()> > taskQueue_;       //!< Pool of collecting tasks.
       std::vector<std::future<void> > threadPool_;                     //!< Pool of collecting threads
+      std::condition_variable thread_condition_;
 
       void populateData();
     };

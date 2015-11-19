@@ -49,11 +49,13 @@
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/common/Exception.h>
 
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/dataset/AttributeConverters.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/datatype/TimeInstant.h>
 #include <terralib/geometry.h>
 
 te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
@@ -68,17 +70,55 @@ te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std
   return point;
 }
 
+te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/)
+{
+  assert(indexes.size() == 1);
+
+  std::string dateTime = dataset->getAsString(indexes[0]);
+
+  te::dt::TimeInstant* dt = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(dateTime)));
+
+  return dt;
+}
+
 void terrama2::collector::ParserFirePoint::adapt(te::da::DataSetTypeConverter&converter)
 {
-  converter.remove("lat");
-  converter.remove("lon");
 
-// Generates a point through the x and y coordinates
- te::gm::GeometryProperty* gm = new te::gm::GeometryProperty("geom", 4326, te::gm::PointType);
+  int latPos = -1, lonPos = -1, dataPos = -1;
+  std::string lat("lat"), lon("lon"), data("data_pas");
 
- std::vector<size_t> latLonAttributes;
- latLonAttributes.push_back(2);
- latLonAttributes.push_back(1);
+  std::vector<te::dt::Property*> properties = converter.getConvertee()->getProperties();
+  for(int i = 0, size = properties.size(); i < size; ++i)
+  {
+    te::dt::Property* property = properties.at(i);
+    std::string name = property->getName();
 
- converter.add(latLonAttributes ,gm, XYTo4326PointConverter);
+    if(name == lat)
+      latPos = i;
+
+    if(name == lon)
+      lonPos = i;
+
+    if(name == data)
+      dataPos = i;
+  }
+
+  assert(latPos != -1);
+  assert(lonPos != -1);
+  assert(dataPos != -1);
+
+  // Generates a point through the x and y coordinates
+  te::gm::GeometryProperty* gm = new te::gm::GeometryProperty("geom", 4326, te::gm::PointType);
+
+  std::vector<size_t> latLonAttributes;
+  latLonAttributes.push_back(lonPos);
+  latLonAttributes.push_back(latPos);
+  converter.add(latLonAttributes ,gm, XYTo4326PointConverter);
+
+  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
+  converter.add(dataPos, dtProperty, StringToTimestamp);
+
+  converter.remove(data);
+  converter.remove(lat);
+  converter.remove(lon);
 }
