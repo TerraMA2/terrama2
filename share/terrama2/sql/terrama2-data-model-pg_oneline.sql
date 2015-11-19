@@ -122,7 +122,7 @@ INSERT INTO terrama2.filter_expression_type(name, description) VALUES('NONE_TYPE
 
 
 
-CREATE TABLE terrama2.filter (dataset_item_id INTEGER NOT NULL PRIMARY KEY, discard_before  TIMESTAMP, discard_after   TIMESTAMP, geom GEOMETRY(POLYGON, 4326), external_data_id INTEGER, value NUMERIC, expression_type INTEGER, within_external_data_id INTEGER, band_filter TEXT, CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE, CONSTRAINT fk_filter_with_expression_type FOREIGN KEY(expression_type) REFERENCES terrama2.filter_expression_type (id) ON UPDATE CASCADE ON DELETE CASCADE);
+CREATE TABLE terrama2.filter (dataset_item_id INTEGER NOT NULL PRIMARY KEY, discard_before  TIMESTAMP with time zone, discard_after   TIMESTAMP with time zone, geom GEOMETRY(POLYGON, 4326), external_data_id INTEGER, value NUMERIC, expression_type INTEGER, within_external_data_id INTEGER, band_filter TEXT, CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE, CONSTRAINT fk_filter_with_expression_type FOREIGN KEY(expression_type) REFERENCES terrama2.filter_expression_type (id) ON UPDATE CASCADE ON DELETE CASCADE);
   --CONSTRAINT fk_filter_external_data_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
   --CONSTRAINT fk_filter_within_external_data_id FOREIGN KEY(within_external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
 
@@ -138,7 +138,7 @@ COMMENT ON COLUMN terrama2.filter.within_external_data_id IS 'Identifier of the 
 COMMENT ON COLUMN terrama2.filter.band_filter IS 'Bands to exclude from collection';
 
 
-CREATE TABLE terrama2.data_collection_log ( id SERIAL NOT NULL, dataset_item_id INTEGER NOT NULL, uri VARCHAR(255) NOT NULL, data_timestamp timestamp without time zone NOT NULL, collect_timestamp timestamp without time zone NOT NULL DEFAULT NOW(), CONSTRAINT fk_data_collection_log_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE);
+CREATE TABLE terrama2.data_collection_log ( id SERIAL NOT NULL, dataset_item_id INTEGER NOT NULL, uri VARCHAR(255) NOT NULL, data_timestamp timestamp with time zone NOT NULL, collect_timestamp timestamp with time zone NOT NULL DEFAULT NOW(), CONSTRAINT fk_data_collection_log_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE);
 
 COMMENT ON TABLE terrama2.data_collection_log IS 'Store the log of all collected data';
 COMMENT ON COLUMN terrama2.data_collection_log.id IS 'Log identifier';
