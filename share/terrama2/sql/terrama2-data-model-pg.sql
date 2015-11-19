@@ -192,6 +192,7 @@ CREATE TABLE terrama2.dataset_item
   dataset_id   INTEGER,
   mask         VARCHAR(255),
   timezone     text DEFAULT '+00:00',
+  path         VARCHAR(255),
   CONSTRAINT fk_dataset_data_type_id
     FOREIGN KEY(kind)
     REFERENCES terrama2.dataset_item_type(id)

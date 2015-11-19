@@ -137,6 +137,8 @@ DataSet TsDataManager::createDataSet()
 
   DataSetItem dataSetItem(DataSetItem::PCD_INPE_TYPE, 0, dataSet.id());
 
+  dataSetItem.setPath("path");
+
   Filter filter(dataSetItem.id());
   filter.setExpressionType(Filter::GREATER_THAN_TYPE);
   filter.setValue(std::move(std::unique_ptr<double>(new double(100.))));
@@ -551,6 +553,8 @@ void TsDataManager::testAddDataSet()
 
     // Test find dataset
     DataSet findDataSet = DataManager::getInstance().findDataSet(dataSet.id());
+
+    QVERIFY2(findDataSet.dataSetItems()[0].path() == "path", "Wrong dataset Item Path");
   }
   catch(boost::exception& e)
   {
@@ -749,6 +753,7 @@ void TsDataManager::testUpdateDataSet()
     // Updates the data from FIRE_POINTS_TYPE
     auto& dsItem = dataSetItems[0];
     dsItem.setMask("Queimadas_*");
+    dsItem.setPath("other_path");
 
     // Add a new dataset item of type PCD_TOA5_TYPE
     DataSetItem dataSetItem(DataSetItem::PCD_TOA5_TYPE, 0, dataSet.id());
@@ -789,6 +794,7 @@ void TsDataManager::testUpdateDataSet()
 
     QVERIFY2(dsItem0.kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItems[0] must be of the type FIRE_POINTS!");
     QVERIFY2(dsItem0.mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
+    QVERIFY2(dsItem0.path() == "other_path", "Path should be 'other_path'!");
     QVERIFY2(dsItem1.kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItems[1] must be of the type PCD-TOA5!");
 
     std::map<std::string, std::string> storageMetadata =  dsItem0.storageMetadata();
