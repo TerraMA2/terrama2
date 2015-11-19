@@ -32,6 +32,7 @@
 #include "DataFilter.hpp"
 
 //terralib
+#include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/datatype/Enums.h>
 
@@ -57,13 +58,6 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 
 std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
-  //FIXME: not working!!!
-  return dataSet;
-
-
-
-
-
   //Find DateTime column
   int dateColumn = -1;
   for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
@@ -99,18 +93,21 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
     if(dateColumn > 0)
     {
       std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
-      if(*dateTime < *filter.discardBefore())
+      if(filter.discardBefore() && *dateTime < *filter.discardBefore())
         continue;
 
-      if(*dateTime > *filter.discardAfter())
+      if(filter.discardAfter() && *dateTime > *filter.discardAfter())
         continue;
 
       //TODO: filter last collection time
     }
 
+    te::mem::DataSetItem* dataItem = new te::mem::DataSetItem(dataSet.get());
     //Copy each property
     for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
-      memDataSet->add(dataSet->getPropertyName(i), dataSet->getPropertyDataType(i), dataSet->getValue(i).release());
+      dataItem->setValue(i, dataSet->getValue(i).release());
+    //add item to the new dataset
+    memDataSet->add(dataItem);
   }
 
   //TODO: Implement filter geometry
