@@ -59,7 +59,7 @@ void TsClient::cleanupTestCase()
 
 void TsClient::init()
 {
-  adapter_ = new terrama2::ws::collector::client::WebProxyAdapter("http://localhost:1989");
+  adapter_ = new terrama2::ws::collector::client::WebProxyAdapter("http://localhost:32100");
   wsClient_ = new terrama2::ws::collector::client::Client(adapter_);
 
   clearDatabase();
@@ -70,7 +70,7 @@ void TsClient::cleanup()
 {
   clearDatabase();
 
-  delete wsClient_;  
+  delete wsClient_;
 }
 
 
@@ -560,7 +560,7 @@ void TsClient::TestAddDataSetWithID()
 void TsClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
-  {    
+  {
     terrama2::core::DataSet dataSet = buildDataSet(1);
 
     wsClient_->addDataSet(dataSet);
@@ -737,20 +737,21 @@ void TsClient::testUpdateDataSet()
 
     QCOMPARE(dataSet.collectRules().size(), dataSet_updated.collectRules().size());
 
-    for(unsigned int i = 0; i < dataSet.colletRules().size(); i++)
+    for(unsigned int i = 0; i < dataSet.collectRules().size(); i++)
     {
       QCOMPARE(dataSet.collectRules().at(i).datasetId, dataSet_updated.collectRules().at(i).datasetId);
       QCOMPARE(dataSet.collectRules().at(i).id, dataSet_updated.collectRules().at(i).id);
       QCOMPARE(dataSet.collectRules().at(i).script, dataSet_updated.collectRules().at(i).script);
     }
 
-    int j = 0;
-    for(auto& x: dataSet.metadata())
-    {
-      QCOMPARE(dataSet_updated.metadata().at(j).)
+    // VINICIUS:
+//    int j = 0;
+//    for(auto& x: dataSet.metadata())
+//    {
+//      QCOMPARE(dataSet_updated.metadata().at(j).)
 
-      j++;
-    }
+//      j++;
+//    }
   }
   catch(terrama2::Exception &e)
   {
