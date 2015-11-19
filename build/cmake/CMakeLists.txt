@@ -238,6 +238,10 @@ if(NOT GSOAP_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required gSOAP library!")
 endif()
 
+find_package(CURL REQUIRED)
+if (NOT CURL_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required libCURL library!")
+endif()
 
 find_package(GTest)
 find_package(GMock)
