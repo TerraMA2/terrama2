@@ -118,6 +118,20 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
+  std::vector< terrama2::core::DataSet::CollectRule > rules;
+
+  rules.push_back(terrama2::core::DataSet::CollectRule{0, "script", 0});
+  rules.push_back(terrama2::core::DataSet::CollectRule{0, "script2", 0});
+
+  dataSet.setCollectRules(rules);
+
+  std::map<std::string, std::string> metadata;
+
+  metadata["metadataKey"] = "metadataValue";
+  metadata["metadata_Key"] = "metadata_Value";
+
+  dataSet.setMetadata(metadata);
+
   terrama2::core::DataSetItem dataSetItem1(terrama2::core::DataSetItem::Kind(1), 0, 0);
   dataSetItem1.setMask("mask1");
   dataSetItem1.setStatus(terrama2::core::DataSetItem::Status(2));
@@ -641,6 +655,71 @@ void TsClient::testUpdateDataSet()
     dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
     dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
+    std::vector< terrama2::core::DataSet::CollectRule > rules = dataSet.collectRules() ;
+
+    rules.at(0).script = "script update";
+    rules.at(1).script = "script2 update";
+
+    dataSet.setCollectRules(rules);
+
+    std::map<std::string, std::string> metadata;
+
+    metadata["metadataValue"] = "metadataKey";
+    metadata["metadata_Value"] = "metadata_Key";
+
+    dataSet.setMetadata(metadata);
+
+    for(unsigned int i = 0; i < dataSet.dataSetItems().size(); i++)
+    {
+      dataSet.dataSetItems().at(i).setMask("mask_updated");
+      dataSet.dataSetItems().at(i).setStatus(terrama2::core::DataSetItem::Status(1));
+      dataSet.dataSetItems().at(i).setTimezone("-17");
+      dataSet.dataSetItems().at(i).setKind(terrama2::core::DataSetItem::Kind(5-i));
+
+      if(i == 0)
+      {
+        terrama2::core::Filter filter = dataSet.dataSetItems().at(i).filter();
+
+        te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-20 23:59:59.000")));
+        std::unique_ptr< te::dt::DateTime > discardBefore(td);
+        filter.setDiscardBefore(std::move(discardBefore));
+
+        te::dt::DateTime* td2 = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-21 23:59:59.000")));
+        std::unique_ptr< te::dt::DateTime > timeAfter(td2);
+        filter.setDiscardAfter(std::move(timeAfter));
+
+        std::unique_ptr< double > value(new double(6.1));
+        filter.setValue(std::move(value));
+
+        filter.setExpressionType(terrama2::core::Filter::ExpressionType(2));
+        filter.setBandFilter("filter_bandFilter_updated");
+
+        te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
+
+        const double &xc(6), &yc(6), &halfSize(6);
+        s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
+        s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
+        s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
+        s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
+        s->setPoint(4, xc - halfSize, yc - halfSize); // closing
+
+        te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
+        p->push_back(s);
+
+        std::unique_ptr< te::gm::Geometry > geom(p);
+        filter.setGeometry(std::move(geom));
+
+        dataSet.dataSetItems().at(i).setFilter(filter);
+
+        std::map< std::string, std::string > storageMetadata;
+
+        storageMetadata["two"] = "one";
+        storageMetadata["one"] = "two";
+
+        dataSet.dataSetItems().at(i).setStorageMetadata(storageMetadata);
+      }
+    }
+
     terrama2::core::DataSet dataSet_updated(dataSet);
 
     wsClient_->updateDataSet(dataSet_updated);
@@ -655,6 +734,23 @@ void TsClient::testUpdateDataSet()
     QCOMPARE(dataSet.schedule(), dataSet_updated.schedule());
     QCOMPARE(dataSet.scheduleRetry(), dataSet_updated.scheduleRetry());
     QCOMPARE(dataSet.scheduleTimeout(), dataSet_updated.scheduleTimeout());
+
+    QCOMPARE(dataSet.collectRules().size(), dataSet_updated.collectRules().size());
+
+    for(unsigned int i = 0; i < dataSet.colletRules().size(); i++)
+    {
+      QCOMPARE(dataSet.collectRules().at(i).datasetId, dataSet_updated.collectRules().at(i).datasetId);
+      QCOMPARE(dataSet.collectRules().at(i).id, dataSet_updated.collectRules().at(i).id);
+      QCOMPARE(dataSet.collectRules().at(i).script, dataSet_updated.collectRules().at(i).script);
+    }
+
+    int j = 0;
+    for(auto& x: dataSet.metadata())
+    {
+      QCOMPARE(dataSet_updated.metadata().at(j).)
+
+      j++;
+    }
   }
   catch(terrama2::Exception &e)
   {
