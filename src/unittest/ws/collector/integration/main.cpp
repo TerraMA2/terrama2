@@ -29,6 +29,7 @@
 
 // Qt
 #include <QObject>
+#include <QThread>
 
 // TerraMA2 Test
 #include "TsClient.hpp"
@@ -37,11 +38,11 @@
 int main(int argc, char **argv)
 {
 // Define SERVER if you are running a server on seted port
-//#define SERVER server
-
-#ifndef SERVER
+//define SERVER server
 
   std::string project_path = "../../codebase/src/unittest/ws/collector/data/terrama2_test_ws.terrama2";
+
+#ifndef SERVER
 
   QObject *parent = new QObject();
 
@@ -54,11 +55,13 @@ int main(int argc, char **argv)
   service->setWorkingDirectory(QDir::currentPath());
   service->start(program, arguments);
 
-  if(!service->waitForStarted(10000))
+  if(!service->waitForStarted(20000))
   {
     std::cerr << "Error to initialize Web Service: " << service->errorString().toStdString().c_str() << std::endl;
     return service->exitCode();
   }
+
+  QThread::sleep(5);
 
   std::cerr << "Web Service started!" << std::endl;
 #endif

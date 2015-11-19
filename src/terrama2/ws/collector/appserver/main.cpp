@@ -230,13 +230,13 @@ int main(int argc, char* argv[])
 
       if( port < 1024 || port > 49151)
       {
-        std::cerr << "Inform a valid port (between 1024 and 49151) and into the project file in order to run the collector application server." << std::endl;
+        std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
         return EXIT_FAILURE;
       }
     }
     else
     {
-      std::cerr << "Inform a valid port (between 1024 and 49151) and into the project file in order to run the collector application server." << std::endl;
+      std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
       return EXIT_FAILURE;
     }
   }
