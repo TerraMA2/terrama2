@@ -41,11 +41,13 @@ int main(int argc, char **argv)
 
 #ifndef SERVER
 
+  std::string project_path = "../../codebase/src/unittest/ws/collector/data/terrama2_test_ws.terrama2";
+
   QObject *parent = new QObject();
 
   QString program = "./terrama2_mod_ws_collector_appserver";
   QStringList arguments;
-  arguments.append("../../codebase/src/unittest/ws/collector/data/project.json");
+  arguments.append(QString::fromStdString(project_path));
 
 
   QProcess *service = new QProcess(parent);
@@ -61,7 +63,7 @@ int main(int argc, char **argv)
   std::cerr << "Web Service started!" << std::endl;
 #endif
 
-  InitializeTerraMA2();
+  InitializeTerraMA2(project_path);
 
   TsClient testClient;
   int ret = QTest::qExec(&testClient, argc, argv);

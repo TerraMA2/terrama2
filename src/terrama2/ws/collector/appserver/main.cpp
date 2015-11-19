@@ -223,11 +223,10 @@ int main(int argc, char* argv[])
 
     QJsonObject project = jdoc.object();
 
-    if(project.contains("collection"))
+    if(project.contains("collector_web_service"))
     {
-      QJsonObject collectionConfig = project["collection"].toObject();
-      QJsonObject collectionWebserviceConfig = collectionConfig["webservice"].toObject();
-      port = collectionWebserviceConfig["portNumber"].toString().toInt();
+    QJsonObject collectionConfig = project["collector_web_service"].toObject();
+    port = collectionConfig["port"].toString().toInt();
 
       if( port < 1024 || port > 49151)
       {
