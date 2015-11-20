@@ -294,7 +294,7 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
   for(int i = 0; i < dataset_items.size(); i++)
   {
     // need to initialize the struct to avoid to create non-existent filters
-    T1 struct_dataset_item{0,0,0,0,"","",0,"","","",std::nan(""),0,""};
+    T1 struct_dataset_item{0,0,0,0,"","","",0,"","","",std::nan(""),0,""};
 
     struct_dataset_item.id = dataset_items.at(i).id();
     struct_dataset_item.dataset = dataset_items.at(i).dataset();
@@ -302,6 +302,7 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
     struct_dataset_item.mask = dataset_items.at(i).mask();
     struct_dataset_item.kind = (int) dataset_items.at(i).kind();
     struct_dataset_item.timezone = dataset_items.at(i).timezone();
+    struct_dataset_item.path = dataset_items.at(i).path();
 
     terrama2::core::Filter filter = dataset_items.at(i).filter();
 
@@ -358,6 +359,7 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
     dataset_item.setMask(struct_dataset_items.at(i).mask);
     dataset_item.setKind((terrama2::core::DataSetItem::Kind) struct_dataset_items.at(i).kind);
     dataset_item.setTimezone(struct_dataset_items.at(i).timezone);
+    dataset_item.setPath(struct_dataset_items.at(i).path);
 
     terrama2::core::Filter filter(struct_dataset_items.at(i).filter_datasetItem);
 
