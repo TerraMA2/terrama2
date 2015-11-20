@@ -191,7 +191,7 @@ void ConfigAppWeatherServer::onAddressFileBtnClicked()
                                                QFileDialog::ShowDirsOnly);
   if (dir.isEmpty())
     return;
-  ui_->connectionAddress->setText(dir);
+  ui_->serverPath->setText(dir);
 }
 
 void ConfigAppWeatherServer::validateConnection()
@@ -202,7 +202,11 @@ void ConfigAppWeatherServer::validateConnection()
   {
     case terrama2::core::DataProvider::FILE_TYPE:
       {
-        QDir directory(ui_->serverPath->text());
+        QString path(ui_->serverPath->text());
+        if (!path.startsWith("/"))
+          path.append("/");
+
+        QDir directory(path);
         if (!directory.exists())
         {
           ui_->serverPath->setFocus();

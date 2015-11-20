@@ -386,11 +386,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
 
                 const std::map<std::string, std::string> metadata = dataset.metadata();
-                auto it = metadata.find("PATH");
-                if (it != metadata.end())
-                  ui_->gridFormatDataPath->setText(it->second.c_str());
-
-                it = metadata.find("UNIT");
+                auto it = metadata.find("UNIT");
                 if (it != metadata.end())
                   ui_->gridFormatDataUnit->setText(it->second.c_str());
 
@@ -406,6 +402,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 if (dataset.dataSetItems().size() > 0)
                 {
                   terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
+                  ui_->gridFormatDataPath->setText(datasetItem.path().c_str());
                   ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
                   ui_->gridFormatDataMask->setText(datasetItem.mask().c_str());
                   ui_->gridFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
@@ -451,11 +448,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->pointDiffFormatDataSecond->setText(QString::number(dataset.dataFrequency().getSeconds()));
 
                 const std::map<std::string, std::string> metadata = dataset.metadata();
-                auto it = metadata.find("PATH");
-                if (it != metadata.end())
-                  ui_->pointDiffFormatDataPath->setText(it->second.c_str());
-
-                it = metadata.find("UNIT");
+                auto it = metadata.find("UNIT");
                 if (it != metadata.end())
                   ui_->pointDiffFormatDataUnit->setText(it->second.c_str());
 
@@ -468,6 +461,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 {
                   terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(dataset.dataSetItems().size() - 1);
                   occurrenceTab->fillFilter(datasetItem.filter());
+                  ui_->pointDiffFormatDataPath->setText(datasetItem.path().c_str());
                   ui_->pointDiffFormatDataMask->setText(datasetItem.mask().c_str());
                   ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
                   ui_->pointDiffFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);

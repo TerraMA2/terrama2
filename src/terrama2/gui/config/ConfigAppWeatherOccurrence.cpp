@@ -78,7 +78,6 @@ void ConfigAppWeatherOccurrence::save()
   dataset.setDataFrequency(dataFrequency);
 
   std::map<std::string, std::string> metadata(dataset.metadata());
-  metadata["PATH"] = ui_->pointDiffFormatDataPath->text().toStdString();
   metadata["UNIT"] = ui_->pointDiffFormatDataUnit->text().toStdString();
   metadata["KIND"] = ui_->pointDiffFormatDataFormat->currentText().toStdString();
   metadata["PREFIX"] = ui_->pointDiffFormatDataPrefix->text().toStdString();\
@@ -105,6 +104,7 @@ void ConfigAppWeatherOccurrence::save()
     kind = terrama2::core::DataSetItem::UNKNOWN_TYPE;
 
   datasetItem->setKind(kind);
+  datasetItem->setPath(ui_->pointDiffFormatDataPath->text().toStdString());
   datasetItem->setMask(ui_->pointDiffFormatDataMask->text().toStdString());
   datasetItem->setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
   datasetItem->setStatus(terrama2::core::ToDataSetItemStatus(ui_->pointDiffFormatStatus->isChecked()));

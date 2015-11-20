@@ -130,12 +130,12 @@ void ConfigAppWeatherPcd::save()
   datasetItem->setMask(ui_->pointFormatDataMask->text().toStdString());
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem->setTimezone(ui_->pointFormatDataTimeZoneCmb->currentText().toStdString());
+  datasetItem->setPath(ui_->pointFormatDataPath->text().toStdString());
 
   //TODO: save the lua script in table
   terrama2::core::DataSet::CollectRule* rule;
 
   std::map<std::string, std::string> datasetMetadata;
-  datasetMetadata["PATH"] = ui_->pointFormatDataPath->text().toStdString();
   datasetMetadata["PREFIX"] = ui_->pointFormatDataPrefix->text().toStdString();
   datasetMetadata["UNIT"] = ui_->pointFormatDataUnit->text().toStdString();
 

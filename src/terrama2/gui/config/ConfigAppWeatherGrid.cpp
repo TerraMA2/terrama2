@@ -87,6 +87,7 @@ void ConfigAppWeatherGridTab::save()
   datasetItem->setMask(ui_->gridFormatDataMask->text().toStdString());
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem->setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
+  datasetItem->setPath(ui_->gridFormatDataPath->text().toStdString());
 
   dataset.add(*datasetItem);
 
@@ -102,7 +103,6 @@ void ConfigAppWeatherGridTab::save()
   metadata["KIND"] = ui_->gridFormatDataFormat->currentText().toStdString();
   metadata["PREFIX"] = ui_->gridFormatDataPrefix->text().toStdString();
   metadata["UNIT"] = ui_->gridFormatDataUnit->text().toStdString();
-  metadata["PATH"] = ui_->gridFormatDataPath->text().toStdString();
   metadata["RESOLUTION"] = ui_->gridFormatDataResolution->text().toStdString();
   dataset.setMetadata(metadata);
 
