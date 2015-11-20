@@ -1,0 +1,203 @@
+#  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+#
+#  This file is part of TerraMA2 - a free and open source computational
+#  platform for analysis, monitoring, and alert of geo-environmental extremes.
+#
+#  TerraMA2 is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation, either version 3 of the License,
+#  or (at your option) any later version.
+#
+#  TerraMA2 is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public License
+#  along with TerraMA2. See LICENSE. If not, write to
+#  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+#
+#
+#  Description: CPack Options.
+#
+#  Author: Gilberto Ribeiro de Queiroz
+#          Vinicius Campanha
+#
+
+set(CPACK_PACKAGE_NAME "TerraMA2")
+set(CPACK_PACKAGE_VERSION @TERRAMA2_VERSION_STRING@)
+set(CPACK_PACKAGE_VENDOR "INPE")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TerraMA2 Platform")
+set(CPACK_PACKAGE_VERSION_MAJOR @TERRAMA2_VERSION_MAJOR@)
+set(CPACK_PACKAGE_VERSION_MINOR @TERRAMA2_VERSION_MINOR@)
+set(CPACK_PACKAGE_VERSION_PATCH @TERRAMA2_VERSION_PATCH@)
+
+set(CPACK_RESOURCE_FILE_LICENSE @CMAKE_BINARY_DIR@/COPYING.txt)
+
+#
+# getting some variables from CMake
+#
+set(MSVC10 @MSVC10@)
+set(MSVC12 @MSVC12@)
+set(CMAKE_CL_64 @CMAKE_CL_64@)
+set(APPLE @APPLE@)
+set(UNIX @UNIX@)
+
+#
+# determining the binary package name depending on toolset used in the build
+#
+if(NOT DEFINED CPACK_SOURCE_PACKAGE_FILE_NAME)
+  if(MSVC10 OR MSVC12)
+    if(CMAKE_CL_64)
+      set(CPACK_PACKAGE_FILE_NAME "TerraMA2-@TERRAMA2_VERSION_STRING@-win64")
+    else()
+      set(CPACK_PACKAGE_FILE_NAME "TerraMA2-@TERRAMA2_VERSION_STRING@-win32")
+    endif()
+  elseif(APPLE)
+    set(CPACK_PACKAGE_FILE_NAME "TerraMA2-@TERRAMA2_VERSION_STRING@-macosx")
+  elseif(UNIX)
+    set(CPACK_PACKAGE_FILE_NAME "TerraMA2-@TERRAMA2_VERSION_STRING@-linux")
+  else()
+    message(FATAL_ERROR "TerraMA2: unknown platform for generating install package. See terrama2-cpack-options.cmake.in for more details!")
+  endif()
+else()
+  set(CPACK_PACKAGE_FILE_NAME "TerraMA2-@TERRAMA2_VERSION_STRING@-src")
+endif()
+
+
+#
+# specific configuration for NSIS package generator
+#
+if(CPACK_GENERATOR MATCHES "NSIS")
+  set(CPACK_NSIS_MUI_ICON @TERRAMA2_ABSOLUTE_ROOT_DIR@/resources/images/ico\\\\terralib-install-icon.ico)
+  set(CPACK_NSIS_MUI_UNIICON @TERRAMA2_ABSOLUTE_ROOT_DIR@/resources/images/ico\\\\terralib-uninstall-icon.ico)
+  set(CPACK_NSIS_INSTALLED_ICON_NAME @TERRAMA2_ABSOLUTE_ROOT_DIR@/resources/images/ico\\\\terralib-globe.ico)
+  set(CPACK_PACKAGE_ICON @TERRAMA2_ABSOLUTE_ROOT_DIR@/resources/images/bmp\\terralib-installer-logo-large.bmp)
+
+  set(CPACK_RESOURCE_FILE_README @TERRAMA2_ABSOLUTE_ROOT_DIR@/build/cmake/GENERAL-README)
+
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY "terralib@TERRAMA2_VERSION_STRING@")
+
+#  set(CPACK_CREATE_DESKTOP_LINKS TerraView)
+
+  set(CPACK_NSIS_MENU_LINKS
+      "doc/api/html/index.html" "API Reference")
+
+#  set(CPACK_NSIS_MODIFY_PATH "ON")
+
+  set(CPACK_NSIS_PACKAGE_NAME "TerraView")
+  set(CPACK_NSIS_DISPLAY_NAME "TerraView version @TERRAMA2_VERSION_STRING@")
+
+  set(CPACK_NSIS_HELP_LINK "http://www.dpi.inpe.br/terralib5/wiki")
+  set(CPACK_NSIS_URL_INFO_ABOUT "http://www.dpi.inpe.br/terralib5/wiki")
+  set(CPACK_NSIS_CONTACT "terralib-team@terralib.org")
+  
+  set(bitName "(Win32)")
+  
+  if(CMAKE_CL_64) 
+    set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64") 
+    set(CPACK_NSIS_PACKAGE_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} (Win64)") 
+    set(bitName "(Win64)")
+  else() 
+    set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES") 
+    set(CPACK_NSIS_PACKAGE_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY}") 
+  endif() 
+
+  # To overwrite a previous installed version
+  set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY ${CPACK_PACKAGE_NAME}) 
+  
+  set(shortCutName "TerraView @TERRAMA2_VERSION_STRING@ ${bitName}")
+
+  set(CPACK_PACKAGE_EXECUTABLES "terraview;${shortCutName}")
+  
+  set(CPACK_NSIS_CREATE_ICONS_EXTRA "
+  SetOutPath \"$INSTDIR\\bin\";
+  CreateShortCut \"$SMPROGRAMS\\$STARTMENU_FOLDER\\${shortCutName}.lnk\" \"$INSTDIR\\bin\\terraview.exe\" \"\" \"$INSTDIR\\share\\terralib\\images\\ico\\terralib-globe.ico\";
+  CreateShortCut \"$DESKTOP\\${shortCutName}.lnk\" \"$INSTDIR\\bin\\terraview.exe\" \"\" \"$INSTDIR\\share\\terralib\\images\\ico\\terralib-globe.ico\"")
+
+  list (APPEND CPACK_NSIS_DELETE_ICONS_EXTRA "
+  Delete \"$SMPROGRAMS\\$MUI_TEMP\\${shortCutName}.lnk\";
+  Delete \"$DESKTOP\\${shortCutName}.lnk\"")
+
+  list (APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+  # Creating GDAL_DIR enviroment variable.
+  # WriteRegExpandStr HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"GDAL_DATA\" \"$INSTDIR\\share\\gdal-data\";
+  WriteRegExpandStr HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"TERRAMA2_HOME\" \"$INSTDIR\";
+  SendMessage \${HWND_BROADCAST} \${WM_WININICHANGE} 0 \"STR:Environment\" /TIMEOUT=5000"
+  )
+  
+  set (CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " 
+  # Removing GDAL_DIR from enviroment variables.
+  # DeleteRegValue HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"GDAL_DATA\";
+  DeleteRegValue HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"TERRAMA2_HOME\";
+  SendMessage \${HWND_BROADCAST} \${WM_WININICHANGE} 0 \"STR:Environment\" /TIMEOUT=5000"
+  )
+  
+ # File types association:
+ list (APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+   WriteRegStr HKCR \".tview\" \"\" \"TerraView.Project\"; #registering file extension
+   WriteRegStr HKCR \"TerraView.Project\" \"\" \"TerraView Project File\"; #registering extension desc
+   WriteRegStr HKCR \"TerraView.Project\\DefaultIcon\" \"\" \"$INSTDIR\\share\\terraview\\images\\ico\\terraview-projectfile-icon.ico\"; #registering extension icon 
+   WriteRegStr HKCR \"TerraView.Project\\shell\\open\\command\" \"\" '\"$INSTDIR\\bin\\terraview.exe\" \"%1\"'; #extension open command
+   SetRebootFlag true
+ ")
+  
+ list (APPEND CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+   DeleteRegKey HKCR \".tview\"; #removing extension register
+   DeleteRegKey HKCR \"TerraView.Project\"; #removing file association register
+ ")
+ 
+endif()
+
+if(CPACK_GENERATOR MATCHES "ZIP")
+  set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
+endif()
+
+if(CPACK_GENERATOR MATCHES "SOURCE_TGZ")
+endif()
+
+if(CPACK_GENERATOR MATCHES "DEB")
+  set(CPACK_DEBIAN_PACKAGE_NAME "terralib-@TERRAMA2_VERSION_STRING@")
+
+  #if(32-bit)
+  #  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+  #elseif(64-bit)
+  #  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+  #else()
+  #  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+  #endif()
+
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12)")
+
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Gilberto Ribeiro de Queiroz (gribeiro@dpi.inpe.br)")
+
+  set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "SciDB-GUI")
+
+  set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
+
+  set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+endif()
+
+if(CPACK_GENERATOR MATCHES "RPM")
+  set(CPACK_RPM_PACKAGE_SUMMARY "SciDB-GUI")
+  set(CPACK_RPM_PACKAGE_NAME "terralib-@TERRAMA2_VERSION_STRING@")
+  set(CPACK_RPM_PACKAGE_VERSION "@TERRAMA2_VERSION_STRING@")
+
+  #if(32-bit)
+  #  set(CPACK_RPM_PACKAGE_ARCHITECTURE "i386")
+  #elseif(64-bit)
+  #  set(CPACK_RPM_PACKAGE_ARCHITECTURE "i686")
+  #else()
+  #  set(CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+  #endif()
+
+  set(CPACK_RPM_PACKAGE_GROUP "terralib")
+  set(CPACK_RPM_PACKAGE_VENDOR "DPI/INPE - Brazil")
+endif()
+
+if(CPACK_GENERATOR MATCHES "PACKAGEMAKER")
+  #set(CPACK_PACKAGE_FILE_NAME "terralib-@TERRAMA2_VERSION_STRING@-macosx")
+  set(CPACK_RESOURCE_FILE_WELCOME @TERRAMA2_ABSOLUTE_ROOT_DIR@/build/cmake/WELCOME-PACKAGEMAKER)
+  set(CPACK_RESOURCE_FILE_README @TERRAMA2_ABSOLUTE_ROOT_DIR@/build/cmake/GENERAL-README)
+endif()
+
