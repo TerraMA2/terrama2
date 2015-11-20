@@ -12,6 +12,7 @@
 #include <QUrl>
 #include <QDir>
 #include <QFileDialog>
+#include <QProgressBar>
 
 // libcurl
 #include <curl/curl.h>
@@ -202,11 +203,7 @@ void ConfigAppWeatherServer::validateConnection()
   {
     case terrama2::core::DataProvider::FILE_TYPE:
       {
-        QString path(ui_->serverPath->text());
-        if (!path.startsWith("/"))
-          path.append("/");
-
-        QDir directory(path);
+        QDir directory(ui_->serverPath->text());
         if (!directory.exists())
         {
           ui_->serverPath->setFocus();
@@ -224,8 +221,13 @@ void ConfigAppWeatherServer::validateConnection()
 
       break;
     case terrama2::core::DataProvider::FTP_TYPE:
-      url.setPath(ui_->serverPath->text());
+      {
+        QString path(ui_->serverPath->text());
+        if (!path.startsWith("/"))
+          path.prepend("/");
 
+        url.setPath(path);
+      }
       break;
     default:
       throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Not implemented yet."));
