@@ -38,7 +38,7 @@
 int main(int argc, char **argv)
 {
 // Define SERVER if you are running a server on seted port
-//define SERVER server
+//#define SERVER server
 
   std::string project_path = "../../codebase/src/unittest/ws/collector/data/terrama2_test_ws.terrama2";
 
