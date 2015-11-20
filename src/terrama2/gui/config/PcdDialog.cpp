@@ -98,6 +98,10 @@ void PcdDialog::onPcdChanged()
 void PcdDialog::onConfirmClicked()
 {
   if (pimpl_->ui_->ledColPointFileName->text().trimmed().isEmpty())
-    reject();
+    {
+      reject();
+      return;
+    }
+
   accept();
 }

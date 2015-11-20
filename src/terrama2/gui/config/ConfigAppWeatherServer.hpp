@@ -52,7 +52,6 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     void onAddressFileBtnClicked();
 
   private:
-    QString dataProviderSelected_; //!< Value used for detects whether it is new dataprovider or not
     QString uri_; //!< Value used for store uri parsed value
 };
 

@@ -329,10 +329,21 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         QUrl url(provider.uri().c_str());
         int port = url.port();
 
-        ui_->connectionAddress->setText(url.host() + url.path());
-
         if (port > 0)
           ui_->connectionPort->setText(QString::number(port));
+
+        switch(provider.kind())
+        {
+          case terrama2::core::DataProvider::FILE_TYPE:
+            ui_->serverPath->setText(url.path());
+            break;
+          case terrama2::core::DataProvider::FTP_TYPE:
+            ui_->connectionAddress->setText(url.host());
+            ui_->serverPath->setText(url.path());
+            break;
+          default:
+            ui_->connectionAddress->setText(url.host());
+        }
 
         ui_->connectionUserName->setText(url.userName());
         ui_->connectionPassword->setText(url.password());

@@ -158,20 +158,30 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
 
 void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
 {
+  bool mode = false;
   if (index == 2) // FILE
   {
-    ui_->connectionUserName->setEnabled(false);
-    ui_->connectionPort->setEnabled(false);
-    ui_->connectionPassword->setEnabled(false);
+    mode = false;
+    ui_->serverPath->setEnabled(true);
     ui_->fileServerButton->setVisible(true);
+  }
+  else if (index == 0) // ftp
+  {
+    mode = true;
+    ui_->serverPath->setEnabled(true);
+    ui_->fileServerButton->setVisible(false);
   }
   else
   {
-    ui_->connectionUserName->setEnabled(true);
-    ui_->connectionPort->setEnabled(true);
-    ui_->connectionPassword->setEnabled(true);
+    mode = true;
+    ui_->serverPath->setEnabled(false);
     ui_->fileServerButton->setVisible(false);
   }
+
+  ui_->connectionAddress->setEnabled(mode);
+  ui_->connectionUserName->setEnabled(mode);
+  ui_->connectionPort->setEnabled(mode);
+  ui_->connectionPassword->setEnabled(mode);
 }
 
 void ConfigAppWeatherServer::onAddressFileBtnClicked()
@@ -187,7 +197,35 @@ void ConfigAppWeatherServer::onAddressFileBtnClicked()
 void ConfigAppWeatherServer::validateConnection()
 {
   QUrl url;
-  url.setScheme(ui_->connectionProtocol->currentText().toLower());
+
+  switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+2))
+  {
+    case terrama2::core::DataProvider::FILE_TYPE:
+      {
+        QDir directory(ui_->serverPath->text());
+        if (!directory.exists())
+        {
+          ui_->serverPath->setFocus();
+          throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("It is an invalid path"));
+        }
+
+        url.setPath(ui_->connectionAddress->text());
+
+        return;
+      }
+      break;
+
+    case terrama2::core::DataProvider::HTTP_TYPE:
+      url.setHost(ui_->connectionAddress->text());
+
+      break;
+    case terrama2::core::DataProvider::FTP_TYPE:
+      url.setPath(ui_->serverPath->text());
+
+      break;
+    default:
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Not implemented yet."));
+  }
 
   if (ui_->connectionAddress->text().trimmed().isEmpty())
   {
@@ -195,76 +233,53 @@ void ConfigAppWeatherServer::validateConnection()
     throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("Address field cannot be empty"));
   }
 
-  switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+2))
+  if (!url.isValid())
   {
-    case terrama2::core::DataProvider::FILE_TYPE:
-      {
-        QDir directory(ui_->connectionAddress->text());
-        if (!directory.exists())
-        {
-          ui_->connectionAddress->setFocus();
-          throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("It is an invalid path"));
-        }
-
-        url.setPath(ui_->connectionAddress->text());
-      }
-      break;
-
-    case terrama2::core::DataProvider::HTTP_TYPE:
-    case terrama2::core::DataProvider::FTP_TYPE:
-      {
-        url.setHost(ui_->connectionAddress->text());
-        url.setUserName(ui_->connectionUserName->text());
-        url.setPassword(ui_->connectionPassword->text());
-        url.setPort(ui_->connectionPort->text().toInt()); // 0
-
-        if (!url.isValid())
-        {
-          ui_->connectionAddress->setFocus();
-          throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
-        }
-
-        CURL *curl;
-        CURLcode res;
-        curl = curl_easy_init();
-        if(curl)
-        {
-          curl_easy_setopt(curl, CURLOPT_URL, url.toString(QUrl::RemovePassword | QUrl::RemoveUserInfo | QUrl::RemovePort).toStdString().c_str());
-          curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
-          curl_easy_setopt(curl, CURLOPT_PORT, url.port());
-          curl_easy_setopt(curl, CURLOPT_USERNAME, url.userName().toStdString().c_str());
-          curl_easy_setopt(curl, CURLOPT_PASSWORD, url.password().toStdString().c_str());
-          curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-          res = curl_easy_perform(curl);
-
-          // check: should it error handling each one common code?
-          switch(res)
-          {
-            case CURLE_OK:
-              break;
-
-            case CURLE_OPERATION_TIMEDOUT:
-              throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Timeout!"));
-              break;
-
-            case CURLE_LOGIN_DENIED:
-              throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Login denied!"));
-              break;
-            default:
-              throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error in connection..."));
-          }
-
-          curl_easy_cleanup(curl);
-        }
-        else
-          throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error to ping"));
-
-        break;
-      }
-    default:
-      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Not implemented yet."));
-
+    ui_->connectionAddress->setFocus();
+    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
   }
+
+  url.setHost(ui_->connectionAddress->text());
+  url.setScheme(ui_->connectionProtocol->currentText().toLower());
+  url.setUserName(ui_->connectionUserName->text());
+  url.setPassword(ui_->connectionPassword->text());
+  url.setPort(ui_->connectionPort->text().toInt()); // 0
+
+  CURL *curl;
+  CURLcode res;
+  curl = curl_easy_init();
+
+  if(curl)
+  {
+    curl_easy_setopt(curl, CURLOPT_URL, url.toString(QUrl::RemovePassword | QUrl::RemoveUserInfo | QUrl::RemovePort).toStdString().c_str());
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
+    curl_easy_setopt(curl, CURLOPT_PORT, url.port());
+    curl_easy_setopt(curl, CURLOPT_USERNAME, url.userName().toStdString().c_str());
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, url.password().toStdString().c_str());
+    curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+    res = curl_easy_perform(curl);
+
+    // check: should it error handling each one common code?
+    switch(res)
+    {
+      case CURLE_OK:
+        break;
+
+      case CURLE_OPERATION_TIMEDOUT:
+        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Timeout!"));
+        break;
+
+      case CURLE_LOGIN_DENIED:
+        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Login denied!"));
+        break;
+      default:
+        throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error in connection..."));
+    }
+
+    curl_easy_cleanup(curl);
+  }
+  else
+    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error to ping"));
 
   uri_ = url.url();
 }
