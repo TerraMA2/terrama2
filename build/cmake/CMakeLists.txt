@@ -437,11 +437,11 @@ endif()
 # CPack will use this path to generate a tar.gz or equivalent source package
 set(CPACK_SOURCE_INSTALLED_DIRECTORIES "${TERRAMA2_ABSOLUTE_ROOT_DIR};/")
 
-configure_file(${TERRAMA2_SOURCE_DIR}/terrama2-cpack-options.cmake.in
-               ${TERRAMA2_BINARY_DIR}/terrama2CPackOptions.cmake
+configure_file(${terrama2_SOURCE_DIR}/terrama2-cpack-options.cmake.in
+               ${terrama2_BINARY_DIR}/terrama2CPackOptions.cmake
                @ONLY)
 
-set(CPACK_PROJECT_CONFIG_FILE ${TERRAMA2_BINARY_DIR}/terrama2CPackOptions.cmake)
+set(CPACK_PROJECT_CONFIG_FILE ${terrama2_BINARY_DIR}/terrama2CPackOptions.cmake)
 
 include(CPack)
 
