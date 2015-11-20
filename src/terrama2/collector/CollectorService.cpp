@@ -87,14 +87,14 @@ terrama2::collector::CollectorService::~CollectorService()
 void terrama2::collector::CollectorService::start(int threadNumber)
 {
 // if service already running, throws
-  if(loopThread_.joinable())
+  if(loopThread_.valid())
     throw ServiceAlreadyRunnningError() << terrama2::ErrorDescription(tr("Collector service already running."));
 
   try
   {
     stop_ = false;
     //start the loop thread
-    loopThread_ = std::thread(&CollectorService::processingLoop, this);
+    loopThread_ = std::async(std::launch::async, &CollectorService::processingLoop, this);
 
     //check for the number o threads to create
     if(threadNumber)
@@ -104,7 +104,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
 
     //Starts collection threads
     for (int i = 0; i < threadNumber; ++i)
-      threadPool_.push_back(std::thread(&CollectorService::threadProcess, this));
+      threadPool_.push_back(std::async(std::launch::async, &CollectorService::threadProcess, this));
   }
   catch(const std::exception& e)
   {
@@ -123,17 +123,21 @@ void terrama2::collector::CollectorService::stop() noexcept
     std::lock_guard<std::mutex> lock (mutex_);
     // finish the thread
     stop_ = true;
+
+    //wake loop thread and collecting threads
+    loop_condition_.notify_one();
+    thread_condition_.notify_all();
   }
 
   //wait for the loop thread
-  if(loopThread_.joinable())
-    loopThread_.join();
+  if(loopThread_.valid())
+    loopThread_.get();
 
   //wait for each collectiing thread
-  for(auto & thread : threadPool_)
+  for(auto & future : threadPool_)
   {
-    if(thread.joinable())
-      thread.join();
+    if(future.valid())
+      future.get();
   }
 }
 
@@ -155,7 +159,7 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   }
 }
 
-void terrama2::collector::CollectorService::process(uint64_t dataProviderID, const std::vector<uint64_t> &dataSetVect)
+void terrama2::collector::CollectorService::process(const uint64_t dataProviderID, const std::vector<uint64_t>& dataSetVect)
 {
   try
   {
@@ -163,7 +167,7 @@ void terrama2::collector::CollectorService::process(uint64_t dataProviderID, con
     for(auto datasetID : dataSetVect)
       datasetLst.push_back(datasets_.at(datasetID));
 
-    taskQueue_.emplace(std::bind(&collectAsThread, dataproviders_.at(dataProviderID), datasetLst));
+    taskQueue_.emplace(std::bind(&collect, dataproviders_.at(dataProviderID), datasetLst));
   }
   catch(std::exception& e)
   {
@@ -173,7 +177,7 @@ void terrama2::collector::CollectorService::process(uint64_t dataProviderID, con
   }
 }
 
-void terrama2::collector::CollectorService::collectAsThread(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet> &dataSetList)
+void terrama2::collector::CollectorService::collect(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet>& dataSetList)
 {
   try
   {
@@ -219,7 +223,7 @@ void terrama2::collector::CollectorService::collectAsThread(const terrama2::core
           std::shared_ptr<te::da::DataSetType> datasetType;
           parser->read(uri, filter, datasetVec, datasetType);
 
-          //filter dataset data (date, geometry, ...)
+//          filter dataset data (date, geometry, ...)
           for(int i = 0, size = datasetVec.size(); i < size; ++i)
           {
             std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
@@ -228,9 +232,12 @@ void terrama2::collector::CollectorService::collectAsThread(const terrama2::core
             datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
           }
 
+          std::string standardDataSetName = "terrama2.storager_";
+          standardDataSetName.append(std::to_string(dataSetItem.id()));
+
           //store dataset
           qDebug() << "starting storager...";
-          storager->store(datasetVec, datasetType);
+          storager->store(standardDataSetName, datasetVec, datasetType);
         }
         catch(terrama2::Exception& e)
         {
@@ -261,11 +268,17 @@ void terrama2::collector::CollectorService::threadProcess()
 {
   try
   {
-    while (!stop_) {
+    while (true) {
       std::packaged_task<void()> task;
 
       {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::mutex> lock(mutex_);
+        //wait for new data to be collected
+        thread_condition_.wait(lock, [this] { return !taskQueue_.empty(); });
+
+        if(stop_)
+          break;
+
         if(!taskQueue_.empty())
         {
           task = std::move(taskQueue_.front());
@@ -275,8 +288,6 @@ void terrama2::collector::CollectorService::threadProcess()
 
       if(task.valid())
         task();
-      else
-        std::this_thread::yield();
     }
   }
   catch(std::exception& e)
@@ -289,11 +300,16 @@ void terrama2::collector::CollectorService::threadProcess()
 
 void terrama2::collector::CollectorService::processingLoop()
 {
-  while(!stop_)
+  while(true)
   {
     try
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::unique_lock<std::mutex> lock(mutex_);
+      //wait for new data to collect
+      loop_condition_.wait(lock, [this]{ return !collectQueue_.empty(); });
+
+      if(stop_)
+        break;
 
       // For each provider type verifies if the first provider in the queue is acquiring new data,
       // in case it's collecting moves to next type of provider, when it's done remove it from the queue
@@ -301,13 +317,16 @@ void terrama2::collector::CollectorService::processingLoop()
       // It allows multiples providers to collect at the same time but only one provider of each type.
       for (auto it = collectQueue_.begin(); it != collectQueue_.end(); ++it)
       {
-        auto dataProviderId = it->first;
+        const auto& dataProviderId = it->first;
         const auto& dataSetQueue = it->second;
 
         process(dataProviderId, dataSetQueue);
 
         collectQueue_.erase(it);
       }
+
+      //wake collecting threads
+      thread_condition_.notify_all();
     }
     catch(std::exception& e)
     {
@@ -346,6 +365,9 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
     auto& datasetQueue = collectQueue_[dataset.provider()];
     //TODO: multiple copies of dataset can occur in the queue, is this the expected behavior?
     datasetQueue.push_back(datasetId);
+
+    //wake loop thread
+    loop_condition_.notify_one();
   }
   catch(std::exception& e)
   {

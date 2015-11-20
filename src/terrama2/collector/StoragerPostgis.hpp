@@ -32,6 +32,9 @@
 
 #include "Storager.hpp"
 
+//Terralib
+#include <terralib/dataaccess/datasource/DataSource.h>
+
 namespace terrama2
 {
   namespace collector
@@ -48,6 +51,7 @@ namespace terrama2
     {
       public:
         StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
+        StoragerPostgis(const std::shared_ptr<te::da::DataSource>& dataSource);
 
         /*!
              * \brief Store a temporary data set in it's final storage area and format.
@@ -55,8 +59,17 @@ namespace terrama2
              *
              * \exception TODO: Storager::store exception...
              */
-        virtual void store(const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+        virtual void store(const std::string& standardDataSetName,
+                           const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                            const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
+
+    private:
+        void commitData(const std::string& destinationDataSetName,
+                        std::shared_ptr<te::da::DataSource> datasourceDestination,
+                        const std::shared_ptr<te::da::DataSetType> &dataSetType,
+                        const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec);
+
+        std::shared_ptr<te::da::DataSource> dataSource_;
 
     };
   }

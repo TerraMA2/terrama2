@@ -192,6 +192,7 @@ CREATE TABLE terrama2.dataset_item
   dataset_id   INTEGER,
   mask         VARCHAR(255),
   timezone     text DEFAULT '+00:00',
+  path         VARCHAR(255),
   CONSTRAINT fk_dataset_data_type_id
     FOREIGN KEY(kind)
     REFERENCES terrama2.dataset_item_type(id)
@@ -255,8 +256,8 @@ INSERT INTO terrama2.filter_expression_type(name, description)
 CREATE TABLE terrama2.filter
 (
   dataset_item_id                   INTEGER NOT NULL PRIMARY KEY,
-  discard_before                    TIMESTAMP,
-  discard_after                     TIMESTAMP,
+  discard_before                    TIMESTAMP with time zone,
+  discard_after                     TIMESTAMP with time zone,
   geom                              GEOMETRY(POLYGON, 4326),
   external_data_id                  INTEGER,
   value                             NUMERIC,
@@ -286,8 +287,8 @@ CREATE TABLE terrama2.data_collection_log
   id SERIAL NOT NULL,
   dataset_item_id INTEGER NOT NULL,
   uri VARCHAR(255) NOT NULL,
-  data_timestamp timestamp without time zone NOT NULL,
-  collect_timestamp timestamp without time zone NOT NULL DEFAULT NOW(),
+  data_timestamp timestamp with time zone NOT NULL,
+  collect_timestamp timestamp with time zone NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_data_collection_log_dataset_item_id
     FOREIGN KEY(dataset_item_id)
     REFERENCES terrama2.dataset_item (id)

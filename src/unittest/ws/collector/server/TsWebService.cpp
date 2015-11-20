@@ -102,7 +102,7 @@ DataSet BuildStructDataSet(int providerId)
 
   for(int i = 0; i < 5; i++)
   {
-    DataSetItem dataset_item{0,0,0,0,"","",0,"","","",std::nan(""),0,""};
+    DataSetItem dataset_item{0,0,0,0,"","","",0,"","","",std::nan(""),0,""};
 
     dataset_item.kind = i + 1;
     dataset_item.id = 0;

@@ -29,6 +29,7 @@
 
 // Qt
 #include <QObject>
+#include <QThread>
 
 // TerraMA2 Test
 #include "TsClient.hpp"
@@ -36,11 +37,10 @@
 
 int main(int argc, char **argv)
 {
-  // VINICIUS: use 'port' to set server and client
-  int port = 1989;
-
 // Define SERVER if you are running a server on seted port
 //#define SERVER server
+
+  std::string project_path = "../../codebase/src/unittest/ws/collector/data/terrama2_test_ws.terrama2";
 
 #ifndef SERVER
 
@@ -48,24 +48,25 @@ int main(int argc, char **argv)
 
   QString program = "./terrama2_mod_ws_collector_appserver";
   QStringList arguments;
-  arguments.append("1989");
-  arguments.append("../../codebase/src/unittest/ws/collector/data/project.json");
+  arguments.append(QString::fromStdString(project_path));
 
 
   QProcess *service = new QProcess(parent);
   service->setWorkingDirectory(QDir::currentPath());
   service->start(program, arguments);
 
-  if(!service->waitForStarted(10000))
+  if(!service->waitForStarted(20000))
   {
     std::cerr << "Error to initialize Web Service: " << service->errorString().toStdString().c_str() << std::endl;
     return service->exitCode();
   }
 
+  QThread::sleep(5);
+
   std::cerr << "Web Service started!" << std::endl;
 #endif
 
-  InitializeTerraMA2();
+  InitializeTerraMA2(project_path);
 
   TsClient testClient;
   int ret = QTest::qExec(&testClient, argc, argv);

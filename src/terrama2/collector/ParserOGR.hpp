@@ -55,16 +55,9 @@ namespace terrama2
                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                           std::shared_ptr<te::da::DataSetType> &datasetType) override;
 
-        virtual void getDataSet(std::shared_ptr<te::da::DataSourceTransactor>& transactor,
-                                const std::string& name,
-                                std::shared_ptr<te::da::DataSet>& dataset,
-                                std::shared_ptr<te::da::DataSetType>& datasetTypeVec);
+        virtual te::da::DataSetTypeConverter getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType);
 
         virtual void adapt(te::da::DataSetTypeConverter& converter){ }
-
-      protected:
-        te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
-
     };
   }
 }

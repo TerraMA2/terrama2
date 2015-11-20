@@ -130,10 +130,17 @@ terrama2::core::DataSetItem::storageMetadata()
   return storageMetadata_;
 }
 
-
 void terrama2::core::DataSetItem::setStorageMetadata(const std::map<std::string, std::string>& sm)
 {
   storageMetadata_ = sm;
 }
 
+std::string terrama2::core::DataSetItem::path() const
+{
+  return path_;
+}
 
+void terrama2::core::DataSetItem::setPath(const std::string& path)
+{
+  path_ = path;
+}
