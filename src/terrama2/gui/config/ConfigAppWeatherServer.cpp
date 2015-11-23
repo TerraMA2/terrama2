@@ -230,7 +230,7 @@ void ConfigAppWeatherServer::validateConnection()
         QString path(ui_->serverPath->text());
 
         // to check base dir
-        if (!path.isEmpty())
+        if (!path.trimmed().isEmpty())
         {
           if (!path.startsWith("/"))
             path.prepend("/");
