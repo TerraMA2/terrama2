@@ -95,9 +95,6 @@ bool ConfigAppWeatherPcd::validate()
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD Name cannot be empty"));
   }
 
-  if (ui_->tblPointPCDFileNameLocation->rowCount() == 0)
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD table must have at least one row"));
-
   // TODO: validate all fields
 
   return true;

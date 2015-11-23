@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QProgressBar>
+#include <QDebug>
 
 // libcurl
 #include <curl/curl.h>
@@ -278,8 +279,14 @@ void ConfigAppWeatherServer::validateConnection()
       case CURLE_LOGIN_DENIED:
         throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Login denied!"));
         break;
+
+      case CURLE_URL_MALFORMAT:
+        qDebug() << curl;
+        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Invalid path!"));
+        break;
+
       default:
-        throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error in connection..."));
+        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error in connection..."));
     }
 
     curl_easy_cleanup(curl);
