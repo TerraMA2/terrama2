@@ -228,8 +228,13 @@ void ConfigAppWeatherServer::validateConnection()
     case terrama2::core::DataProvider::FTP_TYPE:
       {
         QString path(ui_->serverPath->text());
-        if (!path.startsWith("/"))
-          path.prepend("/");
+
+        // to check base dir
+        if (!path.isEmpty())
+        {
+          if (!path.startsWith("/"))
+            path.prepend("/");
+        }
 
         url.setPath(path);
       }
