@@ -79,10 +79,6 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
     //! It retrieves the collector client
     QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
 
-  signals:
-    //! It
-    void notifyActiveTab(ConfigAppTab&, QWidget&);
-
   private slots:
     //! Slot triggered when tab index clicked. It handles global tabs among application
     void tabChangeRequested(int);
