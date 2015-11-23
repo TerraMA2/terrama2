@@ -28,6 +28,6 @@
 get_filename_component(_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
 get_filename_component(_prefix "${_dir}/../../../" ABSOLUTE)
 
-include("${_prefix}/lib/cmake/terralib-@TERRAMA2_VERSION_STRING@/terrama2-exports.cmake")
+include("${_prefix}/lib/cmake/terrama2-@TERRAMA2_VERSION_STRING@/terrama2-exports.cmake")
 
 set(terrama2_INCLUDE_DIRS "${_prefix}/include")
