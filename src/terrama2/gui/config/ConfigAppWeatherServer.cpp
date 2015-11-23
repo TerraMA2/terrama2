@@ -199,19 +199,23 @@ void ConfigAppWeatherServer::onAddressFileBtnClicked()
 void ConfigAppWeatherServer::validateConnection()
 {
   QUrl url;
+  url.setScheme(ui_->connectionProtocol->currentText().toLower());
 
   switch (terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+2))
   {
     case terrama2::core::DataProvider::FILE_TYPE:
       {
-        QDir directory(ui_->serverPath->text());
+        QDir directory;
+        directory.setPath(ui_->serverPath->text());
+
         if (!directory.exists())
         {
           ui_->serverPath->setFocus();
           throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("It is an invalid path"));
         }
 
-        url.setPath(ui_->connectionAddress->text());
+        url.setPath(ui_->serverPath->text());
+        uri_ = url.url();
 
         return;
       }
@@ -247,7 +251,6 @@ void ConfigAppWeatherServer::validateConnection()
   }
 
   url.setHost(ui_->connectionAddress->text());
-  url.setScheme(ui_->connectionProtocol->currentText().toLower());
   url.setUserName(ui_->connectionUserName->text());
   url.setPassword(ui_->connectionPassword->text());
   url.setPort(ui_->connectionPort->text().toInt()); // 0
