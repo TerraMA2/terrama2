@@ -89,6 +89,10 @@ if(NOT DEFINED TERRAMA2_DESTINATION_UNITTEST)
   set(TERRAMA2_DESTINATION_UNITTEST "${TERRAMA2_BASE_DESTINATION_DIR}share/terrama2/unittest")
 endif()
 
+if(NOT DEFINED TERRAMA2_DESTINATION_INTEGRATIONTEST)
+  set(TERRAMA2_DESTINATION_INTEGRATIONTEST "${TERRAMA2_BASE_DESTINATION_DIR}share/terrama2/integrationtest")
+endif()
+
 if(NOT DEFINED TERRAMA2_DESTINATION_LIBRARY)
   set(TERRAMA2_DESTINATION_LIBRARY "${TERRAMA2_BASE_DESTINATION_DIR}lib")
 endif()
@@ -118,6 +122,10 @@ if(NOT DEFINED TERRAMA2_BUILD_UNITTEST_ENABLED)
   set(TERRAMA2_BUILD_UNITTEST_ENABLED ON CACHE BOOL "If on, shows the list of unit-tests to be built")
 endif()
 
+if(NOT DEFINED TERRAMA2_BUILD_INTEGRATIONTEST_ENABLED)
+  set(TERRAMA2_BUILD_INTEGRATIONTEST_ENABLED ON CACHE BOOL "If on, shows the list of integration-tests to be built")
+endif()
+
 
 #
 # global definitions, includes and config
@@ -130,9 +138,9 @@ add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TY
 if(WIN32)
   #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-  if(MINGW)
-    add_definitions(-DTE_MINGW -D_WIN32_WINNT=0x601 -fpermissive)
-  endif()
+  #if(MINGW)
+  #  add_definitions(-DTE_MINGW -D_WIN32_WINNT=0x601 -fpermissive)
+  #endif()
 
 elseif(APPLE)
   add_definitions(-ftemplate-depth-1024)
@@ -168,14 +176,19 @@ endif()
 # Where to find modules (find procedures)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
+if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
+  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../lib")
+endif()
+
 # Compiler options: warning and C++ 11
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang"))
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11")
 endif()
 
 # Turn on multi process compilation on Windows
 if(MSVC)
   add_definitions(/MP)
+  set(CMAKE_DEBUG_POSTFIX "d")
 endif()
 
 # Enable CTest
@@ -239,51 +252,13 @@ if(NOT GSOAP_FOUND)
 endif()
 
 find_package(CURL REQUIRED)
-if (NOT CURL_FOUND)
+
+if(NOT CURL_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required libCURL library!")
 endif()
 
 find_package(GTest)
 find_package(GMock)
-
-
-
-#find_package(Lua)
-
-#find_package(R)
-
-#find_package(PythonLibs)
-
-#find_package(SWIG)
-
-#find_package(Java COMPONENTS Development)
-
-#find_package(JNI)
-
-
-#
-# some variables needed in config file
-#
-
-#if(LUA_FOUND)
-#  set(TERRAMA2_LUA_ENABLED ON)
-#endif()
-
-#if(PYTHONLIBS_FOUND)
-#  set(TERRAMA2_PYTHON_ENABLED ON)
-#endif()
-
-#if(SWIG_FOUND)
-#  set(TERRAMA2_SWIG_ENABLED ON)
-#endif()
-
-#if(JAVA_FOUND)
-#  set(TERRAMA2_JAVA_ENABLED ON)
-#endif()
-
-#if(JNI_FOUND)
-#  set(TERRAMA2_JNI_ENABLED ON)
-#endif()
 
 
 #
@@ -331,25 +306,22 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_INTEGRATION_ENABLED "Build
 # process TerraMA2 configuration files
 #
 
-#configure_file(${CMAKE_SOURCE_DIR}/terrama2-config-pkg.cmake.in
-#               ${CMAKE_BINARY_DIR}/pkg/terrama2-config.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/terrama2-config-pkg.cmake.in
+               ${CMAKE_BINARY_DIR}/pkg/terrama2-config.cmake @ONLY)
 
-#configure_file(${CMAKE_SOURCE_DIR}/terrama2-config-version.cmake.in
-#               ${CMAKE_BINARY_DIR}/terrama2-config-version.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/terrama2-config-version.cmake.in
+               ${CMAKE_BINARY_DIR}/terrama2-config-version.cmake @ONLY)
 
-#configure_file(${CMAKE_SOURCE_DIR}/terrama2-config.cmake.in
-#               ${CMAKE_BINARY_DIR}/terrama2-config.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/terrama2-config.cmake.in
+               ${CMAKE_BINARY_DIR}/terrama2-config.cmake @ONLY)
 
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Config.hpp.in
                ${CMAKE_BINARY_DIR}/terrama2_config.hpp @ONLY)
 
-#configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Defines.hpp.in
-#               ${CMAKE_BINARY_DIR}/terrama2_defines.hpp @ONLY)
-
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/Version.hpp.in
                ${CMAKE_BINARY_DIR}/terrama2_version.hpp @ONLY)
 
-#configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/COPYING ${CMAKE_BINARY_DIR}/COPYING.txt COPYONLY)
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/LICENSE ${CMAKE_BINARY_DIR}/COPYING.txt COPYONLY)
 
 
 #
@@ -362,6 +334,14 @@ endif()
 
 if(TERRAMA2_GUI_CORE_ENABLED)
   add_subdirectory(terrama2_gui_core)
+endif()
+
+if(TERRAMA2_GUI_ADMIN_ENABLED)
+  add_subdirectory(terrama2_gui_admin)
+endif()
+
+if(TERRAMA2_GUI_CONFIG_ENABLED)
+  add_subdirectory(terrama2_gui_config)
 endif()
 
 if(TERRAMA2_MOD_COLLECTOR_ENABLED)
@@ -382,18 +362,6 @@ endif()
 
 if(TERRAMA2_MOD_WS_COLLECTOR_APPSERVER_ENABLED)
   add_subdirectory(terrama2_mod_ws_collector_appserver)
-endif()
-
-if(TERRAMA2_GUI_ADMIN_ENABLED)
-  add_subdirectory(terrama2_gui_admin)
-endif()
-
-if(TERRAMA2_GUI_CONFIG_ENABLED)
-  add_subdirectory(terrama2_gui_config)
-endif()
-
-if(TERRAMA2_DOXYGEN_ENABLED)
-  add_subdirectory(terrama2_doxygen)
 endif()
 
 if(TERRAMA2_UNITTEST_CORE_ENABLED)
@@ -420,6 +388,10 @@ if(TERRAMA2_UNITTEST_WS_COLLECTOR_INTEGRATION_ENABLED)
   add_subdirectory(terrama2_unittest_ws_collector_integration)
 endif()
 
+if(TERRAMA2_DOXYGEN_ENABLED)
+  add_subdirectory(terrama2_doxygen)
+endif()
+
 
 #
 # install and targets export
@@ -432,38 +404,29 @@ install(FILES ${CMAKE_BINARY_DIR}/terrama2_config.hpp
               ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2 COMPONENT devel)
 
-#install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2.hpp
-#        DESTINATION ${TERRAMA2_DESTINATION_HEADERS} COMPONENT devel)
+install(FILES ${TERRAMA2_BINARY_DIR}/pkg/terrama2-config.cmake
+              ${TERRAMA2_BINARY_DIR}/terrama2-config-version.cmake
+        DESTINATION ${TERRAMA2_DESTINATION_LIBRARY}/cmake/terrama2-${TERRAMA2_VERSION_STRING} COMPONENT devel)
 
-#install(FILES ${TERRAMA2_BINARY_DIR}/pkg/terrama2-config.cmake
-#              ${TERRAMA2_BINARY_DIR}/terrama2-config-version.cmake
-#        DESTINATION ${TERRAMA2_DESTINATION_LIBRARY}/cmake/terrama2-${TERRAMA2_VERSION_STRING} COMPONENT devel)
+install(EXPORT terrama2-targets
+        DESTINATION ${TERRAMA2_DESTINATION_LIBRARY}/cmake/terrama2-${TERRAMA2_VERSION_STRING}
+        FILE terrama2-exports.cmake
+        COMPONENT devel)
 
-#install(EXPORT terrama2-targets
-#        DESTINATION ${TERRAMA2_DESTINATION_LIBRARY}/cmake/terrama2-${TERRAMA2_VERSION_STRING}
-#        FILE terrama2-exports.cmake
-#        COMPONENT devel)
-
-#install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/config
-#        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
-
-#install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/icons
-#        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
+install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/icons
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
 
 
 #
 # Track dependencies
 #
 if(TERRAMA2_TRACK_3RDPARTY_DEPENDENCIES)
-  #set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
-
   include(InstallRequiredSystemLibraries)
 
-  #install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
-  #        DESTINATION bin
-  #        COMPONENT runtime)
+  configure_file(${CMAKE_SOURCE_DIR}/terrama2-fix-bundle.cmake.in
+                 ${CMAKE_BINARY_DIR}/FixBundleTerraMA2.cmake @ONLY)
 
-  #add_subdirectory(fix_bundle)
+  install(SCRIPT ${CMAKE_BINARY_DIR}/FixBundleTerraMA2.cmake COMPONENT runtime)
 endif()
 
 
@@ -471,49 +434,50 @@ endif()
 # CPack
 #
 
-#set(CPACK_SOURCE_INSTALLED_DIRECTORIES "${TERRAMA2_ABSOLUTE_ROOT_DIR};/")
+# CPack will use this path to generate a tar.gz or equivalent source package
+set(CPACK_SOURCE_INSTALLED_DIRECTORIES "${TERRAMA2_ABSOLUTE_ROOT_DIR};/")
 
-#configure_file(${TERRAMA2_SOURCE_DIR}/terrama2-cpack-options.cmake.in
-#               ${TERRAMA2_BINARY_DIR}/terrama2CPackOptions.cmake
-#               @ONLY)
+configure_file(${terrama2_SOURCE_DIR}/terrama2-cpack-options.cmake.in
+               ${terrama2_BINARY_DIR}/terrama2CPackOptions.cmake
+               @ONLY)
 
-#set(CPACK_PROJECT_CONFIG_FILE ${TERRAMA2_BINARY_DIR}/terrama2CPackOptions.cmake)
+set(CPACK_PROJECT_CONFIG_FILE ${terrama2_BINARY_DIR}/terrama2CPackOptions.cmake)
 
-#include(CPack)
+include(CPack)
 
 # defining installation types, components and groups
-#cpack_add_install_type(full DISPLAY_NAME "Complete")
-#cpack_add_install_type(minimalistic DISPLAY_NAME "Minimalistic")
+cpack_add_install_type(full DISPLAY_NAME "Complete")
+cpack_add_install_type(minimalistic DISPLAY_NAME "Minimalistic")
 
-#cpack_add_component_group(general_group
-#                          DISPLAY_NAME "Applications"
-#                          DESCRIPTION "TerraMA2 web servers, web clients and GUI applications"
-#                          EXPANDED)
+cpack_add_component_group(general_group
+                          DISPLAY_NAME "Applications"
+                          DESCRIPTION "TerraMA2 web servcies and GUI applications"
+                          EXPANDED)
 
-#cpack_add_component_group(devel_group
-#                          DISPLAY_NAME "Development Tools"
-#                          DESCRIPTION "Development Tools: header files, libraries and cmake stuffs"
-#                          EXPANDED)
+cpack_add_component_group(devel_group
+                          DISPLAY_NAME "Development Tools"
+                          DESCRIPTION "Development Tools: header files, libraries and cmake stuffs"
+                          EXPANDED)
 
-#cpack_add_component(runtime
-#                    DISPLAY_NAME "Runtime Libraries and Executables"
-#                    DESCRIPTION "Install only necessary shared libraries (or DLLs) and executables"
-#                    GROUP general_group
-#                    INSTALL_TYPES full minimalistic)
+cpack_add_component(runtime
+                    DISPLAY_NAME "Runtime Libraries and Executables"
+                    DESCRIPTION "Install only necessary shared libraries (or DLLs) and executables"
+                    GROUP general_group
+                    INSTALL_TYPES full minimalistic)
 
-#cpack_add_component(devel
-#                    DISPLAY_NAME "Development package"
-#                    DESCRIPTION "Install header files, cmake stuffs and additional shared libraries"
-#                    GROUP devel_group
-#                    INSTALL_TYPES full minimalistic)
+cpack_add_component(devel
+                    DISPLAY_NAME "Development package"
+                    DESCRIPTION "Install header files, cmake stuffs and additional shared libraries"
+                    GROUP devel_group
+                    INSTALL_TYPES full minimalistic)
 
 #
 # Uninstall target
 #
 
-#configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-#               "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-#               IMMEDIATE @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+               IMMEDIATE @ONLY)
 
-#add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
