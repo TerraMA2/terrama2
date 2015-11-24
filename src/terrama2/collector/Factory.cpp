@@ -36,6 +36,7 @@
 #include "StoragerPostgis.hpp"
 #include "ParserFirePoint.hpp"
 #include "DataRetriever.hpp"
+#include "DataRetrieverFTP.hpp"
 #include "ParserPostgis.hpp"
 #include "ParserOGR.hpp"
 #include "Exception.hpp"
@@ -119,5 +120,12 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
 
 terrama2::collector::DataRetrieverPtr terrama2::collector::Factory::makeRetriever(const terrama2::core::DataProvider& dataProvider)
 {
+  switch (dataProvider.kind()) {
+    case terrama2::core::DataProvider::FTP_TYPE:
+      return std::make_shared<DataRetrieverFTP>(dataProvider);
+      break;
+    default:
+      break;
+  }
   return std::make_shared<DataRetriever>(dataProvider);
 }

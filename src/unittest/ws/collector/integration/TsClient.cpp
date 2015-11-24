@@ -737,7 +737,7 @@ void TsClient::testUpdateDataSet()
 
     QCOMPARE(dataSet.collectRules().size(), dataSet_updated.collectRules().size());
 
-    for(unsigned int i = 0; i < dataSet.colletRules().size(); i++)
+    for(unsigned int i = 0; i < dataSet.collectRules().size(); i++)
     {
       QCOMPARE(dataSet.collectRules().at(i).datasetId, dataSet_updated.collectRules().at(i).datasetId);
       QCOMPARE(dataSet.collectRules().at(i).id, dataSet_updated.collectRules().at(i).id);
@@ -747,7 +747,7 @@ void TsClient::testUpdateDataSet()
     int j = 0;
     for(auto& x: dataSet.metadata())
     {
-      QCOMPARE(dataSet_updated.metadata().at(j).)
+//      QCOMPARE(dataSet_updated.metadata().at(j).)
 
       j++;
     }

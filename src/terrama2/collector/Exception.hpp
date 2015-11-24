@@ -39,6 +39,9 @@ namespace terrama2
     //! Base exception for CollectorService exceptions
     struct CollectorServiceError : virtual Exception { };
 
+    //! Base exception for DataRetrieverFTP excetptions
+    struct DataRetrieverFTPError : virtual Exception { };
+
     /*!
        \brief Raised when the collector service could not be started.
 

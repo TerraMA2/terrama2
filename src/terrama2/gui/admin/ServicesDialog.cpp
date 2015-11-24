@@ -337,7 +337,8 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
   }
   else
   {
-    QString cmdline = "./" + cmd + " " + QString::number(configManager_.getCollection()->servicePort_) + " " + param;
+  //  QString cmdline = "./" + cmd + " " + QString::number(configManager_.getCollection()->servicePort_) + " " + param;
+     QString cmdline = "./" + cmd + " " + param;
 
     pimpl_->ui_->closeServiceBtn->setEnabled(true);
 

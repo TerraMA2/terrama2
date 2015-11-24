@@ -20,38 +20,48 @@
 */
 
 /*!
-  \file terrama2/collector/DataRetriever.cpp
+  \file terrama2/collector/DataRetrieverFTP.hpp
 
-  \brief Interface for getting remote data to a local temporary file.
+  \brief 
 
-  \author Jano Simas
+ \author Jano Simas
+ \author Evandro Delatin
 */
 
+
+#ifndef __TERRAMA2_COLLECTOR_DATARETRIEVERFTP_HPP__
+#define __TERRAMA2_COLLECTOR_DATARETRIEVERFTP_HPP__
+
+#include <memory>
+#include <cassert>
 #include "DataRetriever.hpp"
 
+#include <curl/curl.h>
 
-terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
+namespace terrama2
 {
-//TODO: review exception: should check valid dataprovider?
-  dataprovider_ = dataprovider;
+  namespace collector
+  {
+    class DataFilter;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
+
+    class DataRetrieverFTP: public DataRetriever
+    {
+    public:
+      explicit DataRetrieverFTP(const core::DataProvider& dataprovider);
+
+      virtual void open() override;
+      virtual bool isOpen() override;
+      virtual void close() override;
+      virtual std::string retrieveData(DataFilterPtr filter) override;
+
+    private:
+      CURL* curl;
+      FILE* ftpfile;
+    };
+
+    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
+  }
 }
 
-std::string terrama2::collector::DataRetriever::retrieveData(terrama2::collector::DataFilterPtr filter)
-{
-  return dataprovider_.uri();
-}
-
-void terrama2::collector::DataRetriever::open()
-{
-
-}
-
-bool terrama2::collector::DataRetriever::isOpen()
-{
-  return true;
-}
-
-void terrama2::collector::DataRetriever::close()
-{
-
-}
+#endif //__TERRAMA2_COLLECTOR_DATARETRIEVERFTP_HPP__

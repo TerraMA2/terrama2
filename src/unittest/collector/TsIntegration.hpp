@@ -37,6 +37,10 @@ class TsIntegration: public QObject
 {
   Q_OBJECT
 
+    void TestReadCsvStorePostGis();
+    void TestReadPostgisStorePostGis();
+
+
 private slots:
 
     void initTestCase(){} // Run before all tests
@@ -47,8 +51,7 @@ private slots:
 
     //******Test functions********
 
-    void TestReadCsvStorePostGis();
-    void TestReadPostgisStorePostGis();
+    void TestCollectorFTP();
 
     //******End of Test functions****
 };
