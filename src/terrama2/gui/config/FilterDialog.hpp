@@ -38,8 +38,6 @@
 
 
 // Forward
-class QDialog;
-
 namespace terrama2
 {
   namespace core
