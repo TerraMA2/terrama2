@@ -404,8 +404,8 @@ install(FILES ${CMAKE_BINARY_DIR}/terrama2_config.hpp
               ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2 COMPONENT devel)
 
-install(FILES ${TERRAMA2_BINARY_DIR}/pkg/terrama2-config.cmake
-              ${TERRAMA2_BINARY_DIR}/terrama2-config-version.cmake
+install(FILES ${CMAKE_BINARY_DIR}/pkg/terrama2-config.cmake
+              ${CMAKE_BINARY_DIR}/terrama2-config-version.cmake
         DESTINATION ${TERRAMA2_DESTINATION_LIBRARY}/cmake/terrama2-${TERRAMA2_VERSION_STRING} COMPONENT devel)
 
 install(EXPORT terrama2-targets
@@ -435,13 +435,26 @@ endif()
 #
 
 # CPack will use this path to generate a tar.gz or equivalent source package
+
+if(CMAKE_SIZEOF_VOID_P MATCHES 8)
+  #64 bits compiler detected
+  set(TERRAMA2_PKG_ARCHITECTURE "x64")
+else()
+  if(CMAKE_SIZEOF_VOID_P MATCHES 4)
+    #32 bits compiler detected
+    set(TERRAMA2_PKG_ARCHITECTURE "x86")
+  else()
+    set(TERRAMA2_PKG_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+  endif()
+endif()
+
 set(CPACK_SOURCE_INSTALLED_DIRECTORIES "${TERRAMA2_ABSOLUTE_ROOT_DIR};/")
 
 configure_file(${terrama2_SOURCE_DIR}/terrama2-cpack-options.cmake.in
-               ${terrama2_BINARY_DIR}/terrama2CPackOptions.cmake
+               ${CMAKE_BINARY_DIR}/terrama2CPackOptions.cmake
                @ONLY)
 
-set(CPACK_PROJECT_CONFIG_FILE ${terrama2_BINARY_DIR}/terrama2CPackOptions.cmake)
+set(CPACK_PROJECT_CONFIG_FILE ${CMAKE_BINARY_DIR}/terrama2CPackOptions.cmake)
 
 include(CPack)
 
