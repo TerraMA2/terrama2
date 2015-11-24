@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file unittest/ws/collector/core/Utils.cpp
+  \file integrationtest/ws/collector/Utils.cpp
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
