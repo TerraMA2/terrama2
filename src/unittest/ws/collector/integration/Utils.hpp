@@ -27,6 +27,8 @@
   \author Vinicius Campanha
 */
 
+#include <iostream>
+
 #ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
 #define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
 
@@ -34,7 +36,7 @@ void InitializeTerralib();
 
 void FinalizeTerralib();
 
-void InitializeTerraMA2();
+void InitializeTerraMA2(std::string project_path);
 
 void FinalizeTerraMA2();
 

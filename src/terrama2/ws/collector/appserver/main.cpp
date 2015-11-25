@@ -223,20 +223,20 @@ int main(int argc, char* argv[])
 
     QJsonObject project = jdoc.object();
 
-
     if(project.contains("collector_web_service"))
     {
     QJsonObject collectionConfig = project["collector_web_service"].toObject();
     port = collectionConfig["port"].toString().toInt();
-    if( port < 1024 || port > 49151)
+
+      if( port < 1024 || port > 49151)
       {
-        std::cerr << "Inform a valid port (between 1024 and 49151) and into the project file in order to run the collector application server." << std::endl;
+        std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
         return EXIT_FAILURE;
       }
     }
     else
     {
-      std::cerr << "Inform a valid port (between 1024 and 49151) and into the project file in order to run the collector application server." << std::endl;
+      std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
       return EXIT_FAILURE;
     }
   }

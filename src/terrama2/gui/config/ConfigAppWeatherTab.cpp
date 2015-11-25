@@ -329,10 +329,21 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         QUrl url(provider.uri().c_str());
         int port = url.port();
 
-        ui_->connectionAddress->setText(url.host() + url.path());
-
         if (port > 0)
           ui_->connectionPort->setText(QString::number(port));
+
+        switch(provider.kind())
+        {
+          case terrama2::core::DataProvider::FILE_TYPE:
+            ui_->serverPath->setText(url.path());
+            break;
+          case terrama2::core::DataProvider::FTP_TYPE:
+            ui_->connectionAddress->setText(url.host());
+            ui_->serverPath->setText(url.path());
+            break;
+          default:
+            ui_->connectionAddress->setText(url.host());
+        }
 
         ui_->connectionUserName->setText(url.userName());
         ui_->connectionPassword->setText(url.password());
@@ -375,11 +386,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->gridFormatDataInterval->setValue(dataset.schedule().getMinutes());
 
                 const std::map<std::string, std::string> metadata = dataset.metadata();
-                auto it = metadata.find("PATH");
-                if (it != metadata.end())
-                  ui_->gridFormatDataPath->setText(it->second.c_str());
-
-                it = metadata.find("UNIT");
+                auto it = metadata.find("UNIT");
                 if (it != metadata.end())
                   ui_->gridFormatDataUnit->setText(it->second.c_str());
 
@@ -395,6 +402,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 if (dataset.dataSetItems().size() > 0)
                 {
                   terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
+                  ui_->gridFormatDataPath->setText(datasetItem.path().c_str());
                   ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
                   ui_->gridFormatDataMask->setText(datasetItem.mask().c_str());
                   ui_->gridFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
@@ -440,11 +448,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->pointDiffFormatDataSecond->setText(QString::number(dataset.dataFrequency().getSeconds()));
 
                 const std::map<std::string, std::string> metadata = dataset.metadata();
-                auto it = metadata.find("PATH");
-                if (it != metadata.end())
-                  ui_->pointDiffFormatDataPath->setText(it->second.c_str());
-
-                it = metadata.find("UNIT");
+                auto it = metadata.find("UNIT");
                 if (it != metadata.end())
                   ui_->pointDiffFormatDataUnit->setText(it->second.c_str());
 
@@ -457,6 +461,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 {
                   terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(dataset.dataSetItems().size() - 1);
                   occurrenceTab->fillFilter(datasetItem.filter());
+                  ui_->pointDiffFormatDataPath->setText(datasetItem.path().c_str());
                   ui_->pointDiffFormatDataMask->setText(datasetItem.mask().c_str());
                   ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
                   ui_->pointDiffFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);

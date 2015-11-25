@@ -59,7 +59,7 @@ void TsClient::cleanupTestCase()
 
 void TsClient::init()
 {
-  adapter_ = new terrama2::ws::collector::client::WebProxyAdapter("http://localhost:1989");
+  adapter_ = new terrama2::ws::collector::client::WebProxyAdapter("http://localhost:32100");
   wsClient_ = new terrama2::ws::collector::client::Client(adapter_);
 
   clearDatabase();
@@ -70,7 +70,7 @@ void TsClient::cleanup()
 {
   clearDatabase();
 
-  delete wsClient_;  
+  delete wsClient_;
 }
 
 
@@ -93,7 +93,7 @@ terrama2::core::DataProvider TsClient::buildDataProvider()
 
   terrama2::core::DataProvider  dataProvider("Data Provider", terrama2::core::DataProvider::Kind::FILE_TYPE, 0);
 
-  dataProvider.setUri("pathDataProvider");
+  dataProvider.setUri("file:///../../../../../../");
   dataProvider.setDescription("Data Provider Description");
   dataProvider.setStatus(terrama2::core::DataProvider::Status::ACTIVE);
 
@@ -103,7 +103,7 @@ terrama2::core::DataProvider TsClient::buildDataProvider()
 
 terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
 {
-  terrama2::core::DataSet dataSet("Data Set Name", terrama2::core::DataSet::Kind::GRID_TYPE, 0, dataProvider_id);
+  terrama2::core::DataSet dataSet("Data Set Name", terrama2::core::DataSet::Kind::OCCURENCE_TYPE, 0, dataProvider_id);
 
   dataSet.setDescription("Data Set Description");
   dataSet.setStatus(terrama2::core::DataSet::Status::ACTIVE);
@@ -132,10 +132,11 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
 
   dataSet.setMetadata(metadata);
 
-  terrama2::core::DataSetItem dataSetItem1(terrama2::core::DataSetItem::Kind(1), 0, 0);
+  terrama2::core::DataSetItem dataSetItem1(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
   dataSetItem1.setMask("mask1");
   dataSetItem1.setStatus(terrama2::core::DataSetItem::Status(2));
   dataSetItem1.setTimezone("-1");
+  dataSetItem1.setPath("codebase/data/fire_system/");
 
   terrama2::core::Filter filter(0);
 
@@ -170,32 +171,34 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
 
   dataSetItem1.setFilter(filter);
 
-  std::map< std::string, std::string > storageMetadata;
+//  std::map< std::string, std::string > storageMetadata;
 
-  storageMetadata["one"] = "two";
-  storageMetadata["two"] = "one";
+//  storageMetadata["one"] = "two";
+//  storageMetadata["two"] = "one";
 
-  dataSetItem1.setStorageMetadata(storageMetadata);
+//  dataSetItem1.setStorageMetadata(storageMetadata);
 
-  terrama2::core::DataSetItem dataSetItem2(terrama2::core::DataSetItem::Kind(2), 0, 0);
+  terrama2::core::DataSetItem dataSetItem2(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
   dataSetItem2.setMask("mask2");
   dataSetItem2.setStatus(terrama2::core::DataSetItem::Status(2));
   dataSetItem2.setTimezone("-2");
 
-  terrama2::core::DataSetItem dataSetItem3(terrama2::core::DataSetItem::Kind(3), 0, 0);
+  terrama2::core::DataSetItem dataSetItem3(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
   dataSetItem3.setMask("mask3");
   dataSetItem3.setStatus(terrama2::core::DataSetItem::Status(2));
   dataSetItem3.setTimezone("-3");
+  dataSetItem3.setPath("codebase/data/fire_system/");;
 
-  terrama2::core::DataSetItem dataSetItem4(terrama2::core::DataSetItem::Kind(4), 0, 0);
+  terrama2::core::DataSetItem dataSetItem4(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
   dataSetItem4.setMask("mask4");
   dataSetItem4.setStatus(terrama2::core::DataSetItem::Status(2));
   dataSetItem4.setTimezone("-4");
 
-  terrama2::core::DataSetItem dataSetItem5(terrama2::core::DataSetItem::Kind(1), 0, 0);
+  terrama2::core::DataSetItem dataSetItem5(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
   dataSetItem5.setMask("mask5");
   dataSetItem5.setStatus(terrama2::core::DataSetItem::Status(2));
   dataSetItem5.setTimezone("-5");
+  dataSetItem5.setPath("codebase/data/fire_system/");;
 
   dataSet.add(dataSetItem1);
   dataSet.add(dataSetItem2);
@@ -560,7 +563,7 @@ void TsClient::TestAddDataSetWithID()
 void TsClient::TestAddDataSetWithWrongDataProviderID()
 {
   try
-  {    
+  {
     terrama2::core::DataSet dataSet = buildDataSet(1);
 
     wsClient_->addDataSet(dataSet);
@@ -674,7 +677,10 @@ void TsClient::testUpdateDataSet()
       dataSet.dataSetItems().at(i).setMask("mask_updated");
       dataSet.dataSetItems().at(i).setStatus(terrama2::core::DataSetItem::Status(1));
       dataSet.dataSetItems().at(i).setTimezone("-17");
-      dataSet.dataSetItems().at(i).setKind(terrama2::core::DataSetItem::Kind(5-i));
+      dataSet.dataSetItems().at(i).setKind(terrama2::core::DataSetItem::PCD_TOA5_TYPE);
+
+      if(!dataSet.dataSetItems().at(i).path().empty())
+        dataSet.dataSetItems().at(i).setPath("Base/path/updated/");
 
       if(i == 0)
       {
@@ -744,13 +750,14 @@ void TsClient::testUpdateDataSet()
       QCOMPARE(dataSet.collectRules().at(i).script, dataSet_updated.collectRules().at(i).script);
     }
 
-    int j = 0;
-    for(auto& x: dataSet.metadata())
-    {
+    // VINICIUS: metadata and DataSet Items tests
+//    int j = 0;
+//    for(auto& x: dataSet.metadata())
+//    {
 //      QCOMPARE(dataSet_updated.metadata().at(j).)
 
-      j++;
-    }
+//      j++;
+//    }
   }
   catch(terrama2::Exception &e)
   {

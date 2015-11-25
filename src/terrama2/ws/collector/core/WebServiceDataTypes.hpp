@@ -55,6 +55,7 @@ struct DataSetItem
   uint32_t      status;
   std::string   mask;
   std::string   timezone;
+  std::string   path;
 
 // the filters values need to be initialized to avoid to create non-existent filters
   uint64_t          filter_datasetItem;

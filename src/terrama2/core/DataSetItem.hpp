@@ -116,9 +116,16 @@ namespace terrama2
         /*! \brief Sets the timezone of the dataset item. */
         void setTimezone(const std::string& tz);
 
+        /*! \brief Returns the path to a dataset item. */
+        std::string path() const;
+
+        /*! \brief Sets the path to a dataset item. */
+        void setPath(const std::string& path);
+
         /*! \brief Returns the dataset to which this item belongs to. */
         uint64_t dataset() const;
-      
+
+        /*! \brief Sets the dataset id */
         void setDataSet(uint64_t id);
 
         /*! \brief Returns the filter to be used when collecting this data item. */
@@ -144,6 +151,7 @@ namespace terrama2
         Status status_;
         std::string mask_;
         std::string timezone_;
+        std::string path_;
         Filter filter_;
         std::map<std::string, std::string> storageMetadata_;
     };
