@@ -274,7 +274,7 @@ void terrama2::collector::CollectorService::threadProcess()
       {
         std::unique_lock<std::mutex> lock(mutex_);
         //wait for new data to be collected
-        thread_condition_.wait(lock, [this] { return !taskQueue_.empty(); });
+        thread_condition_.wait(lock, [this] { return !taskQueue_.empty() || stop_; });
 
         if(stop_)
           break;
@@ -286,8 +286,14 @@ void terrama2::collector::CollectorService::threadProcess()
         }
       }
 
+      if(stop_)
+        break;
+
       if(task.valid())
         task();
+
+      if(stop_)
+        break;
     }
   }
   catch(std::exception& e)
@@ -306,7 +312,7 @@ void terrama2::collector::CollectorService::processingLoop()
     {
       std::unique_lock<std::mutex> lock(mutex_);
       //wait for new data to collect
-      loop_condition_.wait(lock, [this]{ return !collectQueue_.empty(); });
+      loop_condition_.wait(lock, [this]{ return !collectQueue_.empty() || stop_; });
 
       if(stop_)
         break;
@@ -322,11 +328,17 @@ void terrama2::collector::CollectorService::processingLoop()
 
         process(dataProviderId, dataSetQueue);
 
-        collectQueue_.erase(it);
+        if(stop_)
+          break;
       }
+
+      collectQueue_.clear();
 
       //wake collecting threads
       thread_condition_.notify_all();
+
+      if(stop_)
+        break;
     }
     catch(std::exception& e)
     {
