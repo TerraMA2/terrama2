@@ -110,8 +110,8 @@ bool gSoapThread(int port)
 
     qDebug() << "Shutdown Webservice...";
 
+    server.soap_close_socket();
     server.destroy();
-
   }
   catch(boost::exception& e)
   {
@@ -261,7 +261,8 @@ int main(int argc, char* argv[])
     terrama2::collector::CollectorService collectorService;
     collectorService.start();
 
-    app.exec();
+    if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
+      app.exec();
 
     finalizeTerralib();
 
