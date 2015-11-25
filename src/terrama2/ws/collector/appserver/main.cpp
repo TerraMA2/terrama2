@@ -110,8 +110,8 @@ bool gSoapThread(int port)
 
     qDebug() << "Shutdown Webservice...";
 
-    server.soap_close_socket();
-    server.destroy();
+//    server.soap_force_close_socket();
+//    server.destroy();
   }
   catch(boost::exception& e)
   {
