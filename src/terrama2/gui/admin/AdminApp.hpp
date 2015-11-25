@@ -96,6 +96,7 @@ protected:
     void setDataChanged();
     void clearDataChanged();
     void clearFormData();
+    void newFormData();
     void ondbTab();
 
     void itemClicked();
