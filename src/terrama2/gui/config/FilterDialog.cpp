@@ -47,6 +47,8 @@
 #include <QIcon>
 #include <QLineEdit>
 #include <QIntValidator>
+#include <QLocale>
+#include <QDebug>
 
 
 struct FilterDialog::Impl
@@ -261,8 +263,7 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
     {
       QDateTime beforeDate = pimpl_->ui_->datetimeBefore->dateTime();
-      std::unique_ptr<te::dt::TimeInstant> datePtr (
-            new te::dt::TimeInstant(boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
+      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardBefore(std::move(datePtr));
     }
     else
@@ -271,8 +272,7 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
     {
       QDateTime afterDate = pimpl_->ui_->datetimeAfter->dateTime();
-      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(
-                                          boost::posix_time::time_from_string(afterDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
+      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(boost::posix_time::time_from_string(afterDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
       filter.setDiscardAfter(std::move(datePtr));
     }
     else
@@ -362,7 +362,7 @@ void FilterDialog::onFilteredByArea()
 
 void FilterDialog::onBeforeBtnClicked()
 {
-  pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTime());
+  pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTimeUtc());
   pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
   emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
 }
@@ -415,7 +415,7 @@ void FilterDialog::disablePreFields()
 
 void FilterDialog::onAfterBtnClicked()
 {
-  pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTime());
+  pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTimeUtc());
   pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
   emit pimpl_->ui_->dateAfterFilterCbx->clicked();
 }
