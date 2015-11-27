@@ -56,7 +56,7 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
   return matchNames;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType)
 {
   //Find DateTime column
   int dateColumn = -1;
@@ -92,6 +92,16 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
     //Filter Time
     if(dateColumn > 0)
     {
+      if(dataSetLastDateTime_)
+      {
+        if(*dataSetLastDateTime_ < *dataSet->getDateTime(dateColumn))
+          dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
+      }
+      else
+      {
+        dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
+      }
+
       std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
       if(filter.discardBefore() && *dateTime < *filter.discardBefore())
         continue;
@@ -114,8 +124,15 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
   return memDataSet;
 }
 
+
+te::dt::DateTime* terrama2::collector::DataFilter::getDataSetLastDateTime() const
+{
+  return dataSetLastDateTime_.get();
+}
+
 terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem)
-  : datasetItem_(datasetItem)
+  : datasetItem_(datasetItem),
+    dataSetLastDateTime_(nullptr)
 {
 
 }

@@ -62,9 +62,10 @@ namespace terrama2
 
           \exception TODO: Storager::store exception...
          */
-        virtual void store(const std::string& standardDataSetName,
-                           const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                           const std::shared_ptr<te::da::DataSetType> &dataSetType) = 0;
+        virtual std::string store(const std::string& standardDataSetName,
+                                  const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                  const std::shared_ptr<te::da::DataSetType> &dataSetType) = 0;
+
 
       protected:
         std::map<std::string, std::string> storageMetadata_;

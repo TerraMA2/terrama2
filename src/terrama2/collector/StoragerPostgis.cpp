@@ -103,6 +103,8 @@ void terrama2::collector::StoragerPostgis::store(const std::string& standardData
 {
   assert(datasetVec.size() == 1);//FIXME: remove this!
 
+  std::string URI;
+
   try
   {
     if(!dataSource_)
@@ -131,6 +133,7 @@ void terrama2::collector::StoragerPostgis::store(const std::string& standardData
       commitData(standardDataSetName, dataSource_, dataSetType, datasetVec);
 
 
+    URI = "POSTGIS////" + dataSetName;
   }
   catch(terrama2::Exception& e)
   {
