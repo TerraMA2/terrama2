@@ -47,8 +47,6 @@
 #include <QIcon>
 #include <QLineEdit>
 #include <QIntValidator>
-#include <QLocale>
-#include <QDebug>
 
 
 struct FilterDialog::Impl
@@ -416,6 +414,7 @@ void FilterDialog::disablePreFields()
 void FilterDialog::onAfterBtnClicked()
 {
   pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTimeUtc());
+
   pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
   emit pimpl_->ui_->dateAfterFilterCbx->clicked();
 }
