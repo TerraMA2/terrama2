@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/ws/integration/TsClient.cpp
+  \file integrationtest/ws/collector/TsClient.cpp
 
   \brief Tests for the Web Server.
 

@@ -73,9 +73,8 @@ namespace terrama2
        */
       virtual std::string retrieveData(DataFilterPtr filter);
 
-    private:
-      struct Impl;
-      Impl* impl_;
+    protected:
+        terrama2::core::DataProvider dataprovider_;
 
     };
 

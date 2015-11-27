@@ -70,7 +70,7 @@ void TsIntegration::TestReadCsvStorePostGis()
     terrama2::core::DataSet dataset("dummy", terrama2::core::DataSet::OCCURENCE_TYPE);
     dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
-    te::dt::TimeDuration frequency(0, 0, 5);
+    te::dt::TimeDuration frequency(0, 50, 0);
     dataset.setDataFrequency(frequency);
 
     terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
@@ -125,6 +125,82 @@ void TsIntegration::TestReadCsvStorePostGis()
     QFAIL("Std exception...");
   }
 }
+
+void TsIntegration::TestCollectorFTP()
+{
+  QUrl url;
+  url.setHost("200.137.4.175");
+  url.setPath("/pcd/");
+  url.setScheme("FTP");
+  url.setPort(21);
+  url.setUserName("ddpi");
+  url.setPassword("mtv.0789");
+
+  try
+  {
+    terrama2::core::DataProvider provider("dummy", terrama2::core::DataProvider::FTP_TYPE);
+    provider.setStatus(terrama2::core::DataProvider::ACTIVE);
+    provider.setUri(url.url().toStdString());
+
+    terrama2::core::DataSet dataset("dummy", terrama2::core::DataSet::OCCURENCE_TYPE);
+    dataset.setStatus(terrama2::core::DataSet::ACTIVE);
+
+    te::dt::TimeDuration frequency(1, 0, 0);
+    dataset.setDataFrequency(frequency);
+
+    terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
+
+//    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+//                                                        {"PG_HOST", "localhost"},
+//                                                        {"PG_PORT", "5432"},
+//                                                        {"PG_USER", "postgres"},
+//                                                        {"PG_PASSWORD", "postgres"},
+//                                                        {"PG_DB_NAME", "baseteste"},
+//                                                        {"PG_CONNECT_TIMEOUT", "4"},
+//                                                        {"PG_CLIENT_ENCODING", "UTF-8"},
+//                                                        {"PG_SCHEME", "terrama2"},
+//                                                        {"PG_TABLENAME", "data_provider"} };
+//    item.setStorageMetadata(storageMetadata);
+
+    terrama2::collector::CollectorService service;
+    service.start(1);
+
+    std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/collector/data/project.json");
+    bool ok = terrama2::core::ApplicationController::getInstance().loadProject(path);
+    QVERIFY(ok);
+
+    auto& dataManager = terrama2::core::DataManager::getInstance();
+    dataManager.add(provider);
+    provider.add(dataset);
+
+    dataset.add(item);
+    dataManager.add(dataset);
+
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
+    timer.start(15000);
+
+    QApplication::exec();
+
+    dataManager.removeDataProvider(provider.id());
+  }
+  catch(terrama2::Exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL("Terrama2 exception...");
+  }
+  catch(te::common::Exception& e)
+  {
+    qDebug() << e.what();
+    QFAIL("Terralib exception...");
+  }
+  catch(std::exception& e)
+  {
+    qDebug() << e.what();
+    QFAIL("Std exception...");
+  }
+}
+
 
 void TsIntegration::TestReadPostgisStorePostGis()
 {

@@ -152,7 +152,7 @@ void ServicesDialog::setDialogData(QString nameConfig)
   pimpl_->ui_->configLbl->setText(nameConfig);
 
 // Adjusting table size
-  pimpl_->ui_->servicesTable->setRowCount(4);
+  pimpl_->ui_->servicesTable->setRowCount(1); /* Adding line in table */
 
 // Populates the table with data collection
   setLine(0, tr("Coleta"),*configManager_.getCollection());
@@ -337,7 +337,8 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
   }
   else
   {
-    QString cmdline = "./" + cmd + " " + QString::number(configManager_.getCollection()->servicePort_) + " " + param;
+  //  QString cmdline = "./" + cmd + " " + QString::number(configManager_.getCollection()->servicePort_) + " " + param;
+     QString cmdline = "./" + cmd + " " + param;
 
     pimpl_->ui_->closeServiceBtn->setEnabled(true);
 

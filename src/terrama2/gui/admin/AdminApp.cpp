@@ -239,7 +239,7 @@ void AdminApp::newRequested()
     pimpl_->ui_->configListWidget->setCurrentRow(pimpl_->ui_->configListWidget->count()+1);
 
     enableFields(true);
-    clearFormData();
+    newFormData();
     setDataChanged();
 
     bool ok;
@@ -319,6 +319,9 @@ void AdminApp::openRequested()
     pimpl_->ui_->cancelBtn->setEnabled(false);
     pimpl_->ui_->dbCreateDatabaseBtn->setEnabled(true);
     pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
+    auto items = pimpl_->ui_->configListWidget->findItems(configManager_->getDatabase()->name_, Qt::MatchExactly);
+    pimpl_->ui_->configListWidget->setCurrentItem(items[0]);
+
   }
 }
 
@@ -489,6 +492,7 @@ void AdminApp::cancelRequested()
 // Create Database
 void AdminApp::dbCreateDatabaseRequested()
 {
+
   try
   {
     QString err;
@@ -509,7 +513,7 @@ void AdminApp::dbCreateDatabaseRequested()
                                                                         database->host_.toStdString(),
                                                                         database->port_ );
 
-   QMessageBox::information(this, tr("TerraMA2"), tr("Database created successfully!"));
+   QMessageBox::information(this, tr("TerraMA2"), tr("Database created successfully!"));   
   }
 
   catch(const terrama2::Exception& e)
@@ -549,6 +553,7 @@ void AdminApp::dbCreateDatabaseRequested()
   {
     throw;
   }
+
 }
 
 // Check connection Database
@@ -576,9 +581,9 @@ void AdminApp::dbCheckConnectionRequested()
                                                                                  database->port_ );
 
     if (ok)
-      QMessageBox::information(this, tr("TerraMA2"), tr("Connection exists!"));
+      QMessageBox::information(this, tr("TerraMA2"), tr("successfully connected!"));
     else
-      QMessageBox::information(this, tr("TerraMA2"), tr("Connection not exists!"));
+      QMessageBox::information(this, tr("TerraMA2"), tr("Failed to connect!"));
   }
 
   catch(const terrama2::Exception& e)
@@ -766,6 +771,9 @@ void AdminApp::enableFields(bool mode)
   pimpl_->ui_->aqTimeoutMinSpb->setEnabled(mode);
   pimpl_->ui_->aqTimeoutSecSpb->setEnabled(mode);
   pimpl_->ui_->aqDirNameLed->setEnabled(mode);
+
+// TabWidget
+  pimpl_->ui_->tabWidget->setEnabled(mode);
 }
 
 void AdminApp::setDataChanged()
@@ -815,12 +823,33 @@ void AdminApp::ondbTab()
 // Clear Form Data
 void AdminApp::clearFormData()
 {
-  QString hostname = QHostInfo::localHostName();
-
 // fields tab Database
   pimpl_->ui_->dbTypeCmb->setCurrentIndex(0);
   pimpl_->ui_->dbAddressLed->setText("");
   pimpl_->ui_->dbPortLed->setText("");
+  pimpl_->ui_->dbUserLed->setText("");
+  pimpl_->ui_->dbPasswordLed->setText("");
+  pimpl_->ui_->dbDatabaseLed->setText("");
+  pimpl_->ui_->dbStudyChk->setChecked(false);
+
+// fields tab collect
+  pimpl_->ui_->aqAddressLed->setText("");
+  pimpl_->ui_->aqPortLed->setText("");
+  pimpl_->ui_->aqLogFileLed->setText("");
+  pimpl_->ui_->aqTimeoutMinSpb->setValue(3);
+  pimpl_->ui_->aqTimeoutSecSpb->setValue(0);
+  pimpl_->ui_->aqDirNameLed->setText("");
+}
+
+// Add data patterns in a new setting
+void AdminApp::newFormData()
+{
+  QString hostname = QHostInfo::localHostName();
+
+// fields tab Database
+  pimpl_->ui_->dbTypeCmb->setCurrentIndex(0);
+  pimpl_->ui_->dbAddressLed->setText("localhost");
+  pimpl_->ui_->dbPortLed->setText("5432");
   pimpl_->ui_->dbUserLed->setText("");
   pimpl_->ui_->dbPasswordLed->setText("");
   pimpl_->ui_->dbDatabaseLed->setText("");

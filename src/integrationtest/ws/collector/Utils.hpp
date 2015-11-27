@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file unittest/ws/collector/client/Utils.hpp
+  \file integrationtest/ws/collector/Utils.hpp
 
   \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
 
