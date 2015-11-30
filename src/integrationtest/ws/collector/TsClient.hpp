@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/unittest/ws/integration/TsClient.hpp
+  \file integrationtest/ws/collector/TsClient.hpp
 
   \brief Tests for the WebService Client class.
 
