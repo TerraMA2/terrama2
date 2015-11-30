@@ -40,9 +40,24 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 {
   std::string mask = datasetItem_.mask();
 
+  //==============================================
+    std::vector<std::string> vNames;
+    for(const std::string &name : namesList)
+    {
+      //TODO: how is the match? regex?
+       if ((name != ".") && (name != "..") && (name != "..."))
+        vNames.push_back(name);
+    }
+
+    if(mask.empty())
+      return vNames;
+
+  //==============================================
+
+
   //TODO: Implement filterNames
-  if(mask.empty())
-    return namesList;
+//  if(mask.empty())
+//    return namesList;
 
 
   std::vector<std::string> matchNames;
@@ -52,7 +67,7 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
     if(name == mask)
       matchNames.push_back(name);
   }
-
+// %s - representa aaa
   return matchNames;
 }
 
