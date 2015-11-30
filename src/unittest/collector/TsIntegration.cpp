@@ -129,13 +129,33 @@ void TsIntegration::TestReadCsvStorePostGis()
 void TsIntegration::TestCollectorFTP()
 {
   QUrl url;
+  // PCD INPE
+/*
   url.setHost("200.137.4.175");
   url.setPath("/pcd/");
   url.setScheme("FTP");
   url.setPort(21);
   url.setUserName("ddpi");
   url.setPassword("mtv.0789");
-
+*/
+  // Fire
+  url.setHost("ftp.dgi.inpe.br");
+  url.setPath("/focos_operacao/");
+  url.setScheme("FTP");
+  url.setPort(21);
+  url.setUserName("queimadas");
+  url.setPassword("inpe_2012");
+/*
+  // Serie Grade CPTEC INPE PREC_ETA15km
+ // url.setHost("ftp://ftp1.cptec.inpe.br"); // gera erro
+  url.setHost("ftp1.cptec.inpe.br");
+  url.setPath("/modelos/");
+  //url.setPath("/modelos/io/tempo/regional/Eta15km/sismaden/Dir_10m/");
+  url.setScheme("FTP");
+  url.setPort(21);
+  url.setUserName("anonymous");
+  url.setPassword("");
+*/
   try
   {
     terrama2::core::DataProvider provider("dummy", terrama2::core::DataProvider::FTP_TYPE);
