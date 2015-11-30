@@ -82,8 +82,12 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
   QIcon::setThemeName("terrama2");
 
+  std::string path = "share/terrama2/translations/terrama2_config_";
+
+  path += QLocale::system().name().toStdString() + ".qm";
+
 // Set Default Language
-  std::string language_path = terrama2::core::FindInTerraMA2Path("share/terrama2/translations/terrama2_config_en_US.qm");
+  std::string language_path = terrama2::core::FindInTerraMA2Path(path);
 
   if (!language_path.empty())
   {

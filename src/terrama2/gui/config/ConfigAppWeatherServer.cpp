@@ -234,6 +234,9 @@ void ConfigAppWeatherServer::validateConnection()
         {
           if (!path.startsWith("/"))
             path.prepend("/");
+
+          if (!path.endsWith("/"))
+            path.append("/");
         }
 
         url.setPath(path);
