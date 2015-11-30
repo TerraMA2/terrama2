@@ -32,6 +32,7 @@
 #include "DataRetriever.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "Log.hpp"
 #include "Storager.hpp"
 #include "Factory.hpp"
 #include "Parser.hpp"
@@ -210,7 +211,8 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
-          std::string uri = retriever->retrieveData(filter); //Erro ocorrendo aqui
+          uint64_t log_id;
+          std::string uri = retriever->retrieveData(dataSetItem.id(), filter, log_id); //Erro ocorrendo aqui
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -237,13 +239,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           //store dataset
           qDebug() << "starting storager...";
-          storager->store(standardDataSetName, datasetVec, datasetType);
-
-          // VINICIUS: LOG the collected files in terrama2.data_collection_log(get from Filter the timestamp(timestamp from file), URI fom store(), dataSetItemID from dataSetItem)
+          std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
 
           const std::unique_ptr< te::dt::DateTime > lastDateTime = std::unique_ptr< te::dt::DateTime >(filter->getDataSetLastDateTime());
-          dataSetItem.id();
 
+          terrama2::collector::Log::updateLog(log_id, storage_uri, Log::IMPORTED, lastDateTime->toString());
         }
         catch(terrama2::Exception& e)
         {

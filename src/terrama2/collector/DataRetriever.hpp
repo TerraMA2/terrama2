@@ -71,7 +71,7 @@ namespace terrama2
        * \param Filter to the data files.
        * \return Returns a standard Uniform Resource Identifier to the data.
        */
-      virtual std::string retrieveData(DataFilterPtr filter);
+      virtual std::string retrieveData(uint64_t dataSetItemId, DataFilterPtr filter, uint64_t& log_id);
 
     protected:
         terrama2::core::DataProvider dataprovider_;

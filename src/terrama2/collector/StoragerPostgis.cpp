@@ -97,24 +97,24 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
   scopedTransaction.commit();
 }
 
-void terrama2::collector::StoragerPostgis::store(const std::string& standardDataSetName,
+std::string terrama2::collector::StoragerPostgis::store(const std::string& standardDataSetName,
                                                  const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                                                  const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
   assert(datasetVec.size() == 1);//FIXME: remove this!
 
-  std::string URI;
+  std::string uri;
 
   try
   {
+    std::string dataSetName = standardDataSetName;
+
     if(!dataSource_)
     {
       std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
       datasourceDestination->setConnectionInfo(storageMetadata_);
       OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination);
 
-
-      std::string dataSetName = standardDataSetName;
       std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("PG_TABLENAME");
       if(dataSetNameIt != storageMetadata_.end())
       {
@@ -133,7 +133,7 @@ void terrama2::collector::StoragerPostgis::store(const std::string& standardData
       commitData(standardDataSetName, dataSource_, dataSetType, datasetVec);
 
 
-    URI = "POSTGIS////" + dataSetName;
+    uri = "POSTGIS:////" + dataSetName;
   }
   catch(terrama2::Exception& e)
   {
@@ -154,5 +154,5 @@ void terrama2::collector::StoragerPostgis::store(const std::string& standardData
     assert(0);
   }
 
-  return ;
+  return uri;
 }
