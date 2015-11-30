@@ -59,8 +59,27 @@ void terrama2::collector::DataRetrieverFTP::open()
 
 bool terrama2::collector::DataRetrieverFTP::isOpen()
 {
-  //FIXME: how to check if connection is open
+// check if connection is open
+
+  CURLcode status;
+  if(curl)
+  {
+    curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri().c_str());
+    curl_easy_setopt(curl, CURLOPT_FTPLISTONLY, 1);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+
+    status = curl_easy_perform(curl);
+
+    if (status != CURLE_OK)
+      return false;
+  }
+
+  curl_easy_cleanup(curl);
+  curl = curl_easy_init();
+
   return true;
+
 }
 
 void terrama2::collector::DataRetrieverFTP::close()
@@ -77,7 +96,6 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
   FILE *writehere = (FILE *)data;
   return fwrite(ptr, size, nmemb, writehere);
 }
-
 
 std::string terrama2::collector::DataRetrieverFTP::retrieveData(DataFilterPtr filter)
 {
@@ -96,6 +114,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(DataFilterPtr fi
       curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri().c_str());
       // get only the list of files and directories
       curl_easy_setopt(curl, CURLOPT_FTPLISTONLY, ftpfile);
+      curl_easy_setopt(curl, CURLOPT_DIRLISTONLY, 1);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, ftpfile);
       // performs the configurations of curl_easy_setopt
@@ -114,14 +133,12 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(DataFilterPtr fi
       try
       {
         std::ifstream fileList("files.txt");
-
         if (fileList.is_open())
         {
           while(!fileList.eof())
           {
             getline(fileList,line);
-            if (line.find_last_of("/\\") == line.npos)
-              vectorFiles.push_back(line);
+            vectorFiles.push_back(line);
           }
         }
       }
