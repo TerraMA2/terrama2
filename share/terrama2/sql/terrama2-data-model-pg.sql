@@ -286,9 +286,11 @@ CREATE TABLE terrama2.data_collection_log
 (
   id SERIAL NOT NULL,
   dataset_item_id INTEGER NOT NULL,
+  origin_uri VARCHAR(255) NOT NULL,
   uri VARCHAR(255) NOT NULL,
   data_timestamp timestamp with time zone NOT NULL,
   collect_timestamp timestamp with time zone NOT NULL DEFAULT NOW(),
+  status INTEGER NOT NULL,
   CONSTRAINT fk_data_collection_log_dataset_item_id
     FOREIGN KEY(dataset_item_id)
     REFERENCES terrama2.dataset_item (id)
