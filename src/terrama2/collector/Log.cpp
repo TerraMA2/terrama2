@@ -46,11 +46,15 @@ uint64_t terrama2::collector::Log::log(uint64_t dataSetItemId, std::string origi
 
     query.bind_arg(1, dataSetItemId);
     query.bind_arg(2, origin_uri);
-    query.bind_arg(5, (int)s);
+    query.bind_arg(3, (int)s);
 
     transactor->execute(query.str());
 
     return transactor->getLastGeneratedId();
+  }
+  catch(te::common::Exception& e)
+  {
+    throw LogError() << ErrorDescription( e.what());;
   }
   catch(terrama2::Exception& e)
   {
@@ -85,6 +89,10 @@ void terrama2::collector::Log::updateLog(uint64_t id, std::string uri, Status s,
   catch(terrama2::Exception& e)
   {
     throw LogError() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(te::common::Exception& e)
+  {
+    throw LogError() << ErrorDescription( e.what());;
   }
   catch(std::exception& e)
   {
