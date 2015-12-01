@@ -73,8 +73,7 @@ void terrama2::collector::CollectorService::populateData()
 
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
-    stop_(false),
-    factory_(new Factory())
+    stop_(false)
 {
   connectDataManager();
 }

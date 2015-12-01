@@ -49,7 +49,6 @@
 //Qt
 #include <QUrl>
 
-
 terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const std::string& uri, const terrama2::core::DataSetItem& datasetItem)
 {
   QUrl url(uri.c_str());
