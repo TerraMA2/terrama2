@@ -237,7 +237,7 @@ if(NOT CURL_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Curl libraries!")
 endif()
 
-find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem)
+find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem regex)
 
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
