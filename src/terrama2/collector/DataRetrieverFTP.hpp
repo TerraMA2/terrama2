@@ -32,11 +32,20 @@
 #ifndef __TERRAMA2_COLLECTOR_DATARETRIEVERFTP_HPP__
 #define __TERRAMA2_COLLECTOR_DATARETRIEVERFTP_HPP__
 
+// STL
 #include <memory>
 #include <cassert>
+
+// TerraMA2
 #include "DataRetriever.hpp"
 
+// LibCurl
 #include <curl/curl.h>
+
+/*!
+     * \brief The DataRetrieverFTP class performs the download of
+     * occurrences of files, PCD-TOA5, PCD_INPE, GRADES ETA15km..
+     */
 
 namespace terrama2
 {
@@ -53,7 +62,7 @@ namespace terrama2
       virtual void open() override;
       virtual bool isOpen() override;
       virtual void close() override;
-      virtual std::string retrieveData(DataFilterPtr filter) override;
+      virtual std::string retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter) override;
 
     private:
       CURL* curl;
