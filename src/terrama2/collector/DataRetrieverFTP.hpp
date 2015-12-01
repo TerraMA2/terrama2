@@ -53,7 +53,7 @@ namespace terrama2
       virtual void open() override;
       virtual bool isOpen() override;
       virtual void close() override;
-      virtual std::string retrieveData(uint64_t dataSetItemId, DataFilterPtr filter, uint64_t& log_id) override;
+      virtual std::string retrieveData(uint64_t dataSetItemId, DataFilterPtr filter, std::vector< uint64_t >& log_id) override;
 
     private:
       CURL* curl;
