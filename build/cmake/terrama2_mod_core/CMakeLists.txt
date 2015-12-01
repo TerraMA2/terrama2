@@ -51,7 +51,9 @@ qt5_use_modules(terrama2_mod_core Widgets Sql)
 target_link_libraries(terrama2_mod_core terralib_mod_memory
                                         terralib_mod_dataaccess
                                         ${Boost_FILESYSTEM_LIBRARY}
-                                        ${Boost_SYSTEM_LIBRARY})
+                                        ${Boost_SYSTEM_LIBRARY}
+                                        ${Boost_LOG_LIBRARY}
+                                        ${Boost_LOG_SETUP_LIBRARY})
 
 set_target_properties(terrama2_mod_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
