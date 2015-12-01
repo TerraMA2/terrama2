@@ -35,6 +35,7 @@
 #include <cassert>
 
 #include "../core/DataProvider.hpp"
+#include "../core/DataSetItem.hpp"
 
 namespace terrama2
 {
@@ -71,7 +72,8 @@ namespace terrama2
        * \param Filter to the data files.
        * \return Returns a standard Uniform Resource Identifier to the data.
        */
-      virtual std::string retrieveData(uint64_t dataSetItemId, DataFilterPtr filter, std::vector< uint64_t >& log_id);
+
+      virtual std::string retrieveData(terrama2::core::DataSetItem datsetitem, DataFilterPtr filter, std::vector< uint64_t >& log_id);
 
     protected:
         terrama2::core::DataProvider dataprovider_;

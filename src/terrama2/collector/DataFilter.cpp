@@ -27,9 +27,19 @@
   \author Jano Simas
 */
 
+// TerraMA2
 #include "../core/DataSetItem.hpp"
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
+
+// STL
+#include <iostream>
+#include <iterator>
+#include <string>
+
+// BOOST
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 //terralib
 #include <terralib/memory/DataSetItem.h>
@@ -40,34 +50,33 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 {
   std::string mask = datasetItem_.mask();
 
-  //==============================================
-    std::vector<std::string> vNames;
-    for(const std::string &name : namesList)
-    {
-      //TODO: how is the match? regex?
-       if ((name != ".") && (name != "..") && (name != "..."))
-        vNames.push_back(name);
-    }
+  //  std::string mask = "exporta_%A%M%d_%h%m.csv";
 
-    if(mask.empty())
-      return vNames;
-
-  //==============================================
-
-
-  //TODO: Implement filterNames
-//  if(mask.empty())
-//    return namesList;
+  if(mask.empty())
+    mask = "^.*\.(csv|txt|dat|bin|ctl)$";
 
 
   std::vector<std::string> matchNames;
   for(const std::string &name : namesList)
   {
-    //TODO: how is the match? regex?
-    if(name == mask)
+    // match regex
+    boost::replace_all(mask, "%A", "(\\d{4})"); //("%A - ano com quatro digitos"))
+    boost::replace_all(mask, "%a", "(\\d{2})"); //("%a - ano com dois digitos"))
+    boost::replace_all(mask, "%d", "(\\d{2})"); //("%d - dia com dois digitos"))
+    boost::replace_all(mask, "%M", "(\\d{2})"); //("%M - mes com dois digitos"))
+    boost::replace_all(mask, "%h", "(\\d{2})"); //("%h - hora com dois digitos"))
+    boost::replace_all(mask, "%m", "(\\d{2})"); //("%m - minuto com dois digitos"))
+    boost::replace_all(mask, "%s", "(\\d{2})"); //("%s - segundo com dois digitos"))
+    boost::replace_all(mask, "%.", "(\\w{1})");  //("%. - um caracter qualquer"))
+
+    boost::regex regex(mask);
+
+    bool res = boost::regex_match(name,regex);
+    if (res)
       matchNames.push_back(name);
+
   }
-// %s - representa aaa
+
   return matchNames;
 }
 

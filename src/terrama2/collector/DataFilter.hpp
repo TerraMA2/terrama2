@@ -25,6 +25,7 @@
   \brief Filters data.
 
   \author Jano Simas
+  \author Evandro Delatin
 */
 
 

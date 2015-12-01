@@ -99,9 +99,10 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
 }
 
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(uint64_t dataSetItemId, DataFilterPtr filter, std::vector< uint64_t >& log_id)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector< uint64_t >& log_id)
 {
   std::string uri;
+  std::string url;
   std::string line;
   CURLcode status;
   std::vector<std::string> vectorFiles;
@@ -113,7 +114,9 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(uint64_t dataSet
       /* Get a file listing from server */
       // curl_easy_setopt(curl, CURLOPT_URL, "ftp://username@localhost:21/");
       //FIXME: How to differentiate directories files (CURLOPT_WILDCARDMATCH).
-      curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri().c_str());
+      url = dataprovider_.uri() + datasetitem.path();
+      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+      //curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri() + datasetitem.path());
       // get only the list of files and directories
       curl_easy_setopt(curl, CURLOPT_FTPLISTONLY, ftpfile);
       curl_easy_setopt(curl, CURLOPT_DIRLISTONLY, 1);
@@ -178,7 +181,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(uint64_t dataSet
 
         if (curl)
         {
-          uri = dataprovider_.uri()+ file;
+          uri = dataprovider_.uri() + datasetitem.path() + file;
           destFilePath = fopen(("/tmp/"+file).c_str(),"wb");
           curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
           curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
@@ -197,7 +200,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(uint64_t dataSet
 
             fclose(destFilePath);
 
-            log_id.push_back(Log::log(dataSetItemId, uri, Log::DOWNLOADED));
+            log_id.push_back(Log::log(datasetitem.id(), uri, Log::DOWNLOADED));
           }
         }
       }

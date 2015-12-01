@@ -212,7 +212,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
           std::vector< uint64_t > log_id;
-          std::string uri = retriever->retrieveData(dataSetItem.id(), filter, log_id); //Erro ocorrendo aqui
+          std::string uri = retriever->retrieveData(dataSetItem, filter, log_id); //Erro ocorrendo aqui
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
