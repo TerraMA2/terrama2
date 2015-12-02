@@ -54,6 +54,7 @@ target_link_libraries(terrama2_mod_collector terrama2_mod_core
                                              terralib_mod_memory
                                              ${Boost_FILESYSTEM_LIBRARY}
                                              ${Boost_SYSTEM_LIBRARY}
+                                             ${Boost_REGEX_LIBRARY}
                                              ${CURL_LIBRARIES})
 
 set_target_properties(terrama2_mod_collector

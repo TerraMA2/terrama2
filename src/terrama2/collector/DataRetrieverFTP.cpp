@@ -97,9 +97,10 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
   return fwrite(ptr, size, nmemb, writehere);
 }
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(DataFilterPtr filter)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter)
 {
   std::string uri;
+  std::string url;
   std::string line;
   CURLcode status;
   std::vector<std::string> vectorFiles;
@@ -111,7 +112,9 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(DataFilterPtr fi
       /* Get a file listing from server */
       // curl_easy_setopt(curl, CURLOPT_URL, "ftp://username@localhost:21/");
       //FIXME: How to differentiate directories files (CURLOPT_WILDCARDMATCH).
-      curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri().c_str());
+      url = dataprovider_.uri() + datasetitem.path();
+      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+      //curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri() + datasetitem.path());
       // get only the list of files and directories
       curl_easy_setopt(curl, CURLOPT_FTPLISTONLY, ftpfile);
       curl_easy_setopt(curl, CURLOPT_DIRLISTONLY, 1);
@@ -176,7 +179,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(DataFilterPtr fi
 
         if (curl)
         {
-          uri = dataprovider_.uri()+ file;
+          uri = dataprovider_.uri() + datasetitem.path() + file;
           destFilePath = fopen(("/tmp/"+file).c_str(),"wb");
           curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
           curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
