@@ -40,7 +40,9 @@
 
 //STD
 #include <memory>
+#include <algorithm>
 
+//boost
 #include <boost/format/exceptions.hpp>
 
 //terralib
@@ -70,11 +72,14 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
   boost::posix_time::ptime boostDate;
 
   //mask to convert DateTime string to Boost::ptime
-  std::locale format(std::locale::classic(), new boost::posix_time::time_input_facet("%d/%m/%Y %H:%M:%S"));
+  std::locale format(std::locale::classic(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
 
   std::istringstream stream(dateTime);//create stream
   stream.imbue(format);//set format
   stream >> boostDate;//convert to boost::ptime
+
+  if(boostDate == boost::posix_time::ptime())
+    assert(0);
 
   te::dt::DateTime* dt = new te::dt::TimeInstant(boostDate);
 
@@ -103,3 +108,26 @@ void terrama2::collector::ParserPcdInpe::adapt(std::shared_ptr<te::da::DataSetTy
   }
 
 }
+
+void terrama2::collector::ParserPcdInpe::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType)
+{
+  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+    te::dt::Property* propertyClone = p->clone();
+
+    std::string name = propertyClone->getName();
+    size_t dotPos = name.find('.');
+
+    if(dotPos != std::string::npos)
+    {
+      name.erase(std::remove_if(name.begin(), name.begin()+dotPos, &isdigit), name.begin()+dotPos);
+      name.erase(0,1);
+
+      propertyClone->setName(name);
+    }
+
+    converter->add(i, propertyClone);
+  }
+}
+

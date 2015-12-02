@@ -58,6 +58,7 @@ namespace terrama2
         virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType);
 
         virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter){ }
+        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType);
     };
   }
 }

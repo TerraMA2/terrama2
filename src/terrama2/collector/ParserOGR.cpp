@@ -53,16 +53,21 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/common/Exception.h>
 
-std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType)
+void terrama2::collector::ParserOGR::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
-
   for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
   {
     te::dt::Property* p = datasetType->getProperty(i);
 
     converter->add(i,p->clone());
   }
+}
+
+std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType)
+{
+  std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
+
+  addColumns(converter, datasetType);
 
   converter->remove("FID");
   adapt(converter);
