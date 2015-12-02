@@ -53,18 +53,18 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/common/Exception.h>
 
-te::da::DataSetTypeConverter terrama2::collector::ParserOGR::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType)
+std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  te::da::DataSetTypeConverter converter(datasetType.get());
+  std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
 
   for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
   {
     te::dt::Property* p = datasetType->getProperty(i);
 
-    converter.add(i,p->clone());
+    converter->add(i,p->clone());
   }
 
-  converter.remove("FID");
+  converter->remove("FID");
   adapt(converter);
 
   return converter;
@@ -78,26 +78,13 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
   std::lock_guard<std::mutex> lock(mutex_);
 
   try
-  {
-    //create a datasource and open
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
-    std::map<std::string, std::string> connInfo;
+  {    
     QUrl url(uri.c_str());
-    connInfo["URI"] = url.path().toStdString();
-    datasource->setConnectionInfo(connInfo);
+    QDir dir(url.path());
+    QStringList localEntryList = dir.entryList(QDir::Files);
+    std::vector<std::string> names(localEntryList.size());
+    std::transform(localEntryList.begin(), localEntryList.end(), names.begin(), [](const QString& name){ return name.toStdString(); });
 
-    //RAII for open/closing the datasource
-    OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-    if(!datasource->isOpened())
-    {
-      throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                            QObject::tr("DataProvider could not be opened."));
-    }
-
-    // get a transactor to interact to the data source
-    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-    std::vector<std::string> names = transactor->getDataSetNames();
     names = filter->filterNames(names);
 
     if(names.empty())
@@ -106,16 +93,42 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
       return;
     }
 
-
+    std::shared_ptr<te::da::DataSetTypeConverter> converter;
+    bool first = true;
     //prepare the converter to adapt the dataset
-    te::da::DataSetTypeConverter converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(names.at(0))));
-    datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter.getResult()->clone()));
-
-
     for(const std::string& name : names)
     {
-      std::unique_ptr<te::da::DataSet> datasetOrig = transactor->getDataSet(name);
-      std::shared_ptr<te::da::DataSet> dataset = std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), &converter, true));
+      //create a datasource and open
+      std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
+      std::map<std::string, std::string> connInfo;
+      connInfo["URI"] = "CSV:"+url.path().toStdString()+"/"+name;
+      datasource->setConnectionInfo(connInfo);
+
+      //RAII for open/closing the datasource
+      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
+
+      if(!datasource->isOpened())
+      {
+        throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+                                              QObject::tr("ParserOGR::read - DataProvider could not be opened."));
+      }
+
+      // get a transactor to interact to the data source
+      std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+
+      QFileInfo nameInfo(name.c_str());
+      if(first)
+      {
+        converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(nameInfo.baseName().toStdString())));
+        datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+        assert(datasetType);
+        first = false;
+      }
+
+      assert(converter);
+      std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(nameInfo.baseName().toStdString()));
+      assert(datasetOrig);
+      std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 
       datasetVec.push_back(dataset);
     }
@@ -127,11 +140,11 @@ void terrama2::collector::ParserOGR::read(const std::string &uri,
     //TODO: log de erro
     qDebug() << e.what();
     throw UnableToReadDataSetError() << terrama2::ErrorDescription(
-                                          QObject::tr("Terralib exception: ") +e.what());
+                                          QObject::tr("ParserOGR::read - Terralib exception: ") +e.what());
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("Std exception.")+e.what());
+    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("ParserOGR::read - Std exception.")+e.what());
   }
 
   return;

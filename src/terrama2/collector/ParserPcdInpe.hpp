@@ -48,7 +48,7 @@ namespace terrama2
   class ParserPcdInpe: public ParserOGR
   {
    public:
-    virtual void adapt(te::da::DataSetTypeConverter& converter) override;
+    virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) override;
 
     te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
   };

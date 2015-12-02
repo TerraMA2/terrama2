@@ -222,6 +222,10 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::shared_ptr<te::da::DataSetType> datasetType;
           parser->read(uri, filter, datasetVec, datasetType);
 
+          //no new dataset found
+          if(datasetVec.empty())
+            continue;
+
 //          filter dataset data (date, geometry, ...)
           for(int i = 0, size = datasetVec.size(); i < size; ++i)
           {
@@ -231,6 +235,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
             datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
           }
 
+          //standard name
           std::string standardDataSetName = "terrama2.storager_";
           standardDataSetName.append(std::to_string(dataSetItem.id()));
 

@@ -48,7 +48,7 @@ namespace terrama2
   class ParserFirePoint: public ParserOGR
   {
    public:
-    virtual void adapt(te::da::DataSetTypeConverter& converter) override;
+    virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) override;
   };
  }
 }
