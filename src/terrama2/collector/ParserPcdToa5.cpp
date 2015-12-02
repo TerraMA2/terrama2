@@ -71,11 +71,11 @@ te::dt::AbstractData* terrama2::collector::ParserPcdToa5::StringToTimestamp(te::
 }
 
 // Change the string 2014-01-02 17:13:00 - PCD TOA5 format for timestamp
-void terrama2::collector::ParserPcdToa5::adapt(te::da::DataSetTypeConverter&converter)
+void terrama2::collector::ParserPcdToa5::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)
 {
-  converter.remove("TIMESTAMP");
+  converter->remove("TIMESTAMP");
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
-  converter.add(0, dtProperty, boost::bind(&terrama2::collector::ParserPcdToa5::StringToTimestamp, this, _1, _2, _3));
+  converter->add(0, dtProperty, boost::bind(&terrama2::collector::ParserPcdToa5::StringToTimestamp, this, _1, _2, _3));
 }

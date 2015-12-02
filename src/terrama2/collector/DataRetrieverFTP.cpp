@@ -84,9 +84,6 @@ bool terrama2::collector::DataRetrieverFTP::isOpen()
 
 void terrama2::collector::DataRetrieverFTP::close()
 {
-  // close the local file
-  std::fclose(ftpfile);
-
   // always cleanup
   curl_easy_cleanup(curl);
 }
@@ -97,7 +94,7 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
   return fwrite(ptr, size, nmemb, writehere);
 }
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter)
 {
   std::string uri;
   std::string url;

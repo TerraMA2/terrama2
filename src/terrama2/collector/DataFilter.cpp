@@ -50,12 +50,6 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 {
   std::string mask = datasetItem_.mask();
 
-  //  std::string mask = "exporta_%A%M%d_%h%m.csv";
-
-  if(mask.empty())
-    mask = "^.*\.(csv|txt|dat|bin|ctl)$";
-
-
   std::vector<std::string> matchNames;
   for(const std::string &name : namesList)
   {

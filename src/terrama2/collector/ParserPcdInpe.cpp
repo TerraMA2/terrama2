@@ -40,7 +40,9 @@
 
 //STD
 #include <memory>
+#include <algorithm>
 
+//boost
 #include <boost/format/exceptions.hpp>
 
 //terralib
@@ -59,24 +61,73 @@
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/datatype.h>
 
+
+#include <iostream>
+
 te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
 {
   assert(indexes.size() == 1);
 
   std::string dateTime = dataset->getAsString(indexes[0]);
+  boost::posix_time::ptime boostDate;
 
-  te::dt::DateTime* dt = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(dateTime)));
+  //mask to convert DateTime string to Boost::ptime
+  std::locale format(std::locale::classic(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
+
+  std::istringstream stream(dateTime);//create stream
+  stream.imbue(format);//set format
+  stream >> boostDate;//convert to boost::ptime
+
+  if(boostDate == boost::posix_time::ptime())
+    assert(0);
+
+  te::dt::DateTime* dt = new te::dt::TimeInstant(boostDate);
 
   return dt;
 }
 
 // Change the string 07/21/2015 17:13:00 - PCD INPE format for timestamp
-void terrama2::collector::ParserPcdInpe::adapt(te::da::DataSetTypeConverter&converter)
+void terrama2::collector::ParserPcdInpe::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)
 {
-  converter.remove("TIMESTAMP");
+  std::string timestampName = "N/A";
+  converter->remove(timestampName);
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
-  converter.add(0, dtProperty, boost::bind(&terrama2::collector::ParserPcdInpe::StringToTimestamp, this, _1, _2, _3));
+  //Find the rigth column to adapt
+  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
+  for(int i = 0, size = properties.size(); i < size; ++i)
+  {
+    te::dt::Property* property = properties.at(i);
+    if(property->getName() == timestampName)
+    {
+      //column found
+      converter->add(i, dtProperty, boost::bind(&terrama2::collector::ParserPcdInpe::StringToTimestamp, this, _1, _2, _3));
+      break;
+    }
+  }
 
 }
+
+void terrama2::collector::ParserPcdInpe::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType)
+{
+  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+    te::dt::Property* propertyClone = p->clone();
+
+    std::string name = propertyClone->getName();
+    size_t dotPos = name.find('.');
+
+    if(dotPos != std::string::npos)
+    {
+      name.erase(std::remove_if(name.begin(), name.begin()+dotPos, &isdigit), name.begin()+dotPos);
+      name.erase(0,1);
+
+      propertyClone->setName(name);
+    }
+
+    converter->add(i, propertyClone);
+  }
+}
+

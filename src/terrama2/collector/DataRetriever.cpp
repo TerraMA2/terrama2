@@ -36,7 +36,7 @@ terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProv
   dataprovider_ = dataprovider;
 }
 
-std::string terrama2::collector::DataRetriever::retrieveData(terrama2::core::DataSetItem datasetitem, terrama2::collector::DataFilterPtr filter)
+std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, terrama2::collector::DataFilterPtr /*filter*/)
 {
   return dataprovider_.uri();
 }

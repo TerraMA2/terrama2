@@ -92,6 +92,57 @@ namespace terrama2
     private:
       T& obj_;
     };
+
+    //! Class for Resource Acquisition Is Initialization (RAII) of FILE*.
+    class FilePtr
+    {
+    public:
+
+      //! Constructs a null pointer to a file
+      FilePtr()
+        : file_(nullptr)
+      {
+      }
+
+      //! Constructs and open the file fileName with flags
+      FilePtr(const std::string& fileName, const std::string& flags)
+        : file_(nullptr)
+      {
+        open(fileName, flags);
+      }
+
+      //! Open the file fileName with flags
+      void open(const std::string& fileName, const std::string& flags)
+      {
+        close();
+        file_ = std::fopen(fileName.c_str(), flags.c_str());
+      }
+
+      //! Closes the file if open.
+      void close()
+      {
+        if(file_)
+        {
+          std::fclose(file_);
+          file_ = nullptr;
+        }
+      }
+
+      //! Closes the file if open.
+      ~FilePtr()
+      {
+        close();
+      }
+
+      //! Conversion to FILE* operator
+      operator FILE*() const
+      {
+        return file_;
+      }
+
+    private:
+      FILE* file_;
+    };
   }
 }
 

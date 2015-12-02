@@ -33,6 +33,9 @@
 //Qt
 #include <QtTest>
 
+
+
+
 class TsDataFilter: public QObject
 {
   Q_OBJECT
@@ -56,7 +59,6 @@ private slots:
      * \brief Tests behavior with no mask set.
      */
     void TestEmptyMask();
-
 
     //******End of Test functions****
 };

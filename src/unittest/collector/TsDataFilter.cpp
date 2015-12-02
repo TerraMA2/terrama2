@@ -79,6 +79,6 @@ void TsDataFilter::TestEmptyMask()
 
   std::vector<std::string> output = datafilter.filterNames(names);
 
-  QCOMPARE(output, names);
+  QVERIFY(output.size() == 0);
 }
 

@@ -55,10 +55,6 @@ namespace terrama2
 {
   namespace collector
   {
-    // Forward declaration
-    class Factory; // FIXME: redesign factory for global registration of concrete factories
-
-
     /*!
       \class CollectorService
 
@@ -153,6 +149,13 @@ namespace terrama2
         \param Dataset to be removed.
        */
       void removeDataset(const core::DataSet& dataset);
+      /*!
+        \brief Removes a [DataSet]{\ref terrama2::core::DataSet}.
+
+        If the DataSet does not exist nothing is done.
+
+        \param Id of the Dataset to be removed.
+       */
       void removeDatasetById(uint64_t datasetId);
 
       /*!
@@ -181,7 +184,16 @@ namespace terrama2
        */
       void process(const uint64_t provider, const std::vector<uint64_t>& datasets);
 
+      /*!
+        \brief Retrieves, parse, filter and store the data from each dataset.
+        \param dataProvider DataProvider of the data
+        \param dataSetList List of DataSets to be collected.
+       */
       static void collect(const terrama2::core::DataProvider& dataProvider, const std::list<terrama2::core::DataSet>& dataSetList);
+
+      /*!
+       * \brief Thread that will check for new collecting tasks and start next task.
+       */
       void threadProcess();
 
       /*!
@@ -210,21 +222,20 @@ namespace terrama2
     private:
 
       bool stop_;                                               //!< Controls the service thread.
-      std::shared_ptr<Factory> factory_;                        //!< Factory for Parsers, Storagers and Retrievers
       std::map<uint64_t, core::DataProvider> dataproviders_;    //!< The list of data providers. [dataprovider-id] -> dataprovider.
       std::map<uint64_t, core::DataSet> datasets_;              //!< The list of dataset to be collected. [dataset-id] -> dataset.
       std::map<uint64_t, DataSetTimerPtr> timers_;              //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
       std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
 
       std::mutex  mutex_;                                       //!< mutex to thread safety
-      std::future<void> loopThread_;                                  //!< Thread that holds the loop of processing queued dataset.
-      std::condition_variable loop_condition_;
+      std::future<void> loopThread_;                            //!< Thread that holds the loop of processing queued dataset.
+      std::condition_variable loop_condition_;                  //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
 
       std::queue<std::packaged_task<void()> > taskQueue_;       //!< Pool of collecting tasks.
       std::vector<std::future<void> > threadPool_;                     //!< Pool of collecting threads
-      std::condition_variable thread_condition_;
+      std::condition_variable thread_condition_;                  //!< Wait condition for the collecting thread. Wakes when new tasks are available or the service is stopped.
 
-      void populateData();
+      void populateData();                  //!< Populate data based on DataSets and DataProviders already in the DataManager.
     };
   }
 }

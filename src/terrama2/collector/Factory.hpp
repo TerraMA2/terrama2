@@ -54,19 +54,34 @@ namespace terrama2
     typedef std::shared_ptr<Storager> StoragerPtr;
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
 
-    //TODO: review, should be a namespace?
-    //! The CollectorFactory class is responsible for creating the appropriate type of Parsers, Storagers and DataRetrievers.
-    class Factory : public boost::noncopyable
-    {
-    public:
+    /*!
 
-      //! Creates a parser based in URI scheme and dataset format.
-      static ParserPtr makeParser(const std::string& uri, const core::DataSetItem &datasetItem);
-      //! Creates a storager based on datasetitem storage strategy.
-      static StoragerPtr makeStorager(const core::DataSetItem &datasetItem);
+      \brief The Factory namespace has functions the easily create Parsers, Storagers and Retrievers.
+
+     */
+    namespace Factory
+    {
+      /*!
+       * \brief Creates a parser for the specified uri.
+       * \param uri Uri of the data
+       * \param datasetItem DataSetItem to collect
+       * \return A shared_ptr to a parser of the right type.
+       */
+      ParserPtr makeParser(const std::string& uri, const core::DataSetItem &datasetItem);
+
+      /*!
+        \brief Makes a storager based on the storageMetadata of the DataSetItem.
+
+        If no storage metadata, the TerraMA2 configuration database is used.
+
+        \param datasetItem DataSetItem with storage data.
+        \return A shared_ptr to a storager of the right type.
+       */
+      StoragerPtr makeStorager(const core::DataSetItem &datasetItem);
+
       //! Creates a DataRetriever for the DataProvider, if retrieving is not necessary creates a dummy retriever.
-      static DataRetrieverPtr makeRetriever(const core::DataProvider& dataProvider);
-    };
+      DataRetrieverPtr makeRetriever(const core::DataProvider& dataProvider);
+    }
   }
 }
 
