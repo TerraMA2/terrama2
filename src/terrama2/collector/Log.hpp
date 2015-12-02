@@ -50,6 +50,8 @@ namespace terrama2
 
         static uint64_t log(uint64_t dataSetItemId, std::string origin_uri, Status s);
 
+        static void log(uint64_t dataSetItemId, std::vector< std::string > origin_uri, Status s);
+
         static void updateLog(uint64_t id, std::string uri, Status s, std::string data_timestamp);
 
         static void updateLog(std::string origin_uri, std::string uri, Status s, std::string data_timestamp);

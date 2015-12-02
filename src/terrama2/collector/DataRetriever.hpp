@@ -73,7 +73,7 @@ namespace terrama2
        * \return Returns a standard Uniform Resource Identifier to the data.
        */
 
-      virtual std::string retrieveData(terrama2::core::DataSetItem datsetitem, DataFilterPtr filter, std::vector< uint64_t >& log_id);
+      virtual std::string retrieveData(terrama2::core::DataSetItem datsetitem, DataFilterPtr filter, std::vector< std::string >& log_uris);
 
     protected:
         terrama2::core::DataProvider dataprovider_;

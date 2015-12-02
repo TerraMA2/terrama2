@@ -99,7 +99,7 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
 }
 
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector< uint64_t >& log_id)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector< std::string >& log_uris)
 {
   std::string uri;
   std::string url;
@@ -200,7 +200,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::
 
             fclose(destFilePath);
 
-            log_id.push_back(Log::log(datasetitem.id(), uri, Log::DOWNLOADED));
+            log_uris.push_back(uri);
           }
         }
       }

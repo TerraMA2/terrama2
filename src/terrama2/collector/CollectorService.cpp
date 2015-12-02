@@ -211,8 +211,10 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
-          std::vector< uint64_t > log_id;
-          std::string uri = retriever->retrieveData(dataSetItem, filter, log_id); //Erro ocorrendo aqui
+          std::vector< std::string > log_uris;
+          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
+
+          Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -243,9 +245,9 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           const std::unique_ptr< te::dt::DateTime > lastDateTime = std::unique_ptr< te::dt::DateTime >(filter->getDataSetLastDateTime());
 
-          for(auto& id: log_id)
+          for(auto& uri: log_uris)
           {
-            terrama2::collector::Log::updateLog(id, storage_uri, Log::IMPORTED, lastDateTime->toString());
+            terrama2::collector::Log::updateLog(uri, storage_uri, Log::IMPORTED, lastDateTime->toString());
           }
 
         }

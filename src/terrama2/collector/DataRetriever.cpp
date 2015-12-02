@@ -37,7 +37,7 @@ terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProv
 }
 
 
-std::string terrama2::collector::DataRetriever::retrieveData(terrama2::core::DataSetItem datasetitem, terrama2::collector::DataFilterPtr filter, std::vector< uint64_t >& log_id)
+std::string terrama2::collector::DataRetriever::retrieveData(terrama2::core::DataSetItem datasetitem, terrama2::collector::DataFilterPtr filter, std::vector< std::string >& log_uris)
 {
   return dataprovider_.uri();
 }
