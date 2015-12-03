@@ -245,9 +245,13 @@ void terrama2::collector::DataFilter::processMask()
 {
   std::string mask = datasetItem_.mask();
 
+  //used to fix the position of wildcards where real values have different size from wild cards.
   int distance = 0;
+
   std::string::const_iterator it = mask.begin();
-  for(; it != mask.end(); ++it)
+  //wild card use two characters
+  //should not go until the end
+  for(; it != mask.end()-1; ++it)
   {
     //get wildCards positions
 
