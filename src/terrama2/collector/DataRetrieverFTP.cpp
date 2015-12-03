@@ -36,6 +36,7 @@
 #include "DataRetrieverFTP.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "Log.hpp"
 
 // libcurl
 #include <curl/curl.h>

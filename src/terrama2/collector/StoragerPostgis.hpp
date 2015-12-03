@@ -59,9 +59,9 @@ namespace terrama2
              *
              * \exception TODO: Storager::store exception...
              */
-        virtual void store(const std::string& standardDataSetName,
-                           const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                           const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
+        virtual std::string store(const std::string& standardDataSetName,
+                                  const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                  const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
 
     private:
         void commitData(const std::string& destinationDataSetName,

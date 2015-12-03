@@ -45,36 +45,91 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/datatype/Enums.h>
+#include <terralib/datatype/Date.h>
 
 std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std::vector<std::string>& namesList) const
 {
+  const std::string year4Str     = "%A";
+  const std::string year2Str     = "%a";
+  const std::string monthStr     = "%M";
+  const std::string dayStr       = "%d";
+  const std::string hourStr      = "%h";
+  const std::string minuteStr    = "%m";
+  const std::string secondStr    = "%s";
+  const std::string wildCharStr  = "%.";
+
+  int yearPos     = -1;
+  int monthPos    = -1;
+  int dayPos      = -1;
+  int hourPos     = -1;
+  int minutePos   = -1;
+  int secondPos   = -1;
+  int wildCharPos = -1;
+
+  std::basic_string::size_type pos = mask.mask.find('%');
+  while(pos != mask.end())
+  {
+
+    std::string card = mask.substr(pos, 2);
+    if(card == year2Str || card == year4Str)
+      yearPos = pos;
+    else if(card == monthStr)
+      monthPos = pos;
+    else if(card == dayStr)
+      dayPos = pos;
+    else if(card == hourStr)
+      hourPos = pos;
+    else if(card == minuteStr)
+      minutePos = pos;
+    else if(card == secondStr)
+      secondPos = pos;
+    else if(card == wildCharStr)
+      wildCharPos = pos;
+
+    pos = mask.find('%', ++pos);
+  }
+
   std::string mask = datasetItem_.mask();
 
   std::vector<std::string> matchNames;
   for(const std::string &name : namesList)
   {
     // match regex
-    boost::replace_all(mask, "%A", "(\\d{4})"); //("%A - ano com quatro digitos"))
-    boost::replace_all(mask, "%a", "(\\d{2})"); //("%a - ano com dois digitos"))
-    boost::replace_all(mask, "%d", "(\\d{2})"); //("%d - dia com dois digitos"))
-    boost::replace_all(mask, "%M", "(\\d{2})"); //("%M - mes com dois digitos"))
-    boost::replace_all(mask, "%h", "(\\d{2})"); //("%h - hora com dois digitos"))
-    boost::replace_all(mask, "%m", "(\\d{2})"); //("%m - minuto com dois digitos"))
-    boost::replace_all(mask, "%s", "(\\d{2})"); //("%s - segundo com dois digitos"))
-    boost::replace_all(mask, "%.", "(\\w{1})");  //("%. - um caracter qualquer"))
+    boost::replace_all(mask, year4Str,    "(\\d{4})"); //("%A - ano com quatro digitos"))
+    boost::replace_all(mask, year2Str,    "(\\d{2})"); //("%a - ano com dois digitos"))
+    boost::replace_all(mask, monthStr,    "(\\d{2})"); //("%d - dia com dois digitos"))
+    boost::replace_all(mask, dayStr,      "(\\d{2})"); //("%M - mes com dois digitos"))
+    boost::replace_all(mask, hourStr,     "(\\d{2})"); //("%h - hora com dois digitos"))
+    boost::replace_all(mask, minuteStr,   "(\\d{2})"); //("%m - minuto com dois digitos"))
+    boost::replace_all(mask, secondStr,   "(\\d{2})"); //("%s - segundo com dois digitos"))
+    boost::replace_all(mask, wildCharStr, "(\\w{1})");  //("%. - um caracter qualquer"))
 
     boost::regex regex(mask);
 
-    bool res = boost::regex_match(name,regex);
-    if (res)
-      matchNames.push_back(name);
+    boost::match_results<std::string::const_iterator> results;
+    if(boost::regex_search(name, results, regex))
+    {
+      int year = -1;
+      int month = -1;
+      int day = -1;
 
+      for(int i = 0, size = results.size(); i < size; ++i)
+      {
+      }
+
+      boost::gregorian::date boostDate();
+//      te::dt::Date date(boostDate);
+
+//      if((discardBefore && date > discardBefore)
+//         && (discardAfter && date < discardAfter))
+//        matchNames.push_back(name);
+    }
   }
 
   return matchNames;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType)
 {
   //Find DateTime column
   int dateColumn = -1;
@@ -103,21 +158,28 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
     return dataSet;
 
   //Copy dataset to an in-memory dataset filtering the data
-  const core::Filter& filter = datasetItem_.filter();
   auto memDataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
   while(dataSet->moveNext())
   {
     //Filter Time
     if(dateColumn > 0)
     {
+      if(dataSetLastDateTime_)
+      {
+        if(*dataSetLastDateTime_ < *dataSet->getDateTime(dateColumn))
+          dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
+      }
+      else
+      {
+        dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
+      }
+
       std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
-      if(filter.discardBefore() && *dateTime < *filter.discardBefore())
+      if(*discardBefore > *dateTime)
         continue;
 
-      if(filter.discardAfter() && *dateTime > *filter.discardAfter())
+      if(*discardAfter < *dateTime)
         continue;
-
-      //TODO: filter last collection time
     }
 
     te::mem::DataSetItem* dataItem = new te::mem::DataSetItem(dataSet.get());
@@ -132,13 +194,57 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
   return memDataSet;
 }
 
-terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem)
-  : datasetItem_(datasetItem)
-{
 
+te::dt::DateTime* terrama2::collector::DataFilter::getDataSetLastDateTime() const
+{
+  return dataSetLastDateTime_.get();
+}
+
+terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem)
+  : datasetItem_(datasetItem),
+    dataSetLastDateTime_(nullptr)
+{
+  //recover last collection time logged
+  std::shared_ptr<te::dt::DateTime> logTime;//FIXME
+  const core::Filter& filter = datasetItem_.filter();
+
+  if(!filter.discardBefore())
+     discardBefore = logTime;
+  else if(!logTime)
+    discardAfter = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardBefore()->clone()));
+  else if(*filter.discardBefore() < *logTime )
+  {
+    discardBefore = logTime;
+  }
+  else
+    assert(0); //TODO: exception here
+
+  if(filter.discardAfter())
+    discardAfter = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardAfter()->clone()));
 }
 
 terrama2::collector::DataFilter::~DataFilter()
 {
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
