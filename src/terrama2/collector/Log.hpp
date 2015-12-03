@@ -60,7 +60,7 @@ namespace terrama2
 
         static void updateLog(std::string origin_uri, std::string uri, Status s, std::string data_timestamp);
 
-        static std::shared_ptr< te::dt::DateTime > getDataSetItemLastDateTime(int id);
+        static std::shared_ptr< te::dt::DateTime > getDataSetItemLastDateTime(uint64_t id);
     };
   }
 }

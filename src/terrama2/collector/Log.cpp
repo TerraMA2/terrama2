@@ -183,7 +183,7 @@ void terrama2::collector::Log::updateLog(std::string origin_uri, std::string uri
 }
 
 
-std::shared_ptr<te::dt::DateTime> terrama2::collector::Log::getDataSetItemLastDateTime(int id)
+std::shared_ptr<te::dt::DateTime> terrama2::collector::Log::getDataSetItemLastDateTime(uint64_t id)
 {
   std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
 
