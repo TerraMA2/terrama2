@@ -76,6 +76,12 @@ namespace terrama2
      */
     struct UnableToReadDataSetError: virtual ParserError { };
 
+    /*!
+       \brief Raised when failed to log.
+
+     */
+    struct LogError: terrama2::Exception{ };
+
 
 
     //TODO: Not in use

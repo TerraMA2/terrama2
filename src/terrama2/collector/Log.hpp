@@ -20,39 +20,43 @@
 */
 
 /*!
-  \file terrama2/collector/DataRetriever.cpp
+  \file terrama2/collector/Log.cpp
 
-  \brief Interface for getting remote data to a local temporary file.
+  \brief Manage the log of data handled by collector service
 
-  \author Jano Simas
+  \author Vinicius Campanha
 */
 
-#include "DataRetriever.hpp"
+#ifndef __TERRAMA2_COLLECTOR_LOG_HPP__
+#define __TERRAMA2_COLLECTOR_LOG_HPP__
 
+#include <iostream>
 
-terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
+namespace terrama2
 {
-//TODO: review exception: should check valid dataprovider?
-  dataprovider_ = dataprovider;
+  namespace collector
+  {
+    class Log
+    {
+      public:
+
+        enum Status
+        {
+          DOWNLOADED,
+          IMPORTED,
+          FAILED,
+          UNKNOW
+        };
+
+        static uint64_t log(uint64_t dataSetItemId, std::string origin_uri, Status s);
+
+        static void log(uint64_t dataSetItemId, std::vector< std::string > origin_uri, Status s);
+
+        static void updateLog(uint64_t id, std::string uri, Status s, std::string data_timestamp);
+
+        static void updateLog(std::string origin_uri, std::string uri, Status s, std::string data_timestamp);
+    };
+  }
 }
 
-
-std::string terrama2::collector::DataRetriever::retrieveData(terrama2::core::DataSetItem datasetitem, terrama2::collector::DataFilterPtr filter, std::vector< std::string >& log_uris)
-{
-  return dataprovider_.uri();
-}
-
-void terrama2::collector::DataRetriever::open()
-{
-
-}
-
-bool terrama2::collector::DataRetriever::isOpen()
-{
-  return true;
-}
-
-void terrama2::collector::DataRetriever::close()
-{
-
-}
+#endif //__TERRAMA2_COLLECTOR_LOG_HPP__

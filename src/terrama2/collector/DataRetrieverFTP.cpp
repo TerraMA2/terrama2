@@ -36,6 +36,7 @@
 #include "DataRetrieverFTP.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "Log.hpp"
 
 // libcurl
 #include <curl/curl.h>
@@ -97,7 +98,8 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
   return fwrite(ptr, size, nmemb, writehere);
 }
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter)
+
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector< std::string >& log_uris)
 {
   std::string uri;
   std::string url;
@@ -197,6 +199,8 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::
             curl_easy_cleanup(curl);
 
             fclose(destFilePath);
+
+            log_uris.push_back(uri);
           }
         }
       }

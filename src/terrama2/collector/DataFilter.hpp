@@ -76,11 +76,21 @@ namespace terrama2
              *
              * \return Filtered DataSet.
              */
-        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
+        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType);
+
+        /*!
+             * \brief Returns the last timestamp that the DataSetItem has.
+             *
+             * \pre
+             *
+             * \return DateTime with the last timestamp from DataSetItem.
+             */
+        te::dt::DateTime* getDataSetLastDateTime() const;
 
       private:
 
         const core::DataSetItem& datasetItem_;
+        std::unique_ptr< te::dt::DateTime >  dataSetLastDateTime_;
     };
 
     typedef std::shared_ptr<DataFilter> DataFilterPtr;

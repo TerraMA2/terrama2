@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/DataRetrieverFTP.hpp
 
-  \brief 
+  \brief
 
  \author Jano Simas
  \author Evandro Delatin
@@ -62,7 +62,8 @@ namespace terrama2
       virtual void open() override;
       virtual bool isOpen() override;
       virtual void close() override;
-      virtual std::string retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter) override;
+
+      virtual std::string retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris) override;
 
     private:
       CURL* curl;
