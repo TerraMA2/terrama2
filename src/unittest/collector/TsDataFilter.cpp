@@ -40,6 +40,13 @@
 //QT
 #include <QStringList>
 
+//terralib
+#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/Date.h>
+
+//STL
+#include <utility>
+
 void TsDataFilter::TestFilterNamesExact()
 {
   terrama2::core::DataProvider provider;
@@ -92,16 +99,41 @@ void TsDataFilter::TestDateMask()
   dataset.add(dataItem);
   dataItem.setFilter(filter);
 
-  std::string exact("name_%d/%m/%A");
+  std::string exact("name_%d/%M/%A");
   dataItem.setMask(exact);
 
   terrama2::collector::DataFilter datafilter(dataItem);
 
-  std::vector<std::string> names {"name_12/03/2015", "name 12/03/2015 ", "name_12/3/2015", "name_12-03-2015", "name_24/03/2015 "};
+  std::vector<std::string> names {"name_12/03/2015", "name 12/03/2015 ", "name_12/3/2015", "name_12-03-2015", "names_2A/03/2015 "};
 
   names = datafilter.filterNames(names);
 
-  QVERIFY(names.size() == 2);
+  QVERIFY(names.size() == 1);
+}
+
+void TsDataFilter::TestDiscardBeforeMask()
+{
+  terrama2::core::DataProvider provider;
+  terrama2::core::DataSet      dataset;
+  terrama2::core::DataSetItem  dataItem;
+  terrama2::core::Filter       filter;
+  std::unique_ptr<te::dt::TimeInstant> tDate(new te::dt::TimeInstant("20150615T000000"));
+  filter.setDiscardBefore(std::move(tDate));
+
+  provider.add(dataset);
+  dataset.add(dataItem);
+  dataItem.setFilter(filter);
+
+  std::string exact("name_%d/%M/%A");
+  dataItem.setMask(exact);
+
+  terrama2::collector::DataFilter datafilter(dataItem);
+
+  std::vector<std::string> names {"name_12/03/2015", "name_12/07/2014", "name_12/06/2015", "name_16/06/2015", "name_12-11-2015", "name_12/18/2015", };
+
+  names = datafilter.filterNames(names);
+
+  QVERIFY(names.size() == 1);
 }
 
 

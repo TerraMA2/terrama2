@@ -50,6 +50,8 @@ class TsDataFilter: public QObject
    */
   void TestEmptyMask();
 
+  void TestDateMask();
+
 private slots:
 
     void initTestCase(){} // Run before all tests
@@ -60,7 +62,7 @@ private slots:
 
     //******Test functions********
 
-    void TestDateMask();
+    void TestDiscardBeforeMask();
 
     //******End of Test functions****
 };

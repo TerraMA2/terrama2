@@ -46,6 +46,7 @@
 
 //Boost
 #include <boost/noncopyable.hpp>
+#include <boost/regex.hpp>
 
 namespace terrama2
 {
@@ -88,11 +89,36 @@ namespace terrama2
         te::dt::DateTime* getDataSetLastDateTime() const;
 
       private:
+        //! Prepare mask data for wildcards identification
+        void processMask();
 
         const core::DataSetItem& datasetItem_;
         std::unique_ptr< te::dt::DateTime >  dataSetLastDateTime_;
         std::shared_ptr<te::dt::DateTime> discardBefore;
         std::shared_ptr<te::dt::DateTime> discardAfter;
+
+        struct
+        {
+          const std::string year4Str     = "%A";
+          const std::string year2Str     = "%a";
+          const std::string monthStr     = "%M";
+          const std::string dayStr       = "%d";
+          const std::string hourStr      = "%h";
+          const std::string minuteStr    = "%m";
+          const std::string secondStr    = "%s";
+          const std::string wildCharStr  = "%.";
+
+          int year4Pos     = -1;
+          int year2Pos     = -1;
+          int monthPos     = -1;
+          int dayPos       = -1;
+          int hourPos      = -1;
+          int minutePos    = -1;
+          int secondPos    = -1;
+          int wildCharPos  = -1;
+
+          boost::regex regex;
+        } maskData;
     };
 
     typedef std::shared_ptr<DataFilter> DataFilterPtr;
