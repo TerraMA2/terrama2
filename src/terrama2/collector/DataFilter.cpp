@@ -31,6 +31,7 @@
 #include "../core/DataSetItem.hpp"
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
+#include "Log.hpp"
 
 // STL
 #include <iostream>
@@ -214,7 +215,7 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
     dataSetLastDateTime_(nullptr)
 {
   //recover last collection time logged
-  std::shared_ptr<te::dt::DateTime> logTime;//FIXME: get time from log
+  std::shared_ptr<te::dt::DateTime> logTime = Log::getDataSetItemLastDateTime(datasetItem.id());
   const core::Filter& filter = datasetItem_.filter();
 
   if(!filter.discardBefore())

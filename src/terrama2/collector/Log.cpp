@@ -187,7 +187,7 @@ std::shared_ptr<te::dt::DateTime> terrama2::collector::Log::getDataSetItemLastDa
 {
   std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
 
-  boost::format query("select MAX(data_timestamp) from terrama2.data_collection_log where dataset_item_id=%1");
+  boost::format query("select MAX(data_timestamp) from terrama2.data_collection_log where dataset_item_id=%1%");
 
   query.bind_arg(1, id);
 
