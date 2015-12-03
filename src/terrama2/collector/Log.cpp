@@ -121,7 +121,7 @@ void terrama2::collector::Log::updateLog(uint64_t id, std::string uri, Status s,
   {
     std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
 
-    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%'', collect_timestamp=now() WHERE id=%1%");
+    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp='%3%', uri='%4%', collect_timestamp=now() WHERE id=%1%");
 
     query.bind_arg(1, id);
     query.bind_arg(2, (int)s);
@@ -155,7 +155,7 @@ void terrama2::collector::Log::updateLog(std::string origin_uri, std::string uri
   {
     std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
 
-    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%'', collect_timestamp=now() WHERE origin_uri=%1%");
+    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp='%3%', uri='%4%', collect_timestamp=now() WHERE origin_uri='%1%'");
 
     query.bind_arg(1, origin_uri);
     query.bind_arg(2, (int)s);
@@ -180,4 +180,21 @@ void terrama2::collector::Log::updateLog(std::string origin_uri, std::string uri
   {
     throw LogError() << ErrorDescription("terrama2::collector::Log: Unknow error");
   }
+}
+
+
+std::shared_ptr<te::dt::DateTime> terrama2::collector::Log::getDataSetItemLastDateTime(int id)
+{
+  std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
+
+  boost::format query("select MAX(data_timestamp) from terrama2.data_collection_log where dataset_item_id=%1");
+
+  query.bind_arg(1, id);
+
+  std::shared_ptr< te::da::DataSet > dataset = std::shared_ptr< te::da::DataSet >(transactor->query(query.str()));
+
+  if(dataset)
+    return std::shared_ptr< te::dt::DateTime >(dataset->getDateTime("data_timestamp"));
+
+  return nullptr;
 }
