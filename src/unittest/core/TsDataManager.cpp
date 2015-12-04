@@ -39,6 +39,7 @@
 #include <terrama2/core/Filter.hpp>
 #include <terrama2/core/Utils.hpp>
 #include <terrama2/core/Exception.hpp>
+#include <terrama2/core/Intersection.hpp>
 #include <terrama2/Exception.hpp>
 
 //QT
@@ -81,7 +82,7 @@ void TsDataManager::clearDatabase()
     QFAIL("Invalid database transactor");
   }
 
-  transactor->begin();
+  /*transactor->begin();
 
   std::string query = "DELETE FROM terrama2.dataset";
   transactor->execute(query);
@@ -89,7 +90,7 @@ void TsDataManager::clearDatabase()
   query = "DELETE FROM terrama2.data_provider";
   transactor->execute(query);
 
-  transactor->commit();
+  transactor->commit();*/
 }
 
 DataProvider TsDataManager::createDataProvider()
@@ -110,7 +111,7 @@ DataSet TsDataManager::createDataSet()
   DataManager::getInstance().add(dataProvider);
 
   // create a new dataset and save it to the database
-  DataSet dataSet("Queimadas", DataSet::OCCURENCE_TYPE, 0, dataProvider.id());
+  DataSet dataSet("Queimadas", DataSet::GRID_TYPE, 0, dataProvider.id());
   dataSet.setStatus(DataSet::Status::ACTIVE);
 
   te::dt::TimeDuration dataFrequency(2,0,0);
@@ -133,6 +134,19 @@ DataSet TsDataManager::createDataSet()
   metadata["key2"] = "value2";
 
   dataSet.setMetadata(metadata);
+
+  Intersection intersection;
+  std::map<std::string, std::vector<std::string> > attributeMap;
+  std::vector<std::string> attrVec;
+  attrVec.push_back("uf");
+  attrVec.push_back("municipio");
+  attributeMap["public.municipio"]  = attrVec;
+  intersection.setAttributeMap(attributeMap);
+
+  std::map<uint64_t, std::string > bandMap;
+  bandMap[20]  = "";
+  intersection.setBandMap(bandMap);
+  dataSet.setIntersection(intersection);
 
 
   DataSetItem dataSetItem(DataSetItem::PCD_INPE_TYPE, 0, dataSet.id());
@@ -555,6 +569,16 @@ void TsDataManager::testAddDataSet()
     DataSet findDataSet = DataManager::getInstance().findDataSet(dataSet.id());
 
     QVERIFY2(findDataSet.dataSetItems()[0].path() == "path", "Wrong dataset Item Path");
+
+    auto intersection = findDataSet.intersection();
+
+    auto bandMap = intersection.bandMap();
+    QVERIFY2(bandMap.size() == 1, "Wrong number of grid configuration in intersection");
+
+    auto attrMap = intersection.attributeMap();
+    QVERIFY2(attrMap.size() == 1, "Wrong number of attributes in intersection");
+    auto attrVec = attrMap["public.municipio"];
+    QVERIFY2(attrVec.size() == 2, "Wrong number of attributes in intersection");
   }
   catch(boost::exception& e)
   {

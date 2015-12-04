@@ -32,6 +32,8 @@
 #include "ConfigManager.hpp"
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
+#include "../../core/ApplicationController.hpp"
+#include "../../core/DataManager.hpp"
 
 // Qt
 #include <QFile>
@@ -56,8 +58,11 @@ void ConfigManager::loadConfiguration(QString filepath)
 {
   try
   {
+
+    terrama2::core::ApplicationController::getInstance().loadProject(filepath.toStdString());
+    terrama2::core::DataManager::getInstance().load();
     QJsonDocument jdoc = terrama2::core::ReadJsonFile(filepath.toStdString());
-    
+
     QJsonObject metadata = jdoc.object();
 
     name_ = metadata["name"].toString();
@@ -79,7 +84,7 @@ void ConfigManager::loadConfiguration(QString filepath)
 }
 
 void ConfigManager::insertFile(QString newname, QJsonObject metatada)
-{ 
+{
  fileList_.insert(newname,metatada);
  setDataForm(metatada);
 }
@@ -116,7 +121,7 @@ void ConfigManager::setDataForm(QJsonObject metadata)
       QJsonObject collectConfig = metadata["collector_web_service"].toObject();
 
       collection_->dirPath_ = collectConfig["data_path"].toString();
-      collection_->logFile_ = collectConfig["log_file"].toString();     
+      collection_->logFile_ = collectConfig["log_file"].toString();
       collection_->timeout_ = collectConfig["connection_timeout"].toInt();
       collection_->address_ = collectConfig["address"].toString();
       collection_->servicePort_ = collectConfig["port"].toString().toInt();

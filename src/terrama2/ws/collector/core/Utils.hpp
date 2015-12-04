@@ -47,6 +47,7 @@
 #include "../../../core/DataManager.hpp"
 #include "../../../core/DataProvider.hpp"
 #include "../../../core/DataSet.hpp"
+#include "../../../core/Intersection.hpp"
 #include "../../../core/Utils.hpp"
 
 namespace terrama2
@@ -89,7 +90,7 @@ namespace terrama2
 
                 \return terrama2::core::DataSet that contains the data in gSOAP struct DataSet passed.
               */
-        template<typename T1, typename T2, typename StructDataSetCollectRule> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
+        template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
 
 
         /*!
@@ -100,7 +101,26 @@ namespace terrama2
 
                 \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
               */
-        template<typename T1, typename T2, typename StructDataSetCollectRule> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
+        template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
+
+
+        /*!
+          \brief
+
+          \param
+
+          \return
+        */
+        template<typename StructIntersection> StructIntersection DataSetIntersection2Struct(terrama2::core::Intersection intersection);
+
+        /*!
+          \brief
+
+          \param
+
+          \return
+        */
+        template<typename StructIntersection> terrama2::core::Intersection Struct2DataSetIntersection(StructIntersection structIntersection);
 
 
         /*!
@@ -176,7 +196,7 @@ T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvid
 }
 
 
-template<typename T1, typename T2, typename StructDataSetCollectRule>
+template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection>
 terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_dataSet)
 {
   terrama2::core::DataSet dataSet(struct_dataSet.name, terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, struct_dataSet.data_provider_id);
@@ -194,6 +214,7 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
+  dataSet.setIntersection(Struct2DataSetIntersection <StructIntersection> (struct_dataSet.intersection));
   dataSet.setCollectRules(Struct2DataSetCollectRules< StructDataSetCollectRule >(struct_dataSet.dataset_collectRules));
 
   std::map< std::string, std::string > metadata;
@@ -216,7 +237,7 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_
 }
 
 
-template<typename T1, typename T2, typename StructDataSetCollectRule>
+template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection>
 T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet)
 {
   T1 struct_dataSet;
@@ -231,7 +252,7 @@ T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet
   struct_dataSet.schedule = dataSet.schedule().toString();
   struct_dataSet.schedule_retry = dataSet.scheduleRetry().toString();
   struct_dataSet.schedule_timeout = dataSet.scheduleTimeout().toString();
-
+  struct_dataSet.intersection = DataSetIntersection2Struct< StructIntersection >(dataSet.intersection());
   struct_dataSet.dataset_collectRules = DataSetCollectRules2Struct< StructDataSetCollectRule >(dataSet.collectRules());
 
   std::map< std::string, std::string > metadata(dataSet.metadata());
@@ -245,6 +266,62 @@ T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet
   struct_dataSet.dataset_items = DataSetItem2Struct< T2 >(dataSet.dataSetItems());
 
   return struct_dataSet;
+}
+
+
+template<typename StructIntersection>
+StructIntersection terrama2::ws::collector::core::DataSetIntersection2Struct(terrama2::core::Intersection intersection)
+{
+  StructIntersection structDatasetIntersection;
+  structDatasetIntersection.datasetId = intersection.dataset();
+
+  std::map<uint64_t, std::string> bandMap = intersection.bandMap();
+  std::vector<uint64_t> keyVecBand;
+  std::vector<std::string> valuesVecBand;
+  for(auto it = bandMap.begin(); it != bandMap.end(); ++it)
+  {
+    keyVecBand.push_back(it->first);
+    valuesVecBand.push_back(it->second);
+  }
+
+  structDatasetIntersection.bandMap_keys = keyVecBand;
+  structDatasetIntersection.bandMap_values = valuesVecBand;
+
+  auto attrMap = intersection.attributeMap();
+  std::vector<std::string> keyVecAttr;
+  std::vector<std::vector<std::string> > valuesVecAttr;
+  for(auto it = attrMap.begin(); it != attrMap.end(); ++it)
+  {
+    keyVecAttr.push_back(it->first);
+    valuesVecAttr.push_back(it->second);
+  }
+
+  structDatasetIntersection.attributeMap_keys = keyVecAttr;
+  structDatasetIntersection.attributeMap_values = valuesVecAttr;
+
+
+  return structDatasetIntersection;
+}
+
+template<typename StructIntersection> terrama2::core::Intersection terrama2::ws::collector::core::Struct2DataSetIntersection(StructIntersection structIntersection)
+{
+  terrama2::core::Intersection intersection(structIntersection.datasetId);
+
+  std::map<std::string, std::vector<std::string> > attributeMap;
+  for(int i = 0; i < structIntersection.attributeMap_keys.size(); ++i)
+  {
+    attributeMap[structIntersection.attributeMap_keys[i]] = structIntersection.attributeMap_values[i];
+  }
+  intersection.setAttributeMap(attributeMap);
+
+  std::map<uint64_t, std::string> bandMap;
+  for(int i = 0; i < structIntersection.bandMap_keys.size(); ++i)
+  {
+    bandMap[structIntersection.bandMap_keys[i]] = structIntersection.bandMap_values[i];
+  }
+  intersection.setBandMap(bandMap);
+
+  return intersection;
 }
 
 

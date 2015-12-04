@@ -22,33 +22,63 @@
 /*!
   \file terrama2/gui/config/IntersectionDialog.hpp
 
-  \brief It defines the Intersection Form Dialog for Occurrence datasets 
+  \brief It defines the Intersection Form Dialog for Occurrence datasets
 
-  \author Raphael Willian da Costa  
+  \author Raphael Willian da Costa
 */
 
 #ifndef __TERRAMA2_GUI_CONFIG_INTERSECTIONDIALOG_HPP__
 #define __TERRAMA2_GUI_CONFIG_INTERSECTIONDIALOG_HPP__
 
+// STL
+#include <memory>
+#include "../../core/Intersection.hpp"
 
-// boost
-#include <boost/noncopyable.hpp>
 
+// Forward declaration
 
-class IntersectionDialog : public QDialog, private boost::noncopyable
+namespace terrama2
+{
+  namespace core
+  {
+    class Intersection;
+  }
+}
+
+namespace te
+{
+  namespace da
+  {
+    class DataSetType;
+    class DataSourceTransactor;
+  }
+}
+
+class IntersectionDialog : public QDialog
 {
   Q_OBJECT
 
   public:
-    IntersectionDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    IntersectionDialog(const terrama2::core::Intersection& intersection, QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~IntersectionDialog();
+
+    void fillAttributeTable(std::auto_ptr<te::da::DataSetType> dataset);
+    void fillVectorialList(std::auto_ptr<te::da::DataSourceTransactor>& transactor);
+    void fillRasterList(std::auto_ptr<te::da::DataSourceTransactor>& transactor);
+    terrama2::core::Intersection getIntersection() const;
 
   private slots:
     void onOkBtnClicked();
+    void onDatasetSelected();
+    void onRasterSelected(int row, int column);
+    void onAttributeSelected(int row, int column);
+    void showVectorialPage();
+    void showGridPage();
 
   private:
     struct Impl;
     Impl* pimpl_;
+
 };
 
 

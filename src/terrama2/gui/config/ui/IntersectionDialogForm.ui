@@ -27,15 +27,15 @@
         </property>
         <widget class="QWidget" name="themeListPage">
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="0" colspan="2">
+           <widget class="QListWidget" name="themeList"/>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
              <string>Temas estáticos:</string>
             </property>
            </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QListWidget" name="themeList"/>
           </item>
           <item row="0" column="1">
            <widget class="QPushButton" name="goToGridPageBtn">
@@ -52,7 +52,9 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset theme="next"/>
+             <iconset theme="next">
+              <normaloff/>
+             </iconset>
             </property>
            </widget>
           </item>
@@ -303,7 +305,9 @@ p, li { white-space: pre-wrap; }
         <string>Ok</string>
        </property>
        <property name="icon">
-        <iconset theme="confirm"/>
+        <iconset theme="confirm">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -319,7 +323,9 @@ p, li { white-space: pre-wrap; }
         <string>Cancelar</string>
        </property>
        <property name="icon">
-        <iconset theme="cancel"/>
+        <iconset theme="cancel">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
