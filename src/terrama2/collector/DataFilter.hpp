@@ -40,7 +40,7 @@
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/geometry.h>
 
-//STD
+//STL
 #include <string>
 #include <vector>
 

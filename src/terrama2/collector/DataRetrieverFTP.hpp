@@ -43,9 +43,9 @@
 #include <curl/curl.h>
 
 /*!
-     * \brief The DataRetrieverFTP class performs the download of
-     * occurrences of files, PCD-TOA5, PCD_INPE, GRADES ETA15km..
-     */
+   * \brief The DataRetrieverFTP class performs the download of
+   * occurrences of files, PCD-TOA5, PCD_INPE, GRADES ETA15km.
+*/
 
 namespace terrama2
 {
@@ -57,17 +57,20 @@ namespace terrama2
     class DataRetrieverFTP: public DataRetriever
     {
     public:
+      //! Constructor
       explicit DataRetrieverFTP(const core::DataProvider& dataprovider);
 
       virtual void open() override;
       virtual bool isOpen() override;
       virtual void close() override;
-
       virtual std::string retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris) override;
 
+     //! Destructor.
+     ~DataRetrieverFTP();
+
     private:
-      CURL* curl;
-      FILE* ftpfile;
+      CURL* curl_;
+      std::vector<std::string> vectorNames_;
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
