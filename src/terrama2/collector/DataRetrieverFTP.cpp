@@ -84,7 +84,7 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 void terrama2::collector::DataRetrieverFTP::open()
 {
 
-  curl = curl_easy_init();
+  curl_ = curl_easy_init();
 }
 
 bool terrama2::collector::DataRetrieverFTP::isOpen()
@@ -136,7 +136,7 @@ size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 }
 
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
 {
   std::string uriOutput;
   std::string uriInput;
@@ -146,7 +146,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::
 
   try
   {
-    if(curl)
+    if(curl_)
     {
 // Get a file listing from server
       uriInput = dataprovider_.uri() + datasetitem.path();
@@ -206,7 +206,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::
 
             fclose(destFilePath);
 
-            log_uris.push_back(uri);
+            log_uris.push_back(uriInput);
           }
         }
       }
