@@ -32,11 +32,21 @@
 #ifndef __TERRAMA2_COLLECTOR_PARSERPCDTOA5_HPP__
 #define __TERRAMA2_COLLECTOR_PARSERPCDTOA5_HPP__
 
+// TerraMA2
 #include "Parser.hpp"
 #include "Parser.hpp"
 #include "ParserOGR.hpp"
 
+// STL
 #include <mutex>
+
+/*!
+     * \brief The ParserPcdToa5 class is responsible for making the parser file in the format TOA5.
+     *
+     * The The StringToTimeStamp method is responsible for handling the date and time fields
+     * in the format timestamp TOA5 file.
+     *
+*/
 
 namespace terrama2
 {

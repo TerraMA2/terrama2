@@ -31,13 +31,22 @@
 #ifndef __TERRAMA2_COLLECTOR_PARSEROGR_HPP__
 #define __TERRAMA2_COLLECTOR_PARSEROGR_HPP__
 
-#include "Parser.hpp"
-
-//std
+// STL
 #include <mutex>
 
-//terralib
+// TerraLib
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+
+// TerraMA2
+#include "Parser.hpp"
+
+/*!
+     * \brief The ParserOGR class is responsible for dealing with the OGR files.
+     *
+     * The DataSetAdapter is responsible for creating a new daset without primary key.
+     *
+     *
+*/
 
 namespace terrama2
 {

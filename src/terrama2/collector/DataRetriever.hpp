@@ -31,9 +31,11 @@
 #ifndef __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
 #define __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
 
+// STL
 #include <memory>
 #include <cassert>
 
+// TerraMA2
 #include "../core/DataProvider.hpp"
 #include "../core/DataSetItem.hpp"
 
