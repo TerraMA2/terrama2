@@ -37,6 +37,7 @@
 #include "DataRetrieverFTP.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "Log.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -82,12 +83,14 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 
 void terrama2::collector::DataRetrieverFTP::open()
 {
-  curl_ = curl_easy_init();
+
+  curl = curl_easy_init();
 }
 
 bool terrama2::collector::DataRetrieverFTP::isOpen()
 {
 // check if connection is open
+
   CURLcode status;
   if(curl_)
   {
@@ -143,7 +146,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::
 
   try
   {
-    if(curl_)
+    if(curl)
     {
 // Get a file listing from server
       uriInput = dataprovider_.uri() + datasetitem.path();
@@ -202,6 +205,8 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::
             curl_easy_cleanup(curl);
 
             fclose(destFilePath);
+
+            log_uris.push_back(uri);
           }
         }
       }
@@ -221,6 +226,6 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::
     throw DataRetrieverFTPError() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the download files!"));
   }
 
-// returns the absolute path of the folder that contains the files that have been made the download.
+  // returns the absolute path of the folder that contains the files that have been made the download.
   return "file:///tmp/";
 }

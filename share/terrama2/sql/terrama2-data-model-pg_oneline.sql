@@ -138,14 +138,16 @@ COMMENT ON COLUMN terrama2.filter.within_external_data_id IS 'Identifier of the 
 COMMENT ON COLUMN terrama2.filter.band_filter IS 'Bands to exclude from collection';
 
 
-CREATE TABLE terrama2.data_collection_log ( id SERIAL NOT NULL, dataset_item_id INTEGER NOT NULL, uri VARCHAR(255) NOT NULL, data_timestamp timestamp with time zone NOT NULL, collect_timestamp timestamp with time zone NOT NULL DEFAULT NOW(), CONSTRAINT fk_data_collection_log_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE);
+CREATE TABLE terrama2.data_collection_log ( id SERIAL NOT NULL, dataset_item_id INTEGER NOT NULL, origin_uri VARCHAR(255) NOT NULL, uri VARCHAR(255), data_timestamp timestamp with time zone, collect_timestamp timestamp with time zone NOT NULL DEFAULT NOW(), status INTEGER NOT NULL, CONSTRAINT fk_data_collection_log_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE);
 
 COMMENT ON TABLE terrama2.data_collection_log IS 'Store the log of all collected data';
 COMMENT ON COLUMN terrama2.data_collection_log.id IS 'Log identifier';
 COMMENT ON COLUMN terrama2.data_collection_log.dataset_item_id IS 'Dataset item identifier';
-COMMENT ON COLUMN terrama2.data_collection_log.uri IS 'URI to the collected data';
+COMMENT ON COLUMN terrama2.data_collection_log.origin_uri IS 'URI from where data was retrieved';
+COMMENT ON COLUMN terrama2.data_collection_log.uri IS 'URI from where data was imported';
 COMMENT ON COLUMN terrama2.data_collection_log.data_timestamp IS 'Date of the generated data';
 COMMENT ON COLUMN terrama2.data_collection_log.collect_timestamp IS 'Date of the collection by TerraMA';
+COMMENT ON COLUMN terrama2.data_collection_log.status IS 'Status of data in system process';
 
 
 

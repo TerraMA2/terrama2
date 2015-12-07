@@ -32,6 +32,7 @@
 #include "DataRetriever.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "Log.hpp"
 #include "Storager.hpp"
 #include "Factory.hpp"
 #include "Parser.hpp"
@@ -110,7 +111,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
   {
     QString errMsg(tr("Unable to start collector service: %1."));
     errMsg = errMsg.arg(e.what());
-    
+
     throw UnableToStartServiceError() << terrama2::ErrorDescription(errMsg);
   }
 
@@ -148,7 +149,7 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   try
   {
     std::lock_guard<std::mutex> lock (mutex_);
-    
+
     dataproviders_.insert(std::make_pair(provider.id(), provider)); // register the data provider
   }
   catch(const std::exception& e)
@@ -210,7 +211,10 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
-          std::string uri = retriever->retrieveData(dataSetItem, filter);
+          std::vector< std::string > log_uris;
+          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
+
+          Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -237,7 +241,15 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           //store dataset
           qDebug() << "starting storager...";
-          storager->store(standardDataSetName, datasetVec, datasetType);
+          std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
+
+          const std::unique_ptr< te::dt::DateTime > lastDateTime = std::unique_ptr< te::dt::DateTime >(filter->getDataSetLastDateTime());
+
+          for(auto& uri: log_uris)
+          {
+            terrama2::collector::Log::updateLog(uri, storage_uri, Log::IMPORTED, lastDateTime->toString());
+          }
+
         }
         catch(terrama2::Exception& e)
         {
@@ -352,12 +364,12 @@ void terrama2::collector::CollectorService::processingLoop()
 void terrama2::collector::CollectorService::connectDataManager()
 {
   core::DataManager &dataManager = core::DataManager::getInstance();
-  
+
   //DataProvider signals
   connect(&dataManager, &terrama2::core::DataManager::dataProviderAdded,   this, &terrama2::collector::CollectorService::addProvider,    Qt::UniqueConnection);
   connect(&dataManager, &terrama2::core::DataManager::dataProviderRemoved, this, &terrama2::collector::CollectorService::removeProvider, Qt::UniqueConnection);
   connect(&dataManager, &terrama2::core::DataManager::dataProviderUpdated, this, &terrama2::collector::CollectorService::updateProvider, Qt::UniqueConnection);
-  
+
   //dataset signals
   connect(&dataManager, &terrama2::core::DataManager::dataSetAdded  , this, &terrama2::collector::CollectorService::addDataset       , Qt::UniqueConnection);
   connect(&dataManager, &terrama2::core::DataManager::dataSetRemoved, this, &terrama2::collector::CollectorService::removeDatasetById, Qt::UniqueConnection);
@@ -443,10 +455,10 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 // create a new dataset timer and connect the timeout signal to queue
       auto datasetTimer = std::make_shared<DataSetTimer>(dataset); // std::shared_ptr<DataSetTimer>(new DataSetTimer(dataset));
       timers_.insert(std::make_pair(dataset.id(), datasetTimer));
-    
+
       connect(datasetTimer.get(), SIGNAL(timerSignal(uint64_t)), this, SLOT(addToQueue(uint64_t)), Qt::UniqueConnection);
     }
-    
+
 // add to queue to collect a first time
     addToQueue(dataset.id());
   }
