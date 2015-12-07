@@ -34,7 +34,6 @@
 #include "Log.hpp"
 
 // STL
-#include <iostream>
 #include <iterator>
 #include <string>
 
@@ -109,9 +108,9 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
       te::dt::TimeInstant tDate(date, time);
 
       //discard if outside valid date limits
-      if(discardBefore && tDate < *discardBefore)
+      if(discardBefore_ && tDate < *discardBefore_)
         continue;
-      if(discardAfter && tDate > *discardAfter)
+      if(discardAfter_ && tDate > *discardAfter_)
         continue;
 
       //Valid dates !!!!
@@ -131,6 +130,24 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
   }
 
   return matchesList2;
+}
+
+bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
+{
+  //discard out of valid range dates
+  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
+  if(discardBefore_ && *discardBefore_ > *dateTime)
+    return false;
+  if(discardAfter_ && *discardAfter_ < *dateTime)
+    return false;
+
+  //Valid Date!!!
+
+  //update lastDateTime
+  if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
+    dataSetLastDateTime_.reset(dateTime.release());
+
+  return true;
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType)
@@ -165,31 +182,11 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
   auto memDataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
   while(dataSet->moveNext())
   {
-    //Filter Time if has a dateTime column
     if(dateColumn > 0)
     {
-      if(dataSetLastDateTime_)
-      {
-        if(*dataSetLastDateTime_ < *dataSet->getDateTime(dateColumn))
-          dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
-      }
-      else
-      {
-        dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
-      }
-
-      //discard out of valid range dates
-      std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
-      if(discardBefore && *discardBefore > *dateTime)
+      //Filter Time if has a dateTime column
+      if(!validateDate(dateColumn, dataSet))
         continue;
-      if(discardAfter && *discardAfter < *dateTime)
-        continue;
-
-      //Valid Date!!!
-
-      //update lastDateTime
-      if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
-        *dataSetLastDateTime_ = *dateTime;
     }
 
     te::mem::DataSetItem* dataItem = new te::mem::DataSetItem(dataSet.get());
@@ -219,18 +216,18 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
   const core::Filter& filter = datasetItem_.filter();
 
   if(!filter.discardBefore())
-     discardBefore = logTime;
+     discardBefore_ = logTime;
   else if(!logTime)
-    discardBefore = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardBefore()->clone()));
+    discardBefore_ = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardBefore()->clone()));
   else if(*filter.discardBefore() < *logTime )
   {
-    discardBefore = logTime;
+    discardBefore_ = logTime;
   }
   else
     assert(0); //TODO: exception here
 
   if(filter.discardAfter())
-    discardAfter = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardAfter()->clone()));
+    discardAfter_ = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardAfter()->clone()));
 
   //prepare mask data
   processMask();
