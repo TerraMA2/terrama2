@@ -5,7 +5,7 @@ var Config = function() {
 
   this.loadConfigurations = function() {
     $.ajax({
-      url: "/terrama2/config/html.json",
+      url: "/terrama2/webapp/config/html.json",
       dataType: 'json',
       async: false,
       success: function(data) {
@@ -14,7 +14,7 @@ var Config = function() {
     });
 
     $.ajax({
-      url: "/terrama2/config/components.json",
+      url: "/terrama2/webapp/config/components.json",
       dataType: 'json',
       async: false,
       success: function(data) {

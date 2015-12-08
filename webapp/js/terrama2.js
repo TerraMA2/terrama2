@@ -46,7 +46,7 @@ var TerraMA2 = function(components) {
   this.injectStylesheet = injectStylesheet;
   this.fileExists = fileExists;
 
-  $.ajax({ async: false, url: "/terrama2/js/config.terrama2.js", dataType: "script" });
+  $.ajax({ async: false, url: "/terrama2/webapp/js/config.terrama2.js", dataType: "script" });
 
   var config = null;
   config = new Config();
@@ -60,8 +60,8 @@ var TerraMA2 = function(components) {
   var leftBar = null;
 
   for(var i = 0; i < componentsLength; i++) {
-    $.ajax({ async: false, url: "/terrama2/js/components/" + config.getConfJsonComponents()[components[i]] + ".js", dataType: "script" });
-    injectStylesheet("/terrama2/css/components/" + config.getConfJsonComponents()[components[i]] + ".css");
+    $.ajax({ async: false, url: "/terrama2/webapp/js/components/" + config.getConfJsonComponents()[components[i]] + ".js", dataType: "script" });
+    injectStylesheet("/terrama2/webapp/css/components/" + config.getConfJsonComponents()[components[i]] + ".css");
 
     if(components[i] === "MapDisplay") {
       mapDisplay = new MapDisplay();
