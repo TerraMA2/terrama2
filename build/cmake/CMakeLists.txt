@@ -132,7 +132,7 @@ endif()
 #
 
 # Common definitions to all modules
-add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
+add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0 -DBOOST_LOG_DYN_LINK)
 
 # Specific definitions per platform
 if(WIN32)
@@ -255,6 +255,11 @@ find_package(CURL REQUIRED)
 
 if(NOT CURL_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required libCURL library!")
+endif()
+
+find_package(Threads REQUIRED)
+if(NOT THREADS_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required thread library!")
 endif()
 
 find_package(GTest)

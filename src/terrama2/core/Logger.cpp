@@ -1,77 +1,116 @@
 // TerraMA2
 #include "Logger.hpp"
+#include "Exception.hpp"
 
 // Boost
+#include <boost/log/utility/exception_handler.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/attributes/timer.hpp>
-#include <boost/log/support/date_time.hpp>
 
 
-terrama2::core::Logger::Logger(const std::string filename)
-  : log_(new boost::log::sources::logger)
+// TODO: line number of file
+void lineFormatter(const boost::log::record_view& rec, boost::log::formatting_ostream& strm)
 {
-  // temp
-  boost::log::add_file_log(
-        boost::log::keywords::file_name = filename,
-        boost::log::keywords::open_mode = (std::ios_base::app | std::ios_base::out) & ~std::ios_base::in,
-        boost::log::keywords::format = boost::log::expressions::stream
-          << " [" << boost::log::expressions::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d, %H:%M:%S") << "]"
-          << ": <" << boost::log::expressions::attr<SeverityLevel>("Severity")
-          << "> " << boost::log::expressions::message);
+  const auto cont = boost::log::extract<boost::log::attributes::named_scope::value_type >("Scopes", rec);
+  if(cont.empty())
+    return;
 
-  boost::log::add_console_log(
-      std::clog, boost::log::keywords::format = (boost::log::expressions::stream
-                                                 << " ["
-                                                 << boost::log::expressions::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d, %H:%M:%S")
-                                                 << "]"
-                                                 << ": <"
-                                                 << boost::log::expressions::attr<SeverityLevel>("Severity") << "> "
-                                                 << boost::log::expressions::message));
+  auto it = cont->begin();
+  boost::filesystem::path path(it->file_name.c_str());
+  strm << "Line " << it->line << " ";// << rec[boost::log::expressions::smessage];
+}
 
-  boost::log::add_common_attributes();
-
-  BOOST_LOG_SEV(severityLevel_, WARNING) << "logger initialized warning";
-
-  BOOST_LOG_SEV(severityLevel_, CRITICAL) << "logger initialized critical";
-
+terrama2::core::Logger::Logger()
+  : logger_(), sink_(new text_sink)
+{
 }
 
 terrama2::core::Logger::~Logger()
 {
-
 }
 
-void terrama2::core::Logger::write(const std::string& message, const SeverityLevel& level)
+void terrama2::core::Logger::initialize()
 {
-  BOOST_LOG_SEV(severityLevel_, level) << message.c_str();
+  sink_->locked_backend()->auto_flush(true);
+
+  sink_->set_formatter(boost::log::expressions::format("[%1%] <%2%> - %3%") %
+                       boost::log::expressions::attr<boost::posix_time::ptime>("TimeStamp") %
+                       boost::log::expressions::attr<terrama2::core::Logger::SeverityLevel>("Severity") %
+                       boost::log::expressions::smessage);
+
+  // locale
+//  std::locale loc = boost::locale::generator()("en_US.UTF-8");
+//  sink_->imbue(loc);
+
+  boost::log::core::get()->add_sink(sink_);
+
+  boost::log::core::get()->set_exception_handler(boost::log::make_exception_handler<
+      std::runtime_error,
+      std::logic_error
+  >(terrama2::core::Logger::ExceptionHandler()));
+//  boost::log::core::get()->set_exception_handler(boost::log::make_exception_handler<std::runtime_error, std::logic_error>(terrama2::core::Logger::ExceptionHandler()));
+  boost::log::core::get()->add_global_attribute("TimeStamp",boost::log::attributes::local_clock());
+
+//  BOOST_LOG_NAMED_SCOPE("TerraMA2");
+
 }
 
-//Logger& terrama2::core::Logger::operator<<(const std::string& message, const SeverityLevel& level)
-//{
-//  const char *messageLevel = nullptr;
-//
-//  switch (level) {
-//    case NORMAL:
-//      messageLevel = "Normal";
-//      break;
-//    case WARNING:
-//      messageLevel = "Warning";
-//      break;
-//    case ERROR:
-//      messageLevel = "Error";
-//      break;
-//    default:
-//      messageLevel = "Critical";
-//  }
-//
-//  BOOST_LOG_SEV(severityLevel_, level) << messageLevel << message;
-//
-//  return *this;
-//}
+void terrama2::core::Logger::finalize()
+{
+}
+
+void terrama2::core::Logger::addStream(boost::shared_ptr<std::ostream>& stream)
+{
+  sink_->locked_backend()->add_stream(stream);
+}
+
+void terrama2::core::Logger::debug(const char* message)
+{
+  TERRAMA2_LOG(logger_, DEBUG) << message;
+}
+
+void terrama2::core::Logger::ExceptionHandler::operator()(const std::runtime_error &e) const
+{
+  std::cout << "runtime error ocorrido" << std::endl;
+  terrama2::core::Logger::getInstance().warning("RUNTIME ERROR OCCURRED NOW");
+}
+
+void terrama2::core::Logger::ExceptionHandler::operator()(const std::logic_error& e) const
+{
+  std::cout << "logic error ocorrido" << std::endl;
+  terrama2::core::Logger::getInstance().warning("LOGIC ERROR OCCURRED NOW");
+  throw;
+}
+
+std::ostream& operator<< (std::ostream& strm, const terrama2::Exception& exception)
+{
+  const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
+  std::string message = "An exception occurred! \n";
+  if (msg != nullptr)
+    message.append(msg->toStdString().c_str());
+
+  return strm << message;
+}
+
+void terrama2::core::Logger::info(const char* message)
+{
+  TERRAMA2_LOG(logger_, INFO) << message;
+}
+
+void terrama2::core::Logger::warning(const char* message)
+{
+  TERRAMA2_LOG(logger_, WARNING) << message;
+}
+
+terrama2::core::Logger& terrama2::core::Logger::operator<<(const terrama2::Exception& e)
+{
+  const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+  std::string message = "An exception occurred! \n";
+  if (msg != nullptr)
+    message.append(msg->toStdString().c_str());
+
+  TERRAMA2_LOG(logger_, ERROR) << message;
+
+  return *this;
+}
