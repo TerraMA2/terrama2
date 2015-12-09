@@ -12,7 +12,6 @@ var LayerExplorer = function(terrama2) {
 
         var subLayersLength = arrLayers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          //alert(JSON.stringify(arrLayers.Layer[i].Layer));
           //tilesWMSLayers.push(createTileWMS(arrLayers[j].Name));
 
           tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
@@ -145,22 +144,16 @@ var LayerExplorer = function(terrama2) {
     dataType: 'xml',
     async: false,
     data: {
-      url: "http://sigma.cptec.inpe.br/cgi-bin/mapserv",
-      map : "/extra2/sigma/www/webservice/relatorio_queimadas.map",
-      service : "WMS",
-      request : "getCapabilities",
-      version : "1.3.0"
+      url: terrama2.getConfig().getConfJsonServer().URL,
+      params: terrama2.getConfig().getConfJsonServer().CapabilitiesParams
     },
     success: function(data) {
       var xmlText = new XMLSerializer().serializeToString(data);
       capabilities = parser.read(xmlText);
-      //console.log(JSON.stringify(capabilities));
     }
   });
 
   var processedLayers = processLayers(capabilities.Capability.Layer);
-
-  //alert(capabilities.Capability.Layer.Layer);
 
   layersGroups.push(new ol.layer.Group({
     layers: processedLayers,

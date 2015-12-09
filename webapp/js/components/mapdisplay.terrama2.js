@@ -33,7 +33,7 @@ var MapDisplay = function() {
     //layers: [ createLayerBase(url, type, layerName, layerTitle) ],
     view: new ol.View({
       projection: 'EPSG:4326',
-      center: [-55, -15],//ol.proj.fromLonLat([-55, -15]),
+      center: [-55, -15],
       zoom: 3
     })
   });
