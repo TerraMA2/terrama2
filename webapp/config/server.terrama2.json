@@ -1,0 +1,4 @@
+{
+  "URL": "http://sigma.cptec.inpe.br/cgi-bin/mapserv?map=/extra2/sigma/www/webservice/relatorio_queimadas.map",
+  "Type": "mapserver"
+}

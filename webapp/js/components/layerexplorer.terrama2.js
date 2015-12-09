@@ -15,12 +15,12 @@ var LayerExplorer = function(terrama2) {
           //alert(JSON.stringify(arrLayers.Layer[i].Layer));
           //tilesWMSLayers.push(createTileWMS(arrLayers[j].Name));
 
-          tilesWMSLayers.push(mapDisplay.createTileWMS(arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
-          map.addLayer(mapDisplay.createTileWMS(arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
+          tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
+          map.addLayer(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
         }
       } else {
-        tilesWMSLayers.push(mapDisplay.createTileWMS(arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
-        map.addLayer(mapDisplay.createTileWMS(arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
+        tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
+        map.addLayer(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
       }
     }
 
@@ -39,15 +39,15 @@ var LayerExplorer = function(terrama2) {
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
 
-    var div1 = terrama2.getConfig().getConfJsonHTML().TMA2LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().TMA2LiLayer2 +
+    var div1 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
     "<span>" + title + "</span>" +
-    terrama2.getConfig().getConfJsonHTML().TMA2CheckLayer +
-    terrama2.getConfig().getConfJsonHTML().TMA2OpacitySlider;
+    terrama2.getConfig().getConfJsonHTML().CheckLayer +
+    terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
-    var div2 = terrama2.getConfig().getConfJsonHTML().TMA2LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().TMA2LiLayer2 +
+    var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
     "<span><i class='glyphicon glyphicon-plus'></i> " + title + "</span>&nbsp;&nbsp;" +
-    terrama2.getConfig().getConfJsonHTML().TMA2CheckLayer +
-    terrama2.getConfig().getConfJsonHTML().TMA2OpacitySlider;
+    terrama2.getConfig().getConfJsonHTML().CheckLayer +
+    terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
     if (layer.getLayers) {
       var sublayersElem = '';

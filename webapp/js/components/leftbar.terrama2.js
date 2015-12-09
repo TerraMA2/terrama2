@@ -1,6 +1,6 @@
 var LeftBar = function(terrama2) {
 
-  //$('#terrama2-leftbar-container').append(terrama2.getConfig().getConfJsonHTML().TMA2LeftBarVisibilityControlButton);
+  //$('#terrama2-leftbar-container').append(terrama2.getConfig().getConfJsonHTML().LeftBarVisibilityControlButton);
 
   $(document).ready(function() {
     $('.terrama2-leftbar-button').on('click', function(e) {
@@ -34,7 +34,7 @@ var LeftBar = function(terrama2) {
 
           $("#" + box).animate({ width:'25em', padding:'1em', opacity:1 }, { duration: 300, queue: false });
 
-          $(this).append(terrama2.getConfig().getConfJsonHTML().TMA2LeftBarButtonArrow)
+          $(this).append(terrama2.getConfig().getConfJsonHTML().LeftBarButtonArrow)
           $(this).addClass("active");
         } else {
           $(".terrama2-right-arrow").remove();
