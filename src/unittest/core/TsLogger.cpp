@@ -23,7 +23,10 @@ void TsLogger::testLoad()
   terrama2::core::Logger::getInstance() << exception;
 
   for(int i = 0; i < 50; ++i)
-    terrama2::core::Logger::getInstance().info("Lorem Ipsummmm ");
+    if (i % 2 == 0)
+      terrama2::core::Logger::getInstance().info("Lorem Ipsummmm ");
+    else
+      terrama2::core::Logger::getInstance().warning("Warning Lorem Ipsummmm ");
 
 }
 

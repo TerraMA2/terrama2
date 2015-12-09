@@ -20,8 +20,6 @@
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <boost/log/utility/exception_handler.hpp>
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(my_logger, boost::log::sources::channel_logger_mt< >,
-                                         (boost::log::keywords::channel = "general"))
 
 #define TERRAMA2_LOG(logger, severity) BOOST_LOG_SEV(logger, severity) \
                                         << boost::log::add_value("RecordLine", __LINE__) \
@@ -42,6 +40,8 @@ namespace terrama2
       friend class te::common::Singleton<Logger>;
 
       public:
+
+        struct SeverityTag;
 
         enum SeverityLevel
         {
@@ -71,11 +71,13 @@ namespace terrama2
         void debug(const char* message);
         void info(const char* message);
         void warning(const char* message);
+        void trace(const char* message);
+        void fatal(const char* message);
 
         void addStream(boost::shared_ptr<std::ostream>& stream);
-//        void setFormatter(const boost::log::formatter);
 
         Logger& operator<<(const terrama2::Exception& e);
+        Logger& operator<<(const terrama2::core::Logger::SeverityLevel& level);
 
 //        template<typename T>
 //        Logger& operator<<(const T& value)
@@ -90,9 +92,8 @@ namespace terrama2
         ~Logger();
 
       private:
-        boost::log::sources::logger_mt logger_;
+        boost::log::sources::severity_logger<SeverityLevel> logger_;
         boost::shared_ptr<text_sink> sink_;
-        boost::log::sources::severity_logger<SeverityLevel> level_;
     };
 
 // TODO: make the exception handler to work
@@ -110,15 +111,57 @@ namespace terrama2
     {
       terrama2::core::LoggerMT lg;
 
-      // Set up exception handler: all exceptions that occur while
-      // logging through this logger, will be suppressed
       lg.set_exception_handler(boost::log::make_exception_suppressor());
 
       return lg;
     }
   } // end core
 
-
 } // end terrama2
+
+// todo: display the severity name in log instead enum number
+template< typename CharT, typename TraitsT, typename AllocatorT, typename T, typename TagT >
+inline boost::log::basic_formatting_ostream< CharT, TraitsT, AllocatorT >& operator<<(boost::log::basic_formatting_ostream< CharT, TraitsT, AllocatorT >& stream,
+                                           boost::log::to_log_manip<terrama2::core::Logger::SeverityLevel, terrama2::core::Logger::SeverityTag> const& manip)
+{
+  static const char* severityList[] =
+  {
+    "TRACE",
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "FATAL"
+  };
+
+  terrama2::core::Logger::SeverityLevel level = manip.get();
+  if (static_cast< std::size_t >(level) < sizeof(severityList) / sizeof(*severityList))
+    stream << severityList[level];
+  else
+    stream << static_cast<int>(level);
+
+  return stream;
+}
+
+inline boost::log::formatting_ostream& operator<<(boost::log::formatting_ostream& stream,
+                                           terrama2::core::Logger::SeverityLevel& level)
+{
+  static const char* severityList[] =
+  {
+    "TRACE",
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "FATAL"
+  };
+
+  if (static_cast< std::size_t >(level) < sizeof(severityList) / sizeof(*severityList))
+    stream << severityList[level];
+  else
+    stream << static_cast<int>(level);
+
+  return stream;
+}
 
 #endif // __TERRAMA2_CORE_LOGGER_HPP__
