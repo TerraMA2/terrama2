@@ -257,11 +257,6 @@ if(NOT CURL_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required libCURL library!")
 endif()
 
-find_package(Threads REQUIRED)
-if(NOT THREADS_FOUND)
-  message(FATAL_ERROR "TerraMA2: could not find required thread library!")
-endif()
-
 find_package(GTest)
 find_package(GMock)
 
