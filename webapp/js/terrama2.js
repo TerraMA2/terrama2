@@ -60,8 +60,8 @@ var TerraMA2 = function(components) {
   var leftBar = null;
 
   for(var i = 0; i < componentsLength; i++) {
-    $.ajax({ async: false, url: "/terrama2/webapp/js/components/" + config.getConfJsonComponents()[components[i]] + ".js", dataType: "script" });
-    injectStylesheet("/terrama2/webapp/css/components/" + config.getConfJsonComponents()[components[i]] + ".css");
+    $.ajax({ async: false, url: "/terrama2/webapp/js/components/" + config.getConfJsonComponentsJs()[components[i]], dataType: "script" });
+    injectStylesheet("/terrama2/webapp/css/components/" + config.getConfJsonComponentsCss()[components[i]]);
 
     if(components[i] === "MapDisplay") {
       mapDisplay = new MapDisplay();

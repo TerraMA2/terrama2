@@ -1,35 +1,39 @@
 var Config = function() {
 
   var confJsonHTML = null;
-  var confJsonComponents = null;
+  var confJsonComponentsJs = null;
+  var confJsonComponentsCss = null;
 
-  this.loadConfigurations = function() {
-    $.ajax({
-      url: "/terrama2/webapp/config/html.json",
-      dataType: 'json',
-      async: false,
-      success: function(data) {
-        confJsonHTML = data;
-      }
-    });
+  var loadConfigurationFile = function(file) {
+    var _return = null;
 
-    $.ajax({
-      url: "/terrama2/webapp/config/components.json",
-      dataType: 'json',
-      async: false,
-      success: function(data) {
-        confJsonComponents = data;
-      }
-    });
+    $.ajax({ url: file, dataType: 'json', async: false, success: function(data) { _return = data; } });
+
+    return _return;
   }
 
-  this.getConfJsonHTML = function() {
+  var loadConfigurations = function() {
+    confJsonHTML = loadConfigurationFile("/terrama2/webapp/config/html.terrama2.json");
+    confJsonComponentsJs = loadConfigurationFile("/terrama2/webapp/config/components.javascript.terrama2.json");
+    confJsonComponentsCss = loadConfigurationFile("/terrama2/webapp/config/components.stylesheet.terrama2.json");
+  }
+
+  var getConfJsonHTML = function() {
     return confJsonHTML;
   }
 
-  this.getConfJsonComponents = function() {
-    return confJsonComponents;
+  var getConfJsonComponentsJs = function() {
+    return confJsonComponentsJs;
   }
+
+  var getConfJsonComponentsCss = function() {
+    return confJsonComponentsCss;
+  }
+
+  this.loadConfigurations = loadConfigurations;
+  this.getConfJsonHTML = getConfJsonHTML;
+  this.getConfJsonComponentsJs = getConfJsonComponentsJs;
+  this.getConfJsonComponentsCss = getConfJsonComponentsCss;
 
   $(document).ready(function(){
     $('.date').mask('00/00/0000');
