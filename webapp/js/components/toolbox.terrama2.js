@@ -1,7 +1,7 @@
 var ToolBox = function(terrama2) {
 
-  $("#terrama2-map").append(terrama2.getConfig().getConfJsonHTML().TMA2Toolbox);
-  $("#terrama2-map-toolbox").append(terrama2.getConfig().getConfJsonHTML().TMA2ToolboxControlButton);
+  $("#terrama2-map").append(terrama2.getConfig().getConfJsonHTML().Toolbox);
+  $("#terrama2-map-toolbox").append(terrama2.getConfig().getConfJsonHTML().ToolboxControlButton);
 
   $(document).ready(function() {
     $("#terrama2-toolbox-control-button").on("click", function() {
