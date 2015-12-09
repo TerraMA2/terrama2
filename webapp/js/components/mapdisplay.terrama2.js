@@ -20,21 +20,23 @@ var MapDisplay = function() {
     });
   }
 
-  var createLayerBase = function(url, type, layerName, layerTitle) {
-    return createTileWMS(url, type, layerName, layerTitle);
-  }
-
   this.getMap = getMap;
   this.createTileWMS = createTileWMS;
 
   var olMap = new ol.Map({
-    target: 'terrama2-map',
     renderer: 'canvas',
-    //layers: [ createLayerBase(url, type, layerName, layerTitle) ],
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM(),
+        name: 'Base',
+        title: 'Base'
+      })
+    ],
+    target: 'terrama2-map',
     view: new ol.View({
       projection: 'EPSG:4326',
       center: [-55, -15],
-      zoom: 3
+      zoom: 4
     })
   });
 

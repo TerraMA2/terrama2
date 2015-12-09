@@ -12,14 +12,10 @@ var LayerExplorer = function(terrama2) {
 
         var subLayersLength = arrLayers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          //tilesWMSLayers.push(createTileWMS(arrLayers[j].Name));
-
           tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
-          map.addLayer(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
         }
       } else {
         tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
-        map.addLayer(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
       }
     }
 
@@ -33,7 +29,7 @@ var LayerExplorer = function(terrama2) {
   * @param {type} layer
   * @returns {String}
   */
-  var buildLayerTree = function(layer) {
+  var buildLayerTree = function(layer, firstCall) {
     var elem;
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
@@ -44,9 +40,13 @@ var LayerExplorer = function(terrama2) {
     terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
     var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
+    "<span><i class='glyphicon glyphicon-minus'></i> " + title + "</span>&nbsp;&nbsp;" +
+    terrama2.getConfig().getConfJsonHTML().OpacitySlider;
+
+    /* var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
     "<span><i class='glyphicon glyphicon-plus'></i> " + title + "</span>&nbsp;&nbsp;" +
     terrama2.getConfig().getConfJsonHTML().CheckLayer +
-    terrama2.getConfig().getConfJsonHTML().OpacitySlider;
+    terrama2.getConfig().getConfJsonHTML().OpacitySlider; */
 
     if (layer.getLayers) {
       var sublayersElem = '';
@@ -55,7 +55,12 @@ var LayerExplorer = function(terrama2) {
       for (var i = len - 1; i >= 0; i--) {
         sublayersElem += buildLayerTree(layers[i]);
       }
-      elem = div2 + " <ul>" + sublayersElem + "</ul></li>";
+
+      if(firstCall) {
+        elem = "<ul>" + sublayersElem + "</ul></li>";
+      } else {
+        elem = div2 + " <ul>" + sublayersElem + "</ul></li>";
+      }
     } else {
       elem = div1 + " </li>";
     }
@@ -68,7 +73,7 @@ var LayerExplorer = function(terrama2) {
   */
   var initializeTree = function() {
 
-    var elem = buildLayerTree(map.getLayerGroup());
+    var elem = buildLayerTree(map.getLayerGroup(), true);
     $('#terrama2-layertree .terrama2-leftbox-content').empty().append("<div class='terrama2-leftbox-header'><h2>Camadas</h2><hr/></div>" + elem);
 
     $('#terrama2-layertree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
@@ -133,7 +138,6 @@ var LayerExplorer = function(terrama2) {
 
   this.getSelectedLayer = getSelectedLayer;
 
-  var layersGroups = [];
   var parser = new ol.format.WMSCapabilities();
   var capabilities = null;
   var mapDisplay = terrama2.getMapDisplay();
@@ -155,7 +159,7 @@ var LayerExplorer = function(terrama2) {
 
   var processedLayers = processLayers(capabilities.Capability.Layer);
 
-  layersGroups.push(new ol.layer.Group({
+  map.addLayer(new ol.layer.Group({
     layers: processedLayers,
     name: 'Server',
     title: 'Server'
@@ -225,7 +229,7 @@ var LayerExplorer = function(terrama2) {
       }, 0);
     });
 
-    $('.parent_li').find(' > ul > li').hide();
+    //$('.parent_li').find(' > ul > li').hide();
 
   });
 
