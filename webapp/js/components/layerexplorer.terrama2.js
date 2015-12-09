@@ -134,9 +134,9 @@ var LayerExplorer = function(terrama2) {
 
   this.getSelectedLayer = getSelectedLayer;
 
-  var glbArrLayersGroups = [];
-  var glbOlParser = new ol.format.WMSCapabilities();
-  var jsnCapabilities = null;
+  var layersGroups = [];
+  var parser = new ol.format.WMSCapabilities();
+  var capabilities = null;
   var mapDisplay = terrama2.getMapDisplay();
   var map = mapDisplay.getMap();
 
@@ -153,17 +153,17 @@ var LayerExplorer = function(terrama2) {
     },
     success: function(data) {
       var xmlText = new XMLSerializer().serializeToString(data);
-      jsnCapabilities = glbOlParser.read(xmlText);
-      //console.log(JSON.stringify(jsnCapabilities));
+      capabilities = parser.read(xmlText);
+      //console.log(JSON.stringify(capabilities));
     }
   });
 
-  var arrProcessedLayers = processLayers(jsnCapabilities.Capability.Layer);
+  var processedLayers = processLayers(capabilities.Capability.Layer);
 
-  //alert(jsnCapabilities.Capability.Layer.Layer);
+  //alert(capabilities.Capability.Layer.Layer);
 
-  glbArrLayersGroups.push(new ol.layer.Group({
-    layers: arrProcessedLayers,
+  layersGroups.push(new ol.layer.Group({
+    layers: processedLayers,
     name: 'Server',
     title: 'Server'
   }));
