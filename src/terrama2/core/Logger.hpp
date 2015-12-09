@@ -58,9 +58,9 @@ namespace terrama2
         {
           typedef void result_type;
 
-          void operator() (const std::runtime_error& e) const;
+          result_type operator() (const std::runtime_error& e) const;
 
-          void operator() (const std::logic_error& e) const;
+          result_type operator() (const std::logic_error& e) const;
         };
 
         typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> text_sink;
@@ -77,7 +77,6 @@ namespace terrama2
         void addStream(boost::shared_ptr<std::ostream>& stream);
 
         Logger& operator<<(const terrama2::Exception& e);
-        Logger& operator<<(const terrama2::core::Logger::SeverityLevel& level);
 
 //        template<typename T>
 //        Logger& operator<<(const T& value)
@@ -120,29 +119,6 @@ namespace terrama2
 } // end terrama2
 
 // todo: display the severity name in log instead enum number
-template< typename CharT, typename TraitsT, typename AllocatorT, typename T, typename TagT >
-inline boost::log::basic_formatting_ostream< CharT, TraitsT, AllocatorT >& operator<<(boost::log::basic_formatting_ostream< CharT, TraitsT, AllocatorT >& stream,
-                                           boost::log::to_log_manip<terrama2::core::Logger::SeverityLevel, terrama2::core::Logger::SeverityTag> const& manip)
-{
-  static const char* severityList[] =
-  {
-    "TRACE",
-    "DEBUG",
-    "INFO",
-    "WARNING",
-    "ERROR",
-    "FATAL"
-  };
-
-  terrama2::core::Logger::SeverityLevel level = manip.get();
-  if (static_cast< std::size_t >(level) < sizeof(severityList) / sizeof(*severityList))
-    stream << severityList[level];
-  else
-    stream << static_cast<int>(level);
-
-  return stream;
-}
-
 inline boost::log::formatting_ostream& operator<<(boost::log::formatting_ostream& stream,
                                            terrama2::core::Logger::SeverityLevel& level)
 {

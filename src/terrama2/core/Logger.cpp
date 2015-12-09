@@ -48,7 +48,33 @@ void logFormatter(const boost::log::record_view& rec, boost::log::formatting_ost
   if(severity.empty())
     return;
 
-  stream << "<" << formatSeverity(*severity) << "> ";
+  switch (*severity)
+  {
+    case terrama2::core::Logger::TRACE:
+      stream << "<TRACE>";
+      break;
+    case terrama2::core::Logger::DEBUG:
+      stream << "<DEBUG>";
+      break;
+    case terrama2::core::Logger::INFO:
+      stream << "<INFO>";
+      break;
+    case terrama2::core::Logger::WARNING:
+      stream << "<WARNING>";
+      break;
+    case terrama2::core::Logger::ERROR:
+    {
+      stream << "<ERROR>";
+      stream << "{" << boost::log::extract<std::string>("SrcFile", rec) << ", " << boost::log::extract<int>("RecordLine", rec) << "}";
+      break;
+    }
+    case terrama2::core::Logger::FATAL:
+      stream << "<FATAL>";
+      break;
+    default:
+      stream << "<" << *severity << ">";
+  }
+
   stream << " " << rec[boost::log::expressions::smessage];
 
 }
@@ -144,10 +170,10 @@ terrama2::core::Logger& terrama2::core::Logger::operator<<(const terrama2::Excep
 
 void terrama2::core::Logger::trace(const char *message)
 {
-
+  TERRAMA2_LOG(logger_, TRACE) << message;
 }
 
 void terrama2::core::Logger::fatal(const char *message)
 {
-
+  TERRAMA2_LOG(logger_, FATAL) << message;
 }
