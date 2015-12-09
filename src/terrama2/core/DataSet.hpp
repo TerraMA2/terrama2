@@ -35,6 +35,7 @@
 
 // TerraMA2
 #include "DataSetItem.hpp"
+#include "Intersection.hpp"
 
 // STL
 #include <string>
@@ -232,6 +233,12 @@ namespace terrama2
            \return The list of dataset items.
          */
         std::vector<DataSetItem>& dataSetItems();
+
+        /*!
+           \brief Returns the list of of dataset items.
+
+           \return The list of dataset items.
+         */
         const std::vector<DataSetItem>& dataSetItems() const;
 
         /*! \brief Adds a new dataset item to the dataset. */
@@ -239,6 +246,12 @@ namespace terrama2
 
         /*! \brief Removes the give dataset item from the dataset. */
         void removeDataSetItem(uint64_t id);
+
+        /*! \brief It returns the intersection information. */
+        void setIntersection(const Intersection& intersection);
+
+        /*! \brief Sets the intersection information. */
+        Intersection intersection() const;
 
 
       private:
@@ -257,6 +270,7 @@ namespace terrama2
         std::vector<CollectRule> collectRules_;
         std::map<std::string, std::string> metadata_;
         std::vector<DataSetItem> datasetItems_;
+        Intersection intersection_;
     };
 
   } // end namespace core

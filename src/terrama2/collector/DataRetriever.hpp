@@ -31,10 +31,13 @@
 #ifndef __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
 #define __TERRAMA2_COLLECTOR_DATARETRIEVER_HPP__
 
+// STL
 #include <memory>
 #include <cassert>
 
+// TerraMA2
 #include "../core/DataProvider.hpp"
+#include "../core/DataSetItem.hpp"
 
 namespace terrama2
 {
@@ -71,7 +74,8 @@ namespace terrama2
        * \param Filter to the data files.
        * \return Returns a standard Uniform Resource Identifier to the data.
        */
-      virtual std::string retrieveData(DataFilterPtr filter);
+
+      virtual std::string retrieveData(terrama2::core::DataSetItem datsetitem, DataFilterPtr filter, std::vector< std::string >& log_uris);
 
     protected:
         terrama2::core::DataProvider dataprovider_;

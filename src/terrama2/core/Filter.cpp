@@ -33,8 +33,7 @@
 #include "DataSetItem.hpp"
 
 // TerraLib
-#include <terralib/datatype/DateTime.h>
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/Polygon.h>
 
@@ -60,22 +59,22 @@ void terrama2::core::Filter::setDataSetItem(uint64_t datasetItem)
   datasetItem_ = datasetItem;
 }
 
-const te::dt::DateTime* terrama2::core::Filter::discardBefore() const
+const te::dt::TimeInstantTZ* terrama2::core::Filter::discardBefore() const
 {
   return discardBefore_.get();
 }
 
-void terrama2::core::Filter::setDiscardBefore(std::unique_ptr<te::dt::DateTime> t)
+void terrama2::core::Filter::setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ> t)
 {
   discardBefore_ = std::move(t);
 }
 
-const te::dt::DateTime* terrama2::core::Filter::discardAfter() const
+const te::dt::TimeInstantTZ* terrama2::core::Filter::discardAfter() const
 {
   return discardAfter_.get();
 }
 
-void terrama2::core::Filter::setDiscardAfter(std::unique_ptr<te::dt::DateTime> t)
+void terrama2::core::Filter::setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ> t)
 {
   discardAfter_ = std::move(t);
 }
@@ -132,16 +131,16 @@ terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::
       discardBefore_.reset(nullptr);
     else
     {
-      te::dt::TimeInstant* discardBefore = dynamic_cast<te::dt::TimeInstant*>(rhs.discardBefore_.get());
-      discardBefore_.reset(new te::dt::TimeInstant(*discardBefore));
+      te::dt::TimeInstantTZ* discardBefore = rhs.discardBefore_.get();
+      discardBefore_.reset(new te::dt::TimeInstantTZ(*discardBefore));
     }
 
     if(rhs.discardAfter_ == nullptr)
       discardAfter_.reset(nullptr);
     else
     {
-      te::dt::TimeInstant* discardAfter = dynamic_cast<te::dt::TimeInstant*>(rhs.discardAfter_.get());
-      discardAfter_.reset(new te::dt::TimeInstant(*discardAfter));
+      te::dt::TimeInstantTZ* discardAfter = rhs.discardAfter_.get();
+      discardAfter_.reset(new te::dt::TimeInstantTZ(*discardAfter));
     }
 
     if(rhs.geometry_ == nullptr)
@@ -174,9 +173,9 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
     discardBefore_.reset(nullptr);
   else
   {
-    te::dt::TimeInstant* discardBefore = dynamic_cast<te::dt::TimeInstant*>(rhs.discardBefore_.get());
+    te::dt::TimeInstantTZ* discardBefore = rhs.discardBefore_.get();
     if(discardBefore != nullptr)
-      discardBefore_.reset(new te::dt::TimeInstant(*discardBefore));
+      discardBefore_.reset(new te::dt::TimeInstantTZ(*discardBefore));
     else
       discardBefore_.reset(nullptr);
   }
@@ -185,9 +184,9 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
     discardAfter_.reset(nullptr);
   else
   {
-    te::dt::TimeInstant* discardAfter = dynamic_cast<te::dt::TimeInstant*>(rhs.discardAfter_.get());
+    te::dt::TimeInstantTZ* discardAfter = rhs.discardAfter_.get();
     if(discardAfter != nullptr)
-      discardAfter_.reset(new te::dt::TimeInstant(*discardAfter));
+      discardAfter_.reset(new te::dt::TimeInstantTZ(*discardAfter));
     else
       discardAfter_.reset(nullptr);
   }

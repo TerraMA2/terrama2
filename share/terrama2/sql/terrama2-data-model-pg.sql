@@ -286,9 +286,11 @@ CREATE TABLE terrama2.data_collection_log
 (
   id SERIAL NOT NULL,
   dataset_item_id INTEGER NOT NULL,
-  uri VARCHAR(255) NOT NULL,
-  data_timestamp timestamp with time zone NOT NULL,
+  origin_uri VARCHAR(255) NOT NULL,
+  uri VARCHAR(255),
+  data_timestamp timestamp with time zone,
   collect_timestamp timestamp with time zone NOT NULL DEFAULT NOW(),
+  status INTEGER NOT NULL,
   CONSTRAINT fk_data_collection_log_dataset_item_id
     FOREIGN KEY(dataset_item_id)
     REFERENCES terrama2.dataset_item (id)
@@ -298,10 +300,33 @@ CREATE TABLE terrama2.data_collection_log
 COMMENT ON TABLE terrama2.data_collection_log IS 'Store the log of all collected data';
 COMMENT ON COLUMN terrama2.data_collection_log.id IS 'Log identifier';
 COMMENT ON COLUMN terrama2.data_collection_log.dataset_item_id IS 'Dataset item identifier';
-COMMENT ON COLUMN terrama2.data_collection_log.uri IS 'URI to the collected data';
+COMMENT ON COLUMN terrama2.data_collection_log.origin_uri IS 'URI from where data was retrieved';
+COMMENT ON COLUMN terrama2.data_collection_log.uri IS 'URI from where data was imported';
 COMMENT ON COLUMN terrama2.data_collection_log.data_timestamp IS 'Date of the generated data';
 COMMENT ON COLUMN terrama2.data_collection_log.collect_timestamp IS 'Date of the collection by TerraMA';
+COMMENT ON COLUMN terrama2.data_collection_log.status IS 'Status of data in system process';
 
+
+CREATE TABLE terrama2.intersection
+(
+  id                                SERIAL PRIMARY KEY,
+  dataset_id                        INTEGER NOT NULL,
+  dataset_grid_id                   INTEGER,
+  schema_name                       VARCHAR(30),
+  table_name                        VARCHAR(30),
+  band                              VARCHAR(30),
+  attribute                         VARCHAR(30),
+
+  CONSTRAINT fk_intersection_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset (id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_intersection_dataset_grid_id FOREIGN KEY(dataset_grid_id) REFERENCES terrama2.dataset (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+COMMENT ON TABLE terrama2.intersection IS 'Stores information about the filter to be used for a dataset item';
+COMMENT ON COLUMN terrama2.intersection.dataset_id IS 'Dataset identifier';
+COMMENT ON COLUMN terrama2.intersection.schema_name IS 'Schema where the data is stored';
+COMMENT ON COLUMN terrama2.intersection.table_name IS 'Name of the table where the data is stored';
+COMMENT ON COLUMN terrama2.intersection.band IS 'Which bands should be used';
+COMMENT ON COLUMN terrama2.intersection.attribute IS 'Attribute to aggregated to the collected data';
 
 
 COMMIT;

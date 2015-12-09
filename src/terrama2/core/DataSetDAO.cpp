@@ -33,6 +33,7 @@
 #include "DataSetDAO.hpp"
 #include "DataSetItem.hpp"
 #include "DataSetItemDAO.hpp"
+#include "IntersectionDAO.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
 
@@ -87,13 +88,18 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
       saveCollectRule(collectRule, transactor);
     }
 
-
     // Persist the metadata
     saveMetadata(dataset, transactor);
 
+
+    if(dataset.kind() == DataSet::OCCURENCE_TYPE)
+    {
+      IntersectionDAO::save(dataset.intersection(), transactor);
+    }
+
     if(shallowSave)
       return;
-    
+
     for(auto& item: dataset.dataSetItems())
       DataSetItemDAO::save(item, transactor);
   }
@@ -151,6 +157,11 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
     query.bind_arg(10, dataset.id());
 
     transactor.execute(query.str());
+
+    if(dataset.kind() == DataSet::OCCURENCE_TYPE)
+    {
+      IntersectionDAO::update(dataset.intersection(), transactor);
+    }
 
     updateCollectRules(dataset, transactor);
 
@@ -240,7 +251,7 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
   {
     std::string query("SELECT * FROM terrama2.dataset WHERE data_provider_id = ");
                 query += std::to_string(providerId);
-                query += " ORDER BY id ASC"; 
+                query += " ORDER BY id ASC";
 
     std::auto_ptr<te::da::DataSet> queryResult = transactor.query(query);
 
@@ -257,7 +268,7 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
   {
     throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the dataset list."));
   }
-  
+
   return std::move(datasets);
 }
 
@@ -524,6 +535,8 @@ terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te:
 
     // Sets the metadata
     loadMetadata(dataset, transactor);
+
+    IntersectionDAO::load(dataset, transactor);
 
     std::vector<DataSetItem> items = DataSetItemDAO::loadAll(dataset.id(), transactor);
 

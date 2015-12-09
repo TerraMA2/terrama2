@@ -25,38 +25,64 @@
   \brief Filters data.
 
   \author Jano Simas
+  \author Evandro Delatin
 */
 
+// TerraMA2
 #include "../core/DataSetItem.hpp"
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
+
+// STL
+#include <iostream>
+#include <iterator>
+#include <string>
+
+// BOOST
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 //terralib
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/datatype/Enums.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std::vector<std::string>& namesList) const
 {
   std::string mask = datasetItem_.mask();
 
-  //TODO: Implement filterNames
+  //  std::string mask = "exporta_%A%M%d_%h%m.csv";
+
   if(mask.empty())
-    return namesList;
+    mask = "^.*\.(csv|txt|dat|bin|gz|ctl)$";
 
 
   std::vector<std::string> matchNames;
   for(const std::string &name : namesList)
   {
-    //TODO: how is the match? regex?
-    if(name == mask)
+    // match regex
+    boost::replace_all(mask, "%A", "(\\d{4})"); //("%A - ano com quatro digitos"))
+    boost::replace_all(mask, "%a", "(\\d{2})"); //("%a - ano com dois digitos"))
+    boost::replace_all(mask, "%d", "(\\d{2})"); //("%d - dia com dois digitos"))
+    boost::replace_all(mask, "%M", "(\\d{2})"); //("%M - mes com dois digitos"))
+    boost::replace_all(mask, "%h", "(\\d{2})"); //("%h - hora com dois digitos"))
+    boost::replace_all(mask, "%m", "(\\d{2})"); //("%m - minuto com dois digitos"))
+    boost::replace_all(mask, "%s", "(\\d{2})"); //("%s - segundo com dois digitos"))
+    boost::replace_all(mask, "%.", "(\\w{1})");  //("%. - um caracter qualquer"))
+
+    boost::regex regex(mask);
+
+    bool res = boost::regex_match(name,regex);
+    if (res)
       matchNames.push_back(name);
+
   }
 
   return matchNames;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType)
 {
   //Find DateTime column
   int dateColumn = -1;
@@ -92,11 +118,23 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
     //Filter Time
     if(dateColumn > 0)
     {
+      if(dataSetLastDateTime_)
+      {
+        if(*dataSetLastDateTime_ < *dataSet->getDateTime(dateColumn))
+          dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
+      }
+      else
+      {
+        dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
+      }
+
       std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
-      if(filter.discardBefore() && *dateTime < *filter.discardBefore())
+      const te::dt::DateTime* discardBefore = dynamic_cast<const te::dt::DateTime*>(filter.discardBefore());
+      if(discardBefore && *dateTime < *discardBefore)
         continue;
 
-      if(filter.discardAfter() && *dateTime > *filter.discardAfter())
+      const te::dt::DateTime* discardAfter = dynamic_cast<const te::dt::DateTime*>(filter.discardAfter());
+      if(discardAfter && *dateTime > *discardAfter)
         continue;
 
       //TODO: filter last collection time
@@ -114,8 +152,15 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
   return memDataSet;
 }
 
+
+te::dt::DateTime* terrama2::collector::DataFilter::getDataSetLastDateTime() const
+{
+  return dataSetLastDateTime_.get();
+}
+
 terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem)
-  : datasetItem_(datasetItem)
+  : datasetItem_(datasetItem),
+    dataSetLastDateTime_(nullptr)
 {
 
 }

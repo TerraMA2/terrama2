@@ -28,22 +28,23 @@
   \author Evandro Delatin
 */
 
-
+// TerraMA2
 #include "ParserOGR.hpp"
 #include "ParserPcdInpe.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 
-//QT
+// QT
 #include <QDir>
 #include <QDebug>
 
-//STD
+// STL
 #include <memory>
 
+// Boost
 #include <boost/format/exceptions.hpp>
 
-//terralib
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -73,7 +74,6 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
 // Change the string 07/21/2015 17:13:00 - PCD INPE format for timestamp
 void terrama2::collector::ParserPcdInpe::adapt(te::da::DataSetTypeConverter&converter)
 {
-  converter.remove("TIMESTAMP");
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
