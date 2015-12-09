@@ -457,6 +457,8 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                   ui_->pointDiffFormatDataPrefix->setText(it->second.c_str());
 
                 ConfigAppWeatherOccurrence* occurrenceTab = dynamic_cast<ConfigAppWeatherOccurrence*>(subTabs_[3].data());
+
+                occurrenceTab->setIntersection(dataset.intersection());
                 if (dataset.dataSetItems().size() > 0)
                 {
                   terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(dataset.dataSetItems().size() - 1);
@@ -467,16 +469,16 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                   ui_->pointDiffFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
 
                   switch(datasetItem.kind())
-                    {
-                      case terrama2::core::DataSetItem::UNKNOWN_TYPE:
-                        ui_->pointDiffFormatDataType->setCurrentIndex(2);
-                        break;
-                      case terrama2::core::DataSetItem::FIRE_POINTS_TYPE:
-                        ui_->pointDiffFormatDataType->setCurrentIndex(0);
-                        break;
-                      default:
-                        ui_->pointDiffFormatDataType->setCurrentIndex(1);
-                    }
+                  {
+                    case terrama2::core::DataSetItem::UNKNOWN_TYPE:
+                      ui_->pointDiffFormatDataType->setCurrentIndex(2);
+                      break;
+                    case terrama2::core::DataSetItem::FIRE_POINTS_TYPE:
+                      ui_->pointDiffFormatDataType->setCurrentIndex(0);
+                      break;
+                    default:
+                      ui_->pointDiffFormatDataType->setCurrentIndex(1);
+                  }
                 }
 
                 hideDataSetButtons();

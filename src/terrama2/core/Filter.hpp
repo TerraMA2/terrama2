@@ -38,7 +38,7 @@
 // Forward declaration
 namespace te
 {
-  namespace dt { class DateTime; }
+  namespace dt { class TimeInstantTZ; }
   namespace gm { class Geometry; }
 }
 
@@ -99,16 +99,16 @@ namespace terrama2
         void setDataSetItem(uint64_t item);
 
         /*! \brief Returns the initial date of interest for collecting data from the data item. */
-        const te::dt::DateTime* discardBefore() const;
+        const te::dt::TimeInstantTZ* discardBefore() const;
 
         /*! \brief Sets the initial date of interest for collecting data from the data item. */
-        void setDiscardBefore(std::unique_ptr<te::dt::DateTime> t);
+        void setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ> t);
 
         /*! \brief Returns the final date of interest for collecting data from the data item. */
-        const te::dt::DateTime* discardAfter() const;
+        const te::dt::TimeInstantTZ* discardAfter() const;
 
         /*! \brief Sets the final date of interest for collecting data from the data item. */
-        void setDiscardAfter(std::unique_ptr<te::dt::DateTime> t);
+        void setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ> t);
 
         /*! \brief Returns the geometry to be used as area of interest for filtering the data during its collect. */
         const te::gm::Geometry* geometry() const;
@@ -137,8 +137,8 @@ namespace terrama2
       private:
 
         uint64_t datasetItem_;
-        std::unique_ptr<te::dt::DateTime> discardBefore_;
-        std::unique_ptr<te::dt::DateTime> discardAfter_;
+        std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_;
+        std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_;
         std::unique_ptr<te::gm::Geometry> geometry_;
         std::unique_ptr<double> value_;
         ExpressionType expressionType_;

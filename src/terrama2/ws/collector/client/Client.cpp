@@ -1,19 +1,19 @@
 /*
  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
- 
+
  This file is part of TerraMA2 - a free and open source computational
  platform for analysis, monitoring, and alert of geo-environmental extremes.
- 
+
  TerraMA2 is free software: you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published by
  the Free Software Foundation, either version 3 of the License,
  or (at your option) any later version.
- 
+
  TerraMA2 is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU Lesser General Public License for more details.
- 
+
  You should have received a copy of the GNU Lesser General Public License
  along with TerraMA2. See LICENSE. If not, write to
  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
@@ -91,7 +91,7 @@ void terrama2::ws::collector::client::Client::addDataProvider(terrama2::core::Da
 
 void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet & dataSet)
 {
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule >(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule, Intersection >(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -102,7 +102,7 @@ void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet
     throw client::AddingDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
-  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule >(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetResult);
 
 }
 
@@ -133,7 +133,7 @@ void terrama2::ws::collector::client::Client::updateDataSet(terrama2::core::Data
   if(dataSet.id() == 0)
     throw client::UpdateDataSetError() << ErrorDescription(QObject::tr("Invalid dataset passed!"));
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule >(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule, Intersection >(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -144,7 +144,7 @@ void terrama2::ws::collector::client::Client::updateDataSet(terrama2::core::Data
     throw client::UpdateDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
-  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule >(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetResult);
 
 }
 
@@ -199,7 +199,7 @@ terrama2::core::DataSet terrama2::ws::collector::client::Client::findDataSet(uin
     throw client::FindDataSetError() << ErrorDescription(errorMessage.c_str());
   }
 
-  return terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule >(struct_dataSet);
+  return terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSet);
 
 }
 
@@ -236,7 +236,7 @@ void terrama2::ws::collector::client::Client::listDataSet(std::vector< terrama2:
 
   for(uint32_t i = 0; i < struct_dataSetList.size() ; i++)
   {
-    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule >(struct_dataSetList.at(i)));
+    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetList.at(i)));
   }
 
 }

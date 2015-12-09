@@ -46,6 +46,7 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/datatype/Enums.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std::vector<std::string>& namesList) const
 {
@@ -128,10 +129,12 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
       }
 
       std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
-      if(filter.discardBefore() && *dateTime < *filter.discardBefore())
+      const te::dt::DateTime* discardBefore = dynamic_cast<const te::dt::DateTime*>(filter.discardBefore());
+      if(discardBefore && *dateTime < *discardBefore)
         continue;
 
-      if(filter.discardAfter() && *dateTime > *filter.discardAfter())
+      const te::dt::DateTime* discardAfter = dynamic_cast<const te::dt::DateTime*>(filter.discardAfter());
+      if(discardAfter && *dateTime > *discardAfter)
         continue;
 
       //TODO: filter last collection time

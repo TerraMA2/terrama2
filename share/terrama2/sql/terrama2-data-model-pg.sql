@@ -307,5 +307,26 @@ COMMENT ON COLUMN terrama2.data_collection_log.collect_timestamp IS 'Date of the
 COMMENT ON COLUMN terrama2.data_collection_log.status IS 'Status of data in system process';
 
 
+CREATE TABLE terrama2.intersection
+(
+  id                                SERIAL PRIMARY KEY,
+  dataset_id                        INTEGER NOT NULL,
+  dataset_grid_id                   INTEGER,
+  schema_name                       VARCHAR(30),
+  table_name                        VARCHAR(30),
+  band                              VARCHAR(30),
+  attribute                         VARCHAR(30),
+
+  CONSTRAINT fk_intersection_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset (id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_intersection_dataset_grid_id FOREIGN KEY(dataset_grid_id) REFERENCES terrama2.dataset (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+COMMENT ON TABLE terrama2.intersection IS 'Stores information about the filter to be used for a dataset item';
+COMMENT ON COLUMN terrama2.intersection.dataset_id IS 'Dataset identifier';
+COMMENT ON COLUMN terrama2.intersection.schema_name IS 'Schema where the data is stored';
+COMMENT ON COLUMN terrama2.intersection.table_name IS 'Name of the table where the data is stored';
+COMMENT ON COLUMN terrama2.intersection.band IS 'Which bands should be used';
+COMMENT ON COLUMN terrama2.intersection.attribute IS 'Attribute to aggregated to the collected data';
+
 
 COMMIT;

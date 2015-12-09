@@ -59,12 +59,14 @@ uint64_t terrama2::core::DataSet::id() const
 void terrama2::core::DataSet::setId(uint64_t id)
 {
   id_ = id;
-  
+
   for(auto& item : datasetItems_)
     item.setDataSet(id);
 
   for(auto& collectRule : collectRules_)
     collectRule.datasetId = id;
+
+  intersection_.setDataSet(id);
 }
 
 const std::string&
@@ -185,6 +187,10 @@ void
 terrama2::core::DataSet::setCollectRules(const std::vector<CollectRule>& rules)
 {
   collectRules_ = rules;
+  for(auto& collectRule : collectRules_)
+  {
+    collectRule.datasetId = id_;
+  }
 }
 
 std::vector<terrama2::core::DataSetItem>&
@@ -211,4 +217,15 @@ void terrama2::core::DataSet::removeDataSetItem(uint64_t id)
                                      datasetItems_.end(),
                                      [&id](const DataSetItem& item){ return (item.id() == id) ? true : false; }),
                       datasetItems_.end());
+}
+
+void terrama2::core::DataSet::setIntersection(const Intersection& intersection)
+{
+  intersection_ = intersection;
+  intersection_.setDataSet(id_);
+}
+
+terrama2::core::Intersection terrama2::core::DataSet::intersection() const
+{
+  return intersection_;
 }
