@@ -16,10 +16,21 @@ void TsLogger::testLoad()
 
   auto exception = terrama2::core::DataAccessError() << terrama2::ErrorDescription("**Expected DataAccess Error**");
 
-  TERRAMA2_LOG_ERROR() << "**TYPE ERROR EXPECTED**";
+  for(int i = 0; i < 20; ++i)
+    TERRAMA2_LOG_TRACE() << "Trace Message Lorem ipsu " + std::to_string(i);
 
   // logging an exception
   TERRAMA2_LOG_ERROR() << exception;
+
+  try
+  {
+    throw std::runtime_error("aaa");
+  }
+  catch (const std::runtime_error& error)
+  {
+
+  }
+
 }
 
 void TsLogger::testUnload()
