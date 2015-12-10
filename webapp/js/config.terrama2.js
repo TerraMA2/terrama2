@@ -4,6 +4,7 @@ var Config = function() {
   var confJsonComponentsJs = null;
   var confJsonComponentsCss = null;
   var confJsonServer = null;
+  var confJsonFilter = null;
 
   var loadConfigurationFile = function(file) {
     var _return = null;
@@ -18,6 +19,7 @@ var Config = function() {
     confJsonComponentsJs = loadConfigurationFile("/terrama2/webapp/config/components.javascript.terrama2.json");
     confJsonComponentsCss = loadConfigurationFile("/terrama2/webapp/config/components.stylesheet.terrama2.json");
     confJsonServer = loadConfigurationFile("/terrama2/webapp/config/server.terrama2.json");
+    confJsonFilter = loadConfigurationFile("/terrama2/webapp/config/filter.terrama2.json");
   }
 
   var getConfJsonHTML = function() {
@@ -36,13 +38,18 @@ var Config = function() {
     return confJsonServer;
   }
 
+  var getConfJsonFilter = function() {
+    return confJsonFilter;
+  }
+
   this.loadConfigurations = loadConfigurations;
   this.getConfJsonHTML = getConfJsonHTML;
   this.getConfJsonComponentsJs = getConfJsonComponentsJs;
   this.getConfJsonComponentsCss = getConfJsonComponentsCss;
   this.getConfJsonServer = getConfJsonServer;
+  this.getConfJsonFilter = getConfJsonFilter;
 
   $(document).ready(function(){
-    $('.date').mask('00/00/0000');
+    $('.date').mask("00/00/0000", {clearIfNotMatch: true});
   });
 }

@@ -20,16 +20,61 @@ var MapDisplay = function() {
     });
   }
 
+  /**right
+  * @param {any} value
+  * @returns {ol.layer.Base}
+  */
+  var findBy = function(layer, key, value) {
+
+    if (layer.get(key) === value) {
+      return layer;
+    }
+
+    // Find recursively if it is a group
+    if (layer.getLayers) {
+      var layers = layer.getLayers().getArray(),
+      len = layers.length, result;
+      for (var i = 0; i < len; i++) {
+        result = findBy(layers[i], key, value);
+        if (result) {
+          return result;
+        }
+      }
+    }
+
+    return null;
+  }
+
   this.getMap = getMap;
   this.createTileWMS = createTileWMS;
+  this.findBy = findBy;
 
   var olMap = new ol.Map({
     renderer: 'canvas',
     layers: [
-      new ol.layer.Tile({
-        source: new ol.source.OSM(),
-        name: 'Base',
-        title: 'Base'
+      new ol.layer.Group({
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'sat'}),
+            name: 'mapquest_sat',
+            title: 'MapQuest Sat&eacute;lite',
+            visible: false
+          }),
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'osm'}),
+            name: 'mapquest_osm',
+            title: 'MapQuest OSM',
+            visible: false
+          }),
+          new ol.layer.Tile({
+            source: new ol.source.OSM(),
+            name: 'osm',
+            title: 'Open Street Map',
+            visible: true
+          })
+        ],
+        name: 'bases',
+        title: 'Camadas Base'
       })
     ],
     target: 'terrama2-map',

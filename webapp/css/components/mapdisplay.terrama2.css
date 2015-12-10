@@ -2,6 +2,6 @@
   position: relative;
   float: right;
   height: 100%;
-  width: calc(100% - 48px);
+  width: calc(100% - 51px);
   z-index: 1;
 }

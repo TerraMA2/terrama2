@@ -34,13 +34,8 @@ var LayerExplorer = function(terrama2) {
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
 
-    var div1 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span>" + title + "</span>" +
-    terrama2.getConfig().getConfJsonHTML().CheckLayer +
-    terrama2.getConfig().getConfJsonHTML().OpacitySlider;
-
     var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span><i class='glyphicon glyphicon-minus'></i> " + title + "</span>&nbsp;&nbsp;" +
+    "<span><i class='glyphicon glyphicon-plus'></i> " + title + "</span>&nbsp;&nbsp;" +
     terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
     /* var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
@@ -57,11 +52,19 @@ var LayerExplorer = function(terrama2) {
       }
 
       if(firstCall) {
-        elem = "<ul>" + sublayersElem + "</ul></li>";
+        elem = sublayersElem + "</li>";
       } else {
         elem = div2 + " <ul>" + sublayersElem + "</ul></li>";
       }
     } else {
+
+      var check = layer.get('visible') ? terrama2.getConfig().getConfJsonHTML().CheckLayerChecked : terrama2.getConfig().getConfJsonHTML().CheckLayerUnchecked;
+
+      var div1 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
+      "<span>" + title + "</span>" +
+      check +
+      terrama2.getConfig().getConfJsonHTML().OpacitySlider;
+
       elem = div1 + " </li>";
     }
     return elem;
@@ -88,31 +91,6 @@ var LayerExplorer = function(terrama2) {
       }
       //e.stopPropagation();
     });
-  }
-
-  /**right
-  * @param {any} value
-  * @returns {ol.layer.Base}
-  */
-  var findBy = function(layer, key, value) {
-
-    if (layer.get(key) === value) {
-      return layer;
-    }
-
-    // Find recursively if it is a group
-    if (layer.getLayers) {
-      var layers = layer.getLayers().getArray(),
-      len = layers.length, result;
-      for (var i = 0; i < len; i++) {
-        result = findBy(layers[i], key, value);
-        if (result) {
-          return result;
-        }
-      }
-    }
-
-    return null;
   }
 
   /**
@@ -144,7 +122,7 @@ var LayerExplorer = function(terrama2) {
   var map = mapDisplay.getMap();
 
   $.ajax({
-    url: 'http://localhost/bdqueimadas/proxy.php',
+    url: terrama2.getConfig().getConfJsonServer().ProxyURL,
     dataType: 'xml',
     async: false,
     data: {
@@ -161,8 +139,8 @@ var LayerExplorer = function(terrama2) {
 
   map.addLayer(new ol.layer.Group({
     layers: processedLayers,
-    name: 'Server',
-    title: 'Server'
+    name: 'server',
+    title: terrama2.getConfig().getConfJsonServer().Name
   }));
 
   $(document).ready(function() {
@@ -173,7 +151,7 @@ var LayerExplorer = function(terrama2) {
     $('input.opacity').slider();
     $('input.opacity').on('slide', function(ev) {
       var layername = $(this).closest('li').data('layerid');
-      var layer = findBy(map.getLayerGroup(), 'name', layername);
+      var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
 
       layer.setOpacity(ev.value);
     });
@@ -182,7 +160,7 @@ var LayerExplorer = function(terrama2) {
     $('i.terrama2-check').on('click', function(e) {
       var layername = $(this).closest('li').data('layerid');
 
-      var layer = findBy(map.getLayerGroup(), 'name', layername);
+      var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
 
       setLayerVisibility(layer);
 
@@ -226,10 +204,10 @@ var LayerExplorer = function(terrama2) {
         } else {
           _this.parent().find('.ui-resizable-e').css('height', _this.parent().css('height'));
         }
-      }, 0);
+      }, 200);
     });
 
-    //$('.parent_li').find(' > ul > li').hide();
+    $('.parent_li').find(' > ul > li').hide();
 
   });
 

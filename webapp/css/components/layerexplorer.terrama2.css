@@ -21,7 +21,7 @@
 }
 
 #terrama2-layertree ul.layerstack li:hover {
-  background-color: #eee;
+  /*background-color: #eee;*/
 }
 
 #terrama2-layertree ul.layerstack li.selected {
@@ -71,6 +71,6 @@
 }
 
 #terrama2-layertree li.parent_li>span:hover, #terrama2-layertree li.parent_li>span:hover+ul li span {
-  background:#eee;
-  color: #000;
+  /*background:#eee;
+  color: #000;*/
 }

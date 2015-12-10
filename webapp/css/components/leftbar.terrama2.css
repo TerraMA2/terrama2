@@ -1,13 +1,14 @@
 #terrama2-leftbar {
   position: relative;
   float: left;
-  width: 48px;
+  width: 50px;
   height: 100%;
   z-index: 10001;
   top: 0;
   bottom: 0;
   left: 0;
-  background: rgba(166,160,124,0.85);
+  background: rgba(166,160,124,0.75);
+  border-right: 1px solid #2b2b2b;
 }
 
 #terrama2-leftbar.terrama2-hide-leftbar {
@@ -19,14 +20,14 @@
   float: left;
   top: 0;
   bottom: 0;
-  left: 48px;
+  left: 51px;
   width: 0px;
   height: 100%;
   color: black;
-  background: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.85);
   padding: 0;
   z-index: 1000;
-  box-shadow: inset 1em 0 1em -1em black;
+  /*box-shadow: inset 1em 0 1em -1em black;*/
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -39,8 +40,8 @@
 }
 
 .terrama2-leftbar-button {
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   background: transparent;
   border-radius: 0;
   color: rgba(255,255,255,0.9);

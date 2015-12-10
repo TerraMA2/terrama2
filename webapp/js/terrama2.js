@@ -58,6 +58,7 @@ var TerraMA2 = function(components) {
   var layerExplorer = null;
   var toolBox = null;
   var leftBar = null;
+  var filter = null;
 
   for(var i = 0; i < componentsLength; i++) {
     $.ajax({ async: false, url: "/terrama2/webapp/js/components/" + config.getConfJsonComponentsJs()[components[i]], dataType: "script" });
@@ -71,6 +72,8 @@ var TerraMA2 = function(components) {
       toolBox = new ToolBox(this);
     } else if(components[i] === "LeftBar") {
       leftBar = new LeftBar(this);
+    } else if(components[i] === "Filter") {
+      filter = new Filter(this);
     }
   }
 }

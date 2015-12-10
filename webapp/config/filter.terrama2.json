@@ -1,0 +1,6 @@
+{
+  "LayerToFilter": "brasil:focos_novembro_2015",
+  "DateFieldName": "Data",
+  "DateFormat": "YYYYMMDD",
+  "SatelliteFieldName": "Satelite"
+}
