@@ -19,12 +19,8 @@
 #include <boost/core/null_deleter.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <boost/log/utility/exception_handler.hpp>
+#include "Exception.hpp"
 
-
-#define TERRAMA2_LOG(logger, severity) BOOST_LOG_SEV(logger, severity) \
-                                        << boost::log::add_value("RecordLine", __LINE__) \
-                                        << boost::log::add_value("SrcFile", __FILE__) \
-                                        << boost::log::add_value("CurrentFunction", BOOST_CURRENT_FUNCTION)
 
 namespace terrama2
 {
@@ -33,6 +29,8 @@ namespace terrama2
 
   namespace core
   {
+
+    struct DataAccessError;
 
     class Logger : public te::common::Singleton<Logger>
     {
@@ -118,26 +116,24 @@ namespace terrama2
 
 } // end terrama2
 
-// todo: display the severity name in log instead enum number
-inline boost::log::formatting_ostream& operator<<(boost::log::formatting_ostream& stream,
-                                           terrama2::core::Logger::SeverityLevel& level)
+BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(terrama2_logger, boost::log::sources::severity_logger<terrama2::core::Logger::SeverityLevel>,
+                                        (boost::log::keywords::channel = "general"))
+
+#define TERRAMA2_LOG(severity) BOOST_LOG_SEV(terrama2_logger::get(), severity) \
+                                                      << boost::log::add_value("RecordLine", __LINE__) \
+                                                      << boost::log::add_value("SrcFile", __FILE__) \
+                                                      << boost::log::add_value("CurrentFunction", BOOST_CURRENT_FUNCTION)
+
+#define TERRAMA2_LOG_TRACE() TERRAMA2_LOG(terrama2::core::Logger::TRACE)
+#define TERRAMA2_LOG_DEBUG() TERRAMA2_LOG(terrama2::core::Logger::DEBUG)
+#define TERRAMA2_LOG_WARNING() TERRAMA2_LOG(terrama2::core::Logger::WARNING)
+#define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::ERROR)
+
+inline boost::log::formatting_ostream&
+operator<< (boost::log::formatting_ostream& strm, const terrama2::core::DataAccessError& value)
 {
-  static const char* severityList[] =
-  {
-    "TRACE",
-    "DEBUG",
-    "INFO",
-    "WARNING",
-    "ERROR",
-    "FATAL"
-  };
-
-  if (static_cast< std::size_t >(level) < sizeof(severityList) / sizeof(*severityList))
-    stream << severityList[level];
-  else
-    stream << static_cast<int>(level);
-
-  return stream;
+//  strm.stream() << value;
+  return strm;
 }
 
 #endif // __TERRAMA2_CORE_LOGGER_HPP__

@@ -12,24 +12,6 @@
 #include <boost/log/utility/setup/formatter_parser.hpp>
 
 
-const char* formatSeverity(const terrama2::core::Logger::SeverityLevel& level)
-{
-  static const char* severityList[] =
-      {
-          "TRACE",
-          "DEBUG",
-          "INFO",
-          "WARNING",
-          "ERROR",
-          "FATAL"
-      };
-
-  if (static_cast< std::size_t >(level) < sizeof(severityList) / sizeof(*severityList))
-    return severityList[level];
-  else
-    return std::to_string(static_cast<int>(level)).c_str();
-}
-
 // TODO: line number of file
 void logFormatter(const boost::log::record_view& rec, boost::log::formatting_ostream& stream)
 {
@@ -106,7 +88,6 @@ void terrama2::core::Logger::initialize()
   boost::log::core::get()->add_global_attribute("TimeStamp", boost::log::attributes::local_clock());
 
 //  BOOST_LOG_NAMED_SCOPE("TerraMA2");
-
 }
 
 void terrama2::core::Logger::finalize()
@@ -120,7 +101,7 @@ void terrama2::core::Logger::addStream(boost::shared_ptr<std::ostream>& stream)
 
 void terrama2::core::Logger::debug(const char* message)
 {
-  TERRAMA2_LOG(logger_, DEBUG) << message;
+  TERRAMA2_LOG_DEBUG() << message;
 }
 
 void terrama2::core::Logger::ExceptionHandler::operator()(const std::runtime_error &e) const
@@ -148,12 +129,12 @@ std::ostream& operator<< (std::ostream& strm, const terrama2::Exception& excepti
 
 void terrama2::core::Logger::info(const char* message)
 {
-  TERRAMA2_LOG(logger_, INFO) << message;
+  TERRAMA2_LOG_DEBUG() << message;
 }
 
 void terrama2::core::Logger::warning(const char* message)
 {
-  TERRAMA2_LOG(logger_, WARNING) << message;
+  TERRAMA2_LOG_WARNING() << message;
 }
 
 terrama2::core::Logger& terrama2::core::Logger::operator<<(const terrama2::Exception& e)
@@ -163,17 +144,26 @@ terrama2::core::Logger& terrama2::core::Logger::operator<<(const terrama2::Excep
   if (msg != nullptr)
     message.append(msg->toStdString().c_str());
 
-  TERRAMA2_LOG(logger_, ERROR) << message;
+//  TERRAMA2_LOG_ERROR() << message;
 
   return *this;
 }
 
 void terrama2::core::Logger::trace(const char *message)
 {
-  TERRAMA2_LOG(logger_, TRACE) << message;
+  TERRAMA2_LOG_TRACE() << message;
 }
 
 void terrama2::core::Logger::fatal(const char *message)
 {
-  TERRAMA2_LOG(logger_, FATAL) << message;
+  TERRAMA2_LOG_ERROR() << message;
 }
+
+//// todo: display the severity name in log instead enum number
+//inline boost::log::formatting_ostream& operator<<(boost::log::formatting_ostream& stream,
+//                                                  terrama2::Exception& level)
+//{
+//
+//
+//  return stream;
+//}
