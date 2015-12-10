@@ -33,6 +33,7 @@
 #define __TERRAMA2_COLLECTOR_FILTER_HPP__
 
 #include "../core/DataSetItem.hpp"
+#include "../core/DataSet.hpp"
 
 //Terralib
 #include <terralib/dataaccess/dataset/DataSetType.h>

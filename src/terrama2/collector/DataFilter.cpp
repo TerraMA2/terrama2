@@ -42,10 +42,16 @@
 // BOOST
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/local_time/local_time_types.hpp>
+#include <boost/date_time/local_time/local_date_time.hpp>
 
 //terralib
-#include <terralib/datatype/TimeDuration.h>
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/datatype/TimeDuration.h>
+#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/Date.h>
+
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/datatype/Enums.h>
@@ -140,29 +146,91 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
   return matchesList2;
 }
 
-#include "boost/date_time/local_time/local_time_types.hpp"
-#include "boost/date_time/gregorian/gregorian.hpp"
 bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
 {
   //discard out of valid range dates
   std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
-  if(discardBefore_ && *discardBefore_ > *dateTime)
-    return false;
-  if(discardAfter_ && *discardAfter_ < *dateTime)
-    return false;
+  te::dt::DateTimeType type = dateTime->getDateTimeType();
 
-  //Valid Date!!!
-  boost::gregorian::date time(2005,boost::gregorian::Jan,1);
-  boost::local_time::time_zone_ptr
-    zone(new boost::local_time::posix_time_zone("UTC-03"));
-  boost::local_time::local_date_time  dt(boost::posix_time::ptime(boost::gregorian::date(2005,boost::gregorian::Jan,1),boost::posix_time::hours(0)), zone);
-//  boost::local_time::local_date_time dt();
+  if(discardAfter_ || discardBefore_)
+  {
+    switch (type) {
+      case te::dt::TIME_INSTANT_TZ:
+      {
+        std::unique_ptr<te::dt::TimeInstantTZ> timeInstantTz(dynamic_cast<te::dt::TimeInstantTZ*>(dateTime.release()));
+        assert(timeInstantTz);
+        if(discardBefore_ && *discardBefore_ > *timeInstantTz)
+          return false;
+        if(discardAfter_ && *discardAfter_ < *timeInstantTz)
+          return false;
 
-  qDebug() << (time < dt);
+        //Valid Date!!!
+        //update lastDateTime
+        if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *timeInstantTz)
+          dataSetLastDateTime_.reset(timeInstantTz.release());
 
-//  //update lastDateTime
-//  if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
-//    dataSetLastDateTime_.reset(dateTime.release());
+        break;
+      }
+      case te::dt::TIME_INSTANT:
+      {
+        std::unique_ptr<te::dt::TimeInstant> timeInstant(dynamic_cast<te::dt::TimeInstant*>(dateTime.release()));
+        assert(timeInstant);
+        if(discardBefore_)
+        {
+          if(discardBefore_->getTimeInstantTZ().date() > timeInstant->getDate().getDate()
+             || (discardBefore_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardBefore_->getTimeInstantTZ().local_time() > timeInstant->getTimeInstant()))
+            return false;
+        }
+        if(discardAfter_)
+        {
+          if(discardAfter_->getTimeInstantTZ().date() < timeInstant->getDate().getDate()
+             || (discardAfter_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardAfter_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))
+            return false;
+        }
+
+        //Valid Date!!!
+        //update lastDateTime
+        if(!dataSetLastDateTime_
+           || (dataSetLastDateTime_->getTimeInstantTZ().date() < timeInstant->getDate().getDate()
+               || (dataSetLastDateTime_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && dataSetLastDateTime_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant())))
+        {
+          boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
+          boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, false);
+          dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
+        }
+
+        break;
+      }
+      case te::dt::DATE:
+      {
+        std::unique_ptr<te::dt::Date> date(dynamic_cast<te::dt::Date*>(dateTime.release()));
+        assert(date);
+        if(discardBefore_)
+        {
+          if(discardBefore_->getTimeInstantTZ().date() > date->getDate())
+            return false;
+        }
+        if(discardAfter_)
+        {
+          if(discardAfter_->getTimeInstantTZ().date() < date->getDate())
+            return false;
+        }
+
+        //Valid Date!!!
+        //update lastDateTime
+        if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
+        {
+          boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
+          boost::local_time::local_date_time boostTime(date->getDate(), boost::posix_time::time_duration(0,0,0,0), zone, false);
+          dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
+        }
+
+        break;
+      }
+      default:
+        break;
+    }
+  }
 
   return true;
 }
