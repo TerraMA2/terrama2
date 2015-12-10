@@ -77,10 +77,6 @@ void terrama2::core::Logger::initialize()
 
   sink_->set_formatter(&logFormatter);
 
-  // locale
-//  std::locale loc = boost::locale::generator()("en_US.UTF-8");
-//  sink_->imbue(loc);
-
   boost::log::core::get()->add_sink(sink_);
 
   // todo: exception handler
@@ -92,11 +88,6 @@ void terrama2::core::Logger::initialize()
 
 void terrama2::core::Logger::finalize()
 {
-}
-
-void terrama2::core::Logger::addStream(boost::shared_ptr<std::ostream>& stream)
-{
-  sink_->locked_backend()->add_stream(stream);
 }
 
 void terrama2::core::Logger::debug(const char* message)
@@ -117,16 +108,6 @@ void terrama2::core::Logger::ExceptionHandler::operator()(const std::logic_error
   throw;
 }
 
-std::ostream& operator<< (std::ostream& strm, const terrama2::Exception& exception)
-{
-  const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
-  std::string message = "** An exception occurred **! \t";
-  if (msg != nullptr)
-    message.append(msg->toStdString().c_str());
-
-  return strm << message;
-}
-
 void terrama2::core::Logger::info(const char* message)
 {
   TERRAMA2_LOG_DEBUG() << message;
@@ -135,18 +116,6 @@ void terrama2::core::Logger::info(const char* message)
 void terrama2::core::Logger::warning(const char* message)
 {
   TERRAMA2_LOG_WARNING() << message;
-}
-
-terrama2::core::Logger& terrama2::core::Logger::operator<<(const terrama2::Exception& e)
-{
-  const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-  std::string message = "** An exception occurred **! \t";
-  if (msg != nullptr)
-    message.append(msg->toStdString().c_str());
-
-//  TERRAMA2_LOG_ERROR() << message;
-
-  return *this;
 }
 
 void terrama2::core::Logger::trace(const char *message)
@@ -159,11 +128,16 @@ void terrama2::core::Logger::fatal(const char *message)
   TERRAMA2_LOG_ERROR() << message;
 }
 
-//// todo: display the severity name in log instead enum number
-//inline boost::log::formatting_ostream& operator<<(boost::log::formatting_ostream& stream,
-//                                                  terrama2::Exception& level)
-//{
-//
-//
-//  return stream;
-//}
+void terrama2::core::Logger::addStream(const std::string& stream_name)
+{
+  loggerPath_ = stream_name;
+  boost::shared_ptr<std::ostream> stream_out(&std::clog, boost::null_deleter());
+  boost::shared_ptr<std::ostream> stream_file(new std::ofstream(stream_name, std::ostream::app));
+  sink_->locked_backend()->add_stream(stream_file);
+  sink_->locked_backend()->add_stream(stream_out);
+}
+
+const std::string& terrama2::core::Logger::path() const
+{
+  return loggerPath_;
+}

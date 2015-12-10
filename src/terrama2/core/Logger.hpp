@@ -66,23 +66,15 @@ namespace terrama2
         void initialize();
         void finalize();
 
+        const std::string& path() const;
+
         void debug(const char* message);
         void info(const char* message);
         void warning(const char* message);
         void trace(const char* message);
         void fatal(const char* message);
 
-        void addStream(boost::shared_ptr<std::ostream>& stream);
-
-        Logger& operator<<(const terrama2::Exception& e);
-
-//        template<typename T>
-//        Logger& operator<<(const T& value)
-//        {
-//          TERRAMA2_LOG(logger_, DEBUG) << value;
-////          BOOST_LOG(my_logger::get()) << value;
-//          return *this;
-//        }
+        void addStream(const std::string& stream_name);
 
       protected:
         Logger();
@@ -91,6 +83,7 @@ namespace terrama2
       private:
         boost::log::sources::severity_logger<SeverityLevel> logger_;
         boost::shared_ptr<text_sink> sink_;
+        std::string loggerPath_;
     };
 
 // TODO: make the exception handler to work
@@ -112,6 +105,15 @@ namespace terrama2
 
       return lg;
     }
+
+    inline std::ostream& operator<<(std::ostream& stream, const terrama2::Exception& exception)
+    {
+      const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
+      std::string message = "** An exception occurred **! \t";
+      if (msg != nullptr)
+        message.append(msg->toStdString().c_str());
+      return stream << message;
+    }
   } // end core
 
 } // end terrama2
@@ -129,11 +131,5 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(terrama2_logger, boost::log::sources::s
 #define TERRAMA2_LOG_WARNING() TERRAMA2_LOG(terrama2::core::Logger::WARNING)
 #define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::ERROR)
 
-inline boost::log::formatting_ostream&
-operator<< (boost::log::formatting_ostream& strm, const terrama2::core::DataAccessError& value)
-{
-//  strm.stream() << value;
-  return strm;
-}
 
 #endif // __TERRAMA2_CORE_LOGGER_HPP__
