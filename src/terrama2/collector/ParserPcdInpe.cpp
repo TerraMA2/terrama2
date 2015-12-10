@@ -83,6 +83,8 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
   if(boostDate == boost::posix_time::ptime())
     assert(0);
 
+  //FIXME: get timezone from datasetitem.
+  //Parser ogr::read receives the filter of the datasetitem
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC-03"));
   boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
 

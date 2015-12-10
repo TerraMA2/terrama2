@@ -65,8 +65,8 @@ te::dt::AbstractData* terrama2::collector::ParserPcdToa5::StringToTimestamp(te::
   assert(indexes.size() == 1);
 
   std::string dateTime = dataset->getAsString(indexes[0]);
-
-  te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(boost::posix_time::ptime(boost::posix_time::time_from_string(dateTime)));
+//FIXME: follow ParserPcdInpe as model
+  te::dt::TimeInstant* dt = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(dateTime)));
 
   return dt;
 }

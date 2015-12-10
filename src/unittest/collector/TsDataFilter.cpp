@@ -41,11 +41,14 @@
 #include <QStringList>
 
 //terralib
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/datatype/Date.h>
 
 //STL
 #include <utility>
+
+//boost
+#include <boost/date_time/local_time/local_time.hpp>
 
 void TsDataFilter::TestFilterNamesExact()
 {
@@ -117,7 +120,9 @@ void TsDataFilter::TestDiscardBeforeMask()
   terrama2::core::DataSet      dataset;
   terrama2::core::DataSetItem  dataItem;
   terrama2::core::Filter       filter;
-  std::unique_ptr<te::dt::TimeInstant> tDate(new te::dt::TimeInstant("20150615T000000"));
+  boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("UTC-03"));
+  boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,6,15), boost::posix_time::time_duration(0,0,0,0), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
+  std::unique_ptr<te::dt::TimeInstantTZ> tDate(new te::dt::TimeInstantTZ(boostTime));
   filter.setDiscardBefore(std::move(tDate));
 
   provider.add(dataset);

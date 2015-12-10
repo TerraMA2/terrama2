@@ -195,7 +195,7 @@ bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::sh
                || (dataSetLastDateTime_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && dataSetLastDateTime_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant())))
         {
           boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
-          boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, false);
+          boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
           dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
         }
 
@@ -221,7 +221,7 @@ bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::sh
         if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
         {
           boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
-          boost::local_time::local_date_time boostTime(date->getDate(), boost::posix_time::time_duration(0,0,0,0), zone, false);
+          boost::local_time::local_date_time boostTime(date->getDate(), boost::posix_time::time_duration(0,0,0,0), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
           dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
         }
 
