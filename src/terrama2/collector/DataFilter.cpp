@@ -25,6 +25,7 @@
   \brief Filters data.
 
   \author Jano Simas
+  \author Evandro Delatin
 */
 
 // TerraMA2
@@ -34,15 +35,17 @@
 #include "Log.hpp"
 
 // STL
+#include <iostream>
 #include <iterator>
 #include <string>
 
 // BOOST
+#include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 //terralib
 #include <terralib/datatype/TimeDuration.h>
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/datatype/Enums.h>
@@ -103,22 +106,27 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 
     try
     {
-      boost::gregorian::date date(year, month, day);
-      te::dt::TimeDuration time(hours, minutes,second);
-      te::dt::TimeInstant tDate(date, time);
+      /*
+       * FIXME: what to do if not a valid date?
+       * is not wildcard is given an invalid date is build.
+         what happens if only year is given?
+      */
+//      boost::gregorian::date date(year, month, day);
+//      te::dt::TimeDuration time(hours, minutes,second);
+//      te::dt::TimeInstantTZ tDate(date, time);
 
-      //discard if outside valid date limits
-      if(discardBefore_ && tDate < *discardBefore_)
-        continue;
-      if(discardAfter_ && tDate > *discardAfter_)
-        continue;
+//      //discard if outside valid date limits
+//      if(discardBefore_ && tDate < *discardBefore_)
+//        continue;
+//      if(discardAfter_ && tDate > *discardAfter_)
+//        continue;
 
-      //Valid dates !!!!
-      matchesList2.push_back(name);
+//      //Valid dates !!!!
+//      matchesList2.push_back(name);
 
-      //update lastDateTime
-      if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < tDate)
-        *dataSetLastDateTime_ = tDate;
+//      //update lastDateTime
+//      if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < tDate)
+//        *dataSetLastDateTime_ = tDate;
     }
     catch(std::out_of_range& e)
     {
@@ -132,20 +140,29 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
   return matchesList2;
 }
 
+#include "boost/date_time/local_time/local_time_types.hpp"
+#include "boost/date_time/gregorian/gregorian.hpp"
 bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
 {
   //discard out of valid range dates
-  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
+  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
   if(discardBefore_ && *discardBefore_ > *dateTime)
     return false;
   if(discardAfter_ && *discardAfter_ < *dateTime)
     return false;
 
   //Valid Date!!!
+  boost::gregorian::date time(2005,boost::gregorian::Jan,1);
+  boost::local_time::time_zone_ptr
+    zone(new boost::local_time::posix_time_zone("UTC-03"));
+  boost::local_time::local_date_time  dt(boost::posix_time::ptime(boost::gregorian::date(2005,boost::gregorian::Jan,1),boost::posix_time::hours(0)), zone);
+//  boost::local_time::local_date_time dt();
 
-  //update lastDateTime
-  if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
-    dataSetLastDateTime_.reset(dateTime.release());
+  qDebug() << (time < dt);
+
+//  //update lastDateTime
+//  if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
+//    dataSetLastDateTime_.reset(dateTime.release());
 
   return true;
 }
@@ -202,7 +219,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
 }
 
 
-te::dt::DateTime* terrama2::collector::DataFilter::getDataSetLastDateTime() const
+te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime() const
 {
   return dataSetLastDateTime_.get();
 }
@@ -212,13 +229,13 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
     dataSetLastDateTime_(nullptr)
 {
   //recover last collection time logged
-  std::shared_ptr<te::dt::DateTime> logTime = Log::getDataSetItemLastDateTime(datasetItem.id());
+  std::shared_ptr<te::dt::TimeInstantTZ> logTime = Log::getDataSetItemLastDateTime(datasetItem.id());
   const core::Filter& filter = datasetItem_.filter();
 
   if(!filter.discardBefore())
      discardBefore_ = logTime;
   else if(!logTime)
-    discardBefore_ = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardBefore()->clone()));
+    discardBefore_ = std::shared_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
   else if(*filter.discardBefore() < *logTime )
   {
     discardBefore_ = logTime;
@@ -227,7 +244,7 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
     assert(0); //TODO: exception here
 
   if(filter.discardAfter())
-    discardAfter_ = std::shared_ptr<te::dt::DateTime>(static_cast<te::dt::DateTime*>(filter.discardAfter()->clone()));
+    discardAfter_ = std::shared_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(filter.discardAfter()->clone()));
 
   //prepare mask data
   processMask();

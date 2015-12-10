@@ -40,13 +40,21 @@
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/geometry.h>
 
-//STD
+//STL
 #include <string>
 #include <vector>
 
 //Boost
 #include <boost/noncopyable.hpp>
 #include <boost/regex.hpp>
+
+namespace te
+{
+  namespace dt
+  {
+    class TimeInstantTZ;
+  }
+}
 
 namespace terrama2
 {
@@ -97,7 +105,7 @@ namespace terrama2
         /*!
              * \brief Returns the lastest timestamp found in the DataSetItem.
              */
-        te::dt::DateTime* getDataSetLastDateTime() const;
+        te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
 
       private:
         //! Prepare mask data for wildcards identification
@@ -106,9 +114,9 @@ namespace terrama2
         bool validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
-        std::unique_ptr< te::dt::DateTime >  dataSetLastDateTime_; //! Latest valid date found
-        std::shared_ptr<te::dt::DateTime> discardBefore_; //! Only date after this will be valid
-        std::shared_ptr<te::dt::DateTime> discardAfter_;//! Only date before this will be valid
+        std::unique_ptr< te::dt::TimeInstantTZ >  dataSetLastDateTime_; //! Latest valid date found
+        std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //! Only date after this will be valid
+        std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_;//! Only date before this will be valid
 
         struct
         {

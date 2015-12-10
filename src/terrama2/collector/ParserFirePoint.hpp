@@ -32,14 +32,21 @@
 #ifndef __TERRAMA2_COLLECTOR_PARSERFIREPOINT_HPP__
 #define __TERRAMA2_COLLECTOR_PARSERFIREPOINT_HPP__
 
+// TerraMA2
 #include "Parser.hpp"
-
-#include <mutex>
-
 #include "Parser.hpp"
 #include "ParserOGR.hpp"
 
+// STL
 #include <mutex>
+
+/*!
+     * \brief The ParserFirePoint class is responsible for dealing with the occurrence of files.
+     *
+     * The DataSetAdapter is used to add the semantic geometry (generates point by coordinates Lat and Long)
+     * and dating the occurrence files.
+     *
+*/
 
 namespace terrama2
 {

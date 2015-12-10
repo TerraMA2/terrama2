@@ -76,9 +76,8 @@ void TsClient::cleanup()
 
 void TsClient::clearDatabase()
 {
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
   transactor->begin();
 
   std::string query = "TRUNCATE TABLE terrama2.data_provider CASCADE";
@@ -117,6 +116,15 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
   dataSet.setSchedule(te::dt::TimeDuration(schedule));
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+  terrama2::core::Intersection intersection;
+  std::map<std::string, std::vector<std::string> > attrMap;
+  std::vector<std::string> attrVec;
+  attrVec.push_back("geocodigo");
+  attrMap["public.municipio"] = attrVec;
+  intersection.setAttributeMap(attrMap);
+
+  dataSet.setIntersection(intersection);
 
   std::vector< terrama2::core::DataSet::CollectRule > rules;
 

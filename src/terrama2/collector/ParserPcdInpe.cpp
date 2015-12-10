@@ -28,24 +28,26 @@
   \author Evandro Delatin
 */
 
-
+// TerraMA2
 #include "ParserOGR.hpp"
 #include "ParserPcdInpe.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 
-//QT
+// QT
 #include <QDir>
 #include <QDebug>
 
-//STD
+// STL
 #include <memory>
 #include <algorithm>
 
-//boost
+// Boost
 #include <boost/format/exceptions.hpp>
+#include <boost/date_time/local_time/posix_time_zone.hpp>
+#include <boost/date_time/time_zone_base.hpp>
 
-//terralib
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -81,7 +83,10 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
   if(boostDate == boost::posix_time::ptime())
     assert(0);
 
-  te::dt::DateTime* dt = new te::dt::TimeInstant(boostDate);
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC-03"));
+  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
+
+  te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
 
   return dt;
 }

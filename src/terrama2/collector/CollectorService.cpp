@@ -213,7 +213,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::vector< std::string > log_uris;
           std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
 
-          Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
+//          Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -247,7 +247,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           qDebug() << "starting storager...";
           std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
 
-          const std::unique_ptr< te::dt::DateTime > lastDateTime = std::unique_ptr< te::dt::DateTime >(filter->getDataSetLastDateTime());
+          const std::unique_ptr< te::dt::TimeInstantTZ > lastDateTime = std::unique_ptr< te::dt::TimeInstantTZ >(filter->getDataSetLastDateTime());
 
           for(auto& uri: log_uris)
           {

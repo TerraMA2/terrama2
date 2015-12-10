@@ -31,6 +31,7 @@
 // STL
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 // TerraMA2
 #include "DataRetrieverFTP.hpp"
@@ -38,8 +39,11 @@
 #include "Exception.hpp"
 #include "Log.hpp"
 
-// libcurl
+// Libcurl
 #include <curl/curl.h>
+
+// Boost
+#include <boost/algorithm/string.hpp>
 
 // QT
 #include <QTranslator>
@@ -50,12 +54,37 @@ terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::Da
 
 }
 
+terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
+{
+  try
+  {
+   std::string path;
+// Remove the files in the tmp folder
+    for(std::string file: vectorNames_)
+    {
+      path = "/tmp/"+file;
+      std::remove(path.c_str()); // delete file
+    }
+  }
+  catch(const std::exception& e)
+  {
+    QString messageError = QObject::tr("Could not deleted file! \n\n Details: \n");
+    messageError.append(e.what());
+
+    throw DataRetrieverFTPError() << ErrorDescription(messageError);
+  }
+
+  catch(...)
+  {
+    throw DataRetrieverFTPError() << ErrorDescription(QObject::tr("Unknown Error, could not deleted file!"));
+  }
+}
+
+
 void terrama2::collector::DataRetrieverFTP::open()
 {
-  // local file name to store the file
-  ftpfile = std::fopen("files.txt", "wb"); /* b is binary, needed on win32 */
 
-  curl = curl_easy_init();
+  curl_ = curl_easy_init();
 }
 
 bool terrama2::collector::DataRetrieverFTP::isOpen()
@@ -63,21 +92,21 @@ bool terrama2::collector::DataRetrieverFTP::isOpen()
 // check if connection is open
 
   CURLcode status;
-  if(curl)
+  if(curl_)
   {
-    curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri().c_str());
-    curl_easy_setopt(curl, CURLOPT_FTPLISTONLY, 1);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+    curl_easy_setopt(curl_, CURLOPT_URL, dataprovider_.uri().c_str());
+    curl_easy_setopt(curl_, CURLOPT_FTPLISTONLY, 1);
+    curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_easy_setopt(curl_, CURLOPT_NOBODY, 1);
 
-    status = curl_easy_perform(curl);
+    status = curl_easy_perform(curl_);
 
     if (status != CURLE_OK)
       return false;
   }
 
-  curl_easy_cleanup(curl);
-  curl = curl_easy_init();
+  curl_easy_cleanup(curl_);
+  curl_ = curl_easy_init();
 
   return true;
 
@@ -85,8 +114,8 @@ bool terrama2::collector::DataRetrieverFTP::isOpen()
 
 void terrama2::collector::DataRetrieverFTP::close()
 {
-  // always cleanup
-  curl_easy_cleanup(curl);
+// always cleanup
+  curl_easy_cleanup(curl_);
 }
 
 static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
@@ -95,34 +124,47 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
   return fwrite(ptr, size, nmemb, writehere);
 }
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
+
+size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 {
-  std::string uri;
-  std::string url;
-  std::string line;
+  size_t sizeRead = size * nmemb;
+
+  std::string* block = (std::string*) data;
+  block->append((char *)ptr, sizeRead);
+
+  return sizeRead;
+}
+
+
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
+{
+  std::string uriOutput;
+  std::string uriInput;
   CURLcode status;
   std::vector<std::string> vectorFiles;
+  std::string block;
 
   try
   {
-    if(curl)
+    if(curl_)
     {
-      /* Get a file listing from server */
-      // curl_easy_setopt(curl, CURLOPT_URL, "ftp://username@localhost:21/");
-      //FIXME: How to differentiate directories files (CURLOPT_WILDCARDMATCH).
-      url = dataprovider_.uri() + datasetitem.path();
-      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      //curl_easy_setopt(curl, CURLOPT_URL, dataprovider_.uri() + datasetitem.path());
-      // get only the list of files and directories
-      curl_easy_setopt(curl, CURLOPT_FTPLISTONLY, ftpfile);
-      curl_easy_setopt(curl, CURLOPT_DIRLISTONLY, 1);
-      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
-      curl_easy_setopt(curl, CURLOPT_WRITEDATA, ftpfile);
-      // performs the configurations of curl_easy_setopt
-      status = curl_easy_perform(curl);
+// Get a file listing from server
+      uriInput = dataprovider_.uri() + datasetitem.path();
+      curl_easy_setopt(curl_, CURLOPT_URL, uriInput.c_str());
+      curl_easy_setopt(curl_, CURLOPT_DIRLISTONLY, 1);
+      curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_vector);
+      curl_easy_setopt(curl_, CURLOPT_WRITEDATA, (void *)&block);
+
+// performs the configurations of curl_easy_setop
+      status = curl_easy_perform(curl_);
 
       if (status == CURLE_OK)
-        std::fclose(ftpfile);
+      {
+        boost::split(vectorFiles, block, boost::is_any_of("\n"));
+
+        if(vectorFiles.size() && vectorFiles.back().empty())
+          vectorFiles.pop_back();
+      }
       else
       {
         QString messageError = QObject::tr("Could not list the FTP server files. \n\n Details: \n");
@@ -130,44 +172,12 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
         throw DataRetrieverFTPError() << ErrorDescription(messageError);
       }
 
-      // Reads the file and write each line of the file in the file vector.
-      try
-      {
-        std::ifstream fileList("files.txt");
-        if (fileList.is_open())
-        {
-          while(!fileList.eof())
-          {
-            getline(fileList,line);
-            vectorFiles.push_back(line);
-          }
-        }
-      }
-      catch(const std::ios_base::failure& e)
-      {
-        QString messageError = QObject::tr("Could not open file! \n\n Details: \n");
-        messageError.append(e.what());
+// filter file names that should be downloaded.
+      vectorNames_.clear();
 
-        throw DataRetrieverFTPError() << ErrorDescription(messageError);
-      }
+      vectorNames_ = filter->filterNames(vectorFiles);
 
-      catch(const std::exception& e)
-      {
-        QString messageError = QObject::tr("Could not open file! \n\n Details: \n");
-        messageError.append(e.what());
-
-        throw DataRetrieverFTPError() << ErrorDescription(messageError);
-      }
-
-      catch(...)
-      {
-        throw DataRetrieverFTPError() << ErrorDescription(QObject::tr("Unknown Error, could not open file!"));
-      }
-
-      // filter file names that should be downloaded.
-      std::vector<std::string> names = filter->filterNames(vectorFiles);
-
-      for (std::string file: names)
+      for (std::string file: vectorNames_)
       {
         CURL *curl;
         FILE *destFilePath;
@@ -177,9 +187,9 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
         if (curl)
         {
-          uri = dataprovider_.uri() + datasetitem.path() + file;
+          uriOutput = dataprovider_.uri() + datasetitem.path() + file;
           destFilePath = fopen(("/tmp/"+file).c_str(),"wb");
-          curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+          curl_easy_setopt(curl, CURLOPT_URL, uriOutput.c_str());
           curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
           curl_easy_setopt(curl, CURLOPT_WRITEDATA, destFilePath);
           res = curl_easy_perform(curl);
@@ -195,6 +205,8 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
             curl_easy_cleanup(curl);
 
             fclose(destFilePath);
+
+            log_uris.push_back(uriInput);
           }
         }
       }

@@ -28,22 +28,23 @@
   \author Evandro Delatin
 */
 
+// QT
+#include <QDir>
+#include <QDebug>
 
+// STL
+#include <memory>
+
+// Boost
+#include <boost/format/exceptions.hpp>
+
+// TerraMA2
 #include "ParserOGR.hpp"
 #include "ParserFirePoint.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 
-//QT
-#include <QDir>
-#include <QDebug>
-
-//STD
-#include <memory>
-
-#include <boost/format/exceptions.hpp>
-
-//terralib
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>

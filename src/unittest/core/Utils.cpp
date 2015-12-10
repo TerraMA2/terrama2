@@ -138,4 +138,5 @@ void createDatabase()
   dropDatabase();
 
   terrama2::core::ApplicationController::getInstance().createDatabase("terrama2_test", "postgres", "postgres", "localhost", 5432);
+
 }

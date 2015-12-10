@@ -32,14 +32,21 @@
 #ifndef __TERRAMA2_COLLECTOR_PARSERPCDINPE_HPP__
 #define __TERRAMA2_COLLECTOR_PARSERPCDINPE_HPP__
 
+// TerraMA2
 #include "Parser.hpp"
-
-#include <mutex>
-
 #include "Parser.hpp"
 #include "ParserOGR.hpp"
 
+// STL
 #include <mutex>
+
+/*!
+     * \brief The ParserPcdINPE class is responsible for making the parser file in the format PCD INPE.
+     *
+     * The The StringToTimeStamp method is responsible for handling the date and time fields
+     * in the format timestamp PCD INPE file.
+     *
+*/
 
 namespace terrama2
 {

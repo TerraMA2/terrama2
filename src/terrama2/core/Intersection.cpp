@@ -20,39 +20,54 @@
 */
 
 /*!
-  \file terrama2/collector/DataRetriever.cpp
+  \file terrama2/core/Filter.cpp
 
-  \brief Interface for getting remote data to a local temporary file.
+  \brief Intersection information of a dataset.
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
 */
 
 // TerraMA2
-#include "DataRetriever.hpp"
+#include "Intersection.hpp"
 
 
-terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
-{
-//TODO: review exception: should check valid dataprovider?
-  dataprovider_ = dataprovider;
-}
-
-std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<std::string>& /*log_uris*/)
-{
-  return dataprovider_.uri();
-}
-
-void terrama2::collector::DataRetriever::open()
+terrama2::core::Intersection::Intersection(uint64_t dataSetId)
+: dataset_(dataSetId)
 {
 
 }
 
-bool terrama2::collector::DataRetriever::isOpen()
+terrama2::core::Intersection::~Intersection()
 {
-  return true;
+
 }
 
-void terrama2::collector::DataRetriever::close()
+uint64_t terrama2::core::Intersection::dataset() const
 {
+  return dataset_;
+}
 
+void terrama2::core::Intersection::setDataSet(uint64_t id)
+{
+  dataset_ = id;
+}
+
+std::map<std::string, std::vector<std::string> > terrama2::core::Intersection::attributeMap() const
+{
+  return attributeMap_;
+}
+
+void terrama2::core::Intersection::setAttributeMap(std::map<std::string, std::vector<std::string> >& attributeMap)
+{
+  attributeMap_ = attributeMap;
+}
+
+std::map<uint64_t, std::string> terrama2::core::Intersection::bandMap() const
+{
+  return bandMap_;
+}
+
+void terrama2::core::Intersection::setBandMap(std::map<uint64_t, std::string >& bandMap)
+{
+  bandMap_ = bandMap;
 }

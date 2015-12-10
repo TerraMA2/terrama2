@@ -46,6 +46,15 @@ struct CollectRule
   uint64_t      datasetId;
 };
 
+struct Intersection
+{
+  uint64_t datasetId;
+  std::vector<std::string > attributeMap_keys;
+  std::vector<std::vector<std::string> > attributeMap_values;
+  std::vector<uint64_t> bandMap_keys;
+  std::vector<std::string> bandMap_values;
+};
+
 
 struct DataSetItem
 {
@@ -85,6 +94,7 @@ struct DataSet
   std::string                       schedule_timeout;
   std::vector< struct DataSetItem > dataset_items;
   std::vector< struct CollectRule > dataset_collectRules;
+  struct Intersection               intersection;
 
   std::vector< std::string > metadata_keys;
   std::vector< std::string > metadata_values;

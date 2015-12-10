@@ -36,6 +36,7 @@
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 // Qt
 #include <QObject>
@@ -65,7 +66,10 @@ terrama2::core::FilterDAO::save(const Filter& filter, te::da::DataSourceTransact
 
   // TODO: persist filter geometry
 // geom
-  query.bind_arg(4, "NULL");
+  if(filter.geometry())
+    query.bind_arg(4, "'" + filter.geometry()->asText() + "'") ;
+  else
+    query.bind_arg(4, "NULL");
 
   // TODO: persist fiter external data id
 // external_data_id
@@ -125,7 +129,10 @@ terrama2::core::FilterDAO::update(const Filter& filter, te::da::DataSourceTransa
     query.bind_arg(2, "NULL");
 
 // geom
-  query.bind_arg(3, "NULL");
+  if(filter.geometry())
+    query.bind_arg(3, "'" + filter.geometry()->asText() + "'") ;
+  else
+    query.bind_arg(3, "NULL");
 
 // external_data_id
   query.bind_arg(4, "NULL");
@@ -210,14 +217,22 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     Filter filter(datasetItemId);
 
     if(!filter_result->isNull("discard_before"))
-      filter.setDiscardBefore(filter_result->getDateTime("discard_before"));
+    {
+      auto discardBefore = filter_result->getDateTime("discard_before");
+      auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardBefore.get());
+      filter.setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ>(titz));
+    }
 
     if(!filter_result->isNull("discard_after"))
-      filter.setDiscardAfter(filter_result->getDateTime("discard_after"));
-    
+    {
+      auto discardAfter = filter_result->getDateTime("discard_after");
+      auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardAfter.get());
+      filter.setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ>(titz));
+    }
+
     if(!filter_result->isNull(3))
       filter.setGeometry(filter_result->getGeometry("geom"));
-    
+
     filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
 
     if(!filter_result->isNull("value"))
@@ -231,10 +246,10 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
       std::unique_ptr<double> byValue(nullptr);
       filter.setValue(std::move(byValue));
     }
-    
+
     if(!filter_result->isNull("band_filter"))
       filter.setBandFilter(filter_result->getString("band_filter"));
-    
+
     return std::move(filter);
   }
   catch(const terrama2::Exception&)

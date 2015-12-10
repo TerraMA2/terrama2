@@ -141,6 +141,15 @@ terrama2::core::DataSet TsClient::buildDataSet()
   dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
+  terrama2::core::Intersection intersection;
+  std::map<std::string, std::vector<std::string> > attrMap;
+  std::vector<std::string> attrVec;
+  attrVec.push_back("geocodigo");
+  attrMap["public.municipio"] = attrVec;
+  intersection.setAttributeMap(attrMap);
+
+  dataSet.setIntersection(intersection);
+
   return dataSet;
 }
 

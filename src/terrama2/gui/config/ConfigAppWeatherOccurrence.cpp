@@ -22,9 +22,6 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   connect(ui_->intersectionBtn, SIGNAL(clicked()), SLOT(onIntersectionBtnClicked()));
   connect(ui_->pointDiffFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabEdited()));
 
-  //todo: implement intersection dialog and then, enabled it again
-  ui_->intersectionBtn->setEnabled(false);
-
   ui_->projectionPointDiffBtn->setEnabled(false);
 
   ui_->updateDataPointDiffBtn->setEnabled(false);
@@ -82,6 +79,8 @@ void ConfigAppWeatherOccurrence::save()
   metadata["KIND"] = ui_->pointDiffFormatDataFormat->currentText().toStdString();
   metadata["PREFIX"] = ui_->pointDiffFormatDataPrefix->text().toStdString();\
   dataset.setMetadata(metadata);
+
+  dataset.setIntersection(intersection_);
 
   terrama2::core::DataSetItem* datasetItem;
   if (dataset.dataSetItems().size() > 0)
@@ -198,6 +197,7 @@ void ConfigAppWeatherOccurrence::onDataSetBtnClicked()
     selectedData_.clear();
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointDiffPage);
 
+    intersection_ = terrama2::core::Intersection();
     filter_.reset(new terrama2::core::Filter);
     resetFilterState();
   }
@@ -234,12 +234,20 @@ void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
 
 void ConfigAppWeatherOccurrence::onIntersectionBtnClicked()
 {
-  IntersectionDialog dialog;
-  dialog.exec();
+  IntersectionDialog dialog(intersection_);
+  if(dialog.exec() == QDialog::Accepted)
+  {
+    intersection_ = dialog.getIntersection();
+  }
 }
 
 void ConfigAppWeatherOccurrence::onProjectionClicked()
 {
   ProjectionDialog dialog(app_);
   dialog.exec();
+}
+
+void ConfigAppWeatherOccurrence::setIntersection(const terrama2::core::Intersection& intersection)
+{
+  intersection_ = intersection;
 }

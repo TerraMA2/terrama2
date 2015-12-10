@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 // Define SERVER if you are running a server on seted port
 //#define SERVER server
 
-  std::string project_path = "../../codebase/src/integrationtest/data/terrama2_test_ws.terrama2";
+  std::string project_path = "src/integrationtest/data/terrama2_test_ws.terrama2";
 
 #ifndef SERVER
 

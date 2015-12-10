@@ -33,6 +33,7 @@
 
 // TerraMA2
 #include "ConfigAppTab.hpp"
+#include "../../core/Intersection.hpp"
 
 // QT
 #include <QSharedPointer>
@@ -71,6 +72,8 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     //! It fills the terrama2 filter object
     void fillFilter(const terrama2::core::Filter&);
 
+    void setIntersection(const terrama2::core::Intersection& intersection);
+
   private:
     //! It reset filter label state
     void resetFilterState();
@@ -88,12 +91,13 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
 
     /*!
       \brief Slot triggered when intersection button has been clicked. It displays the Intersection Gui Form.
-      \todo Implement that interface in new TerraMA2 model
     */
     void onIntersectionBtnClicked();
 
   private:
     QSharedPointer<terrama2::core::Filter> filter_; //!< Occurrence filter defined
+    terrama2::core::Intersection intersection_;
+
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__
