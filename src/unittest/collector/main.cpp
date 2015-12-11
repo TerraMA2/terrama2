@@ -26,11 +26,11 @@ int main(int argc, char *argv[])
 //  TsParserOGR tsParserOGR;
 //  returnVal += QTest::qExec(&tsParserOGR, argc, argv);
 
-//  TsDataFilter tsDataFilter;
-//  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
+  TsDataFilter tsDataFilter;
+  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
 
-  TsIntegration tsIntegration;
-  returnVal += QTest::qExec(&tsIntegration, argc, argv);
+//  TsIntegration tsIntegration;
+//  returnVal += QTest::qExec(&tsIntegration, argc, argv);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

@@ -34,7 +34,7 @@
 #include <iostream>
 
 // TerraLib
-#include <terralib/datatype/DateTime.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 namespace terrama2
 {
@@ -60,7 +60,7 @@ namespace terrama2
 
         static void updateLog(std::string origin_uri, std::string uri, Status s, std::string data_timestamp);
 
-        static std::shared_ptr< te::dt::DateTime > getDataSetItemLastDateTime(uint64_t id);
+        static std::shared_ptr<te::dt::TimeInstantTZ> getDataSetItemLastDateTime(uint64_t id);
     };
   }
 }

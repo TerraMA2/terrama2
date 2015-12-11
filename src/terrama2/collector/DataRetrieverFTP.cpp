@@ -136,7 +136,7 @@ size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 }
 
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(terrama2::core::DataSetItem datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
 {
   std::string uriOutput;
   std::string uriInput;

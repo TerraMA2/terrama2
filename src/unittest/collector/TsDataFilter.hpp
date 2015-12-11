@@ -33,9 +33,24 @@
 //Qt
 #include <QtTest>
 
+
+
+
 class TsDataFilter: public QObject
 {
   Q_OBJECT
+
+  /*!
+   * \brief Tests if the filter matches exact name.
+   */
+  void TestFilterNamesExact();
+
+  /*!
+   * \brief Tests behavior with no mask set.
+   */
+  void TestEmptyMask();
+
+  void TestDateMask();
 
 private slots:
 
@@ -47,16 +62,7 @@ private slots:
 
     //******Test functions********
 
-    /*!
-     * \brief Tests if the filter matches exact name.
-     */
-    void TestFilterNamesExact();
-
-    /*!
-     * \brief Tests behavior with no mask set.
-     */
-    void TestEmptyMask();
-
+    void TestDiscardBeforeMask();
 
     //******End of Test functions****
 };
