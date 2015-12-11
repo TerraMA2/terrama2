@@ -17,9 +17,6 @@ namespace terrama2
 {
   namespace core
   {
-
-    struct DataAccessError;
-
     class Logger : public te::common::Singleton<Logger>
     {
 
@@ -56,7 +53,7 @@ namespace terrama2
       private:
         boost::shared_ptr<text_sink> sink_; //!< Sink for handling records.
         std::string loggerPath_; //!<
-    };
+    }; // end class logger
 
     //! Override operator<< to enable sets terrama2 exception in log. It formats the exception and put it in stream
     inline std::ostream& operator<<(std::ostream& stream, const terrama2::Exception& exception)
