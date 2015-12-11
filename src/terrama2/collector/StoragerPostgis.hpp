@@ -51,7 +51,6 @@ namespace terrama2
     {
       public:
         StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
-        StoragerPostgis(const std::shared_ptr<te::da::DataSource>& dataSource);
 
         /*!
              * \brief Store a temporary data set in it's final storage area and format.
@@ -68,8 +67,6 @@ namespace terrama2
                         std::shared_ptr<te::da::DataSource> datasourceDestination,
                         const std::shared_ptr<te::da::DataSetType> &dataSetType,
                         const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec);
-
-        std::shared_ptr<te::da::DataSource> dataSource_;
 
     };
   }
