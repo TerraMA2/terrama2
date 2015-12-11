@@ -1,3 +1,5 @@
+@import url("fonts.terrama2.css");
+
 html, body {
   height: 100% !important;
 }
@@ -5,14 +7,13 @@ html, body {
 .terrama2-container {
   position: relative;
   height: 100%;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Titillium Regular', Helvetica, Arial, sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   margin: 0;
 }
 
 .terrama2-check {
-  /*float: right;*/
   top: 2px !important;
   left: 15px !important;
 }

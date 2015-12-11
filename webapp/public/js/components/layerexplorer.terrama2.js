@@ -29,7 +29,7 @@ var LayerExplorer = function(terrama2) {
   * @param {type} layer
   * @returns {String}
   */
-  var buildLayerTree = function(layer, firstCall) {
+  var buildLayerExplorer = function(layer, firstCall) {
     var elem;
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
@@ -48,7 +48,7 @@ var LayerExplorer = function(terrama2) {
       var layers = layer.getLayers().getArray(),
       len = layers.length;
       for (var i = len - 1; i >= 0; i--) {
-        sublayersElem += buildLayerTree(layers[i]);
+        sublayersElem += buildLayerExplorer(layers[i]);
       }
 
       if(firstCall) {
@@ -76,11 +76,11 @@ var LayerExplorer = function(terrama2) {
   */
   var initializeTree = function() {
 
-    var elem = buildLayerTree(map.getLayerGroup(), true);
-    $('#terrama2-layertree .terrama2-leftbox-content').empty().append("<div class='terrama2-leftbox-header'><h2>Camadas</h2><hr/></div>" + elem);
+    var elem = buildLayerExplorer(map.getLayerGroup(), true);
+    $('#terrama2-layerexplorer').empty().append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2><hr/></div>" + elem + "</div>");
 
-    $('#terrama2-layertree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
-    $('#terrama2-layertree li.parent_li > span').on('click', function(e) {
+    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
+    $('#terrama2-layerexplorer li.parent_li > span').on('click', function(e) {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
       if (children.is(":visible")) {
         children.hide('fast');
@@ -144,6 +144,8 @@ var LayerExplorer = function(terrama2) {
   }));
 
   $(document).ready(function() {
+
+    $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
 
     initializeTree();
 

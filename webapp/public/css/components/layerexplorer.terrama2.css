@@ -1,0 +1,76 @@
+#terrama2-layerexplorer {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#terrama2-layerexplorer ul {
+  padding-left: 30px;
+}
+
+#terrama2-layerexplorer ul.layerstack {
+  list-style: none;
+}
+
+#terrama2-layerexplorer ul.layerstack li {
+  border-bottom: 1px solid #ccc;
+  padding: 3px;
+}
+
+#terrama2-layerexplorer ul.layerstack li:hover {
+  /*background-color: #eee;*/
+}
+
+#terrama2-layerexplorer ul.layerstack li.selected {
+  background-color: #ddd;
+}
+
+#terrama2-layerexplorer li.parent_li ul li {
+  cursor: default;
+}
+
+#terrama2-layerexplorer li.parent_li ul li.selected {
+  background-color: #ddd;
+}
+
+#terrama2-layerexplorer li {
+  list-style-type:none;
+  margin:0;
+  padding: 0px 0px 5px 0px;
+  position:relative;
+  white-space: nowrap;
+  background-color:
+}
+
+#terrama2-layerexplorer li::before, #terrama2-layerexplorer li::after {
+  content:'';
+  left:-20px;
+  position:absolute;
+  right:auto;
+}
+
+#terrama2-layerexplorer li span {
+  display:inline-block;
+  padding:3px 8px;
+  text-decoration:none;
+}
+
+#terrama2-layerexplorer li.parent_li>span {
+  cursor:pointer;
+}
+
+#terrama2-layerexplorer>ul>li::before, #terrama2-layerexplorer>ul>li::after {
+  border:0;
+}
+
+#terrama2-layerexplorer li:last-child::before {
+  height:30px;
+}
+
+#terrama2-layerexplorer li.parent_li>span:hover, #terrama2-layerexplorer li.parent_li>span:hover+ul li span {
+  /*background:#eee;
+  color: #000;*/
+}

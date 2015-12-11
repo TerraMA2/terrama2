@@ -50,6 +50,9 @@ var MapDisplay = function() {
   this.findBy = findBy;
 
   var olMap = new ol.Map({
+    /*controls: ol.control.Zoom({
+        className: "terrama2-simple-zoom"
+    }),*/
     renderer: 'canvas',
     layers: [
       new ol.layer.Group({
@@ -84,6 +87,10 @@ var MapDisplay = function() {
       zoom: 4
     })
   });
+
+  /*olMap.getControls().getZoom().setProperties({
+    className: "terrama2-simple-zoom"
+  });*/
 
   olMap.getLayerGroup().set('name', 'root');
   olMap.getLayerGroup().set('title', 'Geoserver Local');

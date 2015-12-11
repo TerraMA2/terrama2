@@ -1,7 +1,7 @@
 #terrama2-map {
-  position: relative;
+  position: absolute;
   float: right;
   height: 100%;
-  width: calc(100% - 51px);
+  width: 100%;
   z-index: 1;
 }

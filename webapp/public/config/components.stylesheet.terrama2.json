@@ -2,5 +2,6 @@
   "LayerExplorer": "layerexplorer.terrama2.css",
   "LeftBar": "leftbar.terrama2.css",
   "ToolBox": "toolbox.terrama2.css",
-  "MapDisplay": "mapdisplay.terrama2.css"
+  "MapDisplay": "mapdisplay.terrama2.css",
+  "Filter": "filter.terrama2.css"
 }

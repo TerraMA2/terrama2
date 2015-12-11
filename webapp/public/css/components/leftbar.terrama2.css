@@ -43,6 +43,9 @@
   width: 50px;
   height: 50px;
   background: transparent;
+  background-image: url('../../img/icon_div.png');
+  background-repeat: no-repeat;
+  background-position: bottom;
   border-radius: 0;
   color: rgba(255,255,255,0.9);
   display: inline-block;
@@ -70,6 +73,12 @@
   outline: none;
 }
 
+.terrama2-leftbar-button.terrama2-leftbar-button-layers {
+  background-image: url('../../img/icon_div.png'), url('../../img/icon_layers.png') !important;
+  background-repeat: no-repeat;
+  background-position: bottom, center !important;
+}
+
 .terrama2-right-arrow:before {
   position: absolute;
   left: 48px;
@@ -88,6 +97,10 @@
 .terrama2-leftbar-button:hover, .terrama2-leftbar-button:active, .terrama2-leftbar-button.active {
   background: #63604D;
   color: white;
+}
+
+.terrama2-leftbar-button.terrama2-leftbar-button-layers:hover, .terrama2-leftbar-button.terrama2-leftbar-button-layers:active, .terrama2-leftbar-button.terrama2-leftbar-button-layers.active {
+  background-repeat: no-repeat;
 }
 
 .terrama2-leftbar-button.terrama2-hide-leftbar-button, .terrama2-leftbar-button.terrama2-show-leftbar-button {
