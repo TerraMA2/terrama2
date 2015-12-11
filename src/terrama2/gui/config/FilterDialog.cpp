@@ -36,16 +36,18 @@
 #include <terralib/geometry/Polygon.h>
 #include <terralib/geometry/LinearRing.h>
 
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 // boost
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "boost/date_time/gregorian/gregorian.hpp"
+#include <boost/date_time/gregorian/gregorian.hpp>
 
-#include <QMessageBox>
-#include <QDialog>
 #include <QIcon>
+#include <QDialog>
 #include <QLineEdit>
+#include <QTimeZone>
+#include <QDateTime>
+#include <QMessageBox>
 #include <QIntValidator>
 
 
@@ -180,7 +182,7 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
   //TODO: improve date convertion. This code just uses boost to convert te::Date
   if (filter.discardBefore())
   {
-    const te::dt::TimeInstant* dt = dynamic_cast<const te::dt::TimeInstant*>(filter.discardBefore());
+    const te::dt::TimeInstantTZ* dt = filter.discardBefore();
     pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
 
     QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
@@ -190,7 +192,7 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
 
   if (filter.discardAfter())
   {
-    const te::dt::TimeInstant* dt = dynamic_cast<const te::dt::TimeInstant*>(filter.discardAfter());
+    const te::dt::TimeInstantTZ* dt = filter.discardAfter();
     pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
     QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
     pimpl_->ui_->datetimeAfter->setDateTime(date);
@@ -261,7 +263,20 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
     {
       QDateTime beforeDate = pimpl_->ui_->datetimeBefore->dateTime();
-      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(boost::posix_time::time_from_string(beforeDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
+      QDateTime localCurrentDateTime = QDateTime::currentDateTime();
+      QTimeZone timeZone = localCurrentDateTime.timeZone();
+      QString zoneStr = timeZone.displayName(localCurrentDateTime, QTimeZone::OffsetName);
+
+      std::string posixTime = beforeDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
+
+      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
+      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
+      //stream for the DateTimeTZ string
+      std::stringstream stream(posixTime);
+      //convert to boot local_date_time
+      stream >> boostTime;
+      //Build a te::dt::TimeInstantTZ
+      std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostTime));
       filter.setDiscardBefore(std::move(datePtr));
     }
     else
@@ -269,8 +284,21 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
     if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
     {
-      QDateTime afterDate = pimpl_->ui_->datetimeAfter->dateTime();
-      std::unique_ptr<te::dt::TimeInstant> datePtr (new te::dt::TimeInstant(boost::posix_time::time_from_string(afterDate.toString("yyyy-MM-dd HH:mm:ss").toStdString())));
+      QDateTime beforeDate = pimpl_->ui_->datetimeAfter->dateTime();
+      QDateTime localCurrentDateTime = QDateTime::currentDateTime();
+      QTimeZone timeZone = localCurrentDateTime.timeZone();
+      QString zoneStr = timeZone.displayName(localCurrentDateTime, QTimeZone::OffsetName);
+
+      std::string posixTime = beforeDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
+
+      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
+      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
+      //stream for the DateTimeTZ string
+      std::stringstream stream(posixTime);
+      //convert to boot local_date_time
+      stream >> boostTime;
+      //Build a te::dt::TimeInstantTZ
+      std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostTime));
       filter.setDiscardAfter(std::move(datePtr));
     }
     else
