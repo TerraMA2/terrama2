@@ -61,8 +61,8 @@ var LayerExplorer = function(terrama2) {
       var check = layer.get('visible') ? terrama2.getConfig().getConfJsonHTML().CheckLayerChecked : terrama2.getConfig().getConfJsonHTML().CheckLayerUnchecked;
 
       var div1 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-      "<span>" + title + "</span>" +
       check +
+      "<span>" + title + "</span>" +
       terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
       elem = div1 + " </li>";

@@ -5,3 +5,15 @@
   width: 100%;
   z-index: 1;
 }
+
+.terrama2-map-simple-zoom {
+  top: 20px;
+  right: 50px;
+}
+
+.terrama2-map-attribution {
+  text-align: right;
+  bottom: 20px;
+  right: 50px;
+  max-width: calc(100% - 1.3em);
+}

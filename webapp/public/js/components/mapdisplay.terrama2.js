@@ -88,10 +88,9 @@ var MapDisplay = function() {
     })
   });
 
-  /*olMap.getControls().getZoom().setProperties({
-    className: "terrama2-simple-zoom"
-  });*/
-
   olMap.getLayerGroup().set('name', 'root');
   olMap.getLayerGroup().set('title', 'Geoserver Local');
+
+  $("#terrama2-map").find('div.ol-zoom').removeClass('ol-zoom').addClass('terrama2-map-simple-zoom');
+  $("#terrama2-map").find('div.ol-attribution').addClass('terrama2-map-attribution');
 }
