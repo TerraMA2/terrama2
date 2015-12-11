@@ -101,7 +101,7 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
                                                  const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                                                  const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
-  assert(datasetVec.size() == 1);//FIXME: remove this!
+  //assert(datasetVec.size() == 1);//FIXME: remove this!
 
   std::string uri;
 
@@ -128,12 +128,25 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
 
       // get a transactor to interact to the data source
       commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
+
+      uri = "POSTGIS:////" + dataSetName;
     }
     else
+    {
       commitData(standardDataSetName, dataSource_, dataSetType, datasetVec);
 
+      std::map<std::string, std::string> connectionInfo = dataSource_->getConnectionInfo();
 
-    uri = "POSTGIS:////" + dataSetName;
+      uri = "POSTGIS:////" +
+            connectionInfo.find("PG_HOST_ADDR")->second +
+            connectionInfo.find("PG_HOST")->second +
+            connectionInfo.find("PG_PORT")->second +
+            connectionInfo.find("PG_DB_NAME")->second +
+            connectionInfo.find("PG_USER")->second +
+            connectionInfo.find("PG_PASSWORD")->second +
+            dataSetName;
+    }
+
   }
   catch(terrama2::Exception& e)
   {
