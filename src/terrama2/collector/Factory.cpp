@@ -99,12 +99,10 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
 
   if(storageMetadata.empty())
   {
-    //TODO: review, should it be kept here?
-
-    //If no storage metadata use standard storage as postgis in the same storage as TerraMA2 datamodel
-    return std::make_shared<StoragerPostgis>(core::ApplicationController::getInstance().getDataSource());
+    //FIXME: remove this.
+    storageMetadata = core::ApplicationController::getInstance().getDataSource()->getConnectionInfo();
+    storageMetadata.emplace("KIND", "postgis");
   }
-
 
   //TODO: Exceptions
 

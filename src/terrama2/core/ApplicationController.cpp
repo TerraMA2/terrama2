@@ -281,7 +281,7 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
       db.setPassword(password.c_str());
       db.open();
 
-      QString scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/sql/terrama2-data-model-pg_oneline.sql").c_str();
+      QString scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/sql/terrama2-data-model-pg.sql").c_str();
       QFile sqlScript(scriptPath);
       sqlScript.open(QIODevice::ReadOnly);
       QSqlQuery query(db);

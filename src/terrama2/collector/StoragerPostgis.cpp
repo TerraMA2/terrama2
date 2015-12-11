@@ -49,13 +49,6 @@ terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string
 
 }
 
-terrama2::collector::StoragerPostgis::StoragerPostgis(const std::shared_ptr<te::da::DataSource>& dataSource)
-  : Storager({}),
-    dataSource_(dataSource)
-{
-
-}
-
 void terrama2::collector::StoragerPostgis::commitData(const std::string& destinationDataSetName,
                                                       std::shared_ptr<te::da::DataSource> datasourceDestination,
                                                       const std::shared_ptr<te::da::DataSetType> &dataSetType,
@@ -109,44 +102,30 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
   {
     std::string dataSetName = standardDataSetName;
 
-    if(!dataSource_)
+    std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
+    datasourceDestination->setConnectionInfo(storageMetadata_);
+    OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination);
+
+    std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("PG_TABLENAME");
+    if(dataSetNameIt != storageMetadata_.end())
     {
-      std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
-      datasourceDestination->setConnectionInfo(storageMetadata_);
-      OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination);
-
-      std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("PG_TABLENAME");
-      if(dataSetNameIt != storageMetadata_.end())
-      {
-        dataSetName = dataSetNameIt->second;
-
-        // let's open the destination datasource
-        std::map<std::string, std::string>::const_iterator schemeIt = storageMetadata_.find("PG_SCHEME");
-        if(schemeIt != storageMetadata_.end())
-          dataSetName = schemeIt->second+"."+dataSetName;
-      }
-
-      // get a transactor to interact to the data source
-      commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
-
-      uri = "POSTGIS:////" + dataSetName;
-    }
-    else
-    {
-      commitData(standardDataSetName, dataSource_, dataSetType, datasetVec);
-
-      std::map<std::string, std::string> connectionInfo = dataSource_->getConnectionInfo();
-
-      uri = "POSTGIS:////" +
-            connectionInfo.find("PG_HOST_ADDR")->second +
-            connectionInfo.find("PG_HOST")->second +
-            connectionInfo.find("PG_PORT")->second +
-            connectionInfo.find("PG_DB_NAME")->second +
-            connectionInfo.find("PG_USER")->second +
-            connectionInfo.find("PG_PASSWORD")->second +
-            dataSetName;
+      // let's open the destination datasource
+      std::map<std::string, std::string>::const_iterator schemeIt = storageMetadata_.find("PG_SCHEME");
+      if(schemeIt != storageMetadata_.end())
+        dataSetName = schemeIt->second+"."+dataSetName;
     }
 
+    // get a transactor to interact to the data source
+    commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
+
+    uri = "POSTGIS:////" +
+          storageMetadata_.find("PG_HOST_ADDR")->second +
+          storageMetadata_.find("PG_HOST")->second +
+          storageMetadata_.find("PG_PORT")->second +
+          storageMetadata_.find("PG_DB_NAME")->second +
+          storageMetadata_.find("PG_USER")->second +
+          storageMetadata_.find("PG_PASSWORD")->second +
+          dataSetName;
   }
   catch(terrama2::Exception& e)
   {
