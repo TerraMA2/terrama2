@@ -82,13 +82,13 @@ te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vec
   return dt;
 }
 
-void terrama2::collector::ParserFirePoint::adapt(te::da::DataSetTypeConverter&converter)
+void terrama2::collector::ParserFirePoint::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)
 {
 
   int latPos = -1, lonPos = -1, dataPos = -1;
   std::string lat("lat"), lon("lon"), data("data_pas");
 
-  std::vector<te::dt::Property*> properties = converter.getConvertee()->getProperties();
+  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(int i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
@@ -114,12 +114,12 @@ void terrama2::collector::ParserFirePoint::adapt(te::da::DataSetTypeConverter&co
   std::vector<size_t> latLonAttributes;
   latLonAttributes.push_back(lonPos);
   latLonAttributes.push_back(latPos);
-  converter.add(latLonAttributes ,gm, XYTo4326PointConverter);
+  converter->add(latLonAttributes ,gm, XYTo4326PointConverter);
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
-  converter.add(dataPos, dtProperty, StringToTimestamp);
+  converter->add(dataPos, dtProperty, StringToTimestamp);
 
-  converter.remove(data);
-  converter.remove(lat);
-  converter.remove(lon);
+  converter->remove(data);
+  converter->remove(lat);
+  converter->remove(lon);
 }
