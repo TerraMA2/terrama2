@@ -247,7 +247,8 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           for(auto& uri: log_uris)
           {
-            terrama2::collector::Log::updateLog(uri, storage_uri, Log::IMPORTED, lastDateTime->toString());
+            //terrama2::collector::Log::updateLog(uri, uri, Log::IMPORTED, lastDateTime->toString());
+//            terrama2::collector::Log::updateLog(uri, "storage_uri", Log::IMPORTED, "2015-12-03 15:41:55.716633");
           }
 
         }
