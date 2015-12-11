@@ -113,6 +113,14 @@ namespace terrama2
         void processMask();
         //! Returns true if the date is after discardBefore_ and before discardAfter. Updates dataSetLastDateTime_ with the latest date.
         bool validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
+        bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& boostTime) const;
+        bool isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& boostDate) const;
+        bool isAfterDiscardBeforeValue(unsigned int value, unsigned int discardAfterValue) const;
+
+
+        bool isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& boostTime) const;
+        bool isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& boostDate) const;
+        bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
         std::unique_ptr< te::dt::TimeInstantTZ >  dataSetLastDateTime_; //! Latest valid date found
