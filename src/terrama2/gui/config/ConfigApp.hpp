@@ -36,6 +36,7 @@
 
 // TerraMA2 Services
 #include "../../ws/collector/client/Client.hpp"
+#include "../core/ConfigManager.hpp"
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -78,6 +79,8 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
 
     //! It retrieves the collector client
     QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
+
+    QSharedPointer<ConfigManager> getConfiguration() const;
 
   private slots:
     //! Slot triggered when tab index clicked. It handles global tabs among application

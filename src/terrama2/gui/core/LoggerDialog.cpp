@@ -87,8 +87,8 @@ void LoggerDialog::onLogChanged(const QString& path)
   }
   else
   {
-    const QString message = "The terrama2 log does not exist or has been moved. \"" + path + "\"";
-    QMessageBox::warning(this, tr("TerraMA2 Log Error"), tr(message));
+    const QString message = tr("The terrama2 log does not exist or has been moved.");
+    QMessageBox::warning(this, tr("TerraMA2 Log Error"), message);
     TERRAMA2_LOG_ERROR() << message.toStdString();
   }
 }

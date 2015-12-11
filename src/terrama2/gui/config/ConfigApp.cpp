@@ -202,3 +202,8 @@ QSharedPointer<terrama2::ws::collector::client::Client> ConfigApp::getClient() c
 {
   return client_;
 }
+
+QSharedPointer<ConfigManager> ConfigApp::getConfiguration() const
+{
+  return configManager_;
+}

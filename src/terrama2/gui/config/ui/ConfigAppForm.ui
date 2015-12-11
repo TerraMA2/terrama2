@@ -802,6 +802,9 @@ p, li { white-space: pre-wrap; }
                     <property name="text">
                      <string>Servidor ativo</string>
                     </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                   <item row="1" column="1" colspan="2">
@@ -1282,6 +1285,9 @@ p, li { white-space: pre-wrap; }
                    <widget class="QCheckBox" name="gridFormatStatus">
                     <property name="text">
                      <string>Série de dados ativo</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -1850,6 +1856,9 @@ p, li { white-space: pre-wrap; }
                    <widget class="QCheckBox" name="pointFormatStatus">
                     <property name="text">
                      <string>Série de dados ativo</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -3062,6 +3071,9 @@ p, li { white-space: pre-wrap; }
                    <widget class="QCheckBox" name="pointDiffFormatStatus">
                     <property name="text">
                      <string>Série de dados ativo</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
