@@ -113,13 +113,40 @@ namespace terrama2
         void processMask();
         //! Returns true if the date is after discardBefore_ and before discardAfter. Updates dataSetLastDateTime_ with the latest date.
         bool validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
-        bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& boostTime) const;
-        bool isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& boostDate) const;
-        bool isAfterDiscardBeforeValue(unsigned int value, unsigned int discardAfterValue) const;
+
+        /*!
+           \brief Verifies if the time is after discardBeforeTime.
+
+           Check if hours, minutes and seconds are after discardBeforeTime,
+           if any of them is -1 it's considered after, the others are checked.
+         */
+        bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const;
+        /*!
+           \brief Verifies if the time is after discarBeforeDate.
+
+           Check if year, month and day are after discarBeforeDate,
+           if any of them is 0 it's considered after, the others are checked.
+         */
+        bool isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discarBeforeDate) const;
+        //! Check if value == 0 or value >= discardBeforeValue
+        bool isAfterDiscardBeforeValue(unsigned int value, unsigned int discardBeforeValue) const;
 
 
-        bool isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& boostTime) const;
-        bool isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& boostDate) const;
+        /*!
+           \brief Verifies if the time is before discardAfterTime.
+
+           Check if hours, minutes and seconds are before discardAfterTime,
+           if any of them is -1 it's considered before, the others are checked.
+         */
+        bool isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardAfterTime) const;
+        /*!
+           \brief Verifies if the time is before discardAfterDate.
+
+           Check if year, month and day are before discardAfterDate,
+           if any of them is 0 it's considered before, the others are checked.
+         */
+        bool isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discardAfterDate) const;
+        //! Check if value == 0 or value <= discardAfterValue
         bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered

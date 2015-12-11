@@ -112,12 +112,6 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 
     try
     {
-      /*
-       * FIXME: what to do if not a valid date?
-       * is not wildcard is given an invalid date is build.
-         what happens if only year is given?
-      */
-
       if(discardBefore_)
       {
         boost::local_time::local_date_time boostDiscardBefore = discardBefore_->getTimeInstantTZ();
@@ -128,10 +122,12 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
         if(!isAfterDiscardBeforeDate(year, month, day, discardBeforeDate))
           continue;
 
+        //if no date or same date: check time
         if((year  == 0 || year  == discardBeforeDate.year())
            && (month == 0 || month == discardBeforeDate.month().as_number())
            && (day   == 0 || day   == discardBeforeDate.day().as_number()))
         {
+          //check time
           if(!isAfterDiscardBeforeTime(hours, minutes, second, discardBeforeTime))
             continue;
         }
@@ -147,10 +143,12 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
         if(!isBeforeDiscardAfterDate(year, month, day, discardAfterDate))
           continue;
 
+        //if no date or same date: check time
         if((year  == 0 || year  == discardAfterDate.year())
            && (month == 0 || month == discardAfterDate.month().as_number())
            && (day   == 0 || day   == discardAfterDate.day().as_number()))
         {
+          //check time
           if(!isBeforeDiscardAfterTime(hours, minutes, second, discardAfterTime))
             continue;
         }
@@ -207,22 +205,23 @@ bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::sh
         assert(timeInstant);
         if(discardBefore_)
         {
-          if(discardBefore_->getTimeInstantTZ().date() > timeInstant->getDate().getDate()
-             || (discardBefore_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardBefore_->getTimeInstantTZ().local_time() > timeInstant->getTimeInstant()))
+
+          if(discardBefore_->getTimeInstantTZ().date() > timeInstant->getDate().getDate()//check date
+             || (discardBefore_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardBefore_->getTimeInstantTZ().local_time() > timeInstant->getTimeInstant()))//if same date: check time
             return false;
         }
         if(discardAfter_)
         {
-          if(discardAfter_->getTimeInstantTZ().date() < timeInstant->getDate().getDate()
-             || (discardAfter_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardAfter_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))
+          if(discardAfter_->getTimeInstantTZ().date() < timeInstant->getDate().getDate()//check date
+             || (discardAfter_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardAfter_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))//if same date: check time
             return false;
         }
 
         //Valid Date!!!
         //update lastDateTime
-        if(!dataSetLastDateTime_
-           || (dataSetLastDateTime_->getTimeInstantTZ().date() < timeInstant->getDate().getDate()
-               || (dataSetLastDateTime_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && dataSetLastDateTime_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant())))
+        if(!dataSetLastDateTime_//if no date
+           || (dataSetLastDateTime_->getTimeInstantTZ().date() < timeInstant->getDate().getDate() // if date is newer
+               || (dataSetLastDateTime_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && dataSetLastDateTime_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))) //if same date but time is newer
         {
           boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
           boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
@@ -265,62 +264,62 @@ bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::sh
   return true;
 }
 
-bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& boostTime) const
+bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const
 {
   if(hours > -1
-     && hours > boostTime.hours())
+     && hours > discardBeforeTime.hours())
     return true;
   if(minutes > -1
-     && (hours == -1 || hours == boostTime.hours())
-     && minutes > boostTime.minutes())
+     && (hours == -1 || hours == discardBeforeTime.hours())
+     && minutes > discardBeforeTime.minutes())
     return true;
   if(seconds > -1
-     && (hours == -1   || hours == boostTime.hours())
-     && (minutes == -1 || minutes == boostTime.minutes())
-     && (seconds == -1 || seconds > boostTime.seconds()))
+     && (hours == -1   || hours == discardBeforeTime.hours())
+     && (minutes == -1 || minutes == discardBeforeTime.minutes())
+     && (seconds == -1 || seconds > discardBeforeTime.seconds()))
     return true;
 
   return false;
 }
 
-bool terrama2::collector::DataFilter::isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& boostDate) const
+bool terrama2::collector::DataFilter::isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discarBeforeDate) const
 {
-  return isAfterDiscardBeforeValue(year, boostDate.year())
-      && isAfterDiscardBeforeValue(month, boostDate.month().as_number())
-      && isAfterDiscardBeforeValue(day, boostDate.day().as_number());
+  return isAfterDiscardBeforeValue(year, discarBeforeDate.year())
+      && isAfterDiscardBeforeValue(month, discarBeforeDate.month().as_number())
+      && isAfterDiscardBeforeValue(day, discarBeforeDate.day().as_number());
 }
 
-bool terrama2::collector::DataFilter::isAfterDiscardBeforeValue(unsigned int value, unsigned int discardAfterValue) const
+bool terrama2::collector::DataFilter::isAfterDiscardBeforeValue(unsigned int value, unsigned int discardBeforeValue) const
 {
   if(!value)
     return true;
 
-  return value >= discardAfterValue;
+  return value >= discardBeforeValue;
 }
 
-bool terrama2::collector::DataFilter::isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& boostTime) const
+bool terrama2::collector::DataFilter::isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardAfterTime) const
 {
   if(hours > -1
-     && hours < boostTime.hours())
+     && hours < discardAfterTime.hours())
     return true;
   if(minutes > -1
-     && (hours == -1 || hours == boostTime.hours())
-     && minutes < boostTime.minutes())
+     && (hours == -1 || hours == discardAfterTime.hours())
+     && minutes < discardAfterTime.minutes())
     return true;
   if(seconds > -1
-     && (hours   == -1 || hours == boostTime.hours())
-     && (minutes == -1 || minutes == boostTime.minutes())
-     && (seconds == -1 || seconds < boostTime.seconds()))
+     && (hours   == -1 || hours == discardAfterTime.hours())
+     && (minutes == -1 || minutes == discardAfterTime.minutes())
+     && (seconds == -1 || seconds < discardAfterTime.seconds()))
     return true;
 
   return false;
 }
 
-bool terrama2::collector::DataFilter::isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& boostDate) const
+bool terrama2::collector::DataFilter::isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discardAfterDate) const
 {
-  return isBeforeDiscardAfterValue(year, boostDate.year())
-      && isBeforeDiscardAfterValue(month, boostDate.month().as_number())
-      && isBeforeDiscardAfterValue(day, boostDate.day().as_number());
+  return isBeforeDiscardAfterValue(year, discardAfterDate.year())
+      && isBeforeDiscardAfterValue(month, discardAfterDate.month().as_number())
+      && isBeforeDiscardAfterValue(day, discardAfterDate.day().as_number());
 }
 
 bool terrama2::collector::DataFilter::isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const
