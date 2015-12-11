@@ -36,6 +36,7 @@ LoggerDialog::LoggerDialog(QWidget *parent) :
 {
   pimpl_->ui_->setupUi(this);
 
+  // TODO: get it from logger
   QString path("/home/raphael/Documents/tmp/terrama2.log");
 
   pimpl_->file_.setFileName(path);
