@@ -234,6 +234,8 @@ terrama2::core::ToDataSetItemKind(uint64_t kind)
       return DataSetItem::FIRE_POINTS_TYPE;
     case 5:
       return DataSetItem::DISEASE_OCCURRENCE_TYPE;
+    case 6:
+      return DataSetItem::GRID_TYPE;
     default:
       return DataSetItem::UNKNOWN_TYPE;
   }

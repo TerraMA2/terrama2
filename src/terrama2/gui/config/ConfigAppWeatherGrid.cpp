@@ -82,8 +82,7 @@ void ConfigAppWeatherGridTab::save()
 
   datasetItem->setFilter(*filter_);
 
-  // TODO: set right dataset kind item
-  datasetItem->setKind(terrama2::core::DataSetItem::UNKNOWN_TYPE);
+  datasetItem->setKind(terrama2::core::DataSetItem::GRID_TYPE);
   datasetItem->setMask(ui_->gridFormatDataMask->text().toStdString());
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem->setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
