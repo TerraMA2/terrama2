@@ -30,7 +30,14 @@
 // TerraMA2
 #include "Utils.hpp"
 #include "../Config.hpp"
+#include "ApplicationController.hpp"
 #include "Exception.hpp"
+
+
+//terralib
+#include <terralib/common/PlatformUtils.h>
+#include <terralib/common.h>
+#include <terralib/plugin.h>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -106,7 +113,7 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
   QByteArray doc_data = file.readAll();
 
   file.close();
-  
+
   QJsonParseError parse_error;
 
   QJsonDocument jdocument = QJsonDocument::fromJson(doc_data, &parse_error);
@@ -270,4 +277,35 @@ terrama2::core::ToFilterExpressionType(uint64_t type)
     default:
       return Filter::NONE_TYPE;
   }
+}
+
+
+void terrama2::core::initializeTerralib()
+{
+  // Initialize the Terralib support
+  TerraLib::getInstance().initialize();
+
+  te::plugin::PluginInfo* info;
+  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
+  te::plugin::PluginManager::getInstance().add(info);
+
+  te::plugin::PluginManager::getInstance().loadAll();
+}
+
+
+void terrama2::core::finalizeTerralib()
+{
+  auto dataSource = ApplicationController::getInstance().getDataSource();
+  if(dataSource.get() && dataSource->isOpened())
+  {
+    dataSource->close();
+  }
+  TerraLib::getInstance().finalize();
 }

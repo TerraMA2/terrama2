@@ -166,6 +166,11 @@ namespace terrama2
      */
     Filter::ExpressionType ToFilterExpressionType(uint64_t type);
 
+    void initializeTerralib();
+
+    void finalizeTerralib();
+
+
   } // end namespace core
 }   // end namespace terrama2
 
