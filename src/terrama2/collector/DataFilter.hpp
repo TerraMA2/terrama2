@@ -83,23 +83,28 @@ namespace terrama2
         ~DataFilter();
 
         /*!
-             * \brief Filters a list of names using filtering criteria.
-             *
-             * \param namesList Full list of names to be filtered.
-             *
-             * \pre Filtering rules should have been set, otherwise unmodified list will be returned.
-             *
-             * \return List of filtered names.
+              \brief Filters a list of names using filtering criteria.
+
+              \note Updates dataSetLastDateTime_
+
+              \param namesList Full list of names to be filtered.
+
+              \pre Filtering rules should have been set, otherwise unmodified list will be returned.
+
+              \return List of filtered names.
              */
-        std::vector<std::string> filterNames(const std::vector<std::string> &namesList) const;
+        std::vector<std::string> filterNames(const std::vector<std::string> &namesList);
 
         /*!
-             * \brief Filters a te::da::DataSet by matching criteria.
-             * \param dataSet DataSet to be filtered.
-             *
-             * \pre Filtering rules should have been set, otherwise unmodified DataSet is returned.
-             *
-             * \return Filtered DataSet.
+             \brief Filters a te::da::DataSet by matching criteria.
+
+             \note Updates dataSetLastDateTime_
+
+             \param dataSet DataSet to be filtered.
+
+             \pre Filtering rules should have been set, otherwise unmodified DataSet is returned.
+
+             \return Filtered DataSet.
              */
         std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType);
 
@@ -120,7 +125,7 @@ namespace terrama2
            Check if hours, minutes and seconds are after discardBeforeTime,
            if any of them is -1 it's considered after, the others are checked.
          */
-        bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const;
+        bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const std::string& timezone, const boost::posix_time::time_duration& discardBeforeTime) const;
         /*!
            \brief Verifies if the time is after discarBeforeDate.
 
@@ -150,6 +155,7 @@ namespace terrama2
         bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
+        //TODO: dataSetLastDateTime_ should be separated as a date and a time object, this way we can compare with incomplete masks and save incomplete date/time
         std::unique_ptr< te::dt::TimeInstantTZ >  dataSetLastDateTime_; //! Latest valid date found
         std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //! Only date after this will be valid
         std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_;//! Only date before this will be valid
