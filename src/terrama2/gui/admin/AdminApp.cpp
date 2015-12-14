@@ -307,6 +307,11 @@ void AdminApp::openRequested()
     QFileInfo info(filename);    
     nameConfig_ = info.baseName();
 
+// Checks if the project already exists in the ListWidget
+    auto status = pimpl_->ui_->configListWidget->findItems(nameConfig_, Qt::MatchContains);
+    if (status.size() > 0)
+      return;
+
 // Fills fields
     fillForm();
 
@@ -321,7 +326,8 @@ void AdminApp::openRequested()
     pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
     auto items = pimpl_->ui_->configListWidget->findItems(configManager_->getDatabase()->name_, Qt::MatchExactly);
     pimpl_->ui_->configListWidget->setCurrentItem(items[0]);
-
+// Check connection Database
+    dbCheckConnectionRequested();
   }
 }
 
@@ -581,9 +587,10 @@ void AdminApp::dbCheckConnectionRequested()
                                                                                  database->port_ );
 
     if (ok)
-      QMessageBox::information(this, tr("TerraMA2"), tr("successfully connected!"));
+      pimpl_->ui_->dbCheckConnectionBtn->setIcon(QIcon::fromTheme("confirm"));
     else
-      QMessageBox::information(this, tr("TerraMA2"), tr("Failed to connect!"));
+      pimpl_->ui_->dbCheckConnectionBtn->setIcon(QIcon::fromTheme("cancel"));
+
   }
 
   catch(const terrama2::Exception& e)
@@ -880,6 +887,8 @@ void AdminApp::itemClicked()
   configManager_->setDataForm(selectedMetadata);
 
   fillForm();
+
+  dbCheckConnectionRequested();
 }
 
 // Destructor

@@ -114,16 +114,10 @@
             <string>Base de Dados</string>
            </attribute>
            <layout class="QGridLayout">
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="dbUserLed"/>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="dbAddressLed"/>
-            </item>
-            <item row="5" column="0">
+            <item row="7" column="0">
              <widget class="QPushButton" name="dbCheckConnectionBtn">
               <property name="text">
-               <string>Verificar Conexão</string>
+               <string/>
               </property>
               <property name="icon">
                <iconset theme="confirm">
@@ -132,13 +126,30 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="dbDatabaseLed"/>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="dbAddressLed"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Usuário: </string>
+              </property>
+             </widget>
             </item>
             <item row="0" column="0">
              <widget class="QLabel" name="label_7">
               <property name="text">
                <string>Gerenciador: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="dbDatabaseLed"/>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Porta: </string>
               </property>
              </widget>
             </item>
@@ -149,22 +160,8 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="3">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Porta: </string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="4">
              <widget class="QLineEdit" name="dbPortLed"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Usuário: </string>
-              </property>
-             </widget>
             </item>
             <item row="2" column="3">
              <widget class="QLabel" name="label_11">
@@ -173,43 +170,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="4">
-             <widget class="QLineEdit" name="dbPasswordLed">
-              <property name="echoMode">
-               <enum>QLineEdit::Password</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="text">
-               <string>Base de dados: </string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="3">
-             <widget class="QCheckBox" name="dbStudyChk">
-              <property name="text">
-               <string>Base de dados para estudos</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QPushButton" name="dbCreateDatabaseBtn">
-              <property name="text">
-               <string>Criar Base</string>
-              </property>
-              <property name="icon">
-               <iconset theme="create-database">
-                <normaloff/>
-               </iconset>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
+            <item row="8" column="0">
              <spacer name="verticalSpacer_3">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -222,18 +183,12 @@
               </property>
              </spacer>
             </item>
-            <item row="5" column="2" colspan="3">
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_68">
+              <property name="text">
+               <string>Status da Conexão</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
+             </widget>
             </item>
             <item row="0" column="1">
              <widget class="QComboBox" name="dbTypeCmb">
@@ -251,6 +206,58 @@
                </property>
               </item>
              </widget>
+            </item>
+            <item row="4" column="0" colspan="3">
+             <widget class="QCheckBox" name="dbStudyChk">
+              <property name="text">
+               <string>Base de dados para estudos</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Base de dados: </string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="dbUserLed"/>
+            </item>
+            <item row="2" column="4">
+             <widget class="QLineEdit" name="dbPasswordLed">
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QPushButton" name="dbCreateDatabaseBtn">
+              <property name="text">
+               <string>Criar Base</string>
+              </property>
+              <property name="icon">
+               <iconset theme="create-database">
+                <normaloff/>
+               </iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="3" colspan="2">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
