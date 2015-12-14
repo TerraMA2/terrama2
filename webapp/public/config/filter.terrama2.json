@@ -1,5 +1,5 @@
 {
-  "LayerToFilter": "brasil:focos_novembro_2015",
+  "LayerToFilter": "focos:focos_20151210-14",
   "DateFieldName": "Data",
   "DateFormat": "YYYYMMDD",
   "SatelliteFieldName": "Satelite"

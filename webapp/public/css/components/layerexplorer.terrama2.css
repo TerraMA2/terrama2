@@ -20,10 +20,6 @@
   padding: 3px;
 }
 
-#terrama2-layerexplorer ul.layerstack li:hover {
-  /*background-color: #eee;*/
-}
-
 #terrama2-layerexplorer ul.layerstack li.selected {
   background-color: #ddd;
 }
@@ -68,9 +64,4 @@
 
 #terrama2-layerexplorer li:last-child::before {
   height:30px;
-}
-
-#terrama2-layerexplorer li.parent_li>span:hover, #terrama2-layerexplorer li.parent_li>span:hover+ul li span {
-  /*background:#eee;
-  color: #000;*/
 }

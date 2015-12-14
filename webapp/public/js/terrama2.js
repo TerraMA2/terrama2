@@ -17,11 +17,7 @@ var TerraMA2 = function(components) {
   }
 
   var injectStylesheet = function(url) {
-    var link = $("<link>", {
-      rel: "stylesheet",
-      type: "text/css",
-      href: url
-    });
+    var link = $("<link>", { rel: "stylesheet", type: "text/css", href: url });
 
     link.appendTo('head');
   }

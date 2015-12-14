@@ -30,7 +30,6 @@ var MapDisplay = function() {
       return layer;
     }
 
-    // Find recursively if it is a group
     if (layer.getLayers) {
       var layers = layer.getLayers().getArray(),
       len = layers.length, result;
@@ -81,6 +80,7 @@ var MapDisplay = function() {
       })
     ],
     target: 'terrama2-map',
+    logo: '/terrama2/webapp/public/img/logo_terrama2.png',
     view: new ol.View({
       projection: 'EPSG:4326',
       center: [-55, -15],

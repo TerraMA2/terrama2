@@ -27,7 +27,6 @@
   background: rgba(255,255,255,0.85);
   padding: 0;
   z-index: 1000;
-  /*box-shadow: inset 1em 0 1em -1em black;*/
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -79,6 +78,20 @@
   background-position: bottom, center !important;
 }
 
+.terrama2-leftbar-button.terrama2-leftbar-button-layers:hover, .terrama2-leftbar-button.terrama2-leftbar-button-layers:active, .terrama2-leftbar-button.terrama2-leftbar-button-layers.active {
+  background-repeat: no-repeat;
+}
+
+.terrama2-leftbar-button.terrama2-leftbar-button-filter {
+  background-image: url('../../img/icon_div.png'), url('../../img/icon_calendar.png') !important;
+  background-repeat: no-repeat;
+  background-position: bottom, center !important;
+}
+
+.terrama2-leftbar-button.terrama2-leftbar-button-filter:hover, .terrama2-leftbar-button.terrama2-leftbar-button-filter:active, .terrama2-leftbar-button.terrama2-leftbar-button-filter.active {
+  background-repeat: no-repeat;
+}
+
 .terrama2-right-arrow:before {
   position: absolute;
   left: 48px;
@@ -97,10 +110,6 @@
 .terrama2-leftbar-button:hover, .terrama2-leftbar-button:active, .terrama2-leftbar-button.active {
   background: #63604D;
   color: white;
-}
-
-.terrama2-leftbar-button.terrama2-leftbar-button-layers:hover, .terrama2-leftbar-button.terrama2-leftbar-button-layers:active, .terrama2-leftbar-button.terrama2-leftbar-button-layers.active {
-  background-repeat: no-repeat;
 }
 
 .terrama2-leftbar-button.terrama2-hide-leftbar-button, .terrama2-leftbar-button.terrama2-show-leftbar-button {
