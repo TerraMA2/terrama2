@@ -37,13 +37,16 @@
 #include "Factory.hpp"
 #include "Parser.hpp"
 #include "Utils.hpp"
+#include "IntersectionOperation.hpp"
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
+#include "../core/ApplicationController.hpp"
 
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 
 // QT
 #include <QApplication>
@@ -242,6 +245,9 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
             //std::vector::at is NON-const, Qt containers use 'at' as const
             datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
+
+            datasetVec.at(i) = terrama2::collector::processIntersection(dataSet, datasetVec.at(i), datasetType);
+
           }
 
           //standard name
@@ -520,4 +526,3 @@ void terrama2::collector::CollectorService::updateDataset(const core::DataSet &d
   removeDataset(dataset);
   addDataset(dataset);
 }
-

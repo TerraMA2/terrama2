@@ -58,9 +58,6 @@ void ConfigManager::loadConfiguration(QString filepath)
 {
   try
   {
-
-    terrama2::core::ApplicationController::getInstance().loadProject(filepath.toStdString());
-    terrama2::core::DataManager::getInstance().load();
     QJsonDocument jdoc = terrama2::core::ReadJsonFile(filepath.toStdString());
 
     QJsonObject metadata = jdoc.object();
@@ -76,7 +73,6 @@ void ConfigManager::loadConfiguration(QString filepath)
     const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
     QMessageBox::critical(app_, "TerraMA2", *msg);
   }
-
   catch (const std::exception& e)
   {
     QMessageBox::information(app_, "TerraMA2", e.what());

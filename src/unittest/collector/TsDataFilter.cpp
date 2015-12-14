@@ -29,8 +29,10 @@
 
 #include "TsDataFilter.hpp"
 
+
 //terrama2
 #include <terrama2/collector/DataFilter.hpp>
+#include <terrama2/collector/Utils.hpp>
 
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSetItem.hpp>
@@ -139,6 +141,39 @@ void TsDataFilter::TestDiscardBeforeMask()
   names = datafilter.filterNames(names);
 
   QVERIFY(names.size() == 1);
+}
+
+void TsDataFilter::dummy()
+{
+  std::string date = "2015-12-14";
+  std::string time = "10:52:33";
+  QDate qDate = QDate::fromString(date.c_str(), "yyyy-MM-dd");
+  QTime qTime = QTime::fromString(time.c_str(), "hh:mm:ss");
+  QTimeZone qTimeZone(-7200);
+  QDateTime dateTime(qDate, qTime , qTimeZone);
+  boost::local_time::local_date_time QDate2Boost = terrama2::collector::QDateTime2BoostLocalDateTime(dateTime);
+  //Build a te::dt::TimeInstantTZ
+  qDebug() << "QDate2Boost posixString: " << QDate2Boost.to_string().c_str();
+  qDebug() << "QDate2Boost timezoneStr: " << QDate2Boost.zone_as_posix_string().c_str();
+  qDebug() << "QDate2Boost UTC   time : " << QDate2Boost.utc_time().time_of_day().hours();
+  qDebug() << "QDate2Boost local time : " << QDate2Boost.local_time().time_of_day().hours();
+
+  boost::local_time::local_date_time String2Boost = terrama2::collector::DateTimeString2BoostLocalDateTime(date, time, "UTC-02");
+  //Build a te::dt::TimeInstantTZ
+  qDebug() << "String2Boost posixString: " << String2Boost.to_string().c_str();
+  qDebug() << "String2Boost timezoneStr: " << String2Boost.zone_as_posix_string().c_str();
+  qDebug() << "String2Boost UTC   time : " << String2Boost.utc_time().time_of_day().hours();
+  qDebug() << "String2Boost local time : " << String2Boost.local_time().time_of_day().hours();
+
+  std::string outDate, outTime, outTimezone;
+  terrama2::collector::BoostLocalDateTime2DateTimeString(String2Boost, outDate, outTime, outTimezone);
+
+  qDebug() << "Boost2String date: " << outDate.c_str();
+  qDebug() << "Boost2String time: " << outTime.c_str();
+  qDebug() << "Boost2String TZ  : " << outTimezone.c_str();
+
+
+  qDebug() << "end";
 }
 
 
