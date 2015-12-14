@@ -392,7 +392,8 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
     dataSetLastDateTime_(nullptr)
 {
   //recover last collection time logged
-  std::shared_ptr<te::dt::TimeInstantTZ> logTime = Log::getDataSetItemLastDateTime(datasetItem.id());
+  terrama2::collector::Log collectLog;
+  std::shared_ptr<te::dt::TimeInstantTZ> logTime = collectLog.getDataSetItemLastDateTime(datasetItem.id());
   const core::Filter& filter = datasetItem_.filter();
 
   if(!filter.discardBefore())

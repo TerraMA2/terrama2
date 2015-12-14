@@ -202,19 +202,19 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
       //aquire all data
       for(auto& dataSetItem : dataSet.dataSetItems())
       {
-
         try
         {
           DataFilterPtr filter(new DataFilter(dataSetItem));
           assert(filter);
 
+          terrama2::collector::Log collectLog;
+          std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
-          std::vector< std::string > log_uris;
           std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
 
           if(!log_uris.empty())
-            Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
+            collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -231,7 +231,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           if(datasetVec.empty())
           {
             if(!log_uris.empty())
-              Log::log(dataSetItem.id(), log_uris, Log::Status::NODATA);
+              collectLog.log(dataSetItem.id(), log_uris, Log::Status::NODATA);
             continue;
           }
 
@@ -260,7 +260,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
             log_DataSetlastDateTime = lastDateTime->toString();
           }
 
-          terrama2::collector::Log::updateLog(log_uris, storage_uri, Log::Status::IMPORTED, log_DataSetlastDateTime);
+          collectLog.updateLog(log_uris, storage_uri, Log::Status::IMPORTED, log_DataSetlastDateTime);
         }
         catch(terrama2::Exception& e)
         {
