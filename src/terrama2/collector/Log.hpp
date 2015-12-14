@@ -58,7 +58,7 @@ namespace terrama2
 
         static void updateLog(uint64_t id, std::string uri, Status s, std::string data_timestamp);
 
-        static void updateLog(std::string origin_uri, std::string uri, Status s, std::string data_timestamp);
+        static void updateLog(std::vector< std::string > origin_uris, std::string uri, Status s, std::string data_timestamp);
 
         static std::shared_ptr<te::dt::TimeInstantTZ> getDataSetItemLastDateTime(uint64_t id);
     };
