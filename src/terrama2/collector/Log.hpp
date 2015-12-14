@@ -48,6 +48,7 @@ namespace terrama2
         {
           DOWNLOADED,
           IMPORTED,
+          NODATA,
           FAILED,
           UNKNOW
         };

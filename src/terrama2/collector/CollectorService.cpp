@@ -213,7 +213,8 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::vector< std::string > log_uris;
           std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
 
-          Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
+          if(!log_uris.empty())
+            Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -228,7 +229,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           //no new dataset found
           if(datasetVec.empty())
+          {
+            if(!log_uris.empty())
+              Log::log(dataSetItem.id(), log_uris, Log::Status::NODATA);
             continue;
+          }
 
 //          filter dataset data (date, geometry, ...)
           for(int i = 0, size = datasetVec.size(); i < size; ++i)
@@ -255,7 +260,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
             log_DataSetlastDateTime = lastDateTime->toString();
           }
 
-          terrama2::collector::Log::updateLog(log_uris, storage_uri, Log::IMPORTED, log_DataSetlastDateTime);
+          terrama2::collector::Log::updateLog(log_uris, storage_uri, Log::Status::IMPORTED, log_DataSetlastDateTime);
         }
         catch(terrama2::Exception& e)
         {

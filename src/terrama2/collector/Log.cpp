@@ -154,6 +154,9 @@ void terrama2::collector::Log::updateLog(uint64_t id, std::string uri, Status s,
 
 void terrama2::collector::Log::updateLog(std::vector< std::string > origin_uris, std::string uri, Status s, std::string data_timestamp)
 {
+  if(origin_uris.empty())
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to update.");
+
   try
   {
     std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
