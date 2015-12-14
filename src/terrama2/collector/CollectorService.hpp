@@ -189,8 +189,8 @@ namespace terrama2
         /*!
           \brief Start a new thread for collecting the datasets in the queue from the data-provider.
 
-          \param provider Dataprovider .....
-          \param datasets Fila de datasets do provider que iremos coletar....
+          \param provider Provide identifier.
+          \param datasets Queue of datasets from the provider that will be collected.
          */
         void process(const uint64_t provider, const std::vector<uint64_t>& datasets);
 
