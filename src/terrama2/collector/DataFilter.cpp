@@ -32,6 +32,7 @@
 #include "../core/DataSetItem.hpp"
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
+#include "Log.hpp"
 
 // STL
 #include <iostream>
@@ -41,45 +42,292 @@
 // BOOST
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/local_time/local_time_types.hpp>
+#include <boost/date_time/local_time/local_date_time.hpp>
 
 //terralib
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/datatype/TimeDuration.h>
+#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/Date.h>
+
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/datatype/Enums.h>
-#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/datatype/Date.h>
+
+//Qt
+#include <QDebug>
 
 std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std::vector<std::string>& namesList) const
 {
-  std::string mask = datasetItem_.mask();
-
-  //  std::string mask = "exporta_%A%M%d_%h%m.csv";
-
-  if(mask.empty())
-    mask = "^.*\.(csv|txt|dat|bin|gz|ctl)$";
-
-
-  std::vector<std::string> matchNames;
+  //get list of matching regex (only string format, no date valeu comparison
+  std::vector<std::string> matchesList;
   for(const std::string &name : namesList)
   {
-    // match regex
-    boost::replace_all(mask, "%A", "(\\d{4})"); //("%A - ano com quatro digitos"))
-    boost::replace_all(mask, "%a", "(\\d{2})"); //("%a - ano com dois digitos"))
-    boost::replace_all(mask, "%d", "(\\d{2})"); //("%d - dia com dois digitos"))
-    boost::replace_all(mask, "%M", "(\\d{2})"); //("%M - mes com dois digitos"))
-    boost::replace_all(mask, "%h", "(\\d{2})"); //("%h - hora com dois digitos"))
-    boost::replace_all(mask, "%m", "(\\d{2})"); //("%m - minuto com dois digitos"))
-    boost::replace_all(mask, "%s", "(\\d{2})"); //("%s - segundo com dois digitos"))
-    boost::replace_all(mask, "%.", "(\\w{1})");  //("%. - um caracter qualquer"))
-
-    boost::regex regex(mask);
-
-    bool res = boost::regex_match(name,regex);
+    bool res = boost::regex_match(name, maskData.regex);
     if (res)
-      matchNames.push_back(name);
-
+      matchesList.push_back(name);
   }
 
-  return matchNames;
+  unsigned int year  = 0;
+  unsigned int month = 0;
+  unsigned int day   = 0;
+
+  int hours   = -1;
+  int minutes = -1;
+  int second  = -1;
+
+  std::vector<std::string> matchesList2;
+  for(const auto& name : matchesList)
+  {
+    //**********************
+    //get date values from names
+
+    //get year value
+    if(maskData.year4Pos != -1)
+      year = std::stoi(name.substr(maskData.year4Pos, 4));
+    if(maskData.year2Pos != -1)
+      year = std::stoi(name.substr(maskData.year2Pos, 2));
+    //get month value
+    if(maskData.monthPos != -1)
+      month = std::stoi(name.substr(maskData.monthPos, 2));
+    //get day value
+    if(maskData.dayPos != -1)
+      day = std::stoi(name.substr(maskData.dayPos, 2));
+
+    //get hour value
+    if(maskData.hourPos != -1)
+      hours = std::stoi(name.substr(maskData.hourPos, 2));
+    //get minute value
+    if(maskData.minutePos != -1)
+      minutes = std::stoi(name.substr(maskData.minutePos, 2));
+    //get second value
+    if(maskData.secondPos != -1)
+      second = std::stoi(name.substr(maskData.secondPos, 2));
+
+    //****************************
+
+
+    try
+    {
+      if(discardBefore_)
+      {
+        boost::local_time::local_date_time boostDiscardBefore = discardBefore_->getTimeInstantTZ();
+        boost::gregorian::date discardBeforeDate = boostDiscardBefore.date();
+        boost::posix_time::time_duration discardBeforeTime = boostDiscardBefore.time_of_day();
+
+        //discard if outside valid date limits
+        if(!isAfterDiscardBeforeDate(year, month, day, discardBeforeDate))
+          continue;
+
+        //if no date or same date: check time
+        if((year  == 0 || year  == discardBeforeDate.year())
+           && (month == 0 || month == discardBeforeDate.month().as_number())
+           && (day   == 0 || day   == discardBeforeDate.day().as_number()))
+        {
+          //check time
+          if(!isAfterDiscardBeforeTime(hours, minutes, second, discardBeforeTime))
+            continue;
+        }
+      }
+
+      if(discardAfter_)
+      {
+        boost::local_time::local_date_time boostDiscardAfter = discardAfter_->getTimeInstantTZ();
+        boost::gregorian::date discardAfterDate = boostDiscardAfter.date();
+        boost::posix_time::time_duration discardAfterTime = boostDiscardAfter.time_of_day();
+
+        //discard if outside valid date limits
+        if(!isBeforeDiscardAfterDate(year, month, day, discardAfterDate))
+          continue;
+
+        //if no date or same date: check time
+        if((year  == 0 || year  == discardAfterDate.year())
+           && (month == 0 || month == discardAfterDate.month().as_number())
+           && (day   == 0 || day   == discardAfterDate.day().as_number()))
+        {
+          //check time
+          if(!isBeforeDiscardAfterTime(hours, minutes, second, discardAfterTime))
+            continue;
+        }
+      }
+
+      //Valid dates !!!!
+      matchesList2.push_back(name);
+
+      //FIXME: not saving last date
+      //update lastDateTime
+//      if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < tDate)
+//        *dataSetLastDateTime_ = tDate;
+    }
+    catch(std::out_of_range& e)
+    {
+      //TODO: log not a date
+      qDebug() << "terrama2::collector::DataFilter::filterNames: not a date";
+      qDebug() << e.what();
+
+    }
+  }
+
+  return matchesList2;
+}
+
+bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
+{
+  //discard out of valid range dates
+  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
+  te::dt::DateTimeType type = dateTime->getDateTimeType();
+
+  if(discardAfter_ || discardBefore_)
+  {
+    switch (type) {
+      case te::dt::TIME_INSTANT_TZ:
+      {
+        std::unique_ptr<te::dt::TimeInstantTZ> timeInstantTz(dynamic_cast<te::dt::TimeInstantTZ*>(dateTime.release()));
+        assert(timeInstantTz);
+        if(discardBefore_ && *discardBefore_ > *timeInstantTz)
+          return false;
+        if(discardAfter_ && *discardAfter_ < *timeInstantTz)
+          return false;
+
+        //Valid Date!!!
+        //update lastDateTime
+        if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *timeInstantTz)
+          dataSetLastDateTime_.reset(timeInstantTz.release());
+
+        break;
+      }
+      case te::dt::TIME_INSTANT:
+      {
+        std::unique_ptr<te::dt::TimeInstant> timeInstant(dynamic_cast<te::dt::TimeInstant*>(dateTime.release()));
+        assert(timeInstant);
+        if(discardBefore_)
+        {
+
+          if(discardBefore_->getTimeInstantTZ().date() > timeInstant->getDate().getDate()//check date
+             || (discardBefore_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardBefore_->getTimeInstantTZ().local_time() > timeInstant->getTimeInstant()))//if same date: check time
+            return false;
+        }
+        if(discardAfter_)
+        {
+          if(discardAfter_->getTimeInstantTZ().date() < timeInstant->getDate().getDate()//check date
+             || (discardAfter_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardAfter_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))//if same date: check time
+            return false;
+        }
+
+        //Valid Date!!!
+        //update lastDateTime
+        if(!dataSetLastDateTime_//if no date
+           || (dataSetLastDateTime_->getTimeInstantTZ().date() < timeInstant->getDate().getDate() // if date is newer
+               || (dataSetLastDateTime_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && dataSetLastDateTime_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))) //if same date but time is newer
+        {
+          boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
+          boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
+          dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
+        }
+
+        break;
+      }
+      case te::dt::DATE:
+      {
+        std::unique_ptr<te::dt::Date> date(dynamic_cast<te::dt::Date*>(dateTime.release()));
+        assert(date);
+        if(discardBefore_)
+        {
+          if(discardBefore_->getTimeInstantTZ().date() > date->getDate())
+            return false;
+        }
+        if(discardAfter_)
+        {
+          if(discardAfter_->getTimeInstantTZ().date() < date->getDate())
+            return false;
+        }
+
+        //Valid Date!!!
+        //update lastDateTime
+        if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *dateTime)
+        {
+          boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
+          boost::local_time::local_date_time boostTime(date->getDate(), boost::posix_time::time_duration(0,0,0,0), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
+          dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
+        }
+
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  return true;
+}
+
+bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const
+{
+  if(hours > -1
+     && hours > discardBeforeTime.hours())
+    return true;
+  if(minutes > -1
+     && (hours == -1 || hours == discardBeforeTime.hours())
+     && minutes > discardBeforeTime.minutes())
+    return true;
+  if(seconds > -1
+     && (hours == -1   || hours == discardBeforeTime.hours())
+     && (minutes == -1 || minutes == discardBeforeTime.minutes())
+     && (seconds == -1 || seconds > discardBeforeTime.seconds()))
+    return true;
+
+  return false;
+}
+
+bool terrama2::collector::DataFilter::isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discarBeforeDate) const
+{
+  return isAfterDiscardBeforeValue(year, discarBeforeDate.year())
+      && isAfterDiscardBeforeValue(month, discarBeforeDate.month().as_number())
+      && isAfterDiscardBeforeValue(day, discarBeforeDate.day().as_number());
+}
+
+bool terrama2::collector::DataFilter::isAfterDiscardBeforeValue(unsigned int value, unsigned int discardBeforeValue) const
+{
+  if(!value)
+    return true;
+
+  return value >= discardBeforeValue;
+}
+
+bool terrama2::collector::DataFilter::isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardAfterTime) const
+{
+  if(hours > -1
+     && hours < discardAfterTime.hours())
+    return true;
+  if(minutes > -1
+     && (hours == -1 || hours == discardAfterTime.hours())
+     && minutes < discardAfterTime.minutes())
+    return true;
+  if(seconds > -1
+     && (hours   == -1 || hours == discardAfterTime.hours())
+     && (minutes == -1 || minutes == discardAfterTime.minutes())
+     && (seconds == -1 || seconds < discardAfterTime.seconds()))
+    return true;
+
+  return false;
+}
+
+bool terrama2::collector::DataFilter::isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discardAfterDate) const
+{
+  return isBeforeDiscardAfterValue(year, discardAfterDate.year())
+      && isBeforeDiscardAfterValue(month, discardAfterDate.month().as_number())
+      && isBeforeDiscardAfterValue(day, discardAfterDate.day().as_number());
+}
+
+bool terrama2::collector::DataFilter::isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const
+{
+  if(!value)
+    return true;
+
+  return value <= discardAfterValue;
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType)
@@ -111,33 +359,14 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
     return dataSet;
 
   //Copy dataset to an in-memory dataset filtering the data
-  const core::Filter& filter = datasetItem_.filter();
   auto memDataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
   while(dataSet->moveNext())
   {
-    //Filter Time
     if(dateColumn > 0)
     {
-      if(dataSetLastDateTime_)
-      {
-        if(*dataSetLastDateTime_ < *dataSet->getDateTime(dateColumn))
-          dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
-      }
-      else
-      {
-        dataSetLastDateTime_ = dataSet->getDateTime(dateColumn);
-      }
-
-      std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
-      const te::dt::DateTime* discardBefore = dynamic_cast<const te::dt::DateTime*>(filter.discardBefore());
-      if(discardBefore && *dateTime < *discardBefore)
+      //Filter Time if has a dateTime column
+      if(!validateDate(dateColumn, dataSet))
         continue;
-
-      const te::dt::DateTime* discardAfter = dynamic_cast<const te::dt::DateTime*>(filter.discardAfter());
-      if(discardAfter && *dateTime > *discardAfter)
-        continue;
-
-      //TODO: filter last collection time
     }
 
     te::mem::DataSetItem* dataItem = new te::mem::DataSetItem(dataSet.get());
@@ -153,7 +382,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
 }
 
 
-te::dt::DateTime* terrama2::collector::DataFilter::getDataSetLastDateTime() const
+te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime() const
 {
   return dataSetLastDateTime_.get();
 }
@@ -162,10 +391,119 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
   : datasetItem_(datasetItem),
     dataSetLastDateTime_(nullptr)
 {
+  //recover last collection time logged
+  std::shared_ptr<te::dt::TimeInstantTZ> logTime = Log::getDataSetItemLastDateTime(datasetItem.id());
+  const core::Filter& filter = datasetItem_.filter();
 
+  if(!filter.discardBefore())
+     discardBefore_ = logTime;
+  else if(!logTime)
+    discardBefore_ = std::shared_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
+  else if(*filter.discardBefore() < *logTime )
+  {
+    discardBefore_ = logTime;
+  }
+  else
+    assert(0); //TODO: exception here
+
+  if(filter.discardAfter())
+    discardAfter_ = std::shared_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(filter.discardAfter()->clone()));
+
+  //prepare mask data
+  processMask();
 }
 
 terrama2::collector::DataFilter::~DataFilter()
 {
 
 }
+
+
+void terrama2::collector::DataFilter::processMask()
+{
+  std::string mask = datasetItem_.mask();
+
+  //used to fix the position of wildcards where real values have different size from wild cards.
+  int distance = 0;
+
+  std::string::const_iterator it = mask.begin();
+  //wild card use two characters
+  //should not go until the end
+  for(; it != mask.end()-1; ++it)
+  {
+    //get wildCards positions
+
+    if(*it == '%')
+    {
+      char character = *(it+1);
+      if(character == 'A')
+      {
+        maskData.year4Pos = it - mask.begin()+distance;
+        //two char for wild cards for four char year
+        distance +=2;
+      }
+      else if(character == 'a')
+      {
+        maskData.year2Pos = it - mask.begin()+distance;
+      }
+      else if(character == 'M')
+      {
+        maskData.monthPos = it - mask.begin()+distance;
+      }
+      else if(character == 'd')
+      {
+        maskData.dayPos = it - mask.begin()+distance;
+      }
+      else if(character == 'h')
+      {
+        maskData.hourPos = it - mask.begin()+distance;
+      }
+      else if(character == 'm')
+      {
+        maskData.minutePos = it - mask.begin()+distance;
+      }
+      else if(character == 's')
+      {
+        maskData.secondPos = it - mask.begin()+distance;
+      }
+      else if(character == '.')
+      {
+        maskData.wildCharPos = it - mask.begin()+distance;
+        //two char for wild cards for only one char
+        --distance;
+      }
+    }
+  }
+
+  //prepare boost regex  wildcards
+  boost::replace_all(mask, maskData.year4Str,    "(\\d{4})"); //("%A - ano com quatro digitos"))
+  boost::replace_all(mask, maskData.year2Str,    "(\\d{2})"); //("%a - ano com dois digitos"))
+  boost::replace_all(mask, maskData.dayStr,      "(\\d{2})"); //("%d - dia com dois digitos"))
+  boost::replace_all(mask, maskData.monthStr,    "(\\d{2})"); //("%M - mes com dois digitos"))
+  boost::replace_all(mask, maskData.hourStr,     "(\\d{2})"); //("%h - hora com dois digitos"))
+  boost::replace_all(mask, maskData.minuteStr,   "(\\d{2})"); //("%m - minuto com dois digitos"))
+  boost::replace_all(mask, maskData.secondStr,   "(\\d{2})"); //("%s - segundo com dois digitos"))
+  boost::replace_all(mask, maskData.wildCharStr, "(\\w{1})");  //("%. - um caracter qualquer"))
+  //boost regex
+  maskData.regex = boost::regex(mask);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

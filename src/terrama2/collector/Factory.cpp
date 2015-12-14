@@ -35,6 +35,8 @@
 
 #include "StoragerPostgis.hpp"
 #include "ParserFirePoint.hpp"
+#include "ParserPcdInpe.hpp"
+#include "ParserPcdToa5.hpp"
 #include "DataRetriever.hpp"
 #include "DataRetrieverFTP.hpp"
 #include "ParserPostgis.hpp"
@@ -49,7 +51,6 @@
 //Qt
 #include <QUrl>
 
-
 terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const std::string& uri, const terrama2::core::DataSetItem& datasetItem)
 {
   QUrl url(uri.c_str());
@@ -63,7 +64,15 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
   {
     switch (datasetItem.kind()) {
       case core::DataSetItem::PCD_INPE_TYPE:
+      {
+        ParserPtr newParser = std::make_shared<ParserPcdInpe>();
+        return newParser;
+      }
       case core::DataSetItem::PCD_TOA5_TYPE:
+      {
+        ParserPtr newParser = std::make_shared<ParserPcdToa5>();
+        return newParser;
+      }
       case core::DataSetItem::UNKNOWN_TYPE:
       {
         ParserPtr newParser = std::make_shared<ParserOGR>();
@@ -90,12 +99,10 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
 
   if(storageMetadata.empty())
   {
-    //TODO: review, should it be kept here?
-
-    //If no storage metadata use standard storage as postgis in the same storage as TerraMA2 datamodel
-    return std::make_shared<StoragerPostgis>(core::ApplicationController::getInstance().getDataSource());
+    //FIXME: remove this.
+    storageMetadata = core::ApplicationController::getInstance().getDataSource()->getConnectionInfo();
+    storageMetadata.emplace("KIND", "postgis");
   }
-
 
   //TODO: Exceptions
 

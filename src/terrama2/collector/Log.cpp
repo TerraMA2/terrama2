@@ -36,6 +36,9 @@
 #include "../core/ApplicationController.hpp"
 
 
+//Terrlib
+#include <terralib/dataaccess/utils/Utils.h>
+
 uint64_t terrama2::collector::Log::log(uint64_t dataSetItemId, std::string origin_uri, Status s)
 {
   try
@@ -183,18 +186,22 @@ void terrama2::collector::Log::updateLog(std::string origin_uri, std::string uri
 }
 
 
-std::shared_ptr<te::dt::DateTime> terrama2::collector::Log::getDataSetItemLastDateTime(uint64_t id)
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::collector::Log::getDataSetItemLastDateTime(uint64_t id)
 {
   std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
 
-  boost::format query("select MAX(data_timestamp) from terrama2.data_collection_log where dataset_item_id=%1");
+  boost::format query("select MAX(data_timestamp) from terrama2.data_collection_log where dataset_item_id=%1%");
 
   query.bind_arg(1, id);
 
   std::shared_ptr< te::da::DataSet > dataset = std::shared_ptr< te::da::DataSet >(transactor->query(query.str()));
 
   if(dataset)
-    return std::shared_ptr< te::dt::DateTime >(dataset->getDateTime("data_timestamp"));
+  {
+    size_t columnPos = te::da::GetPropertyPos(dataset.get(), "max");
+    if(!dataset->isNull(columnPos))
+      return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(dataset->getDateTime(columnPos).release()));
+  }
 
   return nullptr;
 }

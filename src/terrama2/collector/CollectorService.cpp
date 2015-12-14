@@ -74,8 +74,7 @@ void terrama2::collector::CollectorService::populateData()
 
 terrama2::collector::CollectorService::CollectorService(QObject *parent)
   : QObject(parent),
-    stop_(false),
-    factory_(new Factory())
+    stop_(false)
 {
   connectDataManager();
 }
@@ -227,6 +226,10 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::shared_ptr<te::da::DataSetType> datasetType;
           parser->read(uri, filter, datasetVec, datasetType);
 
+          //no new dataset found
+          if(datasetVec.empty())
+            continue;
+
 //          filter dataset data (date, geometry, ...)
           for(int i = 0, size = datasetVec.size(); i < size; ++i)
           {
@@ -236,6 +239,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
             datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
           }
 
+          //standard name
           std::string standardDataSetName = "terrama2.storager_";
           standardDataSetName.append(std::to_string(dataSetItem.id()));
 
@@ -243,11 +247,14 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           qDebug() << "starting storager...";
           std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
 
-          const std::unique_ptr< te::dt::DateTime > lastDateTime = std::unique_ptr< te::dt::DateTime >(filter->getDataSetLastDateTime());
+          const std::unique_ptr< te::dt::TimeInstantTZ > lastDateTime = std::unique_ptr< te::dt::TimeInstantTZ >(filter->getDataSetLastDateTime());
 
-          for(auto& uri: log_uris)
+          if(lastDateTime)
           {
-            terrama2::collector::Log::updateLog(uri, storage_uri, Log::IMPORTED, lastDateTime->toString());
+            for(auto& uri: log_uris)
+            {
+              terrama2::collector::Log::updateLog(uri, storage_uri, Log::IMPORTED, lastDateTime->toString());
+            }
           }
 
         }

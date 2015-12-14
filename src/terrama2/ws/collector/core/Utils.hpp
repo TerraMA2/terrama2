@@ -33,6 +33,7 @@
 // STL
 #include <memory>
 #include <cmath>
+#include <strstream>
 
 // Boost
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -40,7 +41,7 @@
 // TerraLib
 #include <terralib/geometry/Geometry.h>
 #include <terralib/datatype/TimeDuration.h>
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/WKTReader.h>
 
 // TerraMA2
@@ -451,15 +452,27 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
 
     if(!struct_dataset_items.at(i).filter_discardBefore.empty())
     {
-      te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(struct_dataset_items.at(i).filter_discardBefore)));
-      std::unique_ptr< te::dt::DateTime > discardBefore(td);
+      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
+      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
+      //stream for the DateTimeTZ string
+      std::stringstream stream(struct_dataset_items.at(i).filter_discardBefore);
+      //convert to boot local_date_time
+      stream >> boostTime;
+      //Build a te::dt::TimeInstantTZ
+      std::unique_ptr< te::dt::TimeInstantTZ > discardBefore(new te::dt::TimeInstantTZ(boostTime));
       filter.setDiscardBefore(std::move(discardBefore));
     }
 
     if(!struct_dataset_items.at(i).filter_discardAfter.empty())
     {
-      te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(struct_dataset_items.at(i).filter_discardAfter)));
-      std::unique_ptr< te::dt::DateTime > discardAfter(td);
+      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
+      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
+      //stream for the DateTimeTZ string
+      std::stringstream stream(struct_dataset_items.at(i).filter_discardAfter);
+      //convert to boot local_date_time
+      stream >> boostTime;
+      //Build a te::dt::TimeInstantTZ
+      std::unique_ptr< te::dt::TimeInstantTZ > discardAfter(new te::dt::TimeInstantTZ(boostTime));
       filter.setDiscardAfter(std::move(discardAfter));
     }
 
