@@ -76,6 +76,9 @@ uint64_t terrama2::collector::Log::log(uint64_t dataSetItemId, std::string origi
 
 void terrama2::collector::Log::log(uint64_t dataSetItemId, std::vector< std::string > origin_uris, Status s)
 {
+  if(origin_uris.empty())
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to log.");
+
   try
   {
     std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
