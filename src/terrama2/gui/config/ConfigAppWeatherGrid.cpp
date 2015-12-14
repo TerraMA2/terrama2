@@ -16,6 +16,7 @@
 
 // QT
 #include <QMessageBox>
+#include <QUrl>
 
 
 ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui)
@@ -105,6 +106,34 @@ void ConfigAppWeatherGridTab::save()
   metadata["UNIT"] = ui_->gridFormatDataUnit->text().toStdString();
   metadata["RESOLUTION"] = ui_->gridFormatDataResolution->text().toStdString();
   dataset.setMetadata(metadata);
+
+  std::map<std::string, std::string> storageMetadata;
+  auto configuration = app_->getConfiguration();
+
+  QUrl url(provider.uri().c_str());
+  QString scheme = url.scheme().toLower();
+
+  if (scheme == "file") // todo: check it and save an specific format
+    storageMetadata["PATH"] = configuration->getCollection()->dirPath_.toStdString();
+
+  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
+  {
+  }
+  else if (scheme == "ftp") // TODO: ftp storage metadata
+  {
+  }
+  else // postgis
+  {
+    storageMetadata["PG_HOST"] = configuration->getDatabase()->host_.toStdString();
+    storageMetadata["PG_PORT"] = configuration->getDatabase()->port_;
+    storageMetadata["PG_USER"] = configuration->getDatabase()->user_.toStdString();
+    storageMetadata["PG_PASSWORD"] = configuration->getDatabase()->password_.toStdString();
+    storageMetadata["PG_DB_NAME"] = configuration->getDatabase()->name_.toStdString();
+    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
+    storageMetadata["KIND"] = url.scheme().toStdString();
+  }
+
+  datasetItem->setStorageMetadata(storageMetadata);
 
   // todo: get value from db
   dataset.setSchedule(schedule);

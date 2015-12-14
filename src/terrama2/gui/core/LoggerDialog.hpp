@@ -1,9 +1,9 @@
 #ifndef __TERRAMA2_GUI_CORE_LOGGERDIALOG_HPP__
 #define __TERRAMA2_GUI_CORE_LOGGERDIALOG_HPP__
 
-#include <QDialog>
+#include <QWidget>
 
-class LoggerDialog : public QDialog
+class LoggerDialog : public QWidget
 {
   Q_OBJECT
 

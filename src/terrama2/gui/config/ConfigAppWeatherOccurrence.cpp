@@ -92,26 +92,20 @@ void ConfigAppWeatherOccurrence::save()
   else
     datasetItem = new terrama2::core::DataSetItem;
 
-  // TODO: fix it with datasetitem value
   std::map<std::string, std::string> storageMetadata;
-
   auto configuration = app_->getConfiguration();
 
   QUrl url(provider.uri().c_str());
   QString scheme = url.scheme().toLower();
 
-  if (scheme == "file")
-  {
-    // todo: check it and save an specific format
+  if (scheme == "file") // todo: check it and save an specific format
     storageMetadata["PATH"] = configuration->getCollection()->dirPath_.toStdString();
-  }
-  else if (scheme == "http" || scheme == "https")
+
+  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
   {
-    // TODO: Http and OGC Services
   }
-  else if (scheme == "ftp")
+  else if (scheme == "ftp") // TODO: ftp storage metadata
   {
-    // TODO: ftp storage metadata
   }
   else // postgis
   {
