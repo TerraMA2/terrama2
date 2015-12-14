@@ -233,7 +233,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           //read data and create a terralib dataset
           std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
           std::shared_ptr<te::da::DataSetType> datasetType;
-          parser->read(uri, filter, datasetVec, datasetType);
+          parser->read(dataSetItem, uri, filter, datasetVec, datasetType);
 
           //no new dataset found
           if(datasetVec.empty())

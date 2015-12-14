@@ -44,13 +44,12 @@
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
-void terrama2::collector::ParserPostgis::read(const std::string& uri,
+void terrama2::collector::ParserPostgis::read(const core::DataSetItem& /*datasetitem*/,
+                                              const std::string& uri,
                                               terrama2::collector::DataFilterPtr filter,
                                               std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
-                                              std::shared_ptr<te::da::DataSetType>& datasetTypePtr)
+                                              std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
-
   QUrl url(uri.c_str());
 
   std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
@@ -92,9 +91,9 @@ void terrama2::collector::ParserPostgis::read(const std::string& uri,
     for(const std::string& name : names)
     {
       std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
-      datasetTypePtr = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
+      datasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
 
-      if(!dataSet || !datasetTypePtr)
+      if(!dataSet || !datasetType)
       {
         throw UnableToReadDataSetError() << terrama2::ErrorDescription(
                                               QObject::tr("DataSet: %1 is null.").arg(name.c_str()));

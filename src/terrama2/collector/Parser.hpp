@@ -30,9 +30,11 @@
 #ifndef __TERRAMA2_COLLECTOR_PARSER_HPP__
 #define __TERRAMA2_COLLECTOR_PARSER_HPP__
 
+#include "../core/DataSetItem.hpp"
+
 //Terralib
-#include "terralib/dataaccess/dataset/DataSet.h"
-#include "terralib/dataaccess/dataset/DataSetType.h"
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
 
 //Boost
 #include <boost/noncopyable.hpp>
@@ -80,13 +82,14 @@ namespace terrama2
        \pre Tarralib should be initialized.
        */
 
-      virtual void read(const std::string& uri,
+      virtual void read(const terrama2::core::DataSetItem& datasetitem,
+                        const std::string& uri,
                         DataFilterPtr filter,
                         std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
                         std::shared_ptr<te::da::DataSetType>& datasetType) = 0;
 
     protected:
-      std::mutex mutex_;//TODO: needed?
+      core::DataSetItem dataSetItem_;
     };
 
 

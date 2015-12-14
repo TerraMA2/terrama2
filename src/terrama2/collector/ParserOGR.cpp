@@ -76,12 +76,13 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::ge
   return converter;
 }
 
-void terrama2::collector::ParserOGR::read(const std::string &uri,
+void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
+                                          const std::string &uri,
                                           DataFilterPtr filter,
                                           std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                                           std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
+  dataSetItem_ = datasetitem;
 
   try
   {    

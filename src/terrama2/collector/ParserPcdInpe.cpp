@@ -41,11 +41,13 @@
 // STL
 #include <memory>
 #include <algorithm>
+#include <iostream>
 
 // Boost
-#include <boost/format/exceptions.hpp>
+#include <boost/date_time/local_time/local_time_types.hpp>
 #include <boost/date_time/local_time/posix_time_zone.hpp>
 #include <boost/date_time/time_zone_base.hpp>
+#include <boost/format/exceptions.hpp>
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -53,44 +55,53 @@
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/common/Exception.h>
 
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/dataaccess/utils/Utils.h>
-#include <terralib/geometry.h>
-#include <terralib/geometry.h>
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/datatype/DateTimeProperty.h>
-#include <terralib/datatype.h>
-
-
-#include <iostream>
+#include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
 {
   assert(indexes.size() == 1);
 
-  std::string dateTime = dataset->getAsString(indexes[0]);
-  boost::posix_time::ptime boostDate;
+  try
+  {
+    std::string dateTime = dataset->getAsString(indexes[0]);
+    boost::posix_time::ptime boostDate;
 
-  //mask to convert DateTime string to Boost::ptime
-  std::locale format(std::locale::classic(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
+    //mask to convert DateTime string to Boost::ptime
+    std::locale format(std::locale::classic(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
 
-  std::istringstream stream(dateTime);//create stream
-  stream.imbue(format);//set format
-  stream >> boostDate;//convert to boost::ptime
+    std::istringstream stream(dateTime);//create stream
+    stream.imbue(format);//set format
+    stream >> boostDate;//convert to boost::ptime
 
-  if(boostDate == boost::posix_time::ptime())
-    assert(0);
+    if(boostDate == boost::posix_time::ptime())
+      assert(0);
 
-  //FIXME: get timezone from datasetitem.
-  //Parser ogr::read receives the filter of the datasetitem
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC-03"));
-  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(dataSetItem_.timezone()));
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
 
-  te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
+    te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
 
-  return dt;
+    return dt;
+  }
+  catch(std::exception& e)
+  {
+    //TODO: Log this
+  }
+  catch(boost::exception& e)
+  {
+    //TODO: Log this
+  }
+  catch(...)
+  {
+    //TODO: Log this
+  }
+
+  return nullptr;
 }
 
 // Change the string 07/21/2015 17:13:00 - PCD INPE format for timestamp

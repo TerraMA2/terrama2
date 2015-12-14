@@ -158,7 +158,7 @@ void TsDataFilter::dummy()
   qDebug() << "QDate2Boost UTC   time : " << QDate2Boost.utc_time().time_of_day().hours();
   qDebug() << "QDate2Boost local time : " << QDate2Boost.local_time().time_of_day().hours();
 
-  boost::local_time::local_date_time String2Boost = terrama2::collector::DateTimeString2BoostLocalDateTime(date, time, "UTC-02");
+  boost::local_time::local_date_time String2Boost = terrama2::collector::DateTimeString2BoostLocalDateTime(date, time, "-02:00");
   //Build a te::dt::TimeInstantTZ
   qDebug() << "String2Boost posixString: " << String2Boost.to_string().c_str();
   qDebug() << "String2Boost timezoneStr: " << String2Boost.zone_as_posix_string().c_str();

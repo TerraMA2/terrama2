@@ -81,15 +81,6 @@ namespace terrama2
 
      */
     struct LogError: terrama2::Exception{ };
-
-
-
-    //TODO: Not in use
-    struct UnableToOpenCollectorError: virtual Exception{ };
-    //TODO: Not in use
-    struct InactiveDataSetError: virtual DataSetTimerError { };
-    //TODO: Not in use
-    struct UnabletoGetLockError: virtual Exception { };
   }
 }
 

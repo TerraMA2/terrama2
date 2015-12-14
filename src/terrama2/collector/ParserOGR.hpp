@@ -59,10 +59,11 @@ namespace terrama2
         ParserOGR() : Parser(){}
         virtual ~ParserOGR(){}
 
-        virtual void read(const std::string& uri,
+        virtual void read(const terrama2::core::DataSetItem& datasetitem,
+                          const std::string& uri,
                           DataFilterPtr filter,
-                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                          std::shared_ptr<te::da::DataSetType> &datasetType) override;
+                          std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
+                          std::shared_ptr<te::da::DataSetType>& datasetType) override;
 
         virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType);
 
