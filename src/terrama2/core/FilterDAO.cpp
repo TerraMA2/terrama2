@@ -64,7 +64,6 @@ terrama2::core::FilterDAO::save(const Filter& filter, te::da::DataSourceTransact
   else
     query.bind_arg(3, "NULL");
 
-  // TODO: persist filter geometry
 // geom
   if(filter.geometry())
     query.bind_arg(4, "'" + filter.geometry()->asText() + "'") ;

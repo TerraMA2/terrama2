@@ -50,6 +50,8 @@ qt5_use_modules(terrama2_mod_core Widgets Sql)
 
 target_link_libraries(terrama2_mod_core terralib_mod_memory
                                         terralib_mod_dataaccess
+                                        terralib_mod_plugin
+                                        terralib_mod_common
                                         ${Boost_FILESYSTEM_LIBRARY}
                                         ${Boost_SYSTEM_LIBRARY}
                                         ${Boost_LOG_LIBRARY})
