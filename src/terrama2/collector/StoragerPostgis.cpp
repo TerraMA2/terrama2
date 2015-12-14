@@ -40,8 +40,9 @@
 #include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
-#include <QObject>
 #include <QDebug>
+#include <QObject>
+#include <QUrl>
 
 terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string, std::string>& storageMetadata)
   : Storager(storageMetadata)
@@ -96,7 +97,7 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
 {
   //assert(datasetVec.size() == 1);//FIXME: remove this!
 
-  std::string uri;
+  QUrl uri;
 
   try
   {
@@ -118,14 +119,15 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
     // get a transactor to interact to the data source
     commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
 
-    uri = "POSTGIS:////" +
-          storageMetadata_.find("PG_HOST_ADDR")->second +
-          storageMetadata_.find("PG_HOST")->second +
-          storageMetadata_.find("PG_PORT")->second +
-          storageMetadata_.find("PG_DB_NAME")->second +
-          storageMetadata_.find("PG_USER")->second +
-          storageMetadata_.find("PG_PASSWORD")->second +
-          dataSetName;
+    std::map<std::string, std::string>::const_iterator it_end = storageMetadata_.end();
+
+    uri.setScheme("postgis");
+    uri.setHost(QString::fromStdString((storageMetadata_.find("PG_HOST") != it_end) ? storageMetadata_.find("PG_HOST")->second : ""));
+    uri.setPort(std::stoi((storageMetadata_.find("PG_PORT") != it_end) ? storageMetadata_.find("PG_PORT")->second : ""));
+    uri.setUserName(QString::fromStdString((storageMetadata_.find("PG_USER") != it_end) ? storageMetadata_.find("PG_USER")->second : ""));
+    uri.setPassword(QString::fromStdString((storageMetadata_.find("PG_PASSWORD") != it_end) ? storageMetadata_.find("PG_PASSWORD")->second : ""));
+    QString path = "/" + QString::fromStdString(((storageMetadata_.find("PG_DB_NAME") != it_end) ? storageMetadata_.find("PG_DB_NAME")->second + "." + dataSetName : "." + dataSetName));
+    uri.setPath(path);
   }
   catch(terrama2::Exception& e)
   {
@@ -146,5 +148,5 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
     assert(0);
   }
 
-  return uri;
+  return uri.url().toStdString();
 }
