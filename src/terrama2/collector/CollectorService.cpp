@@ -143,13 +143,19 @@ void terrama2::collector::CollectorService::stop() noexcept
 
 void terrama2::collector::CollectorService::addProvider(const core::DataProvider& provider)
 {
-// TODO: check if provider-id is already registered and log it
-
   try
   {
+    //lock thread
     std::lock_guard<std::mutex> lock (mutex_);
 
-    dataproviders_.insert(std::make_pair(provider.id(), provider)); // register the data provider
+    //removes the provider if already in the map
+    std::map<uint64_t, core::DataProvider>::const_iterator hasProvider = dataproviders_.find(provider.id());
+    if(hasProvider != dataproviders_.end())
+      dataproviders_.erase(hasProvider);
+
+    //add the provider
+    auto ok = dataproviders_.emplace(provider.id(), provider); // register the data provider
+    assert(ok.second);
   }
   catch(const std::exception& e)
   {
@@ -394,8 +400,9 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
 
     //Append the dataset to queue
     auto& datasetQueue = collectQueue_[dataset.provider()];
-    //TODO: multiple copies of dataset can occur in the queue, is this the expected behavior?
-    datasetQueue.push_back(datasetId);
+    //NOTE: A dataset can only appear once in the queue.
+    if(std::find(datasetQueue.begin(), datasetQueue.end(), datasetId) == datasetQueue.end())
+      datasetQueue.push_back(datasetId);
 
     //wake loop thread
     loop_condition_.notify_one();
