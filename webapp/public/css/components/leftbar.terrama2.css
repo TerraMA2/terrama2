@@ -7,6 +7,7 @@
   top: 0;
   bottom: 0;
   left: 0;
+  padding-top: 22px;
   background: rgba(166,160,124,0.75);
   border-right: 1px solid #2b2b2b;
 }
@@ -79,6 +80,16 @@
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-layers:hover, .terrama2-leftbar-button.terrama2-leftbar-button-layers:active, .terrama2-leftbar-button.terrama2-leftbar-button-layers.active {
+  background-repeat: no-repeat;
+}
+
+.terrama2-leftbar-button.terrama2-leftbar-button-table {
+  background-image: url('../../img/icon_div.png'), url('../../img/icon_table.png') !important;
+  background-repeat: no-repeat;
+  background-position: bottom, center !important;
+}
+
+.terrama2-leftbar-button.terrama2-leftbar-button-table:hover, .terrama2-leftbar-button.terrama2-leftbar-button-table:active, .terrama2-leftbar-button.terrama2-leftbar-button-table.active {
   background-repeat: no-repeat;
 }
 

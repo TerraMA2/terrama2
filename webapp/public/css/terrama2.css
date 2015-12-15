@@ -111,3 +111,27 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, div.terrama2-container::-webkit-s
 .terrama2-leftbox-content h4 {
   color: #8E875E;
 }
+
+.terrama2-table-container {
+  position: relative;
+  margin-top: 14px;
+  margin-right: 37px;
+  margin-left: 81px;
+  color: rgb(84,84,84);
+}
+
+.terrama2-table-container .terrama2-leftbox-header {
+  margin-left: 0 !important;
+}
+
+.terrama2-table-container th {
+  text-align: left;
+  padding-top: 17px !important;
+  padding-bottom: 17px !important;
+  padding-left: 10px !important;
+}
+
+.terrama2-table-container td {
+  padding-top: 17px !important;
+  padding-bottom: 17px !important;
+}

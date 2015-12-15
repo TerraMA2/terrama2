@@ -32,7 +32,11 @@ var LeftBar = function(terrama2) {
           $("#" + box).addClass("active");
           $(".terrama2-leftbox").animate({ width: 0, padding: 0, opacity: 0 }, { duration: 300, queue: false });
 
-          $("#" + box).animate({ width:'25em', padding:'1em', opacity:1 }, { duration: 300, queue: false });
+          if($("#" + box).hasClass("terrama2-leftbox-fullscreen")) {
+            $("#" + box).animate({ width:'100%', padding:'1em', opacity:1, left:'0' }, { duration: 300, queue: false });
+          } else {
+            $("#" + box).animate({ width:'25em', padding:'1em', opacity:1 }, { duration: 300, queue: false });
+          }
 
           $(this).append(terrama2.getConfig().getConfJsonHTML().LeftBarButtonArrow)
           $(this).addClass("active");
@@ -48,7 +52,7 @@ var LeftBar = function(terrama2) {
       e.stopPropagation();
     });
 
-    $(".terrama2-leftbox").resizable({
+    $(".terrama2-resizable-horizontal").resizable({
       handles: 'e'
     });
   });

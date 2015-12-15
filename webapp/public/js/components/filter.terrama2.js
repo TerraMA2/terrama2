@@ -55,38 +55,36 @@ var Filter = function(terrama2) {
 
   var createSatelliteSelect = function() {
     var elem = "<option value='all'>TODOS</option>";
-    var feature = null;
+    var feature = {};
 
     $.ajax({
       url: serverConfig.ProxyURL,
       dataType: 'json',
-      async: false,
+      async: true,
       data: {
         url: serverConfig.URL,
         params: serverConfig.GetFeatureParams + filterConfig.LayerToFilter
       },
       success: function(data) {
         feature = data;
+
+        var satellites = [];
+
+        for(var i = 0; i < feature.totalFeatures; i++) {
+          satellites.push(feature.features[i].properties[filterConfig.SatelliteFieldName]);
+        }
+
+        satellites = unique(satellites).sort();
+
+        var satellitesLength = satellites.length;
+
+        for(var i = 0; i < satellitesLength; i++) {
+          elem += "<option value='" + satellites[i] + "'>" + satellites[i] + "</option>";
+        }
+
+        $("#terrama2-filter-satellite").empty().append(elem);
       }
     });
-
-    var satellites = [];
-
-    for(var i = 0; i < feature.totalFeatures; i++) {
-      satellites.push(feature.features[i].properties[filterConfig.SatelliteFieldName]);
-    }
-
-    satellites = unique(satellites).sort();
-
-    var satellitesLength = satellites.length;
-
-    for(var i = 0; i < satellitesLength; i++) {
-      elem += "<option value='" + satellites[i] + "'>" + satellites[i] + "</option>";
-    }
-
-    $("#terrama2-filter-satellite").empty().append(elem);
-
-    //alert(elem);
   }
 
   function unique(list) {
