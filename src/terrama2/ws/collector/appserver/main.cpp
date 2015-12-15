@@ -76,8 +76,6 @@ bool gSoapThread(int port)
     QCloser qCloser;
     qDebug() << "Starting Webservice...";
 
-    qDebug() << "Initializating TerraLib...";
-
     WebService server;
 
     if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, port, 100)))
@@ -178,7 +176,16 @@ int main(int argc, char* argv[])
 
   try
   {
+
+    qDebug() << "Initializating TerraLib...";
     terrama2::core::initializeTerralib();
+
+    qDebug() << "Loading TerraMA2 Project...";
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
+    {
+      qDebug() << "TerraMA2 Project File is invalid or don't exist!";
+      exit(TERRAMA2_PROJECT_LOAD_ERROR);
+    }
 
     QApplication app(argc, argv);
     auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
