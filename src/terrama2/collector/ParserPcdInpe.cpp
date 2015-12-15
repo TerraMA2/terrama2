@@ -82,7 +82,7 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
       assert(0);
 
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(dataSetItem_.timezone()));
-    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
     te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
 
