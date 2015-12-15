@@ -144,7 +144,6 @@ void ConfigApp::tabChangeRequested(int index)
         break;
       default:
       {
-        //TODO: tab handling
         pimpl_->ui_->RiskDataTab->setEnabled(false);
         pimpl_->ui_->AditionalDataTab->setEnabled(false);
         pimpl_->ui_->tab->setEnabled(false);

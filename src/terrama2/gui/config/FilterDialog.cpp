@@ -141,6 +141,12 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   pimpl_->ui_->belowAverageLed->setValidator(new QIntValidator(pimpl_->ui_->belowAverageLed));
   pimpl_->ui_->aboveAverageLed->setValidator(new QIntValidator(pimpl_->ui_->aboveAverageLed));
 
+  // fill the label helper
+  auto timezone = pimpl_->ui_->datetimeBefore->dateTime().timeZone();
+
+  pimpl_->ui_->labelDateNote->setText(pimpl_->ui_->labelDateNote->text() + timezone.displayName(pimpl_->ui_->datetimeBefore->dateTime(),
+                                                                                                QTimeZone::OffsetName));
+
 }
 
 FilterDialog::~FilterDialog()
