@@ -147,6 +147,8 @@ namespace terrama2
           \return DataSetTimer for the DataSet.
 
           \note Adds the dataset to queue to be collected.
+
+          \pre The DataSet must have an id and be active.
          */
         void addDataset(const core::DataSet& dataset);
 

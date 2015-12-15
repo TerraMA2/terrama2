@@ -83,10 +83,7 @@ void terrama2::collector::ParserPostgis::read(const core::DataSetItem& /*dataset
     std::vector<std::string> names = transactor->getDataSetNames();
     names = filter->filterNames(names);
     if(names.empty())
-    {
-      //TODO: throw no dataset found
-      return;
-    }
+      throw NoDataSetFoundError() << terrama2::ErrorDescription(QObject::tr("No DataSet Found."));
 
     for(const std::string& name : names)
     {

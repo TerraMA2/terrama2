@@ -95,10 +95,7 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
     names = filter->filterNames(names);
 
     if(names.empty())
-    {
-      //TODO: throw no dataset found
-      return;
-    }
+      throw NoDataSetFoundError() << terrama2::ErrorDescription(QObject::tr("No DataSet Found."));
 
     std::shared_ptr<te::da::DataSetTypeConverter> converter;
     bool first = true;

@@ -84,13 +84,12 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
         return newParser;
       }
       default:
-        assert(0);//TODO: throw, should not be here
+        throw ConflictingParserTypeSchemeError() << terrama2::ErrorDescription(QObject::tr("The DataSetItem (%1) type is not compatible with FILE scheme.").arg(datasetItem.id()));
         break;
     }
   }
 
-  assert(0);//TODO: throw, should not be here
-  return ParserPtr();
+  throw UnableToCreateParserError() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
 }
 
 terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
@@ -104,12 +103,10 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
     storageMetadata.emplace("KIND", "postgis");
   }
 
-  //TODO: Exceptions
-
   std::map<std::string, std::string>::const_iterator localFind = storageMetadata.find("KIND");
 
   if(localFind == storageMetadata.cend())
-    return StoragerPtr();
+    throw UnableToCreateStoragerError() << terrama2::ErrorDescription(QObject::tr("No Kind set."));
 
   std::string storagerKind = localFind->second;
 
@@ -120,9 +117,7 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
     return std::make_shared<StoragerPostgis>(storageMetadata);
   }
 
-
-  //FIXME: throw here
-  return StoragerPtr();
+  throw UnableToCreateStoragerError() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
 }
 
 terrama2::collector::DataRetrieverPtr terrama2::collector::Factory::makeRetriever(const terrama2::core::DataProvider& dataProvider)
@@ -134,5 +129,6 @@ terrama2::collector::DataRetrieverPtr terrama2::collector::Factory::makeRetrieve
     default:
       break;
   }
+  //Dummy retriever
   return std::make_shared<DataRetriever>(dataProvider);
 }

@@ -46,6 +46,7 @@
 #include <vector>
 
 //Boost
+#include <boost/date_time/local_time/local_date_time.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/regex.hpp>
 
@@ -89,8 +90,6 @@ namespace terrama2
 
               \param namesList Full list of names to be filtered.
 
-              \pre Filtering rules should have been set, otherwise unmodified list will be returned.
-
               \return List of filtered names.
              */
         std::vector<std::string> filterNames(const std::vector<std::string> &namesList);
@@ -98,11 +97,16 @@ namespace terrama2
         /*!
              \brief Filters a te::da::DataSet by matching criteria.
 
+             Will only filter dates if there is a te::dt::DATETIME_TYPE attribute in the dataset,
+             geometry expects a te::dt::GEOMETRY_TYPE attribute.
+
+             \note geometry filter is not implemented yet
              \note Updates dataSetLastDateTime_
 
              \param dataSet DataSet to be filtered.
 
              \pre Filtering rules should have been set, otherwise unmodified DataSet is returned.
+             \pre Tarralib should be initialized.
 
              \return Filtered DataSet.
              */
@@ -113,7 +117,9 @@ namespace terrama2
              */
         te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
 
-      private:
+        void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
+        
+    private:
         //! Prepare mask data for wildcards identification
         void processMask();
         //! Returns true if the date is after discardBefore_ and before discardAfter. Updates dataSetLastDateTime_ with the latest date.
@@ -155,7 +161,7 @@ namespace terrama2
         bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
-        //TODO: dataSetLastDateTime_ should be separated as a date and a time object, this way we can compare with incomplete masks and save incomplete date/time
+        //TODO: VINICIUS: dataSetLastDateTime_ should be separated as a date and a time object, this way we can compare with incomplete masks and save incomplete date/time
         std::unique_ptr< te::dt::TimeInstantTZ >  dataSetLastDateTime_; //! Latest valid date found
         std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //! Only date after this will be valid
         std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_;//! Only date before this will be valid

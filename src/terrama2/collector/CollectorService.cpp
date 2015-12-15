@@ -461,9 +461,9 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
 void
 terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 {
-  //TODO: Debug?
-  //sanity check: valid dataset
-  //  assert(dataset.id());
+  if(dataset.status() != core::DataSet::ACTIVE
+     || dataset.id() == 0)
+    return;
 
   try
   {
@@ -481,6 +481,12 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 
 // add to queue to collect a first time
     addToQueue(dataset.id());
+  }
+  catch(terrama2::collector::InvalidCollectFrequencyError& e)
+  {
+    //TODO: log de erro
+    qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
   }
   catch(terrama2::collector::InvalidDataSetError& e)
   {
@@ -509,7 +515,13 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
 
   try
   {
-    const DataSetTimerPtr& datasetTimer = timers_.at(datasetId);
+    //only valid dataset are added to the map,
+    //if an inactive or invalid dataset is removed: nothing to do
+    std::map<uint64_t, DataSetTimerPtr>::const_iterator pos = timers_.find(datasetId);
+    if(pos == timers_.end())
+      return;
+
+    const DataSetTimerPtr& datasetTimer = pos->second;
     disconnect(datasetTimer.get(), nullptr, this, nullptr);
 
     datasets_.erase(datasetId);

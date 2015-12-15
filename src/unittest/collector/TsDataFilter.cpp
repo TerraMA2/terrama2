@@ -123,7 +123,7 @@ void TsDataFilter::TestDiscardBeforeMask()
   terrama2::core::DataSetItem  dataItem;
   terrama2::core::Filter       filter;
   boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("UTC-03"));
-  boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,6,15), boost::posix_time::time_duration(0,0,0,0), zone, boost::local_time::local_date_time::NOT_DATE_TIME_ON_ERROR);
+  boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,6,15), boost::posix_time::time_duration(0,0,0,0), zone, true);
   std::unique_ptr<te::dt::TimeInstantTZ> tDate(new te::dt::TimeInstantTZ(boostTime));
   filter.setDiscardBefore(std::move(tDate));
 
