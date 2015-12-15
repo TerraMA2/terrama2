@@ -31,6 +31,8 @@
 #include "FilterDialog.hpp"
 #include "../../core/Filter.hpp"
 
+#include "../../collector/Utils.hpp"
+
 // Terralib
 #include <terralib/geometry/Point.h>
 #include <terralib/geometry/Polygon.h>
@@ -84,7 +86,6 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(accept()));
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 
-  // TODO: improve this and check with service???
   connect(pimpl_->ui_->dateBeforeFilterCbx, SIGNAL(clicked()), this, SLOT(onFilteredByDate()));
   connect(pimpl_->ui_->dateAfterFilterCbx, SIGNAL(clicked()), this, SLOT(onFilteredByDate()));
   connect(pimpl_->ui_->bandFilterLed, SIGNAL(textEdited(QString)), this, SLOT(onFilteredByLayer()));
@@ -169,7 +170,7 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
   {
     pimpl_->ui_->areaRdb->setChecked(true);
     pimpl_->ui_->areaRdb->clicked();
-    //todo:  it is temp code for convertion and get the limits
+
     const te::gm::Polygon* geom = dynamic_cast<const te::gm::Polygon*>(filter.geometry());
     const te::gm::LinearRing* square = dynamic_cast<const te::gm::LinearRing*>(geom->getRingN(0));
 
@@ -179,23 +180,43 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
     pimpl_->ui_->yMaxLed->setText(QString::number(square->getPointN(2)->getY()));
   }
 
-  //TODO: improve date convertion. This code just uses boost to convert te::Date
   if (filter.discardBefore())
   {
     const te::dt::TimeInstantTZ* dt = filter.discardBefore();
+
+    std::string date_string;
+    std::string time_string;
+    std::string timezone_string;
+
+    terrama2::collector::BoostLocalDateTime2DateTimeString(dt->getTimeInstantTZ(), date_string, time_string, timezone_string);
+
     pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
 
-    QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
-    pimpl_->ui_->datetimeBefore->setDateTime(date);
+    QString format= "%1 %2";
+    QString formated_datetime = format.arg(date_string.c_str()).arg(time_string.c_str());
+    QDateTime dateTime = QDateTime::fromString(formated_datetime, "yyyy-MM-dd HH:mm:ss");
+
+    pimpl_->ui_->datetimeBefore->setDateTime(dateTime);
     emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
   }
 
   if (filter.discardAfter())
   {
     const te::dt::TimeInstantTZ* dt = filter.discardAfter();
+
+    std::string date_string;
+    std::string time_string;
+    std::string timezone_string;
+
+    terrama2::collector::BoostLocalDateTime2DateTimeString(dt->getTimeInstantTZ(), date_string, time_string, timezone_string);
+
     pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
-    QDateTime date = QDateTime::fromString(dt->toString().c_str(), "yyyy-MMM-dd HH:mm:ss");
-    pimpl_->ui_->datetimeAfter->setDateTime(date);
+
+    QString format= "%1 %2";
+    QString formated_datetime = format.arg(date_string.c_str()).arg(time_string.c_str());
+    QDateTime dateTime = QDateTime::fromString(formated_datetime, "yyyy-MM-dd HH:mm:ss");
+
+    pimpl_->ui_->datetimeAfter->setDateTime(dateTime);
     emit pimpl_->ui_->dateAfterFilterCbx->clicked();
   }
 
@@ -257,7 +278,6 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
   else
     filter.setGeometry(nullptr);
 
-  // TODO: is there another way fill up with before/after date?.
   if (pimpl_->filterByDate_)
   {
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
@@ -269,14 +289,16 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
       std::string posixTime = beforeDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
 
-      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
-      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
+      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(localCurrentDateTime);
+
       //stream for the DateTimeTZ string
       std::stringstream stream(posixTime);
+
       //convert to boot local_date_time
-      stream >> boostTime;
+      stream >> boostLocalTime;
+
       //Build a te::dt::TimeInstantTZ
-      std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostTime));
+      std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostLocalTime));
       filter.setDiscardBefore(std::move(datePtr));
     }
     else
@@ -284,21 +306,23 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
     if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
     {
-      QDateTime beforeDate = pimpl_->ui_->datetimeAfter->dateTime();
+      QDateTime afterDate = pimpl_->ui_->datetimeAfter->dateTime();
       QDateTime localCurrentDateTime = QDateTime::currentDateTime();
       QTimeZone timeZone = localCurrentDateTime.timeZone();
       QString zoneStr = timeZone.displayName(localCurrentDateTime, QTimeZone::OffsetName);
 
-      std::string posixTime = beforeDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
+      std::string posixTime = afterDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
 
-      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
-      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
+      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(localCurrentDateTime);
+
       //stream for the DateTimeTZ string
       std::stringstream stream(posixTime);
+
       //convert to boot local_date_time
-      stream >> boostTime;
+      stream >> boostLocalTime;
+
       //Build a te::dt::TimeInstantTZ
-      std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostTime));
+      std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostLocalTime));
       filter.setDiscardAfter(std::move(datePtr));
     }
     else
@@ -368,7 +392,6 @@ void FilterDialog::onFilteredByLayer()
 
 void FilterDialog::onFilteredByArea()
 {
-  // TODO: validate the filter limits
   if (pimpl_->ui_->noAreaFilterRdb->isChecked())
   {
     pimpl_->ui_->filterWidgetStack->setCurrentWidget(pimpl_->ui_->page_3); 
