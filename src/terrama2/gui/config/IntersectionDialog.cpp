@@ -35,17 +35,37 @@
 #include "../../core/Intersection.hpp"
 #include "../../core/DataManager.hpp"
 #include "../Exception.hpp"
+#include "../core/DataType.hpp"
+
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
 // QT
 #include <QMessageBox>
 
 struct IntersectionDialog::Impl
 {
-  Impl(const terrama2::core::Intersection& intersection)
+  Impl(const terrama2::core::Intersection& intersection, Database* database)
     : ui_(new Ui::IntersectionDialogForm),
       intersection_(intersection)
   {
-
+    try
+    {
+      std::map<std::string, std::string> connInfo;
+      connInfo["PG_HOST"] = database->host_.toStdString();
+      connInfo["PG_PORT"] = std::to_string(database->port_);
+      connInfo["PG_USER"] = database->user_.toStdString();
+      connInfo["PG_PASSWORD"] = database->password_.toStdString();
+      connInfo["PG_DB_NAME"] = database->dbName_.toStdString();
+      connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+      dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
+      dataSource_->setConnectionInfo(connInfo);
+      dataSource_->open();
+    }
+    catch (...)
+    {
+      // todo: handling terralib exception
+    }
   }
 
   ~Impl()
@@ -55,10 +75,11 @@ struct IntersectionDialog::Impl
 
   Ui::IntersectionDialogForm* ui_;
   terrama2::core::Intersection intersection_;
+  std::unique_ptr<te::da::DataSource> dataSource_;
 };
 
-IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& intersection, QWidget* parent, Qt::WindowFlags f)
-: QDialog(parent, f), pimpl_(new Impl(intersection))
+IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent, Qt::WindowFlags f)
+: QDialog(parent, f), pimpl_(new Impl(intersection, database))
 {
   pimpl_->ui_->setupUi(this);
 
@@ -71,11 +92,8 @@ IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& inter
   connect(pimpl_->ui_->vectorAttributesTableWidget, SIGNAL(cellDoubleClicked(int, int)), SLOT(onAttributeSelected(int, int)));
   connect(pimpl_->ui_->dynamicGridsTableWidget, SIGNAL(cellDoubleClicked(int, int)), SLOT(onRasterSelected(int, int)));
 
-
-  auto transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-
-  fillVectorialList(transactor);
-  fillRasterList(transactor);
+  fillVectorialList();
+  fillRasterList();
 
   pimpl_->ui_->geometryStc->setCurrentIndex(2);
 }
@@ -98,8 +116,7 @@ void IntersectionDialog::onDatasetSelected()
 
   std::string item = pimpl_->ui_->themeList->currentItem()->text().toStdString();
 
-  auto ds = terrama2::core::ApplicationController::getInstance().getDataSource();
-  auto dsType = ds->getDataSetType(item);
+  auto dsType = pimpl_->dataSource_->getDataSetType(item);
   fillAttributeTable(dsType);
 
 }
@@ -228,9 +245,11 @@ void IntersectionDialog::onAttributeSelected(int row, int column)
   }
 }
 
-void IntersectionDialog::fillVectorialList(std::auto_ptr<te::da::DataSourceTransactor>& transactor)
+void IntersectionDialog::fillVectorialList()
 {
   std::string sql = "select * from geometry_columns where f_table_name != 'filter' and f_table_name not like 'storage%'";
+
+  auto transactor = pimpl_->dataSource_->getTransactor();
 
   std::auto_ptr<te::da::DataSet> queryResult = transactor->query(sql);
 
@@ -254,10 +273,11 @@ void IntersectionDialog::fillVectorialList(std::auto_ptr<te::da::DataSourceTrans
 }
 
 
-void IntersectionDialog::fillRasterList(std::auto_ptr<te::da::DataSourceTransactor>& transactor)
+void IntersectionDialog::fillRasterList()
 {
   std::string sql = "select ds.name from terrama2.dataset ds, terrama2.dataset_type dt where ds.kind = dt.id and dt.name = 'Grid'";
 
+  auto transactor = pimpl_->dataSource_->getTransactor();
   std::auto_ptr<te::da::DataSet> queryResult = transactor->query(sql);
 
   pimpl_->ui_->dynamicGridsTableWidget->setRowCount(queryResult->size());

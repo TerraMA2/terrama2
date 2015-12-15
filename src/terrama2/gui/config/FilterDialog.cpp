@@ -411,7 +411,7 @@ void FilterDialog::onFilteredByArea()
 
 void FilterDialog::onBeforeBtnClicked()
 {
-  pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTimeUtc());
+  pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTime());
   pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
   emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
 }
@@ -464,7 +464,7 @@ void FilterDialog::disablePreFields()
 
 void FilterDialog::onAfterBtnClicked()
 {
-  pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTimeUtc());
+  pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTime());
 
   pimpl_->ui_->dateAfterFilterCbx->setChecked(true);
   emit pimpl_->ui_->dateAfterFilterCbx->clicked();

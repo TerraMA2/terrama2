@@ -309,5 +309,7 @@ void terrama2::core::finalizeTerralib()
   {
     dataSource->close();
   }
+
+  dataSource.reset();
   TerraLib::getInstance().finalize();
 }

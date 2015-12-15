@@ -180,9 +180,6 @@ void ConfigApp::openRequested()
       std::string destination = "http://" + configManager_->getCollection()->address_.toStdString() + ":";
       destination += std::to_string(configManager_->getCollection()->servicePort_);
 
-      terrama2::core::ApplicationController::getInstance().loadProject(file.toStdString());
-      terrama2::core::DataManager::getInstance().load();
-
       terrama2::ws::collector::client::WebProxyAdapter* webProxyAdapter = new terrama2::ws::collector::client::WebProxyAdapter(destination);
 
       client_.reset(new terrama2::ws::collector::client::Client(webProxyAdapter));
