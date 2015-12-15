@@ -31,37 +31,12 @@
 // TerraMA2
 #include "ConfigApp.hpp"
 #include "Exception.hpp"
-
-// TerraLib
-#include <terralib/common/TerraLib.h>
-//terralib
-#include <terralib/common/PlatformUtils.h>
-#include <terralib/common.h>
-#include <terralib/plugin.h>
+#include "../../core/Utils.hpp"
 
 // Qt
 #include <QApplication>
 #include <QMessageBox>
 
-// temp: TODO: use global for terrama2 project
-void initializeTerralib()
-{
-  // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
-
-  te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-//  te::plugin::PluginManager::getInstance().add(info);
-
-//  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-//  te::plugin::PluginManager::getInstance().add(info);
-
-  te::plugin::PluginManager::getInstance().loadAll();
-}
 
 int main(int argc, char* argv[])
 {
@@ -69,7 +44,7 @@ int main(int argc, char* argv[])
   QApplication app(argc, argv);
 
 // initialize TerraLib
-  initializeTerralib();
+  terrama2::core::initializeTerralib();
 
   try
   {
@@ -79,7 +54,7 @@ int main(int argc, char* argv[])
     int retval = app.exec();
 
   // finalize TerraLib
-    TerraLib::getInstance().finalize();
+    terrama2::core::finalizeTerralib();
 
     return retval;
   }
@@ -103,6 +78,6 @@ int main(int argc, char* argv[])
     QMessageBox::critical(nullptr, "TerraMA2", "Unknown Error");
   }
 
-  TerraLib::getInstance().finalize();
+  terrama2::core::finalizeTerralib();
   return EXIT_FAILURE;
 }

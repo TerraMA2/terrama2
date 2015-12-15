@@ -166,6 +166,13 @@ namespace terrama2
      */
     Filter::ExpressionType ToFilterExpressionType(uint64_t type);
 
+    /*! \brief Initializes the terralib and load the plugins. */
+    void initializeTerralib();
+
+    /*! \brief Finalizes the terralib. */
+    void finalizeTerralib();
+
+
   } // end namespace core
 }   // end namespace terrama2
 

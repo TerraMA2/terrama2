@@ -62,7 +62,8 @@ namespace terrama2
           PCD_INPE_TYPE = 2,
           PCD_TOA5_TYPE = 3,
           FIRE_POINTS_TYPE = 4,
-          DISEASE_OCCURRENCE_TYPE = 5
+          DISEASE_OCCURRENCE_TYPE = 5,
+          GRID_TYPE = 6
         };
 
         //! Dataset item status.
