@@ -187,6 +187,8 @@ int main(int argc, char* argv[])
       exit(TERRAMA2_PROJECT_LOAD_ERROR);
     }
 
+    terrama2::core::DataManager::getInstance().load();
+
     QApplication app(argc, argv);
     auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
 
