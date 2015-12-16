@@ -34,7 +34,6 @@
 
 // TerraMA2
 #include "Parser.hpp"
-#include "Parser.hpp"
 #include "ParserOGR.hpp"
 
 // STL
@@ -56,6 +55,7 @@ namespace terrama2
   {
    public:
     virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) override;
+    te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
   };
  }
 }

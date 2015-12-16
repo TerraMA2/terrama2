@@ -34,7 +34,6 @@
 
 // TerraMA2
 #include "Parser.hpp"
-#include "Parser.hpp"
 #include "ParserOGR.hpp"
 
 // STL

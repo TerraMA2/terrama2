@@ -70,8 +70,8 @@ te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std
 
   return point;
 }
-
-te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/)
+// int dstType
+te::dt::AbstractData* terrama2::collector::ParserFirePoint::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
 {
   assert(indexes.size() == 1);
 
@@ -114,10 +114,9 @@ void terrama2::collector::ParserFirePoint::adapt(std::shared_ptr<te::da::DataSet
   std::vector<size_t> latLonAttributes;
   latLonAttributes.push_back(lonPos);
   latLonAttributes.push_back(latPos);
-  converter->add(latLonAttributes ,gm, XYTo4326PointConverter);
-
+  converter->add(latLonAttributes ,gm, XYTo4326PointConverter);  
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
-  converter->add(dataPos, dtProperty, StringToTimestamp);
+  converter->add(dataPos, dtProperty, boost::bind(&terrama2::collector::ParserFirePoint::StringToTimestamp, this, _1, _2, _3));
 
   converter->remove(data);
   converter->remove(lat);
