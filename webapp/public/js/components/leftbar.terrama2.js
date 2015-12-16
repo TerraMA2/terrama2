@@ -33,7 +33,8 @@ var LeftBar = function(terrama2) {
           $(".terrama2-leftbox").animate({ width: 0, padding: 0, opacity: 0 }, { duration: 300, queue: false });
 
           if($("#" + box).hasClass("terrama2-leftbox-fullscreen")) {
-            $("#" + box).animate({ width:'100%', padding:'1em', opacity:1, left:'0' }, { duration: 300, queue: false });
+            var width = $("#terrama2-container").parent().width() - 51;
+            $("#" + box).animate({ width:width, padding:'1em', opacity:1, left:'51px' }, { duration: 300, queue: false });
           } else {
             $("#" + box).animate({ width:'25em', padding:'1em', opacity:1 }, { duration: 300, queue: false });
           }

@@ -4,7 +4,7 @@ html, body {
   height: 100% !important;
 }
 
-.terrama2-container {
+#terrama2-container {
   position: relative;
   height: 100%;
   font-family: 'Titillium Regular', Helvetica, Arial, sans-serif;
@@ -18,15 +18,15 @@ html, body {
   left: 15px !important;
 }
 
-div.terrama2-leftbox::-webkit-scrollbar, div.terrama2-container::-webkit-scrollbar {
+div.terrama2-leftbox::-webkit-scrollbar, #terrama2-container::-webkit-scrollbar {
   width: 8px;
 }
 
-div.terrama2-leftbox::-webkit-scrollbar-track, div.terrama2-container::-webkit-scrollbar-track {
+div.terrama2-leftbox::-webkit-scrollbar-track, #terrama2-container::-webkit-scrollbar-track {
   background-color: #a6a07c;
 }
 
-div.terrama2-leftbox::-webkit-scrollbar-thumb, div.terrama2-container::-webkit-scrollbar-thumb {
+div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scrollbar-thumb {
   background-color: #8E875E;
 }
 
@@ -64,8 +64,8 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, div.terrama2-container::-webkit-s
 }
 
 .terrama2-form-group {
-  width: 200px;
-  margin: 0 auto;
+  /*width: 200px;*/
+  /*margin: 0 auto;*/
 }
 
 .terrama2-form-group input, .terrama2-form-group select {
@@ -115,8 +115,8 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, div.terrama2-container::-webkit-s
 .terrama2-table-container {
   position: relative;
   margin-top: 14px;
-  margin-right: 37px;
-  margin-left: 81px;
+  margin-right: 32px;
+  margin-left: 30px;
   color: rgb(84,84,84);
 }
 

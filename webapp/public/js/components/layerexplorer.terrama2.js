@@ -77,7 +77,7 @@ var LayerExplorer = function(terrama2) {
   var initializeTree = function() {
 
     var elem = buildLayerExplorer(map.getLayerGroup(), true);
-    $('#terrama2-layerexplorer').empty().append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2><hr/></div>" + elem + "</div>");
+    $('#terrama2-layerexplorer').empty().append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
 
     $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
     $('#terrama2-layerexplorer li.parent_li > span').on('click', function(e) {
