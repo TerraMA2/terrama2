@@ -218,14 +218,14 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     if(!filter_result->isNull("discard_before"))
     {
       auto discardBefore = filter_result->getDateTime("discard_before");
-      auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardBefore.get());
+      auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardBefore.release());
       filter.setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ>(titz));
     }
 
     if(!filter_result->isNull("discard_after"))
     {
       auto discardAfter = filter_result->getDateTime("discard_after");
-      auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardAfter.get());
+      auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardAfter.release());
       filter.setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ>(titz));
     }
 
