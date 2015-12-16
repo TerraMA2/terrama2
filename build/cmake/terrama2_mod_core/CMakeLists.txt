@@ -53,7 +53,8 @@ target_link_libraries(terrama2_mod_core terralib_mod_memory
                                         terralib_mod_plugin
                                         terralib_mod_common
                                         ${Boost_FILESYSTEM_LIBRARY}
-                                        ${Boost_SYSTEM_LIBRARY})
+                                        ${Boost_SYSTEM_LIBRARY}
+                                        ${Boost_LOG_LIBRARY})
 
 set_target_properties(terrama2_mod_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

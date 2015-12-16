@@ -1,6 +1,7 @@
 //TerraMA2
 #include "TsApplicationController.hpp"
 #include "TsDataManager.hpp"
+#include "TsLogger.hpp"
 #include "Utils.hpp"
 
 
@@ -13,6 +14,9 @@ int main(int argc, char **argv)
 
   TsDataManager testDataProviderDAO;
   ret += QTest::qExec(&testDataProviderDAO, argc, argv);
+
+  TsLogger testLogger;
+  ret = QTest::qExec(&testLogger, argc, argv);
 
   finalizeTerraMA2();
 

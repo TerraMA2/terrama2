@@ -146,13 +146,19 @@ void terrama2::collector::CollectorService::stop() noexcept
 
 void terrama2::collector::CollectorService::addProvider(const core::DataProvider& provider)
 {
-// TODO: check if provider-id is already registered and log it
-
   try
   {
+    //lock thread
     std::lock_guard<std::mutex> lock (mutex_);
 
-    dataproviders_.insert(std::make_pair(provider.id(), provider)); // register the data provider
+    //removes the provider if already in the map
+    std::map<uint64_t, core::DataProvider>::const_iterator hasProvider = dataproviders_.find(provider.id());
+    if(hasProvider != dataproviders_.end())
+      dataproviders_.erase(hasProvider);
+
+    //add the provider
+    auto ok = dataproviders_.emplace(provider.id(), provider); // register the data provider
+    assert(ok.second);
   }
   catch(const std::exception& e)
   {
@@ -228,7 +234,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           //read data and create a terralib dataset
           std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
           std::shared_ptr<te::da::DataSetType> datasetType;
-          parser->read(uri, filter, datasetVec, datasetType);
+          parser->read(dataSetItem, uri, filter, datasetVec, datasetType);
 
           //no new dataset found
           if(datasetVec.empty())
@@ -404,8 +410,9 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
 
     //Append the dataset to queue
     auto& datasetQueue = collectQueue_[dataset.provider()];
-    //TODO: multiple copies of dataset can occur in the queue, is this the expected behavior?
-    datasetQueue.push_back(datasetId);
+    //NOTE: A dataset can only appear once in the queue.
+    if(std::find(datasetQueue.begin(), datasetQueue.end(), datasetId) == datasetQueue.end())
+      datasetQueue.push_back(datasetId);
 
     //wake loop thread
     loop_condition_.notify_one();
@@ -458,9 +465,9 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
 void
 terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 {
-  //TODO: Debug?
-  //sanity check: valid dataset
-  //  assert(dataset.id());
+  if(dataset.status() != core::DataSet::ACTIVE
+     || dataset.id() == 0)
+    return;
 
   try
   {
@@ -478,6 +485,12 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 
 // add to queue to collect a first time
     addToQueue(dataset.id());
+  }
+  catch(terrama2::collector::InvalidCollectFrequencyError& e)
+  {
+    //TODO: log de erro
+    qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    assert(0);
   }
   catch(terrama2::collector::InvalidDataSetError& e)
   {
@@ -506,7 +519,13 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
 
   try
   {
-    const DataSetTimerPtr& datasetTimer = timers_.at(datasetId);
+    //only valid dataset are added to the map,
+    //if an inactive or invalid dataset is removed: nothing to do
+    std::map<uint64_t, DataSetTimerPtr>::const_iterator pos = timers_.find(datasetId);
+    if(pos == timers_.end())
+      return;
+
+    const DataSetTimerPtr& datasetTimer = pos->second;
     disconnect(datasetTimer.get(), nullptr, this, nullptr);
 
     datasets_.erase(datasetId);

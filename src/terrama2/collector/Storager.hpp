@@ -59,6 +59,7 @@ namespace terrama2
 
           \return Pointer to a te::da::DataSet of the final storage.
 
+          \pre Terralib should be initialized.
 
           \exception TODO: Storager::store exception...
          */
