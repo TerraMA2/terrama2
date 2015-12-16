@@ -16,6 +16,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFileDialog>
+#include <QUrl>
 
 
 ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
@@ -147,6 +148,34 @@ void ConfigAppWeatherPcd::save()
     rules.push_back(*rule);
     dataset.setCollectRules(rules);
   }
+
+  std::map<std::string, std::string> storageMetadata;
+  auto configuration = app_->getConfiguration();
+
+  QUrl url(provider.uri().c_str());
+  QString scheme = url.scheme().toLower();
+
+  if (scheme == "file") // todo: check it and save an specific format
+    storageMetadata["PATH"] = configuration->getCollection()->dirPath_.toStdString();
+
+  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
+  {
+  }
+  else if (scheme == "ftp") // TODO: ftp storage metadata
+  {
+  }
+  else // postgis
+  {
+    storageMetadata["PG_HOST"] = configuration->getDatabase()->host_.toStdString();
+    storageMetadata["PG_PORT"] = configuration->getDatabase()->port_;
+    storageMetadata["PG_USER"] = configuration->getDatabase()->user_.toStdString();
+    storageMetadata["PG_PASSWORD"] = configuration->getDatabase()->password_.toStdString();
+    storageMetadata["PG_DB_NAME"] = configuration->getDatabase()->name_.toStdString();
+    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
+    storageMetadata["KIND"] = url.scheme().toStdString();
+  }
+
+  datasetItem->setStorageMetadata(storageMetadata);
 
   if (dataset.id() > 0)
   {

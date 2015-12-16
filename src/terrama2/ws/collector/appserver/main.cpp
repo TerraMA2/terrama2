@@ -180,6 +180,14 @@ int main(int argc, char* argv[])
   {
     terrama2::core::initializeTerralib();
 
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
+    {
+      qDebug() << "TerraMA2 Project File is invalid or don't exist!";
+      exit(TERRAMA2_PROJECT_LOAD_ERROR);
+    }
+
+    terrama2::core::DataManager::getInstance().load();
+
     QApplication app(argc, argv);
     auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
 
