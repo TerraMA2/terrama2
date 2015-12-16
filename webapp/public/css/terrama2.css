@@ -55,7 +55,7 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scro
   box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 }
 
-.terrama2-input.regular {
+.terrama2-input.terrama2-regular {
   border: 1px solid #d2d6de;
 }
 
@@ -64,7 +64,7 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scro
 }
 
 .terrama2-form-group {
-  /*width: 200px;*/
+  width: 200px;
   /*margin: 0 auto;*/
 }
 

@@ -53,6 +53,15 @@ var LeftBar = function(terrama2) {
       e.stopPropagation();
     });
 
+    $(window).resize(function(){
+      $(".terrama2-leftbox-fullscreen").each(function() {
+        if($(this).width() !== 0) {
+          var width = $("#terrama2-container").parent().width() - 51;
+          $(this).css({ width:width });
+        }
+      });
+    });
+
     $(".terrama2-resizable-horizontal").resizable({
       handles: 'e'
     });
