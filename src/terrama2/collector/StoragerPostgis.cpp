@@ -84,8 +84,8 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
     GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
   }
 
-  const std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(0);
-  transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
+  for(const auto& tempDataSet : datasetVec)
+    transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
 
   scopedTransaction.commit();
 }
@@ -94,10 +94,7 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
                                                  const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                                                  const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
-  assert(datasetVec.size() == 1);//FIXME: remove this!
-
   std::string uri;
-
   try
   {
     std::string dataSetName = standardDataSetName;

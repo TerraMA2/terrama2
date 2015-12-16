@@ -107,8 +107,7 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>:/global/icons/previous.png</normaloff>:/global/icons/previous.png</iconset>
+             <iconset theme="previous"/>
             </property>
            </widget>
           </item>
@@ -119,7 +118,7 @@
       <item>
        <widget class="QStackedWidget" name="geometryStc">
         <property name="currentIndex">
-         <number>0</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="emptyPage"/>
         <widget class="QWidget" name="rasterPage">

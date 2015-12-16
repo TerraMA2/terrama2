@@ -36,6 +36,7 @@
 
 
 // Forward declaration
+struct Database;
 
 namespace terrama2
 {
@@ -59,12 +60,12 @@ class IntersectionDialog : public QDialog
   Q_OBJECT
 
   public:
-    IntersectionDialog(const terrama2::core::Intersection& intersection, QWidget* parent = 0, Qt::WindowFlags f = 0);
+    IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~IntersectionDialog();
 
     void fillAttributeTable(std::auto_ptr<te::da::DataSetType> dataset);
-    void fillVectorialList(std::auto_ptr<te::da::DataSourceTransactor>& transactor);
-    void fillRasterList(std::auto_ptr<te::da::DataSourceTransactor>& transactor);
+    void fillVectorialList();
+    void fillRasterList();
     terrama2::core::Intersection getIntersection() const;
 
   private slots:

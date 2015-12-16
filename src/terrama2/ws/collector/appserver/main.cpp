@@ -129,81 +129,6 @@ bool gSoapThread(int port)
   return true;
 }
 
-void initializeTerralib(char** argv)
-{
-  try
-  {
-    // VINICIUS: replace the initialize terralib and terrama2 for the method in terrama2:core (when implemented)
-    // Initialize the Terralib support
-    TerraLib::getInstance().initialize();
-
-    te::plugin::PluginInfo* info;
-    std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
-    info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-    te::plugin::PluginManager::getInstance().add(info);
-
-    info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-    te::plugin::PluginManager::getInstance().add(info);
-
-    info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-    te::plugin::PluginManager::getInstance().add(info);
-
-    te::plugin::PluginManager::getInstance().loadAll();
-
-    qDebug() << "Loading TerraMA2 Project...";
-
-    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
-    {
-      qDebug() << "TerraMA2 Project File is invalid or don't exist!";
-      exit(TERRAMA2_PROJECT_LOAD_ERROR);
-    }
-
-    terrama2::core::DataManager::getInstance().load();
-  }
-  catch(boost::exception& e)
-  {
-    qDebug() << "1\t" << "initializeTerralib: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    exit(TERRALIB_LOAD_ERROR);
-  }
-  catch(std::exception& e)
-  {
-    qDebug() << "1\t" << "initializeTerralib: " << e.what();
-    exit(TERRALIB_LOAD_ERROR);
-  }
-  catch(...)
-  {
-    qDebug() << "1\t" << "initializeTerralib unkown error";
-    exit(TERRALIB_LOAD_ERROR);
-  }
-}
-
-void finalizeTerralib()
-{
-  try
-  {
-    // VINICIUS: replace the finalize terralib and terrama2 for the method in terrama2:core (when implemented)
-    TerraLib::getInstance().finalize();
-
-    terrama2::core::DataManager::getInstance().unload();
-
-    terrama2::core::ApplicationController::getInstance().getDataSource()->close();
-  }
-  catch(boost::exception& e)
-  {
-    qDebug() << "3\t" << "finalizeTerralib: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    exit(TERRALIB_UNLOAD_ERROR);
-  }
-  catch(std::exception& e)
-  {
-    qDebug() << "3\t" << "finalizeTerralib: " << e.what();
-    exit(TERRALIB_UNLOAD_ERROR);
-  }
-  catch(...)
-  {
-    qDebug() << "3\t" << "finalizeTerralib";
-    exit(TERRALIB_UNLOAD_ERROR);
-  }
-}
 
 int main(int argc, char* argv[])
 {
@@ -253,7 +178,15 @@ int main(int argc, char* argv[])
 
   try
   {
-    initializeTerralib(argv);
+    terrama2::core::initializeTerralib();
+
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
+    {
+      qDebug() << "TerraMA2 Project File is invalid or don't exist!";
+      exit(TERRAMA2_PROJECT_LOAD_ERROR);
+    }
+
+    terrama2::core::DataManager::getInstance().load();
 
     QApplication app(argc, argv);
     auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
@@ -264,7 +197,7 @@ int main(int argc, char* argv[])
     if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
       app.exec();
 
-    finalizeTerralib();
+    terrama2::core::finalizeTerralib();
 
     return gSoapThreadHandle.get() ? EXIT_SUCCESS : EXIT_FAILURE;
   }

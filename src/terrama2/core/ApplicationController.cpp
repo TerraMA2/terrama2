@@ -120,11 +120,15 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
 {
   configFile_ = configFileName;
 
+  if(dataSource_.get() && dataSource_->isOpened())
+  {
+    dataSource_->close();
+  }
 
   try
   {
     QJsonDocument jdoc = terrama2::core::ReadJsonFile(configFileName);
-    
+
     QJsonObject project = jdoc.object();
 
     if(project.contains("database"))
@@ -142,12 +146,10 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
       dataSource_->setConnectionInfo(connInfo);
       dataSource_->open();
 
-      return true;
+      return dataSource_->isOpened();
     }
     else
-    {
       return false;
-    }
   }
   catch(te::common::Exception& e)
   {
@@ -168,7 +170,7 @@ terrama2::core::ApplicationController::getTransactor()
 {
   try
   {
-    if((dataSource_ != nullptr) && (dataSource_->isOpened()))
+    if((dataSource_.get() != nullptr) && (dataSource_->isOpened()))
       return dataSource_->getTransactor();
   }
   //catch(const te::common::Exception& e)
@@ -332,16 +334,7 @@ bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::s
 
   try
   {
-    bool dsExists = te::da::DataSource::exists(dsType, connInfo);
-
-    if(dsExists)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    return te::da::DataSource::exists(dsType, connInfo);
   }
   catch(const te::common::Exception& e)
   {

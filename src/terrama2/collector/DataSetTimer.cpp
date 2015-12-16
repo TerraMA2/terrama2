@@ -75,7 +75,7 @@ void terrama2::collector::DataSetTimer::prepareTimer(const terrama2::core::DataS
     impl_->timer_.start(seconds*1000);
   else
   {
-    //TODO: throw, invalida collect frequency
+    throw InvalidCollectFrequencyError() << terrama2::ErrorDescription(QObject::tr("Invalid collect frequency."));
   }
 
 }

@@ -65,7 +65,7 @@ te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std
   assert(indexes.size() == 2);
 
   te::dt::AbstractData* point = te::da::XYToPointConverter(dataset, indexes, dstType);
-
+//FIXME: Use datasetItem projection
   static_cast<te::gm::Point*>(point)->setSRID(4326);
 
   return point;

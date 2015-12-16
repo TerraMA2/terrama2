@@ -132,7 +132,7 @@ endif()
 #
 
 # Common definitions to all modules
-add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0)
+add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TYPE_CHECK=0 -DBOOST_LOG_DYN_LINK)
 
 # Specific definitions per platform
 if(WIN32)
@@ -229,12 +229,6 @@ if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
                      /usr/local
                      ${Qt5_DIR}/../../..
                PATH_SUFFIXES bin)
-endif()
-
-find_package(CURL REQUIRED)
-
-if(NOT CURL_FOUND)
-  message(FATAL_ERROR "TerraMA2: could not find required Curl libraries!")
 endif()
 
 find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem regex)

@@ -33,9 +33,6 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
 
   connect(ui_->fileServerButton, SIGNAL(clicked()), SLOT(onAddressFileBtnClicked()));
 
-  // temp code
-  ui_->serverIntervalData->setEnabled(false);
-
   ui_->fileServerButton->setVisible(false);
 
   QIntValidator* portValidator = new QIntValidator(ui_->connectionPort);
@@ -164,26 +161,36 @@ void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
   if (index == 2) // FILE
   {
     mode = false;
-    ui_->serverPath->setEnabled(true);
+    ui_->serverPath->setVisible(true);
     ui_->fileServerButton->setVisible(true);
+    ui_->labelSearchPath->setVisible(true);
   }
   else if (index == 0) // ftp
   {
     mode = true;
-    ui_->serverPath->setEnabled(true);
+    ui_->serverPath->setVisible(true);
     ui_->fileServerButton->setVisible(false);
+    ui_->labelSearchPath->setVisible(true);
   }
   else
   {
     mode = true;
-    ui_->serverPath->setEnabled(false);
+    ui_->serverPath->setVisible(false);
     ui_->fileServerButton->setVisible(false);
+    ui_->labelSearchPath->setVisible(false);
   }
 
-  ui_->connectionAddress->setEnabled(mode);
-  ui_->connectionUserName->setEnabled(mode);
-  ui_->connectionPort->setEnabled(mode);
-  ui_->connectionPassword->setEnabled(mode);
+  ui_->labelAddress->setVisible(mode);
+  ui_->connectionAddress->setVisible(mode);
+
+  ui_->labelUser->setVisible(mode);
+  ui_->connectionUserName->setVisible(mode);
+
+  ui_->labelPort->setVisible(mode);
+  ui_->connectionPort->setVisible(mode);
+
+  ui_->labelPasswd->setVisible(mode);
+  ui_->connectionPassword->setVisible(mode);
 }
 
 void ConfigAppWeatherServer::onAddressFileBtnClicked()
@@ -292,7 +299,6 @@ void ConfigAppWeatherServer::validateConnection()
         break;
 
       case CURLE_URL_MALFORMAT:
-        qDebug() << curl;
         throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Invalid path!"));
         break;
 

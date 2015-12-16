@@ -45,10 +45,11 @@ namespace terrama2
         ParserPostgis() : Parser(){}
         virtual ~ParserPostgis(){}
 
-        virtual void read(const std::string& uri,
+        virtual void read(const terrama2::core::DataSetItem& datasetitem,
+                          const std::string& uri,
                           DataFilterPtr filter,
-                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                          std::shared_ptr<te::da::DataSetType> &datasetTypePtr) override;
+                          std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
+                          std::shared_ptr<te::da::DataSetType>& datasetType) override;
 
     };
   }

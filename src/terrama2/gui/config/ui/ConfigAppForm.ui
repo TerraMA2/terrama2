@@ -699,103 +699,6 @@ p, li { white-space: pre-wrap; }
              </widget>
              <widget class="QWidget" name="ServerPage">
               <layout class="QGridLayout" name="gridLayout_12">
-               <item row="1" column="0" colspan="2">
-                <widget class="QGroupBox" name="groupBox_2">
-                 <property name="title">
-                  <string> Parâmetros de conexão: </string>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_20">
-                  <item row="1" column="3">
-                   <widget class="QComboBox" name="connectionProtocol">
-                    <property name="currentIndex">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <property name="text">
-                      <string>FTP</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>HTTP</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>FILE</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>WFS</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>WCS</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>SOS</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="connectionPort"/>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="connectionAddress"/>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_3">
-                    <property name="text">
-                     <string>Porta:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_2">
-                    <property name="text">
-                     <string>Endereço:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="2">
-                   <widget class="QLabel" name="label_8">
-                    <property name="text">
-                     <string>Senha:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="3">
-                   <widget class="QLineEdit" name="connectionPassword">
-                    <property name="echoMode">
-                     <enum>QLineEdit::Password</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="connectionUserName"/>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_7">
-                    <property name="text">
-                     <string>Usuário:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="2">
-                   <widget class="QLabel" name="label_4">
-                    <property name="text">
-                     <string>Protocolo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
                <item row="3" column="0">
                 <widget class="QPushButton" name="serverCheckConnectionBtn">
                  <property name="enabled">
@@ -817,15 +720,15 @@ p, li { white-space: pre-wrap; }
                   <string> Servidor: </string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_17">
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="serverName"/>
+                  </item>
                   <item row="0" column="0">
                    <widget class="QLabel" name="label">
                     <property name="text">
                      <string>Nome:</string>
                     </property>
                    </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="serverName"/>
                   </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="label_6">
@@ -887,21 +790,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="3">
-                   <widget class="QSpinBox" name="serverIntervalData">
-                    <property name="suffix">
-                     <string>min</string>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>999</number>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="label_82">
+                   <widget class="QLabel" name="labelSearchPath">
                     <property name="text">
                      <string>Caminho:</string>
                     </property>
@@ -912,14 +802,13 @@ p, li { white-space: pre-wrap; }
                     <property name="text">
                      <string>Servidor ativo</string>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_5">
-                    <property name="text">
-                     <string>Intervalo entre buscas de dados:</string>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
+                  </item>
+                  <item row="1" column="1" colspan="2">
+                   <widget class="QLineEdit" name="serverPath"/>
                   </item>
                   <item row="0" column="1">
                    <spacer name="horizontalSpacer_6">
@@ -934,8 +823,115 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="1" colspan="2">
-                   <widget class="QLineEdit" name="serverPath"/>
+                 </layout>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QGroupBox" name="groupBox_2">
+                 <property name="title">
+                  <string> Parâmetros de conexão: </string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_20">
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="connectionAddress"/>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="labelAddress">
+                    <property name="text">
+                     <string>Endereço:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QLabel" name="labelPort">
+                    <property name="text">
+                     <string>Porta:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="connectionUserName"/>
+                  </item>
+                  <item row="2" column="3">
+                   <widget class="QLineEdit" name="connectionPassword">
+                    <property name="echoMode">
+                     <enum>QLineEdit::Password</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="labelUser">
+                    <property name="text">
+                     <string>Usuário:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="2">
+                   <widget class="QLabel" name="labelPasswd">
+                    <property name="text">
+                     <string>Senha:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_4">
+                    <property name="text">
+                     <string>Protocolo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QLineEdit" name="connectionPort"/>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QComboBox" name="connectionProtocol">
+                    <property name="currentIndex">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>FTP</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>HTTP</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>FILE</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>WFS</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>WCS</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>SOS</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="0" column="2" colspan="2">
+                   <spacer name="horizontalSpacer_7">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </widget>
@@ -1289,6 +1285,9 @@ p, li { white-space: pre-wrap; }
                    <widget class="QCheckBox" name="gridFormatStatus">
                     <property name="text">
                      <string>Série de dados ativo</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -1857,6 +1856,9 @@ p, li { white-space: pre-wrap; }
                    <widget class="QCheckBox" name="pointFormatStatus">
                     <property name="text">
                      <string>Série de dados ativo</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -3069,6 +3071,9 @@ p, li { white-space: pre-wrap; }
                    <widget class="QCheckBox" name="pointDiffFormatStatus">
                     <property name="text">
                      <string>Série de dados ativo</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -6760,9 +6765,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>cancelBtn</tabstop>
   <tabstop>serverName</tabstop>
   <tabstop>serverDescription</tabstop>
-  <tabstop>connectionAddress</tabstop>
-  <tabstop>connectionPort</tabstop>
-  <tabstop>connectionProtocol</tabstop>
   <tabstop>connectionUserName</tabstop>
   <tabstop>connectionPassword</tabstop>
   <tabstop>serverActiveServer</tabstop>

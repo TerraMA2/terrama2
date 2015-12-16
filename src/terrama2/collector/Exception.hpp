@@ -57,6 +57,7 @@ namespace terrama2
     struct DataSetTimerError: virtual Exception { };
     //! Raised when a dataset has id == 0 or doesn't have a name.
     struct InvalidDataSetError: virtual DataSetTimerError { };
+    struct InvalidCollectFrequencyError: virtual DataSetTimerError { };
 
 
     //! Base exception for DataRetriever exceptions
@@ -66,8 +67,16 @@ namespace terrama2
 
     struct WrongDataProviderKindError: virtual DataRetrieverError { };
 
+    //! Base exception to factory namespace.
+    struct FactoryError: virtual Exception { };
+    struct ConflictingParserTypeSchemeError: virtual FactoryError { };
+    struct UnableToCreateParserError: virtual FactoryError { };
+    struct UnableToCreateStoragerError: virtual FactoryError { };
+
     //! Base exception for ParserError exceptions
     struct ParserError: virtual Exception { };
+    struct NoDataSetFoundError: virtual ParserError { };
+
     /*!
        \brief Raised when the DataSet could not be read.
 
@@ -76,20 +85,12 @@ namespace terrama2
      */
     struct UnableToReadDataSetError: virtual ParserError { };
 
+
     /*!
        \brief Raised when failed to log.
 
      */
     struct LogError: terrama2::Exception{ };
-
-
-
-    //TODO: Not in use
-    struct UnableToOpenCollectorError: virtual Exception{ };
-    //TODO: Not in use
-    struct InactiveDataSetError: virtual DataSetTimerError { };
-    //TODO: Not in use
-    struct UnabletoGetLockError: virtual Exception { };
   }
 }
 

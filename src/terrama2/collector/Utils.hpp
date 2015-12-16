@@ -36,11 +36,21 @@
 
 //Boost
 #include <boost/exception/all.hpp>
+#include <boost/date_time/local_time/local_date_time.hpp>
+
+//QT
+#include <QDateTime>
 
 namespace terrama2
 {
   namespace collector
   {
+
+    boost::local_time::local_date_time QDateTime2BoostLocalDateTime(const QDateTime& qDateTime);
+    boost::local_time::local_date_time DateTimeString2BoostLocalDateTime(const std::string& date, const std::string& time, const std::string& timezone);
+    void BoostLocalDateTime2DateTimeString(const boost::local_time::local_date_time& boostLocalDate, std::string& date, std::string& time, std::string& timezone);
+
+
     //! Class for Resource Acquisition Is Initialization (RAII) of classes the need to open and close.
     template<class T> class OpenClose
     {
