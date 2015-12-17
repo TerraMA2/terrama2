@@ -38,6 +38,7 @@
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 #include "Log.hpp"
+#include "FileOpener.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -48,8 +49,8 @@
 // QT
 #include <QTranslator>
 
-terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider)
-  : DataRetriever(dataprovider)
+terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string folder)
+  : DataRetriever(dataprovider), folder_(folder)
 {
 
 }
@@ -62,7 +63,8 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 // Remove the files in the tmp folder
     for(std::string file: vectorNames_)
     {
-      path = "/tmp/"+file;
+     // path = "/tmp/"+file;
+      path = folder_+file;
       std::remove(path.c_str()); // delete file
     }
   }
@@ -102,7 +104,10 @@ bool terrama2::collector::DataRetrieverFTP::isOpen()
     status = curl_easy_perform(curl_);
 
     if (status != CURLE_OK)
+    {
+      curl_easy_cleanup(curl_);
       return false;
+    }
   }
 
   curl_easy_cleanup(curl_);
@@ -173,14 +178,15 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       }
 
 // filter file names that should be downloaded.
-      vectorNames_.clear();
+      assert(!vectorNames_.empty());
 
       vectorNames_ = filter->filterNames(vectorFiles);
 
       for (std::string file: vectorNames_)
       {
         CURL *curl;
-        FILE *destFilePath;
+        //FILE *destFilePath;
+       // std::ifstream destFilePath;
         CURLcode res;
 
         curl = curl_easy_init();
@@ -188,23 +194,28 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
         if (curl)
         {
           uriOutput = dataprovider_.uri() + datasetitem.path() + file;
-          destFilePath = fopen(("/tmp/"+file).c_str(),"wb");
+          //destFilePath = fopen(("/tmp/"+file).c_str(),"wb");
+
+         // FileOpener opener(("/tmp/"+file).c_str(),"wb");
+          FileOpener opener((folder_+file).c_str(),"wb");
           curl_easy_setopt(curl, CURLOPT_URL, uriOutput.c_str());
           curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
-          curl_easy_setopt(curl, CURLOPT_WRITEDATA, destFilePath);
+          curl_easy_setopt(curl, CURLOPT_WRITEDATA, &opener);
           res = curl_easy_perform(curl);
 
           if (res != CURLE_OK)
           {
             QString messageError = QObject::tr("Could not perform the download files. \n\n Details: \n");
             messageError.append(curl_easy_strerror(res));
+            curl_easy_cleanup(curl);
+          //  fclose(destFilePath);
             throw DataRetrieverFTPError() << ErrorDescription(messageError);
           }
           else
           {
             curl_easy_cleanup(curl);
 
-            fclose(destFilePath);
+         //   fclose(destFilePath);
 
             log_uris.push_back(uriInput);
           }
@@ -227,5 +238,6 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.
-  return "file:///tmp/";
+ // return "file:///tmp/";
+  return "file://"+folder_;
 }
