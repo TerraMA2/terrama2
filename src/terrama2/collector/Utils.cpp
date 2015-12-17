@@ -37,11 +37,9 @@
 #include <boost/date_time/local_time/local_time_types.hpp>
 #include <boost/date_time/local_time/posix_time_zone.hpp>
 
-boost::local_time::local_date_time terrama2::collector::QDateTime2BoostLocalDateTime(const QDateTime& qDateTime)
+boost::local_time::local_date_time terrama2::collector::QDateTime2BoostLocalDateTime(const QDateTime& qDateTime, const QString& offset)
 {
-  QTimeZone timeZone = qDateTime.timeZone();
-  QString zoneStr = timeZone.displayName(qDateTime, QTimeZone::OffsetName);
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(zoneStr.toStdString()));
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(offset.toStdString()));
   boost::local_time::local_date_time boostTime(boost::gregorian::date(qDateTime.date().year(), qDateTime.date().month(), qDateTime.date().day()),
                                                boost::posix_time::time_duration(qDateTime.time().hour(), qDateTime.time().minute(), qDateTime.time().second()), zone, true);
 
