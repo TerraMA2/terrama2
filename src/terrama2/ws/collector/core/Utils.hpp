@@ -50,6 +50,7 @@
 #include "../../../core/DataSet.hpp"
 #include "../../../core/Intersection.hpp"
 #include "../../../core/Utils.hpp"
+#include "../../../collector/Utils.hpp"
 
 namespace terrama2
 {
@@ -372,7 +373,7 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
   for(int i = 0; i < dataset_items.size(); i++)
   {
     // need to initialize the struct to avoid to create non-existent filters
-    T1 struct_dataset_item{0,0,0,0,"","","",0,"","","",std::nan(""),0,""};
+    T1 struct_dataset_item{0,0,0,0,"","","",0,"","","","","","","",std::nan(""),0,""};
 
     struct_dataset_item.id = dataset_items.at(i).id();
     struct_dataset_item.dataset = dataset_items.at(i).dataset();
@@ -389,10 +390,12 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
     struct_dataset_item.filter_bandFilter = filter.bandFilter();
 
     if(filter.discardBefore() != nullptr)
-      struct_dataset_item.filter_discardBefore = filter.discardBefore()->toString();
+    {
+      terrama2::collector::BoostLocalDateTime2DateTimeString(filter.discardBefore()->getTimeInstantTZ(), struct_dataset_item.filter_discardBefore_date, struct_dataset_item.filter_discardBefore_time ,struct_dataset_item.filter_discardBefore_timezone);
+    }
 
     if(filter.discardAfter() != nullptr)
-      struct_dataset_item.filter_discardAfter = filter.discardAfter()->toString();
+      terrama2::collector::BoostLocalDateTime2DateTimeString(filter.discardAfter()->getTimeInstantTZ(), struct_dataset_item.filter_discardAfter_date, struct_dataset_item.filter_discardAfter_time ,struct_dataset_item.filter_discardAfter_timezone);
 
     // VINICIUS: toString() is generating a wrong WKT, need to replace '\n' for ','
     if(filter.geometry() != nullptr)
@@ -450,29 +453,17 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
 
     filter.setBandFilter(struct_dataset_items.at(i).filter_bandFilter);
 
-    if(!struct_dataset_items.at(i).filter_discardBefore.empty())
+    if(!struct_dataset_items.at(i).filter_discardBefore_date.empty())
     {
-      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
-      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
-      //stream for the DateTimeTZ string
-      std::stringstream stream(struct_dataset_items.at(i).filter_discardBefore);
-      //convert to boot local_date_time
-      stream >> boostTime;
       //Build a te::dt::TimeInstantTZ
-      std::unique_ptr< te::dt::TimeInstantTZ > discardBefore(new te::dt::TimeInstantTZ(boostTime));
+      std::unique_ptr< te::dt::TimeInstantTZ > discardBefore(new te::dt::TimeInstantTZ(terrama2::collector::DateTimeString2BoostLocalDateTime(struct_dataset_items.at(i).filter_discardBefore_date, struct_dataset_items.at(i).filter_discardBefore_time, struct_dataset_items.at(i).filter_discardBefore_timezone)));
       filter.setDiscardBefore(std::move(discardBefore));
     }
 
-    if(!struct_dataset_items.at(i).filter_discardAfter.empty())
+    if(!struct_dataset_items.at(i).filter_discardAfter_date.empty())
     {
-      //boost::local_time::local_date_time dont have a default constructor, getting local time to build.
-      boost::local_time::local_date_time boostTime = boost::local_time::local_sec_clock::local_time(boost::local_time::time_zone_ptr());
-      //stream for the DateTimeTZ string
-      std::stringstream stream(struct_dataset_items.at(i).filter_discardAfter);
-      //convert to boot local_date_time
-      stream >> boostTime;
       //Build a te::dt::TimeInstantTZ
-      std::unique_ptr< te::dt::TimeInstantTZ > discardAfter(new te::dt::TimeInstantTZ(boostTime));
+      std::unique_ptr< te::dt::TimeInstantTZ > discardAfter(new te::dt::TimeInstantTZ(terrama2::collector::DateTimeString2BoostLocalDateTime(struct_dataset_items.at(i).filter_discardAfter_date, struct_dataset_items.at(i).filter_discardAfter_time, struct_dataset_items.at(i).filter_discardAfter_timezone)));
       filter.setDiscardAfter(std::move(discardAfter));
     }
 

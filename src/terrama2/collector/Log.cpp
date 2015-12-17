@@ -76,6 +76,9 @@ uint64_t terrama2::collector::Log::log(uint64_t dataSetItemId, std::string origi
 
 void terrama2::collector::Log::log(uint64_t dataSetItemId, std::vector< std::string > origin_uris, Status s)
 {
+  if(origin_uris.empty())
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to log.");
+
   try
   {
     std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
@@ -152,17 +155,46 @@ void terrama2::collector::Log::updateLog(uint64_t id, std::string uri, Status s,
 }
 
 
-void terrama2::collector::Log::updateLog(std::string origin_uri, std::string uri, Status s, std::string data_timestamp)
+void terrama2::collector::Log::updateLog(std::vector< std::string > origin_uris, std::string uri, Status s, std::string data_timestamp)
 {
+  if(origin_uris.empty())
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to update.");
+
   try
   {
     std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
 
-    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp='%3%', uri='%4%', collect_timestamp=now() WHERE origin_uri='%1%'");
+    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=now() WHERE origin_uri=%1%");
 
-    query.bind_arg(1, origin_uri);
+    std::string uris;
+    bool first = true;
+
+    if(origin_uris.size() > 1)
+    {
+      for(auto uri : origin_uris)
+      {
+        if(first)
+        {
+          uris = "'" + uri + "'";
+          first =false;
+        }
+        else
+          uris +=  " OR origin_uri = '" + uri + "'";
+      }
+    }
+    else
+    {
+      uris = "'" + origin_uris.at(0) + "'";
+    }
+
+    query.bind_arg(1, uris);
     query.bind_arg(2, (int)s);
-    query.bind_arg(3, data_timestamp);
+
+    if(data_timestamp.empty())
+      query.bind_arg(3, "NULL");
+    else
+      query.bind_arg(3, "'" + data_timestamp + "'");
+
     query.bind_arg(4, uri);
 
     transactor->execute(query.str());
