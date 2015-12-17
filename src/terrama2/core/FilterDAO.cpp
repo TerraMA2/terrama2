@@ -198,8 +198,9 @@ terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTran
 }
 
 terrama2::core::Filter
-terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
+terrama2::core::FilterDAO::load(const DataSetItem& datasetItem, te::da::DataSourceTransactor& transactor)
 {
+  uint64_t datasetItemId = datasetItem.id();
   if(datasetItemId == 0)
     throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load filter information for an invalid dataset item identifier: 0."));
 
@@ -219,14 +220,18 @@ terrama2::core::FilterDAO::load(uint64_t datasetItemId, te::da::DataSourceTransa
     {
       auto discardBefore = filter_result->getDateTime("discard_before");
       auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardBefore.release());
-      filter.setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ>(titz));
+      boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(datasetItem.timezone()));
+      boost::local_time::local_date_time localtime = titz->getTimeInstantTZ().local_time_in(zone);
+      filter.setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ>(new te::dt::TimeInstantTZ(localtime)));
     }
 
     if(!filter_result->isNull("discard_after"))
     {
       auto discardAfter = filter_result->getDateTime("discard_after");
       auto titz = dynamic_cast<te::dt::TimeInstantTZ*>(discardAfter.release());
-      filter.setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ>(titz));
+      boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(datasetItem.timezone()));
+      boost::local_time::local_date_time_base<> localtime = titz->getTimeInstantTZ().local_time_in(zone);
+      filter.setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ>(new te::dt::TimeInstantTZ(localtime)));
     }
 
     if(!filter_result->isNull(3))
