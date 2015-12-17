@@ -231,8 +231,11 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::collector::Log::getDataSetItemL
   if(dataset)
   {
     size_t columnPos = te::da::GetPropertyPos(dataset.get(), "max");
-    if(!dataset->isNull(columnPos))
+
+    if(!dataset->moveNext() || !dataset->isNull(columnPos))
+    {
       return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(dataset->getDateTime(columnPos).release()));
+    }
   }
 
   return nullptr;
