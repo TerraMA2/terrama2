@@ -211,18 +211,19 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
       //aquire all data
       for(auto& dataSetItem : dataSet.dataSetItems())
       {
-
         try
         {
           DataFilterPtr filter(new DataFilter(dataSetItem));
           assert(filter);
 
+          terrama2::collector::Log collectLog;
+          std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
-          std::vector< std::string > log_uris;
           std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
 
-          Log::log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
+          if(!log_uris.empty())
+            collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -237,7 +238,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           //no new dataset found
           if(datasetVec.empty())
+          {
+            if(!log_uris.empty())
+              collectLog.log(dataSetItem.id(), log_uris, Log::Status::NODATA);
             continue;
+          }
 
 //          filter dataset data (date, geometry, ...)
           for(int i = 0, size = datasetVec.size(); i < size; ++i)
@@ -259,16 +264,13 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           qDebug() << "starting storager...";
           std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
 
-          const std::unique_ptr< te::dt::TimeInstantTZ > lastDateTime = std::unique_ptr< te::dt::TimeInstantTZ >(filter->getDataSetLastDateTime());
+          te::dt::TimeInstantTZ* lastDateTime = filter->getDataSetLastDateTime();
+          std::string log_DataSetlastDateTime = "";
 
           if(lastDateTime)
-          {
-            for(auto& uri: log_uris)
-            {
-              terrama2::collector::Log::updateLog(uri, storage_uri, Log::IMPORTED, lastDateTime->toString());
-            }
-          }
+            log_DataSetlastDateTime = lastDateTime->toString();
 
+          collectLog.updateLog(log_uris, storage_uri, Log::Status::IMPORTED, log_DataSetlastDateTime);
         }
         catch(terrama2::Exception& e)
         {

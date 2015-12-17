@@ -365,7 +365,6 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
           if (dataset.name() == selectedItem->text(0).toStdString())
           {
             displayOperationButtons(true);
-            //TODO: generic function giving dataprovider
 
             //fill up fields
             switch(dataset.kind())

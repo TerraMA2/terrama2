@@ -217,7 +217,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
          //   fclose(destFilePath);
 
-            log_uris.push_back(uriInput);
+            log_uris.push_back(uriInput + file);
           }
         }
       }

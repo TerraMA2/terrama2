@@ -68,8 +68,12 @@ struct DataSetItem
 
 // the filters values need to be initialized to avoid to create non-existent filters
   uint64_t          filter_datasetItem;
-  std::string       filter_discardBefore;
-  std::string       filter_discardAfter;
+  std::string       filter_discardBefore_date;
+  std::string       filter_discardBefore_time;
+  std::string       filter_discardBefore_timezone;
+  std::string       filter_discardAfter_date;
+  std::string       filter_discardAfter_time;
+  std::string       filter_discardAfter_timezone;
   std::string       filter_geometry;
   double            filter_value;
   uint32_t          filter_expressionType;

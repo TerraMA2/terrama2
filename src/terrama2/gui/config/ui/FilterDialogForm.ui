@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>485</width>
-    <height>489</height>
+    <width>528</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,9 +63,6 @@ p, li { white-space: pre-wrap; }
        <string>Data</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="1">
-        <widget class="QDateTimeEdit" name="datetimeAfter"/>
-       </item>
        <item row="0" column="0">
         <widget class="QCheckBox" name="dateBeforeFilterCbx">
          <property name="text">
@@ -73,51 +70,10 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="labelDateNote">
-         <property name="text">
-          <string>O timezone configurado é: </string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QToolButton" name="afterTodayBtn">
-         <property name="toolTip">
-          <string>Hoje</string>
-         </property>
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="icon">
-          <iconset theme="today">
-           <normaloff/>
-          </iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
+       <item row="0" column="2">
         <widget class="QDateTimeEdit" name="datetimeBefore"/>
        </item>
        <item row="0" column="3">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>131</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="2">
         <widget class="QToolButton" name="beforeTodayBtn">
          <property name="toolTip">
           <string>Hoje</string>
@@ -138,12 +94,56 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="0" column="4">
+        <widget class="QLabel" name="labelDateNote">
+         <property name="text">
+          <string>Timezone</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
         <widget class="QCheckBox" name="dateAfterFilterCbx">
          <property name="text">
           <string>Eliminar dados posteriores a: </string>
          </property>
         </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QDateTimeEdit" name="datetimeAfter"/>
+       </item>
+       <item row="1" column="3">
+        <widget class="QToolButton" name="afterTodayBtn">
+         <property name="toolTip">
+          <string>Hoje</string>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+         <property name="icon">
+          <iconset theme="today">
+           <normaloff/>
+          </iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>198</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

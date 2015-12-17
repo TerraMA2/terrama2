@@ -31,6 +31,8 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   ui_->pointDiffFormatDataHour->setValidator(new QIntValidator(ui_->pointDiffFormatDataHour));
   ui_->pointDiffFormatDataMinute->setValidator(new QIntValidator(ui_->pointDiffFormatDataMinute));
   ui_->pointDiffFormatDataSecond->setValidator(new QIntValidator(ui_->pointDiffFormatDataSecond));
+
+  ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText("+00:00");
 }
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
@@ -172,7 +174,7 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
   filter_.reset(new terrama2::core::Filter);
 
   ui_->pointDiffFormatDataDescription->setText("");
-  ui_->pointDiffFormatDataTimeZoneCmb->setCurrentIndex(0);
+  ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText("+00:00");
 
   resetFilterState();
 }
@@ -200,7 +202,7 @@ void ConfigAppWeatherOccurrence::resetFilterState()
 
 void ConfigAppWeatherOccurrence::onFilterClicked()
 {
-  FilterDialog dialog(FilterDialog::DATE, app_);
+  FilterDialog dialog(FilterDialog::DATE, ui_->pointDiffFormatDataTimeZoneCmb->currentText(), app_);
   dialog.fillGUI(*filter_);
   if (dialog.exec() == QDialog::Accepted)
     dialog.fillObject(*filter_);

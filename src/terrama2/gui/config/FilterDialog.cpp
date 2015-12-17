@@ -78,12 +78,13 @@ struct FilterDialog::Impl
 };
 
 //! Construtor
-FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
+FilterDialog::FilterDialog(FilterType type, const QString& timezone, QWidget* parent, Qt::WindowFlags f)
   : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
 
-  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(accept()));
+//  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(onOkBtnClicked()));
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 
   connect(pimpl_->ui_->dateBeforeFilterCbx, SIGNAL(clicked()), this, SLOT(onFilteredByDate()));
@@ -141,12 +142,8 @@ FilterDialog::FilterDialog(FilterType type, QWidget* parent, Qt::WindowFlags f)
   pimpl_->ui_->belowAverageLed->setValidator(new QIntValidator(pimpl_->ui_->belowAverageLed));
   pimpl_->ui_->aboveAverageLed->setValidator(new QIntValidator(pimpl_->ui_->aboveAverageLed));
 
-  // fill the label helper
-  auto timezone = pimpl_->ui_->datetimeBefore->dateTime().timeZone();
-
-  pimpl_->ui_->labelDateNote->setText(pimpl_->ui_->labelDateNote->text() + timezone.displayName(pimpl_->ui_->datetimeBefore->dateTime(),
-                                                                                                QTimeZone::OffsetName));
-
+  std::string utc = "(UTC" + timezone.toStdString() + ")";
+  pimpl_->ui_->labelDateNote->setText(utc.c_str());
 }
 
 FilterDialog::~FilterDialog()
@@ -289,13 +286,10 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     if (pimpl_->ui_->dateBeforeFilterCbx->isChecked())
     {
       QDateTime beforeDate = pimpl_->ui_->datetimeBefore->dateTime();
-      QDateTime localCurrentDateTime = QDateTime::currentDateTime();
-      QTimeZone timeZone = localCurrentDateTime.timeZone();
-      QString zoneStr = timeZone.displayName(localCurrentDateTime, QTimeZone::OffsetName);
 
-      std::string posixTime = beforeDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
+      std::string posixTime = beforeDate.toString("yyyy-MM-dd HH:mm:ss UTC%1").arg(pimpl_->ui_->labelDateNote->text()).toStdString();
 
-      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(localCurrentDateTime);
+      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(beforeDate);
 
       //stream for the DateTimeTZ string
       std::stringstream stream(posixTime);
@@ -319,7 +313,7 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
       std::string posixTime = afterDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
 
-      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(localCurrentDateTime);
+      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(afterDate);
 
       //stream for the DateTimeTZ string
       std::stringstream stream(posixTime);
@@ -454,6 +448,21 @@ void FilterDialog::onFilterByMeanGreaterThan()
   pimpl_->expressionType = terrama2::core::Filter::MEAN_GREATER_THAN_TYPE;
   setFilterByPreAnalyse();
   pimpl_->ui_->aboveAverageLed->setEnabled(true);
+}
+
+void FilterDialog::onOkBtnClicked()
+{
+  if (pimpl_->ui_->dateBeforeFilterCbx->isChecked() && pimpl_->ui_->dateAfterFilterCbx->isChecked())
+  {
+    if (pimpl_->ui_->datetimeAfter->dateTime() > pimpl_->ui_->datetimeBefore->dateTime())
+      accept();
+    else
+    {
+      QMessageBox::warning(this, tr("TerraMa2"), tr("The after date should be equal or greater than before date"));
+      return;
+    }
+  }
+  accept();
 }
 
 void FilterDialog::setFilterByPreAnalyse()
