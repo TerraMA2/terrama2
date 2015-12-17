@@ -51,6 +51,6 @@ var Config = function() {
 
   $(document).ready(function(){
     $('.terrama2-date').mask("00/00/0000", {clearIfNotMatch: true});
-    $('.terrama2-table').DataTable();
+    //$('.terrama2-table').DataTable();
   });
 }

@@ -10,5 +10,6 @@
   "CapabilitiesParams": "?service=WMS&request=getCapabilities",
   "Name": "Geoserver Local",
   "ProxyURL": "http://localhost/bdqueimadas/proxy.php",
-  "GetFeatureParams": "?service=WFS&request=getfeature&outputFormat=application/json&typename="
+  "GetFeatureParams": "?service=WFS&version=1.0.0&request=getfeature&outputFormat=application/json&maxFeatures=1000&typename=",
+  "DescribeFeatureTypeParams": "?service=WFS&request=describeFeatureType&outputformat=application/json&typename="
 }

@@ -70,7 +70,8 @@ var Filter = function(terrama2) {
 
         var satellites = [];
 
-        for(var i = 0; i < feature.totalFeatures; i++) {
+        //for(var i = 0; i < feature.totalFeatures; i++) {
+        for(var i = 0; i < 1000; i++) {
           satellites.push(feature.features[i].properties[filterConfig.SatelliteFieldName]);
         }
 

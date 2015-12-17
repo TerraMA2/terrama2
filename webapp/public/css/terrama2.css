@@ -114,6 +114,7 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scro
 
 .terrama2-table-container {
   position: relative;
+  height: 100%;
   margin-top: 14px;
   margin-right: 32px;
   margin-left: 30px;
