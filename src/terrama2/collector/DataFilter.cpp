@@ -32,6 +32,7 @@
 #include "../core/DataSetItem.hpp"
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
+#include "Exception.hpp"
 #include "Log.hpp"
 
 // STL
@@ -470,6 +471,8 @@ terrama2::collector::DataFilter::~DataFilter()
 void terrama2::collector::DataFilter::processMask()
 {
   std::string mask = datasetItem_.mask();
+  if(mask.empty())
+    throw EmptyMaskError() << terrama2::ErrorDescription(QObject::tr("Filter mask is empty."));
 
   //used to fix the position of wildcards where real values have different size from wild cards.
   int distance = 0;

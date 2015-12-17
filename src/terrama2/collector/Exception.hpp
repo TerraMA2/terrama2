@@ -77,6 +77,10 @@ namespace terrama2
     struct ParserError: virtual Exception { };
     struct NoDataSetFoundError: virtual ParserError { };
 
+    //! Base exception for DataFilter exceptions
+    struct DataFilterError: virtual Exception { };
+    struct EmptyMaskError: virtual DataFilterError { };
+
     /*!
        \brief Raised when the DataSet could not be read.
 
