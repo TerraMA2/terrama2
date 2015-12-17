@@ -233,7 +233,7 @@ terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTr
       item.setPath(items_result->getString("path"));
 
 // retrieve the filter
-      Filter f = FilterDAO::load(id, transactor);
+      Filter f = FilterDAO::load(item, transactor);
       item.setFilter(f);
 
       loadStorageMetadata(item, transactor);

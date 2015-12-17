@@ -71,6 +71,8 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->pointFormatDataHour->setValidator(new QIntValidator(ui_->pointFormatDataHour));
   ui_->pointFormatDataMinute->setValidator(new QIntValidator(ui_->pointFormatDataMinute));
   ui_->pointFormatDataSecond->setValidator(new QIntValidator(ui_->pointFormatDataSecond));
+
+  ui_->pointFormatDataTimeZoneCmb->setCurrentText("+00:00");
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -83,7 +85,7 @@ void ConfigAppWeatherPcd::load()
   tableClean();
 }
 
-void ConfigAppWeatherPcd::load(const terrama2::core::DataSet &dataset)
+void ConfigAppWeatherPcd::load(const terrama2::core::DataSet& dataset)
 {
   // TODO: fill the combobox with pcd attribute after the first collect
 }

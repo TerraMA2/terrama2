@@ -36,6 +36,8 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   ui_->gridFormatDataHour->setValidator(new QIntValidator(ui_->gridFormatDataHour));
   ui_->gridFormatDataMinute->setValidator(new QIntValidator(ui_->gridFormatDataMinute));
   ui_->gridFormatDataSecond->setValidator(new QIntValidator(ui_->gridFormatDataSecond));
+
+  ui_->gridFormatDataTimeZoneCmb->setCurrentText("+00:00");
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
@@ -165,7 +167,7 @@ void ConfigAppWeatherGridTab::discardChanges(bool restore_data)
     widget->clear();
 
   ui_->gridFormatDataDescription->setText("");
-  ui_->gridFormatDataTimeZoneCmb->setCurrentIndex(0);
+  ui_->gridFormatDataTimeZoneCmb->setCurrentText("+00:00");
 
   changed_ = false;
   ui_->dataSeriesBtnGroupBox->setVisible(false);
@@ -299,7 +301,7 @@ void ConfigAppWeatherGridTab::onMenuMaskClicked(QAction* action)
 
 void ConfigAppWeatherGridTab::onFilterClicked()
 {
-  FilterDialog dialog(FilterDialog::FULL, app_);
+  FilterDialog dialog(FilterDialog::FULL, ui_->gridFormatDataTimeZoneCmb->currentText(), app_);
 
   dialog.fillGUI(*filter_);
 

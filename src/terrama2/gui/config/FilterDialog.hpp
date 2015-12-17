@@ -60,7 +60,7 @@ class FilterDialog : public QDialog, private boost::noncopyable
       DATE
     };
 
-    FilterDialog(FilterType type, QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    FilterDialog(FilterType type, const QString& timezone = "+00:00", QWidget* parent = nullptr, Qt::WindowFlags = 0);
     ~FilterDialog();
 
     //! It checks if there any filter by date
@@ -116,6 +116,8 @@ class FilterDialog : public QDialog, private boost::noncopyable
 
     //! Slot triggered when there filter by mean greater than values
     void onFilterByMeanGreaterThan();
+
+    void onOkBtnClicked();
 
   private:
     struct Impl; //!< Pimpl idiom

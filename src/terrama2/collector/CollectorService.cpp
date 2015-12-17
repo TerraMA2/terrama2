@@ -264,13 +264,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           qDebug() << "starting storager...";
           std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
 
-          const std::unique_ptr< te::dt::TimeInstantTZ > lastDateTime = std::unique_ptr< te::dt::TimeInstantTZ >(filter->getDataSetLastDateTime());
+          te::dt::TimeInstantTZ* lastDateTime = filter->getDataSetLastDateTime();
           std::string log_DataSetlastDateTime = "";
 
           if(lastDateTime)
-          {
             log_DataSetlastDateTime = lastDateTime->toString();
-          }
 
           collectLog.updateLog(log_uris, storage_uri, Log::Status::IMPORTED, log_DataSetlastDateTime);
         }

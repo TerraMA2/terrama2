@@ -33,6 +33,7 @@
 
 // TerraMA2
 #include "Filter.hpp"
+#include "DataSetItem.hpp"
 
 // STL
 #include <memory>
@@ -105,7 +106,7 @@ namespace terrama2
 
           \exception terrama2::Exception If the operation doesn't succeed it will raise an exception.
          */
-        static Filter load(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor);
+        static Filter load(const terrama2::core::DataSetItem& datasetItem, te::da::DataSourceTransactor& transactor);
 
       private:
 
