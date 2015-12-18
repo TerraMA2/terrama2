@@ -6,7 +6,6 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "FilterDialog.hpp"
-#include "ProjectionDialog.hpp"
 #include "IntersectionDialog.hpp"
 
 // TerraLib
