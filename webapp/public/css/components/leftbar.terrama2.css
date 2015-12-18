@@ -35,6 +35,11 @@
   overflow: hidden;
 }
 
+.terrama2-leftbox-left {
+  width: calc(100% - 51px) !important;
+  left: -100%;
+}
+
 .terrama2-leftbox.active {
   overflow: auto !important;
 }
@@ -103,6 +108,16 @@
   background-repeat: no-repeat;
 }
 
+.terrama2-leftbar-button.terrama2-leftbar-button-graphic {
+  background-image: url('../../img/icon_div.png'), url('../../img/icon_graphics.png') !important;
+  background-repeat: no-repeat;
+  background-position: bottom, center !important;
+}
+
+.terrama2-leftbar-button.terrama2-leftbar-button-graphic:hover, .terrama2-leftbar-button.terrama2-leftbar-button-graphic:active, .terrama2-leftbar-button.terrama2-leftbar-button-graphic.active {
+  background-repeat: no-repeat;
+}
+
 .terrama2-right-arrow:before {
   position: absolute;
   left: 48px;
@@ -147,6 +162,15 @@
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.terrama2-leftbox-header > h3 > span {
+  cursor: pointer;
+  font-family: 'Titillium Extralight';
+}
+
+.terrama2-leftbox-header > h3 > span.terrama2-span-active {
+  font-family: 'Titillium Bold' !important;
 }
 
 .terrama2-leftbox-header h2 {

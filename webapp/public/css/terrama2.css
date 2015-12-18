@@ -112,7 +112,7 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scro
   color: #8E875E;
 }
 
-.terrama2-table-container {
+.terrama2-fullscreen-container {
   position: relative;
   height: 100%;
   margin-top: 14px;
@@ -121,18 +121,18 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scro
   color: rgb(84,84,84);
 }
 
-.terrama2-table-container .terrama2-leftbox-header {
+.terrama2-fullscreen-container .terrama2-leftbox-header {
   margin-left: 0 !important;
 }
 
-.terrama2-table-container th {
+.terrama2-fullscreen-container th {
   text-align: left;
   padding-top: 17px !important;
   padding-bottom: 17px !important;
   padding-left: 10px !important;
 }
 
-.terrama2-table-container td {
+.terrama2-fullscreen-container td {
   padding-top: 17px !important;
   padding-bottom: 17px !important;
 }

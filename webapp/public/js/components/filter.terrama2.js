@@ -128,6 +128,6 @@ var Filter = function(terrama2) {
     });
 
     //applyDateFilter('01/11/2015', '02/11/2015');
-    createSatelliteSelect();
+    //createSatelliteSelect();
   });
 }
