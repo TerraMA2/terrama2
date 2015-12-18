@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1428</width>
+    <width>1657</width>
     <height>1020</height>
    </rect>
   </property>
@@ -47,8 +47,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="icon">
            <iconset theme="cancel">
-            <normaloff/>
-           </iconset>
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
@@ -78,8 +77,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="icon">
            <iconset theme="confirm">
-            <normaloff/>
-           </iconset>
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
@@ -138,8 +136,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="add-grid-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -153,8 +150,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="add-pcd-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -177,8 +173,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="add-occurrence-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -195,8 +190,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="remove-grid-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -214,8 +208,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="remove-pcd-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -233,8 +226,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="remove-occurrence-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -248,8 +240,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="update-occurence-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -263,8 +254,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="export-occurrence-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -278,8 +268,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="update-pcd-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -293,8 +282,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="export-pcd-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -314,8 +302,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="update-grid-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -329,8 +316,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="export-grid-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -344,8 +330,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="import-data-series">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -375,8 +360,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="update-server">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -393,8 +377,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="remove-server">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -408,8 +391,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="export-server">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -447,8 +429,7 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="icon">
                <iconset theme="servers">
-                <normaloff/>
-               </iconset>
+                <normaloff>.</normaloff>.</iconset>
               </property>
               <item>
                <property name="text">
@@ -640,8 +621,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset theme="add-server">
-                   <normaloff/>
-                  </iconset>
+                   <normaloff>.</normaloff>.</iconset>
                  </property>
                 </widget>
                </item>
@@ -661,8 +641,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset theme="import-server">
-                   <normaloff/>
-                  </iconset>
+                   <normaloff>.</normaloff>.</iconset>
                  </property>
                 </widget>
                </item>
@@ -709,8 +688,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset theme="confirm">
-                   <normaloff/>
-                  </iconset>
+                   <normaloff>.</normaloff>.</iconset>
                  </property>
                 </widget>
                </item>
@@ -785,8 +763,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="icon">
                      <iconset theme="open-config">
-                      <normaloff/>
-                     </iconset>
+                      <normaloff>.</normaloff>.</iconset>
                     </property>
                    </widget>
                   </item>
@@ -1316,8 +1293,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="icon">
                      <iconset theme="filter">
-                      <normaloff/>
-                     </iconset>
+                      <normaloff>.</normaloff>.</iconset>
                     </property>
                    </widget>
                   </item>
@@ -1477,8 +1453,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="icon">
                      <iconset theme="projection">
-                      <normaloff/>
-                     </iconset>
+                      <normaloff>.</normaloff>.</iconset>
                     </property>
                    </widget>
                   </item>
@@ -1913,6 +1888,16 @@ p, li { white-space: pre-wrap; }
                       <string>Ativo</string>
                      </property>
                     </column>
+                    <column>
+                     <property name="text">
+                      <string>Projeção</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Fuso Horário</string>
+                     </property>
+                    </column>
                     <item row="0" column="0">
                      <property name="text">
                       <string>filename1.txt</string>
@@ -2028,8 +2013,7 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="icon">
                        <iconset theme="add">
-                        <normaloff/>
-                       </iconset>
+                        <normaloff>.</normaloff>.</iconset>
                       </property>
                      </widget>
                     </item>
@@ -2064,8 +2048,7 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="icon">
                        <iconset theme="remove">
-                        <normaloff/>
-                       </iconset>
+                        <normaloff>.</normaloff>.</iconset>
                       </property>
                      </widget>
                     </item>
@@ -2114,47 +2097,7 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="icon">
                        <iconset theme="table">
-                        <normaloff/>
-                       </iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QToolButton" name="btnPCDInformationPlane">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>24</width>
-                        <height>24</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>24</width>
-                        <height>24</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Importar localização das PCDs&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                      <property name="icon">
-                       <iconset theme="pcd">
-                        <normaloff/>
-                       </iconset>
+                        <normaloff>.</normaloff>.</iconset>
                       </property>
                      </widget>
                     </item>
@@ -2186,8 +2129,45 @@ p, li { white-space: pre-wrap; }
                       </property>
                       <property name="icon">
                        <iconset theme="new-config">
-                        <normaloff/>
-                       </iconset>
+                        <normaloff>.</normaloff>.</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QPushButton" name="btnPCDInformationPlane">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>24</width>
+                        <height>24</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>24</width>
+                        <height>24</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Importar localização das PCDs&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset theme="pcd">
+                        <normaloff>.</normaloff>.</iconset>
                       </property>
                      </widget>
                     </item>
@@ -2202,48 +2182,6 @@ p, li { white-space: pre-wrap; }
                   <string> Dado: </string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_31">
-                  <item row="2" column="3">
-                   <widget class="QLineEdit" name="pointFormatDataMinute">
-                    <property name="toolTip">
-                     <string extracomment="Minutos"/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="0">
-                   <widget class="QLabel" name="label_83">
-                    <property name="text">
-                     <string>Unidade:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="10">
-                   <widget class="QPushButton" name="projectionPointBtn">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Projeção...</string>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="projection">
-                      <normaloff/>
-                     </iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_58">
-                    <property name="text">
-                     <string>Tipo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1" colspan="10">
-                   <widget class="QTextEdit" name="pointFormatDataDescription"/>
-                  </item>
                   <item row="0" column="0">
                    <widget class="QLabel" name="label_57">
                     <property name="text">
@@ -2258,6 +2196,9 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
+                  <item row="5" column="1" colspan="8">
+                   <widget class="QTextEdit" name="pointFormatDataDescription"/>
+                  </item>
                   <item row="2" column="4">
                    <widget class="QLabel" name="label_55">
                     <property name="text">
@@ -2265,216 +2206,8 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="5">
-                   <widget class="QLineEdit" name="pointFormatDataSecond">
-                    <property name="toolTip">
-                     <string extracomment="Segundos"/>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="2" column="1">
                    <widget class="QLineEdit" name="pointFormatDataHour"/>
-                  </item>
-                  <item row="7" column="10">
-                   <widget class="QPushButton" name="pointFormatSurfaceConfigBtn">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Superfícies</string>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="surface">
-                      <normaloff/>
-                     </iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="8" colspan="2">
-                   <widget class="QLabel" name="label_77">
-                    <property name="text">
-                     <string>Fuso Horário:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="2">
-                   <widget class="QLabel" name="label_62">
-                    <property name="text">
-                     <string>h</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="label_63">
-                    <property name="text">
-                     <string>Descrição:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="6">
-                   <widget class="QLabel" name="label_80">
-                    <property name="text">
-                     <string>s</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_61">
-                    <property name="text">
-                     <string>Freq. Atualiz.:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="10">
-                   <widget class="QComboBox" name="pointFormatDataTimeZoneCmb">
-                    <property name="currentIndex">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <property name="text">
-                      <string>+12:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+11:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+10:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+09:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+08:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+07:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+06:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+05:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+04:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+03:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+02:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+01:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>+00:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-01:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-02:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-03:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-04:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-05:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-06:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-07:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-08:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-09:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-10:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-11:00</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>-12:00</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item row="6" column="6">
-                   <widget class="QLabel" name="label_79">
-                    <property name="text">
-                     <string>Prefixo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="7" colspan="4">
-                   <widget class="QLineEdit" name="pointFormatDataPrefix"/>
-                  </item>
-                  <item row="0" column="1" colspan="10">
-                   <widget class="QLineEdit" name="pointFormatDataName"/>
-                  </item>
-                  <item row="6" column="1" colspan="4">
-                   <widget class="QLineEdit" name="pointFormatDataUnit"/>
                   </item>
                   <item row="3" column="1" colspan="3">
                    <widget class="QComboBox" name="pointFormatDataInfluenceCmb">
@@ -2498,7 +2231,94 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </widget>
                   </item>
-                  <item row="3" column="6" rowspan="2" colspan="5">
+                  <item row="6" column="1" colspan="4">
+                   <widget class="QLineEdit" name="pointFormatDataUnit"/>
+                  </item>
+                  <item row="0" column="1" colspan="8">
+                   <widget class="QLineEdit" name="pointFormatDataName"/>
+                  </item>
+                  <item row="6" column="7" colspan="2">
+                   <widget class="QLineEdit" name="pointFormatDataPrefix"/>
+                  </item>
+                  <item row="2" column="5">
+                   <widget class="QLineEdit" name="pointFormatDataSecond">
+                    <property name="toolTip">
+                     <string extracomment="Segundos"/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="6">
+                   <widget class="QLabel" name="label_79">
+                    <property name="text">
+                     <string>Prefixo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_61">
+                    <property name="text">
+                     <string>Freq. Atualiz.:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="6">
+                   <widget class="QLabel" name="label_80">
+                    <property name="text">
+                     <string>s</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_63">
+                    <property name="text">
+                     <string>Descrição:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="2">
+                   <widget class="QLabel" name="label_62">
+                    <property name="text">
+                     <string>h</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="8">
+                   <widget class="QPushButton" name="pointFormatSurfaceConfigBtn">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Superfícies</string>
+                    </property>
+                    <property name="icon">
+                     <iconset theme="surface">
+                      <normaloff>.</normaloff>.</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="6">
+                   <widget class="QComboBox" name="pointFormatDataType">
+                    <item>
+                     <property name="text">
+                      <string>Previsão</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Observação</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Outros</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="3" column="6" rowspan="2" colspan="3">
                    <widget class="QStackedWidget" name="pointFormatInfluenceStack">
                     <property name="currentIndex">
                      <number>1</number>
@@ -2600,23 +2420,25 @@ p, li { white-space: pre-wrap; }
                     </widget>
                    </widget>
                   </item>
-                  <item row="1" column="1" colspan="6">
-                   <widget class="QComboBox" name="pointFormatDataType">
-                    <item>
-                     <property name="text">
-                      <string>Previsão</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Observação</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Outros</string>
-                     </property>
-                    </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_58">
+                    <property name="text">
+                     <string>Tipo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="label_83">
+                    <property name="text">
+                     <string>Unidade:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="3">
+                   <widget class="QLineEdit" name="pointFormatDataMinute">
+                    <property name="toolTip">
+                     <string extracomment="Minutos"/>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -2639,8 +2461,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="icon">
                      <iconset theme="intersection">
-                      <normaloff/>
-                     </iconset>
+                      <normaloff>.</normaloff>.</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -2688,8 +2509,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="icon">
                      <iconset theme="filter">
-                      <normaloff/>
-                     </iconset>
+                      <normaloff>.</normaloff>.</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -2811,8 +2631,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="icon">
                      <iconset theme="projection">
-                      <normaloff/>
-                     </iconset>
+                      <normaloff>.</normaloff>.</iconset>
                     </property>
                    </widget>
                   </item>
@@ -3181,8 +3000,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add-risk-plan">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -3196,8 +3014,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="remove-risk-plan">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -3284,8 +3101,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="projection">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -3544,8 +3360,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="confirm">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -3562,8 +3377,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="cancel">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -3637,8 +3451,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset theme="add-addition-data-grid">
-                 <normaloff/>
-                </iconset>
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -3655,8 +3468,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset theme="add-additional-data-vector">
-                 <normaloff/>
-                </iconset>
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -3673,8 +3485,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset theme="remove-additional-selected-plan">
-                 <normaloff/>
-                </iconset>
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -3745,8 +3556,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="projection">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4093,8 +3903,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="confirm">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -4111,8 +3920,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="cancel">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -4174,8 +3982,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="projection">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4313,8 +4120,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="icon">
            <iconset theme="confirm">
-            <normaloff/>
-           </iconset>
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
@@ -4331,8 +4137,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="icon">
            <iconset theme="cancel">
-            <normaloff/>
-           </iconset>
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
@@ -4371,8 +4176,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset theme="add-cell-space">
-                 <normaloff/>
-                </iconset>
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -4390,8 +4194,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset theme="remove-cell-space">
-                 <normaloff/>
-                </iconset>
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -4485,8 +4288,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add-risk-plan-analyse">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4500,8 +4302,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add-model-analyse">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4519,8 +4320,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add-pcd-data-series">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4538,8 +4338,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add-terrame-analyse">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4556,8 +4355,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="remove-selected-analyse">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4686,8 +4484,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset>
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4738,8 +4535,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="risk-attribute">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4750,8 +4546,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="attributes">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4769,8 +4564,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="zone-operator">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4781,8 +4575,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="zone-operator">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4796,8 +4589,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="sample">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4814,8 +4606,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="risk">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4833,8 +4624,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="cell-space-attribute">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4852,8 +4642,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="terrame-functions">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4870,8 +4659,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="functions">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4888,8 +4676,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="lua">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4920,8 +4707,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="lua-analyse">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4938,8 +4724,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="confirm">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -4956,8 +4741,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="wizard-model-analyse">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -5011,8 +4795,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="confirm">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -5029,8 +4812,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="cancel">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -5176,8 +4958,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset theme="add">
-                   <normaloff/>
-                  </iconset>
+                   <normaloff>.</normaloff>.</iconset>
                  </property>
                 </widget>
                </item>
@@ -5206,8 +4987,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset theme="remove">
-                   <normaloff/>
-                  </iconset>
+                   <normaloff>.</normaloff>.</iconset>
                  </property>
                 </widget>
                </item>
@@ -5249,8 +5029,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset theme="crossed-analysis">
-                   <normaloff/>
-                  </iconset>
+                   <normaloff>.</normaloff>.</iconset>
                  </property>
                 </widget>
                </item>
@@ -5844,8 +5623,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset theme="add-user">
-                 <normaloff/>
-                </iconset>
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -5862,8 +5640,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset theme="remove-user">
-                 <normaloff/>
-                </iconset>
+                 <normaloff>.</normaloff>.</iconset>
                </property>
               </widget>
              </item>
@@ -6016,8 +5793,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6034,8 +5810,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="remove">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6104,8 +5879,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="add">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -6116,8 +5890,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="icon">
                  <iconset theme="remove">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                </widget>
               </item>
@@ -6168,8 +5941,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="confirm">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -6186,8 +5958,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="cancel">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -6256,8 +6027,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add-bulletin">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6271,8 +6041,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="remove-bulletin">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6334,8 +6103,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6346,8 +6114,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="remove">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6442,8 +6209,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="add">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6454,8 +6220,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="icon">
               <iconset theme="remove">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -6555,8 +6320,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="confirm">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -6573,8 +6337,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="icon">
              <iconset theme="cancel">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -6591,8 +6354,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1428</width>
-     <height>25</height>
+     <width>1657</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArquivo">
@@ -6665,8 +6428,7 @@ p, li { white-space: pre-wrap; }
   <action name="openAct">
    <property name="icon">
     <iconset theme="open-config">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Abrir...</string>
@@ -6680,8 +6442,7 @@ p, li { white-space: pre-wrap; }
   <action name="refreshAct">
    <property name="icon">
     <iconset theme="refresh">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Recarregar dados</string>
@@ -6693,8 +6454,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset theme="console">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Mostrar consoles</string>
@@ -6706,8 +6466,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset theme="wizard">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Executar estudo</string>
@@ -6716,8 +6475,7 @@ p, li { white-space: pre-wrap; }
   <action name="archivingAct">
    <property name="icon">
     <iconset theme="trash">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Executar arquivamento</string>
@@ -6729,8 +6487,7 @@ p, li { white-space: pre-wrap; }
   <action name="terraMEPlayerAct">
    <property name="icon">
     <iconset theme="monitor">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Visualizador TerraME</string>
@@ -6794,13 +6551,11 @@ p, li { white-space: pre-wrap; }
   <tabstop>filterGridBtn</tabstop>
   <tabstop>pointFormatDataName</tabstop>
   <tabstop>pointFormatDataType</tabstop>
-  <tabstop>projectionPointBtn</tabstop>
   <tabstop>pointFormatDataRadius</tabstop>
   <tabstop>pointFormatDataThemeCmb</tabstop>
   <tabstop>pointFormatDataAttributeCmb</tabstop>
   <tabstop>pointFormatDataHour</tabstop>
   <tabstop>pointFormatDataDescription</tabstop>
-  <tabstop>pointFormatDataTimeZoneCmb</tabstop>
   <tabstop>pointFormatDataUnit</tabstop>
   <tabstop>pointFormatSurfaceConfigBtn</tabstop>
   <tabstop>pointFormatDataPath</tabstop>

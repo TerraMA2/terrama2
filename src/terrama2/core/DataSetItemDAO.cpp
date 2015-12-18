@@ -54,7 +54,7 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   if(item.dataset() == 0)
     throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be saved."));
 
-  boost::format query("INSERT INTO terrama2.dataset_item (kind, active, dataset_id, mask, timezone, path) VALUES(%1%, %2%, %3%, '%4%', '%5%', '%6%')");
+  boost::format query("INSERT INTO terrama2.dataset_item (kind, active, dataset_id, mask, timezone, path, srid) VALUES(%1%, %2%, %3%, '%4%', '%5%', '%6%', %7%)");
 
   query.bind_arg(1, static_cast<uint32_t>(item.kind()));
   query.bind_arg(2, ToString(ToBool(item.status())));
@@ -62,6 +62,7 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   query.bind_arg(4, item.mask());
   query.bind_arg(5, item.timezone());
   query.bind_arg(6, item.path());
+  query.bind_arg(7, item.srid() == 0 ? 4326 : item.srid());
 
   try
   {
@@ -141,7 +142,7 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
     throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be updated."));
 
   boost::format query("UPDATE terrama2.dataset_item SET active = %1%, "
-                      "dataset_id = %2%, kind = %3%, mask = '%4%', timezone = '%5%', path = '%6%' WHERE id = %7%");
+                      "dataset_id = %2%, kind = %3%, mask = '%4%', timezone = '%5%', path = '%6%', srid = %7% WHERE id = %8%");
 
   query.bind_arg(1, ToString(ToBool(item.status())));
   query.bind_arg(2, item.dataset());
@@ -149,7 +150,8 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   query.bind_arg(4, item.mask());
   query.bind_arg(5, item.timezone());
   query.bind_arg(6, item.path());
-  query.bind_arg(7, item.id());
+  query.bind_arg(7, item.srid());
+  query.bind_arg(8, item.id());
 
   try
   {
@@ -231,6 +233,7 @@ terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTr
       item.setMask(items_result->getString("mask"));
       item.setTimezone(items_result->getString("timezone"));
       item.setPath(items_result->getString("path"));
+      item.setSrid(items_result->getInt32("srid"));
 
 // retrieve the filter
       Filter f = FilterDAO::load(item, transactor);

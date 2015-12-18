@@ -31,13 +31,17 @@
 #include "ui_PcdDialogForm.h"
 #include "PcdDialog.hpp"
 
+// Terralib
+#include <terralib/qt/widgets/srs/SRSManagerDialog.h>
+
 // QT
 #include <QDoubleValidator>
 
 struct PcdDialog::Impl
 {
   Impl()
-    : ui_(new Ui::PcdDialogForm)
+    : srid_(4326),
+      ui_(new Ui::PcdDialogForm)
   {
   }
 
@@ -46,6 +50,7 @@ struct PcdDialog::Impl
     delete ui_;
   }
 
+  uint64_t srid_;
   Ui::PcdDialogForm* ui_;
 };
 
@@ -57,13 +62,15 @@ PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
   pimpl_->ui_->okBtn->setEnabled(false);
 
   // Connect
-  connect(pimpl_->ui_->okBtn,     SIGNAL(clicked()), SLOT(onConfirmClicked()));
+  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), SLOT(onConfirmClicked()));
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(reject()));
+  connect(pimpl_->ui_->projectionBtn, SIGNAL(clicked()), SLOT(onProjectionClicked()));
 
-  connect(pimpl_->ui_->ledColPointFileName,   SIGNAL(textEdited(const QString&)), SLOT(onPcdChanged()));
-  connect(pimpl_->ui_->ledColPointLatitude,   SIGNAL(textEdited(const QString&)), SLOT(onPcdChanged()));
-  connect(pimpl_->ui_->ledColPointLongitude,  SIGNAL(textEdited(const QString&)), SLOT(onPcdChanged()));
-  connect(pimpl_->ui_->activeCmb, SIGNAL(currentIndexChanged(const QString&)), SLOT(onPcdChanged()));
+  connect(pimpl_->ui_->ledColPointFileName, SIGNAL(textEdited(const QString&)), SLOT(onPcdChanged()));
+  connect(pimpl_->ui_->timeZoneCmb, SIGNAL(currentIndexChanged(int)), SLOT(onPcdChanged()));
+  connect(pimpl_->ui_->ledColPointLongitude, SIGNAL(textEdited(const QString&)), SLOT(onPcdChanged()));
+  connect(pimpl_->ui_->ledColPointLongitude, SIGNAL(textEdited(const QString&)), SLOT(onPcdChanged()));
+  connect(pimpl_->ui_->activeCheckBox, SIGNAL(stateChanged(int)), SLOT(onPcdChanged()));
 
   pimpl_->ui_->ledColPointLatitude->setValidator(new QDoubleValidator(pimpl_->ui_->ledColPointLatitude));
   pimpl_->ui_->ledColPointLongitude->setValidator(new QDoubleValidator(pimpl_->ui_->ledColPointLongitude));
@@ -79,7 +86,10 @@ void PcdDialog::fill(const PCD& pcd)
   pimpl_->ui_->ledColPointFileName->setText(pcd.file);
   pimpl_->ui_->ledColPointLatitude->setText(pcd.latitude);
   pimpl_->ui_->ledColPointLongitude->setText(pcd.longitude);
-  pimpl_->ui_->activeCmb->setCurrentIndex(pcd.active ? 0 : 1);
+  pimpl_->ui_->activeCheckBox->setChecked(pcd.active);
+  pimpl_->srid_ = pcd.srid;
+  pimpl_->ui_->timeZoneCmb->setCurrentText(pcd.timezone);
+  pimpl_->ui_->projectionTxt->setText(std::to_string(pcd.srid).c_str());
 }
 
 void PcdDialog::fillObject(PCD &pcd)
@@ -87,7 +97,10 @@ void PcdDialog::fillObject(PCD &pcd)
   pcd.file = pimpl_->ui_->ledColPointFileName->text();
   pcd.latitude = pimpl_->ui_->ledColPointLatitude->text();
   pcd.longitude = pimpl_->ui_->ledColPointLongitude->text();
-  pcd.active = pimpl_->ui_->activeCmb->currentIndex() == 0;
+  pcd.active = pimpl_->ui_->activeCheckBox->isChecked();
+  pcd.srid = pimpl_->srid_;
+  pcd.timezone = pimpl_->ui_->timeZoneCmb->currentText();
+
 }
 
 void PcdDialog::onPcdChanged()
@@ -104,4 +117,19 @@ void PcdDialog::onConfirmClicked()
     }
 
   accept();
+}
+
+void PcdDialog::onProjectionClicked()
+{
+  te::qt::widgets::SRSManagerDialog srsDialog(this);
+  srsDialog.setWindowTitle(tr("Choose the SRS"));
+
+  if (srsDialog.exec() == QDialog::Rejected)
+    return;
+
+
+  pimpl_->srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
+  pimpl_->ui_->projectionTxt->setText(std::to_string(pimpl_->srid_).c_str());
+
+  onPcdChanged();
 }

@@ -43,6 +43,9 @@ int main(int argc, char* argv[])
 // initialize Qt
   QApplication app(argc, argv);
 
+  app.setApplicationName("TerraMA2");
+  app.setOrganizationName("INPE");
+
 // initialize TerraLib
   terrama2::core::initializeTerralib();
 

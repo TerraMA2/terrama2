@@ -9,10 +9,13 @@
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
 #include "FilterDialog.hpp"
-#include "ProjectionDialog.hpp"
+
+// STL
+#include <inttypes.h>
 
 // Terralib
 #include <terralib/datatype/TimeInstant.h>
+#include <terralib/qt/widgets/srs/SRSManagerDialog.h>
 
 // QT
 #include <QMessageBox>
@@ -30,7 +33,6 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
 
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
 
-  ui_->projectionGridBtn->setEnabled(false);
 
   // data frequency int validator
   ui_->gridFormatDataHour->setValidator(new QIntValidator(ui_->gridFormatDataHour));
@@ -84,6 +86,7 @@ void ConfigAppWeatherGridTab::save()
     datasetItem = new terrama2::core::DataSetItem;
 
   datasetItem->setFilter(*filter_);
+  datasetItem->setSrid(srid_);
 
   datasetItem->setKind(terrama2::core::DataSetItem::GRID_TYPE);
   datasetItem->setMask(ui_->gridFormatDataMask->text().toStdString());
@@ -331,8 +334,18 @@ void ConfigAppWeatherGridTab::onFilterClicked()
 
 void ConfigAppWeatherGridTab::onProjectionClicked()
 {
-  ProjectionDialog projectionDialog(app_);
+  te::qt::widgets::SRSManagerDialog srsDialog(app_);
+  srsDialog.setWindowTitle(tr("Choose the SRS"));
 
-  projectionDialog.show();
-  projectionDialog.exec();
+  if (srsDialog.exec() == QDialog::Rejected)
+    return;
+
+
+  srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
+
+}
+
+void ConfigAppWeatherGridTab::setSrid(const uint64_t srid)
+{
+  srid_ = srid;
 }
