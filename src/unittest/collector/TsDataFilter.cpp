@@ -149,17 +149,14 @@ void TsDataFilter::dummy()
   std::string time = "10:52:33";
   QDate qDate = QDate::fromString(date.c_str(), "yyyy-MM-dd");
   QTime qTime = QTime::fromString(time.c_str(), "hh:mm:ss");
-  QTimeZone qTimeZone(-7200);
-  QDateTime dateTime(qDate, qTime , qTimeZone);
-  boost::local_time::local_date_time QDate2Boost = terrama2::collector::QDateTime2BoostLocalDateTime(dateTime);
-  //Build a te::dt::TimeInstantTZ
+  QDateTime dateTime(qDate, qTime);
+  boost::local_time::local_date_time QDate2Boost = terrama2::collector::QDateTime2BoostLocalDateTime(dateTime, "-02:00");
   qDebug() << "QDate2Boost posixString: " << QDate2Boost.to_string().c_str();
   qDebug() << "QDate2Boost timezoneStr: " << QDate2Boost.zone_as_posix_string().c_str();
   qDebug() << "QDate2Boost UTC   time : " << QDate2Boost.utc_time().time_of_day().hours();
   qDebug() << "QDate2Boost local time : " << QDate2Boost.local_time().time_of_day().hours();
 
   boost::local_time::local_date_time String2Boost = terrama2::collector::DateTimeString2BoostLocalDateTime(date, time, "-02:00");
-  //Build a te::dt::TimeInstantTZ
   qDebug() << "String2Boost posixString: " << String2Boost.to_string().c_str();
   qDebug() << "String2Boost timezoneStr: " << String2Boost.zone_as_posix_string().c_str();
   qDebug() << "String2Boost UTC   time : " << String2Boost.utc_time().time_of_day().hours();
@@ -172,6 +169,8 @@ void TsDataFilter::dummy()
   qDebug() << "Boost2String time: " << outTime.c_str();
   qDebug() << "Boost2String TZ  : " << outTimezone.c_str();
 
+  te::dt::TimeInstantTZ terralibTz(String2Boost);
+  qDebug() << "TerralibString   : " << terralibTz.toString().c_str();
 
   qDebug() << "end";
 }
