@@ -72,17 +72,17 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
       matchesList.push_back(name);
   }
 
-  unsigned int year  = 0;
-  unsigned int month = 0;
-  unsigned int day   = 0;
-
-  int hours   = -1;
-  int minutes = -1;
-  int seconds  = -1;
-
   std::vector<std::string> matchesList2;
   for(const auto& name : matchesList)
   {
+    unsigned int year  = 0;
+    unsigned int month = 0;
+    unsigned int day   = 0;
+
+    int hours   = -1;
+    int minutes = -1;
+    int seconds  = -1;
+
     //**********************
     //get date values from names
 
@@ -113,7 +113,7 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
     try
     {
       boost::gregorian::date bDate(year, month, day);
-      boost::posix_time::time_duration bTime(hours, minutes, seconds);
+      boost::posix_time::time_duration bTime(hours == -1 ? 0 : hours, minutes == -1 ? 0 : minutes, seconds == -1 ? 0 : seconds);
       boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(datasetItem_.timezone()));
       boost::local_time::local_date_time time(bDate, bTime, zone, true);
 
@@ -450,7 +450,7 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
      discardBefore_ = logTime;
   else if(!logTime)
     discardBefore_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
-  else if(*filter.discardBefore() > *logTime || *filter.discardBefore() == *logTime)
+  else if(*filter.discardBefore() < *logTime || *filter.discardBefore() == *logTime)
     discardBefore_ = logTime;
   else
     discardBefore_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
