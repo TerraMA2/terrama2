@@ -1411,7 +1411,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1" colspan="11">
+                  <item row="0" column="1" colspan="13">
                    <widget class="QLineEdit" name="gridFormatDataName"/>
                   </item>
                   <item row="1" column="0">
@@ -1421,7 +1421,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1" colspan="9">
+                  <item row="1" column="1" colspan="6">
                    <widget class="QComboBox" name="gridFormatDataType">
                     <item>
                      <property name="text">
@@ -1440,7 +1440,34 @@ p, li { white-space: pre-wrap; }
                     </item>
                    </widget>
                   </item>
-                  <item row="1" column="10" colspan="2">
+                  <item row="1" column="7" colspan="2">
+                   <spacer name="horizontalSpacer_8">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>98</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="9" colspan="2">
+                   <widget class="QLabel" name="label_5">
+                    <property name="text">
+                     <string>Projeção:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="11" colspan="2">
+                   <widget class="QLineEdit" name="gridProjectionTxt">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="13">
                    <widget class="QPushButton" name="projectionGridBtn">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1449,7 +1476,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Projeção...</string>
+                     <string>...</string>
                     </property>
                     <property name="icon">
                      <iconset theme="projection">
@@ -1464,7 +1491,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1" colspan="5">
+                  <item row="2" column="1" colspan="3">
                    <widget class="QLineEdit" name="gridFormatDataResolution"/>
                   </item>
                   <item row="2" column="6">
@@ -1494,7 +1521,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="10" colspan="2">
+                  <item row="2" column="10" colspan="4">
                    <widget class="QLineEdit" name="gridFormatDataPrefix"/>
                   </item>
                   <item row="3" column="0">
@@ -1555,14 +1582,14 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </spacer>
                   </item>
-                  <item row="3" column="10">
+                  <item row="3" column="10" colspan="2">
                    <widget class="QLabel" name="label_10">
                     <property name="text">
                      <string>Intervalo:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="11">
+                  <item row="3" column="13">
                    <widget class="QSpinBox" name="gridFormatDataInterval">
                     <property name="suffix">
                      <string>min</string>
@@ -1576,7 +1603,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="1" colspan="6">
+                  <item row="4" column="1" colspan="3">
                    <widget class="QLineEdit" name="gridFormatDataUnit"/>
                   </item>
                   <item row="4" column="7" colspan="2">
@@ -1592,14 +1619,14 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </spacer>
                   </item>
-                  <item row="4" column="9" colspan="2">
+                  <item row="4" column="9" colspan="3">
                    <widget class="QLabel" name="label_56">
                     <property name="text">
                      <string>Fuso Horário:</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="11">
+                  <item row="4" column="12" colspan="2">
                    <widget class="QComboBox" name="gridFormatDataTimeZoneCmb">
                     <property name="currentIndex">
                      <number>0</number>
@@ -1738,7 +1765,7 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1" colspan="11">
+                  <item row="5" column="1" colspan="13">
                    <widget class="QTextEdit" name="gridFormatDataDescription">
                     <property name="maximumSize">
                      <size>
@@ -2582,162 +2609,7 @@ p, li { white-space: pre-wrap; }
                   <string> Dado: </string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_26">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_84">
-                    <property name="text">
-                     <string>Nome:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1" colspan="11">
-                   <widget class="QLineEdit" name="pointDiffFormatDataName"/>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_85">
-                    <property name="text">
-                     <string>Tipo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1" colspan="9">
-                   <widget class="QComboBox" name="pointDiffFormatDataType">
-                    <item>
-                     <property name="text">
-                      <string>Queimadas</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Focos de Doença</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Outros</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item row="1" column="11">
-                   <widget class="QPushButton" name="projectionPointDiffBtn">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Projeção...</string>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="projection">
-                      <normaloff>.</normaloff>.</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_86">
-                    <property name="text">
-                     <string>Unidade:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1" colspan="4">
-                   <widget class="QLineEdit" name="pointDiffFormatDataUnit"/>
-                  </item>
-                  <item row="2" column="5" colspan="2">
-                   <spacer>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="2" column="9">
-                   <widget class="QLabel" name="label_88">
-                    <property name="text">
-                     <string>Prefixo:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="10" colspan="2">
-                   <widget class="QLineEdit" name="pointDiffFormatDataPrefix"/>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_89">
-                    <property name="text">
-                     <string>Freq. Atualiz.:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="pointDiffFormatDataHour">
-                    <property name="toolTip">
-                     <string extracomment="Segundos"/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="2">
-                   <widget class="QLabel" name="label_90">
-                    <property name="text">
-                     <string>h</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="3">
-                   <widget class="QLineEdit" name="pointDiffFormatDataMinute">
-                    <property name="toolTip">
-                     <string extracomment="Minutos"/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="4" colspan="2">
-                   <widget class="QLabel" name="label_42">
-                    <property name="text">
-                     <string>m</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="6">
-                   <widget class="QLineEdit" name="pointDiffFormatDataSecond">
-                    <property name="toolTip">
-                     <string extracomment="Segundos"/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="7">
-                   <widget class="QLabel" name="label_46">
-                    <property name="text">
-                     <string>s</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="8">
-                   <spacer>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="3" column="9" colspan="2">
-                   <widget class="QLabel" name="label_91">
-                    <property name="text">
-                     <string>Fuso Horário:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="11">
+                  <item row="3" column="10" colspan="2">
                    <widget class="QComboBox" name="pointDiffFormatDataTimeZoneCmb">
                     <property name="currentIndex">
                      <number>0</number>
@@ -2876,6 +2748,19 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
+                  <item row="3" column="7">
+                   <spacer>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                   <item row="4" column="1" colspan="11">
                    <widget class="QTextEdit" name="pointDiffFormatDataDescription">
                     <property name="maximumSize">
@@ -2886,13 +2771,182 @@ p, li { white-space: pre-wrap; }
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="0" colspan="3">
+                  <item row="5" column="0" colspan="2">
                    <widget class="QCheckBox" name="pointDiffFormatStatus">
                     <property name="text">
                      <string>Série de dados ativo</string>
                     </property>
                     <property name="checked">
                      <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="3">
+                   <widget class="QLineEdit" name="pointDiffFormatDataMinute">
+                    <property name="toolTip">
+                     <string extracomment="Minutos"/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_89">
+                    <property name="text">
+                     <string>Freq. Atualiz.:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="9" colspan="3">
+                   <widget class="QLineEdit" name="pointDiffFormatDataPrefix"/>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="pointDiffFormatDataHour">
+                    <property name="toolTip">
+                     <string extracomment="Segundos"/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="9" colspan="2">
+                   <widget class="QLineEdit" name="occurenceProjectionTxt">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="8">
+                   <widget class="QLabel" name="label_88">
+                    <property name="text">
+                     <string>Prefixo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="4" colspan="2">
+                   <spacer>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_86">
+                    <property name="text">
+                     <string>Unidade:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1" colspan="3">
+                   <widget class="QLineEdit" name="pointDiffFormatDataUnit"/>
+                  </item>
+                  <item row="1" column="11">
+                   <widget class="QPushButton" name="projectionPointDiffBtn">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Alterar a projeção dos dados&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset theme="projection">
+                      <normaloff>.</normaloff>.</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_84">
+                    <property name="text">
+                     <string>Nome:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="3">
+                   <widget class="QComboBox" name="pointDiffFormatDataType">
+                    <item>
+                     <property name="text">
+                      <string>Queimadas</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Focos de Doença</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Outros</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_85">
+                    <property name="text">
+                     <string>Tipo:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" colspan="11">
+                   <widget class="QLineEdit" name="pointDiffFormatDataName"/>
+                  </item>
+                  <item row="3" column="8" colspan="2">
+                   <widget class="QLabel" name="label_91">
+                    <property name="text">
+                     <string>Fuso Horário:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="6">
+                   <widget class="QLabel" name="label_46">
+                    <property name="text">
+                     <string>s</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="4">
+                   <widget class="QLabel" name="label_42">
+                    <property name="text">
+                     <string>m</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="5">
+                   <widget class="QLineEdit" name="pointDiffFormatDataSecond">
+                    <property name="toolTip">
+                     <string extracomment="Segundos"/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="2">
+                   <widget class="QLabel" name="label_90">
+                    <property name="text">
+                     <string>h</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="4" colspan="2">
+                   <spacer name="horizontalSpacer_9">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>126</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="6" colspan="3" alignment="Qt::AlignRight">
+                   <widget class="QLabel" name="label_7">
+                    <property name="text">
+                     <string>Projeção:</string>
                     </property>
                    </widget>
                   </item>

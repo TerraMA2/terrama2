@@ -407,6 +407,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                   ui_->gridFormatStatus->setChecked(datasetItem.status() == terrama2::core::DataSetItem::ACTIVE ? true : false);
                   gridTab->fillFilter(datasetItem.filter());
                   gridTab->setSrid(datasetItem.srid());
+                  ui_->gridProjectionTxt->setText(std::to_string(datasetItem.srid()).c_str());
                 }
 
                 hideDataSetButtons();
@@ -467,6 +468,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                   terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(dataset.dataSetItems().size() - 1);
                   occurrenceTab->fillFilter(datasetItem.filter());
                   occurrenceTab->setSrid(datasetItem.srid());
+                  ui_->occurenceProjectionTxt->setText(std::to_string(datasetItem.srid()).c_str());
                   ui_->pointDiffFormatDataPath->setText(datasetItem.path().c_str());
                   ui_->pointDiffFormatDataMask->setText(datasetItem.mask().c_str());
                   ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());

@@ -342,6 +342,7 @@ void ConfigAppWeatherGridTab::onProjectionClicked()
 
 
   srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
+  ui_->gridProjectionTxt->setText(std::to_string(srid_).c_str());
 
 }
 

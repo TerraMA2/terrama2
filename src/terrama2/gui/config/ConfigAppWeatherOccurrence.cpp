@@ -284,6 +284,8 @@ void ConfigAppWeatherOccurrence::onProjectionClicked()
 
   srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
 
+  ui_->occurenceProjectionTxt->setText(std::to_string(srid_).c_str());
+
 }
 
 void ConfigAppWeatherOccurrence::setIntersection(const terrama2::core::Intersection& intersection)
