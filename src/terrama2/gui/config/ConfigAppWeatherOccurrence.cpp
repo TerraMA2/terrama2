@@ -34,6 +34,8 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   ui_->pointDiffFormatDataSecond->setValidator(new QIntValidator(ui_->pointDiffFormatDataSecond));
 
   ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText("+00:00");
+  ui_->occurenceProjectionTxt->setText("0");
+  srid_ = 0;
 }
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()

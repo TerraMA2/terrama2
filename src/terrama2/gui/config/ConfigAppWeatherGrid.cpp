@@ -40,6 +40,7 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   ui_->gridFormatDataSecond->setValidator(new QIntValidator(ui_->gridFormatDataSecond));
 
   ui_->gridFormatDataTimeZoneCmb->setCurrentText("+00:00");
+
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
@@ -246,6 +247,8 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
       delete filter_;
 
     filter_ = new terrama2::core::Filter;
+    ui_->gridProjectionTxt->setText("0");
+
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
@@ -267,6 +270,8 @@ void ConfigAppWeatherGridTab::onGridFormatChanged()
     default:
       ;
   }
+
+  ui_->gridProjectionTxt->setText("0");
 }
 
 void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()

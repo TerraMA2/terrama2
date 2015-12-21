@@ -40,7 +40,7 @@
 struct PcdDialog::Impl
 {
   Impl()
-    : srid_(4326),
+    : srid_(0),
       ui_(new Ui::PcdDialogForm)
   {
   }
@@ -74,6 +74,10 @@ PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
 
   pimpl_->ui_->ledColPointLatitude->setValidator(new QDoubleValidator(pimpl_->ui_->ledColPointLatitude));
   pimpl_->ui_->ledColPointLongitude->setValidator(new QDoubleValidator(pimpl_->ui_->ledColPointLongitude));
+
+  pimpl_->ui_->timeZoneCmb->setCurrentText("+00:00");
+  pimpl_->ui_->projectionTxt->setText("0");
+
 }
 
 PcdDialog::~PcdDialog()

@@ -783,7 +783,7 @@ void TsDataManager::testUpdateDataSet()
 
     // Add a new dataset item of type PCD_TOA5_TYPE
     DataSetItem dataSetItem(DataSetItem::PCD_TOA5_TYPE, 0, dataSet.id());
-    dataSetItem.setSrid(4326);
+    dataSetItem.setSrid(0);
     dataSet.add(dataSetItem);
 
     DataManager::getInstance().update(dataSet);
@@ -823,7 +823,7 @@ void TsDataManager::testUpdateDataSet()
     QVERIFY2(dsItem0.mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
     QVERIFY2(dsItem0.path() == "other_path", "Path should be 'other_path'!");
     QVERIFY2(dsItem1.kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItems[1] must be of the type PCD-TOA5!");
-    QVERIFY2(dsItem1.srid() == 4326, "dataSetItems[1] srid must be 4326!");
+    QVERIFY2(dsItem1.srid() == 0, "dataSetItems[1] srid must be 0!");
 
     std::map<std::string, std::string> storageMetadata =  dsItem0.storageMetadata();
     QVERIFY2("value" == storageMetadata["key"], "Metadata key/value must be the same!");

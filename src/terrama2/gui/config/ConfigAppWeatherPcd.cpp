@@ -73,7 +73,6 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->pointFormatDataMinute->setValidator(new QIntValidator(ui_->pointFormatDataMinute));
   ui_->pointFormatDataSecond->setValidator(new QIntValidator(ui_->pointFormatDataSecond));
 
-  ui_->pointFormatDataTimeZoneCmb->setCurrentText("+00:00");
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -218,6 +217,8 @@ void ConfigAppWeatherPcd::onInsertPointBtnClicked()
     selectedData_.clear();
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointPage);
     tableClean();
+
+    ui_->occurenceProjectionTxt->setText("0");
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
@@ -280,7 +281,7 @@ void ConfigAppWeatherPcd::onMenuMaskClicked(QAction* action)
 
 void ConfigAppWeatherPcd::onPCDInsertFileClicked()
 {
-  PCD pcd {"", "", "", true, 4326, ""};
+  PCD pcd {"", "", "", true, 0, ""};
   pcdFormCreation(pcd);
 }
 

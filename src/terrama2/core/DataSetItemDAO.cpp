@@ -62,7 +62,10 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   query.bind_arg(4, item.mask());
   query.bind_arg(5, item.timezone());
   query.bind_arg(6, item.path());
-  query.bind_arg(7, item.srid() == 0 ? 4326 : item.srid());
+  if(item.srid() == 0)
+    query.bind_arg(7, "null");
+  else
+    query.bind_arg(7, item.srid());
 
   try
   {
@@ -150,7 +153,10 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   query.bind_arg(4, item.mask());
   query.bind_arg(5, item.timezone());
   query.bind_arg(6, item.path());
-  query.bind_arg(7, item.srid());
+  if(item.srid() == 0)
+    query.bind_arg(7, "null");
+  else
+    query.bind_arg(7, item.srid());
   query.bind_arg(8, item.id());
 
   try
@@ -218,22 +224,26 @@ terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTr
 
   try
   {
-    std::auto_ptr<te::da::DataSet> items_result = transactor.query(sql);
+    std::auto_ptr<te::da::DataSet> itemsResult = transactor.query(sql);
 
     std::vector<DataSetItem> items;
 
-    while(items_result->moveNext())
+    while(itemsResult->moveNext())
     {
-      DataSetItem::Kind kind = ToDataSetItemKind(items_result->getInt32("kind"));
-      uint64_t id = items_result->getInt32("id");
+      DataSetItem::Kind kind = ToDataSetItemKind(itemsResult->getInt32("kind"));
+      uint64_t id = itemsResult->getInt32("id");
 
       DataSetItem item(kind, id, datasetId);
 
-      item.setStatus(ToDataSetItemStatus(items_result->getBool("active")));
-      item.setMask(items_result->getString("mask"));
-      item.setTimezone(items_result->getString("timezone"));
-      item.setPath(items_result->getString("path"));
-      item.setSrid(items_result->getInt32("srid"));
+      item.setStatus(ToDataSetItemStatus(itemsResult->getBool("active")));
+      item.setMask(itemsResult->getString("mask"));
+      item.setTimezone(itemsResult->getString("timezone"));
+      item.setPath(itemsResult->getString("path"));
+
+      if(itemsResult->isNull("srid"))
+        item.setSrid(0);
+      else
+        item.setSrid(itemsResult->getInt32("srid"));
 
 // retrieve the filter
       Filter f = FilterDAO::load(item, transactor);
