@@ -6,6 +6,7 @@
 #include "../../core/Utils.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/DataProviderDAO.hpp"
+#include "../../core/Logger.hpp"
 
 // SubTabs
 #include "ConfigAppWeatherServer.hpp"
@@ -145,24 +146,27 @@ void ConfigAppWeatherTab::load()
               break;
           }
           item->addChild(subItem);
-        }
+        } // endif (dit->provider() == it->id())
       }
     } // endfor
+
+    for(auto tab: subTabs_)
+      tab->load();
   }
   catch (const terrama2::Exception& e)
   {
     const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    app_->unload();
     QMessageBox::warning(app_, tr("TerraMA2"), *message);
     showDataSeries(false);
+    TERRAMA2_LOG_ERROR() << *message;
   }
-
-  for(auto tab: subTabs_)
-    tab->load();
 }
 
 bool ConfigAppWeatherTab::dataChanged()
 {
-  for(const auto tab: subTabs_) {
+  for(const auto tab: subTabs_)
+  {
     if (tab->isActive())
       return true;
   }
@@ -171,7 +175,7 @@ bool ConfigAppWeatherTab::dataChanged()
 
 bool ConfigAppWeatherTab::validate()
 {
-  for(const auto tab: subTabs_)
+  for(auto tab: subTabs_)
     if (tab->isActive() && tab->dataChanged())
       return tab->validate();
   return false;
@@ -283,11 +287,12 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
   catch(const terrama2::Exception& e)
   {
     const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+    QMessageBox::warning(app_, tr("TerraMA2 Error"), *error);
+    TERRAMA2_LOG_WARNING() << *error;
   }
   catch(...)
   {
-    throw;
+    throw "Error in removing terrama2 data provider";
   }
 }
 
@@ -546,11 +551,12 @@ void ConfigAppWeatherTab::onExportServerClicked()
   catch(const terrama2::Exception& e)
   {
     const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+    QMessageBox::warning(app_, tr("TerraMA2 Error"), *error);
+    TERRAMA2_LOG_WARNING() << *error;
   }
   catch(...)
   {
-    throw;
+    throw "Error in exporting terrama2 data provider";
   }
 }
 
@@ -584,11 +590,11 @@ void ConfigAppWeatherTab::onUpdateServerClicked()
   catch(const terrama2::Exception& e)
   {
     const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+    QMessageBox::warning(app_, tr("TerraMA2 Error"), *error);
   }
   catch(...)
   {
-    throw;
+    throw "Error in updating terrama2 data provider";
   }
 }
 

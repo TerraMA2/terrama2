@@ -62,63 +62,94 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     //! Destructor
     virtual ~ConfigAppTab();
 
-    /*! \brief Loads the read data to interface.
-      It always call when active configuration is changed
+    /*!
+      \brief Loads the read data to interface.
     */
     virtual void load() = 0;
 
     virtual void load(const terrama2::core::DataSet&);
 
-    //! It shows if data were changed by user
+    /*!
+     \brief It shows if data were changed by user
+    */
     virtual bool dataChanged();
 
-    //! Check if current data are valids and it may be saved
-    //! This function is called by validateAndSaveChanges to validate display fields
+    /*!
+     \brief Check if current data are valids and it may be saved.
+            This function is called by validateAndSaveChanges to validate display fields.
+    */
     virtual bool validate() = 0;
 
-    //! It saves current data
-    //! It tries to save the current data. Return true ou false showing the success of operation
+    /*!
+      \brief It tries to save the current data.
+    */
     virtual void save() = 0;
 
-    //! Cancel the editions made at current data
+    /*!
+      \brief Cancel the editions made at current data
+    */
     virtual void discardChanges(bool restore_data) = 0;
 
-    //! It calls the save method inside a try/catch block and check if there are any exception has found
+    /*!
+      \brief It calls the save method inside a try/catch block and check if there are any exception has found
+    */
     virtual void validateAndSaveChanges();
 
-    //! It asks to change tab, giving the index as parameter
+    /*!
+      \brief It asks to change tab, giving the index as parameter
+    */
     virtual void askForChangeTab(const int& index);
 
-    //! It checks if is active to lock tab
+    /*!
+      \brief It checks if is active to lock tab
+    */
     virtual bool isActive() const;
 
-    //! It sets the tab state
+    /*!
+      \brief It defines the tab state
+    */
     virtual void setActive(bool state);
 
-    //! It sets the tab state
+    /*!
+      \brief It defines if there any modification in tab
+    */
     virtual void setChanged(bool state);
 
-    //! It sets the current selected data. It is used when one Item from WeatherTree has been clicked
+    /*!
+      \brief It sets the current selected data. It is used when one Item from WeatherTree has been clicked
+    */
     virtual void setSelectedData(const QString selectedData);
 
-    //! It displays a messagebox showing whether would like to remove
+    /*!
+      \brief It displays a messagebox showing whether would like to remove
+    */
     virtual bool removeDataSet(const terrama2::core::DataSet&);
 
   public slots:
 
-    //! Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
+    /*!
+      \brief Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
+    */
     virtual void onSaveRequested();
 
-    //! Slot triggered on cancel button to check if the user wish cancel and save.
+    /*!
+      \brief Slot triggered on cancel button to check if the user wish cancel and save.
+    */
     virtual void onCancelRequested();
 
-    //! Slot triggered on filter button in tabs to show filter dialog
+    /*!
+      \brief Slot triggered on filter button in tabs to show filter dialog
+    */
     virtual void onFilterClicked();
 
-    //! Slot triggered on projection button in tabs to show projection dialog
+    /*!
+      \brief Slot triggered on projection button in tabs to show projection dialog
+    */
     virtual void onProjectionClicked();
 
-    //! Slot triggered whenever any widget is changed
+    /*!
+      \brief Slot triggered whenever any widget is changed
+    */
     virtual void onSubTabEdited();
 
   protected:

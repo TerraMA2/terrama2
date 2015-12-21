@@ -172,6 +172,9 @@ namespace terrama2
     /*! \brief Finalizes the terralib. */
     void finalizeTerralib();
 
+    /*! \brief Initializes terrama2 logger module. */
+    void initializeLogger();
+
 
   } // end namespace core
 }   // end namespace terrama2

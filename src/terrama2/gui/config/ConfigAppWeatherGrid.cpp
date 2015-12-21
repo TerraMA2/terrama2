@@ -10,6 +10,7 @@
 #include "../../core/Utils.hpp"
 #include "FilterDialog.hpp"
 #include "ProjectionDialog.hpp"
+#include "../../core/Logger.hpp"
 
 // Terralib
 #include <terralib/datatype/TimeInstant.h>
@@ -146,6 +147,7 @@ void ConfigAppWeatherGridTab::save()
                                        selectedData_,
                                        ui_->gridFormatDataName->text());
     selectedData_ =  ui_->gridFormatDataName->text();
+    TERRAMA2_LOG_INFO() << ("Dataset ID " + std::to_string(dataset.id()) + " updated!");
   }
   else
   {
@@ -156,6 +158,7 @@ void ConfigAppWeatherGridTab::save()
     item->setIcon(0, QIcon::fromTheme("grid"));
     item->setText(0, ui_->gridFormatDataName->text());
     ui_->weatherDataTree->currentItem()->addChild(item);
+    TERRAMA2_LOG_INFO() << "New Dataset " + dataset.name() + " saved!";
   }
   app_->getWeatherTab()->addCachedDataSet(dataset);
   changed_ = false;
@@ -217,8 +220,8 @@ bool ConfigAppWeatherGridTab::validate()
     if (ui_->gridFormatDataName->text() != selectedData_)
     {
       ui_->gridFormatDataName->setFocus();
-      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(
-          tr("The data set grid name has already been saved. Please change server name"));
+      throw terrama2::gui::FieldError() <<
+          terrama2::ErrorDescription(tr("The data set grid name has already been saved. Please change server name"));
     }
   }
 
@@ -278,6 +281,8 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
       if (removeDataSet(dataset))
       {
         app_->getClient()->removeDataSet(dataset.id());
+
+        TERRAMA2_LOG_INFO() << ("Dataset ID " + std::to_string(dataset.id()) + " has been removed!");
         app_->getWeatherTab()->removeCachedDataSet(dataset);
 
         QMessageBox::information(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
@@ -287,6 +292,7 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
     catch(const terrama2::Exception& e)
     {
       const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+      TERRAMA2_LOG_ERROR() << "DataSet Removing: " << *message;
       QMessageBox::warning(app_, tr("TerraMA2"), *message);
     }
   }

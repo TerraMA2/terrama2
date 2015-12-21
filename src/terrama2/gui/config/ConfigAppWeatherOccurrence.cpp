@@ -1,13 +1,15 @@
+// TerraMA2
 #include "ConfigAppWeatherOccurrence.hpp"
-#include "../../core/Filter.hpp"
-#include "Exception.hpp"
-#include "../../core/DataProvider.hpp"
-#include "../../core/Utils.hpp"
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "FilterDialog.hpp"
 #include "ProjectionDialog.hpp"
 #include "IntersectionDialog.hpp"
+#include "Exception.hpp"
+#include "../../core/Filter.hpp"
+#include "../../core/DataProvider.hpp"
+#include "../../core/Utils.hpp"
+#include "../../core/Logger.hpp"
 
 // Qt
 #include <QMessageBox>
@@ -257,6 +259,7 @@ void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
     {
       const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
       QMessageBox::warning(app_, tr("TerraMA2"), *message);
+      TERRAMA2_LOG_WARNING() << "Data Set Occurrence Removing: " << *message;
     }
   }
   ui_->cancelBtn->clicked();

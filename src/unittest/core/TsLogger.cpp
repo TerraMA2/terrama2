@@ -21,16 +21,6 @@ void TsLogger::testLoad()
 
   // logging an exception
   TERRAMA2_LOG_ERROR() << exception;
-
-  try
-  {
-    throw std::runtime_error("aaa");
-  }
-  catch (const std::runtime_error& error)
-  {
-
-  }
-
 }
 
 void TsLogger::testUnload()

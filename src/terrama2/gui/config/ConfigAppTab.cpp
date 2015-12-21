@@ -3,6 +3,9 @@
 #include "ConfigApp.hpp"
 #include "Exception.hpp"
 
+// TerraMA2 Logger
+#include "../../core/Logger.hpp"
+
 
 #include "../../core/DataSet.hpp"
 
@@ -34,10 +37,12 @@ void ConfigAppTab::validateAndSaveChanges()
   catch(const terrama2::Exception& e)
   {
     const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, tr("TerraMA2 - Error"), *msg);
+    TERRAMA2_LOG_ERROR() << *msg;
+    QMessageBox::warning(app_, tr("TerraMA2 - Error"), *msg);
   }
   catch(const std::exception& e)
   {
+    TERRAMA2_LOG_FATAL() << e.what();
     QMessageBox::critical(app_, tr("TerraMA2 - Error"), e.what());
   }
 }

@@ -7,18 +7,18 @@
 
 int main(int argc, char **argv)
 {
-  initializeTerraMA2();
+//  initializeTerraMA2();
 
-  TsApplicationController testApplicationController;
-  int ret = QTest::qExec(&testApplicationController, argc, argv);
+//  TsApplicationController testApplicationController;
+//  int ret = QTest::qExec(&testApplicationController, argc, argv);
 
-  TsDataManager testDataProviderDAO;
-  ret += QTest::qExec(&testDataProviderDAO, argc, argv);
+//  TsDataManager testDataProviderDAO;
+//  ret += QTest::qExec(&testDataProviderDAO, argc, argv);
 
   TsLogger testLogger;
-  ret = QTest::qExec(&testLogger, argc, argv);
+  int ret = QTest::qExec(&testLogger, argc, argv);
 
-  finalizeTerraMA2();
+//  finalizeTerraMA2();
 
   return ret;
 }

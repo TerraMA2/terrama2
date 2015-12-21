@@ -34,6 +34,7 @@
 #include "Exception.hpp"
 #include "../core/ConfigManager.hpp"
 #include "../../ws/collector/client/WebProxyAdapter.hpp"
+#include "../../core/Logger.hpp"
 
 // TerraMA2 Tab controls
 #include "ConfigAppWeatherTab.hpp"
@@ -72,7 +73,9 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
   if (icon_path.empty())
   {
-    throw terrama2::InitializationError() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icons library folder."));
+    const QString message = tr("Could not find TerraMA2 icons library folder.");
+    TERRAMA2_LOG_FATAL() << message;
+    throw terrama2::InitializationError() << terrama2::ErrorDescription(message);
   }
 
 // load icon theme
@@ -189,7 +192,9 @@ void ConfigApp::openRequested()
   catch(const terrama2::Exception& e)
   {
     const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_ERROR() << *message;
     QMessageBox::critical(this, tr("TerraMA2"), *message);
+    unload();
   }
 }
 
@@ -206,4 +211,10 @@ QSharedPointer<terrama2::ws::collector::client::Client> ConfigApp::getClient() c
 QSharedPointer<ConfigManager> ConfigApp::getConfiguration() const
 {
   return configManager_;
+}
+
+void ConfigApp::unload()
+{
+  weatherTab_->discardChanges(true);
+  pimpl_->ui_->centralwidget->setEnabled(false);
 }
