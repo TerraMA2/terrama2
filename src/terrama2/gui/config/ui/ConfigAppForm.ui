@@ -582,7 +582,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="4" rowspan="3">
             <widget class="QStackedWidget" name="weatherPageStack">
              <property name="currentIndex">
-              <number>2</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="ServerGroupPage">
               <property name="enabled">
@@ -6741,7 +6741,6 @@ p, li { white-space: pre-wrap; }
   </action>
  </widget>
  <tabstops>
-  <tabstop>mainTabWidget</tabstop>
   <tabstop>weatherDataTree</tabstop>
   <tabstop>updateServerBtn</tabstop>
   <tabstop>exportServerBtn</tabstop>
@@ -6761,19 +6760,31 @@ p, li { white-space: pre-wrap; }
   <tabstop>importDataBtn</tabstop>
   <tabstop>insertServerBtn</tabstop>
   <tabstop>importServerBtn</tabstop>
-  <tabstop>saveBtn</tabstop>
-  <tabstop>cancelBtn</tabstop>
   <tabstop>serverName</tabstop>
   <tabstop>serverDescription</tabstop>
+  <tabstop>connectionProtocol</tabstop>
+  <tabstop>connectionAddress</tabstop>
+  <tabstop>projectionRiskBtn</tabstop>
+  <tabstop>connectionPort</tabstop>
   <tabstop>connectionUserName</tabstop>
   <tabstop>connectionPassword</tabstop>
   <tabstop>serverActiveServer</tabstop>
+  <tabstop>serverPath</tabstop>
+  <tabstop>fileServerButton</tabstop>
   <tabstop>serverCheckConnectionBtn</tabstop>
+  <tabstop>saveBtn</tabstop>
+  <tabstop>cancelBtn</tabstop>
+  <tabstop>additionalMapListWidget</tabstop>
   <tabstop>gridFormatDataName</tabstop>
   <tabstop>gridFormatDataType</tabstop>
   <tabstop>projectionGridBtn</tabstop>
   <tabstop>gridFormatDataResolution</tabstop>
+  <tabstop>gridFormatDataPrefix</tabstop>
   <tabstop>gridFormatDataHour</tabstop>
+  <tabstop>gridFormatDataMinute</tabstop>
+  <tabstop>gridFormatDataSecond</tabstop>
+  <tabstop>gridFormatDataInterval</tabstop>
+  <tabstop>gridFormatDataUnit</tabstop>
   <tabstop>gridFormatDataTimeZoneCmb</tabstop>
   <tabstop>gridFormatDataDescription</tabstop>
   <tabstop>gridFormatDataPath</tabstop>
@@ -6781,6 +6792,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>fileGridMaskBtn</tabstop>
   <tabstop>gridFormatDataFormat</tabstop>
   <tabstop>gridFormatStatus</tabstop>
+  <tabstop>rbGridAscUnidGrausDec</tabstop>
+  <tabstop>rbGridAscUnidGrausMil</tabstop>
+  <tabstop>ledGridTIFFArqNavegacao</tabstop>
   <tabstop>ledGridGrADSArqControle</tabstop>
   <tabstop>ledGridGrADSMultiplicador</tabstop>
   <tabstop>rbGridGrADSTipoDadosInt</tabstop>
@@ -6795,18 +6809,22 @@ p, li { white-space: pre-wrap; }
   <tabstop>pointFormatDataName</tabstop>
   <tabstop>pointFormatDataType</tabstop>
   <tabstop>projectionPointBtn</tabstop>
-  <tabstop>pointFormatDataRadius</tabstop>
+  <tabstop>pointFormatDataHour</tabstop>
+  <tabstop>pointFormatDataMinute</tabstop>
+  <tabstop>pointFormatDataSecond</tabstop>
+  <tabstop>pointFormatDataTimeZoneCmb</tabstop>
+  <tabstop>pointFormatDataInfluenceCmb</tabstop>
   <tabstop>pointFormatDataThemeCmb</tabstop>
   <tabstop>pointFormatDataAttributeCmb</tabstop>
-  <tabstop>pointFormatDataHour</tabstop>
   <tabstop>pointFormatDataDescription</tabstop>
-  <tabstop>pointFormatDataTimeZoneCmb</tabstop>
   <tabstop>pointFormatDataUnit</tabstop>
+  <tabstop>pointFormatDataPrefix</tabstop>
   <tabstop>pointFormatSurfaceConfigBtn</tabstop>
   <tabstop>pointFormatDataPath</tabstop>
   <tabstop>pointFormatDataMask</tabstop>
   <tabstop>filePointMaskBtn</tabstop>
   <tabstop>pointFormatDataFormat</tabstop>
+  <tabstop>pointFormatStatus</tabstop>
   <tabstop>tblPointPCDFileNameLocation</tabstop>
   <tabstop>btnPointPCDInsertFileNameLocation</tabstop>
   <tabstop>btnPointPCDDeleteFileNameLocation</tabstop>
@@ -6819,35 +6837,17 @@ p, li { white-space: pre-wrap; }
   <tabstop>pointDiffFormatDataUnit</tabstop>
   <tabstop>pointDiffFormatDataPrefix</tabstop>
   <tabstop>pointDiffFormatDataHour</tabstop>
+  <tabstop>pointDiffFormatDataMinute</tabstop>
+  <tabstop>pointDiffFormatDataSecond</tabstop>
   <tabstop>pointDiffFormatDataTimeZoneCmb</tabstop>
   <tabstop>pointDiffFormatDataDescription</tabstop>
+  <tabstop>pointDiffFormatStatus</tabstop>
   <tabstop>pointDiffFormatDataPath</tabstop>
   <tabstop>pointDiffFormatDataMask</tabstop>
   <tabstop>filePointDiffMaskBtn</tabstop>
   <tabstop>pointDiffFormatDataFormat</tabstop>
   <tabstop>intersectionBtn</tabstop>
   <tabstop>filterPointDiffBtn</tabstop>
-  <tabstop>riskListWidget</tabstop>
-  <tabstop>riskInsertBtn</tabstop>
-  <tabstop>riskDeleteBtn</tabstop>
-  <tabstop>ledRiskPlanThemeName</tabstop>
-  <tabstop>cboBoxRiskTheme</tabstop>
-  <tabstop>riskNameLed</tabstop>
-  <tabstop>riskInstitutionLed</tabstop>
-  <tabstop>riskAuthorLed</tabstop>
-  <tabstop>projectionRiskBtn</tabstop>
-  <tabstop>riskCreationDateDed</tabstop>
-  <tabstop>riskExpirationDateDed</tabstop>
-  <tabstop>riskDescriptionTed</tabstop>
-  <tabstop>attributesTableWidget</tabstop>
-  <tabstop>comboBoxAttrIdentificacao</tabstop>
-  <tabstop>riskSaveBtn</tabstop>
-  <tabstop>riskCancelBtn</tabstop>
-  <tabstop>additionalMapListWidget</tabstop>
-  <tabstop>additionalMapNewGridBtn</tabstop>
-  <tabstop>additionalMapNewVectBtn</tabstop>
-  <tabstop>additionalMapDelMapBtn</tabstop>
-  <tabstop>cboBoxAdditionalMapTheme</tabstop>
   <tabstop>ledAdditionalPlanThemeName</tabstop>
   <tabstop>additionalMapNameLed</tabstop>
   <tabstop>additionalMapInstitutionLed</tabstop>
@@ -6957,13 +6957,31 @@ p, li { white-space: pre-wrap; }
   <tabstop>BulletinCancelBtn</tabstop>
   <tabstop>ledCellularSpaceThemeName</tabstop>
   <tabstop>additionalMapResYGridLed</tabstop>
-  <tabstop>rbGridAscUnidGrausDec</tabstop>
+  <tabstop>additionalMapNewGridBtn</tabstop>
   <tabstop>additionalMapColunasGridLed</tabstop>
   <tabstop>analysisPcdCrossBtn</tabstop>
-  <tabstop>ledGridTIFFArqNavegacao</tabstop>
+  <tabstop>cboBoxAdditionalMapTheme</tabstop>
   <tabstop>analysisAlertIconsBtn</tabstop>
   <tabstop>additionalMapLinhasGridLed</tabstop>
-  <tabstop>rbGridAscUnidGrausMil</tabstop>
+  <tabstop>additionalMapDelMapBtn</tabstop>
+  <tabstop>mainTabWidget</tabstop>
+  <tabstop>attributesTableWidget</tabstop>
+  <tabstop>comboBoxAttrIdentificacao</tabstop>
+  <tabstop>riskAuthorLed</tabstop>
+  <tabstop>ledRiskPlanThemeName</tabstop>
+  <tabstop>riskCancelBtn</tabstop>
+  <tabstop>pointFormatDataRadius</tabstop>
+  <tabstop>riskNameLed</tabstop>
+  <tabstop>riskInstitutionLed</tabstop>
+  <tabstop>riskListWidget</tabstop>
+  <tabstop>additionalMapNewVectBtn</tabstop>
+  <tabstop>riskInsertBtn</tabstop>
+  <tabstop>riskDeleteBtn</tabstop>
+  <tabstop>riskCreationDateDed</tabstop>
+  <tabstop>cboBoxRiskTheme</tabstop>
+  <tabstop>riskExpirationDateDed</tabstop>
+  <tabstop>riskDescriptionTed</tabstop>
+  <tabstop>riskSaveBtn</tabstop>
  </tabstops>
  <resources/>
  <connections/>
