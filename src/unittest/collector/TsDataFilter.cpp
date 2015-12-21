@@ -28,11 +28,14 @@
 */
 
 #include "TsDataFilter.hpp"
-
+#include "Utils.hpp"
+#include "Mock.hpp"
 
 //terrama2
 #include <terrama2/collector/DataFilter.hpp>
+#include <terrama2/collector/Exception.hpp>
 #include <terrama2/collector/Utils.hpp>
+#include <terrama2/collector/Log.hpp>
 
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSetItem.hpp>
@@ -65,7 +68,11 @@ void TsDataFilter::TestFilterNamesExact()
   std::string exact("exact");
   dataItem.setMask(exact);
 
-  terrama2::collector::DataFilter datafilter(dataItem);
+  MockLog collectLog;
+  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+      .Times(1)
+      .WillRepeatedly(::testing::Return(nullptr));
+  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
 
   std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
 
@@ -85,16 +92,29 @@ void TsDataFilter::TestEmptyMask()
   dataset.add(dataItem);
   dataItem.setFilter(filter);
 
-  terrama2::collector::DataFilter datafilter(dataItem);
+  MockLog collectLog;
+  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+      .Times(1)
+      .WillRepeatedly(::testing::Return(nullptr));
+  try
+  {
+    terrama2::collector::DataFilter datafilter(dataItem, collectLog);
 
-  std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
+    QFAIL(NO_EXCEPTION_THROWN);
+  }
+  catch(terrama2::collector::EmptyMaskError& e)
+  {
+    return;
+  }
+  catch(...)
+  {
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
 
-  std::vector<std::string> output = datafilter.filterNames(names);
-
-  QVERIFY(output.size() == 0);
+  QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
-void TsDataFilter::TestDateMask()
+void TsDataFilter::TestMask()
 {
   terrama2::core::DataProvider provider;
   terrama2::core::DataSet      dataset;
@@ -104,25 +124,86 @@ void TsDataFilter::TestDateMask()
   dataset.add(dataItem);
   dataItem.setFilter(filter);
 
-  std::string exact("name_%d/%M/%A");
-  dataItem.setMask(exact);
+  MockLog collectLog;
+  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+      .Times(2)
+      .WillRepeatedly(::testing::Return(nullptr));
 
-  terrama2::collector::DataFilter datafilter(dataItem);
 
-  std::vector<std::string> names {"name_12/03/2015", "name 12/03/2015 ", "name_12/3/2015", "name_12-03-2015", "names_2A/03/2015 "};
+  //test for dates
+  dataItem.setMask("name_%d/%M/%A");
+  {
+    terrama2::collector::DataFilter datafilter(dataItem, collectLog);
 
-  names = datafilter.filterNames(names);
+    std::vector<std::string> names {"name_12/03/2015", "name 12/03/2015 ", "name_12/3/2015", "name_12-03-2015", "names_2A/03/2015 "};
 
-  QVERIFY(names.size() == 1);
+    names = datafilter.filterNames(names);
+
+    QVERIFY(names.size() == 1);
+  }
+
+  //test for time
+  dataItem.setMask("name_%h:%m:%s");
+  {
+    terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+
+    std::vector<std::string> names {"name_12:03:15", "name 12:03:15 ", "name_12:3:15", "name_12:03:2015", "names_2A:03:2015 "};
+
+    names = datafilter.filterNames(names);
+
+    QVERIFY(names.size() == 1);
+  }
 }
 
-void TsDataFilter::TestDiscardBeforeMask()
+void TsDataFilter::TestgetDataSetLastDateTime()
 {
   terrama2::core::DataProvider provider;
   terrama2::core::DataSet      dataset;
   terrama2::core::DataSetItem  dataItem;
   terrama2::core::Filter       filter;
-  boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("UTC-03"));
+  boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,3,12), boost::posix_time::time_duration(10,35,15,0), zone, true);
+  std::unique_ptr<te::dt::TimeInstantTZ> tDate(new te::dt::TimeInstantTZ(boostTime));
+
+  provider.add(dataset);
+  dataset.add(dataItem);
+  dataItem.setFilter(filter);
+  dataItem.setTimezone(zone->to_posix_string());
+
+  std::string exact("name_%d/%M/%A_%h:%m:%s");
+  dataItem.setMask(exact);
+
+  MockLog collectLog;
+  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+      .Times(1)
+      .WillRepeatedly(::testing::Return(nullptr));
+  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+  std::vector<std::string> names {"name_12/03/2015_10:30:15",
+                                  "name_12/03/2015_10:31:15",
+                                  "name_12/03/2015_10:32:15",
+                                  "name_12/03/2015_10:33:15",
+                                  "name_12/03/2015_10:35:15",// <<< Max value
+                                  "name_12/03/2015_10:34:15", };
+
+  names = datafilter.filterNames(names);
+
+  int size = names.size();
+  QCOMPARE(size, 6);
+
+  te::dt::TimeInstantTZ* dataSetLastDateTime = datafilter.getDataSetLastDateTime();
+
+  QVERIFY(dataSetLastDateTime);
+
+  QCOMPARE(*tDate, *dataSetLastDateTime);
+}
+
+void TsDataFilter::TestDiscardBefore()
+{
+  terrama2::core::DataProvider provider;
+  terrama2::core::DataSet      dataset;
+  terrama2::core::DataSetItem  dataItem;
+  terrama2::core::Filter       filter;
+  boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("+00"));
   boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,6,15), boost::posix_time::time_duration(0,0,0,0), zone, true);
   std::unique_ptr<te::dt::TimeInstantTZ> tDate(new te::dt::TimeInstantTZ(boostTime));
   filter.setDiscardBefore(std::move(tDate));
@@ -134,7 +215,11 @@ void TsDataFilter::TestDiscardBeforeMask()
   std::string exact("name_%d/%M/%A");
   dataItem.setMask(exact);
 
-  terrama2::collector::DataFilter datafilter(dataItem);
+  MockLog collectLog;
+  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+      .Times(1)
+      .WillRepeatedly(::testing::Return(nullptr));
+  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
 
   std::vector<std::string> names {"name_12/03/2015", "name_12/07/2014", "name_12/06/2015", "name_16/06/2015", "name_12-11-2015", "name_12/18/2015", };
 
@@ -143,51 +228,33 @@ void TsDataFilter::TestDiscardBeforeMask()
   QVERIFY(names.size() == 1);
 }
 
-void TsDataFilter::dummy()
+void TsDataFilter::TestLastCollected()
 {
-  std::string date = "2015-12-14";
-  std::string time = "10:52:33";
-  QDate qDate = QDate::fromString(date.c_str(), "yyyy-MM-dd");
-  QTime qTime = QTime::fromString(time.c_str(), "hh:mm:ss");
-  QDateTime dateTime(qDate, qTime);
-  boost::local_time::local_date_time QDate2Boost = terrama2::collector::QDateTime2BoostLocalDateTime(dateTime, "-02:00");
-  qDebug() << "QDate2Boost posixString: " << QDate2Boost.to_string().c_str();
-  qDebug() << "QDate2Boost timezoneStr: " << QDate2Boost.zone_as_posix_string().c_str();
-  qDebug() << "QDate2Boost UTC   time : " << QDate2Boost.utc_time().time_of_day().hours();
-  qDebug() << "QDate2Boost local time : " << QDate2Boost.local_time().time_of_day().hours();
+  terrama2::core::DataProvider provider;
+  terrama2::core::DataSet      dataset;
+  terrama2::core::DataSetItem  dataItem;
+  terrama2::core::Filter       filter;
+  boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,6,15), boost::posix_time::time_duration(0,0,0,0), zone, true);
+  std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDate = std::make_shared<te::dt::TimeInstantTZ>(boostTime);
 
-  boost::local_time::local_date_time String2Boost = terrama2::collector::DateTimeString2BoostLocalDateTime(date, time, "-02:00");
-  qDebug() << "String2Boost posixString: " << String2Boost.to_string().c_str();
-  qDebug() << "String2Boost timezoneStr: " << String2Boost.zone_as_posix_string().c_str();
-  qDebug() << "String2Boost UTC   time : " << String2Boost.utc_time().time_of_day().hours();
-  qDebug() << "String2Boost local time : " << String2Boost.local_time().time_of_day().hours();
+  provider.add(dataset);
+  dataset.add(dataItem);
+  dataItem.setFilter(filter);
 
-  std::string outDate, outTime, outTimezone;
-  terrama2::collector::BoostLocalDateTime2DateTimeString(String2Boost, outDate, outTime, outTimezone);
+  std::string exact("name_%d/%M/%A");
+  dataItem.setMask(exact);
 
-  qDebug() << "Boost2String date: " << outDate.c_str();
-  qDebug() << "Boost2String time: " << outTime.c_str();
-  qDebug() << "Boost2String TZ  : " << outTimezone.c_str();
+  MockLog collectLog;
+  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+      .Times(1)
+      .WillRepeatedly(::testing::Return(lastCollectedDate));
+  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
 
-  te::dt::TimeInstantTZ terralibTz(String2Boost);
-  qDebug() << "TerralibString   : " << terralibTz.toString().c_str();
+  std::vector<std::string> names {"name_12/03/2015", "name_12/07/2014", "name_12/06/2015", "name_16/06/2015", "name_12-11-2015", "name_12/18/2015", };
 
-  qDebug() << "end";
+  names = datafilter.filterNames(names);
+
+  QVERIFY(names.size() == 1);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

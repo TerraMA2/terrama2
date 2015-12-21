@@ -20,46 +20,18 @@
 */
 
 /*!
-  \file terrama2/collector/TsParserOGR.hpp
+  \file unittest/collector/Mock.hpp
 
-  \brief Tests for the ParserOGR class.
+  \brief General mock classes for tests of collector module.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__
+#include <terrama2/collector/Log.hpp>
 
-//Qt
-#include <QtTest>
+#include <gmock/gmock.h>
 
-class TsParserOGR: public QObject
-{
-  Q_OBJECT
-
-  private slots:
-
-    void initTestCase(); // Run before all tests
-    void cleanupTestCase(); // Run after all tests
-
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    //******Test functions********
-
-    //! Tests when an invalid folder is provided as uri.
-    void TestInvalidFolder();
-
-    //! Tests behavior when provided folder is provided.
-    void TestEmptyFolder();
-
-    //! Tests behavior for a generic csv file.
-    void TestCsvFile();
-
-    //! Tests behavior when an empty csv file is provided.
-    void TestEmptyFile();
-
-    //******End of Test functions****
+class MockLog : public terrama2::collector::Log {
+public:
+  MOCK_CONST_METHOD1(getDataSetItemLastDateTime, std::shared_ptr<te::dt::TimeInstantTZ>(uint64_t));
 };
-
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSEROGR_HPP__

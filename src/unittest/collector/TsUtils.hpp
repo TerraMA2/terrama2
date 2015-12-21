@@ -20,27 +20,23 @@
 */
 
 /*!
-  \file terrama2/collector/TsFilter.hpp
+  \file terrama2/collector/TsUtils.hpp
 
   \brief Tests for the TestFilter class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_UTILS_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_UTILS_HPP__
 
 //Qt
 #include <QtTest>
 
 
 
-/*!
-   \brief Tests for DataFilter class.
 
-   TODO: filterDataSet tests
- */
-class TsDataFilter: public QObject
+class TsUtils: public QObject
 {
   Q_OBJECT
 
@@ -54,28 +50,9 @@ private slots:
 
     //******Test functions********
 
-    /*!
-     * \brief Tests if the filter matches exact name.
-     */
-    void TestFilterNamesExact();
-
-    /*!
-     * \brief Tests behavior with no mask set.
-     */
-    void TestEmptyMask();
-
-    //! Tests mask for wildcards
-    void TestMask();
-
-    //! Tests behavior of filternames for discardBefore
-    void TestDiscardBefore();
-
-    //! Tests behavior of filternames for lastCollectedData from Log
-    void TestLastCollected();
-
-    void TestgetDataSetLastDateTime();
+    void DateConvertionTest();
 
     //******End of Test functions****
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_FILTER_HPP__
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_UTILS_HPP__

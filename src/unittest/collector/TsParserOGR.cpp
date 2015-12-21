@@ -29,8 +29,10 @@
 
 #include "TsParserOGR.hpp"
 #include "Utils.hpp"
+#include "Mock.hpp"
 
 //terrama2
+#include <terrama2/collector/DataFilter.hpp>
 #include <terrama2/collector/ParserOGR.hpp>
 #include <terrama2/collector/Exception.hpp>
 #include <terrama2/core/Utils.hpp>
@@ -45,19 +47,10 @@
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QFileInfo>
+#include <QUrl>
 
 //std
 #include <iostream>
-
-void TsParserOGR::TestNullDataSource()
-{
-  QFAIL("Not implemented");
-}
-
-void TsParserOGR::TestDataSourceNotOpen()
-{
-  QFAIL("Not implemented");
-}
 
 void TsParserOGR::TestEmptyFile()
 {
@@ -69,13 +62,20 @@ void TsParserOGR::TestEmptyFile()
 
   try
   {
-    terrama2::collector::ParserOGR parser;
-    std::vector<std::string> names { info.baseName().toStdString() };
+    terrama2::core::DataSetItem item;
+    item.setMask(info.fileName().toStdString());
+
+    MockLog collectLog;
+    EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(nullptr));
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item, collectLog);
 
     std::vector<std::shared_ptr<te::da::DataSet>> datasetVec;
     std::shared_ptr<te::da::DataSetType>          datasetType;
-    //FIXME: fix test
-//    parser.read(info.absolutePath().toStdString(), names, datasetVec, datasetType);
+
+    terrama2::collector::ParserOGR parser;
+    parser.read(item, info.absolutePath().toStdString(), filter, datasetVec, datasetType);
 
     QFAIL(UNEXPECTED_BEHAVIOR);
   }
@@ -96,7 +96,7 @@ void TsParserOGR::TestEmptyFile()
   QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
-void TsParserOGR::TestDataSetNames()
+void TsParserOGR::TestCsvFile()
 {
   QTemporaryDir dir;
   QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
@@ -110,44 +110,20 @@ void TsParserOGR::TestDataSetNames()
 
   try
   {
-    terrama2::collector::ParserOGR parser;
-//    std::vector<std::string> datasetNames = parser.datasetNames(info.absolutePath().toStdString());
+    terrama2::core::DataSetItem item;
+    item.setMask(info.fileName().toStdString());
 
-//    QVERIFY(datasetNames.size() == 1);
-//    QCOMPARE(datasetNames.at(0) , info.baseName().toStdString());
-  }
-  catch(boost::exception& e)
-  {
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    QFAIL(WRONG_TYPE_EXCEPTION);
-  }
-  catch(...)
-  {
-    QFAIL(WRONG_TYPE_EXCEPTION);
-  }
-}
-
-void TsParserOGR::TestInpeCsvFile()
-{
-  QTemporaryDir dir;
-  QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
-  file.open();
-  file.write("lat,lon,sat,data_pas\n");
-  file.write("-10.7030,  30.3750,AQUA_M,2015-08-26 11:35:00\n");
-  file.write("-10.7020,  30.3840,AQUA_M,2015-08-26 11:35:00\n");
-  file.write("-10.4870,  30.4070,AQUA_M,2015-08-26 11:35:00\n");
-  file.close();
-  QFileInfo info(file);
-
-  try
-  {
-    terrama2::collector::ParserOGR parser;
-    std::vector<std::string> names { info.baseName().toStdString() };
+    MockLog collectLog;
+    EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(nullptr));
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item, collectLog);
 
     std::vector<std::shared_ptr<te::da::DataSet>> datasetVec;
     std::shared_ptr<te::da::DataSetType>          datasetType;
-    //FIXME: fix test
-//    parser.read(info.absolutePath().toStdString(), names, datasetVec, datasetType);
+
+    terrama2::collector::ParserOGR parser;
+    parser.read(item, info.absolutePath().toStdString(), filter, datasetVec, datasetType);
 
     QVERIFY(datasetVec.size() == 1);
     //TODO: test datasettype
@@ -172,4 +148,72 @@ void TsParserOGR::initTestCase()
 void TsParserOGR::cleanupTestCase()
 {
 }
+
+void TsParserOGR::TestInvalidFolder()
+{
+  try
+  {
+    terrama2::core::DataSetItem item;
+    item.setMask("dummy");
+
+    MockLog collectLog;
+    EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(nullptr));
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item, collectLog);
+
+    std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+    std::shared_ptr<te::da::DataSetType> datasetType;
+
+    terrama2::collector::ParserOGR parser;
+    parser.read(item, "__DUMMY__", filter, datasetVec, datasetType);
+
+    QFAIL(NO_EXCEPTION_THROWN);
+  }
+  catch(terrama2::collector::InvalidFolderError& e)
+  {
+
+  }
+  catch(...)
+  {
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+}
+
+void TsParserOGR::TestEmptyFolder()
+{
+  QTemporaryDir dir;
+  QUrl uri;
+  uri.setScheme("FILE");
+  uri.setPath(dir.path());
+
+  try
+  {
+    terrama2::core::DataSetItem item;
+    std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
+    std::shared_ptr<te::da::DataSetType> datasetType;
+
+    terrama2::collector::ParserOGR parser;
+    parser.read(item, uri.url().toStdString(), nullptr, datasetVec, datasetType);
+
+    QFAIL(NO_EXCEPTION_THROWN);
+  }
+  catch(terrama2::collector::NoDataSetFoundError& e)
+  {
+  }
+  catch(...)
+  {
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+}
+
+
+
+
+
+
+
+
+
+
 

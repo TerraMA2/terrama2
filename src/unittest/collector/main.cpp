@@ -17,17 +17,28 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
+  TsDataFilter tsDataFilter;
+  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
+
+  TsDataSetTimer tsDataSetTimer;
+  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
+
+  TsParserOGR tsParserOGR;
+  returnVal += QTest::qExec(&tsParserOGR, argc, argv);
+
+
+
+
+
+
+
 //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
-//  TsDataSetTimer tsDataSetTimer;
-//  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
 
-//  TsParserOGR tsParserOGR;
-//  returnVal += QTest::qExec(&tsParserOGR, argc, argv);
 
-  TsDataFilter tsDataFilter;
-  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
+
+
 
 //  TsIntegration tsIntegration;
 //  returnVal += QTest::qExec(&tsIntegration, argc, argv);

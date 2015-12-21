@@ -36,6 +36,8 @@ namespace terrama2
 {
   namespace collector
   {
+    struct Exception : virtual terrama2::Exception { };
+
     //! Base exception for CollectorService exceptions
     struct CollectorServiceError : virtual Exception { };
 
@@ -75,6 +77,7 @@ namespace terrama2
 
     //! Base exception for ParserError exceptions
     struct ParserError: virtual Exception { };
+    struct InvalidFolderError: virtual ParserError { };
     struct NoDataSetFoundError: virtual ParserError { };
 
     //! Base exception for DataFilter exceptions

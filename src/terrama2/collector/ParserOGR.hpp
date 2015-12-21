@@ -65,6 +65,7 @@ namespace terrama2
                           std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
                           std::shared_ptr<te::da::DataSetType>& datasetType) override;
 
+    protected:
         virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType);
 
         virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter){ }

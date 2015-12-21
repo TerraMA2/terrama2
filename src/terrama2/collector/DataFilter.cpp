@@ -120,8 +120,7 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
       if((discardBefore_ && time < discardBefore_->getTimeInstantTZ()) || (discardAfter_ && time > discardAfter_->getTimeInstantTZ()))
         continue;
 
-      if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ() < time)
-        dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(time));
+      updateLastDateTimeCollected(time);
     }
     catch(boost::exception& /*e*/)
     {
@@ -191,8 +190,10 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
 
 void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_time::local_date_time boostTime)
 {
-  dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
-  discardBefore_.reset(dynamic_cast<te::dt::TimeInstantTZ*>(dataSetLastDateTime_->clone()));
+  if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ() < boostTime)
+    dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
+
+//  discardBefore_.reset(dynamic_cast<te::dt::TimeInstantTZ*>(dataSetLastDateTime_->clone()));
 }
 
 bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
@@ -215,8 +216,7 @@ bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::sh
 
         //Valid Date!!!
         //update lastDateTime
-        if(!dataSetLastDateTime_ || *dataSetLastDateTime_ < *timeInstantTz)
-          dataSetLastDateTime_.reset(timeInstantTz.release());
+        updateLastDateTimeCollected(timeInstantTz->getTimeInstantTZ());
 
         break;
       }
@@ -241,14 +241,9 @@ bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::sh
 
         //Valid Date!!!
         //update lastDateTime
-        if(!dataSetLastDateTime_//if no date
-           || (dataSetLastDateTime_->getTimeInstantTZ().date() < timeInstant->getDate().getDate() // if date is newer
-               || (dataSetLastDateTime_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && dataSetLastDateTime_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))) //if same date but time is newer
-        {
-          boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
-          boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, true);
-          dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
-        }
+        boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
+        boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, true);
+        updateLastDateTimeCollected(boostTime);
 
         break;
       }
@@ -437,12 +432,11 @@ te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime()
   return dataSetLastDateTime_.get();
 }
 
-terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem)
+terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, const Log& collectLog)
   : datasetItem_(datasetItem),
     dataSetLastDateTime_(nullptr)
 {
   //recover last collection time logged
-  terrama2::collector::Log collectLog;
   std::shared_ptr<te::dt::TimeInstantTZ> logTime = collectLog.getDataSetItemLastDateTime(datasetItem.id());
   const core::Filter& filter = datasetItem_.filter();
 
