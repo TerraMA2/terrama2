@@ -44,22 +44,24 @@ var MapDisplay = function() {
     return null;
   }
 
+  var updateMapSize = function() {
+    olMap.updateSize();
+  }
+
   this.getMap = getMap;
   this.createTileWMS = createTileWMS;
   this.findBy = findBy;
+  this.updateMapSize = updateMapSize;
 
   var olMap = new ol.Map({
-    /*controls: ol.control.Zoom({
-        className: "terrama2-simple-zoom"
-    }),*/
     renderer: 'canvas',
     layers: [
       new ol.layer.Group({
         layers: [
           new ol.layer.Tile({
-            source: new ol.source.MapQuest({layer: 'sat'}),
-            name: 'mapquest_sat',
-            title: 'MapQuest Sat&eacute;lite',
+            source: new ol.source.OSM(),
+            name: 'osm',
+            title: 'Open Street Map',
             visible: false
           }),
           new ol.layer.Tile({
@@ -69,9 +71,9 @@ var MapDisplay = function() {
             visible: false
           }),
           new ol.layer.Tile({
-            source: new ol.source.OSM(),
-            name: 'osm',
-            title: 'Open Street Map',
+            source: new ol.source.MapQuest({layer: 'sat'}),
+            name: 'mapquest_sat',
+            title: 'MapQuest Sat&eacute;lite',
             visible: true
           })
         ],
@@ -93,4 +95,10 @@ var MapDisplay = function() {
 
   $("#terrama2-map").find('div.ol-zoom').removeClass('ol-zoom').addClass('terrama2-map-simple-zoom');
   $("#terrama2-map").find('div.ol-attribution').addClass('terrama2-map-attribution');
+
+  $(document).ready(function() {
+    olMap.on('ready', function() {
+      updateMapSize();
+    });
+  });
 }
