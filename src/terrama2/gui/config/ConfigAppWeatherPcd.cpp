@@ -98,6 +98,7 @@ bool ConfigAppWeatherPcd::validate()
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD Name cannot be empty"));
   }
 
+  checkMask(ui_->pointFormatDataMask->text());
   // TODO: validate all fields
 
   return true;

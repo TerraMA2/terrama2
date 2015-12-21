@@ -73,9 +73,7 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
   if (icon_path.empty())
   {
-    const QString message = tr("Could not find TerraMA2 icons library folder.");
-    TERRAMA2_LOG_FATAL() << message;
-    throw terrama2::InitializationError() << terrama2::ErrorDescription(message);
+    throw terrama2::InitializationError() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icons library folder."));
   }
 
 // load icon theme

@@ -49,6 +49,7 @@ ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
 void ConfigAppWeatherGridTab::load()
 {
   QMenu* menuMask = new QMenu(tr("Máscaras"));
+
   menuMask->addAction(tr("%a - ano com dois digitos"));
   menuMask->addAction(tr("%A - ano com quatro digitos"));
   menuMask->addAction(tr("%d - dia com dois digitos"));
@@ -212,6 +213,8 @@ bool ConfigAppWeatherGridTab::validate()
     ui_->gridFormatDataName->setFocus();
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The Data Set Item name cannot be empty."));
   }
+
+  checkMask(ui_->gridFormatDataMask->text());
 
   terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(ui_->gridFormatDataName->text().toStdString());
 

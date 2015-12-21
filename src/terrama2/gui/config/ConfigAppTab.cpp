@@ -143,3 +143,15 @@ bool ConfigAppTab::removeDataSet(const terrama2::core::DataSet& dataset)
   }
   return false;
 }
+
+void ConfigAppTab::checkMask(const QString mask)
+{
+  if (mask.trimmed().isEmpty())
+    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Data mask is invalid."));
+
+  if (mask.contains("%h") || mask.contains("%m") || mask.contains("%s"))
+  {
+    if (!mask.contains("%a") && !mask.contains("%A") && !mask.contains("%M") && !mask.contains("%d"))
+      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("An mask with time must have date typed"));
+  }
+}

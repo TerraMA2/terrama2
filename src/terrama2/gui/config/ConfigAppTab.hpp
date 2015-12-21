@@ -125,6 +125,8 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     */
     virtual bool removeDataSet(const terrama2::core::DataSet&);
 
+    virtual void checkMask(const QString mask);
+
   public slots:
 
     /*!

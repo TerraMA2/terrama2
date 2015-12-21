@@ -54,11 +54,7 @@ bool ConfigAppWeatherOccurrence::validate()
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Occurence Name is invalid"));
   }
 
-  if (ui_->pointDiffFormatDataMask->text().trimmed().isEmpty())
-  {
-    ui_->pointDiffFormatDataMask->setFocus();
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The occurrence data mask is invalid."));
-  }
+  checkMask(ui_->pointDiffFormatDataMask->text());
 
   //TODO: validate correctly all fields
   return true;
