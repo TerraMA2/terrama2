@@ -77,7 +77,7 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
 void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vector< std::string >& origin_uris, const Status s) const
 {
   if(origin_uris.empty())
-    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to log.");
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files to log.");
 
   try
   {
@@ -158,7 +158,7 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
 void terrama2::collector::Log::updateLog(const std::vector< std::string >& origin_uris, const std::string& uri, const Status s, const std::string& data_timestamp) const
 {
   if(origin_uris.empty())
-    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to update.");
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files to update.");
 
   try
   {
