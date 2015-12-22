@@ -38,6 +38,9 @@
 //Terralib
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype/Date.h>
+#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/geometry.h>
 
@@ -117,8 +120,14 @@ namespace terrama2
              */
         te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
 
+        /*!
+             * \brief Returns the lastests date and time found in the DataSetItem.
+             */
+        void getDataSetLastDateTime(te::dt::Date& date, te::dt::TimeDuration& time) const;
+
+
         void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
-        
+
     private:
         //! Prepare mask data for wildcards identification
         void processMask();
@@ -162,7 +171,7 @@ namespace terrama2
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
         //TODO: VINICIUS: dataSetLastDateTime_ should be separated as a date and a time object, this way we can compare with incomplete masks and save incomplete date/time
-        std::unique_ptr< te::dt::TimeInstantTZ >  dataSetLastDateTime_; //! Latest valid date found
+        std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //! Latest valid date found
         std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //! Only date after this will be valid
         std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_;//! Only date before this will be valid
 
