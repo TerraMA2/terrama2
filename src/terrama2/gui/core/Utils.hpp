@@ -31,6 +31,10 @@
 #ifndef __TERRAMA2_GUI_CORE_UTILS_HPP__
 #define __TERRAMA2_GUI_CORE_UTILS_HPP__
 
+// STD
+#include <string>
+#include <map>
+
 // Boost
 #include <boost/noncopyable.hpp>
 
@@ -38,6 +42,8 @@
 class QString;
 class QMainWindow;
 class QJsonObject;
+class ConfigManager;
+
 
 namespace terrama2
 {
@@ -47,6 +53,8 @@ namespace terrama2
     {
       //! Function to generate file destination of TerraMA2 File
       void saveTerraMA2File(QMainWindow* appFocus, const QString& destination, const QJsonObject& json);
+
+      std::map<std::string, std::string> makeStorageMetadata(const QString uri, const ConfigManager& configuration);
     }
   }
 }

@@ -31,9 +31,11 @@
 // TerraMA2
 #include "Utils.hpp"
 #include "../Exception.hpp"
+#include "ConfigManager.hpp"
 
 // QT
 #include <QDir>
+#include <QUrl>
 #include <QMainWindow>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -59,4 +61,37 @@ void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString&
   QJsonDocument document = QJsonDocument(json);
   file.write(document.toJson());
   file.close();
+}
+
+std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(const QString uri, const ConfigManager& configuration)
+{
+  std::map<std::string, std::string> storageMetadata;
+  QUrl url(uri);
+
+  QString scheme = url.scheme().toLower();
+
+  if (scheme == "file") // todo: check it and save an specific format
+  {
+    storageMetadata["PATH"] = configuration.getCollection()->dirPath_.toStdString();
+    storageMetadata["KIND"] = url.scheme().toStdString();
+  }
+
+  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
+  {
+  }
+  else if (scheme == "ftp") // TODO: ftp storage metadata
+  {
+  }
+  else // postgis
+  {
+    storageMetadata["PG_HOST"] = configuration.getDatabase()->host_.toStdString();
+    storageMetadata["PG_PORT"] = configuration.getDatabase()->port_;
+    storageMetadata["PG_USER"] = configuration.getDatabase()->user_.toStdString();
+    storageMetadata["PG_PASSWORD"] = configuration.getDatabase()->password_.toStdString();
+    storageMetadata["PG_DB_NAME"] = configuration.getDatabase()->name_.toStdString();
+    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
+    storageMetadata["KIND"] = url.scheme().toStdString();
+  }
+
+  return storageMetadata;
 }
