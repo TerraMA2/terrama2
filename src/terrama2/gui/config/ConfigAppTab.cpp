@@ -151,7 +151,7 @@ void ConfigAppTab::checkMask(const QString mask)
 
   if (mask.contains("%h") || mask.contains("%m") || mask.contains("%s"))
   {
-    if (!mask.contains("%a") && !mask.contains("%A") && !mask.contains("%M") && !mask.contains("%d"))
+    if ((!mask.contains("%a") && !mask.contains("%A")) || !mask.contains("%M") || !mask.contains("%d"))
       throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("An mask with time must have date typed"));
   }
 }
