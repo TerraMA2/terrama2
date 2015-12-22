@@ -144,6 +144,12 @@ namespace terrama2
         /*! \brief Sets the storage strategy metadata. */
         void setStorageMetadata(const std::map<std::string, std::string>& sm);
 
+        /*! \brief Returns the spatial reference identifier. */
+        uint64_t srid();
+
+        /*! \brief Sets the spatial reference identifier. */
+        void setSrid(const uint64_t srid);
+
       private:
 
         Kind kind_;
@@ -155,6 +161,7 @@ namespace terrama2
         std::string path_;
         Filter filter_;
         std::map<std::string, std::string> storageMetadata_;
+        uint64_t srid_;
     };
 
   } // end namespace core
