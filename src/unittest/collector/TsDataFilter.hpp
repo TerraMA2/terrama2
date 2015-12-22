@@ -35,24 +35,14 @@
 
 
 
+/*!
+   \brief Tests for DataFilter class.
 
+   TODO: filterDataSet tests
+ */
 class TsDataFilter: public QObject
 {
   Q_OBJECT
-
-  /*!
-   * \brief Tests if the filter matches exact name.
-   */
-  void TestFilterNamesExact();
-
-  /*!
-   * \brief Tests behavior with no mask set.
-   */
-  void TestEmptyMask();
-
-  void TestDateMask();
-
-  void TestDiscardBeforeMask();
 
 private slots:
 
@@ -64,7 +54,26 @@ private slots:
 
     //******Test functions********
 
-    void dummy();
+    /*!
+     * \brief Tests if the filter matches exact name.
+     */
+    void TestFilterNamesExact();
+
+    /*!
+     * \brief Tests behavior with no mask set.
+     */
+    void TestEmptyMask();
+
+    //! Tests mask for wildcards
+    void TestMask();
+
+    //! Tests behavior of filternames for discardBefore
+    void TestDiscardBefore();
+
+    //! Tests behavior of filternames for lastCollectedData from Log
+    void TestLastCollected();
+
+    void TestgetDataSetLastDateTime();
 
     //******End of Test functions****
 };

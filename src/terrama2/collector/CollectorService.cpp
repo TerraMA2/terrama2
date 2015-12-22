@@ -211,10 +211,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
       {
         try
         {
-          DataFilterPtr filter(new DataFilter(dataSetItem));
+          terrama2::collector::Log collectLog;
+
+          DataFilterPtr filter(new DataFilter(dataSetItem, collectLog));
           assert(filter);
 
-          terrama2::collector::Log collectLog;
           std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file

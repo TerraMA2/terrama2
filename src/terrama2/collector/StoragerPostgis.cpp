@@ -111,7 +111,7 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
       // let's open the destination datasource
       std::map<std::string, std::string>::const_iterator schemeIt = storageMetadata_.find("PG_SCHEME");
       if(schemeIt != storageMetadata_.end())
-        dataSetName = schemeIt->second+"."+dataSetName;
+        dataSetName = schemeIt->second+"."+dataSetNameIt->second;
     }
 
     // get a transactor to interact to the data source
