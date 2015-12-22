@@ -192,8 +192,6 @@ void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_t
 {
   if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ() < boostTime)
     dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
-
-//  discardBefore_.reset(dynamic_cast<te::dt::TimeInstantTZ*>(dataSetLastDateTime_->clone()));
 }
 
 bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
@@ -268,33 +266,6 @@ bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::sh
         {
           boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
           boost::local_time::local_date_time boostTime(date->getDate(), boost::posix_time::time_duration(0,0,0,0), zone, true);
-
-          updateLastDateTimeCollected(boostTime);
-        }
-
-        break;
-      }
-      case te::dt::TIME_DURATION:
-      {
-        std::unique_ptr<te::dt::TimeDuration> timeDuration(dynamic_cast<te::dt::TimeDuration*>(dateTime.release()));
-        assert(timeDuration);
-        if(discardBefore_)
-        {
-          if(discardBefore_->getTimeInstantTZ().local_time().time_of_day() > timeDuration->getTimeDuration())
-            return false;
-        }
-        if(discardAfter_)
-        {
-          if(discardAfter_->getTimeInstantTZ().local_time().time_of_day() < timeDuration->getTimeDuration())
-            return false;
-        }
-
-        //Valid Date!!!
-        //update lastDateTime
-        if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ().local_time().time_of_day() < timeDuration->getTimeDuration())
-        {
-          boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
-          boost::local_time::local_date_time boostTime(boost::gregorian::date(1, 1, 1), timeDuration->getTimeDuration(), zone, true);
 
           updateLastDateTimeCollected(boostTime);
         }
