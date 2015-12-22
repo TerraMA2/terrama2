@@ -10,6 +10,12 @@
 #include <QApplication>
 #include <QTimer>
 
+
+
+#include <boost/date_time/local_time/local_date_time.hpp>
+#include <boost/date_time/local_time/posix_time_zone.hpp>
+#include <boost/date_time/local_time/local_time_types.hpp>
+#include <iostream>
 int main(int argc, char *argv[])
 {
   initializeTerralib();
@@ -26,22 +32,12 @@ int main(int argc, char *argv[])
   TsParserOGR tsParserOGR;
   returnVal += QTest::qExec(&tsParserOGR, argc, argv);
 
+  TsCollectorService tsCollectorService;
+  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
 
-
-
-
-
-//  TsCollectorService tsCollectorService;
-//  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
-
-
-
-
-
-
-//  TsIntegration tsIntegration;
-//  returnVal += QTest::qExec(&tsIntegration, argc, argv);
+  TsIntegration tsIntegration;
+  returnVal += QTest::qExec(&tsIntegration, argc, argv);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

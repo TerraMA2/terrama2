@@ -33,7 +33,7 @@
 //QT
 #include <QtTest>
 
-
+//TODO: add and remove methods
 class TsCollectorService: public QObject
 {
   Q_OBJECT
@@ -52,7 +52,7 @@ private slots:
     //******Test functions********
 
 
-    void TestStartServer();
+    void TestStartServerTwice();
 
     void TestStopServer();
 
