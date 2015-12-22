@@ -61,7 +61,8 @@ struct FilterDialog::Impl
       filterByLayer_(false),
       filterByArea_(false),
       filterBypreAnalyse_(false),
-      expressionType(terrama2::core::Filter::NONE_TYPE)
+      expressionType(terrama2::core::Filter::NONE_TYPE),
+      utc_()
   {
   }
 
@@ -75,6 +76,7 @@ struct FilterDialog::Impl
   bool filterByArea_;
   bool filterBypreAnalyse_;
   terrama2::core::Filter::ExpressionType expressionType;
+  QString utc_;
 };
 
 //! Construtor
@@ -82,6 +84,9 @@ FilterDialog::FilterDialog(FilterType type, const QString& timezone, QWidget* pa
   : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
+
+  std::string timeZone = "UTC" + timezone.toStdString();
+  pimpl_->utc_ = timeZone.c_str();
 
 //  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(accept()));
   connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(onOkBtnClicked()));
@@ -287,15 +292,7 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     {
       QDateTime beforeDate = pimpl_->ui_->datetimeBefore->dateTime();
 
-      std::string posixTime = beforeDate.toString("yyyy-MM-dd HH:mm:ss UTC%1").arg(pimpl_->ui_->labelDateNote->text()).toStdString();
-
-      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(beforeDate);
-
-      //stream for the DateTimeTZ string
-      std::stringstream stream(posixTime);
-
-      //convert to boot local_date_time
-      stream >> boostLocalTime;
+      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(beforeDate, pimpl_->utc_);
 
       //Build a te::dt::TimeInstantTZ
       std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostLocalTime));
@@ -307,19 +304,8 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
     if (pimpl_->ui_->dateAfterFilterCbx->isChecked())
     {
       QDateTime afterDate = pimpl_->ui_->datetimeAfter->dateTime();
-      QDateTime localCurrentDateTime = QDateTime::currentDateTime();
-      QTimeZone timeZone = localCurrentDateTime.timeZone();
-      QString zoneStr = timeZone.displayName(localCurrentDateTime, QTimeZone::OffsetName);
 
-      std::string posixTime = afterDate.toString("yyyy-MM-dd HH:mm:ss %1").arg(zoneStr).toStdString();
-
-      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(afterDate);
-
-      //stream for the DateTimeTZ string
-      std::stringstream stream(posixTime);
-
-      //convert to boot local_date_time
-      stream >> boostLocalTime;
+      auto boostLocalTime = terrama2::collector::QDateTime2BoostLocalDateTime(afterDate, pimpl_->utc_);
 
       //Build a te::dt::TimeInstantTZ
       std::unique_ptr<te::dt::TimeInstantTZ> datePtr (new te::dt::TimeInstantTZ(boostLocalTime));

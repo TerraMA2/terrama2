@@ -192,11 +192,15 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
     auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
 
-    terrama2::collector::CollectorService collectorService;
-    collectorService.start();
+    if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
+    {
+      terrama2::collector::CollectorService collectorService;
+      collectorService.start();
 
-    if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
       app.exec();
+    }
+
+    terrama2::core::DataManager::getInstance().unload();
 
     terrama2::core::finalizeTerralib();
 
