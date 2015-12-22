@@ -111,8 +111,6 @@ void ConfigAppWeatherGridTab::save()
   metadata["RESOLUTION"] = ui_->gridFormatDataResolution->text().toStdString();
   dataset.setMetadata(metadata);
 
-  auto configuration = app_->getConfiguration();
-
   auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem->setStorageMetadata(storageMetadata);

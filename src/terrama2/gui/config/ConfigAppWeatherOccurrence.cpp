@@ -93,8 +93,6 @@ void ConfigAppWeatherOccurrence::save()
   else
     datasetItem = new terrama2::core::DataSetItem;
 
-  auto configuration = app_->getConfiguration();
-
   auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem->setStorageMetadata(storageMetadata);
