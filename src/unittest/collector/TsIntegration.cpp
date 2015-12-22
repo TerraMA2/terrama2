@@ -76,15 +76,17 @@ void TsIntegration::TestReadCsvStorePostGis()
     terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
     item.setMask(info.fileName().toStdString());
 
-//    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
-//                                                        {"PG_HOST", "localhost"},
-//                                                        {"PG_PORT", "5432"},
-//                                                        {"PG_USER", "postgres"},
-//                                                        {"PG_PASSWORD", "postgres"},
-//                                                        {"PG_DB_NAME", "basedeteste"},
-//                                                        {"PG_CONNECT_TIMEOUT", "4"},
-//                                                        {"PG_CLIENT_ENCODING", "UTF-8"}};
-//    item.setStorageMetadata(storageMetadata);
+    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+                                                        {"PG_HOST", "localhost"},
+                                                        {"PG_PORT", "5432"},
+                                                        {"PG_USER", "postgres"},
+                                                        {"PG_PASSWORD", "postgres"},
+                                                        {"PG_DB_NAME", "basedeteste"},
+                                                        {"PG_CONNECT_TIMEOUT", "4"},
+                                                        {"PG_CLIENT_ENCODING", "UTF-8"},
+                                                        {"PG_TABLENAME", "integrationTest"},
+                                                        {"PG_SCHEME", "terrama2"} };
+    item.setStorageMetadata(storageMetadata);
 
     terrama2::collector::CollectorService service;
     service.start(1);
