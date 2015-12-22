@@ -39,6 +39,7 @@
 #include "Exception.hpp"
 #include "Log.hpp"
 #include "FileOpener.hpp"
+#include "CurlOpener.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -49,8 +50,8 @@
 // QT
 #include <QTranslator>
 
-terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string folder)
-  : DataRetriever(dataprovider), folder_(folder)
+terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string localization, const std::string folder)
+  : DataRetriever(dataprovider), localization_(localization), folder_(folder)
 {
 
 }
@@ -63,7 +64,6 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 // Remove the files in the tmp folder
     for(std::string file: vectorNames_)
     {
-     // path = "/tmp/"+file;
       path = folder_+file;
       std::remove(path.c_str()); // delete file
     }
@@ -82,45 +82,39 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
   }
 }
 
-
 void terrama2::collector::DataRetrieverFTP::open()
 {
 
-  curl_ = curl_easy_init();
 }
 
 bool terrama2::collector::DataRetrieverFTP::isOpen()
 {
-// check if connection is open
-
   CURLcode status;
-  if(curl_)
+
+  CurlOpener curl;
+
+  curl.init();
+
+  if(curl.fcurl())
   {
-    curl_easy_setopt(curl_, CURLOPT_URL, dataprovider_.uri().c_str());
-    curl_easy_setopt(curl_, CURLOPT_FTPLISTONLY, 1);
-    curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_easy_setopt(curl_, CURLOPT_NOBODY, 1);
+    curl_easy_setopt(curl.fcurl(), CURLOPT_URL, dataprovider_.uri().c_str());
+    curl_easy_setopt(curl.fcurl(), CURLOPT_FTPLISTONLY, 1);
+    curl_easy_setopt(curl.fcurl(), CURLOPT_CONNECTTIMEOUT, 3);
+    curl_easy_setopt(curl.fcurl(), CURLOPT_NOBODY, 1);
+// performs the configurations of curl_easy_setop
+    status = curl_easy_perform(curl.fcurl());
 
-    status = curl_easy_perform(curl_);
-
-    if (status != CURLE_OK)
-    {
-      curl_easy_cleanup(curl_);
+    if (status != CURLE_OK)   
       return false;
-    }
+
   }
 
-  curl_easy_cleanup(curl_);
-  curl_ = curl_easy_init();
-
   return true;
-
 }
 
 void terrama2::collector::DataRetrieverFTP::close()
 {
-// always cleanup
-  curl_easy_cleanup(curl_);
+
 }
 
 static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
@@ -128,7 +122,6 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
   FILE *writehere = (FILE *)data;
   return fwrite(ptr, size, nmemb, writehere);
 }
-
 
 size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 {
@@ -140,7 +133,6 @@ size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
   return sizeRead;
 }
 
-
 std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
 {
   std::string uriOutput;
@@ -149,19 +141,22 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
   std::vector<std::string> vectorFiles;
   std::string block;
 
+  CurlOpener curl;
+
+  curl.init();
+
   try
   {
-    if(curl_)
+    if(curl.fcurl())
     {
 // Get a file listing from server
       uriInput = dataprovider_.uri() + datasetitem.path();
-      curl_easy_setopt(curl_, CURLOPT_URL, uriInput.c_str());
-      curl_easy_setopt(curl_, CURLOPT_DIRLISTONLY, 1);
-      curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_vector);
-      curl_easy_setopt(curl_, CURLOPT_WRITEDATA, (void *)&block);
-
+      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
+      curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_vector);
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void *)&block);
 // performs the configurations of curl_easy_setop
-      status = curl_easy_perform(curl_);
+      status = curl_easy_perform(curl.fcurl());
 
       if (status == CURLE_OK)
       {
@@ -178,45 +173,35 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       }
 
 // filter file names that should be downloaded.
-      assert(!vectorNames_.empty());
-
       vectorNames_ = filter->filterNames(vectorFiles);
 
       for (std::string file: vectorNames_)
       {
-        CURL *curl;
-        //FILE *destFilePath;
-       // std::ifstream destFilePath;
         CURLcode res;
 
-        curl = curl_easy_init();
+        CurlOpener curlDown;
 
-        if (curl)
+        curlDown.init();
+
+
+        if (curlDown.fcurl())
         {
           uriOutput = dataprovider_.uri() + datasetitem.path() + file;
-          //destFilePath = fopen(("/tmp/"+file).c_str(),"wb");
-
-         // FileOpener opener(("/tmp/"+file).c_str(),"wb");
           FileOpener opener((folder_+file).c_str(),"wb");
-          curl_easy_setopt(curl, CURLOPT_URL, uriOutput.c_str());
-          curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
-          curl_easy_setopt(curl, CURLOPT_WRITEDATA, &opener);
-          res = curl_easy_perform(curl);
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uriOutput.c_str());
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEDATA, opener.file());
+// performs the configurations of curl_easy_setop
+          res = curl_easy_perform(curlDown.fcurl());
 
           if (res != CURLE_OK)
           {
             QString messageError = QObject::tr("Could not perform the download files. \n\n Details: \n");
             messageError.append(curl_easy_strerror(res));
-            curl_easy_cleanup(curl);
-          //  fclose(destFilePath);
             throw DataRetrieverFTPError() << ErrorDescription(messageError);
           }
           else
           {
-            curl_easy_cleanup(curl);
-
-         //   fclose(destFilePath);
-
             log_uris.push_back(uriInput + file);
           }
         }
@@ -238,6 +223,5 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.
- // return "file:///tmp/";
-  return "file://"+folder_;
+  return localization_+folder_;
 }
