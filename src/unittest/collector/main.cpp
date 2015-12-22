@@ -10,12 +10,6 @@
 #include <QApplication>
 #include <QTimer>
 
-
-
-#include <boost/date_time/local_time/local_date_time.hpp>
-#include <boost/date_time/local_time/posix_time_zone.hpp>
-#include <boost/date_time/local_time/local_time_types.hpp>
-#include <iostream>
 int main(int argc, char *argv[])
 {
   initializeTerralib();
