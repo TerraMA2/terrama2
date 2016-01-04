@@ -48,10 +48,19 @@ namespace terrama2
 class QAction;
 
 
-class ConfigAppWeatherGridTab : public ConfigAppTab {
+class ConfigAppWeatherGridTab : public ConfigAppTab
+{
+
   Q_OBJECT
+
   public:
+
+    /*!
+      @copydoc ConfigAppTab::ConfigAppTab(app, ui)
+    */
     ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+
+    //! Destructor
     ~ConfigAppWeatherGridTab();
 
     //! It initializes the interface, mask button values and connect to onMenuMaskClicked
@@ -59,7 +68,8 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
 
     /*!
       \brief It validates each one gui fields
-      \exception terrama2::gui::FieldError
+      \exception terrama2::gui::FieldError <Raised when the dataset name already exist or dataset name is empty>
+      \exception terrama2::gui::ValueError <Raised when mask value is invalid>
      */
     bool validate();
 
@@ -69,8 +79,11 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     //! It discards the widget values and set to initial state
     void discardChanges(bool restore_data);
 
-    //! It fills the terrama2 filter object
-    void fillFilter(const terrama2::core::Filter&);
+    /*!
+      \brief It fills the terrama2 filter object
+      \param filter A reference of terrama2::core::Filter
+    */
+    void fillFilter(const terrama2::core::Filter& filter);
 
     //! Sets the projection
     void setSrid(const uint64_t srid);
@@ -93,7 +106,7 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     void onMenuMaskClicked(QAction* action);
 
   private:
-    uint64_t srid_; //! Projection
+    uint64_t srid_; //!< Projection
     terrama2::core::Filter* filter_; //!< Object used to store dataset grid filter
 };
 

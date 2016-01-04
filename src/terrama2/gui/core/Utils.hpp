@@ -38,10 +38,12 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
+
 // Forward declaration
 class QString;
 class QMainWindow;
 class QJsonObject;
+class QMenu;
 class ConfigManager;
 
 
@@ -66,6 +68,12 @@ namespace terrama2
         \return std::map<std::string, std::string> containing the storage metadata values from configuration
       */
       std::map<std::string, std::string> makeStorageMetadata(const QString uri, const ConfigManager& configuration);
+
+      /*!
+        \brief It makes mask helpers for DataSet. It creates a menu bar with common items.
+        \return A pointer to QMenuBar filled out.
+      */
+      QMenu* makeMaskHelpers();
     }
   }
 }

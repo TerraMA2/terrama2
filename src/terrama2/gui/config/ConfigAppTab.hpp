@@ -56,7 +56,11 @@ class ConfigAppTab : public QObject, private boost::noncopyable
   Q_OBJECT
 
   public:
-    //! Constructor
+    /*!
+      \brief Constructor
+      \param app A pointer to ConfigApp to define owner of object
+      \param ui  A pointer to Ui::ConfigAppForm to handle qt gui objects
+    */
     ConfigAppTab(ConfigApp* app = nullptr, Ui::ConfigAppForm* ui = nullptr);
 
     //! Destructor
@@ -97,33 +101,41 @@ class ConfigAppTab : public QObject, private boost::noncopyable
 
     /*!
       \brief It asks to change tab, giving the index as parameter
+      \param index A requested tab index value
     */
     virtual void askForChangeTab(const int& index);
 
     /*!
       \brief It checks if is active to lock tab
+      \return A bool state showing if tab object is active
     */
     virtual bool isActive() const;
 
     /*!
       \brief It defines the tab state
+      \param state A bool state to be defined
     */
     virtual void setActive(bool state);
 
     /*!
       \brief It defines if there any modification in tab
+      \param state A bool state to set if data is changed
     */
     virtual void setChanged(bool state);
 
     /*!
       \brief It sets the current selected data. It is used when one Item from WeatherTree has been clicked
+      \param selectedData A string value to define the focused current value in widget
     */
     virtual void setSelectedData(const QString selectedData);
 
     /*!
       \brief It displays a messagebox showing whether would like to remove
+      \param dataset A terrama2::core::DataSet reference
+
+      \exception terrama2::gui::DataSetError <Raised when dataset id is 0>
     */
-    virtual bool removeDataSet(const terrama2::core::DataSet&);
+    virtual bool removeDataSet(const terrama2::core::DataSet& dataset);
 
     /*!
       \brief It handles a common validation for mask value

@@ -51,14 +51,24 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
 {
   Q_OBJECT
   public:
+    /*!
+      @copydoc ConfigAppTab::ConfigAppTab(app, ui)
+
+      Initializes the DataOccurrence tab, connecting slots.
+    */
     ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui);
+
+    //! Destructor
     ~ConfigAppWeatherOccurrence();
 
+    /*!
+      @copydoc ConfigAppTab::load()
+    */
     void load();
 
     /*!
       \brief It validates the GUI input values.
-      \exception terrama2::gui::FieldError
+      \exception terrama2::gui::FieldError <Raised when DataSet Occurence Name is invalid>
       \return true if the whole interface is valid. Otherwise, it throws exception
     */
     bool validate();
@@ -69,8 +79,11 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     //! It discards the widget values and set to initial state
     void discardChanges(bool restore_data);
 
-    //! It fills the terrama2 filter object
-    void fillFilter(const terrama2::core::Filter&);
+    /*!
+      \brief It fills the terrama2 filter object
+      \param filter A terrama2::core::Filter reference containing values to fill filter_ member out
+    */
+    void fillFilter(const terrama2::core::Filter& filter);
 
     //! Sets the intersection object
     void setIntersection(const terrama2::core::Intersection& intersection);
@@ -83,7 +96,14 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     void resetFilterState();
 
   public slots:
+    /*!
+      @copydoc ConfigAppTab::onFilterClicked()
+    */
     void onFilterClicked();
+
+    /*!
+      @copydoc ConfigAppTab::onProjectionClicked()
+    */
     void onProjectionClicked();
 
   private slots:
@@ -100,8 +120,8 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
 
   private:
     QSharedPointer<terrama2::core::Filter> filter_; //!< Occurrence filter defined
-    terrama2::core::Intersection intersection_; //! Intersection configuration
-    uint64_t srid_; //! Data projection
+    terrama2::core::Intersection intersection_; //!< Intersection configuration
+    uint64_t srid_; //!< Data projection
 
 };
 

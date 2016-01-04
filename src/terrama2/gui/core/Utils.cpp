@@ -39,6 +39,7 @@
 #include <QMainWindow>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMenu>
 
 
 void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString& destination, const QJsonObject& json)
@@ -93,4 +94,19 @@ std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(cons
   }
 
   return storageMetadata;
+}
+
+QMenu *terrama2::gui::core::makeMaskHelpers()
+{
+  QMenu* menuMask = new QMenu(QObject::tr("Máscaras"));
+  menuMask->addAction(QObject::tr("%a - ano com dois digitos"));
+  menuMask->addAction(QObject::tr("%A - ano com quatro digitos"));
+  menuMask->addAction(QObject::tr("%d - dia com dois digitos"));
+  menuMask->addAction(QObject::tr("%M - mes com dois digitos"));
+  menuMask->addAction(QObject::tr("%h - hora com dois digitos"));
+  menuMask->addAction(QObject::tr("%m - minuto com dois digitos"));
+  menuMask->addAction(QObject::tr("%s - segundo com dois digitos"));
+  menuMask->addAction(QObject::tr("%. - um caracter qualquer"));
+
+  return menuMask;
 }

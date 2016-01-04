@@ -53,15 +53,7 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   tableClean();
 
-  QMenu* menuMask = new QMenu(tr("Máscaras"));
-  menuMask->addAction(tr("%a - ano com dois digitos"));
-  menuMask->addAction(tr("%A - ano com quatro digitos"));
-  menuMask->addAction(tr("%d - dia com dois digitos"));
-  menuMask->addAction(tr("%M - mes com dois digitos"));
-  menuMask->addAction(tr("%h - hora com dois digitos"));
-  menuMask->addAction(tr("%m - minuto com dois digitos"));
-  menuMask->addAction(tr("%s - segundo com dois digitos"));
-  menuMask->addAction(tr("%. - um caracter qualquer"));
+  auto menuMask = terrama2::gui::core::makeMaskHelpers();
 
   ui_->filePointDiffMaskBtn->setMenu(menuMask);
   ui_->filePointDiffMaskBtn->setPopupMode(QToolButton::InstantPopup);
@@ -281,7 +273,7 @@ void ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
     pcd.srid = (uint64_t)ui_->tblPointPCDFileNameLocation->item(item->row(), 4)->text().toInt();
     pcd.timezone = ui_->tblPointPCDFileNameLocation->item(item->row(), 5)->text();
     pcdFormCreation(pcd, true);
-    }
+  }
 }
 
 void ConfigAppWeatherPcd::onSurfaceBtnClicked()
