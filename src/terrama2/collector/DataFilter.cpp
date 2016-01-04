@@ -403,6 +403,13 @@ te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime()
   return dataSetLastDateTime_.get();
 }
 
+void terrama2::collector::DataFilter::getDataSetLastDateTime(te::dt::Date& date, te::dt::TimeDuration& time) const
+{
+  date = dataSetLastDateTime_->getTimeInstantTZ().date();
+  boost::posix_time::time_duration td = dataSetLastDateTime_->getTimeInstantTZ().local_time().time_of_day();
+  time = te::dt::TimeDuration(td);
+}
+
 terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, const Log& collectLog)
   : datasetItem_(datasetItem),
     dataSetLastDateTime_(nullptr)
