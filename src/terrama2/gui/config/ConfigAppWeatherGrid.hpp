@@ -89,7 +89,14 @@ class ConfigAppWeatherGridTab : public ConfigAppTab
     void setSrid(const uint64_t srid);
 
   public slots:
+    /*!
+      @copydoc ConfigAppTab::onFilterClicked()
+    */
     void onFilterClicked();
+
+    /*!
+      @copydoc ConfigAppTab::onProjectionClicked()
+    */
     void onProjectionClicked();
 
   private slots:

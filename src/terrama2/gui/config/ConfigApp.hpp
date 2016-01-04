@@ -53,12 +53,13 @@ class ConfigAppTab;
 class ConfigAppWeatherTab;
 class ConfigManager;
 
+
 class ConfigApp : public QMainWindow, private  boost::noncopyable
 {
   Q_OBJECT
 
   public:
-  
+
     /*! Default constructor.
       \param parent Represents the QT Widget owner (default nullptr)
       \param flags  It handling gui window kind (0 defined as Widget)
@@ -104,8 +105,8 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
     QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
 
     /*!
-     \brief It retrieves the ConfigManager instance containing terrama2 settings
-     \return A shared pointer to ConfigManager class. It contains configuration of terrama2 application.
+     \brief It retrieves the ConfigManager instance containing application settings
+     \return A shared pointer to ConfigManager class. It contains application config.
     */
     QSharedPointer<ConfigManager> getConfiguration() const;
 
@@ -120,7 +121,7 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
      \brief Slot triggered in open button click. It load the terrama2 configuration and it dispatches load for each tab
     */
     void openRequested();
-  
+
   private:
     struct Impl;
 

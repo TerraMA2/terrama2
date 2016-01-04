@@ -37,11 +37,11 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
-class ConfigApp;
 namespace Ui
 {
   class ConfigAppForm;
 }
+class ConfigApp;
 
 namespace terrama2
 {
