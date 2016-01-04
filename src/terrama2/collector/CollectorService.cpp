@@ -43,10 +43,12 @@
 #include "../core/DataManager.hpp"
 #include "../core/ApplicationController.hpp"
 
-//terralib
+// Terralib
+#include <terralib/common/Exception.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+
 
 // QT
 #include <QApplication>
@@ -60,8 +62,6 @@
 #include <functional>
 #include <utility>
 
-//terralib
-#include <terralib/common/Exception.h>
 
 void terrama2::collector::CollectorService::populateData()
 {

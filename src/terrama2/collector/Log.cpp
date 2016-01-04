@@ -168,7 +168,7 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
 
     std::string uris;
     bool first = true;
-
+    // VINICIUS: if are too many rows to update, split it
     if(origin_uris.size() > 1)
     {
       for(auto uri : origin_uris)
