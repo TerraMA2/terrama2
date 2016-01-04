@@ -111,7 +111,7 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
       // let's open the destination datasource
       std::map<std::string, std::string>::const_iterator schemeIt = storageMetadata_.find("PG_SCHEME");
       if(schemeIt != storageMetadata_.end())
-        dataSetName = schemeIt->second+"."+dataSetName;
+        dataSetName = schemeIt->second+"."+dataSetNameIt->second;
     }
 
     // get a transactor to interact to the data source
@@ -131,19 +131,16 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
   {
     //TODO: log de erro
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
   }
   catch(te::common::Exception& e)
   {
     //TODO: log de erro
     qDebug() << e.what();
-    assert(0);
   }
   catch(std::exception& e)
   {
     //TODO: log de erro
     qDebug() << e.what();
-    assert(0);
   }
 
   return uri.url().toStdString();

@@ -66,7 +66,7 @@ class AdminApp : public QMainWindow, private boost::noncopyable
 //! Fill fields
     void fillForm();
 
-   // void save(const QString command = "", const QString parameters = "", const ConfigManager& newdata);
+//! It saves current data
     void save();
 
     ConfigManager* getConfigManager();
@@ -75,7 +75,6 @@ signals:
 
 protected:
     void closeEvent(QCloseEvent* close);
-
 
   private slots:
 

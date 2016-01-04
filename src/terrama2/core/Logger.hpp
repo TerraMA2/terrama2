@@ -57,15 +57,6 @@ namespace terrama2
         std::string loggerPath_; //!< It contains file name destination
     }; // end class logger
 
-    inline std::ostream& operator<<(std::ostream& stream, const terrama2::Exception& exception)
-    {
-      const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
-      std::string message = "** An exception occurred **! \t";
-      if (msg != nullptr)
-        message.append(msg->toStdString().c_str());
-      return stream << message;
-    }
-
   } // end core
 } // end terrama2
 
@@ -83,6 +74,15 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(terrama2_logger, boost::log::sources::s
 #define TERRAMA2_LOG_WARNING() TERRAMA2_LOG(terrama2::core::Logger::WARNING)
 #define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::ERROR)
 #define TERRAMA2_LOG_FATAL() TERRAMA2_LOG(terrama2::core::Logger::FATAL)
+
+inline std::ostream& operator<<(std::ostream& stream, const terrama2::Exception& exception)
+{
+  const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
+  std::string message = "** An exception occurred **! \t";
+  if (msg != nullptr)
+    message.append(msg->toStdString().c_str());
+  return stream << message;
+}
 
 //! Override operator<< to enable sets QString message in log.
 inline std::ostream& operator<<(std::ostream& stream, QString& message)

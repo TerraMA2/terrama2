@@ -145,6 +145,7 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
   dataSetItem1.setStatus(terrama2::core::DataSetItem::Status(2));
   dataSetItem1.setTimezone("-1");
   dataSetItem1.setPath("codebase/data/fire_system/");
+  dataSetItem1.setSrid(5422);
 
   terrama2::core::Filter filter(0);
 

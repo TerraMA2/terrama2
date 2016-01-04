@@ -3,7 +3,6 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "FilterDialog.hpp"
-#include "ProjectionDialog.hpp"
 #include "IntersectionDialog.hpp"
 #include "Exception.hpp"
 #include "../core/Utils.hpp"
@@ -11,6 +10,9 @@
 #include "../../core/DataProvider.hpp"
 #include "../../core/Utils.hpp"
 #include "../../core/Logger.hpp"
+
+// TerraLib
+#include <terralib/qt/widgets/srs/SRSManagerDialog.h>
 
 // Qt
 #include <QMessageBox>
@@ -26,7 +28,6 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   connect(ui_->intersectionBtn, SIGNAL(clicked()), SLOT(onIntersectionBtnClicked()));
   connect(ui_->pointDiffFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabEdited()));
 
-  ui_->projectionPointDiffBtn->setEnabled(false);
 
   ui_->updateDataPointDiffBtn->setEnabled(false);
   ui_->exportDataPointDiffBtn->setEnabled(false);
@@ -36,6 +37,8 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   ui_->pointDiffFormatDataSecond->setValidator(new QIntValidator(ui_->pointDiffFormatDataSecond));
 
   ui_->pointDiffFormatDataTimeZoneCmb->setCurrentText("+00:00");
+  ui_->occurenceProjectionTxt->setText("0");
+  srid_ = 0;
 }
 
 ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
@@ -96,6 +99,7 @@ void ConfigAppWeatherOccurrence::save()
   auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem->setStorageMetadata(storageMetadata);
+  datasetItem->setSrid(srid_);
 
   terrama2::core::DataSetItem::Kind kind;
   int index = ui_->pointDiffFormatDataType->currentIndex();
@@ -249,11 +253,25 @@ void ConfigAppWeatherOccurrence::onIntersectionBtnClicked()
 
 void ConfigAppWeatherOccurrence::onProjectionClicked()
 {
-  ProjectionDialog dialog(app_);
-  dialog.exec();
+  te::qt::widgets::SRSManagerDialog srsDialog(app_);
+  srsDialog.setWindowTitle(tr("Choose the SRS"));
+
+  if (srsDialog.exec() == QDialog::Rejected)
+    return;
+
+
+  srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
+
+  ui_->occurenceProjectionTxt->setText(std::to_string(srid_).c_str());
+
 }
 
 void ConfigAppWeatherOccurrence::setIntersection(const terrama2::core::Intersection& intersection)
 {
   intersection_ = intersection;
+}
+
+void ConfigAppWeatherOccurrence::setSrid(const uint64_t srid)
+{
+  srid_ = srid;
 }

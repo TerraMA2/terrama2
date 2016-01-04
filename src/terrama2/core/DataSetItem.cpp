@@ -34,7 +34,8 @@ terrama2::core::DataSetItem::DataSetItem(Kind k, uint64_t id, uint64_t datasetId
   : kind_(k),
     id_(id),
     dataset_(datasetId),
-    status_(INACTIVE)
+    status_(INACTIVE),
+    srid_(0)
 {
 }
 
@@ -143,4 +144,14 @@ std::string terrama2::core::DataSetItem::path() const
 void terrama2::core::DataSetItem::setPath(const std::string& path)
 {
   path_ = path;
+}
+
+uint64_t terrama2::core::DataSetItem::srid()
+{
+  return srid_;
+}
+
+void terrama2::core::DataSetItem::setSrid(const uint64_t srid)
+{
+  srid_ = srid;
 }

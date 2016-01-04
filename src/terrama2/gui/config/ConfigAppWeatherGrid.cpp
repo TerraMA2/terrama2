@@ -10,11 +10,14 @@
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
 #include "FilterDialog.hpp"
-#include "ProjectionDialog.hpp"
+
+// STL
+#include <inttypes.h>
 #include "../../core/Logger.hpp"
 
 // Terralib
 #include <terralib/datatype/TimeInstant.h>
+#include <terralib/qt/widgets/srs/SRSManagerDialog.h>
 
 // QT
 #include <QMessageBox>
@@ -32,7 +35,6 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
 
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
 
-  ui_->projectionGridBtn->setEnabled(false);
 
   // data frequency int validator
   ui_->gridFormatDataHour->setValidator(new QIntValidator(ui_->gridFormatDataHour));
@@ -40,6 +42,7 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
   ui_->gridFormatDataSecond->setValidator(new QIntValidator(ui_->gridFormatDataSecond));
 
   ui_->gridFormatDataTimeZoneCmb->setCurrentText("+00:00");
+
 }
 
 ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
@@ -50,7 +53,6 @@ ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
 void ConfigAppWeatherGridTab::load()
 {
   QMenu* menuMask = new QMenu(tr("Máscaras"));
-
   menuMask->addAction(tr("%a - ano com dois digitos"));
   menuMask->addAction(tr("%A - ano com quatro digitos"));
   menuMask->addAction(tr("%d - dia com dois digitos"));
@@ -87,6 +89,7 @@ void ConfigAppWeatherGridTab::save()
     datasetItem = new terrama2::core::DataSetItem;
 
   datasetItem->setFilter(*filter_);
+  datasetItem->setSrid(srid_);
 
   datasetItem->setKind(terrama2::core::DataSetItem::GRID_TYPE);
   datasetItem->setMask(ui_->gridFormatDataMask->text().toStdString());
@@ -200,8 +203,8 @@ bool ConfigAppWeatherGridTab::validate()
     if (ui_->gridFormatDataName->text() != selectedData_)
     {
       ui_->gridFormatDataName->setFocus();
-      throw terrama2::gui::FieldError() <<
-          terrama2::ErrorDescription(tr("The data set grid name has already been saved. Please change server name"));
+      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(
+          tr("The data set grid name has already been saved. Please change server name"));
     }
   }
 
@@ -226,6 +229,8 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
       delete filter_;
 
     filter_ = new terrama2::core::Filter;
+    ui_->gridProjectionTxt->setText("0");
+
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
@@ -247,6 +252,8 @@ void ConfigAppWeatherGridTab::onGridFormatChanged()
     default:
       ;
   }
+
+  ui_->gridProjectionTxt->setText("0");
 }
 
 void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
@@ -317,8 +324,19 @@ void ConfigAppWeatherGridTab::onFilterClicked()
 
 void ConfigAppWeatherGridTab::onProjectionClicked()
 {
-  ProjectionDialog projectionDialog(app_);
+  te::qt::widgets::SRSManagerDialog srsDialog(app_);
+  srsDialog.setWindowTitle(tr("Choose the SRS"));
 
-  projectionDialog.show();
-  projectionDialog.exec();
+  if (srsDialog.exec() == QDialog::Rejected)
+    return;
+
+
+  srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
+  ui_->gridProjectionTxt->setText(std::to_string(srid_).c_str());
+
+}
+
+void ConfigAppWeatherGridTab::setSrid(const uint64_t srid)
+{
+  srid_ = srid;
 }

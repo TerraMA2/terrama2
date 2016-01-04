@@ -106,7 +106,7 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
   std::map<std::string, std::string>::const_iterator localFind = storageMetadata.find("KIND");
 
   if(localFind == storageMetadata.cend())
-    throw UnableToCreateStoragerError() << terrama2::ErrorDescription(QObject::tr("No Kind set."));
+    throw UnableToCreateStoragerError() << terrama2::ErrorDescription(QObject::tr("No storager kind set."));
 
   std::string storagerKind = localFind->second;
 

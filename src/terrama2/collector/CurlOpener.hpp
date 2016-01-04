@@ -20,44 +20,47 @@
 */
 
 /*!
-  \file unittest/collector/TsCollectorService.cpp
+  \file terrama2/collector/CurlOpener.hpp
 
-  \brief Test Collector service...
+  \brief
 
-  \author Paulo R. M. Oliveira
+ \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
 
-//QT
-#include <QtTest>
+#ifndef __TERRAMA2_COLLECTOR_CURLOPENER_HPP__
+#define __TERRAMA2_COLLECTOR_CURLOPENER_HPP__
 
-//TODO: add and remove methods
-class TsCollectorService: public QObject
+
+// Libcurl
+#include <curl/curl.h>
+
+/*!
+     * \brief The CurlOpener class implements the RAII technique to control operations with Curl.
+     *     
+*/
+
+
+namespace terrama2
 {
-  Q_OBJECT
+  namespace collector
+  {
+    class CurlOpener
+    {
+      public:
 
-protected:
+       CurlOpener();
 
-private slots:
-    void initTestCase(); // Run before all tests
+       void init();
+  
+       CURL* fcurl() const;
 
-    void cleanupTestCase(); // Run after all tests
+       ~CurlOpener();
 
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-
-    void TestStartServerTwice();
-
-    void TestStopServer();
-
-
-    //******End of Test functions****
-
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+      private:
+        CURL* curl_;   
+     };
+  }
+}
+    
+#endif //__TERRAMA2_COLLECTOR_CURLOPENER_HPP__

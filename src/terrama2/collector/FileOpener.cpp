@@ -20,44 +20,41 @@
 */
 
 /*!
-  \file unittest/collector/TsCollectorService.cpp
+  \file terrama2/collector/FileOpener.cpp
 
-  \brief Test Collector service...
+  \brief
 
-  \author Paulo R. M. Oliveira
+ \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+// STL
+#include <memory>
+#include <cassert>
 
-//QT
-#include <QtTest>
+// TerraMA2
+#include "FileOpener.hpp" 
 
-//TODO: add and remove methods
-class TsCollectorService: public QObject
+
+terrama2::collector::FileOpener::FileOpener(const char* filename, const char* attribute)
 {
-  Q_OBJECT
+  file_ = std::fopen(filename, attribute);
 
-protected:
+  if (!file_)
+    throw std::runtime_error{"Unable to open the file"};
+}
 
-private slots:
-    void initTestCase(); // Run before all tests
+terrama2::collector::FileOpener::FileOpener(std::FILE* newfile)
+{
+  file_ = newfile;
+}
 
-    void cleanupTestCase(); // Run after all tests
+terrama2::collector::FileOpener::~FileOpener()
+{
+  if (file_)
+    std::fclose(file_);
+}
 
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-
-    void TestStartServerTwice();
-
-    void TestStopServer();
-
-
-    //******End of Test functions****
-
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+std::FILE* terrama2::collector::FileOpener::file() const
+{
+  return file_;
+}

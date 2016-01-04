@@ -92,7 +92,7 @@ COMMENT ON COLUMN terrama2.dataset_item_type.description IS 'Brief description a
 INSERT INTO terrama2.dataset_item_type(name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD-INPE', 'INPE Format'), ('PCD-TOA5', 'TOA5'), ('FIRE POINTS', 'Occurrence of fire'), ('DISEASE OCCURRENCE', 'Occurrence of diseases'), ('GRID', 'Grid');
 
 
-CREATE TABLE terrama2.dataset_item ( id  SERIAL NOT NULL PRIMARY KEY, kind  INTEGER NOT NULL, active  BOOLEAN, dataset_id INTEGER, mask  VARCHAR(255), timezone text DEFAULT '+00:00', path VARCHAR(255), CONSTRAINT fk_dataset_data_type_id FOREIGN KEY(kind) REFERENCES terrama2.dataset_item_type(id) ON UPDATE CASCADE ON DELETE RESTRICT, CONSTRAINT fk_data_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset(id) ON UPDATE CASCADE ON DELETE CASCADE);
+CREATE TABLE terrama2.dataset_item ( id  SERIAL NOT NULL PRIMARY KEY, kind  INTEGER NOT NULL, active  BOOLEAN, dataset_id INTEGER, mask  VARCHAR(255), timezone text DEFAULT '+00:00', path VARCHAR(255), srid INT, CONSTRAINT fk_dataset_data_type_id FOREIGN KEY(kind) REFERENCES terrama2.dataset_item_type(id) ON UPDATE CASCADE ON DELETE RESTRICT, CONSTRAINT fk_data_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset(id) ON UPDATE CASCADE ON DELETE CASCADE, CONSTRAINT fk_dataset_item_srid FOREIGN KEY(srid) REFERENCES public.spatial_ref_sys(srid) ON UPDATE CASCADE ON DELETE CASCADE);
 
 COMMENT ON TABLE terrama2.dataset_item IS 'Stores information about the dataset item';
 COMMENT ON COLUMN terrama2.dataset_item.id IS 'Dataset item identifier';
@@ -101,6 +101,7 @@ COMMENT ON COLUMN terrama2.dataset_item.dataset_id IS 'Dataset identifier';
 COMMENT ON COLUMN terrama2.dataset_item.kind IS 'The identifier of dataset type';
 COMMENT ON COLUMN terrama2.dataset_item.mask IS 'Mask to be used in the collection';
 COMMENT ON COLUMN terrama2.dataset_item.timezone IS 'Which timezone the data is produced';
+COMMENT ON COLUMN terrama2.dataset_item.srid IS 'Data projection';
 
 CREATE TABLE terrama2.storage_metadata( id SERIAL PRIMARY KEY, key VARCHAR(50), value VARCHAR(50), dataset_item_id INTEGER, CONSTRAINT fk_dataset_metadata_dataset_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item(id) ON UPDATE CASCADE ON DELETE CASCADE);
 
