@@ -53,11 +53,16 @@ namespace terrama2
     {
       /*!
         \brief Function to generate file destination of TerraMA2 File
+        \param appFocus A pointer to QMainWindow for handling the ownership module
+        \param destination A reference string containing where is to save file
+        \param json A QJsonObject reference containing the metadata to be saved.
       */
       void saveTerraMA2File(QMainWindow* appFocus, const QString& destination, const QJsonObject& json);
 
       /*!
         \brief It makes dateset item storage metadata from configuration
+        \param uri An uri string.
+        \param configuration A reference to terrama2 configuration class (ConfigManager)
         \return std::map<std::string, std::string> containing the storage metadata values from configuration
       */
       std::map<std::string, std::string> makeStorageMetadata(const QString uri, const ConfigManager& configuration);

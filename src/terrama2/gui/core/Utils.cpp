@@ -70,12 +70,11 @@ std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(cons
 
   QString scheme = url.scheme().toLower();
 
-  if (scheme == "file") // todo: check it and save an specific format
+  if (scheme == "file")
   {
     storageMetadata["PATH"] = configuration.getCollection()->dirPath_.toStdString();
     storageMetadata["KIND"] = url.scheme().toStdString();
   }
-
   else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
   {
   }
