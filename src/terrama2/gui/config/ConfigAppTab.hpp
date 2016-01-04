@@ -76,7 +76,7 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     /*!
       \brief Check if current data are valids and it may be saved.
              This function is called by validateAndSaveChanges to validate display fields.
-      \return A bool value
+      \return A bool value representing the widget validation
     */
     virtual bool validate() = 0;
 
