@@ -19,7 +19,6 @@
   TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
-#include <_types/_uint64_t.h>
 
 /*!
   \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
