@@ -316,7 +316,6 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
 
           if(it != pimpl_->datasets.end())
           {
-            auto& dataset = it->second;
             pimpl_->datasets.erase(it);
           }
         }
