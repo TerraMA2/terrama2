@@ -117,14 +117,12 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
     // get a transactor to interact to the data source
     commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
 
-    std::map<std::string, std::string>::const_iterator it_end = storageMetadata_.end();
-
     uri.setScheme("postgis");
-    uri.setHost(QString::fromStdString((storageMetadata_.find("PG_HOST") != it_end) ? storageMetadata_.find("PG_HOST")->second : ""));
-    uri.setPort(std::stoi((storageMetadata_.find("PG_PORT") != it_end) ? storageMetadata_.find("PG_PORT")->second : ""));
-    uri.setUserName(QString::fromStdString((storageMetadata_.find("PG_USER") != it_end) ? storageMetadata_.find("PG_USER")->second : ""));
-    uri.setPassword(QString::fromStdString((storageMetadata_.find("PG_PASSWORD") != it_end) ? storageMetadata_.find("PG_PASSWORD")->second : ""));
-    QString path = "/" + QString::fromStdString(((storageMetadata_.find("PG_DB_NAME") != it_end) ? storageMetadata_.find("PG_DB_NAME")->second + "." + dataSetName : "." + dataSetName));
+    uri.setHost(QString::fromStdString(storageMetadata_.at("PG_HOST")));
+    uri.setPort(std::stoi(storageMetadata_.at("PG_PORT")));
+    uri.setUserName(QString::fromStdString(storageMetadata_.at("PG_USER")));
+    uri.setPassword(QString::fromStdString(storageMetadata_.at("PG_PASSWORD")));
+    QString path = "/" + QString::fromStdString(storageMetadata_.at("PG_DB_NAME") + "/" + dataSetName);
     uri.setPath(path);
   }
   catch(terrama2::Exception& e)
