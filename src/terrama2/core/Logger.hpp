@@ -52,7 +52,7 @@ namespace terrama2
 
       private:
         boost::shared_ptr<text_sink> sink_; //!< Sink for handling records.
-        std::string loggerPath_; //!<
+        std::string loggerPath_; //!< Path to the log.
     }; // end class logger
 
     //! Override operator<< to enable sets terrama2 exception in log. It formats the exception and put it in stream

@@ -53,7 +53,7 @@ namespace terrama2
     {
       public:
 
-        /*! Dataset item type.
+        /*! \brief Dataset item type.
          Each constant must exist in table terrama2.dataset_item_type and the value must be the same from column id.
          */
         enum Kind
@@ -129,19 +129,19 @@ namespace terrama2
         /*! \brief Sets the dataset id */
         void setDataSet(uint64_t id);
 
-        /*! \brief Returns the filter to be used when collecting this data item. */
+        /*! \brief Returns the filter to be used when collecting this dataset item. */
         const Filter& filter() const;
 
-        /*! \brief Sets the filter to be used when collecting data. */
+        /*! \brief Sets the filter to be used when collecting dataset item. */
         void setFilter(const Filter& f);
 
-        /*! \brief Returns the storage strategy metadata. */
+        /*! \brief Returns the storage metadata. */
         const std::map<std::string, std::string>& storageMetadata() const;
 
-        /*! \brief Returns the storage strategy metadata. */
+        /*! \brief Returns the storage metadata. */
         std::map<std::string, std::string>& storageMetadata();
 
-        /*! \brief Sets the storage strategy metadata. */
+        /*! \brief Sets the storage metadata. */
         void setStorageMetadata(const std::map<std::string, std::string>& sm);
 
         /*! \brief Returns the spatial reference identifier. */
@@ -152,16 +152,16 @@ namespace terrama2
 
       private:
 
-        Kind kind_;
-        uint64_t id_;
-        uint64_t dataset_;
-        Status status_;
-        std::string mask_;
-        std::string timezone_;
-        std::string path_;
-        Filter filter_;
-        std::map<std::string, std::string> storageMetadata_;
-        uint64_t srid_;
+        Kind kind_; //!< Dataset item type.
+        uint64_t id_; //!< Identifier of the dataset item.
+        uint64_t dataset_; //!< Identifier of the dataset item.
+        Status status_; //!< Dataset item status for collection.
+        std::string mask_; //!< Mask of the dataset item.
+        std::string timezone_; //!< Timezone of the dataset item.
+        std::string path_; //!< Path to a dataset item.
+        Filter filter_; //!< Filter to be used when collecting this dataset item.
+        std::map<std::string, std::string> storageMetadata_; //!< Storage metadata.
+        uint64_t srid_; //!< Projection SRID.
     };
 
   } // end namespace core

@@ -66,7 +66,7 @@ namespace terrama2
     {
       public:
 
-        /*! Dataset type.
+        /*! \brief Dataset type.
          Each constant must exist in table terrama2.dataset_type and the value must be the same from column id.
          */
         enum Kind
@@ -228,14 +228,14 @@ namespace terrama2
         void setCollectRules(const std::vector<CollectRule>& rules);
 
         /*!
-           \brief Returns the list of of dataset items.
+           \brief Returns the list of dataset items.
 
            \return The list of dataset items.
          */
         std::vector<DataSetItem>& dataSetItems();
 
         /*!
-           \brief Returns the list of of dataset items.
+           \brief Returns the list of dataset items.
 
            \return The list of dataset items.
          */
@@ -257,20 +257,20 @@ namespace terrama2
       private:
 
 
-        std::string name_;
-        Kind kind_;
-        uint64_t id_;
-        uint64_t provider_;
-        std::string description_;
-        Status status_;
-        te::dt::TimeDuration dataFrequency_;
-        te::dt::TimeDuration schedule_;
-        te::dt::TimeDuration scheduleRetry_;
-        te::dt::TimeDuration scheduleTimeout_;
-        std::vector<CollectRule> collectRules_;
-        std::map<std::string, std::string> metadata_;
-        std::vector<DataSetItem> datasetItems_;
-        Intersection intersection_;
+        std::string name_; //!< Dataset name, must be unique.
+        Kind kind_; //!< Dataset type.
+        uint64_t id_; //!< Identifier of the dataset.
+        uint64_t provider_; //!< Identifier of the data provider.
+        std::string description_; //!< Brief description of the dataset.
+        Status status_; //!< Dataset status for collection.
+        te::dt::TimeDuration dataFrequency_; //!< The time frequency that this dataset must try to acquire a new data.
+        te::dt::TimeDuration schedule_; //!< The time scheduled to the next collection.
+        te::dt::TimeDuration scheduleRetry_; //!< The time frequency to retry a collection if the data wasn't available in the scheduled time.
+        te::dt::TimeDuration scheduleTimeout_; //!< The time limit to retry a scheduled collection.
+        std::vector<CollectRule> collectRules_; //!< The collect rules.
+        std::map<std::string, std::string> metadata_; //!< Dataset Metadata.
+        std::vector<DataSetItem> datasetItems_; //!< List of dataset items.
+        Intersection intersection_; //!< Intersection information.
     };
 
   } // end namespace core
