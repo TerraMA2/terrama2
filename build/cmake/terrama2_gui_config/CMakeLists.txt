@@ -51,6 +51,7 @@ add_executable(terrama2_config ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TER
 target_link_libraries(terrama2_config terrama2_gui_core
                                       terrama2_mod_ws_collector_client
                                       terrama2_mod_collector
+                                      terralib_mod_qt_widgets
                                       ${CURL_LIBRARIES})
 
 qt5_use_modules(terrama2_config Widgets Network)

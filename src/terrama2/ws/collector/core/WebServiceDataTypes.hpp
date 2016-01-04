@@ -19,6 +19,8 @@
   TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
+#include <_types/_uint64_t.h>
+
 /*!
   \file terrama2/ws/collector/core/WebServiceDataTypes.hpp
 
@@ -65,6 +67,7 @@ struct DataSetItem
   std::string   mask;
   std::string   timezone;
   std::string   path;
+  uint64_t      srid;
 
 // the filters values need to be initialized to avoid to create non-existent filters
   uint64_t          filter_datasetItem;

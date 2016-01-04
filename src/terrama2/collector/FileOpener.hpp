@@ -20,44 +20,46 @@
 */
 
 /*!
-  \file unittest/collector/TsCollectorService.cpp
+  \file terrama2/collector/FileOpener.hpp
 
-  \brief Test Collector service...
+  \brief
 
-  \author Paulo R. M. Oliveira
+ \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
 
-//QT
-#include <QtTest>
+#ifndef __TERRAMA2_COLLECTOR_FILEOPENER_HPP__
+#define __TERRAMA2_COLLECTOR_FILEOPENER_HPP__
 
-//TODO: add and remove methods
-class TsCollectorService: public QObject
+// STL
+#include <memory>
+#include <cassert>
+
+/*!
+     * \brief The FileOpener class implements the RAII technique to control file operations.
+     *
+*/
+
+
+namespace terrama2
 {
-  Q_OBJECT
+  namespace collector
+  {
+    class FileOpener
+    {
+      public:
+        FileOpener(const char* filename, const char* attribute);
 
-protected:
+        FileOpener(std::FILE* newfile);
 
-private slots:
-    void initTestCase(); // Run before all tests
+        std::FILE* file() const;
 
-    void cleanupTestCase(); // Run after all tests
+        ~FileOpener();
 
+       private:
+         std::FILE* file_;
+    };
+  }
+}
 
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-
-    void TestStartServerTwice();
-
-    void TestStopServer();
-
-
-    //******End of Test functions****
-
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#endif //__TERRAMA2_COLLECTOR_FILEOPENER_HPP__

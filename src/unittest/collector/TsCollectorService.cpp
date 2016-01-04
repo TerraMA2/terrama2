@@ -28,6 +28,7 @@
 */
 
 #include "TsCollectorService.hpp"
+#include "Utils.hpp"
 
 #include <terrama2/collector/CollectorService.hpp>
 #include <terrama2/collector/Exception.hpp>
@@ -68,7 +69,7 @@ void TsCollectorService::cleanup()
 
 }
 
-void TsCollectorService::TestStartServer()
+void TsCollectorService::TestStartServerTwice()
 {
   terrama2::collector::CollectorService service;
   service.start();
@@ -82,7 +83,7 @@ void TsCollectorService::TestStartServer()
     return ;
   }
 
-  QFAIL("Should not be here...");
+  QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
 void TsCollectorService::TestStopServer()
@@ -97,7 +98,7 @@ void TsCollectorService::TestStopServer()
   }
   catch(terrama2::collector::ServiceAlreadyRunnningError& e)
   {
-    QFAIL("Should not be here...");
+    QFAIL(NO_EXCEPTION_EXPECTED);
   }
 
   return ;

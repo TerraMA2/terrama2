@@ -53,15 +53,15 @@ namespace terrama2
           UNKNOW
         };
 
-        uint64_t log(uint64_t dataSetItemId, std::string origin_uri, Status s);
+        virtual uint64_t log(const uint64_t dataSetItemId, const std::string& origin_uri, const Status s) const;
 
-        void log(uint64_t dataSetItemId, std::vector< std::string > origin_uri, Status s);
+        virtual void log( const uint64_t dataSetItemId, const std::vector< std::string >& origin_uris, const Status s) const;
 
-        void updateLog(uint64_t id, std::string uri, Status s, std::string data_timestamp);
+        virtual void updateLog(const uint64_t id, const std::string& uri, const Status s, const std::string& data_timestamp) const;
 
-        void updateLog(std::vector< std::string > origin_uris, std::string uri, Status s, std::string data_timestamp);
+        virtual void updateLog(const std::vector<std::string>& origin_uris, const std::string& uri, Status s, const std::string& data_timestamp) const;
 
-        std::shared_ptr<te::dt::TimeInstantTZ> getDataSetItemLastDateTime(uint64_t id);
+        virtual std::shared_ptr<te::dt::TimeInstantTZ> getDataSetItemLastDateTime(uint64_t id) const;
     };
   }
 }

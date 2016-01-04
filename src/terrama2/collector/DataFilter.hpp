@@ -32,6 +32,7 @@
 #ifndef __TERRAMA2_COLLECTOR_FILTER_HPP__
 #define __TERRAMA2_COLLECTOR_FILTER_HPP__
 
+#include "Log.hpp"
 #include "../core/DataSetItem.hpp"
 #include "../core/DataSet.hpp"
 
@@ -83,7 +84,16 @@ namespace terrama2
     class DataFilter : public boost::noncopyable
     {
       public:
-        DataFilter(const core::DataSetItem& datasetItem);
+      /*!
+           \brief Creates a DataFilter object to filter DataSetItem data.
+
+           Recover last collected date for the DataSetItem,
+           and pre process the mask.
+
+
+           \exception EmptyMaskError Raise when DataSetItem Filter mask is not set.
+         */
+        DataFilter(const core::DataSetItem& datasetItem, const terrama2::collector::Log& collectLog);
         ~DataFilter();
 
         /*!
@@ -125,11 +135,14 @@ namespace terrama2
              */
         void getDataSetLastDateTime(te::dt::Date& date, te::dt::TimeDuration& time) const;
 
-
+    private:
         void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
 
-    private:
-        //! Prepare mask data for wildcards identification
+        /*!
+           \brief Prepare mask data for wildcards identification
+
+           \exception EmptyMaskError Raise when DataSetItem Filter mask is not set.
+         */
         void processMask();
         //! Returns true if the date is after discardBefore_ and before discardAfter. Updates dataSetLastDateTime_ with the latest date.
         bool validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);

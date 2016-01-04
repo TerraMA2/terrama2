@@ -39,7 +39,7 @@
 //Terrlib
 #include <terralib/dataaccess/utils/Utils.h>
 
-uint64_t terrama2::collector::Log::log(uint64_t dataSetItemId, std::string origin_uri, Status s)
+uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::string& origin_uri, const Status s) const
 {
   try
   {
@@ -74,10 +74,10 @@ uint64_t terrama2::collector::Log::log(uint64_t dataSetItemId, std::string origi
   return 0;
 }
 
-void terrama2::collector::Log::log(uint64_t dataSetItemId, std::vector< std::string > origin_uris, Status s)
+void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vector< std::string >& origin_uris, const Status s) const
 {
   if(origin_uris.empty())
-    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to log.");
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files to log.");
 
   try
   {
@@ -121,7 +121,7 @@ void terrama2::collector::Log::log(uint64_t dataSetItemId, std::vector< std::str
   }
 }
 
-void terrama2::collector::Log::updateLog(uint64_t id, std::string uri, Status s, std::string data_timestamp)
+void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& uri, const Status s, const std::string& data_timestamp) const
 {
   try
   {
@@ -155,10 +155,10 @@ void terrama2::collector::Log::updateLog(uint64_t id, std::string uri, Status s,
 }
 
 
-void terrama2::collector::Log::updateLog(std::vector< std::string > origin_uris, std::string uri, Status s, std::string data_timestamp)
+void terrama2::collector::Log::updateLog(const std::vector< std::string >& origin_uris, const std::string& uri, const Status s, const std::string& data_timestamp) const
 {
   if(origin_uris.empty())
-    throw LogError() << ErrorDescription("terrama2::collector::Log: No files was given to update.");
+    throw LogError() << ErrorDescription("terrama2::collector::Log: No files to update.");
 
   try
   {
@@ -218,7 +218,7 @@ void terrama2::collector::Log::updateLog(std::vector< std::string > origin_uris,
 }
 
 
-std::shared_ptr<te::dt::TimeInstantTZ> terrama2::collector::Log::getDataSetItemLastDateTime(uint64_t id)
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::collector::Log::getDataSetItemLastDateTime(uint64_t id) const
 {
   std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
 

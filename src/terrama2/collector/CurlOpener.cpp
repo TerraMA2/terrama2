@@ -20,44 +20,39 @@
 */
 
 /*!
-  \file unittest/collector/TsCollectorService.cpp
+  \file terrama2/collector/CurlOpener.cpp
 
-  \brief Test Collector service...
+  \brief
 
-  \author Paulo R. M. Oliveira
+ \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+// TerraMA2
+#include "CurlOpener.hpp" 
 
-//QT
-#include <QtTest>
+// Libcurl
+#include <curl/curl.h>
 
-//TODO: add and remove methods
-class TsCollectorService: public QObject
+
+terrama2::collector::CurlOpener::CurlOpener()
 {
-  Q_OBJECT
-
-protected:
-
-private slots:
-    void initTestCase(); // Run before all tests
-
-    void cleanupTestCase(); // Run after all tests
+  curl_ = curl_easy_init();
+}
 
 
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-
-    void TestStartServerTwice();
-
-    void TestStopServer();
+void terrama2::collector::CurlOpener::init()
+{
+  curl_easy_cleanup(curl_);
+  curl_ = curl_easy_init();
+}
 
 
-    //******End of Test functions****
+CURL* terrama2::collector::CurlOpener::fcurl() const
+{
+  return curl_;
+}
 
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+terrama2::collector::CurlOpener::~CurlOpener()
+{
+  curl_easy_cleanup(curl_);
+}

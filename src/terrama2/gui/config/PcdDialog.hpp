@@ -31,6 +31,8 @@
 #ifndef __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
 #define __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
 
+// Qt
+#include <QDialog>
 
 // Boost
 #include <boost/noncopyable.hpp>
@@ -47,6 +49,8 @@ struct PCD
   QString latitude;
   QString longitude;
   bool active;
+  uint64_t srid;
+  QString timezone;
 };
 
 class PcdDialog : public QDialog, private boost::noncopyable
@@ -63,6 +67,7 @@ class PcdDialog : public QDialog, private boost::noncopyable
   private slots:
     void onPcdChanged();
     void onConfirmClicked();
+    void onProjectionClicked();
 
   private:
     struct Impl;

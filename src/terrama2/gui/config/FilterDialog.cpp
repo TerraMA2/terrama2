@@ -85,8 +85,7 @@ FilterDialog::FilterDialog(FilterType type, const QString& timezone, QWidget* pa
 {
   pimpl_->ui_->setupUi(this);
 
-  std::string timeZone = "UTC" + timezone.toStdString();
-  pimpl_->utc_ = timeZone.c_str();
+  pimpl_->utc_ = timezone.toStdString().c_str();
 
 //  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(accept()));
   connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(onOkBtnClicked()));

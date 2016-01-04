@@ -4,11 +4,14 @@
 #include "../../core/Utils.hpp"
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
-#include "ProjectionDialog.hpp"
 #include "PcdDialog.hpp"
 #include "SurfaceDialog.hpp"
 #include "CollectorRuleDialog.hpp"
 #include "../core/Utils.hpp"
+
+
+// TerraLib
+#include <terralib/qt/widgets/srs/SRSManagerDialog.h>
 
 // Qt
 #include <QMessageBox>
@@ -24,7 +27,6 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 {
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
   connect(ui_->pointFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onDataPointBtnClicked()));
-  connect(ui_->projectionPointBtn, SIGNAL(clicked()), SLOT(onProjectionClicked()));
 
   connect(ui_->btnPointPCDInsertFileNameLocation, SIGNAL(clicked()), SLOT(onPCDInsertFileClicked()));
   connect(ui_->btnPointPCDDeleteFileNameLocation, SIGNAL(clicked()), SLOT(onPCDRemoveClicked()));
@@ -32,7 +34,6 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
   connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
 
-  ui_->projectionPointBtn->setEnabled(false);
 
   // export pcd button
   connect(ui_->exportDataPointBtn, SIGNAL(clicked()), SLOT(onPCDExportClicked()));
@@ -72,7 +73,6 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->pointFormatDataMinute->setValidator(new QIntValidator(ui_->pointFormatDataMinute));
   ui_->pointFormatDataSecond->setValidator(new QIntValidator(ui_->pointFormatDataSecond));
 
-  ui_->pointFormatDataTimeZoneCmb->setCurrentText("+00:00");
 }
 
 ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -129,8 +129,8 @@ void ConfigAppWeatherPcd::save()
   datasetItem->setKind(terrama2::core::ToDataSetItemKind(ui_->pointFormatDataFormat->currentIndex() + 2));
   datasetItem->setMask(ui_->pointFormatDataMask->text().toStdString());
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
-  datasetItem->setTimezone(ui_->pointFormatDataTimeZoneCmb->currentText().toStdString());
   datasetItem->setPath(ui_->pointFormatDataPath->text().toStdString());
+  datasetItem->setSrid(srid_);
 
   //TODO: save the lua script in table
   terrama2::core::DataSet::CollectRule* rule;
@@ -140,6 +140,7 @@ void ConfigAppWeatherPcd::save()
   datasetMetadata["UNIT"] = ui_->pointFormatDataUnit->text().toStdString();
 
   dataset.setMetadata(datasetMetadata);
+  datasetItem->setSrid(srid_);
 
   if (!luaScript_.trimmed().isEmpty())
   {
@@ -216,6 +217,8 @@ void ConfigAppWeatherPcd::onInsertPointBtnClicked()
     selectedData_.clear();
     app_->getWeatherTab()->changeTab(*this, *ui_->DataPointPage);
     tableClean();
+
+    ui_->occurenceProjectionTxt->setText("0");
   }
   else
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
@@ -260,8 +263,14 @@ void ConfigAppWeatherPcd::onCollectorRuleClicked()
 
 void ConfigAppWeatherPcd::onProjectionClicked()
 {
-  ProjectionDialog dialog(app_);
-  dialog.exec();
+  te::qt::widgets::SRSManagerDialog srsDialog(app_);
+  srsDialog.setWindowTitle(tr("Choose the SRS"));
+
+  if (srsDialog.exec() == QDialog::Rejected)
+    return;
+
+
+  srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
 }
 
 void ConfigAppWeatherPcd::onMenuMaskClicked(QAction* action)
@@ -272,7 +281,7 @@ void ConfigAppWeatherPcd::onMenuMaskClicked(QAction* action)
 
 void ConfigAppWeatherPcd::onPCDInsertFileClicked()
 {
-  PCD pcd;
+  PCD pcd {"", "", "", true, 0, ""};
   pcdFormCreation(pcd);
 }
 
@@ -292,6 +301,8 @@ void ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
     pcd.latitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 1)->text();
     pcd.longitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 2)->text();
     pcd.active = ui_->tblPointPCDFileNameLocation->item(item->row(), 3)->text() == tr("true") ? true : false;
+    pcd.srid = (uint64_t)ui_->tblPointPCDFileNameLocation->item(item->row(), 4)->text().toInt();
+    pcd.timezone = ui_->tblPointPCDFileNameLocation->item(item->row(), 5)->text();
     pcdFormCreation(pcd, true);
     }
 }
@@ -354,6 +365,8 @@ void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd, bool editing)
       ui_->tblPointPCDFileNameLocation->item(currentLine, 1)->setText(pcd.latitude);
       ui_->tblPointPCDFileNameLocation->item(currentLine, 2)->setText(pcd.longitude);
       ui_->tblPointPCDFileNameLocation->item(currentLine, 3)->setText(pcd.active ? tr("true") : tr("false"));
+      ui_->tblPointPCDFileNameLocation->item(currentLine, 4)->setText(std::to_string(pcd.srid).c_str());
+      ui_->tblPointPCDFileNameLocation->item(currentLine, 5)->setText(pcd.timezone);
       return;
     }
 
@@ -375,6 +388,14 @@ void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd, bool editing)
     item = new QTableWidgetItem();
     item->setText(pcd.active ? tr("true") : tr("false"));
     ui_->tblPointPCDFileNameLocation->setItem(line, 3, item);
+
+    item = new QTableWidgetItem();
+    item->setText(std::to_string(pcd.srid).c_str());
+    ui_->tblPointPCDFileNameLocation->setItem(line, 4, item);
+
+    item = new QTableWidgetItem();
+    item->setText(pcd.timezone);
+    ui_->tblPointPCDFileNameLocation->setItem(line, 5, item);
     }
 }
 
@@ -383,4 +404,9 @@ void ConfigAppWeatherPcd::tableClean()
   // Clear the pcd table
   while(ui_->tblPointPCDFileNameLocation->rowCount() > 0)
     ui_->tblPointPCDFileNameLocation->removeRow(0);
+}
+
+void ConfigAppWeatherPcd::setSrid(const uint64_t srid)
+{
+  srid_ = srid;
 }
