@@ -41,6 +41,7 @@
 #include <QSharedPointer>
 
 
+// Forward declarations
 class QTreeWidgetItem;
 class ConfigAppWeatherServer;
 class ConfigAppWeatherGridTab;
@@ -57,22 +58,42 @@ namespace terrama2
 
 class ConfigAppWeatherTab : public ConfigAppTab
 {
+
   Q_OBJECT
 
   public:
+    /*!
+      @copydoc ConfigAppTab::ConfigAppTab(app, ui)
+    */
     ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+
+    //! Destructor
     ~ConfigAppWeatherTab();
 
-    //! Implemented from ConfigAppTab. It is loading each subtab
+    /*!
+      @copydoc ConfigAppTab::load()
+
+      It loads each subtab
+    */
     void load();
 
-    //! Implemented from ConfigAppTab. It detects if the there any data changed at form
+    /*!
+      @copydoc ConfigAppTab::dataChanged()
+
+      It detects if the there any data changed at form
+    */
     bool dataChanged();
 
-    //! Implemented from ConfigAppTab. Validate each widget filled
+    /*!
+      @copydoc ConfigAppTab::validate()
+
+      Validate each widget filled out
+    */
     bool validate();
 
-    //! Implemented from ConfigAppTab.
+    /*!
+      @copydoc ConfigAppTab::save()
+    */
     void save();
 
     //! Discard changes of form and clean all
@@ -81,42 +102,85 @@ class ConfigAppWeatherTab : public ConfigAppTab
     //! It remove all children from QWidgetTree
     void clearList();
 
-    //! Set visible of operations buttons
+    /*!
+      \brief Set visible of operations buttons
+      \param state A bool state to hide or to show ok and cancel buttons
+    */
     void displayOperationButtons(bool state);
 
-    //! It handles when the subtab can change
-    void changeTab(ConfigAppTab &sender, QWidget &widget);
+    /*!
+      \brief It handles when the subtab can change
+      \param sender A ConfigAppTab reference representing who requested for change
+      \param widget A QWidget instance representing the object to be set
+    */
+    void changeTab(ConfigAppTab& sender, QWidget& widget);
 
-    //! Retrieve cached map of providers
+    /*!
+      \brief Retrieve cached map of providers
+      \return A copy of QMap<std::string,terrama2::core::DataProvider>
+    */
     QMap<std::string,terrama2::core::DataProvider> providers();
 
-    //! It retrieves dataprovider from cached list
+    /*!
+      \brief It retrieves dataprovider from cached list
+      \param identifier A string to be searched in terrama2 providers list
+      \return A copy of terrama2::core::DataProvider object found
+    */
     terrama2::core::DataProvider getProvider(const std::string& identifier);
 
-    //! It retrieves dataset from dataprovider list
+    /*!
+      \brief It retrieves dataset from dataprovider list
+      \param identifier A string to be searched in dataset list
+      \return A copy of terrama2::core::DataSet object found
+    */
     terrama2::core::DataSet getDataSet(const std::string& identifier);
 
-    //! It is used for insert and update cached dataprovider list
+    /*!
+      \brief It is used for insert and update cached dataprovider list
+      \param provider A terrama2::core::DataProvider reference to be saved in cache list
+    */
     void addCachedProvider(const terrama2::core::DataProvider& provider);
 
-    //! Remove provider from cached map
+    /*!
+      \brief Remove provider from cached map
+      \param provider A terrama2::core::DataProvider reference to be searched in cached list and to be removed
+    */
     void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
 
-    //! Add a dataset in cached map of datasets
+    /*!
+      \brief Add a dataset in cached map of datasets
+      \param dataset A terrama2::core::DataSet reference to be saved in cache list
+    */
     void addCachedDataSet(const terrama2::core::DataSet& dataset);
 
-    //! Remove a dataset from cached dataset map
+    /*!
+      \brief Remove a dataset from cached dataset map
+      \param dataset A terrama2::core::DataSet reference to be searched in cached list and to be removed
+    */
     void removeCachedDataSet(const terrama2::core::DataSet& dataset);
 
-    //! It refresh the weatherdatalist from widget and string for replace
+    /*!
+      \brief It refresh the weatherdatalist from widget and string for replace
+      \param widget A pointer to QTreeWidgetItem defining where is to start.
+      \param searchFor A QString value to be searched in list
+      \param replace A QString value to be replaced if found it
+    */
     void refreshList(QTreeWidgetItem* widget, QString searchFor, QString replace);
 
+    /*!
+     * \brief It handles visibility of dataseries buttons.
+     * \param state A bool state to set visible of dataseries buttons
+    */
     void showDataSeries(bool state);
 
   private:
     //! It hides each one data series button
     void hideDataSetButtons();
 
+    /*!
+      \brief It hides set of widgets except the passed argument
+      \param except A pointer to QWidget to skip
+    */
     void hidePanels(QWidget* except);
 
   private slots:

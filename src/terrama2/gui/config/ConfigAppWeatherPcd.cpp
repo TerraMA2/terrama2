@@ -53,15 +53,7 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 
   tableClean();
 
-  QMenu* menuMask = new QMenu(tr("Máscaras"));
-  menuMask->addAction(tr("%a - ano com dois digitos"));
-  menuMask->addAction(tr("%A - ano com quatro digitos"));
-  menuMask->addAction(tr("%d - dia com dois digitos"));
-  menuMask->addAction(tr("%M - mes com dois digitos"));
-  menuMask->addAction(tr("%h - hora com dois digitos"));
-  menuMask->addAction(tr("%m - minuto com dois digitos"));
-  menuMask->addAction(tr("%s - segundo com dois digitos"));
-  menuMask->addAction(tr("%. - um caracter qualquer"));
+  auto menuMask = terrama2::gui::core::makeMaskHelpers();
 
   ui_->filePointDiffMaskBtn->setMenu(menuMask);
   ui_->filePointDiffMaskBtn->setPopupMode(QToolButton::InstantPopup);
@@ -98,6 +90,7 @@ bool ConfigAppWeatherPcd::validate()
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD Name cannot be empty"));
   }
 
+  checkMask(ui_->pointFormatDataMask->text());
   // TODO: validate all fields
 
   return true;
@@ -152,31 +145,7 @@ void ConfigAppWeatherPcd::save()
     dataset.setCollectRules(rules);
   }
 
-  std::map<std::string, std::string> storageMetadata;
-  auto configuration = app_->getConfiguration();
-
-  QUrl url(provider.uri().c_str());
-  QString scheme = url.scheme().toLower();
-
-  if (scheme == "file") // todo: check it and save an specific format
-    storageMetadata["PATH"] = configuration->getCollection()->dirPath_.toStdString();
-
-  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
-  {
-  }
-  else if (scheme == "ftp") // TODO: ftp storage metadata
-  {
-  }
-  else // postgis
-  {
-    storageMetadata["PG_HOST"] = configuration->getDatabase()->host_.toStdString();
-    storageMetadata["PG_PORT"] = configuration->getDatabase()->port_;
-    storageMetadata["PG_USER"] = configuration->getDatabase()->user_.toStdString();
-    storageMetadata["PG_PASSWORD"] = configuration->getDatabase()->password_.toStdString();
-    storageMetadata["PG_DB_NAME"] = configuration->getDatabase()->name_.toStdString();
-    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
-    storageMetadata["KIND"] = url.scheme().toStdString();
-  }
+  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem->setStorageMetadata(storageMetadata);
 
@@ -304,7 +273,7 @@ void ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
     pcd.srid = (uint64_t)ui_->tblPointPCDFileNameLocation->item(item->row(), 4)->text().toInt();
     pcd.timezone = ui_->tblPointPCDFileNameLocation->item(item->row(), 5)->text();
     pcdFormCreation(pcd, true);
-    }
+  }
 }
 
 void ConfigAppWeatherPcd::onSurfaceBtnClicked()

@@ -1,12 +1,15 @@
+// TerraMA2
 #include "ConfigAppWeatherOccurrence.hpp"
-#include "../../core/Filter.hpp"
-#include "Exception.hpp"
-#include "../../core/DataProvider.hpp"
-#include "../../core/Utils.hpp"
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "FilterDialog.hpp"
 #include "IntersectionDialog.hpp"
+#include "Exception.hpp"
+#include "../core/Utils.hpp"
+#include "../../core/Filter.hpp"
+#include "../../core/DataProvider.hpp"
+#include "../../core/Utils.hpp"
+#include "../../core/Logger.hpp"
 
 // TerraLib
 #include <terralib/qt/widgets/srs/SRSManagerDialog.h>
@@ -55,11 +58,7 @@ bool ConfigAppWeatherOccurrence::validate()
     throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Occurence Name is invalid"));
   }
 
-  if (ui_->pointDiffFormatDataMask->text().trimmed().isEmpty())
-  {
-    ui_->pointDiffFormatDataMask->setFocus();
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The occurrence data mask is invalid."));
-  }
+  checkMask(ui_->pointDiffFormatDataMask->text());
 
   //TODO: validate correctly all fields
   return true;
@@ -97,31 +96,7 @@ void ConfigAppWeatherOccurrence::save()
   else
     datasetItem = new terrama2::core::DataSetItem;
 
-  std::map<std::string, std::string> storageMetadata;
-  auto configuration = app_->getConfiguration();
-
-  QUrl url(provider.uri().c_str());
-  QString scheme = url.scheme().toLower();
-
-  if (scheme == "file") // todo: check it and save an specific format
-    storageMetadata["PATH"] = configuration->getCollection()->dirPath_.toStdString();
-
-  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
-  {
-  }
-  else if (scheme == "ftp") // TODO: ftp storage metadata
-  {
-  }
-  else // postgis
-  {
-    storageMetadata["PG_HOST"] = configuration->getDatabase()->host_.toStdString();
-    storageMetadata["PG_PORT"] = configuration->getDatabase()->port_;
-    storageMetadata["PG_USER"] = configuration->getDatabase()->user_.toStdString();
-    storageMetadata["PG_PASSWORD"] = configuration->getDatabase()->password_.toStdString();
-    storageMetadata["PG_DB_NAME"] = configuration->getDatabase()->name_.toStdString();
-    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
-    storageMetadata["KIND"] = url.scheme().toStdString();
-  }
+  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem->setStorageMetadata(storageMetadata);
   datasetItem->setSrid(srid_);
@@ -261,6 +236,7 @@ void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
     {
       const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
       QMessageBox::warning(app_, tr("TerraMA2"), *message);
+      TERRAMA2_LOG_WARNING() << "Data Set Occurrence Removing: " << *message;
     }
   }
   ui_->cancelBtn->clicked();

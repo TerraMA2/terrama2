@@ -7,10 +7,18 @@
 // Forward declaration
 class QTreeWidgetItem;
 
-class ConfigAppWeatherServer : public ConfigAppTab {
+
+class ConfigAppWeatherServer : public ConfigAppTab
+{
+
   Q_OBJECT
   public:
+    /*!
+      @copydoc ConfigAppTab::ConfigAppTab(app, ui);
+    */
     ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui);
+
+    //! Destructor
     ~ConfigAppWeatherServer();
 
     //! It is used for connect QTextEdit to allow datachanged
@@ -52,7 +60,7 @@ class ConfigAppWeatherServer : public ConfigAppTab {
     void onAddressFileBtnClicked();
 
   private:
-    QString uri_; //!< Value used for store uri parsed value
+    QString uri_; //!< Value used for store parsed uri value
 };
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERSERVER_HPP__

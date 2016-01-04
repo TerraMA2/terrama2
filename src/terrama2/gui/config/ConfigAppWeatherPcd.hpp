@@ -45,18 +45,26 @@ struct PCD;
 
 class ConfigAppWeatherPcd : public ConfigAppTab
 {
+
   Q_OBJECT
+
   public:
+    /*!
+      @copydoc ConfigAppTab::ConfigAppTab(app, ui)
+    */
     ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui);
+
+    //! Destructor
     ~ConfigAppWeatherPcd();
 
+    //! It cleans up the fields to initial state
     void load();
 
     /*!
-     * \brief It will load the pcd values to QTableWidget
-     * \param dataset: terrama2::core::DataSet to fill out the table
-     * \todo It must be implemented following the new terrama2 models
-     */
+      \brief It will load the pcd values to QTableWidget
+      \param dataset: terrama2::core::DataSet to fill out the table
+      \todo It must be implemented following the new terrama2 models
+    */
     void load(const terrama2::core::DataSet& dataset);
 
     /*!
@@ -77,12 +85,19 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     */
     void tableClean();
 
-    //! Sets the projection
+    /*!
+      \brief Sets the projection
+      \param srid A Spatial Reference System Identifier to be filled up.
+    */
     void setSrid(const uint64_t srid);
 
   private:
-    //! Common function that displays PCD form to insert/modify elements at QTableWidget
-    void pcdFormCreation(PCD&, bool editing = false);
+    /*!
+      \brief Common function that displays PCD form to insert/modify elements at QTableWidget
+      \param pcd A PCD reference to be filled out
+      \param editing A bool value defining if which mode is (default is false).
+    */
+    void pcdFormCreation(PCD& pcd, bool editing = false);
 
   private slots:
     //! Slot triggered when insert pcd button has been clicked. It displays the PCD tab
@@ -97,8 +112,11 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     //! Slot triggered when the projection button has been clicked and it displays the DataSet Projection GUI
     void onProjectionClicked();
 
-    //! It populates the msak field with menu mask values, like "%d %a"
-    void onMenuMaskClicked(QAction*);
+    /*!
+      \brief It populates the msak field with menu mask values, like "%d %a"
+      \param action A pointer to Action requested.
+    */
+    void onMenuMaskClicked(QAction* action);
 
     //! Slot triggered when the PCD plus button has been clicked and it displays the Insertion/Modification PCD GUI
     void onPCDInsertFileClicked();
@@ -106,8 +124,11 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     //! Slot triggered when click on remove selected pcd from table widget
     void onPCDRemoveClicked();
 
-    //! Slot triggered when double clicked at pcd table widget and it displays the pcd dialog with filled fields
-    void onPCDTableDoubleClicked(QTableWidgetItem*);
+    /*!
+      \brief Slot triggered when double clicked at pcd table widget and it displays the pcd dialog with filled fields
+      \param item A pointer to requested item from list.
+    */
+    void onPCDTableDoubleClicked(QTableWidgetItem* item);
 
     //! Slot triggered to display SurfaceDialog
     void onSurfaceBtnClicked();

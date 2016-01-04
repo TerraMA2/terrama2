@@ -6,6 +6,7 @@
 #include "../../core/DataManager.hpp"
 #include "Exception.hpp"
 #include "../../core/Utils.hpp"
+#include "../../core/Logger.hpp"
 
 // QT
 #include <QMessageBox>
@@ -152,7 +153,7 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
   {
     message.append("Unknown Error");
   }
-  QMessageBox::critical(app_, tr("TerraMA2 Error"), message);
+  QMessageBox::warning(app_, tr("TerraMA2 Error"), message);
 }
 
 void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
@@ -245,6 +246,8 @@ void ConfigAppWeatherServer::validateConnection()
           if (!path.endsWith("/"))
             path.append("/");
         }
+        else
+          path = "/";
 
         url.setPath(path);
       }
@@ -262,7 +265,7 @@ void ConfigAppWeatherServer::validateConnection()
   if (!url.isValid())
   {
     ui_->connectionAddress->setFocus();
-    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Invalid URL address typed"));
+    throw terrama2::gui::URLError() << terrama2::ErrorDescription(tr("Invalid URL address typed"));
   }
 
   url.setHost(ui_->connectionAddress->text());
@@ -291,19 +294,35 @@ void ConfigAppWeatherServer::validateConnection()
         break;
 
       case CURLE_OPERATION_TIMEDOUT:
-        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Timeout!"));
+        {
+          const QString message = tr("Error while connecting.. Timeout!");
+          TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
+          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+        }
         break;
 
       case CURLE_LOGIN_DENIED:
-        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Login denied!"));
+        {
+          const QString message = tr("Error while connecting.. Login denied!");
+          TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
+          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+        }
         break;
 
       case CURLE_URL_MALFORMAT:
-        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error while connecting.. Invalid path!"));
+        {
+          const QString message = tr("Error while connecting.. Invalid path!");
+          TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
+          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+        }
         break;
 
       default:
-        throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(QObject::tr("Error in connection..."));
+        {
+          const QString message = tr("Error in connection...");
+          TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
+          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+        }
     }
 
     curl_easy_cleanup(curl);
