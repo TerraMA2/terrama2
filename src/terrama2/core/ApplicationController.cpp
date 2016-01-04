@@ -306,7 +306,6 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
 
       //TODO: log error
       qDebug() << e.what();
-      assert(0);
     }
     catch(...)
     {

@@ -1,6 +1,6 @@
 {
     "collector_web_service": {
-        "address": "voyager",
+        "address": "localhost",
         "command": "coleta",
         "connection_timeout": 180,
         "data_path": "",
@@ -11,7 +11,7 @@
     "database": {
         "driver": "PostgreSQL",
         "host": "localhost",
-        "name": "terrama2_test_ws",
+        "name": "terrama2_test",
         "password": "postgres",
         "port": "5432",
         "user": "postgres"

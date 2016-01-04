@@ -264,7 +264,7 @@ void AdminApp::newRequested()
     enableFields(true);
 
     nameConfig_ = newname;
-
+// Checks if the project already exists in the ListWidget
     ok = searchDataList(pimpl_->ui_->configListWidget->count(), newname);
 
     if (ok)
@@ -279,9 +279,12 @@ void AdminApp::newRequested()
     }
     else
     {
+      newData_ = false;
+      dataChanged_ = false;
       QMessageBox::information(this, tr("TerraMA2"), tr("Configuration Name Exists!"));
-      clearDataChanged();
-      enableFields(false);
+      auto items = pimpl_->ui_->configListWidget->findItems(configManager_->getDatabase()->name_, Qt::MatchExactly);
+      pimpl_->ui_->configListWidget->setCurrentItem(items[0]);
+      itemClicked();
     }
   }
 }
@@ -308,7 +311,7 @@ void AdminApp::openRequested()
     nameConfig_ = info.baseName();
 
 // Checks if the project already exists in the ListWidget
-    auto status = pimpl_->ui_->configListWidget->findItems(nameConfig_, Qt::MatchContains);
+    auto status = pimpl_->ui_->configListWidget->findItems(configManager_->getDatabase()->name_, Qt::MatchContains);
     if (status.size() > 0)
       return;
 
@@ -498,6 +501,8 @@ void AdminApp::cancelRequested()
 // Create Database
 void AdminApp::dbCreateDatabaseRequested()
 {
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  qApp->processEvents();
 
   try
   {
@@ -518,8 +523,6 @@ void AdminApp::dbCreateDatabaseRequested()
                                                                         database->password_.toStdString(),
                                                                         database->host_.toStdString(),
                                                                         database->port_ );
-
-   QMessageBox::information(this, tr("TerraMA2"), tr("Database created successfully!"));   
   }
 
   catch(const terrama2::Exception& e)
@@ -557,9 +560,11 @@ void AdminApp::dbCreateDatabaseRequested()
 
   catch(...)
   {
-    throw;
+    //TODO: log
   }
 
+  dbCheckConnectionRequested();
+  QApplication::restoreOverrideCursor();
 }
 
 // Check connection Database
@@ -616,7 +621,7 @@ void AdminApp::dbCheckConnectionRequested()
 
   catch(...)
   {
-    throw;
+    //TODO: log
   }
 
 }

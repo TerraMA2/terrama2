@@ -33,6 +33,9 @@
 // TerraMA2
 #include "ConfigAppTab.hpp"
 
+// STL
+#include <utility>
+
 
 // Forward declarations
 namespace terrama2
@@ -69,6 +72,9 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     //! It fills the terrama2 filter object
     void fillFilter(const terrama2::core::Filter&);
 
+    //! Sets the projection
+    void setSrid(const uint64_t srid);
+
   public slots:
     void onFilterClicked();
     void onProjectionClicked();
@@ -87,6 +93,7 @@ class ConfigAppWeatherGridTab : public ConfigAppTab {
     void onMenuMaskClicked(QAction* action);
 
   private:
+    uint64_t srid_; //! Projection
     terrama2::core::Filter* filter_; //!< Object used to store dataset grid filter
 };
 

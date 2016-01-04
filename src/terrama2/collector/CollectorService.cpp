@@ -164,7 +164,6 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   {
     //TODO: log de erro
     qDebug() << e.what();
-    assert(0);
   }
 }
 
@@ -182,7 +181,6 @@ void terrama2::collector::CollectorService::process(const uint64_t dataProviderI
   {
     //TODO: log this
     qDebug() << "terrama2::collector::CollectorService::process " << e.what();
-    assert(0);
   }
 }
 
@@ -277,14 +275,12 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
         {
           //TODO: log this
           qDebug() << "terrama2::collector::CollectorService::collectAsThread " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-          assert(0);
           continue;
         }
         catch(std::exception& e)
         {
           //TODO: log this
           qDebug() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
-          assert(0);
           continue;
         }
       }
@@ -294,7 +290,6 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
   {
     //TODO: log this
     qDebug() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
-    assert(0);
   }
 }
 
@@ -334,7 +329,6 @@ void terrama2::collector::CollectorService::threadProcess()
   {
     //TODO: log this
     qDebug() << "terrama2::collector::CollectorService::threadProcess " << e.what();
-    assert(0);
   }
 }
 
@@ -378,7 +372,6 @@ void terrama2::collector::CollectorService::processingLoop()
     {
       //TODO: log this
       qDebug() << "terrama2::collector::CollectorService::processingLoop " << e.what();
-      assert(0);
     }
   }
 }
@@ -420,7 +413,6 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
   {
     qDebug() << "terrama2::collector::CollectorService::addToQueue " << e.what();
     //TODO: log de erro
-    assert(0);
   }
 
 }
@@ -441,7 +433,6 @@ void terrama2::collector::CollectorService::removeProvider(const terrama2::core:
   {
     //TODO: log de erro
     qDebug() << "terrama2::collector::CollectorService::removeProvider " << e.what();
-    assert(0);
   }
 }
 
@@ -457,7 +448,6 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
   {
     //TODO: log de erro
     qDebug() << "terrama2::collector::CollectorService::updateProvider " << e.what();
-    assert(0);
   }
 }
 
@@ -489,19 +479,16 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
   {
     //TODO: log de erro
     qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
   }
   catch(terrama2::collector::InvalidDataSetError& e)
   {
     //TODO: log de erro
     qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-    assert(0);
   }
   catch(std::exception& e)
   {
     qDebug() << "terrama2::collector::CollectorService::addDataset " << e.what();
     //TODO: log de erro
-    assert(0);
   }
 
   return;
@@ -534,7 +521,6 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
   {
     //TODO: log this
     qDebug() << "terrama2::collector::CollectorService::removeDatasetById " << e.what();
-    assert(0);
   }
 
 }

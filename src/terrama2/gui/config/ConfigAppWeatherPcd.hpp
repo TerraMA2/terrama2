@@ -77,6 +77,9 @@ class ConfigAppWeatherPcd : public ConfigAppTab
     */
     void tableClean();
 
+    //! Sets the projection
+    void setSrid(const uint64_t srid);
+
   private:
     //! Common function that displays PCD form to insert/modify elements at QTableWidget
     void pcdFormCreation(PCD&, bool editing = false);
@@ -115,6 +118,7 @@ class ConfigAppWeatherPcd : public ConfigAppTab
   private:
     QList<PCD> pcds_; //!< PCDs table list
     QString luaScript_; //!< It storages lua script from CollectorRuleDialog
+    uint64_t srid_; //! Data projection
 };
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__
