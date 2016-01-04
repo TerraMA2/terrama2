@@ -67,16 +67,16 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     */
     virtual void load() = 0;
 
-    virtual void load(const terrama2::core::DataSet&);
-
     /*!
-     \brief It shows if data were changed by user
+      \brief It shows if data were changed by user
+      \return A bool value defining if there is any data changed in widget
     */
     virtual bool dataChanged();
 
     /*!
-     \brief Check if current data are valids and it may be saved.
-            This function is called by validateAndSaveChanges to validate display fields.
+      \brief Check if current data are valids and it may be saved.
+             This function is called by validateAndSaveChanges to validate display fields.
+      \return A bool value
     */
     virtual bool validate() = 0;
 
@@ -125,6 +125,13 @@ class ConfigAppTab : public QObject, private boost::noncopyable
     */
     virtual bool removeDataSet(const terrama2::core::DataSet&);
 
+    /*!
+      \brief It handles a common validation for mask value
+      \param mask A const string value containing mask
+
+      \exception terrama2::gui::FieldError <Raised when a mask value is invalid>
+      \exception terrama2::gui::ValueError <Raised when a mask value has time parameters and not date.>
+    */
     virtual void checkMask(const QString mask);
 
   public slots:

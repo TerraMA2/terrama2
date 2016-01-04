@@ -20,6 +20,8 @@
 */
 
 /*!
+  \class ConfigApp
+
   \file terrama2/gui/config/ConfigApp.hpp
 
   \brief Main GUI for TerraMA2 Config application.
@@ -46,6 +48,7 @@
 #include <QSharedPointer>
 
 
+// Forward declarations;
 class ConfigAppTab;
 class ConfigAppWeatherTab;
 class ConfigManager;
@@ -57,6 +60,8 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
   public:
   
     /*! Default constructor.
+      \param parent Represents the QT Widget owner (default nullptr)
+      \param flags  It handling gui window kind (0 defined as Widget)
       \exception terrama2::InitializationError <It may be raised when cannot find TerraMA2 icons library folder>
     */
     ConfigApp(QWidget* parent = nullptr, Qt::WindowFlags flags = 0);
@@ -64,7 +69,10 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
     //! Destructor.
     ~ConfigApp();
 
-    //! It retrieves the ui from pimpl_
+    /*!
+      \brief It retrieves the ui from pimpl_
+      \return A pointer to ConfigAppTab GUI members containing qt widgets
+    */
     Ui::ConfigAppForm* ui() const;
 
     /*!
@@ -79,29 +87,34 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
 
     /*!
      \brief It retrieves the current tab index in application runtime
+     \return A int value containing gui active tab index
     */
     int getCurrentTabIndex() const;
 
     /*!
      \brief It retrieves the weather tab
+     \return A shared pointer to ConfigAppWeatherTab class
     */
     QSharedPointer<ConfigAppWeatherTab> getWeatherTab() const;
 
     /*!
      \brief It retrieves the collector client
+     \return A shared pointer to terrama2::ws::collector::client::Client class.
     */
     QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
 
     /*!
      \brief It retrieves the ConfigManager instance containing terrama2 settings
+     \return A shared pointer to ConfigManager class. It contains configuration of terrama2 application.
     */
     QSharedPointer<ConfigManager> getConfiguration() const;
 
   private slots:
     /*!
      \brief Slot triggered when tab index clicked. It handles global tabs among application
+     \param index Contains a requested tab index value
     */
-    void tabChangeRequested(int);
+    void tabChangeRequested(int index);
 
     /*!
      \brief Slot triggered in open button click. It load the terrama2 configuration and it dispatches load for each tab
