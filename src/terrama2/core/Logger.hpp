@@ -83,5 +83,11 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(terrama2_logger, boost::log::sources::s
 #define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::ERROR)
 #define TERRAMA2_LOG_FATAL() TERRAMA2_LOG(terrama2::core::Logger::FATAL)
 
+//! Override operator<< to enable sets terrama2 exception in log. It formats the exception and put it in stream
+inline std::ostream& operator<<(std::ostream& stream, const QString message)
+{
+  return stream << message.toStdString();
+}
+
 
 #endif // __TERRAMA2_CORE_LOGGER_HPP__

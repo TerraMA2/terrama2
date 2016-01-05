@@ -37,7 +37,8 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
-class ConfigApp;
+
+// Forward declarations
 namespace Ui
 {
   class ConfigAppForm;
@@ -49,84 +50,159 @@ namespace terrama2
   {
     class DataSet;
   }
+
+  namespace gui
+  {
+    namespace config
+    {
+      class ConfigApp;
+    }
+  }
 }
 
-class ConfigAppTab : public QObject, private boost::noncopyable
+
+namespace terrama2
 {
-  Q_OBJECT
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \class ConfigAppTab
+        \brief The base class for tab handling.
+      */
+      class ConfigAppTab : public QObject, private boost::noncopyable
+      {
+        Q_OBJECT
 
-  public:
-    //! Constructor
-    ConfigAppTab(ConfigApp* app = nullptr, Ui::ConfigAppForm* ui = nullptr);
+        public:
+          /*!
+            \brief Constructor
+            \param app A pointer to ConfigApp to define owner of object
+            \param ui  A pointer to Ui::ConfigAppForm to handle qt gui objects
+          */
+          ConfigAppTab(ConfigApp* app = nullptr, Ui::ConfigAppForm* ui = nullptr);
 
-    //! Destructor
-    virtual ~ConfigAppTab();
+          //! Destructor
+          virtual ~ConfigAppTab();
 
-    /*! \brief Loads the read data to interface.
-      It always call when active configuration is changed
-    */
-    virtual void load() = 0;
+          /*!
+            \brief Loads the read data to interface.
+          */
+          virtual void load() = 0;
 
-    virtual void load(const terrama2::core::DataSet&);
+          /*!
+            \brief It shows if data were changed by user
+            \return A bool value defining if there is any data changed in widget
+          */
+          virtual bool dataChanged();
 
-    //! It shows if data were changed by user
-    virtual bool dataChanged();
+          /*!
+            \brief Check if current data are valids and it may be saved.
+                   This function is called by validateAndSaveChanges to validate display fields.
+            \return A bool value representing the widget validation
+          */
+          virtual bool validate() = 0;
 
-    //! Check if current data are valids and it may be saved
-    //! This function is called by validateAndSaveChanges to validate display fields
-    virtual bool validate() = 0;
+          /*!
+            \brief It tries to save the current data.
+            \note It may throw exception in children implementations.
+          */
+          virtual void save() = 0;
 
-    //! It saves current data
-    //! It tries to save the current data. Return true ou false showing the success of operation
-    virtual void save() = 0;
+          /*!
+            \brief Cancel the editions made at current data
+          */
+          virtual void discardChanges(bool restore_data) = 0;
 
-    //! Cancel the editions made at current data
-    virtual void discardChanges(bool restore_data) = 0;
+          /*!
+            \brief It calls the save method inside a try/catch block and check if there are any exception has found
+          */
+          virtual void validateAndSaveChanges();
 
-    //! It calls the save method inside a try/catch block and check if there are any exception has found
-    virtual void validateAndSaveChanges();
+          /*!
+            \brief It asks to change tab, giving the index as parameter
+            \param index A requested tab index value
+          */
+          virtual void askForChangeTab(const int& index);
 
-    //! It asks to change tab, giving the index as parameter
-    virtual void askForChangeTab(const int& index);
+          /*!
+            \brief It checks if is active to lock tab
+            \return A bool state showing if tab object is active
+          */
+          virtual bool isActive() const;
 
-    //! It checks if is active to lock tab
-    virtual bool isActive() const;
+          /*!
+            \brief It defines the tab state
+            \param state A bool state to be defined
+          */
+          virtual void setActive(bool state);
 
-    //! It sets the tab state
-    virtual void setActive(bool state);
+          /*!
+            \brief It defines if there any modification in tab
+            \param state A bool state to set if data is changed
+          */
+          virtual void setChanged(bool state);
 
-    //! It sets the tab state
-    virtual void setChanged(bool state);
+          /*!
+            \brief It sets the current selected data. It is used when one Item from WeatherTree has been clicked
+            \param selectedData A string value to define the focused current value in widget
+          */
+          virtual void setSelectedData(const QString selectedData);
 
-    //! It sets the current selected data. It is used when one Item from WeatherTree has been clicked
-    virtual void setSelectedData(const QString selectedData);
+          /*!
+            \brief It displays a messagebox showing whether would like to remove
+            \param dataset A terrama2::core::DataSet reference
 
-    //! It displays a messagebox showing whether would like to remove
-    virtual bool removeDataSet(const terrama2::core::DataSet&);
+            \exception terrama2::gui::config::DataSetException Raised when dataset id is 0
+          */
+          virtual bool removeDataSet(const terrama2::core::DataSet& dataset);
 
-  public slots:
+          /*!
+            \brief It handles a common validation for mask value
+            \param mask A const string value containing mask
 
-    //! Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
-    virtual void onSaveRequested();
+            \exception terrama2::gui::FieldException Raised when a mask value is invalid
+            \exception terrama2::gui::ValueException Raised when a mask value has time parameters and not date.
+          */
+          virtual void checkMask(const QString mask);
 
-    //! Slot triggered on cancel button to check if the user wish cancel and save.
-    virtual void onCancelRequested();
+        public slots:
 
-    //! Slot triggered on filter button in tabs to show filter dialog
-    virtual void onFilterClicked();
+          /*!
+            \brief Slot triggered on save button. It checks if there any change has made and then call "validateAndSaveChanges"
+          */
+          virtual void onSaveRequested();
 
-    //! Slot triggered on projection button in tabs to show projection dialog
-    virtual void onProjectionClicked();
+          /*!
+            \brief Slot triggered on cancel button to check if the user wish cancel and save.
+          */
+          virtual void onCancelRequested();
 
-    //! Slot triggered whenever any widget is changed
-    virtual void onSubTabEdited();
+          /*!
+            \brief Slot triggered on filter button in tabs to show filter dialog
+          */
+          virtual void onFilterClicked();
 
-  protected:
-    ConfigApp* app_;  //!< Main Window
-    Ui::ConfigAppForm* ui_; //!< UI from ConfigApp
-    QString selectedData_; //!< It defines if there any selected name before to update;
-    bool active_; //!< It defines if the tab is active
-    bool changed_; //!< it defines if there any field changed
-};
+          /*!
+            \brief Slot triggered on projection button in tabs to show projection dialog
+          */
+          virtual void onProjectionClicked();
+
+          /*!
+            \brief Slot triggered whenever any widget is changed
+          */
+          virtual void onSubTabEdited();
+
+        protected:
+          ConfigApp* app_;        //!< Main Window
+          Ui::ConfigAppForm* ui_; //!< UI from ConfigApp
+          QString selectedData_;  //!< It defines if there any selected name before to update;
+          bool active_;           //!< It defines if the tab is active
+          bool changed_;          //!< it defines if there any field changed
+      };
+    }
+  }
+}
 
 #endif

@@ -31,24 +31,27 @@
 // TerraMA2
 #include "Utils.hpp"
 #include "../Exception.hpp"
+#include "ConfigManager.hpp"
 
 // QT
 #include <QDir>
+#include <QUrl>
 #include <QMainWindow>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMenu>
 
 
 void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString& destination, const QJsonObject& json)
 {
   if (destination.isEmpty())
   {
-    throw terrama2::gui::FileError() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
+    throw terrama2::gui::FileException() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
   }
 
   QDir dir(destination);
   if (dir.exists())
-    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(QObject::tr("Invalid directory typed"));
+    throw terrama2::gui::DirectoryException() << terrama2::ErrorDescription(QObject::tr("Invalid directory typed"));
 
   QString path(destination);
   if (!path.endsWith(".terrama2"))
@@ -59,4 +62,51 @@ void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString&
   QJsonDocument document = QJsonDocument(json);
   file.write(document.toJson());
   file.close();
+}
+
+std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(const QString uri, const ConfigManager& configuration)
+{
+  std::map<std::string, std::string> storageMetadata;
+  QUrl url(uri);
+
+  QString scheme = url.scheme().toLower();
+
+  if (scheme == "file")
+  {
+    storageMetadata["PATH"] = configuration.getCollection()->dirPath_.toStdString();
+    storageMetadata["KIND"] = url.scheme().toStdString();
+  }
+  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
+  {
+  }
+  else if (scheme == "ftp") // TODO: ftp storage metadata
+  {
+  }
+  else // postgis
+  {
+    storageMetadata["PG_HOST"] = configuration.getDatabase()->host_.toStdString();
+    storageMetadata["PG_PORT"] = configuration.getDatabase()->port_;
+    storageMetadata["PG_USER"] = configuration.getDatabase()->user_.toStdString();
+    storageMetadata["PG_PASSWORD"] = configuration.getDatabase()->password_.toStdString();
+    storageMetadata["PG_DB_NAME"] = configuration.getDatabase()->name_.toStdString();
+    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
+    storageMetadata["KIND"] = url.scheme().toStdString();
+  }
+
+  return storageMetadata;
+}
+
+QMenu *terrama2::gui::core::makeMaskHelpers()
+{
+  QMenu* menuMask = new QMenu(QObject::tr("Máscaras"));
+  menuMask->addAction(QObject::tr("%a - ano com dois digitos"));
+  menuMask->addAction(QObject::tr("%A - ano com quatro digitos"));
+  menuMask->addAction(QObject::tr("%d - dia com dois digitos"));
+  menuMask->addAction(QObject::tr("%M - mes com dois digitos"));
+  menuMask->addAction(QObject::tr("%h - hora com dois digitos"));
+  menuMask->addAction(QObject::tr("%m - minuto com dois digitos"));
+  menuMask->addAction(QObject::tr("%s - segundo com dois digitos"));
+  menuMask->addAction(QObject::tr("%. - um caracter qualquer"));
+
+  return menuMask;
 }

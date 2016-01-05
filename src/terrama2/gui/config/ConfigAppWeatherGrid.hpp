@@ -38,6 +38,7 @@
 
 
 // Forward declarations
+class QAction;
 namespace terrama2
 {
   namespace core
@@ -45,56 +46,91 @@ namespace terrama2
     class Filter;
   }
 }
-class QAction;
 
+namespace terrama2
+{
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \class ConfigAppWeatherGridTab
+        \brief Class responsible for handling DataGrid inside WeatherTab
+      */
+      class ConfigAppWeatherGridTab : public ConfigAppTab
+      {
 
-class ConfigAppWeatherGridTab : public ConfigAppTab {
-  Q_OBJECT
-  public:
-    ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
-    ~ConfigAppWeatherGridTab();
+        Q_OBJECT
 
-    //! It initializes the interface, mask button values and connect to onMenuMaskClicked
-    void load();
+        public:
 
-    /*!
-      \brief It validates each one gui fields
-      \exception terrama2::gui::FieldError
-     */
-    bool validate();
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui)
+          */
+          ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
 
-    //! It applies save operation, sending the dataset to gsoap client
-    void save();
+          //! Destructor
+          ~ConfigAppWeatherGridTab();
 
-    //! It discards the widget values and set to initial state
-    void discardChanges(bool restore_data);
+          //! It initializes the interface, mask button values and connect to onMenuMaskClicked
+          void load();
 
-    //! It fills the terrama2 filter object
-    void fillFilter(const terrama2::core::Filter&);
+          /*!
+            \brief It validates each one gui fields
+            \exception terrama2::gui::FieldError Raised when the dataset name already exist or dataset name is empty
+            \exception terrama2::gui::ValueError Raised when mask value is invalid
+           */
+          bool validate();
 
-    //! Sets the projection
-    void setSrid(const uint64_t srid);
+          //! It applies save operation, sending the dataset to gsoap client
+          void save();
 
-  public slots:
-    void onFilterClicked();
-    void onProjectionClicked();
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::discardChanges(restore_data)
 
-  private slots:
-    //! Slot triggered when data grid btn is clicked to display the Grid Widget
-    void onDataGridClicked();
+            Set it to initial state
+          */
+          void discardChanges(bool restore_data);
 
-    //! Slot triggered when combobox format has been changed. It displays an hidden widget containing format values
-    void onGridFormatChanged();
+          /*!
+            \brief It fills the terrama2 filter object
+            \param filter A reference of terrama2::core::Filter
+          */
+          void fillFilter(const terrama2::core::Filter& filter);
 
-    //! Slot triggered when remove button has been clicked. It removes dataset
-    void onRemoveDataGridBtnClicked();
+          //! Sets the projection
+          void setSrid(const uint64_t srid);
 
-    //! Slot triggered when mask button has been clicked. It fills out the mask input from mask menu
-    void onMenuMaskClicked(QAction* action);
+        public slots:
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::onFilterClicked()
+          */
+          void onFilterClicked();
 
-  private:
-    uint64_t srid_; //! Projection
-    terrama2::core::Filter* filter_; //!< Object used to store dataset grid filter
-};
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::onProjectionClicked()
+          */
+          void onProjectionClicked();
+
+        private slots:
+          //! Slot triggered when data grid btn is clicked to display the Grid Widget
+          void onDataGridClicked();
+
+          //! Slot triggered when combobox format has been changed. It displays an hidden widget containing format values
+          void onGridFormatChanged();
+
+          //! Slot triggered when remove button has been clicked. It removes dataset
+          void onRemoveDataGridBtnClicked();
+
+          //! Slot triggered when mask button has been clicked. It fills out the mask input from mask menu
+          void onMenuMaskClicked(QAction* action);
+
+        private:
+          uint64_t srid_; //!< Projection
+          terrama2::core::Filter* filter_; //!< Object used to store dataset grid filter
+      };
+    }
+  }
+}
 
 #endif //__TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERGRID_HPP__

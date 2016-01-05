@@ -36,7 +36,7 @@
 #include <QTextCharFormat>
 #include <QTextEdit>
 
-LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextEdit* widget)
+terrama2::gui::config::LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextEdit* widget)
  : QSyntaxHighlighter(widget->document())
 {
   HighlightingRule rule;
@@ -91,7 +91,7 @@ LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextEdit* widget)
   rules.append(rule); 
 }
 
-void LuaSyntaxHighlighter::highlightBlock(const QString& text)
+void terrama2::gui::config::LuaSyntaxHighlighter::highlightBlock(const QString& text)
 {
   for(HighlightingRule rule: rules)
   {

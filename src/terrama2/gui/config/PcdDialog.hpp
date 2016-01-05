@@ -37,42 +37,87 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
+
+// Forward declarations
 namespace Ui
 {
   class PcdDialogForm;
 }
 
-// temp struct for stores the pcd meta
-struct PCD
+
+namespace terrama2
 {
-  QString file;
-  QString latitude;
-  QString longitude;
-  bool active;
-  uint64_t srid;
-  QString timezone;
-};
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \brief struct for stores the pcd meta
+      */
+      struct PCD
+      {
+        QString file; //!< Represents the pcd file
+        QString latitude; //!< Represents latitude of pcd
+        QString longitude; //!< Represents longitude of pcd
+        bool active; //!< Represents pcd state
+        uint64_t srid; //!< Represents Coordinate Reference System value
+        QString timezone; //!< Represents PCD timezone
+      };
 
-class PcdDialog : public QDialog, private boost::noncopyable
-{
-  Q_OBJECT
+      /*!
+        \class PcdDialog
+        \brief Class responsible to handle the pcd insertion/modification file
+      */
+      class PcdDialog : public QDialog, private boost::noncopyable
+      {
+        Q_OBJECT
 
-  public:
-    PcdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
-    ~PcdDialog();
+        public:
+          /*!
+            \brief Default constructor. It prepare the interface, connecting slots in gui widgets
+            \param parent A pointer to QWidget owner (default nullptr)
+            \param f A constant value to define widget kind (default 0)
+          */
+          PcdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-    void fill(const PCD& pcd);
-    void fillObject(PCD& pcd);
+          //! Destructor
+          ~PcdDialog();
 
-  private slots:
-    void onPcdChanged();
-    void onConfirmClicked();
-    void onProjectionClicked();
+          /*!
+            \brief It fill the interface from a terrama2::gui::config::PCD object
+            \param pcd A const PCD reference to fill out the interface
+          */
+          void fill(const PCD& pcd);
 
-  private:
-    struct Impl;
-    Impl* pimpl_;
-};
+          /*!
+            \brief It fill a terrama2::gui::config::PCD object from interface values
+            \param pcd A PCD reference to be filled out
+          */
+          void fillObject(PCD& pcd);
+
+        private slots:
+          //! Slot triggered when some input widget has been changed. It enables the confirm button
+          void onPcdChanged();
+
+          /*!
+            \brief Slot triggered when ok button has been clicked.
+                   It validates the fields and emit signals to close window: accept and reject.
+          */
+          void onConfirmClicked();
+
+          /*!
+            \brief Slot triggered when projection button has been clicked.
+                   It calls the terralib SRS dialog to srid be selected.
+           */
+          void onProjectionClicked();
+
+        private:
+          struct Impl; //!< Pimpl idiom
+          Impl* pimpl_;
+      };
+    }
+  }
+}
 
 
 #endif // __TERRAMA2_GUI_CONFIG_PCDDIALOG_HPP__
