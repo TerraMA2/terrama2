@@ -40,11 +40,11 @@ namespace terrama2
   namespace collector
   {
 
-    //! The StoragerPostgis class specializes the Storager class to Postgres/Postgis DB.
+    //! \brief The StoragerPostgis class specializes the Storager class to Postgres/Postgis DB.
     class StoragerPostgis : public Storager
     {
     public:
-      //Documented in parent class
+      //! Constructor. Stores metadata for later use.
       StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
 
       //Documented in parent class
