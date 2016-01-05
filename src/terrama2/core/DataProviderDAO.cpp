@@ -47,7 +47,7 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
                                            const bool shallow)
 {
   if(provider.id() != 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save a data provider with identifier different than 0."));
 
   try
   {
@@ -70,11 +70,11 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not save the data provider."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not save the data provider."));
   }
 }
 
@@ -83,7 +83,7 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
                                              const bool shallow)
 {
   if(provider.id() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a data provider with identifier: 0."));
 
   try
   {
@@ -105,11 +105,11 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not update the data provider."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not update the data provider."));
   }
 }
 
@@ -132,7 +132,7 @@ std::vector<uint64_t> terrama2::core::DataProviderDAO::getDatasetsIds(const uint
 void terrama2::core::DataProviderDAO::remove(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
 
   try
   {
@@ -147,11 +147,11 @@ void terrama2::core::DataProviderDAO::remove(const uint64_t id, te::da::DataSour
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not remove the data provider."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not remove the data provider."));
   }
 }
 
@@ -160,7 +160,7 @@ terrama2::core::DataProvider
 terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load a data provider with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load a data provider with identifier: 0."));
 
   try
   {
@@ -193,11 +193,11 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not remove the data provider."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not remove the data provider."));
   }
 
   return DataProvider();
@@ -237,11 +237,11 @@ terrama2::core::DataProviderDAO::loadAll(te::da::DataSourceTransactor& transacto
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Unexpected error loading data providers."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Unexpected error loading data providers."));
   }
 
   return std::move(providers);
