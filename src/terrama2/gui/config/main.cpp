@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 
   try
   {
-    ConfigApp terrama2_config;
+    terrama2::gui::config::ConfigApp terrama2_config;
     terrama2_config.show();
 
     int retval = app.exec();

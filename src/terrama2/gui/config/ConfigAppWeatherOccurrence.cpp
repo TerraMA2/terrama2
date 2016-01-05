@@ -18,7 +18,7 @@
 #include <QMessageBox>
 #include <QUrl>
 
-ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui)
+terrama2::gui::config::ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui), filter_(new terrama2::core::Filter)
 {
   connect(ui_->serverInsertPointDiffBtn, SIGNAL(clicked()), SLOT(onDataSetBtnClicked()));
@@ -41,21 +41,21 @@ ConfigAppWeatherOccurrence::ConfigAppWeatherOccurrence(ConfigApp* app, Ui::Confi
   srid_ = 0;
 }
 
-ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
+terrama2::gui::config::ConfigAppWeatherOccurrence::~ConfigAppWeatherOccurrence()
 {
 
 }
 
-void ConfigAppWeatherOccurrence::load()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::load()
 {
 }
 
-bool ConfigAppWeatherOccurrence::validate()
+bool terrama2::gui::config::ConfigAppWeatherOccurrence::validate()
 {
   if (ui_->pointDiffFormatDataName->text().trimmed().isEmpty())
   {
     ui_->pointDiffFormatDataName->setFocus();
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Occurence Name is invalid"));
+    throw terrama2::gui::FieldException() << terrama2::ErrorDescription(tr("Occurence Name is invalid"));
   }
 
   checkMask(ui_->pointDiffFormatDataMask->text());
@@ -64,7 +64,7 @@ bool ConfigAppWeatherOccurrence::validate()
   return true;
 }
 
-void ConfigAppWeatherOccurrence::save()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
 {
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
   terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(selectedData_.toStdString());
@@ -144,7 +144,7 @@ void ConfigAppWeatherOccurrence::save()
   changed_ = false;
 }
 
-void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
+void terrama2::gui::config::ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
 {
   for(QLineEdit* widget: ui_->DataPointDiffPage->findChildren<QLineEdit*>())
     widget->clear();
@@ -158,7 +158,7 @@ void ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
   resetFilterState();
 }
 
-void ConfigAppWeatherOccurrence::fillFilter(const terrama2::core::Filter& filter)
+void terrama2::gui::config::ConfigAppWeatherOccurrence::fillFilter(const terrama2::core::Filter& filter)
 {
   filter_.reset(new terrama2::core::Filter(filter));
 
@@ -173,15 +173,15 @@ void ConfigAppWeatherOccurrence::fillFilter(const terrama2::core::Filter& filter
     ui_->areaFilterPointDiffLabel->setText(tr("No"));
 }
 
-void ConfigAppWeatherOccurrence::resetFilterState()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::resetFilterState()
 {
   ui_->dateFilterPointDiffLabel->setText(tr("No"));
   ui_->areaFilterPointDiffLabel->setText(tr("No"));
 }
 
-void ConfigAppWeatherOccurrence::onFilterClicked()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::onFilterClicked()
 {
-  FilterDialog dialog(FilterDialog::DATE, ui_->pointDiffFormatDataTimeZoneCmb->currentText(), app_);
+  FilterDialog dialog(terrama2::gui::config::FilterDialog::DATE, ui_->pointDiffFormatDataTimeZoneCmb->currentText(), app_);
   dialog.fillGUI(*filter_);
   if (dialog.exec() == QDialog::Accepted)
     dialog.fillObject(*filter_);
@@ -197,7 +197,7 @@ void ConfigAppWeatherOccurrence::onFilterClicked()
     ui_->areaFilterPointDiffLabel->setText(tr("No"));
 }
 
-void ConfigAppWeatherOccurrence::onDataSetBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::onDataSetBtnClicked()
 {
   if (ui_->weatherDataTree->currentItem() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent() != nullptr &&
@@ -214,7 +214,7 @@ void ConfigAppWeatherOccurrence::onDataSetBtnClicked()
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
 }
 
-void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
 {
   QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
@@ -242,7 +242,7 @@ void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
   ui_->cancelBtn->clicked();
 }
 
-void ConfigAppWeatherOccurrence::onIntersectionBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::onIntersectionBtnClicked()
 {
   terrama2::gui::config::IntersectionDialog dialog(intersection_, app_->getConfiguration()->getDatabase());
   if(dialog.exec() == QDialog::Accepted)
@@ -251,7 +251,7 @@ void ConfigAppWeatherOccurrence::onIntersectionBtnClicked()
   }
 }
 
-void ConfigAppWeatherOccurrence::onProjectionClicked()
+void terrama2::gui::config::ConfigAppWeatherOccurrence::onProjectionClicked()
 {
   te::qt::widgets::SRSManagerDialog srsDialog(app_);
   srsDialog.setWindowTitle(tr("Choose the SRS"));
@@ -266,12 +266,12 @@ void ConfigAppWeatherOccurrence::onProjectionClicked()
 
 }
 
-void ConfigAppWeatherOccurrence::setIntersection(const terrama2::core::Intersection& intersection)
+void terrama2::gui::config::ConfigAppWeatherOccurrence::setIntersection(const terrama2::core::Intersection& intersection)
 {
   intersection_ = intersection;
 }
 
-void ConfigAppWeatherOccurrence::setSrid(const uint64_t srid)
+void terrama2::gui::config::ConfigAppWeatherOccurrence::setSrid(const uint64_t srid)
 {
   srid_ = srid;
 }

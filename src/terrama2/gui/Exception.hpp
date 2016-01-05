@@ -42,22 +42,22 @@ namespace terrama2
     struct Exception : virtual terrama2::Exception{ };
 
     //! It is used when some url is invalid
-    struct URLError: virtual Exception{ };
+    struct URLException: virtual Exception{ };
 
     //! It is used when the input value is invalid
-    struct FieldError: virtual Exception{ };
+    struct FieldException: virtual Exception{ };
 
     //! It is used for specifics directory errors
-    struct DirectoryError: virtual Exception{ };
+    struct DirectoryException: virtual Exception{ };
 
     //! It is used for handling file error
-    struct FileError: virtual Exception{ };
+    struct FileException: virtual Exception{ };
 
     //! It is used when connection has been failed
-    struct ConnectionError: virtual Exception{ };
+    struct ConnectionException: virtual Exception{ };
 
-    //! It is used when the value in input is invalid or not expected.
-    struct ValueError: virtual Exception{ };
+    //! It is used when a value is invalid or not expected.
+    struct ValueException: virtual Exception{ };
   }
 }
 

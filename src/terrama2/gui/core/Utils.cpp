@@ -46,12 +46,12 @@ void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString&
 {
   if (destination.isEmpty())
   {
-    throw terrama2::gui::FileError() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
+    throw terrama2::gui::FileException() << terrama2::ErrorDescription(QObject::tr("Error while saving...."));
   }
 
   QDir dir(destination);
   if (dir.exists())
-    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(QObject::tr("Invalid directory typed"));
+    throw terrama2::gui::DirectoryException() << terrama2::ErrorDescription(QObject::tr("Invalid directory typed"));
 
   QString path(destination);
   if (!path.endsWith(".terrama2"))

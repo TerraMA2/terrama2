@@ -47,82 +47,96 @@ namespace terrama2
   }
 }
 
-class ConfigAppWeatherOccurrence : public ConfigAppTab
+namespace terrama2
 {
-  Q_OBJECT
-  public:
-    /*!
-      @copydoc ConfigAppTab::ConfigAppTab(app, ui)
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \class ConfigAppWeatherOccurrence
+        \brief Class responsible for handling Occurrence data set inside WeatherTab
+      */
+      class ConfigAppWeatherOccurrence : public ConfigAppTab
+      {
+        Q_OBJECT
+        public:
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui)
 
-      Initializes the DataOccurrence tab, connecting slots.
-    */
-    ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui);
+            Initializes the DataOccurrence tab, connecting slots.
+          */
+          ConfigAppWeatherOccurrence(ConfigApp* app, Ui::ConfigAppForm* ui);
 
-    //! Destructor
-    ~ConfigAppWeatherOccurrence();
+          //! Destructor
+          ~ConfigAppWeatherOccurrence();
 
-    /*!
-      @copydoc ConfigAppTab::load()
-    */
-    void load();
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::load()
+          */
+          void load();
 
-    /*!
-      \brief It validates the GUI input values.
-      \exception terrama2::gui::FieldError <Raised when DataSet Occurence Name is invalid>
-      \return true if the whole interface is valid. Otherwise, it throws exception
-    */
-    bool validate();
+          /*!
+            \brief It validates the GUI input values.
+            \exception terrama2::gui::FieldError Raised when DataSet Occurence Name is invalid
+            \return true if the whole interface is valid. Otherwise, it throws exception
+          */
+          bool validate();
 
-    //! It applies save operation, sending the dataset to gsoap client
-    void save();
+          //! It applies save operation, sending the dataset to gsoap client
+          void save();
 
-    //! It discards the widget values and set to initial state
-    void discardChanges(bool restore_data);
+          //! It discards the widget values and set to initial state
+          void discardChanges(bool restore_data);
 
-    /*!
-      \brief It fills the terrama2 filter object
-      \param filter A terrama2::core::Filter reference containing values to fill filter_ member out
-    */
-    void fillFilter(const terrama2::core::Filter& filter);
+          /*!
+            \brief It fills the terrama2 filter object
+            \param filter A terrama2::core::Filter reference containing values to fill filter_ member out
+          */
+          void fillFilter(const terrama2::core::Filter& filter);
 
-    //! Sets the intersection object
-    void setIntersection(const terrama2::core::Intersection& intersection);
+          //! Sets the intersection object
+          void setIntersection(const terrama2::core::Intersection& intersection);
 
-    //! Sets the projection
-    void setSrid(const uint64_t srid);
+          //! Sets the projection
+          void setSrid(const uint64_t srid);
 
-  private:
-    //! It reset filter label state
-    void resetFilterState();
+        private:
+          //! It reset filter label state
+          void resetFilterState();
 
-  public slots:
-    /*!
-      @copydoc ConfigAppTab::onFilterClicked()
-    */
-    void onFilterClicked();
+        public slots:
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::onFilterClicked()
+          */
+          void onFilterClicked();
 
-    /*!
-      @copydoc ConfigAppTab::onProjectionClicked()
-    */
-    void onProjectionClicked();
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::onProjectionClicked()
+          */
+          void onProjectionClicked();
 
-  private slots:
-    //! Slot triggered when insert occurrence data button has been clicked. It displays the Occurrence Tab.
-    void onDataSetBtnClicked();
+        private slots:
+          //! Slot triggered when insert occurrence data button has been clicked. It displays the Occurrence Tab.
+          void onDataSetBtnClicked();
 
-    //! Slot triggered when remove occurrence data button has been clicked. It removes selected dataset from database
-    void onRemoveOccurrenceBtnClicked();
+          //! Slot triggered when remove occurrence data button has been clicked. It removes selected dataset from database
+          void onRemoveOccurrenceBtnClicked();
 
-    /*!
-      \brief Slot triggered when intersection button has been clicked. It displays the Intersection Gui Form.
-    */
-    void onIntersectionBtnClicked();
+          /*!
+            \brief Slot triggered when intersection button has been clicked. It displays the Intersection Gui Form.
+          */
+          void onIntersectionBtnClicked();
 
-  private:
-    QSharedPointer<terrama2::core::Filter> filter_; //!< Occurrence filter defined
-    terrama2::core::Intersection intersection_; //!< Intersection configuration
-    uint64_t srid_; //!< Data projection
+        private:
+          QSharedPointer<terrama2::core::Filter> filter_; //!< Occurrence filter defined
+          terrama2::core::Intersection intersection_; //!< Intersection configuration
+          uint64_t srid_; //!< Data projection
 
-};
+      };
+    }
+  }
+}
+
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHEROCCURRENCE_HPP__

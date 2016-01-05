@@ -22,7 +22,7 @@
 #include <QUrl>
 
 
-ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
+terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui), luaScript_("")
 {
   connect(ui_->serverInsertPointBtn, SIGNAL(clicked()), SLOT(onInsertPointBtnClicked()));
@@ -67,27 +67,27 @@ ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
 
 }
 
-ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
+terrama2::gui::config::ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
 {
 
 }
 
-void ConfigAppWeatherPcd::load()
+void terrama2::gui::config::ConfigAppWeatherPcd::load()
 {
   tableClean();
 }
 
-void ConfigAppWeatherPcd::load(const terrama2::core::DataSet& dataset)
+void terrama2::gui::config::ConfigAppWeatherPcd::load(const terrama2::core::DataSet& dataset)
 {
   // TODO: fill the combobox with pcd attribute after the first collect
 }
 
-bool ConfigAppWeatherPcd::validate()
+bool terrama2::gui::config::ConfigAppWeatherPcd::validate()
 {
   if (ui_->pointFormatDataName->text().trimmed().isEmpty())
   {
     ui_->pointFormatDataName->setFocus();
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The PCD Name cannot be empty"));
+    throw terrama2::gui::FieldException() << terrama2::ErrorDescription(tr("The PCD Name cannot be empty"));
   }
 
   checkMask(ui_->pointFormatDataMask->text());
@@ -96,7 +96,7 @@ bool ConfigAppWeatherPcd::validate()
   return true;
 }
 
-void ConfigAppWeatherPcd::save()
+void terrama2::gui::config::ConfigAppWeatherPcd::save()
 {
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
   terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(selectedData_.toStdString());
@@ -170,14 +170,14 @@ void ConfigAppWeatherPcd::save()
   changed_ = false;
 }
 
-void ConfigAppWeatherPcd::discardChanges(bool restore_data)
+void terrama2::gui::config::ConfigAppWeatherPcd::discardChanges(bool restore_data)
 {
   for(QLineEdit* widget: ui_->DataPointPage->findChildren<QLineEdit*>())
     widget->clear();
   changed_ = false;
 }
 
-void ConfigAppWeatherPcd::onInsertPointBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onInsertPointBtnClicked()
 {
   if (ui_->weatherDataTree->currentItem() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent() != nullptr &&
@@ -193,7 +193,7 @@ void ConfigAppWeatherPcd::onInsertPointBtnClicked()
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
 }
 
-void ConfigAppWeatherPcd::onDataPointBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onDataPointBtnClicked()
 {
   QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
@@ -220,7 +220,7 @@ void ConfigAppWeatherPcd::onDataPointBtnClicked()
   ui_->cancelBtn->clicked();
 }
 
-void ConfigAppWeatherPcd::onCollectorRuleClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onCollectorRuleClicked()
 {
   CollectorRuleDialog dialog(app_);
   dialog.fillGUI(luaScript_);
@@ -230,7 +230,7 @@ void ConfigAppWeatherPcd::onCollectorRuleClicked()
     luaScript_.clear();
 }
 
-void ConfigAppWeatherPcd::onProjectionClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onProjectionClicked()
 {
   te::qt::widgets::SRSManagerDialog srsDialog(app_);
   srsDialog.setWindowTitle(tr("Choose the SRS"));
@@ -242,30 +242,30 @@ void ConfigAppWeatherPcd::onProjectionClicked()
   srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
 }
 
-void ConfigAppWeatherPcd::onMenuMaskClicked(QAction* action)
+void terrama2::gui::config::ConfigAppWeatherPcd::onMenuMaskClicked(QAction* action)
 {
   ui_->pointDiffFormatDataMask->setText(
         ui_->pointDiffFormatDataMask->text() + action->text().left(2));
 }
 
-void ConfigAppWeatherPcd::onPCDInsertFileClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onPCDInsertFileClicked()
 {
-  PCD pcd {"", "", "", true, 0, ""};
+  terrama2::gui::config::PCD pcd {"", "", "", true, 0, ""};
   pcdFormCreation(pcd);
 }
 
-void ConfigAppWeatherPcd::onPCDRemoveClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onPCDRemoveClicked()
 {
   int row = ui_->tblPointPCDFileNameLocation->currentRow();
   if (row != -1)
     ui_->tblPointPCDFileNameLocation->removeRow(row);
 }
 
-void ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
+void terrama2::gui::config::ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
 {
   if (item != nullptr)
   {
-    PCD pcd;
+    terrama2::gui::config::PCD pcd;
     pcd.file = ui_->tblPointPCDFileNameLocation->item(item->row(), 0)->text();
     pcd.latitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 1)->text();
     pcd.longitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 2)->text();
@@ -276,17 +276,17 @@ void ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
   }
 }
 
-void ConfigAppWeatherPcd::onSurfaceBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onSurfaceBtnClicked()
 {
   SurfaceDialog dialog(app_);
   dialog.exec();
 }
 
-void ConfigAppWeatherPcd::onPCDExportClicked()
+void terrama2::gui::config::ConfigAppWeatherPcd::onPCDExportClicked()
 {
   QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
   if (currentItem == nullptr || currentItem->parent() == nullptr || currentItem->parent()->parent() == nullptr)
-    throw terrama2::gui::config::DataSetError() << terrama2::ErrorDescription(tr("Please selected a valid PCD dataset"));
+    throw terrama2::gui::config::DataSetException() << terrama2::ErrorDescription(tr("Please selected a valid PCD dataset"));
 
   QString path = QFileDialog::getSaveFileName(app_ ,
                                               tr("Type name and where you intend to save this PCD"),
@@ -319,7 +319,7 @@ void ConfigAppWeatherPcd::onPCDExportClicked()
   }
 }
 
-void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd, bool editing)
+void terrama2::gui::config::ConfigAppWeatherPcd::pcdFormCreation(terrama2::gui::config::PCD& pcd, bool editing)
 {
   PcdDialog dialog(app_);
   dialog.fill(pcd);
@@ -365,17 +365,17 @@ void ConfigAppWeatherPcd::pcdFormCreation(PCD& pcd, bool editing)
     item = new QTableWidgetItem();
     item->setText(pcd.timezone);
     ui_->tblPointPCDFileNameLocation->setItem(line, 5, item);
-    }
+  }
 }
 
-void ConfigAppWeatherPcd::tableClean()
+void terrama2::gui::config::ConfigAppWeatherPcd::tableClean()
 {
   // Clear the pcd table
   while(ui_->tblPointPCDFileNameLocation->rowCount() > 0)
     ui_->tblPointPCDFileNameLocation->removeRow(0);
 }
 
-void ConfigAppWeatherPcd::setSrid(const uint64_t srid)
+void terrama2::gui::config::ConfigAppWeatherPcd::setSrid(const uint64_t srid)
 {
   srid_ = srid;
 }

@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/gui/config/ConfigApp.hpp
+  \file terrama2/gui/config/ConfigAppWeatherTab.hpp
 
   \brief Class responsible for handling WeatherTab actions
 
@@ -43,8 +43,6 @@
 
 // Forward declarations
 class QTreeWidgetItem;
-class ConfigAppWeatherServer;
-class ConfigAppWeatherGridTab;
 
 namespace terrama2
 {
@@ -53,155 +51,187 @@ namespace terrama2
     class DataProvider;
     class DataSet;
   }
+
+  namespace gui
+  {
+    namespace config
+    {
+      class ConfigAppWeatherServer;
+      class ConfigAppWeatherGridTab;
+    }
+  }
 }
 
-
-class ConfigAppWeatherTab : public ConfigAppTab
+namespace terrama2
 {
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \class ConfigAppWeatherTab
+        \brief Class responsible for handling WeatherTab actions
+      */
+      class ConfigAppWeatherTab : public ConfigAppTab
+      {
 
-  Q_OBJECT
+        Q_OBJECT
 
-  public:
-    /*!
-      @copydoc ConfigAppTab::ConfigAppTab(app, ui)
-    */
-    ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
+        public:
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui)
+          */
+          ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui);
 
-    //! Destructor
-    ~ConfigAppWeatherTab();
+          //! Destructor
+          ~ConfigAppWeatherTab();
 
-    /*!
-      @copydoc ConfigAppTab::load()
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::load()
 
-      It loads each subtab
-    */
-    void load();
+            It loads each subtab
+          */
+          void load();
 
-    /*!
-      @copydoc ConfigAppTab::dataChanged()
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::dataChanged()
 
-      It detects if the there any data changed at form
-    */
-    bool dataChanged();
+            It detects if the there any data changed at form
+          */
+          bool dataChanged();
 
-    /*!
-      @copydoc ConfigAppTab::validate()
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::validate()
 
-      Validate each widget filled out
-    */
-    bool validate();
+            Validate each widget filled out
+          */
+          bool validate();
 
-    /*!
-      @copydoc ConfigAppTab::save()
-    */
-    void save();
+          /*!
+            @copybrief terrama2::gui::config::ConfigAppTab::save()
 
-    //! Discard changes of form and clean all
-    void discardChanges(bool restore_data);
+            It calls each one of subTabs_ and check which is active and is data changed and then try to save.
 
-    //! It remove all children from QWidgetTree
-    void clearList();
+            \exception terrama2::gui::FieldException Raised when in tab widget validate method is false.
+          */
+          void save();
 
-    /*!
-      \brief Set visible of operations buttons
-      \param state A bool state to hide or to show ok and cancel buttons
-    */
-    void displayOperationButtons(bool state);
+          //! Discard changes of form and clean all
+          void discardChanges(bool restore_data);
 
-    /*!
-      \brief It handles when the subtab can change
-      \param sender A ConfigAppTab reference representing who requested for change
-      \param widget A QWidget instance representing the object to be set
-    */
-    void changeTab(ConfigAppTab& sender, QWidget& widget);
+          //! It remove all children from QWidgetTree
+          void clearList();
 
-    /*!
-      \brief Retrieve cached map of providers
-      \return A copy of QMap<std::string,terrama2::core::DataProvider>
-    */
-    QMap<std::string,terrama2::core::DataProvider> providers();
+          /*!
+            \brief Set visible of operations buttons
+            \param state A bool state to hide or to show ok and cancel buttons
+          */
+          void displayOperationButtons(bool state);
 
-    /*!
-      \brief It retrieves dataprovider from cached list
-      \param identifier A string to be searched in terrama2 providers list
-      \return A copy of terrama2::core::DataProvider object found
-    */
-    terrama2::core::DataProvider getProvider(const std::string& identifier);
+          /*!
+            \brief It handles when the subtab can change
+            \param sender A ConfigAppTab reference representing who requested for change
+            \param widget A QWidget instance representing the object to be set
+          */
+          void changeTab(ConfigAppTab& sender, QWidget& widget);
 
-    /*!
-      \brief It retrieves dataset from dataprovider list
-      \param identifier A string to be searched in dataset list
-      \return A copy of terrama2::core::DataSet object found
-    */
-    terrama2::core::DataSet getDataSet(const std::string& identifier);
+          /*!
+            \brief Retrieve cached map of providers
+            \return A copy of QMap<std::string,terrama2::core::DataProvider>
+          */
+          QMap<std::string,terrama2::core::DataProvider> providers();
 
-    /*!
-      \brief It is used for insert and update cached dataprovider list
-      \param provider A terrama2::core::DataProvider reference to be saved in cache list
-    */
-    void addCachedProvider(const terrama2::core::DataProvider& provider);
+          /*!
+            \brief It retrieves dataprovider from cached list
+            \param identifier A string to be searched in terrama2 providers list
+            \return A copy of terrama2::core::DataProvider object found
+          */
+          terrama2::core::DataProvider getProvider(const std::string& identifier);
 
-    /*!
-      \brief Remove provider from cached map
-      \param provider A terrama2::core::DataProvider reference to be searched in cached list and to be removed
-    */
-    void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
+          /*!
+            \brief It retrieves dataset from dataprovider list
+            \param identifier A string to be searched in dataset list
+            \return A copy of terrama2::core::DataSet object found
+          */
+          terrama2::core::DataSet getDataSet(const std::string& identifier);
 
-    /*!
-      \brief Add a dataset in cached map of datasets
-      \param dataset A terrama2::core::DataSet reference to be saved in cache list
-    */
-    void addCachedDataSet(const terrama2::core::DataSet& dataset);
+          /*!
+            \brief It is used for insert and update cached dataprovider list
+            \param provider A terrama2::core::DataProvider reference to be saved in cache list
+          */
+          void addCachedProvider(const terrama2::core::DataProvider& provider);
 
-    /*!
-      \brief Remove a dataset from cached dataset map
-      \param dataset A terrama2::core::DataSet reference to be searched in cached list and to be removed
-    */
-    void removeCachedDataSet(const terrama2::core::DataSet& dataset);
+          /*!
+            \brief Remove provider from cached map
+            \param provider A terrama2::core::DataProvider reference to be searched in cached list and to be removed
+          */
+          void removeCachedDataProvider(const terrama2::core::DataProvider& provider);
 
-    /*!
-      \brief It refresh the weatherdatalist from widget and string for replace
-      \param widget A pointer to QTreeWidgetItem defining where is to start.
-      \param searchFor A QString value to be searched in list
-      \param replace A QString value to be replaced if found it
-    */
-    void refreshList(QTreeWidgetItem* widget, QString searchFor, QString replace);
+          /*!
+            \brief Add a dataset in cached map of datasets
+            \param dataset A terrama2::core::DataSet reference to be saved in cache list
+          */
+          void addCachedDataSet(const terrama2::core::DataSet& dataset);
 
-    /*!
-     * \brief It handles visibility of dataseries buttons.
-     * \param state A bool state to set visible of dataseries buttons
-    */
-    void showDataSeries(bool state);
+          /*!
+            \brief Remove a dataset from cached dataset map
+            \param dataset A terrama2::core::DataSet reference to be searched in cached list and to be removed
+          */
+          void removeCachedDataSet(const terrama2::core::DataSet& dataset);
 
-  private:
-    //! It hides each one data series button
-    void hideDataSetButtons();
+          /*!
+            \brief It refresh the weatherdatalist from widget and string for replace
+            \param widget A pointer to QTreeWidgetItem defining where is to start.
+            \param searchFor A QString value to be searched in list
+            \param replace A QString value to be replaced if found it
+          */
+          void refreshList(QTreeWidgetItem* widget, QString searchFor, QString replace);
 
-    /*!
-      \brief It hides set of widgets except the passed argument
-      \param except A pointer to QWidget to skip
-    */
-    void hidePanels(QWidget* except);
+          /*!
+            \brief It handles visibility of dataseries buttons.
+            \param state A bool state to set visible of dataseries buttons
+          */
+          void showDataSeries(bool state);
 
-  private slots:
-    //! Slot for handling importServer btn
-    void onImportServer();
+        private:
+          //! It hides each one data series button
+          void hideDataSetButtons();
 
-    //! Triggered when click serverDeleteBtn to remove data provider
-    void onDeleteServerClicked();
+          /*!
+            \brief It hides set of widgets except the passed argument
+            \param except A pointer to QWidget to skip
+          */
+          void hidePanels(QWidget* except);
 
-    //! Triggered when click in weatherTree to enable data series button
-    void onWeatherDataTreeClicked(QTreeWidgetItem*);
+        private slots:
+          //! Slot for handling importServer button
+          void onImportServer();
 
-    //! Triggered when click exportServerBtn to export DataProvider as TerraMA2 File
-    void onExportServerClicked();
+          //! Triggered when click serverDeleteBtn to remove data provider
+          void onDeleteServerClicked();
 
-    void onUpdateServerClicked();
+          /*!
+            \brief Triggered when click in weatherTree to enable data series button
+            \param selectedItem A pointer to QTreeWidgetItem representing the current item selected.
+          */
+          void onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem);
 
-  private:
-    QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
-    QMap<std::string,terrama2::core::DataProvider> providers_; //!< Cached providers map
-    QMap<std::string,terrama2::core::DataSet> datasets_; //!< Cached datasets map
-};
+          //! Triggered when click exportServerBtn to export DataProvider as TerraMA2 File
+          void onExportServerClicked();
+
+          /*!
+            \brief It tries to update an data provider from terrama2 configuration file
+            \exception terrama2::gui::ValueException Raised when there is not data provider selected
+          */
+          void onUpdateServerClicked();
+
+        private:
+          QList<QSharedPointer<ConfigAppTab>> subTabs_; //!< Defines subtabs for data grid, tiff, and servers
+          QMap<std::string,terrama2::core::DataProvider> providers_; //!< Cached providers map
+          QMap<std::string,terrama2::core::DataSet> datasets_; //!< Cached datasets map
+      };
+    }
+  }
+}
 
 #endif

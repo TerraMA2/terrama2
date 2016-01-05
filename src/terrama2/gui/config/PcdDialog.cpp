@@ -37,7 +37,7 @@
 // QT
 #include <QDoubleValidator>
 
-struct PcdDialog::Impl
+struct terrama2::gui::config::PcdDialog::Impl
 {
   Impl()
     : srid_(0),
@@ -54,7 +54,7 @@ struct PcdDialog::Impl
   Ui::PcdDialogForm* ui_;
 };
 
-PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
+terrama2::gui::config::PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
   : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
@@ -80,12 +80,12 @@ PcdDialog::PcdDialog(QWidget* parent, Qt::WindowFlags f)
 
 }
 
-PcdDialog::~PcdDialog()
+terrama2::gui::config::PcdDialog::~PcdDialog()
 {
   delete pimpl_;
 }
 
-void PcdDialog::fill(const PCD& pcd)
+void terrama2::gui::config::PcdDialog::fill(const PCD& pcd)
 {
   pimpl_->ui_->ledColPointFileName->setText(pcd.file);
   pimpl_->ui_->ledColPointLatitude->setText(pcd.latitude);
@@ -96,7 +96,7 @@ void PcdDialog::fill(const PCD& pcd)
   pimpl_->ui_->projectionTxt->setText(std::to_string(pcd.srid).c_str());
 }
 
-void PcdDialog::fillObject(PCD &pcd)
+void terrama2::gui::config::PcdDialog::fillObject(PCD &pcd)
 {
   pcd.file = pimpl_->ui_->ledColPointFileName->text();
   pcd.latitude = pimpl_->ui_->ledColPointLatitude->text();
@@ -107,23 +107,23 @@ void PcdDialog::fillObject(PCD &pcd)
 
 }
 
-void PcdDialog::onPcdChanged()
+void terrama2::gui::config::PcdDialog::onPcdChanged()
 {
   pimpl_->ui_->okBtn->setEnabled(true);
 }
 
-void PcdDialog::onConfirmClicked()
+void terrama2::gui::config::PcdDialog::onConfirmClicked()
 {
   if (pimpl_->ui_->ledColPointFileName->text().trimmed().isEmpty())
-    {
-      reject();
-      return;
-    }
+  {
+    reject();
+    return;
+  }
 
   accept();
 }
 
-void PcdDialog::onProjectionClicked()
+void terrama2::gui::config::PcdDialog::onProjectionClicked()
 {
   te::qt::widgets::SRSManagerDialog srsDialog(this);
   srsDialog.setWindowTitle(tr("Choose the SRS"));

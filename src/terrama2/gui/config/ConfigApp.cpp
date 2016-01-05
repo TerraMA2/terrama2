@@ -47,7 +47,7 @@
 #include <QMessageBox>
 
 
-struct ConfigApp::Impl
+struct terrama2::gui::config::ConfigApp::Impl
 {
   Ui::ConfigAppForm* ui_;
 
@@ -62,9 +62,9 @@ struct ConfigApp::Impl
   }
 };
 
-ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
+terrama2::gui::config::ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
   : QMainWindow(parent, flags),
-    pimpl_(new ConfigApp::Impl), currentTabIndex_(0),
+    pimpl_(new terrama2::gui::config::ConfigApp::Impl), currentTabIndex_(0),
     configManager_(nullptr),
     weatherTab_(nullptr)
 {
@@ -113,27 +113,27 @@ ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags flags)
 
 }
 
-ConfigApp::~ConfigApp()
+terrama2::gui::config::ConfigApp::~ConfigApp()
 {
   delete pimpl_;
 }
 
-Ui::ConfigAppForm* ConfigApp::ui() const
+Ui::ConfigAppForm* terrama2::gui::config::ConfigApp::ui() const
 {
   return pimpl_->ui_;
 }
 
-void ConfigApp::setCurrentTabIndex(const int& index)
+void terrama2::gui::config::ConfigApp::setCurrentTabIndex(const int& index)
 {
   currentTabIndex_ = index;
 }
 
-int ConfigApp::getCurrentTabIndex() const
+int terrama2::gui::config::ConfigApp::getCurrentTabIndex() const
 {
   return currentTabIndex_;
 }
 
-void ConfigApp::tabChangeRequested(int index)
+void terrama2::gui::config::ConfigApp::tabChangeRequested(int index)
 {
   if(index != currentTabIndex_)
   {
@@ -156,7 +156,7 @@ void ConfigApp::tabChangeRequested(int index)
   }
 }
 
-void ConfigApp::openRequested()
+void terrama2::gui::config::ConfigApp::openRequested()
 {
   try
   {
@@ -196,22 +196,22 @@ void ConfigApp::openRequested()
   }
 }
 
-QSharedPointer<ConfigAppWeatherTab> ConfigApp::getWeatherTab() const
+QSharedPointer<terrama2::gui::config::ConfigAppWeatherTab> terrama2::gui::config::ConfigApp::getWeatherTab() const
 {
   return weatherTab_;
 }
 
-QSharedPointer<terrama2::ws::collector::client::Client> ConfigApp::getClient() const
+QSharedPointer<terrama2::ws::collector::client::Client> terrama2::gui::config::ConfigApp::getClient() const
 {
   return client_;
 }
 
-QSharedPointer<ConfigManager> ConfigApp::getConfiguration() const
+QSharedPointer<ConfigManager> terrama2::gui::config::ConfigApp::getConfiguration() const
 {
   return configManager_;
 }
 
-void ConfigApp::unload()
+void terrama2::gui::config::ConfigApp::unload()
 {
   weatherTab_->discardChanges(true);
   pimpl_->ui_->centralwidget->setEnabled(false);

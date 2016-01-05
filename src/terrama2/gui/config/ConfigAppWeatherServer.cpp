@@ -20,7 +20,7 @@
 #include <curl/curl.h>
 
 
-ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui)
+terrama2::gui::config::ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui)
 {
   connect(ui_->insertServerBtn, SIGNAL(clicked()), this, SLOT(onServerTabRequested()));
@@ -41,17 +41,17 @@ ConfigAppWeatherServer::ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm
   ui_->connectionPort->setValidator(portValidator);
 }
 
-ConfigAppWeatherServer::~ConfigAppWeatherServer()
+terrama2::gui::config::ConfigAppWeatherServer::~ConfigAppWeatherServer()
 {
 
 }
 
-void ConfigAppWeatherServer::load()
+void terrama2::gui::config::ConfigAppWeatherServer::load()
 {
   connect(ui_->serverDescription->document(), SIGNAL(contentsChanged()), SLOT(onTextEditChanged()));
 }
 
-void ConfigAppWeatherServer::save()
+void terrama2::gui::config::ConfigAppWeatherServer::save()
 {
 
   validateConnection();
@@ -86,7 +86,7 @@ void ConfigAppWeatherServer::save()
   changed_ = false;
 }
 
-void ConfigAppWeatherServer::discardChanges(bool restore)
+void terrama2::gui::config::ConfigAppWeatherServer::discardChanges(bool restore)
 {
   const auto* tab = ui_->ServerPage;
 
@@ -99,7 +99,7 @@ void ConfigAppWeatherServer::discardChanges(bool restore)
   changed_ = false;
 }
 
-bool ConfigAppWeatherServer::validate()
+bool terrama2::gui::config::ConfigAppWeatherServer::validate()
 {
   if (ui_->serverName->text().trimmed().isEmpty())
   {
@@ -114,24 +114,24 @@ bool ConfigAppWeatherServer::validate()
     if (selectedData_ != ui_->serverName->text())
     {
       ui_->serverName->setFocus();
-      throw terrama2::gui::config::DataProviderError() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
+      throw terrama2::gui::config::DataProviderException() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
     }
   }
   return true;
 }
 
-void ConfigAppWeatherServer::onServerTabRequested()
+void terrama2::gui::config::ConfigAppWeatherServer::onServerTabRequested()
 {
   app_->getWeatherTab()->displayOperationButtons(true);
   app_->getWeatherTab()->changeTab(*this, *ui_->ServerPage);
 }
 
-void ConfigAppWeatherServer::onServerEdited()
+void terrama2::gui::config::ConfigAppWeatherServer::onServerEdited()
 {
   changed_ = true;
 }
 
-void ConfigAppWeatherServer::onCheckConnectionClicked()
+void terrama2::gui::config::ConfigAppWeatherServer::onCheckConnectionClicked()
 {
   // For handling error message
   QString message;
@@ -156,7 +156,7 @@ void ConfigAppWeatherServer::onCheckConnectionClicked()
   QMessageBox::warning(app_, tr("TerraMA2 Error"), message);
 }
 
-void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
+void terrama2::gui::config::ConfigAppWeatherServer::onConnectionTypeChanged(int index)
 {
   bool mode = false;
   if (index == 2) // FILE
@@ -194,7 +194,7 @@ void ConfigAppWeatherServer::onConnectionTypeChanged(int index)
   ui_->connectionPassword->setVisible(mode);
 }
 
-void ConfigAppWeatherServer::onAddressFileBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherServer::onAddressFileBtnClicked()
 {
   QString dir = QFileDialog::getExistingDirectory(app_, tr("Open Directory"),
                                                ui_->connectionAddress->text(),
@@ -204,7 +204,7 @@ void ConfigAppWeatherServer::onAddressFileBtnClicked()
   ui_->serverPath->setText(dir);
 }
 
-void ConfigAppWeatherServer::validateConnection()
+void terrama2::gui::config::ConfigAppWeatherServer::validateConnection()
 {
   QUrl url;
   url.setScheme(ui_->connectionProtocol->currentText().toLower());
@@ -219,7 +219,7 @@ void ConfigAppWeatherServer::validateConnection()
         if (!directory.exists())
         {
           ui_->serverPath->setFocus();
-          throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("It is an invalid path"));
+          throw terrama2::gui::DirectoryException() << terrama2::ErrorDescription(tr("It is an invalid path"));
         }
 
         url.setPath(ui_->serverPath->text());
@@ -253,19 +253,19 @@ void ConfigAppWeatherServer::validateConnection()
       }
       break;
     default:
-      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Not implemented yet."));
+      throw terrama2::gui::ValueException() << terrama2::ErrorDescription(tr("Not implemented yet."));
   }
 
   if (ui_->connectionAddress->text().trimmed().isEmpty())
   {
     ui_->connectionAddress->setFocus();
-    throw terrama2::gui::DirectoryError() << terrama2::ErrorDescription(tr("Address field cannot be empty"));
+    throw terrama2::gui::DirectoryException() << terrama2::ErrorDescription(tr("Address field cannot be empty"));
   }
 
   if (!url.isValid())
   {
     ui_->connectionAddress->setFocus();
-    throw terrama2::gui::URLError() << terrama2::ErrorDescription(tr("Invalid URL address typed"));
+    throw terrama2::gui::URLException() << terrama2::ErrorDescription(tr("Invalid URL address typed"));
   }
 
   url.setHost(ui_->connectionAddress->text());
@@ -297,7 +297,7 @@ void ConfigAppWeatherServer::validateConnection()
         {
           const QString message = tr("Error while connecting.. Timeout!");
           TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
-          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+          throw terrama2::gui::ConnectionException() << terrama2::ErrorDescription(message);
         }
         break;
 
@@ -305,7 +305,7 @@ void ConfigAppWeatherServer::validateConnection()
         {
           const QString message = tr("Error while connecting.. Login denied!");
           TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
-          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+          throw terrama2::gui::ConnectionException() << terrama2::ErrorDescription(message);
         }
         break;
 
@@ -313,7 +313,7 @@ void ConfigAppWeatherServer::validateConnection()
         {
           const QString message = tr("Error while connecting.. Invalid path!");
           TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
-          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+          throw terrama2::gui::ConnectionException() << terrama2::ErrorDescription(message);
         }
         break;
 
@@ -321,19 +321,19 @@ void ConfigAppWeatherServer::validateConnection()
         {
           const QString message = tr("Error in connection...");
           TERRAMA2_LOG_WARNING() << "DataProvider Connection: " << message;
-          throw terrama2::gui::ConnectionError() << terrama2::ErrorDescription(message);
+          throw terrama2::gui::ConnectionException() << terrama2::ErrorDescription(message);
         }
     }
 
     curl_easy_cleanup(curl);
   }
   else
-    throw terrama2::gui::URLError() << terrama2::ErrorDescription(QObject::tr("Error to ping"));
+    throw terrama2::gui::URLException() << terrama2::ErrorDescription(QObject::tr("Error to ping"));
 
   uri_ = url.url();
 }
 
-void ConfigAppWeatherServer::onTextEditChanged()
+void terrama2::gui::config::ConfigAppWeatherServer::onTextEditChanged()
 {
   changed_ = true;
 }

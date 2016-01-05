@@ -40,11 +40,14 @@ namespace terrama2
   {
     namespace config
     {
+      //! Base GUI Configuration module exception
+      struct Exception : virtual terrama2::gui::Exception{ };
+
       //! It is used for any data provider error
-      struct DataProviderError: virtual Exception{ };
+      struct DataProviderException: virtual Exception{ };
 
       //! It is used for any data set error
-      struct DataSetError: virtual Exception{ };
+      struct DataSetException: virtual Exception{ };
     }
   }
 }
