@@ -40,33 +40,24 @@ namespace terrama2
   namespace collector
   {
 
-    /*!
-         * \brief The Storager class store the data in the final storage area and format.
-         *
-         * The Storager is responsible for creating the final storaging area and
-         * converting the data (terralib) to the appropriate format.
-         *
-         */
+    //! The StoragerPostgis class specializes the Storager class to Postgres/Postgis DB.
     class StoragerPostgis : public Storager
     {
-      public:
-        StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
+    public:
+      //Documented in parent class
+      StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
 
-        /*!
-             * \brief Store a temporary data set in it's final storage area and format.
-             * \return Pointer to a te::da::DataSet of the final storage.
-             *
-             * \exception TODO: Storager::store exception...
-             */
-        virtual std::string store(const std::string& standardDataSetName,
-                                  const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                  const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
+      //Documented in parent class
+      virtual std::string store(const std::string& standardDataSetName,
+                                const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
 
     private:
-        void commitData(const std::string& destinationDataSetName,
-                        std::shared_ptr<te::da::DataSource> datasourceDestination,
-                        const std::shared_ptr<te::da::DataSetType> &dataSetType,
-                        const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec);
+      //! Internal method that commits data to the final storage area.
+      void commitData(const std::string& destinationDataSetName,
+                      std::shared_ptr<te::da::DataSource> datasourceDestination,
+                      const std::shared_ptr<te::da::DataSetType> &dataSetType,
+                      const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec);
 
     };
   }

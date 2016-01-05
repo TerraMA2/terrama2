@@ -46,8 +46,11 @@ namespace terrama2
   namespace collector
   {
 
+    //! Converts a QDateTime to a boost::local_time::local_date_time
     boost::local_time::local_date_time QDateTime2BoostLocalDateTime(const QDateTime& qDateTime, const QString &offset);
+    //! Converts a date and time String to a boost::local_time::local_date_time
     boost::local_time::local_date_time DateTimeString2BoostLocalDateTime(const std::string& date, const std::string& time, const std::string& timezone);
+    //! Converts a boost::local_time::local_date_time to a date and time string
     void BoostLocalDateTime2DateTimeString(const boost::local_time::local_date_time& boostLocalDate, std::string& date, std::string& time, std::string& timezone);
 
 

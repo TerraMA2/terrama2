@@ -70,8 +70,8 @@ namespace terrama2
         /*!
           \brief Constructor, start the timer for collecting.
 
-          \exception terrama2::collector::InvalidDataSetError Raise when constructed with an invalid core::DataSet.
-          \exception InvalidCollectFrequencyError Raised if collect frequency equals or lesser then zero.
+          \exception terrama2::collector::InvalidDataSetException Raise when constructed with an invalid core::DataSet.
+          \exception InvalidCollectFrequencyException Raised if collect frequency equals or lesser then zero.
          */
         DataSetTimer(const core::DataSet &dataSet);
         ~DataSetTimer();
@@ -92,7 +92,7 @@ namespace terrama2
       private:
         /*! \brief Prepare and starts timer following the core::DataSet information.
 
-          \exception InvalidCollectFrequencyError Raised if collect frequency equals or lesser then zero.
+          \exception InvalidCollectFrequencyException Raised if collect frequency equals or lesser then zero.
            */
         void prepareTimer(const terrama2::core::DataSet &dataSet);
 
@@ -100,7 +100,7 @@ namespace terrama2
         Impl* impl_;
     };
 
-    typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr;
+    typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr; //!< Shared pointer for DataSetTimer.
   }
 }
 

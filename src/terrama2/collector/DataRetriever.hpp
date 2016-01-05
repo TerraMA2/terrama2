@@ -85,7 +85,7 @@ namespace terrama2
 
     };
 
-    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
+    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr; //!< Shared pointer for DataRetriever.
   }
 }
 
