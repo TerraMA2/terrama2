@@ -63,8 +63,8 @@ namespace terrama2
 
       \return A valid JSON document or throws an exception.
 
-      \exception FileOpenError Throw this type of exception if a file could not be open.
-      \exception ParserError  Throw this type of exception if JSON document is not valid.
+      \exception FileOpenException Throw this type of exception if a file could not be open.
+      \exception ParserException  Throw this type of exception if JSON document is not valid.
      */
     QJsonDocument ReadJsonFile(const std::string& fileName);
 

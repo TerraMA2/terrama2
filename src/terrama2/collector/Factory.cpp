@@ -89,7 +89,7 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
     }
   }
 
-  throw UnableToCreateParserError() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
+  throw UnableToCreateParserException() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
 }
 
 terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)

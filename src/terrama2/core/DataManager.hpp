@@ -185,7 +185,7 @@ namespace terrama2
           \pre The data provider must have a valid ID.
 
           \pos It will remove all datasets that belong to this data provider.
-          \pos In case there is an analysis that uses one the datasets it will throw an DataSetInUseError().
+          \pos In case there is an analysis that uses one the datasets it will throw an DataSetInUseException().
 
           \exception terrama2::Exception If it is not possible to remove the data provider.
 
