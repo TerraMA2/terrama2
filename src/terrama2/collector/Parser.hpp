@@ -78,7 +78,7 @@ namespace terrama2
        \param datasetVec Will be populated with parsed datasets.
        \param datasetType DataSetType of found datasets
 
-       \exception UnableToReadDataSetError Raised if could not open the dataset, read error message for more information.
+       \exception UnableToReadDataSetException Raised if could not open the dataset, read error message for more information.
        \exception NoDataSetFoundError Raised if no dataset was found in given url
        \pre Tarralib should be initialized.
        */
