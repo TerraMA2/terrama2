@@ -83,9 +83,9 @@ namespace terrama2
 
       private:
 
-        uint64_t dataset_;
-        std::map<std::string, std::vector<std::string> > attributeMap_;
-        std::map<uint64_t, std::string> bandMap_;
+        uint64_t dataset_; //!< Associates the intersection to a given dataset.
+        std::map<std::string, std::vector<std::string> > attributeMap_; //!< Map with the table name and the columns to be added to the collected data.
+        std::map<uint64_t, std::string> bandMap_; //!< Map with the grid dataset identifier and the bands that should be added to the collected data.
 
     };
 

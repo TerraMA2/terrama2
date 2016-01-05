@@ -49,13 +49,18 @@ namespace terrama2
   struct Exception: virtual std::exception, virtual boost::exception
   {
   public:
+    /*!
+      \brief It outputs the exception message.
+
+      \return The exception message.
+    */
     virtual const char* what() const noexcept
     {
       return boost::get_error_info< terrama2::ErrorDescription >(*this)->toStdString().c_str();
     }
   };
 
-  //! An exception indicating that a slot connection was not stablished.
+  //! An exception indicating that a slot connection was not established.
   struct SlotConnectionError: virtual Exception { };
 
   //! An exception indicating that the client of the API is attempting to get a new instance.
