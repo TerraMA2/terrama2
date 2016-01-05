@@ -244,7 +244,7 @@ void ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnClicked()
 
 void ConfigAppWeatherOccurrence::onIntersectionBtnClicked()
 {
-  IntersectionDialog dialog(intersection_, app_->getConfiguration()->getDatabase());
+  terrama2::gui::config::IntersectionDialog dialog(intersection_, app_->getConfiguration()->getDatabase());
   if(dialog.exec() == QDialog::Accepted)
   {
     intersection_ = dialog.getIntersection();

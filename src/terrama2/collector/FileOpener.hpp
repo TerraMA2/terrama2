@@ -33,7 +33,7 @@
 
 // STL
 #include <memory>
-#include <cassert>
+#include <cstdio>
 
 /*!
      * \brief The FileOpener class implements the RAII technique to control file operations.

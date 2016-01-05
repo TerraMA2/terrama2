@@ -126,7 +126,7 @@ bool ConfigAppTab::removeDataSet(const terrama2::core::DataSet& dataset)
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
   {
     if (dataset.id() == 0)
-      throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("Invalid dataset selected"));
+      throw terrama2::gui::config::DataSetError() << terrama2::ErrorDescription(tr("Invalid dataset selected"));
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(app_, tr("TerraMA2"),

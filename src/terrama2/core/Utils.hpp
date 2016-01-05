@@ -39,6 +39,7 @@
 // STL
 #include <string>
 
+// Forward declaration
 class QJsonDocument;
 
 namespace terrama2

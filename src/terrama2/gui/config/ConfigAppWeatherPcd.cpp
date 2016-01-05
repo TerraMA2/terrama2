@@ -286,7 +286,7 @@ void ConfigAppWeatherPcd::onPCDExportClicked()
 {
   QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
   if (currentItem == nullptr || currentItem->parent() == nullptr || currentItem->parent()->parent() == nullptr)
-    throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("Please selected a valid PCD dataset"));
+    throw terrama2::gui::config::DataSetError() << terrama2::ErrorDescription(tr("Please selected a valid PCD dataset"));
 
   QString path = QFileDialog::getSaveFileName(app_ ,
                                               tr("Type name and where you intend to save this PCD"),

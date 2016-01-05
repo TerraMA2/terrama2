@@ -12,8 +12,6 @@
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include "Exception.hpp"
 
-// QT
-#include <QString>
 
 namespace terrama2
 {
@@ -54,8 +52,18 @@ namespace terrama2
 
       private:
         boost::shared_ptr<text_sink> sink_; //!< Sink for handling records.
-        std::string loggerPath_; //!< It contains file name destination
+        std::string loggerPath_; //!< Path to the log.
     }; // end class logger
+
+    //! Override operator<< to enable sets terrama2 exception in log. It formats the exception and put it in stream
+    inline std::ostream& operator<<(std::ostream& stream, const terrama2::Exception& exception)
+    {
+      const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
+      std::string message = "** An exception occurred **! \t";
+      if (msg != nullptr)
+        message.append(msg->toStdString().c_str());
+      return stream << message;
+    }
 
   } // end core
 } // end terrama2
@@ -75,25 +83,11 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(terrama2_logger, boost::log::sources::s
 #define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::ERROR)
 #define TERRAMA2_LOG_FATAL() TERRAMA2_LOG(terrama2::core::Logger::FATAL)
 
-inline std::ostream& operator<<(std::ostream& stream, const terrama2::Exception& exception)
+//! Override operator<< to enable sets terrama2 exception in log. It formats the exception and put it in stream
+inline std::ostream& operator<<(std::ostream& stream, const QString message)
 {
-  const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
-  std::string message = "** An exception occurred **! \t";
-  if (msg != nullptr)
-    message.append(msg->toStdString().c_str());
-  return stream << message;
+  return stream << message.toStdString();
 }
 
-//! Override operator<< to enable sets QString message in log.
-inline std::ostream& operator<<(std::ostream& stream, QString& message)
-{
-  return stream << message.toStdString().c_str();
-}
-
-//! Override operator<< to enable sets QString message in log.
-inline std::ostream& operator<<(std::ostream& stream, const QString& message)
-{
-  return stream << message.toStdString().c_str();
-}
 
 #endif // __TERRAMA2_CORE_LOGGER_HPP__

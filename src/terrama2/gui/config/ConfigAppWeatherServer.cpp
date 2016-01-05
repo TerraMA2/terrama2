@@ -114,7 +114,7 @@ bool ConfigAppWeatherServer::validate()
     if (selectedData_ != ui_->serverName->text())
     {
       ui_->serverName->setFocus();
-      throw terrama2::gui::DataProviderError() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
+      throw terrama2::gui::config::DataProviderError() << terrama2::ErrorDescription(tr("The server name has already been saved. Please change server name"));
     }
   }
   return true;

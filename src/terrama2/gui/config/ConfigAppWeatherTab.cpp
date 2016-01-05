@@ -325,7 +325,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         terrama2::core::DataProvider provider = getProvider(selectedItem->text(0).toStdString());
 
         if (provider.id() == 0)
-          throw terrama2::gui::DataProviderError() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
+          throw terrama2::gui::config::DataProviderError() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
@@ -509,7 +509,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
           } // endif
         } // endfor
 
-        throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
+        throw terrama2::gui::config::DataSetError() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
 
       } //end else
     }

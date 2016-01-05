@@ -56,12 +56,6 @@ namespace terrama2
     //! It is used when connection has been failed
     struct ConnectionError: virtual Exception{ };
 
-    //! It is used for any data provider error
-    struct DataProviderError: virtual Exception{ };
-
-    //! It is used for any data set error
-    struct DataSetError: virtual Exception{ };
-
     //! It is used when the value in input is invalid or not expected.
     struct ValueError: virtual Exception{ };
   }

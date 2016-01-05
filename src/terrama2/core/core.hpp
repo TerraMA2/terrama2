@@ -20,34 +20,41 @@
 */
 
 /*!
-  \file terrama2/gui/config/Exception.hpp
+  \file terrama2/core/core.hpp
 
-  \brief Base exceptions TerraMA2 for gui config module.
+  \brief This file contains include headers for the TerraMA2 core module.
 
-  \author Raphael Willian da Costa
- */
+  \author Paulo R. M. Oliveira
+*/
 
+#ifndef __TERRAMA2_CORE_CORE_HPP__
+#define __TERRAMA2_CORE_CORE_HPP__
 
-#ifndef __TERRAMA2_GUI_CONFIG_EXCEPTION_HPP__
-#define __TERRAMA2_GUI_CONFIG_EXCEPTION_HPP__
-
-#include "../Exception.hpp"
+// TerraMA2
+#include "ApplicationController.hpp"
+#include "DataManager.hpp"
+#include "DataProvider.hpp"
+#include "DataProviderDAO.hpp"
+#include "DataSet.hpp"
+#include "DataSetDAO.hpp"
+#include "DataSetItem.hpp"
+#include "DataSetItemDAO.hpp"
+#include "Exception.hpp"
+#include "Filter.hpp"
+#include "FilterDAO.hpp"
+#include "Intersection.hpp"
+#include "IntersectionDAO.hpp"
+#include "Logger.hpp"
+#include "Utils.hpp"
+#include "Version.hpp"
 
 
 namespace terrama2
 {
-  namespace gui
+  /*! \brief Namespace for the TerraMA2 core module, it contains the base classes for the TerraMA2. */
+  namespace core
   {
-    namespace config
-    {
-      //! It is used for any data provider error
-      struct DataProviderError: virtual Exception{ };
+  } // end namespace core
+}   // end namespace terrama2
 
-      //! It is used for any data set error
-      struct DataSetError: virtual Exception{ };
-    }
-  }
-}
-
-
-#endif // __TERRAMA2_GUI_CONFIG_EXCEPTION_HPP__
+#endif  // __TERRAMA2_CORE_CORE_HPP__
