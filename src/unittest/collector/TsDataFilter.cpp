@@ -102,7 +102,7 @@ void TsDataFilter::TestEmptyMask()
 
     QFAIL(NO_EXCEPTION_THROWN);
   }
-  catch(terrama2::collector::EmptyMaskError& e)
+  catch(terrama2::collector::EmptyMaskException& e)
   {
     return;
   }

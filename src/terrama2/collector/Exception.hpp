@@ -39,10 +39,10 @@ namespace terrama2
     struct Exception : virtual terrama2::Exception { };
 
     //! Base exception for CollectorService exceptions
-    struct CollectorServiceError : virtual Exception { };
+    struct CollectorServiceException : virtual Exception { };
 
     //! Base exception for DataRetrieverFTP excetptions
-    struct DataRetrieverFTPError : virtual Exception { };
+    struct DataRetrieverFTPException : virtual Exception { };
 
     /*!
        \brief Raised when the collector service could not be started.
@@ -50,39 +50,39 @@ namespace terrama2
        Check error info for more information.
 
      */
-    struct UnableToStartServiceError : virtual CollectorServiceError { };
+    struct UnableToStartServiceException : virtual CollectorServiceException { };
     //! Raised when start() is callend and the CollectorService is already running.
-    struct ServiceAlreadyRunnningError: virtual UnableToStartServiceError { };
+    struct ServiceAlreadyRunnningException: virtual UnableToStartServiceException { };
 
 
     //! Base exception for DataSetTimer exceptions
-    struct DataSetTimerError: virtual Exception { };
+    struct DataSetTimerException: virtual Exception { };
     //! Raised when a dataset has id == 0 or doesn't have a name.
-    struct InvalidDataSetError: virtual DataSetTimerError { };
-    struct InvalidCollectFrequencyError: virtual DataSetTimerError { };
+    struct InvalidDataSetException: virtual DataSetTimerException { };
+    struct InvalidCollectFrequencyException: virtual DataSetTimerException { };
 
 
     //! Base exception for DataRetriever exceptions
-    struct DataRetrieverError: virtual Exception { };
+    struct DataRetrieverException: virtual Exception { };
     //! Raised when dataprovider doesn't have an id or a name.
-    struct InvalidDataProviderError: virtual DataRetrieverError { };
+    struct InvalidDataProviderException: virtual DataRetrieverException { };
 
-    struct WrongDataProviderKindError: virtual DataRetrieverError { };
+    struct WrongDataProviderKindException: virtual DataRetrieverException { };
 
     //! Base exception to factory namespace.
-    struct FactoryError: virtual Exception { };
-    struct ConflictingParserTypeSchemeError: virtual FactoryError { };
-    struct UnableToCreateParserError: virtual FactoryError { };
-    struct UnableToCreateStoragerError: virtual FactoryError { };
+    struct FactoryException: virtual Exception { };
+    struct ConflictingParserTypeSchemeException: virtual FactoryException { };
+    struct UnableToCreateParserException: virtual FactoryException { };
+    struct UnableToCreateStoragerException: virtual FactoryException { };
 
     //! Base exception for ParserError exceptions
-    struct ParserError: virtual Exception { };
-    struct InvalidFolderError: virtual ParserError { };
-    struct NoDataSetFoundError: virtual ParserError { };
+    struct ParserException: virtual Exception { };
+    struct InvalidFolderException: virtual ParserException { };
+    struct NoDataSetFoundException: virtual ParserException { };
 
     //! Base exception for DataFilter exceptions
-    struct DataFilterError: virtual Exception { };
-    struct EmptyMaskError: virtual DataFilterError { };
+    struct DataFilterException: virtual Exception { };
+    struct EmptyMaskException: virtual DataFilterException { };
 
     /*!
        \brief Raised when the DataSet could not be read.
@@ -90,14 +90,14 @@ namespace terrama2
        Check error info for more information.
 
      */
-    struct UnableToReadDataSetError: virtual ParserError { };
+    struct UnableToReadDataSetException: virtual ParserException { };
 
 
     /*!
        \brief Raised when failed to log.
 
      */
-    struct LogError: terrama2::Exception{ };
+    struct LogException: terrama2::Exception{ };
   }
 }
 

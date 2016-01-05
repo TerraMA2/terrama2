@@ -89,7 +89,7 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
     QUrl url(uri.c_str());
     QDir dir(url.path());
     if(!dir.exists())
-      throw InvalidFolderError() << ErrorDescription(QObject::tr("Invalid folder."));
+      throw InvalidFolderException() << ErrorDescription(QObject::tr("Invalid folder."));
 
     QStringList localEntryList = dir.entryList(QDir::Files);
     std::vector<std::string> names(localEntryList.size());
@@ -98,7 +98,7 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
     names = filter->filterNames(names);
 
     if(names.empty())
-      throw NoDataSetFoundError() << ErrorDescription(QObject::tr("No DataSet Found."));
+      throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
 
     std::shared_ptr<te::da::DataSetTypeConverter> converter;
     bool first = true;
@@ -116,7 +116,7 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
 
       if(!datasource->isOpened())
       {
-        throw UnableToReadDataSetError() << ErrorDescription(QObject::tr("ParserOGR::read - DataProvider could not be opened."));
+        throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - DataProvider could not be opened."));
       }
 
       // get a transactor to interact to the data source
@@ -145,7 +145,7 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
   {
     //TODO: log de erro
     qDebug() << e.what();
-    throw UnableToReadDataSetError() << ErrorDescription(QObject::tr("ParserOGR::read - Terralib exception: ") +e.what());
+    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - Terralib exception: ") +e.what());
   }
   catch(terrama2::collector::Exception& e)
   {
@@ -153,7 +153,7 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetError() << ErrorDescription(QObject::tr("ParserOGR::read - Std exception.")+e.what());
+    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - Std exception.")+e.what());
   }
 
   return;

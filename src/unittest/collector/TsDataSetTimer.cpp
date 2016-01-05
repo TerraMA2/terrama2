@@ -35,7 +35,7 @@
 #include <terrama2/core/DataSet.hpp>
 
 //Qt
-#include <QtTest>
+#include <QtTest/QTest>
 #include <QMetaType>//for signals with uint64_t
 
 //STD
@@ -52,7 +52,7 @@ void TsDataSetTimer::TestNullDataSet()
 
     QFAIL(UNEXPECTED_BEHAVIOR);
   }
-  catch(terrama2::collector::InvalidDataSetError& e)
+  catch(terrama2::collector::InvalidDataSetException& e)
   {
   }
   catch(boost::exception& e)
@@ -74,7 +74,7 @@ void TsDataSetTimer::TestNullDataSet()
 
     QFAIL(UNEXPECTED_BEHAVIOR);
   }
-  catch(terrama2::collector::InvalidDataSetError& e)
+  catch(terrama2::collector::InvalidDataSetException& e)
   {
   }
   catch(boost::exception& e)
