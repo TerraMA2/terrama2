@@ -28,11 +28,10 @@
 */
 
 // STL
-#include <memory>
-#include <cassert>
+#include <stdexcept>
 
 // TerraMA2
-#include "FileOpener.hpp" 
+#include "FileOpener.hpp"
 
 
 terrama2::collector::FileOpener::FileOpener(const char* filename, const char* attribute)

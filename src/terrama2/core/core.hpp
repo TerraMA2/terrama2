@@ -20,46 +20,41 @@
 */
 
 /*!
-  \file terrama2/collector/FileOpener.hpp
+  \file terrama2/core/core.hpp
 
-  \brief
+  \brief This file contains include headers for the TerraMA2 core module.
 
- \author Evandro Delatin
+  \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_CORE_CORE_HPP__
+#define __TERRAMA2_CORE_CORE_HPP__
 
-#ifndef __TERRAMA2_COLLECTOR_FILEOPENER_HPP__
-#define __TERRAMA2_COLLECTOR_FILEOPENER_HPP__
-
-// STL
-#include <memory>
-#include <cstdio>
-
-/*!
-     * \brief The FileOpener class implements the RAII technique to control file operations.
-     *
-*/
+// TerraMA2
+#include "ApplicationController.hpp"
+#include "DataManager.hpp"
+#include "DataProvider.hpp"
+#include "DataProviderDAO.hpp"
+#include "DataSet.hpp"
+#include "DataSetDAO.hpp"
+#include "DataSetItem.hpp"
+#include "DataSetItemDAO.hpp"
+#include "Exception.hpp"
+#include "Filter.hpp"
+#include "FilterDAO.hpp"
+#include "Intersection.hpp"
+#include "IntersectionDAO.hpp"
+#include "Logger.hpp"
+#include "Utils.hpp"
+#include "Version.hpp"
 
 
 namespace terrama2
 {
-  namespace collector
+  /*! \brief Namespace for the TerraMA2 core module, it contains the base classes for the TerraMA2. */
+  namespace core
   {
-    class FileOpener
-    {
-      public:
-        FileOpener(const char* filename, const char* attribute);
+  } // end namespace core
+}   // end namespace terrama2
 
-        FileOpener(std::FILE* newfile);
-
-        std::FILE* file() const;
-
-        ~FileOpener();
-
-       private:
-         std::FILE* file_;
-    };
-  }
-}
-
-#endif //__TERRAMA2_COLLECTOR_FILEOPENER_HPP__
+#endif  // __TERRAMA2_CORE_CORE_HPP__

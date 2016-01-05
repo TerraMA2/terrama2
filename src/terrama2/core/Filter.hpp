@@ -58,7 +58,7 @@ namespace terrama2
 
       public:
 
-        /*! Filter by value type.
+        /*! \brief Filter by value type.
          Each constant must exist in table terrama2.filter_expression_type and the value must be the same from column id.
          */
         enum ExpressionType
@@ -87,12 +87,12 @@ namespace terrama2
         /*! Assignment operator */
         Filter& operator=(const Filter& filter);
 
-        /*! \brief Returns a pointer to the associated dataset item. */
+        /*! \brief Returns the identifier of the associated dataset item. */
         uint64_t datasetItem() const;
 
 
         /*!
-          \brief Associates the filter to given dataset item.
+          \brief Associates the filter to a given dataset item.
 
           \param item The dataset item to be associated to this filter.
         */
@@ -136,13 +136,13 @@ namespace terrama2
 
       private:
 
-        uint64_t datasetItem_;
-        std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_;
-        std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_;
-        std::unique_ptr<te::gm::Geometry> geometry_;
-        std::unique_ptr<double> value_;
-        ExpressionType expressionType_;
-        std::string bandFilter_;
+        uint64_t datasetItem_; //!< Associates the filter to a given dataset item.
+        std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Initial date of interest for collecting data from the data item.
+        std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Final date of interest for collecting data from the data item.
+        std::unique_ptr<te::gm::Geometry> geometry_; //!< Geometry to be used as area of interest for filtering the data during its collect.
+        std::unique_ptr<double> value_; //!< Value to be used in a filter by value.
+        ExpressionType expressionType_; //!< Type of filter by expression.
+        std::string bandFilter_; //!< Band filter.
     };
 
   } // end namespace core

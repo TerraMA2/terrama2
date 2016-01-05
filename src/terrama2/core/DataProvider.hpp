@@ -61,7 +61,7 @@ namespace terrama2
     {
       public:
 
-        /*! Data provider type.
+        /*! \brief Data provider type.
          Each constant must exist in table terrama2.data_provider_type and the value must be the same from column id.
          */
         enum Kind
@@ -127,6 +127,8 @@ namespace terrama2
 
         /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
         std::vector<DataSet>& datasets();
+
+        /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
         const std::vector<DataSet>& datasets() const;
 
         /*!
@@ -145,12 +147,12 @@ namespace terrama2
 
       private:
 
-        uint64_t id_;
-        std::string name_;
-        Kind kind_;
-        std::string description_;
-        std::string uri_;
-        Status status_;
+        uint64_t id_; //!< The identifier of the data provider.
+        std::string name_; //!< Name of the data provider, must be unique.
+        Kind kind_; //!< Data provider type.
+        std::string description_; //!< Brief description from the source of the data provider.
+        std::string uri_; //!< URI to access the data provider data.
+        Status status_; //!< Data provider status.
         std::vector<DataSet> datasets_; //!< The list of datasets available in the data provider.
     };
 
