@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/DataRetrieverFTP.hpp
 
-  \brief
+  \brief Data Retriever FTP.
 
  \author Jano Simas
  \author Evandro Delatin
@@ -42,10 +42,6 @@
 // LibCurl
 #include <curl/curl.h>
 
-/*!
-   * \brief The DataRetrieverFTP class performs the download of
-   * occurrences of files, PCD-TOA5, PCD_INPE, GRADES ETA15km.
-*/
 
 namespace terrama2
 {
@@ -54,26 +50,50 @@ namespace terrama2
     class DataFilter;
     typedef std::shared_ptr<DataFilter> DataFilterPtr;
 
+    /*!
+       * \brief The DataRetrieverFTP class performs the download of
+       * occurrences of files, PCD-TOA5, PCD_INPE, GRADES ETA15km.
+    */
+
     class DataRetrieverFTP: public DataRetriever
     {
-    public:
-      //! Constructor
+    public:      
+        /*!
+         * \brief  Constructor DataRetrieverFTP
+         * \param DataProvider dataprovider information.
+         * \param Localization localization information. Ex. "file://".
+         * \param Folder folder information where the files will be saved. Ex. "/tmp/".
+         */
       explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string localization = "file://", const std::string folder = "/tmp/");
 
+      //! Does nothing. In derived classes opens the connectin to the server.
       virtual void open() override;
+      //! Initializes the Curl and check the URL to download.
       virtual bool isOpen() override;
-      virtual void close() override;
-
+      //! Does nothing. In derived classes closes the connection to the server.
+      virtual void close() override;      
+        /*!
+         * \brief Retrieving remote data from FTP servers.
+         * \param Filter to the data files.
+         * \param Datasetitem datasetitem information.
+         * \param Log_uris log information.
+         * \return Returns the absolute path of the folder that contains the files that have been made the download.
+         * \exception DataRetrieverError when could not perform the download files.
+         * \exception DataRetrieverError when Unknown error, Could not perform the download files.
+         */
       virtual std::string retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<std::string>& /*log_uris*/) override;
 
-     //! Destructor.
+        /*!
+         * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.
+         * \exception DataRetrieverError when could not deleted file.
+         * \exception DataRetrieverError when unknown error, could not deleted file.
+         */
      ~DataRetrieverFTP();
 
     private:
-      CURL* curl_;
-      std::vector<std::string> vectorNames_;
-      std::string localization_;
-      std::string folder_;
+      std::vector<std::string> vectorNames_; //!< Vector that contains the list of filtered files to be downloaded.
+      std::string localization_; //!< Localization contains folders.
+      std::string folder_; //!< Folder that contains the files that were downloaded.
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;

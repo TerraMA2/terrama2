@@ -53,7 +53,7 @@
 #include <QHostInfo>
 #include <QCloseEvent>
 
-struct AdminApp::Impl
+struct terrama2::gui::admin::AdminApp::Impl
 {
   Ui::AdminAppForm* ui_;
   
@@ -68,7 +68,7 @@ struct AdminApp::Impl
   }
 };
 
-AdminApp::AdminApp(QWidget* parent)
+terrama2::gui::admin::AdminApp::AdminApp(QWidget* parent)
   : QMainWindow(parent),
     pimpl_(new Impl)
 {
@@ -108,7 +108,7 @@ AdminApp::AdminApp(QWidget* parent)
 
   pimpl_->ui_->setupUi(this);
 
-  configManager_ = new ConfigManager(this);
+  configManager_ = new terrama2::gui::core::ConfigManager(this);
 
 // Init variable
   pimpl_->ui_->configListWidget->clear();
@@ -202,7 +202,7 @@ AdminApp::AdminApp(QWidget* parent)
 }
 
 // Search Data List
-bool AdminApp::searchDataList(int rowTotal, QString findName)
+bool terrama2::gui::admin::AdminApp::searchDataList(int rowTotal, QString findName)
 {
   bool find = true;
 
@@ -223,7 +223,7 @@ bool AdminApp::searchDataList(int rowTotal, QString findName)
 }
 
 // New file
-void AdminApp::newRequested()
+void terrama2::gui::admin::AdminApp::newRequested()
 {
   if (dataChanged_)
   {
@@ -290,7 +290,7 @@ void AdminApp::newRequested()
 }
 
 // Open file
-void AdminApp::openRequested()
+void terrama2::gui::admin::AdminApp::openRequested()
 {
   if (dataChanged_)
   {
@@ -335,7 +335,7 @@ void AdminApp::openRequested()
 }
 
 // Rename file
-void AdminApp::renameRequested()
+void terrama2::gui::admin::AdminApp::renameRequested()
 {
   bool ok;
   QString newname = QInputDialog::getText(this, tr("Rename..."),
@@ -380,17 +380,17 @@ void AdminApp::renameRequested()
 }
 
 // Save file
-void AdminApp::saveRequested()
+void terrama2::gui::admin::AdminApp::saveRequested()
 { 
   save();
 }
 
-ConfigManager* AdminApp::getConfigManager()
+terrama2::gui::core::ConfigManager* terrama2::gui::admin::AdminApp::getConfigManager()
 {
  return configManager_;
 }
 
-void AdminApp::save()
+void terrama2::gui::admin::AdminApp::save()
 {
     QJsonObject metadata;
     QString err;
@@ -468,14 +468,14 @@ void AdminApp::save()
 }
 
 // SaveAs file
-void AdminApp::saveAsRequested()
+void terrama2::gui::admin::AdminApp::saveAsRequested()
 {
   newData_ = true;
   saveRequested();
 }
 
 // Cancel
-void AdminApp::cancelRequested()
+void terrama2::gui::admin::AdminApp::cancelRequested()
 {
   if(newData_)
   {
@@ -499,7 +499,7 @@ void AdminApp::cancelRequested()
 }
 
 // Create Database
-void AdminApp::dbCreateDatabaseRequested()
+void terrama2::gui::admin::AdminApp::dbCreateDatabaseRequested()
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
   qApp->processEvents();
@@ -516,7 +516,7 @@ void AdminApp::dbCreateDatabaseRequested()
 
     configManager_->setDatabase(tabs_[0]->toJson().first());
 
-    Database* database = configManager_->getDatabase();
+    terrama2::gui::core::Database* database = configManager_->getDatabase();
 
     terrama2::core::ApplicationController::getInstance().createDatabase(database->dbName_.toStdString(),
                                                                         database->user_.toStdString(),
@@ -568,7 +568,7 @@ void AdminApp::dbCreateDatabaseRequested()
 }
 
 // Check connection Database
-void AdminApp::dbCheckConnectionRequested()
+void terrama2::gui::admin::AdminApp::dbCheckConnectionRequested()
 {
   bool ok;
   try
@@ -583,7 +583,7 @@ void AdminApp::dbCheckConnectionRequested()
 
     configManager_->setDatabase(tabs_[0]->toJson().first());
 
-    Database* database = configManager_->getDatabase();
+    terrama2::gui::core::Database* database = configManager_->getDatabase();
 
     ok = terrama2::core::ApplicationController::getInstance().checkConnectionDatabase(database->dbName_.toStdString(),
                                                                                  database->user_.toStdString(),
@@ -627,7 +627,7 @@ void AdminApp::dbCheckConnectionRequested()
 }
 
 // Refresh
-void AdminApp::refresh()
+void terrama2::gui::admin::AdminApp::refresh()
 {
   int row = pimpl_->ui_->configListWidget->count()-1;
 
@@ -648,7 +648,7 @@ void AdminApp::refresh()
 }
 
 // Remove
-void AdminApp::removeRequested()
+void terrama2::gui::admin::AdminApp::removeRequested()
 {
   QMessageBox::StandardButton answer;
   answer = QMessageBox::question(this, tr("Remove configuration..."),
@@ -677,7 +677,7 @@ void AdminApp::removeRequested()
 }
 
 // Service Dialog
-void AdminApp::manageServices()
+void terrama2::gui::admin::AdminApp::manageServices()
 {
   if (dataChanged_)
   {
@@ -688,7 +688,7 @@ void AdminApp::manageServices()
   {
     QString nameConfig = pimpl_->ui_->configListWidget->currentItem()->text();
 
-    ServicesDialog dlg(this, *configManager_, nameConfig);
+    terrama2::gui::admin::ServicesDialog dlg(this, *configManager_, nameConfig);
 
     dlg.exec();
   }
@@ -696,14 +696,14 @@ void AdminApp::manageServices()
 
 // Console Dialog
 // TODO: use the show consoles when you have logs;
-void AdminApp::showConsoles()
+void terrama2::gui::admin::AdminApp::showConsoles()
 {
 // ConsoleDialog dlg(this);
 // dlg.exec();
 }
 
-//! Validate connection data in the database interface. Return true if ok to save.
-bool AdminApp::validateDbData(QString& err)
+// Validate connection data in the database interface. Return true if ok to save.
+bool terrama2::gui::admin::AdminApp::validateDbData(QString& err)
 {
   err = "";
 // Database
@@ -753,7 +753,7 @@ bool AdminApp::validateDbData(QString& err)
 }
 
 //! Enable or Disable fields of form
-void AdminApp::enableFields(bool mode)
+void terrama2::gui::admin::AdminApp::enableFields(bool mode)
  {
 // action
   pimpl_->ui_->saveAct->setEnabled(mode);
@@ -788,7 +788,7 @@ void AdminApp::enableFields(bool mode)
   pimpl_->ui_->tabWidget->setEnabled(mode);
 }
 
-void AdminApp::setDataChanged()
+void terrama2::gui::admin::AdminApp::setDataChanged()
 {
   dataChanged_ = true;
   pimpl_->ui_->saveBtn->setEnabled(true);
@@ -798,7 +798,7 @@ void AdminApp::setDataChanged()
   pimpl_->ui_->dbCheckConnectionBtn->setEnabled(true);
 }
 
-void AdminApp::clearDataChanged()
+void terrama2::gui::admin::AdminApp::clearDataChanged()
 {
   dataChanged_ = false;
   pimpl_->ui_->saveBtn->setEnabled(false);
@@ -808,7 +808,7 @@ void AdminApp::clearDataChanged()
   pimpl_->ui_->dbCheckConnectionBtn->setEnabled(false);
 }
 
-void AdminApp::ondbTab()
+void terrama2::gui::admin::AdminApp::ondbTab()
 {
   if (pimpl_->ui_->dbAddressLed->text().isEmpty() || pimpl_->ui_->dbUserLed->text().isEmpty()
                                                   || pimpl_->ui_->dbPasswordLed->text().isEmpty()
@@ -833,7 +833,7 @@ void AdminApp::ondbTab()
 }
 
 // Clear Form Data
-void AdminApp::clearFormData()
+void terrama2::gui::admin::AdminApp::clearFormData()
 {
 // fields tab Database
   pimpl_->ui_->dbTypeCmb->setCurrentIndex(0);
@@ -854,7 +854,7 @@ void AdminApp::clearFormData()
 }
 
 // Add data patterns in a new setting
-void AdminApp::newFormData()
+void terrama2::gui::admin::AdminApp::newFormData()
 {
   QString hostname = QHostInfo::localHostName();
 
@@ -877,7 +877,7 @@ void AdminApp::newFormData()
 }
 
 // Item Clicked ListWidget
-void AdminApp::itemClicked()
+void terrama2::gui::admin::AdminApp::itemClicked()
 {
   QString selectedName = pimpl_->ui_->configListWidget->currentItem()->text();
   QMap<QString,QJsonObject> fileList = configManager_->getfiles();
@@ -897,13 +897,13 @@ void AdminApp::itemClicked()
 }
 
 // Destructor
-AdminApp::~AdminApp()
+terrama2::gui::admin::AdminApp::~AdminApp()
 {
   delete pimpl_;
 }
 
-//! Event called when the user requests to quit the application
-void AdminApp::closeEvent(QCloseEvent* close)
+// Event called when the user requests to quit the application
+void terrama2::gui::admin::AdminApp::closeEvent(QCloseEvent* close)
 {
   if (dataChanged_)
   {
@@ -947,7 +947,7 @@ void AdminApp::closeEvent(QCloseEvent* close)
 }
 
 // fills fields
-void AdminApp::fillForm()
+void terrama2::gui::admin::AdminApp::fillForm()
 {
 // Database tab
   pimpl_->ui_->dbTypeCmb->setCurrentIndex(pimpl_->ui_->dbTypeCmb->findText(configManager_->getDatabase()->driver_));

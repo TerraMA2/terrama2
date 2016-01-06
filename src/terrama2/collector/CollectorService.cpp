@@ -220,7 +220,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
-          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
+          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris);
 
           if(!log_uris.empty())
             collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);

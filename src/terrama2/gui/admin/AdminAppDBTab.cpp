@@ -37,18 +37,18 @@
 #include <QJsonObject>
 #include <QString>
 
-AdminAppDBTab::AdminAppDBTab(AdminApp* app, Ui::AdminAppForm* ui)
+terrama2::gui::admin::AdminAppDBTab::AdminAppDBTab(terrama2::gui::admin::AdminApp* app, Ui::AdminAppForm* ui)
  :AdminAppTab(app, ui)
 {
 
 } 
 
-AdminAppDBTab::~AdminAppDBTab()
+terrama2::gui::admin::AdminAppDBTab::~AdminAppDBTab()
 {
   
 }
 
-QMap<QString, QJsonObject> AdminAppDBTab::toJson()
+QMap<QString, QJsonObject> terrama2::gui::admin::AdminAppDBTab::toJson()
 {
 
  QJsonObject database;
@@ -65,12 +65,12 @@ QMap<QString, QJsonObject> AdminAppDBTab::toJson()
  return json;
 }
 
-bool AdminAppDBTab::load()
+bool terrama2::gui::admin::AdminAppDBTab::load()
 {
     return false;
 }
 
-bool AdminAppDBTab::validate()
+bool terrama2::gui::admin::AdminAppDBTab::validate()
 {
     return false;
 }

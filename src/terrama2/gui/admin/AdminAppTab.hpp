@@ -22,7 +22,7 @@
 /*!
   \file terrama2/gui/admin/AdminAppTab.hpp
 
-  \brief 
+  \brief The base class for tab handling.
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
@@ -37,25 +37,46 @@
 #include <QMap>
 
 class QJsonObject;
- 
-class AdminAppTab
+
+namespace terrama2
 {
- public:
+  namespace gui
+  {
+    namespace admin
+    {
+      /*!
+        \class AdminAppTab
 
-//! Constructor
-  AdminAppTab(AdminApp* app, Ui::AdminAppForm* ui);
+        \brief The base class for tab handling.
+       */
 
-//! Destructor
- virtual ~AdminAppTab();
+      class AdminAppTab
+      {
+        public:
 
- virtual bool validate() = 0;
- virtual bool load() = 0;
- virtual QMap<QString, QJsonObject> toJson() = 0;
+          //! Constructor
+          AdminAppTab(terrama2::gui::admin::AdminApp* app, Ui::AdminAppForm* ui);
 
- protected:
+          //! Destructor
+          virtual ~AdminAppTab();
 
-  AdminApp* app_; //!< Main Window Administration
-  Ui::AdminAppForm* ui_;
-};
+          //! Check if current data are valids and it may be saved
+          virtual bool validate() = 0;
 
+          /*! \brief Loads the read data to interface.
+                     It always call when active configuration is changed
+          */
+          virtual bool load() = 0;
+
+          //! Key map string to json object to be saved to file.
+          virtual QMap<QString, QJsonObject> toJson() = 0;
+
+        protected:
+
+          terrama2::gui::admin::AdminApp* app_; //!< Main Window Administration
+          Ui::AdminAppForm* ui_; //!< UI from AdminApp
+      };
+    }
+  }
+}
 #endif // __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPTAB_HPP__
