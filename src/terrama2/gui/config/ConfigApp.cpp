@@ -73,7 +73,7 @@ terrama2::gui::config::ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags fla
 
   if (icon_path.empty())
   {
-    throw terrama2::InitializationError() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icons library folder."));
+    throw terrama2::InitializationException() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icons library folder."));
   }
 
 // load icon theme

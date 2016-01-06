@@ -109,7 +109,7 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
     QString err_msg(QObject::tr("Could not open file: %1."));
     err_msg = err_msg.arg(fileName.c_str());
 
-    throw terrama2::FileOpenError() << terrama2::ErrorDescription(err_msg);
+    throw terrama2::FileOpenException() << terrama2::ErrorDescription(err_msg);
   }
 
   QByteArray doc_data = file.readAll();
@@ -125,7 +125,7 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
     QString err_msg(QObject::tr("Error parsing file '%1': %2."));
     err_msg = err_msg.arg(fileName.c_str()).arg(parse_error.errorString());
 
-    throw terrama2::ParserError() << terrama2::ErrorDescription(err_msg);
+    throw terrama2::ParserException() << terrama2::ErrorDescription(err_msg);
   }
 
   return jdocument;

@@ -51,6 +51,15 @@ namespace terrama2
       class ConfigAppWeatherServer : public ConfigAppTab
       {
 
+        /*!
+          @defgroup TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
+
+          \exception terrama2::gui::DirectoryException Raised when an invalid path is set
+          \exception terrama2::gui::ValueException Raised because a type different from FTP, FILE and HTTP is not supported yet.
+          \exception terrama2::gui::URLException Raised when a URI is invalid.
+          \exception terrama2::gui::ConnectionException Raised when curl response is Timeout, Login Denied or URL Malformated.
+        */
+
         Q_OBJECT
         public:
           /*!
@@ -64,10 +73,17 @@ namespace terrama2
           //! It is used for connect QTextEdit to allow datachanged
           void load();
 
-          //! Save dataprovider in database
+          /*!
+            \brief Save dataprovider in database. It calls validateConnection() before.
+            @copydetails TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
+          */
           void save();
 
-          //! Discard changes and restore the widget to the initial state
+          /*!
+             @copydoc terrama2::gui::config::ConfigAppTab::discardChanges(restore)
+
+             Set it to initial state
+          */
           void discardChanges(bool restore);
 
           //! Validates the fields in server insertion
@@ -76,11 +92,7 @@ namespace terrama2
         private:
           /*!
             \brief It validates the connection type and stores the URI value in uri_ member.
-            \exception terrama2::gui::DirectoryException Raised when an invalid path is set
-            \exception terrama2::gui::ValueException Raised because a type different from FTP, FILE and HTTP is not supported yet.
-            \exception terrama2::gui::URLException Raised when a URI is invalid.
-            \exception terrama2::gui::ConnectionException Raised when curl response is Timeout, Login Denied or URL Malformated.
-            \todo Support OGC type, SOS type.
+            @copydetails TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
           */
           void validateConnection();
 

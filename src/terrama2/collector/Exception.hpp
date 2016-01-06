@@ -72,13 +72,13 @@ namespace terrama2
     //! Base exception to factory namespace.
     struct FactoryError: virtual Exception { };
     struct ConflictingParserTypeSchemeError: virtual FactoryError { };
-    struct UnableToCreateParserError: virtual FactoryError { };
+    struct UnableToCreateParserException: virtual FactoryError { };
     struct UnableToCreateStoragerError: virtual FactoryError { };
 
-    //! Base exception for ParserError exceptions
-    struct ParserError: virtual Exception { };
-    struct InvalidFolderError: virtual ParserError { };
-    struct NoDataSetFoundError: virtual ParserError { };
+    //! Base exception for ParserException exceptions
+    struct ParserException: virtual Exception { };
+    struct InvalidFolderError: virtual ParserException { };
+    struct NoDataSetFoundError: virtual ParserException { };
 
     //! Base exception for DataFilter exceptions
     struct DataFilterError: virtual Exception { };
@@ -90,7 +90,7 @@ namespace terrama2
        Check error info for more information.
 
      */
-    struct UnableToReadDataSetError: virtual ParserError { };
+    struct UnableToReadDataSetError: virtual ParserException { };
 
 
     /*!

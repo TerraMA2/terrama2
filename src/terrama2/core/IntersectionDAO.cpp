@@ -51,7 +51,7 @@ void
 terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::DataSourceTransactor& transactor)
 {
   if(intersection.dataset() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset associated to the intersection must have a valid identifier (different than 0)."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset associated to the intersection must have a valid identifier (different than 0)."));
 
   std::vector<std::string> strs;
 
@@ -62,7 +62,7 @@ terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::
     boost::split(strs, attrIt->first, boost::is_any_of("."));
 
     if(strs.size() != 2)
-      throw InvalidArgumentError() << ErrorDescription(QObject::tr("Invalid table name."));
+      throw InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid table name."));
 
     std::string schemaName = strs[0];
     std::string tableName = strs[1];
@@ -87,7 +87,7 @@ terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::
       }
       catch(const std::exception& e)
       {
-        throw DataAccessError() << ErrorDescription(e.what());
+        throw DataAccessException() << ErrorDescription(e.what());
       }
       catch(...)
       {
@@ -95,7 +95,7 @@ terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::
 
         err_msg = err_msg.arg(intersection.dataset());
 
-        throw DataAccessError() << ErrorDescription(err_msg);
+        throw DataAccessException() << ErrorDescription(err_msg);
       }
     }
 
@@ -121,7 +121,7 @@ terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::
     }
     catch(const std::exception& e)
     {
-      throw DataAccessError() << ErrorDescription(e.what());
+      throw DataAccessException() << ErrorDescription(e.what());
     }
     catch(...)
     {
@@ -129,7 +129,7 @@ terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::
 
       err_msg = err_msg.arg(intersection.dataset());
 
-      throw DataAccessError() << ErrorDescription(err_msg);
+      throw DataAccessException() << ErrorDescription(err_msg);
     }
   }
 
@@ -139,7 +139,7 @@ void
 terrama2::core::IntersectionDAO::update(const Intersection& intersection, te::da::DataSourceTransactor& transactor)
 {
   if(intersection.dataset() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update the intersction information with an invalid dataset identifier."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update the intersction information with an invalid dataset identifier."));
 
   try
   {
@@ -153,11 +153,11 @@ terrama2::core::IntersectionDAO::update(const Intersection& intersection, te::da
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not update the intersection information."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not update the intersection information."));
   }
 }
 
@@ -165,7 +165,7 @@ void
 terrama2::core::IntersectionDAO::remove(uint64_t datasetId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetId == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove the intersection information of a dataset with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove the intersection information of a dataset with identifier: 0."));
 
   try
   {
@@ -174,14 +174,14 @@ terrama2::core::IntersectionDAO::remove(uint64_t datasetId, te::da::DataSourceTr
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not remove the intersection information."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not remove the intersection information."));
   }
 }
 
 void terrama2::core::IntersectionDAO::load(terrama2::core::DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
   if(dataset.id() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load intersection information for an invalid dataset identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load intersection information for an invalid dataset identifier: 0."));
 
   std::string sql("SELECT * FROM terrama2.intersection WHERE dataset_id = ");
   sql += std::to_string(dataset.id());
@@ -236,7 +236,7 @@ void terrama2::core::IntersectionDAO::load(terrama2::core::DataSet& dataset, te:
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -244,7 +244,7 @@ void terrama2::core::IntersectionDAO::load(terrama2::core::DataSet& dataset, te:
 
     err_msg = err_msg.arg(dataset.id());
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 
 }
