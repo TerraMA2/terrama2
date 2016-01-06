@@ -183,7 +183,7 @@ namespace terrama2
         bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
-        //TODO: VINICIUS: dataSetLastDateTime_ should be separated as a date and a time object, this way we can compare with incomplete masks and save incomplete date/time
+
         std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //! Latest valid date found
         std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //! Only date after this will be valid
         std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_;//! Only date before this will be valid

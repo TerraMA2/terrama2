@@ -67,7 +67,7 @@ namespace terrama2
         /*!
                 \brief Method to convert a gSOAP struct DataProvider to a terrama2::core::DataProvider.
 
-                \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+                \param T1 MUST be a gSOAP struct DataProvider, defined in soapStub.h(gSOAP generated file)
 
                 \return terrama2::core::DataProvider that contains the data in gSOAP struct DataProvider passed.
               */
@@ -77,7 +77,7 @@ namespace terrama2
         /*!
                 \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
 
-                \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+                \param T1 MUST be a gSOAP struct DataProvider, defined in soapStub.h(gSOAP generated file)
 
                 \return a gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
               */
@@ -89,6 +89,8 @@ namespace terrama2
 
                 \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
                 \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
+                \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
+                \param StructIntersection MUST be a gSOAP Intersection struct, defined in soapStub.h(gSOAP generated file)
 
                 \return terrama2::core::DataSet that contains the data in gSOAP struct DataSet passed.
               */
@@ -100,6 +102,8 @@ namespace terrama2
 
                 \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
                 \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
+                \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
+                \param StructIntersection MUST be a gSOAP struct Intersection, defined in soapStub.h(gSOAP generated file)
 
                 \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
               */
@@ -107,41 +111,42 @@ namespace terrama2
 
 
         /*!
-          \brief
+          \brief Method to convert a terrama2::core::Intersection into a gSOAP struct Intersection.
 
-          \param
+          \param StructIntersection MUST be a gSOAP struct Intersection, defined in soapStub.h(gSOAP generated file)
 
-          \return
+          \return A gSOAP Intersection struct that contains the data in terrama2::core::Intersection passed.
         */
         template<typename StructIntersection> StructIntersection DataSetIntersection2Struct(terrama2::core::Intersection intersection);
 
+
         /*!
-          \brief
+          \brief Method to convert a struct Intersection into a gSOAP terrama2::core::Intersection.
 
-          \param
+          \param StructIntersection MUST be a gSOAP struct Intersection, defined in soapStub.h(gSOAP generated file)
 
-          \return
+          \return A terrama2::core::Intersection that contains the data in the gSOAP struct Intersection passed.
         */
         template<typename StructIntersection> terrama2::core::Intersection Struct2DataSetIntersection(StructIntersection structIntersection);
 
 
         /*!
-          \brief
+          \brief Method to convert a vector of terrama2::core::DataSet::CollectRule into a vector of gSOAP struct DataSetCollectRule.
 
-          \param
+          \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
 
-          \return
+          \return A vector of gSOAP DataSetCollectRule structs that contains the data in the terrama2::core::Intersection vector passed.
         */
         template<typename StructDataSetCollectRule> std::vector< StructDataSetCollectRule > DataSetCollectRules2Struct(std::vector< terrama2::core::DataSet::CollectRule >& collectorRules);
 
 
         /*!
-         \brief
+          \brief Method to convert a vector of  gSOAP struct DataSetCollectRule into a vector of terrama2::core::DataSet::CollectRule.
 
-         \param
+          \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
 
-         \return
-       */
+          \return A vector of terrama2::core::Intersection that contains the data in the gSOAP DataSetCollectRule structs vector passed.
+        */
         template<typename StructDataSetCollectRule> std::vector< terrama2::core::DataSet::CollectRule > Struct2DataSetCollectRules(std::vector< StructDataSetCollectRule >& struct_collectorRules);
 
 
