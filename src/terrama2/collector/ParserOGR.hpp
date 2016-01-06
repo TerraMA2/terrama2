@@ -40,18 +40,18 @@
 // TerraMA2
 #include "Parser.hpp"
 
-/*!
-     * \brief The ParserOGR class is responsible for dealing with the OGR files.
-     *
-     * The DataSetAdapter is responsible for creating a new daset without primary key.
-     *
-     *
-*/
 
 namespace terrama2
 {
   namespace collector
   {
+    /*!
+         * \brief The ParserOGR class is responsible for dealing with the OGR files.
+         *
+         * The DataSetAdapter is responsible for creating a new daset without primary key.
+         *
+         *
+    */
 
     class ParserOGR : public Parser
     {
