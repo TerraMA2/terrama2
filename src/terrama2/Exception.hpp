@@ -64,7 +64,7 @@ namespace terrama2
   struct InitializationException: virtual Exception { };
 
   //! An exception indicating a parser error.
-  struct ParserException: virtual Exception { };
+  struct JSonParserException: virtual Exception { };
 
   //! An exception indicating a serialization error.
   struct SerializationException: virtual Exception { };
