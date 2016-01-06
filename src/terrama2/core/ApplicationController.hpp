@@ -66,7 +66,7 @@ namespace terrama2
 
           \return Returns a auto pointer to the datasource transactor.
 
-          \exception DataAccessError If it is not possible to get a new data source transactor an exception is raisen.
+          \exception DataAccessException If it is not possible to get a new data source transactor an exception is raisen.
         */
         std::auto_ptr<te::da::DataSourceTransactor> getTransactor();
 

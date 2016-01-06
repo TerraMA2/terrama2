@@ -27,11 +27,12 @@
  \author Evandro Delatin
 */
 
-// STL
-#include <stdexcept>
-
 // TerraMA2
 #include "FileOpener.hpp"
+#include "../Exception.hpp"
+
+// QT
+#include <QObject>
 
 
 terrama2::collector::FileOpener::FileOpener(const char* filename, const char* attribute)
@@ -39,7 +40,11 @@ terrama2::collector::FileOpener::FileOpener(const char* filename, const char* at
   file_ = std::fopen(filename, attribute);
 
   if (!file_)
-    throw std::runtime_error{"Unable to open the file"};
+  {
+    QString err_msg(QObject::tr("Could not open file: %1."));
+    err_msg = err_msg.arg(filename);
+    throw terrama2::FileOpenException() << terrama2::ErrorDescription(err_msg);
+  }
 }
 
 terrama2::collector::FileOpener::FileOpener(std::FILE* newfile)
