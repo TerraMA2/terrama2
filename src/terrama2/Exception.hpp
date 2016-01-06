@@ -61,31 +61,31 @@ namespace terrama2
   };
 
   //! An exception indicating that a slot connection was not established.
-  struct SlotConnectionError: virtual Exception { };
+  struct SlotConnectionException: virtual Exception { };
 
   //! An exception indicating that the client of the API is attempting to get a new instance.
-  struct SingletonViolationError: virtual Exception { };
+  struct SingletonViolationException: virtual Exception { };
 
   //! An exception indicating that the singleton was not created.
-  struct SingletonNotCreatedError: virtual Exception { };
+  struct SingletonNotCreatedException: virtual Exception { };
 
   //! An exception indicating that the expected singleton type was not created.
-  struct SingletonTypeError: virtual Exception { };
+  struct SingletonTypeException: virtual Exception { };
 
   //! An exception indicating an error during application initialization.
-  struct InitializationError: virtual Exception { };
+  struct InitializationException: virtual Exception { };
 
   //! An exception indicating a parser error.
-  struct ParserError: virtual Exception { };
+  struct ParserException: virtual Exception { };
 
   //! An exception indicating a serialization error.
-  struct SerializationError: virtual Exception { };
+  struct SerializationException: virtual Exception { };
 
   //! An exception indicating a serialization error.
-  struct FileOpenError: virtual Exception { };
+  struct FileOpenException: virtual Exception { };
 
   //! An exception indicating that an argument is missing or violating any requirement.
-  struct InvalidArgumentError: virtual Exception { };
+  struct InvalidArgumentException: virtual Exception { };
 
 }  // end namespace terrama2
 

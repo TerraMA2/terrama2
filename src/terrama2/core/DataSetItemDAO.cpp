@@ -49,10 +49,10 @@ void
 terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransactor& transactor)
 {
   if(item.id() != 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save a dataset item with an identifier different than 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save a dataset item with an identifier different than 0."));
 
   if(item.dataset() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be saved."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be saved."));
 
   boost::format query("INSERT INTO terrama2.dataset_item (kind, active, dataset_id, mask, timezone, path, srid) VALUES(%1%, %2%, %3%, '%4%', '%5%', '%6%', %7%)");
 
@@ -83,7 +83,7 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -91,7 +91,7 @@ terrama2::core::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceTransa
 
     err_msg = err_msg.arg(item.id());
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -139,10 +139,10 @@ void
 terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTransactor& transactor)
 {
   if(item.id() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update a dataset item with an identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a dataset item with an identifier: 0."));
 
   if(item.dataset() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be updated."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset item must be associated to a dataset in order to be updated."));
 
   boost::format query("UPDATE terrama2.dataset_item SET active = %1%, "
                       "dataset_id = %2%, kind = %3%, mask = '%4%', timezone = '%5%', path = '%6%', srid = %7% WHERE id = %8%");
@@ -174,7 +174,7 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -182,7 +182,7 @@ terrama2::core::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourceTran
 
     err_msg = err_msg.arg(item.id());
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -190,7 +190,7 @@ void
 terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransactor& transactor)
 {
   if(itemId == 0)
-    throw terrama2::InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove a dataset item with identifier: 0."));
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove a dataset item with identifier: 0."));
 
   try
   {
@@ -201,7 +201,7 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -209,7 +209,7 @@ terrama2::core::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceTransa
 
     err_msg = err_msg.arg(itemId);
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -217,7 +217,7 @@ std::vector<terrama2::core::DataSetItem>
 terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetId == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load dataset items for a dataset with an invalid identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load dataset items for a dataset with an invalid identifier: 0."));
 
   std::string sql ("SELECT * FROM terrama2.dataset_item WHERE dataset_id = ");
               sql += std::to_string(datasetId);
@@ -262,7 +262,7 @@ terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTr
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -270,7 +270,7 @@ terrama2::core::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSourceTr
 
     err_msg = err_msg.arg(datasetId);
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -280,7 +280,7 @@ terrama2::core::DataSetItemDAO::saveStorageMetadata(uint64_t datasetItemId,
                                                     te::da::DataSourceTransactor& transactor)
 {
   if(datasetItemId == 0)
-    throw terrama2::InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save metadata for a dataset item with identifier: 0."));
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save metadata for a dataset item with identifier: 0."));
 
   try
   {
@@ -297,11 +297,11 @@ terrama2::core::DataSetItemDAO::saveStorageMetadata(uint64_t datasetItemId,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not load dataset items."));
   }
 }
 
@@ -311,7 +311,7 @@ terrama2::core::DataSetItemDAO::updateStorageMetadata(uint64_t datasetItemId,
                                                       te::da::DataSourceTransactor& transactor)
 {
   if(datasetItemId == 0)
-    throw terrama2::InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update metadata for a dataset item with identifier: 0."));
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update metadata for a dataset item with identifier: 0."));
 
 // remove all metadata in order to insert the new one
   removeStorageMetadata(datasetItemId, transactor);
@@ -325,7 +325,7 @@ terrama2::core::DataSetItemDAO::removeStorageMetadata(uint64_t datasetItemId,
                                                       te::da::DataSourceTransactor& transactor)
 {
   if(datasetItemId == 0)
-    throw terrama2::InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove metadata for a dataset item with identifier: 0."));
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove metadata for a dataset item with identifier: 0."));
 
   std::string sql("DELETE FROM terrama2.storage_metadata WHERE dataset_item_id = ");
               sql += std::to_string(datasetItemId);
@@ -336,11 +336,11 @@ terrama2::core::DataSetItemDAO::removeStorageMetadata(uint64_t datasetItemId,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not load dataset items."));
   }
 }
 
@@ -349,7 +349,7 @@ terrama2::core::DataSetItemDAO::loadStorageMetadata(DataSetItem& item,
                                                     te::da::DataSourceTransactor& transactor)
 {
   if(item.id() == 0)
-    throw terrama2::InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load metadata information for a dataset item with an invalid identifier."));
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load metadata information for a dataset item with an invalid identifier."));
 
 
   std::string sql("SELECT key, value FROM terrama2.storage_metadata WHERE dataset_item_id = ");
@@ -369,10 +369,10 @@ terrama2::core::DataSetItemDAO::loadStorageMetadata(DataSetItem& item,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not load dataset items."));
   }
 }

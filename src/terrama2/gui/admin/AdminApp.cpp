@@ -78,7 +78,7 @@ AdminApp::AdminApp(QWidget* parent)
 
   if(icon_theme_path.empty())
   {
-    throw terrama2::InitializationError() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icon library folder."));
+    throw terrama2::InitializationException() << terrama2::ErrorDescription(tr("Could not find TerraMA2 icon library folder."));
   }
   
 // load icon theme library
