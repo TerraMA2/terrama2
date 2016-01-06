@@ -45,7 +45,7 @@
 #include <QThread>
 #include <QDebug>
 
-struct ServicesDialog::Impl
+struct terrama2::gui::admin::ServicesDialog::Impl
 {
   Ui::ServicesDialogForm* ui_;
   
@@ -61,7 +61,7 @@ struct ServicesDialog::Impl
 };
 
 //! Constructor
-ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QString nameConfig)
+terrama2::gui::admin::ServicesDialog::ServicesDialog(terrama2::gui::admin::AdminApp* adminapp, terrama2::gui::core::ConfigManager& configData, QString nameConfig)
     : QDialog(adminapp), adminapp_(adminapp), pimpl_(new Impl), configManager_(configData), idNameConfig_(nameConfig), changed_(false)
 {
  pimpl_->ui_->setupUi(this);
@@ -95,12 +95,12 @@ ServicesDialog::ServicesDialog(AdminApp* adminapp, ConfigManager& configData, QS
 }
 
 //! Destructor
-ServicesDialog::~ServicesDialog()
+terrama2::gui::admin::ServicesDialog::~ServicesDialog()
 {
 }
 
-//! Mark the table data has changed
-void ServicesDialog::setDataChanged(int row, int col)
+// Mark the table data has changed
+void terrama2::gui::admin::ServicesDialog::setDataChanged(int row, int col)
 {
   if(changed_ || col == 0)
     return;
@@ -108,8 +108,8 @@ void ServicesDialog::setDataChanged(int row, int col)
   pimpl_->ui_->saveBtn->setEnabled(true);
 }
 
-//! Mark the data have not changed
-void ServicesDialog::clearDataChanged()
+// Mark the data have not changed
+void terrama2::gui::admin::ServicesDialog::clearDataChanged()
 {
   if(!changed_)
     return;
@@ -117,8 +117,8 @@ void ServicesDialog::clearDataChanged()
   pimpl_->ui_->saveBtn->setEnabled(false);
 }
 
-//! Fills a line of the data table
-void ServicesDialog::setLine(int line, const QString& module, const CommonData& data)
+// Fills a line of the data table
+void terrama2::gui::admin::ServicesDialog::setLine(int line, const QString& module, const terrama2::gui::core::CommonData& data)
 {
   QTableWidgetItem* item;
 
@@ -145,8 +145,8 @@ void ServicesDialog::setLine(int line, const QString& module, const CommonData& 
 
 }
 
-//! Fill table with configuration data
-void ServicesDialog::setDialogData(QString nameConfig)
+// Fill table with configuration data
+void terrama2::gui::admin::ServicesDialog::setDialogData(QString nameConfig)
 {
 // Fills configuration name
   pimpl_->ui_->configLbl->setText(nameConfig);
@@ -164,8 +164,8 @@ void ServicesDialog::setDialogData(QString nameConfig)
   clearDataChanged();
 }
 
-//! Structure fills with data from field commands and table line parameters
-void ServicesDialog::getLine(int line, CommonData& data)
+// Structure fills with data from field commands and table line parameters
+void terrama2::gui::admin::ServicesDialog::getLine(int line, terrama2::gui::core::CommonData& data)
 {
   QTableWidgetItem* item = pimpl_->ui_->servicesTable->item(line, 3);
   data.cmd_ = item->data(Qt::DisplayRole).toString().trimmed();
@@ -174,8 +174,8 @@ void ServicesDialog::getLine(int line, CommonData& data)
   data.params_ = item->data(Qt::DisplayRole).toString().trimmed();
 }
 
-//! Returns list with indices of selected lines
-void ServicesDialog::getSelectedLines(QList<int>& list)
+// Returns list with indices of selected lines
+void terrama2::gui::admin::ServicesDialog::getSelectedLines(QList<int>& list)
 {
   list.clear();
 
@@ -185,8 +185,8 @@ void ServicesDialog::getSelectedLines(QList<int>& list)
     list.push_back(indexlist[i].row());
 }
 
-//! Signal called when the user requests that marked lines are "checked with ping"
-void ServicesDialog::verifyRequested()
+// Signal called when the user requests that marked lines are "checked with ping"
+void terrama2::gui::admin::ServicesDialog::verifyRequested()
 {
 // Get list of selected lines
   QList<int> lines;
@@ -258,8 +258,8 @@ void ServicesDialog::verifyRequested()
   QApplication::restoreOverrideCursor();
 }
 
-//! Save changed data in the dialog
-void ServicesDialog::saveRequested()
+// Save changed data in the dialog
+void terrama2::gui::admin::ServicesDialog::saveRequested()
 {
   getLine(0, *configManager_.getCollection());
 
@@ -270,7 +270,7 @@ void ServicesDialog::saveRequested()
 }
 
 //! Executes the command received as a parameter
-bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
+bool terrama2::gui::admin::ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
 {
 // Check if the command exists and is executable
 // TODO: verify function for Windows;
@@ -351,8 +351,8 @@ bool ServicesDialog::runCmd(int line, QString cmd, QString param, QString& err)
   return true;
 }
 
-//! Signal called when the user requests that marked lines are executed
-void ServicesDialog::execRequested()
+// Signal called when the user requests that marked lines are executed
+void terrama2::gui::admin::ServicesDialog::execRequested()
 {
 // Get list of selected lines
   QList<int> lines;
@@ -371,7 +371,7 @@ void ServicesDialog::execRequested()
   for(int i=0, size=lines.size(); i<size; i++)
   {
     QString cmdErr;
-    CommonData data;
+    terrama2::gui::core::CommonData data;
 
     getLine(lines[i], data);
     if(!runCmd(lines[i], data.cmd_, data.params_, cmdErr))
@@ -386,8 +386,8 @@ void ServicesDialog::execRequested()
   verifyRequested();
 }
 
-//! Signal called when the user requests that marked lines are "closed"
-void ServicesDialog::closeRequested()
+// Signal called when the user requests that marked lines are "closed"
+void terrama2::gui::admin::ServicesDialog::closeRequested()
 {
 // Get list of selected lines
   QList<int> lines;

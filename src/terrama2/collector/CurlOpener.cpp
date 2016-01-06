@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/CurlOpener.cpp
 
-  \brief
+  \brief Curl Opener.
 
  \author Evandro Delatin
 */

@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/CurlOpener.hpp
 
-  \brief
+  \brief Curl Opener.
 
  \author Evandro Delatin
 */
@@ -35,30 +35,34 @@
 // Libcurl
 #include <curl/curl.h>
 
-/*!
-     * \brief The CurlOpener class implements the RAII technique to control operations with Curl.
-     *     
-*/
-
 
 namespace terrama2
 {
   namespace collector
   {
+    /*!
+         * \brief The CurlOpener class implements the RAII technique to control operations with Curl.
+         *
+    */
+
     class CurlOpener
     {
       public:
 
+//! Constructor.
        CurlOpener();
 
+//! The init function performs the function curl_easy_cleanup closing all handle connections curl and then performs the initialization of the curl.
        void init();
-  
+
+//! Assume ownership of curl.
        CURL* fcurl() const;
 
+//! When CurlOpener destructor is called, the function curl_easy_cleanup is used automatically. The function curl_easy_cleanup close all connections this handle curl.
        ~CurlOpener();
 
       private:
-        CURL* curl_;   
+        CURL* curl_; //!< Attribute for Handler Curl.
      };
   }
 }
