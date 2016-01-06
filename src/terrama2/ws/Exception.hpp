@@ -35,8 +35,10 @@
 
 namespace terrama2
 {
-  namespace collector
+  namespace ws
   {
+      //! Base exception for Web Service exceptions
+      struct WebServiceException : virtual terrama2::Exception{ };
 
   }
 

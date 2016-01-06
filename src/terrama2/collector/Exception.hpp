@@ -97,7 +97,7 @@ namespace terrama2
        \brief Raised when failed to log.
 
      */
-    struct LogError: terrama2::Exception{ };
+    struct LogException: virtual CollectorServiceError{ };
   }
 }
 
