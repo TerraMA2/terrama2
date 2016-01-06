@@ -148,13 +148,13 @@ namespace terrama2
       }
 
       //! Conversion to FILE* operator
-      operator FILE*() const
+      operator std::FILE*() const
       {
         return file_;
       }
 
     private:
-      FILE* file_;
+      std::FILE* file_;
     };
   }
 }
