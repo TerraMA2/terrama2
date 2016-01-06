@@ -110,7 +110,6 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
 
   datasetItem->setStorageMetadata(storageMetadata);
 
-  // todo: get value from db
   dataset.setSchedule(schedule);
   if (dataset.id() >= 1)
   {

@@ -77,9 +77,9 @@ namespace terrama2
 
         public:
           /*!
-            \brief Constructor
-            \param app A pointer to ConfigApp to define owner of object
-            \param ui  A pointer to Ui::ConfigAppForm to handle qt gui objects
+            \brief Default Constructor.
+            \param app A pointer to ConfigApp to define owner of object (default nullptr).
+            \param ui  A pointer to Ui::ConfigAppForm to handle qt gui objects (default nullptr).
           */
           ConfigAppTab(ConfigApp* app = nullptr, Ui::ConfigAppForm* ui = nullptr);
 

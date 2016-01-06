@@ -56,12 +56,12 @@ namespace terrama2
       */
       struct PCD
       {
-        QString file; //!< Represents the pcd file
-        QString latitude; //!< Represents latitude of pcd
+        QString file;      //!< Represents the pcd file
+        QString latitude;  //!< Represents latitude of pcd
         QString longitude; //!< Represents longitude of pcd
-        bool active; //!< Represents pcd state
-        uint64_t srid; //!< Represents Coordinate Reference System value
-        QString timezone; //!< Represents PCD timezone
+        bool active;       //!< Represents pcd state
+        uint64_t srid;     //!< Represents Coordinate Reference System value
+        QString timezone;  //!< Represents PCD timezone
       };
 
       /*!

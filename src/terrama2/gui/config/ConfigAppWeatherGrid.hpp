@@ -79,7 +79,7 @@ namespace terrama2
             \brief It validates each one gui fields
             \exception terrama2::gui::FieldError Raised when the dataset name already exist or dataset name is empty
             \exception terrama2::gui::ValueError Raised when mask value is invalid
-           */
+          */
           bool validate();
 
           //! It applies save operation, sending the dataset to gsoap client
@@ -122,7 +122,10 @@ namespace terrama2
           //! Slot triggered when remove button has been clicked. It removes dataset
           void onRemoveDataGridBtnClicked();
 
-          //! Slot triggered when mask button has been clicked. It fills out the mask input from mask menu
+          /*!
+            \brief Slot triggered when mask button has been clicked. It fills out the mask input from mask menu
+            \param action A pointer to QAction representing affected menu item.
+          */
           void onMenuMaskClicked(QAction* action);
 
         private:

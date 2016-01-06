@@ -52,8 +52,14 @@
 class ConfigManager;
 namespace terrama2
 {
+  /*!
+    \brief A namespace for handling TerraMA2 gui applications
+  */
   namespace gui
   {
+    /*!
+      \brief A namespace for handling TerraMA2 configuration module
+    */
     namespace config
     {
       // Forward declaration
@@ -74,7 +80,7 @@ namespace terrama2
           /*! Default constructor.
             \param parent Represents the QT Widget owner (default nullptr)
             \param flags  It handling gui window kind (0 defined as Widget)
-            \exception terrama2::InitializationError It may be raised when cannot find TerraMA2 icons library folder
+            \exception terrama2::InitializationException It may be raised when cannot find TerraMA2 icons library folder
           */
           ConfigApp(QWidget* parent = nullptr, Qt::WindowFlags flags = 0);
 
@@ -129,7 +135,7 @@ namespace terrama2
           void tabChangeRequested(int index);
 
           /*!
-           \brief Slot triggered in open button click. It load the terrama2 configuration and it dispatches load for each tab
+           \brief Slot triggered in open button click. It load the TerraMA2 configuration and it dispatches load for each tab
           */
           void openRequested();
 
@@ -140,7 +146,7 @@ namespace terrama2
 
           int currentTabIndex_; //!< index of active tab
 
-          QSharedPointer<ConfigManager> configManager_; //!< It contains metadata from terrama2 administration file
+          QSharedPointer<ConfigManager> configManager_; //!< It contains metadata from TerraMA2 administration file
 
           QSharedPointer<ConfigAppWeatherTab> weatherTab_; //!< Attribute for handling WeatherTab
 

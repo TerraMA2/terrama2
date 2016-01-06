@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/ApplicationController.cpp
+  \file terrama2/gui/core/Utils.cpp
 
   \brief The base gui module utils used
 
