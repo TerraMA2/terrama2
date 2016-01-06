@@ -1,5 +1,7 @@
 var Config = function(terrama2) {
 
+  var _this = this;
+
   var confJsonHTML = null;
   var confJsonComponentsJs = null;
   var confJsonComponentsCss = null;
@@ -14,7 +16,7 @@ var Config = function(terrama2) {
     return _return;
   }
 
-  var loadConfigurations = function() {
+  _this.loadConfigurations = function() {
     var url = terrama2.getTerrama2Url() + "/config/";
 
     confJsonHTML = loadConfigurationFile(url + "html.terrama2.json");
@@ -24,32 +26,25 @@ var Config = function(terrama2) {
     confJsonFilter = loadConfigurationFile(url + "filter.terrama2.json");
   }
 
-  var getConfJsonHTML = function() {
+  _this.getConfJsonHTML = function() {
     return confJsonHTML;
   }
 
-  var getConfJsonComponentsJs = function() {
+  _this.getConfJsonComponentsJs = function() {
     return confJsonComponentsJs;
   }
 
-  var getConfJsonComponentsCss = function() {
+  _this.getConfJsonComponentsCss = function() {
     return confJsonComponentsCss;
   }
 
-  var getConfJsonServer = function() {
+  _this.getConfJsonServer = function() {
     return confJsonServer;
   }
 
-  var getConfJsonFilter = function() {
+  _this.getConfJsonFilter = function() {
     return confJsonFilter;
   }
-
-  this.loadConfigurations = loadConfigurations;
-  this.getConfJsonHTML = getConfJsonHTML;
-  this.getConfJsonComponentsJs = getConfJsonComponentsJs;
-  this.getConfJsonComponentsCss = getConfJsonComponentsCss;
-  this.getConfJsonServer = getConfJsonServer;
-  this.getConfJsonFilter = getConfJsonFilter;
 
   $(document).ready(function(){
     $('.terrama2-date').mask("00/00/0000", {clearIfNotMatch: true});

@@ -12,8 +12,8 @@ module.exports = function(io) {
         });
 
         resp.on('end', function() {
-          xml = xml.replace(/>\s*/g, '>');  // Remove space after >
-          xml = xml.replace(/\s*</g, '<');  // Remove space before <
+          xml = xml.replace(/>\s*/g, '>');
+          xml = xml.replace(/\s*</g, '<');
 
           sockets.emit('proxyResponse', xml);
         });

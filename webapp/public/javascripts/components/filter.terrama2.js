@@ -98,8 +98,6 @@ var Filter = function(terrama2) {
     return result;
   }
 
-  this.applyFilter = applyFilter;
-
   $(document).ready(function() {
 
     $("#terrama2-leftbar").find("[terrama2-box='terrama2-filter']").addClass('terrama2-leftbar-button-filter').attr('title', 'Filtro');

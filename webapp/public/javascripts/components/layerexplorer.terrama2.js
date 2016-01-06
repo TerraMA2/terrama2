@@ -1,6 +1,14 @@
 var LayerExplorer = function(terrama2) {
 
+  var _this = this;
+
   var selectedLayer = null;
+  var parser = new ol.format.WMSCapabilities();
+  var capabilities = null;
+  var mapDisplay = terrama2.getMapDisplay();
+  var map = mapDisplay.getMap();
+
+  var socket = io(terrama2.getTerrama2Url());
 
   var processLayers = function(arrLayers) {
     var tilesWMSLayers = [];
@@ -75,7 +83,6 @@ var LayerExplorer = function(terrama2) {
   * @returns {undefined}
   */
   var initializeTree = function() {
-
     var elem = buildLayerExplorer(map.getLayerGroup(), true);
     $('#terrama2-layerexplorer').empty().append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
 
@@ -110,18 +117,9 @@ var LayerExplorer = function(terrama2) {
     }
   }
 
-  var getSelectedLayer = function() {
+  _this.getSelectedLayer = function() {
     return selectedLayer;
   }
-
-  this.getSelectedLayer = getSelectedLayer;
-
-  var parser = new ol.format.WMSCapabilities();
-  var capabilities = null;
-  var mapDisplay = terrama2.getMapDisplay();
-  var map = mapDisplay.getMap();
-
-  var socket = io(terrama2.getTerrama2Url());
 
   socket.emit('proxyRequest', terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams);
   socket.on('proxyResponse', function(msg) {
@@ -151,22 +149,24 @@ var LayerExplorer = function(terrama2) {
 
     // Handle visibility control
     $('i.terrama2-check').on('click', function(e) {
-      var layername = $(this).closest('li').data('layerid');
+      var _$this = $(this);
+
+      var layername = _$this.closest('li').data('layerid');
 
       var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
 
       setLayerVisibility(layer);
 
       if (layer.getVisible()) {
-        $(this).removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-        $(this).parent('li.parent_li').find(' > ul > li > i.terrama2-check').attr('class', 'terrama2-check glyphicon glyphicon-check');
+        _$this.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+        _$this.parent('li.parent_li').find(' > ul > li > i.terrama2-check').attr('class', 'terrama2-check glyphicon glyphicon-check');
       } else {
-        $(this).removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-        $(this).parent('li.parent_li').find(' > ul > li > i.terrama2-check').attr('class', 'terrama2-check glyphicon glyphicon-unchecked');
+        _$this.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+        _$this.parent('li.parent_li').find(' > ul > li > i.terrama2-check').attr('class', 'terrama2-check glyphicon glyphicon-unchecked');
       }
 
-      var children = $(this).parent('li.parent_li').find(' > ul > li');
-      var span = $(this).parent('li.parent_li').find(' > span');
+      var children = _$this.parent('li.parent_li').find(' > ul > li');
+      var span = _$this.parent('li.parent_li').find(' > span');
       if (children.is(":visible") || !layer.getVisible()) {
         children.hide('fast');
         span.find(' > i').addClass('glyphicon-plus').removeClass('glyphicon-minus');
@@ -178,24 +178,26 @@ var LayerExplorer = function(terrama2) {
     });
 
     $('li.parent_li ul li').on('click', function(e) {
-      if($(this).hasClass("selected")) {
-        $(this).removeClass("selected");
+      var _$this = $(this);
+
+      if(_$this.hasClass("selected")) {
+        _$this.removeClass("selected");
         selectedLayer = null;
       } else {
         $('li.parent_li ul li').removeClass("selected");
-        $(this).addClass("selected");
-        selectedLayer = $(this).attr("data-layerid");
+        _$this.addClass("selected");
+        selectedLayer = _$this.attr("data-layerid");
       }
     });
 
     $('div.terrama2-leftbox-content').on('click', function(e) {
-      var _this = $(this);
+      var _$this = $(this);
 
       setTimeout(function() {
-        if(_this.height() > _this.parent().height()) {
-          _this.parent().find('.ui-resizable-e').css('height', _this.css('height'));
+        if(_$this.height() > _$this.parent().height()) {
+          _$this.parent().find('.ui-resizable-e').css('height', _$this.css('height'));
         } else {
-          _this.parent().find('.ui-resizable-e').css('height', _this.parent().css('height'));
+          _$this.parent().find('.ui-resizable-e').css('height', _$this.parent().css('height'));
         }
       }, 200);
     });
