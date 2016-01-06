@@ -20,44 +20,41 @@
 */
 
 /*!
-  \file unittest/collector/TsCollectorService.cpp
+  \file terrama2/core/core.hpp
 
-  \brief Test Collector service...
+  \brief This file contains include headers for the TerraMA2 core module.
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_CORE_CORE_HPP__
+#define __TERRAMA2_CORE_CORE_HPP__
 
-//QT
-#include <QtTest>
+// TerraMA2
+#include "ApplicationController.hpp"
+#include "DataManager.hpp"
+#include "DataProvider.hpp"
+#include "DataProviderDAO.hpp"
+#include "DataSet.hpp"
+#include "DataSetDAO.hpp"
+#include "DataSetItem.hpp"
+#include "DataSetItemDAO.hpp"
+#include "Exception.hpp"
+#include "Filter.hpp"
+#include "FilterDAO.hpp"
+#include "Intersection.hpp"
+#include "IntersectionDAO.hpp"
+#include "Logger.hpp"
+#include "Utils.hpp"
+#include "Version.hpp"
 
-//TODO: add and remove methods
-class TsCollectorService: public QObject
+
+namespace terrama2
 {
-  Q_OBJECT
+  /*! \brief Namespace for the TerraMA2 core module, it contains the base classes for the TerraMA2. */
+  namespace core
+  {
+  } // end namespace core
+}   // end namespace terrama2
 
-protected:
-
-private slots:
-    void initTestCase(); // Run before all tests
-
-    void cleanupTestCase(); // Run after all tests
-
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-
-    void TestStartServerTwice();
-
-    void TestStopServer();
-
-
-    //******End of Test functions****
-
-};
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#endif  // __TERRAMA2_CORE_CORE_HPP__

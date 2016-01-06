@@ -82,7 +82,7 @@ void TsDataManager::clearDatabase()
     QFAIL("Invalid database transactor");
   }
 
-  /*transactor->begin();
+  transactor->begin();
 
   std::string query = "DELETE FROM terrama2.dataset";
   transactor->execute(query);
@@ -90,7 +90,7 @@ void TsDataManager::clearDatabase()
   query = "DELETE FROM terrama2.data_provider";
   transactor->execute(query);
 
-  transactor->commit();*/
+  transactor->commit();
 }
 
 DataProvider TsDataManager::createDataProvider()
@@ -157,8 +157,10 @@ DataSet TsDataManager::createDataSet()
   filter.setExpressionType(Filter::GREATER_THAN_TYPE);
   filter.setValue(std::move(std::unique_ptr<double>(new double(100.))));
   dataSetItem.setFilter(filter);
+  dataSetItem.setSrid(4326);
 
   dataSet.add(dataSetItem);
+
 
 
   DataSetItem dataSetItem2(DataSetItem::FIRE_POINTS_TYPE, 0, dataSet.id());
@@ -500,9 +502,9 @@ void TsDataManager::testUpdateDataProviderInvalidId()
     DataManager::getInstance().update(dataProvider);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     // test ok
   }
@@ -526,9 +528,9 @@ void TsDataManager::testRemoveDataProviderInvalidId()
     DataManager::getInstance().removeDataProvider(0);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     // test ok
   }
@@ -616,9 +618,9 @@ void TsDataManager::testRemoveDataSet()
     QVERIFY2(spy.count() == 1, "Provider signal emitted");
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     // test ok
   }
@@ -642,9 +644,9 @@ void TsDataManager::testRemoveDataSetInvalidId()
   {
     DataManager::getInstance().removeDataSet(0);
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
 
@@ -781,6 +783,7 @@ void TsDataManager::testUpdateDataSet()
 
     // Add a new dataset item of type PCD_TOA5_TYPE
     DataSetItem dataSetItem(DataSetItem::PCD_TOA5_TYPE, 0, dataSet.id());
+    dataSetItem.setSrid(0);
     dataSet.add(dataSetItem);
 
     DataManager::getInstance().update(dataSet);
@@ -820,6 +823,7 @@ void TsDataManager::testUpdateDataSet()
     QVERIFY2(dsItem0.mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
     QVERIFY2(dsItem0.path() == "other_path", "Path should be 'other_path'!");
     QVERIFY2(dsItem1.kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItems[1] must be of the type PCD-TOA5!");
+    QVERIFY2(dsItem1.srid() == 0, "dataSetItems[1] srid must be 0!");
 
     std::map<std::string, std::string> storageMetadata =  dsItem0.storageMetadata();
     QVERIFY2("value" == storageMetadata["key"], "Metadata key/value must be the same!");
@@ -851,9 +855,9 @@ void TsDataManager::testUpdateDataSetInvalidId()
       DataManager::getInstance().update(dataSet);
 
       // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
+      QFAIL("terrama2::InvalidArgumentException not thrown");
     }
-    catch (terrama2::InvalidArgumentError /*ex*/)
+    catch (terrama2::InvalidArgumentException /*ex*/)
     {
       QVERIFY2(spy.count() == 0, "Should not emit a signal");
 
@@ -875,7 +879,7 @@ void TsDataManager::testUpdateDataSetInvalidId()
 
 void TsDataManager::testRemoveDataSetInUse()
 {
-  //TODO: Try to remove a dataset in use by an analysis, expected an exception: DataSetInUseError
+  //TODO: Try to remove a dataset in use by an analysis, expected an exception: DataSetInUseException
 }
 
 void TsDataManager::testAddDataProviderWithId()
@@ -892,9 +896,9 @@ void TsDataManager::testAddDataProviderWithId()
       DataManager::getInstance().add(dataProvider);
 
       // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
+      QFAIL("terrama2::InvalidArgumentException not thrown");
     }
-    catch (terrama2::InvalidArgumentError /*ex*/)
+    catch (terrama2::InvalidArgumentException /*ex*/)
     {
       // test ok
     }
@@ -930,9 +934,9 @@ void TsDataManager::testAddDataSetWihId()
       DataManager::getInstance().add(dataSet);
 
       // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
+      QFAIL("terrama2::InvalidArgumentException not thrown");
     }
-    catch (terrama2::InvalidArgumentError /*ex*/)
+    catch (terrama2::InvalidArgumentException /*ex*/)
     {
       QVERIFY2(spy.count() == 0, "Should not emit a signal");
 
@@ -1014,9 +1018,9 @@ void TsDataManager::testAddNullDataProvider()
       DataManager::getInstance().add(dataProvider);
 
       // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
+      QFAIL("terrama2::InvalidArgumentException not thrown");
     }
-    catch (terrama2::InvalidArgumentError /*ex*/)
+    catch (terrama2::InvalidArgumentException /*ex*/)
     {
       QVERIFY2(spy.count() == 0, "Should not emit a signal");
       // test ok
@@ -1048,9 +1052,9 @@ void TsDataManager::testAddNullDataSet()
       DataManager::getInstance().add(dataSet);
 
       // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
+      QFAIL("terrama2::InvalidArgumentException not thrown");
     }
-    catch (terrama2::InvalidArgumentError /*ex*/)
+    catch (terrama2::InvalidArgumentException /*ex*/)
     {
       QVERIFY2(spy.count() == 0, "Should not emit a signal");
       // test ok
@@ -1085,9 +1089,9 @@ void TsDataManager::testUpdateNullDataProvider()
       DataManager::getInstance().update(dataProvider);
 
       // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
+      QFAIL("terrama2::InvalidArgumentException not thrown");
     }
-    catch (terrama2::InvalidArgumentError /*ex*/)
+    catch (terrama2::InvalidArgumentException /*ex*/)
     {
       QVERIFY2(spy.count() == 0, "Should not emit a signal");
       // test ok
@@ -1120,9 +1124,9 @@ void TsDataManager::testUpdateNullDataSet()
       DataManager::getInstance().update(dataSet);
 
       // An exception should be thrown, if not the test fails.
-      QFAIL("terrama2::InvalidArgumentError not thrown");
+      QFAIL("terrama2::InvalidArgumentException not thrown");
     }
-    catch (terrama2::InvalidArgumentError /*ex*/)
+    catch (terrama2::InvalidArgumentException /*ex*/)
     {
       QVERIFY2(spy.count() == 0, "Should not emit a signal");
       // test ok
@@ -1149,9 +1153,9 @@ void TsDataManager::testFindNonExistentDataSet()
 
     QVERIFY2(foundDataProvider.id()== 0, "Should return an invalid provider");
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     // test ok
   }
@@ -1181,9 +1185,9 @@ void TsDataManager::testUpdateNonexistentDataProvider()
     DataManager::getInstance().update(dataProvider);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -1210,9 +1214,9 @@ void TsDataManager::testFindNonExistentDataProvider()
     QVERIFY2(dataSet.id() == 0, "Should return an invalid dataset");
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     // test ok
   }
@@ -1239,9 +1243,9 @@ void TsDataManager::testRemoveNonExistentDataSet()
     DataManager::getInstance().removeDataSet(1);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
 
@@ -1272,9 +1276,9 @@ void TsDataManager::testRemoveNonExistentDataProvider()
     DataManager::getInstance().removeDataProvider(1);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -1305,9 +1309,9 @@ void TsDataManager::testAddDataSetWithNullProvider()
     DataManager::getInstance().add(dataSet);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -1340,9 +1344,9 @@ void TsDataManager::testAddDataSetWithNonexistentProvider()
     DataManager::getInstance().add(dataSet);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -1413,9 +1417,9 @@ void TsDataManager::testUpdateDataSetWithNullProvider()
     DataManager::getInstance().update(dataSet);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok
@@ -1451,9 +1455,9 @@ void TsDataManager::testUpdateDataSetWithNonexistentProvider()
     DataManager::getInstance().update(dataSet);
 
     // An exception should be thrown, if not the test fails.
-    QFAIL("terrama2::InvalidArgumentError not thrown");
+    QFAIL("terrama2::InvalidArgumentException not thrown");
   }
-  catch (terrama2::InvalidArgumentError /*ex*/)
+  catch (terrama2::InvalidArgumentException /*ex*/)
   {
     QVERIFY2(spy.count() == 0, "Should not emit a signal");
     // test ok

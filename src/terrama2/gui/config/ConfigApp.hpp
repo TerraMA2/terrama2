@@ -57,7 +57,7 @@ class ConfigApp : public QMainWindow, private  boost::noncopyable
   public:
   
     /*! Default constructor.
-      \exception terrama2::InitializationError <It may be raised when cannot find TerraMA2 icons library folder>
+      \exception terrama2::InitializationException <It may be raised when cannot find TerraMA2 icons library folder>
 
     */
     ConfigApp(QWidget* parent = 0, Qt::WindowFlags flags = 0);

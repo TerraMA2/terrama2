@@ -47,16 +47,17 @@ class TsParserOGR: public QObject
 
     //******Test functions********
 
-    void TestNullDataSource();
+    //! Tests when an invalid folder is provided as uri.
+    void TestInvalidFolder();
 
-    void TestDataSourceNotOpen();
+    //! Tests behavior when provided folder is provided.
+    void TestEmptyFolder();
 
-    void TestInpeCsvFile();
+    //! Tests behavior for a generic csv file.
+    void TestCsvFile();
 
+    //! Tests behavior when an empty csv file is provided.
     void TestEmptyFile();
-
-    void TestDataSetNames();
-
 
     //******End of Test functions****
 };

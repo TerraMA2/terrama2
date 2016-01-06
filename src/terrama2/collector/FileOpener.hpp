@@ -33,7 +33,7 @@
 
 // STL
 #include <memory>
-#include <cassert>
+#include <cstdio>
 
 
 namespace terrama2

@@ -78,8 +78,7 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
     stream.imbue(format);//set format
     stream >> boostDate;//convert to boost::ptime
 
-    if(boostDate == boost::posix_time::ptime())
-      assert(0);
+    assert(boostDate == boost::posix_time::ptime());
 
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(dataSetItem_.timezone()));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);

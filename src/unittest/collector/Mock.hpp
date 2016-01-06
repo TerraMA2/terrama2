@@ -20,44 +20,18 @@
 */
 
 /*!
-  \file unittest/collector/TsCollectorService.cpp
+  \file unittest/collector/Mock.hpp
 
-  \brief Test Collector service...
+  \brief General mock classes for tests of collector module.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__
+#include <terrama2/collector/Log.hpp>
 
-//QT
-#include <QtTest>
+#include <gmock/gmock.h>
 
-//TODO: add and remove methods
-class TsCollectorService: public QObject
-{
-  Q_OBJECT
-
-protected:
-
-private slots:
-    void initTestCase(); // Run before all tests
-
-    void cleanupTestCase(); // Run after all tests
-
-
-    void init(); //run before each test
-    void cleanup(); //run before each test
-
-    //******Test functions********
-
-
-    void TestStartServerTwice();
-
-    void TestStopServer();
-
-
-    //******End of Test functions****
-
+class MockLog : public terrama2::collector::Log {
+public:
+  MOCK_CONST_METHOD1(getDataSetItemLastDateTime, std::shared_ptr<te::dt::TimeInstantTZ>(uint64_t));
 };
-#endif// __TERRAMA2_UNITTEST_COLLECTOR_COLLECTORSERVICE_HPP__

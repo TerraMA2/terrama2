@@ -45,7 +45,8 @@ void TsDataSetTimer::TestNullDataSet()
 {
   try
   {
-    terrama2::core::DataSet nullDataSet;
+    //no id
+    terrama2::core::DataSet nullDataSet("dummy", terrama2::core::DataSet::UNKNOWN_TYPE);
 
     terrama2::collector::DataSetTimer nullDataSetTimer(nullDataSet);
 
@@ -53,7 +54,6 @@ void TsDataSetTimer::TestNullDataSet()
   }
   catch(terrama2::collector::InvalidDataSetError& e)
   {
-    return;
   }
   catch(boost::exception& e)
   {
@@ -65,7 +65,28 @@ void TsDataSetTimer::TestNullDataSet()
     QFAIL(WRONG_TYPE_EXCEPTION);
   }
 
-  QFAIL(UNEXPECTED_BEHAVIOR);
+  try
+  {
+    //no name
+    terrama2::core::DataSet nullDataSet("", terrama2::core::DataSet::UNKNOWN_TYPE, 1);
+
+    terrama2::collector::DataSetTimer nullDataSetTimer(nullDataSet);
+
+    QFAIL(UNEXPECTED_BEHAVIOR);
+  }
+  catch(terrama2::collector::InvalidDataSetError& e)
+  {
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+  catch(...)
+  {
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+
 }
 
 void TsDataSetTimer::TestTimerSignalEmit()

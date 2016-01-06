@@ -197,6 +197,7 @@ int main(int argc, char* argv[])
       terrama2::collector::CollectorService collectorService;
       collectorService.start();
 
+    if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
       app.exec();
     }
 

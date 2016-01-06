@@ -72,7 +72,11 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
     //! It fills the terrama2 filter object
     void fillFilter(const terrama2::core::Filter&);
 
+    //! Sets the intersection object
     void setIntersection(const terrama2::core::Intersection& intersection);
+
+    //! Sets the projection
+    void setSrid(const uint64_t srid);
 
   private:
     //! It reset filter label state
@@ -96,7 +100,8 @@ class ConfigAppWeatherOccurrence : public ConfigAppTab
 
   private:
     QSharedPointer<terrama2::core::Filter> filter_; //!< Occurrence filter defined
-    terrama2::core::Intersection intersection_;
+    terrama2::core::Intersection intersection_; //! Intersection configuration
+    uint64_t srid_; //! Data projection
 
 };
 

@@ -36,6 +36,8 @@ namespace terrama2
 {
   namespace collector
   {
+    struct Exception : virtual terrama2::Exception { };
+
     //! Base exception for CollectorService exceptions
     struct CollectorServiceError : virtual Exception { };
 
@@ -70,12 +72,17 @@ namespace terrama2
     //! Base exception to factory namespace.
     struct FactoryError: virtual Exception { };
     struct ConflictingParserTypeSchemeError: virtual FactoryError { };
-    struct UnableToCreateParserError: virtual FactoryError { };
+    struct UnableToCreateParserException: virtual FactoryError { };
     struct UnableToCreateStoragerError: virtual FactoryError { };
 
-    //! Base exception for ParserError exceptions
-    struct ParserError: virtual Exception { };
-    struct NoDataSetFoundError: virtual ParserError { };
+    //! Base exception for ParserException exceptions
+    struct ParserException: virtual Exception { };
+    struct InvalidFolderError: virtual ParserException { };
+    struct NoDataSetFoundError: virtual ParserException { };
+
+    //! Base exception for DataFilter exceptions
+    struct DataFilterError: virtual Exception { };
+    struct EmptyMaskError: virtual DataFilterError { };
 
     /*!
        \brief Raised when the DataSet could not be read.
@@ -83,7 +90,7 @@ namespace terrama2
        Check error info for more information.
 
      */
-    struct UnableToReadDataSetError: virtual ParserError { };
+    struct UnableToReadDataSetError: virtual ParserException { };
 
 
     /*!

@@ -89,7 +89,7 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
     }
   }
 
-  throw UnableToCreateParserError() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
+  throw UnableToCreateParserException() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
 }
 
 terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
@@ -106,7 +106,7 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
   std::map<std::string, std::string>::const_iterator localFind = storageMetadata.find("KIND");
 
   if(localFind == storageMetadata.cend())
-    throw UnableToCreateStoragerError() << terrama2::ErrorDescription(QObject::tr("No Kind set."));
+    throw UnableToCreateStoragerError() << terrama2::ErrorDescription(QObject::tr("No storager kind set."));
 
   std::string storagerKind = localFind->second;
 

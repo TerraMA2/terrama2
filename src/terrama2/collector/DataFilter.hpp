@@ -32,12 +32,16 @@
 #ifndef __TERRAMA2_COLLECTOR_FILTER_HPP__
 #define __TERRAMA2_COLLECTOR_FILTER_HPP__
 
+#include "Log.hpp"
 #include "../core/DataSetItem.hpp"
 #include "../core/DataSet.hpp"
 
 //Terralib
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype/Date.h>
+#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/geometry.h>
 
@@ -80,7 +84,16 @@ namespace terrama2
     class DataFilter : public boost::noncopyable
     {
       public:
-        DataFilter(const core::DataSetItem& datasetItem);
+      /*!
+           \brief Creates a DataFilter object to filter DataSetItem data.
+
+           Recover last collected date for the DataSetItem,
+           and pre process the mask.
+
+
+           \exception EmptyMaskError Raise when DataSetItem Filter mask is not set.
+         */
+        DataFilter(const core::DataSetItem& datasetItem, const terrama2::collector::Log& collectLog);
         ~DataFilter();
 
         /*!
@@ -117,10 +130,19 @@ namespace terrama2
              */
         te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
 
-        void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
-        
+        /*!
+             * \brief Returns the lastests date and time found in the DataSetItem.
+             */
+        void getDataSetLastDateTime(te::dt::Date& date, te::dt::TimeDuration& time) const;
+
     private:
-        //! Prepare mask data for wildcards identification
+        void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
+
+        /*!
+           \brief Prepare mask data for wildcards identification
+
+           \exception EmptyMaskError Raise when DataSetItem Filter mask is not set.
+         */
         void processMask();
         //! Returns true if the date is after discardBefore_ and before discardAfter. Updates dataSetLastDateTime_ with the latest date.
         bool validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
@@ -162,7 +184,7 @@ namespace terrama2
 
         const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
         //TODO: VINICIUS: dataSetLastDateTime_ should be separated as a date and a time object, this way we can compare with incomplete masks and save incomplete date/time
-        std::unique_ptr< te::dt::TimeInstantTZ >  dataSetLastDateTime_; //! Latest valid date found
+        std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //! Latest valid date found
         std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //! Only date after this will be valid
         std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_;//! Only date before this will be valid
 

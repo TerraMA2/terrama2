@@ -37,13 +37,14 @@
 #include "../Exception.hpp"
 #include "../core/DataType.hpp"
 
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
 // QT
 #include <QMessageBox>
 
-struct IntersectionDialog::Impl
+struct terrama2::gui::config::IntersectionDialog::Impl
 {
   Impl(const terrama2::core::Intersection& intersection, Database* database)
     : ui_(new Ui::IntersectionDialogForm),
@@ -78,7 +79,7 @@ struct IntersectionDialog::Impl
   std::unique_ptr<te::da::DataSource> dataSource_;
 };
 
-IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent, Qt::WindowFlags f)
+terrama2::gui::config::IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent, Qt::WindowFlags f)
 : QDialog(parent, f), pimpl_(new Impl(intersection, database))
 {
   pimpl_->ui_->setupUi(this);
@@ -99,17 +100,17 @@ IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& inter
 }
 
 
-IntersectionDialog::~IntersectionDialog()
+terrama2::gui::config::IntersectionDialog::~IntersectionDialog()
 {
   delete pimpl_;
 }
 
-void IntersectionDialog::onOkBtnClicked()
+void terrama2::gui::config::IntersectionDialog::onOkBtnClicked()
 {
   accept();
 }
 
-void IntersectionDialog::onDatasetSelected()
+void terrama2::gui::config::IntersectionDialog::onDatasetSelected()
 {
   if(!pimpl_->ui_->themeList->currentItem())
     return;
@@ -121,7 +122,7 @@ void IntersectionDialog::onDatasetSelected()
 
 }
 
-void IntersectionDialog::fillAttributeTable(std::auto_ptr<te::da::DataSetType> dsType)
+void terrama2::gui::config::IntersectionDialog::fillAttributeTable(std::auto_ptr<te::da::DataSetType> dsType)
 {
   if(dsType.get() == nullptr)
     return;
@@ -153,7 +154,7 @@ void IntersectionDialog::fillAttributeTable(std::auto_ptr<te::da::DataSetType> d
   }
 }
 
-void IntersectionDialog::onRasterSelected(int row, int column)
+void terrama2::gui::config::IntersectionDialog::onRasterSelected(int row, int column)
 {
 
   auto tableItem = pimpl_->ui_->dynamicGridsTableWidget->item(row, 0);
@@ -187,7 +188,7 @@ void IntersectionDialog::onRasterSelected(int row, int column)
 }
 
 
-void IntersectionDialog::onAttributeSelected(int row, int column)
+void terrama2::gui::config::IntersectionDialog::onAttributeSelected(int row, int column)
 {
   auto item = pimpl_->ui_->vectorAttributesTableWidget->item(row, 0);
 
@@ -245,7 +246,7 @@ void IntersectionDialog::onAttributeSelected(int row, int column)
   }
 }
 
-void IntersectionDialog::fillVectorialList()
+void terrama2::gui::config::IntersectionDialog::fillVectorialList()
 {
   std::string sql = "select * from geometry_columns where f_table_name != 'filter' and f_table_name not like 'storage%'";
 
@@ -273,7 +274,7 @@ void IntersectionDialog::fillVectorialList()
 }
 
 
-void IntersectionDialog::fillRasterList()
+void terrama2::gui::config::IntersectionDialog::fillRasterList()
 {
   std::string sql = "select ds.name from terrama2.dataset ds, terrama2.dataset_type dt where ds.kind = dt.id and dt.name = 'Grid'";
 
@@ -304,19 +305,19 @@ void IntersectionDialog::fillRasterList()
 
 }
 
-void IntersectionDialog::showVectorialPage()
+void terrama2::gui::config::IntersectionDialog::showVectorialPage()
 {
   pimpl_->ui_->geometryStc->setCurrentIndex(2);
   pimpl_->ui_->layerTypeStc->setCurrentIndex(0);
 }
 
-void IntersectionDialog::showGridPage()
+void terrama2::gui::config::IntersectionDialog::showGridPage()
 {
   pimpl_->ui_->geometryStc->setCurrentIndex(3);
   pimpl_->ui_->layerTypeStc->setCurrentIndex(1);
 }
 
-terrama2::core::Intersection IntersectionDialog::getIntersection() const
+terrama2::core::Intersection terrama2::gui::config::IntersectionDialog::getIntersection() const
 {
   return pimpl_->intersection_;
 }
