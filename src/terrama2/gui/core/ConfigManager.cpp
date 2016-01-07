@@ -33,7 +33,6 @@
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
 #include "../../core/ApplicationController.hpp"
-#include "../../core/DataManager.hpp"
 
 // Qt
 #include <QFile>
@@ -66,7 +65,6 @@ void ConfigManager::loadConfiguration(QString filepath)
     metadata.insert("path",filepath);
     fileList_.insert(name_, metadata);
     setDataForm(metadata);
-
   }
   catch (const terrama2::Exception& e)
   {
@@ -81,52 +79,50 @@ void ConfigManager::loadConfiguration(QString filepath)
 
 void ConfigManager::insertFile(QString newname, QJsonObject metatada)
 {
- fileList_.insert(newname,metatada);
- setDataForm(metatada);
+  fileList_.insert(newname,metatada);
+  setDataForm(metatada);
 }
 
 void ConfigManager::renameFile(QString selectedName, QString newname)
 {
- fileList_.insert(newname,fileList_[selectedName]);
- fileList_.remove(selectedName);
+  fileList_.insert(newname,fileList_[selectedName]);
+  fileList_.remove(selectedName);
 }
 
 void ConfigManager::removeFile(QString selectedName)
 {
- fileList_.remove(selectedName);
+  fileList_.remove(selectedName);
 }
 
 void ConfigManager::setDataForm(QJsonObject metadata)
 {
+  if (metadata.contains("database"))
+  {
+    QJsonObject databaseConfig = metadata["database"].toObject();
+    database_->dbName_ = databaseConfig["name"].toString();
+    database_->host_ = databaseConfig["host"].toString();
+    database_->port_ = databaseConfig["port"].toString().toInt();
+    database_->user_ = databaseConfig["user"].toString();
+    database_->password_ = databaseConfig["password"].toString();
+    database_->driver_ = databaseConfig["driver"].toString();
+    database_->study_ = metadata["is_study"].toString();
+    database_->name_ = metadata["name"].toString();
+    database_->version_ = metadata["version"].toString();
+  }
+  if (metadata.contains("collector_web_service"))
+  {
+    QJsonObject collectConfig = metadata["collector_web_service"].toObject();
 
-    if (metadata.contains("database"))
-    {
-      QJsonObject databaseConfig = metadata["database"].toObject();
-      database_->dbName_ = databaseConfig["name"].toString();
-      database_->host_ = databaseConfig["host"].toString();
-      database_->port_ = databaseConfig["port"].toString().toInt();
-      database_->user_ = databaseConfig["user"].toString();
-      database_->password_ = databaseConfig["password"].toString();
-      database_->driver_ = databaseConfig["driver"].toString();
-      database_->study_ = metadata["is_study"].toString();
-      database_->name_ = metadata["name"].toString();
-      database_->version_ = metadata["version"].toString();
-    }
-    if (metadata.contains("collector_web_service"))
-    {
-      QJsonObject collectConfig = metadata["collector_web_service"].toObject();
-
-      collection_->dirPath_ = collectConfig["data_path"].toString();
-      collection_->logFile_ = collectConfig["log_file"].toString();
-      collection_->timeout_ = collectConfig["connection_timeout"].toInt();
-      collection_->address_ = collectConfig["address"].toString();
-      collection_->servicePort_ = collectConfig["port"].toString().toInt();
-      collection_->cmd_ = collectConfig["command"].toString();
-      collection_->params_ = collectConfig["parameters"].toString();
-    }
-    else
-      throw terrama2::Exception() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
-
+    collection_->dirPath_ = collectConfig["data_path"].toString();
+    collection_->logFile_ = collectConfig["log_file"].toString();
+    collection_->timeout_ = collectConfig["connection_timeout"].toInt();
+    collection_->address_ = collectConfig["address"].toString();
+    collection_->servicePort_ = collectConfig["port"].toString().toInt();
+    collection_->cmd_ = collectConfig["command"].toString();
+    collection_->params_ = collectConfig["parameters"].toString();
+  }
+  else
+    throw terrama2::gui::FileException() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
 }
 
 QMap<QString, QJsonObject> ConfigManager::getfiles() const
@@ -136,12 +132,12 @@ QMap<QString, QJsonObject> ConfigManager::getfiles() const
 
 void ConfigManager::setDatabase(QJsonObject dbase)
 {
- database_->dbName_ = dbase["name"].toString();
- database_->driver_ = dbase["driver"].toString();
- database_->host_ = dbase["host"].toString();
- database_->port_ = dbase["port"].toString().toInt();
- database_->user_ = dbase["user"].toString();
- database_->password_ = dbase["password"].toString();
+  database_->dbName_ = dbase["name"].toString();
+  database_->driver_ = dbase["driver"].toString();
+  database_->host_ = dbase["host"].toString();
+  database_->port_ = dbase["port"].toString().toInt();
+  database_->user_ = dbase["user"].toString();
+  database_->password_ = dbase["password"].toString();
 }
 
 Database* ConfigManager::getDatabase() const

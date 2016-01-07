@@ -53,14 +53,8 @@ class ConfigManager;
 
 namespace terrama2
 {
-  /*!
-    \brief A namespace for handling TerraMA2 gui applications
-  */
   namespace gui
   {
-    /*!
-      \brief A namespace for handling TerraMA2 configuration module
-    */
     namespace config
     {
       // Forward declaration

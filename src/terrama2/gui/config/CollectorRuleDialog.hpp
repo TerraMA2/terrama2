@@ -41,7 +41,7 @@
 // Forward declarations
 namespace Ui
 {
-  class CollectorRuleDialogForm;
+  class CollectorRuleDialogForm; //! It contains QT GUI Widgets.
 }
 class QAction;
 namespace terrama2

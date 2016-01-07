@@ -61,11 +61,11 @@ namespace terrama2
   {
     namespace config
     {
-      /*
+      /*!
         \class IntersectionDialog
 
         \brief Dialog to configure the intersection.
-       */
+      */
       class IntersectionDialog : public QDialog
       {
         Q_OBJECT
