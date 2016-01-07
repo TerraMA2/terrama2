@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataProvider.hpp
 
-  \brief Models the information of a data provider (or data server).
+  \brief Models the information of a DataProvider (or data server).
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -47,36 +47,36 @@ namespace terrama2
     /*!
       \class DataProvider
 
-      \brief Models the information of a data provider (or data server).
+      \brief Models the information of a DataProvider (or data server).
 
-      A data provider can be a remote server that provides data through
+      A DataProvider can be a remote server that provides data through
       FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
 
       It can also be an URI for a folder into the file system.
 
-      A data provider contains the list of datasets that belongs to this provider 
+      A DataProvider contains the list of datasets that belongs to this provider
       that should be collected for further analysis.
      */
     class DataProvider
     {
       public:
 
-        /*! \brief Data provider type.
+        /*! \brief DataProvider type.
          Each constant must exist in table terrama2.data_provider_type and the value must be the same from column id.
          */
         enum Kind
         {
-          UNKNOWN_TYPE = 1,
-          FTP_TYPE = 2,
-          HTTP_TYPE = 3,
-          FILE_TYPE = 4,
-          WFS_TYPE = 5,
-          WCS_TYPE = 6,
-          SOS_TYPE = 7,
-          POSTGIS_TYPE = 8
+          UNKNOWN_TYPE = 1, //!< Unkown type
+          FTP_TYPE = 2, //!< FTP protocol.
+          HTTP_TYPE = 3, //!< HTTP protocol.
+          FILE_TYPE = 4, //!< Local files.
+          WFS_TYPE = 5, //!< OGC Web Feature Service.
+          WCS_TYPE = 6, //!< OGC Web Coverage Service.
+          SOS_TYPE = 7, //!< OGC Sensor Observation Service.
+          POSTGIS_TYPE = 8 //!< PostGIS database server.
         };
 
-        //! Data provider status.
+        //! DataProvider status.
         enum Status
         {
           ACTIVE,
@@ -89,71 +89,71 @@ namespace terrama2
         /*! \brief Destructor. */
         ~DataProvider();
 
-        /*! \brief Returns the identifier of the data provider. */
+        /*! \brief Returns the identifier of the DataProvider. */
         uint64_t id() const;
 
-        /*! \brief Sets the identifier of the data provider. */
+        /*! \brief Sets the identifier of the DataProvider. */
         void setId(uint64_t id);
 
-        /*! \brief Returns the name of the data provider. */
+        /*! \brief Returns the name of the DataProvider. */
         const std::string& name() const;
 
-        /*! \brief Sets the name of the data provider. */
+        /*! \brief Sets the name of the DataProvider. */
         void setName(const std::string& name);
 
-        /*! \brief Returns the description of the data provider. */
+        /*! \brief Returns the description of the DataProvider. */
         const std::string& description() const;
 
-        /*! \brief Sets the the description of the data provider. */
+        /*! \brief Sets the the description of the DataProvider. */
         void setDescription(const std::string& description);
 
-        /*! \brief Returns the the kind of the data provider. */
+        /*! \brief Returns the the kind of the DataProvider. */
         Kind kind() const;
 
-        /*! \brief Sets the the kind of the data provider.  */
+        /*! \brief Sets the the kind of the DataProvider.  */
         void setKind(Kind k);
 
-        /*! \brief Returns the URI of the data provider. */
+        /*! \brief Returns the URI of the DataProvider. */
         const std::string& uri() const;
 
-        /*! \brief Sets the URI of the data provider. */
+        /*! \brief Sets the URI of the DataProvider. */
         void setUri(const std::string& uri);
 
-        /*! \brief Returns the the status of the data provider. */
+        /*! \brief Returns the the status of the DataProvider. */
         Status status() const;
 
-        /*! \brief Sets the the status of the data provider. */
+        /*! \brief Sets the the status of the DataProvider. */
         void setStatus(Status s);
 
-        /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
+        /*! \brief Returns a reference to the DataSet list to be collected from this DataProvider. */
         std::vector<DataSet>& datasets();
 
-        /*! \brief Returns a reference to the dataset list to be collected from this data provider. */
+        /*! \brief Returns a reference to the DataSet list to be collected from this DataProvider. */
         const std::vector<DataSet>& datasets() const;
 
         /*!
-          \brief Adds a new dataset to the data provider.
+          \brief Adds a new DataSet to the DataProvider.
 
-          \param d The the dataset.
+          \param d The the DataSet.
         */
         void add(DataSet& d);
 
         /*!
-          \brief Removes the given dataset from the provider list.
+          \brief Removes the given DataSet from the provider list.
 
-          \param id The identifier of the dataset to be removed.
+          \param id The identifier of the DataSet to be removed.
          */
         void removeDataSet(const uint64_t id);
 
       private:
 
-        uint64_t id_; //!< The identifier of the data provider.
-        std::string name_; //!< Name of the data provider, must be unique.
-        Kind kind_; //!< Data provider type.
-        std::string description_; //!< Brief description from the source of the data provider.
-        std::string uri_; //!< URI to access the data provider data.
-        Status status_; //!< Data provider status.
-        std::vector<DataSet> datasets_; //!< The list of datasets available in the data provider.
+        uint64_t id_; //!< The identifier of the DataProvider.
+        std::string name_; //!< Name of the DataProvider, must be unique.
+        Kind kind_; //!< DataProvider type.
+        std::string description_; //!< Brief description from the source of the DataProvider.
+        std::string uri_; //!< URI to access the DataProvider data.
+        Status status_; //!< DataProvider status.
+        std::vector<DataSet> datasets_; //!< The list of datasets available in the DataProvider.
     };
 
   } // end namespace core

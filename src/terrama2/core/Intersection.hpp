@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/Intersection.hpp
 
-  \brief Intersection information of a dataset.
+  \brief Intersection information of a DataSet.
 
   \author Paulo R. M. Oliveira
   \author Gilberto Ribeiro de Queiroz
@@ -45,7 +45,7 @@ namespace terrama2
     /*!
       \class Intersection
 
-      \brief Intersection information of a dataset.
+      \brief Intersection information of a DataSet.
      */
     class Intersection
     {
@@ -55,17 +55,17 @@ namespace terrama2
         /*!
           \brief Constructor.
 
-          \param item The associated dataset.
+          \param item The associated DataSet.
         */
         Intersection(uint64_t dataSetId = 0);
 
         /*! \brief Destructor. */
         ~Intersection();
 
-        /*! \brief Returns the identifier to the associated dataset. */
+        /*! \brief Returns the identifier to the associated DataSet. */
         uint64_t dataset() const;
 
-        /*! \brief Sets the dataset identifier. */
+        /*! \brief Sets the DataSet identifier. */
         void setDataSet(uint64_t id);
 
         /*! \brief Returns the attribute map. */
@@ -83,9 +83,9 @@ namespace terrama2
 
       private:
 
-        uint64_t dataset_; //!< Associates the intersection to a given dataset.
+        uint64_t dataset_; //!< Associates the intersection to a given DataSet.
         std::map<std::string, std::vector<std::string> > attributeMap_; //!< Map with the table name and the columns to be added to the collected data.
-        std::map<uint64_t, std::string> bandMap_; //!< Map with the grid dataset identifier and the bands that should be added to the collected data.
+        std::map<uint64_t, std::string> bandMap_; //!< Map with the grid DataSet identifier and the bands that should be added to the collected data.
 
     };
 
