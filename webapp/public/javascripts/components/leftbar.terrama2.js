@@ -81,6 +81,10 @@ var LeftBar = function(terrama2) {
       e.stopPropagation();
     });
 
+    $(".terrama2-resizable-horizontal").resizable({
+      handles: 'e'
+    });
+
     $(window).resize(function(){
       $(".terrama2-leftbox-fullscreen").each(function() {
         if($(this).width() !== 0) {
@@ -88,10 +92,6 @@ var LeftBar = function(terrama2) {
           $(this).css({ width:width });
         }
       });
-    });
-
-    $(".terrama2-resizable-horizontal").resizable({
-      handles: 'e'
     });
   });
 }
