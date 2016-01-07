@@ -51,15 +51,6 @@ namespace terrama2
       class ConfigAppWeatherServer : public ConfigAppTab
       {
 
-        /*!
-          @defgroup TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
-
-          \exception terrama2::gui::DirectoryException Raised when an invalid path is set
-          \exception terrama2::gui::ValueException Raised because a type different from FTP, FILE and HTTP is not supported yet.
-          \exception terrama2::gui::URLException Raised when a URI is invalid.
-          \exception terrama2::gui::ConnectionException Raised when curl response is Timeout, Login Denied or URL Malformated.
-        */
-
         Q_OBJECT
         public:
           /*!
@@ -75,7 +66,6 @@ namespace terrama2
 
           /*!
             \brief Save dataprovider in database. It calls validateConnection() before.
-            @copydetails TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
           */
           void save();
 
@@ -92,7 +82,10 @@ namespace terrama2
         private:
           /*!
             \brief It validates the connection type and stores the URI value in uri_ member.
-            @copydetails TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
+            \exception terrama2::gui::DirectoryException Raised when an invalid path is set
+            \exception terrama2::gui::ValueException Raised because a type different from FTP, FILE and HTTP is not supported yet.
+            \exception terrama2::gui::URLException Raised when a URI is invalid.
+            \exception terrama2::gui::ConnectionException Raised when curl response is Timeout, Login Denied or URL Malformated.
           */
           void validateConnection();
 
