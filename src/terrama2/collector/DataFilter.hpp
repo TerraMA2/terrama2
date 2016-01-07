@@ -93,7 +93,7 @@ namespace terrama2
 
            \exception EmptyMaskError Raise when core::DataSetItem Filter mask is not set.
          */
-      DataFilter(const core::DataSetItem& datasetItem, const terrama2::collector::Log& collectLog);
+      DataFilter(const core::DataSetItem& datasetItem, std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = nullptr);
       ~DataFilter();
 
       /*!

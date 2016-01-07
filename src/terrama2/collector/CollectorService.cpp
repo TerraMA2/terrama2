@@ -186,6 +186,10 @@ void terrama2::collector::CollectorService::process(const uint64_t dataProviderI
 
 void terrama2::collector::CollectorService::collect(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet>& dataSetList)
 {
+  //if not active, nothing to do
+  if(dataProvider.status() != core::DataProvider::ACTIVE)
+    return;
+
   try
   {
     DataRetrieverPtr retriever = Factory::makeRetriever(dataProvider);
@@ -200,6 +204,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
     for(auto &dataSet : dataSetList)
     {
+      //If not active, continue...
+      if(dataSet.status() != core::DataSet::ACTIVE)
+        continue;
+
+
       if(dataSet.dataSetItems().empty())
       {
         //TODO: LOG empty dataset
@@ -209,18 +218,28 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
       //aquire all data
       for(auto& dataSetItem : dataSet.dataSetItems())
       {
+        //if not active, continue...
+        if(dataSetItem.status() != core::DataSetItem::ACTIVE)
+          continue;
+
+
         try
         {
           terrama2::collector::Log collectLog;
 
-          DataFilterPtr filter(new DataFilter(dataSetItem, collectLog));
+          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
+          DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 
           std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
-          //retrieve remote data to local temp file
-          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
 
+
+          //retrieve remote data to local temp file.
+          //*** uri may be empty ***
+          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris);
+
+          //Log: data downloaded
           if(!log_uris.empty())
             collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
@@ -238,6 +257,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           //no new dataset found
           if(datasetVec.empty())
           {
+            //Log: no data found
             if(!log_uris.empty())
               collectLog.log(dataSetItem.id(), log_uris, Log::Status::NODATA);
             continue;

@@ -33,7 +33,6 @@
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
-#include "Log.hpp"
 
 // STL
 #include <iostream>
@@ -403,20 +402,19 @@ te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime()
   return dataSetLastDateTime_.get();
 }
 
-terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, const Log& collectLog)
+terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime)
   : datasetItem_(datasetItem),
     dataSetLastDateTime_(nullptr)
 {
   //recover last collection time logged
-  std::shared_ptr<te::dt::TimeInstantTZ> logTime = collectLog.getDataSetItemLastDateTime(datasetItem.id());
   const core::Filter& filter = datasetItem_.filter();
 
   if(!filter.discardBefore())
-     discardBefore_ = logTime;
-  else if(!logTime)
+     discardBefore_ = lastLogTime;
+  else if(!lastLogTime)
     discardBefore_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
-  else if(*filter.discardBefore() < *logTime || *filter.discardBefore() == *logTime)
-    discardBefore_ = logTime;
+  else if(*filter.discardBefore() < *lastLogTime || *filter.discardBefore() == *lastLogTime)
+    discardBefore_ = lastLogTime;
   else
     discardBefore_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
 
