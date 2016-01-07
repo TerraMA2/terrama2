@@ -106,7 +106,7 @@ namespace terrama2
           //! Slot triggered for detect if the QTextEdit is changed
           void onTextEditChanged();
 
-          //! Slot for handling if it is valid connection. TODO: ftp
+          //! Slot for handling if it is valid connection.
           void onCheckConnectionClicked();
 
           /*!

@@ -74,8 +74,8 @@ namespace terrama2
         \return A pointer to QMenuBar filled out.
       */
       QMenu* makeMaskHelpers();
-    }
-  }
-}
+    } // end core
+  }   // end gui
+}     // end terrama2
 
 #endif // __TERRAMA2_GUI_CORE_UTILS_HPP__

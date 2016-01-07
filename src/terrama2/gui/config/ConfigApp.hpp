@@ -50,6 +50,7 @@
 
 // Forward declarations
 class ConfigManager;
+
 namespace terrama2
 {
   /*!
@@ -70,6 +71,8 @@ namespace terrama2
         \class ConfigApp
 
         \brief TerraMA2 Configuration Window
+
+               It initializes entire TerraM
       */
       class ConfigApp : public QMainWindow, private  boost::noncopyable
       {
@@ -129,7 +132,7 @@ namespace terrama2
 
         private slots:
           /*!
-           \brief Slot triggered when tab index clicked. It handles global tabs among application
+           \brief Slot triggered when tab index has been clicked. It handles global tabs among application runtime
            \param index Contains a requested tab index value
           */
           void tabChangeRequested(int index);
@@ -150,7 +153,7 @@ namespace terrama2
 
           QSharedPointer<ConfigAppWeatherTab> weatherTab_; //!< Attribute for handling WeatherTab
 
-          QSharedPointer<terrama2::ws::collector::client::Client> client_;  //!< gsoap collector client
+          QSharedPointer<terrama2::ws::collector::client::Client> client_;  //!< gSOAP collector client
       };
     }
   }
