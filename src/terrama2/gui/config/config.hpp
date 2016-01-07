@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/gui/config/configuration.hpp
+  \file terrama2/gui/config/config.hpp
 
   \brief This file contains include headers for the TerraMA2 GUI config module.
 
