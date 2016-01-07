@@ -24,7 +24,7 @@
 
   \brief This file contains include headers for the TerraMA2 GUI config module.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Raphael Willian da Costa
  */
 
 #ifndef __TERRAMA2_GUI_CONFIG_CONFIGURATION_HPP__
