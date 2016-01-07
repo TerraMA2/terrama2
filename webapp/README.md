@@ -10,18 +10,18 @@ TerraMA² Webapp is a free and open source component based web API for use in we
 
 ## Dependencies
 
-In order to use the components of the API, you have to execute it. For that to be possible you're going to need install some third-party softwares. Bellow we show you this softwares and its versions:
+In order to use the components of the API, you have to execute it. For that to be possible you'll need to install some third-party softwares. Bellow we show you this softwares and its versions:
 
-- **Node.js (Mandatory):** Para que o BDQueimadas funcione é necessário que o interpretador Node.js esteja instalado na versão 4.2.3 (ou versões superiores). O software pode ser baixado em: https://nodejs.org/.
+- **Node.js (Mandatory):** To run the API you need to install the Node.js interpreter. Make sure to have at least version 4.2.3 installed. You can download it from: https://nodejs.org/.
 
-## Instruções para Execução
+## Execution Instructions
 
-Abaixo mostramos os passos para executar o BDQueimadas:
+Bellow we show the steps to run TerraMA² Webapp:
 
-- Execute o clone da aplicação para o diretório desejado:
+- Clone the TerraMA² repository:
 
 ```
-git clone https://github.com/TerraMA2/bdqueimadas.git
+git clone https://github.com/TerraMA2/terrama2.git
 ```
 
 - Verifique se a URL para o servidor da API TerraMA² está correto na variável terrama2Path localizada no arquivo index.ejs (bdqueimadas/views/index.ejs):
