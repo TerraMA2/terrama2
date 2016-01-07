@@ -41,19 +41,19 @@
 #include <QString>
 
 
-ConfigManager::ConfigManager(QMainWindow* app)
+terrama2::gui::core::ConfigManager::ConfigManager(QMainWindow* app)
   : app_(app), collection_(new Collection), database_(new Database)
 {
 
 }
 
-ConfigManager::~ConfigManager()
+terrama2::gui::core::ConfigManager::~ConfigManager()
 {
   delete collection_;
   delete database_;
 }
 
-void ConfigManager::loadConfiguration(QString filepath)
+void terrama2::gui::core::ConfigManager::loadConfiguration(QString filepath)
 {
   try
   {
@@ -77,24 +77,24 @@ void ConfigManager::loadConfiguration(QString filepath)
   }
 }
 
-void ConfigManager::insertFile(QString newname, QJsonObject metatada)
+void terrama2::gui::core::ConfigManager::insertFile(QString newname, QJsonObject metatada)
 {
   fileList_.insert(newname,metatada);
   setDataForm(metatada);
 }
 
-void ConfigManager::renameFile(QString selectedName, QString newname)
+void terrama2::gui::core::ConfigManager::renameFile(QString selectedName, QString newname)
 {
   fileList_.insert(newname,fileList_[selectedName]);
   fileList_.remove(selectedName);
 }
 
-void ConfigManager::removeFile(QString selectedName)
+void terrama2::gui::core::ConfigManager::removeFile(QString selectedName)
 {
   fileList_.remove(selectedName);
 }
 
-void ConfigManager::setDataForm(QJsonObject metadata)
+void terrama2::gui::core::ConfigManager::setDataForm(QJsonObject metadata)
 {
   if (metadata.contains("database"))
   {
@@ -125,12 +125,12 @@ void ConfigManager::setDataForm(QJsonObject metadata)
     throw terrama2::gui::FileException() << terrama2::ErrorDescription(QObject::tr("This TerraMA2 file is not valid."));
 }
 
-QMap<QString, QJsonObject> ConfigManager::getfiles() const
+QMap<QString, QJsonObject> terrama2::gui::core::ConfigManager::getfiles() const
 {
   return fileList_;
 }
 
-void ConfigManager::setDatabase(QJsonObject dbase)
+void terrama2::gui::core::ConfigManager::setDatabase(QJsonObject dbase)
 {
   database_->dbName_ = dbase["name"].toString();
   database_->driver_ = dbase["driver"].toString();
@@ -140,17 +140,17 @@ void ConfigManager::setDatabase(QJsonObject dbase)
   database_->password_ = dbase["password"].toString();
 }
 
-Database* ConfigManager::getDatabase() const
+terrama2::gui::core::Database* terrama2::gui::core::ConfigManager::getDatabase() const
 {
   return database_;
 }
 
-Collection* ConfigManager::getCollection() const
+terrama2::gui::core::Collection* terrama2::gui::core::ConfigManager::getCollection() const
 {
   return collection_;
 }
 
-QString ConfigManager::getName() const
+QString terrama2::gui::core::ConfigManager::getName() const
 {
   return name_;
 }

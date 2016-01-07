@@ -43,83 +43,139 @@
 #include <QList>
 #include <QSharedPointer>
 
-/*!
-  \class AdminApp
- 
-  \brief Main dialog for TerraMA2 Administration module.
- */
 
-class AdminAppTab;
-
-class AdminApp : public QMainWindow, private boost::noncopyable
+namespace terrama2
 {
-  Q_OBJECT
+  namespace gui
+  {
+    namespace admin
+    {
+      class AdminAppTab;
+      /*!
+        \class AdminApp
 
-  public:
+        \brief Main dialog for TerraMA2 Administration module.
+         Before starting the implementation of TerraMA2 Configuration Module is
+         necessary to define the connection to the database and the servers that will be holding the
+         (collection, plans, analysis, reporting and animation) services. To facilitate the configuration
+         process of the TerraMA2 execution environment, an administration module was developed. Through this
+         module it can create, modify and consult a configuration file that will beused by modules TerraMA2.
+       */
 
-//! Default constructor.
-    AdminApp(QWidget* parent = 0);
+      class AdminApp : public QMainWindow, private boost::noncopyable
+      {
+          Q_OBJECT
 
-//! Destructor.
-    ~AdminApp();
+        public:
 
-//! Fill fields
-    void fillForm();
+          /*!
+           * \brief Constructor.
+           * Init variable, find icon theme library, load icon theme library, load idioms, load Tips,
+           * init services for each tab and connects settings menu actions.
+           * \exception - terrama2::InitializationError when the could not find TerraMA2 icon library folder.
+           */
+          AdminApp(QWidget* parent = 0);
 
-//! It saves current data
-    void save();
+          //! Destructor.
+          ~AdminApp();
 
-    ConfigManager* getConfigManager();
+          //! Fill fields.
+          void fillForm();
 
-signals:
+          //! It saves current data.
+          void save();
 
-protected:
-    void closeEvent(QCloseEvent* close);
+          //! Get Configuration Manager.
+          terrama2::gui::core::ConfigManager* getConfigManager();
 
-  private slots:
+        signals:
 
-    void newRequested();
-    void openRequested();
-    void saveRequested();
-    void saveAsRequested();
-    void renameRequested();
-    void removeRequested();
-    void cancelRequested();
+        protected:
 
-    void dbCreateDatabaseRequested();
-    void dbCheckConnectionRequested();
+          //! Event called when the user requests to quit the application.
+          void closeEvent(QCloseEvent* close);
 
-    void manageServices();
-    void showConsoles();
+        private slots:
 
-    void setDataChanged();
-    void clearDataChanged();
-    void clearFormData();
-    void newFormData();
-    void ondbTab();
+          //! Signal called when the user clicked on new button to create a new configuration document.
+          void newRequested();
 
-    void itemClicked();
-    void refresh();
-  
-  private:
-  
-    struct Impl;
+          //! Signal called when the user clicked on button open configuration to open a configuration document.
+          void openRequested();
 
-    ConfigManager* configManager_;
+          //! Signal called when the user clicked on save button configuration to save a new document and save changes to an existing configuration document.
+          void saveRequested();
 
-    QString nameConfig_; //!< Current Configuration Name.
-    bool newData_; //!< Current new configuration.    
-    bool dataChanged_; //!< Indicates that the data has changed.
-    int CurrentConfigIndex_; //!< Indice current configuration.
+          //! Signal called when the user clicked on saveAs button configuration to save a configuration file with a different name but with the same settings.
+          void saveAsRequested();
 
-    QList<QSharedPointer<AdminAppTab>> tabs_; //!< List of TerraMA2 Administration Tabs
+          //! Signal called when the user clicked on button rename configuration to rename the name configuration document.
+          void renameRequested();
 
-    Impl* pimpl_;  //!< Pimpl idiom.
+          //! Signal called when the user clicked on remove button configuration to remove a configuration document.
+          void removeRequested();
 
-    void enableFields(bool mode);
-    bool searchDataList(int rowTotal, QString findName);
-    bool validateDbData(QString& err);
+          //! Signal called when the user clicked on cancel button configuration to cancel changes to the configuration document.
+          void cancelRequested();
 
-};
+          //! Signal called when the user clicked on Create Database button to create a new database.
+          void dbCreateDatabaseRequested();
 
+          //! Signal called when the user clicked on Check Connection button to check if there is a database.
+          void dbCheckConnectionRequested();
+
+          //! Manage Services Dialog
+          void manageServices();
+
+          void showConsoles();
+
+          //! Enables buttons and indicates that the data has been modified.
+          void setDataChanged();
+
+          //! Disable buttons and indicates that the data was not modified.
+          void clearDataChanged();
+
+          //! Clean all fields of the form.
+          void clearFormData();
+
+          //! Add data patterns in a new setting.
+          void newFormData();
+
+          //! Validade fields of form.
+          void ondbTab();
+
+          //! Signal called when the user Item Clicked in List.
+          void itemClicked();
+
+          //! Updates the data in the form.
+          void refresh();
+
+        private:
+
+          struct Impl;
+
+          terrama2::gui::core::ConfigManager* configManager_; //!< Configuration Manager.
+
+          QString nameConfig_; //!< Current Configuration Name.
+          bool newData_; //!< Current new configuration.
+          bool dataChanged_; //!< Indicates that the data has changed.
+          int CurrentConfigIndex_; //!< Indice current configuration.
+
+          QList<QSharedPointer<AdminAppTab>> tabs_; //!< List of TerraMA2 Administration Tabs.
+
+          Impl* pimpl_;  //!< Pimpl idiom.
+
+          //! Enable or Disable fields of form.
+          void enableFields(bool mode);
+
+          //! // Search Data ListWidget.
+          bool searchDataList(int rowTotal, QString findName);
+
+          //! Validate connection data in the database interface. Return true if ok to save.
+          bool validateDbData(QString& err);
+
+      };
+    }
+  }
+}
 #endif // __TERRAMA2_GUI_ADMIN_ADMINAPP_HPP__

@@ -344,7 +344,7 @@ bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::s
 
   catch(...)
   {
-    throw;
+    throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not check if database exists!"));
   }
 
   return false;

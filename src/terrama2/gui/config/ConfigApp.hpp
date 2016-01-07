@@ -49,12 +49,16 @@
 
 
 // Forward declarations
-class ConfigManager;
 
 namespace terrama2
 {
   namespace gui
   {
+    namespace core
+    {
+      class ConfigManager;
+    }
+
     namespace config
     {
       // Forward declaration
@@ -122,7 +126,7 @@ namespace terrama2
            \brief It retrieves the ConfigManager instance containing application settings
            \return A shared pointer to ConfigManager class. It contains application config.
           */
-          QSharedPointer<ConfigManager> getConfiguration() const;
+          QSharedPointer<terrama2::gui::core::ConfigManager> getConfiguration() const;
 
         private slots:
           /*!
@@ -143,7 +147,7 @@ namespace terrama2
 
           int currentTabIndex_; //!< index of active tab
 
-          QSharedPointer<ConfigManager> configManager_; //!< It contains metadata from TerraMA2 administration file
+          QSharedPointer<terrama2::gui::core::ConfigManager> configManager_; //!< It contains metadata from TerraMA2 administration file
 
           QSharedPointer<ConfigAppWeatherTab> weatherTab_; //!< Attribute for handling WeatherTab
 

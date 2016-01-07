@@ -43,90 +43,95 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
-
-/*!
-  \class ConfigManager
-  \brief Class responsible for handling TerraMA2 settings
-
-         This class may be used to:
-         - Load a TerraMA2 file (extension .terrama2). It fills out the structs Collection, Database.
-         - To update the configuration files (AdminApp interface).
-*/
-class ConfigManager : private boost::noncopyable
+namespace terrama2
 {
+  namespace gui
+  {
+    namespace core
+    {
+      /*!
+        \class ConfigManager
+        \brief Class responsible for handling TerraMA2 settings
 
-  public:
+               This class may be used to:
+               - Load a TerraMA2 file (extension .terrama2). It fills out the structs Collection, Database.
+               - To update the configuration files (AdminApp interface).
+      */
+      class ConfigManager : private boost::noncopyable
+      {
+        public:
+          /*!
+            \brief Constructor.
+            \param app A pointer to QMainWindow to define owner window.
+            */
+          ConfigManager(QMainWindow* app);
 
-    /*!
-      \brief Constructor.
-      \param app A pointer to QMainWindow to define owner window.
-    */
-    ConfigManager(QMainWindow* app);
+          //! Destructor
+          virtual ~ConfigManager();
 
-    //! Destructor
-    virtual ~ConfigManager();
+          /*!
+            \brief Open the json configuration file and try to parse it
+            \param filepath A string value containing TerraMA2 full path to load.
+          */
+          virtual void loadConfiguration(QString filepath);
 
-    /*!
-      \brief Open the json configuration file and try to parse it
-      \param filepath A string value containing TerraMA2 full path to load.
-    */
-    virtual void loadConfiguration(QString filepath);
+          //! Get the TerraMA2 database struct
+          Database* getDatabase() const;
 
-    //! Get the TerraMA2 database struct
-    Database* getDatabase() const;
+          /*!
+            \brief It fills out only the Database structure
+            \param dbase A QJsonObject containing Database configuration values
+          */
+          void setDatabase(QJsonObject dbase);
 
-    /*!
-      \brief It fills out only the Database structure
-      \param dbase A QJsonObject containing Database configuration values
-    */
-    void setDatabase(QJsonObject dbase);
+          //! Get the TerraMA2 collection struct
+          Collection* getCollection() const;
 
-    //! Get the TerraMA2 collection struct
-    Collection* getCollection() const;
+          //! Get the TerraMA2 configuration name
+          QString getName() const;
 
-    //! Get the TerraMA2 configuration name
-    QString getName() const;
+          /*!
+            \brief It fills out the structures (Collection and Database) with QJsonObject values
+            \param metadata A QJsonObject object containing TerraMA2 settings values
+            \exception terrama2::gui::FileException Raised when the QJsonObject does not contain required values to fill structures out.
+                                                    It is a TerraMA2 invalid file.
+          */
+          void setDataForm(QJsonObject metadata);
 
-    /*!
-      \brief It fills out the structures (Collection and Database) with QJsonObject values
-      \param metadata A QJsonObject object containing TerraMA2 settings values
-      \exception terrama2::gui::FileException Raised when the QJsonObject does not contain required values to fill structures out.
-                                              It is a TerraMA2 invalid file.
-    */
-    void setDataForm(QJsonObject metadata);
+          /*!
+            \brief It inserts a file in map to be as cached value. After that, it calls setDataForm(metadata).
+            \param newname A string containing the file to be stored in map.
+            \param metatada A json object to be stored in map identified by newname.
+          */
+          void insertFile(QString newname, QJsonObject metatada);
 
-    /*!
-      \brief It inserts a file in map to be as cached value. After that, it calls setDataForm(metadata).
-      \param newname A string containing the file to be stored in map.
-      \param metatada A json object to be stored in map identified by newname.
-    */
-    void insertFile(QString newname, QJsonObject metatada);
+          /*!
+            \brief It renames the filename in cached map.
+            \param selectedName A string value containing a filename to be found and renamed
+            \param newname A string value representing the new filename
+          */
+          void renameFile(QString selectedName, QString newname);
 
-    /*!
-      \brief It renames the filename in cached map.
-      \param selectedName A string value containing a filename to be found and renamed
-      \param newname A string value representing the new filename
-    */
-    void renameFile(QString selectedName, QString newname);
+          /*!
+            \brief It removes the filename from cached map.
+            \param selectedName A string value containing the selected file to be removed
+          */
+          void removeFile(QString selectedName);
 
-    /*!
-      \brief It removes the filename from cached map.
-      \param selectedName A string value containing the selected file to be removed
-    */
-    void removeFile(QString selectedName);
+          /*!
+            \brief Retrieves a current TerraMA2 mapped files.
+            \return A QMap<QString,QJsonObject> with current TerraMA2 mapped files.
+          */
+          QMap<QString,QJsonObject> getfiles() const;
 
-    /*!
-      \brief Retrieves a current TerraMA2 mapped files.
-      \return A QMap<QString,QJsonObject> with current TerraMA2 mapped files.
-    */
-    QMap<QString,QJsonObject> getfiles() const;
-
-  private:
-    QMainWindow* app_;                   //!< Dialog to display error message if there is.
-    QString name_;                       //!< TerraMA2 configuration name
-    Collection* collection_;             //!< A struct to store Collection values from TerraMA2 settings
-    Database* database_;                 //!< A struct to store Database values from TerraMA2 settings
-    QMap<QString,QJsonObject> fileList_; //!< A map of string to json objects for handling active files in TerraMA2 GUI administration.
-};
-
+        private:
+          QMainWindow* app_;                   //!< Dialog to display error message if there is.
+          QString name_;                       //!< TerraMA2 configuration name
+          Collection* collection_;             //!< A struct to store Collection values from TerraMA2 settings
+          Database* database_;                 //!< A struct to store Database values from TerraMA2 settings
+          QMap<QString,QJsonObject> fileList_; //!< A map of string to json objects for handling active files in TerraMA2 GUI administration.
+      };
+    }
+  }
+}
 #endif // __TERRAMA2_GUI_CORE_CONFIGMANAGER_HPP__

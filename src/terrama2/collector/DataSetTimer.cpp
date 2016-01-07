@@ -45,7 +45,7 @@ terrama2::collector::DataSetTimer::DataSetTimer(const terrama2::core::DataSet& d
 {
   if(dataSet.id() == 0 || dataSet.name().empty())
   {
-    throw InvalidDataSetError() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
+    throw InvalidDataSetException() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
   }
 
   impl_ = new Impl();
@@ -75,7 +75,7 @@ void terrama2::collector::DataSetTimer::prepareTimer(const terrama2::core::DataS
     impl_->timer_.start(seconds*1000);
   else
   {
-    throw InvalidCollectFrequencyError() << terrama2::ErrorDescription(QObject::tr("Invalid collect frequency."));
+    throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(QObject::tr("Invalid collect frequency."));
   }
 
 }

@@ -92,8 +92,8 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
 }
 
 std::string terrama2::collector::StoragerPostgis::store(const std::string& standardDataSetName,
-                                                 const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                                 const std::shared_ptr<te::da::DataSetType> &dataSetType)
+                                                        const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                                        const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
   QUrl uri;
 
@@ -107,12 +107,7 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
 
     std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("PG_TABLENAME");
     if(dataSetNameIt != storageMetadata_.end())
-    {
-      // let's open the destination datasource
-      std::map<std::string, std::string>::const_iterator schemeIt = storageMetadata_.find("PG_SCHEME");
-      if(schemeIt != storageMetadata_.end())
-        dataSetName = schemeIt->second+"."+dataSetNameIt->second;
-    }
+      dataSetName = dataSetNameIt->second;
 
     // get a transactor to interact to the data source
     commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);

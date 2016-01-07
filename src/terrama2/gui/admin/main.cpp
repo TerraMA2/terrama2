@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 
   try
   {
-    AdminApp terrama2_admin;
+    terrama2::gui::admin::AdminApp terrama2_admin;
     terrama2_admin.show();
 
     int retval = app.exec();

@@ -91,7 +91,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
 {
 // if service already running, throws
   if(loopThread_.valid())
-    throw ServiceAlreadyRunnningError() << terrama2::ErrorDescription(tr("Collector service already running."));
+    throw ServiceAlreadyRunnningException() << terrama2::ErrorDescription(tr("Collector service already running."));
 
   try
   {
@@ -114,7 +114,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
     QString errMsg(tr("Unable to start collector service: %1."));
     errMsg = errMsg.arg(e.what());
 
-    throw UnableToStartServiceError() << terrama2::ErrorDescription(errMsg);
+    throw UnableToStartServiceException() << terrama2::ErrorDescription(errMsg);
   }
 
   populateData();
@@ -219,7 +219,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
           //retrieve remote data to local temp file
-          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris); //Erro ocorrendo aqui
+          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris);
 
           if(!log_uris.empty())
             collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
@@ -475,12 +475,12 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 // add to queue to collect a first time
     addToQueue(dataset.id());
   }
-  catch(terrama2::collector::InvalidCollectFrequencyError& e)
+  catch(terrama2::collector::InvalidCollectFrequencyException& e)
   {
     //TODO: log de erro
     qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
-  catch(terrama2::collector::InvalidDataSetError& e)
+  catch(terrama2::collector::InvalidDataSetException& e)
   {
     //TODO: log de erro
     qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();

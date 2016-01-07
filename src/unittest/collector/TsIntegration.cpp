@@ -74,6 +74,8 @@ void TsIntegration::TestReadCsvStorePostGis()
     dataset.setDataFrequency(frequency);
 
     terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
+    // item.setMask("exporta_20151101_0130.csv"); // adiciona o nome do arquivo
+   // item.setMask("exporta_%A%M%d_%h%m.csv");
     item.setMask(info.fileName().toStdString());
 
     std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
@@ -84,8 +86,7 @@ void TsIntegration::TestReadCsvStorePostGis()
                                                         {"PG_DB_NAME", "basedeteste"},
                                                         {"PG_CONNECT_TIMEOUT", "4"},
                                                         {"PG_CLIENT_ENCODING", "UTF-8"},
-                                                        {"PG_TABLENAME", "integrationTest"},
-                                                        {"PG_SCHEME", "terrama2"} };
+                                                        {"PG_TABLENAME", "terrama2.integrationTest"} };
     item.setStorageMetadata(storageMetadata);
 
     terrama2::collector::CollectorService service;
@@ -179,8 +180,7 @@ void TsIntegration::TestCollectorFTP()
 //                                                        {"PG_DB_NAME", "baseteste"},
 //                                                        {"PG_CONNECT_TIMEOUT", "4"},
 //                                                        {"PG_CLIENT_ENCODING", "UTF-8"},
-//                                                        {"PG_SCHEME", "terrama2"},
-//                                                        {"PG_TABLENAME", "data_provider"} };
+//                                                        {"PG_TABLENAME", "terrama2.data_provider"} };
 //    item.setStorageMetadata(storageMetadata);
 
     terrama2::collector::CollectorService service;
@@ -256,8 +256,7 @@ void TsIntegration::TestReadPostgisStorePostGis()
                                                         {"PG_DB_NAME", "basedeteste"},
                                                         {"PG_CONNECT_TIMEOUT", "4"},
                                                         {"PG_CLIENT_ENCODING", "UTF-8"},
-                                                        {"PG_SCHEME", "terrama2"},
-                                                        {"PG_TABLENAME", "teste_postgis"} };
+                                                        {"PG_TABLENAME", "terrama2.teste_postgis"} };
     item.setStorageMetadata(storageMetadata);
     item.setMask("terrama2.nome_teste");
 

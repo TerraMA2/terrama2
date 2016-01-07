@@ -78,7 +78,7 @@ void TsCollectorService::TestStartServerTwice()
   {
     service.start();
   }
-  catch(terrama2::collector::ServiceAlreadyRunnningError& e)
+  catch(terrama2::collector::ServiceAlreadyRunnningException& e)
   {
     return ;
   }
@@ -96,7 +96,7 @@ void TsCollectorService::TestStopServer()
   {
     service.start();
   }
-  catch(terrama2::collector::ServiceAlreadyRunnningError& e)
+  catch(terrama2::collector::ServiceAlreadyRunnningException& e)
   {
     QFAIL(NO_EXCEPTION_EXPECTED);
   }

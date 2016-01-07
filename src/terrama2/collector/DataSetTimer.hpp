@@ -56,13 +56,13 @@ namespace terrama2
     typedef std::shared_ptr<DataProcessor> DataProcessorPtr;
 
     /*!
-          \brief The DataSetTimer class is a timer to a DataSet.
+          \brief The DataSetTimer class is a timer to a core::DataSet.
 
           The DataSetTimer class has an internal timer that emits a signal when
           it's time to collect the data.
 
          */
-    class DataSetTimer : public QObject, public boost::noncopyable
+    class DataSetTimer : public QObject
     {
         Q_OBJECT
 
@@ -70,29 +70,29 @@ namespace terrama2
         /*!
           \brief Constructor, start the timer for collecting.
 
-          \exception terrama2::collector::InvalidDataSetError Raise when constructed with an invalid DataSet.
-          \exception InvalidCollectFrequencyError Raised if collect frequency equals or lesser then zero.
+          \exception terrama2::collector::InvalidDataSetException Raise when constructed with an invalid core::DataSet.
+          \exception InvalidCollectFrequencyException Raised if collect frequency equals or lesser then zero.
          */
         DataSetTimer(const core::DataSet &dataSet);
         ~DataSetTimer();
 
-        //! Returns the id of the original DataSet.
+        //! Returns the id of the original core::DataSet.
         uint64_t dataSet()   const;
 
       signals:
 
-        //! Signal emited when the DataSet should be collected.
+        //! Signal emited when the core::DataSet should be collected.
         void timerSignal(uint64_t DatasetID) const;
 
       private slots:
 
-        //! Slot called when the timer_ times out, emits timerSignal.
+        //! Slot called when the timer times out, emits timerSignal.
         void timeoutSlot() const;
 
       private:
-        /*! \brief Prepare and starts timer following the DataSet information.
+        /*! \brief Prepare and starts timer following the core::DataSet information.
 
-          \exception InvalidCollectFrequencyError Raised if collect frequency equals or lesser then zero.
+          \exception InvalidCollectFrequencyException Raised if collect frequency equals or lesser then zero.
            */
         void prepareTimer(const terrama2::core::DataSet &dataSet);
 
@@ -100,7 +100,7 @@ namespace terrama2
         Impl* impl_;
     };
 
-    typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr;
+    typedef std::shared_ptr<DataSetTimer> DataSetTimerPtr; //!< Shared pointer for DataSetTimer.
   }
 }
 
