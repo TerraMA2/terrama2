@@ -6,6 +6,7 @@
 #include "../../core/Utils.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/DataProviderDAO.hpp"
+#include "../../core/Logger.hpp"
 
 // SubTabs
 #include "ConfigAppWeatherServer.hpp"
@@ -22,7 +23,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
+terrama2::gui::config::ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui)
 {
   ui_->weatherDataTree->header()->hide();
@@ -77,19 +78,19 @@ ConfigAppWeatherTab::ConfigAppWeatherTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   ui_->weatherPageStack->setCurrentWidget(ui_->ServerGroupPage);
 }
 
-ConfigAppWeatherTab::~ConfigAppWeatherTab()
+terrama2::gui::config::ConfigAppWeatherTab::~ConfigAppWeatherTab()
 {
 
 }
 
-void ConfigAppWeatherTab::clearList()
+void terrama2::gui::config::ConfigAppWeatherTab::clearList()
 {
   qDeleteAll(ui_->weatherDataTree->topLevelItem(0)->takeChildren());
   providers_.clear();
   datasets_.clear();
 }
 
-void ConfigAppWeatherTab::load()
+void terrama2::gui::config::ConfigAppWeatherTab::load()
 {
   clearList();
 
@@ -145,46 +146,49 @@ void ConfigAppWeatherTab::load()
               break;
           }
           item->addChild(subItem);
-        }
+        } // endif (dit->provider() == it->id())
       }
     } // endfor
+
+    for(auto tab: subTabs_)
+      tab->load();
   }
   catch (const terrama2::Exception& e)
   {
     const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+    app_->unload();
     QMessageBox::warning(app_, tr("TerraMA2"), *message);
     showDataSeries(false);
+    TERRAMA2_LOG_ERROR() << *message;
   }
-
-  for(auto tab: subTabs_)
-    tab->load();
 }
 
-bool ConfigAppWeatherTab::dataChanged()
+bool terrama2::gui::config::ConfigAppWeatherTab::dataChanged()
 {
-  for(const auto tab: subTabs_) {
+  for(const auto tab: subTabs_)
+  {
     if (tab->isActive())
       return true;
   }
   return false;
 }
 
-bool ConfigAppWeatherTab::validate()
+bool terrama2::gui::config::ConfigAppWeatherTab::validate()
 {
-  for(const auto tab: subTabs_)
+  for(auto tab: subTabs_)
     if (tab->isActive() && tab->dataChanged())
       return tab->validate();
   return false;
 }
 
-void ConfigAppWeatherTab::save()
+void terrama2::gui::config::ConfigAppWeatherTab::save()
 {
   for(auto tab: subTabs_)
   {
     if (tab->isActive())
     {
       if (!tab->validate())
-        throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
+        throw terrama2::gui::FieldException() << terrama2::ErrorDescription(tr("Could not save. There are empty fields!!"));
       tab->save();
       showDataSeries(true);
       discardChanges(false);
@@ -193,7 +197,7 @@ void ConfigAppWeatherTab::save()
   }
 }
 
-void ConfigAppWeatherTab::discardChanges(bool restore_data)
+void terrama2::gui::config::ConfigAppWeatherTab::discardChanges(bool restore_data)
 {
   for(auto tab: subTabs_)
     if (tab->dataChanged())
@@ -208,7 +212,7 @@ void ConfigAppWeatherTab::discardChanges(bool restore_data)
   showDataSeries(false);
 }
 
-void ConfigAppWeatherTab::showDataSeries(bool state)
+void terrama2::gui::config::ConfigAppWeatherTab::showDataSeries(bool state)
 {
   ui_->exportServerBtn->setVisible(state);
   ui_->updateServerBtn->setVisible(state);
@@ -217,13 +221,13 @@ void ConfigAppWeatherTab::showDataSeries(bool state)
   (state) ? ui_->dataSeriesBtnGroupBox->show() : ui_->dataSeriesBtnGroupBox->hide();
 }
 
-void ConfigAppWeatherTab::hideDataSetButtons()
+void terrama2::gui::config::ConfigAppWeatherTab::hideDataSetButtons()
 {
   for(QPushButton* button: ui_->dataSeriesBtnGroupBox->findChildren<QPushButton*>())
     button->setVisible(false);
 }
 
-void ConfigAppWeatherTab::hidePanels(QWidget* except)
+void terrama2::gui::config::ConfigAppWeatherTab::hidePanels(QWidget* except)
 {
   ui_->saveBtn->setVisible(true);
   ui_->cancelBtn->setVisible(true);
@@ -234,7 +238,7 @@ void ConfigAppWeatherTab::hidePanels(QWidget* except)
   ui_->weatherPageStack->setCurrentWidget(except);
 }
 
-void ConfigAppWeatherTab::onImportServer()
+void terrama2::gui::config::ConfigAppWeatherTab::onImportServer()
 {
   QString file = QFileDialog::getOpenFileName(app_, tr("Choose file"), ".", tr("TerraMA2 ( *.terrama2"));
   if (!file.isEmpty())
@@ -243,13 +247,13 @@ void ConfigAppWeatherTab::onImportServer()
   }
 }
 
-void ConfigAppWeatherTab::onDeleteServerClicked()
+void terrama2::gui::config::ConfigAppWeatherTab::onDeleteServerClicked()
 {
   try
   {
     QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
     if (selectedItem == nullptr || selectedItem->parent() == nullptr)
-      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
+      throw terrama2::gui::ValueException() << terrama2::ErrorDescription(tr("Please select a data provider to remove"));
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(app_, tr("TerraMA2 Remove Data Provider"),
@@ -283,15 +287,16 @@ void ConfigAppWeatherTab::onDeleteServerClicked()
   catch(const terrama2::Exception& e)
   {
     const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+    QMessageBox::warning(app_, tr("TerraMA2 Error"), *error);
+    TERRAMA2_LOG_WARNING() << *error;
   }
   catch(...)
   {
-    throw;
+    throw "Error in removing terrama2 data provider";
   }
 }
 
-void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem)
+void terrama2::gui::config::ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem)
 {
   if (selectedItem->parent() != nullptr)
   {
@@ -320,7 +325,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
         terrama2::core::DataProvider provider = getProvider(selectedItem->text(0).toStdString());
 
         if (provider.id() == 0)
-          throw terrama2::gui::DataProviderError() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
+          throw terrama2::gui::config::DataProviderException() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
 
         displayOperationButtons(true);
         changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
@@ -436,8 +441,6 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
                 ui_->exportDataPointBtn->setVisible(true);
                 ui_->pointFormatDataDeleteBtn->setVisible(true);
 
-                //TODO: Load each dataset item
-
                 break;
               case terrama2::core::DataSet::OCCURENCE_TYPE:
               {
@@ -504,7 +507,7 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
           } // endif
         } // endfor
 
-        throw terrama2::gui::DataSetError() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
+        throw terrama2::gui::config::DataSetException() << terrama2::ErrorDescription(tr("It cannot be a valid dataset selected."));
 
       } //end else
     }
@@ -521,13 +524,13 @@ void ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeWidgetItem* selectedItem
   }
 }
 
-void ConfigAppWeatherTab::onExportServerClicked()
+void terrama2::gui::config::ConfigAppWeatherTab::onExportServerClicked()
 {
   try
   {
     QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
     if (selectedItem == nullptr || selectedItem->parent() == nullptr)
-      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to export"));
+      throw terrama2::gui::ValueException() << terrama2::ErrorDescription(tr("Please select a data provider to export"));
 
     QJsonObject json;
     json["name"] = ui_->serverName->text();
@@ -553,21 +556,22 @@ void ConfigAppWeatherTab::onExportServerClicked()
   catch(const terrama2::Exception& e)
   {
     const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+    QMessageBox::warning(app_, tr("TerraMA2 Error"), *error);
+    TERRAMA2_LOG_WARNING() << *error;
   }
   catch(...)
   {
-    throw;
+    throw "Error in exporting terrama2 data provider";
   }
 }
 
-void ConfigAppWeatherTab::onUpdateServerClicked()
+void terrama2::gui::config::ConfigAppWeatherTab::onUpdateServerClicked()
 {
   try
   {
     QTreeWidgetItem* selectedItem = ui_->weatherDataTree->currentItem();
     if (selectedItem == nullptr || selectedItem->parent() == nullptr)
-      throw terrama2::gui::ValueError() << terrama2::ErrorDescription(tr("Please select a data provider to update"));
+      throw terrama2::gui::ValueException() << terrama2::ErrorDescription(tr("Please select a data provider to update"));
 
     QString path = QFileDialog::getOpenFileName(app_, tr("Open dataprovider file"), ".", "TerraMA2 (*.terrama2)");
 
@@ -591,15 +595,15 @@ void ConfigAppWeatherTab::onUpdateServerClicked()
   catch(const terrama2::Exception& e)
   {
     const QString* error = boost::get_error_info<terrama2::ErrorDescription>(e);
-    QMessageBox::critical(app_, tr("TerraMA2 Error"), *error);
+    QMessageBox::warning(app_, tr("TerraMA2 Error"), *error);
   }
   catch(...)
   {
-    throw;
+    throw "Error in updating terrama2 data provider";
   }
 }
 
-void ConfigAppWeatherTab::displayOperationButtons(bool state)
+void terrama2::gui::config::ConfigAppWeatherTab::displayOperationButtons(bool state)
 {
   ui_->saveBtn->setVisible(state);
   ui_->cancelBtn->setVisible(state);
@@ -607,7 +611,7 @@ void ConfigAppWeatherTab::displayOperationButtons(bool state)
   ui_->cancelBtn->setEnabled(state);
 }
 
-void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
+void terrama2::gui::config::ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
   for(auto tab: subTabs_)
   {
     if (tab->isActive())
@@ -644,12 +648,12 @@ void ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
   hidePanels(&widget);
 }
 
-QMap<std::string,terrama2::core::DataProvider> ConfigAppWeatherTab::providers()
+QMap<std::string,terrama2::core::DataProvider> terrama2::gui::config::ConfigAppWeatherTab::providers()
 {
   return providers_;
 }
 
-terrama2::core::DataProvider ConfigAppWeatherTab::getProvider(const std::string &identifier)
+terrama2::core::DataProvider terrama2::gui::config::ConfigAppWeatherTab::getProvider(const std::string &identifier)
 {
   for(auto& provider: providers_)
     if (provider.name() == identifier)
@@ -657,7 +661,7 @@ terrama2::core::DataProvider ConfigAppWeatherTab::getProvider(const std::string 
   return terrama2::core::DataProvider();
 }
 
-terrama2::core::DataSet ConfigAppWeatherTab::getDataSet(const std::string& identifier)
+terrama2::core::DataSet terrama2::gui::config::ConfigAppWeatherTab::getDataSet(const std::string& identifier)
 {
   for(auto dataset: datasets_)
   {
@@ -668,27 +672,27 @@ terrama2::core::DataSet ConfigAppWeatherTab::getDataSet(const std::string& ident
   return terrama2::core::DataSet();
 }
 
-void ConfigAppWeatherTab::addCachedProvider(const terrama2::core::DataProvider& provider)
+void terrama2::gui::config::ConfigAppWeatherTab::addCachedProvider(const terrama2::core::DataProvider& provider)
 {
   providers_.insert(provider.name(), provider);
 }
 
-void ConfigAppWeatherTab::removeCachedDataProvider(const terrama2::core::DataProvider &provider)
+void terrama2::gui::config::ConfigAppWeatherTab::removeCachedDataProvider(const terrama2::core::DataProvider &provider)
 {
   providers_.take(provider.name());
 }
 
-void ConfigAppWeatherTab::addCachedDataSet(const terrama2::core::DataSet &dataset)
+void terrama2::gui::config::ConfigAppWeatherTab::addCachedDataSet(const terrama2::core::DataSet &dataset)
 {
   datasets_.insert(dataset.name(), dataset);
 }
 
-void ConfigAppWeatherTab::removeCachedDataSet(const terrama2::core::DataSet &dataset)
+void terrama2::gui::config::ConfigAppWeatherTab::removeCachedDataSet(const terrama2::core::DataSet &dataset)
 {
   datasets_.take(dataset.name());
 }
 
-void ConfigAppWeatherTab::refreshList(QTreeWidgetItem* widget, const QString searchFor, const QString replace)
+void terrama2::gui::config::ConfigAppWeatherTab::refreshList(QTreeWidgetItem* widget, const QString searchFor, const QString replace)
 {
   QTreeWidgetItemIterator it(widget);
   while(*it)

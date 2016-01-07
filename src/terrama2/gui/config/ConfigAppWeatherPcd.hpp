@@ -41,84 +41,127 @@
 // Forward declarations
 class QAction;
 class QTableWidgetItem;
-struct PCD;
-
-class ConfigAppWeatherPcd : public ConfigAppTab
+namespace terrama2
 {
-  Q_OBJECT
-  public:
-    ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui);
-    ~ConfigAppWeatherPcd();
+  namespace gui
+  {
+    namespace config
+    {
+      struct PCD;
+    }
+  }
+}
 
-    void load();
+namespace terrama2
+{
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \class ConfigAppWeatherPcd
+        \brief Class responsible for handling PCD data inside WeatherTab
+      */
+      class ConfigAppWeatherPcd : public ConfigAppTab
+      {
 
-    /*!
-     * \brief It will load the pcd values to QTableWidget
-     * \param dataset: terrama2::core::DataSet to fill out the table
-     * \todo It must be implemented following the new terrama2 models
-     */
-    void load(const terrama2::core::DataSet& dataset);
+        Q_OBJECT
 
-    /*!
-      \brief It validates the GUI input values.
-      \exception terrama2::gui::FieldError
-      \return true if the whole interface is valid. Otherwise, it throws exception
-    */
-    bool validate();
+        public:
+          /*!
+            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui)
+          */
+          ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui);
 
-    //! It applies save operation, sending the dataset to gsoap client
-    void save();
+          //! Destructor
+          ~ConfigAppWeatherPcd();
 
-    //! It discards the widget values and set to initial state
-    void discardChanges(bool restore_data);
+          //! It cleans up the fields to initial state
+          void load();
 
-    /*!
-      \brief It cleans up the pcd table widget
-    */
-    void tableClean();
+          /*!
+            \brief It will load the pcd values to QTableWidget
+            \param dataset: terrama2::core::DataSet to fill out the table
+            \todo It must be implemented following the new terrama2 models
+          */
+          void load(const terrama2::core::DataSet& dataset);
 
-    //! Sets the projection
-    void setSrid(const uint64_t srid);
+          /*!
+            \brief It validates the GUI input values.
+            \exception terrama2::gui::FieldError
+            \return true if the whole interface is valid. Otherwise, it throws exception
+          */
+          bool validate();
 
-  private:
-    //! Common function that displays PCD form to insert/modify elements at QTableWidget
-    void pcdFormCreation(PCD&, bool editing = false);
+          //! It applies save operation, sending the dataset to gsoap client
+          void save();
 
-  private slots:
-    //! Slot triggered when insert pcd button has been clicked. It displays the PCD tab
-    void onInsertPointBtnClicked();
+          //! It discards the widget values and set to initial state
+          void discardChanges(bool restore_data);
 
-    //! Slot triggered when remove button has been clicked. It removes dataset
-    void onDataPointBtnClicked();
+          /*!
+            \brief It cleans up the pcd table widget
+          */
+          void tableClean();
 
-    //! Slot triggered when the collector rule form is requested and it displays GUI form
-    void onCollectorRuleClicked();
+          /*!
+            \brief Sets the projection
+            \param srid A Spatial Reference System Identifier to be filled up.
+          */
+          void setSrid(const uint64_t srid);
 
-    //! Slot triggered when the projection button has been clicked and it displays the DataSet Projection GUI
-    void onProjectionClicked();
+        private:
+          /*!
+            \brief Common function that displays PCD form to insert/modify elements at QTableWidget
+            \param pcd A PCD reference to be filled out
+            \param editing A bool value defining if which mode is (default is false).
+          */
+          void pcdFormCreation(terrama2::gui::config::PCD& pcd, bool editing = false);
 
-    //! It populates the msak field with menu mask values, like "%d %a"
-    void onMenuMaskClicked(QAction*);
+        private slots:
+          //! Slot triggered when insert pcd button has been clicked. It displays the PCD tab
+          void onInsertPointBtnClicked();
 
-    //! Slot triggered when the PCD plus button has been clicked and it displays the Insertion/Modification PCD GUI
-    void onPCDInsertFileClicked();
+          //! Slot triggered when remove button has been clicked. It removes dataset
+          void onDataPointBtnClicked();
 
-    //! Slot triggered when click on remove selected pcd from table widget
-    void onPCDRemoveClicked();
+          //! Slot triggered when the collector rule form is requested and it displays GUI form
+          void onCollectorRuleClicked();
 
-    //! Slot triggered when double clicked at pcd table widget and it displays the pcd dialog with filled fields
-    void onPCDTableDoubleClicked(QTableWidgetItem*);
+          //! Slot triggered when the projection button has been clicked and it displays the DataSet Projection GUI
+          void onProjectionClicked();
 
-    //! Slot triggered to display SurfaceDialog
-    void onSurfaceBtnClicked();
+          /*!
+            \brief It populates the msak field with menu mask values, like "%d %a"
+            \param action A pointer to Action requested.
+          */
+          void onMenuMaskClicked(QAction* action);
 
-    //! Slot triggered at pcdexport button to export pcd in terrama2 format
-    void onPCDExportClicked();
+          //! Slot triggered when the PCD plus button has been clicked and it displays the Insertion/Modification PCD GUI
+          void onPCDInsertFileClicked();
 
-  private:
-    QList<PCD> pcds_; //!< PCDs table list
-    QString luaScript_; //!< It storages lua script from CollectorRuleDialog
-    uint64_t srid_; //! Data projection
-};
+          //! Slot triggered when click on remove selected pcd from table widget
+          void onPCDRemoveClicked();
+
+          /*!
+            \brief Slot triggered when double clicked at pcd table widget and it displays the pcd dialog with filled fields
+            \param item A pointer to requested item from list.
+          */
+          void onPCDTableDoubleClicked(QTableWidgetItem* item);
+
+          //! Slot triggered to display SurfaceDialog
+          void onSurfaceBtnClicked();
+
+          //! Slot triggered at pcdexport button to export pcd in terrama2 format
+          void onPCDExportClicked();
+
+        private:
+          QList<terrama2::gui::config::PCD> pcds_; //!< PCDs table list
+          QString luaScript_; //!< It storages lua script from CollectorRuleDialog
+          uint64_t srid_; //! Data projection
+      };
+    }
+  }
+}
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPPWEATHERPCD_HPP__

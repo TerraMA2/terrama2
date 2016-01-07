@@ -33,6 +33,8 @@
 #include "ApplicationController.hpp"
 #include "Exception.hpp"
 
+#include "Logger.hpp"
+
 
 //terralib
 #include <terralib/common/PlatformUtils.h>
@@ -312,4 +314,10 @@ void terrama2::core::finalizeTerralib()
 
   dataSource.reset();
   TerraLib::getInstance().finalize();
+}
+
+void terrama2::core::initializeLogger()
+{
+  terrama2::core::Logger::getInstance().addStream("terrama2.log");
+  terrama2::core::Logger::getInstance().initialize();
 }

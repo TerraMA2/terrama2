@@ -40,25 +40,45 @@ class QRegExp;
 class QTextCharFormat;
 class QTextEdit;
 
-class LuaSyntaxHighlighter : public QSyntaxHighlighter
+namespace terrama2
 {
-  Q_OBJECT
-
-  public:
-    LuaSyntaxHighlighter(QTextEdit* widget = 0);
-
-  protected:
-    void highlightBlock(const QString& text);
-
-  private:
-    struct HighlightingRule
+  namespace gui
+  {
+    namespace config
     {
-      QRegExp pattern;
-      QTextCharFormat format;
-    };
-    
-    QVector<HighlightingRule> rules;
-};
+      /*!
+        \class LuaSyntaxHighlighter
+        \brief Class responsible for highlight the lua syntax
+      */
+      class LuaSyntaxHighlighter : public QSyntaxHighlighter
+      {
+        Q_OBJECT
+
+        public:
+          /*!
+            \brief Default constructor. It initializes common lua commands to be highlighed and manages it in widget
+            \param widget A pointer to QTextEdit to be managed.
+          */
+          LuaSyntaxHighlighter(QTextEdit* widget = 0);
+
+        protected:
+          /*!
+            \brief Applies the highlight rule among text
+            \param text A cost string with value to be found
+          */
+          void highlightBlock(const QString& text);
+
+        private:
+          struct HighlightingRule
+          {
+            QRegExp pattern;
+            QTextCharFormat format;
+          }; //!< A struct for handling match regex and text
+          QVector<HighlightingRule> rules; //!< A vector of rules to be matched
+      };
+    }
+  }
+}
 
 #endif // __TERRAMA2_GUI_CONFIG_LUAHIGHLIGHTER_HPP__
 
