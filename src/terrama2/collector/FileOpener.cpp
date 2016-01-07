@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/FileOpener.cpp
 
-  \brief
+  \brief File Opener.
 
  \author Evandro Delatin
 */

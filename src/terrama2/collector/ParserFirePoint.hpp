@@ -39,18 +39,19 @@
 // STL
 #include <mutex>
 
-/*!
-     * \brief The ParserFirePoint class is responsible for dealing with the occurrence of files.
-     *
-     * The DataSetAdapter is used to add the semantic geometry (generates point by coordinates Lat and Long)
-     * and dating the occurrence files.
-     *
-*/
 
 namespace terrama2
 {
  namespace collector
  {
+   /*!
+        * \brief The ParserFirePoint class is responsible for dealing with the occurrence of files.
+        *
+        * The DataSetAdapter is used to add the semantic geometry (generates point by coordinates Lat and Long)
+        * and dating the occurrence files.
+        *
+   */
+
   class ParserFirePoint: public ParserOGR
   {
    public:

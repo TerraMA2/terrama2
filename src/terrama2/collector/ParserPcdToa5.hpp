@@ -39,18 +39,18 @@
 // STL
 #include <mutex>
 
-/*!
-     * \brief The ParserPcdToa5 class is responsible for making the parser file in the format TOA5.
-     *
-     * The The StringToTimeStamp method is responsible for handling the date and time fields
-     * in the format timestamp TOA5 file.
-     *
-*/
-
 namespace terrama2
 {
  namespace collector
  {
+   /*!
+        * \brief The ParserPcdToa5 class is responsible for making the parser file in the format TOA5.
+        *
+        * The The StringToTimeStamp method is responsible for handling the date and time fields
+        * in the format timestamp TOA5 file.
+        *
+   */
+
   class ParserPcdToa5: public ParserOGR
   {
    public:
