@@ -65,11 +65,7 @@ void TsParserOGR::TestEmptyFile()
     terrama2::core::DataSetItem item;
     item.setMask(info.fileName().toStdString());
 
-    MockLog collectLog;
-    EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(nullptr));
-    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item, collectLog);
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     std::vector<std::shared_ptr<te::da::DataSet>> datasetVec;
     std::shared_ptr<te::da::DataSetType>          datasetType;
@@ -113,11 +109,7 @@ void TsParserOGR::TestCsvFile()
     terrama2::core::DataSetItem item;
     item.setMask(info.fileName().toStdString());
 
-    MockLog collectLog;
-    EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(nullptr));
-    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item, collectLog);
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     std::vector<std::shared_ptr<te::da::DataSet>> datasetVec;
     std::shared_ptr<te::da::DataSetType>          datasetType;
@@ -156,11 +148,7 @@ void TsParserOGR::TestInvalidFolder()
     terrama2::core::DataSetItem item;
     item.setMask("dummy");
 
-    MockLog collectLog;
-    EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(nullptr));
-    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item, collectLog);
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
     std::shared_ptr<te::da::DataSetType> datasetType;

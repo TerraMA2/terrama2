@@ -56,7 +56,7 @@ namespace terrama2
 
     /*!
 
-      \brief The Factory namespace has functions the easily create Parsers, Storagers and Retrievers.
+      \brief The Factory namespace has functions to easily create Parsers, Storagers and Retrievers.
 
      */
     namespace Factory

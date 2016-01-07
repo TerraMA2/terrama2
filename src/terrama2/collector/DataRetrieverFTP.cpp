@@ -48,10 +48,10 @@
 #include <boost/algorithm/string.hpp>
 
 // QT
-#include <QTranslator>
+#include <QObject>
 
-terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string localization, const std::string folder)
-  : DataRetriever(dataprovider), localization_(localization), folder_(folder)
+terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string scheme, const std::string temporaryFolder)
+  : DataRetriever(dataprovider), scheme_(scheme), temporaryFolder_(temporaryFolder)
 {
 
 }
@@ -64,7 +64,7 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 // Remove the files in the tmp folder
     for(std::string file: vectorNames_)
     {
-      path = folder_+file;
+      path = temporaryFolder_+file;
       std::remove(path.c_str()); // delete file
     }
   }
@@ -167,7 +167,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       }
       else
       {
-        QString messageError = QObject::tr("Could not list the FTP server files. \n\n Details: \n");
+        QString messageError = QObject::tr("Could not list files in the FTP server. \n\n");
         messageError.append(curl_easy_strerror(status));
         throw DataRetrieverFTPException() << ErrorDescription(messageError);
       }
@@ -187,7 +187,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
         if (curlDown.fcurl())
         {
           uriOutput = dataprovider_.uri() + datasetitem.path() + file;
-          FileOpener opener((folder_+file).c_str(),"wb");
+          FileOpener opener((temporaryFolder_+file).c_str(),"wb");
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uriOutput.c_str());
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEDATA, opener.file());
@@ -196,7 +196,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
           if (res != CURLE_OK)
           {
-            QString messageError = QObject::tr("Could not perform the download files. \n\n Details: \n");
+            QString messageError = QObject::tr("Could not perform the download. \n\n");
             messageError.append(curl_easy_strerror(res));
             throw DataRetrieverFTPException() << ErrorDescription(messageError);
           }
@@ -223,5 +223,5 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.
-  return localization_+folder_;
+  return scheme_+temporaryFolder_;
 }

@@ -58,7 +58,7 @@ namespace terrama2
     {
     public:
       //! Constructor
-      explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string localization = "file://", const std::string folder = "/tmp/");
+      explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string scheme = "file://", const std::string temporaryFolder = "/tmp/terrama2/");
 
       virtual void open() override;
       virtual bool isOpen() override;
@@ -72,8 +72,8 @@ namespace terrama2
     private:
       CURL* curl_;
       std::vector<std::string> vectorNames_;
-      std::string localization_;
-      std::string folder_;
+      std::string scheme_;
+      std::string temporaryFolder_;
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;

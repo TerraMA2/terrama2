@@ -95,14 +95,6 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const st
 terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
 {
   std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
-
-  if(storageMetadata.empty())
-  {
-    //FIXME: remove this.
-    storageMetadata = core::ApplicationController::getInstance().getDataSource()->getConnectionInfo();
-    storageMetadata.emplace("KIND", "postgis");
-  }
-
   std::map<std::string, std::string>::const_iterator localFind = storageMetadata.find("KIND");
 
   if(localFind == storageMetadata.cend())
