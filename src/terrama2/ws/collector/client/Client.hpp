@@ -51,6 +51,13 @@ namespace terrama2
         // Forward declaration
         class WebProxyAdapter;
 
+        /*!
+          \class Client
+
+          \brief The class is responsible to use gSOAP to communicate with the Web Service and request
+                 Data Providers and Data Sets manipulation.
+
+         */
         class Client
         {
           public:

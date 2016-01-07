@@ -24,6 +24,9 @@
 
   \brief TerraMA2 Utils to Web Service.
 
+         It has methods to convert data between TerraMA2 and structs, it will allow to pass the data trough
+         gSOAP Web Service.
+
   \author Vinicius Campanha
  */
 

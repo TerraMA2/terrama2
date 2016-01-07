@@ -40,6 +40,19 @@ namespace terrama2
 {
   namespace collector
   {
+    /*!
+      \class Log
+
+      \brief Register the manipulation of data from their source until avaible to analisys.
+
+      The data manipulation log will be stored in a table on database.
+
+      It will register the Data Set Item reponsible by the data, the data source URI,
+      the URI where the data is after downloaded or imported, the timestamp that data contains,
+      the timestamp that the data was manipulated by TerraMA2 and the status of data
+      for each data in data source.
+
+     */
     class Log
     {
       public:
@@ -55,7 +68,7 @@ namespace terrama2
           NODATA,
           //! Was not possible to download or import data
           FAILED,
-          //! is not possible to know de data status
+          //! Is not possible to know de data status
           UNKNOW
         };
 
