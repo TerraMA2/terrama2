@@ -123,8 +123,8 @@ namespace terrama2
           QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
 
           /*!
-           \brief It retrieves the ConfigManager instance containing application settings
-           \return A shared pointer to ConfigManager class. It contains application config.
+           \brief It retrieves the terrama2::gui::core::ConfigManager instance containing application settings
+           \return A shared pointer to terrama2::gui::core::ConfigManager class. It contains application config.
           */
           QSharedPointer<terrama2::gui::core::ConfigManager> getConfiguration() const;
 
