@@ -1,24 +1,45 @@
-# bdqueimadas - Banco de Dados de Queimadas
+# TerraMA² Webapp
 
-Este aplicativo permite visualizar os focos (ocorrência do fogo na vegetação) através de um Sistema de Informação Geográfica na Web, com opções de períodos, regiões de interesse, satélites, planos de informação (ex: desmatamento, hidrografia, estradas), além da exportação dos dados em formatos txt, html, shp e kmz.
+**NOTE:**
+* **Until we reach version 4.0.0 this codebase will be instable and not fully operational.**
+* **TerraMA² Webapp is under active development. We are preparing this site to host it!**
+* **If you want to try the old version, please, look at http://www.dpi.inpe.br/terrama2.**
+* **If you have any question, please, send us an e-mail at: terrama2-team@dpi.inpe.br.**
 
-A versão anterior deste aplicativo encontra-se operacional em: http://www.dpi.inpe.br/proarco/bdqueimadas.
+TerraMA² Webapp is a free and open source component based web API for use in web geographic information systems (WebGIS).
 
-## Dependências
+## Dependencies
 
-Para executar o BDQueimadas você vai precisar instalar alguns softwares de terceiros. Abaixo listamos quais são os softwares e suas versões:
+In order to use the components of the API, you have to execute it. For that to be possible you're going to need install some third-party softwares. Bellow we show you this softwares and its versions:
 
-- **Apache (Obrigatório):** Para que o BDQueimadas funcione é necessário que ele esteja sendo executado por um servidor http. O servidor a ser utilizado é o Apache HTTP Server na versão 2.4 (ou versões superiores). O software pode ser baixado em: https://httpd.apache.org.
+- **Node.js (Mandatory):** Para que o BDQueimadas funcione é necessário que o interpretador Node.js esteja instalado na versão 4.2.3 (ou versões superiores). O software pode ser baixado em: https://nodejs.org/.
 
 ## Instruções para Execução
 
 Abaixo mostramos os passos para executar o BDQueimadas:
 
-- Coloque a pasta da aplicação no diretório raiz do Apache.
-
-- Verifique se o caminho para a API TerraMA² está correto no arquivo index.html (bdqueimadas/views/index.html):
+- Execute o clone da aplicação para o diretório desejado:
 
 ```
-<script src="http://localhost/terrama2/webapp/js/terrama2.js" type="text/javascript"></script>
-<link rel="stylesheet" href="http://localhost/terrama2/webapp/css/terrama2.css">
+git clone https://github.com/TerraMA2/bdqueimadas.git
+```
+
+- Verifique se a URL para o servidor da API TerraMA² está correto na variável terrama2Path localizada no arquivo index.ejs (bdqueimadas/views/index.ejs):
+
+```
+<%
+  var terrama2Path = "http://localhost:36000";
+%>
+```
+
+- Acesse o diretório da aplicação via linha de comando e execute o seguinte comando:
+
+```
+npm start
+```
+
+- Por padrão o sistema vai rodar na porta 35000, caso deseje alterar, acesse o arquivo bdqueimadas/bin/www:
+
+```
+var portNumber = '35000';
 ```
