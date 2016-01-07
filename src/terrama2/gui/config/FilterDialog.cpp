@@ -53,7 +53,7 @@
 #include <QIntValidator>
 
 
-struct FilterDialog::Impl
+struct terrama2::gui::config::FilterDialog::Impl
 {
   Impl()
     : ui_(new Ui::FilterDialogForm),
@@ -80,14 +80,13 @@ struct FilterDialog::Impl
 };
 
 //! Construtor
-FilterDialog::FilterDialog(FilterType type, const QString& timezone, QWidget* parent, Qt::WindowFlags f)
-  : QDialog(parent, f), pimpl_(new Impl)
+terrama2::gui::config::FilterDialog::FilterDialog(FilterType type, const QString& timezone, QWidget* parent, Qt::WindowFlags flag)
+  : QDialog(parent, flag), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
 
   pimpl_->utc_ = timezone.toStdString().c_str();
 
-//  connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(accept()));
   connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), this, SLOT(onOkBtnClicked()));
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 
@@ -150,27 +149,27 @@ FilterDialog::FilterDialog(FilterType type, const QString& timezone, QWidget* pa
   pimpl_->ui_->labelDateNote->setText(utc.c_str());
 }
 
-FilterDialog::~FilterDialog()
+terrama2::gui::config::FilterDialog::~FilterDialog()
 {
   delete pimpl_;
 }
 
-bool FilterDialog::isFilterByDate() const
+bool terrama2::gui::config::FilterDialog::isFilterByDate() const
 {
   return pimpl_->filterByDate_;
 }
 
-bool FilterDialog::isFilterByArea() const
+bool terrama2::gui::config::FilterDialog::isFilterByArea() const
 {
   return pimpl_->filterByArea_;
 }
 
-bool FilterDialog::isAnyFilter() const
+bool terrama2::gui::config::FilterDialog::isAnyFilter() const
 {
   return isFilterByArea() || isFilterByDate() || isFilterByLayer() || isFilterByPreAnalyse();
 }
 
-void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
+void terrama2::gui::config::FilterDialog::fillGUI(const terrama2::core::Filter& filter)
 {
   // If there some geometry at filter, fill field limits
   if (filter.geometry() != nullptr)
@@ -260,7 +259,7 @@ void FilterDialog::fillGUI(const terrama2::core::Filter& filter)
   }
 }
 
-void FilterDialog::fillObject(terrama2::core::Filter &filter)
+void terrama2::gui::config::FilterDialog::fillObject(terrama2::core::Filter &filter)
 {
   if (pimpl_->filterByArea_)
   {
@@ -355,27 +354,27 @@ void FilterDialog::fillObject(terrama2::core::Filter &filter)
 
 }
 
-bool FilterDialog::isFilterByLayer() const
+bool terrama2::gui::config::FilterDialog::isFilterByLayer() const
 {
   return pimpl_->filterByLayer_;
 }
 
-bool FilterDialog::isFilterByPreAnalyse() const
+bool terrama2::gui::config::FilterDialog::isFilterByPreAnalyse() const
 {
   return pimpl_->filterBypreAnalyse_;
 }
 
-void FilterDialog::onFilteredByDate()
+void terrama2::gui::config::FilterDialog::onFilteredByDate()
 {
   pimpl_->filterByDate_ = pimpl_->ui_->dateBeforeFilterCbx->isChecked() || pimpl_->ui_->dateAfterFilterCbx->isChecked();
 }
 
-void FilterDialog::onFilteredByLayer()
+void terrama2::gui::config::FilterDialog::onFilteredByLayer()
 {
   pimpl_->filterByLayer_ = !pimpl_->ui_->bandFilterLed->text().trimmed().isEmpty();
 }
 
-void FilterDialog::onFilteredByArea()
+void terrama2::gui::config::FilterDialog::onFilteredByArea()
 {
   if (pimpl_->ui_->noAreaFilterRdb->isChecked())
   {
@@ -394,48 +393,48 @@ void FilterDialog::onFilteredByArea()
   }
 }
 
-void FilterDialog::onBeforeBtnClicked()
+void terrama2::gui::config::FilterDialog::onBeforeBtnClicked()
 {
   pimpl_->ui_->datetimeBefore->setDateTime(QDateTime::currentDateTime());
   pimpl_->ui_->dateBeforeFilterCbx->setChecked(true);
   emit pimpl_->ui_->dateBeforeFilterCbx->clicked();
 }
 
-void FilterDialog::onNoPreAnalyse()
+void terrama2::gui::config::FilterDialog::onNoPreAnalyse()
 {
   pimpl_->expressionType = terrama2::core::Filter::NONE_TYPE;
   setFilterByPreAnalyse();
 }
 
-void FilterDialog::onFilterByLessThan()
+void terrama2::gui::config::FilterDialog::onFilterByLessThan()
 {
   pimpl_->expressionType = terrama2::core::Filter::LESS_THAN_TYPE;
   setFilterByPreAnalyse();
   pimpl_->ui_->allSmallerThanLed->setEnabled(true);
 }
 
-void FilterDialog::onFilterByGreaterThan()
+void terrama2::gui::config::FilterDialog::onFilterByGreaterThan()
 {
   pimpl_->expressionType = terrama2::core::Filter::GREATER_THAN_TYPE;
   setFilterByPreAnalyse();
   pimpl_->ui_->allLargerThanLed->setEnabled(true);
 }
 
-void FilterDialog::onFilterByMeanLessThan()
+void terrama2::gui::config::FilterDialog::onFilterByMeanLessThan()
 {
   pimpl_->expressionType = terrama2::core::Filter::MEAN_LESS_THAN_TYPE;
   setFilterByPreAnalyse();
   pimpl_->ui_->belowAverageLed->setEnabled(true);
 }
 
-void FilterDialog::onFilterByMeanGreaterThan()
+void terrama2::gui::config::FilterDialog::onFilterByMeanGreaterThan()
 {
   pimpl_->expressionType = terrama2::core::Filter::MEAN_GREATER_THAN_TYPE;
   setFilterByPreAnalyse();
   pimpl_->ui_->aboveAverageLed->setEnabled(true);
 }
 
-void FilterDialog::onOkBtnClicked()
+void terrama2::gui::config::FilterDialog::onOkBtnClicked()
 {
   if (pimpl_->ui_->dateBeforeFilterCbx->isChecked() && pimpl_->ui_->dateAfterFilterCbx->isChecked())
   {
@@ -450,19 +449,19 @@ void FilterDialog::onOkBtnClicked()
   accept();
 }
 
-void FilterDialog::setFilterByPreAnalyse()
+void terrama2::gui::config::FilterDialog::setFilterByPreAnalyse()
 {
   disablePreFields();
   pimpl_->filterBypreAnalyse_ = true;
 }
 
-void FilterDialog::disablePreFields()
+void terrama2::gui::config::FilterDialog::disablePreFields()
 {
   for(QLineEdit* widget: pimpl_->ui_->preTab->findChildren<QLineEdit*>())
     widget->setEnabled(false);
 }
 
-void FilterDialog::onAfterBtnClicked()
+void terrama2::gui::config::FilterDialog::onAfterBtnClicked()
 {
   pimpl_->ui_->datetimeAfter->setDateTime(QDateTime::currentDateTime());
 

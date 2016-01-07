@@ -38,7 +38,7 @@
 #include <QMenu>
 #include <QMessageBox>
 
-struct CollectorRuleDialog::Impl
+struct terrama2::gui::config::CollectorRuleDialog::Impl
 {
   Impl()
     : ui_(new Ui::CollectorRuleForm)
@@ -53,7 +53,7 @@ struct CollectorRuleDialog::Impl
   Ui::CollectorRuleForm* ui_;
 };
 
-CollectorRuleDialog::CollectorRuleDialog(QWidget* parent, Qt::WindowFlags f)
+terrama2::gui::config::CollectorRuleDialog::CollectorRuleDialog(QWidget* parent, Qt::WindowFlags f)
 : QDialog(parent, f), pimpl_(new Impl), luaHighlighter_(nullptr)
 {
   pimpl_->ui_->setupUi(this);
@@ -63,29 +63,29 @@ CollectorRuleDialog::CollectorRuleDialog(QWidget* parent, Qt::WindowFlags f)
   connect(pimpl_->ui_->okBtn, SIGNAL(clicked()), SLOT(onOkBtnClicked()));
   connect(pimpl_->ui_->cancelBtn, SIGNAL(clicked()), SLOT(reject()));
 
-  luaHighlighter_.reset(new LuaSyntaxHighlighter(pimpl_->ui_->txtLuaScript));
+  luaHighlighter_.reset(new terrama2::gui::config::LuaSyntaxHighlighter(pimpl_->ui_->txtLuaScript));
 
   init();
 
 }
 
-CollectorRuleDialog::~CollectorRuleDialog()
+terrama2::gui::config::CollectorRuleDialog::~CollectorRuleDialog()
 {
   delete pimpl_;
 }
 
-void CollectorRuleDialog::fillGUI(const QString script)
+void terrama2::gui::config::CollectorRuleDialog::fillGUI(const QString script)
 {
   QString s(script);
   pimpl_->ui_->txtLuaScript->setText(s);
 }
 
-void CollectorRuleDialog::fillObject(QString &script)
+void terrama2::gui::config::CollectorRuleDialog::fillObject(QString &script)
 {
   script = pimpl_->ui_->txtLuaScript->toPlainText();
 }
 
-void CollectorRuleDialog::init()
+void terrama2::gui::config::CollectorRuleDialog::init()
 {
   QMenu* funcOpMenu = new QMenu(tr("Common Functions"), this);
   funcOpMenu->addAction(tr("print"))->setProperty("added_text", "print(_valores_)");
@@ -147,7 +147,7 @@ void CollectorRuleDialog::init()
   pimpl_->ui_->commandsBtn->setPopupMode(QToolButton::InstantPopup);
 }
 
-void CollectorRuleDialog::onAddScript(QAction* action)
+void terrama2::gui::config::CollectorRuleDialog::onAddScript(QAction* action)
 {
   QString value = action->property("added_text").toString();
 
@@ -155,7 +155,7 @@ void CollectorRuleDialog::onAddScript(QAction* action)
   pimpl_->ui_->txtLuaScript->setFocus();
 }
 
-void CollectorRuleDialog::onOkBtnClicked()
+void terrama2::gui::config::CollectorRuleDialog::onOkBtnClicked()
 {
   if (pimpl_->ui_->txtLuaScript->toPlainText().trimmed().isEmpty())
   {

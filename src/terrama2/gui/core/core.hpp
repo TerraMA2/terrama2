@@ -20,52 +20,33 @@
 */
 
 /*!
-  \file terrama2/gui/config/WizardDialog.hpp
+  \file terrama2/gui/core/core.cpp
 
-  \brief Definition of Class WizardDialog.hpp
+  \brief This file contains include headers for the TerraMA2 GUI core module.
 
-  \author Evandro Delatin
   \author Raphael Willian da Costa
-  \author Carlos Augusto Teixeira Mendes
 */
 
-#ifndef _WizardDialog_H_
-#define _WizardDialog_H_
+#ifndef __TERRAMA2_GUI_CORE_CORE_HPP__
+#define __TERRAMA2_GUI_CORE_CORE_HPP__
 
-// QT
-#include <QList>
-#include "ui_WizardDialog.h"
+#include "ConfigManager.hpp"
+#include "Exception.hpp"
+#include "DataType.hpp"
+#include "Utils.hpp"
 
-class RiskMap;
-class WeatherGrid;
-
-/*! \brief Class responsible for dialog actions of assistant to create the analyse role
-*/
-class WizardDlg : public QDialog, private Ui::WizardDlg
+namespace terrama2
 {
-Q_OBJECT
+  namespace gui
+  {
+    /*!
+      \brief A namespace for handling TerraMA2 GUI application core.
+    */
+    namespace core
+    {
 
-public:
-  WizardDialog(const RiskMap* riskmap, const QList<WeatherGrid*>& sellist, QWidget* parent = 0, Qt::WFlags f = 0 );
-  ~WizardDialog();
+    }
+  }
+}
 
-  QString script();
-
-private slots:
-  void okRequested();
-  void addRuleRequested();
-  void removeRuleRequested();
-  void cpcGridChanged(int index);
-  void cpcPCDChanged(int index);
-
-private:
-  QString _script;
-  QList<WeatherGrid*> _sellist;
-
-  void generateGenericScript();
-  bool generateCPCScript();
-};
-
-
-#endif
-
+#endif // __TERRAMA2_GUI_CORE_CORE_HPP__

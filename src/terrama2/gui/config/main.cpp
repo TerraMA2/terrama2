@@ -33,6 +33,9 @@
 #include "Exception.hpp"
 #include "../../core/Utils.hpp"
 
+// TerraMA2 Logger
+#include "../../core/Logger.hpp"
+
 // Qt
 #include <QApplication>
 #include <QMessageBox>
@@ -49,9 +52,12 @@ int main(int argc, char* argv[])
 // initialize TerraLib
   terrama2::core::initializeTerralib();
 
+  // initialize terrama2 logger
+  terrama2::core::initializeLogger();
+
   try
   {
-    ConfigApp terrama2_config;
+    terrama2::gui::config::ConfigApp terrama2_config;
     terrama2_config.show();
 
     int retval = app.exec();
@@ -63,22 +69,26 @@ int main(int argc, char* argv[])
   }
   catch(const terrama2::Exception& e)
   {
-    QString messageError = "TerraMA2 finished with errors!\n\n";
+    QString messageError = QObject::tr("TerraMA2 finished with errors!\n\n");
     if (const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e))
     {
       messageError.append(msg);
     }
+    TERRAMA2_LOG_FATAL() << messageError;
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
   }
   catch(const std::exception& e)
   {
-    QString messageError = "TerraMA2 finished with errors!\n\n%1";
+    QString messageError = QObject::tr("TerraMA2 finished with errors!\n\n");
     messageError.append(e.what());
+    TERRAMA2_LOG_FATAL() << messageError;
     QMessageBox::critical(nullptr, "TerraMA2", messageError);
   }
   catch(...)
   {
-    QMessageBox::critical(nullptr, "TerraMA2", "Unknown Error");
+    const QString message = QObject::tr("Unknown Error");
+    TERRAMA2_LOG_FATAL() << message;
+    QMessageBox::critical(nullptr, "TerraMA2", message);
   }
 
   terrama2::core::finalizeTerralib();

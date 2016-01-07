@@ -33,4 +33,24 @@
 
 #include "../Exception.hpp"
 
+
+namespace terrama2
+{
+  namespace gui
+  {
+    namespace config
+    {
+      //! Base GUI Configuration module exception
+      struct Exception : virtual terrama2::gui::Exception{ };
+
+      //! It is used for any data provider error
+      struct DataProviderException: virtual Exception{ };
+
+      //! It is used for any data set error
+      struct DataSetException: virtual Exception{ };
+    }
+  }
+}
+
+
 #endif // __TERRAMA2_GUI_CONFIG_EXCEPTION_HPP__
