@@ -22,7 +22,7 @@
 /*!
   \file terrama2/gui/config/SurfaceDialog.hpp
 
-  \brief Definition of Class SurfaceDialog.hpp
+  \brief Class responsible for manager Surface Dialog.
 
   \author Raphael Willian da Costa  
   
@@ -42,25 +42,44 @@ namespace Ui
 class QAction;
 
 
-class SurfaceDialog : public QDialog, private boost::noncopyable
+namespace terrama2
 {
-  Q_OBJECT
-  
-  public:
-    SurfaceDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \class SurfaceDialog
+        \brief Class responsible for manager Surface Dialog.
+      */
+      class SurfaceDialog : public QDialog, private boost::noncopyable
+      {
+        Q_OBJECT
 
-    ~SurfaceDialog();
+        public:
+          /*!
+            \brief Default constructor. It connects the gui slots.
+            \param parent A pointer to QWidget owner. (default nullptr)
+            \param f A constant flag to define kind of widget. (default 0)
+          */
+          SurfaceDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
-  private slots:
-    /*!
-     * \brief It defines constants mask to format the mask field. Like %a %d
-     */
-    void onMenuMaskClicked(QAction*);
+          //! Destructor
+          ~SurfaceDialog();
 
-  private:
-    struct Impl;
+        private slots:
+          /*!
+           * \brief It defines constants mask to format the mask field. Like %a %d
+           */
+          void onMenuMaskClicked(QAction*);
 
-    Impl* pimpl_;
-};
+        private:
+          struct Impl; //!< Pimpl idiom
+
+          Impl* pimpl_;
+      };
+    }
+  }
+}
 
 #endif // __TERRAMA2_GUI_CONFIG_SURFACEDIALOG_HPP__

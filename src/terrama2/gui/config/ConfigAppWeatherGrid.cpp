@@ -3,6 +3,7 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
+#include "../core/Utils.hpp"
 #include "../../core/DataSet.hpp"
 #include "../../core/Filter.hpp"
 #include "../../core/DataSetItem.hpp"
@@ -12,6 +13,7 @@
 
 // STL
 #include <inttypes.h>
+#include "../../core/Logger.hpp"
 
 // Terralib
 #include <terralib/datatype/TimeInstant.h>
@@ -22,7 +24,7 @@
 #include <QUrl>
 
 
-ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui)
+terrama2::gui::config::ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui), filter_(new terrama2::core::Filter)
 {
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridClicked()));
@@ -43,22 +45,14 @@ ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppFo
 
 }
 
-ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
+terrama2::gui::config::ConfigAppWeatherGridTab::~ConfigAppWeatherGridTab()
 {
   delete filter_;
 }
 
-void ConfigAppWeatherGridTab::load()
+void terrama2::gui::config::ConfigAppWeatherGridTab::load()
 {
-  QMenu* menuMask = new QMenu(tr("Máscaras"));
-  menuMask->addAction(tr("%a - ano com dois digitos"));
-  menuMask->addAction(tr("%A - ano com quatro digitos"));
-  menuMask->addAction(tr("%d - dia com dois digitos"));
-  menuMask->addAction(tr("%M - mes com dois digitos"));
-  menuMask->addAction(tr("%h - hora com dois digitos"));
-  menuMask->addAction(tr("%m - minuto com dois digitos"));
-  menuMask->addAction(tr("%s - segundo com dois digitos"));
-  menuMask->addAction(tr("%. - um caracter qualquer"));
+  auto menuMask = terrama2::gui::core::makeMaskHelpers();
 
   ui_->fileGridMaskBtn->setMenu(menuMask);
   ui_->fileGridMaskBtn->setPopupMode(QToolButton::InstantPopup);
@@ -67,7 +61,7 @@ void ConfigAppWeatherGridTab::load()
   connect(menuMask, SIGNAL(triggered(QAction*)), SLOT(onMenuMaskClicked(QAction*)));
 }
 
-void ConfigAppWeatherGridTab::save()
+void terrama2::gui::config::ConfigAppWeatherGridTab::save()
 {
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
   std::string name = ui_->gridFormatDataName->text().toStdString();
@@ -112,35 +106,10 @@ void ConfigAppWeatherGridTab::save()
   metadata["RESOLUTION"] = ui_->gridFormatDataResolution->text().toStdString();
   dataset.setMetadata(metadata);
 
-  std::map<std::string, std::string> storageMetadata;
-  auto configuration = app_->getConfiguration();
-
-  QUrl url(provider.uri().c_str());
-  QString scheme = url.scheme().toLower();
-
-  if (scheme == "file") // todo: check it and save an specific format
-    storageMetadata["PATH"] = configuration->getCollection()->dirPath_.toStdString();
-
-  else if (scheme == "http" || scheme == "https") // TODO: Http and OGC Services
-  {
-  }
-  else if (scheme == "ftp") // TODO: ftp storage metadata
-  {
-  }
-  else // postgis
-  {
-    storageMetadata["PG_HOST"] = configuration->getDatabase()->host_.toStdString();
-    storageMetadata["PG_PORT"] = configuration->getDatabase()->port_;
-    storageMetadata["PG_USER"] = configuration->getDatabase()->user_.toStdString();
-    storageMetadata["PG_PASSWORD"] = configuration->getDatabase()->password_.toStdString();
-    storageMetadata["PG_DB_NAME"] = configuration->getDatabase()->name_.toStdString();
-    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
-    storageMetadata["KIND"] = url.scheme().toStdString();
-  }
+  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem->setStorageMetadata(storageMetadata);
 
-  // todo: get value from db
   dataset.setSchedule(schedule);
   if (dataset.id() >= 1)
   {
@@ -150,6 +119,7 @@ void ConfigAppWeatherGridTab::save()
                                        selectedData_,
                                        ui_->gridFormatDataName->text());
     selectedData_ =  ui_->gridFormatDataName->text();
+    TERRAMA2_LOG_INFO() << ("Dataset ID " + std::to_string(dataset.id()) + " updated!");
   }
   else
   {
@@ -160,12 +130,13 @@ void ConfigAppWeatherGridTab::save()
     item->setIcon(0, QIcon::fromTheme("grid"));
     item->setText(0, ui_->gridFormatDataName->text());
     ui_->weatherDataTree->currentItem()->addChild(item);
+    TERRAMA2_LOG_INFO() << "New Dataset " + dataset.name() + " saved!";
   }
   app_->getWeatherTab()->addCachedDataSet(dataset);
   changed_ = false;
 }
 
-void ConfigAppWeatherGridTab::discardChanges(bool restore_data)
+void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore_data)
 {
   for(QLineEdit* widget: ui_->DataGridPage->findChildren<QLineEdit*>())
     widget->clear();
@@ -181,7 +152,7 @@ void ConfigAppWeatherGridTab::discardChanges(bool restore_data)
   app_->getWeatherTab()->showDataSeries(true);
 }
 
-void ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
+void terrama2::gui::config::ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
 {
   *filter_ = filter;
 
@@ -206,13 +177,15 @@ void ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
     ui_->preAnalysisLabel->setText(tr("No"));
 }
 
-bool ConfigAppWeatherGridTab::validate()
+bool terrama2::gui::config::ConfigAppWeatherGridTab::validate()
 {
   if (ui_->gridFormatDataName->text().trimmed().isEmpty())
   {
     ui_->gridFormatDataName->setFocus();
-    throw terrama2::gui::FieldError() << terrama2::ErrorDescription(tr("The Data Set Item name cannot be empty."));
+    throw terrama2::gui::FieldException() << terrama2::ErrorDescription(tr("The Data Set Item name cannot be empty."));
   }
+
+  checkMask(ui_->gridFormatDataMask->text());
 
   terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(ui_->gridFormatDataName->text().toStdString());
 
@@ -221,7 +194,7 @@ bool ConfigAppWeatherGridTab::validate()
     if (ui_->gridFormatDataName->text() != selectedData_)
     {
       ui_->gridFormatDataName->setFocus();
-      throw terrama2::gui::FieldError() << terrama2::ErrorDescription(
+      throw terrama2::gui::FieldException() << terrama2::ErrorDescription(
           tr("The data set grid name has already been saved. Please change server name"));
     }
   }
@@ -230,7 +203,7 @@ bool ConfigAppWeatherGridTab::validate()
   return true;
 }
 
-void ConfigAppWeatherGridTab::onDataGridClicked()
+void terrama2::gui::config::ConfigAppWeatherGridTab::onDataGridClicked()
 {
   if (ui_->weatherDataTree->currentItem() != nullptr &&
       ui_->weatherDataTree->currentItem()->parent() != nullptr &&
@@ -254,7 +227,7 @@ void ConfigAppWeatherGridTab::onDataGridClicked()
     QMessageBox::warning(app_, tr("TerraMA2 Data Set"), tr("Please select a data provider to the new dataset"));
 }
 
-void ConfigAppWeatherGridTab::onGridFormatChanged()
+void terrama2::gui::config::ConfigAppWeatherGridTab::onGridFormatChanged()
 {
   switch (ui_->gridFormatDataFormat->currentIndex())
   {
@@ -274,7 +247,7 @@ void ConfigAppWeatherGridTab::onGridFormatChanged()
   ui_->gridProjectionTxt->setText("0");
 }
 
-void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
+void terrama2::gui::config::ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
 {
   QTreeWidgetItem* currentItem = ui_->weatherDataTree->currentItem();
   if (currentItem != nullptr && currentItem->parent() != nullptr && currentItem->parent()->parent() != nullptr)
@@ -286,6 +259,8 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
       if (removeDataSet(dataset))
       {
         app_->getClient()->removeDataSet(dataset.id());
+
+        TERRAMA2_LOG_INFO() << ("Dataset ID " + std::to_string(dataset.id()) + " has been removed!");
         app_->getWeatherTab()->removeCachedDataSet(dataset);
 
         QMessageBox::information(app_, tr("TerraMA2"), tr("DataSet Grid successfully removed!"));
@@ -295,21 +270,22 @@ void ConfigAppWeatherGridTab::onRemoveDataGridBtnClicked()
     catch(const terrama2::Exception& e)
     {
       const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
+      TERRAMA2_LOG_ERROR() << "DataSet Removing: " << *message;
       QMessageBox::warning(app_, tr("TerraMA2"), *message);
     }
   }
   ui_->cancelBtn->clicked();
 }
 
-void ConfigAppWeatherGridTab::onMenuMaskClicked(QAction* action)
+void terrama2::gui::config::ConfigAppWeatherGridTab::onMenuMaskClicked(QAction* action)
 {
   ui_->gridFormatDataMask->setText(
         ui_->gridFormatDataMask->text() + action->text().left(2));
 }
 
-void ConfigAppWeatherGridTab::onFilterClicked()
+void terrama2::gui::config::ConfigAppWeatherGridTab::onFilterClicked()
 {
-  FilterDialog dialog(FilterDialog::FULL, ui_->gridFormatDataTimeZoneCmb->currentText(), app_);
+  FilterDialog dialog(terrama2::gui::config::FilterDialog::FULL, ui_->gridFormatDataTimeZoneCmb->currentText(), app_);
 
   dialog.fillGUI(*filter_);
 
@@ -337,7 +313,7 @@ void ConfigAppWeatherGridTab::onFilterClicked()
     ui_->preAnalysisLabel->setText(tr("No"));
 }
 
-void ConfigAppWeatherGridTab::onProjectionClicked()
+void terrama2::gui::config::ConfigAppWeatherGridTab::onProjectionClicked()
 {
   te::qt::widgets::SRSManagerDialog srsDialog(app_);
   srsDialog.setWindowTitle(tr("Choose the SRS"));
@@ -351,7 +327,7 @@ void ConfigAppWeatherGridTab::onProjectionClicked()
 
 }
 
-void ConfigAppWeatherGridTab::setSrid(const uint64_t srid)
+void terrama2::gui::config::ConfigAppWeatherGridTab::setSrid(const uint64_t srid)
 {
   srid_ = srid;
 }

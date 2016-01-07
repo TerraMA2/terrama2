@@ -46,19 +46,7 @@ namespace terrama2
   typedef boost::error_info<struct tag_error_description, QString> ErrorDescription;
 
   //! Base exception class for TerraMA2.
-  struct Exception: virtual std::exception, virtual boost::exception
-  {
-  public:
-    /*!
-      \brief It outputs the exception message.
-
-      \return The exception message.
-    */
-    virtual const char* what() const noexcept
-    {
-      return boost::get_error_info< terrama2::ErrorDescription >(*this)->toStdString().c_str();
-    }
-  };
+  struct Exception: virtual std::exception, virtual boost::exception {};
 
   //! An exception indicating that a slot connection was not established.
   struct SlotConnectionException: virtual Exception { };
@@ -76,7 +64,7 @@ namespace terrama2
   struct InitializationException: virtual Exception { };
 
   //! An exception indicating a parser error.
-  struct ParserException: virtual Exception { };
+  struct JSonParserException: virtual Exception { };
 
   //! An exception indicating a serialization error.
   struct SerializationException: virtual Exception { };

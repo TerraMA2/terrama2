@@ -43,55 +43,77 @@ namespace Ui
 {
   class CollectorRuleDialogForm;
 }
-
-class LuaSyntaxHighlighter;
 class QAction;
-
-class CollectorRuleDialog : public QDialog, private boost::noncopyable
+namespace terrama2
 {
-  Q_OBJECT
+  namespace gui
+  {
+    namespace config
+    {
+      class LuaSyntaxHighlighter;
+    }
+  }
+}
 
-  public:
-    CollectorRuleDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
-    ~CollectorRuleDialog();
 
-    /*!
-      \brief It fill lua script plain text of interface
-      \param script: const string variable containing lua script and it fill the plain text
-     */
-    void fillGUI(const QString script);
+namespace terrama2
+{
+  namespace gui
+  {
+    namespace config
+    {
+      /*!
+        \class CollectorRuleDialog
+        \brief It defines the CollectorRule GUI interface to enable a collector lua script filter
 
-    /*!
-      \brief It will fill a QString reference with lua script
-      \param script: a QString reference to be filled out
-     */
-    void fillObject(QString& script);
+               Contains methods with helper functions for lua script and common terrama2 functions supported
+      */
+      class CollectorRuleDialog : public QDialog, private boost::noncopyable
+      {
+        Q_OBJECT
 
-  private:
-    /*!
-      \brief It initialize all lua collector help functions, such math expressions and lua blocks
-    */
-    void init();
+        public:
+          CollectorRuleDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+          ~CollectorRuleDialog();
 
-  private slots:
-    /*!
-      \brief It is triggered when some of help scripts buttons has been clicked and fill up the plain text
-     */
-    void onAddScript(QAction*);
+          /*!
+            \brief It fill lua script plain text of interface
+            \param script: const string variable containing lua script and it fill the plain text
+           */
+          void fillGUI(const QString script);
 
-    /*!
-      \brief It is triggered when the OK btn is clicked and it will checks if there any syntax error or empty value
-      \todo validate lua syntax
-    */
-    void onOkBtnClicked();
-    
-  private:
-    struct Impl;
-    Impl* pimpl_; //!< pimpl idiom
+          /*!
+            \brief It will fill a QString reference with lua script
+            \param script: a QString reference to be filled out
+           */
+          void fillObject(QString& script);
 
-    QSharedPointer<LuaSyntaxHighlighter> luaHighlighter_; //!< it contains lua syntax highlighter commands
+        private:
+          /*!
+            \brief It initialize all lua collector help functions, such math expressions and lua blocks
+          */
+          void init();
 
-};
+        private slots:
+          /*!
+            \brief It is triggered when some of help scripts buttons has been clicked and fill up the plain text
+           */
+          void onAddScript(QAction*);
+
+          /*!
+            \brief It is triggered when the OK btn is clicked and it will checks if there any syntax error or empty value
+            \todo validate lua syntax
+          */
+          void onOkBtnClicked();
+
+        private:
+          struct Impl;
+          Impl* pimpl_; //!< pimpl idiom
+          QSharedPointer<LuaSyntaxHighlighter> luaHighlighter_; //!< it contains lua syntax highlighter commands
+      };
+    }
+  }
+}
 
 #endif // __TERRAMA2_GUI_CONFIG_COLLECTORRULEDIALOG_HPP__
 

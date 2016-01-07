@@ -31,11 +31,12 @@
 // TerraMA2
 #include "ui_SurfaceDialogForm.h"
 #include "SurfaceDialog.hpp"
+#include "../core/Utils.hpp"
 
 // QT
 #include <QMenu>
 
-struct SurfaceDialog::Impl
+struct terrama2::gui::config::SurfaceDialog::Impl
 {
   Impl()
     : ui_(new Ui::SurfaceDialogForm)
@@ -50,7 +51,7 @@ struct SurfaceDialog::Impl
   Ui::SurfaceDialogForm* ui_;
 };
 
-SurfaceDialog::SurfaceDialog(QWidget* parent, Qt::WindowFlags f)
+terrama2::gui::config::SurfaceDialog::SurfaceDialog(QWidget* parent, Qt::WindowFlags f)
   : QDialog(parent, f), pimpl_(new Impl)
 {
   pimpl_->ui_->setupUi(this);
@@ -63,14 +64,7 @@ SurfaceDialog::SurfaceDialog(QWidget* parent, Qt::WindowFlags f)
   pimpl_->ui_->interpCmb->addItem(tr("K-vizinhos mais próximos"));
   pimpl_->ui_->interpCmb->addItem(tr("K-vizinhos mais próximos ponderados"));
 
-  QMenu* menuMask = new QMenu(tr("Máscaras"), this);
-  menuMask->addAction(tr("%a - ano com dois digitos"));
-  menuMask->addAction(tr("%A - ano com quatro digitos"));
-  menuMask->addAction(tr("%d - dia com dois digitos"));
-  menuMask->addAction(tr("%M - mes com dois digitos"));
-  menuMask->addAction(tr("%h - hora com dois digitos"));
-  menuMask->addAction(tr("%m - minuto com dois digitos"));
-  menuMask->addAction(tr("%s - segundo com dois digitos"));
+  auto menuMask = terrama2::gui::core::makeMaskHelpers();
 
   pimpl_->ui_->fileAnaGridMaskBtn->setMenu(menuMask);
   pimpl_->ui_->fileAnaGridMaskBtn->setPopupMode(QToolButton::InstantPopup);
@@ -81,12 +75,12 @@ SurfaceDialog::SurfaceDialog(QWidget* parent, Qt::WindowFlags f)
 
 }
 
-SurfaceDialog::~SurfaceDialog()
+terrama2::gui::config::SurfaceDialog::~SurfaceDialog()
 {
   delete pimpl_;
 }
 
-void SurfaceDialog::onMenuMaskClicked(QAction* action)
+void terrama2::gui::config::SurfaceDialog::onMenuMaskClicked(QAction* action)
 {
   pimpl_->ui_->outputGridEdit->setText(pimpl_->ui_->outputGridEdit->text() + action->text().left(2));
 }

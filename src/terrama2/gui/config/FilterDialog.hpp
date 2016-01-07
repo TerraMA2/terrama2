@@ -22,7 +22,7 @@
 /*!
   \file terrama2/gui/config/FilterDialog.hpp
 
-  \brief Definition of Class FilterDialog.hpp
+  \brief Class responsible for handling filter gui
 
   \author Raphael Willian da Costa  
 */
@@ -37,7 +37,7 @@
 #include <boost/noncopyable.hpp>
 
 
-// Forward
+// Forward declarations
 namespace terrama2
 {
   namespace core
@@ -46,84 +46,130 @@ namespace terrama2
   }
 }
 
-class FilterDialog : public QDialog, private boost::noncopyable
+namespace terrama2
 {
-  Q_OBJECT
-
-  public:
-
-    enum FilterType
+  namespace gui
+  {
+    namespace config
     {
-      FULL,
-      AREA,
-      BAND,
-      DATE
-    };
+      /*!
+        \class FilterDialog
+        \brief Class responsible for handling filter gui
+      */
+      class FilterDialog : public QDialog, private boost::noncopyable
+      {
+        Q_OBJECT
 
-    FilterDialog(FilterType type, const QString& timezone = "+00:00", QWidget* parent = nullptr, Qt::WindowFlags = 0);
-    ~FilterDialog();
+        public:
 
-    //! It checks if there any filter by date
-    bool isFilterByDate() const;
+          /*!
+            \brief It defines which kind of filters must be visible.
+          */
+          enum FilterType
+          {
+            FULL, ///< Represents to enable all.
+            AREA, ///< Represents to enable Area filter.
+            BAND, ///< Represents to enable Band filter.
+            DATE  ///< Represents to enable Date filter and Pre-Analyse filter.
+          };
 
-    //! It checks if there any filter by layer
-    bool isFilterByLayer() const;
+          /*!
+            \brief Default constructor. It connecting slots and define how to load the interface.
+            \param type A enum type for display which tabs will be visible.
+            \param timezone A string timezone to be printed in the label. (default +00:00)
+            \param parent A pointer to QWidget owner. (default nullptr)
+            \param flag A const value to define kind of widget. (default 0)
+          */
+          FilterDialog(FilterType type, const QString& timezone = "+00:00", QWidget* parent = nullptr, Qt::WindowFlags flag = 0);
+          ~FilterDialog();
 
-    //! It checks if there any filter by analyse before
-    bool isFilterByPreAnalyse() const;
+          /*!
+            \brief It checks if there any filter by date
+            \return True if exists filter by date
+          */
+          bool isFilterByDate() const;
 
-    //! It checks if there any filter by field
-    bool isFilterByArea() const;
+          /*!
+            \brief It checks if there any filter by layer
+            \return True if exists filter by layer
+          */
+          bool isFilterByLayer() const;
 
-    //! It checks if there any filter active
-    bool isAnyFilter() const;
+          /*!
+            \brief It checks if there any filter by analyse before
+            \return True if exists filter by pre-analyse
+          */
+          bool isFilterByPreAnalyse() const;
 
-    //! It will fill up the gui fields with terrama2 filter object
-    void fillGUI(const terrama2::core::Filter &filter);
+          /*!
+            \brief It checks if there any filter by field
+            \return True if exists filter by Area
+          */
+          bool isFilterByArea() const;
 
-    //! It will populate the filter object with filter values
-    void fillObject(terrama2::core::Filter& filter);
+          /*!
+            \brief It checks if there any filter active
+            \return True if the user filled out some filter
+          */
+          bool isAnyFilter() const;
 
-  private:
-    void setFilterByPreAnalyse();
-    void disablePreFields();
+          //! It will fill up the gui fields with terrama2 filter object
+          void fillGUI(const terrama2::core::Filter &filter);
 
-  private slots:
-    //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date either true or false.
-    void onFilteredByDate();
+          //! It will populate the filter object with filter values
+          void fillObject(terrama2::core::Filter& filter);
 
-    //! Slot triggered whether filter by layer.
-    void onFilteredByLayer();
+        private:
+          //! It disables pre analyses fields and set as filter by analyse
+          void setFilterByPreAnalyse();
 
-    //! Slot triggered whether filter by area.
-    void onFilteredByArea();
+          //! It disables pre analyses fields
+          void disablePreFields();
 
-    void onAfterBtnClicked();
+        private slots:
+          //! Slot trigerred when the user specifies if there any data to skip. Therefore, it marks filter by date either true or false.
+          void onFilteredByDate();
 
-    void onBeforeBtnClicked();
+          //! Slot triggered whether filter by layer.
+          void onFilteredByLayer();
 
-    //! Slot triggered when there is no pre analyse filter
-    void onNoPreAnalyse();
+          //! Slot triggered whether filter by area.
+          void onFilteredByArea();
 
-    //! Slot triggered when there filter by less than values
-    void onFilterByLessThan();
+          //! Slot triggered when after btn has been clicked. It fills the after date input.
+          void onAfterBtnClicked();
 
-    //! Slot triggered when there filter by greater than values
-    void onFilterByGreaterThan();
+          //! Slot triggered when before btn has been clicked. It fills the before date input.
+          void onBeforeBtnClicked();
 
-    //! Slot triggered when there filter by mean less than values
-    void onFilterByMeanLessThan();
+          //! Slot triggered when there is no pre analyse filter
+          void onNoPreAnalyse();
 
-    //! Slot triggered when there filter by mean greater than values
-    void onFilterByMeanGreaterThan();
+          //! Slot triggered when there filter by less than values
+          void onFilterByLessThan();
 
-    void onOkBtnClicked();
+          //! Slot triggered when there filter by greater than values
+          void onFilterByGreaterThan();
 
-  private:
-    struct Impl; //!< Pimpl idiom
-    Impl* pimpl_;
-};
+          //! Slot triggered when there filter by mean less than values
+          void onFilterByMeanLessThan();
 
+          //! Slot triggered when there filter by mean greater than values
+          void onFilterByMeanGreaterThan();
+
+          /*!
+            \brief Slot triggered when ok button has been clicked.
+                   It applies validation and if there is not problem emits accept signal
+          */
+          void onOkBtnClicked();
+
+        private:
+          struct Impl; //!< Pimpl idiom
+          Impl* pimpl_;
+      };
+    }
+  }
+}
 
 #endif // __TERRAMA2_GUI_CONFIG_FILTERDIALOG_HPP__
 

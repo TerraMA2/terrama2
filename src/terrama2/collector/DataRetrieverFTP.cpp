@@ -73,12 +73,12 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
     QString messageError = QObject::tr("Could not deleted file! \n\n Details: \n");
     messageError.append(e.what());
 
-    throw DataRetrieverFTPError() << ErrorDescription(messageError);
+    throw DataRetrieverFTPException() << ErrorDescription(messageError);
   }
 
   catch(...)
   {
-    throw DataRetrieverFTPError() << ErrorDescription(QObject::tr("Unknown Error, could not deleted file!"));
+    throw DataRetrieverFTPException() << ErrorDescription(QObject::tr("Unknown Error, could not deleted file!"));
   }
 }
 
@@ -174,7 +174,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       {
         QString messageError = QObject::tr("Could not list the FTP server files. \n\n Details: \n");
         messageError.append(curl_easy_strerror(status));
-        throw DataRetrieverFTPError() << ErrorDescription(messageError);
+        throw DataRetrieverFTPException() << ErrorDescription(messageError);
       }
 
 // filter file names that should be downloaded.
@@ -206,7 +206,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
           {
             QString messageError = QObject::tr("Could not perform the download files. \n\n Details: \n");
             messageError.append(curl_easy_strerror(res));
-            throw DataRetrieverFTPError() << ErrorDescription(messageError);
+            throw DataRetrieverFTPException() << ErrorDescription(messageError);
           }
           else
           {
@@ -222,12 +222,12 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
     QString messageError = QObject::tr("Could not perform the download files! \n\n Details: \n");
     messageError.append(e.what());
 
-    throw DataRetrieverFTPError() << ErrorDescription(messageError);
+    throw DataRetrieverFTPException() << ErrorDescription(messageError);
   }
 
   catch(...)
   {
-    throw DataRetrieverFTPError() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the download files!"));
+    throw DataRetrieverFTPException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the download files!"));
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.

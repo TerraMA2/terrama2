@@ -4,6 +4,7 @@
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
 #include "TsParserOGR.hpp"
+#include "TsUtils.hpp"
 
 #include "Utils.hpp"
 
@@ -17,20 +18,35 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
-//  TsCollectorService tsCollectorService;
-//  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
+  TsCollectorService tsCollectorService;
+  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
-//  TsDataSetTimer tsDataSetTimer;
-//  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
+  TsDataFilter tsDataFilter;
+  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
 
-//  TsParserOGR tsParserOGR;
-//  returnVal += QTest::qExec(&tsParserOGR, argc, argv);
+  //DataRetriever
 
-//  TsDataFilter tsDataFilter;
-//  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
+  TsDataSetTimer tsDataSetTimer;
+  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
 
-  TsIntegration tsIntegration;
-  returnVal += QTest::qExec(&tsIntegration, argc, argv);
+  //Factory
+
+  //Intersection Operation
+
+  //Log
+
+  //Parser
+
+  TsParserOGR tsParserOGR;
+  returnVal += QTest::qExec(&tsParserOGR, argc, argv);
+
+  //Storager
+
+  TsUtils tsUtils;
+  returnVal += QTest::qExec(&tsUtils, argc, argv);
+
+//  TsIntegration tsIntegration;
+//  returnVal += QTest::qExec(&tsIntegration, argc, argv);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

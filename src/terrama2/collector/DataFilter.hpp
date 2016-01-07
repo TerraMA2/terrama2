@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/Filter.hpp
 
-  \brief Filters data.
+  \brief The DataFilter class is responsible for filtering file names and data.
 
   \author Jano Simas
   \author Evandro Delatin
@@ -67,15 +67,15 @@ namespace terrama2
   namespace collector
   {
     /*!
-     * \brief The DataFilter class is responsible for filtering file names and dataset data.
+     * \brief The DataFilter class is responsible for filtering file names and data.
 
       DataFilter can filter:
-        - Valid names (DataSetItem mask)
+        - Valid names (core::DataSetItem mask)
         - Dates (discardBefore_ and discardAfter_, last logged date)
         - Geometry (in development)
 
       File names will be filtered if they match the mask and dates in the valid date range.
-      DataSet will be filtered by:
+      core::DataSet will be filtered by:
         - Date if the have a te::dt::DATETIME_TYPE column
         - Geometry if the have a te::dt::GEOMETRY_TYPE column
 
@@ -83,21 +83,21 @@ namespace terrama2
      */
     class DataFilter : public boost::noncopyable
     {
-      public:
+    public:
       /*!
-           \brief Creates a DataFilter object to filter DataSetItem data.
+           \brief Creates a DataFilter object to filter core::DataSetItem data.
 
-           Recover last collected date for the DataSetItem,
+           Recover last collected date for the core::DataSetItem,
            and pre process the mask.
 
 
-           \exception EmptyMaskError Raise when DataSetItem Filter mask is not set.
+           \exception EmptyMaskError Raise when core::DataSetItem Filter mask is not set.
          */
-        DataFilter(const core::DataSetItem& datasetItem, const terrama2::collector::Log& collectLog);
-        ~DataFilter();
+      DataFilter(const core::DataSetItem& datasetItem, const terrama2::collector::Log& collectLog);
+      ~DataFilter();
 
-        /*!
-              \brief Filters a list of names using filtering criteria.
+      /*!
+              \brief Filters a list of names by matching criteria.
 
               \note Updates dataSetLastDateTime_
 
@@ -105,119 +105,119 @@ namespace terrama2
 
               \return List of filtered names.
              */
-        std::vector<std::string> filterNames(const std::vector<std::string> &namesList);
+      std::vector<std::string> filterNames(const std::vector<std::string> &namesList);
 
-        /*!
+      /*!
              \brief Filters a te::da::DataSet by matching criteria.
 
              Will only filter dates if there is a te::dt::DATETIME_TYPE attribute in the dataset,
              geometry expects a te::dt::GEOMETRY_TYPE attribute.
 
              \note geometry filter is not implemented yet
+
              \note Updates dataSetLastDateTime_
 
              \param dataSet DataSet to be filtered.
 
              \pre Filtering rules should have been set, otherwise unmodified DataSet is returned.
+
              \pre Tarralib should be initialized.
 
              \return Filtered DataSet.
              */
-        std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType);
+      std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType);
 
-        /*!
-             * \brief Returns the lastest timestamp found in the DataSetItem.
+      /*!
+             * \brief Returns the lastest timestamp found in the core::DataSetItem.
              */
-        te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
-
-        /*!
-             * \brief Returns the lastests date and time found in the DataSetItem.
-             */
-        void getDataSetLastDateTime(te::dt::Date& date, te::dt::TimeDuration& time) const;
+      te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
 
     private:
-        void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
+      //! Updates last date time collected.
+      void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
 
-        /*!
+      /*!
            \brief Prepare mask data for wildcards identification
 
-           \exception EmptyMaskError Raise when DataSetItem Filter mask is not set.
+           \exception EmptyMaskError Raise when core::DataSetItem Filter mask is not set.
          */
-        void processMask();
-        //! Returns true if the date is after discardBefore_ and before discardAfter. Updates dataSetLastDateTime_ with the latest date.
-        bool validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
+      void processMask();
+      /*!
+         \brief Returns true if the date is after discardBefore_ and before discardAfter.
 
-        /*!
+         \warning Updates dataSetLastDateTime_ with the latest date.
+         */
+      bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
+
+      /*!
            \brief Verifies if the time is after discardBeforeTime.
 
            Check if hours, minutes and seconds are after discardBeforeTime,
            if any of them is -1 it's considered after, the others are checked.
          */
-        bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const std::string& timezone, const boost::posix_time::time_duration& discardBeforeTime) const;
-        /*!
+      bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const std::string& timezone, const boost::posix_time::time_duration& discardBeforeTime) const;
+      /*!
            \brief Verifies if the time is after discarBeforeDate.
 
            Check if year, month and day are after discarBeforeDate,
            if any of them is 0 it's considered after, the others are checked.
          */
-        bool isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discarBeforeDate) const;
-        //! Check if value == 0 or value >= discardBeforeValue
-        bool isAfterDiscardBeforeValue(unsigned int value, unsigned int discardBeforeValue) const;
+      bool isAfterDiscardBeforeDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discarBeforeDate) const;
+      //! Check if value == 0 or value >= discardBeforeValue
+      bool isAfterDiscardBeforeValue(unsigned int value, unsigned int discardBeforeValue) const;
 
 
-        /*!
+      /*!
            \brief Verifies if the time is before discardAfterTime.
 
            Check if hours, minutes and seconds are before discardAfterTime,
            if any of them is -1 it's considered before, the others are checked.
          */
-        bool isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardAfterTime) const;
-        /*!
+      bool isBeforeDiscardAfterTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardAfterTime) const;
+      /*!
            \brief Verifies if the time is before discardAfterDate.
 
            Check if year, month and day are before discardAfterDate,
            if any of them is 0 it's considered before, the others are checked.
          */
-        bool isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discardAfterDate) const;
-        //! Check if value == 0 or value <= discardAfterValue
-        bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
+      bool isBeforeDiscardAfterDate(unsigned int year, unsigned int month, unsigned int day, const boost::gregorian::date& discardAfterDate) const;
+      //! Check if value == 0 or value <= discardAfterValue
+      bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
-        const core::DataSetItem& datasetItem_; //! DataSetItem to be filtered
-        //TODO: VINICIUS: dataSetLastDateTime_ should be separated as a date and a time object, this way we can compare with incomplete masks and save incomplete date/time
-        std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //! Latest valid date found
-        std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //! Only date after this will be valid
-        std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_;//! Only date before this will be valid
+      const core::DataSetItem& datasetItem_; //!< core::DataSetItem to be filtered
+      std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //!< Latest valid date found
+      std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Earliest valid time/date.
+      std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Latest valid time/date.
 
-        struct
-        {
-          const std::string year4Str     = "%A"; //! Wilcard string for 4 digit year
-          const std::string year2Str     = "%a"; //! Wilcard string for 2 digit year
-          const std::string monthStr     = "%M"; //! Wilcard string for 2 digit month
-          const std::string dayStr       = "%d"; //! Wilcard string for 2 digit day
-          const std::string hourStr      = "%h"; //! Wilcard string for 2 digit hour
-          const std::string minuteStr    = "%m"; //! Wilcard string for 2 digit minute
-          const std::string secondStr    = "%s"; //! Wilcard string for 2 digit second
-          const std::string wildCharStr  = "%."; //! Wilcard string for any digit
+      struct
+      {
+        const std::string year4Str     = "%A"; //!< Wilcard string for 4 digit year
+        const std::string year2Str     = "%a"; //!< Wilcard string for 2 digit year
+        const std::string monthStr     = "%M"; //!< Wilcard string for 2 digit month
+        const std::string dayStr       = "%d"; //!< Wilcard string for 2 digit day
+        const std::string hourStr      = "%h"; //!< Wilcard string for 2 digit hour
+        const std::string minuteStr    = "%m"; //!< Wilcard string for 2 digit minute
+        const std::string secondStr    = "%s"; //!< Wilcard string for 2 digit second
+        const std::string wildCharStr  = "%."; //!< Wilcard string for any digit
 
+        //! \cond PRIVATE
+        //
+        // position of wildcards in the mask, corrected by real length
+        int year4Pos     = -1;
+        int year2Pos     = -1;
+        int monthPos     = -1;
+        int dayPos       = -1;
+        int hourPos      = -1;
+        int minutePos    = -1;
+        int secondPos    = -1;
+        int wildCharPos  = -1;
+        //! \endcond
 
-          //! \cond PRIVATE
-          //
-          // position of wildcards in the mask, corrected by real length
-          int year4Pos     = -1;
-          int year2Pos     = -1;
-          int monthPos     = -1;
-          int dayPos       = -1;
-          int hourPos      = -1;
-          int minutePos    = -1;
-          int secondPos    = -1;
-          int wildCharPos  = -1;
-          //! \endcond
-
-          boost::regex regex; //! Regex of mask
-        } maskData;//! Preprocessed mask data to validade filenames
+        boost::regex regex; //!< Regex of mask
+      } maskData;//!< Preprocessed mask data to validade filenames
     };
 
-    typedef std::shared_ptr<DataFilter> DataFilterPtr;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr; //!< Shared pointer for DataFilter.
   }
 }
 

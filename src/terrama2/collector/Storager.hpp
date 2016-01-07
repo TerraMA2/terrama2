@@ -42,38 +42,37 @@ namespace terrama2
   {
 
     /*!
-         * \brief The Storager class store the data in the final storage area and format.
-         *
-         * The Storager is responsible for creating the final storaging area and
-         * converting the data (terralib) to the appropriate format.
-         *
+          \brief The Storager class store the data in the final storage area and format.
+
+          The Storager is responsible for creating the final storaging area and
+          converting the data (terralib) to the appropriate format.
+
          */
     class Storager : public boost::noncopyable
     {
-      public:
-        Storager(const std::map<std::string, std::string>& storageMetadata);
+    public:
+      //! Constructor. Stores metadata for later use.
+      Storager(const std::map<std::string, std::string>& storageMetadata);
 
-        /*!
+      /*!
           \brief Store a temporary data set in it's final storage area and format.
           \param Code name for the storage dataset, may not be used if defined in the storage metadata
 
-          \return Pointer to a te::da::DataSet of the final storage.
+          \return Uri of the final storage.
 
           \pre Terralib should be initialized.
-
-          \exception TODO: Storager::store exception...
          */
-        virtual std::string store(const std::string& standardDataSetName,
-                                  const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                  const std::shared_ptr<te::da::DataSetType> &dataSetType) = 0;
+      virtual std::string store(const std::string& standardDataSetName,
+                                const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+                                const std::shared_ptr<te::da::DataSetType> &dataSetType) = 0;
 
 
-      protected:
-        std::map<std::string, std::string> storageMetadata_;
+    protected:
+      std::map<std::string, std::string> storageMetadata_;//!< Specifications of where and how to store the data.
 
     };
 
-    typedef std::shared_ptr<Storager> StoragerPtr;
+    typedef std::shared_ptr<Storager> StoragerPtr; //!< Shared pointer to Storager
   }
 }
 

@@ -63,7 +63,7 @@
 
 std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std::vector<std::string>& namesList)
 {
-  //get list of matching regex (only string format, no date valeu comparison
+  //get list of matching regex (only string format, no date value comparison
   std::vector<std::string> matchesList;
   for(const std::string &name : namesList)
   {
@@ -194,7 +194,7 @@ void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_t
     dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
 }
 
-bool terrama2::collector::DataFilter::validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
+bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
 {
   //discard out of valid range dates
   std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
@@ -381,7 +381,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
     if(dateColumn > 0)
     {
       //Filter Time if has a dateTime column
-      if(!validateDate(dateColumn, dataSet))
+      if(!validateAndUpdateDate(dateColumn, dataSet))
         continue;
     }
 
@@ -401,13 +401,6 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
 te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime() const
 {
   return dataSetLastDateTime_.get();
-}
-
-void terrama2::collector::DataFilter::getDataSetLastDateTime(te::dt::Date& date, te::dt::TimeDuration& time) const
-{
-  date = dataSetLastDateTime_->getTimeInstantTZ().date();
-  boost::posix_time::time_duration td = dataSetLastDateTime_->getTimeInstantTZ().local_time().time_of_day();
-  time = te::dt::TimeDuration(td);
 }
 
 terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, const Log& collectLog)
@@ -444,7 +437,7 @@ void terrama2::collector::DataFilter::processMask()
 {
   std::string mask = datasetItem_.mask();
   if(mask.empty())
-    throw EmptyMaskError() << terrama2::ErrorDescription(QObject::tr("Filter mask is empty."));
+    throw EmptyMaskException() << terrama2::ErrorDescription(QObject::tr("Filter mask is empty."));
 
   //used to fix the position of wildcards where real values have different size from wild cards.
   int distance = 0;
