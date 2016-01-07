@@ -57,19 +57,19 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
   }
   catch(te::common::Exception& e)
   {
-    throw LogError() << ErrorDescription( e.what());;
+    throw LogException() << ErrorDescription( e.what());;
   }
   catch(terrama2::Exception& e)
   {
-    throw LogError() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(std::exception& e)
   {
-    throw LogError() << ErrorDescription( e.what());
+    throw LogException() << ErrorDescription( e.what());
   }
   catch(...)
   {
-    throw LogError() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
   }
   return 0;
 }
@@ -77,7 +77,7 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
 void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vector< std::string >& origin_uris, const Status s) const
 {
   if(origin_uris.empty())
-    throw LogError() << ErrorDescription("terrama2::collector::Log: No files to log.");
+    throw LogException() << ErrorDescription("terrama2::collector::Log: No files to log.");
 
   try
   {
@@ -105,19 +105,19 @@ void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vec
   }
   catch(terrama2::Exception& e)
   {
-    throw LogError() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(te::common::Exception& e)
   {
-    throw LogError() << ErrorDescription(e.what());;
+    throw LogException() << ErrorDescription(e.what());;
   }
   catch(std::exception& e)
   {
-    throw LogError() << ErrorDescription(e.what());
+    throw LogException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw LogError() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
   }
 }
 
@@ -138,19 +138,19 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
   }
   catch(terrama2::Exception& e)
   {
-    throw LogError() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(te::common::Exception& e)
   {
-    throw LogError() << ErrorDescription( e.what());;
+    throw LogException() << ErrorDescription( e.what());;
   }
   catch(std::exception& e)
   {
-    throw LogError() << ErrorDescription( e.what());
+    throw LogException() << ErrorDescription( e.what());
   }
   catch(...)
   {
-    throw LogError() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
   }
 }
 
@@ -158,7 +158,7 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
 void terrama2::collector::Log::updateLog(const std::vector< std::string >& origin_uris, const std::string& uri, const Status s, const std::string& data_timestamp) const
 {
   if(origin_uris.empty())
-    throw LogError() << ErrorDescription("terrama2::collector::Log: No files to update.");
+    throw LogException() << ErrorDescription("terrama2::collector::Log: No files to update.");
 
   try
   {
@@ -201,19 +201,19 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
   }
   catch(terrama2::Exception& e)
   {
-    throw LogError() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
   catch(te::common::Exception& e)
   {
-    throw LogError() << ErrorDescription( e.what());;
+    throw LogException() << ErrorDescription( e.what());;
   }
   catch(std::exception& e)
   {
-    throw LogError() << ErrorDescription( e.what());
+    throw LogException() << ErrorDescription( e.what());
   }
   catch(...)
   {
-    throw LogError() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
   }
 }
 

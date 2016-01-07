@@ -39,12 +39,21 @@ namespace terrama2
   namespace collector
   {
 
+    /*!
+       \brief Parser for Postgres/PostGis data sources.
+     */
     class ParserPostgis : public Parser
     {
       public:
+      //! Default contructor
         ParserPostgis() : Parser(){}
+        //! Default destructor
         virtual ~ParserPostgis(){}
 
+
+        /**
+            \brief \copybrief Parser::read()
+            */
         virtual void read(const terrama2::core::DataSetItem& datasetitem,
                           const std::string& uri,
                           DataFilterPtr filter,

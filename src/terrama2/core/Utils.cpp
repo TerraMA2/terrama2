@@ -123,7 +123,7 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
     QString err_msg(QObject::tr("Error parsing file '%1': %2."));
     err_msg = err_msg.arg(fileName.c_str()).arg(parse_error.errorString());
 
-    throw terrama2::ParserException() << terrama2::ErrorDescription(err_msg);
+    throw terrama2::JSonParserException() << terrama2::ErrorDescription(err_msg);
   }
 
   return jdocument;

@@ -57,10 +57,10 @@ namespace terrama2
     class DataFilter;
     typedef std::shared_ptr<DataFilter> DataFilterPtr;
     /*!
-          \brief The Parser class interprets the origin format and returns a te::da::DataSet.
+          \brief The Parser class interprets the original format and returns a te::da::DataSet.
 
-          This class is responsible for interpreting the data to use with te::da::DataSet,
-          if not compatible it will convert to a compatible format.
+          The Parser class is an base abstract class for classes that interpret an original data source
+          into a te::da::DataSet.
 
          */
     class Parser : public boost::noncopyable
@@ -68,9 +68,9 @@ namespace terrama2
     public:
 
       /*!
-       \brief Reads the data refered in the uri and converts to a te::da::DataSet compatible format.
+       \brief Reads the data refered in the uri and converts to a te::da::DataSet.
 
-       If the datatype is known the parser will identify the data and convert to better data types.
+       If the datatype is known to the parser, it will identify the data and convert to better data types.
        ex: date string to Date format and lat long strings to point geometry.
 
        \param uri URI to the data.
@@ -78,8 +78,8 @@ namespace terrama2
        \param datasetVec Will be populated with parsed datasets.
        \param datasetType DataSetType of found datasets
 
-       \exception UnableToReadDataSetError Raised if could not open the dataset, read error message for more information.
-       \exception NoDataSetFoundError Raised if no dataset was found in given url
+       \exception UnableToReadDataSetException Raised if could not open the dataset, read error message for more information.
+       \exception NoDataSetFoundException Raised if no dataset was found in given url
        \pre Tarralib should be initialized.
        */
 
@@ -90,11 +90,11 @@ namespace terrama2
                         std::shared_ptr<te::da::DataSetType>& datasetType) = 0;
 
     protected:
-      core::DataSetItem dataSetItem_;
+      core::DataSetItem dataSetItem_;//!< core::DataSetItem stored to retrieve information in minor cases.
     };
 
 
-    typedef std::shared_ptr<Parser> ParserPtr;
+    typedef std::shared_ptr<Parser> ParserPtr; //!< Shared pointer for Parser
   }
 }
 

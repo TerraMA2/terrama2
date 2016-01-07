@@ -72,7 +72,7 @@ void terrama2::collector::ParserPostgis::read(const core::DataSetItem& /*dataset
 
     if(!datasource->isOpened())
     {
-      throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+      throw UnableToReadDataSetException() << terrama2::ErrorDescription(
                                             QObject::tr("DataProvider could not be opened."));
     }
 
@@ -83,7 +83,7 @@ void terrama2::collector::ParserPostgis::read(const core::DataSetItem& /*dataset
     std::vector<std::string> names = transactor->getDataSetNames();
     names = filter->filterNames(names);
     if(names.empty())
-      throw NoDataSetFoundError() << terrama2::ErrorDescription(QObject::tr("No DataSet Found."));
+      throw NoDataSetFoundException() << terrama2::ErrorDescription(QObject::tr("No DataSet Found."));
 
     for(const std::string& name : names)
     {
@@ -92,7 +92,7 @@ void terrama2::collector::ParserPostgis::read(const core::DataSetItem& /*dataset
 
       if(!dataSet || !datasetType)
       {
-        throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+        throw UnableToReadDataSetException() << terrama2::ErrorDescription(
                                               QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
       }
 
@@ -103,11 +103,11 @@ void terrama2::collector::ParserPostgis::read(const core::DataSetItem& /*dataset
   {
     //TODO: log de erro
     qDebug() << e.what();
-    throw UnableToReadDataSetError() << terrama2::ErrorDescription(
+    throw UnableToReadDataSetException() << terrama2::ErrorDescription(
                                           QObject::tr("Terralib exception: ") +e.what());
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetError() << terrama2::ErrorDescription(QObject::tr("Std exception.")+e.what());
+    throw UnableToReadDataSetException() << terrama2::ErrorDescription(QObject::tr("Std exception.")+e.what());
   }
 }
