@@ -48,12 +48,12 @@
 #include <QSharedPointer>
 
 
-// Forward declarations
-
 namespace terrama2
 {
   namespace gui
   {
+
+    // Forward declaration
     namespace core
     {
       class ConfigManager;
@@ -69,8 +69,6 @@ namespace terrama2
         \class ConfigApp
 
         \brief TerraMA2 Configuration Window
-
-               It initializes entire TerraM
       */
       class ConfigApp : public QMainWindow, private  boost::noncopyable
       {
