@@ -25,6 +25,8 @@
   \brief The base API for TerraMA2 application.
 
   \author Paulo R. M. Oliveira
+  \author Evandro Delatin
+  \author Jano Simas
 */
 
 #ifndef __TERRAMA2_CORE_APPLICATION_CONTROLLER_HPP__
@@ -66,7 +68,7 @@ namespace terrama2
 
           \return Returns a auto pointer to the datasource transactor.
 
-          \exception DataAccessError If it is not possible to get a new data source transactor an exception is raisen.
+          \exception DataAccessException If it is not possible to get a new data source transactor an exception is raisen.
         */
         std::auto_ptr<te::da::DataSourceTransactor> getTransactor();
 
@@ -80,9 +82,36 @@ namespace terrama2
         /*!
           \brief Creates a database with TerraMA2's data model.
 
+          \param dbName - database name.
+          \param username - user name database.
+          \param password - Password database
+          \param host - Address access to the database. Ex. localhost.
+          \param port - database service port.
+
           \return Returns true if the database was create successfully.
+          \exception DataAccessException when invalid data from the database interface.
+          \exception DataAccessException when could not connect to the database.
+          \exception DataAccessException when unknown error, could not connect to the database.
+          \exception DataAccessException when database exists.
+          \exception DataAccessException when could not close the database.
+          \exception DataAccessException when unknown error, could not close the database.
+          \exception DataAccessException when could not create the database.
+          \exception DataAccessException when unknown error, could not create the database.
         */
         void createDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port);
+
+        /*!
+          \brief Check if TerraMA2's database exists.
+
+          \param dbName - database name.
+          \param username - user name database.
+          \param password - Password database
+          \param host - Address access to the database. Ex. localhost.
+          \param port - database service port.
+
+          \return Returns true if the database exists.
+          \exception DataAccessException when Unknown Error, could not check if database exists.
+        */
         bool checkConnectionDatabase(const std::string& dbName, const std::string& username, const std::string& password, const std::string& host, const int port);
 
       protected:

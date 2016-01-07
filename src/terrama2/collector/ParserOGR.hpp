@@ -53,12 +53,23 @@ namespace terrama2
   namespace collector
   {
 
+    /*!
+       \brief The ParserOGR class is a generic Parser for OGR files.
+
+       It can parse CSV and shapefiles, specific formated data must be processed in derived classes.
+
+     */
     class ParserOGR : public Parser
     {
       public:
+      //! Default constructor
         ParserOGR() : Parser(){}
+        //! Default destructor
         virtual ~ParserOGR(){}
 
+        /**
+            \brief \copybrief Parser::read()
+            */
         virtual void read(const terrama2::core::DataSetItem& datasetitem,
                           const std::string& uri,
                           DataFilterPtr filter,
@@ -66,9 +77,23 @@ namespace terrama2
                           std::shared_ptr<te::da::DataSetType>& datasetType) override;
 
     protected:
+        /*!
+           \brief Creates a te::da::DataSetTypeConverter that allow changes in the structure of the te::da::DataSet.
+
+           Removes the column FID from the dataset.
+
+           \param datasetType Original te::da::DataSetType.
+           \return Shared pointer to a te::da::DataSetTypeConverter
+         */
         virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType);
 
+        /*!
+           \brief Adapt the columns and data format based on the specific semantic of the data.
+
+           Does nothing, must be overridden.
+         */
         virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter){ }
+        //! \brief Add all columns of the \a datasetType to the \a converter
         virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType);       
     };
   }

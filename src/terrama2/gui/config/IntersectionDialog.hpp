@@ -55,33 +55,76 @@ namespace te
   }
 }
 
-class IntersectionDialog : public QDialog
+namespace terrama2
 {
-  Q_OBJECT
+  namespace gui
+  {
+    namespace config
+    {
+      /*
+        \class IntersectionDialog
 
-  public:
-    IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent = 0, Qt::WindowFlags f = 0);
-    ~IntersectionDialog();
+        \brief Dialog to configure the intersection.
+       */
+      class IntersectionDialog : public QDialog
+      {
+        Q_OBJECT
 
-    void fillAttributeTable(std::auto_ptr<te::da::DataSetType> dataset);
-    void fillVectorialList();
-    void fillRasterList();
-    terrama2::core::Intersection getIntersection() const;
+        public:
+          /*!
+            \brief Constructor
+            \param intersection Intersection information from the dataset.
+            \param database Database connection parameters.
+            \param parent Parent widget.
+            \param f Window flags.
+          */
+          IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-  private slots:
-    void onOkBtnClicked();
-    void onDatasetSelected();
-    void onRasterSelected(int row, int column);
-    void onAttributeSelected(int row, int column);
-    void showVectorialPage();
-    void showGridPage();
+          //! Destructor.
+          ~IntersectionDialog();
 
-  private:
-    struct Impl;
-    Impl* pimpl_;
+          /*!
+            \brief Fills the attribute table with the columns from the given dataset type.
+            \param dataset Dataset type from the selected data.
+          */
+          void fillAttributeTable(std::auto_ptr<te::da::DataSetType> dataset);
 
-};
+          //! Fills the vectorial list with all vectorial data stored in the database, it doesn't list the collected data.
+          void fillVectorialList();
 
+          //! Fills the list of grid with the datasets of the type GRID.
+          void fillRasterList();
+
+          //! Returns the intersection information filled in this dialog.
+          terrama2::core::Intersection getIntersection() const;
+
+        private slots:
+          //! Slot called when OK button is pressed.
+          void onOkBtnClicked();
+
+          //! Slot called when a vectorial dataset is selected, it fills the list of columns.
+          void onDatasetSelected();
+
+          //! Slot called when a grid dataset is selected.
+          void onRasterSelected(int row, int column);
+
+          //! Slot called when an attribute is selected.
+          void onAttributeSelected(int row, int column);
+
+          //! Slot called to show the vectorial page.
+          void showVectorialPage();
+
+          //! Slot called to show the grid page.
+          void showGridPage();
+
+        private:
+          struct Impl;
+          Impl* pimpl_; //!< Pimpl idiom.
+
+      };
+    } // end namespace config
+  }   // end namespace gui
+}     // end namespace terrama2
 
 #endif // __TERRAMA2_GUI_CONFIG_INTERSECTIONDIALOG_HPP__
 

@@ -24,17 +24,20 @@ namespace terrama2
 
       public:
 
-        //! Defines level of severity message in terrama2 log.
+        //! Defines level of severity message in \c terrama2 log.
         enum SeverityLevel
         {
-          TRACE,
-          DEBUG,
-          INFO,
-          WARNING,
-          ERROR,
-          FATAL
+          TRACE,   ///< Define a trace system alert in file. It will be useful to trace where it has gone
+          DEBUG,   ///< Define a debug severity message in file. It will be useful in development side.
+          INFO,    ///< Define a info message for notify a common action.
+          WARNING, ///< Define a warning alert in log file, representing that something may go wrong.
+          ERROR,   ///< Define a error system alert. Useful when something unexpected occurs.
+          FATAL    ///< Define a fatal application alert. A runtime error or uncaught exception that shutdown application.
         };
 
+        /*!
+          \brief A abreviation of a boost text log stream
+        */
         typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> text_sink;
 
         //! It initializes configuration to global boost logger
@@ -47,12 +50,17 @@ namespace terrama2
         void addStream(const std::string& stream_name);
 
       protected:
+        /*!
+          \brief Protected default constructor.
+        */
         Logger();
+
+        //! Destructor
         ~Logger();
 
       private:
         boost::shared_ptr<text_sink> sink_; //!< Sink for handling records.
-        std::string loggerPath_; //!<
+        std::string loggerPath_;            //!< Path to the log.
     }; // end class logger
 
     //! Override operator<< to enable sets terrama2 exception in log. It formats the exception and put it in stream
@@ -82,6 +90,12 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(terrama2_logger, boost::log::sources::s
 #define TERRAMA2_LOG_WARNING() TERRAMA2_LOG(terrama2::core::Logger::WARNING)
 #define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::ERROR)
 #define TERRAMA2_LOG_FATAL() TERRAMA2_LOG(terrama2::core::Logger::FATAL)
+
+//! Override operator<< to enable sets QString in log.
+inline std::ostream& operator<<(std::ostream& stream, const QString message)
+{
+  return stream << message.toStdString();
+}
 
 
 #endif // __TERRAMA2_CORE_LOGGER_HPP__

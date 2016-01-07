@@ -79,7 +79,7 @@ void TsParserOGR::TestEmptyFile()
 
     QFAIL(UNEXPECTED_BEHAVIOR);
   }
-  catch(terrama2::collector::UnableToReadDataSetError& e)
+  catch(terrama2::collector::UnableToReadDataSetException& e)
   {
     return;
   }
@@ -170,7 +170,7 @@ void TsParserOGR::TestInvalidFolder()
 
     QFAIL(NO_EXCEPTION_THROWN);
   }
-  catch(terrama2::collector::InvalidFolderError& e)
+  catch(terrama2::collector::InvalidFolderException& e)
   {
 
   }
@@ -198,7 +198,7 @@ void TsParserOGR::TestEmptyFolder()
 
     QFAIL(NO_EXCEPTION_THROWN);
   }
-  catch(terrama2::collector::NoDataSetFoundError& e)
+  catch(terrama2::collector::NoDataSetFoundException& e)
   {
   }
   catch(...)

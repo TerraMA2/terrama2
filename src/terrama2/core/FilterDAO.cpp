@@ -48,7 +48,7 @@ void
 terrama2::core::FilterDAO::save(const Filter& filter, te::da::DataSourceTransactor& transactor)
 {
   if(filter.datasetItem() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%, %9%)");
 
@@ -94,7 +94,7 @@ terrama2::core::FilterDAO::save(const Filter& filter, te::da::DataSourceTransact
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -102,7 +102,7 @@ terrama2::core::FilterDAO::save(const Filter& filter, te::da::DataSourceTransact
 
     err_msg = err_msg.arg(filter.datasetItem());
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -110,7 +110,7 @@ void
 terrama2::core::FilterDAO::update(const Filter& filter, te::da::DataSourceTransactor& transactor)
 {
   if(filter.datasetItem() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
                       "discard_after = %2%, geom = %3%, external_data_id = %4%, "
@@ -158,7 +158,7 @@ terrama2::core::FilterDAO::update(const Filter& filter, te::da::DataSourceTransa
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -166,7 +166,7 @@ terrama2::core::FilterDAO::update(const Filter& filter, te::da::DataSourceTransa
 
     err_msg = err_msg.arg(filter.datasetItem());
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -174,7 +174,7 @@ void
 terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetItemId == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove filter information for an invalid dataset item identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove filter information for an invalid dataset item identifier: 0."));
 
   std::string sql("DELETE FROM terrama2.filter WHERE dataset_item_id = ");
               sql += std::to_string(datasetItemId);
@@ -185,7 +185,7 @@ terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTran
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -193,7 +193,7 @@ terrama2::core::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourceTran
 
     err_msg = err_msg.arg(datasetItemId);
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -202,7 +202,7 @@ terrama2::core::FilterDAO::load(const DataSetItem& datasetItem, te::da::DataSour
 {
   uint64_t datasetItemId = datasetItem.id();
   if(datasetItemId == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load filter information for an invalid dataset item identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load filter information for an invalid dataset item identifier: 0."));
 
   std::string sql("SELECT * FROM terrama2.filter WHERE dataset_item_id = ");
               sql += std::to_string(datasetItemId);
@@ -262,7 +262,7 @@ terrama2::core::FilterDAO::load(const DataSetItem& datasetItem, te::da::DataSour
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -270,7 +270,7 @@ terrama2::core::FilterDAO::load(const DataSetItem& datasetItem, te::da::DataSour
 
     err_msg = err_msg.arg(datasetItemId);
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 

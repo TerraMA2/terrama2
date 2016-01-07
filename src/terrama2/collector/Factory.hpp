@@ -64,22 +64,19 @@ namespace terrama2
       /*!
        * \brief Creates a parser for the specified uri.
        * \param uri Uri of the data
-       * \param datasetItem DataSetItem to collect
+       * \param datasetItem core::DataSetItem to collect
        * \return A shared_ptr to a parser of the right type.
        */
       ParserPtr makeParser(const std::string& uri, const core::DataSetItem &datasetItem);
 
       /*!
-        \brief Makes a storager based on the storageMetadata of the DataSetItem.
-
-        If no storage metadata, the TerraMA2 configuration database is used.
-
-        \param datasetItem DataSetItem with storage data.
+        \brief Makes a storager based on the storageMetadata of the core::DataSetItem.
+        \param datasetItem core::DataSetItem with storage data.
         \return A shared_ptr to a storager of the right type.
        */
       StoragerPtr makeStorager(const core::DataSetItem &datasetItem);
 
-      //! Creates a DataRetriever for the DataProvider, if retrieving is not necessary creates a dummy retriever.
+      //! Creates a DataRetriever for the core::DataProvider, if retrieving is not necessary creates a dummy retriever.
       DataRetrieverPtr makeRetriever(const core::DataProvider& dataProvider);
     }
   }

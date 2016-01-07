@@ -20,6 +20,8 @@
 */
 
 /*!
+  \class ConfigApp
+
   \file terrama2/gui/config/ConfigApp.hpp
 
   \brief Main GUI for TerraMA2 Config application.
@@ -46,61 +48,112 @@
 #include <QSharedPointer>
 
 
-class ConfigAppTab;
-class ConfigAppWeatherTab;
+// Forward declarations
 class ConfigManager;
-
-class ConfigApp : public QMainWindow, private  boost::noncopyable
+namespace terrama2
 {
-  Q_OBJECT
-
-  public:
-  
-    /*! Default constructor.
-      \exception terrama2::InitializationError <It may be raised when cannot find TerraMA2 icons library folder>
-
+  /*!
+    \brief A namespace for handling TerraMA2 gui applications
+  */
+  namespace gui
+  {
+    /*!
+      \brief A namespace for handling TerraMA2 configuration module
     */
-    ConfigApp(QWidget* parent = 0, Qt::WindowFlags flags = 0);
+    namespace config
+    {
+      // Forward declaration
+      class ConfigAppTab;
+      class ConfigAppWeatherTab;
 
-    //! Destructor.
-    ~ConfigApp();
+      /*!
+        \class ConfigApp
 
-    //! It retrieves the ui from pimpl_
-    Ui::ConfigAppForm* ui() const;
+        \brief TerraMA2 Configuration Window
+      */
+      class ConfigApp : public QMainWindow, private  boost::noncopyable
+      {
+        Q_OBJECT
 
-    //! It sets the current tab index
-    void setCurrentTabIndex(const int& index);
+        public:
 
-    //! It retrieves the current tab index in application runtime
-    int getCurrentTabIndex() const;
+          /*! Default constructor.
+            \param parent Represents the QT Widget owner (default nullptr)
+            \param flags  It handling gui window kind (0 defined as Widget)
+            \exception terrama2::InitializationException It may be raised when cannot find TerraMA2 icons library folder
+          */
+          ConfigApp(QWidget* parent = nullptr, Qt::WindowFlags flags = 0);
 
-    //! It retrieves the weather tab
-    QSharedPointer<ConfigAppWeatherTab> getWeatherTab() const;
+          //! Destructor.
+          ~ConfigApp();
 
-    //! It retrieves the collector client
-    QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
+          /*!
+            \brief It retrieves the ui from pimpl_
+            \return A pointer to ConfigAppTab GUI members containing qt widgets
+          */
+          Ui::ConfigAppForm* ui() const;
 
-    QSharedPointer<ConfigManager> getConfiguration() const;
+          /*!
+           \brief It resets the gui application to initial state
+          */
+          void unload();
 
-  private slots:
-    //! Slot triggered when tab index clicked. It handles global tabs among application
-    void tabChangeRequested(int);
+          /*!
+           \brief It sets the current tab index
+          */
+          void setCurrentTabIndex(const int& index);
 
-    //! Slot triggered in open button click. It load the terrama2 configuration and it dispatches load for each tab
-    void openRequested();
-  
-  private:
-    struct Impl;
+          /*!
+           \brief It retrieves the current tab index in application runtime
+           \return A int value containing gui active tab index
+          */
+          int getCurrentTabIndex() const;
 
-    Impl* pimpl_; //!< Pimpl idiom
+          /*!
+           \brief It retrieves the weather tab
+           \return A shared pointer to ConfigAppWeatherTab class
+          */
+          QSharedPointer<ConfigAppWeatherTab> getWeatherTab() const;
 
-    int currentTabIndex_; //!< index of active tab
+          /*!
+           \brief It retrieves the collector client
+           \return A shared pointer to terrama2::ws::collector::client::Client class.
+          */
+          QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
 
-    QSharedPointer<ConfigManager> configManager_; //!< It contains metadata from terrama2 administration file
+          /*!
+           \brief It retrieves the ConfigManager instance containing application settings
+           \return A shared pointer to ConfigManager class. It contains application config.
+          */
+          QSharedPointer<ConfigManager> getConfiguration() const;
 
-    QSharedPointer<ConfigAppWeatherTab> weatherTab_; //!< Attribute for handling WeatherTab
+        private slots:
+          /*!
+           \brief Slot triggered when tab index clicked. It handles global tabs among application
+           \param index Contains a requested tab index value
+          */
+          void tabChangeRequested(int index);
 
-    QSharedPointer<terrama2::ws::collector::client::Client> client_;  //!< gsoap collector client
-};
+          /*!
+           \brief Slot triggered in open button click. It load the TerraMA2 configuration and it dispatches load for each tab
+          */
+          void openRequested();
+
+        private:
+          struct Impl;
+
+          Impl* pimpl_; //!< Pimpl idiom
+
+          int currentTabIndex_; //!< index of active tab
+
+          QSharedPointer<ConfigManager> configManager_; //!< It contains metadata from TerraMA2 administration file
+
+          QSharedPointer<ConfigAppWeatherTab> weatherTab_; //!< Attribute for handling WeatherTab
+
+          QSharedPointer<terrama2::ws::collector::client::Client> client_;  //!< gsoap collector client
+      };
+    }
+  }
+}
 
 #endif // __TERRAMA2_GUI_CONFIG_CONFIGAPP_HPP__

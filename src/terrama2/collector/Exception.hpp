@@ -38,66 +38,57 @@ namespace terrama2
   {
     struct Exception : virtual terrama2::Exception { };
 
-    //! Base exception for CollectorService exceptions
-    struct CollectorServiceError : virtual Exception { };
+    //! Base exception for CollectorService
+    struct CollectorServiceException : virtual Exception { };
 
-    //! Base exception for DataRetrieverFTP excetptions
-    struct DataRetrieverFTPError : virtual Exception { };
+    //! Base exception for DataRetrieverFTP
+    struct DataRetrieverFTPException : virtual Exception { };
 
-    /*!
-       \brief Raised when the collector service could not be started.
-
-       Check error info for more information.
-
-     */
-    struct UnableToStartServiceError : virtual CollectorServiceError { };
+    //! Raised when the collector service could not be started. Check error info for more information.
+    struct UnableToStartServiceException : virtual CollectorServiceException { };
     //! Raised when start() is callend and the CollectorService is already running.
-    struct ServiceAlreadyRunnningError: virtual UnableToStartServiceError { };
+    struct ServiceAlreadyRunnningException: virtual UnableToStartServiceException { };
 
-
-    //! Base exception for DataSetTimer exceptions
-    struct DataSetTimerError: virtual Exception { };
+    //! Base exception for DataSetTimer
+    struct DataSetTimerException: virtual Exception { };
     //! Raised when a dataset has id == 0 or doesn't have a name.
-    struct InvalidDataSetError: virtual DataSetTimerError { };
-    struct InvalidCollectFrequencyError: virtual DataSetTimerError { };
+    struct InvalidDataSetException: virtual DataSetTimerException { };
+    //! Raised when core::DataSet collection frequency is equal or lesser then zero.
+    struct InvalidCollectFrequencyException: virtual DataSetTimerException { };
 
-
-    //! Base exception for DataRetriever exceptions
-    struct DataRetrieverError: virtual Exception { };
+    //! Base exception for DataRetriever
+    struct DataRetrieverException: virtual Exception { };
     //! Raised when dataprovider doesn't have an id or a name.
-    struct InvalidDataProviderError: virtual DataRetrieverError { };
-
-    struct WrongDataProviderKindError: virtual DataRetrieverError { };
+    struct InvalidDataProviderException: virtual DataRetrieverException { };
 
     //! Base exception to factory namespace.
-    struct FactoryError: virtual Exception { };
-    struct ConflictingParserTypeSchemeError: virtual FactoryError { };
-    struct UnableToCreateParserError: virtual FactoryError { };
-    struct UnableToCreateStoragerError: virtual FactoryError { };
+    struct FactoryException: virtual Exception { };
+    //! Raise when Parser type and uri scheme are incompatible.
+    struct ConflictingParserTypeSchemeException: virtual FactoryException { };
+    //! Raised when the Factory was unable to create a Parser. Check error message for more information.
+    struct UnableToCreateParserException: virtual FactoryException { };
+    //! Raised when the Factory was unable to create a Storager. Check error message for more information.
+    struct UnableToCreateStoragerException: virtual FactoryException { };
 
-    //! Base exception for ParserError exceptions
-    struct ParserError: virtual Exception { };
-    struct InvalidFolderError: virtual ParserError { };
-    struct NoDataSetFoundError: virtual ParserError { };
+    //! Base exception for Parser
+    struct ParserException: virtual Exception { };
+    //! Raised when a folder that doesn't exist is provided.
+    struct InvalidFolderException: virtual ParserException { };
+    //! Raised when there is no dataset to parse.
+    struct NoDataSetFoundException: virtual ParserException { };
 
-    //! Base exception for DataFilter exceptions
-    struct DataFilterError: virtual Exception { };
-    struct EmptyMaskError: virtual DataFilterError { };
+    //! Base exception for DataFilter
+    struct DataFilterException: virtual Exception { };
+    //! Raised when core::DataSetItem mask is empty.
+    struct EmptyMaskException: virtual DataFilterException { };
 
-    /*!
-       \brief Raised when the DataSet could not be read.
+    //! Raised when the DataSet could not be read. Check error info for more information.
+    struct UnableToReadDataSetException: virtual ParserException { };
 
        Check error info for more information.
 
-     */
-    struct UnableToReadDataSetError: virtual ParserError { };
-
-
-    /*!
-       \brief Raised when failed to log.
-
-     */
-    struct LogException: virtual CollectorServiceError{ };
+    //! Raised when failed to log.
+    struct LogException: terrama2::Exception{ };
   }
 }
 

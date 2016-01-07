@@ -51,8 +51,6 @@ namespace terrama2
 
     \brief Namespace where contains the gSOAP Web Service classes for TerraMA2, client and server.
 
-
-
    */
   namespace ws
   {

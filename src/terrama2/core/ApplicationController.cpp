@@ -175,18 +175,18 @@ terrama2::core::ApplicationController::getTransactor()
   }
   //catch(const te::common::Exception& e)
   //{
-  //  throw DataAccessError() << ErrorDescription(e.what());
+  //  throw DataAccessException() << ErrorDescription(e.what());
   //}
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve a data source transactor."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve a data source transactor."));
   }
 
-  throw DataAccessError() << ErrorDescription(QObject::tr("The data source is not valid or it is not open."));
+  throw DataAccessException() << ErrorDescription(QObject::tr("The data source is not valid or it is not open."));
 }
 
 std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDataSource()
@@ -224,7 +224,7 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
     QString messageError = QObject::tr("Invalid data from the database interface! \n\n Details: \n");
     messageError.append(e.what());
 
-   throw DataAccessError() << ErrorDescription(messageError);
+   throw DataAccessException() << ErrorDescription(messageError);
   }
 
   catch(const std::exception& e)
@@ -232,18 +232,18 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
     QString messageError = QObject::tr("Could not connect to the database! \n\n Details: \n");
     messageError.append(e.what());
 
-    throw DataAccessError() << ErrorDescription(messageError);
+    throw DataAccessException() << ErrorDescription(messageError);
   }
 
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not connect to the database!"));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not connect to the database!"));
   }
 
   if(dsExists)
   {
     //return false;
-    throw DataAccessError() << ErrorDescription(QObject::tr("Database exists!"));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Database exists!"));
   }
   else
   {
@@ -260,12 +260,12 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
         QString messageError = QObject::tr("Could not close the database! \n\n Details: \n");
         messageError.append(e.what());
 
-        throw DataAccessError() << ErrorDescription(messageError);
+        throw DataAccessException() << ErrorDescription(messageError);
       }
 
       catch(...)
       {
-        throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not close the database!"));
+        throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not close the database!"));
       }
     }
 
@@ -302,7 +302,7 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
       QString messageError = QObject::tr("Could not create the database! \n\n Details: \n");
       messageError.append(e.what());
 
-      throw DataAccessError() << ErrorDescription(messageError);
+      throw DataAccessException() << ErrorDescription(messageError);
 
       //TODO: log error
       qDebug() << e.what();
@@ -310,7 +310,7 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
     catch(...)
     {
       //TODO: log this
-      throw DataAccessError() << ErrorDescription(QObject::tr("Unknown Error, could not create the database!"));
+      throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not create the database!"));
     }
   }
 }
@@ -344,7 +344,7 @@ bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::s
 
   catch(...)
   {
-    throw;
+    throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not check if database exists!"));
   }
 
   return false;

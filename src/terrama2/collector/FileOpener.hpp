@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/FileOpener.hpp
 
-  \brief
+  \brief File Opener.
 
  \author Evandro Delatin
 */
@@ -33,31 +33,43 @@
 
 // STL
 #include <memory>
-#include <cassert>
-
-/*!
-     * \brief The FileOpener class implements the RAII technique to control file operations.
-     *
-*/
+#include <cstdio>
 
 
 namespace terrama2
 {
   namespace collector
   {
+    /*!
+         * \brief The FileOpener class implements the RAII technique to control file operations.
+         *
+    */
+
     class FileOpener
     {
       public:
+        /*!
+          \brief When FileOpener constructor is called, is done opening the file and verified that the file exists.
+
+          \param filename - contains the name of the file will open.
+
+          \param attribute - attribute - contains the file operation mode. Ex. RW (read-write).
+
+          \exception std::runtime_error - when unable to open the file.
+         */
+
         FileOpener(const char* filename, const char* attribute);
 
+//! Assume ownership of newfile.
         FileOpener(std::FILE* newfile);
 
         std::FILE* file() const;
 
+//! When FileOpener destructor is called, is done the file closing.
         ~FileOpener();
 
        private:
-         std::FILE* file_;
+         std::FILE* file_; //!< Attribute for Handler File.
     };
   }
 }

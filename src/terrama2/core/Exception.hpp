@@ -37,11 +37,14 @@ namespace terrama2
 {
   namespace core
   {
+    //! Base excection for core module.
+    struct Exception : virtual terrama2::Exception { };
+
     //! Indicates that an exception comming from TerraLib Data Access module.
-    struct DataAccessError: virtual terrama2::Exception{ };
+    struct DataAccessException: virtual Exception{ };
 
     //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
-    struct DataSetInUseError: virtual terrama2::Exception{ };
+    struct DataSetInUseException: virtual Exception{ };
 
   }  // end namespace core
 }  // end namespace terrama2

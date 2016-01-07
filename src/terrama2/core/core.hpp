@@ -20,37 +20,41 @@
 */
 
 /*!
-  \file terrama2/gui/config/PcdInfPlaneDialog.hpp
+  \file terrama2/core/core.hpp
 
-  \brief Definition of Class PcdInfPlaneDialog.hpp
+  \brief This file contains include headers for the TerraMA2 core module.
 
-  \author Evandro Delatin
-  \author Raphael Willian da Costa  
-  \author Carlos Augusto Teixeira Mendes
+  \author Paulo R. M. Oliveira
 */
 
-#ifndef _PcdInfPlaneDialog_H_
-#define _PcdInfPlaneDialog_H_
+#ifndef __TERRAMA2_CORE_CORE_HPP__
+#define __TERRAMA2_CORE_CORE_HPP__
 
-#include "ui_PcdInfPlaneDialog.h"
-#include "soapH.h"
+// TerraMA2
+#include "ApplicationController.hpp"
+#include "DataManager.hpp"
+#include "DataProvider.hpp"
+#include "DataProviderDAO.hpp"
+#include "DataSet.hpp"
+#include "DataSetDAO.hpp"
+#include "DataSetItem.hpp"
+#include "DataSetItemDAO.hpp"
+#include "Exception.hpp"
+#include "Filter.hpp"
+#include "FilterDAO.hpp"
+#include "Intersection.hpp"
+#include "IntersectionDAO.hpp"
+#include "Logger.hpp"
+#include "Utils.hpp"
+#include "Version.hpp"
 
-class PcdInfPlaneDialog : public QDialog, private Ui::PcdInfPlaneDialog
+
+namespace terrama2
 {
-Q_OBJECT
+  /*! \brief Namespace for the TerraMA2 core module, it contains the base classes for the TerraMA2. */
+  namespace core
+  {
+  } // end namespace core
+}   // end namespace terrama2
 
-public:
-	PcdInfPlaneDialog(std::vector<struct wsPCDTheme> pcdThemes, QWidget* parent = 0, Qt::WFlags f = 0 );
-	~PcdInfPlaneDialog();
-	void getFields(wsPCDInfPlaneAttributes *pcdInfPlaneAttributes);
-
-private slots:
-	void pcdThemeChanged(int index);
-
-private:
-	std::vector<struct wsPCDTheme> _pcdThemes;
-	void fillPCDThemeCmb();
-
-};
-
-#endif
+#endif  // __TERRAMA2_CORE_CORE_HPP__

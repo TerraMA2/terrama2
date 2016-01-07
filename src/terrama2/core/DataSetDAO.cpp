@@ -51,10 +51,10 @@ void
 terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
   if(dataset.id() != 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
 
   if(dataset.provider() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider in order to be saved."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider in order to be saved."));
 
   try
   {
@@ -109,11 +109,11 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
   }
 }
 
@@ -121,10 +121,10 @@ void
 terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
   if(dataset.id() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
 
   if(dataset.provider() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider in order to be updated."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset must be associated to a data provider in order to be updated."));
 
   try
   {
@@ -181,11 +181,11 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
   }
 
 }
@@ -194,7 +194,7 @@ void
 terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
 
   try
   {
@@ -203,7 +203,7 @@ terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& tr
   }
   catch(...)
   {
-    throw DataSetInUseError() << ErrorDescription(QObject::tr("Can not remove a dataset that is in use by an analysis."));
+    throw DataSetInUseException() << ErrorDescription(QObject::tr("Can not remove a dataset that is in use by an analysis."));
   }
 }
 
@@ -211,7 +211,7 @@ terrama2::core::DataSet
 terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not load a dataset with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load a dataset with identifier: 0."));
 
   try
   {
@@ -232,11 +232,11 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve the data provider list."));
   }
 
   return DataSet();
@@ -262,11 +262,11 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the dataset list."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve the dataset list."));
   }
 
   return std::move(datasets);
@@ -297,10 +297,10 @@ void terrama2::core::DataSetDAO::saveCollectRule(DataSet::CollectRule& collectRu
 {
 
   if(collectRule.id != 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save collect rule with a valid identifier."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save collect rule with a valid identifier."));
 
   if(collectRule.datasetId == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save collect rules with dataset identifier equals 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save collect rules with dataset identifier equals 0."));
 
   try
   {
@@ -322,7 +322,7 @@ void terrama2::core::DataSetDAO::saveCollectRule(DataSet::CollectRule& collectRu
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -330,7 +330,7 @@ void terrama2::core::DataSetDAO::saveCollectRule(DataSet::CollectRule& collectRu
 
     err_msg = err_msg.arg(collectRule.datasetId);
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -379,10 +379,10 @@ void terrama2::core::DataSetDAO::updateCollectRules(terrama2::core::DataSet& dat
 void terrama2::core::DataSetDAO::updateCollectRule(DataSet::CollectRule& collectRule, te::da::DataSourceTransactor& transactor)
 {
   if(collectRule.id == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not update a collect rule with identifier: 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a collect rule with identifier: 0."));
 
   if(collectRule.datasetId == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("The collect rule must be associated to a valid dataset in order to be updated."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The collect rule must be associated to a valid dataset in order to be updated."));
 
   try
   {
@@ -398,18 +398,18 @@ void terrama2::core::DataSetDAO::updateCollectRule(DataSet::CollectRule& collect
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    throw DataAccessError() << ErrorDescription(QObject::tr("Could not retrieve the dataset list."));
+    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve the dataset list."));
   }
 }
 
 void terrama2::core::DataSetDAO::removeCollectRule(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove the collect rules with identifier equals 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove the collect rules with identifier equals 0."));
 
   try
   {
@@ -423,7 +423,7 @@ void terrama2::core::DataSetDAO::removeCollectRule(uint64_t id, te::da::DataSour
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -431,7 +431,7 @@ void terrama2::core::DataSetDAO::removeCollectRule(uint64_t id, te::da::DataSour
 
     err_msg = err_msg.arg(id);
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -454,7 +454,7 @@ void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSour
 void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
   if(dataset.id() == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not save the metadata with dataset identifier equals 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save the metadata with dataset identifier equals 0."));
 
   try
   {
@@ -480,7 +480,7 @@ void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSour
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -488,7 +488,7 @@ void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSour
 
     err_msg = err_msg.arg(dataset.id());
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }
 
@@ -558,7 +558,7 @@ void terrama2::core::DataSetDAO::updateMetadata(terrama2::core::DataSet& dataset
 void terrama2::core::DataSetDAO::removeMetadata(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
-    throw InvalidArgumentError() << ErrorDescription(QObject::tr("Can not remove the metadata with dataset identifier equals 0."));
+    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove the metadata with dataset identifier equals 0."));
 
   try
   {
@@ -572,7 +572,7 @@ void terrama2::core::DataSetDAO::removeMetadata(uint64_t id, te::da::DataSourceT
   }
   catch(const std::exception& e)
   {
-    throw DataAccessError() << ErrorDescription(e.what());
+    throw DataAccessException() << ErrorDescription(e.what());
   }
   catch(...)
   {
@@ -580,6 +580,6 @@ void terrama2::core::DataSetDAO::removeMetadata(uint64_t id, te::da::DataSourceT
 
     err_msg = err_msg.arg(id);
 
-    throw DataAccessError() << ErrorDescription(err_msg);
+    throw DataAccessException() << ErrorDescription(err_msg);
   }
 }

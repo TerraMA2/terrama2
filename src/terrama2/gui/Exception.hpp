@@ -38,14 +38,26 @@ namespace terrama2
 {
   namespace gui
   {
-    struct URLError: virtual terrama2::Exception{ };
-    struct FieldError: virtual terrama2::Exception{ };
-    struct DirectoryError: virtual terrama2::Exception{ };
-    struct FileError: virtual terrama2::Exception{ };
-    struct ConnectionError: virtual terrama2::Exception{ };
-    struct DataProviderError: virtual terrama2::Exception{ };
-    struct DataSetError: virtual terrama2::Exception{ };
-    struct ValueError: virtual terrama2::Exception{ };
+    //! Base GUI module exception
+    struct Exception : virtual terrama2::Exception{ };
+
+    //! It is used when some url is invalid
+    struct URLException: virtual Exception{ };
+
+    //! It is used when the input value is invalid
+    struct FieldException: virtual Exception{ };
+
+    //! It is used for specifics directory errors
+    struct DirectoryException: virtual Exception{ };
+
+    //! It is used for handling file error
+    struct FileException: virtual Exception{ };
+
+    //! It is used when connection has been failed
+    struct ConnectionException: virtual Exception{ };
+
+    //! It is used when a value is invalid or not expected.
+    struct ValueException: virtual Exception{ };
   }
 }
 

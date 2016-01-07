@@ -34,13 +34,13 @@
 #include "ui_AdminAppForm.h"
 #include "Exception.hpp"
 
-AdminAppTab::AdminAppTab(AdminApp* app, Ui::AdminAppForm* ui)
+terrama2::gui::admin::AdminAppTab::AdminAppTab(terrama2::gui::admin::AdminApp* app, Ui::AdminAppForm* ui)
  :app_(app), ui_(ui)
 {
 
 } 
 
-AdminAppTab::~AdminAppTab()
+terrama2::gui::admin::AdminAppTab::~AdminAppTab()
 {
   
 }
