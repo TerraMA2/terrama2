@@ -85,8 +85,6 @@ namespace terrama2
     //! Raised when the DataSet could not be read. Check error info for more information.
     struct UnableToReadDataSetException: virtual ParserException { };
 
-       Check error info for more information.
-
     //! Raised when failed to log.
     struct LogException: terrama2::Exception{ };
   }

@@ -144,8 +144,12 @@ namespace terrama2
            \exception EmptyMaskError Raise when DataSetItem Filter mask is not set.
          */
         void processMask();
-        //! Returns true if the date is after discardBefore_ and before discardAfter. Updates dataSetLastDateTime_ with the latest date.
-        bool validateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
+
+        /*!
+           \brief Returns true if the date is after discardBefore_ and before discardAfter.
+           \warning Updates dataSetLastDateTime_ with the latest date.
+        */
+              bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
 
         /*!
            \brief Verifies if the time is after discardBeforeTime.
