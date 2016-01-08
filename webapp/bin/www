@@ -9,12 +9,13 @@ var io = require('../io');
 var debug = require('debug')('webapp:server');
 var http = require('http');
 var load = require('express-load');
+var portNumber = '36000';
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '36000');
+var port = normalizePort(process.env.PORT || portNumber);
 app.set('port', port);
 
 /**

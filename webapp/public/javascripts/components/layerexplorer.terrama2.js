@@ -43,11 +43,11 @@ var LayerExplorer = function(terrama2) {
     var title = layer.get('title') ? layer.get('title') : "Group";
 
     var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span><i class='glyphicon glyphicon-plus'></i> " + title + "</span>&nbsp;&nbsp;" +
+    "<span class='terrama2-layerexplorer-plus'> " + title + "</span>&nbsp;&nbsp;" +
     terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
     /* var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span><i class='glyphicon glyphicon-plus'></i> " + title + "</span>&nbsp;&nbsp;" +
+    "<span class='terrama2-layerexplorer-plus'> " + title + "</span>&nbsp;&nbsp;" +
     terrama2.getConfig().getConfJsonHTML().CheckLayer +
     terrama2.getConfig().getConfJsonHTML().OpacitySlider; */
 
@@ -70,7 +70,7 @@ var LayerExplorer = function(terrama2) {
 
       var div1 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
       check +
-      "<span>" + title + "</span>" +
+      "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span>" +
       terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
       elem = div1 + " </li>";
@@ -86,15 +86,15 @@ var LayerExplorer = function(terrama2) {
     var elem = buildLayerExplorer(map.getLayerGroup(), true);
     $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
 
-    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
+    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li').find(' > span');
     $('#terrama2-layerexplorer li.parent_li > span').on('click', function(e) {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
       if (children.is(":visible")) {
         children.hide('fast');
-        $(this).attr('title', 'Expand this branch').find(' > i').addClass('glyphicon-plus').removeClass('glyphicon-minus');
+        $(this).addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
       } else {
         children.show('fast');
-        $(this).attr('title', 'Collapse this branch').find(' > i').addClass('glyphicon-minus').removeClass('glyphicon-plus');
+        $(this).addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
       }
       //e.stopPropagation();
     });
@@ -148,7 +148,7 @@ var LayerExplorer = function(terrama2) {
     });
 
     // Handle visibility control
-    $('i.terrama2-check').on('click', function(e) {
+    $('.terrama2-layerexplorer-checkbox').on('click', function(e) {
       var _$this = $(this);
 
       var layername = _$this.closest('li').data('layerid');
@@ -157,22 +157,14 @@ var LayerExplorer = function(terrama2) {
 
       setLayerVisibility(layer);
 
-      if (layer.getVisible()) {
-        _$this.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-        _$this.parent('li.parent_li').find(' > ul > li > i.terrama2-check').attr('class', 'terrama2-check glyphicon glyphicon-check');
-      } else {
-        _$this.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-        _$this.parent('li.parent_li').find(' > ul > li > i.terrama2-check').attr('class', 'terrama2-check glyphicon glyphicon-unchecked');
-      }
-
       var children = _$this.parent('li.parent_li').find(' > ul > li');
       var span = _$this.parent('li.parent_li').find(' > span');
       if (children.is(":visible") || !layer.getVisible()) {
         children.hide('fast');
-        span.find(' > i').addClass('glyphicon-plus').removeClass('glyphicon-minus');
+        span.addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
       } else {
         children.show('fast');
-        span.find(' > i').addClass('glyphicon-minus').removeClass('glyphicon-plus');
+        span.addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
       }
       e.stopPropagation();
     });

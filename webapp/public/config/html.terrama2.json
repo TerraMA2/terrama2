@@ -1,7 +1,7 @@
 {
   "LeftBarVisibilityControlButton": "<button class='terrama2-leftbar-button terrama2-hide-leftbar-button' title='Esconder Barra'><i class='glyphicon glyphicon-chevron-left'></i></button>",
-  "CheckLayerChecked": "<i class='terrama2-check glyphicon glyphicon-check'></i>&nbsp;&nbsp;&nbsp;&nbsp;",
-  "CheckLayerUnchecked": "<i class='terrama2-check glyphicon glyphicon-unchecked'></i>&nbsp;&nbsp;&nbsp;&nbsp;",
+  "CheckLayerChecked": "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>",
+  "CheckLayerUnchecked": "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>",
   "OpacitySlider": "<!--<input style='width:80px;' class='opacity' type='text' value='' data-slider-min='0' data-slider-max='1' data-slider-step='0.1' data-slider-tooltip='hide'>-->",
   "LiLayer1": "<li data-layerid='",
   "LiLayer2": "'>",

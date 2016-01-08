@@ -24,22 +24,16 @@ Bellow we show the steps to run TerraMA² Webapp:
 git clone https://github.com/TerraMA2/terrama2.git
 ```
 
-- Verifique se a URL para o servidor da API TerraMA² está correto na variável terrama2Path localizada no arquivo index.ejs (bdqueimadas/views/index.ejs):
+  Note: This repository contain the entire TerraMA², if you want just the web API, the important is the directory webapp.
 
-```
-<%
-  var terrama2Path = "http://localhost:36000";
-%>
-```
-
-- Acesse o diretório da aplicação via linha de comando e execute o seguinte comando:
+- Access the webapp directory via command line and run the following command:
 
 ```
 npm start
 ```
 
-- Por padrão o sistema vai rodar na porta 35000, caso deseje alterar, acesse o arquivo bdqueimadas/bin/www:
+- By default the API will run in the port 36000, you can change this in the file terrama2/webapp/bin/www:
 
 ```
-var portNumber = '35000';
+var portNumber = '36000';
 ```

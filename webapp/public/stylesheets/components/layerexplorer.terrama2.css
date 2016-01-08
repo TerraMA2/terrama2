@@ -28,10 +28,6 @@
   cursor: default;
 }
 
-#terrama2-layerexplorer li.parent_li ul li.selected {
-  background-color: #ddd;
-}
-
 #terrama2-layerexplorer li {
   list-style-type:none;
   margin:0;
@@ -50,7 +46,7 @@
 
 #terrama2-layerexplorer li span {
   display:inline-block;
-  padding:3px 8px;
+  padding:3px 30px;
   text-decoration:none;
 }
 
@@ -64,4 +60,75 @@
 
 #terrama2-layerexplorer li:last-child::before {
   height:30px;
+}
+
+.terrama2-layerexplorer-plus {
+  background-image: url('../../images/plus.ico');
+  background-repeat: no-repeat;
+  background-position: left 3px;
+  background-size: 20px;
+}
+
+.terrama2-layerexplorer-minus {
+  background-image: url('../../images/minus.png');
+  background-repeat: no-repeat;
+  background-position: left 3px;
+  background-size: 20px;
+}
+
+.terrama2-layerexplorer-checkbox {
+  top: 4px;
+  z-index: 99999;
+  position: relative;
+  width: 20px;
+  height: 16px;
+  cursor: pointer;
+}
+
+span.terrama2-layerexplorer-checkbox-span {
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  padding-left: 25px;
+  margin-right: 15px;
+  font-size: 13px;
+}
+
+span.terrama2-layerexplorer-checkbox-span:before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
+  position: absolute;
+  bottom: 1px;
+  background-color: #aaa;
+  box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
+  top: 6px;
+  left: -21px;
+}
+
+span.terrama2-layerexplorer-checkbox-span {
+  padding-left: 10px !important;
+}
+
+.terrama2-layerexplorer-checkbox, .terrama2-layerexplorer-radio {
+  opacity: 0;
+}
+
+.terrama2-layerexplorer-radio label:before {
+  border-radius: 8px;
+}
+
+span.terrama2-layerexplorer-checkbox-span:before {
+  border-radius: 3px;
+}
+
+.terrama2-layerexplorer-checkbox:checked + span.terrama2-layerexplorer-checkbox-span:before {
+  content: "\2713";
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+  font-size: 15px;
+  color: #f3f3f3;
+  text-align: center;
+  line-height: 15px;
 }
