@@ -36,6 +36,9 @@
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
 
+// TerraMA2
+#include "../core/ApplicationController.hpp"
+
 namespace terrama2
 {
   namespace collector
@@ -71,6 +74,8 @@ namespace terrama2
           //! Is not possible to know de data status
           UNKNOW
         };
+
+        Log(std::shared_ptr < te::da::DataSourceTransactor > transactor);
 
         /*!
           \brief Register in log table that the Dataset Item has a new data and the these data status
@@ -130,6 +135,10 @@ namespace terrama2
           \param id The DataSetItem ID
         */
         virtual std::shared_ptr<te::dt::TimeInstantTZ> getDataSetItemLastDateTime(uint64_t id) const;
+
+
+      private:
+        std::shared_ptr< te::da::DataSourceTransactor > transactor_;
     };
   }
 }

@@ -211,7 +211,8 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
       {
         try
         {
-          terrama2::collector::Log collectLog;
+          std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
+          terrama2::collector::Log collectLog(transactor);
 
           DataFilterPtr filter(new DataFilter(dataSetItem, collectLog));
           assert(filter);

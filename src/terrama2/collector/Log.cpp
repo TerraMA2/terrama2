@@ -30,30 +30,36 @@
 // Boost
 #include <boost/format.hpp>
 
+//Terrlib
+#include <terralib/dataaccess/utils/Utils.h>
+
 // TerraMA2
 #include "Exception.hpp"
 #include "Log.hpp"
 #include "../core/ApplicationController.hpp"
 
 
-//Terrlib
-#include <terralib/dataaccess/utils/Utils.h>
+
+terrama2::collector::Log::Log(std::shared_ptr < te::da::DataSourceTransactor > transactor)
+{
+  transactor_ = transactor;
+}
 
 uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::string& origin_uri, const Status s) const
 {
   try
   {
-    std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
-
     boost::format query("INSERT INTO terrama2.data_collection_log (dataset_item_id, origin_uri, status) VALUES('%1%', '%2%', %3%)");
 
     query.bind_arg(1, dataSetItemId);
     query.bind_arg(2, origin_uri);
     query.bind_arg(3, (int)s);
 
-    transactor->execute(query.str());
+    transactor_->execute(query.str());
 
-    return transactor->getLastGeneratedId();
+    transactor_->commit();
+
+    return transactor_->getLastGeneratedId();
   }
   catch(te::common::Exception& e)
   {
@@ -81,8 +87,6 @@ void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vec
 
   try
   {
-    std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
-
     std::string query("INSERT INTO terrama2.data_collection_log (dataset_item_id, origin_uri, status) VALUES");
 
     int size = origin_uris.size();
@@ -101,7 +105,9 @@ void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vec
         query += ",";
     }
 
-    transactor->execute(query);
+    transactor_->execute(query);
+
+    transactor_->commit();
   }
   catch(terrama2::Exception& e)
   {
@@ -125,8 +131,6 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
 {
   try
   {
-    std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
-
     boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp='%3%', uri='%4%', collect_timestamp=now() WHERE id=%1%");
 
     query.bind_arg(1, id);
@@ -134,7 +138,9 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
     query.bind_arg(3, data_timestamp);
     query.bind_arg(4, uri);
 
-    transactor->execute(query.str());
+    transactor_->execute(query.str());
+
+    transactor_->commit();
   }
   catch(terrama2::Exception& e)
   {
@@ -162,8 +168,6 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
 
   try
   {
-    std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
-
     boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=now() WHERE origin_uri=%1%");
 
     std::string uris;
@@ -197,7 +201,9 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
 
     query.bind_arg(4, uri);
 
-    transactor->execute(query.str());
+    transactor_->execute(query.str());
+
+    transactor_->commit();
   }
   catch(terrama2::Exception& e)
   {
@@ -220,13 +226,11 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::collector::Log::getDataSetItemLastDateTime(uint64_t id) const
 {
-  std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
-
   boost::format query("select MAX(data_timestamp) from terrama2.data_collection_log where dataset_item_id=%1%");
 
   query.bind_arg(1, id);
 
-  std::shared_ptr< te::da::DataSet > dataset = std::shared_ptr< te::da::DataSet >(transactor->query(query.str()));
+  std::shared_ptr< te::da::DataSet > dataset = std::shared_ptr< te::da::DataSet >(transactor_->query(query.str()));
 
   if(dataset)
   {
