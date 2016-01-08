@@ -40,111 +40,112 @@
 
   \param answer Referenced string where will be the ping answer after method execution
 
-  \return Integer that inform that the method was executed whitout error.
+  \return Integer error code, 0 if no error.
 */
 int Web__ping(std::string &answer);
 
 
 /*!
-  \brief 
+  \brief Calls the Web Service Shutdown
 
-  \param 
-
-  \return 
+  \return Integer error code, 0 if no error.
 */
 int Web__shutdown(void);
 
 
-// VINICIUS: write the methods documentation
 /*!
-  \brief
+  \brief Request the register of a Data Provider
 
-  \param
+  \param DataProvider A struct with the data to be added
+  \param DataProvider A empty struct to receive the Data Provider registered
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 int Web__addDataProvider(struct DataProvider, struct DataProvider&);
 
 /*!
-  \brief
+  \brief Request the register of a Data Set
 
-  \param
+  \param DataSet A struct with the data to be added
+  \param DataSet A empty struct to receive the Data Provider registered
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 
 int Web__addDataSet(struct DataSet, struct DataSet&);
 
 /*!
-  \brief
+  \brief Request the update of a Data Provider
 
-  \param
+  \param DataProvider A struct with the data to be updated
+  \param DataProvider A empty struct to receive the Data Provider updated
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 int Web__updateDataProvider(struct DataProvider, struct DataProvider&);
 
 /*!
-  \brief
+  \brief Request the update of a Data Set
 
-  \param
+  \param DataSet A struct with the data to be updated
+  \param DataSet A empty struct to receive the Data Set updated
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 int Web__updateDataSet(struct DataSet, struct DataSet&);
 
 /*!
-  \brief
+  \brief Request the remove of a Data Provider
 
-  \param
+  \param id An ID of the Data Provider data to be removed
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 int Web__removeDataProvider(uint64_t id, void);
 
 /*!
-  \brief
+  \brief Request the remove of a Data Set
 
-  \param
+  \param id An ID of the Data Set data to be removed
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 int Web__removeDataSet(uint64_t id, void);
 
 /*!
-  \brief
+  \brief Request a registered Data Provider
 
-  \param
+  \param id An ID of the Data Provider data to find
+  \param r A struct to fill with the data of Data Provider found
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 int Web__findDataProvider(uint64_t id, struct DataProvider &r);
 
 /*!
-  \brief
+  \brief Request a registered Data Provider
 
-  \param
+  \param id An ID of the Data Set data to find
+  \param r A struct to fill with the data of Data Set found
 
-  \return
+  \return Integer error code, 0 if no error.
 */
 int Web__findDataSet(uint64_t id, struct DataSet &r);
 
 /*!
-  \brief
+  \brief Request all the Data Providers registered
 
-  \param
+  \param data_provider_list A vector with all Data Providers registered
 
-  \return
+  \return Integer error code, 0 if no error.
 */
-
 int Web__listDataProvider(std::vector< struct DataProvider > &data_provider_list);
 
 /*!
-  \brief
+  \brief Request all the Data Set registered
 
-  \param
+  \param data_provider_list A vector with all Data Set registered
 
-  \return
+  \return Integer error code, 0 if no error.
 */
-
 int Web__listDataSet(std::vector< struct DataSet > &data_set_list);

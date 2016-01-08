@@ -46,24 +46,17 @@ namespace terrama2
     {
       /*!
         \class ConfigAppWeatherServer
-        \brief Class responsible for handling DataProvider actions inside WeatherTab
+        \brief Class responsible for handling terrama2::core::DataProvider actions inside WeatherTab
       */
       class ConfigAppWeatherServer : public ConfigAppTab
       {
 
-        /*!
-          @defgroup TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
-
-          \exception terrama2::gui::DirectoryException Raised when an invalid path is set
-          \exception terrama2::gui::ValueException Raised because a type different from FTP, FILE and HTTP is not supported yet.
-          \exception terrama2::gui::URLException Raised when a URI is invalid.
-          \exception terrama2::gui::ConnectionException Raised when curl response is Timeout, Login Denied or URL Malformated.
-        */
-
         Q_OBJECT
         public:
           /*!
-            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui);
+            \brief Constructor
+
+            It connects qt widgets and slots and initializes fields validators
           */
           ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui);
 
@@ -75,7 +68,6 @@ namespace terrama2
 
           /*!
             \brief Save dataprovider in database. It calls validateConnection() before.
-            @copydetails TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
           */
           void save();
 
@@ -92,7 +84,10 @@ namespace terrama2
         private:
           /*!
             \brief It validates the connection type and stores the URI value in uri_ member.
-            @copydetails TERRAMA2_GUI_URI_VALIDATION_EXCEPTIONS
+            \exception terrama2::gui::DirectoryException Raised when an invalid path is set
+            \exception terrama2::gui::ValueException Raised because a type different from FTP, FILE and HTTP is not supported yet.
+            \exception terrama2::gui::URLException Raised when a URI is invalid.
+            \exception terrama2::gui::ConnectionException Raised when curl response is Timeout, Login Denied or URL Malformated.
           */
           void validateConnection();
 
@@ -106,7 +101,7 @@ namespace terrama2
           //! Slot triggered for detect if the QTextEdit is changed
           void onTextEditChanged();
 
-          //! Slot for handling if it is valid connection. TODO: ftp
+          //! Slot for handling if it is valid connection.
           void onCheckConnectionClicked();
 
           /*!

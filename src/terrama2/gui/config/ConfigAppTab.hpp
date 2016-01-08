@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/gui/config/ConfigApp.hpp
+  \file terrama2/gui/config/ConfigAppTab.hpp
 
   \brief The base class for tab handling.
 

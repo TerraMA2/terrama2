@@ -64,7 +64,7 @@ void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString&
   file.close();
 }
 
-std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(const QString uri, const ConfigManager& configuration)
+std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(const QString uri, const terrama2::gui::core::ConfigManager& configuration)
 {
   std::map<std::string, std::string> storageMetadata;
   QUrl url(uri);
@@ -90,7 +90,7 @@ std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(cons
     storageMetadata["PG_PASSWORD"] = configuration.getDatabase()->password_.toStdString();
     storageMetadata["PG_DB_NAME"] = configuration.getDatabase()->name_.toStdString();
     storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
-    storageMetadata["KIND"] = url.scheme().toStdString();
+    storageMetadata["KIND"] = "POSTGIS";
   }
 
   return storageMetadata;

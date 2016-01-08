@@ -36,13 +36,18 @@
 
 
 // Forward declaration
-struct Database;
-
 namespace terrama2
 {
   namespace core
   {
     class Intersection;
+  }
+  namespace gui
+  {
+    namespace core
+    {
+      struct Database;
+    }
   }
 }
 
@@ -61,11 +66,11 @@ namespace terrama2
   {
     namespace config
     {
-      /*
+      /*!
         \class IntersectionDialog
 
         \brief Dialog to configure the intersection.
-       */
+      */
       class IntersectionDialog : public QDialog
       {
         Q_OBJECT
@@ -78,7 +83,7 @@ namespace terrama2
             \param parent Parent widget.
             \param f Window flags.
           */
-          IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent = 0, Qt::WindowFlags f = 0);
+          IntersectionDialog(const terrama2::core::Intersection& intersection, terrama2::gui::core::Database* database, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
           //! Destructor.
           ~IntersectionDialog();

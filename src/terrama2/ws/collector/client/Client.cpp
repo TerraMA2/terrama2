@@ -54,7 +54,7 @@ void terrama2::ws::collector::client::Client::ping(std::string &answer)
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::PingError() << ErrorDescription(errorMessage.c_str());
+    throw client::PingException() << ErrorDescription(errorMessage.c_str());
   }
 }
 
@@ -65,7 +65,7 @@ void terrama2::ws::collector::client::Client::shutdown()
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::ShutdownError() << ErrorDescription(errorMessage.c_str());
+    throw client::ShutdownException() << ErrorDescription(errorMessage.c_str());
   }
 }
 
@@ -81,7 +81,7 @@ void terrama2::ws::collector::client::Client::addDataProvider(terrama2::core::Da
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::AddingDataProviderError() << ErrorDescription(errorMessage.c_str());
+    throw client::AddingDataProviderException() << ErrorDescription(errorMessage.c_str());
   }
 
   dataProvider = terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProviderResult);
@@ -99,7 +99,7 @@ void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::AddingDataSetError() << ErrorDescription(errorMessage.c_str());
+    throw client::AddingDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
   dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetResult);
@@ -110,7 +110,7 @@ void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet
 void terrama2::ws::collector::client::Client::updateDataProvider(terrama2::core::DataProvider & dataProvider)
 {
   if(dataProvider.name().empty())
-    throw client::UpdateDataProviderError() << ErrorDescription(QObject::tr("Null parameter passed!"));
+    throw client::UpdateDataProviderException() << ErrorDescription(QObject::tr("Null parameter passed!"));
 
   DataProvider struct_dataProvider = terrama2::ws::collector::core::DataProvider2Struct<DataProvider>(dataProvider);
 
@@ -120,7 +120,7 @@ void terrama2::ws::collector::client::Client::updateDataProvider(terrama2::core:
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::UpdateDataProviderError() << ErrorDescription(errorMessage.c_str());
+    throw client::UpdateDataProviderException() << ErrorDescription(errorMessage.c_str());
   }
 
   dataProvider = terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProviderResult);
@@ -131,7 +131,7 @@ void terrama2::ws::collector::client::Client::updateDataProvider(terrama2::core:
 void terrama2::ws::collector::client::Client::updateDataSet(terrama2::core::DataSet & dataSet)
 {
   if(dataSet.id() == 0)
-    throw client::UpdateDataSetError() << ErrorDescription(QObject::tr("Invalid dataset passed!"));
+    throw client::UpdateDataSetException() << ErrorDescription(QObject::tr("Invalid dataset passed!"));
 
   DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule, Intersection >(dataSet);
 
@@ -141,7 +141,7 @@ void terrama2::ws::collector::client::Client::updateDataSet(terrama2::core::Data
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::UpdateDataSetError() << ErrorDescription(errorMessage.c_str());
+    throw client::UpdateDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
   dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetResult);
@@ -155,7 +155,7 @@ void terrama2::ws::collector::client::Client::removeDataProvider(uint64_t id)
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::RemoveDataProviderError() << ErrorDescription(errorMessage.c_str());
+    throw client::RemoveDataProviderException() << ErrorDescription(errorMessage.c_str());
   }
 }
 
@@ -166,7 +166,7 @@ void terrama2::ws::collector::client::Client::removeDataSet(uint64_t id)
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::RemoveDataSetError() << ErrorDescription(errorMessage.c_str());
+    throw client::RemoveDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
 }
@@ -180,7 +180,7 @@ terrama2::core::DataProvider terrama2::ws::collector::client::Client::findDataPr
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::FindDataProviderError() << ErrorDescription(errorMessage.c_str());
+    throw client::FindDataProviderException() << ErrorDescription(errorMessage.c_str());
   }
 
   return terrama2::ws::collector::core::Struct2DataProvider<DataProvider>(struct_dataProvider);
@@ -196,7 +196,7 @@ terrama2::core::DataSet terrama2::ws::collector::client::Client::findDataSet(uin
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::FindDataSetError() << ErrorDescription(errorMessage.c_str());
+    throw client::FindDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
   return terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSet);
@@ -212,7 +212,7 @@ void terrama2::ws::collector::client::Client::listDataProvider(std::vector< terr
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::ListDataProviderError() << ErrorDescription(errorMessage.c_str());
+    throw client::ListDataProviderException() << ErrorDescription(errorMessage.c_str());
   }
 
   for(uint32_t i = 0; i < struct_dataProviderList.size() ; i++)
@@ -231,7 +231,7 @@ void terrama2::ws::collector::client::Client::listDataSet(std::vector< terrama2:
   {
     std::string errorMessage = std::string(webProxy_->faultString()) + ": " + std::string(webProxy_->faultDetail());
 
-    throw client::ListDataSetError() << ErrorDescription(errorMessage.c_str());
+    throw client::ListDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
   for(uint32_t i = 0; i < struct_dataSetList.size() ; i++)
