@@ -44,7 +44,6 @@ class QString;
 class QMainWindow;
 class QJsonObject;
 class QMenu;
-class ConfigManager;
 
 
 namespace terrama2
@@ -53,6 +52,7 @@ namespace terrama2
   {
     namespace core
     {
+      class ConfigManager;
       /*!
         \brief Function to generate file destination of TerraMA2 File
         \param appFocus A pointer to QMainWindow for handling the ownership module
@@ -67,7 +67,7 @@ namespace terrama2
         \param configuration A reference to terrama2 configuration class (ConfigManager)
         \return std::map<std::string, std::string> containing the storage metadata values from configuration
       */
-      std::map<std::string, std::string> makeStorageMetadata(const QString uri, const ConfigManager& configuration);
+      std::map<std::string, std::string> makeStorageMetadata(const QString uri, const terrama2::gui::core::ConfigManager& configuration);
 
       /*!
         \brief It makes mask helpers for DataSet. It creates a menu bar with common items.

@@ -58,28 +58,13 @@ terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::Da
 
 terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 {
-  try
-  {
-   std::string path;
+  std::string path;
 // Remove the files in the tmp folder
-    for(std::string file: vectorNames_)
-    {
-      path = folder_+file;
-      std::remove(path.c_str()); // delete file
-    }
-  }
-  catch(const std::exception& e)
+  for(std::string file: vectorNames_)
   {
-    QString messageError = QObject::tr("Could not deleted file! \n\n Details: \n");
-    messageError.append(e.what());
-
-    throw DataRetrieverFTPException() << ErrorDescription(messageError);
-  }
-
-  catch(...)
-  {
-    throw DataRetrieverFTPException() << ErrorDescription(QObject::tr("Unknown Error, could not deleted file!"));
-  }
+     path = folder_+file;
+     std::remove(path.c_str()); // delete file
+   }
 }
 
 void terrama2::collector::DataRetrieverFTP::open()

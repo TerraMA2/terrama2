@@ -71,7 +71,7 @@ te::dt::AbstractData* terrama2::collector::ParserPcdToa5::StringToTimestamp(te::
   return dt;
 }
 
-// Change the string 2014-01-02 17:13:00 - PCD TOA5 format for timestamp
+// Change the string 2014-01-15 17:13:00 - PCD TOA5 format for timestamp
 void terrama2::collector::ParserPcdToa5::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)
 {
   converter->remove("TIMESTAMP");
