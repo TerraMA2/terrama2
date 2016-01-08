@@ -24,7 +24,7 @@ Bellow we show the steps to run TerraMA² Webapp:
 git clone https://github.com/TerraMA2/terrama2.git
 ```
 
-  Note: This repository contain the entire TerraMA², if you want just the web API, the important is the directory webapp.
+Note: This repository contain the entire TerraMA², if you want just the web API, the important is the webapp directory.
 
 - Access the webapp directory via command line and run the following command:
 
