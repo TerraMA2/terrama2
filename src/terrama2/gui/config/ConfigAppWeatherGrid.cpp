@@ -185,26 +185,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore
 void terrama2::gui::config::ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
 {
   *filter_ = filter;
-
-  if (filter.discardAfter() != nullptr || filter.discardBefore() != nullptr)
-    ui_->dateFilterLabel->setText(tr("Yes"));
-  else
-    ui_->dateFilterLabel->setText(tr("No"));
-
-  if (filter.geometry() != nullptr)
-    ui_->areaFilterLabel->setText(tr("Yes"));
-  else
-    ui_->areaFilterLabel->setText(tr("No"));
-
-  if (!filter.bandFilter().empty())
-    ui_->bandFilterLabel->setText(tr("Yes"));
-  else
-    ui_->bandFilterLabel->setText(tr("No"));
-
-  if (filter.value() != nullptr)
-    ui_->preAnalysisLabel->setText(tr("Yes"));
-  else
-    ui_->preAnalysisLabel->setText(tr("No"));
+  fillFilterLabels();
 }
 
 bool terrama2::gui::config::ConfigAppWeatherGridTab::validate()
@@ -322,25 +303,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::onFilterClicked()
   if (dialog.exec() == QDialog::Accepted)
     dialog.fillObject(*filter_);
 
-  if (dialog.isFilterByDate())
-    ui_->dateFilterLabel->setText(tr("Yes"));
-  else
-    ui_->dateFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByArea())
-    ui_->areaFilterLabel->setText(tr("Yes"));
-  else
-    ui_->areaFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByLayer())
-    ui_->bandFilterLabel->setText(tr("Yes"));
-  else
-    ui_->bandFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByPreAnalyse())
-    ui_->preAnalysisLabel->setText(tr("Yes"));
-  else
-    ui_->preAnalysisLabel->setText(tr("No"));
+  fillFilterLabels();
 }
 
 void terrama2::gui::config::ConfigAppWeatherGridTab::onProjectionClicked()
@@ -360,4 +323,27 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::onProjectionClicked()
 void terrama2::gui::config::ConfigAppWeatherGridTab::setSrid(const uint64_t srid)
 {
   srid_ = srid;
+}
+
+void terrama2::gui::config::ConfigAppWeatherGridTab::fillFilterLabels()
+{
+  if (filter_->discardAfter() != nullptr || filter_->discardBefore() != nullptr)
+    ui_->dateFilterLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterLabel->setText(tr("No"));
+
+  if (filter_->geometry() != nullptr)
+    ui_->areaFilterLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterLabel->setText(tr("No"));
+
+  if (!filter_->bandFilter().empty())
+    ui_->bandFilterLabel->setText(tr("Yes"));
+  else
+    ui_->bandFilterLabel->setText(tr("No"));
+
+  if (filter_->value() != nullptr)
+    ui_->preAnalysisLabel->setText(tr("Yes"));
+  else
+    ui_->preAnalysisLabel->setText(tr("No"));
 }

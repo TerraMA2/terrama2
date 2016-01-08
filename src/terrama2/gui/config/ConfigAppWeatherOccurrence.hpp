@@ -62,7 +62,7 @@ namespace terrama2
         Q_OBJECT
         public:
           /*!
-            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui)
+            \brief Constructor.
 
             Initializes the DataOccurrence tab, connecting slots.
           */

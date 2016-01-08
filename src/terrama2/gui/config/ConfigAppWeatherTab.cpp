@@ -301,11 +301,13 @@ void terrama2::gui::config::ConfigAppWeatherTab::onDeleteServerClicked()
       QMessageBox::information(app_, tr("TerraMA2"), tr("Data provider has been successfully removed."));
 
       ui_->weatherDataTree->removeItemWidget(ui_->weatherDataTree->currentItem(), 0);
+      TERRAMA2_LOG_INFO() << "DataProvider " + cachedProvider.name() + " has been removed.";
     }
     catch(const terrama2::Exception& e)
     {
       const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e);
       QMessageBox::warning(app_, tr("TerraMA2 Data Provider Remove Error"), *message);
+      TERRAMA2_LOG_ERROR() << "DataProvider remove error - " + message->toStdString();
     }
 
     hidePanels(ui_->ServerGroupPage);

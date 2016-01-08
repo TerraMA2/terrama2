@@ -73,7 +73,14 @@ namespace terrama2
         Q_OBJECT
 
         public:
-          CollectorRuleDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+          /*!
+            \brief Constructor
+            \param parent A pointer to QWidget object owner (default nullptr)
+            \param f A constant window flags to define kind of window (default 0)
+          */
+          CollectorRuleDialog(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+
+          //! Destructor
           ~CollectorRuleDialog();
 
           /*!

@@ -46,7 +46,7 @@ namespace terrama2
     {
       /*!
         \class ConfigAppWeatherServer
-        \brief Class responsible for handling DataProvider actions inside WeatherTab
+        \brief Class responsible for handling terrama2::core::DataProvider actions inside WeatherTab
       */
       class ConfigAppWeatherServer : public ConfigAppTab
       {
@@ -54,7 +54,9 @@ namespace terrama2
         Q_OBJECT
         public:
           /*!
-            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui);
+            \brief Constructor
+
+            It connects qt widgets and slots and initializes fields validators
           */
           ConfigAppWeatherServer(ConfigApp* app, Ui::ConfigAppForm* ui);
 

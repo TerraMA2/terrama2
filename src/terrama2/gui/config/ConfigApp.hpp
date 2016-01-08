@@ -76,7 +76,10 @@ namespace terrama2
 
         public:
 
-          /*! Default constructor.
+          /*!
+            \brief Constructor.
+            \details It initializes TerraMA2 icon library, application locale and connect the widgets & slots
+
             \param parent Represents the QT Widget owner (default nullptr)
             \param flags  It handling gui window kind (0 defined as Widget)
             \exception terrama2::InitializationException It may be raised when cannot find TerraMA2 icons library folder

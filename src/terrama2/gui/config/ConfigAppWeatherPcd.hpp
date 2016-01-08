@@ -69,7 +69,9 @@ namespace terrama2
 
         public:
           /*!
-            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui)
+            \brief Constructor
+
+            It connects qt widget to slots and fill out the mask buttons.
           */
           ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui);
 
