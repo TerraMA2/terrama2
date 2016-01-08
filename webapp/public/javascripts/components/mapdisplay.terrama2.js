@@ -1,10 +1,24 @@
 var MapDisplay = function() {
 
-  var getMap = function() {
+  var _this = this;
+
+  /**
+   * Return the map object
+   * @returns {ol.Map} olMap - map object
+   */
+  _this.getMap = function() {
     return olMap;
   }
 
-  var createTileWMS = function(url, type, layerName, layerTitle) {
+  /**
+   * Create a new tiled wms layer
+   * @param {string} url - url to the wms layer
+   * @param {string} type - server type
+   * @param {string} layerName - layer name
+   * @param {string} layerTitle - layer title
+   * @returns {ol.layer.Tile} olMap - new tiled wms layer
+   */
+  _this.createTileWMS = function(url, type, layerName, layerTitle) {
     return new ol.layer.Tile({
       source: new ol.source.TileWMS({
         preload: Infinity,
@@ -20,21 +34,24 @@ var MapDisplay = function() {
     });
   }
 
-  /**right
-  * @param {any} value
-  * @returns {ol.layer.Base}
-  */
-  var findBy = function(layer, key, value) {
+  /**
+   * Find a layer by a given key
+   * @param {ol.layer.Group} layer - the layer group where the method will run the search
+   * @param {string} key - layer attribute to be used in the search
+   * @param {string} value - value to be used in the search
+   * @returns {ol.layer} found layer
+   */
+  _this.findBy = function(layer, key, value) {
 
-    if (layer.get(key) === value) {
+    if(layer.get(key) === value) {
       return layer;
     }
 
-    if (layer.getLayers) {
+    if(layer.getLayers) {
       var layers = layer.getLayers().getArray(),
       len = layers.length, result;
       for (var i = 0; i < len; i++) {
-        result = findBy(layers[i], key, value);
+        result = _this.findBy(layers[i], key, value);
         if (result) {
           return result;
         }
@@ -44,14 +61,12 @@ var MapDisplay = function() {
     return null;
   }
 
-  var updateMapSize = function() {
+  /**
+   * Update the map size according to its container
+   */
+  _this.updateMapSize = function() {
     olMap.updateSize();
   }
-
-  this.getMap = getMap;
-  this.createTileWMS = createTileWMS;
-  this.findBy = findBy;
-  this.updateMapSize = updateMapSize;
 
   var olMap = new ol.Map({
     renderer: 'canvas',

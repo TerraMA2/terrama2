@@ -8,6 +8,11 @@ var Config = function(terrama2) {
   var confJsonServer = null;
   var confJsonFilter = null;
 
+  /**
+   * Load a given configuration file
+   * @param {string} file - url to the file
+   * @returns {json} _return - configuration file content
+   */
   var loadConfigurationFile = function(file) {
     var _return = null;
 
@@ -16,6 +21,9 @@ var Config = function(terrama2) {
     return _return;
   }
 
+  /**
+   * Load the configuration files
+   */
   _this.loadConfigurations = function() {
     var url = terrama2.getTerrama2Url() + "/config/";
 
@@ -26,22 +34,42 @@ var Config = function(terrama2) {
     confJsonFilter = loadConfigurationFile(url + "filter.terrama2.json");
   }
 
+  /**
+   * Return the HTML configuration (predefined tags)
+   * @returns {json} confJsonHTML - HTML configuration
+   */
   _this.getConfJsonHTML = function() {
     return confJsonHTML;
   }
 
+  /**
+   * Return the javascript files configuration (javascript files paths)
+   * @returns {json} confJsonComponentsJs - javascript files configuration
+   */
   _this.getConfJsonComponentsJs = function() {
     return confJsonComponentsJs;
   }
 
+  /**
+   * Return the stylesheets configuration (stylesheets paths)
+   * @returns {json} confJsonComponentsCss - stylesheets configuration
+   */
   _this.getConfJsonComponentsCss = function() {
     return confJsonComponentsCss;
   }
 
+  /**
+   * Return the map server configuration
+   * @returns {json} confJsonServer - map server configuration
+   */
   _this.getConfJsonServer = function() {
     return confJsonServer;
   }
 
+  /**
+   * Return the filter configuration
+   * @returns {json} confJsonFilter - filter configuration
+   */
   _this.getConfJsonFilter = function() {
     return confJsonFilter;
   }

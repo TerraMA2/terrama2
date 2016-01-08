@@ -10,20 +10,25 @@ var LayerExplorer = function(terrama2) {
 
   var socket = io(terrama2.getTerrama2Url());
 
-  var processLayers = function(arrLayers) {
+  /**
+   * Process the layers from the capabilities and create the openlayers tiled wms layers
+   * @param {json} layers - layers list from the capabilities
+   * @returns {array} tilesWMSLayers - openlayers tiled wms layers array
+   */
+  var processLayers = function(layers) {
     var tilesWMSLayers = [];
 
-    var arrLayersLength = arrLayers.Layer.length;
+    var layersLength = layers.Layer.length;
 
-    for(var i = 0; i < arrLayersLength; i++) {
-      if(arrLayers.Layer[i].hasOwnProperty('Layer')) {
+    for(var i = 0; i < layersLength; i++) {
+      if(layers.Layer[i].hasOwnProperty('Layer')) {
 
-        var subLayersLength = arrLayers.Layer[i].Layer.length;
+        var subLayersLength = layers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
+          tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title));
         }
       } else {
-        tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
+        tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title));
       }
     }
 
@@ -31,12 +36,11 @@ var LayerExplorer = function(terrama2) {
   }
 
   /**
-  * Build a tree layer from the map layers with visible and opacity
-  * options.
-  *
-  * @param {type} layer
-  * @returns {String}
-  */
+   * Build a layer explorer from the map layers
+   * @param {type} layer
+   * @param {boolean} firstCall
+   * @returns {string} elem - string containing the HTML code to the layer explorer
+   */
   var buildLayerExplorer = function(layer, firstCall) {
     var elem;
     var name = layer.get('name') ? layer.get('name') : "Group";
@@ -79,15 +83,14 @@ var LayerExplorer = function(terrama2) {
   }
 
   /**
-  * Initialize the tree from the map layers
-  * @returns {undefined}
-  */
-  var initializeTree = function() {
+   * Initialize the layer explorer and put it in the page
+   */
+  var initializeLayerExplorer = function() {
     var elem = buildLayerExplorer(map.getLayerGroup(), true);
     $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
 
-    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li').find(' > span');
-    $('#terrama2-layerexplorer li.parent_li > span').on('click', function(e) {
+    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
+    $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
       if (children.is(":visible")) {
         children.hide('fast');
@@ -96,15 +99,13 @@ var LayerExplorer = function(terrama2) {
         children.show('fast');
         $(this).addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
       }
-      //e.stopPropagation();
     });
   }
 
   /**
-  * Set the visibility of a layer or a group of layers.
-  * @param {ol.layer} layer
-  * @returns {undefined}
-  */
+   * Set the visibility of a given layer or layer group, if it is visible, it will be hidden, otherwise will be shown
+   * @param {ol.layer} layer - openlayers layer or layer group
+   */
   var setLayerVisibility = function(layer) {
     layer.setVisible(!layer.getVisible());
 
@@ -117,6 +118,10 @@ var LayerExplorer = function(terrama2) {
     }
   }
 
+  /**
+   * Return the selected layer
+   * @returns {string} selectedLayer - layer name
+   */
   _this.getSelectedLayer = function() {
     return selectedLayer;
   }
@@ -136,7 +141,7 @@ var LayerExplorer = function(terrama2) {
 
     $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
 
-    initializeTree();
+    initializeLayerExplorer();
 
     // Handle opacity slider control
     $('input.opacity').slider();

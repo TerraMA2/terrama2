@@ -5,6 +5,12 @@ var Filter = function(terrama2) {
   var filterConfig = terrama2.getConfig().getConfJsonFilter();
   var serverConfig = terrama2.getConfig().getConfJsonServer();
 
+  /**
+   * Create the date filter
+   * @param {string} dateFrom - initial filter date
+   * @param {strin} dateTo - final filter date
+   * @returns {string} cql - date cql filter
+   */
   var createDateFilter = function(dateFrom, dateTo) {
     var cql = filterConfig.DateFieldName + ">=" + processDate(dateFrom, filterConfig.DateFormat);
     cql += " and ";
@@ -13,10 +19,22 @@ var Filter = function(terrama2) {
     return cql;
   }
 
+  /**
+   * Create the satellite filter
+   * @param {string} satellite - filter satellite
+   * @returns {string} cql - satellite cql filter
+   */
   var createSatelliteFilter = function(satellite) {
-    return filterConfig.SatelliteFieldName + "='" + satellite + "'";
+    var cql = filterConfig.SatelliteFieldName + "='" + satellite + "'";
+    return cql;
   }
 
+  /**
+   * Apply the date and satellite filter
+   * @param {string} dateFrom - initial filter date
+   * @param {strin} dateTo - final filter date
+   * @param {string} satellite - filter satellite
+   */
   var applyFilter = function(dateFrom, dateTo, satellite) {
     var cql = "";
 
@@ -35,6 +53,12 @@ var Filter = function(terrama2) {
     mapDisplay.findBy(map.getLayerGroup(), 'name', filterConfig.LayerToFilter).getSource().updateParams({ "CQL_FILTER": cql });
   }
 
+  /**
+   * Apply the correct date format
+   * @param {string} date - date to be formatted
+   * @param {string} format - date to be used
+   * @param {string} finalDate - date in the correct format
+   */
   var processDate = function(date, format) {
     var finalDate = format;
 
@@ -88,6 +112,11 @@ var Filter = function(terrama2) {
     });
   }
 
+  /**
+   * Remove the repetitions from a given array
+   * @param {array} list - array to be filtered
+   * @returns {array} result - array without repetitions
+   */
   function unique(list) {
     var result = [];
 
