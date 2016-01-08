@@ -1,8 +1,6 @@
 var LeftBar = function(terrama2) {
 
-  //$('#terrama2-leftbar-container').append(terrama2.getConfig().getConfJsonHTML().LeftBarVisibilityControlButton);
-
-  $(document).ready(function() {
+  var loadEvents = function() {
     $('.terrama2-leftbar-button').on('click', function(e) {
       if($(this).hasClass("terrama2-hide-leftbar-button") || $(this).hasClass("terrama2-show-leftbar-button")) {
         if($("#terrama2-leftbar").hasClass("terrama2-hide-leftbar")) {
@@ -25,9 +23,7 @@ var LeftBar = function(terrama2) {
       } else {
         var box = $(this).attr('terrama2-box');
 
-
         if($("#" + box).hasClass("terrama2-leftbox-left")) {
-
           if($("#" + box).css("left") < '0px') {
             $(".terrama2-right-arrow").remove();
             $('.terrama2-leftbar-button').removeClass("active");
@@ -47,8 +43,6 @@ var LeftBar = function(terrama2) {
             $(this).removeClass("active");
           }
         } else {
-
-
           if($("#" + box).css("width") === '0px') {
             $(".terrama2-right-arrow").remove();
             $('.terrama2-leftbar-button').removeClass("active");
@@ -73,19 +67,13 @@ var LeftBar = function(terrama2) {
             $("#" + box).animate({ width: 0, padding: 0, opacity: 0 }, { duration: 300 });
             $(this).removeClass("active");
           }
-
-
+        }
       }
-    }
 
       e.stopPropagation();
     });
 
-    $(".terrama2-resizable-horizontal").resizable({
-      handles: 'e'
-    });
-
-    $(window).resize(function(){
+    $(window).resize(function() {
       $(".terrama2-leftbox-fullscreen").each(function() {
         if($(this).width() !== 0) {
           var width = $("#terrama2-container").parent().width() - 51;
@@ -93,5 +81,9 @@ var LeftBar = function(terrama2) {
         }
       });
     });
+  }
+
+  $(document).ready(function() {
+    loadEvents();
   });
 }
