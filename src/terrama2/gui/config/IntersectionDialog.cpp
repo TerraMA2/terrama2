@@ -46,7 +46,7 @@
 
 struct terrama2::gui::config::IntersectionDialog::Impl
 {
-  Impl(const terrama2::core::Intersection& intersection, Database* database)
+  Impl(const terrama2::core::Intersection& intersection, terrama2::gui::core::Database* database)
     : ui_(new Ui::IntersectionDialogForm),
       intersection_(intersection)
   {
@@ -79,7 +79,10 @@ struct terrama2::gui::config::IntersectionDialog::Impl
   std::unique_ptr<te::da::DataSource> dataSource_;
 };
 
-terrama2::gui::config::IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& intersection, Database* database, QWidget* parent, Qt::WindowFlags f)
+terrama2::gui::config::IntersectionDialog::IntersectionDialog(const terrama2::core::Intersection& intersection,
+                                                              terrama2::gui::core::Database* database,
+                                                              QWidget* parent,
+                                                              Qt::WindowFlags f)
 : QDialog(parent, f), pimpl_(new Impl(intersection, database))
 {
   pimpl_->ui_->setupUi(this);

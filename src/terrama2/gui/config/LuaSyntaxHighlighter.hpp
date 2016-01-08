@@ -71,8 +71,8 @@ namespace terrama2
         private:
           struct HighlightingRule
           {
-            QRegExp pattern;
-            QTextCharFormat format;
+            QRegExp pattern;  ///!< A Lua pattern to be matched
+            QTextCharFormat format; ///!< A common format to be highlighted. Like darkblue and bold format for Lua commands
           }; //!< A struct for handling match regex and text
           QVector<HighlightingRule> rules; //!< A vector of rules to be matched
       };

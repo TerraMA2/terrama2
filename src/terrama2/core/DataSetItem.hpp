@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSetItem.hpp
 
-  \brief Metadata about a dataset item.
+  \brief Metadata about a DataSetItem.
 
   \author Paulo R. M. Oliveira
 */
@@ -45,32 +45,32 @@ namespace terrama2
     /*!
       \class DataSetItem
 
-      \brief Metadata about a dataset item.
+      \brief Metadata about a DataSetItem.
 
-      A dataset item can be a INPE Format PCD, TOA5 PCD, an occurrence of fire or an occurrence of diseases.
+      A DataSetItem can be a INPE Format PCD, TOA5 PCD, an occurrence of fire or an occurrence of diseases.
      */
     class DataSetItem
     {
       public:
 
-        /*! \brief Dataset item type.
+        /*! \brief DataSet item type.
          Each constant must exist in table terrama2.dataset_item_type and the value must be the same from column id.
          */
         enum Kind
         {
-          UNKNOWN_TYPE = 1,
-          PCD_INPE_TYPE = 2,
-          PCD_TOA5_TYPE = 3,
-          FIRE_POINTS_TYPE = 4,
-          DISEASE_OCCURRENCE_TYPE = 5,
-          GRID_TYPE = 6
+          UNKNOWN_TYPE = 1, //!< Unkown type
+          PCD_INPE_TYPE = 2, //!< PCD-INPE type.
+          PCD_TOA5_TYPE = 3, //!< PCD format TOA5.
+          FIRE_POINTS_TYPE = 4, //!< Fire points data.
+          DISEASE_OCCURRENCE_TYPE = 5, //!< Disease occurence data.
+          GRID_TYPE = 6 //!< For sattelite images or grid data.
         };
 
-        //! Dataset item status.
+        //! DataSet item status.
         enum Status
         {
-          ACTIVE,
-          INACTIVE
+          ACTIVE, //!< When active data will be collected.
+          INACTIVE //!< When inactive data wont't be collected.
         };
 
       public:
@@ -78,61 +78,61 @@ namespace terrama2
         /*!
           \brief Constructor.
 
-          \param k         The type of dataset item: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
-          \param id        The dataset item identifier or zero if it doesn't have a valid one.
-          \param datasetId The dataset to which this item belongs to.
+          \param k         The type of DataSetItem: PCD-INPE, PCD-TOA5, FIRE-POINTS, ...
+          \param id        The DataSetItem identifier or zero if it doesn't have a valid one.
+          \param datasetId The DataSet to which this item belongs to.
         */
         DataSetItem(Kind k = UNKNOWN_TYPE, uint64_t id = 0, uint64_t datasetId = 0);
 
         /*! \brief Destructor. */
         ~DataSetItem();
 
-        /*! \brief Returns the identifier of the dataset item. */
+        /*! \brief Returns the identifier of the DataSetItem. */
         uint64_t id() const;
 
-        /*! \brief Sets the identifier of the dataset item. */
+        /*! \brief Sets the identifier of the DataSetItem. */
         void setId(uint64_t id);
 
-        /*! \brief Returns the kind of the dataset item. */
+        /*! \brief Returns the kind of the DataSetItem. */
         Kind kind() const;
 
-        /*! \brief Sets the kind of the dataset item. */
+        /*! \brief Sets the kind of the DataSetItem. */
         void setKind(const Kind k);
 
-        /*! \brief Returns the status of the dataset item. */
+        /*! \brief Returns the status of the DataSetItem. */
         Status status() const;
 
-        /*! \brief Sets the the status of the dataset item. */
+        /*! \brief Sets the the status of the DataSetItem. */
         void setStatus(const Status s);
 
-        /*! \brief Returns the mask of the dataset item. */
+        /*! \brief Returns the mask of the DataSetItem. */
         const std::string& mask() const;
 
-        /*! \brief Sets the mask of the dataset item. */
+        /*! \brief Sets the mask of the DataSetItem. */
         void setMask(const std::string& m);
 
-        /*! \brief Returns the timezone of the dataset item. */
+        /*! \brief Returns the timezone of the DataSetItem. */
         const std::string& timezone() const;
 
-        /*! \brief Sets the timezone of the dataset item. */
+        /*! \brief Sets the timezone of the DataSetItem. */
         void setTimezone(const std::string& tz);
 
-        /*! \brief Returns the path to a dataset item. */
+        /*! \brief Returns the path to a DataSetItem. */
         std::string path() const;
 
-        /*! \brief Sets the path to a dataset item. */
+        /*! \brief Sets the path to a DataSetItem. */
         void setPath(const std::string& path);
 
-        /*! \brief Returns the dataset to which this item belongs to. */
+        /*! \brief Returns the DataSet to which this item belongs to. */
         uint64_t dataset() const;
 
-        /*! \brief Sets the dataset id */
+        /*! \brief Sets the DataSet id */
         void setDataSet(uint64_t id);
 
-        /*! \brief Returns the filter to be used when collecting this dataset item. */
+        /*! \brief Returns the filter to be used when collecting this DataSetItem. */
         const Filter& filter() const;
 
-        /*! \brief Sets the filter to be used when collecting dataset item. */
+        /*! \brief Sets the filter to be used when collecting DataSetItem. */
         void setFilter(const Filter& f);
 
         /*! \brief Returns the storage metadata. */
@@ -152,14 +152,14 @@ namespace terrama2
 
       private:
 
-        Kind kind_; //!< Dataset item type.
-        uint64_t id_; //!< Identifier of the dataset item.
-        uint64_t dataset_; //!< Identifier of the dataset item.
-        Status status_; //!< Dataset item status for collection.
-        std::string mask_; //!< Mask of the dataset item.
-        std::string timezone_; //!< Timezone of the dataset item.
-        std::string path_; //!< Path to a dataset item.
-        Filter filter_; //!< Filter to be used when collecting this dataset item.
+        Kind kind_; //!< DataSet item type.
+        uint64_t id_; //!< Identifier of the DataSetItem.
+        uint64_t dataset_; //!< Identifier of the DataSetItem.
+        Status status_; //!< DataSet item status for collection.
+        std::string mask_; //!< Mask of the DataSetItem.
+        std::string timezone_; //!< Timezone of the DataSetItem.
+        std::string path_; //!< Path to a DataSetItem.
+        Filter filter_; //!< Filter to be used when collecting this DataSetItem.
         std::map<std::string, std::string> storageMetadata_; //!< Storage metadata.
         uint64_t srid_; //!< Projection SRID.
     };

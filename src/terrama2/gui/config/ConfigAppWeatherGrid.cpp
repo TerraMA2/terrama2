@@ -1,3 +1,33 @@
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
+
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
+
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file terrama2/gui/config/ConfigAppWeatherGrid.cpp
+
+  \brief Definition of terrama2::gui::config::ConfigAppWeatherGrid
+
+  \author Raphael Willian da Costa
+*/
+
+
 // TerraMA2
 #include "ConfigAppWeatherGrid.hpp"
 #include "ConfigApp.hpp"
@@ -155,26 +185,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore
 void terrama2::gui::config::ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
 {
   *filter_ = filter;
-
-  if (filter.discardAfter() != nullptr || filter.discardBefore() != nullptr)
-    ui_->dateFilterLabel->setText(tr("Yes"));
-  else
-    ui_->dateFilterLabel->setText(tr("No"));
-
-  if (filter.geometry() != nullptr)
-    ui_->areaFilterLabel->setText(tr("Yes"));
-  else
-    ui_->areaFilterLabel->setText(tr("No"));
-
-  if (!filter.bandFilter().empty())
-    ui_->bandFilterLabel->setText(tr("Yes"));
-  else
-    ui_->bandFilterLabel->setText(tr("No"));
-
-  if (filter.value() != nullptr)
-    ui_->preAnalysisLabel->setText(tr("Yes"));
-  else
-    ui_->preAnalysisLabel->setText(tr("No"));
+  fillFilterLabels();
 }
 
 bool terrama2::gui::config::ConfigAppWeatherGridTab::validate()
@@ -292,25 +303,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::onFilterClicked()
   if (dialog.exec() == QDialog::Accepted)
     dialog.fillObject(*filter_);
 
-  if (dialog.isFilterByDate())
-    ui_->dateFilterLabel->setText(tr("Yes"));
-  else
-    ui_->dateFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByArea())
-    ui_->areaFilterLabel->setText(tr("Yes"));
-  else
-    ui_->areaFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByLayer())
-    ui_->bandFilterLabel->setText(tr("Yes"));
-  else
-    ui_->bandFilterLabel->setText(tr("No"));
-
-  if (dialog.isFilterByPreAnalyse())
-    ui_->preAnalysisLabel->setText(tr("Yes"));
-  else
-    ui_->preAnalysisLabel->setText(tr("No"));
+  fillFilterLabels();
 }
 
 void terrama2::gui::config::ConfigAppWeatherGridTab::onProjectionClicked()
@@ -330,4 +323,27 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::onProjectionClicked()
 void terrama2::gui::config::ConfigAppWeatherGridTab::setSrid(const uint64_t srid)
 {
   srid_ = srid;
+}
+
+void terrama2::gui::config::ConfigAppWeatherGridTab::fillFilterLabels()
+{
+  if (filter_->discardAfter() != nullptr || filter_->discardBefore() != nullptr)
+    ui_->dateFilterLabel->setText(tr("Yes"));
+  else
+    ui_->dateFilterLabel->setText(tr("No"));
+
+  if (filter_->geometry() != nullptr)
+    ui_->areaFilterLabel->setText(tr("Yes"));
+  else
+    ui_->areaFilterLabel->setText(tr("No"));
+
+  if (!filter_->bandFilter().empty())
+    ui_->bandFilterLabel->setText(tr("Yes"));
+  else
+    ui_->bandFilterLabel->setText(tr("No"));
+
+  if (filter_->value() != nullptr)
+    ui_->preAnalysisLabel->setText(tr("Yes"));
+  else
+    ui_->preAnalysisLabel->setText(tr("No"));
 }

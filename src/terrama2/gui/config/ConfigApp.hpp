@@ -48,18 +48,17 @@
 #include <QSharedPointer>
 
 
-// Forward declarations
-class ConfigManager;
 namespace terrama2
 {
-  /*!
-    \brief A namespace for handling TerraMA2 gui applications
-  */
   namespace gui
   {
-    /*!
-      \brief A namespace for handling TerraMA2 configuration module
-    */
+
+    // Forward declaration
+    namespace core
+    {
+      class ConfigManager;
+    }
+
     namespace config
     {
       // Forward declaration
@@ -77,7 +76,10 @@ namespace terrama2
 
         public:
 
-          /*! Default constructor.
+          /*!
+            \brief Constructor.
+            \details It initializes TerraMA2 icon library, application locale and connect the widgets & slots
+
             \param parent Represents the QT Widget owner (default nullptr)
             \param flags  It handling gui window kind (0 defined as Widget)
             \exception terrama2::InitializationException It may be raised when cannot find TerraMA2 icons library folder
@@ -122,14 +124,14 @@ namespace terrama2
           QSharedPointer<terrama2::ws::collector::client::Client> getClient() const;
 
           /*!
-           \brief It retrieves the ConfigManager instance containing application settings
-           \return A shared pointer to ConfigManager class. It contains application config.
+           \brief It retrieves the terrama2::gui::core::ConfigManager instance containing application settings
+           \return A shared pointer to terrama2::gui::core::ConfigManager class. It contains application config.
           */
-          QSharedPointer<ConfigManager> getConfiguration() const;
+          QSharedPointer<terrama2::gui::core::ConfigManager> getConfiguration() const;
 
         private slots:
           /*!
-           \brief Slot triggered when tab index clicked. It handles global tabs among application
+           \brief Slot triggered when tab index has been clicked. It handles global tabs among application runtime
            \param index Contains a requested tab index value
           */
           void tabChangeRequested(int index);
@@ -146,11 +148,11 @@ namespace terrama2
 
           int currentTabIndex_; //!< index of active tab
 
-          QSharedPointer<ConfigManager> configManager_; //!< It contains metadata from TerraMA2 administration file
+          QSharedPointer<terrama2::gui::core::ConfigManager> configManager_; //!< It contains metadata from TerraMA2 administration file
 
           QSharedPointer<ConfigAppWeatherTab> weatherTab_; //!< Attribute for handling WeatherTab
 
-          QSharedPointer<terrama2::ws::collector::client::Client> client_;  //!< gsoap collector client
+          QSharedPointer<terrama2::ws::collector::client::Client> client_;  //!< gSOAP collector client
       };
     }
   }
