@@ -57,8 +57,6 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::processIntersection(const 
   std::shared_ptr<te::mem::DataSet> outputDs;
   std::shared_ptr<te::da::DataSetType> outputDt;
 
-  auto transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
-
   // Reads the vectorial intersection configuration
   terrama2::core::Intersection intersection = dataSet.intersection();
   auto attrMap = intersection.attributeMap();
@@ -105,7 +103,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::processIntersection(const 
       interDs->moveBeforeFirst();
       while(interDs->moveNext())
       {
-        std::auto_ptr<te::gm::Geometry> g = interDs->getGeometry(secGeomPropPos);
+        std::unique_ptr<te::gm::Geometry> g(interDs->getGeometry(secGeomPropPos));
 
         rtree->insert(*g->getMBR(), secondDsCount);
 
@@ -121,7 +119,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::processIntersection(const 
 
       while(collectedData->moveNext())
       {
-        std::auto_ptr<te::gm::Geometry> currGeom = collectedData->getGeometry(fiGeomPropPos);
+        std::unique_ptr<te::gm::Geometry> currGeom(collectedData->getGeometry(fiGeomPropPos));
         if(!currGeom.get())
           continue;
 

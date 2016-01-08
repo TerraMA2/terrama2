@@ -51,6 +51,13 @@ namespace terrama2
         // Forward declaration
         class WebProxyAdapter;
 
+        /*!
+          \class Client
+
+          \brief The class is responsible to use gSOAP to communicate with the Web Service and request
+                 Data Providers and Data Sets manipulation.
+
+         */
         class Client
         {
           public:
@@ -61,130 +68,123 @@ namespace terrama2
 
 
             /*!
-              \brief
+              \brief Test server connection, after method the given string will hava the Web Service answer
+
+              \param answer After method the given string will hava the Web Service answer
 
               \exception pingError
 
-              \return
             */
             void ping(std::string &answer);
 
 
             /*!
-              \brief
+              \brief Send shutdown signal to Web Service
 
-              \param
+              \exception ShutdownError
 
-              \exception pingError
-
-              \return
             */
             void shutdown();
 
 
             /*!
-              \brief
+              \brief Request the addition of a DataProvider to Web Service
 
-              \param
+              \param dataProvider A Data Provider with data to be added, at the end it will contains a valid Data Provider
 
               \exception AddingDataProviderError
 
-              \return
             */
             void addDataProvider(terrama2::core::DataProvider & dataProvider);
 
             /*!
-              \brief
+              \brief Request the addition of a DataSet to Web Service
 
-              \param
+              \param dataSet A Data Set with data to be added, at the end it will contains a valid Data Set
 
               \exception AddingDataSetError
 
-              \return
             */
             void addDataSet(terrama2::core::DataSet & dataSet);
 
             /*!
-              \brief
+              \brief Request the update of a DataProvider to Web Service
 
-              \param
+              \param dataProvider A Data Provider with data to be updated, at the end it will contains a valid Data Provider
 
               \exception UpdateDataProviderError
 
-              \return
             */
             void updateDataProvider(terrama2::core::DataProvider & dataProvider);
 
             /*!
-              \brief
+              \brief Request the update of a Data Set to Web Service
 
-              \param
+              \param A Data Set with data to be updated, at the end it will contains a valid Data Provider
 
               \exception UpdateDataSetError
 
-              \return
             */
             void updateDataSet(terrama2::core::DataSet & dataSet);
 
             /*!
-              \brief
+              \brief Request the remove of a DataProvider to Web Service
 
-              \param
+              \param id The ID of a Data Provider to be removed
 
               \exception RemoveDataProviderError
 
-              \return
             */
             void removeDataProvider(uint64_t id);
 
             /*!
-              \brief
+              \brief Request the remove of a Data Set to Web Service
 
-              \param
+              \param id The ID of a Data Set to be removed
 
               \exception RemoveDataSetError
-
-              \return
             */
             void removeDataSet(uint64_t id);
 
             /*!
-              \brief
+              \brief Request to Web Service the Data Provider with the given ID
 
-              \param
+              \param id The ID of the wanted Data Provider
 
               \exception FindDataProviderError
 
-              \return
+              \return A terrama2::core::DataProvider
             */
             core::DataProvider findDataProvider(uint64_t id);
 
             /*!
-              \brief
+              \brief Request to Web Service the Data Set with the given ID
 
-              \param
+              \param id The ID of the wanted Data Set
 
-              \exception FindDataSetError
+              \exception FindDataProviderError
 
-              \return
+              \return A terrama2::core::DataSet
             */
             core::DataSet findDataSet(uint64_t id);
 
             /*!
-              \brief
+              \brief This method will fill the given vector with all terrama2::core::DataProvider registered
 
-              \param
+              \param dataProviderPtrList A vector of terrama2::core::DataProvider
 
-              \return
+              \exception ListDataProviderError
+
             */
             void listDataProvider(std::vector< terrama2::core::DataProvider > &dataProviderPtrList);
 
             /*!
-              \brief
+              \brief This method will fill the given vector with all terrama2::core::DataSet registered
 
-              \param
+              \param dataSetPtrList A vector of terrama2::core::DataSet
 
-              \return
+              \exception ListDataSetError
+
             */
             void listDataSet(std::vector< terrama2::core::DataSet > &dataSetPtrList);
 

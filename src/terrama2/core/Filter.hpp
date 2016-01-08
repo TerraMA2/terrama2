@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/Filter.hpp
 
-  \brief Filter information of a given dataset item.
+  \brief Filter information of a given DataSetItem.
 
   \author Paulo R. M. Oliveira
   \author Gilberto Ribeiro de Queiroz
@@ -51,7 +51,7 @@ namespace terrama2
     /*!
       \class Filter
 
-      \brief Filter information of a given dataset item.
+      \brief Filter information of a given DataSetItem.
      */
     class Filter
     {
@@ -63,17 +63,17 @@ namespace terrama2
          */
         enum ExpressionType
         {
-          NONE_TYPE = 1,
-          LESS_THAN_TYPE = 2,
-          GREATER_THAN_TYPE = 3,
-          MEAN_LESS_THAN_TYPE = 4,
-          MEAN_GREATER_THAN_TYPE = 5
+          NONE_TYPE = 1, //!< No filter.
+          LESS_THAN_TYPE = 2, //!< Eliminate data when all values are less than a given value
+          GREATER_THAN_TYPE = 3, //!< Eliminate data when all values are greater than a given value
+          MEAN_LESS_THAN_TYPE = 4, //!< Eliminate data when the mean is less than a given value
+          MEAN_GREATER_THAN_TYPE = 5 //!< Eliminate data when the mean is greater than a given value
         };
 
         /*!
           \brief Constructor.
 
-          \param item The associated dataset item.
+          \param item The associated DataSetItem.
         */
         Filter(uint64_t dataSetItemId = 0);
 
@@ -87,27 +87,27 @@ namespace terrama2
         /*! Assignment operator */
         Filter& operator=(const Filter& filter);
 
-        /*! \brief Returns the identifier of the associated dataset item. */
+        /*! \brief Returns the identifier of the associated DataSetItem. */
         uint64_t datasetItem() const;
 
 
         /*!
-          \brief Associates the filter to a given dataset item.
+          \brief Associates the filter to a given DataSetItem.
 
-          \param item The dataset item to be associated to this filter.
+          \param item The DataSetItem to be associated to this filter.
         */
         void setDataSetItem(uint64_t item);
 
-        /*! \brief Returns the initial date of interest for collecting data from the data item. */
+        /*! \brief Returns the initial date of interest for collecting data from the DataSetItem. */
         const te::dt::TimeInstantTZ* discardBefore() const;
 
-        /*! \brief Sets the initial date of interest for collecting data from the data item. */
+        /*! \brief Sets the initial date of interest for collecting data from the DataSetItem. */
         void setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ> t);
 
-        /*! \brief Returns the final date of interest for collecting data from the data item. */
+        /*! \brief Returns the final date of interest for collecting data from the DataSetItem. */
         const te::dt::TimeInstantTZ* discardAfter() const;
 
-        /*! \brief Sets the final date of interest for collecting data from the data item. */
+        /*! \brief Sets the final date of interest for collecting data from the DataSetItem. */
         void setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ> t);
 
         /*! \brief Returns the geometry to be used as area of interest for filtering the data during its collect. */
@@ -136,9 +136,9 @@ namespace terrama2
 
       private:
 
-        uint64_t datasetItem_; //!< Associates the filter to a given dataset item.
-        std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Initial date of interest for collecting data from the data item.
-        std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Final date of interest for collecting data from the data item.
+        uint64_t datasetItem_; //!< Associates the filter to a given DataSetItem.
+        std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Initial date of interest for collecting data from the DataSetItem.
+        std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Final date of interest for collecting data from the DataSetItem.
         std::unique_ptr<te::gm::Geometry> geometry_; //!< Geometry to be used as area of interest for filtering the data during its collect.
         std::unique_ptr<double> value_; //!< Value to be used in a filter by value.
         ExpressionType expressionType_; //!< Type of filter by expression.
