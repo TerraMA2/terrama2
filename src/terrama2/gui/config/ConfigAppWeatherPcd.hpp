@@ -157,6 +157,8 @@ namespace terrama2
           //! Slot triggered at pcdexport button to export pcd in terrama2 format
           void onPCDExportClicked();
 
+          void onInfluenceChanged(const int& index);
+
         private:
           QList<terrama2::gui::config::PCD> pcds_; //!< PCDs table list
           QString luaScript_; //!< It storages lua script from CollectorRuleDialog

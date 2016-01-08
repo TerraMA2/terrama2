@@ -134,6 +134,45 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
   metadata["PREFIX"] = ui_->gridFormatDataPrefix->text().toStdString();
   metadata["UNIT"] = ui_->gridFormatDataUnit->text().toStdString();
   metadata["RESOLUTION"] = ui_->gridFormatDataResolution->text().toStdString();
+
+  switch (ui_->gridFormatDataFormat->currentIndex())
+  {
+    case 0:
+      {
+        if (ui_->rbGridAscUnidGrausDec->isChecked())
+          metadata["COORDINATES_UNIT"] = tr("Decimal Degree").toStdString();
+        else if (ui_->rbGridAscUnidGrausMil->isChecked())
+          metadata["COORDINATES_UNIT"] = tr("Thousandth Degree").toStdString();
+      }
+      break;
+    case 1:
+      metadata["NAVIGATION_FILE"] = ui_->ledGridTIFFArqNavegacao->text().toStdString();
+      break;
+    case 2:
+      {
+        metadata["CONTROL_FILE"] = ui_->ledGridGrADSArqControle->text().toStdString();
+        metadata["MULTIPLICATOR"] = ui_->ledGridGrADSMultiplicador->text().toStdString();
+
+        if (ui_->rbGridGrADSTipoDadosInt->isChecked())
+          metadata["DATA_KIND"] = "Integer";
+        else if (ui_->rbGridGrADSTipoDadosFloat->isChecked())
+          metadata["DATA_KIND"] = "Float";
+
+        metadata["ORDER"] = ui_->cmbGridGrADSByteOrder->currentText().toStdString();
+        metadata["BANDS"] = ui_->spbGridGrADSNumBands->text().toStdString();
+        metadata["BAND_PREFIX"] = ui_->spbGridGrADSHeaderSize->text().toStdString();
+        metadata["TIME_OFFSET"] = ui_->spbGridGrADSTimeOffset->text().toStdString();
+        metadata["POSFIX"] = ui_->spbGridGrADSTraillerSize->text().toStdString();
+      }
+      break;
+    default:
+      ;
+  }
+
+
+  metadata["FORMAT"] = ui_->gridFormatDataFormat->currentText().toStdString();
+
+
   dataset.setMetadata(metadata);
 
   auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());

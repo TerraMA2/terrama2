@@ -63,6 +63,9 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   connect(ui_->tblPointPCDFileNameLocation, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(onPCDTableDoubleClicked(QTableWidgetItem*)));
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
   connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
+  connect(ui_->pointFormatDataInfluenceCmb, SIGNAL(currentIndexChanged(int)), SLOT(onInfluenceChanged(const int&)));
+
+  ui_->pointFormatDataInfluenceCmb->setCurrentIndex(2);
 
 
   // export pcd button
@@ -73,8 +76,6 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
 
   // todo: implement it to list pcd attributes after collection
   ui_->updateDataPointBtn->setEnabled(false);
-  ui_->pointFormatDataThemeCmb->setEnabled(false);
-  ui_->pointFormatDataAttributeCmb->setEnabled(false);
   ui_->pointFormatDataPrefix->setEnabled(false);
   ui_->pointFormatDataUnit->setEnabled(false);
 
@@ -346,6 +347,22 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onPCDExportClicked()
     if (const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e))
       message.append(*msg);
     QMessageBox::warning(app_, tr("TerraMA2 Error"), message);
+  }
+}
+
+void terrama2::gui::config::ConfigAppWeatherPcd::onInfluenceChanged(const int &index)
+{
+  if (index < 2)
+  {
+    ui_->label_35->setVisible(false);
+    ui_->pointFormatDataThemeCmb->hide();
+    ui_->pointFormatInfluenceStack->setCurrentWidget(ui_->pointFormatInfluenceRadio);
+  }
+  else
+  {
+    ui_->label_35->setVisible(true);
+    ui_->pointFormatDataThemeCmb->show();
+    ui_->pointFormatInfluenceStack->setCurrentWidget(ui_->pointFormatInfluenceRegion);
   }
 }
 
