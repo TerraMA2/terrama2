@@ -22,7 +22,7 @@
 /*!
   \file terrama2/gui/admin/AdminAppDBTab.hpp
 
-  \brief 
+ \brief Class responsible for handling DataBaseTab actions
 
   \author Evandro Delatin
   \author Raphael Willian da Costa
@@ -34,21 +34,40 @@
 
 // TerraMA2
 #include "AdminAppTab.hpp"
- 
-class AdminAppDBTab: public AdminAppTab
+
+namespace terrama2
 {
- public:
+  namespace gui
+  {
+    namespace admin
+    {
+      /*!
+        \class AdminAppDBTab
 
-//! Default constructor
-  AdminAppDBTab(AdminApp* app, Ui::AdminAppForm* ui);
+        \brief Class responsible for handling DataBaseTab actions.
+       */
 
- //! Destructor
-  ~AdminAppDBTab();
+      class AdminAppDBTab: public terrama2::gui::admin::AdminAppTab
+      {
+        public:
 
-  bool validate();
-  bool load();
-  QMap<QString, QJsonObject> toJson();
+          //! Constructor.
+          AdminAppDBTab(terrama2::gui::admin::AdminApp* app, Ui::AdminAppForm* ui);
 
-};
+          //! Destructor.
+          ~AdminAppDBTab();
 
+          //! Implemented from AdminAppTab. Validate each widget filled.
+          bool validate();
+
+          //! Implemented from AdminAppTab. It is loading each subtab.
+          bool load();
+
+          //! Key map string to json object to be saved to file.
+          QMap<QString, QJsonObject> toJson();
+
+      };
+    }
+  }
+}
 #endif // __TERRAMA2_INTERNAL_GUI_ADMIN_ADMINAPPDBTAB_HPP__

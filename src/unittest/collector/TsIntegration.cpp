@@ -74,6 +74,8 @@ void TsIntegration::TestReadCsvStorePostGis()
     dataset.setDataFrequency(frequency);
 
     terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
+    // item.setMask("exporta_20151101_0130.csv"); // adiciona o nome do arquivo
+   // item.setMask("exporta_%A%M%d_%h%m.csv");
     item.setMask(info.fileName().toStdString());
 
     std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},

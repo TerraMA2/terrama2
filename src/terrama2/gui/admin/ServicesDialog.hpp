@@ -40,44 +40,111 @@
 // Boost
 #include <boost/noncopyable.hpp>  
 
-struct CommonData;
-class ConfigManager;
-class AdminApp;
-
-class ServicesDialog : public QDialog, private boost::noncopyable
+namespace terrama2
 {
- Q_OBJECT
+  namespace gui
+  {
+    namespace core
+    {
+      class ConfigManager;
+      struct CommonData;
+    }
+  }
+}
 
-public:
-  ServicesDialog(AdminApp *adminapp, ConfigManager&, QString nameConfig);
-  ~ServicesDialog();
+namespace terrama2
+{
+  namespace gui
+  {
+    namespace admin
+    {
+      class AdminApp;
 
-private slots:
-  void verifyRequested();
-  void saveRequested();
-  void execRequested();
-  void closeRequested();
-  void setDataChanged(int row, int col);
-  void clearDataChanged();
-   
-private:
-  void setLine(int line, const QString& module, const CommonData& data);
-  void getLine(int line, CommonData& data);
-  void getSelectedLines(QList<int>& list);
-  void setDialogData(QString nameConfig); 
-  bool runCmd(int line, QString cmd, QString param, QString& err);
+      /*!
+        \class ServicesDialog
 
- struct Impl;
- 
- Impl* pimpl_;  //!< Pimpl idiom.
+        \brief Class that manages the execution to services.
+         The Service Manager assists you in activating, checking and completion
+         the services associated with a configuration.
+         The manager window has the table
+         services. This table contains entries for collection services, plans,
+         notification, animation, and an entry for each instance of analysis service,
+         informing the user about the activation status, location (IP address and port) and settings for each service.
+       */
 
- ConfigManager& configManager_; //!< Configuration Manager
- QString idNameConfig_; //!<  current identifier in config settings manager
- bool changed_; //!< Flag indicating the data have been changed
- AdminApp* adminapp_;
- terrama2::ws::collector::client::Client* client;
-};
+      class ServicesDialog : public QDialog, private boost::noncopyable
+      {
+          Q_OBJECT
 
+        public:
+
+          /*!
+           * \brief Constructor
+           * \param adminapp - main window administration.
+           * \param ConfigManager - configuration manager.
+           * \param nameConfig - name of the current configuration.
+           */
+          ServicesDialog(terrama2::gui::admin::AdminApp *adminapp, terrama2::gui::core::ConfigManager&, QString nameConfig);
+
+          //! Destructor.
+          ~ServicesDialog();
+
+        private slots:
+
+          //! Signal called when the user requests that marked lines are "checked with ping".
+          void verifyRequested();
+
+          //! Save changed data in the dialog.
+          void saveRequested();
+
+          //! Signal called when the user requests that marked lines are executed.
+          void execRequested();
+
+          //! Signal called when the user requests that marked lines are "closed".
+          void closeRequested();
+
+          //! Mark the table data has changed.
+          void setDataChanged(int row, int col);
+
+          //! Mark the data have not changed.
+          void clearDataChanged();
+
+        private:
+
+          //! Fills a line of the data table.
+          void setLine(int line, const QString& module, const terrama2::gui::core::CommonData& data);
+
+          //! Structure fills with data from field commands and table line parameters.
+          void getLine(int line, terrama2::gui::core::CommonData& data);
+
+          //! Returns list with indices of selected lines.
+          void getSelectedLines(QList<int>& list);
+
+          //! Fill table with configuration data.
+          void setDialogData(QString nameConfig);
+
+          /*!
+           * \brief Executes the command received as a parameter.
+           * \param line - type service. Ex. Collect.
+           * \param cmd - command executable. Ex. ./terrama2_mod_ws_collect
+           * \param param - path configuration file - %c. Ex. /Desktop/fire.terrama2.
+           * \param err - information error.
+           */
+          bool runCmd(int line, QString cmd, QString param, QString& err);
+
+          struct Impl;
+
+          Impl* pimpl_;  //!< Pimpl idiom.
+
+          terrama2::gui::core::ConfigManager& configManager_; //!< Configuration Manager.
+          QString idNameConfig_; //!<  current identifier in config settings manager.
+          bool changed_; //!< Flag indicating the data have been changed.
+          terrama2::gui::admin::AdminApp* adminapp_; //!< Main Window Administration.
+          terrama2::ws::collector::client::Client* client; //!< gsoap collector client.
+      };
+    }
+  }
+}
 
 #endif // __TERRAMA2_GUI_ADMIN_SERVICESDIALOG_HPP__
 

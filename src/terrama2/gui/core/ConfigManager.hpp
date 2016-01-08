@@ -43,45 +43,54 @@
 // Boost
 #include <boost/noncopyable.hpp>
 
-class ConfigManager : private boost::noncopyable
+namespace terrama2
 {
-  public:
-    ConfigManager(QMainWindow* app);
+  namespace gui
+  {
+    namespace core
+    {
 
-    virtual ~ConfigManager();
+      class ConfigManager : private boost::noncopyable
+      {
+        public:
+          ConfigManager(QMainWindow* app);
 
-    //! Open the json configuration file and try to parse it
-    virtual void loadConfiguration(QString filepath);
+          virtual ~ConfigManager();
 
-    //! Get the TerraMA2 database struct
-    Database* getDatabase() const;
+          //! Open the json configuration file and try to parse it
+          virtual void loadConfiguration(QString filepath);
 
-    void setDatabase(QJsonObject dbase);
+          //! Get the TerraMA2 database struct
+          Database* getDatabase() const;
 
-    //! Get the TerraMA2 collection struct
-    Collection* getCollection() const;
+          void setDatabase(QJsonObject dbase);
 
-    //! Get the TerraMA2 name
-    QString getName() const;
+          //! Get the TerraMA2 collection struct
+          Collection* getCollection() const;
 
-    void setDataForm(QJsonObject metadata);
+          //! Get the TerraMA2 name
+          QString getName() const;
 
-    void insertFile(QString newname, QJsonObject metatada);
+          void setDataForm(QJsonObject metadata);
 
-    void renameFile(QString selectedName, QString newname);
+          void insertFile(QString newname, QJsonObject metatada);
 
-    void removeFile(QString selectedName);
+          void renameFile(QString selectedName, QString newname);
 
-    QMap<QString,QJsonObject> getfiles() const;
+          void removeFile(QString selectedName);
 
-  private:
-    QMainWindow* app_; //< Dialog to display error message if there is.
+          QMap<QString,QJsonObject> getfiles() const;
 
-    QString name_; //< TerraMA2 config name
-    Collection* collection_;
-    Database* database_;
+        private:
+          QMainWindow* app_; //< Dialog to display error message if there is.
 
-    QMap<QString,QJsonObject> fileList_;   
-};
+          QString name_; //< TerraMA2 config name
+          Collection* collection_;
+          Database* database_;
 
+          QMap<QString,QJsonObject> fileList_;
+      };
+    }
+  }
+}
 #endif // __TERRAMA2_GUI_CORE_CONFIGMANAGER_HPP__

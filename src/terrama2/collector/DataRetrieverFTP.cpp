@@ -22,7 +22,7 @@
 /*!
   \file terrama2/collector/DataRetrieverFTP.cpp
 
-  \brief .
+  \brief Data Retriever FTP.
 
   \author Jano Simas
   \author Evandro Delatin
@@ -95,6 +95,7 @@ bool terrama2::collector::DataRetrieverFTP::isOpen()
 
   curl.init();
 
+// Verifies that the FTP address is valid
   if(curl.fcurl())
   {
     curl_easy_setopt(curl.fcurl(), CURLOPT_URL, dataprovider_.uri().c_str());
@@ -147,13 +148,18 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
   try
   {
+// Get a file listing from server
     if(curl.fcurl())
     {
 // Get a file listing from server
       uriInput = dataprovider_.uri() + datasetitem.path();
+// The host part of the URL contains the address of the server that you want to connect to
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
+// List files and directories FTP server
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
+// Get data to be written in vector
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_vector);
+// Set a pointer to our block data
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void *)&block);
 // performs the configurations of curl_easy_setop
       status = curl_easy_perform(curl.fcurl());
@@ -183,13 +189,16 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
         curlDown.init();
 
-
+// Performs the download of files in the vectorNames
         if (curlDown.fcurl())
         {
           uriOutput = dataprovider_.uri() + datasetitem.path() + file;
+          FileOpener opener((folder_+file).c_str(),"wb");
           FileOpener opener((temporaryFolder_+file).c_str(),"wb");
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uriOutput.c_str());
+// Get data to be written in file
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
+// Set a pointer to our block data
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEDATA, opener.file());
 // performs the configurations of curl_easy_setop
           res = curl_easy_perform(curlDown.fcurl());
