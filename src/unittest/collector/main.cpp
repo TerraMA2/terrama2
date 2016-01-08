@@ -5,6 +5,7 @@
 #include "TsDataFilter.hpp"
 #include "TsParserOGR.hpp"
 #include "TsParserPcdInpe.hpp"
+#include "TsParserPcdToa5.hpp"
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
 
@@ -45,6 +46,9 @@ int main(int argc, char *argv[])
 
   TsParserPcdInpe tsParserInpe;
   returnVal += QTest::qExec(&tsParserInpe, argc, argv);
+
+  TsParserPcdToa5 tsParserToa5;
+  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
 
   //Storager
 

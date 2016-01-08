@@ -47,6 +47,9 @@ class TsParserPcdToa5: public QObject
 
     //******Test functions********
 
+    void TestParseCpvOk();
+//    void TestParseGrmOk();
+    void TestParseFail();
 
     //******End of Test functions****
 };

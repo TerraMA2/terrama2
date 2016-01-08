@@ -35,6 +35,7 @@ terrama2::core::DataSetItem::DataSetItem(Kind k, uint64_t id, uint64_t datasetId
     id_(id),
     dataset_(datasetId),
     status_(INACTIVE),
+    timezone_("00:00"),
     srid_(0)
 {
 }
