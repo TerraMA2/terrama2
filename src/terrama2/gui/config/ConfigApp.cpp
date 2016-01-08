@@ -98,6 +98,10 @@ terrama2::gui::config::ConfigApp::ConfigApp(QWidget* parent, Qt::WindowFlags fla
     translator.load(language_path.c_str());
     qApp->installTranslator(&translator);
   }
+  else
+  {
+    TERRAMA2_LOG_INFO() << tr("Could not possible to load TerraMA2 in System language.");
+  }
 
   pimpl_->ui_->setupUi(this);
 
@@ -164,7 +168,7 @@ void terrama2::gui::config::ConfigApp::openRequested()
                                                ".", tr("TerraMA2 (*.terrama2)"));
     if (!file.isEmpty())
     {
-      configManager_.reset(new ConfigManager(this));
+      configManager_.reset(new terrama2::gui::core::ConfigManager(this));
       configManager_->loadConfiguration(file);
 
       if (configManager_->getCollection()->address_.isEmpty())
@@ -185,6 +189,9 @@ void terrama2::gui::config::ConfigApp::openRequested()
       client_.reset(new terrama2::ws::collector::client::Client(webProxyAdapter));
 
       weatherTab_->load();
+
+      std::string message = configManager_->getName().toStdString() + " loaded.";
+      TERRAMA2_LOG_INFO() << tr(message.c_str());
     }
   }
   catch(const terrama2::Exception& e)
@@ -206,7 +213,7 @@ QSharedPointer<terrama2::ws::collector::client::Client> terrama2::gui::config::C
   return client_;
 }
 
-QSharedPointer<ConfigManager> terrama2::gui::config::ConfigApp::getConfiguration() const
+QSharedPointer<terrama2::gui::core::ConfigManager> terrama2::gui::config::ConfigApp::getConfiguration() const
 {
   return configManager_;
 }

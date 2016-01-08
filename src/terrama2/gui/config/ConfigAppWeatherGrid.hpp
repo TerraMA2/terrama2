@@ -65,7 +65,9 @@ namespace terrama2
         public:
 
           /*!
-            @copydoc terrama2::gui::config::ConfigAppTab::ConfigAppTab(app, ui)
+            \brief Constructor.
+
+            \details It connects each gui widget to slots
           */
           ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui);
 
@@ -87,8 +89,6 @@ namespace terrama2
 
           /*!
             @copydoc terrama2::gui::config::ConfigAppTab::discardChanges(restore_data)
-
-            Set it to initial state
           */
           void discardChanges(bool restore_data);
 
@@ -100,6 +100,14 @@ namespace terrama2
 
           //! Sets the projection
           void setSrid(const uint64_t srid);
+
+        private:
+          /*!
+            \brief It checks the filter_ member if there is any kind of filter filld out.
+
+            If there is any filter, fill the respective label with \c Yes or \c No.
+          */
+          void fillFilterLabels();
 
         public slots:
           /*!
