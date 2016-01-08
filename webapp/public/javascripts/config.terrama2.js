@@ -74,8 +74,16 @@ var Config = function(terrama2) {
     return confJsonFilter;
   }
 
-  $(document).ready(function(){
+  var loadPlugins = function() {
     $('.terrama2-date').mask("00/00/0000", {clearIfNotMatch: true});
     //$('.terrama2-table').DataTable();
+
+    $(".terrama2-resizable-horizontal").resizable({
+      handles: 'e'
+    });
+  }
+
+  $(document).ready(function(){
+    loadPlugins();
   });
 }

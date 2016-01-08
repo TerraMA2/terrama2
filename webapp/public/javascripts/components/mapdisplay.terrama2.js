@@ -1,6 +1,41 @@
 var MapDisplay = function() {
 
   var _this = this;
+  var olMap = new ol.Map({
+    renderer: 'canvas',
+    layers: [
+      new ol.layer.Group({
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM(),
+            name: 'osm',
+            title: 'Open Street Map',
+            visible: false
+          }),
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'osm'}),
+            name: 'mapquest_osm',
+            title: 'MapQuest OSM',
+            visible: false
+          }),
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'sat'}),
+            name: 'mapquest_sat',
+            title: 'MapQuest Sat&eacute;lite',
+            visible: true
+          })
+        ],
+        name: 'bases',
+        title: 'Camadas Base'
+      })
+    ],
+    target: 'terrama2-map',
+    view: new ol.View({
+      projection: 'EPSG:4326',
+      center: [-55, -15],
+      zoom: 4
+    })
+  });
 
   /**
    * Return the map object
@@ -67,43 +102,6 @@ var MapDisplay = function() {
   _this.updateMapSize = function() {
     olMap.updateSize();
   }
-
-  var olMap = new ol.Map({
-    renderer: 'canvas',
-    layers: [
-      new ol.layer.Group({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM(),
-            name: 'osm',
-            title: 'Open Street Map',
-            visible: false
-          }),
-          new ol.layer.Tile({
-            source: new ol.source.MapQuest({layer: 'osm'}),
-            name: 'mapquest_osm',
-            title: 'MapQuest OSM',
-            visible: false
-          }),
-          new ol.layer.Tile({
-            source: new ol.source.MapQuest({layer: 'sat'}),
-            name: 'mapquest_sat',
-            title: 'MapQuest Sat&eacute;lite',
-            visible: true
-          })
-        ],
-        name: 'bases',
-        title: 'Camadas Base'
-      })
-    ],
-    target: 'terrama2-map',
-    //logo: '/images/logo_terrama2.png',
-    view: new ol.View({
-      projection: 'EPSG:4326',
-      center: [-55, -15],
-      zoom: 4
-    })
-  });
 
   olMap.getLayerGroup().set('name', 'root');
   olMap.getLayerGroup().set('title', 'Geoserver Local');

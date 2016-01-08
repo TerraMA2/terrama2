@@ -85,21 +85,28 @@ var LayerExplorer = function(terrama2) {
   /**
    * Initialize the layer explorer and put it in the page
    */
-  var initializeLayerExplorer = function() {
+  var initializeLayerExplorer = function(msg) {
+    capabilities = parser.read(msg);
+
+    var processedLayers = processLayers(capabilities.Capability.Layer);
+
+    map.addLayer(new ol.layer.Group({
+      layers: processedLayers,
+      name: 'server',
+      title: terrama2.getConfig().getConfJsonServer().Name
+    }));
+
+    $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
+
     var elem = buildLayerExplorer(map.getLayerGroup(), true);
     $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
 
     $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
-    $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
-      var children = $(this).parent('li.parent_li').find(' > ul > li');
-      if (children.is(":visible")) {
-        children.hide('fast');
-        $(this).addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
-      } else {
-        children.show('fast');
-        $(this).addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
-      }
-    });
+
+    // Handle opacity slider control
+    $('input.opacity').slider();
+
+    $('.parent_li').find(' > ul > li').hide();
   }
 
   /**
@@ -118,33 +125,18 @@ var LayerExplorer = function(terrama2) {
     }
   }
 
-  /**
-   * Return the selected layer
-   * @returns {string} selectedLayer - layer name
-   */
-  _this.getSelectedLayer = function() {
-    return selectedLayer;
-  }
+  var loadEvents = function() {
+    $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
+      var children = $(this).parent('li.parent_li').find(' > ul > li');
+      if (children.is(":visible")) {
+        children.hide('fast');
+        $(this).addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
+      } else {
+        children.show('fast');
+        $(this).addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
+      }
+    });
 
-  socket.emit('proxyRequest', terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams);
-  socket.on('proxyResponse', function(msg) {
-    //var xmlText = new XMLSerializer().serializeToString(msg);
-    capabilities = parser.read(msg);
-
-    var processedLayers = processLayers(capabilities.Capability.Layer);
-
-    map.addLayer(new ol.layer.Group({
-      layers: processedLayers,
-      name: 'server',
-      title: terrama2.getConfig().getConfJsonServer().Name
-    }));
-
-    $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
-
-    initializeLayerExplorer();
-
-    // Handle opacity slider control
-    $('input.opacity').slider();
     $('input.opacity').on('slide', function(ev) {
       var layername = $(this).closest('li').data('layerid');
       var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
@@ -198,8 +190,20 @@ var LayerExplorer = function(terrama2) {
         }
       }, 200);
     });
+  }
 
-    $('.parent_li').find(' > ul > li').hide();
+  /**
+   * Return the selected layer
+   * @returns {string} selectedLayer - layer name
+   */
+  _this.getSelectedLayer = function() {
+    return selectedLayer;
+  }
+
+  socket.emit('proxyRequest', terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams);
+  socket.on('proxyResponse', function(msg) {
+    initializeLayerExplorer(msg);
+    loadEvents();
   });
 
 }
