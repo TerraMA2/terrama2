@@ -75,6 +75,10 @@ namespace terrama2
           UNKNOW
         };
 
+        /*!
+           \brief  Constructor Log
+           \param transactor The instance transactor.
+         */
         Log(std::shared_ptr < te::da::DataSourceTransactor > transactor);
 
         /*!
@@ -138,7 +142,7 @@ namespace terrama2
 
 
       private:
-        std::shared_ptr< te::da::DataSourceTransactor > transactor_;
+        std::shared_ptr< te::da::DataSourceTransactor > transactor_; //!< Contains the instance transactor
     };
   }
 }
