@@ -42,40 +42,40 @@ namespace terrama2
       namespace client
       {
         //! Exception to be used when receives a fault from WebService when request to ping the WebService
-        struct PingError: virtual terrama2::Exception{ };
+        struct PingException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to shutdown the WebService
-        struct ShutdownError: virtual terrama2::Exception{ };
+        struct ShutdownException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to add a DataProvider
-        struct AddingDataProviderError: virtual terrama2::Exception{ };
-        
+        struct AddingDataProviderException: virtual WebServiceException{ };
+
         //! Exception to be used when receives a fault from WebService when request to add a DataSet
-        struct AddingDataSetError: virtual terrama2::Exception{ };
+        struct AddingDataSetException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to update a DataProvider
-        struct UpdateDataProviderError: virtual terrama2::Exception{ };
+        struct UpdateDataProviderException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to update a DataSet
-        struct UpdateDataSetError: virtual terrama2::Exception{ };
+        struct UpdateDataSetException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to remove a DataProvider
-        struct RemoveDataProviderError: virtual terrama2::Exception{ };
+        struct RemoveDataProviderException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to remove a DataSet
-        struct RemoveDataSetError: virtual terrama2::Exception{ };
+        struct RemoveDataSetException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to find a DataProvider
-        struct FindDataProviderError: virtual terrama2::Exception{ };
+        struct FindDataProviderException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to find a DataSet
-        struct FindDataSetError: virtual terrama2::Exception{ };
+        struct FindDataSetException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to find a DataSet
-        struct ListDataProviderError: virtual terrama2::Exception{ };
+        struct ListDataProviderException: virtual WebServiceException{ };
 
         //! Exception to be used when receives a fault from WebService when request to find a DataSet
-        struct ListDataSetError: virtual terrama2::Exception{ };
+        struct ListDataSetException: virtual WebServiceException{ };
 
       }
     }

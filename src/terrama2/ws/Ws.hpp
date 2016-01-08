@@ -20,28 +20,40 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/Ws.hpp
 
-  \brief Base exception for WebService.
+  \brief WebService documentation.
 
   \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_WS_EXCEPTION_HPP__
-#define __TERRAMA2_WS_EXCEPTION_HPP__
 
 // TerraMA2
-#include "../Exception.hpp"
+#include "/collector/appserver/Config.hpp"
+
+#include "/collector/client/Client.hpp"
+#include "/collector/client/Config.hpp"
+#include "/collector/client/Exception.hpp"
+#include "/collector/client/WebProxyAdapter.hpp"
+
+#include "/collector/core/Codes.hpp"
+#include "/collector/core/Config.hpp"
+#include "/collector/core/Utils.hpp"
+#include "/collector/core/WebService.hpp"
+#include "/collector/core/WebServiceDataTypes.hpp"
+
+#include "/collector/server/Config.hpp"
+
 
 namespace terrama2
 {
+  /*!
+
+    \brief Namespace where contains the gSOAP Web Service classes for TerraMA2, client and server.
+
+   */
   namespace ws
   {
-      //! Base exception for Web Service exceptions
-      struct WebServiceException : virtual terrama2::Exception{ };
 
   }
-
-}  // end namespace terrama2
-
-#endif  // __TERRAMA2_WS_EXCEPTION_HPP__
+}
