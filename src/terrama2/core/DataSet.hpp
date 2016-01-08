@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/DataSet.hpp
 
-  \brief Models the information of given dataset from a data provider that should be collected by TerraMA2.
+  \brief Models the information of given DataSet from a DataProvider that should be collected by TerraMA2.
 
   \author Gilberto Ribeiro de Queiroz
   \author Jano Simas
@@ -52,53 +52,53 @@ namespace terrama2
     /*!
       \class DataSet
 
-      \brief Models the information of given dataset dataset from a data provider that should be collected by TerraMA2.
+      \brief Models the information of given DataSet from a DataProvider that should be collected by TerraMA2.
 
-      A dataset cmodels information about:
+      A DataSet cmodels information about:
       - PCDs: fixed location sensors that emmits their measures in the format known as PCD-INPE.
       - Occurrences (or events): something that happens at a given place and time.
       - Coverages: from OGC WCS servers.
       - FeatureTypes: from OGC WFS server.
 
-      A dataset has an associated time interval (or frequency) for being collected.
+      A DataSet has an associated time interval (or frequency) for being collected.
      */
     class DataSet
     {
       public:
 
-        /*! \brief Dataset type.
+        /*! \brief DataSetType.
          Each constant must exist in table terrama2.dataset_type and the value must be the same from column id.
          */
         enum Kind
         {
-          UNKNOWN_TYPE = 1,
-          PCD_TYPE = 2,
-          OCCURENCE_TYPE = 3,
-          GRID_TYPE = 4
+          UNKNOWN_TYPE = 1, //!< Unkown type
+          PCD_TYPE = 2, //!< Data series from fixed location sensors.
+          OCCURENCE_TYPE = 3, //!< Events that happens at a given place and time.
+          GRID_TYPE = 4 //!< For sattelite images or grid data.
         };
 
         //! Dataset status.
         enum Status
         {
-          ACTIVE,
-          INACTIVE
+          ACTIVE, //!< Data will be collected.
+          INACTIVE //!< Data wont't be collected.
         };
 
         //! Struct to store the collect rules.
         struct CollectRule
         {
-          uint64_t id;
-          std::string script;
-          uint64_t datasetId;
+          uint64_t id; //!< Identifier
+          std::string script; //!< Script used to filter data.
+          uint64_t datasetId; //!< DataSet identifier
         };
 
         /*!
           \brief Constructor
 
-          \param name       The name of the dataset.
-          \param kind       The kind of dataset.
-          \param id         The dataset identifier.
-          \param providerId The data provider associated to this dataset.
+          \param name       The name of the DataSet.
+          \param kind       The kind of DataSet.
+          \param id         The DataSet identifier.
+          \param providerId The DataProvider associated to this DataSet.
         */
         DataSet(const std::string& name = "", Kind kind = UNKNOWN_TYPE, uint64_t id = 0, uint64_t providerId = 0);
 
@@ -107,53 +107,53 @@ namespace terrama2
 
       public:
 
-        /*! \brief Returns the identifier of the dataset. */
+        /*! \brief Returns the identifier of the DataSet. */
         uint64_t id() const;
 
-        /*! \brief Sets the identifier of the dataset. */
+        /*! \brief Sets the identifier of the DataSet. */
         void setId(uint64_t id);
 
-        /*! \brief Returns the name of the dataset. */
+        /*! \brief Returns the name of the DataSet. */
         const std::string& name() const;
 
-        /*! \brief Sets the name of the dataset. */
+        /*! \brief Sets the name of the DataSet. */
         void setName(const std::string& name);
 
-        /*! \brief Returns the description of the dataset. */
+        /*! \brief Returns the description of the DataSet. */
         const std::string& description() const;
 
-        /*! \brief Sets the description of the dataset. */
+        /*! \brief Sets the description of the DataSet. */
         void setDescription(const std::string& d);
 
-        /*! \brief Returns the kind of the dataset. */
+        /*! \brief Returns the kind of the DataSet. */
         Kind kind() const;
 
-        /*! \brief Sets the the kind of the dataset. */
+        /*! \brief Sets the the kind of the DataSet. */
         void setKind(const Kind k);
 
-        /*! \brief Returns the the status of the dataset. */
+        /*! \brief Returns the the status of the DataSet. */
         Status status() const;
 
-        /*! \brief Sets the the status of the dataset. */
+        /*! \brief Sets the the status of the DataSet. */
         void setStatus(const Status s);
 
-        /*! \brief Returns the asscociated data provider. */
+        /*! \brief Returns the asscociated DataProvider. */
         uint64_t provider() const;
 
-        /*! \brief Sets the asscociated data provider. */
+        /*! \brief Sets the asscociated DataProvider. */
         void setProvider(uint64_t id);
 
         /*!
-          \brief It returns the time frequency that this dataset must try to acquire a new data.
+          \brief It returns the time frequency that this DataSet must try to acquire a new data.
 
-          \return The the time frequency that this dataset must try to acquire a new data.
+          \return The the time frequency that this DataSet must try to acquire a new data.
         */
         const te::dt::TimeDuration& dataFrequency() const;
 
         /*!
-          \brief It sets the time frequency that this dataset must try to acquire a new data.
+          \brief It sets the time frequency that this DataSet must try to acquire a new data.
 
-          \param t The time frequency that this dataset must try to acquire a new data.
+          \param t The time frequency that this DataSet must try to acquire a new data.
         */
         void setDataFrequency(const te::dt::TimeDuration& t);
 
@@ -200,16 +200,16 @@ namespace terrama2
         void setScheduleTimeout(const te::dt::TimeDuration& t);
 
         /*!
-          \brief Returns the map with the dataset metadata.
+          \brief Returns the map with the DataSet metadata.
 
-          \return The map with the dataset metadata.
+          \return The map with the DataSet metadata.
          */
         const std::map<std::string, std::string>& metadata() const;
 
         /*!
-           \brief Sets the dataset metadata.
+           \brief Sets the DataSet metadata.
 
-           \param m The dataset metadata.
+           \param m The DataSet metadata.
          */
         void setMetadata(const std::map<std::string, std::string>& m);
 
@@ -228,23 +228,23 @@ namespace terrama2
         void setCollectRules(const std::vector<CollectRule>& rules);
 
         /*!
-           \brief Returns the list of dataset items.
+           \brief Returns the list of DataSetItems.
 
-           \return The list of dataset items.
+           \return The list of DataSetItem.
          */
         std::vector<DataSetItem>& dataSetItems();
 
         /*!
-           \brief Returns the list of dataset items.
+           \brief Returns the list of DataSetItem.
 
-           \return The list of dataset items.
+           \return The list of DataSetItem.
          */
         const std::vector<DataSetItem>& dataSetItems() const;
 
-        /*! \brief Adds a new dataset item to the dataset. */
+        /*! \brief Adds a new DataSet item to the DataSet. */
         void add(DataSetItem& d);
 
-        /*! \brief Removes the give dataset item from the dataset. */
+        /*! \brief Removes the give DataSet item from the DataSet. */
         void removeDataSetItem(uint64_t id);
 
         /*! \brief It returns the intersection information. */
@@ -259,17 +259,17 @@ namespace terrama2
 
         std::string name_; //!< Dataset name, must be unique.
         Kind kind_; //!< Dataset type.
-        uint64_t id_; //!< Identifier of the dataset.
-        uint64_t provider_; //!< Identifier of the data provider.
-        std::string description_; //!< Brief description of the dataset.
+        uint64_t id_; //!< Identifier of the DataSet.
+        uint64_t provider_; //!< Identifier of the DataProvider.
+        std::string description_; //!< Brief description of the DataSet.
         Status status_; //!< Dataset status for collection.
-        te::dt::TimeDuration dataFrequency_; //!< The time frequency that this dataset must try to acquire a new data.
+        te::dt::TimeDuration dataFrequency_; //!< The time frequency that this DataSet must try to acquire a new data.
         te::dt::TimeDuration schedule_; //!< The time scheduled to the next collection.
         te::dt::TimeDuration scheduleRetry_; //!< The time frequency to retry a collection if the data wasn't available in the scheduled time.
         te::dt::TimeDuration scheduleTimeout_; //!< The time limit to retry a scheduled collection.
         std::vector<CollectRule> collectRules_; //!< The collect rules.
         std::map<std::string, std::string> metadata_; //!< Dataset Metadata.
-        std::vector<DataSetItem> datasetItems_; //!< List of dataset items.
+        std::vector<DataSetItem> datasetItems_; //!< List of DataSetItem.
         Intersection intersection_; //!< Intersection information.
     };
 
