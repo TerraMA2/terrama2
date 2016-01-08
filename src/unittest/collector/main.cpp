@@ -4,6 +4,8 @@
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
 #include "TsParserOGR.hpp"
+#include "TsParserPcdInpe.hpp"
+#include "TsFactory.hpp"
 #include "TsUtils.hpp"
 
 #include "Utils.hpp"
@@ -29,7 +31,8 @@ int main(int argc, char *argv[])
   TsDataSetTimer tsDataSetTimer;
   returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
 
-  //Factory
+  TsFactory tsFactory;
+  returnVal += QTest::qExec(&tsFactory, argc, argv);
 
   //Intersection Operation
 
@@ -39,6 +42,9 @@ int main(int argc, char *argv[])
 
   TsParserOGR tsParserOGR;
   returnVal += QTest::qExec(&tsParserOGR, argc, argv);
+
+  TsParserPcdInpe tsParserInpe;
+  returnVal += QTest::qExec(&tsParserInpe, argc, argv);
 
   //Storager
 

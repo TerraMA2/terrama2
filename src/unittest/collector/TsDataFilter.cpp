@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/collector/TsFilter.hpp
+  \file terrama2/collector/TsFilter.cpp
 
   \brief Tests for the TestFilter class.
 
