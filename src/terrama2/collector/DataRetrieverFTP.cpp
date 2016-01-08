@@ -193,7 +193,6 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
         if (curlDown.fcurl())
         {
           uriOutput = dataprovider_.uri() + datasetitem.path() + file;
-          FileOpener opener((folder_+file).c_str(),"wb");
           FileOpener opener((temporaryFolder_+file).c_str(),"wb");
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uriOutput.c_str());
 // Get data to be written in file
