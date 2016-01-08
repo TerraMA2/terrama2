@@ -10,7 +10,7 @@ TerraMA² Webapp is a free and open source component based web API for use in we
 
 ## Dependencies
 
-In order to use the components of the API, you have to execute it. For that to be possible you'll need to install some third-party softwares. Bellow we show you this softwares and its versions:
+In order to use the components of the API, you have to run it. For that to be possible you'll need to install some third-party softwares. Bellow we show you this softwares and its versions:
 
 - **Node.js (Mandatory):** To run the API you need to install the Node.js interpreter. Make sure to have at least version 4.2.3 installed. You can download it from: https://nodejs.org/.
 
