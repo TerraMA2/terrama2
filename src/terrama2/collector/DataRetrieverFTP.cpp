@@ -56,6 +56,11 @@ terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::Da
 
 }
 
+bool terrama2::collector::DataRetrieverFTP::isRetrivable() const noexcept
+{
+  return true;
+}
+
 terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 {
   try

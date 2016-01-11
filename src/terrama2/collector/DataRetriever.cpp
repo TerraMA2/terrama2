@@ -37,9 +37,14 @@ terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProv
   dataprovider_ = dataprovider;
 }
 
+bool terrama2::collector::DataRetriever::isRetrivable() const noexcept
+{
+  return false;
+}
+
 std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<std::string>& /*log_uris*/)
 {
-  return dataprovider_.uri();
+  return "";
 }
 
 void terrama2::collector::DataRetriever::open()
@@ -49,7 +54,7 @@ void terrama2::collector::DataRetriever::open()
 
 bool terrama2::collector::DataRetriever::isOpen()
 {
-  return true;
+  return false;
 }
 
 void terrama2::collector::DataRetriever::close()

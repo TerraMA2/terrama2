@@ -52,8 +52,9 @@ namespace terrama2
       This base class can be used for servers that don't need to retrieve remote data, ex: WMS services.
 
       The default behavior is:
-        - isOpen() = true
-        - retrieveData() = dataprovider_.uri
+        - isRetrivable() = false
+        - isOpen() = false
+        - retrieveData() = ""
 
      */
     class DataRetriever
@@ -66,6 +67,13 @@ namespace terrama2
        */
       explicit DataRetriever(const core::DataProvider& dataprovider);
 
+      /*! \brief Returns if the data should be retrieved or not.
+
+          Local files and wms data don't need to be retrieved,
+          data from FTP server need to be retrieved.
+      */
+      virtual bool isRetrivable() const noexcept;
+
       //! Does nothing. In derived classes opens the connection to the server.
       virtual void open();
       //! Always returns true. In derived classes checks the connection to the server.
@@ -77,7 +85,6 @@ namespace terrama2
        * \param Filter to the data files.
        * \return Returns a standard Uniform Resource Identifier to the data.
        */
-
       virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris);
 
     protected:

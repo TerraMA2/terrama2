@@ -234,14 +234,18 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
 
+          std::string uri;
+          if(retriever->isRetrivable())//retrieve remote data to local temp file.
+          {
+            uri = retriever->retrieveData(dataSetItem, filter, log_uris);
 
-          //retrieve remote data to local temp file.
-          //*** uri may be empty ***
-          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris);
+            //Log: data downloaded
+            if(!log_uris.empty())
+              collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
 
-          //Log: data downloaded
-          if(!log_uris.empty())
-            collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
+          }
+          else// if data don't need to be retrieved (ex. local, wms, wmf)
+            uri = dataProvider.uri();
 
           ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
@@ -275,13 +279,9 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
           }
 
-          //standard name
-          std::string standardDataSetName = "terrama2.storager_";
-          standardDataSetName.append(std::to_string(dataSetItem.id()));
-
           //store dataset
           qDebug() << "starting storager...";
-          std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
+          std::string storage_uri = storager->store(dataSetItem, datasetVec, datasetType);
 
           te::dt::TimeInstantTZ* lastDateTime = filter->getDataSetLastDateTime();
           std::string log_DataSetlastDateTime = "";

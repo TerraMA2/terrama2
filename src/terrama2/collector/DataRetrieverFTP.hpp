@@ -66,6 +66,8 @@ namespace terrama2
          */
       explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string scheme = "file://", const std::string temporaryFolder = "/tmp/terrama2/");
 
+      virtual bool isRetrivable() const noexcept override;
+
       //! Does nothing. In derived classes opens the connectin to the server.
       virtual void open() override;
       //! Initializes the Curl and check the URL to download.
