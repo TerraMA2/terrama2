@@ -85,8 +85,7 @@ namespace terrama2
 
         /*!
          * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.
-         * \exception DataRetrieverError when could not deleted file.
-         * \exception DataRetrieverError when unknown error, could not deleted file.
+         *
          */
      ~DataRetrieverFTP();
 

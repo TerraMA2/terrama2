@@ -45,17 +45,41 @@ namespace terrama2
  {
    /*!
         * \brief The ParserPcdToa5 class is responsible for making the parser file in the format TOA5.
-        *
-        * The The StringToTimeStamp method is responsible for handling the date and time fields
-        * in the format timestamp TOA5 file.
-        *
+        *        
    */
 
   class ParserPcdToa5: public ParserOGR
   {
    public:
+      /*!
+        * \brief The Adapt method is responsible for manually change data from TOA5 file. This method first performs the remove
+        * of the column "TIMESTAMP" of TOA5 file, then creates a new column or property "DateTime" type dt::DateTimeProperty
+        * with value dt::TIME_INSTANT_TZ.
+        *
+        * \param convert DataSetTypeConverter is the type that is a pointer to the DataSetType that will be converted manually.
+        *
+        * After creating "DateTime" method is used "add" to add the new property in the dataset.
+        * The add method has the following parameters:
+        * \param PropertyPos is the position of the property will be converted;
+        * \param DtProperty is converted property;
+        * \param StringToTimestamp is the function that will be used to make the conversion of the property values.
+        *       
+        * \note DataSetType A note can be used to describe a set of data. It lists the attributes of the data set,
+        * including their names and types.
+        *
+        */
     virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) override;
 
+      /*!
+     * \brief StringToTimestamp is the function is responsible for handling the date and time fields
+        * in the format timestamp TOA5 file.
+        * The StringToTimestamp function has the following parameters:
+        * \param te::da::DataSet* dataset is input data set;
+        * \param std::vector<std::size_t>& indexes is list with the positions of the modified property on the input data set;
+        * \param int dstType is type of target data.
+        * \return te::dt::AbstractData* dt is adding a new data type in the system. Ex dateTime type timestamp.
+        *
+     */
     te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
   };
  }

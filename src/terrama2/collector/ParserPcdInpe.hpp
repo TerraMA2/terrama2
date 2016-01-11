@@ -44,19 +44,42 @@ namespace terrama2
  namespace collector
  {
    /*!
-        * \brief The ParserPcdINPE class is responsible for making the parser file in the format PCD INPE.
-        *
-        * The The StringToTimeStamp method is responsible for handling the date and time fields
-        * in the format timestamp PCD INPE file.
+        * \brief The ParserPcdINPE class is responsible for making the parser file in the format PCD INPE.        
         *
    */
 
   class ParserPcdInpe: public ParserOGR
   {
    public:
+      /*!
+     * \brief The Adapt method is responsible for manually change data from PcdINPE file. This first method performs remove
+        timestampName the column "N/A" PCD INPE file, then create a new property "DateTime" type dt::DateTimeProperty with
+        value dt::TIME_INSTANT_TZ.
+     * \param converter DataSetTypeConverter is the type that is a pointer to the DataSet Type that will be converted manually.
+     *
+     * After creating "DateTime" a search is conducted to find the correct column timestampName "N/A" PCD INPE file.
+     * When found the correct column using the method "add" to add the new property in the dataset.
+     * The add method has the following parameters:
+     * \param PropertyPos is the position of the property will be converted;
+     * \param DtProperty is converted property;
+     * \param StringToTimestamp is the function that will be used to make the conversion of the property values.
+     *
+     */
     virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) override;
 
+    //! \brief Add all columns of the \a datasetType to the \a converter
     virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) override;
+
+      /*!
+     * \brief StringToTimestamp is the function is responsible for handling the date and time fields
+        * in the format timestamp PCD INPE file.
+        * The StringToTimestamp function has the following parameters:
+        * \param te::da::DataSet* dataset is input data set;
+        * \param std::vector<std::size_t>& indexes is list with the positions of the modified property on the input data set;
+        * \param int dstType is type of target data.
+        * \return te::dt::AbstractData* dt is adding a new data type in the system. Ex dateTime type timestamp.
+        *
+     */
     te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
   };
  }
