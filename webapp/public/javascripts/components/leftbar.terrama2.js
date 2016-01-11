@@ -84,6 +84,7 @@ var LeftBar = function(terrama2) {
   }
 
   $(document).ready(function() {
+    $(".terrama2-leftbar-button").append('<div class="terrama2-leftbar-button-separate"></div>');
     loadEvents();
   });
 }

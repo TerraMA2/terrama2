@@ -78,10 +78,18 @@
   outline: none;
 }
 
-.terrama2-leftbar-button.terrama2-leftbar-button-layers {
-  background-image: url('../../images/icon_div.png'), url('../../images/icon_layers.png') !important;
+.terrama2-leftbar-button-separate {
+  height: 100%;
+  margin: -6px -6px -8px -6px;
+  background-image: url('../../images/icon_div.png');
   background-repeat: no-repeat;
-  background-position: bottom, center !important;
+  background-position: bottom;
+}
+
+.terrama2-leftbar-button.terrama2-leftbar-button-layers {
+  background-image: url('../../images/icon_layers.png') !important;
+  background-repeat: no-repeat;
+  background-position: center !important;
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-layers:hover, .terrama2-leftbar-button.terrama2-leftbar-button-layers:active, .terrama2-leftbar-button.terrama2-leftbar-button-layers.active {
@@ -89,9 +97,9 @@
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-table {
-  background-image: url('../../images/icon_div.png'), url('../../images/icon_table.png') !important;
+  background-image: url('../../images/icon_table.png') !important;
   background-repeat: no-repeat;
-  background-position: bottom, center !important;
+  background-position: center !important;
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-table:hover, .terrama2-leftbar-button.terrama2-leftbar-button-table:active, .terrama2-leftbar-button.terrama2-leftbar-button-table.active {
@@ -99,9 +107,9 @@
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-filter {
-  background-image: url('../../images/icon_div.png'), url('../../images/icon_calendar.png') !important;
+  background-image: url('../../images/icon_calendar.png') !important;
   background-repeat: no-repeat;
-  background-position: bottom, center !important;
+  background-position: center !important;
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-filter:hover, .terrama2-leftbar-button.terrama2-leftbar-button-filter:active, .terrama2-leftbar-button.terrama2-leftbar-button-filter.active {
@@ -109,9 +117,9 @@
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-graphic {
-  background-image: url('../../images/icon_div.png'), url('../../images/icon_graphics.png') !important;
+  background-image: url('../../images/icon_graphics.png') !important;
   background-repeat: no-repeat;
-  background-position: bottom, center !important;
+  background-position: center !important;
 }
 
 .terrama2-leftbar-button.terrama2-leftbar-button-graphic:hover, .terrama2-leftbar-button.terrama2-leftbar-button-graphic:active, .terrama2-leftbar-button.terrama2-leftbar-button-graphic.active {

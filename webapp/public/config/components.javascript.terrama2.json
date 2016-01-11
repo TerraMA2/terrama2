@@ -2,6 +2,5 @@
   "LayerExplorer": "layerexplorer.terrama2.js",
   "LeftBar": "leftbar.terrama2.js",
   "ToolBox": "toolbox.terrama2.js",
-  "MapDisplay": "mapdisplay.terrama2.js",
-  "Filter": "filter.terrama2.js"
+  "MapDisplay": "mapdisplay.terrama2.js"
 }

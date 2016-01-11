@@ -6,7 +6,6 @@ var Config = function(terrama2) {
   var confJsonComponentsJs = null;
   var confJsonComponentsCss = null;
   var confJsonServer = null;
-  var confJsonFilter = null;
 
   /**
    * Load a given configuration file
@@ -31,7 +30,6 @@ var Config = function(terrama2) {
     confJsonComponentsJs = loadConfigurationFile(url + "components.javascript.terrama2.json");
     confJsonComponentsCss = loadConfigurationFile(url + "components.stylesheet.terrama2.json");
     confJsonServer = loadConfigurationFile(url + "server.terrama2.json");
-    confJsonFilter = loadConfigurationFile(url + "filter.terrama2.json");
   }
 
   /**
@@ -64,14 +62,6 @@ var Config = function(terrama2) {
    */
   _this.getConfJsonServer = function() {
     return confJsonServer;
-  }
-
-  /**
-   * Return the filter configuration
-   * @returns {json} confJsonFilter - filter configuration
-   */
-  _this.getConfJsonFilter = function() {
-    return confJsonFilter;
   }
 
   var loadPlugins = function() {
