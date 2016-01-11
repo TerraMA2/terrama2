@@ -200,9 +200,15 @@ var LayerExplorer = function(terrama2) {
     return selectedLayer;
   }
 
-  socket.emit('proxyRequest', terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams);
+  socket.emit(
+    'proxyRequest',
+    {
+      url: terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams,
+      requestId: 'lala'
+    }
+  );
   socket.on('proxyResponse', function(msg) {
-    initializeLayerExplorer(msg);
+    initializeLayerExplorer(msg.msg);
     loadEvents();
   });
 

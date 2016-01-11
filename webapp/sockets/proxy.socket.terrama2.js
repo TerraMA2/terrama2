@@ -4,7 +4,7 @@ module.exports = function(io) {
 
   sockets.on('connection', function(client) {
     client.on('proxyRequest', function(json) {
-      http.get(json, function(resp){
+      http.get(json.url, function(resp){
         var xml = '';
 
         resp.on('data', function(chunk) {
@@ -15,7 +15,7 @@ module.exports = function(io) {
           xml = xml.replace(/>\s*/g, '>');
           xml = xml.replace(/\s*</g, '<');
 
-          sockets.emit('proxyResponse', xml);
+          sockets.emit('proxyResponse', { msg: xml, requestId: json.requestId });
         });
 
       }).on("error", function(e){
