@@ -4,6 +4,7 @@ var LeftBar = function(terrama2) {
     $('.terrama2-leftbar-button').on('click', function(e) {
       var box = $(this).attr('terrama2-box');
 
+      // if true, the user wants to open the left box, otherwise, he wants to close it
       if($("#" + box).css("width") === '0px' || ($("#" + box).hasClass("terrama2-leftbox-fullscreen-fullwidth") && $("#" + box).css("opacity") === '0')) {
         $(".terrama2-right-arrow").remove();
         $('.terrama2-leftbar-button').removeClass("active");
@@ -13,7 +14,7 @@ var LeftBar = function(terrama2) {
 
         if($("#" + box).hasClass("terrama2-leftbox-fullscreen")) {
           if($("#" + box).hasClass("terrama2-leftbox-fullscreen-fullwidth")) {
-            $("#" + box).removeClass("terrama2-leftbox-fullscreen-fullwidth");
+            $("#" + box).removeClass("terrama2-leftbox-fullscreen-fullwidth").addClass("terrama2-leftbox-fullscreen-fullwidth_");
           }
           var width = $("#terrama2-container").parent().width() - 51;
           $("#" + box).animate({ width: width, padding: '1em', opacity: 1, left: '51px' }, { duration: 300, queue: false });
@@ -34,11 +35,19 @@ var LeftBar = function(terrama2) {
       e.stopPropagation();
     });
 
+    // Window resize event
     $(window).resize(function() {
+      // Loop through the full screen left boxes
       $(".terrama2-leftbox-fullscreen").each(function() {
+        // Code block to resize the full screen left boxes
         if($(this).width() !== 0) {
           var width = $("#terrama2-container").parent().width() - 51;
           $(this).css({ width:width });
+        }
+
+        // Code block to restore the full width boxes according to the new size of the screen
+        if($(this).hasClass("terrama2-leftbox-fullscreen-fullwidth_")) {
+          $(this).removeClass("terrama2-leftbox-fullscreen-fullwidth_").addClass("terrama2-leftbox-fullscreen-fullwidth");
         }
       });
     });
