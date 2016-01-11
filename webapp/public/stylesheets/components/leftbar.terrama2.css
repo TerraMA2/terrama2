@@ -35,9 +35,10 @@
   overflow: hidden;
 }
 
-.terrama2-leftbox-left {
+.terrama2-leftbox-fullscreen-fullwidth {
   width: calc(100% - 51px) !important;
-  left: -100%;
+  opacity: 0;
+  z-index: 0 !important;
 }
 
 .terrama2-leftbox.active {
@@ -144,25 +145,6 @@
 .terrama2-leftbar-button:hover, .terrama2-leftbar-button:active, .terrama2-leftbar-button.active {
   background: #63604D;
   color: white;
-}
-
-.terrama2-leftbar-button.terrama2-hide-leftbar-button, .terrama2-leftbar-button.terrama2-show-leftbar-button {
-  position: fixed;
-  bottom: 0;
-  z-index: 10002;
-}
-
-.terrama2-leftbar-button.terrama2-show-leftbar-button:hover {
-  position: fixed;
-  bottom: 0;
-  z-index: 10002;
-  background: transparent;
-}
-
-#terrama2-hide-leftbar-button.terrama2-left {
-  position: fixed;
-  bottom: 0;
-  z-index: 10002;
 }
 
 .terrama2-leftbox-header {
