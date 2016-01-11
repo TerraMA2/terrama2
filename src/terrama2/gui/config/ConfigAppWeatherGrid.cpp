@@ -33,6 +33,7 @@
 #include "ConfigApp.hpp"
 #include "ConfigAppWeatherTab.hpp"
 #include "Exception.hpp"
+#include "Utils.hpp"
 #include "../core/Utils.hpp"
 #include "../../core/DataSet.hpp"
 #include "../../core/Filter.hpp"
@@ -55,16 +56,14 @@
 
 
 terrama2::gui::config::ConfigAppWeatherGridTab::ConfigAppWeatherGridTab(ConfigApp* app, Ui::ConfigAppForm* ui)
-  : ConfigAppTab(app, ui), filter_(new terrama2::core::Filter)
+  : ConfigAppTab(app, ui), srid_(0), filter_(new terrama2::core::Filter)
 {
   connect(ui_->serverInsertGridBtn, SIGNAL(clicked()), SLOT(onDataGridClicked()));
   connect(ui_->filterGridBtn, SIGNAL(clicked()), SLOT(onFilterClicked()));
   connect(ui_->gridFormatDataName, SIGNAL(textEdited(QString)), SLOT(onSubTabEdited()));
   connect(ui_->gridFormatDataFormat, SIGNAL(currentIndexChanged(const QString&)), SLOT(onGridFormatChanged()));
   connect(ui_->gridFormatDataDeleteBtn, SIGNAL(clicked()), SLOT(onRemoveDataGridBtnClicked()));
-
   connect(ui_->projectionGridBtn, SIGNAL(clicked()), this, SLOT(onProjectionClicked()));
-
 
   // data frequency int validator
   ui_->gridFormatDataHour->setValidator(new QIntValidator(ui_->gridFormatDataHour));
@@ -105,8 +104,12 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
 
   terrama2::core::DataSetItem* datasetItem;
+
   if (dataset.dataSetItems().size() > 0)
-    datasetItem = &dataset.dataSetItems()[0];
+  {
+    datasetItem = &dataset.dataSetItems()[dataset.dataSetItems().size() - 1];
+    filter_->setDataSetItem(datasetItem->id());
+  }
   else
     datasetItem = new terrama2::core::DataSetItem;
 
@@ -118,8 +121,6 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem->setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
   datasetItem->setPath(ui_->gridFormatDataPath->text().toStdString());
-
-  dataset.add(*datasetItem);
 
   te::dt::TimeDuration dataFrequency(ui_->gridFormatDataHour->text().toInt(),
                                      ui_->gridFormatDataMinute->text().toInt(),
@@ -169,9 +170,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
       ;
   }
 
-
   metadata["FORMAT"] = ui_->gridFormatDataFormat->currentText().toStdString();
-
 
   dataset.setMetadata(metadata);
 
@@ -179,30 +178,13 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
 
   datasetItem->setStorageMetadata(storageMetadata);
 
-  dataset.setSchedule(schedule);
-  if (dataset.id() >= 1)
-  {
-    datasetItem->setDataSet(dataset.id());
-    app_->getClient()->updateDataSet(dataset);
-    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(),
-                                       selectedData_,
-                                       ui_->gridFormatDataName->text());
-    selectedData_ =  ui_->gridFormatDataName->text();
-    TERRAMA2_LOG_INFO() << ("Dataset ID " + std::to_string(dataset.id()) + " updated!");
-  }
-  else
-  {
-    dataset.setProvider(provider.id());
-    app_->getClient()->addDataSet(dataset);
+  if (datasetItem->id() == 0)
+    dataset.add(*datasetItem);
 
-    QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setIcon(0, QIcon::fromTheme("grid"));
-    item->setText(0, ui_->gridFormatDataName->text());
-    ui_->weatherDataTree->currentItem()->addChild(item);
-    TERRAMA2_LOG_INFO() << "New Dataset " + dataset.name() + " saved!";
-  }
-  app_->getWeatherTab()->addCachedDataSet(dataset);
-  changed_ = false;
+  dataset.setSchedule(schedule);
+
+  // Lets save dataset
+  terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->gridFormatDataName->text(), "grid");
 }
 
 void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore_data)

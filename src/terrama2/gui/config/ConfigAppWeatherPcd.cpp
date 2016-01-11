@@ -30,6 +30,7 @@
 // TerraMA2
 #include "ConfigAppWeatherPcd.hpp"
 #include "Exception.hpp"
+#include "Utils.hpp"
 #include "../../core/DataProvider.hpp"
 #include "../../core/Utils.hpp"
 #include "ConfigApp.hpp"
@@ -180,25 +181,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::save()
 
   datasetItem->setStorageMetadata(storageMetadata);
 
-  if (dataset.id() > 0)
-  {
-    app_->getClient()->updateDataSet(dataset);
-    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(), selectedData_, ui_->pointFormatDataName->text());
-    selectedData_ = ui_->pointFormatDataName->text();
-  }
-  else
-  {
-    dataset.setProvider(provider.id());
-    app_->getClient()->addDataSet(dataset);
-
-    QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setIcon(0, QIcon::fromTheme("pcd"));
-    item->setText(0, ui_->pointFormatDataName->text());
-    ui_->weatherDataTree->currentItem()->addChild(item);
-
-  }
-  app_->getWeatherTab()->addCachedDataSet(dataset);
-  changed_ = false;
+  terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointFormatDataName->text(), "pcd");
 }
 
 void terrama2::gui::config::ConfigAppWeatherPcd::discardChanges(bool restore_data)
