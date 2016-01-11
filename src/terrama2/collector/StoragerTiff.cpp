@@ -31,11 +31,14 @@
 #include "Exception.hpp"
 #include "Utils.hpp"
 
+#include "../core/DataManager.hpp"
+
 //Terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/ScopedTransaction.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
@@ -48,7 +51,9 @@ terrama2::collector::StoragerTiff::StoragerTiff(const std::map<std::string, std:
 
 }
 
-std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& dataSetItem, const std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec, const std::shared_ptr<te::da::DataSetType>& dataSetType)
+std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& dataSetItem,
+                                                     const std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
+                                                     const std::shared_ptr<te::da::DataSetType>& dataSetType)
 {
   try
   {
@@ -72,51 +77,66 @@ std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& da
     }
     else
     {
-      std::string destinationDataSetName = "terrama2.storager_";
-      destinationDataSetName.append(std::to_string(dataSetItem.id()));
-      destinationDataSetName.append(".tiff");
+      core::DataManager& dataManger = core::DataManager::getInstance();
+      uint64_t datasetId = dataSetItem.dataset();
+      core::DataSet dataset = dataManger.findDataSet(datasetId);
 
-      //TODO: Terrama default dir
-      std::string terrama2DefaultDir;
-      connInfo.at("URI") = terrama2DefaultDir + destinationDataSetName;
-
-      std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("OGR"));
-      datasourceDestination->setConnectionInfo(connInfo);
-      OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
-
-      std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
-      te::da::ScopedTransaction scopedTransaction(*transactorDestination);
-
-      std::map<std::string, std::string> options;
-      std::shared_ptr<te::da::DataSetType> newDataSetType;
-
-      if (!transactorDestination->dataSetExists(destinationDataSetName))
-      {
-        // create and save datasettype in the datasource destination
-        newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(dataSetType->clone()));
-
-        newDataSetType->setName(destinationDataSetName);
-        transactorDestination->createDataSet(newDataSetType.get(),options);
-      }
-      else
-      {
-        newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
-      }
-
-      //Get original geometry to get srid
-      te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
-      //configure if there is a geometry property
-      if(geom)
-      {
-        GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
-        GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
-      }
+      std::ostringstream nowStream;
+      const boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+      boost::posix_time::time_facet * f = new boost::posix_time::time_facet("%Y%m%d_%H%M");
+      nowStream.imbue(std::locale(nowStream.getloc(),f));
+      nowStream << now;
 
       for(const auto& tempDataSet : datasetVec)
+      {
+        std::string destinationDataSetName = "terrama2.";
+        destinationDataSetName.append(dataset.name());
+        destinationDataSetName.append("_");
+        destinationDataSetName.append(nowStream.str());
+        destinationDataSetName.append(".tiff");
+
+        //TODO: Terrama default dir
+        std::string terrama2DefaultDir;
+        connInfo.at("URI") = terrama2DefaultDir + destinationDataSetName;
+
+        std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("OGR"));
+        datasourceDestination->setConnectionInfo(connInfo);
+        OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
+
+        std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
+        te::da::ScopedTransaction scopedTransaction(*transactorDestination);
+
+        std::map<std::string, std::string> options;
+        std::shared_ptr<te::da::DataSetType> newDataSetType;
+
+        if (!transactorDestination->dataSetExists(destinationDataSetName))
+        {
+          // create and save datasettype in the datasource destination
+          newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(dataSetType->clone()));
+
+          newDataSetType->setName(destinationDataSetName);
+          transactorDestination->createDataSet(newDataSetType.get(),options);
+        }
+        else
+        {
+          newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
+        }
+
+        //Get original geometry to get srid
+        te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
+        //configure if there is a geometry property
+        if(geom)
+        {
+          GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
+          GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
+        }
+
+
         transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
 
-      scopedTransaction.commit();
-    }
+        scopedTransaction.commit();
+      }//for each dataset end
+    }//else: no name set
   }
   catch(terrama2::Exception& e)
   {

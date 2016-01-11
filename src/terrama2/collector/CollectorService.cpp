@@ -247,11 +247,8 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           else// if data don't need to be retrieved (ex. local, wms, wmf)
             uri = dataProvider.uri();
 
-          ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
+          ParserPtr parser = Factory::makeParser(uri, dataSetItem);
           assert(parser);
-
-          StoragerPtr   storager = Factory::makeStorager(dataSetItem);
-          assert(storager);
 
           //read data and create a terralib dataset
           std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
@@ -280,7 +277,8 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           }
 
           //store dataset
-          qDebug() << "starting storager...";
+          StoragerPtr storager = Factory::makeStorager(dataSetItem);
+          assert(storager);
           std::string storage_uri = storager->store(dataSetItem, datasetVec, datasetType);
 
           te::dt::TimeInstantTZ* lastDateTime = filter->getDataSetLastDateTime();
