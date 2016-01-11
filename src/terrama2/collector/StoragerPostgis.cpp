@@ -91,7 +91,7 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
   scopedTransaction.commit();
 }
 
-std::string terrama2::collector::StoragerPostgis::store(const std::string& standardDataSetName,
+std::string terrama2::collector::StoragerPostgis::store(const core::DataSetItem& dataSetItem,
                                                         const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
                                                         const std::shared_ptr<te::da::DataSetType> &dataSetType)
 {
@@ -99,15 +99,19 @@ std::string terrama2::collector::StoragerPostgis::store(const std::string& stand
 
   try
   {
-    std::string dataSetName = standardDataSetName;
-
     std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
     datasourceDestination->setConnectionInfo(storageMetadata_);
-    OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination);
+    OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
 
-    std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("PG_TABLENAME");
+    std::string dataSetName;
+    std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("STORAGE_NAME");
     if(dataSetNameIt != storageMetadata_.end())
       dataSetName = dataSetNameIt->second;
+    else
+    {
+      dataSetName = "terrama2.storager_";
+      dataSetName.append(std::to_string(dataSetItem.id()));
+    }
 
     // get a transactor to interact to the data source
     commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
