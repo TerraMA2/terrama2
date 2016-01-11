@@ -1,3 +1,4 @@
+/** Main class of the API. */
 var TerraMA2 = function(terrama2Url, components) {
 
   var _this = this;
@@ -77,6 +78,15 @@ var TerraMA2 = function(terrama2Url, components) {
         return true;
       }
     });
+  }
+
+  /**
+   * Apply a given CQL filter to a given layer
+   * @param {string} cql - CQL filter to be applied
+   * @param {string} layerName - layer name to be filtered
+   */
+  _this.applyCQLFilter = function(cql, layerName) {
+    mapDisplay.findBy(mapDisplay.getMap().getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
   }
 
   /**
