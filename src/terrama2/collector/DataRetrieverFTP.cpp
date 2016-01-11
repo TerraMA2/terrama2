@@ -67,7 +67,7 @@ terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 // Remove the files in the tmp folder
   for(std::string file: vectorNames_)
   {
-     path = folder_+file;
+     path = temporaryFolder_+file;
      std::remove(path.c_str()); // delete file
    }
 }
