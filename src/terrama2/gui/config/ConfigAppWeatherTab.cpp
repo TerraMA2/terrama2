@@ -359,7 +359,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeW
           throw terrama2::gui::config::DataProviderException() << terrama2::ErrorDescription(tr("It cannot be a valid provider selected."));
 
         displayOperationButtons(true);
-        changeTab(*(subTabs_[0].data()), *ui_->ServerPage);
+        changeTab((subTabs_[0].data()), *ui_->ServerPage);
         subTabs_[0]->setSelectedData(selectedItem->text(0));
 
         QUrl url(provider.uri().c_str());
@@ -407,7 +407,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeW
             {
               case terrama2::core::DataSet::GRID_TYPE:
               {
-                changeTab(*(subTabs_[1].data()), *ui_->DataGridPage);
+                changeTab((subTabs_[1].data()), *ui_->DataGridPage);
                 ConfigAppWeatherGridTab* gridTab = dynamic_cast<ConfigAppWeatherGridTab*>(subTabs_[1].data());
 
                 gridTab->setSelectedData(selectedItem->text(0));
@@ -433,10 +433,69 @@ void terrama2::gui::config::ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeW
                 if (it != metadata.end())
                   ui_->gridFormatDataResolution->setText(it->second.c_str());
 
+                it = metadata.find("FORMAT");
+                if (it != metadata.end())
+                {
+                  int formatIndex = ui_->gridFormatDataFormat->findText(it->second.c_str());
+                  switch(formatIndex)
+                  {
+                    case 0:
+                      {
+                        it = metadata.find("COORDINATES_UNIT");
+                        if (it != metadata.end())
+                        {
+                          if (it->second == tr("Decimal Degree").toStdString())
+                            ui_->rbGridAscUnidGrausDec->setChecked(true);
+                          else if (it->second == tr("Thousandth Degree").toStdString())
+                            ui_->rbGridAscUnidGrausMil->setChecked(true);
+                        }
+                      }
+                      break;
+                    case 1:
+                      {
+                        it = metadata.find("NAVIGATION_FILE");
+                        if (it != metadata.end())
+                          ui_->ledGridTIFFArqNavegacao->setText(it->second.c_str());
+                      }
+                      break;
+                    case 2:
+                      {
+                        it = metadata.find("CONTROL_FILE");
+                        if (it != metadata.end())
+                          ui_->ledGridGrADSArqControle->setText(it->second.c_str());
+                        it = metadata.find("MULTIPLICATOR");
+                        if (it != metadata.end())
+                          ui_->ledGridGrADSMultiplicador->setText(it->second.c_str());
+                        it = metadata.find("ORDER");
+                        if (it != metadata.end())
+                          ui_->cmbGridGrADSByteOrder->setCurrentIndex(ui_->cmbGridGrADSByteOrder->findText(it->second.c_str()));
+                        it = metadata.find("BANDS");
+                        if (it != metadata.end())
+                          ui_->spbGridGrADSNumBands->setValue(std::atoi(it->second.c_str()));
+                        it = metadata.find("BAND_PREFIX");
+                        if (it != metadata.end())
+                          ui_->spbGridGrADSHeaderSize->setValue(std::atoi(it->second.c_str()));
+                        it = metadata.find("TIME_OFFSET");
+                        if (it != metadata.end())
+                          ui_->spbGridGrADSTimeOffset->setValue(std::atoi(it->second.c_str()));
+                        it = metadata.find("POSFIX");
+                        if (it != metadata.end())
+                          ui_->spbGridGrADSTraillerSize->setValue(std::atoi(it->second.c_str()));
+                        it = metadata.find("DUMMY");
+                        if (it != metadata.end())
+                          ui_->ledGridWCSDummy->setText(it->second.c_str());
+                      }
+                      break;
+                    default:
+                      ;
+                  }
+                  ui_->gridFormatDataFormat->setCurrentIndex(formatIndex);
+                }
+
                 // temp code
                 if (dataset.dataSetItems().size() > 0)
                 {
-                  terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(0);
+                  terrama2::core::DataSetItem datasetItem = dataset.dataSetItems().at(dataset.dataSetItems().size() - 1);
                   ui_->gridFormatDataPath->setText(datasetItem.path().c_str());
                   ui_->gridFormatDataTimeZoneCmb->setCurrentText(datasetItem.timezone().c_str());
                   ui_->gridFormatDataMask->setText(datasetItem.mask().c_str());
@@ -456,7 +515,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeW
                 break;
               }
               case terrama2::core::DataSet::PCD_TYPE:
-                changeTab(*(subTabs_[2].data()), *ui_->DataPointPage);
+                changeTab((subTabs_[2].data()), *ui_->DataPointPage);
                 subTabs_[2]->setSelectedData(selectedItem->text(0));
                 subTabs_[2]->load();
 
@@ -475,7 +534,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeW
                 break;
               case terrama2::core::DataSet::OCCURENCE_TYPE:
               {
-                changeTab(*(subTabs_[3].data()), *ui_->DataPointDiffPage);
+                changeTab((subTabs_[3].data()), *ui_->DataPointDiffPage);
                 subTabs_[3]->setSelectedData(selectedItem->text(0));
 
                 ui_->pointDiffFormatDataName->setText(dataset.name().c_str());
@@ -642,7 +701,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::displayOperationButtons(bool st
   ui_->cancelBtn->setEnabled(state);
 }
 
-void terrama2::gui::config::ConfigAppWeatherTab::changeTab(ConfigAppTab &sender, QWidget &widget) {
+void terrama2::gui::config::ConfigAppWeatherTab::changeTab(ConfigAppTab* sender, QWidget &widget) {
   for(auto tab: subTabs_)
   {
     if (tab->isActive())
@@ -670,11 +729,11 @@ void terrama2::gui::config::ConfigAppWeatherTab::changeTab(ConfigAppTab &sender,
           }
         }
       } // endif tab->dataChanged()
-      tab->discardChanges(false);
       tab->setActive(false);
     } // endif tab->isActive()
-  }
-  sender.setActive(true);
+  } // endfor
+  sender->discardChanges(false);
+  sender->setActive(true);
   ui_->weatherPageStack->setCurrentWidget(&widget);
   hidePanels(&widget);
 }

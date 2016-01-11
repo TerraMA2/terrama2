@@ -217,7 +217,7 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::onDataSetBtnClicked()
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
   {
     selectedData_.clear();
-    app_->getWeatherTab()->changeTab(*this, *ui_->DataPointDiffPage);
+    app_->getWeatherTab()->changeTab(this, *ui_->DataPointDiffPage);
 
     intersection_ = terrama2::core::Intersection();
     filter_.reset(new terrama2::core::Filter);

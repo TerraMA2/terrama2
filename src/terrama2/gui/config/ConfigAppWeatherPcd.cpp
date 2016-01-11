@@ -198,7 +198,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onInsertPointBtnClicked()
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
   {
     selectedData_.clear();
-    app_->getWeatherTab()->changeTab(*this, *ui_->DataPointPage);
+    app_->getWeatherTab()->changeTab(this, *ui_->DataPointPage);
     tableClean();
 
     ui_->occurenceProjectionTxt->setText("0");

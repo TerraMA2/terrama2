@@ -164,6 +164,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
         metadata["BAND_PREFIX"] = ui_->spbGridGrADSHeaderSize->text().toStdString();
         metadata["TIME_OFFSET"] = ui_->spbGridGrADSTimeOffset->text().toStdString();
         metadata["POSFIX"] = ui_->spbGridGrADSTraillerSize->text().toStdString();
+        metadata["DUMMY"] = ui_->ledGridWCSDummy->text().toStdString();
       }
       break;
     default:
@@ -201,6 +202,28 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore
   ui_->exportDataGridBtn->setVisible(false);
   ui_->gridFormatDataDeleteBtn->setVisible(false);
   app_->getWeatherTab()->showDataSeries(true);
+
+  for(QLineEdit* widget: ui_->stkwGridTipoFormato->findChildren<QLineEdit*>())
+    widget->clear();
+
+  ui_->gridFormatDataFormat->setCurrentIndex(0);
+  ui_->rbGridAscUnidGrausDec->setAutoExclusive(false);
+  ui_->rbGridAscUnidGrausDec->setChecked(false);
+  ui_->rbGridAscUnidGrausDec->setAutoExclusive(true);
+
+  ui_->rbGridAscUnidGrausMil->setAutoExclusive(false);
+  ui_->rbGridAscUnidGrausMil->setChecked(false);
+  ui_->rbGridAscUnidGrausMil->setAutoExclusive(true);
+
+  ui_->rbGridGrADSTipoDadosFloat->setAutoExclusive(false);
+  ui_->rbGridGrADSTipoDadosFloat->setChecked(false);
+  ui_->rbGridGrADSTipoDadosFloat->setAutoExclusive(true);
+
+  ui_->rbGridGrADSTipoDadosInt->setAutoExclusive(false);
+  ui_->rbGridGrADSTipoDadosInt->setChecked(false);
+  ui_->rbGridGrADSTipoDadosInt->setAutoExclusive(true);
+
+  ui_->cmbGridGrADSByteOrder->setCurrentIndex(0);
 }
 
 void terrama2::gui::config::ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
@@ -242,7 +265,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::onDataGridClicked()
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
   {
     selectedData_.clear();
-    app_->getWeatherTab()->changeTab(*this, *ui_->DataGridPage);
+    app_->getWeatherTab()->changeTab(this, *ui_->DataGridPage);
 
     ui_->dateFilterLabel->setText(tr("No"));
     ui_->areaFilterLabel->setText(tr("No"));
