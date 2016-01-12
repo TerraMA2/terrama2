@@ -189,9 +189,6 @@ void terrama2::gui::config::ConfigApp::openRequested()
       client_.reset(new terrama2::ws::collector::client::Client(webProxyAdapter));
 
       weatherTab_->load();
-
-      std::string message = configManager_->getName().toStdString() + " loaded.";
-      TERRAMA2_LOG_INFO() << tr(message.c_str());
     }
   }
   catch(const terrama2::Exception& e)

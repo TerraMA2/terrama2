@@ -30,6 +30,7 @@
 // TerraMA2
 #include "ConfigAppWeatherPcd.hpp"
 #include "Exception.hpp"
+#include "Utils.hpp"
 #include "../../core/DataProvider.hpp"
 #include "../../core/Utils.hpp"
 #include "ConfigApp.hpp"
@@ -37,6 +38,7 @@
 #include "PcdDialog.hpp"
 #include "SurfaceDialog.hpp"
 #include "CollectorRuleDialog.hpp"
+#include "PcdWfsDialog.hpp"
 #include "../core/Utils.hpp"
 
 
@@ -63,6 +65,10 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   connect(ui_->tblPointPCDFileNameLocation, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), SLOT(onPCDTableDoubleClicked(QTableWidgetItem*)));
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
   connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
+  connect(ui_->pointFormatDataInfluenceCmb, SIGNAL(currentIndexChanged(int)), SLOT(onInfluenceChanged(const int&)));
+  connect(ui_->btnPCDWFSConfiguration, SIGNAL(clicked(bool)), SLOT(onPcdWfsClicked()));
+
+  ui_->pointFormatDataInfluenceCmb->setCurrentIndex(2);
 
 
   // export pcd button
@@ -73,12 +79,9 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
 
   // todo: implement it to list pcd attributes after collection
   ui_->updateDataPointBtn->setEnabled(false);
-  ui_->pointFormatDataThemeCmb->setEnabled(false);
-  ui_->pointFormatDataAttributeCmb->setEnabled(false);
   ui_->pointFormatDataPrefix->setEnabled(false);
   ui_->pointFormatDataUnit->setEnabled(false);
 
-  ui_->btnPCDWFSConfiguration->setEnabled(false);
   ui_->btnPCDInformationPlane->setEnabled(false);
 
   tableClean();
@@ -179,25 +182,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::save()
 
   datasetItem->setStorageMetadata(storageMetadata);
 
-  if (dataset.id() > 0)
-  {
-    app_->getClient()->updateDataSet(dataset);
-    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(), selectedData_, ui_->pointFormatDataName->text());
-    selectedData_ = ui_->pointFormatDataName->text();
-  }
-  else
-  {
-    dataset.setProvider(provider.id());
-    app_->getClient()->addDataSet(dataset);
-
-    QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setIcon(0, QIcon::fromTheme("pcd"));
-    item->setText(0, ui_->pointFormatDataName->text());
-    ui_->weatherDataTree->currentItem()->addChild(item);
-
-  }
-  app_->getWeatherTab()->addCachedDataSet(dataset);
-  changed_ = false;
+  terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointFormatDataName->text(), "pcd");
 }
 
 void terrama2::gui::config::ConfigAppWeatherPcd::discardChanges(bool restore_data)
@@ -214,7 +199,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onInsertPointBtnClicked()
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
   {
     selectedData_.clear();
-    app_->getWeatherTab()->changeTab(*this, *ui_->DataPointPage);
+    app_->getWeatherTab()->changeTab(this, *ui_->DataPointPage);
     tableClean();
 
     ui_->occurenceProjectionTxt->setText("0");
@@ -346,6 +331,31 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onPCDExportClicked()
     if (const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e))
       message.append(*msg);
     QMessageBox::warning(app_, tr("TerraMA2 Error"), message);
+  }
+}
+
+void terrama2::gui::config::ConfigAppWeatherPcd::onInfluenceChanged(const int &index)
+{
+  if (index < 2)
+  {
+    ui_->label_35->setVisible(false);
+    ui_->pointFormatDataThemeCmb->hide();
+    ui_->pointFormatInfluenceStack->setCurrentWidget(ui_->pointFormatInfluenceRadio);
+  }
+  else
+  {
+    ui_->label_35->setVisible(true);
+    ui_->pointFormatDataThemeCmb->show();
+    ui_->pointFormatInfluenceStack->setCurrentWidget(ui_->pointFormatInfluenceRegion);
+    }
+}
+
+void terrama2::gui::config::ConfigAppWeatherPcd::onPcdWfsClicked()
+{
+  PcdWfsDialog dialog(app_);
+  if (dialog.exec() == QDialog::Accepted)
+  {
+    // todo: do some operation, fill object
   }
 }
 

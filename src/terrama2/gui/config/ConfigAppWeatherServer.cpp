@@ -151,7 +151,7 @@ bool terrama2::gui::config::ConfigAppWeatherServer::validate()
 void terrama2::gui::config::ConfigAppWeatherServer::onServerTabRequested()
 {
   app_->getWeatherTab()->displayOperationButtons(true);
-  app_->getWeatherTab()->changeTab(*this, *ui_->ServerPage);
+  app_->getWeatherTab()->changeTab(this, *ui_->ServerPage);
 }
 
 void terrama2::gui::config::ConfigAppWeatherServer::onServerEdited()

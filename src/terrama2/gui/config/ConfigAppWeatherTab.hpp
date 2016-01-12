@@ -130,10 +130,10 @@ namespace terrama2
 
           /*!
             \brief It handles when the subtab can change
-            \param sender A ConfigAppTab reference representing who requested for change
+            \param sender A ConfigAppTab pointer representing who requested for change
             \param widget A QWidget instance representing the object to be set
           */
-          void changeTab(ConfigAppTab& sender, QWidget& widget);
+          void changeTab(ConfigAppTab* sender, QWidget& widget);
 
           /*!
             \brief Retrieve cached map of providers
