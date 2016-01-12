@@ -10,7 +10,6 @@ var TerraMA2 = function(terrama2Url, components) {
   var layerExplorer = null;
   var toolBox = null;
   var leftBar = null;
-  var filter = null;
 
   /**
    * Return the length of the components array
@@ -107,8 +106,6 @@ var TerraMA2 = function(terrama2Url, components) {
             toolBox = new ToolBox(_this);
           } else if(components[i] === "LeftBar") {
             leftBar = new LeftBar(_this);
-          } else if(components[i] === "Filter") {
-            filter = new Filter(_this);
           }
 
           _this.injectStylesheet(terrama2Url + "/stylesheets/components/" + config.getConfJsonComponentsCss()[components[i]]);

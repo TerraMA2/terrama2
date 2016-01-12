@@ -1,3 +1,4 @@
+/** Class representing the component MapDisplay, which is responsible for presenting map. */
 var MapDisplay = function() {
 
   var _this = this;

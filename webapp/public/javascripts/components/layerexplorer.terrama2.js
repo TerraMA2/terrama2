@@ -1,3 +1,4 @@
+/** Class representing the component LayerExplorer, which is responsible for presenting an organized list of the layers to the user. */
 var LayerExplorer = function(terrama2) {
 
   var _this = this;
@@ -9,6 +10,14 @@ var LayerExplorer = function(terrama2) {
   var map = mapDisplay.getMap();
 
   var socket = io(terrama2.getTerrama2Url());
+
+  /**
+   * Return the selected layer
+   * @returns {string} selectedLayer - layer name
+   */
+  _this.getSelectedLayer = function() {
+    return selectedLayer;
+  }
 
   /**
    * Process the layers from the capabilities and create the openlayers tiled wms layers
@@ -37,8 +46,8 @@ var LayerExplorer = function(terrama2) {
 
   /**
    * Build a layer explorer from the map layers
-   * @param {type} layer
-   * @param {boolean} firstCall
+   * @param {ol.layer} layer - layer or layers group to be used in the layer explorer
+   * @param {boolean} firstCall - control flag
    * @returns {string} elem - string containing the HTML code to the layer explorer
    */
   var buildLayerExplorer = function(layer, firstCall) {
@@ -84,6 +93,7 @@ var LayerExplorer = function(terrama2) {
 
   /**
    * Initialize the layer explorer and put it in the page
+   * @param {xml} msg - capabilities xml code
    */
   var initializeLayerExplorer = function(msg) {
     capabilities = parser.read(msg);
@@ -125,6 +135,9 @@ var LayerExplorer = function(terrama2) {
     }
   }
 
+  /**
+   * Load the LayerExplorer events
+   */
   var loadEvents = function() {
     $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
@@ -190,14 +203,6 @@ var LayerExplorer = function(terrama2) {
         }
       }, 200);
     });
-  }
-
-  /**
-   * Return the selected layer
-   * @returns {string} selectedLayer - layer name
-   */
-  _this.getSelectedLayer = function() {
-    return selectedLayer;
   }
 
   socket.emit(
