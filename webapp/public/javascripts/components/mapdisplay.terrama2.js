@@ -1,7 +1,8 @@
-/** Class representing the component MapDisplay, which is responsible for presenting map. */
+/** @class MapDisplay - Class responsible for presenting the map. */
 var MapDisplay = function() {
 
   var _this = this;
+
   var olMap = new ol.Map({
     renderer: 'canvas',
     layers: [
@@ -42,7 +43,7 @@ var MapDisplay = function() {
    * Return the map object
    * @returns {ol.Map} olMap - map object
    */
-  _this.getMap = function() {
+  this.getMap = function() {
     return olMap;
   }
 
@@ -54,7 +55,7 @@ var MapDisplay = function() {
    * @param {string} layerTitle - layer title
    * @returns {ol.layer.Tile} olMap - new tiled wms layer
    */
-  _this.createTileWMS = function(url, type, layerName, layerTitle) {
+  this.createTileWMS = function(url, type, layerName, layerTitle) {
     return new ol.layer.Tile({
       source: new ol.source.TileWMS({
         preload: Infinity,
@@ -77,7 +78,7 @@ var MapDisplay = function() {
    * @param {string} value - value to be used in the search
    * @returns {ol.layer} found layer
    */
-  _this.findBy = function(layer, key, value) {
+  this.findBy = function(layer, key, value) {
 
     if(layer.get(key) === value) {
       return layer;
@@ -100,7 +101,7 @@ var MapDisplay = function() {
   /**
    * Update the map size according to its container
    */
-  _this.updateMapSize = function() {
+  this.updateMapSize = function() {
     olMap.updateSize();
   }
 

@@ -1,4 +1,4 @@
-/** Class representing the component LeftBar, which is a menubar. */
+/** @class LeftBar - Left menu bar where is possible to add buttons to trigger content boxes. */
 var LeftBar = function(terrama2) {
 
   /**
