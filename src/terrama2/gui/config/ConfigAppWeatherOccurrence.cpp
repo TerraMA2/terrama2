@@ -34,6 +34,7 @@
 #include "FilterDialog.hpp"
 #include "IntersectionDialog.hpp"
 #include "Exception.hpp"
+#include "Utils.hpp"
 #include "../core/Utils.hpp"
 #include "../../core/Filter.hpp"
 #include "../../core/DataProvider.hpp"
@@ -153,24 +154,7 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
-  if (dataset.id() > 0)
-  {
-    app_->getClient()->updateDataSet(dataset);
-    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(),
-                                       selectedData_,
-                                       ui_->pointDiffFormatDataName->text());
-  }
-  else
-  {
-    dataset.setProvider(provider.id());
-    app_->getClient()->addDataSet(dataset);
-    QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setIcon(0, QIcon::fromTheme("ocurrence-data"));
-    item->setText(0, ui_->pointDiffFormatDataName->text());
-    ui_->weatherDataTree->currentItem()->addChild(item);
-  }
-  app_->getWeatherTab()->addCachedDataSet(dataset);
-  changed_ = false;
+  terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointDiffFormatDataName->text(), "ocurrence-data");
 }
 
 void terrama2::gui::config::ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
@@ -233,7 +217,7 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::onDataSetBtnClicked()
       ui_->weatherDataTree->currentItem()->parent()->parent() == nullptr)
   {
     selectedData_.clear();
-    app_->getWeatherTab()->changeTab(*this, *ui_->DataPointDiffPage);
+    app_->getWeatherTab()->changeTab(this, *ui_->DataPointDiffPage);
 
     intersection_ = terrama2::core::Intersection();
     filter_.reset(new terrama2::core::Filter);

@@ -76,8 +76,7 @@ terrama2::gui::config::CollectorRuleDialog::~CollectorRuleDialog()
 
 void terrama2::gui::config::CollectorRuleDialog::fillGUI(const QString script)
 {
-  QString s(script);
-  pimpl_->ui_->txtLuaScript->setText(s);
+  pimpl_->ui_->txtLuaScript->setText(script);
 }
 
 void terrama2::gui::config::CollectorRuleDialog::fillObject(QString &script)
