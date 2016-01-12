@@ -1,3 +1,4 @@
+/** Class responsible for load and handle the API configurations. */
 var Config = function(terrama2) {
 
   var _this = this;
@@ -64,10 +65,10 @@ var Config = function(terrama2) {
     return confJsonServer;
   }
 
+  /**
+   * Loads the necessary plugins
+   */
   var loadPlugins = function() {
-    $('.terrama2-date').mask("00/00/0000", {clearIfNotMatch: true});
-    //$('.terrama2-table').DataTable();
-
     $(".terrama2-resizable-horizontal").resizable({
       handles: 'e'
     });

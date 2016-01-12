@@ -1,5 +1,9 @@
+/** Class representing the component LeftBar, which is a menubar. */
 var LeftBar = function(terrama2) {
 
+  /**
+   * Load the LeftBar events
+   */
   var loadEvents = function() {
     $('.terrama2-leftbar-button').on('click', function(e) {
       var box = $(this).attr('terrama2-box');
