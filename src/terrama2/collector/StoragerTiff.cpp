@@ -39,11 +39,15 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
 #include <QDebug>
+
+//boost
+#include <boost/date_time/local_time/local_date_time.hpp>
 
 terrama2::collector::StoragerTiff::StoragerTiff(const std::map<std::string, std::string>& storageMetadata)
   : Storager(storageMetadata)
@@ -70,7 +74,7 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
       std::string dataSetName = dataSetNameIt->second;
       std::string tif = ".tif", tiff = ".tiff";
       //if does not have tiff extension, append ".tiff"
-      if(!(std::equal(tif.rbegin(), tif.rend(), dataSetName.rbegin()) || std::equal(tiff.rbegin(), tiff.rend(), dataSetName.rbegin())))
+      if(!(std::equal(tif.rbegin(), tif.rend(), dataSetName.rbegin()) && std::equal(tiff.rbegin(), tiff.rend(), dataSetName.rbegin())))
          dataSetName.append(tiff);
 
       if(dataSetName.find('%'))
@@ -82,14 +86,13 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
     {
       core::DataSet dataset = transferenceDataVec.at(0).dataset;
 
-      std::ostringstream nowStream;
-      const boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_facet * f = new boost::posix_time::time_facet("%Y%m%d_%H%M");
-      nowStream.imbue(std::locale(nowStream.getloc(),f));
-      nowStream << now;
-
       for(TransferenceData& transferenceData : transferenceDataVec)
       {
+        std::ostringstream nowStream;
+        boost::posix_time::time_facet * f = new boost::posix_time::time_facet("%Y%m%d_%H%M");
+        nowStream.imbue(std::locale(nowStream.getloc(),f));
+        nowStream << transferenceData.date_data->getTimeInstantTZ().local_time();
+
         std::string destinationDataSetName = "terrama2.";
         destinationDataSetName.append(dataset.name());
         destinationDataSetName.append("_");

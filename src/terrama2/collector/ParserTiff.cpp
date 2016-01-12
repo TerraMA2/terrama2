@@ -20,63 +20,30 @@
 */
 
 /*!
-  \file terrama2/collector/ParserOGR.cpp
+  \file terrama2/collector/ParserTiff.hpp
 
-  \brief Parsers OGR data and create a terralib DataSet.
+  \brief Parsers postgres/postgis data and create a terralib DataSet.
 
   \author Jano Simas
-  \author Evandro Delatin
 */
 
-// TerraMA2
+#include "ParserTiff.hpp"
 #include "DataFilter.hpp"
-#include "ParserOGR.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
 
-// QT
-#include <QDir>
-#include <QDebug>
+//Qt
 #include <QUrl>
+#include <QString>
+#include <QFileInfo>
+#include <QtDebug>
 
-// STL
-#include <memory>
-
-// Boost
-#include <boost/format/exceptions.hpp>
-
-// TerraLib
+//Terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/dataaccess/utils/Utils.h>
-#include <terralib/common/Exception.h>
 
-void terrama2::collector::ParserOGR::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType)
-{
-  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
-  {
-    te::dt::Property* p = datasetType->getProperty(i);
-
-    converter->add(i,p->clone());
-  }
-}
-
-std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType)
-{
-  std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
-
-  addColumns(converter, datasetType);
-
-  converter->remove("FID");
-  adapt(converter);
-
-  return converter;
-}
-
-void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<TransferenceData>& transferenceDataVec)
+void terrama2::collector::ParserTiff::read(terrama2::collector::DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec)
 {
   if(transferenceDataVec.empty())
     throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
@@ -85,8 +52,6 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
   try
   {
-    std::shared_ptr<te::da::DataSetTypeConverter> converter;
-
     for(auto& transferenceData : transferenceDataVec)
     {
       QUrl uri(transferenceData.uri_temporary.c_str());
@@ -98,10 +63,19 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
       if(!filter->filterName(fileInfo.fileName().toStdString()))
         continue;
 
+      std::string filePath = fileInfo.absoluteFilePath().toStdString();
+      std::string tif = ".tif", tiff = ".tiff";
+      //if does not have tiff extension, append ".tiff"
+      if(!(std::equal(tif.rbegin(), tif.rend(), filePath.rbegin()) && std::equal(tiff.rbegin(), tiff.rend(), filePath.rbegin())))
+      {
+        //TODO: Log this
+        continue;
+      }
+
       //create a datasource and open
-      std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
+      std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("GDAL"));
       std::map<std::string, std::string> connInfo;
-      connInfo["URI"] = "CSV:"+fileInfo.absoluteFilePath().toStdString();
+      connInfo["URI"] = filePath;
       datasource->setConnectionInfo(connInfo);
 
       //RAII for open/closing the datasource
@@ -114,17 +88,7 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
       // get a transactor to interact to the data source
       std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-      converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(fileInfo.baseName().toStdString())));
-      transferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-      assert(transferenceData.teDatasetType);
-
-      assert(converter);
-      std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(fileInfo.baseName().toStdString()));
-      assert(datasetOrig);
-      std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
-
-      transferenceData.teDataset = dataset;
+      transferenceData.teDataset = transactor->getDataSet(fileInfo.baseName().toStdString());
     }
 
     return;
