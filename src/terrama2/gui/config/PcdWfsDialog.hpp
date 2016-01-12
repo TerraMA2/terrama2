@@ -54,11 +54,23 @@ namespace terrama2
         Q_OBJECT
 
         public:
+          /*!
+            \brief Contructor.
+
+            Initializes the interface, connecting qt widgets and slots and creating a menu options for mask input.
+            \param parent A pointer to QWidget owner. (default nullptr).
+            \param f A const value for handling kind of widget.
+          */
           PcdWfsDialog(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+
+          //! Destructor
           ~PcdWfsDialog();
 
         private slots:
+          //! Slot triggered in ok button. It validates the gui values and if it's ok, emits accept signal.
           void onOkBtnClicked();
+
+          //! Slot triggered when menu has been clicked. It fills mask input out with available mask matches.
           void onMenuMaskClicked(QAction*);
 
         private:
