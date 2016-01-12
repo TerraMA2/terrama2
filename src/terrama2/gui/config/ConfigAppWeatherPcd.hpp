@@ -157,7 +157,11 @@ namespace terrama2
           //! Slot triggered at pcdexport button to export pcd in terrama2 format
           void onPCDExportClicked();
 
+          //! Slot triggered when influence button has been clicked. It displays some fields, such Radio influence or region influence.
           void onInfluenceChanged(const int& index);
+
+          //! Slot triggered to displays terrama2::gui::config::PcdWfsDialog
+          void onPcdWfsClicked();
 
         private:
           QList<terrama2::gui::config::PCD> pcds_; //!< PCDs table list

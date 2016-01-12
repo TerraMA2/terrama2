@@ -38,6 +38,7 @@
 #include "PcdDialog.hpp"
 #include "SurfaceDialog.hpp"
 #include "CollectorRuleDialog.hpp"
+#include "PcdWfsDialog.hpp"
 #include "../core/Utils.hpp"
 
 
@@ -65,6 +66,7 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   connect(ui_->pointFormatSurfaceConfigBtn, SIGNAL(clicked()), SLOT(onSurfaceBtnClicked()));
   connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
   connect(ui_->pointFormatDataInfluenceCmb, SIGNAL(currentIndexChanged(int)), SLOT(onInfluenceChanged(const int&)));
+  connect(ui_->btnPCDWFSConfiguration, SIGNAL(clicked(bool)), SLOT(onPcdWfsClicked()));
 
   ui_->pointFormatDataInfluenceCmb->setCurrentIndex(2);
 
@@ -80,7 +82,6 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   ui_->pointFormatDataPrefix->setEnabled(false);
   ui_->pointFormatDataUnit->setEnabled(false);
 
-  ui_->btnPCDWFSConfiguration->setEnabled(false);
   ui_->btnPCDInformationPlane->setEnabled(false);
 
   tableClean();
@@ -346,6 +347,15 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onInfluenceChanged(const int &i
     ui_->label_35->setVisible(true);
     ui_->pointFormatDataThemeCmb->show();
     ui_->pointFormatInfluenceStack->setCurrentWidget(ui_->pointFormatInfluenceRegion);
+    }
+}
+
+void terrama2::gui::config::ConfigAppWeatherPcd::onPcdWfsClicked()
+{
+  PcdWfsDialog dialog(app_);
+  if (dialog.exec() == QDialog::Accepted)
+  {
+    // todo: do some operation, fill object
   }
 }
 
