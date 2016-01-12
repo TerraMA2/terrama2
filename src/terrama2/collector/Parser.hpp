@@ -31,6 +31,7 @@
 #define __TERRAMA2_COLLECTOR_PARSER_HPP__
 
 #include "../core/DataSetItem.hpp"
+#include "TransferenceData.hpp"
 
 //Terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -83,11 +84,8 @@ namespace terrama2
        \pre Tarralib should be initialized.
        */
 
-      virtual void read(const terrama2::core::DataSetItem& datasetitem,
-                        const std::string& uri,
-                        DataFilterPtr filter,
-                        std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
-                        std::shared_ptr<te::da::DataSetType>& datasetType) = 0;
+      virtual void read(DataFilterPtr filter,
+                        std::vector<terrama2::collector::TransferenceData>& transferenceData) = 0;
 
     protected:
       core::DataSetItem dataSetItem_;//!< core::DataSetItem stored to retrieve information in minor cases.

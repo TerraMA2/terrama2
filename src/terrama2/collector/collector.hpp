@@ -20,44 +20,48 @@
 */
 
 /*!
-  \file terrama2/collector/DataRetriever.cpp
+  \file terrama2/collector/collector.hpp
 
-  \brief Interface for getting remote data to a local temporary file.
+  \brief This file contains include headers for the TerraMA2 collector module.
 
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_COLLECTOR_COLLECTOR_HPP__
+#define __TERRAMA2_COLLECTOR_COLLECTOR_HPP__
+
 // TerraMA2
+#include "CollectorService.hpp"
+#include "DataFilter.hpp"
 #include "DataRetriever.hpp"
+#include "DataRetrieverFTP.hpp"
+#include "DataSetTimer.hpp"
+#include "Exception.hpp"
+#include "Factory.hpp"
+#include "IntersectionOperation.hpp"
+#include "Log.hpp"
+#include "Parser.hpp"
+#include "ParserFirePoint.hpp"
+#include "ParserOGR.hpp"
+#include "ParserPcdInpe.hpp"
+#include "ParserPcdToa5.hpp"
+#include "ParserPostgis.hpp"
+#include "Storager.hpp"
+#include "StoragerPostgis.hpp"
+#include "Utils.hpp"
 
 
-terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
+
+namespace terrama2
 {
-//TODO: review exception: should check valid dataprovider?
-  dataprovider_ = dataprovider;
-}
+  /*!
+     \brief Namespace for the TerraMA2 collector module
 
-bool terrama2::collector::DataRetriever::isRetrivable() const noexcept
-{
-  return false;
-}
+     It contains the base classes to retrive and store data.
+ */
+  namespace collector
+  {
+  } // end namespace colelctor
+}   // end namespace terrama2
 
-std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<TransferenceData>& /*TransferenceDataVec*/)
-{
-  return "";
-}
-
-void terrama2::collector::DataRetriever::open()
-{
-
-}
-
-bool terrama2::collector::DataRetriever::isOpen()
-{
-  return false;
-}
-
-void terrama2::collector::DataRetriever::close()
-{
-
-}
+#endif  // __TERRAMA2_COLLECTOR_COLLECTOR_HPP__
