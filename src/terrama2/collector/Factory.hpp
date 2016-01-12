@@ -67,7 +67,7 @@ namespace terrama2
        * \param datasetItem core::DataSetItem to collect
        * \return A shared_ptr to a parser of the right type.
        */
-      ParserPtr makeParser(const std::string& uri, const core::DataSetItem &datasetItem);
+      ParserPtr makeParser(const core::DataSetItem &datasetItem);
 
       /*!
         \brief Makes a storager based on the storageMetadata of the core::DataSetItem.

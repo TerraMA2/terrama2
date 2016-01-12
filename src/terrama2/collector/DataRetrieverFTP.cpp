@@ -124,9 +124,11 @@ size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
   return sizeRead;
 }
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem,
+                                                                DataFilterPtr filter,
+                                                                std::vector<TransferenceData>& transferenceDataVec)
 {
-  std::string uriOutput;
+  std::string uri_origin;
   std::string uriInput;
   CURLcode status;
   std::vector<std::string> vectorFiles;
@@ -182,9 +184,9 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 // Performs the download of files in the vectorNames
         if (curlDown.fcurl())
         {
-          uriOutput = dataprovider_.uri() + datasetitem.path() + file;
+          uri_origin = dataprovider_.uri() + datasetitem.path() + file;
           FileOpener opener((temporaryFolder_+file).c_str(),"wb");
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uriOutput.c_str());
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uri_origin.c_str());
 // Get data to be written in file
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
 // Set a pointer to our block data
@@ -200,7 +202,10 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
           }
           else
           {
-            log_uris.push_back(uriInput + file);
+            TransferenceData tmp;
+            tmp.uri_origin = uri_origin;
+            tmp.uri_temporary = uriInput + file;
+            transferenceDataVec.push_back(tmp);
           }
         }
       }

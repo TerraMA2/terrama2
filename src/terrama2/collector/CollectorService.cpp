@@ -38,6 +38,7 @@
 #include "Parser.hpp"
 #include "Utils.hpp"
 #include "IntersectionOperation.hpp"
+#include "TransferenceData.hpp"
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
@@ -226,68 +227,62 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
         try
         {
           terrama2::collector::Log collectLog;
+          std::vector<TransferenceData> transferenceDataVec;
 
           std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
           DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 
-          std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
-
-          std::string uri;
           if(retriever->isRetrivable())//retrieve remote data to local temp file.
           {
-            uri = retriever->retrieveData(dataSetItem, filter, log_uris);
+            retriever->retrieveData(dataSetItem, filter, transferenceDataVec);
 
             //Log: data downloaded
-            if(!log_uris.empty())
-              collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
+            if(!transferenceDataVec.empty())
+              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
 
           }
           else// if data don't need to be retrieved (ex. local, wms, wmf)
-            uri = dataProvider.uri();
+          {
+            TransferenceData tmp;
+            tmp.uri_origin = dataProvider.uri();
+            transferenceDataVec.push_back(tmp);
+          }
 
-          ParserPtr parser = Factory::makeParser(uri, dataSetItem);
+          //update tranferenceData info
+          for(TransferenceData& transferenceData : transferenceDataVec)
+          {
+            boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+            boost::local_time::local_date_time boostTime(boost::posix_time::second_clock::universal_time(), zone);
+            transferenceData.date_collect.reset(new te::dt::TimeInstantTZ(boostTime));
+            transferenceData.dataset = dataSet;
+            transferenceData.datasetItem = dataSetItem;
+          }
+
+          ParserPtr parser = Factory::makeParser(dataSetItem);
           assert(parser);
 
           //read data and create a terralib dataset
-          std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-          std::shared_ptr<te::da::DataSetType> datasetType;
-          parser->read(dataSetItem, uri, filter, datasetVec, datasetType);
+          parser->read(filter, transferenceDataVec);
 
           //no new dataset found
-          if(datasetVec.empty())
-          {
-            //Log: no data found
-            if(!log_uris.empty())
-              collectLog.log(dataSetItem.id(), log_uris, Log::Status::NODATA);
+          if(transferenceDataVec.empty())
             continue;
-          }
 
 //          filter dataset data (date, geometry, ...)
-          for(int i = 0, size = datasetVec.size(); i < size; ++i)
+          for(auto& transferenceData : transferenceDataVec)
           {
-            std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
-
-            //std::vector::at is NON-const, Qt containers use 'at' as const
-            datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
-
-            datasetVec.at(i) = terrama2::collector::processIntersection(dataSet, datasetVec.at(i), datasetType);
-
+            filter->filterDataSet(transferenceData);
+            terrama2::collector::processIntersection(transferenceData);
           }
 
           //store dataset
           StoragerPtr storager = Factory::makeStorager(dataSetItem);
           assert(storager);
-          std::string storage_uri = storager->store(dataSetItem, datasetVec, datasetType);
+          storager->store(transferenceDataVec);
 
-          te::dt::TimeInstantTZ* lastDateTime = filter->getDataSetLastDateTime();
-          std::string log_DataSetlastDateTime = "";
-
-          if(lastDateTime)
-            log_DataSetlastDateTime = lastDateTime->toString();
-
-          collectLog.updateLog(log_uris, storage_uri, Log::Status::IMPORTED, log_DataSetlastDateTime);
+//          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
         }
         catch(terrama2::Exception& e)
         {

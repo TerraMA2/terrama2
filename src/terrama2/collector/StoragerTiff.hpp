@@ -48,9 +48,7 @@ namespace terrama2
       StoragerTiff(const std::map<std::string, std::string>& storageMetadata);
 
       //Documented in parent class
-      virtual std::string store(const core::DataSetItem& dataSetItem,
-                                const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                const std::shared_ptr<te::da::DataSetType> &dataSetType) override;
+      virtual void store(std::vector<TransferenceData>& transferenceDataVec) override;
 
     private:
       //! Internal method that commits data to the final storage area.

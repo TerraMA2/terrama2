@@ -39,6 +39,8 @@
 #include "../core/DataProvider.hpp"
 #include "../core/DataSetItem.hpp"
 
+#include "TransferenceData.hpp"
+
 namespace terrama2
 {
   namespace collector
@@ -85,7 +87,7 @@ namespace terrama2
        * \param Filter to the data files.
        * \return Returns a standard Uniform Resource Identifier to the data.
        */
-      virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris);
+      virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec);
 
     protected:
         terrama2::core::DataProvider dataprovider_;//!< Stored core::DataProvider

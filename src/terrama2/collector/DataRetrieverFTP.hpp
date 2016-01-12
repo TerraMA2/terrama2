@@ -83,7 +83,7 @@ namespace terrama2
          * \exception DataRetrieverError when could not perform the download files.
          * \exception DataRetrieverError when Unknown error, Could not perform the download files.
          */
-      virtual std::string retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<std::string>& /*log_uris*/) override;
+      virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
         /*!
          * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.

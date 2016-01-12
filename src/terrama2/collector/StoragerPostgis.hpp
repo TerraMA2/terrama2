@@ -48,15 +48,13 @@ namespace terrama2
       StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
 
       //Documented in parent class
-      virtual std::string store(const core::DataSetItem& dataSetItem, const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                const std::shared_ptr<te::da::DataSetType> &datasetTypeVec) override;
+      virtual void store(std::vector<TransferenceData>& transferenceDataVec) override;
 
     private:
       //! Internal method that commits data to the final storage area.
       void commitData(const std::string& destinationDataSetName,
                       std::shared_ptr<te::da::DataSource> datasourceDestination,
-                      const std::shared_ptr<te::da::DataSetType> &dataSetType,
-                      const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec);
+                      std::vector<TransferenceData>& transferenceDataVec);
 
     };
   }

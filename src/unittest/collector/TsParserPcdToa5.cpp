@@ -63,22 +63,23 @@ void TsParserPcdToa5::TestParseCpvOk()
 
   try
   {
-    std::string path = terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/");
-
     terrama2::core::DataSetItem item;
     item.setMask("CPV_slow_%A_%M_%d_%h%m.dat");
 
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
-    std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-    std::shared_ptr<te::da::DataSetType>          datasetType;
+    terrama2::collector::TransferenceData transferenceData;
+    transferenceData.uri_temporary = terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/");
+
+    std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
+    transferenceDataVec.push_back(transferenceData);
 
     terrama2::collector::ParserPcdToa5 parser;
-    parser.read(item, path, filter, datasetVec, datasetType);
+    parser.read(filter, transferenceDataVec);
 
-    QVERIFY(datasetVec.size() == 21);
+    QVERIFY(transferenceDataVec.size() == 21);
 
-    std::shared_ptr<te::da::DataSet> dataset = datasetVec.at(0);
+    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataset;
     if(dataset->moveNext())
     {
       std::unique_ptr<te::dt::DateTime> dateTime(dataset->getDateTime("DateTime"));

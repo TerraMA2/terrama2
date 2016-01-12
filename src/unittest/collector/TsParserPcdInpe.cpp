@@ -33,6 +33,7 @@
 //Qt
 #include <QTemporaryDir>
 #include <QFile>
+#include <QUrl>
 
 //STL
 #include <memory>
@@ -42,6 +43,7 @@
 #include <terrama2/collector/Exception.hpp>
 #include <terrama2/collector/DataFilter.hpp>
 #include <terrama2/collector/ParserPcdInpe.hpp>
+#include <terrama2/collector/TransferenceData.hpp>
 
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -97,24 +99,32 @@ void TsParserPcdInpe::TestParseOk()
   qfile.close();
   QFileInfo info(qfile);
 
+  QUrl uri;
+  uri.setScheme("file");
+  uri.setPath(info.absoluteFilePath());
+
   QVERIFY(info.exists());
 
   try
   {
+    terrama2::collector::TransferenceData transferenceData;
+    transferenceData.uri_temporary = uri.url().toStdString();
+
+    std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
+    transferenceDataVec.push_back(transferenceData);
+
+
     terrama2::core::DataSetItem item;
     item.setMask(info.fileName().toStdString());
 
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
-    std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-    std::shared_ptr<te::da::DataSetType>          datasetType;
-
     terrama2::collector::ParserPcdInpe parser;
-    parser.read(item, info.absolutePath().toStdString(), filter, datasetVec, datasetType);
+    parser.read(filter, transferenceDataVec);
 
-    QVERIFY(datasetVec.size() == 1);
+    QVERIFY(transferenceDataVec.size() == 1);
 
-    std::shared_ptr<te::da::DataSet> dataset = datasetVec.at(0);
+    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataset;
     if(dataset->moveNext())
     {
       std::unique_ptr<te::dt::DateTime> dateTime(dataset->getDateTime("DateTime"));

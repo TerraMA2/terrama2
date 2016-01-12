@@ -31,6 +31,7 @@
 #define __TERRAMA2_COLLECTOR_STORAGER_HPP__
 
 #include "../core/DataSetItem.hpp"
+#include "TransferenceData.hpp"
 
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -65,9 +66,7 @@ namespace terrama2
 
           \pre Terralib should be initialized.
          */
-      virtual std::string store(const core::DataSetItem& dataSetItem,
-                                const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                const std::shared_ptr<te::da::DataSetType> &dataSetType) = 0;
+      virtual void store(std::vector<TransferenceData>& transferenceDataVec) = 0;
 
 
     protected:

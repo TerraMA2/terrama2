@@ -52,21 +52,21 @@ terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string
 
 void terrama2::collector::StoragerPostgis::commitData(const std::string& destinationDataSetName,
                                                       std::shared_ptr<te::da::DataSource> datasourceDestination,
-                                                      const std::shared_ptr<te::da::DataSetType> &dataSetType,
-                                                      const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec)
+                                                      std::vector<TransferenceData>& transferenceDataVec)
 {
   std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
 
-
+  std::shared_ptr<te::da::DataSetType> datasetType = transferenceDataVec.at(0).teDatasetType;
 
   std::map<std::string, std::string> options;
   std::shared_ptr<te::da::DataSetType> newDataSetType;
 
+
   if (!transactorDestination->dataSetExists(destinationDataSetName))
   {
     // create and save datasettype in the datasource destination
-    newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(dataSetType->clone()));
+    newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(datasetType->clone()));
 
     newDataSetType->setName(destinationDataSetName);
     transactorDestination->createDataSet(newDataSetType.get(),options);
@@ -77,7 +77,7 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
   }
 
   //Get original geometry to get srid
-  te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
+  te::gm::GeometryProperty* geom = GetFirstGeomProperty(datasetType.get());
   //configure if there is a geometry property
   if(geom)
   {
@@ -85,20 +85,21 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
     GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
   }
 
-  for(const auto& tempDataSet : datasetVec)
-    transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
+  for(const auto& transferenceData : transferenceDataVec)
+    transactorDestination->add(newDataSetType->getName(), transferenceData.teDataset.get(), options);
 
   scopedTransaction.commit();
 }
 
-std::string terrama2::collector::StoragerPostgis::store(const core::DataSetItem& dataSetItem,
-                                                        const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                                        const std::shared_ptr<te::da::DataSetType> &dataSetType)
+void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& transferenceDataVec)
 {
-  QUrl uri;
+  if(transferenceDataVec.empty())
+    return;
 
   try
   {
+    const core::DataSetItem& dataSetItem = transferenceDataVec.at(0).datasetItem;
+
     std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
     datasourceDestination->setConnectionInfo(storageMetadata_);
     OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
@@ -114,8 +115,9 @@ std::string terrama2::collector::StoragerPostgis::store(const core::DataSetItem&
     }
 
     // get a transactor to interact to the data source
-    commitData(dataSetName, datasourceDestination, dataSetType, datasetVec);
+    commitData(dataSetName, datasourceDestination, transferenceDataVec);
 
+    QUrl uri;
     uri.setScheme("postgis");
     uri.setHost(QString::fromStdString(storageMetadata_.at("PG_HOST")));
     uri.setPort(std::stoi(storageMetadata_.at("PG_PORT")));
@@ -123,6 +125,10 @@ std::string terrama2::collector::StoragerPostgis::store(const core::DataSetItem&
     uri.setPassword(QString::fromStdString(storageMetadata_.at("PG_PASSWORD")));
     QString path = "/" + QString::fromStdString(storageMetadata_.at("PG_DB_NAME") + "/" + dataSetName);
     uri.setPath(path);
+
+    //update storage uri
+    for(TransferenceData& transferenceData : transferenceDataVec)
+      transferenceData.uri_storage = uri.url().toStdString();
   }
   catch(terrama2::Exception& e)
   {
@@ -140,5 +146,5 @@ std::string terrama2::collector::StoragerPostgis::store(const core::DataSetItem&
     qDebug() << e.what();
   }
 
-  return uri.url().toStdString();
+  return;
 }

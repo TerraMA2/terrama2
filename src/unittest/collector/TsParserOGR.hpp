@@ -50,9 +50,6 @@ class TsParserOGR: public QObject
     //! Tests when an invalid folder is provided as uri.
     void TestInvalidFolder();
 
-    //! Tests behavior when provided folder is provided.
-    void TestEmptyFolder();
-
     //! Tests behavior for a generic csv file.
     void TestCsvFile();
 

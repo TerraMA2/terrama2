@@ -51,43 +51,37 @@
 //Qt
 #include <QUrl>
 
-terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const std::string& uri, const terrama2::core::DataSetItem& datasetItem)
+terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const terrama2::core::DataSetItem& datasetItem)
 {
-  QUrl url(uri.c_str());
-  if(url.scheme().toLower() == "postgis")
-  {
-    ParserPtr newParser = std::make_shared<ParserPostgis>();
-    return newParser;
+  switch (datasetItem.kind()) {
+    case core::DataSetItem::PCD_INPE_TYPE:
+    {
+      ParserPtr newParser = std::make_shared<ParserPcdInpe>();
+      return newParser;
+    }
+    case core::DataSetItem::PCD_TOA5_TYPE:
+    {
+      ParserPtr newParser = std::make_shared<ParserPcdToa5>();
+      return newParser;
+    }
+    case core::DataSetItem::UNKNOWN_TYPE:
+    {
+      ParserPtr newParser = std::make_shared<ParserOGR>();
+      return newParser;
+    }
+    case core::DataSetItem::FIRE_POINTS_TYPE:
+    {
+      ParserPtr newParser = std::make_shared<ParserFirePoint>();
+      return newParser;
+    }
+    default:
+      throw ConflictingParserTypeSchemeException() << terrama2::ErrorDescription(QObject::tr("The DataSetItem (%1) type is not compatible with FILE scheme.").arg(datasetItem.id()));
+      break;
   }
 
-  if(url.scheme().toLower() == "file")
-  {
-    switch (datasetItem.kind()) {
-      case core::DataSetItem::PCD_INPE_TYPE:
-      {
-        ParserPtr newParser = std::make_shared<ParserPcdInpe>();
-        return newParser;
-      }
-      case core::DataSetItem::PCD_TOA5_TYPE:
-      {
-        ParserPtr newParser = std::make_shared<ParserPcdToa5>();
-        return newParser;
-      }
-      case core::DataSetItem::UNKNOWN_TYPE:
-      {
-        ParserPtr newParser = std::make_shared<ParserOGR>();
-        return newParser;
-      }
-      case core::DataSetItem::FIRE_POINTS_TYPE:
-      {
-        ParserPtr newParser = std::make_shared<ParserFirePoint>();
-        return newParser;
-      }
-      default:
-        throw ConflictingParserTypeSchemeException() << terrama2::ErrorDescription(QObject::tr("The DataSetItem (%1) type is not compatible with FILE scheme.").arg(datasetItem.id()));
-        break;
-    }
-  }
+  //FIXME: define new type of dataset to postgis data!!!
+  ParserPtr newParser = std::make_shared<ParserPostgis>();
+  return newParser;
 
   throw UnableToCreateParserException() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
 }

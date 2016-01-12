@@ -33,6 +33,7 @@
 #define __TERRAMA2_COLLECTOR_FILTER_HPP__
 
 #include "Log.hpp"
+#include "TransferenceData.hpp"
 #include "../core/DataSetItem.hpp"
 #include "../core/DataSet.hpp"
 
@@ -106,6 +107,7 @@ namespace terrama2
               \return List of filtered names.
              */
       std::vector<std::string> filterNames(const std::vector<std::string> &namesList);
+      bool filterName(const std::string &name);
 
       /*!
              \brief Filters a te::da::DataSet by matching criteria.
@@ -117,15 +119,13 @@ namespace terrama2
 
              \note Updates dataSetLastDateTime_
 
-             \param dataSet DataSet to be filtered.
+             \param transferenceData Data of the DataSet to be filtered.
 
              \pre Filtering rules should have been set, otherwise unmodified DataSet is returned.
 
-             \pre Tarralib should be initialized.
-
-             \return Filtered DataSet.
+             \pre Terralib should be initialized.
              */
-      std::shared_ptr<te::da::DataSet> filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType);
+      void filterDataSet(terrama2::collector::TransferenceData& transferenceData);
 
       /*!
              * \brief Returns the lastest timestamp found in the core::DataSetItem.
@@ -188,6 +188,7 @@ namespace terrama2
       std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //!< Latest valid date found
       std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Earliest valid time/date.
       std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Latest valid time/date.
+      terrama2::collector::TransferenceData* currentData_;
 
       struct
       {

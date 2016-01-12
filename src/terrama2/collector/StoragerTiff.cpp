@@ -51,12 +51,15 @@ terrama2::collector::StoragerTiff::StoragerTiff(const std::map<std::string, std:
 
 }
 
-std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& dataSetItem,
-                                                     const std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
-                                                     const std::shared_ptr<te::da::DataSetType>& dataSetType)
+void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& transferenceDataVec)
 {
+  if(transferenceDataVec.empty())
+    return;
+
   try
   {
+//                                    const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
+//                                    const std::shared_ptr<te::da::DataSetType> &dataSetType
     //connection info
     std::map<std::string, std::string> connInfo;
 
@@ -77,9 +80,7 @@ std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& da
     }
     else
     {
-      core::DataManager& dataManger = core::DataManager::getInstance();
-      uint64_t datasetId = dataSetItem.dataset();
-      core::DataSet dataset = dataManger.findDataSet(datasetId);
+      core::DataSet dataset = transferenceDataVec.at(0).dataset;
 
       std::ostringstream nowStream;
       const boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
@@ -87,7 +88,7 @@ std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& da
       nowStream.imbue(std::locale(nowStream.getloc(),f));
       nowStream << now;
 
-      for(const auto& tempDataSet : datasetVec)
+      for(TransferenceData& transferenceData : transferenceDataVec)
       {
         std::string destinationDataSetName = "terrama2.";
         destinationDataSetName.append(dataset.name());
@@ -112,7 +113,7 @@ std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& da
         if (!transactorDestination->dataSetExists(destinationDataSetName))
         {
           // create and save datasettype in the datasource destination
-          newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(dataSetType->clone()));
+          newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(transferenceData.teDatasetType->clone()));
 
           newDataSetType->setName(destinationDataSetName);
           transactorDestination->createDataSet(newDataSetType.get(),options);
@@ -123,7 +124,7 @@ std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& da
         }
 
         //Get original geometry to get srid
-        te::gm::GeometryProperty* geom = GetFirstGeomProperty(dataSetType.get());
+        te::gm::GeometryProperty* geom = GetFirstGeomProperty(transferenceData.teDatasetType.get());
         //configure if there is a geometry property
         if(geom)
         {
@@ -131,10 +132,11 @@ std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& da
           GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
         }
 
-
-        transactorDestination->add(newDataSetType->getName(), tempDataSet.get(), options);
+        transactorDestination->add(newDataSetType->getName(), transferenceData.teDataset.get(), options);
 
         scopedTransaction.commit();
+
+        transferenceData.uri_storage = connInfo.at("URI");
       }//for each dataset end
     }//else: no name set
   }
@@ -153,6 +155,4 @@ std::string terrama2::collector::StoragerTiff::store(const core::DataSetItem& da
     //TODO: log de erro
     qDebug() << e.what();
   }
-
-  return "";
 }

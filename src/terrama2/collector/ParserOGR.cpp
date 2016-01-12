@@ -76,39 +76,36 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::ge
   return converter;
 }
 
-void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
-                                          const std::string &uri,
-                                          DataFilterPtr filter,
-                                          std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-                                          std::shared_ptr<te::da::DataSetType>& datasetType)
+void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<TransferenceData>& transferenceDataVec)
 {
-  dataSetItem_ = datasetitem;
+  if(transferenceDataVec.empty())
+    return;
+
+  dataSetItem_ = transferenceDataVec.at(0).datasetItem;
 
   try
-  {    
-    QUrl url(uri.c_str());
-    QDir dir(url.path());
-    if(!dir.exists())
-      throw InvalidFolderException() << ErrorDescription(QObject::tr("Invalid folder."));
-
-    QStringList localEntryList = dir.entryList(QDir::Files);
-    std::vector<std::string> names(localEntryList.size());
-    std::transform(localEntryList.begin(), localEntryList.end(), names.begin(), [](const QString& name){ return name.toStdString(); });
-
-    names = filter->filterNames(names);
-
-    if(names.empty())
-      throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
-
+  {
     std::shared_ptr<te::da::DataSetTypeConverter> converter;
     bool first = true;
-    //prepare the converter to adapt the dataset
-    for(const std::string& name : names)
+
+    if(transferenceDataVec.empty())
+      throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
+
+    for(auto& transferenceData : transferenceDataVec)
     {
+      QUrl uri(transferenceData.uri_temporary.c_str());
+
+      QFileInfo nameInfo(uri.path());
+      if(uri.scheme() != "file" || !nameInfo.exists() || nameInfo.isDir())
+        throw InvalidFolderException() << ErrorDescription(QObject::tr("Invalid folder."));//FIXME: invalid file
+
+      if(!filter->filterName(nameInfo.fileName().toStdString()))
+        continue;
+
       //create a datasource and open
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
       std::map<std::string, std::string> connInfo;
-      connInfo["URI"] = "CSV:"+url.path().toStdString()+"/"+name;
+      connInfo["URI"] = "CSV:"+nameInfo.absoluteFilePath().toStdString();
       datasource->setConnectionInfo(connInfo);
 
       //RAII for open/closing the datasource
@@ -122,12 +119,11 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
       // get a transactor to interact to the data source
       std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-      QFileInfo nameInfo(name.c_str());
       if(first)
       {
         converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(nameInfo.baseName().toStdString())));
-        datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-        assert(datasetType);
+        transferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+        assert(transferenceData.teDatasetType);
         first = false;
       }
 
@@ -136,7 +132,7 @@ void terrama2::collector::ParserOGR::read(const core::DataSetItem& datasetitem,
       assert(datasetOrig);
       std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 
-      datasetVec.push_back(dataset);
+      transferenceData.teDataset = dataset;
     }
 
     return;

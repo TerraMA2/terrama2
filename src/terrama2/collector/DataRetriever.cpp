@@ -42,7 +42,7 @@ bool terrama2::collector::DataRetriever::isRetrivable() const noexcept
   return false;
 }
 
-std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<std::string>& /*log_uris*/)
+std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<TransferenceData>& /*TransferenceDataVec*/)
 {
   return "";
 }
