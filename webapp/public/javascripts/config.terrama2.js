@@ -1,7 +1,5 @@
-/** Class responsible for load and handle the API configurations. */
+/** @class Config - Class responsible for load and handle the API configurations. */
 var Config = function(terrama2) {
-
-  var _this = this;
 
   var confJsonHTML = null;
   var confJsonComponentsJs = null;
@@ -24,7 +22,7 @@ var Config = function(terrama2) {
   /**
    * Load the configuration files
    */
-  _this.loadConfigurations = function() {
+  this.loadConfigurations = function() {
     var url = terrama2.getTerrama2Url() + "/config/";
 
     confJsonHTML = loadConfigurationFile(url + "html.terrama2.json");
@@ -37,7 +35,7 @@ var Config = function(terrama2) {
    * Return the HTML configuration (predefined tags)
    * @returns {json} confJsonHTML - HTML configuration
    */
-  _this.getConfJsonHTML = function() {
+  this.getConfJsonHTML = function() {
     return confJsonHTML;
   }
 
@@ -45,7 +43,7 @@ var Config = function(terrama2) {
    * Return the javascript files configuration (javascript files paths)
    * @returns {json} confJsonComponentsJs - javascript files configuration
    */
-  _this.getConfJsonComponentsJs = function() {
+  this.getConfJsonComponentsJs = function() {
     return confJsonComponentsJs;
   }
 
@@ -53,7 +51,7 @@ var Config = function(terrama2) {
    * Return the stylesheets configuration (stylesheets paths)
    * @returns {json} confJsonComponentsCss - stylesheets configuration
    */
-  _this.getConfJsonComponentsCss = function() {
+  this.getConfJsonComponentsCss = function() {
     return confJsonComponentsCss;
   }
 
@@ -61,7 +59,7 @@ var Config = function(terrama2) {
    * Return the map server configuration
    * @returns {json} confJsonServer - map server configuration
    */
-  _this.getConfJsonServer = function() {
+  this.getConfJsonServer = function() {
     return confJsonServer;
   }
 

@@ -1,4 +1,4 @@
-/** Class representing the component ToolBox, which is tool box. */
+/** @class ToolBox - Tool box located at the bottom of the map. */
 var ToolBox = function(terrama2) {
 
   $("#terrama2-map").append(terrama2.getConfig().getConfJsonHTML().Toolbox);

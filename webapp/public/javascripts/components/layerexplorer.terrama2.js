@@ -1,7 +1,5 @@
-/** Class representing the component LayerExplorer, which is responsible for presenting an organized list of the layers to the user. */
+/** @class LayerExplorer - Component responsible for presenting an organized list of layers. */
 var LayerExplorer = function(terrama2) {
-
-  var _this = this;
 
   var selectedLayer = null;
   var parser = new ol.format.WMSCapabilities();
@@ -15,7 +13,7 @@ var LayerExplorer = function(terrama2) {
    * Return the selected layer
    * @returns {string} selectedLayer - layer name
    */
-  _this.getSelectedLayer = function() {
+  this.getSelectedLayer = function() {
     return selectedLayer;
   }
 
