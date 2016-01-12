@@ -224,6 +224,10 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore
   ui_->rbGridGrADSTipoDadosInt->setAutoExclusive(true);
 
   ui_->cmbGridGrADSByteOrder->setCurrentIndex(0);
+  ui_->spbGridGrADSNumBands->setValue(1);
+  ui_->spbGridGrADSHeaderSize->setValue(0);
+  ui_->spbGridGrADSTimeOffset->setValue(0);
+  ui_->spbGridGrADSTraillerSize->setValue(0);
 }
 
 void terrama2::gui::config::ConfigAppWeatherGridTab::fillFilter(const terrama2::core::Filter& filter)
