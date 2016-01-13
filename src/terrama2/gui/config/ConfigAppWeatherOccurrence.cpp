@@ -239,6 +239,7 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnCli
       if (removeDataSet(dataset))
       {
         app_->getClient()->removeDataSet(dataset.id());
+        TERRAMA2_LOG_INFO() << ("Dataset ID " + std::to_string(dataset.id()) + " has been removed!");
         app_->getWeatherTab()->removeCachedDataSet(dataset);
 
         QMessageBox::information(app_, tr("TerraMA2"), tr("DataSet Occurrence successfully removed!"));
