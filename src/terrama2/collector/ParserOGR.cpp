@@ -93,7 +93,7 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
       QFileInfo fileInfo(uri.path());
       if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
-        throw InvalidFolderException() << ErrorDescription(QObject::tr("Invalid folder."));//FIXME: invalid file
+        throw InvalidFileException() << ErrorDescription(QObject::tr("Invalid file %1.").arg(fileInfo.fileName()));
 
       if(!filter->filterName(fileInfo.fileName().toStdString()))
         continue;

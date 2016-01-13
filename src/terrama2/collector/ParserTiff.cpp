@@ -58,7 +58,7 @@ void terrama2::collector::ParserTiff::read(terrama2::collector::DataFilterPtr fi
 
       QFileInfo fileInfo(uri.path());
       if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
-        throw InvalidFolderException() << ErrorDescription(QObject::tr("Invalid folder."));//FIXME: invalid file
+        throw InvalidFileException() << ErrorDescription(QObject::tr("Invalid file %1.").arg(fileInfo.fileName()));
 
       if(!filter->filterName(fileInfo.fileName().toStdString()))
         continue;
@@ -66,7 +66,7 @@ void terrama2::collector::ParserTiff::read(terrama2::collector::DataFilterPtr fi
       std::string filePath = fileInfo.absoluteFilePath().toStdString();
       std::string tif = ".tif", tiff = ".tiff";
       //if does not have tiff extension, append ".tiff"
-      if(!(std::equal(tif.rbegin(), tif.rend(), filePath.rbegin()) && std::equal(tiff.rbegin(), tiff.rend(), filePath.rbegin())))
+      if(!(std::equal(tif.rbegin(), tif.rend(), filePath.rbegin()) || std::equal(tiff.rbegin(), tiff.rend(), filePath.rbegin())))
       {
         //TODO: Log this
         continue;
@@ -83,12 +83,12 @@ void terrama2::collector::ParserTiff::read(terrama2::collector::DataFilterPtr fi
 
       if(!datasource->isOpened())
       {
-        throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - DataProvider could not be opened."));
+        throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - DataProvider could not be opened."));
       }
 
       // get a transactor to interact to the data source
       std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-      transferenceData.teDataset = transactor->getDataSet(fileInfo.baseName().toStdString());
+      transferenceData.teDataset = std::shared_ptr<te::da::DataSet>(transactor->getDataSet(fileInfo.fileName().toStdString()));
     }
 
     return;
@@ -97,7 +97,7 @@ void terrama2::collector::ParserTiff::read(terrama2::collector::DataFilterPtr fi
   {
     //TODO: log de erro
     qDebug() << e.what();
-    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - Terralib exception: ") +e.what());
+    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Terralib exception: ") +e.what());
   }
   catch(terrama2::collector::Exception& e)
   {
@@ -105,7 +105,7 @@ void terrama2::collector::ParserTiff::read(terrama2::collector::DataFilterPtr fi
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - Std exception.")+e.what());
+    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Std exception.")+e.what());
   }
 
   return;

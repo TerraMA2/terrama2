@@ -20,45 +20,36 @@
 */
 
 /*!
-  \file terrama2/collector/ParserTiff.hpp
+  \file terrama2/collector/TsParserTiff.hpp
 
-  \brief Parsers Tiff image files and create a terralib DataSet.
+  \brief Tests for the ParserTiff class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSERTIFF_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSERTIFF_HPP__
 
-#include "Parser.hpp"
+//Qt
+#include <QtTest>
 
-namespace terrama2
+class TsParserTiff: public QObject
 {
-  namespace collector
-  {
+  Q_OBJECT
 
-    /*!
-       \brief Parser for TIFF images.
-     */
-    class ParserTiff : public Parser
-    {
-      public:
-      //! Default contructor
-        ParserTiff() : Parser(){}
-        //! Default destructor
-        virtual ~ParserTiff(){}
+  private slots:
 
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-        /**
-            \brief \copybrief Parser::read()
-            */
-        virtual void read(DataFilterPtr filter,
-                          std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-    };
-  }
-}
+    //******Test functions********
 
+    void TestOpenFile();
 
+    //******End of Test functions****
+};
 
-#endif //__TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSERTIFF_HPP__

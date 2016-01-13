@@ -31,9 +31,6 @@
 #ifndef __TERRAMA2_COLLECTOR_PARSEROGR_HPP__
 #define __TERRAMA2_COLLECTOR_PARSEROGR_HPP__
 
-// STL
-#include <mutex>
-
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 

@@ -74,8 +74,8 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
       std::string dataSetName = dataSetNameIt->second;
       std::string tif = ".tif", tiff = ".tiff";
       //if does not have tiff extension, append ".tiff"
-      if(!(std::equal(tif.rbegin(), tif.rend(), dataSetName.rbegin()) && std::equal(tiff.rbegin(), tiff.rend(), dataSetName.rbegin())))
-         dataSetName.append(tiff);
+      if(!(std::equal(tif.rbegin(), tif.rend(), dataSetName.rbegin()) || std::equal(tiff.rbegin(), tiff.rend(), dataSetName.rbegin())))
+         dataSetName.append(tif);
 
       if(dataSetName.find('%'))
       {
