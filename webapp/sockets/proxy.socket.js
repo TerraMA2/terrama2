@@ -1,3 +1,7 @@
+/**
+ * Proxy module for Cross-Domain requests.
+ * @module proxy
+ */
 module.exports = function(io) {
   var sockets = io.sockets,
       http = require('http');
