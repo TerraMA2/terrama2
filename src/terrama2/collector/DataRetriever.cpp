@@ -27,20 +27,8 @@
   \author Jano Simas
 */
 
-// LibCurl
-#include <curl/curl.h>
-#include "CurlOpener.hpp"
-
-// Boost
-#include <boost/algorithm/string.hpp>
-
-// QT
-#include <QTranslator>
-
 // TerraMA2
-#include "DataFilter.hpp"
 #include "DataRetriever.hpp"
-#include "Exception.hpp"
 
 
 terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
