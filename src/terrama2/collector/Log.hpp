@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_COLLECTOR_LOG_HPP__
 #define __TERRAMA2_COLLECTOR_LOG_HPP__
 
+#include "TransferenceData.hpp"
+
 // STL
 #include <iostream>
 
@@ -105,7 +107,7 @@ namespace terrama2
           \exception LogException
 
         */
-        virtual void log( const uint64_t dataSetItemId, const std::vector< std::string >& origin_uris, const Status s) const;
+        virtual void log(const std::vector<TransferenceData>& transferenceDataVec, const Status s) const;
 
         /*!
           \brief Update a register in log table
@@ -131,7 +133,7 @@ namespace terrama2
           \exception LogException
 
         */
-        virtual void updateLog(const std::vector<std::string>& origin_uris, const std::string& uri, Status s, const std::string& data_timestamp) const;
+        virtual void updateLog(const std::vector< std::string >& origin_uris, const std::string& uri, const Status s, const std::string& data_timestamp) const;
 
         /*!
           \brief Get in log table the last data timestamp from a DataSetItem

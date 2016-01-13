@@ -56,7 +56,7 @@ namespace terrama2
 
     /*!
 
-      \brief The Factory namespace has functions the easily create Parsers, Storagers and Retrievers.
+      \brief The Factory namespace has functions to easily create Parsers, Storagers and Retrievers.
 
      */
     namespace Factory
@@ -67,7 +67,7 @@ namespace terrama2
        * \param datasetItem core::DataSetItem to collect
        * \return A shared_ptr to a parser of the right type.
        */
-      ParserPtr makeParser(const std::string& uri, const core::DataSetItem &datasetItem);
+      ParserPtr makeParser(const core::DataSetItem &datasetItem);
 
       /*!
         \brief Makes a storager based on the storageMetadata of the core::DataSetItem.

@@ -38,6 +38,7 @@
 #include "Parser.hpp"
 #include "Utils.hpp"
 #include "IntersectionOperation.hpp"
+#include "TransferenceData.hpp"
 #include "../core/DataSet.hpp"
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
@@ -186,6 +187,10 @@ void terrama2::collector::CollectorService::process(const uint64_t dataProviderI
 
 void terrama2::collector::CollectorService::collect(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet>& dataSetList)
 {
+  //if not active, nothing to do
+  if(dataProvider.status() != core::DataProvider::ACTIVE)
+    return;
+
   try
   {
     DataRetrieverPtr retriever = Factory::makeRetriever(dataProvider);
@@ -200,6 +205,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
     for(auto &dataSet : dataSetList)
     {
+      //If not active, continue...
+      if(dataSet.status() != core::DataSet::ACTIVE)
+        continue;
+
+
       if(dataSet.dataSetItems().empty())
       {
         //TODO: LOG empty dataset
@@ -209,68 +219,73 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
       //aquire all data
       for(auto& dataSetItem : dataSet.dataSetItems())
       {
+        //if not active, continue...
+        if(dataSetItem.status() != core::DataSetItem::ACTIVE)
+          continue;
+
+
         try
         {
           std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
           terrama2::collector::Log collectLog(transactor);
 
-          DataFilterPtr filter(new DataFilter(dataSetItem, collectLog));
+          std::vector<TransferenceData> transferenceDataVec;
+
+          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
+          DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 
           std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
-          //retrieve remote data to local temp file
-          std::string uri = retriever->retrieveData(dataSetItem, filter, log_uris);
+          if(retriever->isRetrivable())//retrieve remote data to local temp file.
+          {
+            retriever->retrieveData(dataSetItem, filter, transferenceDataVec);
 
-          if(!log_uris.empty())
-            collectLog.log(dataSetItem.id(), log_uris, Log::Status::DOWNLOADED);
+            //Log: data downloaded
+            if(!transferenceDataVec.empty())
+              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
 
-          ParserPtr     parser = Factory::makeParser(uri, dataSetItem);
+          }
+          else// if data don't need to be retrieved (ex. local, wms, wmf)
+          {
+            TransferenceData tmp;
+            tmp.uri_origin = dataProvider.uri();
+            transferenceDataVec.push_back(tmp);
+          }
+
+          //update tranferenceData info
+          for(TransferenceData& transferenceData : transferenceDataVec)
+          {
+            boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+            boost::local_time::local_date_time boostTime(boost::posix_time::second_clock::universal_time(), zone);
+            transferenceData.date_collect.reset(new te::dt::TimeInstantTZ(boostTime));
+            transferenceData.dataset = dataSet;
+            transferenceData.datasetItem = dataSetItem;
+          }
+
+          ParserPtr parser = Factory::makeParser(dataSetItem);
           assert(parser);
 
-          StoragerPtr   storager = Factory::makeStorager(dataSetItem);
-          assert(storager);
-
           //read data and create a terralib dataset
-          std::vector<std::shared_ptr<te::da::DataSet> > datasetVec;
-          std::shared_ptr<te::da::DataSetType> datasetType;
-          parser->read(dataSetItem, uri, filter, datasetVec, datasetType);
+          parser->read(filter, transferenceDataVec);
 
           //no new dataset found
-          if(datasetVec.empty())
-          {
-            if(!log_uris.empty())
-              collectLog.log(dataSetItem.id(), log_uris, Log::Status::NODATA);
+          if(transferenceDataVec.empty())
             continue;
-          }
 
 //          filter dataset data (date, geometry, ...)
-          for(int i = 0, size = datasetVec.size(); i < size; ++i)
+          for(auto& transferenceData : transferenceDataVec)
           {
-            std::shared_ptr<te::da::DataSet> tempDataSet = datasetVec.at(i);
-
-            //std::vector::at is NON-const, Qt containers use 'at' as const
-            datasetVec.at(i) = filter->filterDataSet(tempDataSet, datasetType);
-
-            datasetVec.at(i) = terrama2::collector::processIntersection(dataSet, datasetVec.at(i), datasetType);
-
+            filter->filterDataSet(transferenceData);
+            terrama2::collector::processIntersection(transferenceData);
           }
 
-          //standard name
-          std::string standardDataSetName = "terrama2.storager_";
-          standardDataSetName.append(std::to_string(dataSetItem.id()));
-
           //store dataset
-          qDebug() << "starting storager...";
-          std::string storage_uri = storager->store(standardDataSetName, datasetVec, datasetType);
+          StoragerPtr storager = Factory::makeStorager(dataSetItem);
+          assert(storager);
+          storager->store(transferenceDataVec);
 
-          te::dt::TimeInstantTZ* lastDateTime = filter->getDataSetLastDateTime();
-          std::string log_DataSetlastDateTime = "";
-
-          if(lastDateTime)
-            log_DataSetlastDateTime = lastDateTime->toString();
-
-          collectLog.updateLog(log_uris, storage_uri, Log::Status::IMPORTED, log_DataSetlastDateTime);
+//          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
         }
         catch(terrama2::Exception& e)
         {

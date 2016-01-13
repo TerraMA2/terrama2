@@ -57,14 +57,16 @@ namespace terrama2
 
     class DataRetrieverFTP: public DataRetriever
     {
-    public:      
+    public:
         /*!
          * \brief  Constructor DataRetrieverFTP
          * \param DataProvider dataprovider information.
          * \param Localization localization information. Ex. "file://".
          * \param Folder folder information where the files will be saved. Ex. "/tmp/".
          */
-      explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string localization = "file://", const std::string folder = "/tmp/");
+      explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string scheme = "file://", const std::string temporaryFolder = "/tmp/terrama2/");
+
+      virtual bool isRetrivable() const noexcept override;
 
       //! Does nothing. In derived classes opens the connectin to the server.
       virtual void open() override;
@@ -81,19 +83,18 @@ namespace terrama2
          * \exception DataRetrieverError when could not perform the download files.
          * \exception DataRetrieverError when Unknown error, Could not perform the download files.
          */
-      virtual std::string retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<std::string>& /*log_uris*/) override;
+      virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
         /*!
          * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.
-         * \exception DataRetrieverError when could not deleted file.
-         * \exception DataRetrieverError when unknown error, could not deleted file.
+         *
          */
      ~DataRetrieverFTP();
 
     private:
-      std::vector<std::string> vectorNames_; //!< Vector that contains the list of filtered files to be downloaded.
-      std::string localization_; //!< Localization contains folders.
-      std::string folder_; //!< Folder that contains the files that were downloaded.
+      std::vector<std::string> vectorNames_;
+      std::string scheme_;
+      std::string temporaryFolder_;
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;

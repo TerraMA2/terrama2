@@ -48,38 +48,28 @@
 #include <boost/algorithm/string.hpp>
 
 // QT
-#include <QTranslator>
+#include <QObject>
 
-terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string localization, const std::string folder)
-  : DataRetriever(dataprovider), localization_(localization), folder_(folder)
+terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string scheme, const std::string temporaryFolder)
+  : DataRetriever(dataprovider), scheme_(scheme), temporaryFolder_(temporaryFolder)
 {
 
 }
 
+bool terrama2::collector::DataRetrieverFTP::isRetrivable() const noexcept
+{
+  return true;
+}
+
 terrama2::collector::DataRetrieverFTP::~DataRetrieverFTP()
 {
-  try
-  {
-   std::string path;
+  std::string path;
 // Remove the files in the tmp folder
-    for(std::string file: vectorNames_)
-    {
-      path = folder_+file;
-      std::remove(path.c_str()); // delete file
-    }
-  }
-  catch(const std::exception& e)
+  for(std::string file: vectorNames_)
   {
-    QString messageError = QObject::tr("Could not deleted file! \n\n Details: \n");
-    messageError.append(e.what());
-
-    throw DataRetrieverFTPException() << ErrorDescription(messageError);
-  }
-
-  catch(...)
-  {
-    throw DataRetrieverFTPException() << ErrorDescription(QObject::tr("Unknown Error, could not deleted file!"));
-  }
+     path = temporaryFolder_+file;
+     std::remove(path.c_str()); // delete file
+   }
 }
 
 void terrama2::collector::DataRetrieverFTP::open()
@@ -134,9 +124,11 @@ size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
   return sizeRead;
 }
 
-std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
+std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem,
+                                                                DataFilterPtr filter,
+                                                                std::vector<TransferenceData>& transferenceDataVec)
 {
-  std::string uriOutput;
+  std::string uri_origin;
   std::string uriInput;
   CURLcode status;
   std::vector<std::string> vectorFiles;
@@ -151,6 +143,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 // Get a file listing from server
     if(curl.fcurl())
     {
+// Get a file listing from server
       uriInput = dataprovider_.uri() + datasetitem.path();
 // The host part of the URL contains the address of the server that you want to connect to
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
@@ -172,7 +165,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       }
       else
       {
-        QString messageError = QObject::tr("Could not list the FTP server files. \n\n Details: \n");
+        QString messageError = QObject::tr("Could not list files in the FTP server. \n\n");
         messageError.append(curl_easy_strerror(status));
         throw DataRetrieverFTPException() << ErrorDescription(messageError);
       }
@@ -191,10 +184,9 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 // Performs the download of files in the vectorNames
         if (curlDown.fcurl())
         {
-          uriOutput = dataprovider_.uri() + datasetitem.path() + file;
-          FileOpener opener((folder_+file).c_str(),"wb");
-// The host part of the URL contains the address of the server that you want to connect to
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uriOutput.c_str());
+          uri_origin = dataprovider_.uri() + datasetitem.path() + file;
+          FileOpener opener((temporaryFolder_+file).c_str(),"wb");
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uri_origin.c_str());
 // Get data to be written in file
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
 // Set a pointer to our block data
@@ -204,13 +196,16 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
           if (res != CURLE_OK)
           {
-            QString messageError = QObject::tr("Could not perform the download files. \n\n Details: \n");
+            QString messageError = QObject::tr("Could not perform the download. \n\n");
             messageError.append(curl_easy_strerror(res));
             throw DataRetrieverFTPException() << ErrorDescription(messageError);
           }
           else
           {
-            log_uris.push_back(uriInput + file);
+            TransferenceData tmp;
+            tmp.uri_origin = uri_origin;
+            tmp.uri_temporary = uriInput + file;
+            transferenceDataVec.push_back(tmp);
           }
         }
       }
@@ -231,5 +226,5 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.
-  return localization_+folder_;
+  return scheme_+temporaryFolder_;
 }

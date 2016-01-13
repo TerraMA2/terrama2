@@ -49,6 +49,11 @@ terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProv
   dataprovider_ = dataprovider;
 }
 
+bool terrama2::collector::DataRetriever::isRetrivable() const noexcept
+{
+  return false;
+}
+
 size_t data_vector(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t sizeRead = size * nmemb;
@@ -59,7 +64,7 @@ size_t data_vector(void *ptr, size_t size, size_t nmemb, void *data)
   return sizeRead;
 }
 
-std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<std::string>& log_uris)
+std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<TransferenceData>& TransferenceDataVec)
 {
   std::string uriInput;
   CURLcode status;
@@ -106,7 +111,8 @@ std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::cor
 
       for( std::string file : vectorNames )
       {
-        log_uris.push_back(uriInput + file);
+        // VINICIUS: adapt to use TransferenceData vector
+        //log_uris.push_back(uriInput + file);
       }
     }
   }

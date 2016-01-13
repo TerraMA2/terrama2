@@ -50,8 +50,11 @@
 #include <terralib/vp/IntersectionMemory.h>
 #include <terralib/vp/Utils.h>
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::processIntersection(const terrama2::core::DataSet& dataSet, std::shared_ptr<te::da::DataSet> collectedData, std::shared_ptr<te::da::DataSetType>& collectedDataSetType)
+void terrama2::collector::processIntersection(TransferenceData& transferenceData)
 {
+  const terrama2::core::DataSet& dataSet = transferenceData.dataset;
+  std::shared_ptr<te::da::DataSet> collectedData = transferenceData.teDataset;
+  std::shared_ptr<te::da::DataSetType>& collectedDataSetType = transferenceData.teDatasetType;
   assert(collectedData.get());
 
   std::shared_ptr<te::mem::DataSet> outputDs;
@@ -187,13 +190,10 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::processIntersection(const 
       outputDs.reset();
       collectedDataSetType = outputDt;
       outputDt.reset();
-
-
-
     }
   }
 
-  return collectedData;
+  transferenceData.teDataset = collectedData;
 }
 
 

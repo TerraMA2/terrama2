@@ -31,6 +31,8 @@
 #ifndef __TERRAMA2_COLLECTOR_INTERSECTIONOPERATION_HPP__
 #define __TERRAMA2_COLLECTOR_INTERSECTIONOPERATION_HPP__
 
+#include "TransferenceData.hpp"
+
 // STL
 #include <memory>
 #include <string>
@@ -60,9 +62,7 @@ namespace terrama2
   namespace collector
   {
 
-    std::shared_ptr<te::da::DataSet> processIntersection(const terrama2::core::DataSet& dataSet,
-                                                         std::shared_ptr<te::da::DataSet> collectedData,
-                                                         std::shared_ptr<te::da::DataSetType>& collectedDataSetType);
+    void processIntersection(TransferenceData& transferenceData);
 
     te::da::DataSetType* createDataSetType(std::string newName,
                                            te::da::DataSetType* firstDt,
