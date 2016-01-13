@@ -66,70 +66,7 @@ size_t data_vector(void *ptr, size_t size, size_t nmemb, void *data)
 
 std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<TransferenceData>& TransferenceDataVec)
 {
-  std::string uriInput;
-  CURLcode status;
-  std::vector<std::string> vectorFiles;
-  std::string block;
-
-  CurlOpener curl;
-
-  curl.init();
-
-  try
-  {
-    // Get a file listing from server
-    if(curl.fcurl())
-    {
-      uriInput = dataprovider_.uri() + datasetitem.path();
-      // The address of the source
-      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
-      // List files and directories
-      curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
-      // Get data to be written in vector
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, data_vector);
-      // Set a pointer to our block data
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void *)&block);
-      // performs the configurations of curl_easy_setop
-      status = curl_easy_perform(curl.fcurl());
-
-      if (status == CURLE_OK)
-      {
-        boost::split(vectorFiles, block, boost::is_any_of("\n"));
-
-        if(vectorFiles.size() && vectorFiles.back().empty())
-          vectorFiles.pop_back();
-      }
-      else
-      {
-        QString messageError = QObject::tr("Could not list the source files. \n\n Details: \n");
-        messageError.append(curl_easy_strerror(status));
-        throw DataRetrieverFTPException() << ErrorDescription(messageError);
-      }
-
-      // filter file names.
-      std::vector<std::string> vectorNames = filter->filterNames(vectorFiles);
-
-      for( std::string file : vectorNames )
-      {
-        // VINICIUS: adapt to use TransferenceData vector
-        //log_uris.push_back(uriInput + file);
-      }
-    }
-  }
-  catch(const std::exception& e)
-  {
-    QString messageError = QObject::tr("Could not check files! \n\n Details: \n");
-    messageError.append(e.what());
-
-    throw DataRetrieverException() << ErrorDescription(messageError);
-  }
-  catch(...)
-  {
-    throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error, Could not check files!"));
-  }
-
-  // returns the absolute path of the folder that contains the files
-  return uriInput;
+  return "";
 }
 
 void terrama2::collector::DataRetriever::open()
