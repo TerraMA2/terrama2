@@ -54,16 +54,6 @@ bool terrama2::collector::DataRetriever::isRetrivable() const noexcept
   return false;
 }
 
-size_t data_vector(void *ptr, size_t size, size_t nmemb, void *data)
-{
-  size_t sizeRead = size * nmemb;
-
-  std::string* block = (std::string*) data;
-  block->append((char *)ptr, sizeRead);
-
-  return sizeRead;
-}
-
 std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<TransferenceData>& TransferenceDataVec)
 {
   return "";
