@@ -50,10 +50,12 @@
 // QT
 #include <QObject>
 
-terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider, const std::string scheme, const std::string temporaryFolder)
-  : DataRetriever(dataprovider), scheme_(scheme), temporaryFolder_(temporaryFolder)
+terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider)
+  : DataRetriever(dataprovider),
+    temp("terrama2_XXXXXX")
 {
-
+  temporaryFolder_ = temp.path().toStdString();
+  scheme_ = "file://";
 }
 
 bool terrama2::collector::DataRetrieverFTP::isRetrivable() const noexcept
