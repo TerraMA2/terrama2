@@ -40,6 +40,7 @@
 #include "CollectorRuleDialog.hpp"
 #include "PcdWfsDialog.hpp"
 #include "../core/Utils.hpp"
+#include "../../core/Logger.hpp"
 
 
 // TerraLib
@@ -70,7 +71,6 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
 
   ui_->pointFormatDataInfluenceCmb->setCurrentIndex(2);
 
-
   // export pcd button
   connect(ui_->exportDataPointBtn, SIGNAL(clicked()), SLOT(onPCDExportClicked()));
 
@@ -97,7 +97,6 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   ui_->pointFormatDataHour->setValidator(new QIntValidator(ui_->pointFormatDataHour));
   ui_->pointFormatDataMinute->setValidator(new QIntValidator(ui_->pointFormatDataMinute));
   ui_->pointFormatDataSecond->setValidator(new QIntValidator(ui_->pointFormatDataSecond));
-
 }
 
 terrama2::gui::config::ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
@@ -253,7 +252,6 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onProjectionClicked()
   if (srsDialog.exec() == QDialog::Rejected)
     return;
 
-
   srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
 }
 
@@ -330,6 +328,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onPCDExportClicked()
     QString message = "TerraMA2 error while exporting pcd file. \n\n";
     if (const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e))
       message.append(*msg);
+    TERRAMA2_LOG_ERROR() << message;
     QMessageBox::warning(app_, tr("TerraMA2 Error"), message);
   }
 }
