@@ -20,17 +20,17 @@
 */
 
 /*!
-  \file terrama2/collector/ParserTiff.hpp
+  \file terrama2/collector/ParserGDAL.hpp
 
-  \brief Parsers Tiff image files and create a terralib DataSet.
+  \brief Base Parser for files that use GDAL driver.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#ifndef __TERRAMA2_COLLECTOR_PARSERGDAL_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERGDAL_HPP__
 
-#include "ParserGDAL.hpp"
+#include "Parser.hpp"
 
 namespace terrama2
 {
@@ -38,12 +38,20 @@ namespace terrama2
   {
 
     /*!
-       \brief Parser for TIFF images.
+       \brief Base parser for GDAL driver.
      */
-    class ParserTiff : public ParserGDAL
+    class ParserGDAL : public Parser
     {
+    public:
+      /**
+            \brief \copybrief Parser::read()
+            */
+      virtual void read(DataFilterPtr filter,
+                        std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+
     protected:
-        bool verifyFileName(const std::string& name) override;
+      virtual void fillConnectionInfo(std::map<std::string, std::string>& connInfo){}
+      virtual bool verifyFileName(const std::string& name) {return true;}
 
     };
   }
@@ -51,4 +59,4 @@ namespace terrama2
 
 
 
-#endif //__TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#endif //__TERRAMA2_COLLECTOR_PARSERGDAL_HPP__

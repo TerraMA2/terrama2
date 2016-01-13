@@ -20,35 +20,36 @@
 */
 
 /*!
-  \file terrama2/collector/ParserTiff.hpp
+  \file terrama2/collector/TsParserAscGrid.hpp
 
-  \brief Parsers Tiff image files and create a terralib DataSet.
+  \brief Tests for the ParserAscGrid class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSERASCGRID_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSERASCGRID_HPP__
 
-#include "ParserGDAL.hpp"
+//Qt
+#include <QtTest>
 
-namespace terrama2
+class TsParserAscGrid: public QObject
 {
-  namespace collector
-  {
+  Q_OBJECT
 
-    /*!
-       \brief Parser for TIFF images.
-     */
-    class ParserTiff : public ParserGDAL
-    {
-    protected:
-        bool verifyFileName(const std::string& name) override;
+  private slots:
 
-    };
-  }
-}
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
+    //******Test functions********
 
-#endif //__TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+    void TestOpenFile();
+
+    //******End of Test functions****
+};
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSERASCGRID_HPP__

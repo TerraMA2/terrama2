@@ -22,91 +22,15 @@
 /*!
   \file terrama2/collector/ParserTiff.hpp
 
-  \brief Parsers postgres/postgis data and create a terralib DataSet.
+  \brief Parsers Tiff image files and create a terralib DataSet.
 
   \author Jano Simas
 */
 
 #include "ParserTiff.hpp"
-#include "DataFilter.hpp"
-#include "Exception.hpp"
-#include "Utils.hpp"
 
-//Qt
-#include <QUrl>
-#include <QString>
-#include <QFileInfo>
-#include <QtDebug>
-
-//Terralib
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
-
-void terrama2::collector::ParserTiff::read(terrama2::collector::DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec)
+bool terrama2::collector::ParserTiff::verifyFileName(const std::string& name)
 {
-  if(transferenceDataVec.empty())
-    throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
-
-  dataSetItem_ = transferenceDataVec.at(0).datasetItem;
-
-  try
-  {
-    for(auto& transferenceData : transferenceDataVec)
-    {
-      QUrl uri(transferenceData.uri_temporary.c_str());
-
-      QFileInfo fileInfo(uri.path());
-      if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
-        throw InvalidFileException() << ErrorDescription(QObject::tr("Invalid file %1.").arg(fileInfo.fileName()));
-
-      if(!filter->filterName(fileInfo.fileName().toStdString()))
-        continue;
-
-      std::string filePath = fileInfo.absoluteFilePath().toStdString();
-      std::string tif = ".tif", tiff = ".tiff";
-      //if does not have tiff extension, append ".tiff"
-      if(!(std::equal(tif.rbegin(), tif.rend(), filePath.rbegin()) || std::equal(tiff.rbegin(), tiff.rend(), filePath.rbegin())))
-      {
-        //TODO: Log this
-        continue;
-      }
-
-      //create a datasource and open
-      std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("GDAL"));
-      std::map<std::string, std::string> connInfo;
-      connInfo["URI"] = filePath;
-      datasource->setConnectionInfo(connInfo);
-
-      //RAII for open/closing the datasource
-      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-      if(!datasource->isOpened())
-      {
-        throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - DataProvider could not be opened."));
-      }
-
-      // get a transactor to interact to the data source
-      std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-      transferenceData.teDataset = std::shared_ptr<te::da::DataSet>(transactor->getDataSet(fileInfo.fileName().toStdString()));
-    }
-
-    return;
-  }
-  catch(te::common::Exception& e)
-  {
-    //TODO: log de erro
-    qDebug() << e.what();
-    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Terralib exception: ") +e.what());
-  }
-  catch(terrama2::collector::Exception& e)
-  {
-    throw;
-  }
-  catch(std::exception& e)
-  {
-    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Std exception.")+e.what());
-  }
-
-  return;
+  std::string extension_1 = ".tif", extension_2 = ".tiff";
+  return std::equal(extension_1.rbegin(), extension_1.rend(), name.rbegin()) || std::equal(extension_2.rbegin(), extension_2.rend(), name.rbegin());
 }

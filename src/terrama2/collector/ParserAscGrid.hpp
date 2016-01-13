@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/collector/ParserTiff.hpp
+  \file terrama2/collector/ParserAscGrid.hpp
 
-  \brief Parsers Tiff image files and create a terralib DataSet.
+  \brief Parsers Asc-Grid files and create a terralib DataSet.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#ifndef __TERRAMA2_COLLECTOR_PARSERASCGRID_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERASCGRID_HPP__
 
 #include "ParserGDAL.hpp"
 
@@ -38,17 +38,16 @@ namespace terrama2
   {
 
     /*!
-       \brief Parser for TIFF images.
+       \brief Parser for Asc-Grid files.
      */
-    class ParserTiff : public ParserGDAL
+    class ParserAscGrid : public ParserGDAL
     {
     protected:
         bool verifyFileName(const std::string& name) override;
-
     };
   }
 }
 
 
 
-#endif //__TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#endif //__TERRAMA2_COLLECTOR_PARSERASCGRID_HPP__

@@ -7,9 +7,11 @@
 #include "TsParserPcdInpe.hpp"
 #include "TsParserPcdToa5.hpp"
 #include "TsParserTiff.hpp"
-#include "TsParserGrADS.hpp"
+#include "TsParserAscGrid.hpp"
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
+
+#include "TsTeste.hpp"
 
 #include "Utils.hpp"
 
@@ -55,8 +57,9 @@ int main(int argc, char *argv[])
   TsParserTiff tsParserTiff;
   returnVal += QTest::qExec(&tsParserTiff, argc, argv);
 
-  TsParserGrADS tsParserGrADS;
-  returnVal += QTest::qExec(&tsParserGrADS, argc, argv);
+  TsParserAscGrid tsParserAscGrid;
+  returnVal += QTest::qExec(&tsParserAscGrid, argc, argv);
+
 
   //Storager
 
