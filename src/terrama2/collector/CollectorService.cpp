@@ -226,13 +226,16 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
         try
         {
-          terrama2::collector::Log collectLog;
+          std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
+          terrama2::collector::Log collectLog(transactor);
+
           std::vector<TransferenceData> transferenceDataVec;
 
           std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
           DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 
+          std::vector< std::string > log_uris;
           //TODO: conditions to collect Data?
           if(retriever->isRetrivable())//retrieve remote data to local temp file.
           {
