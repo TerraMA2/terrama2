@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/collector/TsFilter.hpp
+  \file terrama2/collector/TsFilter.cpp
 
   \brief Tests for the TestFilter class.
 
@@ -68,11 +68,7 @@ void TsDataFilter::TestFilterNamesExact()
   std::string exact("exact");
   dataItem.setMask(exact);
 
-  MockLog collectLog;
-  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-      .Times(1)
-      .WillRepeatedly(::testing::Return(nullptr));
-  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+  terrama2::collector::DataFilter datafilter(dataItem);
 
   std::vector<std::string> names {"teste1", "teste2 ", "exc", "exact", "exact "};
 
@@ -92,13 +88,9 @@ void TsDataFilter::TestEmptyMask()
   dataset.add(dataItem);
   dataItem.setFilter(filter);
 
-  MockLog collectLog;
-  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-      .Times(1)
-      .WillRepeatedly(::testing::Return(nullptr));
   try
   {
-    terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+    terrama2::collector::DataFilter datafilter(dataItem);
 
     QFAIL(NO_EXCEPTION_THROWN);
   }
@@ -124,16 +116,10 @@ void TsDataFilter::TestMask()
   dataset.add(dataItem);
   dataItem.setFilter(filter);
 
-  MockLog collectLog;
-  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-      .Times(2)
-      .WillRepeatedly(::testing::Return(nullptr));
-
-
   //test for dates
   dataItem.setMask("name_%d/%M/%A");
   {
-    terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+    terrama2::collector::DataFilter datafilter(dataItem);
 
     std::vector<std::string> names {"name_12/03/2015", "name 12/03/2015 ", "name_12/3/2015", "name_12-03-2015", "names_2A/03/2015 "};
 
@@ -145,7 +131,7 @@ void TsDataFilter::TestMask()
   //test for time
   dataItem.setMask("name_%h:%m:%s");
   {
-    terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+    terrama2::collector::DataFilter datafilter(dataItem);
 
     std::vector<std::string> names {"name_12:03:15", "name 12:03:15 ", "name_12:3:15", "name_12:03:2015", "names_2A:03:2015 "};
 
@@ -173,11 +159,7 @@ void TsDataFilter::TestgetDataSetLastDateTime()
   std::string exact("name_%d/%M/%A_%h:%m:%s");
   dataItem.setMask(exact);
 
-  MockLog collectLog;
-  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-      .Times(1)
-      .WillRepeatedly(::testing::Return(nullptr));
-  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+  terrama2::collector::DataFilter datafilter(dataItem);
   std::vector<std::string> names {"name_12/03/2015_10:30:15",
                                   "name_12/03/2015_10:31:15",
                                   "name_12/03/2015_10:32:15",
@@ -215,11 +197,7 @@ void TsDataFilter::TestDiscardBefore()
   std::string exact("name_%d/%M/%A");
   dataItem.setMask(exact);
 
-  MockLog collectLog;
-  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-      .Times(1)
-      .WillRepeatedly(::testing::Return(nullptr));
-  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+  terrama2::collector::DataFilter datafilter(dataItem);
 
   std::vector<std::string> names {"name_12/03/2015", "name_12/07/2014", "name_12/06/2015", "name_16/06/2015", "name_12-11-2015", "name_12/18/2015", };
 
@@ -245,11 +223,7 @@ void TsDataFilter::TestLastCollected()
   std::string exact("name_%d/%M/%A");
   dataItem.setMask(exact);
 
-  MockLog collectLog;
-  EXPECT_CALL(collectLog, getDataSetItemLastDateTime(::testing::_))
-      .Times(1)
-      .WillRepeatedly(::testing::Return(lastCollectedDate));
-  terrama2::collector::DataFilter datafilter(dataItem, collectLog);
+  terrama2::collector::DataFilter datafilter(dataItem, lastCollectedDate);
 
   std::vector<std::string> names {"name_12/03/2015", "name_12/07/2014", "name_12/06/2015", "name_16/06/2015", "name_12-11-2015", "name_12/18/2015", };
 

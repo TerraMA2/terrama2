@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/collector/StoragerPostgis.hpp
+  \file terrama2/collector/StoragerTiff.hpp
 
-  \brief Store a temporary terralib DataSet into the permanent PostGis storage area.
+  \brief Store a temporary terralib DataSet into the permanent Tiff image.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_STORAGERPOSTGIS_HPP__
-#define __TERRAMA2_COLLECTOR_STORAGERPOSTGIS_HPP__
+#ifndef __TERRAMA2_COLLECTOR_STORAGERTIFF_HPP__
+#define __TERRAMA2_COLLECTOR_STORAGERTIFF_HPP__
 
 #include "Storager.hpp"
 
@@ -40,12 +40,12 @@ namespace terrama2
   namespace collector
   {
 
-    //! \brief The StoragerPostgis class specializes the Storager class to Postgres/Postgis DB.
-    class StoragerPostgis : public Storager
+    //! \brief The StoragerPostgis class specializes the Storager class to Tiff files.
+    class StoragerTiff : public Storager
     {
     public:
       //! Constructor. Stores metadata for later use.
-      StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
+      StoragerTiff(const std::map<std::string, std::string>& storageMetadata);
 
       //Documented in parent class
       virtual void store(std::vector<TransferenceData>& transferenceDataVec) override;
@@ -54,11 +54,12 @@ namespace terrama2
       //! Internal method that commits data to the final storage area.
       void commitData(const std::string& destinationDataSetName,
                       std::shared_ptr<te::da::DataSource> datasourceDestination,
-                      std::vector<TransferenceData>& transferenceDataVec);
+                      const std::shared_ptr<te::da::DataSetType> &dataSetType,
+                      const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec);
 
     };
   }
 }
 
 
-#endif //__TERRAMA2_COLLECTOR_STORAGERPOSTGIS_HPP__
+#endif //__TERRAMA2_COLLECTOR_STORAGERTIFF_HPP__

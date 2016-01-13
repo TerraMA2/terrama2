@@ -74,9 +74,9 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
   return 0;
 }
 
-void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vector< std::string >& origin_uris, const Status s) const
+void terrama2::collector::Log::log(const std::vector<TransferenceData>& transferenceDataVec, const Status s) const
 {
-  if(origin_uris.empty())
+  if(transferenceDataVec.empty())
     throw LogException() << ErrorDescription("terrama2::collector::Log: No files to log.");
 
   try
@@ -85,14 +85,14 @@ void terrama2::collector::Log::log( const uint64_t dataSetItemId, const std::vec
 
     std::string query("INSERT INTO terrama2.data_collection_log (dataset_item_id, origin_uri, status) VALUES");
 
-    int size = origin_uris.size();
+    int size = transferenceDataVec.size();
 
     for(int i = 0; i < size; i++)
     {
       boost::format value("('%1%', '%2%', %3%)");
 
-      value.bind_arg(1, dataSetItemId);
-      value.bind_arg(2, origin_uris.at(i));
+      value.bind_arg(1, transferenceDataVec.at(i).datasetItem.id());
+      value.bind_arg(2, transferenceDataVec.at(i).uri_origin);
       value.bind_arg(3, (int)s);
 
       query += value.str();

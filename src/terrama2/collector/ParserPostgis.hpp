@@ -54,11 +54,8 @@ namespace terrama2
         /**
             \brief \copybrief Parser::read()
             */
-        virtual void read(const terrama2::core::DataSetItem& datasetitem,
-                          const std::string& uri,
-                          DataFilterPtr filter,
-                          std::vector<std::shared_ptr<te::da::DataSet> >& datasetVec,
-                          std::shared_ptr<te::da::DataSetType>& datasetType) override;
+        virtual void read(DataFilterPtr filter,
+                          std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
     };
   }

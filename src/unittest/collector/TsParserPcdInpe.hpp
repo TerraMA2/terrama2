@@ -20,44 +20,37 @@
 */
 
 /*!
-  \file terrama2/collector/DataRetriever.cpp
+  \file terrama2/collector/TsParserPcdInpe.hpp
 
-  \brief Interface for getting remote data to a local temporary file.
+  \brief Tests for the ParserPcdInpe class.
 
   \author Jano Simas
 */
 
-// TerraMA2
-#include "DataRetriever.hpp"
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSERPCDINPE_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSERPCDINPE_HPP__
 
+//Qt
+#include <QtTest>
 
-terrama2::collector::DataRetriever::DataRetriever(const terrama2::core::DataProvider& dataprovider)
+class TsParserPcdInpe: public QObject
 {
-//TODO: review exception: should check valid dataprovider?
-  dataprovider_ = dataprovider;
-}
+  Q_OBJECT
 
-bool terrama2::collector::DataRetriever::isRetrivable() const noexcept
-{
-  return false;
-}
+  private slots:
 
-std::string terrama2::collector::DataRetriever::retrieveData(const terrama2::core::DataSetItem& /*datasetitem*/, DataFilterPtr /*filter*/, std::vector<TransferenceData>& /*TransferenceDataVec*/)
-{
-  return "";
-}
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-void terrama2::collector::DataRetriever::open()
-{
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-}
+    //******Test functions********
 
-bool terrama2::collector::DataRetriever::isOpen()
-{
-  return false;
-}
+    void TestParseOk();
+    void TestParseFail();
 
-void terrama2::collector::DataRetriever::close()
-{
+    //******End of Test functions****
+};
 
-}
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSERPCDINPE_HPP__

@@ -33,7 +33,6 @@
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
-#include "Log.hpp"
 
 // STL
 #include <iostream>
@@ -63,6 +62,17 @@
 
 std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std::vector<std::string>& namesList)
 {
+  std::vector<std::string> matchesList;
+  for(const std::string &name : namesList)
+  {
+    if(filterName(name))
+      matchesList.push_back(name);
+  }
+
+  return matchesList;
+
+
+#if 0
   //get list of matching regex (only string format, no date value comparison
   std::vector<std::string> matchesList;
   for(const std::string &name : namesList)
@@ -186,12 +196,136 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
   }
 
   return matchesList2;
+#endif
+}
+
+bool terrama2::collector::DataFilter::filterName(const std::string& name)
+{
+  //get list of matching regex (only string format, no date value comparison
+  bool res = boost::regex_match(name, maskData.regex);
+  if (!res)
+    return false;
+
+  unsigned int year  = 0;
+  unsigned int month = 0;
+  unsigned int day   = 0;
+
+  int hours   = -1;
+  int minutes = -1;
+  int seconds  = -1;
+
+  //**********************
+  //get date values from names
+
+  //get year value
+  if(maskData.year4Pos != -1)
+    year = std::stoi(name.substr(maskData.year4Pos, 4));
+  if(maskData.year2Pos != -1)
+    year = std::stoi(name.substr(maskData.year2Pos, 2));
+  //get month value
+  if(maskData.monthPos != -1)
+    month = std::stoi(name.substr(maskData.monthPos, 2));
+  //get day value
+  if(maskData.dayPos != -1)
+    day = std::stoi(name.substr(maskData.dayPos, 2));
+
+  //get hour value
+  if(maskData.hourPos != -1)
+    hours = std::stoi(name.substr(maskData.hourPos, 2));
+  //get minute value
+  if(maskData.minutePos != -1)
+    minutes = std::stoi(name.substr(maskData.minutePos, 2));
+  //get second value
+  if(maskData.secondPos != -1)
+    seconds = std::stoi(name.substr(maskData.secondPos, 2));
+
+  //****************************
+
+  try
+  {
+    boost::gregorian::date bDate(year, month, day);
+    boost::posix_time::time_duration bTime(hours == -1 ? 0 : hours, minutes == -1 ? 0 : minutes, seconds == -1 ? 0 : seconds);
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(datasetItem_.timezone()));
+    boost::local_time::local_date_time time(bDate, bTime, zone, true);
+
+    if((discardBefore_ && time < discardBefore_->getTimeInstantTZ()) || (discardAfter_ && time > discardAfter_->getTimeInstantTZ()))
+      return false;
+
+    updateLastDateTimeCollected(time);
+  }
+  catch(boost::exception& /*e*/)
+  {
+    //invalid date or time, go on and compare as possible....
+
+    try
+    {
+      if(discardBefore_)
+      {
+        boost::local_time::local_date_time boostDiscardBefore = discardBefore_->getTimeInstantTZ();
+        boost::gregorian::date discardBeforeDate = boostDiscardBefore.date();
+        boost::posix_time::time_duration discardBeforeTime = boostDiscardBefore.time_of_day();
+
+        //discard if outside valid date limits
+        if(!isAfterDiscardBeforeDate(year, month, day, discardBeforeDate))
+          return false;
+
+        //if no date or same date: check time
+        if((year  == 0 || year  == discardBeforeDate.year())
+           && (month == 0 || month == discardBeforeDate.month().as_number())
+           && (day   == 0 || day   == discardBeforeDate.day().as_number()))
+        {
+          //check time
+          if(!isAfterDiscardBeforeTime(hours, minutes, seconds, datasetItem_.timezone(), discardBeforeTime))
+            return false;
+        }
+      }
+
+      if(discardAfter_)
+      {
+        boost::local_time::local_date_time boostDiscardAfter = discardAfter_->getTimeInstantTZ();
+        boost::gregorian::date discardAfterDate = boostDiscardAfter.date();
+        boost::posix_time::time_duration discardAfterTime = boostDiscardAfter.time_of_day();
+
+        //discard if outside valid date limits
+        if(!isBeforeDiscardAfterDate(year, month, day, discardAfterDate))
+          return false;
+
+        //if no date or same date: check time
+        if((year  == 0 || year  == discardAfterDate.year())
+           && (month == 0 || month == discardAfterDate.month().as_number())
+           && (day   == 0 || day   == discardAfterDate.day().as_number()))
+        {
+          //check time
+          if(!isBeforeDiscardAfterTime(hours, minutes, seconds, discardAfterTime))
+            return false;
+        }
+      }
+    }
+    catch(boost::exception& e)
+    {
+      //TODO: Log
+      return false;
+    }
+
+  }
+  catch(std::exception& e)
+  {
+    //TODO: Log
+    return false;
+  }
+
+  return true;
 }
 
 void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_time::local_date_time boostTime)
 {
   if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ() < boostTime)
+  {
     dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
+
+    if(currentData_)
+      currentData_->date_data.reset(new te::dt::TimeInstantTZ(boostTime));
+  }
 }
 
 bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
@@ -346,8 +480,29 @@ bool terrama2::collector::DataFilter::isBeforeDiscardAfterValue(unsigned int val
   return value <= discardAfterValue;
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(const std::shared_ptr<te::da::DataSet> &dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType)
+void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::TransferenceData& transferenceData)
 {
+  class RaiiData
+  {
+  public:
+    RaiiData(terrama2::collector::TransferenceData*& currentData, terrama2::collector::TransferenceData& transferenceData)
+      : currentData_(currentData)
+    {
+      currentData_ = &transferenceData;
+    }
+    ~RaiiData()
+    {
+      currentData_ = nullptr;
+    }
+
+    terrama2::collector::TransferenceData*& currentData_;
+  };
+
+  RaiiData raiiData(currentData_, transferenceData);
+
+  const std::shared_ptr<te::da::DataSet> &dataSet = transferenceData.teDataset;
+  const std::shared_ptr<te::da::DataSetType>& datasetType = transferenceData.teDatasetType;
+
   //Find DateTime column
   int dateColumn = -1;
   for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
@@ -372,7 +527,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
 
   //If there is no DateTime or geometry column, nothing to be done
   if(dateColumn < 0 && geomColumn < 0)
-    return dataSet;
+    return;
 
   //Copy dataset to an in-memory dataset filtering the data
   auto memDataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
@@ -394,7 +549,7 @@ std::shared_ptr<te::da::DataSet> terrama2::collector::DataFilter::filterDataSet(
   }
 
   //TODO: Implement filter geometry. update doc
-  return memDataSet;
+  transferenceData.teDataset = memDataSet;
 }
 
 
@@ -403,20 +558,20 @@ te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime()
   return dataSetLastDateTime_.get();
 }
 
-terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, const Log& collectLog)
+terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime)
   : datasetItem_(datasetItem),
-    dataSetLastDateTime_(nullptr)
+    dataSetLastDateTime_(nullptr),
+    currentData_(nullptr)
 {
   //recover last collection time logged
-  std::shared_ptr<te::dt::TimeInstantTZ> logTime = collectLog.getDataSetItemLastDateTime(datasetItem.id());
   const core::Filter& filter = datasetItem_.filter();
 
   if(!filter.discardBefore())
-     discardBefore_ = logTime;
-  else if(!logTime)
+    discardBefore_ = lastLogTime;
+  else if(!lastLogTime)
     discardBefore_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
-  else if(*filter.discardBefore() < *logTime || *filter.discardBefore() == *logTime)
-    discardBefore_ = logTime;
+  else if(*filter.discardBefore() < *lastLogTime || *filter.discardBefore() == *lastLogTime)
+    discardBefore_ = lastLogTime;
   else
     discardBefore_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardBefore()->clone()));
 
