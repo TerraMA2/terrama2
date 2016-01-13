@@ -207,6 +207,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore
     widget->clear();
 
   ui_->gridFormatDataFormat->setCurrentIndex(0);
+
   ui_->rbGridAscUnidGrausDec->setAutoExclusive(false);
   ui_->rbGridAscUnidGrausDec->setChecked(false);
   ui_->rbGridAscUnidGrausDec->setAutoExclusive(true);

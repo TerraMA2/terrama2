@@ -96,6 +96,8 @@ void terrama2::gui::config::ConfigAppWeatherServer::save()
   {
     app_->getClient()->updateDataProvider(provider);
 
+    TERRAMA2_LOG_INFO() << ("Provider " + provider.name() + " updated!");
+
     // Refresh the weather list giving top level item and search for dataprovider selected
     app_->getWeatherTab()->refreshList(ui_->weatherDataTree->topLevelItem(0), selectedData_, ui_->serverName->text());
 
@@ -104,6 +106,7 @@ void terrama2::gui::config::ConfigAppWeatherServer::save()
   else
   {
     app_->getClient()->addDataProvider(provider);
+    TERRAMA2_LOG_INFO() << ("Provider " + provider.name() + " saved!");
 
     QTreeWidgetItem* newServer = new QTreeWidgetItem();
     newServer->setText(0, ui_->serverName->text());
