@@ -179,12 +179,9 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
 
   datasetItem->setStorageMetadata(storageMetadata);
 
-  if (datasetItem->id() == 0)
-    dataset.add(*datasetItem);
-
   dataset.setSchedule(schedule);
 
-  // Lets save dataset
+  // Lets save dataset, adding item in dataset
   terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->gridFormatDataName->text(), "grid");
 }
 
