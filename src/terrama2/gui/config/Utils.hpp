@@ -58,7 +58,7 @@ namespace terrama2
         It sends dataset via gsoap client and log it in TerraMA2 log file through terrama2::core::Logger.
 
         \param dataset A terrama2::core::DataSet reference to be saved.
-        \param datasetItem A terrama2::core::DataSetItem reference used to set dataset id.
+        \param datasetItem A terrama2::core::DataSetItem reference used to set in dataset
         \param provider A uint64_t value containing terrama2::core::DataProvider id.
         \param app A pointer to TerraMA2 Main Window.
         \param selectedName A string value for handling active dataset selected inside tab.
