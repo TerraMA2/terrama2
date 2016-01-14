@@ -126,9 +126,6 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
   else
     datasetItem = new terrama2::core::DataSetItem;
 
-  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
-
-  datasetItem->setStorageMetadata(storageMetadata);
   datasetItem->setSrid(srid_);
 
   terrama2::core::DataSetItem::Kind kind;
@@ -153,6 +150,10 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
     dataset.add(*datasetItem);
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
+
+  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(dataset, *app_->getConfiguration());
+
+  datasetItem->setStorageMetadata(storageMetadata);
 
   terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointDiffFormatDataName->text(), "ocurrence-data");
 }
