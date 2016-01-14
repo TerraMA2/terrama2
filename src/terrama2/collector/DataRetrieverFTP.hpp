@@ -97,7 +97,6 @@ namespace terrama2
       std::vector<std::string> vectorNames_;
       std::string scheme_;
       std::string temporaryFolder_;
-      QTemporaryDir temp;
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
