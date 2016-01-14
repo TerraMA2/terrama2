@@ -176,7 +176,7 @@ void TsParserOGR::TestInvalidFolder()
 
     QFAIL(NO_EXCEPTION_THROWN);
   }
-  catch(terrama2::collector::InvalidFolderException& e)
+  catch(terrama2::collector::InvalidFileException& e)
   {
 
   }

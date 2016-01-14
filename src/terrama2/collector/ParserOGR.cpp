@@ -79,33 +79,29 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::ge
 void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<TransferenceData>& transferenceDataVec)
 {
   if(transferenceDataVec.empty())
-    return;
+    throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
 
   dataSetItem_ = transferenceDataVec.at(0).datasetItem;
 
   try
   {
     std::shared_ptr<te::da::DataSetTypeConverter> converter;
-    bool first = true;
-
-    if(transferenceDataVec.empty())
-      throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
 
     for(auto& transferenceData : transferenceDataVec)
     {
       QUrl uri(transferenceData.uri_temporary.c_str());
 
-      QFileInfo nameInfo(uri.path());
-      if(uri.scheme() != "file" || !nameInfo.exists() || nameInfo.isDir())
-        throw InvalidFolderException() << ErrorDescription(QObject::tr("Invalid folder."));//FIXME: invalid file
+      QFileInfo fileInfo(uri.path());
+      if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
+        throw InvalidFileException() << ErrorDescription(QObject::tr("Invalid file %1.").arg(fileInfo.fileName()));
 
-      if(!filter->filterName(nameInfo.fileName().toStdString()))
+      if(!filter->filterName(fileInfo.fileName().toStdString()))
         continue;
 
       //create a datasource and open
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
       std::map<std::string, std::string> connInfo;
-      connInfo["URI"] = "CSV:"+nameInfo.absoluteFilePath().toStdString();
+      connInfo["URI"] = "CSV:"+fileInfo.absoluteFilePath().toStdString();
       datasource->setConnectionInfo(connInfo);
 
       //RAII for open/closing the datasource
@@ -119,16 +115,12 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
       // get a transactor to interact to the data source
       std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-      if(first)
-      {
-        converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(nameInfo.baseName().toStdString())));
-        transferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-        assert(transferenceData.teDatasetType);
-        first = false;
-      }
+      converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(fileInfo.baseName().toStdString())));
+      transferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+      assert(transferenceData.teDatasetType);
 
       assert(converter);
-      std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(nameInfo.baseName().toStdString()));
+      std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(fileInfo.baseName().toStdString()));
       assert(datasetOrig);
       std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 

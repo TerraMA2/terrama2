@@ -42,6 +42,8 @@
 // LibCurl
 #include <curl/curl.h>
 
+//Qt
+#include <QTemporaryDir>
 
 namespace terrama2
 {
@@ -64,7 +66,7 @@ namespace terrama2
          * \param Localization localization information. Ex. "file://".
          * \param Folder folder information where the files will be saved. Ex. "/tmp/".
          */
-      explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string scheme = "file://", const std::string temporaryFolder = "/tmp/terrama2/");
+      explicit DataRetrieverFTP(const core::DataProvider& dataprovider);
 
       virtual bool isRetrivable() const noexcept override;
 

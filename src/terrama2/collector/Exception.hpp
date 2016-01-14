@@ -72,8 +72,8 @@ namespace terrama2
 
     //! Base exception for Parser
     struct ParserException: virtual Exception { };
-    //! Raised when a folder that doesn't exist is provided.
-    struct InvalidFolderException: virtual ParserException { };
+    //! Raised when a file that doesn't exist is provided.
+    struct InvalidFileException: virtual ParserException { };
     //! Raised when there is no dataset to parse.
     struct NoDataSetFoundException: virtual ParserException { };
 

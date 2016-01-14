@@ -20,17 +20,17 @@
 */
 
 /*!
-  \file terrama2/collector/ParserPostgis.hpp
+  \file terrama2/collector/ParserTiff.hpp
 
-  \brief Parsers postgres/postgis data and create a terralib DataSet.
+  \brief Parsers Tiff image files and create a terralib DataSet.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+#ifndef __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
 
-#include "Parser.hpp"
+#include "ParserGDAL.hpp"
 
 namespace terrama2
 {
@@ -38,15 +38,12 @@ namespace terrama2
   {
 
     /*!
-       \brief Parser for Postgres/PostGis data sources.
+       \brief Parser for TIFF images.
      */
-    class ParserPostgis : public Parser
+    class ParserTiff : public ParserGDAL
     {
-      /**
-            \brief \copybrief Parser::read()
-            */
-      virtual void read(DataFilterPtr filter,
-                        std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+    protected:
+        bool verifyFileName(const std::string& name) override;
 
     };
   }
@@ -54,4 +51,4 @@ namespace terrama2
 
 
 
-#endif //__TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+#endif //__TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
