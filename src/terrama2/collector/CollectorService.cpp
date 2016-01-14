@@ -226,24 +226,23 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
         try
         {
-          std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
-          terrama2::collector::Log collectLog(transactor);
+//          std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
+//          terrama2::collector::Log collectLog(transactor);
 
-          std::vector<TransferenceData> transferenceDataVec;
 
-          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
+          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime;// = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
           DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 
-          std::vector< std::string > log_uris;
+          std::vector<TransferenceData> transferenceDataVec;
           //TODO: conditions to collect Data?
           if(retriever->isRetrivable())//retrieve remote data to local temp file.
           {
             retriever->retrieveData(dataSetItem, filter, transferenceDataVec);
 
             //Log: data downloaded
-            if(!transferenceDataVec.empty())
-              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
+//            if(!transferenceDataVec.empty())
+//              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
 
           }
           else// if data don't need to be retrieved (ex. local, wms, wmf)

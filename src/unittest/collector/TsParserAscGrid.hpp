@@ -20,38 +20,36 @@
 */
 
 /*!
-  \file terrama2/collector/ParserPostgis.hpp
+  \file terrama2/collector/TsParserAscGrid.hpp
 
-  \brief Parsers postgres/postgis data and create a terralib DataSet.
+  \brief Tests for the ParserAscGrid class.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSERASCGRID_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSERASCGRID_HPP__
 
-#include "Parser.hpp"
+//Qt
+#include <QtTest>
 
-namespace terrama2
+class TsParserAscGrid: public QObject
 {
-  namespace collector
-  {
+  Q_OBJECT
 
-    /*!
-       \brief Parser for Postgres/PostGis data sources.
-     */
-    class ParserPostgis : public Parser
-    {
-      /**
-            \brief \copybrief Parser::read()
-            */
-      virtual void read(DataFilterPtr filter,
-                        std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+  private slots:
 
-    };
-  }
-}
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
+    //******Test functions********
 
-#endif //__TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+    void TestOpenFile();
+
+    //******End of Test functions****
+};
+
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSERASCGRID_HPP__

@@ -20,38 +20,17 @@
 */
 
 /*!
-  \file terrama2/collector/ParserPostgis.hpp
+  \file terrama2/collector/ParserAscGrid.hpp
 
-  \brief Parsers postgres/postgis data and create a terralib DataSet.
+  \brief Parsers Asc-Grid files and create a terralib DataSet.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
+#include "ParserAscGrid.hpp"
 
-#include "Parser.hpp"
-
-namespace terrama2
+bool terrama2::collector::ParserAscGrid::verifyFileName(const std::string& name)
 {
-  namespace collector
-  {
-
-    /*!
-       \brief Parser for Postgres/PostGis data sources.
-     */
-    class ParserPostgis : public Parser
-    {
-      /**
-            \brief \copybrief Parser::read()
-            */
-      virtual void read(DataFilterPtr filter,
-                        std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
-
-    };
-  }
+  std::string extension = ".gis";
+  return std::equal(extension.rbegin(), extension.rend(), name.rbegin());
 }
-
-
-
-#endif //__TERRAMA2_COLLECTOR_PARSERPOSTGIS_HPP__
