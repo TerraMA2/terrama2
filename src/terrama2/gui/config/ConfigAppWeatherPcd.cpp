@@ -177,7 +177,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::save()
     dataset.setCollectRules(rules);
   }
 
-  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
+  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(dataset, *app_->getConfiguration());
 
   datasetItem->setStorageMetadata(storageMetadata);
 
