@@ -224,6 +224,59 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
 }
 
 
+void terrama2::collector::Log::updateLog(const std::vector<TransferenceData>& transferenceDataVec, const Status s) const
+{
+  if(transferenceDataVec.empty())
+    throw LogException() << ErrorDescription("terrama2::collector::Log: No files to update.");
+
+  try
+  {
+    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=%5% WHERE origin_uri=%1%");
+
+    for( auto& transferenceData : transferenceDataVec)
+    {
+      boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=now() WHERE origin_uri=%1%");
+
+      query.bind_arg(1, transferenceData.uri_origin);
+      query.bind_arg(2, (int)s);
+
+      if(transferenceData.date_data)
+        query.bind_arg(3, "NULL");
+      else
+        query.bind_arg(3, "'" + transferenceData.date_data->getTimeInstantTZ().to_string() + "'");
+
+      query.bind_arg(4, transferenceData.uri_storage);
+
+      if(transferenceData.date_collect)
+        query.bind_arg(5, "NULL");
+      else
+        query.bind_arg(5, "'" + transferenceData.date_collect->getTimeInstantTZ().to_string() + "'");
+
+      transactor_->execute(query.str());
+    }
+
+    transactor_->commit();
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(te::common::Exception& e)
+  {
+    throw LogException() << ErrorDescription( e.what());;
+  }
+  catch(std::exception& e)
+  {
+    throw LogException() << ErrorDescription( e.what());
+  }
+  catch(...)
+  {
+    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+  }
+}
+
+
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::collector::Log::getDataSetItemLastDateTime(uint64_t id) const
 {
   boost::format query("select MAX(data_timestamp) from terrama2.data_collection_log where dataset_item_id=%1%");

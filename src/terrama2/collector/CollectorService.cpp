@@ -285,7 +285,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           assert(storager);
           storager->store(transferenceDataVec);
 
-//          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
+          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
         }
         catch(terrama2::Exception& e)
         {

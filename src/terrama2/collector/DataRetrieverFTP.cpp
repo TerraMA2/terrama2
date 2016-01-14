@@ -49,6 +49,7 @@
 
 // QT
 #include <QObject>
+#include <QUrl>
 
 terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider)
   : DataRetriever(dataprovider),
@@ -97,7 +98,7 @@ bool terrama2::collector::DataRetrieverFTP::isOpen()
 // performs the configurations of curl_easy_setop
     status = curl_easy_perform(curl.fcurl());
 
-    if (status != CURLE_OK)   
+    if (status != CURLE_OK)
       return false;
 
   }
@@ -205,8 +206,14 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
           else
           {
             TransferenceData tmp;
+            tmp.datasetItem = datasetitem;
             tmp.uri_origin = uri_origin;
-            tmp.uri_temporary = uriInput + file;
+
+            QUrl uri;
+            uri.setScheme("file");
+            uri.setPath(QString::fromStdString(temporaryFolder_ + file));
+            tmp.uri_temporary = uri.url().toStdString();
+
             transferenceDataVec.push_back(tmp);
           }
         }

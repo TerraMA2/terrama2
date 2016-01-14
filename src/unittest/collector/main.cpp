@@ -11,8 +11,6 @@
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
 
-#include "TsTeste.hpp"
-
 #include "Utils.hpp"
 
 #include <QApplication>
