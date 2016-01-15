@@ -32,6 +32,7 @@
 #include "ConfigManager.hpp"
 #include "../Exception.hpp"
 #include "../../core/Utils.hpp"
+#include "../../core/Logger.hpp"
 #include "../../core/ApplicationController.hpp"
 
 // Qt
@@ -69,11 +70,14 @@ void terrama2::gui::core::ConfigManager::loadConfiguration(QString filepath)
   catch (const terrama2::Exception& e)
   {
     const QString* msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_ERROR() << *msg;
     QMessageBox::critical(app_, "TerraMA2", *msg);
   }
   catch (const std::exception& e)
   {
-    QMessageBox::information(app_, "TerraMA2", e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    QMessageBox::information(app_, "TerraMA2", message);
   }
 }
 
