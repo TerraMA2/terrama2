@@ -41,7 +41,8 @@
 
 void terrama2::gui::config::saveDataSet(terrama2::core::DataSet& dataset, terrama2::core::DataSetItem& datasetItem, const uint64_t provider, ConfigApp* app, const QString& selectedName, const QString& inputValue, const QString& iconName)
 {
-  if (dataset.id() >= 1)
+  // if dataset id is greater than 0, its update operation. Otherwise, insert operation
+  if (dataset.id() > 0)
   {
     datasetItem.setDataSet(dataset.id());
     app->getClient()->updateDataSet(dataset);
@@ -53,6 +54,7 @@ void terrama2::gui::config::saveDataSet(terrama2::core::DataSet& dataset, terram
   }
   else
   {
+    dataset.add(datasetItem);
     dataset.setProvider(provider);
     app->getClient()->addDataSet(dataset);
 

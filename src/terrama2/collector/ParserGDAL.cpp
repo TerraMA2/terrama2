@@ -54,7 +54,7 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
   {
     for(auto& transferenceData : transferenceDataVec)
     {
-      QUrl uri(transferenceData.uri_temporary.c_str());
+      QUrl uri(transferenceData.uri_temporary.empty() ? transferenceData.uri_origin.c_str() : transferenceData.uri_temporary.c_str());
 
       QFileInfo fileInfo(uri.path());
       if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
@@ -86,9 +86,8 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
       // get a transactor to interact to the data source
       std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
       transferenceData.teDataset = std::shared_ptr<te::da::DataSet>(transactor->getDataSet(fileInfo.fileName().toStdString()));
+      transferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(fileInfo.fileName().toStdString()));
     }
-
-    return;
   }
   catch(te::common::Exception& e)
   {
@@ -96,7 +95,7 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
     qDebug() << e.what();
     throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Terralib exception: ") +e.what());
   }
-  catch(terrama2::collector::Exception& e)
+  catch(terrama2::collector::Exception& /*e*/)
   {
     throw;
   }

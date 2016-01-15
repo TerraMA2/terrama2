@@ -147,7 +147,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::save()
 
   terrama2::core::DataSetItem* datasetItem;
   if (dataset.dataSetItems().size() > 0)
-    datasetItem = &dataset.dataSetItems()[0];
+    datasetItem = &dataset.dataSetItems()[dataset.dataSetItems().size() - 1];
   else
     datasetItem = new terrama2::core::DataSetItem;
 
@@ -181,6 +181,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::save()
 
   datasetItem->setStorageMetadata(storageMetadata);
 
+  // Lets save dataset, adding item in dataset
   terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointFormatDataName->text(), "pcd");
 }
 

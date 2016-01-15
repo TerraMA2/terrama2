@@ -72,7 +72,7 @@ std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(cons
   if (dataset.kind() == terrama2::core::DataSet::GRID_TYPE)
   {
     storageMetadata["PATH"] = configuration.getCollection()->dirPath_.toStdString();
-    storageMetadata["KIND"] = "FILE";
+    storageMetadata["KIND"] = "TIFF";
   }
   else // postgis
   {
