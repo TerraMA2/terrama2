@@ -49,13 +49,11 @@
 
 // QT
 #include <QObject>
-#include <QUrl>
 
 terrama2::collector::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider)
-  : DataRetriever(dataprovider),
-    temp("terrama2_XXXXXX")
+  : DataRetriever(dataprovider)
 {
-  temporaryFolder_ = temp.path().toStdString();
+  temporaryFolder_ = "/tmp/";
   scheme_ = "file://";
 }
 
@@ -98,7 +96,7 @@ bool terrama2::collector::DataRetrieverFTP::isOpen()
 // performs the configurations of curl_easy_setop
     status = curl_easy_perform(curl.fcurl());
 
-    if (status != CURLE_OK)
+    if (status != CURLE_OK)   
       return false;
 
   }
@@ -188,7 +186,8 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
         if (curlDown.fcurl())
         {
           uri_origin = dataprovider_.uri() + datasetitem.path() + file;
-          FileOpener opener((temporaryFolder_+file).c_str(),"wb");
+          std::string filePath = temporaryFolder_+file;
+          FileOpener opener(filePath.c_str(),"wb");
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uri_origin.c_str());
 // Get data to be written in file
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
@@ -208,12 +207,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
             TransferenceData tmp;
             tmp.datasetItem = datasetitem;
             tmp.uri_origin = uri_origin;
-
-            QUrl uri;
-            uri.setScheme("file");
-            uri.setPath(QString::fromStdString(temporaryFolder_ + file));
-            tmp.uri_temporary = uri.url().toStdString();
-
+            tmp.uri_temporary = "file://"+filePath;
             transferenceDataVec.push_back(tmp);
           }
         }

@@ -229,13 +229,12 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
           terrama2::collector::Log collectLog(transactor);
 
-          std::vector<TransferenceData> transferenceDataVec;
 
-          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
+          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime;// = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
           DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 
-          std::vector< std::string > log_uris;
+          std::vector<TransferenceData> transferenceDataVec;
           //TODO: conditions to collect Data?
           if(retriever->isRetrivable())//retrieve remote data to local temp file.
           {
@@ -270,6 +269,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           parser->read(filter, transferenceDataVec);
 
           //no new dataset found
+          // VINICIUS: log the files that hasn't data NODATA
           if(transferenceDataVec.empty())
             continue;
 
