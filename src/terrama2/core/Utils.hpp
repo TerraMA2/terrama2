@@ -174,7 +174,7 @@ namespace terrama2
     void finalizeTerralib();
 
     /*! \brief Initializes terrama2 logger module. */
-    void initializeLogger();
+    void initializeLogger(const std::string& pathFile);
 
 
   } // end namespace core
