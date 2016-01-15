@@ -231,26 +231,24 @@ void terrama2::collector::Log::updateLog(const std::vector<TransferenceData>& tr
 
   try
   {
-    boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=%5% WHERE origin_uri=%1%");
-
     for( auto& transferenceData : transferenceDataVec)
     {
-      boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=now() WHERE origin_uri=%1%");
+      boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=%5% WHERE origin_uri='%1%'");
 
       query.bind_arg(1, transferenceData.uri_origin);
       query.bind_arg(2, (int)s);
 
-      if(transferenceData.date_data)
+      if(!transferenceData.date_data)
         query.bind_arg(3, "NULL");
       else
-        query.bind_arg(3, "'" + transferenceData.date_data->getTimeInstantTZ().to_string() + "'");
+        query.bind_arg(3, "'" + transferenceData.date_data->toString() + "'");
 
       query.bind_arg(4, transferenceData.uri_storage);
 
-      if(transferenceData.date_collect)
+      if(!transferenceData.date_collect)
         query.bind_arg(5, "NULL");
       else
-        query.bind_arg(5, "'" + transferenceData.date_collect->getTimeInstantTZ().to_string() + "'");
+        query.bind_arg(5, "'" + transferenceData.date_collect->toString() + "'");
 
       transactor_->execute(query.str());
     }
