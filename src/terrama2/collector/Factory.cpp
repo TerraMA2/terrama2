@@ -27,22 +27,26 @@
   \author Jano Simas
 */
 
-//TODO: review, should it be kept here?
-#include "../core/ApplicationController.hpp"
-
-#include "../core/DataManager.hpp"
 #include "../core/DataSetItem.hpp"
 
+#include "Exception.hpp"
+#include "Factory.hpp"
+
 #include "StoragerPostgis.hpp"
+#include "StoragerTiff.hpp"
+
 #include "ParserFirePoint.hpp"
 #include "ParserPcdInpe.hpp"
 #include "ParserPcdToa5.hpp"
-#include "DataRetriever.hpp"
-#include "DataRetrieverFTP.hpp"
 #include "ParserPostgis.hpp"
 #include "ParserOGR.hpp"
-#include "Exception.hpp"
-#include "Factory.hpp"
+#include "ParserTiff.hpp"
+//TODO: not in use here yet
+#include "ParserGDAL.hpp"
+#include "ParserAscGrid.hpp"
+
+#include "DataRetriever.hpp"
+#include "DataRetrieverFTP.hpp"
 
 //std
 #include <memory>
@@ -74,9 +78,13 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const te
       ParserPtr newParser = std::make_shared<ParserFirePoint>();
       return newParser;
     }
+    case core::DataSetItem::GRID_TYPE:
+    {
+      ParserPtr newParser = std::make_shared<ParserTiff>();
+      return newParser;
+    }
     default:
       throw ConflictingParserTypeSchemeException() << terrama2::ErrorDescription(QObject::tr("The DataSetItem (%1) type is not compatible with FILE scheme.").arg(datasetItem.id()));
-      break;
   }
 
   //FIXME: define new type of dataset to postgis data!!!
@@ -97,10 +105,14 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
   std::string storagerKind = localFind->second;
 
   //to lower case
-  std::transform(storagerKind.begin(), storagerKind.end(), storagerKind.begin(), ::tolower);
-  if(storagerKind == "postgis")
+  std::transform(storagerKind.begin(), storagerKind.end(), storagerKind.begin(), ::toupper);
+  if(storagerKind == "POSTGIS")
   {
     return std::make_shared<StoragerPostgis>(storageMetadata);
+  }
+  else if(storagerKind == "TIFF")
+  {
+    return std::make_shared<StoragerTiff>(storageMetadata);
   }
 
   throw UnableToCreateStoragerException() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
@@ -111,7 +123,6 @@ terrama2::collector::DataRetrieverPtr terrama2::collector::Factory::makeRetrieve
   switch (dataProvider.kind()) {
     case terrama2::core::DataProvider::FTP_TYPE:
       return std::make_shared<DataRetrieverFTP>(dataProvider);
-      break;
     default:
       break;
   }

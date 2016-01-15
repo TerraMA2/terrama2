@@ -248,7 +248,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           else// if data don't need to be retrieved (ex. local, wms, wmf)
           {
             TransferenceData tmp;
-            tmp.uri_origin = dataProvider.uri();
+            tmp.uri_origin = dataProvider.uri() + "/" + dataSetItem.mask();
             transferenceDataVec.push_back(tmp);
           }
 

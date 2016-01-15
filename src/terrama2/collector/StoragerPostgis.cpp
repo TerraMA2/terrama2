@@ -103,6 +103,8 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
     std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
     datasourceDestination->setConnectionInfo(storageMetadata_);
     OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
+    if(!datasourceDestination->isOpened())
+      return; //TODO: throw exception...
 
     std::string dataSetName;
     std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("STORAGE_NAME");
