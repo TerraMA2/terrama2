@@ -39,6 +39,9 @@
 #include "DataSetDAO.hpp"
 #include "Exception.hpp"
 
+// TerraMA2 Logger
+#include "Logger.hpp"
+
 // STL
 #include <algorithm>
 #include <mutex>
@@ -151,18 +154,23 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
       pimpl_->providers[provider.id()] = provider;
     }
-    catch(const terrama2::Exception&)
+    catch(const terrama2::Exception& e)
     {
+      if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+        TERRAMA2_LOG_ERROR() << message->toStdString();
       throw;
     }
     catch(const std::exception& e)
     {
-      throw DataAccessException() << ErrorDescription(e.what());
+      const char* message = e.what();
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
     catch(...)
     {
+      QString message = QObject::tr("Unexpected error adding a data provider and registering it.");
       throw DataAccessException() <<
-            ErrorDescription(QObject::tr("Unexpected error adding a data provider and registering it."));
+            ErrorDescription(message);
     }
   }
 
@@ -219,17 +227,23 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
       it->second.add(dataset);
       pimpl_->datasets[dataset.id()] = dataset;
     }
-    catch(const terrama2::Exception&)
+    catch(const terrama2::Exception& e)
     {
+      if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+        TERRAMA2_LOG_ERROR() << message->toStdString();
       throw;
     }
     catch(const std::exception& e)
     {
-      throw DataAccessException() << ErrorDescription(e.what());
+      const char* message = e.what();
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
     catch(...)
     {
-      throw DataAccessException() << ErrorDescription(QObject::tr("Unexpected error adding a dataset and registering it."));
+      QString message = QObject::tr("Unexpected error adding a dataset and registering it.");
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
   }
 
@@ -325,17 +339,23 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
 
       pimpl_->providers[provider.id()] = provider;
     }
-    catch(const terrama2::Exception&)
+    catch(const terrama2::Exception& e)
     {
+      if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+        TERRAMA2_LOG_ERROR() << message->toStdString();
       throw;
     }
     catch(const std::exception& e)
     {
-      throw DataAccessException() << ErrorDescription(e.what());
+      const char* message = e.what();
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
     catch(...)
     {
-      throw DataAccessException() << ErrorDescription(QObject::tr("Unexpected error updating a data provider."));
+      QString message = QObject::tr("Unexpected error updating a data provider.");
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
   }
 
@@ -402,17 +422,23 @@ void terrama2::core::DataManager::update(DataSet& dataset, const bool shallowSav
 
 
     }
-    catch(const terrama2::Exception&)
+    catch(const terrama2::Exception& e)
     {
+      if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+        TERRAMA2_LOG_ERROR() << message->toStdString();
       throw;
     }
     catch(const std::exception& e)
     {
-      throw DataAccessException() << ErrorDescription(e.what());
+      const char* message = e.what();
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
     catch(...)
     {
-      throw DataAccessException() << ErrorDescription(QObject::tr("Unexpected error updating a dataset."));
+      QString message = QObject::tr("Unexpected error updating a dataset.");
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
   }
 
@@ -467,17 +493,23 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
               ErrorDescription(QObject::tr("Can not remove a nonexistent data provider."));
 
     }
-    catch(const terrama2::Exception&)
+    catch(const terrama2::Exception& e)
     {
+      if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+        TERRAMA2_LOG_ERROR() << message->toStdString();
       throw;
     }
     catch(const std::exception& e)
     {
+      const char* message = e.what();
+      TERRAMA2_LOG_ERROR() << message;
       throw DataAccessException() << ErrorDescription(e.what());
     }
     catch(...)
     {
-      throw DataAccessException() << ErrorDescription(QObject::tr("Unexpected error removing a data provider."));
+      QString message = QObject::tr("Unexpected error removing a data provider.");
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
   }
 
@@ -538,17 +570,23 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
         }
       }
     }
-    catch(const terrama2::Exception&)
+    catch(const terrama2::Exception& e)
     {
+      if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+        TERRAMA2_LOG_ERROR() << message->toStdString();
       throw;
     }
     catch(const std::exception& e)
     {
-      throw DataAccessException() << ErrorDescription(e.what());
+      const char* message = e.what();
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
     catch(...)
     {
-      throw DataAccessException() << ErrorDescription(QObject::tr("Unexpected error removing a data provider."));
+      QString message = QObject::tr("Unexpected error removing a data provider.");
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
   }
 
