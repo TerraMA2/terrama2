@@ -33,6 +33,7 @@
 #include "ParserPcdInpe.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "../core/Logger.hpp"
 
 // QT
 #include <QDir>
@@ -89,15 +90,15 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
   }
   catch(std::exception& e)
   {
-    //TODO: Log this
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(boost::exception& e)
   {
-    //TODO: Log this
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(...)
   {
-    //TODO: Log this
+    TERRAMA2_LOG_ERROR() << "Unknown error at terrama2::collector::ParserPcdInpe::StringToTimestamp";
   }
 
   return nullptr;

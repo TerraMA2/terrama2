@@ -30,6 +30,7 @@
 #include "StoragerTiff.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
+#include "../core/Logger.hpp"
 
 #include "../core/DataManager.hpp"
 
@@ -145,15 +146,18 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
   {
     //TODO: log de erro
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(te::common::Exception& e)
   {
     //TODO: log de erro
     qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(std::exception& e)
   {
     //TODO: log de erro
     qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }

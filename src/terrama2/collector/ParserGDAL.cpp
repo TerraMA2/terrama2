@@ -31,6 +31,7 @@
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
+#include "../core/Logger.hpp"
 
 //Qt
 #include <QUrl>
@@ -93,6 +94,7 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
   {
     //TODO: log de erro
     qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
     throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Terralib exception: ") +e.what());
   }
   catch(terrama2::collector::Exception& /*e*/)
@@ -101,7 +103,9 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Std exception.")+e.what());
+    QString message = QObject::tr("ParserTiff::read - Std exception.")+e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw UnableToReadDataSetException() << ErrorDescription(message);
   }
 
   return;

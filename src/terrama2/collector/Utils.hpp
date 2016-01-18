@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_COLLECTOR_UTILS_HPP__
 #define __TERRAMA2_COLLECTOR_UTILS_HPP__
 
+// TerraMA2
+#include "../core/Logger.hpp"
+
 //STd
 #include <exception>
 
@@ -88,6 +91,7 @@ namespace terrama2
           try
           {
             //TODO: LOG here!!!
+            TERRAMA2_LOG_ERROR() << "boost::exception: Could not close object";
           }
           catch(...) { }
         }
@@ -96,6 +100,7 @@ namespace terrama2
           try
           {
             //TODO: LOG here!!!
+            TERRAMA2_LOG_ERROR() << "std::exception: Could not close object";
           }
           catch(...) { }
         }

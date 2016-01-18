@@ -33,6 +33,7 @@
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "../core/Logger.hpp"
 
 // STL
 #include <iostream>
@@ -304,6 +305,7 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
     catch(boost::exception& e)
     {
       //TODO: Log
+      TERRAMA2_LOG_ERROR() << "Could not parse filter name";
       return false;
     }
 
@@ -311,6 +313,7 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
   catch(std::exception& e)
   {
     //TODO: Log
+    TERRAMA2_LOG_ERROR() << "????";
     return false;
   }
 
