@@ -42,6 +42,7 @@
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/rp/Functions.h>
 
 //Qt
 #include <QDebug>
@@ -62,9 +63,6 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
 
   try
   {
-    //connection info
-    std::map<std::string, std::string> connInfo;
-
     //get filename
     std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("STORAGE_NAME");
     if(dataSetNameIt != storageMetadata_.end())
@@ -105,39 +103,14 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
 
         //TODO: Terrama default dir
         std::string terrama2DefaultDir = "/tmp/";
-        connInfo["URI"] = terrama2DefaultDir;
 
-        std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("GDAL"));
-        datasourceDestination->setConnectionInfo(connInfo);
-        OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
-        if(!datasourceDestination->isOpened())
-          continue;
+        std::string storageURI = terrama2DefaultDir + destinationDataSetName;
+        //TODO: verify if has raster?
+        //TODO: Verify if it's compatible?
+        std::unique_ptr<te::rst::Raster> raster(transferenceData.teDataset->getRaster("raster"));
+        te::rp::Copy2DiskRaster(*raster, storageURI);
 
-        std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
-        te::da::ScopedTransaction scopedTransaction(*transactorDestination);
-
-        std::map<std::string, std::string> options;
-        std::shared_ptr<te::da::DataSetType> newDataSetType;
-
-        newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(transferenceData.teDatasetType->clone()));
-
-        newDataSetType->setName(destinationDataSetName);
-        transactorDestination->createDataSet(newDataSetType.get(),options);
-
-        //Get original geometry to get srid
-        te::gm::GeometryProperty* geom = GetFirstGeomProperty(transferenceData.teDatasetType.get());
-        //configure if there is a geometry property
-        if(geom)
-        {
-          GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
-          GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
-        }
-
-        transactorDestination->add(newDataSetType->getName(), transferenceData.teDataset.get(), options);
-
-        scopedTransaction.commit();
-
-        transferenceData.uri_storage = connInfo.at("URI");
+        transferenceData.uri_storage = storageURI;
       }//for each dataset end
     }//else: no name set
   }

@@ -43,6 +43,8 @@ namespace terrama2
     class ParserGDAL : public Parser
     {
     public:
+
+      virtual ~ParserGDAL(){}
       /**
             \brief \copybrief Parser::read()
             */

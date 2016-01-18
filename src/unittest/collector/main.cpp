@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
   TsParserAscGrid tsParserAscGrid;
   returnVal += QTest::qExec(&tsParserAscGrid, argc, argv);
 
-
   //Storager
 
 //  TsUtils tsUtils;
