@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/core/DataProviderDAO.hpp
+  \file terrama2/core/dao/DataProviderDAO.hpp
 
-  \brief DataProvider DAO...
+  \brief Persistense layer to a DataProvider class.
 
   \author Paulo R. M. Oliveira
 */
@@ -30,8 +30,8 @@
 // TerraMA2
 #include "DataProviderDAO.hpp"
 #include "DataSetDAO.hpp"
-#include "Exception.hpp"
-#include "Utils.hpp"
+#include "../Exception.hpp"
+#include "../Utils.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -42,7 +42,7 @@
 //Boost
 #include <boost/format.hpp>
 
-void terrama2::core::DataProviderDAO::save(DataProvider& provider,
+void terrama2::core::dao::DataProviderDAO::save(DataProvider& provider,
                                            te::da::DataSourceTransactor& transactor,
                                            const bool shallow)
 {
@@ -51,13 +51,14 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
 
   try
   {
-    boost::format query("INSERT INTO terrama2.data_provider (name, description, kind, uri, active) VALUES('%1%', '%2%', %3%, '%4%', %5%)");
+    boost::format query("INSERT INTO terrama2.data_provider (name, description, kind, origin, uri, active) VALUES('%1%', '%2%', %3%, %4%,'%5%', %6%)");
 
     query.bind_arg(1, provider.name());
     query.bind_arg(2, provider.description());
     query.bind_arg(3, (int)provider.kind());
-    query.bind_arg(4, provider.uri());
-    query.bind_arg(5, ToString(ToBool(provider.status())));
+    query.bind_arg(4, (int)provider.origin());
+    query.bind_arg(5, provider.uri());
+    query.bind_arg(6, ToString(ToBool(provider.status())));
 
     transactor.execute(query.str());
 
@@ -78,7 +79,7 @@ void terrama2::core::DataProviderDAO::save(DataProvider& provider,
   }
 }
 
-void terrama2::core::DataProviderDAO::update(DataProvider& provider,
+void terrama2::core::dao::DataProviderDAO::update(DataProvider& provider,
                                              te::da::DataSourceTransactor& transactor,
                                              const bool shallow)
 {
@@ -87,14 +88,15 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
 
   try
   {
-    boost::format query("UPDATE terrama2.data_provider SET name = '%1%', description = '%2%', kind = %3%, uri = '%4%', active = %5% WHERE id = %6%");
+    boost::format query("UPDATE terrama2.data_provider SET name = '%1%', description = '%2%', kind = %3%, origin = %4%, uri = '%5%', active = %6% WHERE id = %7%");
 
     query.bind_arg(1, provider.name());
     query.bind_arg(2, provider.description());
     query.bind_arg(3, (int)provider.kind());
-    query.bind_arg(4, provider.uri());
-    query.bind_arg(5, ToString(ToBool(provider.status())));
-    query.bind_arg(6, provider.id());
+    query.bind_arg(4, (int)provider.origin());
+    query.bind_arg(5, provider.uri());
+    query.bind_arg(6, ToString(ToBool(provider.status())));
+    query.bind_arg(7, provider.id());
 
     transactor.execute(query.str());
 
@@ -113,7 +115,7 @@ void terrama2::core::DataProviderDAO::update(DataProvider& provider,
   }
 }
 
-std::vector<uint64_t> terrama2::core::DataProviderDAO::getDatasetsIds(const uint64_t providerId, te::da::DataSourceTransactor& transactor)
+std::vector<uint64_t> terrama2::core::dao::DataProviderDAO::getDatasetsIds(const uint64_t providerId, te::da::DataSourceTransactor& transactor)
 {
   std::string sql = "SELECT id FROM terrama2.dataset WHERE data_provider_id = " + std::to_string(providerId);
 
@@ -129,7 +131,7 @@ std::vector<uint64_t> terrama2::core::DataProviderDAO::getDatasetsIds(const uint
   return ids;
 }
 
-void terrama2::core::DataProviderDAO::remove(const uint64_t id, te::da::DataSourceTransactor& transactor)
+void terrama2::core::dao::DataProviderDAO::remove(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove a data provider with identifier: 0."));
@@ -157,7 +159,7 @@ void terrama2::core::DataProviderDAO::remove(const uint64_t id, te::da::DataSour
 
 
 terrama2::core::DataProvider
-terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load a data provider with identifier: 0."));
@@ -173,6 +175,7 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
     {
       DataProvider provider;
       provider.setKind(ToDataProviderKind(provider_result->getInt32("kind")));
+      provider.setOrigin(ToDataProviderOrigin(provider_result->getInt32("origin")));
       provider.setName(provider_result->getAsString("name"));
       provider.setId(provider_result->getInt32("id"));
       provider.setDescription(provider_result->getString("description"));
@@ -204,7 +207,7 @@ terrama2::core::DataProviderDAO::load(const uint64_t id, te::da::DataSourceTrans
 }
 
 std::vector<terrama2::core::DataProvider>
-terrama2::core::DataProviderDAO::loadAll(te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::DataProviderDAO::loadAll(te::da::DataSourceTransactor& transactor)
 {
   std::vector<DataProvider> providers;
 
@@ -217,6 +220,7 @@ terrama2::core::DataProviderDAO::loadAll(te::da::DataSourceTransactor& transacto
       DataProvider provider;
 
       provider.setKind(ToDataProviderKind(provider_result->getInt32("kind")));
+      provider.setOrigin(ToDataProviderOrigin(provider_result->getInt32("origin")));
       provider.setName(provider_result->getAsString("name"));
       provider.setId(provider_result->getInt32("id"));
       provider.setDescription(provider_result->getString("description"));

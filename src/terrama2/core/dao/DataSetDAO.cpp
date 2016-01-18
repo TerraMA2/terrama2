@@ -31,11 +31,12 @@
 
 //TerraMA2
 #include "DataSetDAO.hpp"
-#include "DataSetItem.hpp"
 #include "DataSetItemDAO.hpp"
 #include "IntersectionDAO.hpp"
-#include "Exception.hpp"
-#include "Utils.hpp"
+#include "../DataSetItem.hpp"
+#include "../Exception.hpp"
+#include "../Intersection.hpp"
+#include "../Utils.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -48,7 +49,7 @@
 #include <boost/format.hpp>
 
 void
-terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
+terrama2::core::dao::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
   if(dataset.id() != 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save a dataset with an identifier different than 0."));
@@ -81,27 +82,20 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 
     dataset.setId(transactor.getLastGeneratedId());
 
-
-    // Persist the collect rules and sets the generated id
-    for(auto& collectRule : dataset.collectRules())
-    {
-      saveCollectRule(collectRule, transactor);
-    }
-
     // Persist the metadata
     saveMetadata(dataset, transactor);
 
 
     if(dataset.kind() == DataSet::OCCURENCE_TYPE)
     {
-      IntersectionDAO::save(dataset.intersection(), transactor);
+      dao::IntersectionDAO::save(dataset.intersection(), transactor);
     }
 
     if(shallowSave)
       return;
 
     for(auto& item: dataset.dataSetItems())
-      DataSetItemDAO::save(item, transactor);
+      dao::DataSetItemDAO::save(item, transactor);
   }
   catch(const terrama2::Exception&)
   {
@@ -118,7 +112,7 @@ terrama2::core::DataSetDAO::save(DataSet& dataset, te::da::DataSourceTransactor&
 }
 
 void
-terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
+terrama2::core::dao::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransactor& transactor, const bool shallowSave)
 {
   if(dataset.id() == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
@@ -163,8 +157,6 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
       IntersectionDAO::update(dataset.intersection(), transactor);
     }
 
-    updateCollectRules(dataset, transactor);
-
     updateMetadata(dataset, transactor);
 
 
@@ -191,7 +183,7 @@ terrama2::core::DataSetDAO::update(DataSet& dataset, te::da::DataSourceTransacto
 }
 
 void
-terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a dataset with identifier: 0."));
@@ -208,7 +200,7 @@ terrama2::core::DataSetDAO::remove(uint64_t id, te::da::DataSourceTransactor& tr
 }
 
 terrama2::core::DataSet
-terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load a dataset with identifier: 0."));
@@ -243,7 +235,7 @@ terrama2::core::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor& tran
 }
 
 std::vector<terrama2::core::DataSet>
-terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTransactor& transactor)
 {
   std::vector<terrama2::core::DataSet> datasets;
 
@@ -272,170 +264,8 @@ terrama2::core::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSourceTrans
   return std::move(datasets);
 }
 
-void terrama2::core::DataSetDAO::loadCollectRules(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
-{
-  std::vector<terrama2::core::DataSet::CollectRule> collectRules;
 
-  std::string sql("SELECT id, script FROM terrama2.dataset_collect_rule WHERE dataset_id = " + std::to_string(dataSet.id()));
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
-
-  while(tempDataSet->moveNext())
-  {
-    terrama2::core::DataSet::CollectRule collectRule;
-    collectRule.id = tempDataSet->getInt32("id");
-    collectRule.script = tempDataSet->getString("script");
-    collectRule.datasetId = dataSet.id();
-
-    collectRules.push_back(collectRule);
-  }
-
-  dataSet.setCollectRules(collectRules);
-
-}
-
-void terrama2::core::DataSetDAO::saveCollectRule(DataSet::CollectRule& collectRule, te::da::DataSourceTransactor& transactor)
-{
-
-  if(collectRule.id != 0)
-    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save collect rule with a valid identifier."));
-
-  if(collectRule.datasetId == 0)
-    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save collect rules with dataset identifier equals 0."));
-
-  try
-  {
-    boost::format query("INSERT INTO terrama2.dataset_collect_rule "
-                                "(script, dataset_id)"
-                                "VALUES('%1%', %2%)");
-
-    query.bind_arg(1, collectRule.script);
-    query.bind_arg(2, collectRule.datasetId);
-
-    transactor.execute(query.str());
-
-    collectRule.id = (uint64_t)transactor.getLastGeneratedId();
-
-  }
-  catch(const terrama2::Exception&)
-  {
-    throw;
-  }
-  catch(const std::exception& e)
-  {
-    throw DataAccessException() << ErrorDescription(e.what());
-  }
-  catch(...)
-  {
-    QString err_msg(QObject::tr("Unexpected error saving the collect rule for the dataset: %1"));
-
-    err_msg = err_msg.arg(collectRule.datasetId);
-
-    throw DataAccessException() << ErrorDescription(err_msg);
-  }
-}
-
-
-void terrama2::core::DataSetDAO::updateCollectRules(terrama2::core::DataSet& dataset,
-                                                    te::da::DataSourceTransactor& transactor)
-{
-  std::string sql = "SELECT id FROM terrama2.dataset_collect_rule WHERE dataset_id = " + std::to_string(dataset.id());
-
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
-
-  std::vector<int32_t> ids;
-  if(tempDataSet->moveNext())
-  {
-    int32_t itemId = tempDataSet->getInt32(0);
-    ids.push_back(itemId);
-  }
-
-
-  for(auto& rule: dataset.collectRules())
-  {
-    // Id exists just need to call update
-    auto it = find (ids.begin(), ids.end(), rule.id);
-    if (it != ids.end())
-    {
-      updateCollectRule(rule, transactor);
-
-      // Remove from the list, so what is left in this vector are the items to remove
-      ids.erase(it);
-    }
-
-    // Id is 0 for new items
-    if(rule.id == 0)
-    {
-      saveCollectRule(rule, transactor);
-    }
-  }
-
-  for(auto itemId : ids)
-  {
-    removeCollectRule(itemId, transactor);
-  }
-}
-
-
-void terrama2::core::DataSetDAO::updateCollectRule(DataSet::CollectRule& collectRule, te::da::DataSourceTransactor& transactor)
-{
-  if(collectRule.id == 0)
-    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a collect rule with identifier: 0."));
-
-  if(collectRule.datasetId == 0)
-    throw InvalidArgumentException() << ErrorDescription(QObject::tr("The collect rule must be associated to a valid dataset in order to be updated."));
-
-  try
-  {
-    boost::format query("UPDATE terrama2.dataset_collect_rule SET "
-                                "script ='%1%' "
-                                "WHERE id = %2%");
-
-
-    query.bind_arg(1, collectRule.script);
-    query.bind_arg(2, collectRule.id);
-
-    transactor.execute(query.str());
-  }
-  catch(const std::exception& e)
-  {
-    throw DataAccessException() << ErrorDescription(e.what());
-  }
-  catch(...)
-  {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve the dataset list."));
-  }
-}
-
-void terrama2::core::DataSetDAO::removeCollectRule(uint64_t id, te::da::DataSourceTransactor& transactor)
-{
-  if(id == 0)
-    throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove the collect rules with identifier equals 0."));
-
-  try
-  {
-    boost::format query("DELETE FROM terrama2.dataset_collect_rule WHERE id = %1%");
-    query.bind_arg(1, id);
-    transactor.execute(query.str());
-  }
-  catch(const terrama2::Exception&)
-  {
-    throw;
-  }
-  catch(const std::exception& e)
-  {
-    throw DataAccessException() << ErrorDescription(e.what());
-  }
-  catch(...)
-  {
-    QString err_msg(QObject::tr("Unexpected error removing the collect rule with identifier: %1"));
-
-    err_msg = err_msg.arg(id);
-
-    throw DataAccessException() << ErrorDescription(err_msg);
-  }
-}
-
-void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
+void terrama2::core::dao::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSourceTransactor& transactor)
 {
   std::map<std::string, std::string> metadata;
 
@@ -451,7 +281,7 @@ void terrama2::core::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::DataSour
 
 }
 
-void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSourceTransactor& transactor)
+void terrama2::core::dao::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
   if(dataset.id() == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not save the metadata with dataset identifier equals 0."));
@@ -492,7 +322,7 @@ void terrama2::core::DataSetDAO::saveMetadata(DataSet& dataset, te::da::DataSour
   }
 }
 
-terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te::da::DataSet>& queryResult, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSet terrama2::core::dao::DataSetDAO::getDataSet(std::auto_ptr<te::da::DataSet>& queryResult, te::da::DataSourceTransactor& transactor)
 {
 
     std::string name = queryResult->getAsString("name");
@@ -530,9 +360,6 @@ terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te:
     te::dt::TimeDuration teTDScheduleTimeout(tdScheduleTimeout);
     dataset.setScheduleTimeout(teTDScheduleTimeout);
 
-    // Sets the collect rules
-    loadCollectRules(dataset, transactor);
-
     // Sets the metadata
     loadMetadata(dataset, transactor);
 
@@ -547,7 +374,7 @@ terrama2::core::DataSet terrama2::core::DataSetDAO::getDataSet(std::auto_ptr<te:
 
 }
 
-void terrama2::core::DataSetDAO::updateMetadata(terrama2::core::DataSet& dataset,
+void terrama2::core::dao::DataSetDAO::updateMetadata(terrama2::core::DataSet& dataset,
                                                 te::da::DataSourceTransactor& transactor)
 {
   removeMetadata(dataset.id(), transactor);
@@ -555,7 +382,7 @@ void terrama2::core::DataSetDAO::updateMetadata(terrama2::core::DataSet& dataset
 }
 
 
-void terrama2::core::DataSetDAO::removeMetadata(uint64_t id, te::da::DataSourceTransactor& transactor)
+void terrama2::core::dao::DataSetDAO::removeMetadata(uint64_t id, te::da::DataSourceTransactor& transactor)
 {
   if(id == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove the metadata with dataset identifier equals 0."));

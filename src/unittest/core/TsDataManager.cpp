@@ -117,17 +117,6 @@ DataSet TsDataManager::createDataSet()
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet.setDataFrequency(dataFrequency);
 
-  std::vector<DataSet::CollectRule> collectRules;
-  {
-    DataSet::CollectRule collectRule = { 0, "... LUA SCRIPT 1...", 0 };
-    collectRules.push_back(collectRule);
-  }
-  {
-    DataSet::CollectRule collectRule = {0, "... LUA SCRIPT 2...", 0 };
-    collectRules.push_back(collectRule);
-  }
-  dataSet.setCollectRules(collectRules);
-
   std::map<std::string, std::string> metadata;
   metadata["key"] = "value";
   metadata["key1"] = "value1";
@@ -165,12 +154,12 @@ DataSet TsDataManager::createDataSet()
 
   DataSetItem dataSetItem2(DataSetItem::FIRE_POINTS_TYPE, 0, dataSet.id());
 
-  std::map<std::string, std::string> storageMetadata;
-  storageMetadata["key"] = "value";
-  storageMetadata["key1"] = "value1";
-  storageMetadata["key2"] = "value2";
+  std::map<std::string, std::string> itemMetadata;
+  itemMetadata["key"] = "value";
+  itemMetadata["key1"] = "value1";
+  itemMetadata["key2"] = "value2";
 
-  dataSetItem2.setStorageMetadata(storageMetadata);
+  dataSetItem2.setMetadata(itemMetadata);
 
   dataSet.add(dataSetItem2);
 
@@ -677,16 +666,6 @@ void TsDataManager::testFindDataSet()
     QCOMPARE(foundDataSet.dataFrequency(), dataSet.dataFrequency());
     QCOMPARE(foundDataSet.status(), dataSet.status());
 
-
-
-    QCOMPARE(foundDataSet.collectRules().size(), dataSet.collectRules().size());
-    auto dsCollectRules = dataSet.collectRules();
-    auto foundCollectRules = foundDataSet.collectRules();
-    for(unsigned int i = 0; i < dsCollectRules.size(); ++i)
-    {
-      QCOMPARE(dsCollectRules[i].script, foundCollectRules[i].script);
-    }
-
     QCOMPARE(foundDataSet.dataSetItems().size(), dataSet.dataSetItems().size());
   }
   catch(boost::exception& e)
@@ -716,16 +695,6 @@ void TsDataManager::testFindDataSetByName()
     QCOMPARE(foundDataSet.kind(), dataSet.kind());
     QCOMPARE(foundDataSet.name(), dataSet.name());
     QCOMPARE(foundDataSet.dataFrequency(), dataSet.dataFrequency());
-
-
-
-    QCOMPARE(foundDataSet.collectRules().size(), dataSet.collectRules().size());
-    auto dsCollectRules = dataSet.collectRules();
-    auto foundCollectRules = foundDataSet.collectRules();
-    for(unsigned int i = 0; i < dsCollectRules.size(); ++i)
-    {
-      QCOMPARE(dsCollectRules[i].script, foundCollectRules[i].script);
-    }
 
     QCOMPARE(foundDataSet.dataSetItems().size(), dataSet.dataSetItems().size());
   }
@@ -766,11 +735,6 @@ void TsDataManager::testUpdateDataSet()
     dataSet.setDescription("Description...");
     dataSet.setName("New queimadas");
 
-    // Change the collect rule script
-    std::vector<DataSet::CollectRule>  collectRules = dataSet.collectRules();
-    collectRules[0].script = "... LUA SCRIPT UPDATE 1...";
-    dataSet.setCollectRules(collectRules);
-
     // Remove the dataset item PCD_INPE
 
     auto& dataSetItems = dataSet.dataSetItems();
@@ -803,8 +767,6 @@ void TsDataManager::testUpdateDataSet()
     QVERIFY2(dataSet.scheduleRetry() == foundDataSet.scheduleRetry(), "Schedule retry must be the same!");
     QVERIFY2(dataSet.dataFrequency() == foundDataSet.dataFrequency(), "Data frequency must be the same!");
 
-    QVERIFY2(collectRules[0].script == foundDataSet.collectRules()[0].script, "Collect rule script must be the same!");
-
     std::map<std::string, std::string> metadata = dataSet.metadata();
     std::map<std::string, std::string> metadataFound = foundDataSet.metadata();
 
@@ -825,10 +787,10 @@ void TsDataManager::testUpdateDataSet()
     QVERIFY2(dsItem1.kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItems[1] must be of the type PCD-TOA5!");
     QVERIFY2(dsItem1.srid() == 0, "dataSetItems[1] srid must be 0!");
 
-    std::map<std::string, std::string> storageMetadata =  dsItem0.storageMetadata();
-    QVERIFY2("value" == storageMetadata["key"], "Metadata key/value must be the same!");
-    QVERIFY2("value1" == storageMetadata["key1"], "Metadata key1/value1 must be the same!");
-    QVERIFY2("value2" == storageMetadata["key2"], "Metadata key2/value2 must be the same!");
+    std::map<std::string, std::string> itemMetadata =  dsItem0.metadata();
+    QVERIFY2("value" == itemMetadata["key"], "Metadata key/value must be the same!");
+    QVERIFY2("value1" == itemMetadata["key1"], "Metadata key1/value1 must be the same!");
+    QVERIFY2("value2" == itemMetadata["key2"], "Metadata key2/value2 must be the same!");
   }
   catch(boost::exception& e)
   {

@@ -96,6 +96,15 @@ namespace terrama2
     DataProvider::Kind ToDataProviderKind(uint64_t kind);
 
     /*!
+      \brief Returns a enum with the origin of the server based on the given parameter.
+
+      \param origin Determine the origin of the provider.
+
+      \return Enum with the origin of the data provider.
+     */
+    DataProvider::Origin ToDataProviderOrigin(uint64_t origin);
+
+    /*!
       \brief Function to convert a boolean to string format.
 
       \param b Boolean to converted.

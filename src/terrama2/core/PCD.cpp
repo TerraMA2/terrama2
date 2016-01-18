@@ -20,39 +20,29 @@
 */
 
 /*!
-  \file terrama2/core/core.hpp
+  \file terrama2/core/PCD.cpp
 
-  \brief This file contains include headers for the TerraMA2 core module.
+  \brief Model for the PCD information.
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_CORE_CORE_HPP__
-#define __TERRAMA2_CORE_CORE_HPP__
-
-// TerraMA2
-#include "ApplicationController.hpp"
-#include "DataManager.hpp"
-#include "DataProvider.hpp"
-#include "DataSet.hpp"
-#include "DataSetItem.hpp"
-#include "Exception.hpp"
-#include "Filter.hpp"
-#include "Intersection.hpp"
-#include "Logger.hpp"
 #include "PCD.hpp"
-#include "PCDAttribute.hpp"
-#include "PCDDataSet.hpp"
-#include "Utils.hpp"
-#include "Version.hpp"
 
+// TerraLib
+#include <terralib/geometry/Geometry.h>
 
-namespace terrama2
+terrama2::core::PCD::PCD(Kind kind, uint64_t id, uint64_t datasetId)
+: DataSetItem(kind, id, datasetId)
 {
-  /*! \brief Namespace for the TerraMA2 core module, it contains the base classes for the TerraMA2. */
-  namespace core
-  {
-  } // end namespace core
-}   // end namespace terrama2
+}
 
-#endif  // __TERRAMA2_CORE_CORE_HPP__
+te::gm::Geometry* terrama2::core::PCD::location() const
+{
+  return location_.get();
+}
+
+void terrama2::core::PCD::setLocation(std::unique_ptr<te::gm::Geometry> location)
+{
+  location_ = std::move(location);
+}

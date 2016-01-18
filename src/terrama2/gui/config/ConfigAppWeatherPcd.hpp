@@ -33,6 +33,7 @@
 
 // TerraMA2
 #include "ConfigAppTab.hpp"
+#include "../../core/DataSet.hpp"
 
 // QT
 #include <QList>
@@ -106,12 +107,6 @@ namespace terrama2
           */
           void tableClean();
 
-          /*!
-            \brief Sets the projection
-            \param srid A Spatial Reference System Identifier to be filled up.
-          */
-          void setSrid(const uint64_t srid);
-
         private:
           /*!
             \brief Common function that displays PCD form to insert/modify elements at QTableWidget
@@ -129,9 +124,6 @@ namespace terrama2
 
           //! Slot triggered when the collector rule form is requested and it displays GUI form
           void onCollectorRuleClicked();
-
-          //! Slot triggered when the projection button has been clicked and it displays the DataSet Projection GUI
-          void onProjectionClicked();
 
           /*!
             \brief It populates the msak field with menu mask values, like "%d %a"
@@ -164,9 +156,7 @@ namespace terrama2
           void onPcdWfsClicked();
 
         private:
-          QList<terrama2::gui::config::PCD> pcds_; //!< PCDs table list
-          QString luaScript_; //!< It storages lua script from CollectorRuleDialog
-          uint64_t srid_; //! Data projection
+          terrama2::core::DataSet dataSet_;
       };
     }
   }

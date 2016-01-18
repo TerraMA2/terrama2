@@ -31,28 +31,22 @@
 #define __TERRAMA2_CORE_CORE_HPP__
 
 // TerraMA2
-#include "ApplicationController.hpp"
-#include "DataManager.hpp"
-#include "DataProvider.hpp"
-#include "DataSet.hpp"
-#include "DataSetItem.hpp"
-#include "Exception.hpp"
-#include "Filter.hpp"
-#include "Intersection.hpp"
-#include "Logger.hpp"
-#include "PCD.hpp"
-#include "PCDAttribute.hpp"
-#include "PCDDataSet.hpp"
-#include "Utils.hpp"
-#include "Version.hpp"
+#include "DataProviderDAO.hpp"
+#include "DataSetDAO.hpp"
+#include "DataSetItemDAO.hpp"
+#include "FilterDAO.hpp"
+#include "IntersectionDAO.hpp"
 
 
 namespace terrama2
 {
-  /*! \brief Namespace for the TerraMA2 core module, it contains the base classes for the TerraMA2. */
   namespace core
   {
-  } // end namespace core
-}   // end namespace terrama2
+    /*! \brief Namespace for the TerraMA2 core persistence layers. */
+    namespace dao
+    {
+    } // end namespace dao
+  }   // end namespace core
+}     // end namespace terrama2
 
 #endif  // __TERRAMA2_CORE_CORE_HPP__

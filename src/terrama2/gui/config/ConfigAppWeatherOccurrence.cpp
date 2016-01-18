@@ -126,6 +126,10 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
   else
     datasetItem = new terrama2::core::DataSetItem;
 
+  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
+
+  datasetItem->setMetadata(itemMetadata);
+
   datasetItem->setSrid(srid_);
 
   terrama2::core::DataSetItem::Kind kind;

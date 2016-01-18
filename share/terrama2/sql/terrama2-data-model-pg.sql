@@ -30,15 +30,26 @@ COMMENT ON COLUMN terrama2.data_provider_type.id IS 'Type identifier';
 COMMENT ON COLUMN terrama2.data_provider_type.name IS 'Name that identifies the data server type';
 COMMENT ON COLUMN terrama2.data_provider_type.description IS 'Description of the data server type';
 
+COMMENT ON COLUMN terrama2.data_provider_type.description IS 'Description of the data server origin';
+
 INSERT INTO terrama2.data_provider_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('FTP', 'File Transfer Protocol'), ('HTTP', 'Hyper Text Transfer Protocol'), ('FILE', 'Local File System'), ('WFS', 'OGC Web Feature Service'), ('WCS', 'OGC Web Coverage Service'), ('SOS', 'OGC Sensor Observation Service'), ('POSTGIS', 'PostgreSQL/POSTGIS database');
 
-CREATE TABLE terrama2.data_provider ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(60) NOT NULL UNIQUE, description TEXT, kind INTEGER NOT NULL, uri  TEXT, active BOOLEAN NOT NULL, CONSTRAINT fk_data_provider_kind FOREIGN KEY(kind) REFERENCES terrama2.data_provider_type(id) ON UPDATE CASCADE ON DELETE RESTRICT);
+CREATE TABLE terrama2.data_provider_origin ( id SERIAL PRIMARY KEY, name VARCHAR(50) UNIQUE, description TEXT);
+
+COMMENT ON TABLE terrama2.data_provider_type IS 'Stores the data provider origin';
+COMMENT ON COLUMN terrama2.data_provider_type.id IS 'Type identifier';
+COMMENT ON COLUMN terrama2.data_provider_type.name IS 'Name that identifies the data server origin';
+
+INSERT INTO terrama2.data_provider_origin (name, description) VALUES ('COLLECTOR', 'Data provider that is used in the collector'), ('ANALYSIS', 'Data provider that is used in the analysis');
+
+CREATE TABLE terrama2.data_provider ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(60) NOT NULL UNIQUE, description TEXT, kind INTEGER NOT NULL, origin INTEGER NOT NULL, uri  TEXT, active BOOLEAN NOT NULL, CONSTRAINT fk_data_provider_kind FOREIGN KEY(kind) REFERENCES terrama2.data_provider_type(id) ON UPDATE CASCADE ON DELETE RESTRICT, CONSTRAINT fk_data_provider_origin FOREIGN KEY(origin) REFERENCES terrama2.data_provider_origin(id) ON UPDATE CASCADE ON DELETE RESTRICT);
 
 COMMENT ON TABLE terrama2.data_provider IS 'Store information about TerraMA2 data providers (remote servers, ftp servers, web services)';
 COMMENT ON COLUMN terrama2.data_provider.id IS 'Data Provider identifier';
 COMMENT ON COLUMN terrama2.data_provider.name IS 'A name used to refer to the data server';
 COMMENT ON COLUMN terrama2.data_provider.description IS 'A brief description about the data server';
 COMMENT ON COLUMN terrama2.data_provider.kind IS 'The identifier of data server type';
+COMMENT ON COLUMN terrama2.data_provider.origin IS 'The identifier of data server origin';
 COMMENT ON COLUMN terrama2.data_provider.uri IS 'An URI describing how to access the data provider';
 COMMENT ON COLUMN terrama2.data_provider.active IS 'A true value indicates that the server is active and must be checked periodically';
 
@@ -49,7 +60,7 @@ COMMENT ON COLUMN terrama2.dataset_type.id IS 'Type identifier';
 COMMENT ON COLUMN terrama2.dataset_type.name IS 'Name that identifies the dataset type';
 COMMENT ON COLUMN terrama2.dataset_type.description IS 'Brief description about the dataset type';
 
-INSERT INTO terrama2.dataset_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset');
+INSERT INTO terrama2.dataset_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset'), ('Additional Map', 'Identifies a dataset used as an additional map for the analysis'), ('Monitored Object', 'Identifies a dataset used an monitored object for the analysis');
 
 CREATE TABLE terrama2.dataset ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(20) NOT NULL UNIQUE, description  TEXT, active BOOLEAN, data_provider_id INTEGER NOT NULL, kind INTEGER NOT NULL, data_frequency INTEGER, schedule TIME, schedule_retry INTEGER, schedule_timeout INTEGER, CONSTRAINT fk_dataset_data_provider_id FOREIGN KEY(data_provider_id) REFERENCES terrama2.data_provider(id) ON UPDATE CASCADE ON DELETE CASCADE);
 
@@ -103,13 +114,13 @@ COMMENT ON COLUMN terrama2.dataset_item.mask IS 'Mask to be used in the collecti
 COMMENT ON COLUMN terrama2.dataset_item.timezone IS 'Which timezone the data is produced';
 COMMENT ON COLUMN terrama2.dataset_item.srid IS 'Data projection';
 
-CREATE TABLE terrama2.storage_metadata( id SERIAL PRIMARY KEY, key VARCHAR(50), value VARCHAR(50), dataset_item_id INTEGER, CONSTRAINT fk_dataset_metadata_dataset_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item(id) ON UPDATE CASCADE ON DELETE CASCADE);
+CREATE TABLE terrama2.dataset_item_metadata( id SERIAL PRIMARY KEY, key VARCHAR(50), value VARCHAR(50), dataset_item_id INTEGER, CONSTRAINT fk_dataset_item_metadata_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item(id) ON UPDATE CASCADE ON DELETE CASCADE);
 
-COMMENT ON TABLE terrama2.storage_metadata IS 'Stores metadata of the storage strategy';
-COMMENT ON COLUMN terrama2.storage_metadata.id IS 'Metadata identifier';
-COMMENT ON COLUMN terrama2.storage_metadata.key IS 'Metadata key';
-COMMENT ON COLUMN terrama2.storage_metadata.value IS 'Metadata value';
-COMMENT ON COLUMN terrama2.storage_metadata.dataset_item_id IS 'Dataset item identifier';
+COMMENT ON TABLE terrama2.dataset_item_metadata IS 'Stores metadata of the dataset item';
+COMMENT ON COLUMN terrama2.dataset_item_metadata.id IS 'Metadata identifier';
+COMMENT ON COLUMN terrama2.dataset_item_metadata.key IS 'Metadata key';
+COMMENT ON COLUMN terrama2.dataset_item_metadata.value IS 'Metadata value';
+COMMENT ON COLUMN terrama2.dataset_item_metadata.dataset_item_id IS 'Dataset item identifier';
 
 CREATE TABLE terrama2.filter_expression_type(id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(50) NOT NULL UNIQUE, description TEXT);
 

@@ -20,39 +20,61 @@
 */
 
 /*!
-  \file terrama2/core/core.hpp
+  \file terrama2/core/PCD.hpp
 
-  \brief This file contains include headers for the TerraMA2 core module.
+  \brief Model for the PCD information.
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_CORE_CORE_HPP__
-#define __TERRAMA2_CORE_CORE_HPP__
+#ifndef __TERRAMA2_CORE_PCD_HPP__
+#define __TERRAMA2_CORE_PCD_HPP__
+
+// Forward declaration
+namespace te
+{
+  namespace gm
+  {
+    class Geometry;
+  }
+}
 
 // TerraMA2
-#include "ApplicationController.hpp"
-#include "DataManager.hpp"
-#include "DataProvider.hpp"
-#include "DataSet.hpp"
 #include "DataSetItem.hpp"
-#include "Exception.hpp"
-#include "Filter.hpp"
-#include "Intersection.hpp"
-#include "Logger.hpp"
-#include "PCD.hpp"
-#include "PCDAttribute.hpp"
-#include "PCDDataSet.hpp"
-#include "Utils.hpp"
-#include "Version.hpp"
 
+// STL
+#include <memory>
+#include <inttypes.h>
 
 namespace terrama2
 {
-  /*! \brief Namespace for the TerraMA2 core module, it contains the base classes for the TerraMA2. */
   namespace core
   {
-  } // end namespace core
-}   // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_CORE_HPP__
+    /*!
+      \class PCD
+
+      \brief Model for the PCD information.
+
+     */
+    class PCD : public terrama2::core::DataSetItem
+    {
+      public:
+
+        /*! \brief Constructor. */
+        PCD(Kind kind = UNKNOWN_TYPE, uint64_t id = 0, uint64_t datasetId = 0);
+
+        /*! \brief Returns the location of the PCD. */
+        te::gm::Geometry* location() const;
+
+        /*! \brief Sets the location of the PCD. */
+        void setLocation(std::unique_ptr<te::gm::Geometry> location);
+
+      private:
+        std::unique_ptr<te::gm::Geometry> location_; //!< Location of the PCD.
+
+    };
+  }
+}
+
+#endif  // __TERRAMA2_CORE_PCD_HPP__

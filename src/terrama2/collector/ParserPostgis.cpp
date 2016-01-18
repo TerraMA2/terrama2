@@ -52,7 +52,7 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
     for(auto& tranferenceData : transferenceDataVec)
     {
       QUrl url(tranferenceData.uri_origin.c_str());
-      std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+      std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
                                                           {"PG_HOST", url.host().toStdString()},
                                                           {"PG_PORT", std::to_string(url.port())},
                                                           {"PG_USER", url.userName().toStdString()},
@@ -64,7 +64,7 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
 
 
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS"));
-      datasource->setConnectionInfo(storageMetadata);
+      datasource->setConnectionInfo(metadata);
 
       //RAII for open/closing the datasource
       OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);

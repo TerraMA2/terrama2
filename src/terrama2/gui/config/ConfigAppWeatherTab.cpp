@@ -34,7 +34,6 @@
 #include "../core/Utils.hpp"
 #include "../../core/Utils.hpp"
 #include "../../core/DataManager.hpp"
-#include "../../core/DataProviderDAO.hpp"
 #include "../../core/Logger.hpp"
 
 // TerraMA2 SubTabs

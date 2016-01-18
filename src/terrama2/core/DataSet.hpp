@@ -74,7 +74,9 @@ namespace terrama2
           UNKNOWN_TYPE = 1, //!< Unkown type
           PCD_TYPE = 2, //!< Data series from fixed location sensors.
           OCCURENCE_TYPE = 3, //!< Events that happens at a given place and time.
-          GRID_TYPE = 4 //!< For sattelite images or grid data.
+          GRID_TYPE = 4, //!< For sattelite images or grid data.
+          ADDITIONAL_MAP, //!< Identifies a dataset used as an additional map for the analysis.
+          MONITORED_OBJECT //!< Identifies a dataset used as an monitored object for the analysis.
         };
 
         //! Dataset status.
@@ -82,14 +84,6 @@ namespace terrama2
         {
           ACTIVE, //!< Data will be collected.
           INACTIVE //!< Data wont't be collected.
-        };
-
-        //! Struct to store the collect rules.
-        struct CollectRule
-        {
-          uint64_t id; //!< Identifier
-          std::string script; //!< Script used to filter data.
-          uint64_t datasetId; //!< DataSet identifier
         };
 
         /*!
@@ -214,20 +208,6 @@ namespace terrama2
         void setMetadata(const std::map<std::string, std::string>& m);
 
         /*!
-           \brief Returns the collect rules.
-
-           \return The collect rules.
-         */
-        std::vector<CollectRule>& collectRules();
-
-        /*!
-           \brief Sets the collect rules.
-
-           \param rules The collect rules.
-         */
-        void setCollectRules(const std::vector<CollectRule>& rules);
-
-        /*!
            \brief Returns the list of DataSetItems.
 
            \return The list of DataSetItem.
@@ -266,8 +246,7 @@ namespace terrama2
         te::dt::TimeDuration dataFrequency_; //!< The time frequency that this DataSet must try to acquire a new data.
         te::dt::TimeDuration schedule_; //!< The time scheduled to the next collection.
         te::dt::TimeDuration scheduleRetry_; //!< The time frequency to retry a collection if the data wasn't available in the scheduled time.
-        te::dt::TimeDuration scheduleTimeout_; //!< The time limit to retry a scheduled collection.
-        std::vector<CollectRule> collectRules_; //!< The collect rules.
+        te::dt::TimeDuration scheduleTimeout_; //!< The time limit to retry a scheduled collection.s
         std::map<std::string, std::string> metadata_; //!< Dataset Metadata.
         std::vector<DataSetItem> datasetItems_; //!< List of DataSetItem.
         Intersection intersection_; //!< Intersection information.

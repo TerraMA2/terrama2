@@ -45,7 +45,7 @@ namespace terrama2
     {
     public:
       //! Constructor. Stores metadata for later use.
-      StoragerPostgis(const std::map<std::string, std::string>& storageMetadata);
+      StoragerPostgis(const std::map<std::string, std::string>& metadata);
 
       //Documented in parent class
       virtual void store(std::vector<TransferenceData>& transferenceDataVec) override;

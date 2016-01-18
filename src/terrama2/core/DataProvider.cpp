@@ -91,6 +91,17 @@ void terrama2::core::DataProvider::setKind(Kind k)
   kind_ = k;
 }
 
+terrama2::core::DataProvider::Origin
+terrama2::core::DataProvider::origin() const
+{
+  return origin_;
+}
+
+void terrama2::core::DataProvider::setOrigin(Origin origin)
+{
+  origin_ = origin;
+}
+
 const std::string&
 terrama2::core::DataProvider::uri() const
 {
