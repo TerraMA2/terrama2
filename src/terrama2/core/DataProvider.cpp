@@ -37,6 +37,7 @@ terrama2::core::DataProvider::DataProvider(const std::string& name, Kind k, cons
   : id_(id),
     name_(name),
     kind_(k),
+    origin_(COLLECTOR),
     status_(INACTIVE)
 {
 }

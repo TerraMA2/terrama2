@@ -30,6 +30,7 @@
 // TerraMA2
 #include "ui_PcdDialogForm.h"
 #include "PcdDialog.hpp"
+#include "../../core/DataSetItem.hpp"
 
 // Terralib
 #include <terralib/qt/widgets/srs/SRSManagerDialog.h>
@@ -37,10 +38,11 @@
 // QT
 #include <QDoubleValidator>
 
+
 struct terrama2::gui::config::PcdDialog::Impl
 {
   Impl()
-    : srid_(0),
+    :
       ui_(new Ui::PcdDialogForm)
   {
   }
@@ -50,7 +52,7 @@ struct terrama2::gui::config::PcdDialog::Impl
     delete ui_;
   }
 
-  uint64_t srid_;
+  terrama2::core::DataSetItem pcdItem_;
   Ui::PcdDialogForm* ui_;
 };
 
@@ -85,26 +87,23 @@ terrama2::gui::config::PcdDialog::~PcdDialog()
   delete pimpl_;
 }
 
-void terrama2::gui::config::PcdDialog::fill(const PCD& pcd)
+void terrama2::gui::config::PcdDialog::fill(const terrama2::core::DataSetItem& pcdItem)
 {
-  pimpl_->ui_->ledColPointFileName->setText(pcd.file);
-  pimpl_->ui_->ledColPointLatitude->setText(pcd.latitude);
-  pimpl_->ui_->ledColPointLongitude->setText(pcd.longitude);
-  pimpl_->ui_->activeCheckBox->setChecked(pcd.active);
-  pimpl_->srid_ = pcd.srid;
-  pimpl_->ui_->timeZoneCmb->setCurrentText(pcd.timezone);
-  pimpl_->ui_->projectionTxt->setText(std::to_string(pcd.srid).c_str());
+  pimpl_->pcdItem_ = pcdItem;
+
+  auto metadata = pcdItem.metadata();
+
+  pimpl_->ui_->ledColPointFileName->setText(pcdItem.mask().c_str());
+  pimpl_->ui_->ledColPointLatitude->setText(metadata["LATITUDE"].c_str());
+  pimpl_->ui_->ledColPointLongitude->setText(metadata["LONGITUDE"].c_str());
+  pimpl_->ui_->activeCheckBox->setChecked(pcdItem.status() == terrama2::core::DataSetItem::ACTIVE);
+  pimpl_->ui_->projectionTxt->setText(std::to_string(pcdItem.srid()).c_str());
+  pimpl_->ui_->timeZoneCmb->setCurrentText(pcdItem.timezone().c_str());
 }
 
-void terrama2::gui::config::PcdDialog::fillObject(PCD &pcd)
+terrama2::core::DataSetItem terrama2::gui::config::PcdDialog::getDataSetItem() const
 {
-  pcd.file = pimpl_->ui_->ledColPointFileName->text();
-  pcd.latitude = pimpl_->ui_->ledColPointLatitude->text();
-  pcd.longitude = pimpl_->ui_->ledColPointLongitude->text();
-  pcd.active = pimpl_->ui_->activeCheckBox->isChecked();
-  pcd.srid = pimpl_->srid_;
-  pcd.timezone = pimpl_->ui_->timeZoneCmb->currentText();
-
+  return pimpl_->pcdItem_;
 }
 
 void terrama2::gui::config::PcdDialog::onPcdChanged()
@@ -120,6 +119,16 @@ void terrama2::gui::config::PcdDialog::onConfirmClicked()
     return;
   }
 
+  auto metadata = pimpl_->pcdItem_.metadata();
+  pimpl_->pcdItem_.setMask(pimpl_->ui_->ledColPointFileName->text().toStdString());
+  metadata["LATITUDE"] = pimpl_->ui_->ledColPointLatitude->text().toStdString();
+  metadata["LONGITUDE"] = pimpl_->ui_->ledColPointLongitude->text().toStdString();
+  pimpl_->pcdItem_.setMetadata(metadata);
+
+  pimpl_->pcdItem_.setStatus(pimpl_->ui_->activeCheckBox->isChecked() == true ? terrama2::core::DataSetItem::ACTIVE : terrama2::core::DataSetItem::INACTIVE);
+  pimpl_->pcdItem_.setSrid(pimpl_->ui_->projectionTxt->text().toInt());
+  pimpl_->pcdItem_.setTimezone(pimpl_->ui_->timeZoneCmb->currentText().toStdString());
+
   accept();
 }
 
@@ -132,8 +141,8 @@ void terrama2::gui::config::PcdDialog::onProjectionClicked()
     return;
 
 
-  pimpl_->srid_ = (uint64_t) srsDialog.getSelectedSRS().first;
-  pimpl_->ui_->projectionTxt->setText(std::to_string(pimpl_->srid_).c_str());
+  pimpl_->pcdItem_.setSrid((uint64_t) srsDialog.getSelectedSRS().first);
+  pimpl_->ui_->projectionTxt->setText(std::to_string((uint64_t) srsDialog.getSelectedSRS().first).c_str());
 
   onPcdChanged();
 }

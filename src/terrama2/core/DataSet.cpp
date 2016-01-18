@@ -210,3 +210,15 @@ terrama2::core::Intersection terrama2::core::DataSet::intersection() const
 {
   return intersection_;
 }
+
+void terrama2::core::DataSet::update(DataSetItem& dataSetItem)
+{
+
+  for(unsigned int i = 0; i < datasetItems_.size(); i++)
+  {
+    if(datasetItems_[i].id() == dataSetItem.id())
+    {
+      datasetItems_[i] = dataSetItem;
+    }
+  }
+}

@@ -65,10 +65,9 @@ void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString&
   file.close();
 }
 
-std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(const terrama2::core::DataSet &dataset, const terrama2::gui::core::ConfigManager& configuration)
-{
 
-  std::map<std::string, std::string> metadata;
+std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(std::map<std::string, std::string> metadata, const QString uri, const terrama2::gui::core::ConfigManager& configuration)
+{
   QUrl url(uri);
 
   if (dataset.kind() == terrama2::core::DataSet::GRID_TYPE)

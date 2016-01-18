@@ -110,7 +110,7 @@ void terrama2::core::dao::DataSetItemDAO::updateDataSetItems(DataSet& dataset, t
   }
 
 
-  for(auto item: dataset.dataSetItems())
+  for(auto& item: dataset.dataSetItems())
   {
     // Id is 0 for new items
     if(item.id() == 0)

@@ -98,6 +98,7 @@ DataProvider TsDataManager::createDataProvider()
   auto dataProvider = DataProvider();
   dataProvider.setName("Server 1");
   dataProvider.setKind(DataProvider::FTP_TYPE);
+  dataProvider.setOrigin(DataProvider::COLLECTOR);
   dataProvider.setStatus(DataProvider::ACTIVE);
   dataProvider.setDescription("This server...");
   dataProvider.setUri("localhost@...");
@@ -738,10 +739,9 @@ void TsDataManager::testUpdateDataSet()
     // Remove the dataset item PCD_INPE
 
     auto& dataSetItems = dataSet.dataSetItems();
-    dataSet.removeDataSetItem(dataSetItems[0].id());
 
     // Updates the data from FIRE_POINTS_TYPE
-    auto& dsItem = dataSetItems[0];
+    auto& dsItem = dataSetItems[1];
     dsItem.setMask("Queimadas_*");
     dsItem.setPath("other_path");
 
@@ -776,21 +776,32 @@ void TsDataManager::testUpdateDataSet()
 
     // Expected result is to remove the data PCD_INPE, update the FIRE_POINTS  and insert PCD_TOA5.
 
-    QVERIFY2(foundDataSet.dataSetItems().size() == 2, "dataSetItems must have 2 itens!");
+    QVERIFY2(dataSet.dataSetItems().size() == 3, "dataSetItems must have 2 itens!");
 
-    auto dsItem0 = foundDataSet.dataSetItems()[0];
-    auto dsItem1 = foundDataSet.dataSetItems()[1];
+    auto dsItem0 = dataSet.dataSetItems()[0];
+    auto dsItem1 = dataSet.dataSetItems()[1];
+    auto dsItem2 = dataSet.dataSetItems()[2];
 
-    QVERIFY2(dsItem0.kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItems[0] must be of the type FIRE_POINTS!");
-    QVERIFY2(dsItem0.mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
-    QVERIFY2(dsItem0.path() == "other_path", "Path should be 'other_path'!");
-    QVERIFY2(dsItem1.kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItems[1] must be of the type PCD-TOA5!");
-    QVERIFY2(dsItem1.srid() == 0, "dataSetItems[1] srid must be 0!");
+    QVERIFY2(dsItem0.id() > 0, "dataSetItems[0] Id must be valid");
+    QVERIFY2(dsItem1.id() > 0, "dataSetItems[1] Id must be valid");
+    QVERIFY2(dsItem2.id() > 0, "dataSetItems[2] Id must be valid");
 
-    std::map<std::string, std::string> itemMetadata =  dsItem0.metadata();
+    std::map<std::string, std::string> itemMetadata =  dsItem1.metadata();
     QVERIFY2("value" == itemMetadata["key"], "Metadata key/value must be the same!");
     QVERIFY2("value1" == itemMetadata["key1"], "Metadata key1/value1 must be the same!");
     QVERIFY2("value2" == itemMetadata["key2"], "Metadata key2/value2 must be the same!");
+
+    foundDataSet.removeDataSetItem(dsItem0.id());
+    foundDataSet.removeDataSetItem(dsItem1.id());
+    foundDataSet.removeDataSetItem(dsItem2.id());
+
+    DataManager::getInstance().update(foundDataSet);
+
+    foundDataSet = DataManager::getInstance().findDataSet(dataSet.id());
+
+    QVERIFY2(foundDataSet.dataSetItems().size() == 0, "dataSetItems must be empty!");
+
+
   }
   catch(boost::exception& e)
   {

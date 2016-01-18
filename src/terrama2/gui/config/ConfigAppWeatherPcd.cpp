@@ -68,14 +68,18 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
   connect(ui_->pointFormatDataInfluenceCmb, SIGNAL(currentIndexChanged(int)), SLOT(onInfluenceChanged(const int&)));
   connect(ui_->btnPCDWFSConfiguration, SIGNAL(clicked(bool)), SLOT(onPcdWfsClicked()));
+  connect(ui_->pointFormatDataInfluenceCmb, SIGNAL(activated(int)), SLOT(onInfluenceTypeSelected(int)));
 
-  ui_->pointFormatDataInfluenceCmb->setCurrentIndex(2);
 
   // export pcd button
   connect(ui_->exportDataPointBtn, SIGNAL(clicked()), SLOT(onPCDExportClicked()));
 
   // todo: implement it to list pcd attributes after collection
   ui_->updateDataPointBtn->setEnabled(false);
+
+  ui_->pointFormatInfluenceDatasetCmb->setEnabled(true);
+  ui_->pointFormatDataAttributeCmb->setEnabled(true);
+
   ui_->pointFormatDataPrefix->setEnabled(false);
   ui_->pointFormatDataUnit->setEnabled(false);
 
@@ -113,6 +117,36 @@ void terrama2::gui::config::ConfigAppWeatherPcd::load(const terrama2::core::Data
   dataSet_ = dataset;
 
   tableClean();
+
+  ui_->pointFormatDataName->setText(dataset.name().c_str());
+  ui_->pointFormatDataHour->setText(QString::number(dataset.dataFrequency().getHours()));
+  ui_->pointFormatDataMinute->setText(QString::number(dataset.dataFrequency().getMinutes()));
+  ui_->pointFormatDataSecond->setText(QString::number(dataset.dataFrequency().getSeconds()));
+
+  std::map<std::string, std::string> datasetMetadata = dataSet_.metadata();
+
+  ui_->pointFormatDataInfluenceCmb->setCurrentText(datasetMetadata["INFLUENCE_TYPE"].c_str());
+
+  if(ui_->pointFormatDataInfluenceCmb->currentIndex() == 2)
+  {
+    // Region influence type
+    ui_->pointFormatInfluenceStack->setCurrentIndex(1);
+    ui_->pointFormatInfluenceDatasetCmb->setEnabled(true);
+    ui_->pointFormatDataAttributeCmb->setEnabled(true);
+    ui_->pointFormatInfluenceDatasetCmb->setCurrentText(datasetMetadata["INFLUENCE_DATASET"].c_str());
+    ui_->pointFormatDataAttributeCmb->setCurrentText(datasetMetadata["INFLUENCE_ATTRIBUTE"].c_str());
+  }
+  else
+  {
+    // Radius influence type
+    ui_->pointFormatInfluenceStack->setCurrentIndex(0);
+    ui_->pointFormatDataRadius->setEnabled(true);
+    datasetMetadata["INFLUENCE_RADIUS"] = ui_->pointFormatDataRadius->text().toStdString();
+  }
+
+  ui_->pointFormatDataPrefix->setText(datasetMetadata["PREFIX"].c_str());
+  ui_->pointFormatDataUnit->setText(datasetMetadata["UNIT"].c_str());
+
 
   auto dsItems = dataset.dataSetItems();
 
@@ -171,42 +205,60 @@ bool terrama2::gui::config::ConfigAppWeatherPcd::validate()
 void terrama2::gui::config::ConfigAppWeatherPcd::save()
 {
   terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
-  terrama2::core::DataSet dataset = app_->getWeatherTab()->getDataSet(selectedData_.toStdString());
 
-  dataset.setName(ui_->pointFormatDataName->text().toStdString());
-  dataset.setDescription(ui_->pointFormatDataDescription->toPlainText().toStdString());
-  dataset.setKind(terrama2::core::DataSet::PCD_TYPE);
+  dataSet_.setName(ui_->pointFormatDataName->text().toStdString());
+  dataSet_.setDescription(ui_->pointFormatDataDescription->toPlainText().toStdString());
+  dataSet_.setKind(terrama2::core::DataSet::PCD_TYPE);
 
-  dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->pointFormatStatus->isChecked()));
+  dataSet_.setStatus(terrama2::core::ToDataSetStatus(ui_->pointFormatStatus->isChecked()));
 
   te::dt::TimeDuration dataFrequency(ui_->pointFormatDataHour->text().toInt(),
                                      ui_->pointFormatDataMinute->text().toInt(),
                                      ui_->pointFormatDataSecond->text().toInt());
 
-  dataset.setDataFrequency(dataFrequency);
+  dataSet_.setDataFrequency(dataFrequency);
 
-  std::map<std::string, std::string> datasetMetadata;
+  std::map<std::string, std::string> datasetMetadata = dataSet_.metadata();
+
+  datasetMetadata["INFLUENCE_TYPE"] = ui_->pointFormatDataInfluenceCmb->text().toStdString();
+
+  if(ui_->pointFormatDataInfluenceCmb->currentIndex() == 2)
+  {
+    datasetMetadata["INFLUENCE_DATASET"] = ui_->pointFormatInfluenceDatasetCmb->text().toStdString();
+    datasetMetadata["INFLUENCE_ATTRIBUTE"] = ui_->pointFormatDataAttributeCmb->text().toStdString();
+  }
+  else
+  {
+    datasetMetadata["INFLUENCE_RADIUS"] = ui_->pointFormatDataRadius->text().toStdString();
+  }
+
   datasetMetadata["PREFIX"] = ui_->pointFormatDataPrefix->text().toStdString();
   datasetMetadata["UNIT"] = ui_->pointFormatDataUnit->text().toStdString();
 
-  dataset.setMetadata(datasetMetadata);
+  dataSet_.setMetadata(datasetMetadata);
 
-  int rowCount = ui_->tblPointPCDFileNameLocation->rowCount();
-
-  for(int i = 0; i < rowCount; ++i)
+  if (dataSet_.id() > 0)
   {
-    terrama2::core::DataSetItem datasetItem = dataSet_.dataSetItems()[i];
+    app_->getClient()->updateDataSet(dataSet_);
+    app_->getWeatherTab()->updateCachedDataSet(dataSet_);
+    app_->getWeatherTab()->refreshList(ui_->weatherDataTree->currentItem(), selectedData_, ui_->pointFormatDataName->text());
+    selectedData_ = ui_->pointFormatDataName->text();
+    changed_ = false;
+    return;
+  }
+  else
+  {
+    dataSet_.setProvider(provider.id());
+    app_->getClient()->addDataSet(dataSet_);
 
-    auto metadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
-
-    datasetItem.setMetadata(metadata);
-
-    dataset.add(datasetItem);
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setIcon(0, QIcon::fromTheme("pcd"));
+    item->setText(0, ui_->pointFormatDataName->text());
+    ui_->weatherDataTree->currentItem()->addChild(item);
 
   }
-
-  // Lets save dataset, adding item in dataset
-  terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointFormatDataName->text(), "pcd");
+  app_->getWeatherTab()->addCachedDataSet(dataSet_);
+  changed_ = false;
 }
 
 void terrama2::gui::config::ConfigAppWeatherPcd::discardChanges(bool restore_data)
@@ -279,8 +331,12 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onMenuMaskClicked(QAction* acti
 
 void terrama2::gui::config::ConfigAppWeatherPcd::onPCDInsertFileClicked()
 {
-  terrama2::gui::config::PCD pcd {0, "", "", "", true, 0, ""};
-  pcdFormCreation(pcd);
+  terrama2::core::DataSetItem::Kind kind = terrama2::core::DataSetItem::PCD_INPE_TYPE;
+  if(ui_->pointFormatDataFormat->currentIndex() == 3)
+    kind = terrama2::core::DataSetItem::PCD_TOA5_TYPE;
+
+  terrama2::core::DataSetItem item(kind, 0, dataSet_.id());
+  pcdFormCreation(item);
 }
 
 void terrama2::gui::config::ConfigAppWeatherPcd::onPCDRemoveClicked()
@@ -288,21 +344,18 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onPCDRemoveClicked()
   int row = ui_->tblPointPCDFileNameLocation->currentRow();
   if (row != -1)
     ui_->tblPointPCDFileNameLocation->removeRow(row);
+
+  auto dsItem = dataSet_.dataSetItems()[row];
+  if(dsItem.id() != 0)
+    dataSet_.removeDataSetItem(dsItem.id());
 }
 
 void terrama2::gui::config::ConfigAppWeatherPcd::onPCDTableDoubleClicked(QTableWidgetItem* item)
 {
   if (item != nullptr)
   {
-    terrama2::gui::config::PCD pcd;
-    pcd.id = dataSet_.dataSetItems()[item->row()].id();
-    pcd.file = ui_->tblPointPCDFileNameLocation->item(item->row(), 0)->text();
-    pcd.latitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 1)->text();
-    pcd.longitude = ui_->tblPointPCDFileNameLocation->item(item->row(), 2)->text();
-    pcd.active = ui_->tblPointPCDFileNameLocation->item(item->row(), 3)->text() == tr("Yes") ? true : false;
-    pcd.srid = (uint64_t)ui_->tblPointPCDFileNameLocation->item(item->row(), 4)->text().toInt();
-    pcd.timezone = ui_->tblPointPCDFileNameLocation->item(item->row(), 5)->text();
-    pcdFormCreation(pcd, true);
+    terrama2::core::DataSetItem pcdItem = dataSet_.dataSetItems()[item->row()];
+    pcdFormCreation(pcdItem, true);
   }
 }
 
@@ -350,21 +403,6 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onPCDExportClicked()
   }
 }
 
-void terrama2::gui::config::ConfigAppWeatherPcd::onInfluenceChanged(const int &index)
-{
-  if (index < 2)
-  {
-    ui_->label_35->setVisible(false);
-    ui_->pointFormatDataThemeCmb->hide();
-    ui_->pointFormatInfluenceStack->setCurrentWidget(ui_->pointFormatInfluenceRadio);
-  }
-  else
-  {
-    ui_->label_35->setVisible(true);
-    ui_->pointFormatDataThemeCmb->show();
-    ui_->pointFormatInfluenceStack->setCurrentWidget(ui_->pointFormatInfluenceRegion);
-    }
-}
 
 void terrama2::gui::config::ConfigAppWeatherPcd::onPcdWfsClicked()
 {
@@ -375,53 +413,61 @@ void terrama2::gui::config::ConfigAppWeatherPcd::onPcdWfsClicked()
   }
 }
 
-void terrama2::gui::config::ConfigAppWeatherPcd::pcdFormCreation(terrama2::gui::config::PCD& pcd, bool editing)
+
+void terrama2::gui::config::ConfigAppWeatherPcd::pcdFormCreation(terrama2::core::DataSetItem item, bool editing)
 {
   PcdDialog dialog(app_);
-  dialog.fill(pcd);
+  dialog.fill(item);
   if (dialog.exec() == QDialog::Accepted)
   {
-    dialog.fillObject(pcd);
+    auto newItem = dialog.getDataSetItem();
+
+    int row = ui_->tblPointPCDFileNameLocation->rowCount();
 
     if (editing)
+      row = ui_->tblPointPCDFileNameLocation->currentRow();
+    else
+      ui_->tblPointPCDFileNameLocation->setRowCount(ui_->tblPointPCDFileNameLocation->rowCount() + 1);
+
+    auto metadata = newItem.metadata();
+
+    QTableWidgetItem* maskItem = new QTableWidgetItem(newItem.mask().c_str());
+    ui_->tblPointPCDFileNameLocation->setItem(row, 0, maskItem);
+
+    QTableWidgetItem* latItem = new QTableWidgetItem(metadata["LATITUDE"].c_str());
+    ui_->tblPointPCDFileNameLocation->setItem(row, 1, latItem);
+
+    QTableWidgetItem* longItem = new QTableWidgetItem(metadata["LONGITUDE"].c_str());
+    ui_->tblPointPCDFileNameLocation->setItem(row, 2, longItem);
+
+    QString status(tr("No"));
+    if(newItem.status() == terrama2::core::DataSetItem::ACTIVE)
+      status = tr("Yes");
+
+    QTableWidgetItem* statusItem = new QTableWidgetItem(status);
+    ui_->tblPointPCDFileNameLocation->setItem(row, 3, statusItem);
+
+    QTableWidgetItem* sridItem = new QTableWidgetItem(std::to_string(newItem.srid()).c_str());
+    ui_->tblPointPCDFileNameLocation->setItem(row, 4, sridItem);
+
+    QTableWidgetItem* timezoneItem = new QTableWidgetItem(newItem.timezone().c_str());
+    ui_->tblPointPCDFileNameLocation->setItem(row, 5, timezoneItem);
+
+    terrama2::core::DataProvider provider = app_->getWeatherTab()->getProvider(ui_->weatherDataTree->currentItem()->text(0).toStdString());
+    metadata = terrama2::gui::core::makeStorageMetadata(newItem.metadata(), provider.uri().c_str(), *app_->getConfiguration());
+    newItem.setMetadata(metadata);
+
+    if(editing)
     {
-      int currentLine = ui_->tblPointPCDFileNameLocation->currentRow();
-      ui_->tblPointPCDFileNameLocation->item(currentLine, 0)->setText(pcd.file);
-      ui_->tblPointPCDFileNameLocation->item(currentLine, 1)->setText(pcd.latitude);
-      ui_->tblPointPCDFileNameLocation->item(currentLine, 2)->setText(pcd.longitude);
-      ui_->tblPointPCDFileNameLocation->item(currentLine, 3)->setText(pcd.active ? tr("Yes") : tr("No"));
-      ui_->tblPointPCDFileNameLocation->item(currentLine, 4)->setText(std::to_string(pcd.srid).c_str());
-      ui_->tblPointPCDFileNameLocation->item(currentLine, 5)->setText(pcd.timezone);
+      dataSet_.update(newItem);
       return;
     }
-
-    int line = ui_->tblPointPCDFileNameLocation->rowCount();
-
-    QTableWidgetItem* item = new QTableWidgetItem(pcd.file);
-
-    ui_->tblPointPCDFileNameLocation->insertRow(line);
-    ui_->tblPointPCDFileNameLocation->setItem(line, 0, item);
-
-    item = new QTableWidgetItem();
-    item->setText(pcd.latitude);
-    ui_->tblPointPCDFileNameLocation->setItem(line, 1, item);
-
-    item = new QTableWidgetItem();
-    item->setText(pcd.longitude);
-    ui_->tblPointPCDFileNameLocation->setItem(line, 2, item);
-
-    item = new QTableWidgetItem();
-    item->setText(pcd.active ? tr("Yes") : tr("No"));
-    ui_->tblPointPCDFileNameLocation->setItem(line, 3, item);
-
-    item = new QTableWidgetItem();
-    item->setText(std::to_string(pcd.srid).c_str());
-    ui_->tblPointPCDFileNameLocation->setItem(line, 4, item);
-
-    item = new QTableWidgetItem();
-    item->setText(pcd.timezone);
-    ui_->tblPointPCDFileNameLocation->setItem(line, 5, item);
+    else
+    {
+      dataSet_.add(newItem);
+    }
   }
+
 }
 
 void terrama2::gui::config::ConfigAppWeatherPcd::tableClean()
@@ -429,4 +475,21 @@ void terrama2::gui::config::ConfigAppWeatherPcd::tableClean()
   // Clear the pcd table
   while(ui_->tblPointPCDFileNameLocation->rowCount() > 0)
     ui_->tblPointPCDFileNameLocation->removeRow(0);
+}
+
+void terrama2::gui::config::ConfigAppWeatherPcd::onInfluenceTypeSelected(int index)
+{
+  if(ui_->pointFormatDataInfluenceCmb->currentIndex() == 2)
+  {
+    // Region influence type
+    ui_->pointFormatInfluenceStack->setCurrentIndex(1);
+    ui_->pointFormatInfluenceDatasetCmb->setEnabled(true);
+    ui_->pointFormatDataAttributeCmb->setEnabled(true);
+  }
+  else
+  {
+    // Radius influence type
+    ui_->pointFormatInfluenceStack->setCurrentIndex(0);
+    ui_->pointFormatDataRadius->setEnabled(true);
+  }
 }

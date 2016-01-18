@@ -89,7 +89,7 @@ void terrama2::gui::config::ConfigAppWeatherServer::save()
   provider.setName(ui_->serverName->text().toStdString());
   provider.setDescription(ui_->serverDescription->toPlainText().toStdString());
   provider.setKind(terrama2::core::ToDataProviderKind(ui_->connectionProtocol->currentIndex()+2));
-  provider.setOrigin(terrama2::core::DataProvider::ANALYSIS);
+  provider.setOrigin(terrama2::core::DataProvider::COLLECTOR);
   provider.setUri(uri_.toStdString());
   provider.setStatus(terrama2::core::ToDataProviderStatus(ui_->serverActiveServer->isChecked()));
 

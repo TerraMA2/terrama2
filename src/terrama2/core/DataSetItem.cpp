@@ -147,7 +147,7 @@ void terrama2::core::DataSetItem::setPath(const std::string& path)
   path_ = path;
 }
 
-uint64_t terrama2::core::DataSetItem::srid()
+uint64_t terrama2::core::DataSetItem::srid() const
 {
   return srid_;
 }

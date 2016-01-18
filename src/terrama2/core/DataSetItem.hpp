@@ -145,7 +145,7 @@ namespace terrama2
         void setMetadata(const std::map<std::string, std::string>& metadata);
 
         /*! \brief Returns the spatial reference identifier. */
-        uint64_t srid();
+        uint64_t srid() const;
 
         /*! \brief Sets the spatial reference identifier. */
         void setSrid(const uint64_t srid);

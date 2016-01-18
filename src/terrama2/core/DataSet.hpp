@@ -227,6 +227,9 @@ namespace terrama2
         /*! \brief Removes the give DataSet item from the DataSet. */
         void removeDataSetItem(uint64_t id);
 
+        /*! \brief Updates the DataSetItem from the DataSet. */
+        void update(DataSetItem& dataSetItem);
+
         /*! \brief It returns the intersection information. */
         void setIntersection(const Intersection& intersection);
 
