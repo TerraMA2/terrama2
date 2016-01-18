@@ -59,7 +59,7 @@ namespace terrama2
 
      It contains the base classes to retrive and store data.
 
-     \note Be aware to initialize terrama2::core::Logger before to display status message in runtime.
+     \note Be aware to initialize terrama2::core::Logger before to display status message in runtime collector module.
  */
   namespace collector
   {
