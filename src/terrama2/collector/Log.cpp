@@ -87,22 +87,45 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
 
   try
   {
-    std::string query("INSERT INTO terrama2.data_collection_log (dataset_item_id, origin_uri, status) VALUES");
+    std::string query("INSERT INTO terrama2.data_collection_log (dataset_item_id, origin_uri, uri, data_timestamp, collect_timestamp, status) VALUES");
 
-    int size = transferenceDataVec.size();
+    bool first = true;
 
-    for(int i = 0; i < size; i++)
+    for( auto& transferenceData : transferenceDataVec)
     {
-      boost::format value("('%1%', '%2%', %3%)");
+      boost::format value("(%1%, %2%, %3%, %4%, %5%, %6%)");
 
-      value.bind_arg(1, transferenceDataVec.at(i).dataSetItem.id());
-      value.bind_arg(2, transferenceDataVec.at(i).uriOrigin);
-      value.bind_arg(3, (int)s);
+      value.bind_arg(1, transferenceData.dataSetItem.id());
+
+      if(transferenceData.uriOrigin.empty())
+        value.bind_arg(2, "NULL");
+      else
+        value.bind_arg(2, "'" + transferenceData.uriOrigin + "'");
+
+      if(transferenceData.uriStorage.empty())
+        value.bind_arg(3, "NULL");
+      else
+        value.bind_arg(3, "'" + transferenceData.uriStorage + "'");
+
+      if(!transferenceData.dateData)
+        value.bind_arg(4, "NULL");
+      else
+        value.bind_arg(4, "'" + transferenceData.dateData->toString() + "'");
+
+      if(!transferenceData.dateCollect)
+        value.bind_arg(5, "now()");
+      else
+        value.bind_arg(5, "'" + transferenceData.dateCollect->toString() + "'");
+
+      value.bind_arg(6, (int)s);
+
+      if(!first)
+      {
+        query += ",";
+      }
 
       query += value.str();
-
-      if(i != (size-1))
-        query += ",";
+      first = false;
     }
 
     transactor_->execute(query);
@@ -204,6 +227,57 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
     transactor_->execute(query.str());
 
     transactor_->commit();
+  }
+  catch(terrama2::Exception& e)
+  {
+    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+  catch(te::common::Exception& e)
+  {
+    throw LogException() << ErrorDescription( e.what());;
+  }
+  catch(std::exception& e)
+  {
+    throw LogException() << ErrorDescription( e.what());
+  }
+  catch(...)
+  {
+    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+  }
+}
+
+
+void terrama2::collector::Log::updateLog(const std::vector<TransferenceData>& transferenceDataVec, const Status s) const
+{
+  if(transferenceDataVec.empty())
+    throw LogException() << ErrorDescription("terrama2::collector::Log: No files to update.");
+
+  try
+  {
+    for( auto& transferenceData : transferenceDataVec)
+    {
+      boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=%5% WHERE origin_uri='%1%'");
+
+      query.bind_arg(1, transferenceData.uriOrigin);
+      query.bind_arg(2, (int)s);
+
+      if(!transferenceData.dateData)
+        query.bind_arg(3, "NULL");
+      else
+        query.bind_arg(3, "'" + transferenceData.dateData->toString() + "'");
+
+      query.bind_arg(4, transferenceData.uriStorage);
+
+      if(!transferenceData.dateCollect)
+        query.bind_arg(5, "NULL");
+      else
+        query.bind_arg(5, "'" + transferenceData.dateCollect->toString() + "'");
+
+      transactor_->execute(query.str());
+    }
+
+    transactor_->commit();
+
   }
   catch(terrama2::Exception& e)
   {

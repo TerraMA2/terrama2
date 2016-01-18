@@ -319,6 +319,8 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
 
 void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_time::local_date_time boostTime)
 {
+  std::string a = boostTime.to_string();
+
   if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ() < boostTime)
   {
     dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
@@ -328,27 +330,20 @@ void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_t
   }
 }
 
-bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
+bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, terrama2::collector::TransferenceData& transferenceData)
 {
   //discard out of valid range dates
   std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
   te::dt::DateTimeType type = dateTime->getDateTimeType();
+  std::shared_ptr<te::dt::TimeInstantTZ> date_data;
 
-  if(discardAfter_ || discardBefore_)
-  {
     switch (type) {
       case te::dt::TIME_INSTANT_TZ:
       {
-        std::unique_ptr<te::dt::TimeInstantTZ> timeInstantTz(dynamic_cast<te::dt::TimeInstantTZ*>(dateTime.release()));
+        std::shared_ptr<te::dt::TimeInstantTZ> timeInstantTz(dynamic_cast<te::dt::TimeInstantTZ*>(dateTime.release()));
         assert(timeInstantTz);
-        if(discardBefore_ && *discardBefore_ > *timeInstantTz)
-          return false;
-        if(discardAfter_ && *discardAfter_ < *timeInstantTz)
-          return false;
 
-        //Valid Date!!!
-        //update lastDateTime
-        updateLastDateTimeCollected(timeInstantTz->getTimeInstantTZ());
+        date_data = timeInstantTz;
 
         break;
       }
@@ -358,24 +353,12 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
 
         std::unique_ptr<te::dt::TimeInstant> timeInstant(dynamic_cast<te::dt::TimeInstant*>(dateTime.release()));
         assert(timeInstant);
-        if(discardBefore_)
-        {
-          if(discardBefore_->getTimeInstantTZ().date() > timeInstant->getDate().getDate()//check date
-             || (discardBefore_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardBefore_->getTimeInstantTZ().local_time() > timeInstant->getTimeInstant()))//if same date: check time
-            return false;
-        }
-        if(discardAfter_)
-        {
-          if(discardAfter_->getTimeInstantTZ().date() < timeInstant->getDate().getDate()//check date
-             || (discardAfter_->getTimeInstantTZ().date() == timeInstant->getDate().getDate() && discardAfter_->getTimeInstantTZ().local_time() < timeInstant->getTimeInstant()))//if same date: check time
-            return false;
-        }
 
-        //Valid Date!!!
-        //update lastDateTime
         boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
         boost::local_time::local_date_time boostTime(timeInstant->getDate().getDate(), timeInstant->getTime().getTimeDuration(), zone, true);
-        updateLastDateTimeCollected(boostTime);
+
+        te::dt::TimeInstantTZ dateTimeTZ(boostTime);
+        date_data = std::make_shared< te::dt::TimeInstantTZ > (dateTimeTZ);
 
         break;
       }
@@ -383,33 +366,29 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
       {
         std::unique_ptr<te::dt::Date> date(dynamic_cast<te::dt::Date*>(dateTime.release()));
         assert(date);
-        if(discardBefore_)
-        {
-          if(discardBefore_->getTimeInstantTZ().date() > date->getDate())
-            return false;
-        }
-        if(discardAfter_)
-        {
-          if(discardAfter_->getTimeInstantTZ().date() < date->getDate())
-            return false;
-        }
 
-        //Valid Date!!!
-        //update lastDateTime
-        if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ().date() < date->getDate())
-        {
-          boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
-          boost::local_time::local_date_time boostTime(date->getDate(), boost::posix_time::time_duration(0,0,0,0), zone, true);
+        boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone(datasetItem_.timezone()));
+        boost::local_time::local_date_time boostTime(date->getDate(), boost::posix_time::time_duration(0,0,0,0), zone, true);
 
-          updateLastDateTimeCollected(boostTime);
-        }
+        te::dt::TimeInstantTZ dateTimeTZ(boostTime);
+        date_data = std::make_shared< te::dt::TimeInstantTZ > (dateTimeTZ);
 
         break;
       }
       default:
         break;
     }
-  }
+
+    if(discardBefore_ && *discardBefore_ > *date_data)
+      return false;
+    if(discardAfter_ && *discardAfter_ < *date_data)
+      return false;
+
+    //Valid Date!!!
+    //update lastDateTime
+    updateLastDateTimeCollected(date_data->getTimeInstantTZ());
+
+    transferenceData.dateData = date_data;
 
   return true;
 }
@@ -536,7 +515,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
     if(dateColumn > 0)
     {
       //Filter Time if has a dateTime column
-      if(!validateAndUpdateDate(dateColumn, dataSet))
+      if(!validateAndUpdateDate(dateColumn, dataSet, transferenceData))
         continue;
     }
 

@@ -205,6 +205,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
           else
           {
             TransferenceData tmp;
+            tmp.dataSetItem = datasetitem;
             tmp.uriOrigin = uri_origin;
             tmp.uriTemporary = "file://"+filePath;
             transferenceDataVec.push_back(tmp);
