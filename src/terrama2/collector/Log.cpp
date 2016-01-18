@@ -87,22 +87,45 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
 
   try
   {
-    std::string query("INSERT INTO terrama2.data_collection_log (dataset_item_id, origin_uri, status) VALUES");
+    std::string query("INSERT INTO terrama2.data_collection_log (dataset_item_id, origin_uri, uri, data_timestamp, collect_timestamp, status) VALUES");
 
-    int size = transferenceDataVec.size();
+    bool first = true;
 
-    for(int i = 0; i < size; i++)
+    for( auto& transferenceData : transferenceDataVec)
     {
-      boost::format value("('%1%', '%2%', %3%)");
+      boost::format value("(%1%, %2%, %3%, %4%, %5%, %6%)");
 
-      value.bind_arg(1, transferenceDataVec.at(i).datasetItem.id());
-      value.bind_arg(2, transferenceDataVec.at(i).uri_origin);
-      value.bind_arg(3, (int)s);
+      value.bind_arg(1, transferenceData.datasetItem.id());
+
+      if(transferenceData.uri_origin.empty())
+        value.bind_arg(2, "NULL");
+      else
+        value.bind_arg(2, "'" + transferenceData.uri_origin + "'");
+
+      if(transferenceData.uri_storage.empty())
+        value.bind_arg(3, "NULL");
+      else
+        value.bind_arg(3, "'" + transferenceData.uri_storage + "'");
+
+      if(!transferenceData.date_data)
+        value.bind_arg(4, "NULL");
+      else
+        value.bind_arg(4, "'" + transferenceData.date_data->toString() + "'");
+
+      if(!transferenceData.date_collect)
+        value.bind_arg(5, "now()");
+      else
+        value.bind_arg(5, "'" + transferenceData.date_collect->toString() + "'");
+
+      value.bind_arg(6, (int)s);
+
+      if(!first)
+      {
+        query += ",";
+      }
 
       query += value.str();
-
-      if(i != (size-1))
-        query += ",";
+      first = false;
     }
 
     transactor_->execute(query);
