@@ -52,9 +52,9 @@
 
 void terrama2::collector::processIntersection(TransferenceData& transferenceData)
 {
-  const terrama2::core::DataSet& dataSet = transferenceData.dataset;
-  std::shared_ptr<te::da::DataSet> collectedData = transferenceData.teDataset;
-  std::shared_ptr<te::da::DataSetType>& collectedDataSetType = transferenceData.teDatasetType;
+  const terrama2::core::DataSet& dataSet = transferenceData.dataSet;
+  std::shared_ptr<te::da::DataSet> collectedData = transferenceData.teDataSet;
+  std::shared_ptr<te::da::DataSetType>& collectedDataSetType = transferenceData.teDataSetType;
   assert(collectedData.get());
 
   std::shared_ptr<te::mem::DataSet> outputDs;
@@ -193,7 +193,7 @@ void terrama2::collector::processIntersection(TransferenceData& transferenceData
     }
   }
 
-  transferenceData.teDataset = collectedData;
+  transferenceData.teDataSet = collectedData;
 }
 
 

@@ -248,7 +248,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           else// if data don't need to be retrieved (ex. local, wms, wmf)
           {
             TransferenceData tmp;
-            tmp.uri_origin = dataProvider.uri() + "/" + dataSetItem.mask();
+            tmp.uriOrigin = dataProvider.uri() + "/" + dataSetItem.mask();
             transferenceDataVec.push_back(tmp);
           }
 
@@ -257,9 +257,9 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           {
             boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
             boost::local_time::local_date_time boostTime(boost::posix_time::second_clock::universal_time(), zone);
-            transferenceData.date_collect.reset(new te::dt::TimeInstantTZ(boostTime));
-            transferenceData.dataset = dataSet;
-            transferenceData.datasetItem = dataSetItem;
+            transferenceData.dateCollect.reset(new te::dt::TimeInstantTZ(boostTime));
+            transferenceData.dataSet = dataSet;
+            transferenceData.dataSetItem = dataSetItem;
           }
 
           ParserPtr parser = Factory::makeParser(dataSetItem);

@@ -95,8 +95,8 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
     {
       boost::format value("('%1%', '%2%', %3%)");
 
-      value.bind_arg(1, transferenceDataVec.at(i).datasetItem.id());
-      value.bind_arg(2, transferenceDataVec.at(i).uri_origin);
+      value.bind_arg(1, transferenceDataVec.at(i).dataSetItem.id());
+      value.bind_arg(2, transferenceDataVec.at(i).uriOrigin);
       value.bind_arg(3, (int)s);
 
       query += value.str();

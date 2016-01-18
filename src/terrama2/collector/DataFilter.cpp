@@ -324,7 +324,7 @@ void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_t
     dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
 
     if(currentData_)
-      currentData_->date_data.reset(new te::dt::TimeInstantTZ(boostTime));
+      currentData_->dateData.reset(new te::dt::TimeInstantTZ(boostTime));
   }
 }
 
@@ -500,8 +500,8 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
 
   RaiiData raiiData(currentData_, transferenceData);
 
-  const std::shared_ptr<te::da::DataSet> &dataSet = transferenceData.teDataset;
-  const std::shared_ptr<te::da::DataSetType>& datasetType = transferenceData.teDatasetType;
+  const std::shared_ptr<te::da::DataSet> &dataSet = transferenceData.teDataSet;
+  const std::shared_ptr<te::da::DataSetType>& datasetType = transferenceData.teDataSetType;
 
   //Find DateTime column
   int dateColumn = -1;
@@ -549,7 +549,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
   }
 
   //TODO: Implement filter geometry. update doc
-  transferenceData.teDataset = memDataSet;
+  transferenceData.teDataSet = memDataSet;
 }
 
 

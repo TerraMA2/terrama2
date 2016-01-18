@@ -69,7 +69,7 @@ void TsParserPcdToa5::TestParseCpvOk()
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/");
+    transferenceData.uriTemporary = terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/");
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
@@ -79,7 +79,7 @@ void TsParserPcdToa5::TestParseCpvOk()
 
     QVERIFY(transferenceDataVec.size() == 21);
 
-    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataset;
+    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataSet;
     if(dataset->moveNext())
     {
       std::unique_ptr<te::dt::DateTime> dateTime(dataset->getDateTime("DateTime"));

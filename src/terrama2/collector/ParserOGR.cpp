@@ -81,7 +81,7 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
   if(transferenceDataVec.empty())
     throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
 
-  dataSetItem_ = transferenceDataVec.at(0).datasetItem;
+  dataSetItem_ = transferenceDataVec.at(0).dataSetItem;
 
   try
   {
@@ -89,7 +89,7 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
     for(auto& transferenceData : transferenceDataVec)
     {
-      QUrl uri(transferenceData.uri_temporary.c_str());
+      QUrl uri(transferenceData.uriTemporary.c_str());
 
       QFileInfo fileInfo(uri.path());
       if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
@@ -116,15 +116,15 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
       std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
       converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(fileInfo.baseName().toStdString())));
-      transferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-      assert(transferenceData.teDatasetType);
+      transferenceData.teDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+      assert(transferenceData.teDataSetType);
 
       assert(converter);
       std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(fileInfo.baseName().toStdString()));
       assert(datasetOrig);
       std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 
-      transferenceData.teDataset = dataset;
+      transferenceData.teDataSet = dataset;
     }
 
     return;

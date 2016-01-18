@@ -80,7 +80,7 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
     }
     else
     {
-      core::DataSet dataset = transferenceDataVec.at(0).dataset;
+      core::DataSet dataset = transferenceDataVec.at(0).dataSet;
 
       for(TransferenceData& transferenceData : transferenceDataVec)
       {
@@ -88,10 +88,10 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
         boost::posix_time::time_facet * f = new boost::posix_time::time_facet("%Y%m%d_%H%M");
         timeStream.imbue(std::locale(timeStream.getloc(),f));
 
-        if(transferenceData.date_data)
-          timeStream << transferenceData.date_data->getTimeInstantTZ().local_time();
-        else if(transferenceData.date_collect)
-          timeStream << transferenceData.date_collect->getTimeInstantTZ().local_time();
+        if(transferenceData.dateData)
+          timeStream << transferenceData.dateData->getTimeInstantTZ().local_time();
+        else if(transferenceData.dateCollect)
+          timeStream << transferenceData.dateCollect->getTimeInstantTZ().local_time();
         else
           timeStream << "00000000_0000";
 
@@ -107,10 +107,10 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
         std::string storageURI = terrama2DefaultDir + destinationDataSetName;
         //TODO: verify if has raster?
         //TODO: Verify if it's compatible?
-        std::unique_ptr<te::rst::Raster> raster(transferenceData.teDataset->getRaster("raster"));
+        std::unique_ptr<te::rst::Raster> raster(transferenceData.teDataSet->getRaster("raster"));
         te::rp::Copy2DiskRaster(*raster, storageURI);
 
-        transferenceData.uri_storage = storageURI;
+        transferenceData.uriStorage = storageURI;
       }//for each dataset end
     }//else: no name set
   }
