@@ -46,6 +46,7 @@ namespace terrama2
     public:
       //! Constructor. Stores metadata for later use.
       StoragerTiff(const std::map<std::string, std::string>& storageMetadata);
+      virtual ~StoragerTiff(){}
 
       //Documented in parent class
       virtual void store(std::vector<TransferenceData>& transferenceDataVec) override;

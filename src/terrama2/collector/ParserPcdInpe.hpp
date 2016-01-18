@@ -48,6 +48,8 @@ namespace terrama2
   class ParserPcdInpe: public ParserOGR
   {
    public:
+
+    virtual ~ParserPcdInpe(){}
       /*!
      * \brief The Adapt method is responsible for manually change data from PcdINPE file. This first method performs remove
         timestampName the column "N/A" PCD INPE file, then create a new property "DateTime" type dt::DateTimeProperty with

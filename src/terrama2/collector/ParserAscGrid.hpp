@@ -42,6 +42,9 @@ namespace terrama2
      */
     class ParserAscGrid : public ParserGDAL
     {
+    public:
+      virtual ~ParserAscGrid(){}
+
     protected:
         bool verifyFileName(const std::string& name) override;
     };

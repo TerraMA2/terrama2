@@ -53,6 +53,7 @@ target_link_libraries(terrama2_mod_collector terrama2_mod_core
                                              terralib_mod_dataaccess
                                              terralib_mod_memory
                                              terralib_mod_vp_core
+                                             terralib_mod_rp
                                              ${Boost_FILESYSTEM_LIBRARY}
                                              ${Boost_SYSTEM_LIBRARY}
                                              ${Boost_REGEX_LIBRARY}
