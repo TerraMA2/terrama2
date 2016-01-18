@@ -147,7 +147,7 @@ namespace terrama2
 
          \warning Updates dataSetLastDateTime_ with the latest date.
          */
-      bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
+      bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, TransferenceData& transferenceData);
 
       /*!
            \brief Verifies if the time is after discardBeforeTime.

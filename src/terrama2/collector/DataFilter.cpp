@@ -330,7 +330,7 @@ void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_t
   }
 }
 
-bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet)
+bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, terrama2::collector::TransferenceData& transferenceData)
 {
   //discard out of valid range dates
   std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
@@ -384,12 +384,11 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
     if(discardAfter_ && *discardAfter_ < *date_data)
       return false;
 
-    std::string a = date_data->toString();
-    std::string b = date_data->getTimeInstantTZ().to_string();
-
     //Valid Date!!!
     //update lastDateTime
     updateLastDateTimeCollected(date_data->getTimeInstantTZ());
+
+    transferenceData.date_data = date_data;
 
   return true;
 }
@@ -516,7 +515,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
     if(dateColumn > 0)
     {
       //Filter Time if has a dateTime column
-      if(!validateAndUpdateDate(dateColumn, dataSet))
+      if(!validateAndUpdateDate(dateColumn, dataSet, transferenceData))
         continue;
     }
 
@@ -530,7 +529,6 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
 
   //TODO: Implement filter geometry. update doc
   transferenceData.teDataset = memDataSet;
-  transferenceData.date_data = std::make_shared< te::dt::TimeInstantTZ >(*getDataSetLastDateTime());
 }
 
 
