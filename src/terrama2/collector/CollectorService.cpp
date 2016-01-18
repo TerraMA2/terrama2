@@ -249,6 +249,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           {
             TransferenceData tmp;
             tmp.uri_origin = dataProvider.uri() + "/" + dataSetItem.mask();
+            tmp.uri_temporary = dataProvider.uri() + "/" + dataSetItem.mask();
             transferenceDataVec.push_back(tmp);
           }
 
@@ -269,7 +270,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           parser->read(filter, transferenceDataVec);
 
           //no new dataset found
-          // VINICIUS: log the files that hasn't data NODATA
+          // VINICIUS: log the files that hasn't data, NODATA
           if(transferenceDataVec.empty())
             continue;
 
@@ -285,7 +286,15 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           assert(storager);
           storager->store(transferenceDataVec);
 
-          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
+          if(retriever->isRetrivable())
+          {
+            collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
+          }
+          else
+          {
+            // Data wasn't logged untin now
+            collectLog.log(transferenceDataVec, Log::Status::IMPORTED);
+          }
         }
         catch(terrama2::Exception& e)
         {
