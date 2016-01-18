@@ -58,6 +58,8 @@ namespace terrama2
      \brief Namespace for the TerraMA2 collector module
 
      It contains the base classes to retrive and store data.
+
+     \note Be aware to initialize terrama2::core::Logger before to display status message in runtime.
  */
   namespace collector
   {

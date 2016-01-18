@@ -198,7 +198,6 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
     OpenClose<DataRetrieverPtr> openClose(retriever);
     if(!retriever->isOpen())
     {
-      //TODO: log this
       TERRAMA2_LOG_WARNING() << "Could not open data retriever";
       return;
     }
@@ -285,6 +284,9 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           storager->store(transferenceDataVec);
 
 //          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
+
+          // Dataset Logger Success
+          TERRAMA2_LOG_INFO() << "DataSet \"" << dataSet.name() + "\" has just been collected!";
         }
         catch(terrama2::Exception& e)
         {

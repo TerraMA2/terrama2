@@ -135,20 +135,14 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
   }
   catch(terrama2::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(te::common::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
     TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(std::exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
     TERRAMA2_LOG_ERROR() << e.what();
   }
 

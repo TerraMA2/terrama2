@@ -92,8 +92,6 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
   }
   catch(te::common::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
     TERRAMA2_LOG_ERROR() << e.what();
     throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserTiff::read - Terralib exception: ") +e.what());
   }
