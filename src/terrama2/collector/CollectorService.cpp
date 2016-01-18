@@ -338,6 +338,7 @@ void terrama2::collector::CollectorService::threadProcess()
 
       if(stop_)
         break;
+      //TODO: look for another task before sleeping again?
     }
   }
   catch(std::exception& e)
