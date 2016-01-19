@@ -70,7 +70,7 @@ namespace terrama2
       ParserPtr makeParser(const core::DataSetItem &datasetItem);
 
       /*!
-        \brief Makes a storager based on the storageMetadata of the core::DataSetItem.
+        \brief Makes a storager based on the metadata of the core::DataSetItem.
         \param datasetItem core::DataSetItem with storage data.
         \return A shared_ptr to a storager of the right type.
        */

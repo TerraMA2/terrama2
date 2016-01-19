@@ -180,6 +180,12 @@ namespace terrama2
           void removeCachedDataSet(const terrama2::core::DataSet& dataset);
 
           /*!
+            \brief Update a dataset in cached map of datasets
+            \param dataset A terrama2::core::DataSet reference to be updated in cache list
+          */
+          void updateCachedDataSet(const terrama2::core::DataSet& dataset);
+
+          /*!
             \brief It refresh the weatherdatalist from widget and string for replace
             \param widget A pointer to QTreeWidgetItem defining where is to start.
             \param searchFor A QString value to be searched in list

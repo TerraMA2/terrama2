@@ -47,23 +47,16 @@ namespace Ui
 
 namespace terrama2
 {
+  // Forward declaration
+  namespace core
+  {
+    class DataSetItem;
+  }
+
   namespace gui
   {
     namespace config
     {
-      /*!
-        \brief struct for stores the pcd meta
-      */
-      struct PCD
-      {
-        QString file;      //!< Represents the pcd file
-        QString latitude;  //!< Represents latitude of pcd
-        QString longitude; //!< Represents longitude of pcd
-        bool active;       //!< Represents pcd state
-        uint64_t srid;     //!< Represents Coordinate Reference System value
-        QString timezone;  //!< Represents PCD timezone
-      };
-
       /*!
         \class PcdDialog
         \brief Class responsible to handle the pcd insertion/modification file
@@ -87,13 +80,12 @@ namespace terrama2
             \brief It fill the interface from a terrama2::gui::config::PCD object
             \param pcd A const PCD reference to fill out the interface
           */
-          void fill(const PCD& pcd);
+          void fill(const terrama2::core::DataSetItem& pcdItem);
 
           /*!
-            \brief It fill a terrama2::gui::config::PCD object from interface values
-            \param pcd A PCD reference to be filled out
+            \brief Returns the DataSetItem filled.
           */
-          void fillObject(PCD& pcd);
+          terrama2::core::DataSetItem getDataSetItem() const;
 
         private slots:
           //! Slot triggered when some input widget has been changed. It enables the confirm button

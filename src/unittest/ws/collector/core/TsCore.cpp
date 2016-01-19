@@ -140,12 +140,12 @@ terrama2::core::DataSet TsCore::buildDataSet()
 
   dataSetItem1.setFilter(filter);
 
-  std::map< std::string, std::string > storageMetadata;
+  std::map< std::string, std::string > metadata;
 
-  storageMetadata["one"] = "two";
-  storageMetadata["two"] = "one";
+  metadata["one"] = "two";
+  metadata["two"] = "one";
 
-  dataSetItem1.setStorageMetadata(storageMetadata);
+  dataSetItem1.setMetadata(metadata);
 
   terrama2::core::DataSetItem dataSetItem2(terrama2::core::DataSetItem::Kind(2), 0, 0);
   dataSetItem2.setMask("mask2");
@@ -220,7 +220,7 @@ void TsCore::TestConvertDataSetToDataSetStruct()
 {
   terrama2::core::DataSet dataSet = buildDataSet();
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule, Intersection>(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, Intersection>(dataSet);
 
   QVERIFY2(dataSet.id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSet.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
@@ -274,13 +274,13 @@ void TsCore::TestConvertDataSetToDataSetStruct()
     else
       QVERIFY(std::isnan(struct_dataSet.dataset_items.at(i).filter_value));
 
-    std::map< std::string, std::string > storageMetadata(dataSet.dataSetItems().at(i).storageMetadata());
+    std::map< std::string, std::string > itemMetadata(dataSet.dataSetItems().at(i).metadata());
 
     int j = 0;
-    for(auto& x: storageMetadata)
+    for(auto& x: itemMetadata)
     {
-      QCOMPARE(struct_dataSet.dataset_items.at(i).storageMetadata_keys.at(j), x.first);
-      QCOMPARE(struct_dataSet.dataset_items.at(i).storageMetadata_values.at(j), x.second);
+      QCOMPARE(struct_dataSet.dataset_items.at(i).metadata_keys.at(j), x.first);
+      QCOMPARE(struct_dataSet.dataset_items.at(i).metadata_values.at(j), x.second);
 
       j++;
     }
@@ -346,15 +346,15 @@ void TsCore::TestConvertDataSetStructToDataSet()
     if(i == 3)
       dataset_item.filter_value = std::nan("");
 
-    dataset_item.storageMetadata_keys.push_back("one");
-    dataset_item.storageMetadata_values.push_back("two");
-    dataset_item.storageMetadata_keys.push_back("two");
-    dataset_item.storageMetadata_values.push_back("one");
+    dataset_item.metadata_keys.push_back("one");
+    dataset_item.metadata_values.push_back("two");
+    dataset_item.metadata_keys.push_back("two");
+    dataset_item.metadata_values.push_back("one");
 
     struct_dataSet.dataset_items.push_back(dataset_item);
   }
 
-  terrama2::core::DataSet dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet , DataSetItem, CollectRule, Intersection >(struct_dataSet);
+  terrama2::core::DataSet dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet , DataSetItem, Intersection >(struct_dataSet);
 
   QVERIFY2(dataSet.id() == struct_dataSet.id, "ID changed after conversion!");
   QVERIFY2(dataSet.provider() == struct_dataSet.data_provider_id, "Data Provider changed after conversion!");
@@ -424,13 +424,13 @@ void TsCore::TestConvertDataSetStructToDataSet()
     else
       QVERIFY(dataSet.dataSetItems().at(i).filter().value() == nullptr);
 
-    std::map< std::string, std::string > storageMetadata(dataSet.dataSetItems().at(i).storageMetadata());
+    std::map< std::string, std::string > metadata(dataSet.dataSetItems().at(i).metadata());
 
     int j = 0;
-    for(auto& x: storageMetadata)
+    for(auto& x: metadata)
     {
-      QCOMPARE(struct_dataSet.dataset_items.at(i).storageMetadata_keys.at(j), x.first);
-      QCOMPARE(struct_dataSet.dataset_items.at(i).storageMetadata_values.at(j), x.second);
+      QCOMPARE(struct_dataSet.dataset_items.at(i).metadata_keys.at(j), x.first);
+      QCOMPARE(struct_dataSet.dataset_items.at(i).metadata_values.at(j), x.second);
 
       j++;
     }

@@ -65,27 +65,26 @@ void terrama2::gui::core::saveTerraMA2File(QMainWindow* appFocus, const QString&
   file.close();
 }
 
-std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(const terrama2::core::DataSet &dataset, const terrama2::gui::core::ConfigManager& configuration)
-{
-  std::map<std::string, std::string> storageMetadata;
 
-  if (dataset.kind() == terrama2::core::DataSet::GRID_TYPE)
+std::map<std::string, std::string> terrama2::gui::core::makeStorageMetadata(terrama2::core::DataSet::Kind kind, std::map<std::string, std::string> metadata, const QString uri, const terrama2::gui::core::ConfigManager& configuration)
+{
+  if (kind == terrama2::core::DataSet::GRID_TYPE)
   {
-    storageMetadata["PATH"] = configuration.getCollection()->dirPath_.toStdString();
-    storageMetadata["KIND"] = "TIFF";
+    metadata["PATH"] = configuration.getCollection()->dirPath_.toStdString();
+    metadata["KIND"] = "TIFF";
   }
   else // postgis
   {
-    storageMetadata["PG_HOST"] = configuration.getDatabase()->host_.toStdString();
-    storageMetadata["PG_PORT"] = std::to_string(configuration.getDatabase()->port_);
-    storageMetadata["PG_USER"] = configuration.getDatabase()->user_.toStdString();
-    storageMetadata["PG_PASSWORD"] = configuration.getDatabase()->password_.toStdString();
-    storageMetadata["PG_DB_NAME"] = configuration.getDatabase()->dbName_.toStdString();
-    storageMetadata["PG_CLIENT_ENCODING"] = "UTF-8";
-    storageMetadata["KIND"] = "POSTGIS";
+    metadata["PG_HOST"] = configuration.getDatabase()->host_.toStdString();
+    metadata["PG_PORT"] = std::to_string(configuration.getDatabase()->port_);
+    metadata["PG_USER"] = configuration.getDatabase()->user_.toStdString();
+    metadata["PG_PASSWORD"] = configuration.getDatabase()->password_.toStdString();
+    metadata["PG_DB_NAME"] = configuration.getDatabase()->dbName_.toStdString();
+    metadata["PG_CLIENT_ENCODING"] = "UTF-8";
+    metadata["KIND"] = "POSTGIS";
   }
 
-  return storageMetadata;
+  return metadata;
 }
 
 QMenu *terrama2::gui::core::makeMaskHelpers()

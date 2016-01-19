@@ -68,49 +68,47 @@ namespace terrama2
       {
 
         /*!
-                \brief Method to convert a gSOAP struct DataProvider to a terrama2::core::DataProvider.
+          \brief Method to convert a gSOAP struct DataProvider to a terrama2::core::DataProvider.
 
-                \param T1 MUST be a gSOAP struct DataProvider, defined in soapStub.h(gSOAP generated file)
+          \param T1 MUST be a gSOAP struct DataProvider, defined in soapStub.h(gSOAP generated file)
 
-                \return terrama2::core::DataProvider that contains the data in gSOAP struct DataProvider passed.
-              */
+          \return terrama2::core::DataProvider that contains the data in gSOAP struct DataProvider passed.
+        */
         template<typename T1> terrama2::core::DataProvider Struct2DataProvider(T1 struct_dataprovider);
 
 
         /*!
-                \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
+          \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
 
-                \param T1 MUST be a gSOAP struct DataProvider, defined in soapStub.h(gSOAP generated file)
+          \param T1 MUST be a gSOAP struct DataProvider, defined in soapStub.h(gSOAP generated file)
 
-                \return a gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
-              */
+          \return a gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
+        */
         template<typename T1> T1 DataProvider2Struct(terrama2::core::DataProvider dataProvider);
 
 
         /*!
-                \brief Method to convert a gSOAP struct DataSet to a terrama2::core::DataSet.
+          \brief Method to convert a gSOAP struct DataSet to a terrama2::core::DataSet.
 
-                \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
-                \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
-                \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
-                \param StructIntersection MUST be a gSOAP Intersection struct, defined in soapStub.h(gSOAP generated file)
+          \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+          \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
+          \param StructIntersection MUST be a gSOAP Intersection struct, defined in soapStub.h(gSOAP generated file)
 
-                \return terrama2::core::DataSet that contains the data in gSOAP struct DataSet passed.
-              */
-        template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
+          \return terrama2::core::DataSet that contains the data in gSOAP struct DataSet passed.
+        */
+        template<typename T1, typename T2, typename StructIntersection> terrama2::core::DataSet Struct2DataSet(T1 struct_dataset);
 
 
         /*!
-                \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
+          \brief Method to convert a terrama2::core::DataProvider to a gSOAP struct DataProvider.
 
-                \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
-                \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
-                \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
-                \param StructIntersection MUST be a gSOAP struct Intersection, defined in soapStub.h(gSOAP generated file)
+          \param T1 MUST be a gSOAP struct DataSet, defined in soapStub.h(gSOAP generated file)
+          \param T2 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
+          \param StructIntersection MUST be a gSOAP struct Intersection, defined in soapStub.h(gSOAP generated file)
 
-                \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
-              */
-        template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
+          \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
+        */
+        template<typename T1, typename T2, typename StructIntersection> T1 DataSet2Struct(terrama2::core::DataSet dataSet);
 
 
         /*!
@@ -134,42 +132,22 @@ namespace terrama2
 
 
         /*!
-          \brief Method to convert a vector of terrama2::core::DataSet::CollectRule into a vector of gSOAP struct DataSetCollectRule.
+          \brief Method to convert a terrama2::core::DataSetItem to a gSOAP struct DataSetItem.
 
-          \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
+          \param T1 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
 
-          \return A vector of gSOAP DataSetCollectRule structs that contains the data in the terrama2::core::Intersection vector passed.
+          \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
         */
-        template<typename StructDataSetCollectRule> std::vector< StructDataSetCollectRule > DataSetCollectRules2Struct(std::vector< terrama2::core::DataSet::CollectRule >& collectorRules);
-
-
-        /*!
-          \brief Method to convert a vector of  gSOAP struct DataSetCollectRule into a vector of terrama2::core::DataSet::CollectRule.
-
-          \param StructDataSetCollectRule MUST be a gSOAP struct DataSetCollectRule, defined in soapStub.h(gSOAP generated file)
-
-          \return A vector of terrama2::core::Intersection that contains the data in the gSOAP DataSetCollectRule structs vector passed.
-        */
-        template<typename StructDataSetCollectRule> std::vector< terrama2::core::DataSet::CollectRule > Struct2DataSetCollectRules(std::vector< StructDataSetCollectRule >& struct_collectorRules);
-
-
-        /*!
-                \brief Method to convert a terrama2::core::DataSetItem to a gSOAP struct DataSetItem.
-
-                \param T1 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
-
-                \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
-              */
         template<typename T1> std::vector< T1 > DataSetItem2Struct(std::vector< terrama2::core::DataSetItem >& dataset_items);
 
 
         /*!
-                \brief Method to convert a gSOAP struct DataSetItem to a terrama2::core::DataSetItem.
+          \brief Method to convert a gSOAP struct DataSetItem to a terrama2::core::DataSetItem.
 
-                \param T1 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
+          \param T1 MUST be a gSOAP struct DataSetItem, defined in soapStub.h(gSOAP generated file)
 
-                \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
-              */
+          \return A gSOAP struct DataProvider that contains the data in terrama2::core::DataProvider passed.
+        */
         template<typename T1> std::vector< terrama2::core::DataSetItem > Struct2DataSetItem(std::vector< T1 >& struct_dataset_items);
 
       }
@@ -185,6 +163,7 @@ terrama2::core::DataProvider terrama2::ws::collector::core::Struct2DataProvider(
   dataProvider.setDescription(struct_dataprovider.description);
   dataProvider.setUri(struct_dataprovider.uri);
   dataProvider.setStatus((terrama2::core::DataProvider::Status)struct_dataprovider.status);
+  dataProvider.setOrigin(terrama2::core::ToDataProviderOrigin(struct_dataprovider.origin));
 
   return dataProvider;
 }
@@ -198,6 +177,7 @@ T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvid
       dataProvider.name(),
       dataProvider.description(),
       (uint32_t) dataProvider.kind(),
+      (uint32_t) dataProvider.origin(),
       dataProvider.uri(),
       (uint32_t) dataProvider.status()
 };
@@ -206,7 +186,7 @@ T1 terrama2::ws::collector::core::DataProvider2Struct(terrama2::core::DataProvid
 }
 
 
-template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection>
+template<typename T1, typename T2, typename StructIntersection>
 terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_dataSet)
 {
   terrama2::core::DataSet dataSet(struct_dataSet.name, terrama2::core::ToDataSetKind(struct_dataSet.kind), struct_dataSet.id, struct_dataSet.data_provider_id);
@@ -225,7 +205,6 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_
   dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
   dataSet.setIntersection(Struct2DataSetIntersection <StructIntersection> (struct_dataSet.intersection));
-  dataSet.setCollectRules(Struct2DataSetCollectRules< StructDataSetCollectRule >(struct_dataSet.dataset_collectRules));
 
   std::map< std::string, std::string > metadata;
 
@@ -247,7 +226,7 @@ terrama2::core::DataSet terrama2::ws::collector::core::Struct2DataSet(T1 struct_
 }
 
 
-template<typename T1, typename T2, typename StructDataSetCollectRule, typename StructIntersection>
+template<typename T1, typename T2, typename StructIntersection>
 T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet)
 {
   T1 struct_dataSet;
@@ -263,7 +242,6 @@ T1 terrama2::ws::collector::core::DataSet2Struct(terrama2::core::DataSet dataSet
   struct_dataSet.schedule_retry = dataSet.scheduleRetry().toString();
   struct_dataSet.schedule_timeout = dataSet.scheduleTimeout().toString();
   struct_dataSet.intersection = DataSetIntersection2Struct< StructIntersection >(dataSet.intersection());
-  struct_dataSet.dataset_collectRules = DataSetCollectRules2Struct< StructDataSetCollectRule >(dataSet.collectRules());
 
   std::map< std::string, std::string > metadata(dataSet.metadata());
 
@@ -335,44 +313,6 @@ template<typename StructIntersection> terrama2::core::Intersection terrama2::ws:
 }
 
 
-template<typename StructDataSetCollectRule>
-std::vector< StructDataSetCollectRule > terrama2::ws::collector::core::DataSetCollectRules2Struct(std::vector< terrama2::core::DataSet::CollectRule >& collectRules)
-{
-  std::vector< StructDataSetCollectRule > struct_dataset_colletRules;
-
-  for(int i = 0; i < collectRules.size(); i++)
-  {
-    StructDataSetCollectRule struct_collectRule;
-
-    struct_collectRule.id = collectRules.at(i).id;
-    struct_collectRule.script = collectRules.at(i).script;
-    struct_collectRule.datasetId = collectRules.at(i).datasetId;
-
-   struct_dataset_colletRules.push_back(struct_collectRule);
-  }
-
-  return struct_dataset_colletRules;
-}
-
-template<typename StructDataSetCollectRule>
-std::vector< terrama2::core::DataSet::CollectRule > terrama2::ws::collector::core::Struct2DataSetCollectRules(std::vector< StructDataSetCollectRule >& struct_collectRules)
-{
-  std::vector< terrama2::core::DataSet::CollectRule > collectRules;
-
-  for(int i = 0; i < struct_collectRules.size(); i++)
-  {
-    terrama2::core::DataSet::CollectRule collectRule;
-
-    collectRule.id = struct_collectRules.at(i).id;
-    collectRule.script = struct_collectRules.at(i).script;
-    collectRule.datasetId = struct_collectRules.at(i).datasetId;
-
-    collectRules.push_back(collectRule);
-  }
-
-  return collectRules;
-}
-
 template<typename T1>
 std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<terrama2::core::DataSetItem>& dataset_items)
 {
@@ -419,12 +359,12 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
     else
       struct_dataset_item.filter_value = std::nan("");
 
-    std::map< std::string, std::string > storageMetadata(dataset_items.at(i).storageMetadata());
+    std::map< std::string, std::string > metadata(dataset_items.at(i).metadata());
 
-    for(auto& x: storageMetadata)
+    for(auto& x: metadata)
     {
-      struct_dataset_item.storageMetadata_keys.push_back(x.first);
-      struct_dataset_item.storageMetadata_values.push_back(x.second);
+      struct_dataset_item.metadata_keys.push_back(x.first);
+      struct_dataset_item.metadata_values.push_back(x.second);
     }
 
     struct_dataset_items.push_back(struct_dataset_item);
@@ -491,14 +431,14 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
 
     dataset_item.setFilter(filter);
 
-    std::map< std::string, std::string > storageMetadata;
+    std::map< std::string, std::string > metadata;
 
-    for(int j = 0; j < struct_dataset_items.at(i).storageMetadata_keys.size(); j++)
+    for(int j = 0; j < struct_dataset_items.at(i).metadata_keys.size(); j++)
     {
-      storageMetadata[struct_dataset_items.at(i).storageMetadata_keys.at(j)] = struct_dataset_items.at(i).storageMetadata_values.at(j);
+      metadata[struct_dataset_items.at(i).metadata_keys.at(j)] = struct_dataset_items.at(i).metadata_values.at(j);
     }
 
-    dataset_item.setStorageMetadata(storageMetadata);
+    dataset_item.setMetadata(metadata);
 
     dataset_items.push_back(dataset_item);
   }

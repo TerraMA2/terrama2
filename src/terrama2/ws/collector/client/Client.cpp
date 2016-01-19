@@ -91,7 +91,7 @@ void terrama2::ws::collector::client::Client::addDataProvider(terrama2::core::Da
 
 void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet & dataSet)
 {
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule, Intersection >(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, Intersection >(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -102,7 +102,7 @@ void terrama2::ws::collector::client::Client::addDataSet(terrama2::core::DataSet
     throw client::AddingDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
-  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, Intersection >(struct_dataSetResult);
 
 }
 
@@ -133,7 +133,7 @@ void terrama2::ws::collector::client::Client::updateDataSet(terrama2::core::Data
   if(dataSet.id() == 0)
     throw client::UpdateDataSetException() << ErrorDescription(QObject::tr("Invalid dataset passed!"));
 
-  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, CollectRule, Intersection >(dataSet);
+  DataSet struct_dataSet = terrama2::ws::collector::core::DataSet2Struct< DataSet, DataSetItem, Intersection >(dataSet);
 
   DataSet struct_dataSetResult;
 
@@ -144,7 +144,7 @@ void terrama2::ws::collector::client::Client::updateDataSet(terrama2::core::Data
     throw client::UpdateDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
-  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetResult);
+  dataSet = terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, Intersection >(struct_dataSetResult);
 
 }
 
@@ -199,7 +199,7 @@ terrama2::core::DataSet terrama2::ws::collector::client::Client::findDataSet(uin
     throw client::FindDataSetException() << ErrorDescription(errorMessage.c_str());
   }
 
-  return terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSet);
+  return terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, Intersection >(struct_dataSet);
 
 }
 
@@ -236,7 +236,7 @@ void terrama2::ws::collector::client::Client::listDataSet(std::vector< terrama2:
 
   for(uint32_t i = 0; i < struct_dataSetList.size() ; i++)
   {
-    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, CollectRule, Intersection >(struct_dataSetList.at(i)));
+    datasets.push_back(terrama2::ws::collector::core::Struct2DataSet< DataSet, DataSetItem, Intersection >(struct_dataSetList.at(i)));
   }
 
 }

@@ -20,15 +20,33 @@
 */
 
 /*!
-  \file terrama2/gui/config/Config.hpp
+  \file terrama2/core/core.hpp
 
-  \brief Build options for TerraMA2 Configuration GUI.
+  \brief This file contains include headers for the TerraMA2 core module.
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Paulo R. M. Oliveira
+*/
 
-#ifndef __TERRAMA2_INTERNAL_GUI_CONFIG_CONFIG_HPP__
-#define __TERRAMA2_INTERNAL_GUI_CONFIG_CONFIG_HPP__
+#ifndef __TERRAMA2_CORE_CORE_HPP__
+#define __TERRAMA2_CORE_CORE_HPP__
+
+// TerraMA2
+#include "DataProviderDAO.hpp"
+#include "DataSetDAO.hpp"
+#include "DataSetItemDAO.hpp"
+#include "FilterDAO.hpp"
+#include "IntersectionDAO.hpp"
 
 
-#endif // __TERRAMA2_INTERNAL_GUI_CONFIG_CONFIG_HPP__
+namespace terrama2
+{
+  namespace core
+  {
+    /*! \brief Namespace for the TerraMA2 core persistence layers. */
+    namespace dao
+    {
+    } // end namespace dao
+  }   // end namespace core
+}     // end namespace terrama2
+
+#endif  // __TERRAMA2_CORE_CORE_HPP__

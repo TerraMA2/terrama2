@@ -37,6 +37,7 @@ terrama2::core::DataProvider::DataProvider(const std::string& name, Kind k, cons
   : id_(id),
     name_(name),
     kind_(k),
+    origin_(COLLECTOR),
     status_(INACTIVE)
 {
 }
@@ -89,6 +90,17 @@ terrama2::core::DataProvider::kind() const
 void terrama2::core::DataProvider::setKind(Kind k)
 {
   kind_ = k;
+}
+
+terrama2::core::DataProvider::Origin
+terrama2::core::DataProvider::origin() const
+{
+  return origin_;
+}
+
+void terrama2::core::DataProvider::setOrigin(Origin origin)
+{
+  origin_ = origin;
 }
 
 const std::string&

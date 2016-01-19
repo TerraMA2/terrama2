@@ -96,10 +96,10 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const te
 
 terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
 {
-  std::map<std::string, std::string> storageMetadata = datasetItem.storageMetadata();
-  std::map<std::string, std::string>::const_iterator localFind = storageMetadata.find("KIND");
+  std::map<std::string, std::string> metadata = datasetItem.metadata();
+  std::map<std::string, std::string>::const_iterator localFind = metadata.find("KIND");
 
-  if(localFind == storageMetadata.cend())
+  if(localFind == metadata.cend())
     throw UnableToCreateStoragerException() << terrama2::ErrorDescription(QObject::tr("No storager kind set."));
 
   std::string storagerKind = localFind->second;
@@ -108,11 +108,11 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
   std::transform(storagerKind.begin(), storagerKind.end(), storagerKind.begin(), ::toupper);
   if(storagerKind == "POSTGIS")
   {
-    return std::make_shared<StoragerPostgis>(storageMetadata);
+    return std::make_shared<StoragerPostgis>(metadata);
   }
   else if(storagerKind == "TIFF")
   {
-    return std::make_shared<StoragerTiff>(storageMetadata);
+    return std::make_shared<StoragerTiff>(metadata);
   }
 
   throw UnableToCreateStoragerException() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
