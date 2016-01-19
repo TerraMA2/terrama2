@@ -53,7 +53,8 @@
 #include <QJsonArray>
 #include <QFileDialog>
 #include <QUrl>
-
+#include <QDoubleValidator>
+#include <QIntValidator>
 
 terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, Ui::ConfigAppForm* ui)
   : ConfigAppTab(app, ui)
@@ -68,6 +69,7 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   connect(ui_->btnUpdatePcdCollectionRule, SIGNAL(clicked()), SLOT(onCollectorRuleClicked()));
   connect(ui_->btnPCDWFSConfiguration, SIGNAL(clicked(bool)), SLOT(onPcdWfsClicked()));
   connect(ui_->pointFormatDataInfluenceCmb, SIGNAL(activated(int)), SLOT(onInfluenceTypeSelected(int)));
+
 
 
   // export pcd button
@@ -98,6 +100,7 @@ terrama2::gui::config::ConfigAppWeatherPcd::ConfigAppWeatherPcd(ConfigApp* app, 
   ui_->pointFormatDataHour->setValidator(new QIntValidator(ui_->pointFormatDataHour));
   ui_->pointFormatDataMinute->setValidator(new QIntValidator(ui_->pointFormatDataMinute));
   ui_->pointFormatDataSecond->setValidator(new QIntValidator(ui_->pointFormatDataSecond));
+  ui_->pointFormatDataRadius->setValidator(new QDoubleValidator(ui_->pointFormatDataRadius));
 }
 
 terrama2::gui::config::ConfigAppWeatherPcd::~ConfigAppWeatherPcd()
