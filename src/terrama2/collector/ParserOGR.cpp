@@ -126,8 +126,6 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
       transferenceData.teDataSet = dataset;
     }
-
-    return;
   }
   catch(te::common::Exception& e)
   {

@@ -70,133 +70,6 @@ std::vector<std::string> terrama2::collector::DataFilter::filterNames(const std:
   }
 
   return matchesList;
-
-
-#if 0
-  //get list of matching regex (only string format, no date value comparison
-  std::vector<std::string> matchesList;
-  for(const std::string &name : namesList)
-  {
-    bool res = boost::regex_match(name, maskData.regex);
-    if (res)
-      matchesList.push_back(name);
-  }
-
-  std::vector<std::string> matchesList2;
-  for(const auto& name : matchesList)
-  {
-    unsigned int year  = 0;
-    unsigned int month = 0;
-    unsigned int day   = 0;
-
-    int hours   = -1;
-    int minutes = -1;
-    int seconds  = -1;
-
-    //**********************
-    //get date values from names
-
-    //get year value
-    if(maskData.year4Pos != -1)
-      year = std::stoi(name.substr(maskData.year4Pos, 4));
-    if(maskData.year2Pos != -1)
-      year = std::stoi(name.substr(maskData.year2Pos, 2));
-    //get month value
-    if(maskData.monthPos != -1)
-      month = std::stoi(name.substr(maskData.monthPos, 2));
-    //get day value
-    if(maskData.dayPos != -1)
-      day = std::stoi(name.substr(maskData.dayPos, 2));
-
-    //get hour value
-    if(maskData.hourPos != -1)
-      hours = std::stoi(name.substr(maskData.hourPos, 2));
-    //get minute value
-    if(maskData.minutePos != -1)
-      minutes = std::stoi(name.substr(maskData.minutePos, 2));
-    //get second value
-    if(maskData.secondPos != -1)
-      seconds = std::stoi(name.substr(maskData.secondPos, 2));
-
-    //****************************
-
-    try
-    {
-      boost::gregorian::date bDate(year, month, day);
-      boost::posix_time::time_duration bTime(hours == -1 ? 0 : hours, minutes == -1 ? 0 : minutes, seconds == -1 ? 0 : seconds);
-      boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(datasetItem_.timezone()));
-      boost::local_time::local_date_time time(bDate, bTime, zone, true);
-
-      if((discardBefore_ && time < discardBefore_->getTimeInstantTZ()) || (discardAfter_ && time > discardAfter_->getTimeInstantTZ()))
-        continue;
-
-      updateLastDateTimeCollected(time);
-    }
-    catch(boost::exception& /*e*/)
-    {
-      //invalid date or time, go on and compare as possible....
-
-      try
-      {
-        if(discardBefore_)
-        {
-          boost::local_time::local_date_time boostDiscardBefore = discardBefore_->getTimeInstantTZ();
-          boost::gregorian::date discardBeforeDate = boostDiscardBefore.date();
-          boost::posix_time::time_duration discardBeforeTime = boostDiscardBefore.time_of_day();
-
-          //discard if outside valid date limits
-          if(!isAfterDiscardBeforeDate(year, month, day, discardBeforeDate))
-            continue;
-
-          //if no date or same date: check time
-          if((year  == 0 || year  == discardBeforeDate.year())
-             && (month == 0 || month == discardBeforeDate.month().as_number())
-             && (day   == 0 || day   == discardBeforeDate.day().as_number()))
-          {
-            //check time
-            if(!isAfterDiscardBeforeTime(hours, minutes, seconds, datasetItem_.timezone(), discardBeforeTime))
-              continue;
-          }
-        }
-
-        if(discardAfter_)
-        {
-          boost::local_time::local_date_time boostDiscardAfter = discardAfter_->getTimeInstantTZ();
-          boost::gregorian::date discardAfterDate = boostDiscardAfter.date();
-          boost::posix_time::time_duration discardAfterTime = boostDiscardAfter.time_of_day();
-
-          //discard if outside valid date limits
-          if(!isBeforeDiscardAfterDate(year, month, day, discardAfterDate))
-            continue;
-
-          //if no date or same date: check time
-          if((year  == 0 || year  == discardAfterDate.year())
-             && (month == 0 || month == discardAfterDate.month().as_number())
-             && (day   == 0 || day   == discardAfterDate.day().as_number()))
-          {
-            //check time
-            if(!isBeforeDiscardAfterTime(hours, minutes, seconds, discardAfterTime))
-              continue;
-          }
-        }
-      }
-      catch(boost::exception& e)
-      {
-        //TODO: Log
-      }
-
-    }
-    catch(std::exception& e)
-    {
-      //TODO: Log
-    }
-
-    //Valid dates !!!!
-    matchesList2.push_back(name);
-  }
-
-  return matchesList2;
-#endif
 }
 
 bool terrama2::collector::DataFilter::filterName(const std::string& name)
@@ -206,9 +79,9 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
   if (!res)
     return false;
 
-  unsigned int year  = 0;
-  unsigned int month = 0;
-  unsigned int day   = 0;
+  unsigned short year  = 0;
+  unsigned short month = 0;
+  unsigned short day   = 0;
 
   int hours   = -1;
   int minutes = -1;
@@ -275,7 +148,7 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
            && (day   == 0 || day   == discardBeforeDate.day().as_number()))
         {
           //check time
-          if(!isAfterDiscardBeforeTime(hours, minutes, seconds, datasetItem_.timezone(), discardBeforeTime))
+          if(!isAfterDiscardBeforeTime(hours, minutes, seconds, discardBeforeTime))
             return false;
         }
       }
@@ -393,7 +266,7 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
   return true;
 }
 
-bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const std::string& timezone, const boost::posix_time::time_duration& discardBeforeTime) const
+bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const
 {
   if(hours > -1
      && hours > discardBeforeTime.hours())

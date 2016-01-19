@@ -155,7 +155,7 @@ namespace terrama2
            Check if hours, minutes and seconds are after discardBeforeTime,
            if any of them is -1 it's considered after, the others are checked.
          */
-      bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const std::string& timezone, const boost::posix_time::time_duration& discardBeforeTime) const;
+      bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const;
       /*!
            \brief Verifies if the time is after discarBeforeDate.
 

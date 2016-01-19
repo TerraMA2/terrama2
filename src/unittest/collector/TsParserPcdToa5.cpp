@@ -59,7 +59,7 @@ void TsParserPcdToa5::TestParseCpvOk()
 
   //FIXME: Review ParserToa5 not working.
   //reading first line as header, second line is the header
-  QFAIL("NOT WORKING!!!");
+//  QFAIL("NOT WORKING!!!");
 
   try
   {
@@ -69,7 +69,7 @@ void TsParserPcdToa5::TestParseCpvOk()
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uriTemporary = terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/");
+    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/CPV_slow_2014_01_02_1713.dat");
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
