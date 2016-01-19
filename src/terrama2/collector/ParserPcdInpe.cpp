@@ -94,7 +94,7 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
   }
   catch(boost::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
   }
   catch(...)
   {
