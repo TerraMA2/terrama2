@@ -171,7 +171,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::load()
               subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
               break;
             default:
-              break;
+              continue;
           }
           item->addChild(subItem);
         } // endif (dit->provider() == it->id())

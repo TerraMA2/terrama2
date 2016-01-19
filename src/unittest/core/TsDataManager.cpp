@@ -1491,3 +1491,30 @@ void TsDataManager::testDatasetValidName()
 
 
 }
+
+
+void TsDataManager::testListDataSetWihtAdditionalMap()
+{
+  try
+  {
+    auto dataset = createDataSet();
+    dataset.setKind(DataSet::ADDITIONAL_MAP);
+    DataManager::getInstance().add(dataset);
+
+    auto datasets = DataManager::getInstance().dataSets();
+
+    QVERIFY2(datasets.size() > 0, "Shouldn't be empty.");
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(NO_EXCEPTION_EXPECTED);
+  }
+  catch(...)
+  {
+    QFAIL(NO_EXCEPTION_EXPECTED);
+  }
+
+
+}
+

@@ -106,6 +106,9 @@ namespace terrama2
           */
           void pcdFormCreation(terrama2::core::DataSetItem item, bool editing = false);
 
+          //! Fill the combo with the list of additional maps.
+          void fillAdditionalMapList();
+
         private slots:
           //! Slot triggered when insert pcd button has been clicked. It displays the PCD tab
           void onInsertPointBtnClicked();

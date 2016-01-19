@@ -124,7 +124,7 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
     filter_->setDataSetItem(datasetItem.id());
   }
 
-  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(datasetItem.metadata(), provider.uri().c_str(), *app_->getConfiguration());
+  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(dataset.kind(), datasetItem.metadata(), provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem.setMetadata(itemMetadata);
   datasetItem.setSrid(srid_);
@@ -152,12 +152,8 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
-  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(dataset, *app_->getConfiguration());
-
-  datasetItem->setStorageMetadata(storageMetadata);
-
   // Lets save dataset, adding item in dataset
-  terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointDiffFormatDataName->text(), "ocurrence-data");
+  terrama2::gui::config::saveDataSet(dataset, datasetItem, provider.id(), app_, selectedData_, ui_->pointDiffFormatDataName->text(), "ocurrence-data");
 }
 
 void terrama2::gui::config::ConfigAppWeatherOccurrence::discardChanges(bool restore_data)

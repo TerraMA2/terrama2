@@ -180,7 +180,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
 
   dataset.setMetadata(metadata);
 
-  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(datasetItem->metadata(), provider.uri().c_str(), *app_->getConfiguration());
+  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(dataset.kind(), datasetItem->metadata(), provider.uri().c_str(), *app_->getConfiguration());
 
   datasetItem->setMetadata(itemMetadata);
 
