@@ -30,16 +30,10 @@
 
 //TerraMA2
 #include "IntersectionDAO.hpp"
-<<<<<<< HEAD:src/terrama2/core/dao/IntersectionDAO.cpp
 #include "../Intersection.hpp"
 #include "../Exception.hpp"
 #include "../Utils.hpp"
-=======
-#include "Intersection.hpp"
-#include "Exception.hpp"
-#include "Utils.hpp"
-#include "Logger.hpp"
->>>>>>> upstream/master:src/terrama2/core/IntersectionDAO.cpp
+#include "../Logger.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>

@@ -32,14 +32,10 @@
 //TerraMA2
 #include "DataSetItemDAO.hpp"
 #include "FilterDAO.hpp"
-<<<<<<< HEAD:src/terrama2/core/dao/DataSetItemDAO.cpp
 #include "../Exception.hpp"
 #include "../Filter.hpp"
 #include "../Utils.hpp"
-=======
-#include "Utils.hpp"
-#include "Logger.hpp"
->>>>>>> upstream/master:src/terrama2/core/DataSetItemDAO.cpp
+#include "../Logger.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>

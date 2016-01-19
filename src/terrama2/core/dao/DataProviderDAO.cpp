@@ -30,14 +30,9 @@
 // TerraMA2
 #include "DataProviderDAO.hpp"
 #include "DataSetDAO.hpp"
-<<<<<<< HEAD:src/terrama2/core/dao/DataProviderDAO.cpp
 #include "../Exception.hpp"
 #include "../Utils.hpp"
-=======
-#include "Exception.hpp"
-#include "Utils.hpp"
-#include "Logger.hpp"
->>>>>>> upstream/master:src/terrama2/core/DataProviderDAO.cpp
+#include "../Logger.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>

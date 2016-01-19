@@ -31,14 +31,9 @@
 
 //TerraMA2
 #include "FilterDAO.hpp"
-<<<<<<< HEAD:src/terrama2/core/dao/FilterDAO.cpp
 #include "../Exception.hpp"
 #include "../Utils.hpp"
-=======
-#include "Exception.hpp"
-#include "Utils.hpp"
-#include "Logger.hpp"
->>>>>>> upstream/master:src/terrama2/core/FilterDAO.cpp
+#include "../Logger.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>

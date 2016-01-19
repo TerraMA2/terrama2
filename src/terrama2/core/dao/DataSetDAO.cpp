@@ -33,16 +33,11 @@
 #include "DataSetDAO.hpp"
 #include "DataSetItemDAO.hpp"
 #include "IntersectionDAO.hpp"
-<<<<<<< HEAD:src/terrama2/core/dao/DataSetDAO.cpp
 #include "../DataSetItem.hpp"
 #include "../Exception.hpp"
 #include "../Intersection.hpp"
 #include "../Utils.hpp"
-=======
-#include "Exception.hpp"
-#include "Utils.hpp"
-#include "Logger.hpp"
->>>>>>> upstream/master:src/terrama2/core/DataSetDAO.cpp
+#include "../Logger.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
