@@ -34,7 +34,6 @@
 #include "../core/Utils.hpp"
 #include "../../core/Utils.hpp"
 #include "../../core/DataManager.hpp"
-#include "../../core/DataProviderDAO.hpp"
 #include "../../core/Logger.hpp"
 
 // TerraMA2 SubTabs
@@ -172,7 +171,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::load()
               subItem->setIcon(0, QIcon::fromTheme("ocurrence-data"));
               break;
             default:
-              break;
+              continue;
           }
           item->addChild(subItem);
         } // endif (dit->provider() == it->id())
@@ -515,23 +514,25 @@ void terrama2::gui::config::ConfigAppWeatherTab::onWeatherDataTreeClicked(QTreeW
                 break;
               }
               case terrama2::core::DataSet::PCD_TYPE:
+              {
+                ConfigAppWeatherPcd* pcdTab  = dynamic_cast<ConfigAppWeatherPcd*>(subTabs_[2].data());
                 changeTab((subTabs_[2].data()), *ui_->DataPointPage);
                 subTabs_[2]->setSelectedData(selectedItem->text(0));
-                subTabs_[2]->load();
-
-                ui_->pointFormatDataName->setText(dataset.name().c_str());
-                ui_->pointFormatDataHour->setText(QString::number(dataset.dataFrequency().getHours()));
-                ui_->pointFormatDataMinute->setText(QString::number(dataset.dataFrequency().getMinutes()));
-                ui_->pointFormatDataSecond->setText(QString::number(dataset.dataFrequency().getSeconds()));
 
                 hideDataSetButtons();
                 showDataSeries(false);
+
+
                 ui_->dataSeriesBtnGroupBox->setVisible(true);
                 ui_->updateDataPointBtn->setVisible(true);
                 ui_->exportDataPointBtn->setVisible(true);
                 ui_->pointFormatDataDeleteBtn->setVisible(true);
 
+
+                pcdTab->load(dataset);
+
                 break;
+              }
               case terrama2::core::DataSet::OCCURENCE_TYPE:
               {
                 changeTab((subTabs_[3].data()), *ui_->DataPointDiffPage);
@@ -775,6 +776,11 @@ void terrama2::gui::config::ConfigAppWeatherTab::removeCachedDataProvider(const 
 void terrama2::gui::config::ConfigAppWeatherTab::addCachedDataSet(const terrama2::core::DataSet &dataset)
 {
   datasets_.insert(dataset.name(), dataset);
+}
+
+void terrama2::gui::config::ConfigAppWeatherTab::updateCachedDataSet(const terrama2::core::DataSet &dataset)
+{
+  datasets_[dataset.name()] =  dataset;
 }
 
 void terrama2::gui::config::ConfigAppWeatherTab::removeCachedDataSet(const terrama2::core::DataSet &dataset)

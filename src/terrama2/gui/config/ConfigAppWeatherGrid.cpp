@@ -103,6 +103,8 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
   dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
 
+  // TODO: Paulo: Review
+
   terrama2::core::DataSetItem* datasetItem;
 
   if (dataset.dataSetItems().size() > 0)
@@ -121,6 +123,9 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem->setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
   datasetItem->setPath(ui_->gridFormatDataPath->text().toStdString());
+
+  // TODO: PAULO: Projection
+  dataset.add(*datasetItem);
 
   te::dt::TimeDuration dataFrequency(ui_->gridFormatDataHour->text().toInt(),
                                      ui_->gridFormatDataMinute->text().toInt(),
@@ -175,9 +180,9 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
 
   dataset.setMetadata(metadata);
 
-  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(dataset, *app_->getConfiguration());
+  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(dataset.kind(), datasetItem->metadata(), provider.uri().c_str(), *app_->getConfiguration());
 
-  datasetItem->setStorageMetadata(storageMetadata);
+  datasetItem->setMetadata(itemMetadata);
 
   dataset.setSchedule(schedule);
 

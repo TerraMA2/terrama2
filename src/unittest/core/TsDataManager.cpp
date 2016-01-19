@@ -98,6 +98,7 @@ DataProvider TsDataManager::createDataProvider()
   auto dataProvider = DataProvider();
   dataProvider.setName("Server 1");
   dataProvider.setKind(DataProvider::FTP_TYPE);
+  dataProvider.setOrigin(DataProvider::COLLECTOR);
   dataProvider.setStatus(DataProvider::ACTIVE);
   dataProvider.setDescription("This server...");
   dataProvider.setUri("localhost@...");
@@ -116,17 +117,6 @@ DataSet TsDataManager::createDataSet()
 
   te::dt::TimeDuration dataFrequency(2,0,0);
   dataSet.setDataFrequency(dataFrequency);
-
-  std::vector<DataSet::CollectRule> collectRules;
-  {
-    DataSet::CollectRule collectRule = { 0, "... LUA SCRIPT 1...", 0 };
-    collectRules.push_back(collectRule);
-  }
-  {
-    DataSet::CollectRule collectRule = {0, "... LUA SCRIPT 2...", 0 };
-    collectRules.push_back(collectRule);
-  }
-  dataSet.setCollectRules(collectRules);
 
   std::map<std::string, std::string> metadata;
   metadata["key"] = "value";
@@ -165,12 +155,12 @@ DataSet TsDataManager::createDataSet()
 
   DataSetItem dataSetItem2(DataSetItem::FIRE_POINTS_TYPE, 0, dataSet.id());
 
-  std::map<std::string, std::string> storageMetadata;
-  storageMetadata["key"] = "value";
-  storageMetadata["key1"] = "value1";
-  storageMetadata["key2"] = "value2";
+  std::map<std::string, std::string> itemMetadata;
+  itemMetadata["key"] = "value";
+  itemMetadata["key1"] = "value1";
+  itemMetadata["key2"] = "value2";
 
-  dataSetItem2.setStorageMetadata(storageMetadata);
+  dataSetItem2.setMetadata(itemMetadata);
 
   dataSet.add(dataSetItem2);
 
@@ -677,16 +667,6 @@ void TsDataManager::testFindDataSet()
     QCOMPARE(foundDataSet.dataFrequency(), dataSet.dataFrequency());
     QCOMPARE(foundDataSet.status(), dataSet.status());
 
-
-
-    QCOMPARE(foundDataSet.collectRules().size(), dataSet.collectRules().size());
-    auto dsCollectRules = dataSet.collectRules();
-    auto foundCollectRules = foundDataSet.collectRules();
-    for(unsigned int i = 0; i < dsCollectRules.size(); ++i)
-    {
-      QCOMPARE(dsCollectRules[i].script, foundCollectRules[i].script);
-    }
-
     QCOMPARE(foundDataSet.dataSetItems().size(), dataSet.dataSetItems().size());
   }
   catch(boost::exception& e)
@@ -716,16 +696,6 @@ void TsDataManager::testFindDataSetByName()
     QCOMPARE(foundDataSet.kind(), dataSet.kind());
     QCOMPARE(foundDataSet.name(), dataSet.name());
     QCOMPARE(foundDataSet.dataFrequency(), dataSet.dataFrequency());
-
-
-
-    QCOMPARE(foundDataSet.collectRules().size(), dataSet.collectRules().size());
-    auto dsCollectRules = dataSet.collectRules();
-    auto foundCollectRules = foundDataSet.collectRules();
-    for(unsigned int i = 0; i < dsCollectRules.size(); ++i)
-    {
-      QCOMPARE(dsCollectRules[i].script, foundCollectRules[i].script);
-    }
 
     QCOMPARE(foundDataSet.dataSetItems().size(), dataSet.dataSetItems().size());
   }
@@ -766,18 +736,12 @@ void TsDataManager::testUpdateDataSet()
     dataSet.setDescription("Description...");
     dataSet.setName("New queimadas");
 
-    // Change the collect rule script
-    std::vector<DataSet::CollectRule>  collectRules = dataSet.collectRules();
-    collectRules[0].script = "... LUA SCRIPT UPDATE 1...";
-    dataSet.setCollectRules(collectRules);
-
     // Remove the dataset item PCD_INPE
 
     auto& dataSetItems = dataSet.dataSetItems();
-    dataSet.removeDataSetItem(dataSetItems[0].id());
 
     // Updates the data from FIRE_POINTS_TYPE
-    auto& dsItem = dataSetItems[0];
+    auto& dsItem = dataSetItems[1];
     dsItem.setMask("Queimadas_*");
     dsItem.setPath("other_path");
 
@@ -803,8 +767,6 @@ void TsDataManager::testUpdateDataSet()
     QVERIFY2(dataSet.scheduleRetry() == foundDataSet.scheduleRetry(), "Schedule retry must be the same!");
     QVERIFY2(dataSet.dataFrequency() == foundDataSet.dataFrequency(), "Data frequency must be the same!");
 
-    QVERIFY2(collectRules[0].script == foundDataSet.collectRules()[0].script, "Collect rule script must be the same!");
-
     std::map<std::string, std::string> metadata = dataSet.metadata();
     std::map<std::string, std::string> metadataFound = foundDataSet.metadata();
 
@@ -814,21 +776,32 @@ void TsDataManager::testUpdateDataSet()
 
     // Expected result is to remove the data PCD_INPE, update the FIRE_POINTS  and insert PCD_TOA5.
 
-    QVERIFY2(foundDataSet.dataSetItems().size() == 2, "dataSetItems must have 2 itens!");
+    QVERIFY2(dataSet.dataSetItems().size() == 3, "dataSetItems must have 2 itens!");
 
-    auto dsItem0 = foundDataSet.dataSetItems()[0];
-    auto dsItem1 = foundDataSet.dataSetItems()[1];
+    auto dsItem0 = dataSet.dataSetItems()[0];
+    auto dsItem1 = dataSet.dataSetItems()[1];
+    auto dsItem2 = dataSet.dataSetItems()[2];
 
-    QVERIFY2(dsItem0.kind() == DataSetItem::FIRE_POINTS_TYPE, "dataSetItems[0] must be of the type FIRE_POINTS!");
-    QVERIFY2(dsItem0.mask() == "Queimadas_*", "Mask should be 'Queimadas_*'!");
-    QVERIFY2(dsItem0.path() == "other_path", "Path should be 'other_path'!");
-    QVERIFY2(dsItem1.kind() == DataSetItem::PCD_TOA5_TYPE, "dataSetItems[1] must be of the type PCD-TOA5!");
-    QVERIFY2(dsItem1.srid() == 0, "dataSetItems[1] srid must be 0!");
+    QVERIFY2(dsItem0.id() > 0, "dataSetItems[0] Id must be valid");
+    QVERIFY2(dsItem1.id() > 0, "dataSetItems[1] Id must be valid");
+    QVERIFY2(dsItem2.id() > 0, "dataSetItems[2] Id must be valid");
 
-    std::map<std::string, std::string> storageMetadata =  dsItem0.storageMetadata();
-    QVERIFY2("value" == storageMetadata["key"], "Metadata key/value must be the same!");
-    QVERIFY2("value1" == storageMetadata["key1"], "Metadata key1/value1 must be the same!");
-    QVERIFY2("value2" == storageMetadata["key2"], "Metadata key2/value2 must be the same!");
+    std::map<std::string, std::string> itemMetadata =  dsItem1.metadata();
+    QVERIFY2("value" == itemMetadata["key"], "Metadata key/value must be the same!");
+    QVERIFY2("value1" == itemMetadata["key1"], "Metadata key1/value1 must be the same!");
+    QVERIFY2("value2" == itemMetadata["key2"], "Metadata key2/value2 must be the same!");
+
+    foundDataSet.removeDataSetItem(dsItem0.id());
+    foundDataSet.removeDataSetItem(dsItem1.id());
+    foundDataSet.removeDataSetItem(dsItem2.id());
+
+    DataManager::getInstance().update(foundDataSet);
+
+    foundDataSet = DataManager::getInstance().findDataSet(dataSet.id());
+
+    QVERIFY2(foundDataSet.dataSetItems().size() == 0, "dataSetItems must be empty!");
+
+
   }
   catch(boost::exception& e)
   {
@@ -1518,3 +1491,30 @@ void TsDataManager::testDatasetValidName()
 
 
 }
+
+
+void TsDataManager::testListDataSetWihtAdditionalMap()
+{
+  try
+  {
+    auto dataset = createDataSet();
+    dataset.setKind(DataSet::ADDITIONAL_MAP);
+    DataManager::getInstance().add(dataset);
+
+    auto datasets = DataManager::getInstance().dataSets();
+
+    QVERIFY2(datasets.size() > 0, "Shouldn't be empty.");
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(NO_EXCEPTION_EXPECTED);
+  }
+  catch(...)
+  {
+    QFAIL(NO_EXCEPTION_EXPECTED);
+  }
+
+
+}
+

@@ -143,10 +143,10 @@ DataSet BuildStructDataSet(int providerId)
     if(i == 2)
       dataset_item.filter_value = std::nan("");
 
-    dataset_item.storageMetadata_keys.push_back("one");
-    dataset_item.storageMetadata_values.push_back("two");
-    dataset_item.storageMetadata_keys.push_back("two");
-    dataset_item.storageMetadata_values.push_back("one");
+    dataset_item.metadata_keys.push_back("one");
+    dataset_item.metadata_values.push_back("two");
+    dataset_item.metadata_keys.push_back("two");
+    dataset_item.metadata_values.push_back("one");
 
     struct_dataSet.dataset_items.push_back(dataset_item);
   }
@@ -818,10 +818,10 @@ void TsWebService::testUpdateDataSet()
       if(i == 2)
         struct_dataSetResult.dataset_items.at(i).filter_value = 15;
 
-      struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(0) = "three";
-      struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(0) = "four";
-      struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(1) = "four";
-      struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(1) = "three";
+      struct_dataSetResult.dataset_items.at(i).metadata_keys.at(0) = "three";
+      struct_dataSetResult.dataset_items.at(i).metadata_values.at(0) = "four";
+      struct_dataSetResult.dataset_items.at(i).metadata_keys.at(1) = "four";
+      struct_dataSetResult.dataset_items.at(i).metadata_values.at(1) = "three";
     }
 
     if(webService.updateDataSet(struct_dataSetResult, struct_dataSetResult) != SOAP_OK)
@@ -882,15 +882,15 @@ void TsWebService::testUpdateDataSet()
       if(!(std::isnan(struct_dataSet_check.dataset_items.at(i).filter_value) && std::isnan(struct_dataSet_check.dataset_items.at(i).filter_value)))
         QVERIFY(struct_dataSet_check.dataset_items.at(i).filter_value != struct_dataSetResult.dataset_items.at(i).filter_value);
 
-      QCOMPARE(struct_dataSet_check.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size());
-      QCOMPARE(struct_dataSet_check.dataset_items.at(i).storageMetadata_values.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+      QCOMPARE(struct_dataSet_check.dataset_items.at(i).metadata_keys.size(), struct_dataSetResult.dataset_items.at(i).metadata_keys.size());
+      QCOMPARE(struct_dataSet_check.dataset_items.at(i).metadata_values.size(), struct_dataSetResult.dataset_items.at(i).metadata_values.size());
 
-      QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+      QCOMPARE(struct_dataSetResult.dataset_items.at(i).metadata_keys.size(), struct_dataSetResult.dataset_items.at(i).metadata_values.size());
 
-      for(unsigned int j = 0; j < struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(); j++)
+      for(unsigned int j = 0; j < struct_dataSetResult.dataset_items.at(i).metadata_keys.size(); j++)
       {
-        QVERIFY(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(j) != struct_dataSet_check.dataset_items.at(i).storageMetadata_keys.at(j));
-        QVERIFY(struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(j) != struct_dataSet_check.dataset_items.at(i).storageMetadata_values.at(j));
+        QVERIFY(struct_dataSetResult.dataset_items.at(i).metadata_keys.at(j) != struct_dataSet_check.dataset_items.at(i).metadata_keys.at(j));
+        QVERIFY(struct_dataSetResult.dataset_items.at(i).metadata_values.at(j) != struct_dataSet_check.dataset_items.at(i).metadata_values.at(j));
 
         j++;
       }
@@ -1014,15 +1014,15 @@ void TsWebService::testFindDataSet()
         if(!std::isnan(struct_dataSet_found.dataset_items.at(i).filter_value))
           QFAIL("Compared filter values are not the same");
 
-      QCOMPARE(struct_dataSet_found.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size());
-      QCOMPARE(struct_dataSet_found.dataset_items.at(i).storageMetadata_values.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).metadata_keys.size(), struct_dataSetResult.dataset_items.at(i).metadata_keys.size());
+      QCOMPARE(struct_dataSet_found.dataset_items.at(i).metadata_values.size(), struct_dataSetResult.dataset_items.at(i).metadata_values.size());
 
-      QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(), struct_dataSetResult.dataset_items.at(i).storageMetadata_values.size());
+      QCOMPARE(struct_dataSetResult.dataset_items.at(i).metadata_keys.size(), struct_dataSetResult.dataset_items.at(i).metadata_values.size());
 
-      for(unsigned int j = 0; j < struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.size(); j++)
+      for(unsigned int j = 0; j < struct_dataSetResult.dataset_items.at(i).metadata_keys.size(); j++)
       {
-        QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_keys.at(j), struct_dataSet_found.dataset_items.at(i).storageMetadata_keys.at(j));
-        QCOMPARE(struct_dataSetResult.dataset_items.at(i).storageMetadata_values.at(j), struct_dataSet_found.dataset_items.at(i).storageMetadata_values.at(j));
+        QCOMPARE(struct_dataSetResult.dataset_items.at(i).metadata_keys.at(j), struct_dataSet_found.dataset_items.at(i).metadata_keys.at(j));
+        QCOMPARE(struct_dataSetResult.dataset_items.at(i).metadata_values.at(j), struct_dataSet_found.dataset_items.at(i).metadata_values.at(j));
 
         j++;
       }

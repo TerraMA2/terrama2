@@ -134,16 +134,16 @@ void TsFactory::TestMakeStorager()
 
     }
 
-    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
-                                                        {"PG_HOST", "localhost"},
-                                                        {"PG_PORT", "5432"},
-                                                        {"PG_USER", "postgres"},
-                                                        {"PG_PASSWORD", "postgres"},
-                                                        {"PG_DB_NAME", "basedeteste"},
-                                                        {"PG_CONNECT_TIMEOUT", "4"},
-                                                        {"PG_CLIENT_ENCODING", "UTF-8"},
-                                                        {"PG_TABLENAME", "terrama2.teste_postgis"} };
-    unknownTypeItem.setStorageMetadata(storageMetadata);
+    std::map<std::string, std::string> metadata{{"KIND", "POSTGIS"},
+                                                {"PG_HOST", "localhost"},
+                                                {"PG_PORT", "5432"},
+                                                {"PG_USER", "postgres"},
+                                                {"PG_PASSWORD", "postgres"},
+                                                {"PG_DB_NAME", "basedeteste"},
+                                                {"PG_CONNECT_TIMEOUT", "4"},
+                                                {"PG_CLIENT_ENCODING", "UTF-8"},
+                                                {"PG_TABLENAME", "terrama2.teste_postgis"}};
+    unknownTypeItem.setMetadata(metadata);
 
     terrama2::collector::StoragerPtr storager = terrama2::collector::Factory::makeStorager(unknownTypeItem);
     terrama2::collector::StoragerPostgis* storagerPostgis = dynamic_cast<terrama2::collector::StoragerPostgis*>(storager.get());

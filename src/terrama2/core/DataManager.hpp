@@ -276,7 +276,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        std::vector<terrama2::core::DataProvider> providers() const;
+        std::vector<terrama2::core::DataProvider> providers(const terrama2::core::DataProvider::Origin origin = terrama2::core::DataProvider::COLLECTOR) const;
 
         /*!
           \brief Retrieve all datasets from the database.

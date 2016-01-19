@@ -67,8 +67,8 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
     std::map<std::string, std::string> connInfo;
 
     //get filename
-    std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("STORAGE_NAME");
-    if(dataSetNameIt != storageMetadata_.end())
+    std::map<std::string, std::string>::const_iterator dataSetNameIt = metadata_.find("STORAGE_NAME");
+    if(dataSetNameIt != metadata_.end())
     {
       std::string dataSetName = dataSetNameIt->second;
       std::string tif = ".tif", tiff = ".tiff";

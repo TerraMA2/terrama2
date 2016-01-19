@@ -45,8 +45,8 @@
 #include <QObject>
 #include <QUrl>
 
-terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string, std::string>& storageMetadata)
-  : Storager(storageMetadata)
+terrama2::collector::StoragerPostgis::StoragerPostgis(const std::map<std::string, std::string>& metadata)
+  : Storager(metadata)
 {
 
 }
@@ -102,14 +102,14 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
     const core::DataSetItem& dataSetItem = transferenceDataVec.at(0).datasetItem;
 
     std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
-    datasourceDestination->setConnectionInfo(storageMetadata_);
+    datasourceDestination->setConnectionInfo(metadata_);
     OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
     if(!datasourceDestination->isOpened())
       return; //TODO: throw exception...
 
     std::string dataSetName;
-    std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("STORAGE_NAME");
-    if(dataSetNameIt != storageMetadata_.end())
+    std::map<std::string, std::string>::const_iterator dataSetNameIt = metadata_.find("STORAGE_NAME");
+    if(dataSetNameIt != metadata_.end())
       dataSetName = dataSetNameIt->second;
     else
     {
@@ -122,11 +122,11 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
 
     QUrl uri;
     uri.setScheme("postgis");
-    uri.setHost(QString::fromStdString(storageMetadata_.at("PG_HOST")));
-    uri.setPort(std::stoi(storageMetadata_.at("PG_PORT")));
-    uri.setUserName(QString::fromStdString(storageMetadata_.at("PG_USER")));
-    uri.setPassword(QString::fromStdString(storageMetadata_.at("PG_PASSWORD")));
-    QString path = "/" + QString::fromStdString(storageMetadata_.at("PG_DB_NAME") + "/" + dataSetName);
+    uri.setHost(QString::fromStdString(metadata_.at("PG_HOST")));
+    uri.setPort(std::stoi(metadata_.at("PG_PORT")));
+    uri.setUserName(QString::fromStdString(metadata_.at("PG_USER")));
+    uri.setPassword(QString::fromStdString(metadata_.at("PG_PASSWORD")));
+    QString path = "/" + QString::fromStdString(metadata_.at("PG_DB_NAME") + "/" + dataSetName);
     uri.setPath(path);
 
     //update storage uri
