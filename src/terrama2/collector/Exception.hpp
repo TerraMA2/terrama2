@@ -76,6 +76,8 @@ namespace terrama2
     struct InvalidFileException: virtual ParserException { };
     //! Raised when there is no dataset to parse.
     struct NoDataSetFoundException: virtual ParserException { };
+    //! Raised when a parser is unable to create a temporary folder.
+    struct CantCreateTemporaryFolderException: virtual ParserException { };
 
     //! Base exception for DataFilter
     struct DataFilterException: virtual Exception { };

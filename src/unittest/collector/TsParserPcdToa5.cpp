@@ -77,7 +77,7 @@ void TsParserPcdToa5::TestParseCpvOk()
     terrama2::collector::ParserPcdToa5 parser;
     parser.read(filter, transferenceDataVec);
 
-    QVERIFY(transferenceDataVec.size() == 21);
+    QVERIFY(transferenceDataVec.size() == 1);
 
     std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataSet;
     if(dataset->moveNext())
@@ -88,15 +88,17 @@ void TsParserPcdToa5::TestParseCpvOk()
       QVERIFY(timeTz);
 
       boost::gregorian::date localDate = timeTz->getTimeInstantTZ().date();
-      QVERIFY(localDate.day() == 1);
-      QVERIFY(localDate.month() == 11);
-      QVERIFY(localDate.year() == 2015);
+      QVERIFY(localDate.day() == 2);
+      QVERIFY(localDate.month() == 1);
+      QVERIFY(localDate.year() == 2014);
 
       boost::posix_time::time_duration time = timeTz->getTimeInstantTZ().utc_time().time_of_day();
-      QCOMPARE(time.hours(), 3);
-      QCOMPARE(time.minutes(), 0);
+      QCOMPARE(time.hours(), 17);
+      QCOMPARE(time.minutes(), 13);
       QCOMPARE(time.seconds(), 0);
     }
+    else
+      QFAIL(CANT_ACCESS_DATA);
 
   }
   catch(...)

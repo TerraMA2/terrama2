@@ -113,7 +113,7 @@ void terrama2::collector::ParserPcdInpe::adapt(std::shared_ptr<te::da::DataSetTy
 
   //Find the rigth column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
-  for(int i = 0, size = properties.size(); i < size; ++i)
+  for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
     if(property->getName() == timestampName)

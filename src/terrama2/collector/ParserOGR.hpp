@@ -60,6 +60,7 @@ namespace terrama2
     class ParserOGR : public Parser
     {
     public:
+      virtual ~ParserOGR(){}
 
       /**
             \brief \copybrief Parser::read()
