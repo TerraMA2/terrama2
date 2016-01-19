@@ -30,8 +30,14 @@
 // TerraMA2
 #include "DataProviderDAO.hpp"
 #include "DataSetDAO.hpp"
+<<<<<<< HEAD:src/terrama2/core/dao/DataProviderDAO.cpp
 #include "../Exception.hpp"
 #include "../Utils.hpp"
+=======
+#include "Exception.hpp"
+#include "Utils.hpp"
+#include "Logger.hpp"
+>>>>>>> upstream/master:src/terrama2/core/DataProviderDAO.cpp
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -65,17 +71,23 @@ void terrama2::core::dao::DataProviderDAO::save(DataProvider& provider,
     provider.setId(transactor.getLastGeneratedId());
 
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not save the data provider."));
+    QString message = QObject::tr("Could not save the data provider.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -101,17 +113,23 @@ void terrama2::core::dao::DataProviderDAO::update(DataProvider& provider,
     transactor.execute(query.str());
 
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not update the data provider."));
+    QString message = QObject::tr("Could not update the data provider.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -143,17 +161,23 @@ void terrama2::core::dao::DataProviderDAO::remove(const uint64_t id, te::da::Dat
 
     transactor.execute(query.str());
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not remove the data provider."));
+    QString message = QObject::tr("Could not remove the data provider.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -190,17 +214,23 @@ terrama2::core::dao::DataProviderDAO::load(const uint64_t id, te::da::DataSource
       return provider;
     }
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not remove the data provider."));
+    QString message = QObject::tr("Could not remove the data provider.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 
   return DataProvider();
@@ -235,17 +265,23 @@ terrama2::core::dao::DataProviderDAO::loadAll(te::da::DataSourceTransactor& tran
       providers.push_back(std::move(provider));
     }
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Unexpected error loading data providers."));
+    QString message = QObject::tr("Unexpected error loading data providers.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 
   return std::move(providers);

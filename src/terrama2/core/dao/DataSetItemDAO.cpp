@@ -32,9 +32,14 @@
 //TerraMA2
 #include "DataSetItemDAO.hpp"
 #include "FilterDAO.hpp"
+<<<<<<< HEAD:src/terrama2/core/dao/DataSetItemDAO.cpp
 #include "../Exception.hpp"
 #include "../Filter.hpp"
 #include "../Utils.hpp"
+=======
+#include "Utils.hpp"
+#include "Logger.hpp"
+>>>>>>> upstream/master:src/terrama2/core/DataSetItemDAO.cpp
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -77,21 +82,27 @@ terrama2::core::dao::DataSetItemDAO::save(DataSetItem& item, te::da::DataSourceT
 
     saveMetadata(item.id(), item.metadata(), transactor);
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error saving dataset item: %1"));
+    QString message(QObject::tr("Unexpected error saving dataset item: %1"));
 
-    err_msg = err_msg.arg(item.id());
+    message = message.arg(item.id());
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -168,21 +179,27 @@ terrama2::core::dao::DataSetItemDAO::update(DataSetItem& item, te::da::DataSourc
 
     updateMetadata(item.id(), item.metadata(), transactor);
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error updating dataset item: %1"));
+    QString message(QObject::tr("Unexpected error updating dataset item: %1"));
 
-    err_msg = err_msg.arg(item.id());
+    message = message.arg(item.id());
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -201,15 +218,19 @@ terrama2::core::dao::DataSetItemDAO::remove(uint64_t itemId, te::da::DataSourceT
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error removing dataset item: %1"));
+    QString message(QObject::tr("Unexpected error removing dataset item: %1"));
 
-    err_msg = err_msg.arg(itemId);
+    message = message.arg(itemId);
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -256,21 +277,27 @@ terrama2::core::dao::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSou
 
     return std::move(items);
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error loading dataset items for dataset: %1"));
+    QString message(QObject::tr("Unexpected error loading dataset items for dataset: %1"));
 
-    err_msg = err_msg.arg(datasetId);
+    message = message.arg(datasetId);
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -297,11 +324,15 @@ terrama2::core::dao::DataSetItemDAO::saveMetadata(uint64_t datasetItemId,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    QString message = QObject::tr("Could not load dataset items.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -336,11 +367,15 @@ terrama2::core::dao::DataSetItemDAO::removeMetadata(uint64_t datasetItemId,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    QString message = QObject::tr("Could not load dataset items.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -369,10 +404,14 @@ terrama2::core::dao::DataSetItemDAO::loadMetadata(DataSetItem& item,
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not load dataset items."));
+    QString message = QObject::tr("Could not load dataset items.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }

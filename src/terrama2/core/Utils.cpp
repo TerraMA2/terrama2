@@ -332,8 +332,8 @@ void terrama2::core::finalizeTerralib()
   TerraLib::getInstance().finalize();
 }
 
-void terrama2::core::initializeLogger()
+void terrama2::core::initializeLogger(const std::string& pathFile)
 {
-  terrama2::core::Logger::getInstance().addStream("terrama2.log");
+  terrama2::core::Logger::getInstance().addStream(pathFile);
   terrama2::core::Logger::getInstance().initialize();
 }

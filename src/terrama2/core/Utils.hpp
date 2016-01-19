@@ -182,8 +182,11 @@ namespace terrama2
     /*! \brief Finalizes the terralib. */
     void finalizeTerralib();
 
-    /*! \brief Initializes terrama2 logger module. */
-    void initializeLogger();
+    /*!
+      \brief Initializes terrama2 logger module.
+      \param pathFile A string value defining where is to open/save log file.
+    */
+    void initializeLogger(const std::string& pathFile);
 
 
   } // end namespace core

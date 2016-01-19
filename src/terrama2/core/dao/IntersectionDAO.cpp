@@ -30,9 +30,16 @@
 
 //TerraMA2
 #include "IntersectionDAO.hpp"
+<<<<<<< HEAD:src/terrama2/core/dao/IntersectionDAO.cpp
 #include "../Intersection.hpp"
 #include "../Exception.hpp"
 #include "../Utils.hpp"
+=======
+#include "Intersection.hpp"
+#include "Exception.hpp"
+#include "Utils.hpp"
+#include "Logger.hpp"
+>>>>>>> upstream/master:src/terrama2/core/IntersectionDAO.cpp
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -87,15 +94,19 @@ terrama2::core::dao::IntersectionDAO::save(const Intersection& intersection, te:
       }
       catch(const std::exception& e)
       {
-        throw DataAccessException() << ErrorDescription(e.what());
+        const char* message = e.what();
+        TERRAMA2_LOG_ERROR() << message;
+        throw DataAccessException() << ErrorDescription(message);
       }
       catch(...)
       {
-        QString err_msg(QObject::tr("Unexpected error saving intersection information for dataset: %1"));
+        QString message(QObject::tr("Unexpected error saving intersection information for dataset: %1"));
 
-        err_msg = err_msg.arg(intersection.dataset());
+        message = message.arg(intersection.dataset());
 
-        throw DataAccessException() << ErrorDescription(err_msg);
+        TERRAMA2_LOG_ERROR() << message;
+
+        throw DataAccessException() << ErrorDescription(message);
       }
     }
 
@@ -121,15 +132,17 @@ terrama2::core::dao::IntersectionDAO::save(const Intersection& intersection, te:
     }
     catch(const std::exception& e)
     {
-      throw DataAccessException() << ErrorDescription(e.what());
+      const char* message = e.what();
+      TERRAMA2_LOG_ERROR() << message;
+      throw DataAccessException() << ErrorDescription(message);
     }
     catch(...)
     {
-      QString err_msg(QObject::tr("Unexpected error saving intersection information for dataset: %1"));
+      QString message(QObject::tr("Unexpected error saving intersection information for dataset: %1"));
 
-      err_msg = err_msg.arg(intersection.dataset());
+      message = message.arg(intersection.dataset());
 
-      throw DataAccessException() << ErrorDescription(err_msg);
+      throw DataAccessException() << ErrorDescription(message);
     }
   }
 
@@ -147,17 +160,23 @@ terrama2::core::dao::IntersectionDAO::update(const Intersection& intersection, t
     save(intersection, transactor);
 
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not update the intersection information."));
+    QString message = QObject::tr("Could not update the intersection information.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -174,7 +193,9 @@ terrama2::core::dao::IntersectionDAO::remove(uint64_t datasetId, te::da::DataSou
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not remove the intersection information."));
+    QString message = QObject::tr("Could not remove the intersection information.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -230,21 +251,27 @@ void terrama2::core::dao::IntersectionDAO::load(terrama2::core::DataSet& dataset
 
     dataset.setIntersection(intersection);
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error loading intersection information for dataset item: %1"));
+    QString message(QObject::tr("Unexpected error loading intersection information for dataset item: %1"));
 
-    err_msg = err_msg.arg(dataset.id());
+    message = message.arg(dataset.id());
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 
 }

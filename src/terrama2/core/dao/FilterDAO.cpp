@@ -31,8 +31,14 @@
 
 //TerraMA2
 #include "FilterDAO.hpp"
+<<<<<<< HEAD:src/terrama2/core/dao/FilterDAO.cpp
 #include "../Exception.hpp"
 #include "../Utils.hpp"
+=======
+#include "Exception.hpp"
+#include "Utils.hpp"
+#include "Logger.hpp"
+>>>>>>> upstream/master:src/terrama2/core/FilterDAO.cpp
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -94,15 +100,19 @@ terrama2::core::dao::FilterDAO::save(const Filter& filter, te::da::DataSourceTra
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error saving filter information for dataset item: %1"));
+    QString message(QObject::tr("Unexpected error saving filter information for dataset item: %1"));
 
-    err_msg = err_msg.arg(filter.datasetItem());
+    message = message.arg(filter.datasetItem());
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -158,15 +168,19 @@ terrama2::core::dao::FilterDAO::update(const Filter& filter, te::da::DataSourceT
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error updating filter information for dataset item: %1"));
+    QString message(QObject::tr("Unexpected error updating filter information for dataset item: %1"));
 
-    err_msg = err_msg.arg(filter.datasetItem());
+    message = message.arg(filter.datasetItem());
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -185,15 +199,19 @@ terrama2::core::dao::FilterDAO::remove(uint64_t datasetItemId, te::da::DataSourc
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error removing filter information for dataset item: %1"));
+    QString message(QObject::tr("Unexpected error removing filter information for dataset item: %1"));
 
-    err_msg = err_msg.arg(datasetItemId);
+    message = message.arg(datasetItemId);
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
@@ -256,21 +274,27 @@ terrama2::core::dao::FilterDAO::load(const DataSetItem& datasetItem, te::da::Dat
 
     return std::move(filter);
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     throw;
   }
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    QString err_msg(QObject::tr("Unexpected error loading filter information for dataset item: %1"));
+    QString message(QObject::tr("Unexpected error loading filter information for dataset item: %1"));
 
-    err_msg = err_msg.arg(datasetItemId);
+    message = message.arg(datasetItemId);
 
-    throw DataAccessException() << ErrorDescription(err_msg);
+    TERRAMA2_LOG_ERROR() << message;
+
+    throw DataAccessException() << ErrorDescription(message);
   }
 }
 
