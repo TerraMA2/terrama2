@@ -201,6 +201,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
       TERRAMA2_LOG_WARNING() << "Could not open data retriever";
       return;
     }
+    TERRAMA2_LOG_INFO() << "Retrieving datasets from \"" + dataProvider.name() + "\"";
 
     for(auto &dataSet : dataSetList)
     {
