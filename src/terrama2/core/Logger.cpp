@@ -44,12 +44,12 @@ void logFormatter(const boost::log::record_view& rec, boost::log::formatting_ost
     case terrama2::core::Logger::ERROR:
     {
       stream << "<ERROR>";
-      stream << "{" << boost::log::extract<std::string>("SrcFile", rec) << ", " << boost::log::extract<int>("RecordLine", rec) << "}";
+      stream << " {" << boost::log::extract<std::string>("SrcFile", rec) << ", " << boost::log::extract<int>("RecordLine", rec) << "}";
       break;
     }
     case terrama2::core::Logger::FATAL:
       stream << "<FATAL>";
-      stream << "{" << boost::log::extract<std::string>("SrcFile", rec) << ", " << boost::log::extract<int>("RecordLine", rec) << "}";
+      stream << " {" << boost::log::extract<std::string>("SrcFile", rec) << ", " << boost::log::extract<int>("RecordLine", rec) << "}";
       break;
     default:
       stream << "<" << *severity << ">";
