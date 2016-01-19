@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
   }
   catch(...)
   {
-    std::cerr << "Unknow error at reading port from project!" << std::endl;
+    std::cerr << "Unknown error at reading port from project!" << std::endl;
     return EXIT_FAILURE;
   }
 
