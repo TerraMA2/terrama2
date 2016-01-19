@@ -90,7 +90,6 @@ namespace terrama2
         {
           try
           {
-            //TODO: LOG here!!!
             TERRAMA2_LOG_ERROR() << "boost::exception: Could not close object";
           }
           catch(...) { }
@@ -99,7 +98,6 @@ namespace terrama2
         {
           try
           {
-            //TODO: LOG here!!!
             TERRAMA2_LOG_ERROR() << "std::exception: Could not close object";
           }
           catch(...) { }
