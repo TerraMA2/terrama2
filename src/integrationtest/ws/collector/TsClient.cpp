@@ -126,13 +126,6 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
 
   dataSet.setIntersection(intersection);
 
-  std::vector< terrama2::core::DataSet::CollectRule > rules;
-
-  rules.push_back(terrama2::core::DataSet::CollectRule{0, "script", 0});
-  rules.push_back(terrama2::core::DataSet::CollectRule{0, "script2", 0});
-
-  dataSet.setCollectRules(rules);
-
   std::map<std::string, std::string> metadata;
 
   metadata["metadataKey"] = "metadataValue";
@@ -181,12 +174,12 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
 
   dataSetItem1.setFilter(filter);
 
-//  std::map< std::string, std::string > storageMetadata;
+//  std::map< std::string, std::string > metadata;
 
-//  storageMetadata["one"] = "two";
-//  storageMetadata["two"] = "one";
+//  metadata["one"] = "two";
+//  metadata["two"] = "one";
 
-//  dataSetItem1.setStorageMetadata(storageMetadata);
+//  dataSetItem1.setMetadata(metadata);
 
   terrama2::core::DataSetItem dataSetItem2(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
   dataSetItem2.setMask("mask2");
@@ -668,13 +661,6 @@ void TsClient::testUpdateDataSet()
     dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
     dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
 
-    std::vector< terrama2::core::DataSet::CollectRule > rules = dataSet.collectRules() ;
-
-    rules.at(0).script = "script update";
-    rules.at(1).script = "script2 update";
-
-    dataSet.setCollectRules(rules);
-
     std::map<std::string, std::string> metadata;
 
     metadata["metadataValue"] = "metadataKey";
@@ -728,12 +714,12 @@ void TsClient::testUpdateDataSet()
 
         dataSet.dataSetItems().at(i).setFilter(filter);
 
-        std::map< std::string, std::string > storageMetadata;
+        std::map< std::string, std::string > metadata;
 
-        storageMetadata["two"] = "one";
-        storageMetadata["one"] = "two";
+        metadata["two"] = "one";
+        metadata["one"] = "two";
 
-        dataSet.dataSetItems().at(i).setStorageMetadata(storageMetadata);
+        dataSet.dataSetItems().at(i).setMetadata(metadata);
       }
     }
 
@@ -752,16 +738,8 @@ void TsClient::testUpdateDataSet()
     QCOMPARE(dataSet.scheduleRetry(), dataSet_updated.scheduleRetry());
     QCOMPARE(dataSet.scheduleTimeout(), dataSet_updated.scheduleTimeout());
 
-    QCOMPARE(dataSet.collectRules().size(), dataSet_updated.collectRules().size());
 
-    for(unsigned int i = 0; i < dataSet.collectRules().size(); i++)
-    {
-      QCOMPARE(dataSet.collectRules().at(i).datasetId, dataSet_updated.collectRules().at(i).datasetId);
-      QCOMPARE(dataSet.collectRules().at(i).id, dataSet_updated.collectRules().at(i).id);
-      QCOMPARE(dataSet.collectRules().at(i).script, dataSet_updated.collectRules().at(i).script);
-    }
-
-    // VINICIUS: metadata and DataSet Items tests
+// VINICIUS: metadata and DataSet Items tests
 //    int j = 0;
 //    for(auto& x: dataSet.metadata())
 //    {

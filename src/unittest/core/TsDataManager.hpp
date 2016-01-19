@@ -121,6 +121,7 @@ class TsDataManager : public QObject
 
     void testDatasetValidName();
 
+    void testListDataSetWihtAdditionalMap();
 
     terrama2::core::DataProvider createDataProvider();
     terrama2::core::DataSet createDataSet();

@@ -33,6 +33,8 @@
 
 // TerraMA2
 #include "ConfigAppTab.hpp"
+#include "../../core/DataSet.hpp"
+#include "../../core/DataSetItem.hpp"
 
 // QT
 #include <QList>
@@ -41,16 +43,6 @@
 // Forward declarations
 class QAction;
 class QTableWidgetItem;
-namespace terrama2
-{
-  namespace gui
-  {
-    namespace config
-    {
-      struct PCD;
-    }
-  }
-}
 
 namespace terrama2
 {
@@ -106,19 +98,16 @@ namespace terrama2
           */
           void tableClean();
 
-          /*!
-            \brief Sets the projection
-            \param srid A Spatial Reference System Identifier to be filled up.
-          */
-          void setSrid(const uint64_t srid);
-
         private:
           /*!
             \brief Common function that displays PCD form to insert/modify elements at QTableWidget
-            \param pcd A PCD reference to be filled out
+            \param item A DataSetItem to be filled out
             \param editing A bool value defining if which mode is (default is false).
           */
-          void pcdFormCreation(terrama2::gui::config::PCD& pcd, bool editing = false);
+          void pcdFormCreation(terrama2::core::DataSetItem item, bool editing = false);
+
+          //! Fill the combo with the list of additional maps.
+          void fillAdditionalMapList();
 
         private slots:
           //! Slot triggered when insert pcd button has been clicked. It displays the PCD tab
@@ -129,9 +118,6 @@ namespace terrama2
 
           //! Slot triggered when the collector rule form is requested and it displays GUI form
           void onCollectorRuleClicked();
-
-          //! Slot triggered when the projection button has been clicked and it displays the DataSet Projection GUI
-          void onProjectionClicked();
 
           /*!
             \brief It populates the msak field with menu mask values, like "%d %a"
@@ -157,16 +143,15 @@ namespace terrama2
           //! Slot triggered at pcdexport button to export pcd in terrama2 format
           void onPCDExportClicked();
 
-          //! Slot triggered when influence button has been clicked. It displays some fields, such Radio influence or region influence.
-          void onInfluenceChanged(const int& index);
-
           //! Slot triggered to displays terrama2::gui::config::PcdWfsDialog
           void onPcdWfsClicked();
 
+          //! Slot triggered when an influence type is selected.
+          void onInfluenceTypeSelected(int index);
+
+
         private:
-          QList<terrama2::gui::config::PCD> pcds_; //!< PCDs table list
-          QString luaScript_; //!< It storages lua script from CollectorRuleDialog
-          uint64_t srid_; //! Data projection
+          terrama2::core::DataSet dataSet_;
       };
     }
   }

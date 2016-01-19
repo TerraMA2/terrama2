@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/IntersectionDAO.hpp
+  \file terrama2/core/dao/IntersectionDAO.hpp
 
   \brief Persistense layer for intersection information associated to a dataset.
 
@@ -30,10 +30,10 @@
 
 //TerraMA2
 #include "IntersectionDAO.hpp"
-#include "Intersection.hpp"
-#include "Exception.hpp"
-#include "Utils.hpp"
-#include "Logger.hpp"
+#include "../Intersection.hpp"
+#include "../Exception.hpp"
+#include "../Utils.hpp"
+#include "../Logger.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -49,7 +49,7 @@
 #include <boost/algorithm/string.hpp>
 
 void
-terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::IntersectionDAO::save(const Intersection& intersection, te::da::DataSourceTransactor& transactor)
 {
   if(intersection.dataset() == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset associated to the intersection must have a valid identifier (different than 0)."));
@@ -143,7 +143,7 @@ terrama2::core::IntersectionDAO::save(const Intersection& intersection, te::da::
 }
 
 void
-terrama2::core::IntersectionDAO::update(const Intersection& intersection, te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::IntersectionDAO::update(const Intersection& intersection, te::da::DataSourceTransactor& transactor)
 {
   if(intersection.dataset() == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update the intersction information with an invalid dataset identifier."));
@@ -175,7 +175,7 @@ terrama2::core::IntersectionDAO::update(const Intersection& intersection, te::da
 }
 
 void
-terrama2::core::IntersectionDAO::remove(uint64_t datasetId, te::da::DataSourceTransactor& transactor)
+terrama2::core::dao::IntersectionDAO::remove(uint64_t datasetId, te::da::DataSourceTransactor& transactor)
 {
   if(datasetId == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove the intersection information of a dataset with identifier: 0."));
@@ -193,7 +193,7 @@ terrama2::core::IntersectionDAO::remove(uint64_t datasetId, te::da::DataSourceTr
   }
 }
 
-void terrama2::core::IntersectionDAO::load(terrama2::core::DataSet& dataset, te::da::DataSourceTransactor& transactor)
+void terrama2::core::dao::IntersectionDAO::load(terrama2::core::DataSet& dataset, te::da::DataSourceTransactor& transactor)
 {
   if(dataset.id() == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not load intersection information for an invalid dataset identifier: 0."));

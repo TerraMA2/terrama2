@@ -76,11 +76,20 @@ namespace terrama2
           POSTGIS_TYPE = 8 //!< PostGIS database server.
         };
 
+        /*! \brief DataProvider origin.
+         Each constant must exist in table terrama2.data_provider_origin and the value must be the same from column id.
+         */
+        enum Origin
+        {
+          COLLECTOR = 1, //!< This data provider is used in the collector.
+          ANALYSIS = 2 //!< This data provider is used in the analysis.
+        };
+
         //! DataProvider status.
         enum Status
         {
-          ACTIVE,
-          INACTIVE
+          ACTIVE, //!< The data provider is available.
+          INACTIVE //!< The data provider is not available.
         };
 
         /*! \brief Constructor. */
@@ -112,6 +121,12 @@ namespace terrama2
 
         /*! \brief Sets the the kind of the DataProvider.  */
         void setKind(Kind k);
+
+        /*! \brief Returns the the origin of the DataProvider. */
+        Origin origin() const;
+
+        /*! \brief Sets the the origin of the DataProvider.  */
+        void setOrigin(Origin origin);
 
         /*! \brief Returns the URI of the DataProvider. */
         const std::string& uri() const;
@@ -150,6 +165,7 @@ namespace terrama2
         uint64_t id_; //!< The identifier of the DataProvider.
         std::string name_; //!< Name of the DataProvider, must be unique.
         Kind kind_; //!< DataProvider type.
+        Origin origin_; //! DataProvider origin.
         std::string description_; //!< Brief description from the source of the DataProvider.
         std::string uri_; //!< URI to access the DataProvider data.
         Status status_; //!< DataProvider status.

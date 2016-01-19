@@ -56,7 +56,7 @@ namespace terrama2
     {
     public:
       //! Constructor. Stores metadata for later use.
-      Storager(const std::map<std::string, std::string>& storageMetadata);
+      Storager(const std::map<std::string, std::string>& metadata);
 
       /*!
           \brief Store a temporary data set in it's final storage area and format.
@@ -70,7 +70,7 @@ namespace terrama2
 
 
     protected:
-      std::map<std::string, std::string> storageMetadata_;//!< Specifications of where and how to store the data.
+      std::map<std::string, std::string> metadata_;//!< Specifications of where and how to store the data.
 
     };
 

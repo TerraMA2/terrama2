@@ -34,9 +34,9 @@
 #include "DataManager.hpp"
 #include "ApplicationController.hpp"
 #include "DataProvider.hpp"
-#include "DataProviderDAO.hpp"
 #include "DataSet.hpp"
-#include "DataSetDAO.hpp"
+#include "dao/DataProviderDAO.hpp"
+#include "dao/DataSetDAO.hpp"
 #include "Exception.hpp"
 
 // TerraMA2 Logger
@@ -78,7 +78,7 @@ void terrama2::core::DataManager::load()
     std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
 // retrieve all data providers from database
-    std::vector<DataProvider> providers = DataProviderDAO::loadAll(*transactor);
+    std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
 
 // index all data providers and theirs datasets
     for(auto& provider : providers)
@@ -138,7 +138,7 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
       transactor->begin();
 
-      DataProviderDAO::save(provider, *transactor, shallowSave);
+      dao::DataProviderDAO::save(provider, *transactor, shallowSave);
 
       transactor->commit();
 
@@ -146,7 +146,7 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
       {
         for(auto& dataset: provider.datasets())
         {
-          DataSetDAO::save(dataset, *transactor, shallowSave);
+          dao::DataSetDAO::save(dataset, *transactor, shallowSave);
 
           pimpl_->datasets[dataset.id()] = dataset;
         }
@@ -220,7 +220,7 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
     {
       transactor->begin();
 
-      DataSetDAO::save(dataset, *transactor, shallowSave);
+      dao::DataSetDAO::save(dataset, *transactor, shallowSave);
 
       transactor->commit();
 
@@ -285,11 +285,11 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
 
       transactor->begin();
 
-      DataProviderDAO::update(provider, *transactor, shallowSave);
+      dao::DataProviderDAO::update(provider, *transactor, shallowSave);
 
       if(!shallowSave)
       {
-        std::vector<uint64_t> ids = DataProviderDAO::getDatasetsIds(provider.id(), *transactor);
+        std::vector<uint64_t> ids = dao::DataProviderDAO::getDatasetsIds(provider.id(), *transactor);
 
 
         for(auto& dataset: provider.datasets())
@@ -301,7 +301,7 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
             // Remove from the list, so what is left in this vector are the datasets to remove
             ids.erase(it);
 
-            DataSetDAO::update(dataset, *transactor, shallowSave);
+            dao::DataSetDAO::update(dataset, *transactor, shallowSave);
             pimpl_->datasets[dataset.id()] = dataset;
             updated.push_back(dataset);
           }
@@ -309,7 +309,7 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
           // Id is 0 for new items
           if(dataset.id() == 0)
           {
-            DataSetDAO::save(dataset, *transactor, shallowSave);
+            dao::DataSetDAO::save(dataset, *transactor, shallowSave);
             added.push_back(dataset);
           }
         }
@@ -317,7 +317,7 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
         // What's is left in vector are the the removed datasets.
         for(auto datasetId : ids)
         {
-          DataSetDAO::remove(datasetId, *transactor);
+          dao::DataSetDAO::remove(datasetId, *transactor);
           removed.push_back(datasetId);
 
 // removes dataset from the map
@@ -414,7 +414,7 @@ void terrama2::core::DataManager::update(DataSet& dataset, const bool shallowSav
 
       transactor->begin();
 
-      DataSetDAO::update(dataset, *transactor, shallowSave);
+      dao::DataSetDAO::update(dataset, *transactor, shallowSave);
 
       transactor->commit();
 
@@ -468,7 +468,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 
         transactor->begin();
 
-        DataProviderDAO::remove(id, *transactor.get());
+        dao::DataProviderDAO::remove(id, *transactor.get());
 
         transactor->commit();
 
@@ -544,7 +544,7 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
 
       transactor->begin();
 
-      DataSetDAO::remove(id, *transactor.get());
+      dao::DataSetDAO::remove(id, *transactor.get());
 
       transactor->commit();
 
@@ -678,15 +678,18 @@ terrama2::core::DataSet terrama2::core::DataManager::findDataSet(const uint64_t 
   throw InvalidArgumentException() << ErrorDescription(err_msg);
 }
 
-std::vector<terrama2::core::DataProvider> terrama2::core::DataManager::providers() const
+std::vector<terrama2::core::DataProvider> terrama2::core::DataManager::providers(terrama2::core::DataProvider::Origin origin) const
 {
 // only one thread at time can access the data
   std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
   std::vector<DataProvider> providers;
 
-  std::transform(pimpl_->providers.begin(), pimpl_->providers.end(), std::back_inserter(providers),
-                 [](const std::map<uint64_t, DataProvider>::value_type& v) { return v.second; } );
+  for(auto it = pimpl_->providers.begin(); it != pimpl_->providers.end(); ++it)
+  {
+    if(it->second.origin() == origin)
+      providers.push_back(it->second);
+  }
 
   return providers;
 }

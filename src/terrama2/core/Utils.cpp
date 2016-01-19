@@ -175,6 +175,18 @@ terrama2::core::ToDataProviderKind(uint64_t kind)
   }
 }
 
+
+terrama2::core::DataProvider::Origin
+terrama2::core::ToDataProviderOrigin(uint64_t origin)
+{
+  // Any invalid number will be associated with unkown type.
+  // Unkown type has value 1.
+  if(origin == 1)
+      return DataProvider::COLLECTOR;
+  else
+      return DataProvider::ANALYSIS;
+}
+
 std::string
 terrama2::core::ToString(bool b)
 {
@@ -216,6 +228,10 @@ terrama2::core::ToDataSetKind(uint64_t kind)
       return DataSet::OCCURENCE_TYPE;
     case 4:
       return DataSet::GRID_TYPE;
+    case 5:
+      return DataSet::ADDITIONAL_MAP;
+    case 6:
+      return DataSet::MONITORED_OBJECT;
     default:
       return DataSet::UNKNOWN_TYPE;
   }
