@@ -1,6 +1,9 @@
 #ifndef __TERRAMA2_CORE_LOGGER_HPP__
 #define __TERRAMA2_CORE_LOGGER_HPP__
 
+// TerraMA2
+#include "Exception.hpp"
+
 // Terralib
 #include <terralib/common/Singleton.h>
 
@@ -10,7 +13,6 @@
 #include <boost/log/sinks/async_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
-#include "Exception.hpp"
 
 
 namespace terrama2
