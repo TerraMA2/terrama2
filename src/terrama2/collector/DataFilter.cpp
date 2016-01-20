@@ -33,6 +33,7 @@
 #include "../core/Filter.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "../core/Logger.hpp"
 
 // STL
 #include <iostream>
@@ -303,14 +304,14 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
     }
     catch(boost::exception& e)
     {
-      //TODO: Log
+      TERRAMA2_LOG_ERROR() << "boost::exception: Could not parse filter name in date time comparing";
       return false;
     }
 
   }
   catch(std::exception& e)
   {
-    //TODO: Log
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::DataFilter::filterName: Invalid datetime typed";
     return false;
   }
 

@@ -31,6 +31,7 @@
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
+#include "../core/Logger.hpp"
 
 //QT
 #include <QUrl>
@@ -101,13 +102,14 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
   }
   catch(te::common::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
     throw UnableToReadDataSetException() << terrama2::ErrorDescription(
                                               QObject::tr("Terralib exception: ") +e.what());
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetException() << terrama2::ErrorDescription(QObject::tr("Std exception.")+e.what());
+    QString message = QObject::tr("Std exception.") + e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw UnableToReadDataSetException() << terrama2::ErrorDescription(message);
   }
 }
