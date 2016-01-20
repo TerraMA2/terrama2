@@ -129,8 +129,6 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
   }
   catch(te::common::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
     throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - Terralib exception: ") +e.what());
   }
   catch(terrama2::collector::Exception& e)
