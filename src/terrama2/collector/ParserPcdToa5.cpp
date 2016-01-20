@@ -74,9 +74,44 @@ te::dt::AbstractData* terrama2::collector::ParserPcdToa5::StringToTimestamp(te::
 // Change the string 2014-01-15 17:13:00 - PCD TOA5 format for timestamp
 void terrama2::collector::ParserPcdToa5::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)
 {
-  converter->remove("TIMESTAMP");
+  std::string timestampName = "TIMESTAMP";
+  converter->remove(timestampName);
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
-  converter->add(0, dtProperty, boost::bind(&terrama2::collector::ParserPcdToa5::StringToTimestamp, this, _1, _2, _3));
+  //Find the rigth column to adapt
+  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
+  for(int i = 0, size = properties.size(); i < size; ++i)
+  {
+    te::dt::Property* property = properties.at(i);
+    if(property->getName() == timestampName)
+    {
+      //column found
+      converter->add(i, dtProperty, boost::bind(&terrama2::collector::ParserPcdToa5::StringToTimestamp, this, _1, _2, _3));
+      break;
+    }
+  }
+
+}
+
+void terrama2::collector::ParserPcdToa5::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType)
+{
+  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+    te::dt::Property* propertyClone = p->clone();
+
+    std::string name = propertyClone->getName();
+    size_t dotPos = name.find('.');
+
+    if(dotPos != std::string::npos)
+    {
+      name.erase(std::remove_if(name.begin(), name.begin()+dotPos, &isdigit), name.begin()+dotPos);
+      name.erase(0,1);
+
+      propertyClone->setName(name);
+    }
+
+    converter->add(i, propertyClone);
+  }
 }
