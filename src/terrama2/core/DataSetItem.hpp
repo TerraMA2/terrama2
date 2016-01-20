@@ -136,16 +136,16 @@ namespace terrama2
         void setFilter(const Filter& f);
 
         /*! \brief Returns the storage metadata. */
-        const std::map<std::string, std::string>& storageMetadata() const;
+        const std::map<std::string, std::string>& metadata() const;
 
         /*! \brief Returns the storage metadata. */
-        std::map<std::string, std::string>& storageMetadata();
+        std::map<std::string, std::string>& metadata();
 
         /*! \brief Sets the storage metadata. */
-        void setStorageMetadata(const std::map<std::string, std::string>& sm);
+        void setMetadata(const std::map<std::string, std::string>& metadata);
 
         /*! \brief Returns the spatial reference identifier. */
-        uint64_t srid();
+        uint64_t srid() const;
 
         /*! \brief Sets the spatial reference identifier. */
         void setSrid(const uint64_t srid);
@@ -160,7 +160,7 @@ namespace terrama2
         std::string timezone_; //!< Timezone of the DataSetItem.
         std::string path_; //!< Path to a DataSetItem.
         Filter filter_; //!< Filter to be used when collecting this DataSetItem.
-        std::map<std::string, std::string> storageMetadata_; //!< Storage metadata.
+        std::map<std::string, std::string> metadata_; //!< Storage metadata.
         uint64_t srid_; //!< Projection SRID.
     };
 

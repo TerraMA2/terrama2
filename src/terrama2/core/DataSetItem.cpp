@@ -121,20 +121,20 @@ void terrama2::core::DataSetItem::setFilter(const Filter& f)
 }
 
 const std::map<std::string, std::string>&
-terrama2::core::DataSetItem::storageMetadata() const
+terrama2::core::DataSetItem::metadata() const
 {
-  return storageMetadata_;
+  return metadata_;
 }
 
 std::map<std::string, std::string>&
-terrama2::core::DataSetItem::storageMetadata()
+terrama2::core::DataSetItem::metadata()
 {
-  return storageMetadata_;
+  return metadata_;
 }
 
-void terrama2::core::DataSetItem::setStorageMetadata(const std::map<std::string, std::string>& sm)
+void terrama2::core::DataSetItem::setMetadata(const std::map<std::string, std::string>& metadata)
 {
-  storageMetadata_ = sm;
+  metadata_ = metadata;
 }
 
 std::string terrama2::core::DataSetItem::path() const
@@ -147,7 +147,7 @@ void terrama2::core::DataSetItem::setPath(const std::string& path)
   path_ = path;
 }
 
-uint64_t terrama2::core::DataSetItem::srid()
+uint64_t terrama2::core::DataSetItem::srid() const
 {
   return srid_;
 }

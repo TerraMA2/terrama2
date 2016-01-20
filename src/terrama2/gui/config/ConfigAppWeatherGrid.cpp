@@ -103,6 +103,8 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
   dataset.setDescription(ui_->gridFormatDataDescription->toPlainText().toStdString());
   dataset.setStatus(terrama2::core::ToDataSetStatus(ui_->gridFormatStatus->isChecked()));
 
+  // TODO: Paulo: Review
+
   terrama2::core::DataSetItem* datasetItem;
 
   if (dataset.dataSetItems().size() > 0)
@@ -121,6 +123,9 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
   datasetItem->setStatus(terrama2::core::DataSetItem::ACTIVE);
   datasetItem->setTimezone(ui_->gridFormatDataTimeZoneCmb->currentText().toStdString());
   datasetItem->setPath(ui_->gridFormatDataPath->text().toStdString());
+
+  // TODO: PAULO: Projection
+  dataset.add(*datasetItem);
 
   te::dt::TimeDuration dataFrequency(ui_->gridFormatDataHour->text().toInt(),
                                      ui_->gridFormatDataMinute->text().toInt(),
@@ -175,16 +180,13 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::save()
 
   dataset.setMetadata(metadata);
 
-  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
+  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(dataset.kind(), datasetItem->metadata(), provider.uri().c_str(), *app_->getConfiguration());
 
-  datasetItem->setStorageMetadata(storageMetadata);
-
-  if (datasetItem->id() == 0)
-    dataset.add(*datasetItem);
+  datasetItem->setMetadata(itemMetadata);
 
   dataset.setSchedule(schedule);
 
-  // Lets save dataset
+  // Lets save dataset, adding item in dataset
   terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->gridFormatDataName->text(), "grid");
 }
 
@@ -207,6 +209,7 @@ void terrama2::gui::config::ConfigAppWeatherGridTab::discardChanges(bool restore
     widget->clear();
 
   ui_->gridFormatDataFormat->setCurrentIndex(0);
+
   ui_->rbGridAscUnidGrausDec->setAutoExclusive(false);
   ui_->rbGridAscUnidGrausDec->setChecked(false);
   ui_->rbGridAscUnidGrausDec->setAutoExclusive(true);

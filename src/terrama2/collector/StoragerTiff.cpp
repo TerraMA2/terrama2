@@ -30,6 +30,7 @@
 #include "StoragerTiff.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
+#include "../core/Logger.hpp"
 
 #include "../core/DataManager.hpp"
 
@@ -39,11 +40,15 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
 #include <QDebug>
+
+//boost
+#include <boost/date_time/local_time/local_date_time.hpp>
 
 terrama2::collector::StoragerTiff::StoragerTiff(const std::map<std::string, std::string>& storageMetadata)
   : Storager(storageMetadata)
@@ -58,20 +63,18 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
 
   try
   {
-//                                    const std::vector<std::shared_ptr<te::da::DataSet> > &datasetVec,
-//                                    const std::shared_ptr<te::da::DataSetType> &dataSetType
     //connection info
     std::map<std::string, std::string> connInfo;
 
     //get filename
-    std::map<std::string, std::string>::const_iterator dataSetNameIt = storageMetadata_.find("STORAGE_NAME");
-    if(dataSetNameIt != storageMetadata_.end())
+    std::map<std::string, std::string>::const_iterator dataSetNameIt = metadata_.find("STORAGE_NAME");
+    if(dataSetNameIt != metadata_.end())
     {
       std::string dataSetName = dataSetNameIt->second;
       std::string tif = ".tif", tiff = ".tiff";
       //if does not have tiff extension, append ".tiff"
       if(!(std::equal(tif.rbegin(), tif.rend(), dataSetName.rbegin()) || std::equal(tiff.rbegin(), tiff.rend(), dataSetName.rbegin())))
-         dataSetName.append(tiff);
+         dataSetName.append(tif);
 
       if(dataSetName.find('%'))
       {
@@ -82,27 +85,34 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
     {
       core::DataSet dataset = transferenceDataVec.at(0).dataset;
 
-      std::ostringstream nowStream;
-      const boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_facet * f = new boost::posix_time::time_facet("%Y%m%d_%H%M");
-      nowStream.imbue(std::locale(nowStream.getloc(),f));
-      nowStream << now;
-
       for(TransferenceData& transferenceData : transferenceDataVec)
       {
+        std::ostringstream timeStream;
+        boost::posix_time::time_facet * f = new boost::posix_time::time_facet("%Y%m%d_%H%M");
+        timeStream.imbue(std::locale(timeStream.getloc(),f));
+
+        if(transferenceData.date_data)
+          timeStream << transferenceData.date_data->getTimeInstantTZ().local_time();
+        else if(transferenceData.date_collect)
+          timeStream << transferenceData.date_collect->getTimeInstantTZ().local_time();
+        else
+          timeStream << "00000000_0000";
+
         std::string destinationDataSetName = "terrama2.";
         destinationDataSetName.append(dataset.name());
         destinationDataSetName.append("_");
-        destinationDataSetName.append(nowStream.str());
-        destinationDataSetName.append(".tiff");
+        destinationDataSetName.append(timeStream.str());
+        destinationDataSetName.append(".tif");
 
         //TODO: Terrama default dir
-        std::string terrama2DefaultDir;
-        connInfo.at("URI") = terrama2DefaultDir + destinationDataSetName;
+        std::string terrama2DefaultDir = "/tmp/";
+        connInfo["URI"] = terrama2DefaultDir;
 
-        std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("OGR"));
+        std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("GDAL"));
         datasourceDestination->setConnectionInfo(connInfo);
         OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
+        if(!datasourceDestination->isOpened())
+          continue;
 
         std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
         te::da::ScopedTransaction scopedTransaction(*transactorDestination);
@@ -110,18 +120,10 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
         std::map<std::string, std::string> options;
         std::shared_ptr<te::da::DataSetType> newDataSetType;
 
-        if (!transactorDestination->dataSetExists(destinationDataSetName))
-        {
-          // create and save datasettype in the datasource destination
-          newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(transferenceData.teDatasetType->clone()));
+        newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(transferenceData.teDatasetType->clone()));
 
-          newDataSetType->setName(destinationDataSetName);
-          transactorDestination->createDataSet(newDataSetType.get(),options);
-        }
-        else
-        {
-          newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
-        }
+        newDataSetType->setName(destinationDataSetName);
+        transactorDestination->createDataSet(newDataSetType.get(),options);
 
         //Get original geometry to get srid
         te::gm::GeometryProperty* geom = GetFirstGeomProperty(transferenceData.teDatasetType.get());
@@ -142,17 +144,14 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
   }
   catch(terrama2::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(te::common::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(std::exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }

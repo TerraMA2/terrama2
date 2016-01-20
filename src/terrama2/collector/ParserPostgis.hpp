@@ -32,8 +32,6 @@
 
 #include "Parser.hpp"
 
-#include <mutex>
-
 namespace terrama2
 {
   namespace collector
@@ -44,18 +42,11 @@ namespace terrama2
      */
     class ParserPostgis : public Parser
     {
-      public:
-      //! Default contructor
-        ParserPostgis() : Parser(){}
-        //! Default destructor
-        virtual ~ParserPostgis(){}
-
-
-        /**
+      /**
             \brief \copybrief Parser::read()
             */
-        virtual void read(DataFilterPtr filter,
-                          std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+      virtual void read(DataFilterPtr filter,
+                        std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
     };
   }

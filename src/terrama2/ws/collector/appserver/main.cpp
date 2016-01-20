@@ -51,6 +51,7 @@
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Utils.hpp"
 #include "../../../collector/CollectorService.hpp"
+#include "../../../core/Logger.hpp"
 
 const int TERRALIB_LOAD_ERROR = 101;
 const int COLLECTOR_SERVICE_STAR_ERROR = 102;
@@ -74,13 +75,13 @@ bool gSoapThread(int port)
   {
     //Finixes the QApplication when the gsoap server is over
     QCloser qCloser;
-    qDebug() << "Starting Webservice...";
+    TERRAMA2_LOG_INFO() << "Starting Webservice...";
 
     WebService server;
 
     if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, port, 100)))
     {
-      qDebug() << "Webservice Started, running on port " << port;
+      TERRAMA2_LOG_INFO() << "Webservice Started, running on port " << port;
 
       for (;;)
       {
@@ -101,28 +102,28 @@ bool gSoapThread(int port)
 
       server.destroy();
 
-      qDebug() << "Webservice finished!";
+      TERRAMA2_LOG_INFO() << "Webservice finished!";
 
       return false;
     }
 
-    qDebug() << "Shutdown Webservice...";
+    TERRAMA2_LOG_INFO() << "Shutdown Webservice...";
 
 //    server.soap_force_close_socket();
 //    server.destroy();
   }
   catch(boost::exception& e)
   {
-    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     return false;
   }
   catch(std::exception& e)
   {
-    qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
     return false;
   }
 
-  qDebug() << "Webservice finished!";
+  TERRAMA2_LOG_INFO() << "Webservice finished!";
 
   return true;
 }
@@ -138,6 +139,7 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  std::string logPath = "";
   int port = 0;
 
   try
@@ -148,12 +150,19 @@ int main(int argc, char* argv[])
 
     if(project.contains("collector_web_service"))
     {
-    QJsonObject collectionConfig = project["collector_web_service"].toObject();
-    port = collectionConfig["port"].toString().toInt();
+      QJsonObject collectionConfig = project["collector_web_service"].toObject();
+      port = collectionConfig["port"].toString().toInt();
 
       if( port < 1024 || port > 49151)
       {
         std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      logPath = collectionConfig["log_file"].toString().toStdString();
+      if (logPath.empty())
+      {
+        std::cerr << "Invalid log file destination in project file.";
         return EXIT_FAILURE;
       }
     }
@@ -170,20 +179,20 @@ int main(int argc, char* argv[])
   }
   catch(...)
   {
-    std::cerr << "Unknow error at reading port from project!" << std::endl;
+    std::cerr << "Unknown error at reading port from project!" << std::endl;
     return EXIT_FAILURE;
   }
 
   try
   {
-
-    qDebug() << "Initializating TerraLib...";
+    terrama2::core::initializeLogger(logPath);
+    TERRAMA2_LOG_INFO() << "Initializating TerraLib...";
     terrama2::core::initializeTerralib();
 
-    qDebug() << "Loading TerraMA2 Project...";
+    TERRAMA2_LOG_INFO() << "Loading TerraMA2 Project...";
     if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
     {
-      qDebug() << "TerraMA2 Project File is invalid or don't exist!";
+      TERRAMA2_LOG_ERROR() << "Failure in TerraMA2 initialization: Project File is invalid or does not exist!";
       exit(TERRAMA2_PROJECT_LOAD_ERROR);
     }
 
@@ -209,17 +218,17 @@ int main(int argc, char* argv[])
   }
   catch(boost::exception& e)
   {
-    qDebug() << "2\t" << "gSoapServer " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    TERRAMA2_LOG_ERROR() << "2\t" << "gSoapServer " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     exit(COLLECTOR_SERVICE_STAR_ERROR);
   }
   catch(std::exception& e)
   {
-    qDebug() << "2\t" << "gSoapServer " << e.what();
+    TERRAMA2_LOG_ERROR() << "2\t" << "gSoapServer " << e.what();
     exit(COLLECTOR_SERVICE_STAR_ERROR);
   }
   catch(...)
   {
-    qDebug() << "2\t" << "gSoapServer unkown error";
+    TERRAMA2_LOG_FATAL() << "2\t" << "gSoapServer unknown error";
     exit(COLLECTOR_SERVICE_STAR_ERROR);
   }
 

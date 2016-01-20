@@ -31,7 +31,6 @@
 #include "ui_IntersectionDialogForm.h"
 #include "IntersectionDialog.hpp"
 #include "../../core/ApplicationController.hpp"
-#include "../../core/IntersectionDAO.hpp"
 #include "../../core/Intersection.hpp"
 #include "../../core/DataManager.hpp"
 #include "../Exception.hpp"

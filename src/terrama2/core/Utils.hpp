@@ -96,6 +96,15 @@ namespace terrama2
     DataProvider::Kind ToDataProviderKind(uint64_t kind);
 
     /*!
+      \brief Returns a enum with the origin of the server based on the given parameter.
+
+      \param origin Determine the origin of the provider.
+
+      \return Enum with the origin of the data provider.
+     */
+    DataProvider::Origin ToDataProviderOrigin(uint64_t origin);
+
+    /*!
       \brief Function to convert a boolean to string format.
 
       \param b Boolean to converted.
@@ -173,8 +182,11 @@ namespace terrama2
     /*! \brief Finalizes the terralib. */
     void finalizeTerralib();
 
-    /*! \brief Initializes terrama2 logger module. */
-    void initializeLogger();
+    /*!
+      \brief Initializes terrama2 logger module.
+      \param pathFile A string value defining where is to open/save log file.
+    */
+    void initializeLogger(const std::string& pathFile);
 
 
   } // end namespace core

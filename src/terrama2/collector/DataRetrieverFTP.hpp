@@ -42,6 +42,8 @@
 // LibCurl
 #include <curl/curl.h>
 
+//Qt
+#include <QTemporaryDir>
 
 namespace terrama2
 {
@@ -58,7 +60,6 @@ namespace terrama2
     class DataRetrieverFTP: public DataRetriever
     {
     public:
-
         /*!
        * \brief DataRetrieverFTP Constructor
        * \param dataprovider Dataprovider information.

@@ -76,7 +76,7 @@ namespace terrama2
         private:
           struct Impl; //!< Pimpl idiom
 
-          Impl* pimpl_; //!< Pimpl idiom
+          Impl* pimpl_;
       };
     }
   }

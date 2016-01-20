@@ -34,31 +34,28 @@
 #include "Exception.hpp"
 #include "Utils.hpp"
 
+// TerraMA2 Logger
+#include "Logger.hpp"
+
 // STL
 #include <map>
 #include <memory>
 #include <string>
+
+// TerraLib
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
 // Qt
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
-
-// TerraLib
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-
-
-
 #include <QSqlDatabase>
 #include <QStringList>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
 #include <QFile>
-
-
-
 
 
 //**************************************************************************
@@ -114,8 +111,6 @@ void executeQueriesFromFile(QFile *file, QSqlQuery *query)
 //**************************************************************************
 
 
-
-
 bool terrama2::core::ApplicationController::loadProject(const std::string &configFileName)
 {
   configFile_ = configFileName;
@@ -153,13 +148,13 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
   }
   catch(te::common::Exception& e)
   {
-    //TODO: Log this
-    qDebug() << e.what();
+    if (const QString* message = boost::get_error_info<terrama2::ErrorDescription>(e))
+      TERRAMA2_LOG_ERROR() << message->toStdString();
     return false;
   }
   catch(...)
   {
-    //TODO: Log this
+    TERRAMA2_LOG_ERROR() << "Unknown error while reading and parsing TerraMA2 file";
     return false;
   }
 
@@ -179,14 +174,21 @@ terrama2::core::ApplicationController::getTransactor()
   //}
   catch(const std::exception& e)
   {
-    throw DataAccessException() << ErrorDescription(e.what());
+    const char* message = e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Could not retrieve a data source transactor."));
+    const QString message = QObject::tr("Could not retrieve a data source transactor.");
+    TERRAMA2_LOG_ERROR() << message;
+    throw DataAccessException() << ErrorDescription(message);
   }
 
-  throw DataAccessException() << ErrorDescription(QObject::tr("The data source is not valid or it is not open."));
+  QString message = QObject::tr("The data source is not valid or it is not open.");
+  TERRAMA2_LOG_ERROR() << message;
+
+  throw DataAccessException() << ErrorDescription(message);
 }
 
 std::shared_ptr<te::da::DataSource> terrama2::core::ApplicationController::getDataSource()
@@ -209,41 +211,43 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
 
   std::string dsType = "POSTGIS";
 
-
   // Check the data source existence
   connInfo["PG_CHECK_DB_EXISTENCE"] = dbName;
 
   bool dsExists = true;
+
   try
   {
     dsExists = te::da::DataSource::exists(dsType, connInfo);
   }
-
   catch(const te::common::Exception& e)
   {
     QString messageError = QObject::tr("Invalid data from the database interface! \n\n Details: \n");
     messageError.append(e.what());
+    TERRAMA2_LOG_ERROR() << messageError;
 
-   throw DataAccessException() << ErrorDescription(messageError);
+    throw DataAccessException() << ErrorDescription(messageError);
   }
-
   catch(const std::exception& e)
   {
     QString messageError = QObject::tr("Could not connect to the database! \n\n Details: \n");
     messageError.append(e.what());
+    TERRAMA2_LOG_ERROR() << messageError;
 
     throw DataAccessException() << ErrorDescription(messageError);
   }
-
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not connect to the database!"));
+    QString messageError = QObject::tr("Unknown Error, could not connect to the database!");
+    throw DataAccessException() << ErrorDescription(messageError);
   }
 
   if(dsExists)
   {
     //return false;
-    throw DataAccessException() << ErrorDescription(QObject::tr("Database exists!"));
+    QString messageError = QObject::tr("Database exists!");
+    TERRAMA2_LOG_ERROR() << messageError;
+    throw DataAccessException() << ErrorDescription(messageError);
   }
   else
   {
@@ -259,13 +263,16 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
       {
         QString messageError = QObject::tr("Could not close the database! \n\n Details: \n");
         messageError.append(e.what());
+        TERRAMA2_LOG_ERROR() << messageError;
 
         throw DataAccessException() << ErrorDescription(messageError);
       }
 
       catch(...)
       {
-        throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not close the database!"));
+        QString messageError = QObject::tr("Unknown Error, could not close the database!");
+        TERRAMA2_LOG_ERROR() << messageError;
+        throw DataAccessException() << ErrorDescription(messageError);
       }
     }
 
@@ -302,15 +309,14 @@ void terrama2::core::ApplicationController::createDatabase(const std::string &db
       QString messageError = QObject::tr("Could not create the database! \n\n Details: \n");
       messageError.append(e.what());
 
-      throw DataAccessException() << ErrorDescription(messageError);
+      TERRAMA2_LOG_ERROR() << messageError;
 
-      //TODO: log error
-      qDebug() << e.what();
+      throw DataAccessException() << ErrorDescription(messageError);
     }
     catch(...)
     {
-      //TODO: log this
-      throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not create the database!"));
+      QString messageError = QObject::tr("Unknown Error, could not create the database!");
+      throw DataAccessException() << ErrorDescription(messageError);
     }
   }
 }
@@ -340,11 +346,13 @@ bool terrama2::core::ApplicationController::checkConnectionDatabase(const std::s
     QString messageError;
 
     messageError.append(e.what());
+    TERRAMA2_LOG_ERROR() << messageError;
   }
 
   catch(...)
   {
-    throw DataAccessException() << ErrorDescription(QObject::tr("Unknown Error, could not check if database exists!"));
+    QString messageError = QObject::tr("Unknown Error, could not check if database exists!");
+    throw DataAccessException() << ErrorDescription(messageError);
   }
 
   return false;

@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_GUI_CORE_UTILS_HPP__
 #define __TERRAMA2_GUI_CORE_UTILS_HPP__
 
+// TerraMA2
+#include "../../core/DataSet.hpp"
+
 // STD
 #include <string>
 #include <map>
@@ -72,11 +75,12 @@ namespace terrama2
 
       /*!
         \brief It makes dateset item storage metadata from configuration
+        \param metadata DataSetItem metadata.
         \param uri An uri string.
         \param configuration A reference to terrama2 configuration class (ConfigManager)
         \return std::map<std::string, std::string> containing the storage metadata values from configuration
       */
-      std::map<std::string, std::string> makeStorageMetadata(const QString uri,
+      std::map<std::string, std::string> makeStorageMetadata(terrama2::core::DataSet::Kind kind, std::map<std::string, std::string> metadata, const QString uri,
                                                              const terrama2::gui::core::ConfigManager& configuration);
 
       /*!

@@ -43,6 +43,7 @@
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
 #include "../core/ApplicationController.hpp"
+#include "../core/Logger.hpp"
 
 // Terralib
 #include <terralib/common/Exception.h>
@@ -163,8 +164,7 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   }
   catch(const std::exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }
 
@@ -180,8 +180,7 @@ void terrama2::collector::CollectorService::process(const uint64_t dataProviderI
   }
   catch(std::exception& e)
   {
-    //TODO: log this
-    qDebug() << "terrama2::collector::CollectorService::process " << e.what();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::process " << e.what();
   }
 }
 
@@ -199,7 +198,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
     OpenClose<DataRetrieverPtr> openClose(retriever);
     if(!retriever->isOpen())
     {
-      //TODO: log this
+      TERRAMA2_LOG_WARNING() << "Could not open data retriever";
       return;
     }
 
@@ -212,11 +211,11 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
       if(dataSet.dataSetItems().empty())
       {
-        //TODO: LOG empty dataset
+        TERRAMA2_LOG_WARNING() << "There is no dataset items in " + dataSet.name();
         continue;
       }
 
-      //aquire all data
+      //acquire all data
       for(auto& dataSetItem : dataSet.dataSetItems())
       {
         //if not active, continue...
@@ -226,27 +225,29 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
         try
         {
-          terrama2::collector::Log collectLog;
-          std::vector<TransferenceData> transferenceDataVec;
+//          std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
+//          terrama2::collector::Log collectLog(transactor);
 
-          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
+
+          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime;// = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
           DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 
+          std::vector<TransferenceData> transferenceDataVec;
           //TODO: conditions to collect Data?
           if(retriever->isRetrivable())//retrieve remote data to local temp file.
           {
             retriever->retrieveData(dataSetItem, filter, transferenceDataVec);
 
             //Log: data downloaded
-            if(!transferenceDataVec.empty())
-              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
+//            if(!transferenceDataVec.empty())
+//              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
 
           }
           else// if data don't need to be retrieved (ex. local, wms, wmf)
           {
             TransferenceData tmp;
-            tmp.uri_origin = dataProvider.uri();
+            tmp.uri_origin = dataProvider.uri() + "/" + dataSetItem.mask();
             transferenceDataVec.push_back(tmp);
           }
 
@@ -283,17 +284,19 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           storager->store(transferenceDataVec);
 
 //          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
+
+          // Dataset Logger Success
+          TERRAMA2_LOG_INFO() << "DataSet \"" << dataSet.name() + "\" has just been collected!";
         }
         catch(terrama2::Exception& e)
         {
-          //TODO: log this
-          qDebug() << "terrama2::collector::CollectorService::collectAsThread " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+          TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::collectAsThread "
+                               << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
           continue;
         }
         catch(std::exception& e)
         {
-          //TODO: log this
-          qDebug() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
+          TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
           continue;
         }
       }
@@ -301,8 +304,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
   }
   catch(std::exception& e)
   {
-    //TODO: log this
-    qDebug() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
   }
 }
 
@@ -340,8 +342,7 @@ void terrama2::collector::CollectorService::threadProcess()
   }
   catch(std::exception& e)
   {
-    //TODO: log this
-    qDebug() << "terrama2::collector::CollectorService::threadProcess " << e.what();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::threadProcess " << e.what();
   }
 }
 
@@ -383,8 +384,7 @@ void terrama2::collector::CollectorService::processingLoop()
     }
     catch(std::exception& e)
     {
-      //TODO: log this
-      qDebug() << "terrama2::collector::CollectorService::processingLoop " << e.what();
+      TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::processingLoop " << e.what();
     }
   }
 }
@@ -424,8 +424,7 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
   }
   catch(std::exception& e)
   {
-    qDebug() << "terrama2::collector::CollectorService::addToQueue " << e.what();
-    //TODO: log de erro
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addToQueue " << e.what();
   }
 
 }
@@ -444,8 +443,7 @@ void terrama2::collector::CollectorService::removeProvider(const terrama2::core:
   }
   catch(const std::exception& e)
   {
-    //TODO: log de erro
-    qDebug() << "terrama2::collector::CollectorService::removeProvider " << e.what();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::removeProvider " << e.what();
   }
 }
 
@@ -459,8 +457,7 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
   }
   catch(const std::exception& e)
   {
-    //TODO: log de erro
-    qDebug() << "terrama2::collector::CollectorService::updateProvider " << e.what();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::updateProvider " << e.what();
   }
 }
 
@@ -490,18 +487,17 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
   }
   catch(terrama2::collector::InvalidCollectFrequencyException& e)
   {
-    //TODO: log de erro
-    qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addDataset "
+                         << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(terrama2::collector::InvalidDataSetException& e)
   {
-    //TODO: log de erro
-    qDebug() << "terrama2::collector::CollectorService::addDataset " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addDataset "
+                         << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
   }
   catch(std::exception& e)
   {
-    qDebug() << "terrama2::collector::CollectorService::addDataset " << e.what();
-    //TODO: log de erro
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addDataset " << e.what();
   }
 
   return;
@@ -532,8 +528,7 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
   }
   catch(std::exception& e)
   {
-    //TODO: log this
-    qDebug() << "terrama2::collector::CollectorService::removeDatasetById " << e.what();
+    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::removeDatasetById " << e.what();
   }
 
 }

@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   terrama2::core::initializeTerralib();
 
   // initialize terrama2 logger
-  terrama2::core::initializeLogger();
+  terrama2::core::initializeLogger("terrama2.log");
 
   try
   {

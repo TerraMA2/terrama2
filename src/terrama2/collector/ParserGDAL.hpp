@@ -20,15 +20,43 @@
 */
 
 /*!
-  \file terrama2/gui/config/Config.hpp
+  \file terrama2/collector/ParserGDAL.hpp
 
-  \brief Build options for TerraMA2 Configuration GUI.
+  \brief Base Parser for files that use GDAL driver.
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Jano Simas
+*/
 
-#ifndef __TERRAMA2_INTERNAL_GUI_CONFIG_CONFIG_HPP__
-#define __TERRAMA2_INTERNAL_GUI_CONFIG_CONFIG_HPP__
+#ifndef __TERRAMA2_COLLECTOR_PARSERGDAL_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERGDAL_HPP__
+
+#include "Parser.hpp"
+
+namespace terrama2
+{
+  namespace collector
+  {
+
+    /*!
+       \brief Base parser for GDAL driver.
+     */
+    class ParserGDAL : public Parser
+    {
+    public:
+      /**
+            \brief \copybrief Parser::read()
+            */
+      virtual void read(DataFilterPtr filter,
+                        std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+
+    protected:
+      virtual void fillConnectionInfo(std::map<std::string, std::string>& connInfo){}
+      virtual bool verifyFileName(const std::string& name) {return true;}
+
+    };
+  }
+}
 
 
-#endif // __TERRAMA2_INTERNAL_GUI_CONFIG_CONFIG_HPP__
+
+#endif //__TERRAMA2_COLLECTOR_PARSERGDAL_HPP__

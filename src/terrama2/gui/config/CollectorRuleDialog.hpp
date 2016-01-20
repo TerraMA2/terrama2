@@ -90,10 +90,9 @@ namespace terrama2
           void fillGUI(const QString script);
 
           /*!
-            \brief It will fill a QString reference with lua script
-            \param script: a QString reference to be filled out
+            \brief Returns the collect rule.
            */
-          void fillObject(QString& script);
+          std::string getCollectRule();
 
         private:
           /*!

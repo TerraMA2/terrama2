@@ -78,7 +78,7 @@ void TsIntegration::TestReadCsvStorePostGis()
    // item.setMask("exporta_%A%M%d_%h%m.csv");
     item.setMask(info.fileName().toStdString());
 
-    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+    std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
                                                         {"PG_HOST", "localhost"},
                                                         {"PG_PORT", "5432"},
                                                         {"PG_USER", "postgres"},
@@ -87,7 +87,7 @@ void TsIntegration::TestReadCsvStorePostGis()
                                                         {"PG_CONNECT_TIMEOUT", "4"},
                                                         {"PG_CLIENT_ENCODING", "UTF-8"},
                                                         {"PG_TABLENAME", "terrama2.integrationTest"} };
-    item.setStorageMetadata(storageMetadata);
+    item.setMetadata(metadata);
 
     terrama2::collector::CollectorService service;
     service.start(1);
@@ -172,7 +172,7 @@ void TsIntegration::TestCollectorFTP()
 
     terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
 
-//    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+//    std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
 //                                                        {"PG_HOST", "localhost"},
 //                                                        {"PG_PORT", "5432"},
 //                                                        {"PG_USER", "postgres"},
@@ -181,7 +181,7 @@ void TsIntegration::TestCollectorFTP()
 //                                                        {"PG_CONNECT_TIMEOUT", "4"},
 //                                                        {"PG_CLIENT_ENCODING", "UTF-8"},
 //                                                        {"PG_TABLENAME", "terrama2.data_provider"} };
-//    item.setStorageMetadata(storageMetadata);
+//    item.setMetadata(metadata);
 
     terrama2::collector::CollectorService service;
     service.start(1);
@@ -248,7 +248,7 @@ void TsIntegration::TestReadPostgisStorePostGis()
 
     terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
 
-    std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+    std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
                                                         {"PG_HOST", "localhost"},
                                                         {"PG_PORT", "5432"},
                                                         {"PG_USER", "postgres"},
@@ -257,7 +257,7 @@ void TsIntegration::TestReadPostgisStorePostGis()
                                                         {"PG_CONNECT_TIMEOUT", "4"},
                                                         {"PG_CLIENT_ENCODING", "UTF-8"},
                                                         {"PG_TABLENAME", "terrama2.teste_postgis"} };
-    item.setStorageMetadata(storageMetadata);
+    item.setMetadata(metadata);
     item.setMask("terrama2.nome_teste");
 
     terrama2::collector::CollectorService service;

@@ -31,8 +31,13 @@
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.hpp)
 
+file(GLOB TERRAMA2_DAO_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/dao/*.cpp)
+file(GLOB TERRAMA2_DAO_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/dao/*.hpp)
+
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+source_group("Source Files\\dao"  FILES ${TERRAMA2_DAO_SRC_FILES})
+source_group("Header Files\\dao"  FILES ${TERRAMA2_DAO_HDR_FILES})
 
 include_directories (
   ${Boost_INCLUDE_DIR}
@@ -44,7 +49,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_mod_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_library(terrama2_mod_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} ${TERRAMA2_DAO_SRC_FILES} ${TERRAMA2_DAO_HDR_FILES})
 
 qt5_use_modules(terrama2_mod_core Widgets Sql)
 

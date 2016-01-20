@@ -117,19 +117,17 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
 
   dataset.setIntersection(intersection_);
 
-  terrama2::core::DataSetItem* datasetItem;
+  terrama2::core::DataSetItem datasetItem;
   if (dataset.dataSetItems().size() > 0)
   {
-    datasetItem = &dataset.dataSetItems()[dataset.dataSetItems().size() - 1];
-    filter_->setDataSetItem(datasetItem->id());
+    datasetItem = dataset.dataSetItems()[dataset.dataSetItems().size() - 1];
+    filter_->setDataSetItem(datasetItem.id());
   }
-  else
-    datasetItem = new terrama2::core::DataSetItem;
 
-  auto storageMetadata = terrama2::gui::core::makeStorageMetadata(provider.uri().c_str(), *app_->getConfiguration());
+  auto itemMetadata = terrama2::gui::core::makeStorageMetadata(dataset.kind(), datasetItem.metadata(), provider.uri().c_str(), *app_->getConfiguration());
 
-  datasetItem->setStorageMetadata(storageMetadata);
-  datasetItem->setSrid(srid_);
+  datasetItem.setMetadata(itemMetadata);
+  datasetItem.setSrid(srid_);
 
   terrama2::core::DataSetItem::Kind kind;
   int index = ui_->pointDiffFormatDataType->currentIndex();
@@ -141,20 +139,21 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::save()
   else
     kind = terrama2::core::DataSetItem::UNKNOWN_TYPE;
 
-  datasetItem->setKind(kind);
-  datasetItem->setPath(ui_->pointDiffFormatDataPath->text().toStdString());
-  datasetItem->setMask(ui_->pointDiffFormatDataMask->text().toStdString());
-  datasetItem->setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
-  datasetItem->setStatus(terrama2::core::ToDataSetItemStatus(ui_->pointDiffFormatStatus->isChecked()));
+  datasetItem.setKind(kind);
+  datasetItem.setPath(ui_->pointDiffFormatDataPath->text().toStdString());
+  datasetItem.setMask(ui_->pointDiffFormatDataMask->text().toStdString());
+  datasetItem.setTimezone(ui_->pointDiffFormatDataTimeZoneCmb->currentText().toStdString());
+  datasetItem.setStatus(terrama2::core::ToDataSetItemStatus(ui_->pointDiffFormatStatus->isChecked()));
 
-  datasetItem->setFilter(*filter_);
+  datasetItem.setFilter(*filter_);
 
-  if (datasetItem->id() == 0)
-    dataset.add(*datasetItem);
+  if (datasetItem.id() == 0)
+    dataset.add(datasetItem);
 
   dataset.setStatus(terrama2::core::DataSet::ACTIVE);
 
-  terrama2::gui::config::saveDataSet(dataset, *datasetItem, provider.id(), app_, selectedData_, ui_->pointDiffFormatDataName->text(), "ocurrence-data");
+  // Lets save dataset, adding item in dataset
+  terrama2::gui::config::saveDataSet(dataset, datasetItem, provider.id(), app_, selectedData_, ui_->pointDiffFormatDataName->text(), "ocurrence-data");
 }
 
 void terrama2::gui::config::ConfigAppWeatherOccurrence::discardChanges(bool restore_data)
@@ -239,6 +238,7 @@ void terrama2::gui::config::ConfigAppWeatherOccurrence::onRemoveOccurrenceBtnCli
       if (removeDataSet(dataset))
       {
         app_->getClient()->removeDataSet(dataset.id());
+        TERRAMA2_LOG_INFO() << ("Dataset ID " + std::to_string(dataset.id()) + " has been removed!");
         app_->getWeatherTab()->removeCachedDataSet(dataset);
 
         QMessageBox::information(app_, tr("TerraMA2"), tr("DataSet Occurrence successfully removed!"));

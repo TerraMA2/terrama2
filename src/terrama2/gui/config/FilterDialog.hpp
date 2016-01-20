@@ -81,6 +81,8 @@ namespace terrama2
             \param flag A const value to define kind of widget. (default 0)
           */
           FilterDialog(FilterType type, const QString& timezone = "+00:00", QWidget* parent = nullptr, Qt::WindowFlags flag = 0);
+
+          //! Destructor
           ~FilterDialog();
 
           /*!

@@ -31,6 +31,7 @@
 #include "DataFilter.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
+#include "../core/Logger.hpp"
 
 //QT
 #include <QUrl>
@@ -52,7 +53,7 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
     for(auto& tranferenceData : transferenceDataVec)
     {
       QUrl url(tranferenceData.uri_origin.c_str());
-      std::map<std::string, std::string> storageMetadata{ {"KIND", "POSTGIS"},
+      std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
                                                           {"PG_HOST", url.host().toStdString()},
                                                           {"PG_PORT", std::to_string(url.port())},
                                                           {"PG_USER", url.userName().toStdString()},
@@ -64,7 +65,7 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
 
 
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS"));
-      datasource->setConnectionInfo(storageMetadata);
+      datasource->setConnectionInfo(metadata);
 
       //RAII for open/closing the datasource
       OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
@@ -101,13 +102,14 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
   }
   catch(te::common::Exception& e)
   {
-    //TODO: log de erro
-    qDebug() << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
     throw UnableToReadDataSetException() << terrama2::ErrorDescription(
                                               QObject::tr("Terralib exception: ") +e.what());
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetException() << terrama2::ErrorDescription(QObject::tr("Std exception.")+e.what());
+    QString message = QObject::tr("Std exception.") + e.what();
+    TERRAMA2_LOG_ERROR() << message;
+    throw UnableToReadDataSetException() << terrama2::ErrorDescription(message);
   }
 }

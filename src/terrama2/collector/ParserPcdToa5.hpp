@@ -36,9 +36,6 @@
 #include "Parser.hpp"
 #include "ParserOGR.hpp"
 
-// STL
-#include <mutex>
-
 namespace terrama2
 {
  namespace collector
