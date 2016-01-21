@@ -198,7 +198,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
     OpenClose<DataRetrieverPtr> openClose(retriever);
     if(!retriever->isOpen())
     {
-      //TODO: log this
+      TERRAMA2_LOG_WARNING() << "Could not open data retriever";
       return;
     }
 
