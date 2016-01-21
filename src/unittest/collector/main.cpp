@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
 
 //  //DataRetriever
 
-//  TsDataSetTimer tsDataSetTimer;
-//  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
+  TsDataSetTimer tsDataSetTimer;
+  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
 
 //  TsFactory tsFactory;
 //  returnVal += QTest::qExec(&tsFactory, argc, argv);
