@@ -34,6 +34,7 @@
 #include "../core/DataProvider.hpp"
 #include "../core/DataManager.hpp"
 #include "../core/DataSet.hpp"
+#include "../core/Logger.hpp"
 
 struct terrama2::collector::DataSetTimer::Impl
 {
@@ -45,7 +46,9 @@ terrama2::collector::DataSetTimer::DataSetTimer(const terrama2::core::DataSet& d
 {
   if(dataSet.id() == 0 || dataSet.name().empty())
   {
-    throw InvalidDataSetException() << terrama2::ErrorDescription(tr("Invalid dataset in DataSetTimer constructor."));
+    QString errMsg = tr("Invalid dataset in DataSetTimer constructor.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
   }
 
   impl_ = new Impl();
@@ -75,7 +78,9 @@ void terrama2::collector::DataSetTimer::prepareTimer(const terrama2::core::DataS
     impl_->timer_.start(seconds*1000);
   else
   {
-    throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(QObject::tr("Invalid collect frequency."));
+    QString errMsg = QObject::tr("Invalid collect frequency.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
 }

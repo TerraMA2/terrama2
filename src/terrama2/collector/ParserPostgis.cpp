@@ -52,7 +52,7 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
   {
     for(auto& tranferenceData : transferenceDataVec)
     {
-      QUrl url(tranferenceData.uri_origin.c_str());
+      QUrl url(tranferenceData.uriOrigin.c_str());
       std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
                                                           {"PG_HOST", url.host().toStdString()},
                                                           {"PG_PORT", std::to_string(url.port())},
@@ -72,8 +72,9 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
 
       if(!datasource->isOpened())
       {
-        throw UnableToReadDataSetException() << terrama2::ErrorDescription(
-                                                  QObject::tr("DataProvider could not be opened."));
+        QString errMsg = QObject::tr("DataProvider could not be opened.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw UnableToReadDataSetException() << terrama2::ErrorDescription(errMsg);
       }
 
       // get a transactor to interact to the data source
@@ -83,33 +84,38 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
       std::vector<std::string> names = transactor->getDataSetNames();
       names = filter->filterNames(names);
       if(names.empty())
-        throw NoDataSetFoundException() << terrama2::ErrorDescription(QObject::tr("No DataSet Found."));
+      {
+        QString errMsg = QObject::tr("No DataSet Found.");
+        TERRAMA2_LOG_WARNING() << errMsg;
+        throw NoDataSetFoundException() << terrama2::ErrorDescription(errMsg);
+      }
 
       for(const auto& name : names)
       {
         std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
-        tranferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
+        tranferenceData.teDataSetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
 
-        if(!dataSet || !tranferenceData.teDatasetType)
+        if(!dataSet || !tranferenceData.teDataSetType)
         {
-          throw UnableToReadDataSetException() << terrama2::ErrorDescription(
-                                                    QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
+          QString errMsg = QObject::tr("DataSet: %1 is null.").arg(name.c_str());
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw UnableToReadDataSetException() << terrama2::ErrorDescription(errMsg);
         }
 
-        tranferenceData.teDataset = dataSet;
+        tranferenceData.teDataSet = dataSet;
       }
     }
   }
   catch(te::common::Exception& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
-    throw UnableToReadDataSetException() << terrama2::ErrorDescription(
-                                              QObject::tr("Terralib exception: ") +e.what());
+    QString errMsg = QObject::tr("Terralib exception: ") +e.what();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UnableToReadDataSetException() << terrama2::ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    QString message = QObject::tr("Std exception.") + e.what();
-    TERRAMA2_LOG_ERROR() << message;
-    throw UnableToReadDataSetException() << terrama2::ErrorDescription(message);
+    QString errMsg = QObject::tr("Std exception.") + e.what();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UnableToReadDataSetException() << terrama2::ErrorDescription(errMsg);
   }
 }

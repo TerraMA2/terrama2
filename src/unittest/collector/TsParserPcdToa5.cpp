@@ -56,68 +56,30 @@
 
 void TsParserPcdToa5::TestParseCpvOk()
 {
-  class RAIIQFile
-  {
-  public:
-    RAIIQFile(QFile& file)
-      : file_(file)
-    {
-      file.open(QIODevice::ReadWrite);
-    }
 
-    ~RAIIQFile()
-    {
-      file_.remove();
-    }
-
-    QFile& file_;
-  };
-
-  QTemporaryDir dir;
-  //always <DCPnumber>.txt
-  QFile qfile(dir.path()+"/CPV_slow_2014_01_02_1931.dat");
-  if(qfile.exists())
-    qfile.remove();
-
-  RAIIQFile raii(qfile); Q_UNUSED(raii);
-
-  // column names:
-  qfile.write("\"TOA5\",\"CPV\",\"CR1000\",\"20186\",\"CR1000.Std.26\",\"CPU:FIELD_MILL_EFM550_VAISALA_CPV_V1.CR1\",\"10090\",\"slow\" \n");
-  qfile.write("\"TIMESTAMP\",\"RECORD\",\"E_field_Avg\",\"leakage_cur_Avg\",\"panel_temp_Avg\",\"battery_volt_Avg\",\"internal_RH_Avg\" \n");
-  qfile.write("\"TS\",\"RN\",\"volts/m\",\"nA\",\"DegC\",\"volt\",\"%\"\n");
-  qfile.write("\"\",\"\",\"Avg\",\"Avg\",\"Avg\",\"Avg\",\"Avg\"\n");
-  qfile.write("\"2015-01-02 19:31:00\",20173,47.68479,\"NAN\",32.4,13.19,39.96\n");
-  qfile.write("\"2015-01-02 19:31:00\",20173,47.68479,\"NAN\",32.4,13.19,39.96\n");
-  qfile.write("\"2015-01-02 19:32:00\",20174,154.0583,\"NAN\",32.37,13.19,39.96\n");
-  qfile.close();
-  QFileInfo info(qfile);
-
-  QUrl uri;
-  uri.setScheme("file");
-  uri.setPath(info.absoluteFilePath());
-
-  QVERIFY(info.exists());
+  //FIXME: Review ParserToa5 not working.
+  //reading first line as header, second line is the header
+//  QFAIL("NOT WORKING!!!");
 
   try
   {
+    terrama2::core::DataSetItem item;
+    item.setMask("CPV_slow_%A_%M_%d_%h%m.dat");
+
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
+
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = uri.url().toStdString();
+    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/CPV_slow_2014_01_02_1713.dat");
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
-
-
-    terrama2::core::DataSetItem item;
-    item.setMask(info.fileName().toStdString());
-
-    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::ParserPcdToa5 parser;
     parser.read(filter, transferenceDataVec);
 
     QVERIFY(transferenceDataVec.size() == 1);
 
-    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataset;
+    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataSet;
     if(dataset->moveNext())
     {
       std::unique_ptr<te::dt::DateTime> dateTime(dataset->getDateTime("DateTime"));
@@ -126,15 +88,17 @@ void TsParserPcdToa5::TestParseCpvOk()
       QVERIFY(timeTz);
 
       boost::gregorian::date localDate = timeTz->getTimeInstantTZ().date();
-      QVERIFY(localDate.day() == 1);
-      QVERIFY(localDate.month() == 11);
-      QVERIFY(localDate.year() == 2015);
+      QVERIFY(localDate.day() == 2);
+      QVERIFY(localDate.month() == 1);
+      QVERIFY(localDate.year() == 2014);
 
       boost::posix_time::time_duration time = timeTz->getTimeInstantTZ().utc_time().time_of_day();
-      QCOMPARE(time.hours(), 3);
-      QCOMPARE(time.minutes(), 0);
+      QCOMPARE(time.hours(), 17);
+      QCOMPARE(time.minutes(), 13);
       QCOMPARE(time.seconds(), 0);
     }
+    else
+      QFAIL(CANT_ACCESS_DATA);
 
   }
   catch(...)
@@ -143,7 +107,6 @@ void TsParserPcdToa5::TestParseCpvOk()
   }
 
   return;
-
 }
 
 void TsParserPcdToa5::TestParseFail()

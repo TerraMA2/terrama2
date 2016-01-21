@@ -20,37 +20,45 @@
 */
 
 /*!
-  \file terrama2/collector/ParserTiff.hpp
+  \file terrama2/collector/DataRetrieverWCS.hpp
 
-  \brief Parsers Tiff image files and create a terralib DataSet.
+  \brief Data Retriever WCS.
 
-  \author Jano Simas
+ \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
-#define __TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
 
-#include "ParserGDAL.hpp"
+#ifndef __TERRAMA2_COLLECTOR_DATARETRIEVERWCS_HPP__
+#define __TERRAMA2_COLLECTOR_DATARETRIEVERWCS_HPP__
+
+// STL
+
+
+// TerraMA2
+#include "DataRetriever.hpp"
+
+
 
 namespace terrama2
 {
   namespace collector
   {
+    class DataFilter;
+    typedef std::shared_ptr<DataFilter> DataFilterPtr;
 
     /*!
-       \brief Parser for TIFF images.
-     */
-    class ParserTiff : public ParserGDAL
+       * \brief
+    */
+    class DataRetrieverWCS: public DataRetriever
     {
-    public:
-      virtual ~ParserTiff(){}
-    protected:
-        bool verifyFileName(const std::string& name) override;
+      public:
+
+      private:
 
     };
+
+
   }
 }
 
-
-
-#endif //__TERRAMA2_COLLECTOR_PARSERTIFF_HPP__
+#endif //__TERRAMA2_COLLECTOR_DATARETRIEVERWCS_HPP__

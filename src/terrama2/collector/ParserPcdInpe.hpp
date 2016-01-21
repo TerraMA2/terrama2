@@ -48,6 +48,8 @@ namespace terrama2
   class ParserPcdInpe: public ParserOGR
   {
    public:
+
+    virtual ~ParserPcdInpe(){}
       /*!
      * \brief The Adapt method is responsible for manually change data from PcdINPE file.
      *
