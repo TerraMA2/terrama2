@@ -193,15 +193,8 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
 
 void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_time::local_date_time boostTime)
 {
-  std::string a = boostTime.to_string();
-
-  if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ() < boostTime)
-  {
-    dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
-
-    if(currentData_)
-      currentData_->dateData.reset(new te::dt::TimeInstantTZ(boostTime));
-  }
+  if(currentData_)
+    currentData_->dateData.reset(new te::dt::TimeInstantTZ(boostTime));
 }
 
 bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, terrama2::collector::TransferenceData& transferenceData)
@@ -405,15 +398,8 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
   transferenceData.teDataSet = memDataSet;
 }
 
-
-te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime() const
-{
-  return dataSetLastDateTime_.get();
-}
-
 terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime)
   : datasetItem_(datasetItem),
-    dataSetLastDateTime_(nullptr),
     currentData_(nullptr)
 {
   //recover last collection time logged

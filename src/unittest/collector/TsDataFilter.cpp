@@ -172,11 +172,13 @@ void TsDataFilter::TestgetDataSetLastDateTime()
   int size = names.size();
   QCOMPARE(size, 6);
 
-  te::dt::TimeInstantTZ* dataSetLastDateTime = datafilter.getDataSetLastDateTime();
+  QFAIL("fix test");
 
-  QVERIFY(dataSetLastDateTime);
+//  te::dt::TimeInstantTZ* dataSetLastDateTime = datafilter.getDataSetLastDateTime();
 
-  QCOMPARE(*tDate, *dataSetLastDateTime);
+//  QVERIFY(dataSetLastDateTime);
+
+//  QCOMPARE(*tDate, *dataSetLastDateTime);
 }
 
 void TsDataFilter::TestDiscardBefore()

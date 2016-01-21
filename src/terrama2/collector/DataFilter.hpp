@@ -127,11 +127,6 @@ namespace terrama2
              */
       void filterDataSet(terrama2::collector::TransferenceData& transferenceData);
 
-      /*!
-             * \brief Returns the lastest timestamp found in the core::DataSetItem.
-             */
-      te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
-
     private:
       //! Updates last date time collected.
       void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
@@ -185,7 +180,6 @@ namespace terrama2
       bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
       const core::DataSetItem& datasetItem_; //!< core::DataSetItem to be filtered
-      std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //!< Latest valid date found
       std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Earliest valid time/date.
       std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Latest valid time/date.
       terrama2::collector::TransferenceData* currentData_;
