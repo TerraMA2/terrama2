@@ -46,5 +46,7 @@ extern const char* WRONG_TYPE_EXCEPTION;
 
 extern const char* UNEXPECTED_BEHAVIOR;
 
+extern const char* CANT_ACCESS_DATA;
+
 
 #endif // __TERRAMA2_UNITTEST_COLLECTOR_TESTUTILS_HPP__

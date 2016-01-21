@@ -55,7 +55,7 @@ void TsParserAscGrid::TestOpenFile()
   try
   {
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = uri.url().toStdString();
+    transferenceData.uriTemporary = uri.url().toStdString();
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
@@ -68,7 +68,7 @@ void TsParserAscGrid::TestOpenFile()
     terrama2::collector::ParserAscGrid parser;
     parser.read(filter, transferenceDataVec);
 
-    QVERIFY(transferenceDataVec.at(0).teDataset.get());
+    QVERIFY(transferenceDataVec.at(0).teDataSet.get());
   }
   catch(boost::exception& e)
   {

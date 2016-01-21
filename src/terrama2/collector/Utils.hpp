@@ -86,7 +86,7 @@ namespace terrama2
         {
           obj_->close();
         }
-        catch(boost::exception& e)
+        catch(boost::exception&)
         {
           try
           {
@@ -94,7 +94,7 @@ namespace terrama2
           }
           catch(...) { }
         }
-        catch(std::exception& e)
+        catch(std::exception&)
         {
           try
           {

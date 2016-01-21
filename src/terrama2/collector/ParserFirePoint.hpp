@@ -55,6 +55,8 @@ namespace terrama2
   class ParserFirePoint: public ParserOGR
   {
    public:
+
+    virtual ~ParserFirePoint(){}
       /*!
      * \brief adapt
      * \param converter DataSetTypeConverter is the type that is a pointer to the DataSet Type that will be converted manually.

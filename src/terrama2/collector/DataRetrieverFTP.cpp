@@ -40,6 +40,7 @@
 #include "Log.hpp"
 #include "FileOpener.hpp"
 #include "CurlOpener.hpp"
+#include "../core/Logger.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -166,9 +167,11 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       }
       else
       {
-        QString messageError = QObject::tr("Could not list files in the FTP server. \n\n");
-        messageError.append(curl_easy_strerror(status));
-        throw DataRetrieverFTPException() << ErrorDescription(messageError);
+        QString errMsg = QObject::tr("Could not list files in the FTP server. \n\n");
+        errMsg.append(curl_easy_strerror(status));
+
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataRetrieverFTPException() << ErrorDescription(errMsg);
       }
 
 // filter file names that should be downloaded.
@@ -198,15 +201,18 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
           if (res != CURLE_OK)
           {
-            QString messageError = QObject::tr("Could not perform the download. \n\n");
-            messageError.append(curl_easy_strerror(res));
-            throw DataRetrieverFTPException() << ErrorDescription(messageError);
+            QString errMsg = QObject::tr("Could not perform the download. \n\n");
+            errMsg.append(curl_easy_strerror(res));
+
+            TERRAMA2_LOG_ERROR() << errMsg;
+            throw DataRetrieverFTPException() << ErrorDescription(errMsg);
           }
           else
           {
             TransferenceData tmp;
-            tmp.uri_origin = uri_origin;
-            tmp.uri_temporary = "file://"+filePath;
+            tmp.dataSetItem = datasetitem;
+            tmp.uriOrigin = uri_origin;
+            tmp.uriTemporary = "file://"+filePath;
             transferenceDataVec.push_back(tmp);
           }
         }
@@ -216,10 +222,11 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
   }
   catch(const std::exception& e)
   {
-    QString messageError = QObject::tr("Could not perform the download files! \n\n Details: \n");
-    messageError.append(e.what());
+    QString errMsg = QObject::tr("Could not perform the download files! \n\n Details: \n");
+    errMsg.append(e.what());
 
-    throw DataRetrieverFTPException() << ErrorDescription(messageError);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataRetrieverFTPException() << ErrorDescription(errMsg);
   }
 
   catch(...)

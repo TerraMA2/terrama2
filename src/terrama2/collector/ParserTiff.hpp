@@ -42,6 +42,8 @@ namespace terrama2
      */
     class ParserTiff : public ParserGDAL
     {
+    public:
+      virtual ~ParserTiff(){}
     protected:
         bool verifyFileName(const std::string& name) override;
 

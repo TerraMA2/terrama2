@@ -58,7 +58,7 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
   std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
 
-  std::shared_ptr<te::da::DataSetType> datasetType = transferenceDataVec.at(0).teDatasetType;
+  std::shared_ptr<te::da::DataSetType> datasetType = transferenceDataVec.at(0).teDataSetType;
 
   std::map<std::string, std::string> options;
   std::shared_ptr<te::da::DataSetType> newDataSetType;
@@ -87,7 +87,7 @@ void terrama2::collector::StoragerPostgis::commitData(const std::string& destina
   }
 
   for(const auto& transferenceData : transferenceDataVec)
-    transactorDestination->add(newDataSetType->getName(), transferenceData.teDataset.get(), options);
+    transactorDestination->add(newDataSetType->getName(), transferenceData.teDataSet.get(), options);
 
   scopedTransaction.commit();
 }
@@ -99,13 +99,17 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
 
   try
   {
-    const core::DataSetItem& dataSetItem = transferenceDataVec.at(0).datasetItem;
+    const core::DataSetItem& dataSetItem = transferenceDataVec.at(0).dataSetItem;
 
     std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
     datasourceDestination->setConnectionInfo(metadata_);
     OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
     if(!datasourceDestination->isOpened())
+    {
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
       return; //TODO: throw exception...
+    }
 
     std::string dataSetName;
     std::map<std::string, std::string>::const_iterator dataSetNameIt = metadata_.find("STORAGE_NAME");
@@ -131,11 +135,11 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
 
     //update storage uri
     for(TransferenceData& transferenceData : transferenceDataVec)
-      transferenceData.uri_storage = uri.url().toStdString();
+      transferenceData.uriStorage = uri.url().toStdString();
   }
-  catch(terrama2::Exception& e)
+  catch(terrama2::Exception&)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    //logged on throw
   }
   catch(te::common::Exception& e)
   {

@@ -143,6 +143,17 @@ namespace terrama2
         virtual std::shared_ptr<te::dt::TimeInstantTZ> getDataSetItemLastDateTime(uint64_t id) const;
 
 
+        /*!
+          \brief Update registers in log table
+
+          \param transferenceDataVec A vector with data to be updated
+          \param s The updated status of the data
+
+          \exception LogException
+        */
+        virtual void updateLog(const std::vector<TransferenceData>& transferenceDataVec, const Status s) const;
+
+
       private:
         std::shared_ptr< te::da::DataSourceTransactor > transactor_; //!< Contains the instance transactor
     };

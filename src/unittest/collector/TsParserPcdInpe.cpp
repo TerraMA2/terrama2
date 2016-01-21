@@ -108,7 +108,7 @@ void TsParserPcdInpe::TestParseOk()
   try
   {
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = uri.url().toStdString();
+    transferenceData.uriTemporary = uri.url().toStdString();
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
@@ -124,7 +124,7 @@ void TsParserPcdInpe::TestParseOk()
 
     QVERIFY(transferenceDataVec.size() == 1);
 
-    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataset;
+    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataSet;
     if(dataset->moveNext())
     {
       std::unique_ptr<te::dt::DateTime> dateTime(dataset->getDateTime("DateTime"));

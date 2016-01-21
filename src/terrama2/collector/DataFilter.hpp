@@ -147,7 +147,7 @@ namespace terrama2
 
          \warning Updates dataSetLastDateTime_ with the latest date.
          */
-      bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
+      bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, TransferenceData& transferenceData);
 
       /*!
            \brief Verifies if the time is after discardBeforeTime.
@@ -155,7 +155,7 @@ namespace terrama2
            Check if hours, minutes and seconds are after discardBeforeTime,
            if any of them is -1 it's considered after, the others are checked.
          */
-      bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const std::string& timezone, const boost::posix_time::time_duration& discardBeforeTime) const;
+      bool isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const;
       /*!
            \brief Verifies if the time is after discarBeforeDate.
 
