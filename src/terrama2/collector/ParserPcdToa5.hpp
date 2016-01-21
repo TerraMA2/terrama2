@@ -48,7 +48,12 @@ namespace terrama2
   class ParserPcdToa5: public ParserOGR
   {
    public:
-      /*!
+    virtual ~ParserPcdToa5(){}
+
+    virtual void read(DataFilterPtr filter,
+                      std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+
+    /*!
         * \brief The Adapt method is responsible for manually change data from TOA5 file. This method first performs the remove
         * of the column "TIMESTAMP" of TOA5 file, then creates a new column or property "DateTime" type dt::DateTimeProperty
         * with value dt::TIME_INSTANT_TZ.

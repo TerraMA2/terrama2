@@ -225,8 +225,8 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
 
         try
         {
-//          std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
-//          terrama2::collector::Log collectLog(transactor);
+          std::shared_ptr< te::da::DataSourceTransactor > transactor(terrama2::core::ApplicationController::getInstance().getTransactor());
+          terrama2::collector::Log collectLog(transactor);
 
 
           std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime;// = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
@@ -240,14 +240,15 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
             retriever->retrieveData(dataSetItem, filter, transferenceDataVec);
 
             //Log: data downloaded
-//            if(!transferenceDataVec.empty())
-//              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
+            if(!transferenceDataVec.empty())
+              collectLog.log(transferenceDataVec, Log::Status::DOWNLOADED);
 
           }
           else// if data don't need to be retrieved (ex. local, wms, wmf)
           {
             TransferenceData tmp;
-            tmp.uri_origin = dataProvider.uri() + "/" + dataSetItem.mask();
+            tmp.uriOrigin = dataProvider.uri() + "/" + dataSetItem.mask();
+            tmp.uriTemporary = dataProvider.uri() + "/" + dataSetItem.mask();
             transferenceDataVec.push_back(tmp);
           }
 
@@ -256,9 +257,9 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           {
             boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
             boost::local_time::local_date_time boostTime(boost::posix_time::second_clock::universal_time(), zone);
-            transferenceData.date_collect.reset(new te::dt::TimeInstantTZ(boostTime));
-            transferenceData.dataset = dataSet;
-            transferenceData.datasetItem = dataSetItem;
+            transferenceData.dateCollect.reset(new te::dt::TimeInstantTZ(boostTime));
+            transferenceData.dataSet = dataSet;
+            transferenceData.dataSetItem = dataSetItem;
           }
 
           ParserPtr parser = Factory::makeParser(dataSetItem);
@@ -268,6 +269,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           parser->read(filter, transferenceDataVec);
 
           //no new dataset found
+          // VINICIUS: log the files that don't have data, NODATA
           if(transferenceDataVec.empty())
             continue;
 
@@ -283,10 +285,17 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           assert(storager);
           storager->store(transferenceDataVec);
 
-//          collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
-
-          // Dataset Logger Success
-          TERRAMA2_LOG_INFO() << "DataSet \"" << dataSet.name() + "\" has just been collected!";
+          if(retriever->isRetrivable())
+          {
+            collectLog.updateLog(transferenceDataVec, Log::Status::IMPORTED);
+          }
+          else
+          {
+            // Data wasn't logged untin now
+            collectLog.log(transferenceDataVec, Log::Status::IMPORTED);
+            // Dataset Logger Success
+            TERRAMA2_LOG_INFO() << "DataSet \"" << dataSet.name() + "\" has just been collected!";
+          }
         }
         catch(terrama2::Exception& e)
         {
@@ -338,6 +347,7 @@ void terrama2::collector::CollectorService::threadProcess()
 
       if(stop_)
         break;
+      //TODO: look for another task before sleeping again?
     }
   }
   catch(std::exception& e)

@@ -49,13 +49,13 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
   if(transferenceDataVec.empty())
     throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
 
-  dataSetItem_ = transferenceDataVec.at(0).datasetItem;
+  dataSetItem_ = transferenceDataVec.at(0).dataSetItem;
 
   try
   {
     for(auto& transferenceData : transferenceDataVec)
     {
-      QUrl uri(transferenceData.uri_temporary.empty() ? transferenceData.uri_origin.c_str() : transferenceData.uri_temporary.c_str());
+      QUrl uri(transferenceData.uriTemporary.empty() ? transferenceData.uriOrigin.c_str() : transferenceData.uriTemporary.c_str());
 
       QFileInfo fileInfo(uri.path());
       if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
@@ -86,8 +86,8 @@ void terrama2::collector::ParserGDAL::read(terrama2::collector::DataFilterPtr fi
 
       // get a transactor to interact to the data source
       std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-      transferenceData.teDataset = std::shared_ptr<te::da::DataSet>(transactor->getDataSet(fileInfo.fileName().toStdString()));
-      transferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(fileInfo.fileName().toStdString()));
+      transferenceData.teDataSet = std::shared_ptr<te::da::DataSet>(transactor->getDataSet(fileInfo.fileName().toStdString()));
+      transferenceData.teDataSetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(fileInfo.fileName().toStdString()));
     }
   }
   catch(te::common::Exception& e)

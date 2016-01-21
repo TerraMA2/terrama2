@@ -52,7 +52,7 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
   {
     for(auto& tranferenceData : transferenceDataVec)
     {
-      QUrl url(tranferenceData.uri_origin.c_str());
+      QUrl url(tranferenceData.uriOrigin.c_str());
       std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
                                                           {"PG_HOST", url.host().toStdString()},
                                                           {"PG_PORT", std::to_string(url.port())},
@@ -88,15 +88,15 @@ void terrama2::collector::ParserPostgis::read(terrama2::collector::DataFilterPtr
       for(const auto& name : names)
       {
         std::shared_ptr<te::da::DataSet> dataSet(transactor->getDataSet(name));
-        tranferenceData.teDatasetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
+        tranferenceData.teDataSetType = std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name));
 
-        if(!dataSet || !tranferenceData.teDatasetType)
+        if(!dataSet || !tranferenceData.teDataSetType)
         {
           throw UnableToReadDataSetException() << terrama2::ErrorDescription(
                                                     QObject::tr("DataSet: %1 is null.").arg(name.c_str()));
         }
 
-        tranferenceData.teDataset = dataSet;
+        tranferenceData.teDataSet = dataSet;
       }
     }
   }

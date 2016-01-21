@@ -59,7 +59,7 @@ void TsParserPcdToa5::TestParseCpvOk()
 
   //FIXME: Review ParserToa5 not working.
   //reading first line as header, second line is the header
-  QFAIL("NOT WORKING!!!");
+//  QFAIL("NOT WORKING!!!");
 
   try
   {
@@ -69,7 +69,7 @@ void TsParserPcdToa5::TestParseCpvOk()
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/");
+    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/pcd_toa5/CPV/CPV_slow_2014_01_02_1713.dat");
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
@@ -77,9 +77,9 @@ void TsParserPcdToa5::TestParseCpvOk()
     terrama2::collector::ParserPcdToa5 parser;
     parser.read(filter, transferenceDataVec);
 
-    QVERIFY(transferenceDataVec.size() == 21);
+    QVERIFY(transferenceDataVec.size() == 1);
 
-    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataset;
+    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataSet;
     if(dataset->moveNext())
     {
       std::unique_ptr<te::dt::DateTime> dateTime(dataset->getDateTime("DateTime"));
@@ -88,15 +88,17 @@ void TsParserPcdToa5::TestParseCpvOk()
       QVERIFY(timeTz);
 
       boost::gregorian::date localDate = timeTz->getTimeInstantTZ().date();
-      QVERIFY(localDate.day() == 1);
-      QVERIFY(localDate.month() == 11);
-      QVERIFY(localDate.year() == 2015);
+      QVERIFY(localDate.day() == 2);
+      QVERIFY(localDate.month() == 1);
+      QVERIFY(localDate.year() == 2014);
 
       boost::posix_time::time_duration time = timeTz->getTimeInstantTZ().utc_time().time_of_day();
-      QCOMPARE(time.hours(), 3);
-      QCOMPARE(time.minutes(), 0);
+      QCOMPARE(time.hours(), 17);
+      QCOMPARE(time.minutes(), 13);
       QCOMPARE(time.seconds(), 0);
     }
+    else
+      QFAIL(CANT_ACCESS_DATA);
 
   }
   catch(...)
