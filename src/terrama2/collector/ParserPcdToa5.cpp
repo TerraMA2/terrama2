@@ -33,6 +33,7 @@
 #include "ParserPcdToa5.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "../core/Logger.hpp"
 
 // QT
 #include <QDir>
@@ -84,7 +85,11 @@ void terrama2::collector::ParserPcdToa5::read(terrama2::collector::DataFilterPtr
 {
   QTemporaryDir tempDir;
   if(!tempDir.isValid())
-    throw CantCreateTemporaryFolderException() << ErrorDescription(QObject::tr("Can't create temporary folder."));
+  {
+    QString errMsg = QObject::tr("Can't create temporary folder.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw CantCreateTemporaryFolderException() << ErrorDescription(errMsg);
+  }
 
   for(TransferenceData& transferenceData : transferenceDataVec)
   {

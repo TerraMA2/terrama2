@@ -177,14 +177,14 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
     }
     catch(boost::exception& e)
     {
-      TERRAMA2_LOG_ERROR() << "boost::exception: Could not parse filter name in date time comparing";
+      TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
       return false;
     }
 
   }
   catch(std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::DataFilter::filterName: Invalid datetime typed";
+    TERRAMA2_LOG_ERROR() << e.what();
     return false;
   }
 
@@ -445,7 +445,12 @@ void terrama2::collector::DataFilter::processMask()
 {
   std::string mask = datasetItem_.mask();
   if(mask.empty())
-    throw EmptyMaskException() << terrama2::ErrorDescription(QObject::tr("Filter mask is empty."));
+  {
+    QString errMsg = QObject::tr("Filter mask is empty.");
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw EmptyMaskException() << terrama2::ErrorDescription(errMsg);
+  }
 
   //used to fix the position of wildcards where real values have different size from wild cards.
   int distance = 0;

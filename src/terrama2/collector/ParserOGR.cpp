@@ -33,6 +33,7 @@
 #include "ParserOGR.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
+#include "../core/Logger.hpp"
 
 // QT
 #include <QDir>
@@ -79,7 +80,11 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::ge
 void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<TransferenceData>& transferenceDataVec)
 {
   if(transferenceDataVec.empty())
-    throw NoDataSetFoundException() << ErrorDescription(QObject::tr("No DataSet Found."));
+  {
+    QString errMsg =QObject::tr("No DataSet Found.");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw NoDataSetFoundException() << ErrorDescription(errMsg);
+  }
 
   dataSetItem_ = transferenceDataVec.at(0).dataSetItem;
 
@@ -93,7 +98,11 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
       QFileInfo fileInfo(uri.path());
       if(uri.scheme() != "file" || !fileInfo.exists() || fileInfo.isDir())
-        throw InvalidFileException() << ErrorDescription(QObject::tr("Invalid file %1.").arg(fileInfo.fileName()));
+      {
+        QString errMsg = QObject::tr("Invalid file %1.").arg(fileInfo.fileName());
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw InvalidFileException() << ErrorDescription(errMsg);
+      }
 
       if(!filter->filterName(fileInfo.fileName().toStdString()))
         continue;
@@ -109,7 +118,9 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
       if(!datasource->isOpened())
       {
-        throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - DataProvider could not be opened."));
+        QString errMsg = QObject::tr("DataProvider could not be opened.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw UnableToReadDataSetException() << ErrorDescription(errMsg);
       }
 
       // get a transactor to interact to the data source
@@ -129,7 +140,9 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
   }
   catch(te::common::Exception& e)
   {
-    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - Terralib exception: ") +e.what());
+    QString errMsg = QObject::tr("Terralib exception: ") +e.what();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UnableToReadDataSetException() << ErrorDescription(errMsg);
   }
   catch(terrama2::collector::Exception& e)
   {
@@ -137,7 +150,9 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
   }
   catch(std::exception& e)
   {
-    throw UnableToReadDataSetException() << ErrorDescription(QObject::tr("ParserOGR::read - Std exception.")+e.what());
+    QString errMsg = QObject::tr("Std exception.")+e.what();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UnableToReadDataSetException() << ErrorDescription(errMsg);
   }
 
   return;

@@ -108,6 +108,7 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
         std::string storageURI = terrama2DefaultDir + destinationDataSetName;
         //TODO: verify if has raster?
         //TODO: Verify if it's compatible?
+        //TODO: multiple channels?
         std::unique_ptr<te::rst::Raster> raster(transferenceData.teDataSet->getRaster("raster"));
         te::rp::Copy2DiskRaster(*raster, storageURI);
 
@@ -115,9 +116,9 @@ void terrama2::collector::StoragerTiff::store(std::vector<TransferenceData>& tra
       }//for each dataset end
     }//else: no name set
   }
-  catch(terrama2::Exception& e)
+  catch(terrama2::Exception&)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    //logged on throw
   }
   catch(te::common::Exception& e)
   {
