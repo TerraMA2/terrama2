@@ -28,6 +28,7 @@
 */
 
 #include "../core/DataSetItem.hpp"
+#include "../core/Logger.hpp"
 
 #include "Exception.hpp"
 #include "Factory.hpp"
@@ -84,14 +85,20 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const te
       return newParser;
     }
     default:
-      throw ConflictingParserTypeSchemeException() << terrama2::ErrorDescription(QObject::tr("The DataSetItem (%1) type is not compatible with FILE scheme.").arg(datasetItem.id()));
+    {
+      QString errMsg = QObject::tr("The DataSetItem (%1) type is not compatible with FILE scheme.").arg(datasetItem.id());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw ConflictingParserTypeSchemeException() << terrama2::ErrorDescription(errMsg);
+    }
   }
 
   //FIXME: define new type of dataset to postgis data!!!
   ParserPtr newParser = std::make_shared<ParserPostgis>();
   return newParser;
 
-  throw UnableToCreateParserException() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
+  QString errMsg = QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id());
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw UnableToCreateParserException() << terrama2::ErrorDescription(errMsg);
 }
 
 terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(const core::DataSetItem &datasetItem)
@@ -100,7 +107,11 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
   std::map<std::string, std::string>::const_iterator localFind = metadata.find("KIND");
 
   if(localFind == metadata.cend())
-    throw UnableToCreateStoragerException() << terrama2::ErrorDescription(QObject::tr("No storager kind set."));
+  {
+    QString errMsg = QObject::tr("No storager kind set.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UnableToCreateStoragerException() << terrama2::ErrorDescription(errMsg);
+  }
 
   std::string storagerKind = localFind->second;
 
@@ -115,7 +126,9 @@ terrama2::collector::StoragerPtr terrama2::collector::Factory::makeStorager(cons
     return std::make_shared<StoragerTiff>(metadata);
   }
 
-  throw UnableToCreateStoragerException() << terrama2::ErrorDescription(QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id()));
+  QString errMsg = QObject::tr("Unknown  DataSetItem (%1) type.").arg(datasetItem.id());
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw UnableToCreateStoragerException() << terrama2::ErrorDescription(errMsg);
 }
 
 terrama2::collector::DataRetrieverPtr terrama2::collector::Factory::makeRetriever(const terrama2::core::DataProvider& dataProvider)

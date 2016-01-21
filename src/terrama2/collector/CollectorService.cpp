@@ -54,6 +54,7 @@
 
 // QT
 #include <QApplication>
+#include <QString>
 #include <QDebug>
 #include <QMap>
 
@@ -93,7 +94,12 @@ void terrama2::collector::CollectorService::start(int threadNumber)
 {
 // if service already running, throws
   if(loopThread_.valid())
-    throw ServiceAlreadyRunnningException() << terrama2::ErrorDescription(tr("Collector service already running."));
+  {
+    QString msg = tr("Collector service already running.");
+
+    TERRAMA2_LOG_ERROR() << msg;
+    throw ServiceAlreadyRunnningException() << terrama2::ErrorDescription(msg);
+  }
 
   try
   {
@@ -116,6 +122,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
     QString errMsg(tr("Unable to start collector service: %1."));
     errMsg = errMsg.arg(e.what());
 
+    TERRAMA2_LOG_ERROR() << errMsg;
     throw UnableToStartServiceException() << terrama2::ErrorDescription(errMsg);
   }
 
@@ -180,7 +187,7 @@ void terrama2::collector::CollectorService::process(const uint64_t dataProviderI
   }
   catch(std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::process " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }
 
@@ -293,19 +300,19 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           {
             // Data wasn't logged untin now
             collectLog.log(transferenceDataVec, Log::Status::IMPORTED);
-            // Dataset Logger Success
-            TERRAMA2_LOG_INFO() << "DataSet \"" << dataSet.name() + "\" has just been collected!";
           }
+
+          // Dataset Logger Success
+          TERRAMA2_LOG_INFO() << "DataSet \"" << dataSet.name() + "\" has just been collected!";
         }
-        catch(terrama2::Exception& e)
+        catch(terrama2::Exception& /*e*/)
         {
-          TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::collectAsThread "
-                               << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+          //logged on throw
           continue;
         }
         catch(std::exception& e)
         {
-          TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
+          TERRAMA2_LOG_ERROR() << e.what();
           continue;
         }
       }
@@ -313,7 +320,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
   }
   catch(std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::collectAsThread " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }
 
@@ -352,7 +359,7 @@ void terrama2::collector::CollectorService::threadProcess()
   }
   catch(std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::threadProcess " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }
 
@@ -394,7 +401,7 @@ void terrama2::collector::CollectorService::processingLoop()
     }
     catch(std::exception& e)
     {
-      TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::processingLoop " << e.what();
+      TERRAMA2_LOG_ERROR() << e.what();
     }
   }
 }
@@ -434,7 +441,7 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
   }
   catch(std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addToQueue " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 
 }
@@ -453,7 +460,7 @@ void terrama2::collector::CollectorService::removeProvider(const terrama2::core:
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::removeProvider " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }
 
@@ -467,7 +474,7 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::updateProvider " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }
 
@@ -495,19 +502,13 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
 // add to queue to collect a first time
     addToQueue(dataset.id());
   }
-  catch(terrama2::collector::InvalidCollectFrequencyException& e)
+  catch(terrama2::collector::Exception&)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addDataset "
-                         << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
-  }
-  catch(terrama2::collector::InvalidDataSetException& e)
-  {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addDataset "
-                         << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    //logged on throw
   }
   catch(std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::addDataset " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 
   return;
@@ -538,7 +539,7 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
   }
   catch(std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << "terrama2::collector::CollectorService::removeDatasetById " << e.what();
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 
 }

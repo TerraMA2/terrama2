@@ -105,7 +105,11 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
     datasourceDestination->setConnectionInfo(metadata_);
     OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
     if(!datasourceDestination->isOpened())
+    {
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
       return; //TODO: throw exception...
+    }
 
     std::string dataSetName;
     std::map<std::string, std::string>::const_iterator dataSetNameIt = metadata_.find("STORAGE_NAME");
@@ -133,9 +137,9 @@ void terrama2::collector::StoragerPostgis::store(std::vector<TransferenceData>& 
     for(TransferenceData& transferenceData : transferenceDataVec)
       transferenceData.uriStorage = uri.url().toStdString();
   }
-  catch(terrama2::Exception& e)
+  catch(terrama2::Exception&)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    //logged on throw
   }
   catch(te::common::Exception& e)
   {

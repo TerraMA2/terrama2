@@ -63,7 +63,7 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 
-te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
+te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/)
 {
   assert(indexes.size() == 1);
 
@@ -98,7 +98,7 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << "Unknown error at terrama2::collector::ParserPcdInpe::StringToTimestamp";
+    TERRAMA2_LOG_ERROR() << "Unknown error";
   }
 
   return nullptr;
