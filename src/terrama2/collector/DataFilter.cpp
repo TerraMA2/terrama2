@@ -397,7 +397,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
 
     if(geomColumn >= 0)
     {
-      //Filter Time if has a dateTime column
+      //Filter geometry if has a geometry column
       if(!validateGeometry(geomColumn, dataSet))
         continue;
     }
