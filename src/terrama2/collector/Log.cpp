@@ -53,7 +53,7 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
 
     query.bind_arg(1, dataSetItemId);
     query.bind_arg(2, origin_uri);
-    query.bind_arg(3, static_cast<int>s);
+    query.bind_arg(3, static_cast<int>(s));
 
     transactor_->execute(query.str());
 
@@ -117,7 +117,7 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
       else
         value.bind_arg(5, "'" + transferenceData.dateCollect->toString() + "'");
 
-      value.bind_arg(6, static_cast<int>s);
+      value.bind_arg(6, static_cast<int>(s));
 
       if(!first)
       {
@@ -157,7 +157,7 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
     boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp='%3%', uri='%4%', collect_timestamp=now() WHERE id=%1%");
 
     query.bind_arg(1, id);
-    query.bind_arg(2, static_cast<int>s);
+    query.bind_arg(2, static_cast<int>(s));
     query.bind_arg(3, data_timestamp);
     query.bind_arg(4, uri);
 
@@ -215,7 +215,7 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
     }
 
     query.bind_arg(1, uris);
-    query.bind_arg(2, static_cast<int>s);
+    query.bind_arg(2, static_cast<int>(s));
 
     if(data_timestamp.empty())
       query.bind_arg(3, "NULL");
@@ -259,7 +259,7 @@ void terrama2::collector::Log::updateLog(const std::vector<TransferenceData>& tr
       boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=%5% WHERE origin_uri='%1%'");
 
       query.bind_arg(1, transferenceData.uriOrigin);
-      query.bind_arg(2, static_cast<int>s);
+      query.bind_arg(2, static_cast<int>(s));
 
       if(!transferenceData.dateData)
         query.bind_arg(3, "NULL");
