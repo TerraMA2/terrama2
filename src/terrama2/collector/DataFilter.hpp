@@ -184,7 +184,7 @@ namespace terrama2
       const core::DataSetItem& datasetItem_; //!< core::DataSetItem to be filtered
       std::shared_ptr<te::dt::TimeInstantTZ>  discardBefore_; //!< Earliest valid time/date.
       std::shared_ptr<te::dt::TimeInstantTZ>  discardAfter_; //!< Latest valid time/date.
-      terrama2::collector::TransferenceData*  currentData_;
+      terrama2::collector::TransferenceData*  currentData_; //!< Transference data currently being process.
 
       struct
       {
