@@ -95,18 +95,19 @@ namespace terrama2
            \exception EmptyMaskError Raise when core::DataSetItem Filter mask is not set.
          */
       DataFilter(const core::DataSetItem& datasetItem, std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = nullptr);
+      //! Default destructor.
       ~DataFilter();
 
       /*!
               \brief Filters a list of names by matching criteria.
-
-              \note Updates dataSetLastDateTime_
 
               \param namesList Full list of names to be filtered.
 
               \return List of filtered names.
              */
       std::vector<std::string> filterNames(const std::vector<std::string> &namesList);
+
+      //! Verifies if name mataches the filtering criteria.
       bool filterName(const std::string &name);
 
       /*!
