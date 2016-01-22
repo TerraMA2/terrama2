@@ -60,7 +60,7 @@ COMMENT ON COLUMN terrama2.dataset_type.id IS 'Type identifier';
 COMMENT ON COLUMN terrama2.dataset_type.name IS 'Name that identifies the dataset type';
 COMMENT ON COLUMN terrama2.dataset_type.description IS 'Brief description about the dataset type';
 
-INSERT INTO terrama2.dataset_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset'), ('Additional Map', 'Identifies a dataset used as an additional map for the analysis'), ('Monitored Object', 'Identifies a dataset used an monitored object for the analysis');
+INSERT INTO terrama2.dataset_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset'), ('Static data', 'Identifies a static data');
 
 CREATE TABLE terrama2.dataset ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(20) NOT NULL UNIQUE, description  TEXT, active BOOLEAN, data_provider_id INTEGER NOT NULL, kind INTEGER NOT NULL, data_frequency INTEGER, schedule TIME, schedule_retry INTEGER, schedule_timeout INTEGER, CONSTRAINT fk_dataset_data_provider_id FOREIGN KEY(data_provider_id) REFERENCES terrama2.data_provider(id) ON UPDATE CASCADE ON DELETE CASCADE);
 
