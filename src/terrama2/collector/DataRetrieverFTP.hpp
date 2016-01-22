@@ -66,7 +66,7 @@ namespace terrama2
        * \param scheme information. Ex. "file://".
        * \param temporaryFolder Folder information where the files will be saved. Ex. "/tmp/".
        */
-      explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string scheme = "file://", const std::string temporaryFolder = "/tmp/terrama2/");
+      explicit DataRetrieverFTP(const core::DataProvider& dataprovider);
 
       virtual bool isRetrivable() const noexcept override;
 
