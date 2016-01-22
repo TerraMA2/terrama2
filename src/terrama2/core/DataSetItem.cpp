@@ -36,6 +36,7 @@
 #include <QObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QString>
 
 
 terrama2::core::DataSetItem::DataSetItem(Kind k, uint64_t id, uint64_t datasetId)
@@ -212,15 +213,15 @@ QJsonObject terrama2::core::DataSetItem::toJson()
   json["id"] = QJsonValue((int)id_);
   json["dataset"] = QJsonValue((int)dataset_);
   json["status"] = QJsonValue(ToBool(status_));
-  json["mask"] = mask_.c_str();
-  json["timezone"] = timezone_.c_str();
-  json["path"] = path_.c_str();
+  json["mask"] = QString(mask_.c_str());
+  json["timezone"] = QString(timezone_.c_str());
+  json["path"] = QString(path_.c_str());
   json["filter"] = filter_.toJson();
 
   QJsonObject metadataJson;
   for(auto it = metadata_.begin(); it != metadata_.end(); ++it)
   {
-    metadataJson[it->first.c_str()] = it->second.c_str();
+    metadataJson[QString(it->first.c_str())] = QString(it->second.c_str());
   }
   json["metadata"] = metadataJson;
   json["srid"] = QJsonValue((int)srid_);
