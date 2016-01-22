@@ -50,6 +50,7 @@ namespace terrama2
      */
     class ApplicationController : public te::common::Singleton<ApplicationController>
     {
+      /*! In order to use the singleton template from TerraLib the ApplicationController must be a friend class of the te::common::Singleton. */
       friend class te::common::Singleton<ApplicationController>;
 
       public:
