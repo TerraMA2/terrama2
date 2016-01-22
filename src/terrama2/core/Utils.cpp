@@ -229,9 +229,7 @@ terrama2::core::ToDataSetKind(uint64_t kind)
     case 4:
       return DataSet::GRID_TYPE;
     case 5:
-      return DataSet::ADDITIONAL_MAP;
-    case 6:
-      return DataSet::MONITORED_OBJECT;
+      return DataSet::STATIC_DATA;
     default:
       return DataSet::UNKNOWN_TYPE;
   }
