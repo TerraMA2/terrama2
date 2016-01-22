@@ -42,8 +42,6 @@
 #include "ParserPostgis.hpp"
 #include "ParserOGR.hpp"
 #include "ParserTiff.hpp"
-//TODO: not in use here yet
-#include "ParserGDAL.hpp"
 #include "ParserAscGrid.hpp"
 
 #include "DataRetriever.hpp"

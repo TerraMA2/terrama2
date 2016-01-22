@@ -95,18 +95,19 @@ namespace terrama2
            \exception EmptyMaskError Raise when core::DataSetItem Filter mask is not set.
          */
       DataFilter(const core::DataSetItem& datasetItem, std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime = nullptr);
+      //! Default destructor.
       ~DataFilter();
 
       /*!
               \brief Filters a list of names by matching criteria.
-
-              \note Updates dataSetLastDateTime_
 
               \param namesList Full list of names to be filtered.
 
               \return List of filtered names.
              */
       std::vector<std::string> filterNames(const std::vector<std::string> &namesList);
+
+      //! Verifies if name mataches the filtering criteria.
       bool filterName(const std::string &name);
 
       /*!
@@ -127,11 +128,6 @@ namespace terrama2
              */
       void filterDataSet(terrama2::collector::TransferenceData& transferenceData);
 
-      /*!
-             * \brief Returns the lastest timestamp found in the core::DataSetItem.
-             */
-      te::dt::TimeInstantTZ* getDataSetLastDateTime() const;
-
     private:
       //! Updates last date time collected.
       void updateLastDateTimeCollected(boost::local_time::local_date_time boostTime);
@@ -148,6 +144,9 @@ namespace terrama2
          \warning Updates dataSetLastDateTime_ with the latest date.
          */
       bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, TransferenceData& transferenceData);
+
+      //! Verifies if current line geometry of the dataSet intersects the filter geometry.
+      bool validateGeometry(int geometryColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
 
       /*!
            \brief Verifies if the time is after discardBeforeTime.
@@ -185,10 +184,9 @@ namespace terrama2
       bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
       const core::DataSetItem& datasetItem_; //!< core::DataSetItem to be filtered
-      std::unique_ptr< te::dt::TimeInstantTZ > dataSetLastDateTime_; //!< Latest valid date found
-      std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Earliest valid time/date.
-      std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Latest valid time/date.
-      terrama2::collector::TransferenceData* currentData_;
+      std::shared_ptr<te::dt::TimeInstantTZ>  discardBefore_; //!< Earliest valid time/date.
+      std::shared_ptr<te::dt::TimeInstantTZ>  discardAfter_; //!< Latest valid time/date.
+      terrama2::collector::TransferenceData*  currentData_; //!< Transference data currently being process.
 
       struct
       {

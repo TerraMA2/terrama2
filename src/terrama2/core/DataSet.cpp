@@ -33,6 +33,14 @@
 
 // TerraMA2
 #include "DataSet.hpp"
+#include "Utils.hpp"
+#include "../Exception.hpp"
+
+// Qt
+#include <QObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QString>
 
 terrama2::core::DataSet::DataSet(const std::string& name, Kind kind, uint64_t id, uint64_t providerId)
   : name_(name),
@@ -221,4 +229,137 @@ void terrama2::core::DataSet::update(DataSetItem& dataSetItem)
       datasetItems_[i] = dataSetItem;
     }
   }
+}
+
+terrama2::core::DataSet terrama2::core::DataSet::FromJson(QJsonObject json)
+{
+  if(!(json.contains("name")
+     && json.contains("kind")
+     && json.contains("id")
+     && json.contains("provider")
+     && json.contains("description")
+     && json.contains("status")
+     && json.contains("dataFrequency")
+     && json.contains("schedule")
+     && json.contains("scheduleRetry")
+     && json.contains("scheduleTimeout")
+     && json.contains("metadata")
+     && json.contains("datasetItems")
+     && json.contains("intersection")))
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+
+  DataSet dataset;
+  dataset.setName(json["name"].toString().toStdString());
+  dataset.setKind(ToDataSetKind(json["kind"].toInt()));
+  dataset.setId(json["id"].toInt());
+  dataset.setProvider(json["provider"].toInt());
+  dataset.setDescription(json["description"].toString().toStdString());
+  dataset.setStatus(ToDataSetStatus(json["status"].toBool()));
+
+  boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string(json["dataFrequency"].toString().toStdString()));
+  boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string(json["schedule"].toString().toStdString()));
+  boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string(json["scheduleRetry"].toString().toStdString()));
+  boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string(json["scheduleTimeout"].toString().toStdString()));
+
+  dataset.setDataFrequency(te::dt::TimeDuration(dataFrequency));
+  dataset.setSchedule(te::dt::TimeDuration(schedule));
+  dataset.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
+  dataset.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
+
+  QJsonObject metadataJson = json["metadata"].toObject();
+  std::map<std::string, std::string> metadata;
+  for(auto it = metadataJson.begin(); it != metadataJson.end(); ++it)
+  {
+    metadata[it.key().toStdString()] = it.value().toString().toStdString();
+  }
+  dataset.setMetadata(metadata);
+
+  QJsonArray datasetItemsJson =  json["datasetItems"].toArray();
+  for (const QJsonValue & value: datasetItemsJson)
+  {
+    auto datasetItem = DataSetItem::FromJson(value.toObject());
+    dataset.add(datasetItem);
+  }
+
+  dataset.setIntersection(Intersection::FromJson(json["intersection"].toObject()));
+
+  return dataset;
+}
+
+QJsonObject terrama2::core::DataSet::toJson()
+{
+  QJsonObject json;
+
+  json["name"] = QString(name_.c_str());
+  json["kind"] = QJsonValue((int)kind_);
+  json["id"] = QJsonValue((int)id_);
+  json["provider"] = QJsonValue((int)provider_);
+  json["description"] = QString(description_.c_str());
+  json["status"] = QJsonValue(ToBool(status_));
+  json["dataFrequency"] = QString(dataFrequency_.toString().c_str());
+  json["schedule"] = QString(schedule_.toString().c_str());
+  json["scheduleRetry"] = QString(scheduleRetry_.toString().c_str());
+  json["scheduleTimeout"] = QString(scheduleTimeout_.toString().c_str());
+
+  QJsonObject metadataJson;
+  for(auto it = metadata_.begin(); it != metadata_.end(); ++it)
+  {
+    metadataJson[QString(it->first.c_str())] = QString(it->second.c_str());
+  }
+  json["metadata"] = metadataJson;
+
+  QJsonArray itemsJson;
+  for(auto item : datasetItems_)
+  {
+    itemsJson.append(item.toJson());
+  }
+  json["datasetItems"] = itemsJson;
+  json["intersection"] = intersection_.toJson();
+
+  return json;
+}
+
+bool terrama2::core::DataSet::operator==(const DataSet& rhs)
+{
+  if(name_ != rhs.name_)
+    return false;
+  if(kind_ != rhs.kind_)
+    return false;
+  if(id_ != rhs.id_)
+    return false;
+  if(provider_ != rhs.provider_)
+    return false;
+  if(description_ != rhs.description_)
+    return false;
+  if(status_ != rhs.status_)
+    return false;
+  if(dataFrequency_ != rhs.dataFrequency_)
+    return false;
+  if(schedule_ != rhs.schedule_)
+    return false;
+  if(scheduleRetry_ != rhs.scheduleRetry_)
+    return false;
+  if(scheduleTimeout_ != rhs.scheduleTimeout_)
+    return false;
+  if(metadata_ != rhs.metadata_)
+    return false;
+  if(datasetItems_.size() != rhs.datasetItems_.size())
+    return false;
+  else
+  {
+    for (int i = 0; i < datasetItems_.size(); ++i)
+    {
+      if(datasetItems_[i] != rhs.datasetItems_[i])
+        return false;
+    }
+  }
+  if(intersection_ != rhs.intersection_)
+    return false;
+
+  return true;
+}
+
+bool terrama2::core::DataSet::operator!=(const DataSet& rhs)
+{
+  return !(*this == rhs);
 }

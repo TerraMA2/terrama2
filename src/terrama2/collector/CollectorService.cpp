@@ -331,10 +331,17 @@ void terrama2::collector::CollectorService::threadProcess()
     while (true) {
       std::packaged_task<void()> task;
 
+      // block for unique_lock
       {
         std::unique_lock<std::mutex> lock(mutex_);
-        //wait for new data to be collected
-        thread_condition_.wait(lock, [this] { return !taskQueue_.empty() || stop_; });
+
+        // if there are no task in queue,
+        // wait for new task
+        if(taskQueue_.empty())
+        {
+          //wait for new data to be collected
+          thread_condition_.wait(lock, [this] { return !taskQueue_.empty() || stop_; });
+        }
 
         if(stop_)
           break;
@@ -354,7 +361,6 @@ void terrama2::collector::CollectorService::threadProcess()
 
       if(stop_)
         break;
-      //TODO: look for another task before sleeping again?
     }
   }
   catch(std::exception& e)

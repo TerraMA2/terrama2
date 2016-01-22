@@ -27,13 +27,13 @@ int main(int argc, char *argv[])
 //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
-//  TsDataFilter tsDataFilter;
-//  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
+  TsDataFilter tsDataFilter;
+  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
 
 //  //DataRetriever
 
-//  TsDataSetTimer tsDataSetTimer;
-//  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
+  TsDataSetTimer tsDataSetTimer;
+  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
 
 //  TsFactory tsFactory;
 //  returnVal += QTest::qExec(&tsFactory, argc, argv);

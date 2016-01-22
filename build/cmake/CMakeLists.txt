@@ -464,7 +464,7 @@ cpack_add_install_type(minimalistic DISPLAY_NAME "Minimalistic")
 
 cpack_add_component_group(general_group
                           DISPLAY_NAME "Applications"
-                          DESCRIPTION "TerraMA2 web servcies and GUI applications"
+                          DESCRIPTION "TerraMA2 web services and GUI applications"
                           EXPANDED)
 
 cpack_add_component_group(devel_group

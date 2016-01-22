@@ -114,3 +114,30 @@ void TsDataSetTimer::TestTimerSignalEmit()
   }
 }
 
+void TsDataSetTimer::TestSchedulerSignalEmit()
+{
+  try
+  {
+    terrama2::core::DataSet dataSet("dummy", terrama2::core::DataSet::PCD_TYPE, 1);
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+
+    te::dt::TimeDuration schedule(now.time_of_day().hours(), now.time_of_day().minutes()+1, 0);
+    dataSet.setSchedule(schedule);
+    terrama2::collector::DataSetTimer dataSetTimer(dataSet);
+
+    qRegisterMetaType<uint64_t>("uint64_t");
+    QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
+
+    QVERIFY(spy.wait(61000));
+  }
+  catch(boost::exception& e)
+  {
+    qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+  catch(...)
+  {
+    QFAIL(WRONG_TYPE_EXCEPTION);
+  }
+}
+

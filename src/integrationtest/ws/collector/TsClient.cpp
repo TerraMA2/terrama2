@@ -169,7 +169,7 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
   te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
   p->push_back(s);
 
-  std::unique_ptr< te::gm::Geometry > geom(p);
+  std::unique_ptr< te::gm::Polygon > geom(p);
   filter.setGeometry(std::move(geom));
 
   dataSetItem1.setFilter(filter);
@@ -682,6 +682,8 @@ void TsClient::testUpdateDataSet()
       {
         terrama2::core::Filter filter = dataSet.dataSetItems().at(i).filter();
 
+
+        QFAIL("Fix this test");
         //FIXME: Fix this test
 //        te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-20 23:59:59.000")));
 //        std::unique_ptr< te::dt::DateTime > discardBefore(td);
@@ -709,7 +711,7 @@ void TsClient::testUpdateDataSet()
         te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
         p->push_back(s);
 
-        std::unique_ptr< te::gm::Geometry > geom(p);
+        std::unique_ptr< te::gm::Polygon > geom(p);
         filter.setGeometry(std::move(geom));
 
         dataSet.dataSetItems().at(i).setFilter(filter);

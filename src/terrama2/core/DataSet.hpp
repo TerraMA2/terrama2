@@ -44,6 +44,9 @@
 // TerraLib
 #include <terralib/datatype/TimeDuration.h>
 
+// Qt
+#include <QJsonObject>
+
 namespace terrama2
 {
   namespace core
@@ -236,6 +239,17 @@ namespace terrama2
         /*! \brief Sets the intersection information. */
         Intersection intersection() const;
 
+        /*! \brief Creates the object from the JSON string. */
+        static DataSet FromJson(QJsonObject json);
+
+        /*! \brief Serialize to JSON. */
+        QJsonObject toJson();
+
+        /*! \brief Override operator == */
+        bool operator==(const DataSet& rhs);
+
+        /*! \brief Override operator != */
+        bool operator!=(const DataSet& rhs);
 
       private:
 
