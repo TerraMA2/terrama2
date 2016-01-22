@@ -31,11 +31,20 @@
 // TerraMA2
 #include "Filter.hpp"
 #include "DataSetItem.hpp"
+#include "Utils.hpp"
+#include "../Exception.hpp"
 
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/Polygon.h>
+#include <terralib/geometry/WKTReader.h>
+
+// Qt
+#include <QObject>
+
+// Boost
+#include <boost/date_time/local_time/local_time_types.hpp>
 
 terrama2::core::Filter::Filter(uint64_t dataSetItemId)
   : datasetItem_(dataSetItemId),
@@ -212,4 +221,157 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
   expressionType_ = rhs.expressionType_;
 
   bandFilter_ = rhs.bandFilter_;
+}
+
+
+terrama2::core::Filter terrama2::core::Filter::FromJson(QJsonObject json)
+{
+  if(! (json.contains("datasetItem")
+     && json.contains("discardBefore")
+     && json.contains("discardAfter")
+     && json.contains("geometry")
+     && json.contains("value")
+     && json.contains("bandFilter") ))
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+
+  Filter filter(json["datasetItem"].toInt());
+
+  if(!json["discardBefore"].isNull())
+  {
+    QJsonObject discardBeforeJson = json["discardBefore"].toObject();
+    std::string date = discardBeforeJson["date"].toString().toStdString();
+    std::string time = discardBeforeJson["time"].toString().toStdString();
+    std::string timezone = discardBeforeJson["timezone"].toString().toStdString();
+
+    boost::gregorian::date boostDate(boost::gregorian::from_string(date));
+    boost::posix_time::time_duration boostTime(boost::posix_time::duration_from_string(time));
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
+
+    boost::local_time::local_date_time boostLocalTime(boostDate, boostTime, zone, true);
+    std::unique_ptr< te::dt::TimeInstantTZ > discardBefore(new te::dt::TimeInstantTZ(boostLocalTime));
+
+    filter.setDiscardBefore(std::move(discardBefore));
+  }
+
+
+  if(!json["discardAfter"].isNull())
+  {
+    QJsonObject discardAfterJson = json["discardAfter"].toObject();
+    std::string date = discardAfterJson["date"].toString().toStdString();
+    std::string time = discardAfterJson["time"].toString().toStdString();
+    std::string timezone = discardAfterJson["timezone"].toString().toStdString();
+
+    boost::gregorian::date boostDate(boost::gregorian::from_string(date));
+    boost::posix_time::time_duration boostTime(boost::posix_time::duration_from_string(time));
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
+
+    boost::local_time::local_date_time boostLocalTime(boostDate, boostTime, zone, true);
+    std::unique_ptr< te::dt::TimeInstantTZ > discardAfter(new te::dt::TimeInstantTZ(boostLocalTime));
+
+    filter.setDiscardAfter(std::move(discardAfter));
+  }
+
+  if(!json["value"].isNull())
+  {
+    std::unique_ptr<double> value(new double(json["value"].toDouble()));
+    filter.setValue(std::move(value));
+  }
+
+  int expressionType = json["expressionType"].toInt();
+  filter.setExpressionType(ToFilterExpressionType(expressionType));
+
+  filter.setBandFilter(json["bandFilter"].toString().toStdString());
+
+  if(!json["geometry"].isNull())
+  {
+    std::unique_ptr<te::gm::Geometry> geometry(te::gm::WKTReader::read(json["geometry"].toString().toStdString().c_str()));
+    filter.setGeometry(std::move(geometry));
+  }
+
+  return filter;
+}
+
+QJsonObject terrama2::core::Filter::toJson()
+{
+  QJsonObject json;
+
+  json["datasetItem"] = QJsonValue((int)datasetItem_);
+
+  if(discardBefore_.get())
+  {
+    QJsonObject discardBeforeJson;
+    boost::local_time::local_date_time boostLocalDate = discardBefore_->getTimeInstantTZ();
+    std::string date = boost::gregorian::to_iso_extended_string(boostLocalDate.date());
+    std::string time = boost::posix_time::to_simple_string(boostLocalDate.local_time().time_of_day());
+    std::string timezone = boostLocalDate.zone_as_posix_string();
+
+    discardBeforeJson["date"] = date.c_str();
+    discardBeforeJson["time"] = time.c_str();
+    discardBeforeJson["timezone"] = timezone.c_str();
+    json["discardBefore"] = discardBeforeJson;
+  }
+  else
+    json["discardBefore"] = QJsonValue();
+
+  if(discardAfter_.get())
+  {
+    QJsonObject discardAfterJson;
+    boost::local_time::local_date_time boostLocalDate = discardAfter_->getTimeInstantTZ();
+    std::string date = boost::gregorian::to_iso_extended_string(boostLocalDate.date());
+    std::string time = boost::posix_time::to_simple_string(boostLocalDate.local_time().time_of_day());
+    std::string timezone = boostLocalDate.zone_as_posix_string();
+
+    discardAfterJson["date"] = date.c_str();
+    discardAfterJson["time"] = time.c_str();
+    discardAfterJson["timezone"] = timezone.c_str();
+    json["discardAfter"] = discardAfterJson;
+  }
+  else
+    json["discardAfter"] = QJsonValue();
+
+  if(value_.get())
+    json["value"] = QJsonValue(*value_.get());
+  else
+    json["value"] = QJsonValue();
+
+  json["expressionType"] = QJsonValue((int)expressionType_);
+  json["bandFilter"] = QJsonValue(bandFilter_.c_str());
+
+
+  if(geometry_.get())
+  {
+    std::string wkt = geometry_->toString();
+    std::replace( wkt.begin(), wkt.end(), '\n', ',');
+    json["geometry"] = wkt.c_str();
+  }
+  else
+    json["geometry"] = QJsonValue();
+
+  return json;
+
+}
+
+bool terrama2::core::Filter::operator==(const terrama2::core::Filter& rhs)
+{
+  if(datasetItem_ != rhs.datasetItem_)
+    return false;
+  if(discardBefore_ != nullptr && rhs.discardBefore_ != nullptr && *discardBefore_ != *rhs.discardBefore_)
+    return false;
+  if(discardAfter_ != nullptr && rhs.discardAfter_ != nullptr && *discardAfter_ != *rhs.discardAfter_)
+    return false;
+  if(geometry_ != nullptr && rhs.geometry_ != nullptr && !geometry_->equals(rhs.geometry()))
+    return false;
+  if(value_ != nullptr && rhs.value_ != nullptr &&  *value_ != *rhs.value_)
+    return false;
+  if(expressionType_ != rhs.expressionType_)
+    return false;
+  if(bandFilter_ != rhs.bandFilter_)
+    return false;
+
+  return true;
+}
+
+bool terrama2::core::Filter::operator!=(const terrama2::core::Filter& rhs)
+{
+  return !(*this == rhs);
 }

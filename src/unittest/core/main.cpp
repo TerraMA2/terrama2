@@ -3,6 +3,7 @@
 #include "TsDataManager.hpp"
 #include "TsLogger.hpp"
 #include "Utils.hpp"
+#include "TsSerializer.hpp"
 
 
 int main(int argc, char **argv)
@@ -12,8 +13,11 @@ int main(int argc, char **argv)
   TsApplicationController testApplicationController;
   int ret = QTest::qExec(&testApplicationController, argc, argv);
 
-  TsDataManager testDataProviderDAO;
-  ret += QTest::qExec(&testDataProviderDAO, argc, argv);
+  TsSerializer testSerializer;
+  ret += QTest::qExec(&testSerializer, argc, argv);
+
+  TsDataManager testDataManager;
+  ret += QTest::qExec(&testDataManager, argc, argv);
 
   TsLogger testLogger;
   ret = QTest::qExec(&testLogger, argc, argv);
