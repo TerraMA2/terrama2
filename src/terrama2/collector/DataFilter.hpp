@@ -182,7 +182,6 @@ namespace terrama2
       bool isBeforeDiscardAfterValue(unsigned int value, unsigned int discardAfterValue) const;
 
       const core::DataSetItem& datasetItem_; //!< core::DataSetItem to be filtered
-      std::unique_ptr<const te::gm::Geometry> geometry_;
       std::shared_ptr<te::dt::TimeInstantTZ>  discardBefore_; //!< Earliest valid time/date.
       std::shared_ptr<te::dt::TimeInstantTZ>  discardAfter_; //!< Latest valid time/date.
       terrama2::collector::TransferenceData*  currentData_;

@@ -75,8 +75,6 @@ private slots:
     //! Tests behavior of filternames for lastCollectedData from Log
     void TestLastCollected();
 
-    void TestgetDataSetLastDateTime();
-
     //******End of Test functions****
 };
 

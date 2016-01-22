@@ -299,7 +299,7 @@ terrama2::core::Filter terrama2::core::Filter::FromJson(QJsonObject json)
 
   if(!json["geometry"].isNull())
   {
-    std::unique_ptr<te::gm::Geometry> geometry(te::gm::WKTReader::read(json["geometry"].toString().toStdString().c_str()));
+    std::unique_ptr<te::gm::Polygon> geometry(static_cast<te::gm::Polygon*>(te::gm::WKTReader::read(json["geometry"].toString().toStdString().c_str())));
     filter.setGeometry(std::move(geometry));
   }
 
@@ -320,9 +320,9 @@ QJsonObject terrama2::core::Filter::toJson()
     std::string time = boost::posix_time::to_simple_string(boostLocalDate.local_time().time_of_day());
     std::string timezone = boostLocalDate.zone_as_posix_string();
 
-    discardBeforeJson["date"] = date.c_str();
-    discardBeforeJson["time"] = time.c_str();
-    discardBeforeJson["timezone"] = timezone.c_str();
+    discardBeforeJson["date"] = QString(date.c_str());
+    discardBeforeJson["time"] = QString(time.c_str());
+    discardBeforeJson["timezone"] = QString(timezone.c_str());
     json["discardBefore"] = discardBeforeJson;
   }
   else

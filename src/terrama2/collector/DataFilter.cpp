@@ -263,7 +263,7 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
 bool terrama2::collector::DataFilter::validateGeometry(int geometryColumn, const std::shared_ptr<te::da::DataSet>& dataSet)
 {
   std::unique_ptr<te::gm::Geometry> geometry(dataSet->getGeometry(geometryColumn));
-  if(geometry_->intersects(geometry.get()))
+  if(datasetItem_.filter().geometry()->intersects(geometry.get()))
     return true;
   else
     return false;
@@ -388,14 +388,14 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
   auto memDataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
   while(dataSet->moveNext())
   {
-    if(dateColumn > 0)
+    if(dateColumn >= 0)
     {
       //Filter Time if has a dateTime column
       if(!validateAndUpdateDate(dateColumn, dataSet, transferenceData))
         continue;
     }
 
-    if(geomColumn > 0)
+    if(geomColumn >= 0)
     {
       //Filter Time if has a dateTime column
       if(!validateGeometry(geomColumn, dataSet))
@@ -432,8 +432,6 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
 
   if(filter.discardAfter())
     discardAfter_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardAfter()->clone()));
-
-  geometry_.reset(filter.geometry());
 
   //prepare mask data
   processMask();

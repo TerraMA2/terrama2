@@ -258,9 +258,6 @@ terrama2::core::dao::FilterDAO::load(const DataSetItem& datasetItem, te::da::Dat
       filter.setGeometry(std::move(geom));
     }
 
-    if(!filter_result->isNull(3))
-      filter.setGeometry(filter_result->getGeometry("geom"));
-
     filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
 
     if(!filter_result->isNull("external_data_id"))
