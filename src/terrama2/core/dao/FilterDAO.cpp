@@ -253,10 +253,10 @@ terrama2::core::dao::FilterDAO::load(const DataSetItem& datasetItem, te::da::Dat
     }
 
     if(!filter_result->isNull(3))
-      filter.setGeometry(filter_result->getGeometry("geom"));
-
-    if(!filter_result->isNull(3))
-      filter.setGeometry(filter_result->getGeometry("geom"));
+    {
+      std::unique_ptr<te::gm::Polygon> geom(dynamic_cast<te::gm::Polygon*>(filter_result->getGeometry("geom").release()));
+      filter.setGeometry(std::move(geom));
+    }
 
     filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
 

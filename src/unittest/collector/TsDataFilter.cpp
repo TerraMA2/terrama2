@@ -36,6 +36,7 @@
 #include <terrama2/collector/Exception.hpp>
 #include <terrama2/collector/Utils.hpp>
 #include <terrama2/collector/Log.hpp>
+#include <terrama2/collector/TransferenceData.hpp>
 
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSetItem.hpp>
@@ -44,10 +45,14 @@
 
 //QT
 #include <QStringList>
+#include <QDebug>
 
 //terralib
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/datatype/Date.h>
+#include <terralib/geometry/Polygon.h>
+#include <terralib/memory/DataSet.h>
+#include <terralib/memory/DataSetItem.h>
 
 //STL
 #include <utility>
@@ -106,6 +111,68 @@ void TsDataFilter::TestEmptyMask()
   QFAIL(UNEXPECTED_BEHAVIOR);
 }
 
+void TsDataFilter::TestGeometry()
+{
+  try {
+    terrama2::core::DataProvider provider;
+    terrama2::core::DataSet      dataset;
+    terrama2::core::DataSetItem  dataItem;
+    dataItem.setMask("__DUMMY__");
+
+    provider.add(dataset);
+    dataset.add(dataItem);
+
+    terrama2::core::Filter       filter;
+
+    te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType, 4326);
+    const double xc(10), yc(10), halfSize(5);
+    s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
+    s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
+    s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
+    s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
+    s->setPoint(4, xc - halfSize, yc - halfSize); // closing
+
+    std::unique_ptr< te::gm::Polygon > geom(new te::gm::Polygon(0, te::gm::PolygonType, 4326));
+    geom->push_back(s);
+    filter.setGeometry(std::move(geom));
+    dataItem.setFilter(filter);
+
+    terrama2::collector::DataFilter datafilter(dataItem);
+
+    te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("GeomProperty");
+    std::shared_ptr<te::da::DataSetType> datasetType = std::make_shared<te::da::DataSetType>("DataSetType");
+    datasetType->add(geomProperty);
+
+    std::shared_ptr<te::mem::DataSet> dataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
+    te::mem::DataSetItem* data = new te::mem::DataSetItem(dataSet.get());
+    data->setValue(0, new te::gm::Point(6, 6, 4326, 0));
+    dataSet->add(data);
+
+    data = new te::mem::DataSetItem(dataSet.get());
+    data->setValue(0, new te::gm::Point(0, 0, 4326, 0));
+    dataSet->add(data);
+
+    QVERIFY(dataSet->size() == 2);
+
+    terrama2::collector::TransferenceData transferenceData;
+    transferenceData.teDataSet = dataSet;
+    transferenceData.teDataSetType = datasetType;
+
+    datafilter.filterDataSet(transferenceData);
+
+    QVERIFY(transferenceData.teDataSet->size() == 1);
+  } catch (terrama2::Exception& e) {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+
+  } catch (boost::exception& e) {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  } catch (std::exception& e) {
+    QFAIL(e.what());
+  } catch (...) {
+    QFAIL("Unknown error");
+  }
+}
+
 void TsDataFilter::TestMask()
 {
   terrama2::core::DataProvider provider;
@@ -139,44 +206,6 @@ void TsDataFilter::TestMask()
 
     QVERIFY(names.size() == 1);
   }
-}
-
-void TsDataFilter::TestgetDataSetLastDateTime()
-{
-  terrama2::core::DataProvider provider;
-  terrama2::core::DataSet      dataset;
-  terrama2::core::DataSetItem  dataItem;
-  terrama2::core::Filter       filter;
-  boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("+00"));
-  boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,3,12), boost::posix_time::time_duration(10,35,15,0), zone, true);
-  std::unique_ptr<te::dt::TimeInstantTZ> tDate(new te::dt::TimeInstantTZ(boostTime));
-
-  provider.add(dataset);
-  dataset.add(dataItem);
-  dataItem.setFilter(filter);
-  dataItem.setTimezone(zone->to_posix_string());
-
-  std::string exact("name_%d/%M/%A_%h:%m:%s");
-  dataItem.setMask(exact);
-
-  terrama2::collector::DataFilter datafilter(dataItem);
-  std::vector<std::string> names {"name_12/03/2015_10:30:15",
-                                  "name_12/03/2015_10:31:15",
-                                  "name_12/03/2015_10:32:15",
-                                  "name_12/03/2015_10:33:15",
-                                  "name_12/03/2015_10:35:15",// <<< Max value
-                                  "name_12/03/2015_10:34:15", };
-
-  names = datafilter.filterNames(names);
-
-  int size = names.size();
-  QCOMPARE(size, 6);
-
-  te::dt::TimeInstantTZ* dataSetLastDateTime = datafilter.getDataSetLastDateTime();
-
-  QVERIFY(dataSetLastDateTime);
-
-  QCOMPARE(*tDate, *dataSetLastDateTime);
 }
 
 void TsDataFilter::TestDiscardBefore()

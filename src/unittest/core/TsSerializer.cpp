@@ -88,7 +88,7 @@ terrama2::core::Filter TsSerializer::createFilter()
   te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
   p->push_back(s);
 
-  std::unique_ptr< te::gm::Geometry > geom(p);
+  std::unique_ptr< te::gm::Polygon > geom(p);
   filter.setGeometry(std::move(geom));
 
   boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("+00"));

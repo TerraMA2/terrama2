@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
 //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
-//  TsDataFilter tsDataFilter;
-//  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
+  TsDataFilter tsDataFilter;
+  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
 
 //  //DataRetriever
 

@@ -169,7 +169,7 @@ terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
   te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
   p->push_back(s);
 
-  std::unique_ptr< te::gm::Geometry > geom(p);
+  std::unique_ptr< te::gm::Polygon > geom(p);
   filter.setGeometry(std::move(geom));
 
   dataSetItem1.setFilter(filter);
@@ -711,7 +711,7 @@ void TsClient::testUpdateDataSet()
         te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
         p->push_back(s);
 
-        std::unique_ptr< te::gm::Geometry > geom(p);
+        std::unique_ptr< te::gm::Polygon > geom(p);
         filter.setGeometry(std::move(geom));
 
         dataSet.dataSetItems().at(i).setFilter(filter);
