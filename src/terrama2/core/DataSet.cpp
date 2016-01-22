@@ -290,21 +290,21 @@ QJsonObject terrama2::core::DataSet::toJson()
 {
   QJsonObject json;
 
-  json["name"] = QJsonValue(name_.c_str());
+  json["name"] = name_.c_str();
   json["kind"] = QJsonValue((int)kind_);
   json["id"] = QJsonValue((int)id_);
   json["provider"] = QJsonValue((int)provider_);
-  json["description"] = QJsonValue(description_.c_str());
+  json["description"] = description_.c_str();
   json["status"] = QJsonValue(ToBool(status_));
-  json["dataFrequency"] = QJsonValue(dataFrequency_.toString().c_str());
-  json["schedule"] = QJsonValue(schedule_.toString().c_str());
-  json["scheduleRetry"] = QJsonValue(scheduleRetry_.toString().c_str());
-  json["scheduleTimeout"] = QJsonValue(scheduleTimeout_.toString().c_str());
+  json["dataFrequency"] = dataFrequency_.toString().c_str();
+  json["schedule"] = schedule_.toString().c_str();
+  json["scheduleRetry"] = scheduleRetry_.toString().c_str();
+  json["scheduleTimeout"] = scheduleTimeout_.toString().c_str();
 
   QJsonObject metadataJson;
   for(auto it = metadata_.begin(); it != metadata_.end(); ++it)
   {
-    metadataJson[it->first.c_str()] = QJsonValue(it->second.c_str());
+    metadataJson[it->first.c_str()] = it->second.c_str();
   }
   json["metadata"] = metadataJson;
 

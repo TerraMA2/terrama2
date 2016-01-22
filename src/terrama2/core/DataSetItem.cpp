@@ -212,15 +212,15 @@ QJsonObject terrama2::core::DataSetItem::toJson()
   json["id"] = QJsonValue((int)id_);
   json["dataset"] = QJsonValue((int)dataset_);
   json["status"] = QJsonValue(ToBool(status_));
-  json["mask"] = QJsonValue(mask_.c_str());
-  json["timezone"] = QJsonValue(timezone_.c_str());
-  json["path"] = QJsonValue(path_.c_str());
+  json["mask"] = mask_.c_str();
+  json["timezone"] = timezone_.c_str();
+  json["path"] = path_.c_str();
   json["filter"] = filter_.toJson();
 
   QJsonObject metadataJson;
   for(auto it = metadata_.begin(); it != metadata_.end(); ++it)
   {
-    metadataJson[it->first.c_str()] = QJsonValue(it->second.c_str());
+    metadataJson[it->first.c_str()] = it->second.c_str();
   }
   json["metadata"] = metadataJson;
   json["srid"] = QJsonValue((int)srid_);

@@ -195,12 +195,12 @@ QJsonObject terrama2::core::DataProvider::toJson()
 {
   QJsonObject json;
 
-  json["name"] = QJsonValue(name_.c_str());
+  json["name"] = name_.c_str();
   json["kind"] = QJsonValue((int)kind_);
   json["id"] = QJsonValue((int)id_);
   json["origin"] = QJsonValue((int)origin_);
-  json["description"] = QJsonValue(description_.c_str());
-  json["uri"] = QJsonValue(uri_.c_str());
+  json["description"] = description_.c_str();
+  json["uri"] = uri_.c_str();
   json["status"] = QJsonValue(ToBool(status_));
 
   QJsonArray datasetsJson;

@@ -124,8 +124,7 @@ QJsonObject terrama2::core::Intersection::toJson()
     QJsonArray attrList;
     for(auto attr : it->second)
     {
-      QJsonValue value(attr.c_str());
-      attrList.append(value);
+      attrList.append(attr.c_str());
     }
     attributeMapJson[it->first.c_str()] = attrList;
   }
@@ -134,7 +133,7 @@ QJsonObject terrama2::core::Intersection::toJson()
   QJsonObject bandMapJson;
   for(auto it = bandMap_.begin(); it != bandMap_.end(); ++it)
   {
-    bandMapJson[std::to_string((int)it->first).c_str()] = QJsonValue(it->second.c_str());
+    bandMapJson[std::to_string((int)it->first).c_str()] = it->second.c_str();
   }
   json["bandMap"] = bandMapJson;
 
