@@ -71,9 +71,11 @@ terrama2::core::dao::FilterDAO::save(const Filter& filter, te::da::DataSourceTra
   else
     query.bind_arg(4, "NULL");
 
-  // TODO: persist fiter external data id
 // external_data_id
-  query.bind_arg(5, "NULL");
+  if(filter.externalDataSetItem() == 0)
+    query.bind_arg(5, "NULL");
+  else
+    query.bind_arg(5, filter.externalDataSetItem());
 
   if(filter.value())
     query.bind_arg(6, *filter.value());
@@ -139,7 +141,10 @@ terrama2::core::dao::FilterDAO::update(const Filter& filter, te::da::DataSourceT
     query.bind_arg(3, "NULL");
 
 // external_data_id
-  query.bind_arg(4, "NULL");
+  if(filter.externalDataSetItem() == 0)
+    query.bind_arg(4, "NULL");
+  else
+    query.bind_arg(4, filter.externalDataSetItem());
 
   if(filter.value())
     query.bind_arg(5, *filter.value());
@@ -250,7 +255,13 @@ terrama2::core::dao::FilterDAO::load(const DataSetItem& datasetItem, te::da::Dat
     if(!filter_result->isNull(3))
       filter.setGeometry(filter_result->getGeometry("geom"));
 
+    if(!filter_result->isNull(3))
+      filter.setGeometry(filter_result->getGeometry("geom"));
+
     filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
+
+    if(!filter_result->isNull("external_data_id"))
+      filter.setExternalDataSetItem(filter_result->getInt32("external_data_id"));
 
     if(!filter_result->isNull("value"))
     {
