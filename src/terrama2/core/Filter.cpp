@@ -48,7 +48,8 @@
 
 terrama2::core::Filter::Filter(uint64_t dataSetItemId)
   : datasetItem_(dataSetItemId),
-    expressionType_(NONE_TYPE)
+    expressionType_(NONE_TYPE),
+    externalDataSetItem_(0)
 {
 
 }
@@ -130,6 +131,16 @@ void terrama2::core::Filter::setBandFilter(const std::string& f)
   bandFilter_ = f;
 }
 
+uint64_t terrama2::core::Filter::externalDataSetItem() const
+{
+  return externalDataSetItem_;
+}
+
+void terrama2::core::Filter::setExternalDataSetItem(const uint64_t externalDataSetItem)
+{
+  externalDataSetItem_ = externalDataSetItem;
+}
+
 terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::Filter& rhs)
 {
   if( this != &rhs )
@@ -168,7 +179,7 @@ terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::
     }
 
     expressionType_ = rhs.expressionType_;
-
+    externalDataSetItem_ = rhs.externalDataSetItem_;
     bandFilter_ = rhs.bandFilter_;
   }
   return *this;
@@ -219,7 +230,7 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
   }
 
   expressionType_ = rhs.expressionType_;
-
+  externalDataSetItem_ = rhs.externalDataSetItem_;
   bandFilter_ = rhs.bandFilter_;
 }
 
@@ -279,7 +290,7 @@ terrama2::core::Filter terrama2::core::Filter::FromJson(QJsonObject json)
 
   int expressionType = json["expressionType"].toInt();
   filter.setExpressionType(ToFilterExpressionType(expressionType));
-
+  filter.setExternalDataSetItem(json["externalDataSetItem"].toInt());
   filter.setBandFilter(json["bandFilter"].toString().toStdString());
 
   if(!json["geometry"].isNull())
@@ -335,7 +346,8 @@ QJsonObject terrama2::core::Filter::toJson()
     json["value"] = QJsonValue();
 
   json["expressionType"] = QJsonValue((int)expressionType_);
-  json["bandFilter"] = QJsonValue(bandFilter_.c_str());
+  json["externalDataSetItem"] = QJsonValue((int)externalDataSetItem_);
+  json["bandFilter"] = bandFilter_.c_str();
 
 
   if(geometry_.get())
