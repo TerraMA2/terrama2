@@ -35,6 +35,7 @@
 #include <QObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QString>
 
 terrama2::core::Intersection::Intersection(uint64_t dataSetId)
 : dataset_(dataSetId)
@@ -124,16 +125,16 @@ QJsonObject terrama2::core::Intersection::toJson()
     QJsonArray attrList;
     for(auto attr : it->second)
     {
-      attrList.append(attr.c_str());
+      attrList.append(QString(attr.c_str()));
     }
-    attributeMapJson[it->first.c_str()] = attrList;
+    attributeMapJson[QString(it->first.c_str())] = attrList;
   }
   json["attributeMap"] = attributeMapJson;
 
   QJsonObject bandMapJson;
   for(auto it = bandMap_.begin(); it != bandMap_.end(); ++it)
   {
-    bandMapJson[std::to_string((int)it->first).c_str()] = it->second.c_str();
+    bandMapJson[QString(std::to_string((int)it->first).c_str())] = QString(it->second.c_str());
   }
   json["bandMap"] = bandMapJson;
 

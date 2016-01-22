@@ -40,7 +40,7 @@
 #include <QObject>
 #include <QJsonArray>
 #include <QJsonValue>
-
+#include <QString>
 
 terrama2::core::DataSet::DataSet(const std::string& name, Kind kind, uint64_t id, uint64_t providerId)
   : name_(name),
@@ -290,21 +290,21 @@ QJsonObject terrama2::core::DataSet::toJson()
 {
   QJsonObject json;
 
-  json["name"] = name_.c_str();
+  json["name"] = QString(name_.c_str());
   json["kind"] = QJsonValue((int)kind_);
   json["id"] = QJsonValue((int)id_);
   json["provider"] = QJsonValue((int)provider_);
-  json["description"] = description_.c_str();
+  json["description"] = QString(description_.c_str());
   json["status"] = QJsonValue(ToBool(status_));
-  json["dataFrequency"] = dataFrequency_.toString().c_str();
-  json["schedule"] = schedule_.toString().c_str();
-  json["scheduleRetry"] = scheduleRetry_.toString().c_str();
-  json["scheduleTimeout"] = scheduleTimeout_.toString().c_str();
+  json["dataFrequency"] = QString(dataFrequency_.toString().c_str());
+  json["schedule"] = QString(schedule_.toString().c_str());
+  json["scheduleRetry"] = QString(scheduleRetry_.toString().c_str());
+  json["scheduleTimeout"] = QString(scheduleTimeout_.toString().c_str());
 
   QJsonObject metadataJson;
   for(auto it = metadata_.begin(); it != metadata_.end(); ++it)
   {
-    metadataJson[it->first.c_str()] = it->second.c_str();
+    metadataJson[QString(it->first.c_str())] = QString(it->second.c_str());
   }
   json["metadata"] = metadataJson;
 

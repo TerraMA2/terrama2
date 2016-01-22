@@ -39,6 +39,7 @@
 #include <QObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QString>
 
 terrama2::core::DataProvider::DataProvider(const std::string& name, Kind k, const uint64_t id)
   : id_(id),
@@ -195,12 +196,12 @@ QJsonObject terrama2::core::DataProvider::toJson()
 {
   QJsonObject json;
 
-  json["name"] = name_.c_str();
+  json["name"] = QString(name_.c_str());
   json["kind"] = QJsonValue((int)kind_);
   json["id"] = QJsonValue((int)id_);
   json["origin"] = QJsonValue((int)origin_);
-  json["description"] = description_.c_str();
-  json["uri"] = uri_.c_str();
+  json["description"] = QString(description_.c_str());
+  json["uri"] = QString(uri_.c_str());
   json["status"] = QJsonValue(ToBool(status_));
 
   QJsonArray datasetsJson;
