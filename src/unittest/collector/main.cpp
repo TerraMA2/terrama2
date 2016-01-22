@@ -1,5 +1,6 @@
 
 #include "TsCollectorService.hpp"
+#include "TsDataRetrieverWCS.hpp"
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
@@ -49,8 +50,8 @@ int main(int argc, char *argv[])
 //  TsParserPcdInpe tsParserInpe;
 //  returnVal += QTest::qExec(&tsParserInpe, argc, argv);
 
-  TsParserPcdToa5 tsParserToa5;
-  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
+//  TsParserPcdToa5 tsParserToa5;
+//  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
 
 //  TsParserTiff tsParserTiff;
 //  returnVal += QTest::qExec(&tsParserTiff, argc, argv);
@@ -65,6 +66,11 @@ int main(int argc, char *argv[])
 
 //  TsIntegration tsIntegration;
 //  returnVal += QTest::qExec(&tsIntegration, argc, argv);
+
+  // DataRetriever
+
+  TsDataRetrieverWCS tsDataRetrieverWCS;
+  returnVal += QTest::qExec(&tsDataRetrieverWCS, argc, argv);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

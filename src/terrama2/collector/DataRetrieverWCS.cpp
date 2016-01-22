@@ -30,6 +30,9 @@
 // LibCurl
 #include <curl/curl.h>
 
+// Qt
+#include <QXmlStreamReader>
+
 // TerraLib
 #include <terralib/qt/plugins/datasource/wcs/WCSConnector.h>
 
@@ -39,15 +42,33 @@
 #include "Exception.hpp"
 
 
+terrama2::collector::DataRetrieverWCS::DataRetrieverWCS(const core::DataProvider& dataprovider)
+  : DataRetriever(dataprovider)
+{
+
+}
+
 
 bool terrama2::collector::DataRetrieverWCS::isRetrivable() const noexcept
 {
   return true;
 }
 
+
 void terrama2::collector::DataRetrieverWCS::open()
 {
 
+}
+
+
+size_t write_callback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+  size_t sizeRead = size * nmemb;
+
+  std::string* block = (std::string*) data;
+  block->append((char *)ptr, sizeRead);
+
+  return sizeRead;
 }
 
 bool terrama2::collector::DataRetrieverWCS::isOpen()
@@ -59,15 +80,35 @@ bool terrama2::collector::DataRetrieverWCS::isOpen()
 
     CURLcode status;
 
+    std::string xml;
+
+    // Verifies that the WCS address is valid
     if(curl.fcurl())
     {
-      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, "http://flanche.net:9090/rasdaman/ows?service=WCS&request=GetCapabilities");
+      std::string url = dataprovider_.uri() + "&REQUEST=GetCapabilities";
+      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, url.c_str());
 
+      // Get data to be written
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_callback);
+      // Set a pointer to our xml string
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void*)&xml);
       /* Perform the request, status will get the return code */
       status = curl_easy_perform(curl.fcurl());
 
-      /* Check for errors */
+      // Check for errors
       if(status != CURLE_OK)
+        return false;
+
+      // Validate the xml response
+      QXmlStreamReader xml_stream(xml.c_str());
+
+      if(xml_stream.hasError())
+        return false;
+
+      if(!xml_stream.readNextStartElement())
+        return false;
+
+      if(xml_stream.name().compare("Capabilities") != 0)
         return false;
     }
   }

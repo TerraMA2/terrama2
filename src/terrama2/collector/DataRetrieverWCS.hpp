@@ -51,6 +51,7 @@ namespace terrama2
     */
     class DataRetrieverWCS: public DataRetriever
     {
+    public:
       /*!
        * \brief  Constructor DataRetrieverWCS
        * \param DataProvider dataprovider information.
@@ -66,7 +67,7 @@ namespace terrama2
 
       //! Does nothing. In derived classes opens the connectin to the server.
       virtual void open() override;
-      //! Initializes the Curl and check the URL to download.
+      //! Initializes the Curl and check if the FTP address is valid.
       virtual bool isOpen() override;
       //! Does nothing. In derived classes closes the connection to the server.
       virtual void close() override;
@@ -82,7 +83,7 @@ namespace terrama2
       virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
     protected:
-        terrama2::core::DataProvider dataprovider_;//!< Stored core::DataProvider
+
 
     };
 
