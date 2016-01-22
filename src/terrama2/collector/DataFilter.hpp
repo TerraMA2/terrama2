@@ -144,6 +144,7 @@ namespace terrama2
          */
       bool validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, TransferenceData& transferenceData);
 
+      //! Verifies if current line geometry of the dataSet intersects the filter geometry.
       bool validateGeometry(int geometryColumn, const std::shared_ptr<te::da::DataSet> &dataSet);
 
       /*!
