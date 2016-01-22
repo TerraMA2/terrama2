@@ -51,7 +51,7 @@ terrama2::core::dao::FilterDAO::save(const Filter& filter, te::da::DataSourceTra
   if(filter.datasetItem() == 0)
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
-  boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%, %9%)");
+  boost::format query("INSERT INTO terrama2.filter VALUES(%1%, %2%, %3%, %4%, %5%, %6%, %7%, %8%)");
 
   query.bind_arg(1, filter.datasetItem());
 
@@ -71,11 +71,11 @@ terrama2::core::dao::FilterDAO::save(const Filter& filter, te::da::DataSourceTra
   else
     query.bind_arg(4, "NULL");
 
-// external_data_id
-  if(filter.externalDataSetItem() == 0)
+// static_data_id
+  if(filter.staticDataId() == 0)
     query.bind_arg(5, "NULL");
   else
-    query.bind_arg(5, filter.externalDataSetItem());
+    query.bind_arg(5, filter.staticDataId());
 
   if(filter.value())
     query.bind_arg(6, *filter.value());
@@ -85,11 +85,8 @@ terrama2::core::dao::FilterDAO::save(const Filter& filter, te::da::DataSourceTra
 // expression_type
   query.bind_arg(7, static_cast<uint32_t>(filter.expressionType()));
 
-// within_external_data_id
-  query.bind_arg(8, "NULL");
-
 // band_filter
-  query.bind_arg(9, "'" + filter.bandFilter() + "'");
+  query.bind_arg(8, "'" + filter.bandFilter() + "'");
 
   try
   {
@@ -120,9 +117,9 @@ terrama2::core::dao::FilterDAO::update(const Filter& filter, te::da::DataSourceT
     throw InvalidArgumentException() << ErrorDescription(QObject::tr("The dataset item associated to the filter must have a valid identifier (different than 0)."));
 
   boost::format query("UPDATE terrama2.filter SET discard_before = %1%, "
-                      "discard_after = %2%, geom = %3%, external_data_id = %4%, "
-                      "value = %5%, expression_type = %6%, within_external_data_id = %7%, "
-                      "band_filter = %8% WHERE dataset_item_id = %9%");
+                      "discard_after = %2%, geom = %3%, static_data_id = %4%, "
+                      "value = %5%, expression_type = %6%, "
+                      "band_filter = %7% WHERE dataset_item_id = %8%");
 
   if(filter.discardBefore())
     query.bind_arg(1, "'" + filter.discardBefore()->toString() + "'");
@@ -140,11 +137,11 @@ terrama2::core::dao::FilterDAO::update(const Filter& filter, te::da::DataSourceT
   else
     query.bind_arg(3, "NULL");
 
-// external_data_id
-  if(filter.externalDataSetItem() == 0)
+// static_data_id
+  if(filter.staticDataId() == 0)
     query.bind_arg(4, "NULL");
   else
-    query.bind_arg(4, filter.externalDataSetItem());
+    query.bind_arg(4, filter.staticDataId());
 
   if(filter.value())
     query.bind_arg(5, *filter.value());
@@ -154,13 +151,10 @@ terrama2::core::dao::FilterDAO::update(const Filter& filter, te::da::DataSourceT
 // expression_type
   query.bind_arg(6, static_cast<uint32_t>(filter.expressionType()));
 
-// within_external_data_id
-  query.bind_arg(7, "NULL");
-
 // band_filter
-  query.bind_arg(8, "'" + filter.bandFilter() + "'");
+  query.bind_arg(7, "'" + filter.bandFilter() + "'");
 
-  query.bind_arg(9, filter.datasetItem());
+  query.bind_arg(8, filter.datasetItem());
 
   try
   {
@@ -252,16 +246,13 @@ terrama2::core::dao::FilterDAO::load(const DataSetItem& datasetItem, te::da::Dat
       filter.setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ>(new te::dt::TimeInstantTZ(localtime)));
     }
 
-    if(!filter_result->isNull(3))
-      filter.setGeometry(filter_result->getGeometry("geom"));
-
-    if(!filter_result->isNull(3))
+    if(!filter_result->isNull("geom"))
       filter.setGeometry(filter_result->getGeometry("geom"));
 
     filter.setExpressionType(ToFilterExpressionType(filter_result->getInt32("expression_type")));
 
-    if(!filter_result->isNull("external_data_id"))
-      filter.setExternalDataSetItem(filter_result->getInt32("external_data_id"));
+    if(!filter_result->isNull("static_data_id"))
+      filter.setStaticDataId(filter_result->getInt32("static_data_id"));
 
     if(!filter_result->isNull("value"))
     {

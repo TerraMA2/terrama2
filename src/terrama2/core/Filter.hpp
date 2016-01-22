@@ -137,11 +137,11 @@ namespace terrama2
         /*! \brief Sets the band filter. */
         void setBandFilter(const std::string& f);
 
-        /*! \brief Returns the identifier of the DataSetItem to an additional map. */
-        uint64_t externalDataSetItem() const;
+        /*! \brief Returns the identifier of the static data to use as area of interest. */
+        uint64_t staticDataId() const;
 
-        /*! \brief Sets the identifier of the DataSetItem to an additional map. */
-        void setExternalDataSetItem(const uint64_t externalDataSetItem);
+        /*! \brief Sets the identifier of the static data to use as area of interest. */
+        void setStaticDataId(const uint64_t staticDataId);
 
         /*! \brief Creates the object from the JSON string. */
         static Filter FromJson(QJsonObject json);
@@ -164,7 +164,7 @@ namespace terrama2
         std::unique_ptr<double> value_; //!< Value to be used in a filter by value.
         ExpressionType expressionType_; //!< Type of filter by expression.
         std::string bandFilter_; //!< Band filter.
-        uint64_t externalDataSetItem_; //!< Filter based on an additional map.
+        uint64_t staticDataId_; //!< Identifier of the static data to use as area of interest
     };
 
   } // end namespace core

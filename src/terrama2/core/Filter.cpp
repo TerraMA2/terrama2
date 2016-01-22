@@ -50,7 +50,7 @@
 terrama2::core::Filter::Filter(uint64_t dataSetItemId)
   : datasetItem_(dataSetItemId),
     expressionType_(NONE_TYPE),
-    externalDataSetItem_(0)
+    staticDataId_(0)
 {
 
 }
@@ -132,14 +132,14 @@ void terrama2::core::Filter::setBandFilter(const std::string& f)
   bandFilter_ = f;
 }
 
-uint64_t terrama2::core::Filter::externalDataSetItem() const
+uint64_t terrama2::core::Filter::staticDataId() const
 {
-  return externalDataSetItem_;
+  return staticDataId_;
 }
 
-void terrama2::core::Filter::setExternalDataSetItem(const uint64_t externalDataSetItem)
+void terrama2::core::Filter::setStaticDataId(const uint64_t staticDataId)
 {
-  externalDataSetItem_ = externalDataSetItem;
+  staticDataId_ = staticDataId;
 }
 
 terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::Filter& rhs)
@@ -180,7 +180,7 @@ terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::
     }
 
     expressionType_ = rhs.expressionType_;
-    externalDataSetItem_ = rhs.externalDataSetItem_;
+    staticDataId_ = rhs.staticDataId_;
     bandFilter_ = rhs.bandFilter_;
   }
   return *this;
@@ -231,7 +231,7 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
   }
 
   expressionType_ = rhs.expressionType_;
-  externalDataSetItem_ = rhs.externalDataSetItem_;
+  staticDataId_ = rhs.staticDataId_;
   bandFilter_ = rhs.bandFilter_;
 }
 
@@ -243,7 +243,8 @@ terrama2::core::Filter terrama2::core::Filter::FromJson(QJsonObject json)
      && json.contains("discardAfter")
      && json.contains("geometry")
      && json.contains("value")
-     && json.contains("bandFilter") ))
+     && json.contains("bandFilter")
+     && json.contains("staticDataId") ))
     throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
   Filter filter(json["datasetItem"].toInt());
@@ -291,7 +292,7 @@ terrama2::core::Filter terrama2::core::Filter::FromJson(QJsonObject json)
 
   int expressionType = json["expressionType"].toInt();
   filter.setExpressionType(ToFilterExpressionType(expressionType));
-  filter.setExternalDataSetItem(json["externalDataSetItem"].toInt());
+  filter.setStaticDataId(json["staticDataId"].toInt());
   filter.setBandFilter(json["bandFilter"].toString().toStdString());
 
   if(!json["geometry"].isNull())
@@ -347,7 +348,7 @@ QJsonObject terrama2::core::Filter::toJson()
     json["value"] = QJsonValue();
 
   json["expressionType"] = QJsonValue((int)expressionType_);
-  json["externalDataSetItem"] = QJsonValue((int)externalDataSetItem_);
+  json["staticDataId"] = QJsonValue((int)staticDataId_);
   json["bandFilter"] = QString(bandFilter_.c_str());
 
 
@@ -379,6 +380,8 @@ bool terrama2::core::Filter::operator==(const terrama2::core::Filter& rhs)
   if(expressionType_ != rhs.expressionType_)
     return false;
   if(bandFilter_ != rhs.bandFilter_)
+    return false;
+  if(staticDataId_ != rhs.staticDataId_)
     return false;
 
   return true;
