@@ -42,6 +42,7 @@
 
 // Qt
 #include <QObject>
+#include <QString>
 
 // Boost
 #include <boost/date_time/local_time/local_time_types.hpp>
@@ -332,9 +333,9 @@ QJsonObject terrama2::core::Filter::toJson()
     std::string time = boost::posix_time::to_simple_string(boostLocalDate.local_time().time_of_day());
     std::string timezone = boostLocalDate.zone_as_posix_string();
 
-    discardAfterJson["date"] = date.c_str();
-    discardAfterJson["time"] = time.c_str();
-    discardAfterJson["timezone"] = timezone.c_str();
+    discardAfterJson["date"] = QString(date.c_str());
+    discardAfterJson["time"] = QString(time.c_str());
+    discardAfterJson["timezone"] = QString(timezone.c_str());
     json["discardAfter"] = discardAfterJson;
   }
   else
@@ -347,14 +348,14 @@ QJsonObject terrama2::core::Filter::toJson()
 
   json["expressionType"] = QJsonValue((int)expressionType_);
   json["externalDataSetItem"] = QJsonValue((int)externalDataSetItem_);
-  json["bandFilter"] = bandFilter_.c_str();
+  json["bandFilter"] = QString(bandFilter_.c_str());
 
 
   if(geometry_.get())
   {
     std::string wkt = geometry_->toString();
     std::replace( wkt.begin(), wkt.end(), '\n', ',');
-    json["geometry"] = wkt.c_str();
+    json["geometry"] = QString(wkt.c_str());
   }
   else
     json["geometry"] = QJsonValue();
