@@ -106,7 +106,7 @@ namespace terrama2
         /*! \brief Returns the identifier of the DataSet. */
         uint64_t id() const;
 
-        /*! \brief Sets the identifier of the DataSet. */
+        /*! \brief Sets the identifier in the DataSet, Intersection and in each DataSetItem. */
         void setId(uint64_t id);
 
         /*! \brief Returns the name of the DataSet. */
