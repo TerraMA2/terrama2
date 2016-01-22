@@ -35,6 +35,9 @@
 #include <string>
 #include <memory>
 
+// Qt
+#include <QJsonObject>
+
 // Forward declaration
 namespace te
 {
@@ -133,6 +136,18 @@ namespace terrama2
 
         /*! \brief Sets the band filter. */
         void setBandFilter(const std::string& f);
+
+        /*! \brief Creates the object from the JSON string. */
+        static Filter FromJson(QJsonObject json);
+
+        /*! \brief Serialize to JSON. */
+        QJsonObject toJson();
+
+        /*! \brief Override operator == */
+        bool operator==(const Filter& rhs);
+
+        /*! \brief Override operator != */
+        bool operator!=(const Filter& rhs);
 
       private:
 
