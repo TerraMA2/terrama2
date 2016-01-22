@@ -37,6 +37,9 @@
 #include <string>
 #include <vector>
 
+// Qt
+#include <QJsonObject>
+
 namespace terrama2
 {
   namespace core
@@ -80,6 +83,17 @@ namespace terrama2
         /*! \brief Sets the band map. */
         void setBandMap(std::map<uint64_t, std::string >& bandMap);
 
+        /*! \brief Creates the object from the JSON string. */
+        static Intersection FromJson(QJsonObject json);
+
+        /*! \brief Serialize to JSON. */
+        QJsonObject toJson();
+
+        /*! \brief Override operator == */
+        bool operator==(const Intersection& rhs);
+
+        /*! \brief Override operator != */
+        bool operator!=(const Intersection& rhs);
 
       private:
 

@@ -40,6 +40,9 @@
 #include <string>
 #include <vector>
 
+// Qt
+#include <QJsonObject>
+
 namespace terrama2
 {
   namespace core
@@ -159,6 +162,18 @@ namespace terrama2
           \param id The identifier of the DataSet to be removed.
          */
         void removeDataSet(const uint64_t id);
+
+        /*! \brief Creates the object from the JSON string. */
+        static DataProvider FromJson(QJsonObject json);
+
+        /*! \brief Serialize to JSON. */
+        QJsonObject toJson();
+
+        /*! \brief Override operator == */
+        bool operator==(const DataProvider& rhs);
+
+        /*! \brief Override operator != */
+        bool operator!=(const DataProvider& rhs);
 
       private:
 
