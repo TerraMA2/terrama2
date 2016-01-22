@@ -122,7 +122,7 @@ void terrama2::gui::config::ConfigAppWeatherPcd::fillAdditionalMapList()
   app_->getClient()->listDataSet(dsList);
   for(auto ds : dsList)
   {
-    if(ds.kind() == terrama2::core::DataSet::ADDITIONAL_MAP)
+    if(ds.kind() == terrama2::core::DataSet::STATIC_DATA)
     {
       ui_->pointFormatInfluenceDatasetCmb->addItem(ds.name().c_str());
     }

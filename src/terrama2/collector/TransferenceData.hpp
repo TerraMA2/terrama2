@@ -46,20 +46,23 @@ namespace terrama2
 {
   namespace collector
   {
+    /*!
+       \brief The TransferenceData struct holds the collection data of a core::DataSetItem.
+     */
     struct TransferenceData
     {
-      core::DataSet dataSet;
-      core::DataSetItem dataSetItem;
+      core::DataSetItem dataSetItem; //!< core::DataSetItem of the TransferenceData
+      core::DataSet dataSet; //!< DataSet of the dataSetItem
 
-      std::string uriOrigin;//!< Uri of the original data.
-      std::string uriTemporary;//!< Uri where the data is stored temporary, before final store.
-      std::string uriStorage;//!< Uri where the data storage.
+      std::string uriOrigin; //!< Uri of the original data.
+      std::string uriTemporary; //!< Uri where the data is stored temporary, before final store.
+      std::string uriStorage; //!< Uri where the data storage.
 
-      std::shared_ptr< te::dt::TimeInstantTZ > dateData;//! Date/Time when data was produced.
-      std::shared_ptr< te::dt::TimeInstantTZ > dateCollect;//! Date/Time when data was collected.
+      std::shared_ptr< te::dt::TimeInstantTZ > dateData;//!< Date/Time when data was produced.
+      std::shared_ptr< te::dt::TimeInstantTZ > dateCollect;//!< Date/Time when data was collected.
 
-      std::shared_ptr<te::da::DataSet> teDataSet;
-      std::shared_ptr<te::da::DataSetType> teDataSetType;
+      std::shared_ptr<te::da::DataSet> teDataSet; //!< Terralib DataSet of the dataSetItem.
+      std::shared_ptr<te::da::DataSetType> teDataSetType; //!< DataSetType of the teDataSet.
     };
   }
 }

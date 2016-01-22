@@ -29,6 +29,15 @@
 
 // TerraMA2
 #include "DataSetItem.hpp"
+#include "Utils.hpp"
+#include "../Exception.hpp"
+
+// Qt
+#include <QObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QString>
+
 
 terrama2::core::DataSetItem::DataSetItem(Kind k, uint64_t id, uint64_t datasetId)
   : kind_(k),
@@ -155,4 +164,98 @@ uint64_t terrama2::core::DataSetItem::srid() const
 void terrama2::core::DataSetItem::setSrid(const uint64_t srid)
 {
   srid_ = srid;
+}
+
+terrama2::core::DataSetItem terrama2::core::DataSetItem::FromJson(QJsonObject json)
+{
+  if(! (json.contains("kind")
+     && json.contains("id")
+     && json.contains("dataset")
+     && json.contains("status")
+     && json.contains("mask")
+     && json.contains("timezone")
+     && json.contains("path")
+     && json.contains("filter")
+     && json.contains("metadata")
+     && json.contains("srid")))
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+
+  Kind kind = ToDataSetItemKind(json["kind"].toInt());
+  uint64_t id = json["id"].toInt();
+  uint64_t dataset = json["dataset"].toInt();
+  DataSetItem item(kind, id, dataset);
+
+  Status status = ToDataSetItemStatus(json["status"].toBool());
+  item.setStatus(status);
+  item.setMask(json["mask"].toString().toStdString());
+  item.setTimezone(json["timezone"].toString().toStdString());
+  item.setPath(json["path"].toString().toStdString());
+  item.setFilter(Filter::FromJson(json["filter"].toObject()));
+
+  QJsonObject metadataJson = json["metadata"].toObject();
+  std::map<std::string, std::string> metadata;
+  for(auto it = metadataJson.begin(); it != metadataJson.end(); ++it)
+  {
+    metadata[it.key().toStdString()] = it.value().toString().toStdString();
+  }
+  item.setMetadata(metadata);
+
+  item.setSrid(json["srid"].toInt());
+
+  return item;
+}
+
+QJsonObject terrama2::core::DataSetItem::toJson()
+{
+  QJsonObject json;
+
+  json["kind"] = QJsonValue((int)kind_);
+  json["id"] = QJsonValue((int)id_);
+  json["dataset"] = QJsonValue((int)dataset_);
+  json["status"] = QJsonValue(ToBool(status_));
+  json["mask"] = QString(mask_.c_str());
+  json["timezone"] = QString(timezone_.c_str());
+  json["path"] = QString(path_.c_str());
+  json["filter"] = filter_.toJson();
+
+  QJsonObject metadataJson;
+  for(auto it = metadata_.begin(); it != metadata_.end(); ++it)
+  {
+    metadataJson[QString(it->first.c_str())] = QString(it->second.c_str());
+  }
+  json["metadata"] = metadataJson;
+  json["srid"] = QJsonValue((int)srid_);
+
+  return json;
+}
+
+bool terrama2::core::DataSetItem::operator==(const terrama2::core::DataSetItem& rhs)
+{
+  if(kind_ != rhs.kind_)
+    return false;
+  if(id_ != rhs.id_)
+    return false;
+  if(dataset_ != rhs.dataset_)
+    return false;
+  if(status_ != rhs.status_)
+    return false;
+  if(mask_ != rhs.mask_)
+    return false;
+  if(timezone_ != rhs.timezone_)
+    return false;
+  if(path_ != rhs.path_)
+    return false;
+  if(filter_ != rhs.filter_)
+    return false;
+  if(metadata_ != rhs.metadata_)
+    return false;
+  if(srid_ != rhs.srid_)
+    return false;
+
+  return true;
+}
+
+bool terrama2::core::DataSetItem::operator!=(const terrama2::core::DataSetItem& rhs)
+{
+  return !(*this == rhs);
 }

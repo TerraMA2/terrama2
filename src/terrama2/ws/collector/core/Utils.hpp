@@ -42,7 +42,7 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 // TerraLib
-#include <terralib/geometry/Geometry.h>
+#include <terralib/geometry/Polygon.h>
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/WKTReader.h>
@@ -425,7 +425,7 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
 
     if(!struct_dataset_items.at(i).filter_geometry.empty())
     {
-      std::unique_ptr< te::gm::Geometry > geom(te::gm::WKTReader::read(struct_dataset_items.at(i).filter_geometry.c_str()));
+      std::unique_ptr< te::gm::Polygon > geom(dynamic_cast<te::gm::Polygon*>(te::gm::WKTReader::read(struct_dataset_items.at(i).filter_geometry.c_str())));
       filter.setGeometry(std::move(geom));
     }
 

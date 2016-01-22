@@ -64,6 +64,8 @@ private slots:
      */
     void TestEmptyMask();
 
+    void TestGeometry();
+
     //! Tests mask for wildcards
     void TestMask();
 
@@ -72,8 +74,6 @@ private slots:
 
     //! Tests behavior of filternames for lastCollectedData from Log
     void TestLastCollected();
-
-    void TestgetDataSetLastDateTime();
 
     //******End of Test functions****
 };

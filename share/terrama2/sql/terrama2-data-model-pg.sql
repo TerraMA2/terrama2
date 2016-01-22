@@ -60,7 +60,7 @@ COMMENT ON COLUMN terrama2.dataset_type.id IS 'Type identifier';
 COMMENT ON COLUMN terrama2.dataset_type.name IS 'Name that identifies the dataset type';
 COMMENT ON COLUMN terrama2.dataset_type.description IS 'Brief description about the dataset type';
 
-INSERT INTO terrama2.dataset_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset'), ('Additional Map', 'Identifies a dataset used as an additional map for the analysis'), ('Monitored Object', 'Identifies a dataset used an monitored object for the analysis');
+INSERT INTO terrama2.dataset_type (name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD', 'Identifies a PCD dataset'), ('Occurrence', 'Identifies a dataset for occurrences'), ('Grid', 'Identifies a grid dataset'), ('Static data', 'Identifies a static data');
 
 CREATE TABLE terrama2.dataset ( id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(20) NOT NULL UNIQUE, description  TEXT, active BOOLEAN, data_provider_id INTEGER NOT NULL, kind INTEGER NOT NULL, data_frequency INTEGER, schedule TIME, schedule_retry INTEGER, schedule_timeout INTEGER, CONSTRAINT fk_dataset_data_provider_id FOREIGN KEY(data_provider_id) REFERENCES terrama2.data_provider(id) ON UPDATE CASCADE ON DELETE CASCADE);
 
@@ -134,19 +134,16 @@ INSERT INTO terrama2.filter_expression_type(name, description) VALUES('NONE_TYPE
 
 
 
-CREATE TABLE terrama2.filter (dataset_item_id INTEGER NOT NULL PRIMARY KEY, discard_before  TIMESTAMP with time zone, discard_after   TIMESTAMP with time zone, geom GEOMETRY(POLYGON, 4326), external_data_id INTEGER, value NUMERIC, expression_type INTEGER, within_external_data_id INTEGER, band_filter TEXT, CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE, CONSTRAINT fk_filter_with_expression_type FOREIGN KEY(expression_type) REFERENCES terrama2.filter_expression_type (id) ON UPDATE CASCADE ON DELETE CASCADE);
-  --CONSTRAINT fk_filter_external_data_id FOREIGN KEY(external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
-  --CONSTRAINT fk_filter_within_external_data_id FOREIGN KEY(within_external_dataset_item_id) REFERENCES terrama2.??? (id) ON UPDATE CASCADE ON DELETE CASCADE
+CREATE TABLE terrama2.filter (dataset_item_id INTEGER NOT NULL PRIMARY KEY, discard_before  TIMESTAMP with time zone, discard_after   TIMESTAMP with time zone, geom GEOMETRY(POLYGON, 4326), static_data_id INTEGER, value NUMERIC, expression_type INTEGER, band_filter TEXT, CONSTRAINT fk_filter_dataset_item_id FOREIGN KEY(dataset_item_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE, CONSTRAINT fk_filter_with_expression_type FOREIGN KEY(expression_type) REFERENCES terrama2.filter_expression_type (id) ON UPDATE CASCADE ON DELETE CASCADE, CONSTRAINT fk_filter_static_data_id FOREIGN KEY(static_data_id) REFERENCES terrama2.dataset_item (id) ON UPDATE CASCADE ON DELETE CASCADE);
 
 COMMENT ON TABLE terrama2.filter IS 'Stores information about the filter to be used for a dataset item';
 COMMENT ON COLUMN terrama2.filter.dataset_item_id IS 'Dataset item identifier';
 COMMENT ON COLUMN terrama2.filter.discard_before IS 'Initial date of interest';
 COMMENT ON COLUMN terrama2.filter.discard_after IS 'Final date of interest';
 COMMENT ON COLUMN terrama2.filter.geom IS 'Geometry to filter the area of interest';
-COMMENT ON COLUMN terrama2.filter.external_data_id IS 'Identifier of the dataset to be used as area of interest';
+COMMENT ON COLUMN terrama2.filter.static_data_id IS 'Identifier of the static data to be used as area of interest';
 COMMENT ON COLUMN terrama2.filter.value IS 'Filter by value';
 COMMENT ON COLUMN terrama2.filter.expression_type IS 'Type of filter by value';
-COMMENT ON COLUMN terrama2.filter.within_external_data_id IS 'Identifier of the dataset to be used as area of interest';
 COMMENT ON COLUMN terrama2.filter.band_filter IS 'Bands to exclude from collection';
 
 

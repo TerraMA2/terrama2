@@ -35,11 +35,14 @@
 #include <string>
 #include <memory>
 
+// Qt
+#include <QJsonObject>
+
 // Forward declaration
 namespace te
 {
   namespace dt { class TimeInstantTZ; }
-  namespace gm { class Geometry; }
+  namespace gm { class Polygon; }
 }
 
 
@@ -111,10 +114,10 @@ namespace terrama2
         void setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ> t);
 
         /*! \brief Returns the geometry to be used as area of interest for filtering the data during its collect. */
-        const te::gm::Geometry* geometry() const;
+        const te::gm::Polygon* geometry() const;
 
         /*! Sets the geometry to be used as area of interest for filtering the data during its collect. */
-        void setGeometry(std::unique_ptr<te::gm::Geometry> geom);
+        void setGeometry(std::unique_ptr<te::gm::Polygon> geom);
 
         /*! \brief Returns the value to be used in a filter by value. */
         const double* value() const;
@@ -134,15 +137,34 @@ namespace terrama2
         /*! \brief Sets the band filter. */
         void setBandFilter(const std::string& f);
 
+        /*! \brief Returns the identifier of the static data to use as area of interest. */
+        uint64_t staticDataId() const;
+
+        /*! \brief Sets the identifier of the static data to use as area of interest. */
+        void setStaticDataId(const uint64_t staticDataId);
+
+        /*! \brief Creates the object from the JSON string. */
+        static Filter FromJson(QJsonObject json);
+
+        /*! \brief Serialize to JSON. */
+        QJsonObject toJson();
+
+        /*! \brief Override operator == */
+        bool operator==(const Filter& rhs);
+
+        /*! \brief Override operator != */
+        bool operator!=(const Filter& rhs);
+
       private:
 
         uint64_t datasetItem_; //!< Associates the filter to a given DataSetItem.
         std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Initial date of interest for collecting data from the DataSetItem.
         std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Final date of interest for collecting data from the DataSetItem.
-        std::unique_ptr<te::gm::Geometry> geometry_; //!< Geometry to be used as area of interest for filtering the data during its collect.
+        std::unique_ptr<te::gm::Polygon> geometry_; //!< Geometry to be used as area of interest for filtering the data during its collect.
         std::unique_ptr<double> value_; //!< Value to be used in a filter by value.
         ExpressionType expressionType_; //!< Type of filter by expression.
         std::string bandFilter_; //!< Band filter.
+        uint64_t staticDataId_; //!< Identifier of the static data to use as area of interest
     };
 
   } // end namespace core
