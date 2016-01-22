@@ -36,6 +36,7 @@
 #include <terrama2/collector/Exception.hpp>
 #include <terrama2/collector/Utils.hpp>
 #include <terrama2/collector/Log.hpp>
+#include <terrama2/collector/TransferenceData.hpp>
 
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSetItem.hpp>
@@ -48,6 +49,9 @@
 //terralib
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/datatype/Date.h>
+#include <terralib/geometry/Polygon.h>
+#include <terralib/memory/DataSet.h>
+#include <terralib/memory/DataSetItem.h>
 
 //STL
 #include <utility>
@@ -104,6 +108,56 @@ void TsDataFilter::TestEmptyMask()
   }
 
   QFAIL(UNEXPECTED_BEHAVIOR);
+}
+
+void TsDataFilter::TestGeometry()
+{
+  terrama2::core::DataProvider provider;
+  terrama2::core::DataSet      dataset;
+  terrama2::core::DataSetItem  dataItem;
+
+  provider.add(dataset);
+  dataset.add(dataItem);
+
+  terrama2::core::Filter       filter;
+
+  te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType, 4326);
+  const double xc(5), yc(5), halfSize(5);
+  s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
+  s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
+  s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
+  s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
+  s->setPoint(4, xc - halfSize, yc - halfSize); // closing
+
+  std::unique_ptr< te::gm::Polygon > geom(new te::gm::Polygon(0, te::gm::PolygonType));
+  geom->push_back(s);
+  filter.setGeometry(std::move(geom));
+  dataItem.setFilter(filter);
+
+  terrama2::collector::DataFilter datafilter(dataItem);
+
+  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("GeomProperty");
+  std::shared_ptr<te::da::DataSetType> datasetType = std::make_shared<te::da::DataSetType>("DataSetType");
+  datasetType->add(geomProperty);
+
+  std::shared_ptr<te::mem::DataSet> dataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
+  te::mem::DataSetItem* data = new te::mem::DataSetItem(dataSet.get());
+  data->setValue(0, new te::gm::Point(6, 6, 4326, 0));
+  dataSet->add(data);
+
+  data = new te::mem::DataSetItem(dataSet.get());
+  data->setValue(0, new te::gm::Point(0, 0, 4326, 0));
+  dataSet->add(data);
+
+  QVERIFY(dataSet->size() == 2);
+
+  terrama2::collector::TransferenceData transferenceData;
+  transferenceData.teDataSet = dataSet;
+  transferenceData.teDataSetType = datasetType;
+
+  datafilter.filterDataSet(transferenceData);
+
+  QVERIFY(transferenceData.teDataSet->size() == 1);
 }
 
 void TsDataFilter::TestMask()

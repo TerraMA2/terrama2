@@ -200,7 +200,7 @@ void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_t
 bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, terrama2::collector::TransferenceData& transferenceData)
 {
   //discard out of valid range dates
-  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
+  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
   te::dt::DateTimeType type = dateTime->getDateTimeType();
   std::shared_ptr<te::dt::TimeInstantTZ> date_data;
 
@@ -257,7 +257,16 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
 
     transferenceData.dateData = date_data;
 
-  return true;
+    return true;
+}
+
+bool terrama2::collector::DataFilter::validateGeometry(int geometryColumn, const std::shared_ptr<te::da::DataSet>& dataSet)
+{
+  std::unique_ptr<te::gm::Geometry> geometry(dataSet->getGeometry(geometryColumn));
+  if(geometry_->intersects(geometry.get()))
+    return true;
+  else
+    return false;
 }
 
 bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const
@@ -351,7 +360,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
 
   //Find DateTime column
   int dateColumn = -1;
-  for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
+  for(int i = 0, size = dataSet->getNumProperties(); i < size; ++i)
   {
     if( dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
@@ -362,7 +371,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
 
   //Find Geometry column
   int geomColumn = -1;
-  for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
+  for(int i = 0, size = dataSet->getNumProperties(); i < size; ++i)
   {
     if( dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
     {
@@ -383,6 +392,13 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
     {
       //Filter Time if has a dateTime column
       if(!validateAndUpdateDate(dateColumn, dataSet, transferenceData))
+        continue;
+    }
+
+    if(geomColumn > 0)
+    {
+      //Filter Time if has a dateTime column
+      if(!validateGeometry(geomColumn, dataSet))
         continue;
     }
 
@@ -416,6 +432,8 @@ terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem
 
   if(filter.discardAfter())
     discardAfter_.reset(static_cast<te::dt::TimeInstantTZ*>(filter.discardAfter()->clone()));
+
+  geometry_.reset(filter.geometry());
 
   //prepare mask data
   processMask();

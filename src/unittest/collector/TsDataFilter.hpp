@@ -64,6 +64,8 @@ private slots:
      */
     void TestEmptyMask();
 
+    void TestGeometry();
+
     //! Tests mask for wildcards
     void TestMask();
 
