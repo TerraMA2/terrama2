@@ -1498,7 +1498,7 @@ void TsDataManager::testListDataSetWihtAdditionalMap()
   try
   {
     auto dataset = createDataSet();
-    dataset.setKind(DataSet::ADDITIONAL_MAP);
+    dataset.setKind(DataSet::STATIC_DATA);
     DataManager::getInstance().add(dataset);
 
     auto datasets = DataManager::getInstance().dataSets();
