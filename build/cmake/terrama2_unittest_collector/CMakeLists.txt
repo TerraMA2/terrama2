@@ -49,6 +49,7 @@ target_link_libraries(terrama2_unittest_collector terrama2_mod_core
                                                   terrama2_mod_collector
                                                   terralib_mod_plugin
                                                   terralib_mod_common
+                                                  terralib_mod_rp
                                                   ${GTEST_BOTH_LIBRARIES}
                                                   ${GMOCK_BOTH_LIBRARIES})
 

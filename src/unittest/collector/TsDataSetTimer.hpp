@@ -57,6 +57,8 @@ private slots:
      */
     void TestTimerSignalEmit();
 
+    void TestSchedulerSignalEmit();
+
 
     //******End of Test functions****
 };

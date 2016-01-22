@@ -43,6 +43,7 @@
 #include "ParserFirePoint.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "../core/Logger.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -56,7 +57,7 @@
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry.h>
 
 te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
@@ -71,15 +72,36 @@ te::dt::AbstractData* XYTo4326PointConverter(te::da::DataSet* dataset, const std
   return point;
 }
 // int dstType
-te::dt::AbstractData* terrama2::collector::ParserFirePoint::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
+te::dt::AbstractData* terrama2::collector::ParserFirePoint::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/)
 {
   assert(indexes.size() == 1);
 
-  std::string dateTime = dataset->getAsString(indexes[0]);
+  try {
+    std::string dateTime = dataset->getAsString(indexes[0]);
 
-  te::dt::TimeInstant* dt = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(dateTime)));
+    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
 
-  return dt;
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(dataSetItem_.timezone()));
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
+
+    return dt;
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error";
+  }
+
+  return nullptr;
 }
 
 void terrama2::collector::ParserFirePoint::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)

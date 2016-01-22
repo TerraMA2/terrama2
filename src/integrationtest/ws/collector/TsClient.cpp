@@ -682,6 +682,8 @@ void TsClient::testUpdateDataSet()
       {
         terrama2::core::Filter filter = dataSet.dataSetItems().at(i).filter();
 
+
+        QFAIL("Fix this test");
         //FIXME: Fix this test
 //        te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-20 23:59:59.000")));
 //        std::unique_ptr< te::dt::DateTime > discardBefore(td);

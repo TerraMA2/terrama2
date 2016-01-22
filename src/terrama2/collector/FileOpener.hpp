@@ -55,7 +55,7 @@ namespace terrama2
 
           \param attribute - attribute - contains the file operation mode. Ex. RW (read-write).
 
-          \exception std::runtime_error - when unable to open the file.
+          \exception FileOpenException - when could not open file.
          */
 
         FileOpener(const char* filename, const char* attribute);

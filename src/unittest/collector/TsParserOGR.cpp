@@ -67,7 +67,7 @@ void TsParserOGR::TestEmptyFile()
   try
   {
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = uri.url().toStdString();
+    transferenceData.uriTemporary = uri.url().toStdString();
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
@@ -124,7 +124,7 @@ void TsParserOGR::TestCsvFile()
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = uri.url().toStdString();
+    transferenceData.uriTemporary = uri.url().toStdString();
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
@@ -166,7 +166,7 @@ void TsParserOGR::TestInvalidFolder()
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = "__DUMMY__";
+    transferenceData.uriTemporary = "__DUMMY__";
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);

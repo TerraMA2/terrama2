@@ -39,6 +39,7 @@
 #include <memory>
 
 //Terrama2
+#include <terrama2/core/Utils.hpp>
 #include <terrama2/core/DataSetItem.hpp>
 #include <terrama2/collector/Exception.hpp>
 #include <terrama2/collector/DataFilter.hpp>
@@ -57,6 +58,7 @@
 
 void TsParserPcdInpe::TestParseOk()
 {
+
   class RAIIQFile
   {
   public:
@@ -86,6 +88,7 @@ void TsParserPcdInpe::TestParseOk()
   // N/A for date
   // <DCPnumber>.<columnName>
 
+ // qfile.write("N/\n");
   qfile.write("N/A,30885.Bateria,30885.CorrPSol,30885.DirVelVentoMax,30885.DirVento,30885.Pluvio,30885.PressaoAtm,30885.RadSolAcum,30885.TempAr,30885.TempMax,30885.TempMin,30885.TempSolo10,30885.TempSolo20,30885.TempSolo50,30885.UmidInt,30885.UmidRel,30885.UmidSolo10,30885.UmidSolo20,30885.UmidSolo50,30885.VelVento,30885.VelVentoMax\n");
   qfile.write("11/01/2015 03:00:00,12.600,0.000,170.000,170.000,0.000,902.000,0.000,19.500,31.000,15.500,35.500,35.500,35.500,15.000,72.000,0.420,0.080,0.600,5.000,10.000\n");
   qfile.write("11/01/2015 06:00:00,12.600,0.000,180.000,170.000,0.000,901.200,0.000,19.000,31.000,15.500,35.500,35.500,35.500,15.000,74.000,0.340,0.020,0.600,2.900,7.600\n");
@@ -108,7 +111,7 @@ void TsParserPcdInpe::TestParseOk()
   try
   {
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uri_temporary = uri.url().toStdString();
+    transferenceData.uriTemporary = uri.url().toStdString();
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
@@ -123,6 +126,52 @@ void TsParserPcdInpe::TestParseOk()
     parser.read(filter, transferenceDataVec);
 
     QVERIFY(transferenceDataVec.size() == 1);
+
+    std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataSet;
+    if(dataset->moveNext())
+    {
+      std::unique_ptr<te::dt::DateTime> dateTime(dataset->getDateTime("DateTime"));
+      QVERIFY(dateTime.get());
+      te::dt::TimeInstantTZ* timeTz = dynamic_cast<te::dt::TimeInstantTZ*>(dateTime.get());
+      QVERIFY(timeTz);
+
+      boost::gregorian::date localDate = timeTz->getTimeInstantTZ().date();
+      QVERIFY(localDate.day() == 1);
+      QVERIFY(localDate.month() == 11);
+      QVERIFY(localDate.year() == 2015);
+
+      boost::posix_time::time_duration time = timeTz->getTimeInstantTZ().utc_time().time_of_day();
+      QCOMPARE(time.hours(), 3);
+      QCOMPARE(time.minutes(), 0);
+      QCOMPARE(time.seconds(), 0);
+    }
+
+  }
+  catch(...)
+  {
+    QFAIL(NO_EXCEPTION_EXPECTED);
+  }
+
+  return;
+
+/*
+  try
+  {
+    terrama2::core::DataSetItem item;
+    item.setMask("%.%.%.%.%..txt");
+
+    terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
+
+    terrama2::collector::TransferenceData transferenceData;
+    transferenceData.uri_temporary = terrama2::core::FindInTerraMA2Path("data/pcd_inpe/30885.txt");
+
+    std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
+    transferenceDataVec.push_back(transferenceData);
+
+    terrama2::collector::ParserPcdInpe parser;
+    parser.read(filter, transferenceDataVec);
+
+    QVERIFY(transferenceDataVec.size() == 21);
 
     std::shared_ptr<te::da::DataSet> dataset = transferenceDataVec.at(0).teDataset;
     if(dataset->moveNext())
@@ -150,6 +199,7 @@ void TsParserPcdInpe::TestParseOk()
   }
 
   return;
+  */
 }
 
 void TsParserPcdInpe::TestParseFail()

@@ -53,6 +53,8 @@ const char* WRONG_TYPE_EXCEPTION = "Wrong exception type";
 
 const char* UNEXPECTED_BEHAVIOR = "Should not be here";
 
+const char* CANT_ACCESS_DATA = "Can't access data";
+
 void initializeTerralib()
 {
   // Initialize the Terralib support

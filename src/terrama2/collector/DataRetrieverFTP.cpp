@@ -40,6 +40,7 @@
 #include "Log.hpp"
 #include "FileOpener.hpp"
 #include "CurlOpener.hpp"
+#include "../core/Logger.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -109,13 +110,13 @@ void terrama2::collector::DataRetrieverFTP::close()
 
 }
 
-static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
+size_t terrama2::collector::DataRetrieverFTP::write_response(void *ptr, size_t size, size_t nmemb, void *data)
 {
   FILE *writehere = (FILE *)data;
   return fwrite(ptr, size, nmemb, writehere);
 }
 
-size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
+size_t terrama2::collector::DataRetrieverFTP::write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t sizeRead = size * nmemb;
 
@@ -124,6 +125,7 @@ size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 
   return sizeRead;
 }
+
 
 std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::core::DataSetItem& datasetitem,
                                                                 DataFilterPtr filter,
@@ -151,7 +153,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 // List files and directories FTP server
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
 // Get data to be written in vector
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_vector);
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, boost::bind(&terrama2::collector::DataRetrieverFTP::write_vector, this, _1, _2, _3, _4));
 // Set a pointer to our block data
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void *)&block);
 // performs the configurations of curl_easy_setop
@@ -166,9 +168,11 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       }
       else
       {
-        QString messageError = QObject::tr("Could not list files in the FTP server. \n\n");
-        messageError.append(curl_easy_strerror(status));
-        throw DataRetrieverFTPException() << ErrorDescription(messageError);
+        QString errMsg = QObject::tr("Could not list files in the FTP server. \n\n");
+        errMsg.append(curl_easy_strerror(status));
+
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataRetrieverFTPException() << ErrorDescription(errMsg);
       }
 
 // filter file names that should be downloaded.
@@ -190,7 +194,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
           FileOpener opener(filePath.c_str(),"wb");
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uri_origin.c_str());
 // Get data to be written in file
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, boost::bind(&terrama2::collector::DataRetrieverFTP::write_response, this, _1, _2, _3, _4 ));
 // Set a pointer to our block data
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEDATA, opener.file());
 // performs the configurations of curl_easy_setop
@@ -198,15 +202,18 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
 
           if (res != CURLE_OK)
           {
-            QString messageError = QObject::tr("Could not perform the download. \n\n");
-            messageError.append(curl_easy_strerror(res));
-            throw DataRetrieverFTPException() << ErrorDescription(messageError);
+            QString errMsg = QObject::tr("Could not perform the download. \n\n");
+            errMsg.append(curl_easy_strerror(res));
+
+            TERRAMA2_LOG_ERROR() << errMsg;
+            throw DataRetrieverFTPException() << ErrorDescription(errMsg);
           }
           else
           {
             TransferenceData tmp;
-            tmp.uri_origin = uri_origin;
-            tmp.uri_temporary = "file://"+filePath;
+            tmp.dataSetItem = datasetitem;
+            tmp.uriOrigin = uri_origin;
+            tmp.uriTemporary = "file://"+filePath;
             transferenceDataVec.push_back(tmp);
           }
         }
@@ -216,10 +223,11 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
   }
   catch(const std::exception& e)
   {
-    QString messageError = QObject::tr("Could not perform the download files! \n\n Details: \n");
-    messageError.append(e.what());
+    QString errMsg = QObject::tr("Could not perform the download files! \n\n Details: \n");
+    errMsg.append(e.what());
 
-    throw DataRetrieverFTPException() << ErrorDescription(messageError);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataRetrieverFTPException() << ErrorDescription(errMsg);
   }
 
   catch(...)

@@ -33,10 +33,14 @@
 #include "ParserPcdToa5.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
+#include "../core/Logger.hpp"
 
 // QT
 #include <QDir>
+#include <QUrl>
 #include <QDebug>
+#include <QTemporaryFile>
+#include <QTemporaryDir>
 
 // STL
 #include <memory>
@@ -55,28 +59,86 @@
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/geometry.h>
-#include <terralib/datatype/TimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/datatype.h>
 
 
-te::dt::AbstractData* terrama2::collector::ParserPcdToa5::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType)
+te::dt::AbstractData* terrama2::collector::ParserPcdToa5::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/)
 {
   assert(indexes.size() == 1);
 
   std::string dateTime = dataset->getAsString(indexes[0]);
-//FIXME: follow ParserPcdInpe as model
-  te::dt::TimeInstant* dt = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string(dateTime)));
+
+  boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(dataSetItem_.timezone()));
+  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+  te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
 
   return dt;
 }
 
 // Change the string 2014-01-15 17:13:00 - PCD TOA5 format for timestamp
+void terrama2::collector::ParserPcdToa5::read(terrama2::collector::DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec)
+{
+  QTemporaryDir tempDir;
+  if(!tempDir.isValid())
+  {
+    QString errMsg = QObject::tr("Can't create temporary folder.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw CantCreateTemporaryFolderException() << ErrorDescription(errMsg);
+  }
+
+  for(TransferenceData& transferenceData : transferenceDataVec)
+  {
+    QUrl uri(transferenceData.uriTemporary.c_str());
+    QFileInfo originalInfo(uri.path());
+    QFile file(uri.path());
+    if(!file.open(QIODevice::ReadOnly))
+    {
+      //TODO: log can't create temporary file
+      continue;
+    }
+
+    QFile tempFile(tempDir.path()+"/"+originalInfo.fileName());
+    tempFile.open(QIODevice::WriteOnly);
+    file.readLine();//ignore first line
+    tempFile.write(file.readLine()); //headers line
+
+    //ignore third and fourth lines
+    file.readLine();
+    file.readLine();
+
+    //read all file
+    tempFile.write(file.readAll()); //headers line
+
+    //update file path
+    QFileInfo info(tempFile);
+    transferenceData.uriTemporary = "file://"+info.absoluteFilePath().toStdString();
+  }
+
+  ParserOGR::read(filter, transferenceDataVec);
+}
+
 void terrama2::collector::ParserPcdToa5::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)
 {
-  converter->remove("TIMESTAMP");
+  std::string timestampName = "TIMESTAMP";
+  converter->remove(timestampName);
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
-  converter->add(0, dtProperty, boost::bind(&terrama2::collector::ParserPcdToa5::StringToTimestamp, this, _1, _2, _3));
+  //Find the rigth column to adapt
+  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
+  for(size_t i = 0, size = properties.size(); i < size; ++i)
+  {
+    te::dt::Property* property = properties.at(i);
+    if(property->getName() == timestampName)
+    {
+      //column found
+      converter->add(i, dtProperty, boost::bind(&terrama2::collector::ParserPcdToa5::StringToTimestamp, this, _1, _2, _3));
+      break;
+    }
+  }
 }

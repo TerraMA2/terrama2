@@ -48,18 +48,18 @@ namespace terrama2
   {
     struct TransferenceData
     {
-      core::DataSet dataset;
-      core::DataSetItem datasetItem;
+      core::DataSet dataSet;
+      core::DataSetItem dataSetItem;
 
-      std::string uri_origin;//!< Uri of the original data.
-      std::string uri_temporary;//!< Uri where the data is stored temporary, before final store.
-      std::string uri_storage;//!< Uri where the data storage.
+      std::string uriOrigin;//!< Uri of the original data.
+      std::string uriTemporary;//!< Uri where the data is stored temporary, before final store.
+      std::string uriStorage;//!< Uri where the data storage.
 
-      std::shared_ptr< te::dt::TimeInstantTZ > date_data;//! Date/Time when data was produced.
-      std::shared_ptr< te::dt::TimeInstantTZ > date_collect;//! Date/Time when data was collected.
+      std::shared_ptr< te::dt::TimeInstantTZ > dateData;//! Date/Time when data was produced.
+      std::shared_ptr< te::dt::TimeInstantTZ > dateCollect;//! Date/Time when data was collected.
 
-      std::shared_ptr<te::da::DataSet> teDataset;
-      std::shared_ptr<te::da::DataSetType> teDatasetType;
+      std::shared_ptr<te::da::DataSet> teDataSet;
+      std::shared_ptr<te::da::DataSetType> teDataSetType;
     };
   }
 }
