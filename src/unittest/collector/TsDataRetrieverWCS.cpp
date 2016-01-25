@@ -31,6 +31,8 @@
 #include "TsDataRetrieverWCS.hpp"
 #include "terrama2/core/DataProvider.hpp"
 #include "terrama2/collector/DataRetrieverWCS.hpp"
+#include "terrama2/collector/TransferenceData.hpp"
+#include "terrama2/collector/DataFilter.hpp"
 
 
 void TsDataRetrieverWCS::initTestCase()
@@ -59,14 +61,22 @@ void TsDataRetrieverWCS::cleanup()
 
 void TsDataRetrieverWCS::TestIsOpen()
 {
-  terrama2::core::DataProvider dataprovider("DataProviderTest");
+  try{
 
-  dataprovider.setUri("http://flanche.net:9090/rasdaman/ows?SERVICE=WCS");
 
-  terrama2::collector::DataRetrieverWCS dataRetriever(dataprovider);
+    terrama2::core::DataProvider dataprovider("DataProviderTest");
 
-  if(!dataRetriever.isOpen())
-    QFAIL("Should not be here");
+    dataprovider.setUri("http://flanche.net:9090/rasdaman/ows?SERVICE=WCS");
+
+    terrama2::collector::DataRetrieverWCS dataRetriever(dataprovider);
+
+    if(!dataRetriever.isOpen())
+      QFAIL("Should not be here");
+  }
+  catch(...)
+  {
+
+  }
 }
 
 void TsDataRetrieverWCS::TestWrongAdress()
@@ -81,7 +91,7 @@ void TsDataRetrieverWCS::TestWrongAdress()
     QFAIL("Should not be here");
 }
 
-void TsDataRetrieverWCS::TestNoService()
+void TsDataRetrieverWCS::TestNoParameterService()
 {
   terrama2::core::DataProvider dataprovider("DataProviderTest");
 
@@ -91,4 +101,30 @@ void TsDataRetrieverWCS::TestNoService()
 
   if(dataRetriever.isOpen())
     QFAIL("Should not be here");
+}
+
+
+void TsDataRetrieverWCS::TestRetriveData()
+{
+  try
+  {
+    terrama2::core::DataProvider dataprovider("DataProviderTest");
+    terrama2::core::DataSetItem datasetitem;
+    std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
+    std::shared_ptr< terrama2::collector::DataFilter> filter;
+
+    dataprovider.setUri("http://flanche.net:9090/rasdaman/ows?SERVICE=WCS");
+
+    terrama2::collector::DataRetrieverWCS dataRetriever(dataprovider);
+
+    if(!dataRetriever.isOpen())
+      QFAIL("Service is not avaible!");
+
+    if(dataRetriever.retrieveData(datasetitem, filter, transferenceDataVec).empty())
+      QFAIL("Should not be here");
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here");
+  }
 }

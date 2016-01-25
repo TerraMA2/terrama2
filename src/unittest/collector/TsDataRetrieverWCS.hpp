@@ -55,7 +55,10 @@ private slots:
 
     void TestWrongAdress();
 
-    void TestNoService();
+    // Test for no parameter
+    void TestNoParameterService();
+
+    void TestRetriveData();
 
 
     //******End of Test functions****
