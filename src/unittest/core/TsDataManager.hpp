@@ -64,6 +64,8 @@ class TsDataManager : public QObject
     void testLoad();
     void testUnload();
 
+    void testMemoryDataManager();
+
     //Data provider tests
 
     // Tests for add
