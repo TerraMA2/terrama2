@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorService.hpp
+  \file terrama2/collector/CollectorService_old.hpp
 
   \brief Manages the collection of data in the appropriate time.
 
   \author Jano Simas, Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
-#define __TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
+#ifndef __TERRAMA2_COLLECTOR_CollectorService_old_OLD_HPP__
+#define __TERRAMA2_COLLECTOR_CollectorService_old_OLD_HPP__
 
 // TerraMA2
 #include "../core/DataProvider.hpp"
@@ -65,7 +65,7 @@ namespace terrama2
   namespace collector
   {
     /*!
-      \class CollectorService
+      \class CollectorService_old
 
       \brief Manages the collection of data in the appropriate time.
 
@@ -77,17 +77,17 @@ namespace terrama2
       It may also be signaled of new datasets to be added to the collect list
       or removed from the list.
      */
-    class CollectorService : public QObject, public boost::noncopyable
+    class CollectorService_old : public QObject, public boost::noncopyable
     {
       Q_OBJECT
 
     public:
 
-      //! Creates a CollectorService object, does not start the service.
-      CollectorService(QObject* parent = nullptr);
+      //! Creates a CollectorService_old object, does not start the service.
+      CollectorService_old(QObject* parent = nullptr);
 
       //! Stops and finishes current running service.
-      ~CollectorService();
+      ~CollectorService_old();
 
       /*!
           \brief Start the main loop thread for collecting data.
@@ -118,7 +118,7 @@ namespace terrama2
       void addProvider(const core::DataProvider& provider);
 
       /*!
-          \brief Remove a core::DataProvider and all associated core::DataSet from the CollectorService list.
+          \brief Remove a core::DataProvider and all associated core::DataSet from the CollectorService_old list.
 
           The associated core::DataSet will be removed first.
 
@@ -153,7 +153,7 @@ namespace terrama2
       void addDataset(const core::DataSet& dataset);
 
       /*!
-          \brief Removes a core::DataSet from the CollectorService list.
+          \brief Removes a core::DataSet from the CollectorService_old list.
 
           \note If the core::DataSet does not exist nothing is done.
 
@@ -162,7 +162,7 @@ namespace terrama2
       void removeDataset(const core::DataSet& dataset);
 
       /*!
-          \brief Removes a core::DataSet from the CollectorService list.
+          \brief Removes a core::DataSet from the CollectorService_old list.
 
           \note If the core::DataSet does not exist nothing is done.
 
@@ -253,4 +253,4 @@ namespace terrama2
   }
 }
 
-#endif //__TERRAMA2_COLLECTOR_COLLECTORSERVICE_HPP__
+#endif //__TERRAMA2_COLLECTOR_CollectorService_old_OLD_HPP__

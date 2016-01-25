@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/collector/CollectorService.cpp
+  \file terrama2/collector/CollectorService_old.cpp
 
   \brief  Manages the collection of data in the appropriate time.
 
@@ -28,7 +28,7 @@
 */
 
 // TerraMA2
-#include "CollectorService.hpp"
+#include "CollectorService_old.hpp"
 #include "DataRetriever.hpp"
 #include "DataFilter.hpp"
 #include "Exception.hpp"
@@ -66,31 +66,31 @@
 #include <utility>
 
 
-void terrama2::collector::CollectorService::populateData()
+void terrama2::collector::CollectorService_old::populateData()
 {
   const auto& dataManager = core::DataManager::getInstance();
   const std::vector<terrama2::core::DataProvider>& dataproviderVec = dataManager.providers();
-  foreach (const auto& dataprovider, dataproviderVec)
+  for(const auto& dataprovider : dataproviderVec)
     addProvider(dataprovider);
 
   std::vector<terrama2::core::DataSet> datasetVec = dataManager.dataSets();
-  foreach (const auto& dataset, datasetVec)
+  for(const auto& dataset : datasetVec)
     addDataset(dataset);
 }
 
-terrama2::collector::CollectorService::CollectorService(QObject *parent)
+terrama2::collector::CollectorService_old::CollectorService_old(QObject *parent)
   : QObject(parent),
     stop_(false)
 {
   connectDataManager();
 }
 
-terrama2::collector::CollectorService::~CollectorService()
+terrama2::collector::CollectorService_old::~CollectorService_old()
 {
   stop();
 }
 
-void terrama2::collector::CollectorService::start(int threadNumber)
+void terrama2::collector::CollectorService_old::start(int threadNumber)
 {
 // if service already running, throws
   if(loopThread_.valid())
@@ -105,7 +105,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
   {
     stop_ = false;
     //start the loop thread
-    loopThread_ = std::async(std::launch::async, &CollectorService::processingLoop, this);
+    loopThread_ = std::async(std::launch::async, &CollectorService_old::processingLoop, this);
 
     //check for the number o threads to create
     if(threadNumber)
@@ -115,7 +115,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
 
     //Starts collection threads
     for (int i = 0; i < threadNumber; ++i)
-      threadPool_.push_back(std::async(std::launch::async, &CollectorService::threadProcess, this));
+      threadPool_.push_back(std::async(std::launch::async, &CollectorService_old::threadProcess, this));
   }
   catch(const std::exception& e)
   {
@@ -129,7 +129,7 @@ void terrama2::collector::CollectorService::start(int threadNumber)
   populateData();
 }
 
-void terrama2::collector::CollectorService::stop() noexcept
+void terrama2::collector::CollectorService_old::stop() noexcept
 {
   {
     std::lock_guard<std::mutex> lock (mutex_);
@@ -153,7 +153,7 @@ void terrama2::collector::CollectorService::stop() noexcept
   }
 }
 
-void terrama2::collector::CollectorService::addProvider(const core::DataProvider& provider)
+void terrama2::collector::CollectorService_old::addProvider(const core::DataProvider& provider)
 {
   try
   {
@@ -175,7 +175,7 @@ void terrama2::collector::CollectorService::addProvider(const core::DataProvider
   }
 }
 
-void terrama2::collector::CollectorService::process(const uint64_t dataProviderID, const std::vector<uint64_t>& dataSetVect)
+void terrama2::collector::CollectorService_old::process(const uint64_t dataProviderID, const std::vector<uint64_t>& dataSetVect)
 {
   try
   {
@@ -191,7 +191,7 @@ void terrama2::collector::CollectorService::process(const uint64_t dataProviderI
   }
 }
 
-void terrama2::collector::CollectorService::collect(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet>& dataSetList)
+void terrama2::collector::CollectorService_old::collect(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet>& dataSetList)
 {
   //if not active, nothing to do
   if(dataProvider.status() != core::DataProvider::ACTIVE)
@@ -324,7 +324,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
   }
 }
 
-void terrama2::collector::CollectorService::threadProcess()
+void terrama2::collector::CollectorService_old::threadProcess()
 {
   try
   {
@@ -369,7 +369,7 @@ void terrama2::collector::CollectorService::threadProcess()
   }
 }
 
-void terrama2::collector::CollectorService::processingLoop()
+void terrama2::collector::CollectorService_old::processingLoop()
 {
   while(true)
   {
@@ -412,22 +412,22 @@ void terrama2::collector::CollectorService::processingLoop()
   }
 }
 
-void terrama2::collector::CollectorService::connectDataManager()
+void terrama2::collector::CollectorService_old::connectDataManager()
 {
   core::DataManager &dataManager = core::DataManager::getInstance();
 
   //DataProvider signals
-  connect(&dataManager, &terrama2::core::DataManager::dataProviderAdded,   this, &terrama2::collector::CollectorService::addProvider,    Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataProviderRemoved, this, &terrama2::collector::CollectorService::removeProvider, Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataProviderUpdated, this, &terrama2::collector::CollectorService::updateProvider, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderAdded,   this, &terrama2::collector::CollectorService_old::addProvider,    Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderRemoved, this, &terrama2::collector::CollectorService_old::removeProvider, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataProviderUpdated, this, &terrama2::collector::CollectorService_old::updateProvider, Qt::UniqueConnection);
 
   //dataset signals
-  connect(&dataManager, &terrama2::core::DataManager::dataSetAdded  , this, &terrama2::collector::CollectorService::addDataset       , Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataSetRemoved, this, &terrama2::collector::CollectorService::removeDatasetById, Qt::UniqueConnection);
-  connect(&dataManager, &terrama2::core::DataManager::dataSetUpdated, this, &terrama2::collector::CollectorService::updateDataset    , Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetAdded  , this, &terrama2::collector::CollectorService_old::addDataset       , Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetRemoved, this, &terrama2::collector::CollectorService_old::removeDatasetById, Qt::UniqueConnection);
+  connect(&dataManager, &terrama2::core::DataManager::dataSetUpdated, this, &terrama2::collector::CollectorService_old::updateDataset    , Qt::UniqueConnection);
 }
 
-void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
+void terrama2::collector::CollectorService_old::addToQueue(uint64_t datasetId)
 {
   try
   {
@@ -452,7 +452,7 @@ void terrama2::collector::CollectorService::addToQueue(uint64_t datasetId)
 
 }
 
-void terrama2::collector::CollectorService::removeProvider(const terrama2::core::DataProvider& dataProvider)
+void terrama2::collector::CollectorService_old::removeProvider(const terrama2::core::DataProvider& dataProvider)
 {
   for(const core::DataSet& dataSet : dataProvider.datasets())
     removeDatasetById(dataSet.id());
@@ -470,7 +470,7 @@ void terrama2::collector::CollectorService::removeProvider(const terrama2::core:
   }
 }
 
-void terrama2::collector::CollectorService::updateProvider(const core::DataProvider &dataProvider)
+void terrama2::collector::CollectorService_old::updateProvider(const core::DataProvider &dataProvider)
 {
   try
   {
@@ -485,7 +485,7 @@ void terrama2::collector::CollectorService::updateProvider(const core::DataProvi
 }
 
 void
-terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
+terrama2::collector::CollectorService_old::addDataset(const core::DataSet &dataset)
 {
   if(dataset.status() != core::DataSet::ACTIVE
      || dataset.id() == 0)
@@ -520,12 +520,12 @@ terrama2::collector::CollectorService::addDataset(const core::DataSet &dataset)
   return;
 }
 
-void terrama2::collector::CollectorService::removeDataset(const terrama2::core::DataSet& dataset)
+void terrama2::collector::CollectorService_old::removeDataset(const terrama2::core::DataSet& dataset)
 {
   removeDatasetById(dataset.id());
 }
 
-void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId)
+void terrama2::collector::CollectorService_old::removeDatasetById(uint64_t datasetId)
 {
   std::lock_guard<std::mutex> lock (mutex_);
 
@@ -550,7 +550,7 @@ void terrama2::collector::CollectorService::removeDatasetById(uint64_t datasetId
 
 }
 
-void terrama2::collector::CollectorService::updateDataset(const core::DataSet &dataset)
+void terrama2::collector::CollectorService_old::updateDataset(const core::DataSet &dataset)
 {
   removeDataset(dataset);
   addDataset(dataset);
