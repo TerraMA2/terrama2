@@ -78,6 +78,18 @@ void terrama2::core::Logger::initialize()
   boost::log::core::get()->add_sink(sink_);
 
   boost::log::core::get()->add_global_attribute("TimeStamp", boost::log::attributes::local_clock());
+
+  enableLog();
+}
+
+void terrama2::core::Logger::enableLog()
+{
+  boost::log::core::get()->set_logging_enabled(true);
+}
+
+void terrama2::core::Logger::disableLog()
+{
+  boost::log::core::get()->set_logging_enabled(false);
 }
 
 void terrama2::core::Logger::addStream(const std::string& stream_name)
