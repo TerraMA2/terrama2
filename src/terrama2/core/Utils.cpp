@@ -335,3 +335,13 @@ void terrama2::core::initializeLogger(const std::string& pathFile)
   terrama2::core::Logger::getInstance().addStream(pathFile);
   terrama2::core::Logger::getInstance().initialize();
 }
+
+void terrama2::core::disableLogger()
+{
+  terrama2::core::Logger::getInstance().disableLog();
+}
+
+void terrama2::core::enableLogger()
+{
+  terrama2::core::Logger::getInstance().enableLog();
+}

@@ -188,6 +188,20 @@ namespace terrama2
     */
     void initializeLogger(const std::string& pathFile);
 
+    /*!
+      \brief It disables the global TerraMA2 logger module.
+
+      It may be useful during tests execution to do not display status message in data stream.
+    */
+    void disableLogger();
+
+    /*!
+      \brief It enables the global TerraMA2 logger module.
+
+      \note It just enable logging core application. It is not guaranteed that TerraMA2 logger has been initialized to display output in console and file.
+    */
+    void enableLogger();
+
 
   } // end namespace core
 }   // end namespace terrama2

@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file unittest/core/TsLogger.cpp
+  \file unittest/core/TsLogger.hpp
 
-  \brief Test for logging
+  \brief Test for TerraMA2 logging module
 
   \author Raphael Willian da Costa
 */
