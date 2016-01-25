@@ -173,6 +173,8 @@ void TsDataManager::testLoad()
   {
     QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataManagerLoaded()));
 
+    DataManager::getInstance().load();
+
     DataSet dataSet = createDataSet();
     DataManager::getInstance().add(dataSet);
 
@@ -180,12 +182,9 @@ void TsDataManager::testLoad()
 
     DataManager::getInstance().load();
 
-    QCOMPARE(spy.count(), 1);
 
-    // Calling load again should have no effect
-    DataManager::getInstance().load();
+    QCOMPARE(spy.count(), 2);
 
-    QCOMPARE(spy.count(), 1);
 
     QVERIFY2(DataManager::getInstance().providers().size() == 1, "List should have one provider!");
     QVERIFY2(DataManager::getInstance().dataSets().size() == 1, "List should have one dataset!");
@@ -1488,17 +1487,14 @@ void TsDataManager::testDatasetValidName()
   {
     QFAIL(NO_EXCEPTION_EXPECTED);
   }
-
-
 }
-
 
 void TsDataManager::testListDataSetWihtAdditionalMap()
 {
   try
   {
     auto dataset = createDataSet();
-    dataset.setKind(DataSet::ADDITIONAL_MAP);
+    dataset.setKind(DataSet::STATIC_DATA);
     DataManager::getInstance().add(dataset);
 
     auto datasets = DataManager::getInstance().dataSets();
@@ -1514,7 +1510,28 @@ void TsDataManager::testListDataSetWihtAdditionalMap()
   {
     QFAIL(NO_EXCEPTION_EXPECTED);
   }
+}
+
+void TsDataManager::testMemoryDataManager()
+{
+  DataManager::getInstance().unload();
+
+
+  std::vector<DataProvider> vecProviders;
+  auto provider = createDataProvider();
+  provider.setId(1);
+
+  vecProviders.push_back(provider);
+
+  DataManager::getInstance().load(vecProviders);
+
+  auto foundProvider = DataManager::getInstance().findDataProvider(1);
+
+  QVERIFY2(provider == foundProvider, "Should be the same.");
+
+
+  DataManager::getInstance().unload();
+  DataManager::getInstance().load();
 
 
 }
-

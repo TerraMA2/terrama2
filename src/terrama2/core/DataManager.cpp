@@ -54,11 +54,55 @@ struct terrama2::core::DataManager::Impl
 {
   std::map<uint64_t, DataProvider> providers; //!< A map from data-provider-id to data-provider.
   std::map<uint64_t, DataSet> datasets;       //!< A map from data-set-id to dataset.
-  bool dataLoaded;                               //!< A boolean that defines if the data has already been loaded.
-  std::mutex mtx;                                //!< A mutex to syncronize all operations.
+  bool dataLoaded;                            //!< A boolean that defines if the data has already been loaded.
+  std::mutex mtx;                             //!< A mutex to syncronize all operations.
+  bool memory;                                //!< Defines if the DataManager will store data only in memory.
 };
 
 void terrama2::core::DataManager::load()
+{
+
+// Inside a block so the lock is released before emitting the signal
+  {
+// only one thread at time can access the data
+    std::lock_guard<std::mutex> lock(pimpl_->mtx);
+
+// if the data has already been loaded there is nothing to be done.
+    if(pimpl_->dataLoaded)
+      return;
+
+    pimpl_->memory = false;
+
+    assert(pimpl_->providers.empty());
+    assert(pimpl_->datasets.empty());
+
+// otherwise, we must search for and load all metadata information
+    std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+
+// retrieve all data providers from database
+    std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
+
+// index all data providers and theirs datasets
+    for(auto& provider : providers)
+    {
+
+      pimpl_->providers[provider.id()] = provider;
+
+      const std::vector<DataSet>& datasets = provider.datasets();
+
+      for(auto& dataset : datasets)
+        pimpl_->datasets[dataset.id()] = dataset;
+    }
+
+    pimpl_->dataLoaded = true;
+  }
+
+// emits a signal in order to notify the application that the data manager has been loaded.
+  emit dataManagerLoaded();
+}
+
+
+void terrama2::core::DataManager::load(std::vector<DataProvider> providers)
 {
 
 // Inside a block so the lock is released before emitting the signal
@@ -71,14 +115,10 @@ void terrama2::core::DataManager::load()
     if(pimpl_->dataLoaded)
       return;
 
+    pimpl_->memory = true;
+
     assert(pimpl_->providers.empty());
     assert(pimpl_->datasets.empty());
-
-// otherwise, we must search for and load all metadata information
-    std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
-
-// retrieve all data providers from database
-    std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
 
 // index all data providers and theirs datasets
     for(auto& provider : providers)
@@ -134,19 +174,26 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
     try
     {
-      std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+      std::auto_ptr<te::da::DataSourceTransactor> transactor;
 
-      transactor->begin();
+      if(!pimpl_->memory)
+      {
+        transactor = ApplicationController::getInstance().getTransactor();
 
-      dao::DataProviderDAO::save(provider, *transactor, shallowSave);
+        transactor->begin();
 
-      transactor->commit();
+        dao::DataProviderDAO::save(provider, *transactor, shallowSave);
+
+        transactor->commit();
+      }
+
 
       if(!shallowSave)
       {
         for(auto& dataset: provider.datasets())
         {
-          dao::DataSetDAO::save(dataset, *transactor, shallowSave);
+          if(!pimpl_->memory)
+            dao::DataSetDAO::save(dataset, *transactor, shallowSave);
 
           pimpl_->datasets[dataset.id()] = dataset;
         }
@@ -213,16 +260,17 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
 
     provider = it->second;
 
-
-    std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
-
     try
     {
-      transactor->begin();
+      if(!pimpl_->memory)
+      {
+        std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+        transactor->begin();
 
-      dao::DataSetDAO::save(dataset, *transactor, shallowSave);
+        dao::DataSetDAO::save(dataset, *transactor, shallowSave);
 
-      transactor->commit();
+        transactor->commit();
+      }
 
       it->second.add(dataset);
       pimpl_->datasets[dataset.id()] = dataset;
@@ -281,16 +329,17 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
               ErrorDescription(QObject::tr("Can not update a provider not registered in the data manager."));
       }
 
-      std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+      auto transactor = ApplicationController::getInstance().getTransactor();
+      if(!pimpl_->memory)
+      {
+        transactor->begin();
 
-      transactor->begin();
-
-      dao::DataProviderDAO::update(provider, *transactor, shallowSave);
+        dao::DataProviderDAO::update(provider, *transactor, shallowSave);
+      }
 
       if(!shallowSave)
       {
         std::vector<uint64_t> ids = dao::DataProviderDAO::getDatasetsIds(provider.id(), *transactor);
-
 
         for(auto& dataset: provider.datasets())
         {
@@ -301,7 +350,9 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
             // Remove from the list, so what is left in this vector are the datasets to remove
             ids.erase(it);
 
-            dao::DataSetDAO::update(dataset, *transactor, shallowSave);
+            if(!pimpl_->memory)
+              dao::DataSetDAO::update(dataset, *transactor, shallowSave);
+
             pimpl_->datasets[dataset.id()] = dataset;
             updated.push_back(dataset);
           }
@@ -309,18 +360,20 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
           // Id is 0 for new items
           if(dataset.id() == 0)
           {
-            dao::DataSetDAO::save(dataset, *transactor, shallowSave);
+            if(!pimpl_->memory)
+              dao::DataSetDAO::save(dataset, *transactor, shallowSave);
             added.push_back(dataset);
           }
         }
 
-        // What's is left in vector are the the removed datasets.
+        // What is left in vector are the the removed datasets.
         for(auto datasetId : ids)
         {
-          dao::DataSetDAO::remove(datasetId, *transactor);
+          if(!pimpl_->memory)
+            dao::DataSetDAO::remove(datasetId, *transactor);
           removed.push_back(datasetId);
 
-// removes dataset from the map
+          // removes dataset from the map
 
           auto it = pimpl_->datasets.find(datasetId);
           if(it == pimpl_->datasets.end())
@@ -335,7 +388,8 @@ void terrama2::core::DataManager::update(DataProvider& provider, const bool shal
         }
       }
 
-      transactor->commit();
+      if(!pimpl_->memory)
+        transactor->commit();
 
       pimpl_->providers[provider.id()] = provider;
     }
@@ -410,13 +464,16 @@ void terrama2::core::DataManager::update(DataSet& dataset, const bool shallowSav
       if(itDs == pimpl_->datasets.end())
         throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not update a nonexistent dataset."));
 
-      std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+      if(!pimpl_->memory)
+      {
+        std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
-      transactor->begin();
+        transactor->begin();
 
-      dao::DataSetDAO::update(dataset, *transactor, shallowSave);
+        dao::DataSetDAO::update(dataset, *transactor, shallowSave);
 
-      transactor->commit();
+        transactor->commit();
+      }
 
       pimpl_->datasets[dataset.id()] = dataset;
 
@@ -464,13 +521,16 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
       {
         dataProvider = itDp->second;
 
-        std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+        if(!pimpl_->memory)
+        {
+          std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
-        transactor->begin();
+          transactor->begin();
 
-        dao::DataProviderDAO::remove(id, *transactor.get());
+          dao::DataProviderDAO::remove(id, *transactor.get());
 
-        transactor->commit();
+          transactor->commit();
+        }
 
         // removes all related datasets from the map
         for(auto dataSet: dataProvider.datasets())
@@ -532,7 +592,6 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
       throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove a dataset with identifier: 0."));
     }
 
-    std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
     try
     {
@@ -542,11 +601,15 @@ void terrama2::core::DataManager::removeDataSet(const uint64_t id)
         throw InvalidArgumentException() << ErrorDescription(QObject::tr("Can not remove a nonexistent dataset."));
       }
 
-      transactor->begin();
+      if(!pimpl_->memory)
+      {
+        auto transactor = ApplicationController::getInstance().getTransactor();
+        transactor->begin();
 
-      dao::DataSetDAO::remove(id, *transactor.get());
+        dao::DataSetDAO::remove(id, *transactor.get());
 
-      transactor->commit();
+        transactor->commit();
+      }
 
 // removes dataset from the map
 

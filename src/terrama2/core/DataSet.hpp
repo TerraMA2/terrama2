@@ -78,8 +78,7 @@ namespace terrama2
           PCD_TYPE = 2, //!< Data series from fixed location sensors.
           OCCURENCE_TYPE = 3, //!< Events that happens at a given place and time.
           GRID_TYPE = 4, //!< For sattelite images or grid data.
-          ADDITIONAL_MAP, //!< Identifies a dataset used as an additional map for the analysis.
-          MONITORED_OBJECT //!< Identifies a dataset used as an monitored object for the analysis.
+          STATIC_DATA = 5, //!< Identifies a static data.
         };
 
         //! Dataset status.
@@ -107,7 +106,7 @@ namespace terrama2
         /*! \brief Returns the identifier of the DataSet. */
         uint64_t id() const;
 
-        /*! \brief Sets the identifier of the DataSet. */
+        /*! \brief Sets the identifier in the DataSet, Intersection and in each DataSetItem. */
         void setId(uint64_t id);
 
         /*! \brief Returns the name of the DataSet. */

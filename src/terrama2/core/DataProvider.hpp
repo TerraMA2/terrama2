@@ -104,7 +104,7 @@ namespace terrama2
         /*! \brief Returns the identifier of the DataProvider. */
         uint64_t id() const;
 
-        /*! \brief Sets the identifier of the DataProvider. */
+        /*! \brief Sets the identifier in the DataProvider and in each DataSet that it contains. */
         void setId(uint64_t id);
 
         /*! \brief Returns the name of the DataProvider. */
