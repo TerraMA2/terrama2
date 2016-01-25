@@ -40,12 +40,13 @@
 #include "CurlOpener.hpp"
 #include "DataRetrieverWCS.hpp"
 #include "Exception.hpp"
+#include "FileOpener.hpp"
 
 
 terrama2::collector::DataRetrieverWCS::DataRetrieverWCS(const core::DataProvider& dataprovider)
   : DataRetriever(dataprovider)
 {
-
+  folder_ = "/tmp/";
 }
 
 
@@ -61,7 +62,7 @@ void terrama2::collector::DataRetrieverWCS::open()
 }
 
 
-size_t write_callback(void *ptr, size_t size, size_t nmemb, void *data)
+size_t write_xml_callback(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t sizeRead = size * nmemb;
 
@@ -70,6 +71,14 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *data)
 
   return sizeRead;
 }
+
+
+size_t write_file_callback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+  FILE *writehere = (FILE *)data;
+  return fwrite(ptr, size, nmemb, writehere);
+}
+
 
 bool terrama2::collector::DataRetrieverWCS::isOpen()
 {
@@ -85,11 +94,12 @@ bool terrama2::collector::DataRetrieverWCS::isOpen()
     // Verifies that the WCS address is valid
     if(curl.fcurl())
     {
+      // VINICIUS: WCS version on uri
       std::string url = dataprovider_.uri() + "&REQUEST=GetCapabilities";
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, url.c_str());
 
       // Get data to be written
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_callback);
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_xml_callback);
       // Set a pointer to our xml string
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void*)&xml);
       /* Perform the request, status will get the return code */
@@ -124,7 +134,6 @@ bool terrama2::collector::DataRetrieverWCS::isOpen()
     throw DataRetrieverWCSException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the files download!"));
   }
 
-
   return true;
 }
 
@@ -137,5 +146,52 @@ void terrama2::collector::DataRetrieverWCS::close()
                                                                  DataFilterPtr filter,
                                                                  std::vector<terrama2::collector::TransferenceData>& transferenceDataVec)
  {
-    return "";
+   std::string filePath = "";
+
+   try
+   {
+     CurlOpener curl;
+     curl.init();
+
+     CURLcode status;
+
+     if(curl.fcurl())
+     {
+       // VINICUS: remove tests
+       // http://flanche.net:9090/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=DescribeCoverage&COVERAGEID=NIR
+       // http://flanche.net:9090/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=NIR&FORMAT=image/tiff&SUBSET=i(0,100)&SUBSET=j(1,100)&SCALEFACTOR=1
+
+       std::string url = dataprovider_.uri() + "&REQUEST=GetCoverage" + "&VERSION=2.0.1&COVERAGEID=NIR&FORMAT=image/tiff&SUBSET=i(0,1915)&SUBSET=j(1,1076)&SCALEFACTOR=1";
+
+       filePath = folder_ + std::to_string(datasetitem.dataset()) + "_" + std::to_string(datasetitem.id());
+       FileOpener opener(filePath.c_str(),"wb");
+
+       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, url.c_str());
+
+       // Get data to be written
+       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_file_callback);
+       // Set a pointer to our xml string
+       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, opener.file());
+       /* Perform the request, status will get the return code */
+       status = curl_easy_perform(curl.fcurl());
+
+       // Check for errors
+       if(status != CURLE_OK)
+         return "";
+
+     }
+   }
+   catch(const std::exception& e)
+   {
+     QString messageError = QObject::tr("Could not perform the files download! \n\n Details: \n");
+     messageError.append(e.what());
+
+     throw DataRetrieverWCSException() << ErrorDescription(messageError);
+   }
+   catch(...)
+   {
+     throw DataRetrieverWCSException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the files download!"));
+   }
+
+   return filePath;
  }

@@ -82,7 +82,8 @@ namespace terrama2
          */
       virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
-    protected:
+    private:
+      std::string folder_;
 
 
     };
