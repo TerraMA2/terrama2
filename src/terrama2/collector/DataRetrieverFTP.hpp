@@ -74,6 +74,7 @@ namespace terrama2
        */
       virtual ~DataRetrieverFTP();
 
+      //comments on parent
       virtual bool isRetrivable() const noexcept override;
 
       //! Does nothing. In derived classes opens the connectin to the server.
@@ -121,7 +122,7 @@ namespace terrama2
       std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
     };
 
-    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
+    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.
   }
 }
 
