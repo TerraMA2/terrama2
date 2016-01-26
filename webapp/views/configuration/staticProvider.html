@@ -1,0 +1,95 @@
+{% extends "../base/layout.html" %}
+
+{% block title %} TerraMA2 Cadastro de Data Provider (Estático) {% endblock %}
+
+{% block content %}
+
+<div class="col-md-12">
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+              <h3 class="box-title">Cadastro de Data Provider (Estático)</h3>
+            </div>
+            <!-- /.box-header -->
+            <div style="display: block;" class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Nome:</label>
+                            <input class="form-control" id="name" placeholder="Nome do Data Provider" type="text">
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select class="form-control">
+                                <option>FTP</option>
+                                <option>HTTP</option>
+                                <option>FILE</option>
+                                <option>WCS</option>
+                                <option>WFS</option>
+                                <option>SOS</option>
+                            </select>
+                        </div>
+                        <!-- /.form-group -->
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea class="form-control" rows="3" placeholder="Descrição do Data Provider"></textarea>
+                        </div>
+                        <!-- /.form-group -->
+                    </div>
+                    <!-- /.col -->
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Endereço:</label>
+                            <input class="form-control" id="address" placeholder="Endereço do Data Provider" type="text">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Porta:</label>
+                            <input class="form-control" id="port" placeholder="Porta" type="number" min="0" max="65535">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Usuário:</label>
+                            <input class="form-control" id="address" placeholder="Usuário para conexão" type="text">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Senha:</label>
+                            <input class="form-control" id="address" placeholder="Senha de conexão" type="password">
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Caminho Base:</label>
+                            <input class="form-control" id="address" placeholder="Caminho base de destino" type="text">
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.box body -->
+
+            <div class="box-footer">
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Cancelar</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Verificar Conexão</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Salvar</button>
+            </div>
+        </div>
+    </div> <!-- end col md 6 -->
+</div> <!-- end col md 12 -->
+
+{% endblock %}
