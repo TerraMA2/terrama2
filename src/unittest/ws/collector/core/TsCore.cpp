@@ -311,7 +311,7 @@ void TsCore::TestConvertDataSetStructToDataSet()
     dataset_item.id = i;
     dataset_item.dataset = struct_dataSet.id;
     dataset_item.status = 2;
-    dataset_item.mask = "mask" + i;
+    dataset_item.mask = "mask" + std::to_string(i);
     dataset_item.timezone = "-3";
 
     if(i == 2)

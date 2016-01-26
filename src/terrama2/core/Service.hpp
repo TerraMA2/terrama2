@@ -72,7 +72,6 @@ namespace terrama2
       void stop() noexcept;
 
     protected:
-      virtual void populateData() = 0;
       /*!
          \brief Returns if the main loop should continue.
          \return True if there is data to be tasked OR is stop is true.
@@ -88,9 +87,6 @@ namespace terrama2
          \return True if there is more data to be processed.
        */
       virtual bool checkNextData() = 0;
-
-      //! Prepare a task and queue it.
-      virtual void prepareTask() = 0;
 
       //! Process a queued task.
       void processingTaskThread() noexcept;
