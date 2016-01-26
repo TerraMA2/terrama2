@@ -1,7 +1,5 @@
 const KEY = 'terrama2.sid';
 
-const TERRAMA2_PATH = "/";
-
 var express = require('express'),
     path = require('path'),
     bodyParser = require('body-parser'),
