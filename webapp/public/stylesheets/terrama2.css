@@ -136,3 +136,8 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scro
   padding-top: 17px !important;
   padding-bottom: 17px !important;
 }
+
+.terrama2-checkbox-align {
+  margin-top: 19px !important;
+  font-weight: 700 !important;
+}

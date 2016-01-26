@@ -1,0 +1,92 @@
+{% extends "../base/layout.html" %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/stylesheets/terrama2.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/externals/timepicker/bootstrap-timepicker.min.css">
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/javascripts/externals/timepicker/bootstrap-timepicker.min.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $(".timepicker").timepicker({
+          showInputs: false
+        });
+    });
+    </script>
+{% endblock %}
+
+{% block title %} TerraMA2 Cadastro de Data Provider {% endblock %}
+
+{% block content %}
+
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">Cadastro de Dados de Ocorrência</h3>
+            </div>
+            <!-- /.box-header -->
+            <div style="display: block;" class="box-body">
+
+                <!-- Additional Data Component -->
+                {% include "../base/additionalData.html" %}
+
+
+                <!-- Parameters Component -->
+                {% include "../base/parametersData.html" %}
+
+                <!-- Filter component -->
+                <div class="box box-default box-solid">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Filtros</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div style="display: block;" class="box-body">
+                        <div class="row">
+                            <div class="col-md-5">
+                               <div class="col-md-3 col-md-offset-6 col-sm-6">
+                                    <button class="btn btn-primary btn-lg btn-block">Filtro</button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-7">
+                                {# TODO: validate and display filter labels from parameters. #}
+                                <div class="col-md-6">
+                                    <span>Filtro por data: Sim</span>
+                                </div>
+
+                                <div class="col-md-6">  
+                                    <span>Filtro por pré-analise: Não</span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <span>Filtro por área: Não</span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <span>Filtro por camadas: Não</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box group -->
+                </div>
+                <!-- /.box solid -->
+
+            </div>
+            <!-- /.box body -->
+
+            <div class="box-footer">
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Cancelar</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Salvar</button>
+            </div> 
+        </div>
+    </div> <!-- end col md 12 -->
+
+{% endblock %}
