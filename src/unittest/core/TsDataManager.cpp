@@ -151,8 +151,8 @@ DataSet TsDataManager::createDataSet()
   dataSetItem.setSrid(4326);
 
   PCD pcd(dataSetItem);
-  pcd.setUnit("PCD");
-  pcd.setPrefix("mm/h");
+  pcd.setUnit("mm/h");
+  pcd.setPrefix("PCD");
 
   te::gm::Point* p = new te::gm::Point(10., 5., 0, 0);
   pcd.setLocation(p);

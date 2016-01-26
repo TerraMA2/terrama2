@@ -69,8 +69,8 @@ te::gm::Point* terrama2::core::PCD::location() const
   try
   {
     auto metadata = dataSetItem_.metadata();
-    double latitude = atof(metadata[LATITUDE].c_str());
-    double longitude = atof(metadata[LONGITUDE].c_str());
+    double latitude = std::stod(metadata[LATITUDE]);
+    double longitude = std::stod(metadata[LONGITUDE]);
     te::gm::Point* p = new te::gm::Point(longitude, latitude, dataSetItem_.srid(), 0);
     return p;
   }
