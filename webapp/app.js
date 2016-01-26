@@ -8,13 +8,10 @@ var express = require('express'),
     methodOverride = require('method-override'),
     app = express(),
     load = require('express-load'),
-    fs = require('fs'), // for handling auto controllers
     swig = require('swig'),
     server = require('http').Server(app);
 
-// Set EJS template engine
-// app.set('view engine', 'ejs');
-
+// Set SWIG template engine
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
 
