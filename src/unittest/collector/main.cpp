@@ -4,6 +4,7 @@
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
+#include "TsLog.hpp"
 #include "TsParserOGR.hpp"
 #include "TsParserPcdInpe.hpp"
 #include "TsParserPcdToa5.hpp"
@@ -40,7 +41,10 @@ int main(int argc, char *argv[])
 
 //  //Intersection Operation
 
-//  //Log
+  //Log
+
+  TsLog tsLog;
+  returnVal += QTest::qExec(&tsLog, argc, argv);
 
 //  //Parser
 
@@ -69,8 +73,8 @@ int main(int argc, char *argv[])
 
   // DataRetriever
 
-  TsDataRetrieverWCS tsDataRetrieverWCS;
-  returnVal += QTest::qExec(&tsDataRetrieverWCS, argc, argv);
+//  TsDataRetrieverWCS tsDataRetrieverWCS;
+//  returnVal += QTest::qExec(&tsDataRetrieverWCS, argc, argv);
 
 //  QTimer timer;
 //  QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

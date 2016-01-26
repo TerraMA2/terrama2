@@ -29,11 +29,15 @@
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/memory/DataSource.h>
 #include <terralib/memory/Transactor.h>
 
 // TerraMA2
 #include "TsLog.hpp"
 #include "terrama2/collector/Log.hpp"
+#include "terrama2/collector/TransferenceData.hpp"
+#include "terrama2/core/DataSet.hpp"
 
 
 void TsLog::initTestCase()
@@ -62,8 +66,34 @@ void TsLog::cleanup()
 
 void TsLog::TestLog()
 {
-  //std::shared_ptr< te::da::DataSource > dataSource = std::make_shared< te::da::DataSource >(te::da::DataSourceFactory::make("POSTGIS"));
-  //te::mem::Transactor transactor_mem(dataSource);
+  // VINICIUS: waiting for TerraLib5 memory transactor implementation
+  te::mem::DataSource ds;
 
-  //terrama2::collector::Log log(transactor_mem);
+  // getTransactor ir returning NULL
+  terrama2::collector::Log log(ds.getTransactor());
+
+  std::vector< terrama2::collector::TransferenceData > transferenceDataVec;
+
+  terrama2::collector::TransferenceData transferenceData;
+
+  transferenceData.dataSet = terrama2::core::DataSet();
+  transferenceData.dataSetItem = terrama2::core::DataSetItem();
+  transferenceData.uriOrigin = "";
+  transferenceData.uriTemporary = "";
+  transferenceData.uriStorage = "";
+
+  boost::posix_time::ptime pt(boost::posix_time::time_from_string("2002-01-20 23:59:59.000"));
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("MST-07"));
+  boost::local_time::local_date_time time(pt, zone);
+
+  transferenceData.dateData = std::make_shared< te::dt::TimeInstantTZ >(time);
+  transferenceData.dateCollect = std::make_shared< te::dt::TimeInstantTZ >(time);
+
+  std::shared_ptr< te::da::DataSet > dataSet;
+  transferenceData.teDataSet = dataSet;
+  transferenceData.teDataSetType = std::make_shared< te::da::DataSetType >(te::da::DataSetType("DataSetType"));
+
+  transferenceDataVec.push_back(transferenceData);
+
+  log.log(transferenceDataVec, terrama2::collector::Log::Status::NODATA);
 }
