@@ -61,23 +61,46 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Usuário:</label>
-                            <input class="form-control" id="address" placeholder="Usuário para conexão" type="text">
+                            <input class="form-control" id="user" placeholder="Usuário para conexão" type="text">
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Senha:</label>
-                            <input class="form-control" id="address" placeholder="Senha de conexão" type="password">
+                            <input class="form-control" id="password" placeholder="Senha de conexão" type="password">
                         </div>
                     </div>
+
+                    {% if (kind == "dynamic") %}
+                    {# Displays the server active checkbox #}
+                    <div class="col-md-10">
+                        <div class="form-group">
+                            <label>Caminho Base:</label>
+                            <input class="form-control" id="path" placeholder="Caminho base de destino" type="text">
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label style="font-weight: 700; margin-top:19px;">
+                                    <input type="checkbox"> Servidor Ativo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% else %}
 
                     <div class="col-md-12">
                         <div class="form-group">
                             <label>Caminho Base:</label>
-                            <input class="form-control" id="address" placeholder="Caminho base de destino" type="text">
+                            <input class="form-control" id="path" placeholder="Caminho base de destino" type="text">
                         </div>
                     </div>
+
+                    {% endif %}
                 </div>
                 <!-- /.row -->
             </div>
