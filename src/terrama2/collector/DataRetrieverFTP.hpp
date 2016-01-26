@@ -60,7 +60,7 @@ namespace terrama2
     class DataRetrieverFTP: public DataRetriever
     {
     public:
-        /*!
+      /*!
        * \brief DataRetrieverFTP Constructor
        * \param dataprovider Dataprovider information.
        * \param scheme information. Ex. "file://".
@@ -68,6 +68,13 @@ namespace terrama2
        */
       explicit DataRetrieverFTP(const core::DataProvider& dataprovider);
 
+      /*!
+       * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.
+       *
+       */
+      virtual ~DataRetrieverFTP();
+
+      //comments on parent
       virtual bool isRetrivable() const noexcept override;
 
       //! Does nothing. In derived classes opens the connectin to the server.
@@ -75,8 +82,8 @@ namespace terrama2
       //! Initializes the Curl and check the URL to download.
       virtual bool isOpen() override;
       //! Does nothing. In derived classes closes the connection to the server.
-      virtual void close() override;      
-        /*!
+      virtual void close() override;
+      /*!
          * \brief Retrieving remote data from FTP servers.
          * \param Filter to the data files.
          * \param Datasetitem datasetitem information.
@@ -87,7 +94,7 @@ namespace terrama2
          */
       virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
-        /*!
+      /*!
        * \brief write_response - data to be written in file.
        * Define our callback to get called when there's data to be written in file.
        * \param ptr - pointer to the data stream.
@@ -96,7 +103,7 @@ namespace terrama2
        * \param data - data stream.
        * \return Returns the number of items that were successfully read.
        */
-      size_t write_response(void *ptr, size_t size, size_t nmemb, void *data);
+      static size_t write_response(void *ptr, size_t size, size_t nmemb, void *data);
 
       /*!
        * \brief write_vector - data to be written in vector.
@@ -107,13 +114,7 @@ namespace terrama2
        * \param data - data stream.
        * \return Returns the number of items that were successfully read.
        */
-      size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data);
-
-        /*!
-         * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.
-         *
-         */
-     ~DataRetrieverFTP();
+      static size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data);
 
     private:
       std::vector<std::string> vectorNames_; //! vector filtered names.
@@ -121,7 +122,7 @@ namespace terrama2
       std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
     };
 
-    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;
+    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.
   }
 }
 

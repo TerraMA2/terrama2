@@ -69,8 +69,6 @@ void terrama2::core::Service::start(uint threadNumber)
 
       throw; //TODO: create new exception
     }
-
-    populateData();
 }
 
 void terrama2::core::Service::stop() noexcept
