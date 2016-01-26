@@ -36,6 +36,7 @@
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/core/DataSetItem.hpp>
+#include <terrama2/core/PCD.hpp>
 #include <terrama2/core/Filter.hpp>
 #include <terrama2/core/Utils.hpp>
 #include <terrama2/core/Exception.hpp>
@@ -149,18 +150,24 @@ DataSet TsDataManager::createDataSet()
   dataSetItem.setFilter(filter);
   dataSetItem.setSrid(4326);
 
-  dataSet.add(dataSetItem);
+  PCD pcd(dataSetItem);
+  pcd.setUnit("mm/h");
+  pcd.setPrefix("PCD");
+
+  te::gm::Point* p = new te::gm::Point(10., 5., 0, 0);
+  pcd.setLocation(p);
+
+  dataSet.add(pcd);
 
 
 
-  DataSetItem dataSetItem2(DataSetItem::FIRE_POINTS_TYPE, 0, dataSet.id());
+  DataSetItem dataSetItem2(DataSetItem::PCD_INPE_TYPE, 0, dataSet.id());
 
-  std::map<std::string, std::string> itemMetadata;
-  itemMetadata["key"] = "value";
-  itemMetadata["key1"] = "value1";
-  itemMetadata["key2"] = "value2";
 
-  dataSetItem2.setMetadata(itemMetadata);
+  PCD pcdItem2(dataSetItem2);
+  pcdItem2.setLocation(nullptr);
+  pcdItem2.setPrefix("../");
+  pcdItem2.setUnit("mm/m");
 
   dataSet.add(dataSetItem2);
 
@@ -173,19 +180,19 @@ void TsDataManager::testLoad()
   {
     QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataManagerLoaded()));
 
+    DataManager::getInstance().load();
+
     DataSet dataSet = createDataSet();
+
     DataManager::getInstance().add(dataSet);
 
     DataManager::getInstance().unload();
 
     DataManager::getInstance().load();
 
-    QCOMPARE(spy.count(), 1);
 
-    // Calling load again should have no effect
-    DataManager::getInstance().load();
+    QCOMPARE(spy.count(), 2);
 
-    QCOMPARE(spy.count(), 1);
 
     QVERIFY2(DataManager::getInstance().providers().size() == 1, "List should have one provider!");
     QVERIFY2(DataManager::getInstance().dataSets().size() == 1, "List should have one dataset!");
@@ -1488,10 +1495,7 @@ void TsDataManager::testDatasetValidName()
   {
     QFAIL(NO_EXCEPTION_EXPECTED);
   }
-
-
 }
-
 
 void TsDataManager::testListDataSetWihtAdditionalMap()
 {
@@ -1514,7 +1518,28 @@ void TsDataManager::testListDataSetWihtAdditionalMap()
   {
     QFAIL(NO_EXCEPTION_EXPECTED);
   }
+}
+
+void TsDataManager::testMemoryDataManager()
+{
+  DataManager::getInstance().unload();
+
+
+  std::vector<DataProvider> vecProviders;
+  auto provider = createDataProvider();
+  provider.setId(1);
+
+  vecProviders.push_back(provider);
+
+  DataManager::getInstance().load(vecProviders);
+
+  auto foundProvider = DataManager::getInstance().findDataProvider(1);
+
+  QVERIFY2(provider == foundProvider, "Should be the same.");
+
+
+  DataManager::getInstance().unload();
+  DataManager::getInstance().load();
 
 
 }
-

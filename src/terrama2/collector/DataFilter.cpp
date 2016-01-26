@@ -262,6 +262,9 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
 
 bool terrama2::collector::DataFilter::validateGeometry(int geometryColumn, const std::shared_ptr<te::da::DataSet>& dataSet)
 {
+  if(!datasetItem_.filter().geometry())
+    return true;
+
   std::unique_ptr<te::gm::Geometry> geometry(dataSet->getGeometry(geometryColumn));
   if(datasetItem_.filter().geometry()->intersects(geometry.get()))
     return true;

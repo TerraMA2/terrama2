@@ -32,6 +32,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <functional>
 
 // TerraMA2
 #include "DataRetrieverFTP.hpp"
@@ -150,11 +151,11 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       uriInput = dataprovider_.uri() + datasetitem.path();
 // The host part of the URL contains the address of the server that you want to connect to
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
-// List files and directories FTP server
+      // List files and directories FTP server
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
-// Get data to be written in vector
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, boost::bind(&terrama2::collector::DataRetrieverFTP::write_vector, this, _1, _2, _3, _4));
-// Set a pointer to our block data
+      // Get data to be written in vector
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::collector::DataRetrieverFTP::write_vector);
+      // Set a pointer to our block data
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void *)&block);
 // performs the configurations of curl_easy_setop
       status = curl_easy_perform(curl.fcurl());
@@ -194,7 +195,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
           FileOpener opener(filePath.c_str(),"wb");
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uri_origin.c_str());
 // Get data to be written in file
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, boost::bind(&terrama2::collector::DataRetrieverFTP::write_response, this, _1, _2, _3, _4 ));
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::collector::DataRetrieverFTP::write_response);
 // Set a pointer to our block data
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEDATA, opener.file());
 // performs the configurations of curl_easy_setop
