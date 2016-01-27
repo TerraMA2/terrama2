@@ -29,10 +29,11 @@
 
 // TerraMA2
 #include "TsDataRetrieverWCS.hpp"
-#include "terrama2/core/DataProvider.hpp"
-#include "terrama2/collector/DataRetrieverWCS.hpp"
-#include "terrama2/collector/TransferenceData.hpp"
-#include "terrama2/collector/DataFilter.hpp"
+#include <terrama2/core/DataProvider.hpp>
+#include <terrama2/core/WCS.hpp>
+#include <terrama2/collector/DataRetrieverWCS.hpp>
+#include <terrama2/collector/TransferenceData.hpp>
+#include <terrama2/collector/DataFilter.hpp>
 
 
 void TsDataRetrieverWCS::initTestCase()
@@ -62,8 +63,6 @@ void TsDataRetrieverWCS::cleanup()
 void TsDataRetrieverWCS::TestIsOpen()
 {
   try{
-
-
     terrama2::core::DataProvider dataprovider("DataProviderTest");
 
     dataprovider.setUri("http://flanche.net:9090/rasdaman/ows?SERVICE=WCS");
@@ -109,11 +108,25 @@ void TsDataRetrieverWCS::TestRetriveData()
   try
   {
     terrama2::core::DataProvider dataprovider("DataProviderTest");
-    terrama2::core::DataSetItem datasetitem;
+
+
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     std::shared_ptr< terrama2::collector::DataFilter> filter;
+    terrama2::core::DataSetItem datasetitem;
+    terrama2::core::WCS wcs(datasetitem);
 
     dataprovider.setUri("http://flanche.net:9090/rasdaman/ows?SERVICE=WCS");
+
+    wcs.setRequest("GetCoverage");
+    wcs.setVersion("2.0.1");
+    wcs.setCoverageId("NIR");
+    wcs.setFormat("image/tiff");
+    wcs.setScaleFactor("1");
+
+    // VINICIUS: find better way to repeat subset
+    wcs.setSubset("i(0,1915)&SUBSET=j(1,1076)");
+
+    datasetitem = wcs.dataSetItem();
 
     terrama2::collector::DataRetrieverWCS dataRetriever(dataprovider);
 

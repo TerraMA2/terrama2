@@ -161,7 +161,12 @@ void terrama2::collector::DataRetrieverWCS::close()
        // http://flanche.net:9090/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=DescribeCoverage&COVERAGEID=NIR
        // http://flanche.net:9090/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=NIR&FORMAT=image/tiff&SUBSET=i(0,100)&SUBSET=j(1,100)&SCALEFACTOR=1
 
-       std::string url = dataprovider_.uri() + "&REQUEST=GetCoverage" + "&VERSION=2.0.1&COVERAGEID=NIR&FORMAT=image/tiff&SUBSET=i(0,1915)&SUBSET=j(1,1076)&SCALEFACTOR=1";
+       std::string url = dataprovider_.uri();
+
+       for(auto metadataItem : datasetitem.metadata())
+       {
+         url += "&" + metadataItem.first + "=" + metadataItem.second;
+       }
 
        filePath = folder_ + std::to_string(datasetitem.dataset()) + "_" + std::to_string(datasetitem.id());
        FileOpener opener(filePath.c_str(),"wb");
