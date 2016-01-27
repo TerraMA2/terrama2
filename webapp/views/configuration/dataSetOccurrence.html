@@ -66,6 +66,10 @@
 
             $("#terrama2-pcd-table").append(toAppend);
         });
+
+        $("#mask-list").on("click", "li", function(e){
+            $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
+        });
     });
     </script>
 {% endblock %}
