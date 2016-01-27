@@ -41,6 +41,7 @@
 #include "DataRetrieverWCS.hpp"
 #include "Exception.hpp"
 #include "FileOpener.hpp"
+#include "../core/Logger.hpp"
 
 
 terrama2::collector::DataRetrieverWCS::DataRetrieverWCS(const core::DataProvider& dataprovider)
@@ -179,10 +180,10 @@ void terrama2::collector::DataRetrieverWCS::close()
        status = curl_easy_perform(curl.fcurl());
 
        // Check for errors
-       if (res != CURLE_OK)
+       if (status != CURLE_OK)
        {
          QString errMsg = QObject::tr("Could not perform the download. \n\n");
-         errMsg.append(curl_easy_strerror(res));
+         errMsg.append(curl_easy_strerror(status));
 
          TERRAMA2_LOG_ERROR() << errMsg;
          throw DataRetrieverWCSException() << ErrorDescription(errMsg);
