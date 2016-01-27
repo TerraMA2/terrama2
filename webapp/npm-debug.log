@@ -1,0 +1,24 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/nodejs', '/usr/bin/npm', 'start' ]
+2 info using npm@2.14.7
+3 info using node@v4.2.3
+4 verbose stack Error: Invalid name: "TerraMA²-Webapp"
+4 verbose stack     at ensureValidName (/usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/fixer.js:331:15)
+4 verbose stack     at Object.module.exports.fixNameField (/usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/fixer.js:210:5)
+4 verbose stack     at /usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/normalize.js:32:38
+4 verbose stack     at Array.forEach (native)
+4 verbose stack     at normalize (/usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/normalize.js:31:15)
+4 verbose stack     at final (/usr/lib/node_modules/npm/node_modules/read-package-json/read-json.js:338:5)
+4 verbose stack     at then (/usr/lib/node_modules/npm/node_modules/read-package-json/read-json.js:113:5)
+4 verbose stack     at /usr/lib/node_modules/npm/node_modules/read-package-json/read-json.js:232:12
+4 verbose stack     at /usr/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:76:16
+4 verbose stack     at FSReqWrap.readFileAfterClose [as oncomplete] (fs.js:380:3)
+5 verbose cwd /home/jsouza/Dev/node-projects/terrama2/webapp
+6 error Linux 3.16.0-30-generic
+7 error argv "/usr/bin/nodejs" "/usr/bin/npm" "start"
+8 error node v4.2.3
+9 error npm  v2.14.7
+10 error Invalid name: "TerraMA²-Webapp"
+11 error If you need help, you may report this error at:
+11 error     <https://github.com/npm/npm/issues>
+12 verbose exit [ 1, true ]
