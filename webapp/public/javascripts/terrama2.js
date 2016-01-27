@@ -104,8 +104,6 @@ var TerraMA2 = function(terrama2Url, components) {
             layerExplorer = new LayerExplorer(_this);
           } else if(components[i] === "ToolBox") {
             toolBox = new ToolBox(_this);
-          } else if(components[i] === "LeftBar") {
-            leftBar = new LeftBar(_this);
           }
 
           _this.injectStylesheet(terrama2Url + "/stylesheets/components/" + config.getConfJsonComponentsCss()[components[i]]);
