@@ -54,11 +54,11 @@ var LayerExplorer = function(terrama2) {
     var title = layer.get('title') ? layer.get('title') : "Group";
 
     var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span class='terrama2-layerexplorer-plus'> " + title + "</span>&nbsp;&nbsp;" +
+    "<span><i class='fa fa-plus'></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
     terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
     /* var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span class='terrama2-layerexplorer-plus'> " + title + "</span>&nbsp;&nbsp;" +
+    "<span><i class='fa fa-plus'></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
     terrama2.getConfig().getConfJsonHTML().CheckLayer +
     terrama2.getConfig().getConfJsonHTML().OpacitySlider; */
 
@@ -141,10 +141,10 @@ var LayerExplorer = function(terrama2) {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
       if (children.is(":visible")) {
         children.hide('fast');
-        $(this).addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
+        $(this).find('i').addClass('fa-plus').removeClass('fa-minus');
       } else {
         children.show('fast');
-        $(this).addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
+        $(this).find('i').addClass('fa-minus').removeClass('fa-plus');
       }
     });
 
@@ -169,10 +169,10 @@ var LayerExplorer = function(terrama2) {
       var span = _$this.parent('li.parent_li').find(' > span');
       if (children.is(":visible") || !layer.getVisible()) {
         children.hide('fast');
-        span.addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
+        span.find('i').addClass('fa-plus').removeClass('fa-minus');
       } else {
         children.show('fast');
-        span.addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
+        span.find('i').addClass('fa-minus').removeClass('fa-plus');
       }
       e.stopPropagation();
     });
