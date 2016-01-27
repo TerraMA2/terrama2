@@ -5,7 +5,17 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
     app = express(),
+    load = require('express-load'),
+    swig = require('swig'),
     server = require('http').Server(app);
+
+// Set SWIG template engine
+app.engine('html', swig.renderFile);
+app.set('view engine', 'html');
+
+// Set template directories
+app.set('views', __dirname + '/views');
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,5 +28,9 @@ app.use(function(req, res, next) {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+load('controllers')
+  .then('routes')
+  .into(app);
 
 module.exports = app;
