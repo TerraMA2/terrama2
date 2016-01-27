@@ -166,7 +166,7 @@ void terrama2::core::DataSetItem::setSrid(const uint64_t srid)
   srid_ = srid;
 }
 
-terrama2::core::DataSetItem terrama2::core::DataSetItem::FromJson(QJsonObject json)
+terrama2::core::DataSetItem terrama2::core::DataSetItem::FromJson(const QJsonObject& json)
 {
   if(! (json.contains("kind")
      && json.contains("id")
@@ -205,10 +205,11 @@ terrama2::core::DataSetItem terrama2::core::DataSetItem::FromJson(QJsonObject js
   return item;
 }
 
-QJsonObject terrama2::core::DataSetItem::toJson()
+QJsonObject terrama2::core::DataSetItem::toJson() const
 {
   QJsonObject json;
 
+  json["class"] = QString("DataSetItem");
   json["kind"] = QJsonValue((int)kind_);
   json["id"] = QJsonValue((int)id_);
   json["dataset"] = QJsonValue((int)dataset_);

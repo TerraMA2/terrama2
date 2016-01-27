@@ -45,13 +45,14 @@
 // TerraMA2
 #include "soapWebService.h"
 #include "../Exception.hpp"
-#include "../core/Codes.hpp"
 #include "../Exception.hpp"
+#include "../core/Codes.hpp"
 #include "../../../core/ApplicationController.hpp"
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Utils.hpp"
-#include "../../../collector/CollectorService.hpp"
 #include "../../../core/Logger.hpp"
+#include "../../../core/TcpListener.hpp"
+#include "../../../collector/CollectorService.hpp"
 
 const int TERRALIB_LOAD_ERROR = 101;
 const int COLLECTOR_SERVICE_STAR_ERROR = 102;
@@ -109,8 +110,8 @@ bool gSoapThread(int port)
 
     TERRAMA2_LOG_INFO() << "Shutdown Webservice...";
 
-//    server.soap_force_close_socket();
-//    server.destroy();
+    //    server.soap_force_close_socket();
+    //    server.destroy();
   }
   catch(boost::exception& e)
   {
@@ -206,8 +207,12 @@ int main(int argc, char* argv[])
       terrama2::collector::CollectorService collectorService;
       collectorService.start();
 
-    if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
-      app.exec();
+      if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
+      {
+        terrama2::core::TcpListener listener;
+        listener.listen(QHostAddress::Any, 30000);
+        app.exec();
+      }
     }
 
     terrama2::core::DataManager::getInstance().unload();
