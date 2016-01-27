@@ -1,3 +1,4 @@
+{# It should have an object in structure like: {kind: "dataset type"} #}
 <div class="box box-default box-solid">
     <div class="box-header with-border">
         <h3 class="box-title">Dados Adicionais</h3>
@@ -9,6 +10,7 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
         <div class="row">
+            {% if kind == "PCD" %}
             <div class="col-md-7">
                 <div class="form-group">
                     <label>Nome:</label>
@@ -18,45 +20,41 @@
             <!-- /.col md 7 -->
 
             <div class="col-md-5">
-
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select class="form-control">
+                        <option>PCD INPE</option>
+                    </select>
+                </div>
             </div>
             <!-- /.col md 5 -->
+            {% else %}  
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Nome:</label>
+                    <input class="form-control" id="name" placeholder="Nome do Data Set" type="text">
+                </div>
+            </div>
+            <!-- /.col md 7 -->
+
+            {% endif %}
 
             <div class="col-md-7">
                 <div class="form-group">
-                    <label>Frequência de Atualização:</label>
-
-                    <div class="input-group">
-                            <input class="form-control timepicker" type="text">
-
-                        <div class="input-group-addon">
-                            <i class="fa fa-clock-o"></i>
-                        </div>
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>Frequência de Atualização:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control timepicker" name="dataFrequency">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                            </div><!-- /.input group -->
+                        </div><!-- /.form group -->
                     </div>
                     <!-- /.input group -->
                 </div>
             </div>
-<!--             <div style="padding-left: 0px;" class="col-md-7">
-                <span style="font-weight: 700; display: block; margin-left: 15px; margin-bottom: 5px;">Frequencia:</span>
-                <div class="col-md-4">
-                    <div class="form-group">
-
-                        <input class="form-control" id="hours" placeholder="Horas" type="text">
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <input class="form-control" id="minutes" placeholder="Minutos" type="text">
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <input class="form-control" id="seconds" placeholder="Segundos" type="text">
-                    </div>
-                </div>
-            </div> -->
 
             <div class="col-md-3">
                 <div class="form-group">
@@ -72,7 +70,7 @@
                 <div class="form-group">
                     <div class="checkbox">
                         <label class="terrama2-checkbox-align">
-                            <input type="checkbox"> Servidor Ativo
+                            <input type="checkbox"> Ativo
                         </label>
                     </div>
                 </div>

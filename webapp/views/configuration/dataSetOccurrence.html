@@ -11,7 +11,8 @@
     <script type="text/javascript">
     $(document).ready(function(){
         $(".timepicker").timepicker({
-          showInputs: false
+          showMeridian:false,
+          showInputs: false,
         });
     });
     </script>
@@ -30,7 +31,7 @@
             <div style="display: block;" class="box-body">
 
                 <!-- Additional Data Component -->
-                {% include "../base/additionalData.html" %}
+                {% include "../base/additionalData.html" with {kind: "Occurrence"} %}
 
 
                 <!-- Parameters Component -->
