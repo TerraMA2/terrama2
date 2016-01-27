@@ -102,7 +102,8 @@ var MapDisplay = function() {
    * Update the map size according to its container
    */
   this.updateMapSize = function() {
-    olMap.updateSize();
+    var interval = window.setInterval(function() { olMap.updateSize(); }, 10);
+    window.setTimeout(function() { clearInterval(interval); }, 300);
   }
 
   olMap.getLayerGroup().set('name', 'root');
@@ -112,8 +113,6 @@ var MapDisplay = function() {
   $("#terrama2-map").find('div.ol-attribution').addClass('terrama2-map-attribution');
 
   $(document).ready(function() {
-    olMap.on('ready', function() {
-      updateMapSize();
-    });
+    _this.updateMapSize();
   });
 }
