@@ -124,14 +124,16 @@ bool terrama2::collector::DataRetrieverWCS::isOpen()
   }
   catch(const std::exception& e)
   {
-    QString messageError = QObject::tr("Could not perform the files download! \n\n Details: \n");
+    QString messageError = QObject::tr("Could not check the WCS service! \n\n Details: \n");
     messageError.append(e.what());
-
+    TERRAMA2_LOG_ERROR() << messageError;
     throw DataRetrieverWCSException() << ErrorDescription(messageError);
   }
   catch(...)
   {
-    throw DataRetrieverWCSException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the files download!"));
+    QString messageError = QObject::tr("Unknown Error, Could not check the WCS service!");
+    TERRAMA2_LOG_ERROR() << messageError;
+    throw DataRetrieverWCSException() << ErrorDescription(messageError);
   }
 
   return true;
@@ -157,17 +159,17 @@ void terrama2::collector::DataRetrieverWCS::close()
 
      if(curl.fcurl())
      {
-       std::string url = dataprovider_.uri();
+       std::string uri_origin = dataprovider_.uri();
 
        for(auto metadataItem : datasetitem.metadata())
        {
-         url += "&" + metadataItem.first + "=" + metadataItem.second;
+         uri_origin += "&" + metadataItem.first + "=" + metadataItem.second;
        }
 
        filePath = folder_ + std::to_string(datasetitem.dataset()) + "_" + std::to_string(datasetitem.id());
        FileOpener opener(filePath.c_str(),"wb");
 
-       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, url.c_str());
+       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uri_origin.c_str());
 
        // Get data to be written
        curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_file_callback);
@@ -177,8 +179,22 @@ void terrama2::collector::DataRetrieverWCS::close()
        status = curl_easy_perform(curl.fcurl());
 
        // Check for errors
-       if(status != CURLE_OK)
-         return "";
+       if (res != CURLE_OK)
+       {
+         QString errMsg = QObject::tr("Could not perform the download. \n\n");
+         errMsg.append(curl_easy_strerror(res));
+
+         TERRAMA2_LOG_ERROR() << errMsg;
+         throw DataRetrieverWCSException() << ErrorDescription(errMsg);
+       }
+       else
+       {
+         terrama2::collector::TransferenceData tmp;
+         tmp.dataSetItem = datasetitem;
+         tmp.uriOrigin = uri_origin;
+         tmp.uriTemporary = "file://"+filePath;
+         transferenceDataVec.push_back(tmp);
+       }
 
      }
    }
@@ -186,12 +202,14 @@ void terrama2::collector::DataRetrieverWCS::close()
    {
      QString messageError = QObject::tr("Could not perform the files download! \n\n Details: \n");
      messageError.append(e.what());
-
+     TERRAMA2_LOG_ERROR() << messageError;
      throw DataRetrieverWCSException() << ErrorDescription(messageError);
    }
    catch(...)
    {
-     throw DataRetrieverWCSException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the files download!"));
+     QString messageError = QObject::tr("Unknown Error, Could not perform the files download!");
+     TERRAMA2_LOG_ERROR() << messageError;
+     throw DataRetrieverWCSException() << ErrorDescription(messageError);
    }
 
    return filePath;
