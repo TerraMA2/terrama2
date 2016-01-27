@@ -165,11 +165,11 @@ DataSet TsDataManager::createDataSet()
 
 
   PCD pcdItem2(dataSetItem2);
-  pcdItem2.setLocation(nullptr);
   pcdItem2.setPrefix("../");
   pcdItem2.setUnit("mm/m");
+  pcdItem2.setLocation(p);
 
-  dataSet.add(dataSetItem2);
+  dataSet.add(pcdItem2);
 
   return dataSet;
 }
@@ -743,13 +743,10 @@ void TsDataManager::testUpdateDataSet()
     dataSet.setDescription("Description...");
     dataSet.setName("New queimadas");
 
-    // Remove the dataset item PCD_INPE
-
-    auto& dataSetItems = dataSet.dataSetItems();
-
-    // Updates the data from FIRE_POINTS_TYPE
-    auto& dsItem = dataSetItems[1];
-    dsItem.setMask("Queimadas_*");
+    // Updates the dataset item 1
+    auto datasets = dataSet.dataSetItems();
+    auto& dsItem = datasets[1];
+    dsItem.setMask("PCD_*");
     dsItem.setPath("other_path");
 
     // Add a new dataset item of type PCD_TOA5_TYPE
@@ -793,10 +790,17 @@ void TsDataManager::testUpdateDataSet()
     QVERIFY2(dsItem1.id() > 0, "dataSetItems[1] Id must be valid");
     QVERIFY2(dsItem2.id() > 0, "dataSetItems[2] Id must be valid");
 
-    std::map<std::string, std::string> itemMetadata =  dsItem1.metadata();
-    QVERIFY2("value" == itemMetadata["key"], "Metadata key/value must be the same!");
-    QVERIFY2("value1" == itemMetadata["key1"], "Metadata key1/value1 must be the same!");
-    QVERIFY2("value2" == itemMetadata["key2"], "Metadata key2/value2 must be the same!");
+    PCD pcd0(dsItem0);
+    QVERIFY2(pcd0.unit() == "mm/h", "Dataset Item unit is wrong");
+    QVERIFY2(pcd0.prefix() == "PCD", "Dataset Item prefix is wrong");
+    QVERIFY2(pcd0.location()->getX() == 10.0, "Dataset Item location X is wrong");
+    QVERIFY2(pcd0.location()->getY() == 5.0, "Dataset Item location Y is wrong");
+
+    PCD pcd1(dsItem1);
+    QVERIFY2(pcd1.unit() == "mm/m", "Dataset Item unit is wrong");
+    QVERIFY2(pcd1.prefix() == "../", "Dataset Item prefix is wrong");
+    QVERIFY2(pcd1.location()->getX() == 10.0, "Dataset Item location X is wrong");
+    QVERIFY2(pcd1.location()->getY() == 5.0, "Dataset Item location Y is wrong");
 
     foundDataSet.removeDataSetItem(dsItem0.id());
     foundDataSet.removeDataSetItem(dsItem1.id());
@@ -1189,7 +1193,7 @@ void TsDataManager::testFindNonExistentDataProvider()
 
   try
   {
-    auto dataSet = DataManager::getInstance().findDataSet(999);
+    auto dataSet = DataManager::getInstance().findDataProvider(999);
 
     QVERIFY2(dataSet.id() == 0, "Should return an invalid dataset");
 
