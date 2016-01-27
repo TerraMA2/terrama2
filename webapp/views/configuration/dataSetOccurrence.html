@@ -1,8 +1,44 @@
 {% extends "../base/layout.html" %}
 
+{% set configuration = {kind: "Occurrence"} %}
+
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/stylesheets/terrama2.css">
     <link rel="stylesheet" type="text/css" href="/stylesheets/externals/timepicker/bootstrap-timepicker.min.css">
+
+    <style type="text/css">
+        .header-fixed {
+            width: 100% ;
+        }
+
+        .header-fixed > thead,
+        .header-fixed > tbody,
+        .header-fixed > thead > tr,
+        .header-fixed > tbody > tr,
+        .header-fixed > thead > tr > th,
+        .header-fixed > tbody > tr > td {
+            display: block;
+        }
+
+        .header-fixed > tbody > tr:after,
+        .header-fixed > thead > tr:after {
+            content: ' ';
+            display: block;
+            visibility: hidden;
+            clear: both;
+        }
+
+        .header-fixed > tbody {
+            overflow-y: auto;
+            height: 150px;
+        }
+
+        .header-fixed > tbody > tr > td,
+        .header-fixed > thead > tr > th {
+            width: 16.6%;
+            float: left;
+        }
+    </style>
 {% endblock %}
 
 {% block javascripts %}
@@ -13,6 +49,22 @@
         $(".timepicker").timepicker({
           showMeridian:false,
           showInputs: false,
+        });
+
+        //temp code
+        $("#terrama2-add-pcd").click(function(e)
+        {
+            var mask = $("#mask").val();
+                timezone = $("#timezone").val();
+                latitude = $("#latitude").val();
+                longitude = $("#longitude").val();
+                projection = $("#projection").val();
+                active = $('#pcdActive').prop('checked');
+
+            var toAppend = "<tr><td>" + mask + "</td><td>" + latitude + "</td><td>" + longitude + "</td><td><span class=\"label label-";
+            toAppend = toAppend + (active ? "success\"><i class=\"glyphicon glyphicon-ok\"></i></span>" : "danger\"><i class=\"glyphicon glyphicon-remove\"></i></span>") + "</td><td>" + projection + "</td><td>" + timezone + "</td></tr>";
+
+            $("#terrama2-pcd-table").append(toAppend);
         });
     });
     </script>
@@ -31,11 +83,11 @@
             <div style="display: block;" class="box-body">
 
                 <!-- Additional Data Component -->
-                {% include "../base/additionalData.html" with {kind: "Occurrence"} %}
+                {% include "../base/additionalData.html" with configuration %}
 
 
                 <!-- Parameters Component -->
-                {% include "../base/parametersData.html" %}
+                {% include "../base/parametersData.html" with configuration %}
 
                 <!-- Filter component -->
                 <div class="box box-default box-solid">

@@ -1,3 +1,4 @@
+{# It should have an object in structure like: {kind: "dataset type"} #}
 <div class="box box-default box-solid">
     <div class="box-header with-border">
         <h3 class="box-title">Parâmetros</h3>
@@ -13,7 +14,7 @@
 
                 <div class="input-group">
                     <label>Máscara:</label>
-                    <input type="text" class="form-control" aria-label="...">
+                    <input type="text" class="form-control" aria-label="..." id="mask">
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="   false">
                             Formato <span class="caret"></span>
@@ -26,21 +27,112 @@
                     </div><!-- /btn-group -->
                 </div><!-- /input-group -->
 
-
-<!--                                 <div class="form-group">
-                    <label>Máscara:</label>
-                    <input class="form-control" id="mask" placeholder="Máscara do Data Set" type="text">
-                </div> -->
             </div>
-            <!-- /.col md 7 -->
+            <!-- /.col md 6 -->
 
             <div class="col-md-6">
+                <div class="form-group">
+                    <label>Fuso Horário</label>
+                    <select class="form-control" id="timezone">
+                        <option>00:00</option>
+                        <option>12:00</option>
+                    </select>
+                </div>
+            </div>
+
+            {% if kind == "PCD" %}
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Latitude:</label>
+                        <input class="form-control" id="latitude" placeholder="Latitude do Data Set" type="number">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Longitude:</label>
+                        <input class="form-control" id="longitude" placeholder="Longitude do Data Set" type="number">
+                    </div>
+                </div>
+
+                {# TODO: autocomplete while filling input out. #}
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Projeção</label>
+                        <input class="form-control" id="projection" placeholder="Projeção do Data Set" type="text">
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label class="terrama2-checkbox-align">
+                                <input type="checkbox" id="pcdActive"> Ativo
+                            </label>
+                        </div>
+                    </div>
+                </div>  
+
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <button class="btn btn-default terrama2-component-align btn-block" id="terrama2-add-pcd">Adicionar</button>
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+
+                <div class="col-md-12">
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover header-fixed" id="terrama2-pcd-table">
+                           <thead>
+                               <tr>
+                                   <th>Máscara</th>
+                                   <th>Latitude</th>
+                                   <th>Longitude</th>
+                                   <th>Ativo</th>
+                                   <th>Projeção</th>
+                                   <th>Fuso Horário</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               <tr>
+                                   <td>PCD1</td>
+                                   <td>10</td>
+                                   <td>10</td>
+                                   <td>
+                                       <span class="label label-success">
+                                           <i class="glyphicon glyphicon-ok"></i>
+                                       </span>
+                                   </td>
+                                   <td>4326</td>
+                                   <td>+02:00</td>
+                               </tr>
+                               <tr>
+                                   <td>PCD2</td>
+                                   <td>20</td>
+                                   <td>20</td>
+                                   <td>
+                                       <span class="label label-danger">
+                                           <i class="glyphicon glyphicon-remove"></i>
+                                       </span>
+                                   </td>
+                                   <td>4326</td>
+                                   <td>+05:00</td>
+                               </tr>
+                           </tbody>
+                       </table>
+                    </div><!-- /.box-body -->
+                </div>
+            {% endif %}
+
+            <div class="col-md-12">
                 <div class="form-group">
                     <label>Caminho:</label>
                     <input class="form-control" id="path" placeholder="Caminho do Data Set" type="text">
                 </div>
             </div>
-            <!-- /.col md 7 -->
+            <!-- /.col md 6 -->
+
         </div>
         <!-- /.row -->
     </div>

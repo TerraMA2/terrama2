@@ -141,3 +141,7 @@ div.terrama2-leftbox::-webkit-scrollbar-thumb, #terrama2-container::-webkit-scro
   margin-top: 19px !important;
   font-weight: 700 !important;
 }
+
+.terrama2-component-align {
+  margin-top: 25px !important;
+}
