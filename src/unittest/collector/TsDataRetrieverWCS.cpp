@@ -109,7 +109,6 @@ void TsDataRetrieverWCS::TestRetriveData()
   {
     terrama2::core::DataProvider dataprovider("DataProviderTest");
 
-
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     std::shared_ptr< terrama2::collector::DataFilter> filter;
     terrama2::core::DataSetItem datasetitem;
