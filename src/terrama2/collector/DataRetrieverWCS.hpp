@@ -67,7 +67,7 @@ namespace terrama2
 
       //! Does nothing. In derived classes opens the connectin to the server.
       virtual void open() override;
-      //! Initializes the Curl and check if the FTP address is valid.
+      //! Initializes the Curl and check if the WCS address is valid.
       virtual bool isOpen() override;
       //! Does nothing. In derived classes closes the connection to the server.
       virtual void close() override;
@@ -75,7 +75,7 @@ namespace terrama2
          * \brief Retrieving remote data from WCS servers.
          * \param Filter to the data files.
          * \param Datasetitem datasetitem information.
-         * \param Log_uris log information.
+         * \param transferenceDataVec data file information.
          * \return Returns the absolute path of the folder that contains the files that have been made the download.
          * \exception DataRetrieverError when could not perform the download files.
          * \exception DataRetrieverError when Unknown error, Could not perform the download files.
