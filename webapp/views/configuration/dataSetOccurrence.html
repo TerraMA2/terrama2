@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script type="text/javascript" src="/javascripts/externals/timepicker/bootstrap-timepicker.min.js"></script>
     <script type="text/javascript" src="/javascripts/externals/moment/moment.js"></script>
+    <script type="text/javascript" src="/javascripts/externals/timepicker/bootstrap-timepicker.js"></script>
     <script type="text/javascript" src="/javascripts/externals/bootstrap/bootstrap-datetimepicker.js"></script>
 
     <script type="text/javascript">
@@ -81,9 +81,6 @@
 
                 <!-- Filter component -->
                 {% include "../base/filter.html" with configuration %}
-
-                <!-- Attributes component -->
-                {% include "../base/attributes.html" with configuration %}
 
             </div>
             <!-- /.box body -->
