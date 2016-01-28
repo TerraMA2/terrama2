@@ -46,6 +46,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_library(terrama2_mod_collector SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_executable(collector_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
 qt5_use_modules(terrama2_mod_collector Widgets)
 
