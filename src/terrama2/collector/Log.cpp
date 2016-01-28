@@ -27,6 +27,9 @@
   \author Vinicius Campanha
 */
 
+// Qt
+#include <QTextObject>
+
 // Boost
 #include <boost/format.hpp>
 
@@ -37,7 +40,7 @@
 #include "Exception.hpp"
 #include "Log.hpp"
 #include "../core/ApplicationController.hpp"
-
+#include "../core/Logger.hpp"
 
 
 terrama2::collector::Log::Log(std::shared_ptr < te::da::DataSourceTransactor > transactor)
@@ -53,7 +56,7 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
 
     query.bind_arg(1, dataSetItemId);
     query.bind_arg(2, origin_uri);
-    query.bind_arg(3, (int)s);
+    query.bind_arg(3, static_cast<int>(s));
 
     transactor_->execute(query.str());
 
@@ -63,19 +66,31 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
   }
   catch(te::common::Exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());;
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(terrama2::Exception& e)
   {
-    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QString errMsg = QObject::tr(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(...)
   {
-    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    QString errMsg = QObject::tr("Unknow error");
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   return 0;
 }
@@ -117,7 +132,7 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
       else
         value.bind_arg(5, "'" + transferenceData.dateCollect->toString() + "'");
 
-      value.bind_arg(6, (int)s);
+      value.bind_arg(6, static_cast<int>(s));
 
       if(!first)
       {
@@ -134,19 +149,31 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
   }
   catch(terrama2::Exception& e)
   {
-    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QString errMsg = QObject::tr(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(te::common::Exception& e)
   {
-    throw LogException() << ErrorDescription(e.what());;
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    throw LogException() << ErrorDescription(e.what());
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(...)
   {
-    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    QString errMsg = QObject::tr("Unknow error");
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
 }
 
@@ -157,7 +184,7 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
     boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp='%3%', uri='%4%', collect_timestamp=now() WHERE id=%1%");
 
     query.bind_arg(1, id);
-    query.bind_arg(2, (int)s);
+    query.bind_arg(2, static_cast<int>(s));
     query.bind_arg(3, data_timestamp);
     query.bind_arg(4, uri);
 
@@ -167,19 +194,31 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
   }
   catch(terrama2::Exception& e)
   {
-    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QString errMsg = QObject::tr(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(te::common::Exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());;
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(...)
   {
-    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    QString errMsg = QObject::tr("Unknow error");
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
 }
 
@@ -215,7 +254,7 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
     }
 
     query.bind_arg(1, uris);
-    query.bind_arg(2, (int)s);
+    query.bind_arg(2, static_cast<int>(s));
 
     if(data_timestamp.empty())
       query.bind_arg(3, "NULL");
@@ -230,19 +269,31 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
   }
   catch(terrama2::Exception& e)
   {
-    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QString errMsg = QObject::tr(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(te::common::Exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());;
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(...)
   {
-    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    QString errMsg = QObject::tr("Unknow error");
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
 }
 
@@ -259,7 +310,7 @@ void terrama2::collector::Log::updateLog(const std::vector<TransferenceData>& tr
       boost::format query("UPDATE terrama2.data_collection_log SET status=%2%, data_timestamp=%3%, uri='%4%', collect_timestamp=%5% WHERE origin_uri='%1%'");
 
       query.bind_arg(1, transferenceData.uriOrigin);
-      query.bind_arg(2, (int)s);
+      query.bind_arg(2, static_cast<int>(s));
 
       if(!transferenceData.dateData)
         query.bind_arg(3, "NULL");
@@ -281,19 +332,31 @@ void terrama2::collector::Log::updateLog(const std::vector<TransferenceData>& tr
   }
   catch(terrama2::Exception& e)
   {
-    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QString errMsg = QObject::tr(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(te::common::Exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());;
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    throw LogException() << ErrorDescription( e.what());
+    QString errMsg = QObject::tr(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(...)
   {
-    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    QString errMsg = QObject::tr("Unknow error");
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
 }
 
