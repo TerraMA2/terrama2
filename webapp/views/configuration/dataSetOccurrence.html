@@ -18,22 +18,6 @@
             format: "HH:mm:ss"
         });
 
-        //temp code
-        $("#terrama2-add-pcd").click(function(e)
-        {
-            var mask = $("#mask").val();
-                timezone = $("#timezone").val();
-                latitude = $("#latitude").val();
-                longitude = $("#longitude").val();
-                projection = $("#projection").val();
-                active = $('#pcdActive').prop('checked');
-
-            var toAppend = "<tr><td>" + mask + "</td><td>" + latitude + "</td><td>" + longitude + "</td><td><span class=\"label label-";
-            toAppend = toAppend + (active ? "success\"><i class=\"glyphicon glyphicon-ok\"></i></span>" : "danger\"><i class=\"glyphicon glyphicon-remove\"></i></span>") + "</td><td>" + projection + "</td><td>" + timezone + "</td></tr>";
-
-            $("#terrama2-pcd-table").append(toAppend);
-        });
-
         $("#mask-list").on("click", "li", function(e){
             $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
         });

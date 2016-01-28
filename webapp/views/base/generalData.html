@@ -10,7 +10,7 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
         <div class="row">
-            {% if kind == "PCD" %}
+            {% if kind|lower == "pcd" %}
                 <div class="col-md-7">
                     <div class="form-group">
                         <label>Nome:</label>
@@ -19,7 +19,7 @@
                 </div>
                 <!-- /.col md 7 -->
 
-                {% if state == "static" %}
+                {% if state|lower == "static" %}
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Arquivo:</label>
@@ -58,7 +58,7 @@
 
             {% endif %}
 
-            {% if state != "static" %}
+            {% if state|lower != "static" %}
 
             <div class="col-md-3">
                 <div class="form-group">

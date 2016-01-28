@@ -1,0 +1,110 @@
+{% extends "../base/layout.html" %}
+
+{% set configuration = {kind: "pcd", state: "dynamic"} %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/stylesheets/terrama2.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/externals/bootstrap/bootstrap-datetimepicker.css">
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/javascripts/externals/moment/moment.js"></script>
+    <script type="text/javascript" src="/javascripts/externals/bootstrap/bootstrap-datetimepicker.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".timepicker").datetimepicker({
+                widgetPositioning: {vertical: "bottom"},
+                format: "HH:mm:ss"
+            });
+
+            //temp code
+            $("#terrama2-add-pcd").click(function(e)
+            {
+                var mask = $("#mask").val();
+                    timezone = $("#timezone").val();
+                    latitude = $("#latitude").val();
+                    longitude = $("#longitude").val();
+                    projection = $("#projection").val();
+                    active = $('#pcdActive').prop('checked');
+
+                var toAppend = "<tr><td>" + mask + "</td><td>" + latitude + "</td><td>" + longitude + "</td><td><span class=\"label label-";
+                toAppend = toAppend + (active ? "success\"><i class=\"glyphicon glyphicon-ok\"></i></span>" : "danger\"><i class=\"glyphicon glyphicon-remove\"></i></span>") + "</td><td>" + projection + "</td><td>" + timezone + "</td></tr>";
+
+                $("#terrama2-pcd-table").append(toAppend);
+            });
+
+            $("#mask-list").on("click", "li", function(e){
+                $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
+            });
+
+        })
+    </script>
+{% endblock %}
+
+{% block title %} TerraMA2 Cadastro de Dados de PCD {% endblock %}
+
+{% block content %}
+    {% include "../base/collectRule.html" %}
+
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">Cadastro de Dados de PCD</h3>
+            </div>
+            <!-- /.box-header -->
+            <div style="display: block;" class="box-body">
+
+                <div class="col-md-12">
+                    <!-- General Data Component -->
+                    {% include "../base/generalData.html" with configuration %}
+                </div>
+
+                <div class="col-md-12">
+                    <!-- Parameters Component -->
+                    {% include "../base/parametersData.html" with configuration %}
+                </div>
+
+                <div class="col-md-12">
+                    {# It should have an object in structure like: {kind: "dataset type", state: "static|dynamic"} #}
+                    <div class="box box-default box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Parâmetros Adicionais</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: block;" class="box-body">
+                            <div class="row">
+
+                                <!-- Status -->
+                                <div class="col-md-1">
+                                    <h5>
+                                        <span class="label label-success"><i class="glyphicon glyphicon-ok"></i>LUA</span>
+                                    </h5>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#collectRuleModal">Regra de Coleta</button>
+                                </div>
+
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- /.box group -->
+                    </div>
+                    <!-- /.box solid -->
+                </div>
+            </div>
+            <!-- /.box body -->
+
+            <div class="box-footer">
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Cancelar</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Salvar</button>
+            </div> 
+        </div>
+    </div> <!-- end col md 12 -->
+
+{% endblock %}

@@ -40,7 +40,7 @@
                 </div>
             </div>
 
-            {% if kind == "PCD" %}
+            {% if kind|lower == "pcd" %}
               {% if state == "dynamic" %}
                 <div class="col-md-3">
                     <div class="form-group">
