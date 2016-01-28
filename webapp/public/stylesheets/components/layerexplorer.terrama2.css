@@ -41,6 +41,20 @@
   text-decoration:none;
 }
 
+.terrama2-layerexplorer-plus {
+  float: left;
+  font-size: 25px;
+  font-weight: bold;
+  margin-top: -8px;
+}
+
+.terrama2-layerexplorer-minus {
+  float: left;
+  font-size: 45px;
+  margin-top: -27px;
+  margin-right: -1px;
+}
+
 #terrama2-layerexplorer li.parent_li>span {
   cursor:pointer;
 }
@@ -51,20 +65,6 @@
 
 #terrama2-layerexplorer li:last-child::before {
   height:30px;
-}
-
-.terrama2-layerexplorer-plus {
-  background-image: url('../../images/plus.ico');
-  background-repeat: no-repeat;
-  background-position: left 3px;
-  background-size: 20px;
-}
-
-.terrama2-layerexplorer-minus {
-  background-image: url('../../images/minus.png');
-  background-repeat: no-repeat;
-  background-position: left 3px;
-  background-size: 20px;
 }
 
 .terrama2-layerexplorer-checkbox {

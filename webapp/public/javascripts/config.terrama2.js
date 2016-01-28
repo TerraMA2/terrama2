@@ -67,9 +67,7 @@ var Config = function(terrama2) {
    * Loads the necessary plugins
    */
   var loadPlugins = function() {
-    $(".terrama2-resizable-horizontal").resizable({
-      handles: 'e'
-    });
+    
   }
 
   $(document).ready(function(){
