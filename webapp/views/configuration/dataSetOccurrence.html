@@ -47,7 +47,7 @@
         $('#datetimepicker7').datetimepicker({
             widgetPositioning: {vertical: "bottom"},
             format: 'DD-MM-YY HH:mm',
-            useCurrent: false //Important! See issue #1075
+            useCurrent: false
         });
         $("#datetimepicker6").on("dp.change", function (e) {
             $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
