@@ -1,48 +1,17 @@
 {% extends "../base/layout.html" %}
 
-{% set configuration = {kind: "Occurrence"} %}
+{% set configuration = {kind: "Occurrence", state: "dynamic"} %}
 
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/stylesheets/terrama2.css">
     <link rel="stylesheet" type="text/css" href="/stylesheets/externals/timepicker/bootstrap-timepicker.min.css">
-
-    <style type="text/css">
-        .header-fixed {
-            width: 100% ;
-        }
-
-        .header-fixed > thead,
-        .header-fixed > tbody,
-        .header-fixed > thead > tr,
-        .header-fixed > tbody > tr,
-        .header-fixed > thead > tr > th,
-        .header-fixed > tbody > tr > td {
-            display: block;
-        }
-
-        .header-fixed > tbody > tr:after,
-        .header-fixed > thead > tr:after {
-            content: ' ';
-            display: block;
-            visibility: hidden;
-            clear: both;
-        }
-
-        .header-fixed > tbody {
-            overflow-y: auto;
-            height: 150px;
-        }
-
-        .header-fixed > tbody > tr > td,
-        .header-fixed > thead > tr > th {
-            width: 16.6%;
-            float: left;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/externals/bootstrap/bootstrap-datetimepicker.css">
 {% endblock %}
 
 {% block javascripts %}
     <script type="text/javascript" src="/javascripts/externals/timepicker/bootstrap-timepicker.min.js"></script>
+    <script type="text/javascript" src="/javascripts/externals/moment/moment.js"></script>
+    <script type="text/javascript" src="/javascripts/externals/bootstrap/bootstrap-datetimepicker.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
@@ -70,6 +39,22 @@
         $("#mask-list").on("click", "li", function(e){
             $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
         });
+
+        $('#datetimepicker6').datetimepicker({
+            widgetPositioning: {vertical: "bottom"},
+            format: 'DD-MM-YY HH:mm'
+        });
+        $('#datetimepicker7').datetimepicker({
+            widgetPositioning: {vertical: "bottom"},
+            format: 'DD-MM-YY HH:mm',
+            useCurrent: false //Important! See issue #1075
+        });
+        $("#datetimepicker6").on("dp.change", function (e) {
+            $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
+        });
+        $("#datetimepicker7").on("dp.change", function (e) {
+            $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
+        });
     });
     </script>
 {% endblock %}
@@ -77,6 +62,8 @@
 {% block title %} TerraMA2 Cadastro de Dados de Ocorrência {% endblock %}
 
 {% block content %}
+    {# Temp code for including filter modal. #}
+    {% include "../base/filterModal.html" %}
 
     <div class="col-md-12">
         <div class="box box-default">
@@ -86,55 +73,17 @@
             <!-- /.box-header -->
             <div style="display: block;" class="box-body">
 
-                <!-- Additional Data Component -->
-                {% include "../base/additionalData.html" with configuration %}
-
+                <!-- General Data Component -->
+                {% include "../base/generalData.html" with configuration %}
 
                 <!-- Parameters Component -->
                 {% include "../base/parametersData.html" with configuration %}
 
                 <!-- Filter component -->
-                <div class="box box-default box-solid">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Filtros</h3>
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <!-- /.box-header -->
-                    <div style="display: block;" class="box-body">
-                        <div class="row">
-                            <div class="col-md-5">
-                               <div class="col-md-3 col-md-offset-6 col-sm-6">
-                                    <button class="btn btn-primary btn-lg btn-block">Filtro</button>
-                                </div>
-                            </div>
+                {% include "../base/filter.html" with configuration %}
 
-                            <div class="col-md-7">
-                                {# TODO: validate and display filter labels from parameters. #}
-                                <div class="col-md-6">
-                                    <span>Filtro por data: Sim</span>
-                                </div>
-
-                                <div class="col-md-6">  
-                                    <span>Filtro por pré-analise: Não</span>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <span>Filtro por área: Não</span>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <span>Filtro por camadas: Não</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.row -->
-                    </div>
-                    <!-- /.box group -->
-                </div>
-                <!-- /.box solid -->
+                <!-- Attributes component -->
+                {% include "../base/attributes.html" with configuration %}
 
             </div>
             <!-- /.box body -->

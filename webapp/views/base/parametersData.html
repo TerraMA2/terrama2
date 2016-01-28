@@ -57,11 +57,7 @@
 
                 {# TODO: autocomplete while filling input out. #}
                 <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Projeção</label>
-                        <input class="form-control" id="projection" placeholder="Projeção do Data Set" type="text">
-                    </div>
-                    <!-- /.form-group -->
+                    {% include "projection.html" %}
                 </div>
 
                 <div class="col-md-1">
@@ -83,7 +79,7 @@
 
                 <div class="col-md-12">
                     <div class="box-body table-responsive no-padding">
-                        <table class="table table-hover header-fixed" id="terrama2-pcd-table">
+                        <table class="table table-hover terrama2-header-fixed" id="terrama2-pcd-table">
                            <thead>
                                <tr>
                                    <th>Máscara</th>
