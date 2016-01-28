@@ -162,11 +162,14 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 {
   // Inside a block so the lock is released before emitting the signal
   {
-  std::lock_guard<std::mutex> lock(pimpl_->mtx);
+    std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
-    if(provider.id() != 0)
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a data provider with an identifier different than 0."));
+    if(!pimpl_->memory)
+    {
+      if(provider.id() != 0)
+        throw terrama2::InvalidArgumentException() <<
+              ErrorDescription(QObject::tr("Can not add a data provider with an identifier different than 0."));
+    }
 
     if(provider.name().empty())
       throw terrama2::InvalidArgumentException() <<
@@ -241,9 +244,12 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
   {
     std::lock_guard<std::mutex> lock(pimpl_->mtx);
 
-    if(dataset.id() != 0)
-      throw InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
+    if(!pimpl_->memory)
+    {
+      if(dataset.id() != 0)
+        throw InvalidArgumentException() <<
+              ErrorDescription(QObject::tr("Can not add a dataset with identifier different than 0."));
+    }
 
     if(dataset.name().empty())
       throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Can not add a dataset with empty name."));
