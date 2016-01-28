@@ -23,16 +23,16 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
-//  TsCollectorService tsCollectorService;
+  //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
-  TsDataFilter tsDataFilter;
-  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
+//  TsDataFilter tsDataFilter;
+//  returnVal += QTest::qExec(&tsDataFilter, argc, argv);
 
 //  //DataRetriever
 
-  TsDataSetTimer tsDataSetTimer;
-  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
+//  TsDataSetTimer tsDataSetTimer;
+//  returnVal += QTest::qExec(&tsDataSetTimer, argc, argv);
 
 //  TsFactory tsFactory;
 //  returnVal += QTest::qExec(&tsFactory, argc, argv);
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
 //  TsParserPcdInpe tsParserInpe;
 //  returnVal += QTest::qExec(&tsParserInpe, argc, argv);
 
-  TsParserPcdToa5 tsParserToa5;
-  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
+//  TsParserPcdToa5 tsParserToa5;
+//  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
 
 //  TsParserTiff tsParserTiff;
 //  returnVal += QTest::qExec(&tsParserTiff, argc, argv);

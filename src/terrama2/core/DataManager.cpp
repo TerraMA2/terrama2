@@ -59,7 +59,7 @@ struct terrama2::core::DataManager::Impl
   bool memory;                                //!< Defines if the DataManager will store data only in memory.
 };
 
-void terrama2::core::DataManager::load()
+void terrama2::core::DataManager::load(bool memory)
 {
 
 // Inside a block so the lock is released before emitting the signal
@@ -71,7 +71,7 @@ void terrama2::core::DataManager::load()
     if(pimpl_->dataLoaded)
       return;
 
-    pimpl_->memory = false;
+    pimpl_->memory = memory;
 
     assert(pimpl_->providers.empty());
     assert(pimpl_->datasets.empty());
@@ -81,44 +81,6 @@ void terrama2::core::DataManager::load()
 
 // retrieve all data providers from database
     std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
-
-// index all data providers and theirs datasets
-    for(auto& provider : providers)
-    {
-
-      pimpl_->providers[provider.id()] = provider;
-
-      const std::vector<DataSet>& datasets = provider.datasets();
-
-      for(auto& dataset : datasets)
-        pimpl_->datasets[dataset.id()] = dataset;
-    }
-
-    pimpl_->dataLoaded = true;
-  }
-
-// emits a signal in order to notify the application that the data manager has been loaded.
-  emit dataManagerLoaded();
-}
-
-
-void terrama2::core::DataManager::load(std::vector<DataProvider> providers)
-{
-
-// Inside a block so the lock is released before emitting the signal
-  {
-
-// only one thread at time can access the data
-    std::lock_guard<std::mutex> lock(pimpl_->mtx);
-
-// if the data has already been loaded there is nothing to be done.
-    if(pimpl_->dataLoaded)
-      return;
-
-    pimpl_->memory = true;
-
-    assert(pimpl_->providers.empty());
-    assert(pimpl_->datasets.empty());
 
 // index all data providers and theirs datasets
     for(auto& provider : providers)
@@ -224,6 +186,8 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
     }
   }
 
+  emit dataProviderAdded(provider);
+
   if(!shallowSave)
   {
     for (auto& dataset : provider.datasets())
@@ -231,8 +195,6 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
       emit dataSetAdded(dataset);
     }
   }
-
-  emit dataProviderAdded(provider);
 }
 
 void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)

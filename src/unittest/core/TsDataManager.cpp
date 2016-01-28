@@ -1535,7 +1535,7 @@ void TsDataManager::testMemoryDataManager()
 
   vecProviders.push_back(provider);
 
-  DataManager::getInstance().load(vecProviders);
+  DataManager::getInstance().load(true);
 
   auto foundProvider = DataManager::getInstance().findDataProvider(1);
 

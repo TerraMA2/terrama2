@@ -143,12 +143,11 @@ int main(int argc, char* argv[])
   std::string logPath = "";
   int port = 0;
 
+  QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
+  QJsonObject project = jdoc.object();
+
   try
   {
-    QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
-
-    QJsonObject project = jdoc.object();
-
     if(project.contains("collector_web_service"))
     {
       QJsonObject collectionConfig = project["collector_web_service"].toObject();
@@ -191,13 +190,13 @@ int main(int argc, char* argv[])
     terrama2::core::initializeTerralib();
 
     TERRAMA2_LOG_INFO() << "Loading TerraMA2 Project...";
-    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(project))
     {
       TERRAMA2_LOG_ERROR() << "Failure in TerraMA2 initialization: Project File is invalid or does not exist!";
       exit(TERRAMA2_PROJECT_LOAD_ERROR);
     }
 
-    terrama2::core::DataManager::getInstance().load();
+    terrama2::core::DataManager::getInstance().load(true);
 
     QApplication app(argc, argv);
     auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
@@ -210,7 +209,17 @@ int main(int argc, char* argv[])
       if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
       {
         terrama2::core::TcpListener listener;
-        listener.listen(QHostAddress::Any, 30000);
+        if(project.contains("services"))
+        {
+          QJsonObject object = project.value("services").toObject();
+          if(object.contains("instanceName"))
+          {
+            QJsonObject instanceObject = object.value("instanceName").toObject();
+            int port = instanceObject.value("port");
+            listener.listen(QHostAddress::Any, port);
+          }
+        }
+
         app.exec();
       }
     }

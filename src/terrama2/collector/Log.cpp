@@ -37,6 +37,7 @@
 #include "Exception.hpp"
 #include "Log.hpp"
 #include "../core/ApplicationController.hpp"
+#include "../core/Logger.hpp"
 
 
 
@@ -134,19 +135,27 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
   }
   catch(terrama2::Exception& e)
   {
-    throw LogException() << ErrorDescription(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    std::string errMsg(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
   catch(te::common::Exception& e)
   {
-    throw LogException() << ErrorDescription(e.what());;
+    std::string errMsg = e.what();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
   catch(std::exception& e)
   {
-    throw LogException() << ErrorDescription(e.what());
+    std::string errMsg = e.what();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
   catch(...)
   {
-    throw LogException() << ErrorDescription("terrama2::collector::Log: Unknow error");
+    std::string errMsg = "Unknown error...";
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
 }
 
