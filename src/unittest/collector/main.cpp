@@ -1,8 +1,10 @@
 
 #include "TsCollectorService.hpp"
+#include "TsDataRetrieverWCS.hpp"
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
+#include "TsLog.hpp"
 #include "TsParserOGR.hpp"
 #include "TsParserPcdInpe.hpp"
 #include "TsParserPcdToa5.hpp"
@@ -39,7 +41,10 @@ int main(int argc, char *argv[])
 
 //  //Intersection Operation
 
-//  //Log
+  //Log
+
+//  TsLog tsLog;
+//  returnVal += QTest::qExec(&tsLog, argc, argv);
 
 //  //Parser
 
@@ -66,10 +71,15 @@ int main(int argc, char *argv[])
 //  TsIntegration tsIntegration;
 //  returnVal += QTest::qExec(&tsIntegration, argc, argv);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
-  timer.start(1000);
-  app.exec();
+  // DataRetriever
+
+  TsDataRetrieverWCS tsDataRetrieverWCS;
+  returnVal += QTest::qExec(&tsDataRetrieverWCS, argc, argv);
+
+//  QTimer timer;
+//  QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
+//  timer.start(1000);
+//  app.exec();
 
   finalizeTerralib();
 

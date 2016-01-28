@@ -36,9 +36,9 @@ INSERT INTO terrama2.data_provider_type (name, description) VALUES ('UNKNOWN_TYP
 
 CREATE TABLE terrama2.data_provider_origin ( id SERIAL PRIMARY KEY, name VARCHAR(50) UNIQUE, description TEXT);
 
-COMMENT ON TABLE terrama2.data_provider_type IS 'Stores the data provider origin';
-COMMENT ON COLUMN terrama2.data_provider_type.id IS 'Type identifier';
-COMMENT ON COLUMN terrama2.data_provider_type.name IS 'Name that identifies the data server origin';
+COMMENT ON TABLE terrama2.data_provider_origin IS 'Stores the data provider origin';
+COMMENT ON COLUMN terrama2.data_provider_origin.id IS 'Type identifier';
+COMMENT ON COLUMN terrama2.data_provider_origin.name IS 'Name that identifies the data server origin';
 
 INSERT INTO terrama2.data_provider_origin (name, description) VALUES ('COLLECTOR', 'Data provider that is used in the collector'), ('ANALYSIS', 'Data provider that is used in the analysis');
 
