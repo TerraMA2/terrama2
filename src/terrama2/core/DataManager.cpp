@@ -76,22 +76,25 @@ void terrama2::core::DataManager::load(bool memory)
     assert(pimpl_->providers.empty());
     assert(pimpl_->datasets.empty());
 
-// otherwise, we must search for and load all metadata information
-    std::shared_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
-
-// retrieve all data providers from database
-    std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
-
-// index all data providers and theirs datasets
-    for(auto& provider : providers)
+    if(!pimpl_->memory)
     {
+      // otherwise, we must search for and load all metadata information
+      std::shared_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
-      pimpl_->providers[provider.id()] = provider;
+      // retrieve all data providers from database
+      std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
 
-      const std::vector<DataSet>& datasets = provider.datasets();
+      // index all data providers and theirs datasets
+      for(auto& provider : providers)
+      {
 
-      for(auto& dataset : datasets)
-        pimpl_->datasets[dataset.id()] = dataset;
+        pimpl_->providers[provider.id()] = provider;
+
+        const std::vector<DataSet>& datasets = provider.datasets();
+
+        for(auto& dataset : datasets)
+          pimpl_->datasets[dataset.id()] = dataset;
+      }
     }
 
     pimpl_->dataLoaded = true;

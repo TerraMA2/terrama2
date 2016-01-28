@@ -37,10 +37,12 @@
 #include "../core/TcpListener.hpp"
 #include "../core/DataManager.hpp"
 #include "../core/Logger.hpp"
+#include "../core/Utils.hpp"
 #include "../Exception.hpp"
 
 int main(int argc, char* argv[])
 {
+
   // check if the parameters was passed correctly
   if(argc < 2)
   {
@@ -49,19 +51,38 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  int port = std::atoi(argv[1]);
+  if(port < 1024 || port > 49151)
+  {
+    std::cerr << "Usage: collector_service <port number>" << std::endl;
+
+    return EXIT_FAILURE;
+  }
+
+
   try
   {
+    terrama2::core::initializeLogger("terrama2.log");
+    TERRAMA2_LOG_INFO() << "Initializating TerraLib...";
+    terrama2::core::initializeTerralib();
+
     QApplication app(argc, argv);
 
     terrama2::core::DataManager::getInstance().load(true);
 
+    TERRAMA2_LOG_INFO() << "Starting collector service...";
     terrama2::collector::CollectorService collectorService;
     collectorService.start();
 
+    TERRAMA2_LOG_INFO() << "Listening to port: " + std::to_string(port);
     terrama2::core::TcpListener listener;
-    listener.listen(QHostAddress::Any, std::atoi(argv[1]));
+    listener.listen(QHostAddress::Any, port);
 
     app.exec();
+
+    terrama2::core::DataManager::getInstance().unload();
+
+    terrama2::core::finalizeTerralib();
 
     return EXIT_SUCCESS;
   }
