@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
     if(project.contains("collector_web_service"))
     {
       QJsonObject collectionConfig = project["collector_web_service"].toObject();
-      port = collectionConfig["port"].toString().toInt();
+      port = collectionConfig["port"].toInt();
 
       if( port < 1024 || port > 49151)
       {
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
       exit(TERRAMA2_PROJECT_LOAD_ERROR);
     }
 
-    terrama2::core::DataManager::getInstance().load(true);
+    terrama2::core::DataManager::getInstance().load();
 
     QApplication app(argc, argv);
     auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
@@ -207,21 +207,7 @@ int main(int argc, char* argv[])
       collectorService.start();
 
       if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
-      {
-        terrama2::core::TcpListener listener;
-        if(project.contains("services"))
-        {
-          QJsonObject object = project.value("services").toObject();
-          if(object.contains("instanceName"))
-          {
-            QJsonObject instanceObject = object.value("instanceName").toObject();
-            int port = instanceObject.value("port");
-            listener.listen(QHostAddress::Any, port);
-          }
-        }
-
         app.exec();
-      }
     }
 
     terrama2::core::DataManager::getInstance().unload();

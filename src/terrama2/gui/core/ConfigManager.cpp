@@ -105,7 +105,7 @@ void terrama2::gui::core::ConfigManager::setDataForm(QJsonObject metadata)
     QJsonObject databaseConfig = metadata["database"].toObject();
     database_->dbName_ = databaseConfig["name"].toString();
     database_->host_ = databaseConfig["host"].toString();
-    database_->port_ = databaseConfig["port"].toString().toInt();
+    database_->port_ = databaseConfig["port"].toInt();
     database_->user_ = databaseConfig["user"].toString();
     database_->password_ = databaseConfig["password"].toString();
     database_->driver_ = databaseConfig["driver"].toString();
@@ -121,7 +121,7 @@ void terrama2::gui::core::ConfigManager::setDataForm(QJsonObject metadata)
     collection_->logFile_ = collectConfig["log_file"].toString();
     collection_->timeout_ = collectConfig["connection_timeout"].toInt();
     collection_->address_ = collectConfig["address"].toString();
-    collection_->servicePort_ = collectConfig["port"].toString().toInt();
+    collection_->servicePort_ = collectConfig["port"].toInt();
     collection_->cmd_ = collectConfig["command"].toString();
     collection_->params_ = collectConfig["parameters"].toString();
   }
@@ -139,7 +139,7 @@ void terrama2::gui::core::ConfigManager::setDatabase(QJsonObject dbase)
   database_->dbName_ = dbase["name"].toString();
   database_->driver_ = dbase["driver"].toString();
   database_->host_ = dbase["host"].toString();
-  database_->port_ = dbase["port"].toString().toInt();
+  database_->port_ = dbase["port"].toInt();
   database_->user_ = dbase["user"].toString();
   database_->password_ = dbase["password"].toString();
 }

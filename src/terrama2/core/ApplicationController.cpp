@@ -156,7 +156,7 @@ bool terrama2::core::ApplicationController::loadProject(const QJsonObject& proje
 
 }
 
-std::auto_ptr<te::da::DataSourceTransactor>
+std::shared_ptr<te::da::DataSourceTransactor>
 terrama2::core::ApplicationController::getTransactor()
 {
   try

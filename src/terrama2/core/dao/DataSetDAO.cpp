@@ -222,11 +222,11 @@ terrama2::core::dao::DataSetDAO::load(uint64_t id, te::da::DataSourceTransactor&
   {
     std::string sql("SELECT * FROM terrama2.dataset WHERE id = " + std::to_string(id));
 
-    std::auto_ptr<te::da::DataSet> queryResult = transactor.query(sql);
+    std::unique_ptr<te::da::DataSet> queryResult(transactor.query(sql));
 
     if(queryResult->moveNext())
     {
-      return getDataSet(queryResult, transactor);
+      return getDataSet(std::move(queryResult), transactor);
     }
 
     return DataSet();
@@ -264,11 +264,11 @@ terrama2::core::dao::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSource
                 query += std::to_string(providerId);
                 query += " ORDER BY id ASC";
 
-    std::auto_ptr<te::da::DataSet> queryResult = transactor.query(query);
+    std::unique_ptr<te::da::DataSet> queryResult( transactor.query(query));
 
     while(queryResult->moveNext())
     {
-      datasets.push_back(getDataSet(queryResult, transactor));
+      datasets.push_back(getDataSet(std::move(queryResult), transactor));
     }
   }
   catch(const std::exception& e)
@@ -293,7 +293,7 @@ void terrama2::core::dao::DataSetDAO::loadMetadata(DataSet& dataSet, te::da::Dat
   std::map<std::string, std::string> metadata;
 
   std::string sql("SELECT key, value FROM terrama2.dataset_metadata WHERE dataset_id = " + std::to_string(dataSet.id()));
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+  std::unique_ptr<te::da::DataSet> tempDataSet(transactor.query(sql));
 
   while(tempDataSet->moveNext())
   {
@@ -351,7 +351,7 @@ void terrama2::core::dao::DataSetDAO::saveMetadata(DataSet& dataset, te::da::Dat
   }
 }
 
-terrama2::core::DataSet terrama2::core::dao::DataSetDAO::getDataSet(std::auto_ptr<te::da::DataSet>& queryResult, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSet terrama2::core::dao::DataSetDAO::getDataSet(std::unique_ptr<te::da::DataSet> queryResult, te::da::DataSourceTransactor& transactor)
 {
 
     std::string name = queryResult->getAsString("name");

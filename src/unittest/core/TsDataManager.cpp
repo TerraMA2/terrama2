@@ -76,7 +76,7 @@ void TsDataManager::clearDatabase()
     QFAIL("Invalid database connection");
   }
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
 
   if(!transactor.get())
   {

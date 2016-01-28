@@ -77,7 +77,7 @@ void terrama2::core::DataManager::load(bool memory)
     assert(pimpl_->datasets.empty());
 
 // otherwise, we must search for and load all metadata information
-    std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+    std::shared_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
 // retrieve all data providers from database
     std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
@@ -139,12 +139,11 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
     try
     {
-      std::auto_ptr<te::da::DataSourceTransactor> transactor;
+      std::shared_ptr<te::da::DataSourceTransactor> transactor;
 
       if(!pimpl_->memory)
       {
         transactor = ApplicationController::getInstance().getTransactor();
-
         transactor->begin();
 
         dao::DataProviderDAO::save(provider, *transactor, shallowSave);
@@ -232,7 +231,7 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
     {
       if(!pimpl_->memory)
       {
-        std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+        std::shared_ptr<te::da::DataSourceTransactor> transactor(ApplicationController::getInstance().getTransactor());
         transactor->begin();
 
         dao::DataSetDAO::save(dataset, *transactor, shallowSave);
@@ -434,7 +433,7 @@ void terrama2::core::DataManager::update(DataSet& dataset, const bool shallowSav
 
       if(!pimpl_->memory)
       {
-        std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+        std::shared_ptr<te::da::DataSourceTransactor> transactor(ApplicationController::getInstance().getTransactor());
 
         transactor->begin();
 
@@ -491,7 +490,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 
         if(!pimpl_->memory)
         {
-          std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+          std::shared_ptr<te::da::DataSourceTransactor> transactor(ApplicationController::getInstance().getTransactor());
 
           transactor->begin();
 
