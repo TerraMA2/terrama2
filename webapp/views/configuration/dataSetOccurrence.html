@@ -4,20 +4,18 @@
 
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/stylesheets/terrama2.css">
-    <link rel="stylesheet" type="text/css" href="/stylesheets/externals/timepicker/bootstrap-timepicker.min.css">
     <link rel="stylesheet" type="text/css" href="/stylesheets/externals/bootstrap/bootstrap-datetimepicker.css">
 {% endblock %}
 
 {% block javascripts %}
     <script type="text/javascript" src="/javascripts/externals/moment/moment.js"></script>
-    <script type="text/javascript" src="/javascripts/externals/timepicker/bootstrap-timepicker.js"></script>
     <script type="text/javascript" src="/javascripts/externals/bootstrap/bootstrap-datetimepicker.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
-        $(".timepicker").timepicker({
-          showMeridian:false,
-          showInputs: false,
+        $(".timepicker").datetimepicker({
+            widgetPositioning: {vertical: "bottom"},
+            format: "HH:mm:ss"
         });
 
         //temp code
@@ -73,14 +71,46 @@
             <!-- /.box-header -->
             <div style="display: block;" class="box-body">
 
-                <!-- General Data Component -->
-                {% include "../base/generalData.html" with configuration %}
+                <div class="col-md-12">
+                    <!-- General Data Component -->
+                    {% include "../base/generalData.html" with configuration %}
+                </div>
 
-                <!-- Parameters Component -->
-                {% include "../base/parametersData.html" with configuration %}
+                <div class="col-md-12">
+                    <!-- Parameters Component -->
+                    {% include "../base/parametersData.html" with configuration %}
+                </div>
 
-                <!-- Filter component -->
-                {% include "../base/filter.html" with configuration %}
+                <div class="col-md-9">
+                    <!-- Filter component -->
+                    {% include "../base/filter.html" with configuration %}
+                </div>
+
+                <div class="col-md-3">
+                                    <!-- Intersection -->
+                <div class="box box-default box-solid">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Pre-processamento</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div style="display: block;" class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                               <div class="col-md-8 col-md-offset-2">
+                                    <button class="btn btn-primary btn-lg btn-block" id="intersection-button" data-toggle="modal" data-target="#intersectionModal">Interseção</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box group -->
+                </div>
+                <!-- /.box solid -->
+                </div>
 
             </div>
             <!-- /.box body -->

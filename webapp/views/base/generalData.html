@@ -60,13 +60,13 @@
 
             {% if state != "static" %}
 
-            <div class="col-md-8">
+            <div class="col-md-3">
                 <div class="form-group">
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
                             <label>Frequência de Atualização:</label>
                             <div class="input-group">
-                                <input type="text" class="form-control timepicker" name="dataFrequency">
+                                <input type="text" class="form-control timepicker" name="dataFrequency" data-format="HH:mm:ss">
                                 <div class="input-group-addon">
                                     <i class="fa fa-clock-o"></i>
                                 </div>
@@ -77,7 +77,58 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>Tempo Agendado:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control timepicker" name="schedule" data-format="HH:mm:ss">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                            </div><!-- /.input group -->
+                        </div><!-- /.form group -->
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>Tempo de Tentativa:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control timepicker" name="scheduleRetry" data-format="HH:mm:ss">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                            </div><!-- /.input group -->
+                        </div><!-- /.form group -->
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>Timeout de coleta:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control timepicker" name="scheduleTimeout" data-format="HH:mm:ss">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                            </div><!-- /.input group -->
+                        </div><!-- /.form group -->
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+
+            <div class="col-md-2">
                 <div class="form-group">
                     <div class="checkbox">
                         <label class="terrama2-checkbox-align">
