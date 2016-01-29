@@ -33,12 +33,12 @@
 //QT
 #include <QApplication>
 
-#include "CollectorService.hpp"
-#include "../core/TcpListener.hpp"
-#include "../core/DataManager.hpp"
-#include "../core/Logger.hpp"
-#include "../core/Utils.hpp"
-#include "../Exception.hpp"
+#include "../../collector/CollectorService.hpp"
+#include "../../core/TcpListener.hpp"
+#include "../../core/DataManager.hpp"
+#include "../../core/Logger.hpp"
+#include "../../core/Utils.hpp"
+#include "../../Exception.hpp"
 
 int main(int argc, char* argv[])
 {

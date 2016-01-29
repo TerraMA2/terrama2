@@ -46,10 +46,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_library(terrama2_mod_collector SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
-add_executable(collector_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
-qt5_use_modules(terrama2_mod_collector Widgets)
-qt5_use_modules(collector_service Widgets)
+qt5_use_modules(terrama2_mod_collector Core)
 
 target_link_libraries(terrama2_mod_collector terrama2_mod_core
                                              terralib_mod_dataaccess
@@ -60,18 +58,6 @@ target_link_libraries(terrama2_mod_collector terrama2_mod_core
                                              ${Boost_SYSTEM_LIBRARY}
                                              ${Boost_REGEX_LIBRARY}
                                              ${CURL_LIBRARIES})
-
-target_link_libraries(collector_service terrama2_mod_core
-                                        terralib_mod_plugin
-                                        terralib_mod_common
-                                        terralib_mod_dataaccess
-                                        terralib_mod_memory
-                                        terralib_mod_vp_core
-                                        terralib_mod_rp
-                                        ${Boost_FILESYSTEM_LIBRARY}
-                                        ${Boost_SYSTEM_LIBRARY}
-                                        ${Boost_REGEX_LIBRARY}
-                                        ${CURL_LIBRARIES})
 
 set_target_properties(terrama2_mod_collector
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

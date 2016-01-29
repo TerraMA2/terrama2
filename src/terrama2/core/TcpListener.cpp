@@ -128,6 +128,8 @@ void terrama2::core::TcpListener::receiveConnection()
       int dataId;
       in >> dataId;
 
+      //TODO: collect ou analyse now!
+
       break;
     }
     case TcpSignals::__NULL__:
