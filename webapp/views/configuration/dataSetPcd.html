@@ -1,7 +1,5 @@
 {% extends "../base/layout.html" %}
 
-{% set configuration = {kind: "pcd", state: "dynamic"} %}
-
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/stylesheets/terrama2.css">
     <link rel="stylesheet" type="text/css" href="/stylesheets/externals/bootstrap/bootstrap-datetimepicker.css">
@@ -45,7 +43,11 @@
 {% block title %} TerraMA2 Cadastro de Dados de PCD {% endblock %}
 
 {% block content %}
-    {% include "../base/collectRule.html" %}
+    {# Modal for collect rule #}
+    {% include "../base/collectRuleModal.html" %}
+
+    {# Modal for wfs layer #}
+    {% include "../base/wfsLayerModal.html" %}
 
     <div class="col-md-12">
         <div class="box box-default">
@@ -78,18 +80,31 @@
                         <!-- /.box-header -->
                         <div style="display: block;" class="box-body">
                             <div class="row">
+                                <div class="col-md-4">
+                                    <!-- Status -->
+                                    <div class="col-md-6">
+                                        <h5>
+                                            <span class="label label-success"><i class="glyphicon glyphicon-ok"></i>LUA</span>
+                                        </h5>
+                                    </div>
 
-                                <!-- Status -->
-                                <div class="col-md-1">
-                                    <h5>
-                                        <span class="label label-success"><i class="glyphicon glyphicon-ok"></i>LUA</span>
-                                    </h5>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#collectRuleModal">Regra de Coleta</button>
+                                    </div>
                                 </div>
 
-                                <div class="col-md-3">
-                                    <button class="btn btn-primary" data-toggle="modal" data-target="#collectRuleModal">Regra de Coleta</button>
-                                </div>
+                                <div class="col-md-4">
+                                    <!-- WFS Layer -->
+                                    <div class="col-md-6">
+                                        <h5>
+                                            <span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>
+                                        </h5>
+                                    </div>
 
+                                    <div class="col-md-6">
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#wftLayerModal">Atributo WFS</button>
+                                    </div>
+                                </div>
                             </div>
                             <!-- /.row -->
                         </div>
