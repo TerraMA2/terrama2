@@ -28,7 +28,7 @@
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/doc/api/Doxyfile.in
                ${CMAKE_CURRENT_BINARY_DIR}/doxygen.txt @ONLY)
 
-add_custom_target(terrama2_doxygen
+add_custom_target(doc
                   ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxygen.txt
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                   COMMENT "Generating API documentation with Doxygen" VERBATIM)
