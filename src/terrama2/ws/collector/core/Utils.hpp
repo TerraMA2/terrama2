@@ -321,7 +321,7 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
   for(int i = 0; i < dataset_items.size(); i++)
   {
     // need to initialize the struct to avoid to create non-existent filters
-    T1 struct_dataset_item{0,0,0,0,"","","",0,0,"","","","","","","",std::nan(""),0,""};
+    T1 struct_dataset_item{0,0,0,0,"","","",0,0,"","","","","","","",0,std::nan(""),0,""};
 
     struct_dataset_item.id = dataset_items.at(i).id();
     struct_dataset_item.dataset = dataset_items.at(i).dataset();
@@ -346,12 +346,13 @@ std::vector< T1 > terrama2::ws::collector::core::DataSetItem2Struct(std::vector<
     if(filter.discardAfter() != nullptr)
       terrama2::collector::BoostLocalDateTime2DateTimeString(filter.discardAfter()->getTimeInstantTZ(), struct_dataset_item.filter_discardAfter_date, struct_dataset_item.filter_discardAfter_time ,struct_dataset_item.filter_discardAfter_timezone);
 
-    // VINICIUS: toString() is generating a wrong WKT, need to replace '\n' for ','
+    // VINICIUS: TERRALIB toString() is generating a wrong WKT, need to replace '\n' for ','
     if(filter.geometry() != nullptr)
     {
       std::string geom = filter.geometry()->toString();
       std::replace( geom.begin(), geom.end(), '\n', ',');
       struct_dataset_item.filter_geometry = geom;
+      struct_dataset_item.filter_geometry_srid = filter.geometry()->getSRID();
     }
 
     if(filter.value() != nullptr)
@@ -426,6 +427,7 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
     if(!struct_dataset_items.at(i).filter_geometry.empty())
     {
       std::unique_ptr< te::gm::Polygon > geom(dynamic_cast<te::gm::Polygon*>(te::gm::WKTReader::read(struct_dataset_items.at(i).filter_geometry.c_str())));
+      geom->setSRID(struct_dataset_items.at(i).filter_geometry_srid);
       filter.setGeometry(std::move(geom));
     }
 
