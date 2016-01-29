@@ -1,1 +1,0 @@
-./node_modules/.bin/jsdoc -R README.md -c node_modules/jsdoc/conf.json -P package.json
