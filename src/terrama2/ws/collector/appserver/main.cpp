@@ -45,13 +45,14 @@
 // TerraMA2
 #include "soapWebService.h"
 #include "../Exception.hpp"
-#include "../core/Codes.hpp"
 #include "../Exception.hpp"
+#include "../core/Codes.hpp"
 #include "../../../core/ApplicationController.hpp"
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Utils.hpp"
-#include "../../../collector/CollectorService.hpp"
 #include "../../../core/Logger.hpp"
+#include "../../../core/TcpListener.hpp"
+#include "../../../collector/CollectorService.hpp"
 
 const int TERRALIB_LOAD_ERROR = 101;
 const int COLLECTOR_SERVICE_STAR_ERROR = 102;
@@ -109,8 +110,8 @@ bool gSoapThread(int port)
 
     TERRAMA2_LOG_INFO() << "Shutdown Webservice...";
 
-//    server.soap_force_close_socket();
-//    server.destroy();
+    //    server.soap_force_close_socket();
+    //    server.destroy();
   }
   catch(boost::exception& e)
   {
@@ -142,16 +143,15 @@ int main(int argc, char* argv[])
   std::string logPath = "";
   int port = 0;
 
+  QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
+  QJsonObject project = jdoc.object();
+
   try
   {
-    QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
-
-    QJsonObject project = jdoc.object();
-
     if(project.contains("collector_web_service"))
     {
       QJsonObject collectionConfig = project["collector_web_service"].toObject();
-      port = collectionConfig["port"].toString().toInt();
+      port = collectionConfig["port"].toInt();
 
       if( port < 1024 || port > 49151)
       {
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
     terrama2::core::initializeTerralib();
 
     TERRAMA2_LOG_INFO() << "Loading TerraMA2 Project...";
-    if(!terrama2::core::ApplicationController::getInstance().loadProject(argv[1]))
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(project))
     {
       TERRAMA2_LOG_ERROR() << "Failure in TerraMA2 initialization: Project File is invalid or does not exist!";
       exit(TERRAMA2_PROJECT_LOAD_ERROR);
@@ -206,8 +206,8 @@ int main(int argc, char* argv[])
       terrama2::collector::CollectorService collectorService;
       collectorService.start();
 
-    if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
-      app.exec();
+      if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
+        app.exec();
     }
 
     terrama2::core::DataManager::getInstance().unload();

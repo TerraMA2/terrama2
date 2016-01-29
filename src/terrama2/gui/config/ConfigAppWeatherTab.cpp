@@ -628,7 +628,7 @@ void terrama2::gui::config::ConfigAppWeatherTab::onExportServerClicked()
     json["description"] = ui_->serverDescription->toPlainText();
     json["kind"] = ui_->connectionProtocol->currentText();
     json["address"] = ui_->connectionAddress->text();
-    json["port"] = ui_->connectionPort->text();
+    json["port"] = ui_->connectionPort->text().toInt();
     json["username"] = ui_->connectionUserName->text();
     json["password"] = ui_->connectionPassword->text();
 

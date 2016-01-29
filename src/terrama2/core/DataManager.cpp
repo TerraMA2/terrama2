@@ -59,7 +59,7 @@ struct terrama2::core::DataManager::Impl
   bool memory;                                //!< Defines if the DataManager will store data only in memory.
 };
 
-void terrama2::core::DataManager::load()
+void terrama2::core::DataManager::load(bool memory)
 {
 
 // Inside a block so the lock is released before emitting the signal
@@ -71,65 +71,30 @@ void terrama2::core::DataManager::load()
     if(pimpl_->dataLoaded)
       return;
 
-    pimpl_->memory = false;
+    pimpl_->memory = memory;
 
     assert(pimpl_->providers.empty());
     assert(pimpl_->datasets.empty());
 
-// otherwise, we must search for and load all metadata information
-    std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
-
-// retrieve all data providers from database
-    std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
-
-// index all data providers and theirs datasets
-    for(auto& provider : providers)
+    if(!pimpl_->memory)
     {
+      // otherwise, we must search for and load all metadata information
+      std::shared_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
 
-      pimpl_->providers[provider.id()] = provider;
+      // retrieve all data providers from database
+      std::vector<DataProvider> providers = dao::DataProviderDAO::loadAll(*transactor);
 
-      const std::vector<DataSet>& datasets = provider.datasets();
+      // index all data providers and theirs datasets
+      for(auto& provider : providers)
+      {
 
-      for(auto& dataset : datasets)
-        pimpl_->datasets[dataset.id()] = dataset;
-    }
+        pimpl_->providers[provider.id()] = provider;
 
-    pimpl_->dataLoaded = true;
-  }
+        const std::vector<DataSet>& datasets = provider.datasets();
 
-// emits a signal in order to notify the application that the data manager has been loaded.
-  emit dataManagerLoaded();
-}
-
-
-void terrama2::core::DataManager::load(std::vector<DataProvider> providers)
-{
-
-// Inside a block so the lock is released before emitting the signal
-  {
-
-// only one thread at time can access the data
-    std::lock_guard<std::mutex> lock(pimpl_->mtx);
-
-// if the data has already been loaded there is nothing to be done.
-    if(pimpl_->dataLoaded)
-      return;
-
-    pimpl_->memory = true;
-
-    assert(pimpl_->providers.empty());
-    assert(pimpl_->datasets.empty());
-
-// index all data providers and theirs datasets
-    for(auto& provider : providers)
-    {
-
-      pimpl_->providers[provider.id()] = provider;
-
-      const std::vector<DataSet>& datasets = provider.datasets();
-
-      for(auto& dataset : datasets)
-        pimpl_->datasets[dataset.id()] = dataset;
+        for(auto& dataset : datasets)
+          pimpl_->datasets[dataset.id()] = dataset;
+      }
     }
 
     pimpl_->dataLoaded = true;
@@ -177,12 +142,11 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
     try
     {
-      std::auto_ptr<te::da::DataSourceTransactor> transactor;
+      std::shared_ptr<te::da::DataSourceTransactor> transactor;
 
       if(!pimpl_->memory)
       {
         transactor = ApplicationController::getInstance().getTransactor();
-
         transactor->begin();
 
         dao::DataProviderDAO::save(provider, *transactor, shallowSave);
@@ -224,6 +188,8 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
     }
   }
 
+  emit dataProviderAdded(provider);
+
   if(!shallowSave)
   {
     for (auto& dataset : provider.datasets())
@@ -231,8 +197,6 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
       emit dataSetAdded(dataset);
     }
   }
-
-  emit dataProviderAdded(provider);
 }
 
 void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
@@ -270,7 +234,7 @@ void terrama2::core::DataManager::add(DataSet& dataset, const bool shallowSave)
     {
       if(!pimpl_->memory)
       {
-        std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+        std::shared_ptr<te::da::DataSourceTransactor> transactor(ApplicationController::getInstance().getTransactor());
         transactor->begin();
 
         dao::DataSetDAO::save(dataset, *transactor, shallowSave);
@@ -472,7 +436,7 @@ void terrama2::core::DataManager::update(DataSet& dataset, const bool shallowSav
 
       if(!pimpl_->memory)
       {
-        std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+        std::shared_ptr<te::da::DataSourceTransactor> transactor(ApplicationController::getInstance().getTransactor());
 
         transactor->begin();
 
@@ -529,7 +493,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
 
         if(!pimpl_->memory)
         {
-          std::auto_ptr<te::da::DataSourceTransactor> transactor = ApplicationController::getInstance().getTransactor();
+          std::shared_ptr<te::da::DataSourceTransactor> transactor(ApplicationController::getInstance().getTransactor());
 
           transactor->begin();
 

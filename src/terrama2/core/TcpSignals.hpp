@@ -20,35 +20,25 @@
 */
 
 /*!
-  \file terrama2/core/Exception.hpp
+  \file terrama2/core/TcpSignals.hpp
 
-  \brief Specific exception classes from core module.
+  \brief Signals for TCP messages.
 
-  \author Paulo R. M. Oliveira
- */
+  \author Jano Simas
+*/
 
-#ifndef __TERRAMA2_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_CORE_EXCEPTION_HPP__
-
-// TerraMA2
-#include "../Exception.hpp"
-
-namespace terrama2
-{
-  namespace core
-  {
-    //! Base excection for core module.
-    struct Exception : virtual terrama2::Exception { };
-
-    //! Indicates that an exception comming from TerraLib Data Access module.
-    struct DataAccessException: virtual Exception{ };
-
-    //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
-    struct DataSetInUseException: virtual Exception{ };
-
-    struct UnableToConnect : virtual Exception{ };
-
-  }  // end namespace core
-}  // end namespace terrama2
-
-#endif  // __TERRAMA2_CORE_EXCEPTION_HPP__
+namespace terrama2 {
+  namespace core {
+    //! Namespace for signals for TCP communication.
+    namespace TcpSignals{
+      //! Signals for TCP communication.
+      enum TcpSignal
+      {
+        __NULL__ = -1, //! Null signal, error occurred.
+        __STOP__ = 0,//! Stop service signal.
+        __DATA__ = 1,//! Data signal, followed by data.
+        __START__ = 2//! Start signal, queue the collection, analysis, ...
+      };
+    }
+  }
+}

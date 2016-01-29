@@ -66,7 +66,7 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
   }
   catch(te::common::Exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
@@ -80,7 +80,7 @@ uint64_t terrama2::collector::Log::log(const uint64_t dataSetItemId, const std::
   }
   catch(std::exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
@@ -149,31 +149,27 @@ void terrama2::collector::Log::log(const std::vector<TransferenceData>& transfer
   }
   catch(terrama2::Exception& e)
   {
-    QString errMsg = QObject::tr(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-
+    std::string errMsg(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString());
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw LogException() << ErrorDescription(errMsg);
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
   catch(te::common::Exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
-
+    std::string errMsg = e.what();
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw LogException() << ErrorDescription(errMsg);
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
   catch(std::exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
-
+    std::string errMsg = e.what();
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw LogException() << ErrorDescription(errMsg);
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
   catch(...)
   {
-    QString errMsg = QObject::tr("Unknow error");
-
+    std::string errMsg = QObject::tr("Unknown error...").toStdString();
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw LogException() << ErrorDescription(errMsg);
+    throw LogException() << ErrorDescription(errMsg.c_str());
   }
 }
 
@@ -201,14 +197,14 @@ void terrama2::collector::Log::updateLog(const uint64_t id, const std::string& u
   }
   catch(te::common::Exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
@@ -276,14 +272,14 @@ void terrama2::collector::Log::updateLog(const std::vector< std::string >& origi
   }
   catch(te::common::Exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
@@ -339,14 +335,14 @@ void terrama2::collector::Log::updateLog(const std::vector<TransferenceData>& tr
   }
   catch(te::common::Exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
   }
   catch(std::exception& e)
   {
-    QString errMsg = QObject::tr(e.what());
+    QString errMsg = e.what();
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);

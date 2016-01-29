@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
-//  TsCollectorService tsCollectorService;
+  //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
 //  TsDataFilter tsDataFilter;

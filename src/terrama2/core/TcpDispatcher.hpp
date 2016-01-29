@@ -20,35 +20,38 @@
 */
 
 /*!
-  \file terrama2/core/Exception.hpp
+  \file terrama2/core/TcpDispatcher.hpp
 
-  \brief Specific exception classes from core module.
+  \brief A class to send data through a socket.
 
-  \author Paulo R. M. Oliveira
- */
+  \author Jano Simas
+*/
 
-#ifndef __TERRAMA2_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_CORE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_CORE_TCPDISPATCHER_HPP__
+#define __TERRAMA2_CORE_TCPDISPATCHER_HPP__
 
-// TerraMA2
-#include "../Exception.hpp"
+//STL
+#include <memory>
+
+//Qt
+#include <QJsonArray>
+#include <QTcpSocket>
 
 namespace terrama2
 {
   namespace core
   {
-    //! Base excection for core module.
-    struct Exception : virtual terrama2::Exception { };
+    class TcpDispatcher
+    {
+    public:
+      static void stopService(const std::string& instance);
+      static void startProcessing(const std::string& instance, int dataId);
+      static void sendData(const std::string& instance, const QJsonArray& jsonArray);
 
-    //! Indicates that an exception comming from TerraLib Data Access module.
-    struct DataAccessException: virtual Exception{ };
+    private:
+      static std::shared_ptr<QTcpSocket> getInstance(const std::string& instance);
+    };
+  }
+}
 
-    //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
-    struct DataSetInUseException: virtual Exception{ };
-
-    struct UnableToConnect : virtual Exception{ };
-
-  }  // end namespace core
-}  // end namespace terrama2
-
-#endif  // __TERRAMA2_CORE_EXCEPTION_HPP__
+#endif//__TERRAMA2_CORE_TCPDISPATCHER_HPP__

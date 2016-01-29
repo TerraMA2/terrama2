@@ -119,12 +119,12 @@ void terrama2::gui::config::IntersectionDialog::onDatasetSelected()
 
   std::string item = pimpl_->ui_->themeList->currentItem()->text().toStdString();
 
-  auto dsType = pimpl_->dataSource_->getDataSetType(item);
+  std::shared_ptr<te::da::DataSetType> dsType(pimpl_->dataSource_->getDataSetType(item));
   fillAttributeTable(dsType);
 
 }
 
-void terrama2::gui::config::IntersectionDialog::fillAttributeTable(std::auto_ptr<te::da::DataSetType> dsType)
+void terrama2::gui::config::IntersectionDialog::fillAttributeTable(std::shared_ptr<te::da::DataSetType> dsType)
 {
   if(dsType.get() == nullptr)
     return;
@@ -281,7 +281,7 @@ void terrama2::gui::config::IntersectionDialog::fillRasterList()
   std::string sql = "select ds.name from terrama2.dataset ds, terrama2.dataset_type dt where ds.kind = dt.id and dt.name = 'Grid'";
 
   auto transactor = pimpl_->dataSource_->getTransactor();
-  std::auto_ptr<te::da::DataSet> queryResult = transactor->query(sql);
+  std::unique_ptr<te::da::DataSet> queryResult(transactor->query(sql));
 
   pimpl_->ui_->dynamicGridsTableWidget->setRowCount(queryResult->size());
 

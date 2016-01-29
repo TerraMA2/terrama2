@@ -66,7 +66,7 @@
 #include <functional>
 #include <utility>
 
-
+ 
 bool terrama2::collector::CollectorService::mainLoopWaitCondition() noexcept
 {
   return !collectQueue_.empty() || stop_;
@@ -95,11 +95,11 @@ void terrama2::collector::CollectorService::prepareTask(const uint64_t provider,
 {
   try
   {
-    std::list<core::DataSet> datasetLst;
+    std::vector<core::DataSet> dataseVec;
     for(auto datasetID : datasets)
-      datasetLst.push_back(datasets_.at(datasetID));
+      dataseVec.push_back(datasets_.at(datasetID));
 
-    taskQueue_.emplace(std::bind(&collect, dataproviders_.at(provider), datasetLst));
+    taskQueue_.emplace(std::bind(&collect, dataproviders_.at(provider), dataseVec));
   }
   catch(std::exception& e)
   {
@@ -107,7 +107,7 @@ void terrama2::collector::CollectorService::prepareTask(const uint64_t provider,
   }
 }
 
-void terrama2::collector::CollectorService::collect(const terrama2::core::DataProvider &dataProvider, const std::list<terrama2::core::DataSet>& dataSetList)
+void terrama2::collector::CollectorService::collect(const terrama2::core::DataProvider &dataProvider, const std::vector<terrama2::core::DataSet>& dataSetList)
 {
   //if not active, nothing to do
   if(dataProvider.status() != core::DataProvider::ACTIVE)
