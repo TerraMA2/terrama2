@@ -1,6 +1,5 @@
-#terrama2-map {
+.terrama2-map {
   position: absolute;
-  float: right;
   height: 100%;
   width: 100%;
   z-index: 1;

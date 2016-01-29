@@ -2,36 +2,23 @@
 1 verbose cli [ '/usr/bin/nodejs', '/usr/bin/npm', 'start' ]
 2 info using npm@2.14.7
 3 info using node@v4.2.3
-4 verbose run-script [ 'prestart', 'start', 'poststart' ]
-5 info prestart webapp@0.0.0
-6 info start webapp@0.0.0
-7 verbose unsafe-perm in lifecycle true
-8 info webapp@0.0.0 Failed to exec start script
-9 verbose stack Error: webapp@0.0.0 start: `node ./bin/www`
-9 verbose stack Exit status 1
-9 verbose stack     at EventEmitter.<anonymous> (/usr/lib/node_modules/npm/lib/utils/lifecycle.js:214:16)
-9 verbose stack     at emitTwo (events.js:87:13)
-9 verbose stack     at EventEmitter.emit (events.js:172:7)
-9 verbose stack     at ChildProcess.<anonymous> (/usr/lib/node_modules/npm/lib/utils/spawn.js:24:14)
-9 verbose stack     at emitTwo (events.js:87:13)
-9 verbose stack     at ChildProcess.emit (events.js:172:7)
-9 verbose stack     at maybeClose (internal/child_process.js:818:16)
-9 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
-10 verbose pkgid webapp@0.0.0
-11 verbose cwd /home/jsouza/Dev/node-projects/terrama2/webapp
-12 error Linux 3.16.0-30-generic
-13 error argv "/usr/bin/nodejs" "/usr/bin/npm" "start"
-14 error node v4.2.3
-15 error npm  v2.14.7
-16 error code ELIFECYCLE
-17 error webapp@0.0.0 start: `node ./bin/www`
-17 error Exit status 1
-18 error Failed at the webapp@0.0.0 start script 'node ./bin/www'.
-18 error This is most likely a problem with the webapp package,
-18 error not with npm itself.
-18 error Tell the author that this fails on your system:
-18 error     node ./bin/www
-18 error You can get their info via:
-18 error     npm owner ls webapp
-18 error There is likely additional logging output above.
-19 verbose exit [ 1, true ]
+4 verbose stack Error: Invalid name: "TerraMA²-Webapp"
+4 verbose stack     at ensureValidName (/usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/fixer.js:331:15)
+4 verbose stack     at Object.module.exports.fixNameField (/usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/fixer.js:210:5)
+4 verbose stack     at /usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/normalize.js:32:38
+4 verbose stack     at Array.forEach (native)
+4 verbose stack     at normalize (/usr/lib/node_modules/npm/node_modules/normalize-package-data/lib/normalize.js:31:15)
+4 verbose stack     at final (/usr/lib/node_modules/npm/node_modules/read-package-json/read-json.js:338:5)
+4 verbose stack     at then (/usr/lib/node_modules/npm/node_modules/read-package-json/read-json.js:113:5)
+4 verbose stack     at /usr/lib/node_modules/npm/node_modules/read-package-json/read-json.js:232:12
+4 verbose stack     at /usr/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:76:16
+4 verbose stack     at FSReqWrap.readFileAfterClose [as oncomplete] (fs.js:380:3)
+5 verbose cwd /home/jsouza/Dev/node-projects/terrama2/webapp
+6 error Linux 3.16.0-30-generic
+7 error argv "/usr/bin/nodejs" "/usr/bin/npm" "start"
+8 error node v4.2.3
+9 error npm  v2.14.7
+10 error Invalid name: "TerraMA²-Webapp"
+11 error If you need help, you may report this error at:
+11 error     <https://github.com/npm/npm/issues>
+12 verbose exit [ 1, true ]

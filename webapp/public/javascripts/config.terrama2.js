@@ -1,13 +1,16 @@
+/** @class Config - Class responsible for load and handle the API configurations. */
 var Config = function(terrama2) {
-
-  var _this = this;
 
   var confJsonHTML = null;
   var confJsonComponentsJs = null;
   var confJsonComponentsCss = null;
   var confJsonServer = null;
-  var confJsonFilter = null;
 
+  /**
+   * Load a given configuration file
+   * @param {string} file - url to the file
+   * @returns {json} _return - configuration file content
+   */
   var loadConfigurationFile = function(file) {
     var _return = null;
 
@@ -16,38 +19,58 @@ var Config = function(terrama2) {
     return _return;
   }
 
-  _this.loadConfigurations = function() {
+  /**
+   * Load the configuration files
+   */
+  this.loadConfigurations = function() {
     var url = terrama2.getTerrama2Url() + "/config/";
 
     confJsonHTML = loadConfigurationFile(url + "html.terrama2.json");
     confJsonComponentsJs = loadConfigurationFile(url + "components.javascript.terrama2.json");
     confJsonComponentsCss = loadConfigurationFile(url + "components.stylesheet.terrama2.json");
     confJsonServer = loadConfigurationFile(url + "server.terrama2.json");
-    confJsonFilter = loadConfigurationFile(url + "filter.terrama2.json");
   }
 
-  _this.getConfJsonHTML = function() {
+  /**
+   * Return the HTML configuration (predefined tags)
+   * @returns {json} confJsonHTML - HTML configuration
+   */
+  this.getConfJsonHTML = function() {
     return confJsonHTML;
   }
 
-  _this.getConfJsonComponentsJs = function() {
+  /**
+   * Return the javascript files configuration (javascript files paths)
+   * @returns {json} confJsonComponentsJs - javascript files configuration
+   */
+  this.getConfJsonComponentsJs = function() {
     return confJsonComponentsJs;
   }
 
-  _this.getConfJsonComponentsCss = function() {
+  /**
+   * Return the stylesheets configuration (stylesheets paths)
+   * @returns {json} confJsonComponentsCss - stylesheets configuration
+   */
+  this.getConfJsonComponentsCss = function() {
     return confJsonComponentsCss;
   }
 
-  _this.getConfJsonServer = function() {
+  /**
+   * Return the map server configuration
+   * @returns {json} confJsonServer - map server configuration
+   */
+  this.getConfJsonServer = function() {
     return confJsonServer;
   }
 
-  _this.getConfJsonFilter = function() {
-    return confJsonFilter;
+  /**
+   * Loads the necessary plugins
+   */
+  var loadPlugins = function() {
+    
   }
 
   $(document).ready(function(){
-    $('.terrama2-date').mask("00/00/0000", {clearIfNotMatch: true});
-    //$('.terrama2-table').DataTable();
+    loadPlugins();
   });
 }
