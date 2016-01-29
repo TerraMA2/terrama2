@@ -28,6 +28,7 @@
 */
 
 #include "TcpListener.hpp"
+#include "TcpSignals.hpp"
 #include "DataManagerIntermediator.hpp"
 #include "Logger.hpp"
 
@@ -37,11 +38,37 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 
+class RaiiBlock
+{
+public:
+  RaiiBlock(uint16_t& block)
+    : block_(block) { }
+  ~RaiiBlock(){block_ = 0;}
+
+  uint16_t& block_;
+};
+
 terrama2::core::TcpListener::TcpListener(QObject* parent)
   : QTcpServer(parent),
     blockSize_(0)
 {
   QObject::connect(this, &terrama2::core::TcpListener::newConnection, this, &terrama2::core::TcpListener::receiveConnection);
+}
+
+void terrama2::core::TcpListener::parseData(QByteArray bytearray)
+{
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+  if(error.error != QJsonParseError::NoError)
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error:\n").arg(error.errorString());
+  else
+  {
+    if(jsonDoc.isArray())
+      DataManagerIntermediator::fromJSON(jsonDoc.array());
+    else
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an array.\n");
+  }
 }
 
 void terrama2::core::TcpListener::receiveConnection()
@@ -61,7 +88,8 @@ void terrama2::core::TcpListener::receiveConnection()
   QDataStream in(tcpSocket);
   in.setVersion(QDataStream::Qt_5_2);
 
-  if(blockSize_ == 0)
+  RaiiBlock block(blockSize_); Q_UNUSED(block)
+      if(blockSize_ == 0)
   {
     if (tcpSocket->bytesAvailable() < static_cast<int>(sizeof(uint16_t)))
     {
@@ -79,12 +107,35 @@ void terrama2::core::TcpListener::receiveConnection()
   }
 
   QByteArray bytearray;
-  in >> bytearray;
+  int sigInt = -1;
+  in >> sigInt;
 
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray);
+  TcpSignals::TcpSignal signal = static_cast<TcpSignals::TcpSignal >(sigInt);
 
-  DataManagerIntermediator::fromJSON(jsonDoc.array());
+  switch (signal) {
+    case TcpSignals::__STOP__:
+      emit stopSignal();
+      break;
+    case TcpSignals::__DATA__:
+    {
+      in >> bytearray;
+      //new data received
+      parseData(bytearray);
+      break;
+    }
+    case TcpSignals::__START__:
+    {
+      int dataId;
+      in >> dataId;
 
+      break;
+    }
+    case TcpSignals::__NULL__:
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving TcpSignal.\n__NULL__ signal.");
+      break;
+  }
+
+  //not essetial (TcpListener is the parent) but frees memory
   delete tcpSocket;
   blockSize_ = 0;
 }

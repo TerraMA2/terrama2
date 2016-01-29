@@ -56,12 +56,16 @@ namespace terrama2
       //! Default destructor.
       virtual ~TcpListener(){}
 
+    signals:
+      void stopSignal();
+
     private slots:
       //! Slot called when a new conenction arrives.
       void receiveConnection();
 
     private:
       uint16_t blockSize_; //!< Size of the message received.
+      void parseData(QByteArray bytearray);
     };
   }
 }

@@ -32,6 +32,7 @@
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
 #include "Logger.hpp"
+#include "TcpDispatcher.hpp"
 
 //qT
 #include <QTcpSocket>
@@ -41,10 +42,8 @@
 #include <algorithm>
 
 terrama2::core::DataManagerIntermediator::DataManagerIntermediator(const std::string& instanceName)
+  : instanceName_(instanceName)
 {
-  //TODO:implementar instace dos serviços...
-  host_ = "localhost";
-  port_ = 30000;
 }
 
 void terrama2::core::DataManagerIntermediator::fromJSON(const QJsonArray& jsonArray)
@@ -54,36 +53,7 @@ void terrama2::core::DataManagerIntermediator::fromJSON(const QJsonArray& jsonAr
 
 void terrama2::core::DataManagerIntermediator::commit()
 {
-  QTcpSocket socket;
-  socket.connectToHost(host_.c_str(), port_);
-  if(!socket.waitForConnected(30000))
-  {
-    QString errMsg = QObject::tr("Could not connect to host: %1").arg(instance_.c_str());
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UnableToConnect() << ErrorDescription(errMsg);
-  }
-
-  QJsonDocument jsonDoc(jsonPackage_);
-
-  QByteArray bytearray;
-  QDataStream out(&bytearray, QIODevice::WriteOnly);
-  out.setVersion(QDataStream::Qt_5_2);
-
-  out << static_cast<uint16_t>(0);
-  out << jsonDoc.toJson();
-  out.device()->seek(0);
-  out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
-
-  qint64 written = socket.write(bytearray);
-  if(written == -1 || !socket.waitForBytesWritten())
-  {
-    QString errMsg = QObject::tr("Could not send data to host: %1").arg(instance_.c_str());
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UnableToConnect() << ErrorDescription(errMsg);
-  }
-
-  socket.disconnectFromHost();
-
+  TcpDispatcher::sendData(instanceName_, jsonPackage_);
   jsonPackage_ = QJsonArray();
 }
 

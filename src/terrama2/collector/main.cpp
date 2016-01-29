@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
 
     TERRAMA2_LOG_INFO() << "Listening to port: " + std::to_string(port);
     terrama2::core::TcpListener listener;
+    QObject::connect(&listener, &terrama2::core::TcpListener::stopSignal, [&](){collectorService.stop(); app.exit();});
     listener.listen(QHostAddress::Any, port);
 
     app.exec();

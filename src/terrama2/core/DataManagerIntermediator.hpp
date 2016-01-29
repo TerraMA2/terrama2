@@ -91,10 +91,7 @@ namespace terrama2
        */
       static void processDataSet(const QJsonObject& jsonObject);
 
-      std::string instance_; //!< Name of an instace of a service.
-      std::string host_;//!< Host of the instace of a service.
-      uint16_t    port_;//!< Port of the instace of a service.
-
+      std::string instanceName_; //!< Name of an instace of a service.
       QJsonArray jsonPackage_;//!< JSON string to be sent.
     };
   }
