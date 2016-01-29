@@ -555,15 +555,23 @@ void TsClient::testUpdateDataSet()
         terrama2::core::Filter filter = dataSet.dataSetItems().at(i).filter();
 
 
-        //QFAIL("Fix this test");
-        //FIXME: Fix this test
-//        te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-20 23:59:59.000")));
-//        std::unique_ptr< te::dt::DateTime > discardBefore(td);
-//        filter.setDiscardBefore(std::move(discardBefore));
+        {
+          boost::posix_time::ptime pt(boost::posix_time::time_from_string("2002-02-20 23:59:59.000"));
+          boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("MST-07"));
+          boost::local_time::local_date_time time(pt, zone);
 
-//        te::dt::DateTime* td2 = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-21 23:59:59.000")));
-//        std::unique_ptr< te::dt::DateTime > timeAfter(td2);
-//        filter.setDiscardAfter(std::move(timeAfter));
+          std::unique_ptr< te::dt::TimeInstantTZ > discardBefore(new te::dt::TimeInstantTZ(time));
+          filter.setDiscardBefore(std::move(discardBefore));
+        }
+
+        {
+          boost::posix_time::ptime pt(boost::posix_time::time_from_string("2002-02-21 23:59:59.000"));
+          boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("MST-07"));
+          boost::local_time::local_date_time time(pt, zone);
+
+          std::unique_ptr< te::dt::TimeInstantTZ > discardAfter(new te::dt::TimeInstantTZ(time));
+          filter.setDiscardAfter(std::move(discardAfter));
+        }
 
         std::unique_ptr< double > value(new double(6.1));
         filter.setValue(std::move(value));
