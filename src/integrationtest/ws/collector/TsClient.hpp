@@ -53,9 +53,6 @@ private:
      */
     void clearDatabase();
 
-    terrama2::core::DataProvider buildDataProvider();
-    terrama2::core::DataSet buildDataSet(uint64_t dataProvider_id);
-
 private slots:
 
     void initTestCase(); // Run before all tests
