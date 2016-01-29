@@ -1,6 +1,5 @@
+/** @class LayerExplorer - Component responsible for presenting an organized list of layers. */
 var LayerExplorer = function(terrama2) {
-
-  var _this = this;
 
   var selectedLayer = null;
   var parser = new ol.format.WMSCapabilities();
@@ -10,20 +9,33 @@ var LayerExplorer = function(terrama2) {
 
   var socket = io(terrama2.getTerrama2Url());
 
-  var processLayers = function(arrLayers) {
+  /**
+   * Return the selected layer
+   * @returns {string} selectedLayer - layer name
+   */
+  this.getSelectedLayer = function() {
+    return selectedLayer;
+  }
+
+  /**
+   * Process the layers from the capabilities and create the openlayers tiled wms layers
+   * @param {json} layers - layers list from the capabilities
+   * @returns {array} tilesWMSLayers - openlayers tiled wms layers array
+   */
+  var processLayers = function(layers) {
     var tilesWMSLayers = [];
 
-    var arrLayersLength = arrLayers.Layer.length;
+    var layersLength = layers.Layer.length;
 
-    for(var i = 0; i < arrLayersLength; i++) {
-      if(arrLayers.Layer[i].hasOwnProperty('Layer')) {
+    for(var i = 0; i < layersLength; i++) {
+      if(layers.Layer[i].hasOwnProperty('Layer')) {
 
-        var subLayersLength = arrLayers.Layer[i].Layer.length;
+        var subLayersLength = layers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Layer[j].Name, arrLayers.Layer[i].Layer[j].Title));
+          tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title));
         }
       } else {
-        tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, arrLayers.Layer[i].Name, arrLayers.Layer[i].Title));
+        tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title));
       }
     }
 
@@ -31,23 +43,22 @@ var LayerExplorer = function(terrama2) {
   }
 
   /**
-  * Build a tree layer from the map layers with visible and opacity
-  * options.
-  *
-  * @param {type} layer
-  * @returns {String}
-  */
+   * Build a layer explorer from the map layers
+   * @param {ol.layer} layer - layer or layers group to be used in the layer explorer
+   * @param {boolean} firstCall - control flag
+   * @returns {string} elem - string containing the HTML code to the layer explorer
+   */
   var buildLayerExplorer = function(layer, firstCall) {
     var elem;
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
 
     var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span class='terrama2-layerexplorer-plus'> " + title + "</span>&nbsp;&nbsp;" +
+    "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
     terrama2.getConfig().getConfJsonHTML().OpacitySlider;
 
     /* var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
-    "<span class='terrama2-layerexplorer-plus'> " + title + "</span>&nbsp;&nbsp;" +
+    "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
     terrama2.getConfig().getConfJsonHTML().CheckLayer +
     terrama2.getConfig().getConfJsonHTML().OpacitySlider; */
 
@@ -79,51 +90,10 @@ var LayerExplorer = function(terrama2) {
   }
 
   /**
-  * Initialize the tree from the map layers
-  * @returns {undefined}
-  */
-  var initializeTree = function() {
-    var elem = buildLayerExplorer(map.getLayerGroup(), true);
-    $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
-
-    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li').find(' > span');
-    $('#terrama2-layerexplorer li.parent_li > span').on('click', function(e) {
-      var children = $(this).parent('li.parent_li').find(' > ul > li');
-      if (children.is(":visible")) {
-        children.hide('fast');
-        $(this).addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
-      } else {
-        children.show('fast');
-        $(this).addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
-      }
-      //e.stopPropagation();
-    });
-  }
-
-  /**
-  * Set the visibility of a layer or a group of layers.
-  * @param {ol.layer} layer
-  * @returns {undefined}
-  */
-  var setLayerVisibility = function(layer) {
-    layer.setVisible(!layer.getVisible());
-
-    if(layer.getLayers) {
-      var layers = layer.getLayers().getArray();
-      var len = layers.length;
-      for (var i = 0; i < len; i++) {
-        layers[i].setVisible(layer.getVisible());
-      }
-    }
-  }
-
-  _this.getSelectedLayer = function() {
-    return selectedLayer;
-  }
-
-  socket.emit('proxyRequest', terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams);
-  socket.on('proxyResponse', function(msg) {
-    //var xmlText = new XMLSerializer().serializeToString(msg);
+   * Initialize the layer explorer and put it in the page
+   * @param {xml} msg - capabilities xml code
+   */
+  var initializeLayerExplorer = function(msg) {
     capabilities = parser.read(msg);
 
     var processedLayers = processLayers(capabilities.Capability.Layer);
@@ -136,10 +106,48 @@ var LayerExplorer = function(terrama2) {
 
     $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
 
-    initializeTree();
+    var elem = buildLayerExplorer(map.getLayerGroup(), true);
+    $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
+
+    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
 
     // Handle opacity slider control
     $('input.opacity').slider();
+
+    $('.parent_li').find(' > ul > li').hide();
+  }
+
+  /**
+   * Set the visibility of a given layer or layer group, if it is visible, it will be hidden, otherwise will be shown
+   * @param {ol.layer} layer - openlayers layer or layer group
+   */
+  var setLayerVisibility = function(layer) {
+    layer.setVisible(!layer.getVisible());
+
+    if(layer.getLayers) {
+      var layers = layer.getLayers().getArray();
+      var len = layers.length;
+      for (var i = 0; i < len; i++) {
+        layers[i].setVisible(layer.getVisible());
+      }
+    }
+  }
+
+  /**
+   * Load the LayerExplorer events
+   */
+  var loadEvents = function() {
+    $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
+      var children = $(this).parent('li.parent_li').find(' > ul > li');
+      if (children.is(":visible")) {
+        children.hide('fast');
+        $(this).find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
+      } else {
+        children.show('fast');
+        $(this).find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus').html('-');
+      }
+    });
+
     $('input.opacity').on('slide', function(ev) {
       var layername = $(this).closest('li').data('layerid');
       var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
@@ -161,10 +169,10 @@ var LayerExplorer = function(terrama2) {
       var span = _$this.parent('li.parent_li').find(' > span');
       if (children.is(":visible") || !layer.getVisible()) {
         children.hide('fast');
-        span.addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
+        span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
       } else {
         children.show('fast');
-        span.addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
+        span.find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus').html('-');
       }
       e.stopPropagation();
     });
@@ -193,8 +201,18 @@ var LayerExplorer = function(terrama2) {
         }
       }, 200);
     });
+  }
 
-    $('.parent_li').find(' > ul > li').hide();
+  socket.emit(
+    'proxyRequest',
+    {
+      url: terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams,
+      requestId: 'lala'
+    }
+  );
+  socket.on('proxyResponse', function(msg) {
+    initializeLayerExplorer(msg.msg);
+    loadEvents();
   });
 
 }

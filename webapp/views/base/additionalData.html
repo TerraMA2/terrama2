@@ -1,4 +1,3 @@
-{# It should have an object in structure like: {kind: "dataset type"} #}
 <div class="box box-default box-solid">
     <div class="box-header with-border">
         <h3 class="box-title">Dados Adicionais</h3>
@@ -10,71 +9,42 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
         <div class="row">
-            {% if kind == "PCD" %}
-            <div class="col-md-7">
+            <div class="col-md-6">
                 <div class="form-group">
-                    <label>Nome:</label>
-                    <input class="form-control" id="name" placeholder="Nome do Data Set" type="text">
-                </div>
-            </div>
-            <!-- /.col md 7 -->
-
-            <div class="col-md-5">
-                <div class="form-group">
-                    <label>Tipo</label>
-                    <select class="form-control">
-                        <option>PCD INPE</option>
-                    </select>
-                </div>
-            </div>
-            <!-- /.col md 5 -->
-            {% else %}  
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label>Nome:</label>
-                    <input class="form-control" id="name" placeholder="Nome do Data Set" type="text">
-                </div>
-            </div>
-            <!-- /.col md 7 -->
-
-            {% endif %}
-
-            <div class="col-md-8">
-                <div class="form-group">
-                    <div class="bootstrap-timepicker">
-                        <div class="form-group">
-                            <label>Frequência de Atualização:</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control timepicker" name="dataFrequency">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-clock-o"></i>
-                                </div>
-                            </div><!-- /.input group -->
-                        </div><!-- /.form group -->
-                    </div>
-                    <!-- /.input group -->
+                    <label>Instituição:</label>
+                    <input class="form-control" id="institute" type="text">
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-group">
-                    <div class="checkbox">
-                        <label class="terrama2-checkbox-align">
-                            <input type="checkbox"> Ativo
-                        </label>
+                    <label>Autor:</label>
+                    <input class="form-control" id="author" type="text">
+                </div>
+            </div>
+
+            <div class='col-md-6'>
+                <div class="form-group">
+                    <label>Data de criação:</label>
+                    <div class='input-group date' id='datetimepicker6'>
+                        <input type='text' class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
                     </div>
                 </div>
             </div>
-            <!-- /. col md 3 -->
-
-            <div class="col-md-12">
+            <div class='col-md-6'>
                 <div class="form-group">
-                    <label>Descrição</label>
-                    <textarea class="form-control" rows="3" placeholder="Descrição do Data Set"></textarea>
+                    <label>Valido até:</label>
+                    <div class='input-group date' id='datetimepicker7'>
+                        <input type='text' class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
                 </div>
-                <!-- /.form-group -->
             </div>
-            <!-- /. col md 12 -->
         </div>
         <!-- /.row -->
     </div>
