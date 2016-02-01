@@ -205,8 +205,24 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/terralib5/lib/libterralib_mod_common.so" ]
   cd ..
 fi
 
-
 #
+# Node.js
+#
+nodejs_test=`dpkg -s nodejs | grep Status`
+
+if [ "$nodejs_test" != "Status: install ok installed" ]; then
+  curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+  valid $? "Error: could not setup Node.js installation!"
+
+  sudo apt-get install -y nodejs
+  valid $? "Error: could not install Node.js! Please, install Node.js: sudo apt-get -y install nodejs"
+
+  echo "Node.js installed!"
+else
+  echo "Node.js already installed!"
+fi
+
+
 #
 # TerraMA2 Web Dependencies
 #
@@ -226,7 +242,6 @@ if [ -f "$2/webapp/app.js" ]; then
   sleep 1s
 
 fi
-
 
 #
 # Finished!
