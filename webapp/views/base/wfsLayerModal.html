@@ -5,13 +5,13 @@
         <div class="modal-content">
             <div class="modal-header terrama2-component-color">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="wftLayerModalLabel">Atributos do WFS Layer</h4>
+                <h4 class="modal-title" id="wftLayerModalLabel">{{ __('WFS Attribute Layer') }}</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label>ID:</label>
+                            <label>{{ __('ID') }}:</label>
                             <select class="form-control" id="collectLang">
                                 <option>Lorem Ipsum</option>
                             </select>
@@ -20,7 +20,7 @@
 
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label>Data/Hora:</label>
+                            <label>{{ __('Date Time') }}:</label>
                             <select class="form-control" id="collectLang">
                                 <option>Lorem ipsum</option>
                             </select>
@@ -30,15 +30,15 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <div class="input-group">
-                                <label>Máscara:</label>
+                                <label>{{ __('Mask') }}:</label>
                                 <input type="text" class="form-control" aria-label="..." id="mask">
                                 <div class="input-group-btn">
                                     <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="   false">
-                                        Formato <span class="caret"></span>
+                                        {{ __('Format') }} <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" id="mask-list">
-                                        <li><a href="javascript:void(0)">d Dia</a></li>
-                                        <li><a href="javascript:void(0)">M Mês</a></li>
+                                        <li><a href="javascript:void(0)">{{ __('%d Dia') }}</a></li>
+                                        <li><a href="javascript:void(0)">{{ __('%m Month') }}</a></li>
                                     </ul>
                                 </div><!-- /btn-group -->
                             </div><!-- /input-group -->
@@ -48,8 +48,8 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">OK</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">{{ __('OK') }}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('Cancel') }}</button>
             </div>
 
         </div>

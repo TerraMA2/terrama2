@@ -39,7 +39,7 @@
     </script>
 {% endblock %}
 
-{% block title %} TerraMA2 Cadastro de Dados de Ocorrência {% endblock %}
+{% block title %} TerraMA2 {{ __('Data Occurrence Registration') }} {% endblock %}
 
 {% block content %}
     {# Temp code for including filter modal. #}
@@ -48,7 +48,7 @@
     <div class="col-md-12">
         <div class="box box-default">
             <div class="box-header with-border">
-                <h3 class="box-title">Cadastro de Dados de Ocorrência</h3>
+                <h3 class="box-title">{{ __('Data Occurrence Registration') }}</h3>
             </div>
             <!-- /.box-header -->
             <div style="display: block;" class="box-body">
@@ -72,7 +72,7 @@
                                     <!-- Intersection -->
                 <div class="box box-default box-solid">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Pre-processamento</h3>
+                        <h3 class="box-title">{{ __('Pre-processing') }}</h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                             </button>
@@ -83,7 +83,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                <div class="col-md-8 col-md-offset-2">
-                                    <button class="btn btn-primary btn-lg btn-block" id="intersection-button" data-toggle="modal" data-target="#intersectionModal">Interseção</button>
+                                    <button class="btn btn-primary btn-lg btn-block" id="intersection-button" data-toggle="modal" data-target="#intersectionModal">{{ __('Intersection') }}</button>
                                 </div>
                             </div>
                         </div>
@@ -98,8 +98,8 @@
             <!-- /.box body -->
 
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Cancelar</button>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Salvar</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('OK') }}</button>
             </div> 
         </div>
     </div> <!-- end col md 12 -->
