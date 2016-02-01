@@ -16,7 +16,6 @@ app.set('view engine', 'html');
 // Set template directories
 app.set('views', __dirname + '/views');
 
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));

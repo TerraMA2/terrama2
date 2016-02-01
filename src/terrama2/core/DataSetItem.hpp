@@ -154,10 +154,10 @@ namespace terrama2
         void setSrid(const uint64_t srid);
 
         /*! \brief Creates the object from the JSON string. */
-        static DataSetItem FromJson(QJsonObject json);
+        static DataSetItem FromJson(const QJsonObject& json);
 
         /*! \brief Serialize to JSON. */
-        QJsonObject toJson();
+        QJsonObject toJson() const;
 
         /*! \brief Override operator == */
         bool operator==(const DataSetItem& rhs);

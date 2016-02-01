@@ -132,7 +132,7 @@ std::vector<uint64_t> terrama2::core::dao::DataProviderDAO::getDatasetsIds(const
 {
   std::string sql = "SELECT id FROM terrama2.dataset WHERE data_provider_id = " + std::to_string(providerId);
 
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+  std::unique_ptr<te::da::DataSet> tempDataSet(transactor.query(sql));
 
   std::vector<uint64_t> ids;
   while(tempDataSet->moveNext())
@@ -188,7 +188,7 @@ terrama2::core::dao::DataProviderDAO::load(const uint64_t id, te::da::DataSource
     boost::format query("SELECT * FROM terrama2.data_provider WHERE id = %1%");
     query.bind_arg(1, id);
 
-    std::auto_ptr<te::da::DataSet> provider_result = transactor.query(query.str());
+    std::unique_ptr<te::da::DataSet> provider_result(transactor.query(query.str()));
 
     if(provider_result->moveNext())
     {
@@ -238,7 +238,7 @@ terrama2::core::dao::DataProviderDAO::loadAll(te::da::DataSourceTransactor& tran
 
   try
   {
-    std::auto_ptr<te::da::DataSet> provider_result = transactor.getDataSet("terrama2.data_provider");
+    std::unique_ptr<te::da::DataSet> provider_result(transactor.getDataSet("terrama2.data_provider"));
 
     while(provider_result->moveNext())
     {

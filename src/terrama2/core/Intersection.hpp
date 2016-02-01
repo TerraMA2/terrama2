@@ -75,19 +75,19 @@ namespace terrama2
         std::map<std::string, std::vector<std::string> > attributeMap() const;
 
         /*! \brief Sets the attribute map. */
-        void setAttributeMap(std::map<std::string, std::vector<std::string> >& attributeMap);
+        void setAttributeMap(const std::map<std::string, std::vector<std::string> >& attributeMap);
 
         /*! \brief Returns the band map. */
         std::map<uint64_t, std::string> bandMap() const;
 
         /*! \brief Sets the band map. */
-        void setBandMap(std::map<uint64_t, std::string >& bandMap);
+        void setBandMap(const std::map<uint64_t, std::string >& bandMap);
 
         /*! \brief Creates the object from the JSON string. */
-        static Intersection FromJson(QJsonObject json);
+        static Intersection FromJson(const QJsonObject& json);
 
         /*! \brief Serialize to JSON. */
-        QJsonObject toJson();
+        QJsonObject toJson() const;
 
         /*! \brief Override operator == */
         bool operator==(const Intersection& rhs);

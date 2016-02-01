@@ -231,7 +231,7 @@ terrama2::core::dao::FilterDAO::load(const DataSetItem& datasetItem, te::da::Dat
 
   try
   {
-    std::auto_ptr<te::da::DataSet> filter_result = transactor.query(sql);
+    std::unique_ptr<te::da::DataSet> filter_result(transactor.query(sql));
 
     if(!filter_result->moveNext())
       return std::move(Filter());

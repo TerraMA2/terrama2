@@ -42,6 +42,7 @@
 
 // QT
 #include <QTest>
+#include <QJsonDocument>
 
 // STL
 #include <string>
@@ -51,8 +52,11 @@ void InitializeTerraMA2(std::string project_path)
   terrama2::core::initializeTerralib();
 
   std::string path = terrama2::core::FindInTerraMA2Path(project_path);
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(path), true);
-
+  QJsonDocument jdoc = terrama2::core::ReadJsonFile(path);
+  QJsonObject project = jdoc.object();
+  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(project), true);
+  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
+  QVERIFY(dataSource.get());
   terrama2::core::DataManager::getInstance().load();
 }
 
@@ -176,5 +180,3 @@ terrama2::core::DataSet buildDataSet(uint64_t dataProvider_id)
 
   return dataSet;
 }
-
-

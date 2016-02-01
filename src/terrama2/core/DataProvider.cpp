@@ -160,7 +160,7 @@ void terrama2::core::DataProvider::removeDataSet(uint64_t id)
                   datasets_.end());
 }
 
-terrama2::core::DataProvider terrama2::core::DataProvider::FromJson(QJsonObject json)
+terrama2::core::DataProvider terrama2::core::DataProvider::FromJson(const QJsonObject& json)
 {
   if(!(json.contains("name")
      && json.contains("kind")
@@ -192,10 +192,11 @@ terrama2::core::DataProvider terrama2::core::DataProvider::FromJson(QJsonObject 
   return provider;
 }
 
-QJsonObject terrama2::core::DataProvider::toJson()
+QJsonObject terrama2::core::DataProvider::toJson() const
 {
   QJsonObject json;
 
+  json["class"] = QString("DataProvider");
   json["name"] = QString(name_.c_str());
   json["kind"] = QJsonValue((int)kind_);
   json["id"] = QJsonValue((int)id_);

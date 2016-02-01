@@ -205,6 +205,29 @@ fi
 
 
 #
+#
+# TerraMA2 Web Dependencies
+#
+echo "$1/webapp/app.js"
+
+if [ -f "$1/webapp/app.js" ]; then
+  echo "Installing terrama2 web dependencies"
+  echo ""
+
+  unzip -o terrama2-web-dependencies.zip  &> /dev/null
+  valid $? "Error: Could not install terrama2 web"
+  mv externals "$1/webapp/public" &> /dev/null
+  valid $? "Error: Verify if the externals directory already exists."
+
+  echo "Finished TerraMA2 Web Dependencies"
+  echo ""
+
+  sleep 1s
+
+fi
+
+
+#
 # Finished!
 #
 clear

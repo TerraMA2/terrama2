@@ -275,6 +275,8 @@ option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_COLLECTOR_ENABLED "Build Collector module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_COLLECTOR_SERVICE_ENABLED "Build Collector Service module?" ON "TERRAMA2_MOD_COLLECTOR_ENABLED" OFF)
+
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_COLLECTOR_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED "Build Collector Web Service Server module?" ON "TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED" OFF)
@@ -346,6 +348,10 @@ endif()
 
 if(TERRAMA2_MOD_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_mod_collector)
+endif()
+
+if(TERRAMA2_COLLECTOR_SERVICE_ENABLED)
+  add_subdirectory(terrama2_service_collector)
 endif()
 
 if(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED)
@@ -493,4 +499,3 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
                IMMEDIATE @ONLY)
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-

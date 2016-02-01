@@ -111,9 +111,9 @@ void executeQueriesFromFile(QFile *file, QSqlQuery *query)
 //**************************************************************************
 
 
-bool terrama2::core::ApplicationController::loadProject(const std::string &configFileName)
+bool terrama2::core::ApplicationController::loadProject(const QJsonObject& project)
 {
-  configFile_ = configFileName;
+  project_ = project;
 
   if(dataSource_.get() && dataSource_->isOpened())
   {
@@ -122,10 +122,6 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
 
   try
   {
-    QJsonDocument jdoc = terrama2::core::ReadJsonFile(configFileName);
-
-    QJsonObject project = jdoc.object();
-
     if(project.contains("database"))
     {
       QJsonObject databaseConfig = project["database"].toObject();
@@ -160,7 +156,7 @@ bool terrama2::core::ApplicationController::loadProject(const std::string &confi
 
 }
 
-std::auto_ptr<te::da::DataSourceTransactor>
+std::shared_ptr<te::da::DataSourceTransactor>
 terrama2::core::ApplicationController::getTransactor()
 {
   try
