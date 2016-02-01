@@ -1,0 +1,57 @@
+{% extends "../base/layout.html" %}
+
+{% block title %} TerraMA2 Dados Dinâmicos {% endblock %}
+
+{% block content %}
+
+<div class="col-md-12">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Análises</h3>
+                <a href="#" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
+            </div><!-- /.box-header -->
+
+            <div class="box-body">
+
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Autor</th>
+                        <th>Descrição</th>
+                        <th>Gerar Imagem</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>hidro</td>
+                        <td>User1</td>
+                        <td>Lorem ipsum</td>
+                        <td>
+                            <span class="label label-success">
+                               <i class="glyphicon glyphicon-ok"></i>
+                           </span>
+                        <td>
+                            <button type="button" class="btn btn-primary">Editar</button>
+                            <button type="button" class="btn btn-danger">Excluir</button>
+                        </td>
+                    </tr>
+                </table>
+
+            </div><!-- /.box-body -->
+
+            <div class="box-footer clearfix">
+                <ul class="pagination pagination-sm no-margin pull-right">
+                    <li><a href="#">&laquo;</a></li>
+                    <li><a href="#">1</a></li>
+                    <li><a href="#">2</a></li>
+                    <li><a href="#">3</a></li>
+                    <li><a href="#">&raquo;</a></li>
+                </ul>
+            </div>
+            
+        </div><!-- /.box -->
+    </div> <!-- end col md 6 -->
+
+</div> <!-- end col md 12 -->
+
+{% endblock %}

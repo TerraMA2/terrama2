@@ -1,4 +1,4 @@
-{# It should have an object in structure like: {kind: "dataset type"} #}
+{# It should have an object in structure like: {kind: "dataset type", state: "static|dynamic"} #}
 <div class="box box-default box-solid">
     <div class="box-header with-border">
         <h3 class="box-title">Parâmetros</h3>
@@ -40,7 +40,8 @@
                 </div>
             </div>
 
-            {% if kind == "PCD" %}
+            {% if kind|lower == "pcd" %}
+              {% if state == "dynamic" %}
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Latitude:</label>
@@ -119,6 +120,7 @@
                        </table>
                     </div><!-- /.box-body -->
                 </div>
+              {% endif %}
             {% endif %}
 
             <div class="col-md-12">

@@ -1,6 +1,6 @@
 {% extends "../base/layout.html" %}
 
-{% block title %} TerraMA2 Dados Estáticos {% endblock %}
+{% block title %} TerraMA2 Dados Dinâmicos {% endblock %}
 
 {% block content %}
 
@@ -8,8 +8,8 @@
     <div class="col-md-6">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">Data Providers (Estático) </h3>
-                <a href="/configuration/provider?type=static" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
+                <h3 class="box-title">Data Providers (Dinâmico)</h3>
+                <a href="/configuration/provider?type=dynamic" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
             </div><!-- /.box-header -->
 
             <div class="box-body">
@@ -55,16 +55,16 @@
         <div class="box">
 
             <div class="box-header with-border">
-                <h3 class="box-title">Data Sets (Estático)</h3>
+                <h3 class="box-title">Data Sets (Dinâmico)</h3>
                 <div class="btn-group">
                     <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-plus"></i>
                     </button>
 
                     <ul class="dropdown-menu">
-                        <li><a href="/configuration/occurrence?type=static">Ocorrência</a></li>
-                        <li><a href="/configuration/pcd?type=static">PCD</a></li>
-                        <li><a href="/configuration/grid?type=static">GRID</a></li>
+                        <li><a href="/configuration/occurrence?type=dynamic">Ocorrência</a></li>
+                        <li><a href="/configuration/pcd?type=dynamic">PCD</a></li>
+                        <li><a href="/configuration/grid?type=dynamic">GRID</a></li>
                     </ul>
                 </div>
             </div><!-- /.box-header -->
@@ -77,7 +77,6 @@
                         <th style="width: 10px"><input type="checkbox"></th>
                         <th>Nome</th>
                         <th>Tipo</th>
-                        <!-- <th style="width: 150px"></th> -->
                         <th></th>
                     </tr>
                     <tr>
