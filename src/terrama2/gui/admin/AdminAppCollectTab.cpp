@@ -56,7 +56,7 @@ QMap<QString, QJsonObject> terrama2::gui::admin::AdminAppCollectTab::toJson()
   collect["log_file"] = ui_->aqLogFileLed->text();
   collect["connection_timeout"] = ui_->aqTimeoutMinSpb->value() * 60 + ui_->aqTimeoutSecSpb->value();
   collect["address"] = ui_->aqAddressLed->text();
-  collect["port"] = ui_->aqPortLed->text(); 
+  collect["port"] = ui_->aqPortLed->text().toInt();
   collect["parameters"] = app_->getConfigManager()->getCollection()->params_;
   collect["command"] = app_->getConfigManager()->getCollection()->cmd_;
 

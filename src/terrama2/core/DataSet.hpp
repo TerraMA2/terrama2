@@ -239,10 +239,10 @@ namespace terrama2
         Intersection intersection() const;
 
         /*! \brief Creates the object from the JSON string. */
-        static DataSet FromJson(QJsonObject json);
+        static DataSet FromJson(const QJsonObject& json);
 
         /*! \brief Serialize to JSON. */
-        QJsonObject toJson();
+        QJsonObject toJson() const;
 
         /*! \brief Override operator == */
         bool operator==(const DataSet& rhs);

@@ -107,7 +107,7 @@ void terrama2::core::dao::DataSetItemDAO::updateDataSetItems(DataSet& dataset, t
 {
   std::string sql = "SELECT id FROM terrama2.dataset_item WHERE dataset_id = " + std::to_string(dataset.id());
 
-  std::auto_ptr<te::da::DataSet> tempDataSet = transactor.query(sql);
+  std::unique_ptr<te::da::DataSet> tempDataSet(transactor.query(sql));
 
   std::vector<int32_t> ids;
   if(tempDataSet->moveNext())
@@ -241,7 +241,7 @@ terrama2::core::dao::DataSetItemDAO::loadAll(uint64_t datasetId, te::da::DataSou
 
   try
   {
-    std::auto_ptr<te::da::DataSet> itemsResult = transactor.query(sql);
+    std::unique_ptr<te::da::DataSet> itemsResult(transactor.query(sql));
 
     std::vector<DataSetItem> items;
 
@@ -388,7 +388,7 @@ terrama2::core::dao::DataSetItemDAO::loadMetadata(DataSetItem& item,
 
   try
   {
-    std::auto_ptr<te::da::DataSet> metadata_result = transactor.query(sql);
+    std::unique_ptr<te::da::DataSet> metadata_result(transactor.query(sql));
 
     std::map<std::string, std::string> metadata;
 

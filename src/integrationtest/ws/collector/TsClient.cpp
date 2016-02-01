@@ -76,7 +76,7 @@ void TsClient::cleanup()
 
 void TsClient::clearDatabase()
 {
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
+  std::shared_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
 

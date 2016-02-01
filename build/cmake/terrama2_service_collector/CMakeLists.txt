@@ -19,21 +19,30 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for Doxygen documentation.
+#  Description: CMake script for collector service
 #
-#  Author: Paulo R. M. Oliveira
+#  Author: Jano Simas
 #
 
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/*.hpp)
 
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/doc/api/Doxyfile.in
-               ${CMAKE_CURRENT_BINARY_DIR}/doxygen.txt @ONLY)
+include_directories (
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
 
-add_custom_target(doc
-                  ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxygen.txt
-                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                  COMMENT "Generating API documentation with Doxygen" VERBATIM)
+source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
+source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-install(CODE "execute_process(COMMAND ${DOXYGEN_EXECUTABLE} doxygen.txt WORKING_DIRECTORY \"${CMAKE_CURRENT_BINARY_DIR}\")")
+set(CMAKE_AUTOMOC ON)
 
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
-        DESTINATION share/terrama2 COMPONENT devel)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+add_executable(collector_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
+
+qt5_use_modules(collector_service Core)
+
+target_link_libraries(collector_service terrama2_mod_core
+                                        terrama2_mod_collector)

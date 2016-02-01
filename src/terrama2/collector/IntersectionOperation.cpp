@@ -138,7 +138,7 @@ void terrama2::collector::processIntersection(TransferenceData& transferenceData
         for(size_t i = 0; i < report.size(); ++i)
         {
           interDs->move(report[i]);
-          std::auto_ptr<te::gm::Geometry> secGeom = interDs->getGeometry(secGeomPropPos);
+          std::unique_ptr<te::gm::Geometry> secGeom(interDs->getGeometry(secGeomPropPos));
           secGeom->setSRID(sridSecond);
 
           if(secGeom->getSRID() != fiGeomProp->getSRID())

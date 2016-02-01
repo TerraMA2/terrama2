@@ -231,7 +231,7 @@ void terrama2::core::DataSet::update(DataSetItem& dataSetItem)
   }
 }
 
-terrama2::core::DataSet terrama2::core::DataSet::FromJson(QJsonObject json)
+terrama2::core::DataSet terrama2::core::DataSet::FromJson(const QJsonObject& json)
 {
   if(!(json.contains("name")
      && json.contains("kind")
@@ -286,10 +286,11 @@ terrama2::core::DataSet terrama2::core::DataSet::FromJson(QJsonObject json)
   return dataset;
 }
 
-QJsonObject terrama2::core::DataSet::toJson()
+QJsonObject terrama2::core::DataSet::toJson() const
 {
   QJsonObject json;
 
+  json["class"] = QString("DataSet");
   json["name"] = QString(name_.c_str());
   json["kind"] = QJsonValue((int)kind_);
   json["id"] = QJsonValue((int)id_);

@@ -12,6 +12,7 @@
 #include "TsParserAscGrid.hpp"
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
+#include "TsTeste.hpp"
 
 #include "Utils.hpp"
 
@@ -25,7 +26,10 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
-//  TsCollectorService tsCollectorService;
+  TsTeste tsTeste;
+  returnVal += QTest::qExec(&tsTeste, argc, argv);
+
+  //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
 //  TsDataFilter tsDataFilter;
@@ -73,13 +77,13 @@ int main(int argc, char *argv[])
 
   // DataRetriever
 
-  TsDataRetrieverWCS tsDataRetrieverWCS;
-  returnVal += QTest::qExec(&tsDataRetrieverWCS, argc, argv);
+//  TsDataRetrieverWCS tsDataRetrieverWCS;
+//  returnVal += QTest::qExec(&tsDataRetrieverWCS, argc, argv);
 
-//  QTimer timer;
-//  QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
-//  timer.start(1000);
-//  app.exec();
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
+  timer.start(1000);
+  app.exec();
 
   finalizeTerralib();
 
