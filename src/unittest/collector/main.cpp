@@ -12,7 +12,7 @@
 #include "TsParserAscGrid.hpp"
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
-#include "TsTeste.hpp"
+//#include "TsTeste.hpp"
 
 #include "Utils.hpp"
 
@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
-  TsTeste tsTeste;
-  returnVal += QTest::qExec(&tsTeste, argc, argv);
+//  TsTeste tsTeste;
+//  returnVal += QTest::qExec(&tsTeste, argc, argv);
 
   //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
