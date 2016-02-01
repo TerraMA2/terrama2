@@ -74,7 +74,7 @@
     </script>
 {% endblock %}
 
-{% block title %} TerraMA2 Cadastro de Dados de PCD {% endblock %}
+{% block title %} TerraMA2 {{ __('PCD Data Registration') }} {% endblock %}
 
 {% block content %}
     {# Modal for collect rule #}
@@ -86,7 +86,7 @@
     <div class="col-md-12">
         <div class="box box-default">
             <div class="box-header with-border">
-                <h3 class="box-title">Cadastro de Dados de PCD</h3>
+                <h3 class="box-title">{{ __('PCD Data Registration') }}</h3>
             </div>
             <!-- /.box-header -->
             <div style="display: block;" class="box-body">
@@ -105,7 +105,7 @@
                     {# It should have an object in structure like: {kind: "dataset type", state: "static|dynamic"} #}
                     <div class="box box-default box-solid">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Parâmetros Adicionais</h3>
+                            <h3 class="box-title">{{ __('Additional Parameters') }}</h3>
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                                 </button>
@@ -123,7 +123,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <button class="btn btn-primary" data-toggle="modal" data-target="#collectRuleModal">Regra de Coleta</button>
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#collectRuleModal">{{ __('Collect Rule') }}</button>
                                     </div>
                                 </div>
 
@@ -136,7 +136,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <button class="btn btn-primary" data-toggle="modal" data-target="#wftLayerModal">Atributo WFS</button>
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#wftLayerModal">{{ __('WFS Attribute') }}</button>
                                     </div>
                                 </div>
                             </div>
@@ -150,8 +150,8 @@
             <!-- /.box body -->
 
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Cancelar</button>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">Salvar</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('OK') }}</button>
             </div> 
         </div>
     </div> <!-- end col md 12 -->

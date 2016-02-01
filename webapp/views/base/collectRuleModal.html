@@ -5,13 +5,13 @@
         <div class="modal-content">
             <div class="modal-header terrama2-component-color">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="collectRuleModalLabel">Regra de Coleta</h4>
+                <h4 class="modal-title" id="collectRuleModalLabel">{{ __('Collect Rule') }}</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12">
                     <div class="col-md-5">
                         <div class="form-group">
-                            <label>Linguagem:</label>
+                            <label>{{ __('Language') }}:</label>
                             <select class="form-control" id="collectLang">
                                 <option selected>LUA</option>
                                 <option>Python</option>
@@ -22,7 +22,7 @@
                     <div class="col-md-7">
                         <div class="btn-group" style="padding-top:25px;">
                             <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
-                                Funções
+                                {{ __('Functions') }}
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="#">max</a></li>
@@ -33,7 +33,7 @@
 
                         <div class="btn-group" style="padding-top:25px; margin-left:20px;">
                             <button aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                Comandos em LUA
+                                LUA {{ __('Commands') }}
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="#">if</a></li>
@@ -45,7 +45,7 @@
 
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label>Código:</label>
+                            <label>{{ _('Code') }}:</label>
                             <textarea class="form-control" rows="5"></textarea>
                         </div>
                     </div>
@@ -53,9 +53,9 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">OK</button>
-                <button type="button" class="btn btn-primary">Validar Sintaxe</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">{{ __('OK') }}</button>
+                <button type="button" class="btn btn-primary">{{ __('Syntax Check') }}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('Cancel') }}</button>
             </div>
 
         </div>
