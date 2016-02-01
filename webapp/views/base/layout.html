@@ -9,11 +9,26 @@
         <!-- Bootstrap -->
         <link rel="stylesheet" href="/externals/bootstrap/css/bootstrap.min.css">
         <!-- Font Awesome -->
-        <link rel="stylesheet" href="/externals/font-awesome/font-awesome.min.css">
+        <link rel="stylesheet" href="/externals/font-awesome/css/font-awesome.min.css">
         <!-- Theme style -->
         <link rel="stylesheet" href="/externals/admin-lte/css/AdminLTE.min.css">
         <!-- Template Skin -->
-        <link rel="stylesheet" href="/externals/admin-lte/css/skin-blue.min.css">
+        <link rel="stylesheet" href="/externals/admin-lte/css/skins/skin-blue.min.css">
+
+        <style type="text/css">
+            .terrama2-checkbox-align {
+              margin-top: 19px !important;
+              font-weight: 700 !important;
+            }
+
+            .terrama2-component-align {
+              margin-top: 25px !important;
+            }
+
+            .terrama2-component-color {
+              background: #D2D6DE none repeat scroll 0% 0%;
+            }
+        </style>
 
         {# Block for including TerraMA2 specific stylesheets #}
         {% block styles %}
@@ -130,10 +145,10 @@
         </div>
         <!-- ./wrapper -->
 
-        <script src="/externals/jquery/jquery.min.js"></script>
-        <script src="/externals/bootstrap/bootstrap.min.js"></script>
+        <script src="/externals/jQuery/jQuery-2.1.4.min.js"></script>
+        <script src="/externals/bootstrap/js/bootstrap.min.js"></script>
         <script src="/externals/fastclick/fastclick.min.js"></script>
-        <script src="/externals/template/configuration.min.js"></script>
+        <script src="/externals/admin-lte/js/app.min.js"></script>
         {# Block for handling TerraMA2 javascripts include #}
         {% block javascripts %}
 
