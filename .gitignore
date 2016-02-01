@@ -2,3 +2,5 @@
 .DS_Store
 *.user
 *.*~
+webapp/node_modules
+webapp/npm-debug.log
