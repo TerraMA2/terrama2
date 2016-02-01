@@ -27,10 +27,15 @@
   \author Vinicius Campanha
 */
 
-#include <iostream>
-
 #ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
 #define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+
+// STL
+#include <iostream>
+
+// TerraMA2
+#include <terrama2/core/DataManager.hpp>
+
 
 void InitializeTerralib();
 
@@ -43,5 +48,9 @@ void FinalizeTerraMA2();
 void DropDatabase();
 
 void CreateDatabase();
+
+terrama2::core::DataProvider buildDataProvider();
+
+terrama2::core::DataSet buildDataSet(uint64_t dataProvider_id);
 
 #endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__

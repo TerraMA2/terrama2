@@ -70,6 +70,7 @@ struct DataSetItem
   std::string       filter_discardAfter_time;
   std::string       filter_discardAfter_timezone;
   std::string       filter_geometry;
+  uint64_t          filter_geometry_srid;
   double            filter_value;
   uint32_t          filter_expressionType;
   std::string       filter_bandFilter;
