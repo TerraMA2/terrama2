@@ -1,6 +1,6 @@
 {% extends "../base/layout.html" %}
 
-{% block title %} TerraMA2 Dados Dinâmicos {% endblock %}
+{% block title %} TerraMA2 {{ __('Dynamic Data') }} {% endblock %}
 
 {% block content %}
 
@@ -8,7 +8,7 @@
     <div class="col-md-6">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">Data Providers (Dinâmico)</h3>
+                <h3 class="box-title">{{ __("Data Providers") }} ({{ __('Dynamic') }})</h3>
                 <a href="/configuration/provider?type=dynamic" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
             </div><!-- /.box-header -->
 
@@ -17,10 +17,9 @@
                 <table class="table table-bordered">
                     <tr>
                         <th style="width: 10px"><input type="checkbox"></th>
-                        <th>Nome</th>
-                        <th>Endereço</th>
-                        <th>Tipo</th>
-                        <!-- <th style="width: 150px"></th> -->
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Address') }}</th>
+                        <th>{{ __('Kind') }}</th>
                         <th></th>
                     </tr>
                     <tr>
@@ -29,8 +28,8 @@
                         <td>dsa.inpe.br</td>
                         <td>FTP</td>
                         <td>
-                            <button type="button" class="btn btn-primary">Editar</button>
-                            <button type="button" class="btn btn-danger">Excluir</button>
+                            <button type="button" class="btn btn-primary">{{ __('Edit') }}</button>
+                            <button type="button" class="btn btn-danger">{{ __('Remove') }}</button>
                         </td>
                     </tr>
                 </table>
@@ -55,16 +54,16 @@
         <div class="box">
 
             <div class="box-header with-border">
-                <h3 class="box-title">Data Sets (Dinâmico)</h3>
+                <h3 class="box-title">{{ __('Data Sets') }} ({{ __('Dynamic') }})</h3>
                 <div class="btn-group">
                     <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-plus"></i>
                     </button>
 
                     <ul class="dropdown-menu">
-                        <li><a href="/configuration/occurrence?type=dynamic">Ocorrência</a></li>
-                        <li><a href="/configuration/pcd?type=dynamic">PCD</a></li>
-                        <li><a href="/configuration/grid?type=dynamic">GRID</a></li>
+                        <li><a href="/configuration/occurrence?type=dynamic">{{ __('Occurrence') }}</a></li>
+                        <li><a href="/configuration/pcd?type=dynamic">{ __('PCD') }}</a></li>
+                        <li><a href="/configuration/grid?type=dynamic">{ __('GRID') }}</a></li>
                     </ul>
                 </div>
             </div><!-- /.box-header -->
@@ -75,8 +74,8 @@
 
                     <tr>
                         <th style="width: 10px"><input type="checkbox"></th>
-                        <th>Nome</th>
-                        <th>Tipo</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Kind') }}</th>
                         <th></th>
                     </tr>
                     <tr>
@@ -84,8 +83,8 @@
                         <td>DSA</td>
                         <td>FTP</td>
                         <td>
-                            <button type="button" class="btn btn-primary">Editar</button>
-                            <button type="button" class="btn btn-danger">Excluir</button>
+                            <button type="button" class="btn btn-primary">{{ __('Edit') }}</button>
+                            <button type="button" class="btn btn-danger">{{ __('Remove') }}</button>
                         </td>
                     </tr>
 
