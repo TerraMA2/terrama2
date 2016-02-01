@@ -76,20 +76,7 @@ namespace terrama2
 
           Emits dataManagerLoaded() signal when all the data from the database has been loaded.
 
-          \pre The database with TerraMA2 metadata must have been initialized in the application controller.
-
-          \exception terrama2::Exception If it is not possible to load TerraMA2 metadata.
-
-          \note Thread-safe.
-         */
-        void load();
-
-        /*!
-          \brief Loads data providers and its datasets into DataMenager.
-
-          If the data manager was already loaded it doesn't have effect.
-
-          Emits dataManagerLoaded() signal when all the data from the database has been loaded.
+          \param memory Set the core::DataManager to use a database or memory
 
           \pre The database with TerraMA2 metadata must have been initialized in the application controller.
 
@@ -97,7 +84,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void load(std::vector<DataProvider> providers);
+        void load(bool memory = false);
 
         /*!
           \brief Unload the metadata of all data providers.

@@ -92,7 +92,7 @@ namespace terrama2
             \brief Fills the attribute table with the columns from the given dataset type.
             \param dataset Dataset type from the selected data.
           */
-          void fillAttributeTable(std::auto_ptr<te::da::DataSetType> dataset);
+          void fillAttributeTable(std::shared_ptr<te::da::DataSetType> dataset);
 
           //! Fills the vectorial list with all vectorial data stored in the database, it doesn't list the collected data.
           void fillVectorialList();

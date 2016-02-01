@@ -164,10 +164,10 @@ namespace terrama2
         void removeDataSet(const uint64_t id);
 
         /*! \brief Creates the object from the JSON string. */
-        static DataProvider FromJson(QJsonObject json);
+        static DataProvider FromJson(const QJsonObject& json);
 
         /*! \brief Serialize to JSON. */
-        QJsonObject toJson();
+        QJsonObject toJson() const;
 
         /*! \brief Override operator == */
         bool operator==(const DataProvider& rhs);

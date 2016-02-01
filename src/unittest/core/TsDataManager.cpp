@@ -76,7 +76,7 @@ void TsDataManager::clearDatabase()
     QFAIL("Invalid database connection");
   }
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
 
   if(!transactor.get())
   {
@@ -1535,7 +1535,7 @@ void TsDataManager::testMemoryDataManager()
 
   vecProviders.push_back(provider);
 
-  DataManager::getInstance().load(vecProviders);
+  DataManager::getInstance().load(true);
 
   auto foundProvider = DataManager::getInstance().findDataProvider(1);
 

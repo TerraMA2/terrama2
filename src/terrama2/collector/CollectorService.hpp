@@ -190,7 +190,7 @@ namespace terrama2
           \param dataProvider DataProvider of the data
           \param dataSetList List of DataSets to be collected.
          */
-      static void collect(const terrama2::core::DataProvider& dataProvider, const std::list<terrama2::core::DataSet>& dataSetList);
+      static void collect(const terrama2::core::DataProvider& dataProvider, const std::vector<core::DataSet>& dataSetList);
 
       void connectDataManager();
       void populateData();                  //!< Populate data based on core::DataSet and core::DataProvider already in the core::DataManager.

@@ -144,10 +144,10 @@ namespace terrama2
         void setStaticDataId(const uint64_t staticDataId);
 
         /*! \brief Creates the object from the JSON string. */
-        static Filter FromJson(QJsonObject json);
+        static Filter FromJson(const QJsonObject& json);
 
         /*! \brief Serialize to JSON. */
-        QJsonObject toJson();
+        QJsonObject toJson() const;
 
         /*! \brief Override operator == */
         bool operator==(const Filter& rhs);
