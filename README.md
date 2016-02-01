@@ -54,19 +54,41 @@ If you want to build TerraMA² from source, first take a look at the section **D
  
 - **[tool:](https://github.com/TerraMA2/terrama2/tree/master/tools)** Contains some helper tools for managig TerraMA² code.
 
-## Dependencies
+## C++ Dependencies
 
 The file named **[DEPENDENCIES](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** in the root of TerraMA² source tree contains the official list of third-party libraries and tools that you must install before building TerraMA² from source.
 
 If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
-- **Boost (Mandatory):** TerraMA² is built on top of Boost libraries. You will need to have them installed in order to build TerraMA2. Make sure to have at least version 1.54.0 installed. If you prefer to install from source, download it from: http://www.boost.org.
+- **Boost (Mandatory):** TerraMA² is built on top of Boost libraries. You will need to have them installed in order to build TerraMA². Make sure to have at least version 1.54.0 installed. If you prefer to install from source, download it from: http://www.boost.org.
 
 - **Qt (Mandatory):** Make sure you have an installed Qt version 5.2.1 or later. Linux users may use any package manager to perform an easy installation. Mac OS X can use package managers such as Homebrew (http://brew.sh) or MacPorts (http://www.macports.org) in order to have an easy installation. If you prefer to install from source, download it from: http://qt-project.org/downloads.
 
 - **gSOAP (Mandatory):** Make sure you have an installed gSOAP version 2.8.23 or later. If you prefer to install from source, download it from: http://www.cs.fsu.edu/~engelen/soap.html.
 
 - **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
+
+- **libCURL (Mandatory):** libcurl is a multiprotocol file transfer library. Make sure you have at least version 7.42.1 in your system. You can download it from: http://curl.haxx.se/libcurl.
+
+- **Google Test (Optional):** Google Test is the Google's C++ test framework. You can download it from: https://github.com/google/googletest.
  
+## Web Application and Components Dependencies
+
+The file named **[DEPENDENCIES](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** in the root of TerraMA² source tree contains the official list of third-party libraries and tools that you must install before building TerraMA² from source.
+
+If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
+- **Node.js (Mandatory):** Node.js is a JavaScript runtime for server side scripts. Make sure you have version 4.2.6 LTS installed. You can download it from: https://nodejs.org.
+
+- **AdminLTE (Mandatory):** TerraMA² web front-end is built on top of AdminLTE web template. You can download it from: https://github.com/almasaeed2010/AdminLTE.
+
+- **Bootstrap (Mandatory):** TerraMA² web front-end is built on top of Bootstrap. You can download it from: http://getbootstrap.com.
+
+- **Chart.js (Mandatory):** Chart.js is an HTML5 based framework for drawing charts. You can download it from: http://www.chartjs.org.
+
+- **DataTables (Mandatory):** DataTables is a table plugin for jQuery. It is available at: http://www.datatables.net.
+
+- **jQuery (Mandatory):** jQuery is a JavaScript library for handling HTML document elements. Make sure to have at least version 2.1.4. It is available at: https://jquery.com.
+
+
 ### Bash script for building all dependencies on Linux Ubuntu 14.04
 
 We have prepared a special bash script for building and installing the dependencies on Linux Ubuntu 14.04. This script can be found in TerraMA² source tree under *install* folder. Follow the steps below:

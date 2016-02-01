@@ -27,7 +27,7 @@
 #
 #
 #  Example:
-#  $ TERRAMA2_DEPENDENCIES_DIR="/home/gribeiro/MyLibs" ./install-3rdparty-linux-ubuntu-14.04.sh
+#  $ ./install-3rdparty-linux-ubuntu-14.04.sh /home/gribeiro/MyLibs /home/gribeiro/MyDevel/terrama2/codebase
 #
 
 echo "*****************************************************************"
@@ -84,8 +84,10 @@ valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-linu
 #
 # Check installation dir
 #
-if [ "$TERRAMA2_DEPENDENCIES_DIR" == "" ]; then
-  TERRAMA2_DEPENDENCIES_DIR = "/opt/terrama2"
+if [ "$1" == "" ]; then
+  TERRAMA2_DEPENDENCIES_DIR="/opt/terrama2"
+else
+  TERRAMA2_DEPENDENCIES_DIR="$1"
 fi
 
 export PATH="$PATH:$TERRAMA2_DEPENDENCIES_DIR/bin"
@@ -208,15 +210,14 @@ fi
 #
 # TerraMA2 Web Dependencies
 #
-echo "$1/webapp/app.js"
 
-if [ -f "$1/webapp/app.js" ]; then
-  echo "Installing terrama2 web dependencies"
+if [ -f "$2/webapp/app.js" ]; then
+  echo "Installing TerraMA2 web dependencies..."
   echo ""
 
   unzip -o terrama2-web-dependencies.zip  &> /dev/null
-  valid $? "Error: Could not install terrama2 web"
-  mv externals "$1/webapp/public" &> /dev/null
+  valid $? "Error: Could not install web dependencies!"
+  mv externals "$2/webapp/public" &> /dev/null
   valid $? "Error: Verify if the externals directory already exists."
 
   echo "Finished TerraMA2 Web Dependencies"
