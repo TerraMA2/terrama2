@@ -10,9 +10,7 @@ TerraMA² Webapp is a free and open source component based web API for use in we
 
 ## Dependencies
 
-In order to use the components of the API, you have to run it. For that to be possible you'll need to install some third-party softwares. Bellow we show you this softwares and its versions:
-
-- **Node.js (Mandatory):** To run the API you need to install the Node.js interpreter. Make sure to have at least version 4.2.3 installed. You can download it from: https://nodejs.org/.
+In order to use the components of the API, you have to run it. For that to be possible you'll need to install some third-party softwares. It can be found in TerraMA² repository [WEB DEPENDENCIES](https://github.com/TerraMA2/terrama2#web-application-and-components-dependencies) section.
 
 ## Execution Instructions
 
@@ -26,7 +24,14 @@ git clone https://github.com/TerraMA2/terrama2.git
 
 Note: This repository contain the entire TerraMA², if you want just the web API, the important is the webapp directory.
 
-- Access the webapp directory via command line and run the following command:
+- Access the webapp folder and run the following nodejs command:
+
+```
+cd webapp
+npm install
+```
+
+- Run the following command:
 
 ```
 npm start
