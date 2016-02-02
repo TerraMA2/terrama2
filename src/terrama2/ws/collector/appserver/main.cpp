@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_INFO() << "Loading TerraMA2 Project...";
     if(!terrama2::core::ApplicationController::getInstance().loadProject(project))
     {
-      TERRAMA2_LOG_ERROR() << "Failure in TerraMA2 initialization: Project File is invalid or does not exist!";
+      TERRAMA2_LOG_ERROR() << "Failure in TerraMA2 initialization: Check if the Project File exists and has valid information!";
       exit(TERRAMA2_PROJECT_LOAD_ERROR);
     }
 

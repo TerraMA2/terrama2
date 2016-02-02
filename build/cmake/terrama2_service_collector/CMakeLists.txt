@@ -29,6 +29,7 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services
 
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
 )
