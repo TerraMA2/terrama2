@@ -11,7 +11,7 @@
     "database": {
         "driver": "PostgreSQL",
         "host": "localhost",
-        "name": "terrama2_test",
+        "name": "terrama2_test_ws",
         "password": "postgres",
         "port": "5432",
         "user": "postgres"

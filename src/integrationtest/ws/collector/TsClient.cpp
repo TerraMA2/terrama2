@@ -45,15 +45,13 @@
 
 void TsClient::initTestCase()
 {
-  // VINICIUS: not working, depends on TerraLib5
-//  CreateDatabase();
+
 }
 
 
 void TsClient::cleanupTestCase()
 {
-  // VINICIUS: not working, depends on TerraLib5
-//  DropDatabase();
+
 }
 
 
@@ -76,7 +74,7 @@ void TsClient::cleanup()
 
 void TsClient::clearDatabase()
 {
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
+  std::shared_ptr<te::da::DataSourceTransactor> transactor = terrama2::core::ApplicationController::getInstance().getTransactor();
 
   transactor->begin();
 
@@ -84,132 +82,6 @@ void TsClient::clearDatabase()
   transactor->execute(query);
 
   transactor->commit();
-}
-
-
-terrama2::core::DataProvider TsClient::buildDataProvider()
-{
-
-  terrama2::core::DataProvider  dataProvider("Data Provider", terrama2::core::DataProvider::Kind::FILE_TYPE, 0);
-
-  dataProvider.setUri("file:///../../../../../../");
-  dataProvider.setDescription("Data Provider Description");
-  dataProvider.setStatus(terrama2::core::DataProvider::Status::ACTIVE);
-
-  return dataProvider;
-}
-
-
-terrama2::core::DataSet TsClient::buildDataSet(uint64_t dataProvider_id)
-{
-  terrama2::core::DataSet dataSet("Data Set Name", terrama2::core::DataSet::Kind::OCCURENCE_TYPE, 0, dataProvider_id);
-
-  dataSet.setDescription("Data Set Description");
-  dataSet.setStatus(terrama2::core::DataSet::Status::ACTIVE);
-
-  boost::posix_time::time_duration dataFrequency(boost::posix_time::duration_from_string("00:05:00.00"));
-  boost::posix_time::time_duration schedule(boost::posix_time::duration_from_string("00:06:00.00"));
-  boost::posix_time::time_duration scheduleRetry(boost::posix_time::duration_from_string("00:07:00.00"));
-  boost::posix_time::time_duration scheduleTimeout(boost::posix_time::duration_from_string("00:08:00.00"));
-
-  dataSet.setDataFrequency(te::dt::TimeDuration(dataFrequency));
-  dataSet.setSchedule(te::dt::TimeDuration(schedule));
-  dataSet.setScheduleRetry(te::dt::TimeDuration(scheduleRetry));
-  dataSet.setScheduleTimeout(te::dt::TimeDuration(scheduleTimeout));
-
-  terrama2::core::Intersection intersection;
-  std::map<std::string, std::vector<std::string> > attrMap;
-  std::vector<std::string> attrVec;
-  attrVec.push_back("geocodigo");
-  attrMap["public.municipio"] = attrVec;
-  intersection.setAttributeMap(attrMap);
-
-  dataSet.setIntersection(intersection);
-
-  std::map<std::string, std::string> metadata;
-
-  metadata["metadataKey"] = "metadataValue";
-  metadata["metadata_Key"] = "metadata_Value";
-
-  dataSet.setMetadata(metadata);
-
-  terrama2::core::DataSetItem dataSetItem1(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
-  dataSetItem1.setMask("mask1");
-  dataSetItem1.setStatus(terrama2::core::DataSetItem::Status(2));
-  dataSetItem1.setTimezone("-1");
-  dataSetItem1.setPath("codebase/data/fire_system/");
-  dataSetItem1.setSrid(5422);
-
-  terrama2::core::Filter filter(0);
-
-  //FIXME:fix test
-//  te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2002-01-20 23:59:59.000")));
-//  std::unique_ptr< te::dt::DateTime > discardBefore(td);
-//  filter.setDiscardBefore(std::move(discardBefore));
-
-//  te::dt::DateTime* td2 = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2002-01-21 23:59:59.000")));
-//  std::unique_ptr< te::dt::DateTime > timeAfter(td2);
-//  filter.setDiscardAfter(std::move(timeAfter));
-
-  std::unique_ptr< double > value(new double(5.1));
-  filter.setValue(std::move(value));
-
-  filter.setExpressionType(terrama2::core::Filter::ExpressionType(1));
-  filter.setBandFilter("filter_bandFilter");
-
-  te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
-
-  const double &xc(5), &yc(5), &halfSize(5);
-  s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
-  s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
-  s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
-  s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
-  s->setPoint(4, xc - halfSize, yc - halfSize); // closing
-
-  te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
-  p->push_back(s);
-
-  std::unique_ptr< te::gm::Geometry > geom(p);
-  filter.setGeometry(std::move(geom));
-
-  dataSetItem1.setFilter(filter);
-
-//  std::map< std::string, std::string > metadata;
-
-//  metadata["one"] = "two";
-//  metadata["two"] = "one";
-
-//  dataSetItem1.setMetadata(metadata);
-
-  terrama2::core::DataSetItem dataSetItem2(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
-  dataSetItem2.setMask("mask2");
-  dataSetItem2.setStatus(terrama2::core::DataSetItem::Status(2));
-  dataSetItem2.setTimezone("-2");
-
-  terrama2::core::DataSetItem dataSetItem3(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
-  dataSetItem3.setMask("mask3");
-  dataSetItem3.setStatus(terrama2::core::DataSetItem::Status(2));
-  dataSetItem3.setTimezone("-3");
-  dataSetItem3.setPath("codebase/data/fire_system/");;
-
-  terrama2::core::DataSetItem dataSetItem4(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
-  dataSetItem4.setMask("mask4");
-  dataSetItem4.setStatus(terrama2::core::DataSetItem::Status(2));
-  dataSetItem4.setTimezone("-4");
-
-  terrama2::core::DataSetItem dataSetItem5(terrama2::core::DataSetItem::Kind::FIRE_POINTS_TYPE, 0, 0);
-  dataSetItem5.setMask("mask5");
-  dataSetItem5.setStatus(terrama2::core::DataSetItem::Status(2));
-  dataSetItem5.setTimezone("-5");
-  dataSetItem5.setPath("codebase/data/fire_system/");;
-
-  dataSet.add(dataSetItem1);
-  dataSet.add(dataSetItem2);
-  dataSet.add(dataSetItem3);
-  dataSet.add(dataSetItem4);
-  dataSet.add(dataSetItem5);
-
-  return dataSet;
 }
 
 
@@ -682,14 +554,24 @@ void TsClient::testUpdateDataSet()
       {
         terrama2::core::Filter filter = dataSet.dataSetItems().at(i).filter();
 
-        //FIXME: Fix this test
-//        te::dt::DateTime* td = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-20 23:59:59.000")));
-//        std::unique_ptr< te::dt::DateTime > discardBefore(td);
-//        filter.setDiscardBefore(std::move(discardBefore));
 
-//        te::dt::DateTime* td2 = new te::dt::TimeInstant(boost::posix_time::ptime(boost::posix_time::time_from_string("2012-01-21 23:59:59.000")));
-//        std::unique_ptr< te::dt::DateTime > timeAfter(td2);
-//        filter.setDiscardAfter(std::move(timeAfter));
+        {
+          boost::posix_time::ptime pt(boost::posix_time::time_from_string("2002-02-20 23:59:59.000"));
+          boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("MST-07"));
+          boost::local_time::local_date_time time(pt, zone);
+
+          std::unique_ptr< te::dt::TimeInstantTZ > discardBefore(new te::dt::TimeInstantTZ(time));
+          filter.setDiscardBefore(std::move(discardBefore));
+        }
+
+        {
+          boost::posix_time::ptime pt(boost::posix_time::time_from_string("2002-02-21 23:59:59.000"));
+          boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("MST-07"));
+          boost::local_time::local_date_time time(pt, zone);
+
+          std::unique_ptr< te::dt::TimeInstantTZ > discardAfter(new te::dt::TimeInstantTZ(time));
+          filter.setDiscardAfter(std::move(discardAfter));
+        }
 
         std::unique_ptr< double > value(new double(6.1));
         filter.setValue(std::move(value));
@@ -697,7 +579,7 @@ void TsClient::testUpdateDataSet()
         filter.setExpressionType(terrama2::core::Filter::ExpressionType(2));
         filter.setBandFilter("filter_bandFilter_updated");
 
-        te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
+        te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType, 4326);
 
         const double &xc(6), &yc(6), &halfSize(6);
         s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
@@ -706,10 +588,10 @@ void TsClient::testUpdateDataSet()
         s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
         s->setPoint(4, xc - halfSize, yc - halfSize); // closing
 
-        te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
+        te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType, 4326);
         p->push_back(s);
 
-        std::unique_ptr< te::gm::Geometry > geom(p);
+        std::unique_ptr< te::gm::Polygon > geom(p);
         filter.setGeometry(std::move(geom));
 
         dataSet.dataSetItems().at(i).setFilter(filter);

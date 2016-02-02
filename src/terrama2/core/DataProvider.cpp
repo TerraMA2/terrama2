@@ -32,6 +32,14 @@
 
 // TerraMA2
 #include "DataProvider.hpp"
+#include "Utils.hpp"
+#include "../Exception.hpp"
+
+// Qt
+#include <QObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QString>
 
 terrama2::core::DataProvider::DataProvider(const std::string& name, Kind k, const uint64_t id)
   : id_(id),
@@ -150,4 +158,96 @@ void terrama2::core::DataProvider::removeDataSet(uint64_t id)
                                 datasets_.end(),
                                 [&id](const DataSet& dataset){ return (dataset.id() == id) ? true : false; }),
                   datasets_.end());
+}
+
+terrama2::core::DataProvider terrama2::core::DataProvider::FromJson(const QJsonObject& json)
+{
+  if(!(json.contains("name")
+     && json.contains("kind")
+     && json.contains("id")
+     && json.contains("origin")
+     && json.contains("description")
+     && json.contains("uri")
+     && json.contains("status")
+     && json.contains("datasets")))
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+
+  DataProvider provider;
+
+  provider.setName(json["name"].toString().toStdString());
+  provider.setKind(ToDataProviderKind(json["kind"].toInt()));
+  provider.setId(json["id"].toInt());
+  provider.setOrigin(ToDataProviderOrigin(json["origin"].toInt()));
+  provider.setDescription(json["description"].toString().toStdString());
+  provider.setUri(json["uri"].toString().toStdString());
+  provider.setStatus(ToDataProviderStatus(json["status"].toBool()));
+
+  QJsonArray datasetsJson =  json["datasets"].toArray();
+  for (const QJsonValue & value: datasetsJson)
+  {
+    auto dataset = DataSet::FromJson(value.toObject());
+    provider.add(dataset);
+  }
+
+  return provider;
+}
+
+QJsonObject terrama2::core::DataProvider::toJson() const
+{
+  QJsonObject json;
+
+  json["class"] = QString("DataProvider");
+  json["name"] = QString(name_.c_str());
+  json["kind"] = QJsonValue((int)kind_);
+  json["id"] = QJsonValue((int)id_);
+  json["origin"] = QJsonValue((int)origin_);
+  json["description"] = QString(description_.c_str());
+  json["uri"] = QString(uri_.c_str());
+  json["status"] = QJsonValue(ToBool(status_));
+
+  QJsonArray datasetsJson;
+  for(auto dataset : datasets_)
+  {
+    datasetsJson.append(QJsonValue(dataset.toJson()));
+  }
+  json["datasets"] = datasetsJson;
+
+  return json;
+}
+
+bool terrama2::core::DataProvider::operator==(const terrama2::core::DataProvider& rhs)
+{
+  if(name_ != rhs.name_)
+    return false;
+  if(kind_ != rhs.kind_)
+    return false;
+  if(id_ != rhs.id_)
+    return false;
+  if(origin_ != rhs.origin_)
+    return false;
+  if(description_ != rhs.description_)
+    return false;
+  if(uri_ != rhs.uri_)
+    return false;
+  if(status_ != rhs.status_)
+    return false;
+  if(datasets_.size() != rhs.datasets_.size())
+    return false;
+  else
+  {
+    for (int i = 0; i < datasets_.size(); ++i)
+    {
+      auto lhsDataset = datasets_[i];
+      auto rhsDataset = rhs.datasets_[i];
+      if(lhsDataset != rhsDataset)
+        return false;
+    }
+  }
+  return true;
+}
+
+
+bool terrama2::core::DataProvider::operator!=(const terrama2::core::DataProvider& rhs)
+{
+  return !(*this == rhs);
 }

@@ -44,6 +44,9 @@ namespace terrama2
     //! Base exception for DataRetrieverFTP
     struct DataRetrieverFTPException : virtual Exception { };
 
+    //! Base exception for DataRetrieverWCS
+    struct DataRetrieverWCSException : virtual Exception { };
+
     //! Raised when the collector service could not be started. Check error info for more information.
     struct UnableToStartServiceException : virtual CollectorServiceException { };
     //! Raised when start() is callend and the CollectorService is already running.

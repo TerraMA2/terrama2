@@ -41,6 +41,9 @@
 #include <memory>
 #include <string>
 
+//Qt
+#include <QJsonObject>
+
 namespace terrama2
 {
   namespace core
@@ -50,6 +53,7 @@ namespace terrama2
      */
     class ApplicationController : public te::common::Singleton<ApplicationController>
     {
+      /*! In order to use the singleton template from TerraLib the ApplicationController must be a friend class of the te::common::Singleton. */
       friend class te::common::Singleton<ApplicationController>;
 
       public:
@@ -61,7 +65,7 @@ namespace terrama2
 
           \return Returns if it was possible to read the file and read all the configurations.
          */
-        bool loadProject(const std::string& configFileName);
+        bool loadProject(const QJsonObject& project);
 
         /*!
           \brief Returns a datasource transactor.
@@ -70,7 +74,7 @@ namespace terrama2
 
           \exception DataAccessException If it is not possible to get a new data source transactor an exception is raisen.
         */
-        std::auto_ptr<te::da::DataSourceTransactor> getTransactor();
+        std::shared_ptr<te::da::DataSourceTransactor> getTransactor();
 
         /*!
           \brief Returns a datasource.
@@ -116,7 +120,7 @@ namespace terrama2
 
       protected:
 
-        std::string configFile_;                          //!< Path and name of the configuration file.
+        QJsonObject project_;                          //!< Configuration information.
         std::shared_ptr<te::da::DataSource> dataSource_;  //!< Smart pointer to the data source.
     };
   } // end namespace core

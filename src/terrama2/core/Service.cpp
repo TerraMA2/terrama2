@@ -69,8 +69,6 @@ void terrama2::core::Service::start(uint threadNumber)
 
       throw; //TODO: create new exception
     }
-
-    populateData();
 }
 
 void terrama2::core::Service::stop() noexcept
@@ -103,15 +101,16 @@ void terrama2::core::Service::mainLoopThread() noexcept
   {
     try
     {
-      std::unique_lock<std::mutex> lock(mutex_);
-      //wait for new data to collect
-      mainLoopCondition_.wait(lock, [this]{ return mainLoopWaitCondition(); });
-
-      if(stop_)
-        break;
-
-      while(checkNextData())
       {
+        std::unique_lock<std::mutex> lock(mutex_);
+        //wait for new data to collect
+        mainLoopCondition_.wait(lock, [this]{ return mainLoopWaitCondition(); });
+
+        if(stop_)
+          break;
+
+        while(checkNextData());
+
         if(stop_)
           break;
       }

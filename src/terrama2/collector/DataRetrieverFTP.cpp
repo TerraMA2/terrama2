@@ -32,6 +32,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <functional>
 
 // TerraMA2
 #include "DataRetrieverFTP.hpp"
@@ -110,13 +111,13 @@ void terrama2::collector::DataRetrieverFTP::close()
 
 }
 
-size_t write_response(void *ptr, size_t size, size_t nmemb, void *data)
+size_t terrama2::collector::DataRetrieverFTP::write_response(void *ptr, size_t size, size_t nmemb, void *data)
 {
   FILE *writehere = (FILE *)data;
   return fwrite(ptr, size, nmemb, writehere);
 }
 
-size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data)
+size_t terrama2::collector::DataRetrieverFTP::write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t sizeRead = size * nmemb;
 
@@ -152,9 +153,9 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
 // List files and directories FTP server
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
-// Get data to be written in vector
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_vector);
-// Set a pointer to our block data
+      // Get data to be written in vector
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::collector::DataRetrieverFTP::write_vector);
+      // Set a pointer to our block data
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void *)&block);
 // performs the configurations of curl_easy_setop
       status = curl_easy_perform(curl.fcurl());
@@ -194,7 +195,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
           FileOpener opener(filePath.c_str(),"wb");
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uri_origin.c_str());
 // Get data to be written in file
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, write_response);
+          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::collector::DataRetrieverFTP::write_response);
 // Set a pointer to our block data
           curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEDATA, opener.file());
 // performs the configurations of curl_easy_setop

@@ -33,6 +33,7 @@
 // TerraMA2
 #include "../core/DataProvider.hpp"
 #include "../core/DataSet.hpp"
+#include "../core/Service.hpp"
 #include "DataSetTimer.hpp"
 
 // QT
@@ -77,37 +78,18 @@ namespace terrama2
       It may also be signaled of new datasets to be added to the collect list
       or removed from the list.
      */
-    class CollectorService : public QObject, public boost::noncopyable
+    class CollectorService : public core::Service
     {
       Q_OBJECT
 
     public:
+      CollectorService();
 
-      //! Creates a CollectorService object, does not start the service.
-      CollectorService(QObject* parent = nullptr);
+      //comments on base class
+      virtual ~CollectorService(){}
 
-      //! Stops and finishes current running service.
-      ~CollectorService();
-
-      /*!
-          \brief Start the main loop thread for collecting data.
-
-          \param Number of collecting threads in the threadpool, if 0 trys to find number of system supported threads else 1 thread.
-
-          \exception ServiceAlreadyRunnningError Raise when the service is already runnning.
-          \exception UnableToStartServiceError Raise when the system can not create a thread or acquire resources to initialize the service.
-         */
-      void start(int threadNumber = 0);
 
     public slots:
-
-      /*!
-          \brief Stop the service and release the thread loop.
-
-          \note It can block the caller waiting for any pending data collection.
-         */
-      void stop() noexcept;
-
       /*!
           \brief Register the dataprovider.
 
@@ -118,7 +100,7 @@ namespace terrama2
       void addProvider(const core::DataProvider& provider);
 
       /*!
-          \brief Remove a core::DataProvider and all associated core::DataSet from the CollectorService list.
+          \brief Remove a core::DataProvider and all associated core::DataSet from the CollectorService_old list.
 
           The associated core::DataSet will be removed first.
 
@@ -153,7 +135,7 @@ namespace terrama2
       void addDataset(const core::DataSet& dataset);
 
       /*!
-          \brief Removes a core::DataSet from the CollectorService list.
+          \brief Removes a core::DataSet from the CollectorService_old list.
 
           \note If the core::DataSet does not exist nothing is done.
 
@@ -162,7 +144,7 @@ namespace terrama2
       void removeDataset(const core::DataSet& dataset);
 
       /*!
-          \brief Removes a core::DataSet from the CollectorService list.
+          \brief Removes a core::DataSet from the CollectorService_old list.
 
           \note If the core::DataSet does not exist nothing is done.
 
@@ -186,69 +168,37 @@ namespace terrama2
       //! Slot to be called when a DataSetTimer times out.
       void addToQueue(uint64_t datasetId);
 
-    private:
+
+    protected:
+      //comments on base class
+      virtual bool mainLoopWaitCondition() noexcept override;
+      //comments on base class
+      virtual bool checkNextData() override;
 
       /*!
-          \brief Start a new thread for collecting the datasets in the queue from the data-provider.
+         \brief Creates a task and place on queue.
 
-          \param provider Provide identifier.
-          \param datasets Queue of datasets from the provider that will be collected.
-         */
-      void process(const uint64_t provider, const std::vector<uint64_t>& datasets);
+         Places the task on queue waiting for the next free thread to execute.
+
+         \param provider core::DataProvider id .
+         \param datasets Vector of core::DataSet id that are on schedule to colelct.
+       */
+      virtual void prepareTask(const uint64_t provider, const std::vector<uint64_t>& datasets);
 
       /*!
           \brief Retrieves, parse, filter and store the data from each dataset.
           \param dataProvider DataProvider of the data
           \param dataSetList List of DataSets to be collected.
          */
-      static void collect(const terrama2::core::DataProvider& dataProvider, const std::list<terrama2::core::DataSet>& dataSetList);
+      static void collect(const terrama2::core::DataProvider& dataProvider, const std::vector<core::DataSet>& dataSetList);
 
-      /*!
-         * \brief Thread that will check for new collecting tasks and start next task.
-         */
-      void threadProcess();
-
-      /*!
-           \brief Contains an infinite loop that will keep the service collecting data.
-
-           For each provider type verifies if the first provider in the queue is acquiring new data,
-           in case it's collecting moves to next type of provider, when it's done remove it from the queue,
-           in case it's not collecting, starts the collection calling the collect method.
-           It allows multiples providers to collect at the same time but only one provider of each type.
-         */
-      void processingLoop();
-
-      /*!
-          \brief Connect with core::DataManager signals.
-
-          Listens to:
-          - dataProviderAdded(const core::DataProvider&);
-          - dataProviderRemoved(const core::DataProvider&);
-          - dataProviderUpdated(const core::DataProvider&);
-          - dataSetAdded(const core::DataSet&);
-          - dataSetRemoved(uint64_t);
-          - dataSetUpdated(const core::DataSet&);
-         */
       void connectDataManager();
+      void populateData();                  //!< Populate data based on core::DataSet and core::DataProvider already in the core::DataManager.
 
-    private:
-
-      bool stop_;                                               //!< Controls the service thread.
       std::map<uint64_t, core::DataProvider> dataproviders_;    //!< The list of data providers. [dataprovider-id] -> dataprovider.
       std::map<uint64_t, core::DataSet> datasets_;              //!< The list of dataset to be collected. [dataset-id] -> dataset.
       std::map<uint64_t, DataSetTimerPtr> timers_;              //!< The list of timers used to control the timeout for data collection. [dataset-id] -> [dataset-time].
       std::map<uint64_t, std::vector<uint64_t> > collectQueue_; //!< The queue of datasets to be collected by dataprovider. [dataprovider-id] -> [dataset-queue].
-
-      std::mutex  mutex_;                                       //!< Mutex for thread safety
-      std::future<void> loopThread_;                            //!< Thread that holds the loop of processing queued dataset.
-      std::condition_variable loop_condition_;                  //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
-
-      std::queue<std::packaged_task<void()> > taskQueue_;       //!< Queue for collecting tasks.
-      std::vector<std::future<void> > threadPool_;              //!< Pool of collecting threads
-      std::condition_variable thread_condition_;                //!< Wait condition for the collecting thread. Wakes when new tasks are available or the service is stopped.
-
-      void populateData();                  //!< Populate data based on core::DataSet and core::DataProvider already in the core::DataManager.
-
     };
   }
 }

@@ -135,7 +135,7 @@ terrama2::core::DataSet TsCore::buildDataSet()
   te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
   p->push_back(s);
 
-  std::unique_ptr< te::gm::Geometry > geom(p);
+  std::unique_ptr< te::gm::Polygon > geom(p);
   filter.setGeometry(std::move(geom));
 
   dataSetItem1.setFilter(filter);
@@ -311,7 +311,7 @@ void TsCore::TestConvertDataSetStructToDataSet()
     dataset_item.id = i;
     dataset_item.dataset = struct_dataSet.id;
     dataset_item.status = 2;
-    dataset_item.mask = "mask" + i;
+    dataset_item.mask = "mask" + std::to_string(i);
     dataset_item.timezone = "-3";
 
     if(i == 2)

@@ -29,7 +29,13 @@
 
 // TerraMA2
 #include "Intersection.hpp"
+#include "../Exception.hpp"
 
+// Qt
+#include <QObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QString>
 
 terrama2::core::Intersection::Intersection(uint64_t dataSetId)
 : dataset_(dataSetId)
@@ -57,7 +63,7 @@ std::map<std::string, std::vector<std::string> > terrama2::core::Intersection::a
   return attributeMap_;
 }
 
-void terrama2::core::Intersection::setAttributeMap(std::map<std::string, std::vector<std::string> >& attributeMap)
+void terrama2::core::Intersection::setAttributeMap(const std::map<std::string, std::vector<std::string> >& attributeMap)
 {
   attributeMap_ = attributeMap;
 }
@@ -67,7 +73,89 @@ std::map<uint64_t, std::string> terrama2::core::Intersection::bandMap() const
   return bandMap_;
 }
 
-void terrama2::core::Intersection::setBandMap(std::map<uint64_t, std::string >& bandMap)
+void terrama2::core::Intersection::setBandMap(const std::map<uint64_t, std::string >& bandMap)
 {
   bandMap_ = bandMap;
+}
+
+terrama2::core::Intersection terrama2::core::Intersection::FromJson(const QJsonObject& json)
+{
+  if(! (json.contains("dataset") && json.contains("attributeMap") && json.contains("bandMap")))
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+
+  Intersection intersection(json["dataset"].toInt());
+
+  QJsonObject attributeMapJson = json["attributeMap"].toObject();
+  std::map<std::string, std::vector<std::string> > attributeMap;
+  for(auto it = attributeMapJson.begin(); it != attributeMapJson.end(); ++it)
+  {
+    QJsonArray attrListJson = it.value().toArray();
+
+    std::vector<std::string> attrList;
+    for (const QJsonValue & value: attrListJson)
+    {
+      attrList.push_back(value.toString().toStdString());
+    }
+
+    attributeMap[it.key().toStdString()] = attrList;
+  }
+  intersection.setAttributeMap(attributeMap);
+
+  QJsonObject bandMapJson = json["bandMap"].toObject();
+  std::map<uint64_t, std::string> bandMap;
+  for(auto it = bandMapJson.begin(); it != bandMapJson.end(); ++it)
+  {
+    uint64_t key = it.key().toInt();
+    bandMap[key] = it.value().toString().toStdString();
+  }
+  intersection.setBandMap(bandMap);
+
+  return intersection;
+}
+
+QJsonObject terrama2::core::Intersection::toJson() const
+{
+  QJsonObject json;
+
+  json["class"] = QString("Intersection");
+  json["dataset"] = QJsonValue((int)dataset_);
+
+  QJsonObject attributeMapJson;
+  for(auto it = attributeMap_.begin(); it != attributeMap_.end(); ++it)
+  {
+    QJsonArray attrList;
+    for(auto attr : it->second)
+    {
+      attrList.append(QString(attr.c_str()));
+    }
+    attributeMapJson[QString(it->first.c_str())] = attrList;
+  }
+  json["attributeMap"] = attributeMapJson;
+
+  QJsonObject bandMapJson;
+  for(auto it = bandMap_.begin(); it != bandMap_.end(); ++it)
+  {
+    bandMapJson[QString(std::to_string((int)it->first).c_str())] = QString(it->second.c_str());
+  }
+  json["bandMap"] = bandMapJson;
+
+  return json;
+
+}
+
+bool terrama2::core::Intersection::operator==(const terrama2::core::Intersection& rhs)
+{
+  if(dataset_ != rhs.dataset_)
+    return false;
+  if(attributeMap_ != rhs.attributeMap_)
+    return false;
+  if(bandMap_ != rhs.bandMap_)
+    return false;
+
+  return true;
+}
+
+bool terrama2::core::Intersection::operator!=(const terrama2::core::Intersection& rhs)
+{
+  return !(*this == rhs);
 }

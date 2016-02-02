@@ -1,0 +1,107 @@
+{% extends "../base/layout.html" %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/terrama2.css">
+    <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/externals/moment/moment.js"></script>
+    <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $(".timepicker").datetimepicker({
+            widgetPositioning: {vertical: "bottom"},
+            format: "HH:mm:ss"
+        });
+
+        $("#mask-list").on("click", "li", function(e){
+            $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
+        });
+
+        $('#datetimepicker6').datetimepicker({
+            widgetPositioning: {vertical: "bottom"},
+            format: 'DD-MM-YY HH:mm'
+        });
+        $('#datetimepicker7').datetimepicker({
+            widgetPositioning: {vertical: "bottom"},
+            format: 'DD-MM-YY HH:mm',
+            useCurrent: false
+        });
+        $("#datetimepicker6").on("dp.change", function (e) {
+            $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
+        });
+        $("#datetimepicker7").on("dp.change", function (e) {
+            $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
+        });
+    });
+    </script>
+{% endblock %}
+
+{% block title %} TerraMA2 {{ __('Data Occurrence Registration') }} {% endblock %}
+
+{% block content %}
+    {# Temp code for including filter modal. #}
+    {% include "../base/filterModal.html" %}
+
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">{{ __('Data Occurrence Registration') }}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div style="display: block;" class="box-body">
+
+                <div class="col-md-12">
+                    <!-- General Data Component -->
+                    {% include "../base/generalData.html" with configuration %}
+                </div>
+
+                <div class="col-md-12">
+                    <!-- Parameters Component -->
+                    {% include "../base/parametersData.html" with configuration %}
+                </div>
+
+                <div class="col-md-9">
+                    <!-- Filter component -->
+                    {% include "../base/filter.html" with configuration %}
+                </div>
+
+                <div class="col-md-3">
+                                    <!-- Intersection -->
+                <div class="box box-default box-solid">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ __('Pre-processing') }}</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div style="display: block;" class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                               <div class="col-md-8 col-md-offset-2">
+                                    <button class="btn btn-primary btn-lg btn-block" id="intersection-button" data-toggle="modal" data-target="#intersectionModal">{{ __('Intersection') }}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box group -->
+                </div>
+                <!-- /.box solid -->
+                </div>
+
+            </div>
+            <!-- /.box body -->
+
+            <div class="box-footer">
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('OK') }}</button>
+            </div> 
+        </div>
+    </div> <!-- end col md 12 -->
+
+{% endblock %}

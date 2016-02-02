@@ -5,7 +5,35 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
     app = express(),
+    load = require('express-load'),
+    swig = require('swig'),
+    i18n = require('i18n-2'),
     server = require('http').Server(app);
+
+// Set SWIG template engine
+app.engine('html', swig.renderFile);
+app.set('view engine', 'html');
+
+// Set template directories
+app.set('views', __dirname + '/views');
+
+// Set up the internacionalization
+i18n.expressBind(app, {
+  // setup some locales - other locales default to vi silently
+  locales: ['pt', 'en', 'es'],
+  // set the default locale
+  defaultLocale: 'en',
+  // set the cookie name
+  cookieName: 'locale',
+  query: true
+});
+
+// set up the internacionalization middleware
+app.use(function(req, res, next) {
+  req.i18n.setLocaleFromQuery();
+  req.i18n.setLocaleFromCookie();
+  next();
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,5 +46,9 @@ app.use(function(req, res, next) {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+load('controllers')
+  .then('routes')
+  .into(app);
 
 module.exports = app;

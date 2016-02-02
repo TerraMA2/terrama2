@@ -37,6 +37,9 @@
 #include <map>
 #include <string>
 
+// Qt
+#include <QJsonObject>
+
 namespace terrama2
 {
   namespace core
@@ -149,6 +152,18 @@ namespace terrama2
 
         /*! \brief Sets the spatial reference identifier. */
         void setSrid(const uint64_t srid);
+
+        /*! \brief Creates the object from the JSON string. */
+        static DataSetItem FromJson(const QJsonObject& json);
+
+        /*! \brief Serialize to JSON. */
+        QJsonObject toJson() const;
+
+        /*! \brief Override operator == */
+        bool operator==(const DataSetItem& rhs);
+
+        /*! \brief Override operator != */
+        bool operator!=(const DataSetItem& rhs);
 
       private:
 

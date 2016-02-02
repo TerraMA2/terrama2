@@ -88,9 +88,16 @@ namespace terrama2
 
         //! Slot called when the timer times out, emits timerSignal.
         void timeoutSlot() const;
+        void scheduleSlot() const;
 
       private:
         /*! \brief Prepare and starts timer following the core::DataSet information.
+
+          If a data frequency was set in the core::DataSet, the timeout signal will be emited every time the interval has passed,
+          else, a schedule is set and the timeout signal is emited at the time set once a day.
+
+          \note The schedule only consider time of day.
+          \note The schedule precision is 1 minute, seconds will be ignored.
 
           \exception InvalidCollectFrequencyException Raised if collect frequency equals or lesser then zero.
            */

@@ -193,21 +193,14 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
 
 void terrama2::collector::DataFilter::updateLastDateTimeCollected(boost::local_time::local_date_time boostTime)
 {
-  std::string a = boostTime.to_string();
-
-  if(!dataSetLastDateTime_ || dataSetLastDateTime_->getTimeInstantTZ() < boostTime)
-  {
-    dataSetLastDateTime_.reset(new te::dt::TimeInstantTZ(boostTime));
-
-    if(currentData_)
-      currentData_->dateData.reset(new te::dt::TimeInstantTZ(boostTime));
-  }
+  if(currentData_)
+    currentData_->dateData.reset(new te::dt::TimeInstantTZ(boostTime));
 }
 
 bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, const std::shared_ptr<te::da::DataSet> &dataSet, terrama2::collector::TransferenceData& transferenceData)
 {
   //discard out of valid range dates
-  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn).release());
+  std::unique_ptr<te::dt::DateTime> dateTime(dataSet->getDateTime(dateColumn));
   te::dt::DateTimeType type = dateTime->getDateTimeType();
   std::shared_ptr<te::dt::TimeInstantTZ> date_data;
 
@@ -264,7 +257,19 @@ bool terrama2::collector::DataFilter::validateAndUpdateDate(int dateColumn, cons
 
     transferenceData.dateData = date_data;
 
-  return true;
+    return true;
+}
+
+bool terrama2::collector::DataFilter::validateGeometry(int geometryColumn, const std::shared_ptr<te::da::DataSet>& dataSet)
+{
+  if(!datasetItem_.filter().geometry())
+    return true;
+
+  std::unique_ptr<te::gm::Geometry> geometry(dataSet->getGeometry(geometryColumn));
+  if(datasetItem_.filter().geometry()->intersects(geometry.get()))
+    return true;
+  else
+    return false;
 }
 
 bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int minutes, int seconds, const boost::posix_time::time_duration& discardBeforeTime) const
@@ -358,7 +363,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
 
   //Find DateTime column
   int dateColumn = -1;
-  for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
+  for(int i = 0, size = dataSet->getNumProperties(); i < size; ++i)
   {
     if( dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
@@ -369,7 +374,7 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
 
   //Find Geometry column
   int geomColumn = -1;
-  for(uint i = 0, size = dataSet->getNumProperties(); i < size; ++i)
+  for(int i = 0, size = dataSet->getNumProperties(); i < size; ++i)
   {
     if( dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
     {
@@ -386,10 +391,17 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
   auto memDataSet = std::make_shared<te::mem::DataSet>(datasetType.get());
   while(dataSet->moveNext())
   {
-    if(dateColumn > 0)
+    if(dateColumn >= 0)
     {
       //Filter Time if has a dateTime column
       if(!validateAndUpdateDate(dateColumn, dataSet, transferenceData))
+        continue;
+    }
+
+    if(geomColumn >= 0)
+    {
+      //Filter geometry if has a geometry column
+      if(!validateGeometry(geomColumn, dataSet))
         continue;
     }
 
@@ -405,15 +417,8 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
   transferenceData.teDataSet = memDataSet;
 }
 
-
-te::dt::TimeInstantTZ* terrama2::collector::DataFilter::getDataSetLastDateTime() const
-{
-  return dataSetLastDateTime_.get();
-}
-
 terrama2::collector::DataFilter::DataFilter(const core::DataSetItem& datasetItem, std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime)
   : datasetItem_(datasetItem),
-    dataSetLastDateTime_(nullptr),
     currentData_(nullptr)
 {
   //recover last collection time logged

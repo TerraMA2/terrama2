@@ -36,6 +36,7 @@
 #include <terrama2/core/DataProvider.hpp>
 #include <terrama2/core/DataSet.hpp>
 #include <terrama2/core/DataSetItem.hpp>
+#include <terrama2/core/PCD.hpp>
 #include <terrama2/core/Filter.hpp>
 #include <terrama2/core/Utils.hpp>
 #include <terrama2/core/Exception.hpp>
@@ -75,7 +76,7 @@ void TsDataManager::clearDatabase()
     QFAIL("Invalid database connection");
   }
 
-  std::auto_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+  std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
 
   if(!transactor.get())
   {
@@ -149,20 +150,26 @@ DataSet TsDataManager::createDataSet()
   dataSetItem.setFilter(filter);
   dataSetItem.setSrid(4326);
 
-  dataSet.add(dataSetItem);
+  PCD pcd(dataSetItem);
+  pcd.setUnit("mm/h");
+  pcd.setPrefix("PCD");
+
+  te::gm::Point* p = new te::gm::Point(10., 5., 0, 0);
+  pcd.setLocation(p);
+
+  dataSet.add(pcd);
 
 
 
-  DataSetItem dataSetItem2(DataSetItem::FIRE_POINTS_TYPE, 0, dataSet.id());
+  DataSetItem dataSetItem2(DataSetItem::PCD_INPE_TYPE, 0, dataSet.id());
 
-  std::map<std::string, std::string> itemMetadata;
-  itemMetadata["key"] = "value";
-  itemMetadata["key1"] = "value1";
-  itemMetadata["key2"] = "value2";
 
-  dataSetItem2.setMetadata(itemMetadata);
+  PCD pcdItem2(dataSetItem2);
+  pcdItem2.setPrefix("../");
+  pcdItem2.setUnit("mm/m");
+  pcdItem2.setLocation(p);
 
-  dataSet.add(dataSetItem2);
+  dataSet.add(pcdItem2);
 
   return dataSet;
 }
@@ -173,19 +180,19 @@ void TsDataManager::testLoad()
   {
     QSignalSpy spy(&DataManager::getInstance(), SIGNAL(dataManagerLoaded()));
 
+    DataManager::getInstance().load();
+
     DataSet dataSet = createDataSet();
+
     DataManager::getInstance().add(dataSet);
 
     DataManager::getInstance().unload();
 
     DataManager::getInstance().load();
 
-    QCOMPARE(spy.count(), 1);
 
-    // Calling load again should have no effect
-    DataManager::getInstance().load();
+    QCOMPARE(spy.count(), 2);
 
-    QCOMPARE(spy.count(), 1);
 
     QVERIFY2(DataManager::getInstance().providers().size() == 1, "List should have one provider!");
     QVERIFY2(DataManager::getInstance().dataSets().size() == 1, "List should have one dataset!");
@@ -736,13 +743,10 @@ void TsDataManager::testUpdateDataSet()
     dataSet.setDescription("Description...");
     dataSet.setName("New queimadas");
 
-    // Remove the dataset item PCD_INPE
-
-    auto& dataSetItems = dataSet.dataSetItems();
-
-    // Updates the data from FIRE_POINTS_TYPE
-    auto& dsItem = dataSetItems[1];
-    dsItem.setMask("Queimadas_*");
+    // Updates the dataset item 1
+    auto datasets = dataSet.dataSetItems();
+    auto& dsItem = datasets[1];
+    dsItem.setMask("PCD_*");
     dsItem.setPath("other_path");
 
     // Add a new dataset item of type PCD_TOA5_TYPE
@@ -786,10 +790,17 @@ void TsDataManager::testUpdateDataSet()
     QVERIFY2(dsItem1.id() > 0, "dataSetItems[1] Id must be valid");
     QVERIFY2(dsItem2.id() > 0, "dataSetItems[2] Id must be valid");
 
-    std::map<std::string, std::string> itemMetadata =  dsItem1.metadata();
-    QVERIFY2("value" == itemMetadata["key"], "Metadata key/value must be the same!");
-    QVERIFY2("value1" == itemMetadata["key1"], "Metadata key1/value1 must be the same!");
-    QVERIFY2("value2" == itemMetadata["key2"], "Metadata key2/value2 must be the same!");
+    PCD pcd0(dsItem0);
+    QVERIFY2(pcd0.unit() == "mm/h", "Dataset Item unit is wrong");
+    QVERIFY2(pcd0.prefix() == "PCD", "Dataset Item prefix is wrong");
+    QVERIFY2(pcd0.location()->getX() == 10.0, "Dataset Item location X is wrong");
+    QVERIFY2(pcd0.location()->getY() == 5.0, "Dataset Item location Y is wrong");
+
+    PCD pcd1(dsItem1);
+    QVERIFY2(pcd1.unit() == "mm/m", "Dataset Item unit is wrong");
+    QVERIFY2(pcd1.prefix() == "../", "Dataset Item prefix is wrong");
+    QVERIFY2(pcd1.location()->getX() == 10.0, "Dataset Item location X is wrong");
+    QVERIFY2(pcd1.location()->getY() == 5.0, "Dataset Item location Y is wrong");
 
     foundDataSet.removeDataSetItem(dsItem0.id());
     foundDataSet.removeDataSetItem(dsItem1.id());
@@ -1182,7 +1193,7 @@ void TsDataManager::testFindNonExistentDataProvider()
 
   try
   {
-    auto dataSet = DataManager::getInstance().findDataSet(999);
+    auto dataSet = DataManager::getInstance().findDataProvider(999);
 
     QVERIFY2(dataSet.id() == 0, "Should return an invalid dataset");
 
@@ -1488,17 +1499,14 @@ void TsDataManager::testDatasetValidName()
   {
     QFAIL(NO_EXCEPTION_EXPECTED);
   }
-
-
 }
-
 
 void TsDataManager::testListDataSetWihtAdditionalMap()
 {
   try
   {
     auto dataset = createDataSet();
-    dataset.setKind(DataSet::ADDITIONAL_MAP);
+    dataset.setKind(DataSet::STATIC_DATA);
     DataManager::getInstance().add(dataset);
 
     auto datasets = DataManager::getInstance().dataSets();
@@ -1514,7 +1522,28 @@ void TsDataManager::testListDataSetWihtAdditionalMap()
   {
     QFAIL(NO_EXCEPTION_EXPECTED);
   }
+}
+
+void TsDataManager::testMemoryDataManager()
+{
+  DataManager::getInstance().unload();
+
+
+  std::vector<DataProvider> vecProviders;
+  auto provider = createDataProvider();
+  provider.setId(1);
+
+  vecProviders.push_back(provider);
+
+  DataManager::getInstance().load(true);
+
+  auto foundProvider = DataManager::getInstance().findDataProvider(1);
+
+  QVERIFY2(provider == foundProvider, "Should be the same.");
+
+
+  DataManager::getInstance().unload();
+  DataManager::getInstance().load();
 
 
 }
-

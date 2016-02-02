@@ -203,7 +203,7 @@ void terrama2::core::dao::IntersectionDAO::load(terrama2::core::DataSet& dataset
 
   try
   {
-    std::auto_ptr<te::da::DataSet> intersectionResult = transactor.query(sql);
+    std::unique_ptr<te::da::DataSet> intersectionResult(transactor.query(sql));
 
     Intersection intersection(dataset.id());
 

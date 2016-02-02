@@ -1,6 +1,9 @@
 #ifndef __TERRAMA2_CORE_LOGGER_HPP__
 #define __TERRAMA2_CORE_LOGGER_HPP__
 
+// TerraMA2
+#include "Exception.hpp"
+
 // Terralib
 #include <terralib/common/Singleton.h>
 
@@ -10,7 +13,6 @@
 #include <boost/log/sinks/async_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
-#include "Exception.hpp"
 
 
 namespace terrama2
@@ -36,12 +38,18 @@ namespace terrama2
         };
 
         /*!
-          \brief A abreviation of a boost text log stream
+          \brief An abreviation of a boost text log stream
         */
         typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> text_sink;
 
         //! It initializes configuration to global boost logger
         void initialize();
+
+        //! It enables the global TerraMA2 logger to allow display status message.
+        void enableLog();
+
+        //! It disables the global TerraMA2 logger to avoid display status message.
+        void disableLog();
 
         //! It retrieves the stream name where the terrama2.log will be saved
         const std::string& path() const;
@@ -76,8 +84,7 @@ namespace terrama2
   } // end core
 } // end terrama2
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(terrama2_logger, boost::log::sources::severity_logger<terrama2::core::Logger::SeverityLevel>,
-                                        (boost::log::keywords::channel = "general"))
+BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(terrama2_logger, boost::log::sources::severity_logger<terrama2::core::Logger::SeverityLevel>)
 
 #define TERRAMA2_LOG(severity) BOOST_LOG_SEV(terrama2_logger::get(), severity) \
                                                       << boost::log::add_value("RecordLine", __LINE__) \

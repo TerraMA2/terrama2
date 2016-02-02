@@ -1,0 +1,159 @@
+{% extends "../base/layout.html" %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/terrama2.css">
+    <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+
+    <style type="text/css">
+        .terrama2-header-fixed {
+            width: 100% ;
+        }
+
+        .terrama2-header-fixed > thead,
+        .terrama2-header-fixed > tbody,
+        .terrama2-header-fixed > thead > tr,
+        .terrama2-header-fixed > tbody > tr,
+        .terrama2-header-fixed > thead > tr > th,
+        .terrama2-header-fixed > tbody > tr > td {
+            display: block;
+        }
+
+        .terrama2-header-fixed > tbody > tr:after,
+        .terrama2-header-fixed > thead > tr:after {
+            content: ' ';
+            display: block;
+            visibility: hidden;
+            clear: both;
+        }
+
+        .terrama2-header-fixed > tbody {
+            overflow-y: auto;
+            height: 150px;
+        }
+
+        .terrama2-header-fixed > tbody > tr > td,
+        .terrama2-header-fixed > thead > tr > th {
+            width: 16.6%;
+            float: left;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/externals/moment/moment.js"></script>
+    <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".timepicker").datetimepicker({
+                widgetPositioning: {vertical: "bottom"},
+                format: "HH:mm:ss"
+            });
+
+            //temp code
+            $("#terrama2-add-pcd").click(function(e)
+            {
+                var mask = $("#mask").val();
+                    timezone = $("#timezone").val();
+                    latitude = $("#latitude").val();
+                    longitude = $("#longitude").val();
+                    projection = $("#projection").val();
+                    active = $('#pcdActive').prop('checked');
+
+                var toAppend = "<tr><td>" + mask + "</td><td>" + latitude + "</td><td>" + longitude + "</td><td><span class=\"label label-";
+                toAppend = toAppend + (active ? "success\"><i class=\"glyphicon glyphicon-ok\"></i></span>" : "danger\"><i class=\"glyphicon glyphicon-remove\"></i></span>") + "</td><td>" + projection + "</td><td>" + timezone + "</td></tr>";
+
+                $("#terrama2-pcd-table").append(toAppend);
+            });
+
+            $("#mask-list").on("click", "li", function(e){
+                $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
+            });
+
+        })
+    </script>
+{% endblock %}
+
+{% block title %} TerraMA2 {{ __('PCD Data Registration') }} {% endblock %}
+
+{% block content %}
+    {# Modal for collect rule #}
+    {% include "../base/collectRuleModal.html" %}
+
+    {# Modal for wfs layer #}
+    {% include "../base/wfsLayerModal.html" %}
+
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">{{ __('PCD Data Registration') }}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div style="display: block;" class="box-body">
+
+                <div class="col-md-12">
+                    <!-- General Data Component -->
+                    {% include "../base/generalData.html" with configuration %}
+                </div>
+
+                <div class="col-md-12">
+                    <!-- Parameters Component -->
+                    {% include "../base/parametersData.html" with configuration %}
+                </div>
+
+                <div class="col-md-12">
+                    {# It should have an object in structure like: {kind: "dataset type", state: "static|dynamic"} #}
+                    <div class="box box-default box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('Additional Parameters') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: block;" class="box-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <!-- Status -->
+                                    <div class="col-md-6">
+                                        <h5>
+                                            <span class="label label-success"><i class="glyphicon glyphicon-ok"></i>LUA</span>
+                                        </h5>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#collectRuleModal">{{ __('Collect Rule') }}</button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <!-- WFS Layer -->
+                                    <div class="col-md-6">
+                                        <h5>
+                                            <span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>
+                                        </h5>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#wftLayerModal">{{ __('WFS Attribute') }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- /.box group -->
+                    </div>
+                    <!-- /.box solid -->
+                </div>
+            </div>
+            <!-- /.box body -->
+
+            <div class="box-footer">
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('OK') }}</button>
+            </div> 
+        </div>
+    </div> <!-- end col md 12 -->
+
+{% endblock %}

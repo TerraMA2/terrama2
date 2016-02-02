@@ -62,7 +62,7 @@ struct terrama2::gui::admin::ServicesDialog::Impl
 
 //! Constructor
 terrama2::gui::admin::ServicesDialog::ServicesDialog(terrama2::gui::admin::AdminApp* adminapp, terrama2::gui::core::ConfigManager& configData, QString nameConfig)
-    : QDialog(adminapp), adminapp_(adminapp), pimpl_(new Impl), configManager_(configData), idNameConfig_(nameConfig), changed_(false)
+    : QDialog(adminapp), pimpl_(new Impl), configManager_(configData), idNameConfig_(nameConfig), adminapp_(adminapp), changed_(false)
 {
  pimpl_->ui_->setupUi(this);
 

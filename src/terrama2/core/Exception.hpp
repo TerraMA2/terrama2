@@ -46,6 +46,8 @@ namespace terrama2
     //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
     struct DataSetInUseException: virtual Exception{ };
 
+    struct UnableToConnect : virtual Exception{ };
+
   }  // end namespace core
 }  // end namespace terrama2
 

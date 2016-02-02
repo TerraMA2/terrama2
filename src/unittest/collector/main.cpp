@@ -1,9 +1,11 @@
 
 #include "TsCollectorService.hpp"
 #include "TsParserPcdCemaden.hpp"
+#include "TsDataRetrieverWCS.hpp"
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
+#include "TsLog.hpp"
 #include "TsParserOGR.hpp"
 #include "TsParserPcdInpe.hpp"
 #include "TsParserPcdToa5.hpp"
@@ -11,6 +13,7 @@
 #include "TsParserAscGrid.hpp"
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
+//#include "TsTeste.hpp"
 
 #include "Utils.hpp"
 
@@ -24,7 +27,10 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QApplication app(argc, argv);
 
-//  TsCollectorService tsCollectorService;
+//  TsTeste tsTeste;
+//  returnVal += QTest::qExec(&tsTeste, argc, argv);
+
+  //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
 
 //  TsDataFilter tsDataFilter;
@@ -40,7 +46,10 @@ int main(int argc, char *argv[])
 
 //  //Intersection Operation
 
-//  //Log
+  //Log
+
+//  TsLog tsLog;
+//  returnVal += QTest::qExec(&tsLog, argc, argv);
 
 //  //Parser
 
@@ -53,8 +62,8 @@ int main(int argc, char *argv[])
 //  TsParserPcdToa5 tsParserToa5;
 //  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
 
-  TsParserPcdCemaden tsParserPcdCemaden;
-  returnVal += QTest::qExec(&tsParserPcdCemaden, argc, argv);
+//  TsParserPcdCemaden tsParserPcdCemaden;
+//  returnVal += QTest::qExec(&tsParserPcdCemaden, argc, argv);
 
 
 //  TsParserTiff tsParserTiff;
@@ -70,6 +79,11 @@ int main(int argc, char *argv[])
 
 //  TsIntegration tsIntegration;
 //  returnVal += QTest::qExec(&tsIntegration, argc, argv);
+
+  // DataRetriever
+
+//  TsDataRetrieverWCS tsDataRetrieverWCS;
+//  returnVal += QTest::qExec(&tsDataRetrieverWCS, argc, argv);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));

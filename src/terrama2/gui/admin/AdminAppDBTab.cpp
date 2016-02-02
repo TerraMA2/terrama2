@@ -56,7 +56,7 @@ QMap<QString, QJsonObject> terrama2::gui::admin::AdminAppDBTab::toJson()
  database["name"] = ui_->dbDatabaseLed->text();
  database["driver"] = ui_->dbTypeCmb->currentText();
  database["host"] = ui_->dbAddressLed->text();
- database["port"] = ui_->dbPortLed->text();
+ database["port"] = ui_->dbPortLed->text().toInt();
  database["user"] = ui_->dbUserLed->text();
  database["password"] = ui_->dbPasswordLed->text();
  QMap<QString, QJsonObject> json;

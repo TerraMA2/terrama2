@@ -1,3 +1,4 @@
+/** @class TerraMA2 - Main class of the API. */
 var TerraMA2 = function(terrama2Url, components) {
 
   var _this = this;
@@ -9,35 +10,63 @@ var TerraMA2 = function(terrama2Url, components) {
   var layerExplorer = null;
   var toolBox = null;
   var leftBar = null;
-  var filter = null;
 
-  _this.getComponentsLength = function() {
+  /**
+   * Return the length of the components array
+   * @returns {number} componentsLength - length of the components array
+   */
+  this.getComponentsLength = function() {
     return componentsLength;
-  }
+  };
 
-  _this.getConfig = function() {
+  /**
+   * Return the Config object
+   * @returns {Config} config - Config object
+   */
+  this.getConfig = function() {
     return config;
-  }
+  };
 
-  _this.getMapDisplay = function() {
+  /**
+   * Return the MapDisplay object
+   * @returns {MapDisplay} mapDisplay - MapDisplay object
+   */
+  this.getMapDisplay = function() {
     return mapDisplay;
   }
 
-  _this.getLayerExplorer = function() {
+  /**
+   * Return the LayerExplorer object
+   * @returns {LayerExplorer} layerExplorer - LayerExplorer object
+   */
+  this.getLayerExplorer = function() {
     return layerExplorer;
   }
 
-  _this.getTerrama2Url = function() {
+  /**
+   * Return the url to the TerraMA² web API
+   * @returns {string} terrama2Url - url to the TerraMA² web API
+   */
+  this.getTerrama2Url = function() {
     return terrama2Url;
   }
 
-  _this.injectStylesheet = function(url) {
+  /**
+   * Inject a stylesheet to the page
+   * @param {string} url - url to the stylesheet
+   */
+  this.injectStylesheet = function(url) {
     var link = $("<link>", { rel: "stylesheet", type: "text/css", href: url });
 
     link.appendTo('head');
   }
 
-  _this.fileExists = function(url) {
+  /**
+   * Verifies if a given file exist
+   * @param {string} url - url to the file
+   * @return {boolean}
+   */
+  this.fileExists = function(url) {
     $.ajax({
       url: url,
       async: false,
@@ -50,6 +79,19 @@ var TerraMA2 = function(terrama2Url, components) {
     });
   }
 
+  /**
+   * Apply a given CQL filter to a given layer
+   * @param {string} cql - CQL filter to be applied
+   * @param {string} layerName - layer name to be filtered
+   */
+  this.applyCQLFilter = function(cql, layerName) {
+    mapDisplay.findBy(mapDisplay.getMap().getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
+  }
+
+  /**
+   * Load the TerraMA² components present in the components array
+   * @param {number} i - current array position
+   */
   var loadComponents = function(i) {
     if(i < componentsLength) {
       $.ajax({
@@ -62,10 +104,6 @@ var TerraMA2 = function(terrama2Url, components) {
             layerExplorer = new LayerExplorer(_this);
           } else if(components[i] === "ToolBox") {
             toolBox = new ToolBox(_this);
-          } else if(components[i] === "LeftBar") {
-            leftBar = new LeftBar(_this);
-          } else if(components[i] === "Filter") {
-            filter = new Filter(_this);
           }
 
           _this.injectStylesheet(terrama2Url + "/stylesheets/components/" + config.getConfJsonComponentsCss()[components[i]]);
