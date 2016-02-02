@@ -86,7 +86,6 @@
 	"Active": "Active",
 	"Inactive": "Inactive",
 	"Conditioned": "Conditioned",
-	"Analysis": "Analysis",
 	"Data Frequency": "Data Frequency",
 	"Schedule": "Schedule",
 	"Schedule Retry": "Schedule Retry",
@@ -104,5 +103,6 @@
 	"Influence ": "Influence ",
 	"Attribute PCD": "Attribute PCD",
 	"Data Set": "Data Set",
-	"Select theme with influence area": "Select theme with influence area"
+	"Select theme with influence area": "Select theme with influence area",
+	"Image Generate": "Image Generate"
 }
