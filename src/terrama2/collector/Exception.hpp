@@ -72,6 +72,8 @@ namespace terrama2
 
     //! Base exception for Parser
     struct ParserException: virtual Exception { };
+    //! Base exceptio for ParserCemaden
+    struct ParserPcdCemadenException: virtual Exception { };
     //! Raised when a file that doesn't exist is provided.
     struct InvalidFileException: virtual ParserException { };
     //! Raised when there is no dataset to parse.
