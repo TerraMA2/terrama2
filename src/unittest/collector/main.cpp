@@ -1,5 +1,6 @@
 
 #include "TsCollectorService.hpp"
+#include "TsParserPcdCemaden.hpp"
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
 #include "TsDataFilter.hpp"
@@ -49,8 +50,12 @@ int main(int argc, char *argv[])
 //  TsParserPcdInpe tsParserInpe;
 //  returnVal += QTest::qExec(&tsParserInpe, argc, argv);
 
-  TsParserPcdToa5 tsParserToa5;
-  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
+//  TsParserPcdToa5 tsParserToa5;
+//  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
+
+  TsParserPcdCemaden tsParserPcdCemaden;
+  returnVal += QTest::qExec(&tsParserPcdCemaden, argc, argv);
+
 
 //  TsParserTiff tsParserTiff;
 //  returnVal += QTest::qExec(&tsParserTiff, argc, argv);

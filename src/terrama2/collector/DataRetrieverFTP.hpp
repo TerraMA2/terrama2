@@ -56,17 +56,15 @@ namespace terrama2
        * \brief The DataRetrieverFTP class performs the download of
        * occurrences of files, PCD-TOA5, PCD_INPE, GRADES ETA15km.
     */
-
     class DataRetrieverFTP: public DataRetriever
     {
     public:
+
         /*!
        * \brief DataRetrieverFTP Constructor
        * \param dataprovider Dataprovider information.
-       * \param scheme information. Ex. "file://".
-       * \param temporaryFolder Folder information where the files will be saved. Ex. "/tmp/".
        */
-      explicit DataRetrieverFTP(const core::DataProvider& dataprovider, const std::string scheme = "file://", const std::string temporaryFolder = "/tmp/terrama2/");
+      explicit DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider);
 
       virtual bool isRetrivable() const noexcept override;
 
@@ -86,28 +84,6 @@ namespace terrama2
          * \exception DataRetrieverError when Unknown error, Could not perform the download files.
          */
       virtual std::string retrieveData(const terrama2::core::DataSetItem& datasetitem, DataFilterPtr filter, std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
-
-        /*!
-       * \brief write_response - data to be written in file.
-       * Define our callback to get called when there's data to be written in file.
-       * \param ptr - pointer to the data stream.
-       * \param size - byte length of each data element.
-       * \param nmemb - data elements.
-       * \param data - data stream.
-       * \return Returns the number of items that were successfully read.
-       */
-      size_t write_response(void *ptr, size_t size, size_t nmemb, void *data);
-
-      /*!
-       * \brief write_vector - data to be written in vector.
-       * Define our callback to get called when there's data to be written in vector.
-       * \param ptr - pointer to the data stream.
-       * \param size - byte length of each data element.
-       * \param nmemb - data elements.
-       * \param data - data stream.
-       * \return Returns the number of items that were successfully read.
-       */
-      size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data);
 
         /*!
          * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.

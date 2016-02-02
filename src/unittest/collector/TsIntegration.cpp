@@ -172,6 +172,10 @@ void TsIntegration::TestCollectorFTP()
 
     terrama2::core::DataSetItem item(terrama2::core::DataSetItem::FIRE_POINTS_TYPE);
 
+    item.setStatus(terrama2::core::DataSetItem::ACTIVE);
+
+    item.setMask("exporta_%A%M%d_%h%m.csv");
+
 //    std::map<std::string, std::string> metadata{ {"KIND", "POSTGIS"},
 //                                                        {"PG_HOST", "localhost"},
 //                                                        {"PG_PORT", "5432"},
