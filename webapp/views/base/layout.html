@@ -58,6 +58,49 @@
                     <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                         <span class="sr-only">Toggle navigation</span>
                     </a>
+
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
+                            <!-- User Account: style can be found in dropdown.less -->
+                            <li class="dropdown user user-menu">
+                                <a aria-expanded="false" href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <img src="/images/terrama2_logo.png" class="user-image" alt="User Image" style="border-radius: 0;">
+                                    <span class="hidden-xs">TerraMA2 User</span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <!-- User image -->
+                                    <li class="user-header">
+                                        <img src="/images/terrama2_logo.png" class="img-square" style="border:none;" alt="User Image">
+                                        <p>
+                                            TerraMA2 User
+                                            <small>Member since Jan. 2016</small>
+                                        </p>
+                                    </li>
+                                    <!-- Menu Body -->
+                                    <li class="user-body">
+                                        <div class="col-xs-4 text-center">
+                                            <a href="#">Followers</a>
+                                        </div>
+                                        <div class="col-xs-4 text-center">
+                                            <a href="#">Sales</a>
+                                        </div>
+                                        <div class="col-xs-4 text-center">
+                                            <a href="#">Friends</a>
+                                        </div>
+                                    </li>
+                                    <!-- Menu Footer-->
+                                   <li class="user-footer">
+                                        <div class="pull-left">
+                                            <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                        </div>
+                                        <div class="pull-right">
+                                            <a href="/login" class="btn btn-default btn-flat">Sign out</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </nav>
 
             </header>
@@ -102,7 +145,7 @@
                         </li>
 
                         <li class="treeview">
-                            <a href="#">
+                            <a href="/configuration/users">
                                 <i class="fa fa-users"></i><span>{{ __('Users') }}</span>
                             </a>
                         </li>

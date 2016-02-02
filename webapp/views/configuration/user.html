@@ -1,0 +1,146 @@
+{% extends "../base/layout.html" %}
+
+{% block title %} TerraMA2 {{ __('User Registration') }} {% endblock %}
+
+{% block styles %}
+<style type="text/css">
+    .terrama2-nopadding-box
+    {
+        padding: 0 !important;
+    }
+
+    .terrama2-list-align
+    {
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    .terrama2-list-align option
+    {
+        height: 30px !important;
+        padding-top: 5px !important;
+    }
+
+    th 
+    {
+        background: #D2D6DE none repeat scroll 0% 0% !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    {% include "../base/userAnalysisModal.html" %}
+
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">{{ __('User Registration') }}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div style="display: block;" class="box-body">
+
+                <div class="col-md-12">
+                    <div class="box box-default box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('General Data') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: block;" class="box-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{ __("Name") }}:</label>
+                                        <input class="form-control" id="name" placeholder="{{ __('User Name') }}" type="text">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{ __("Username") }}:</label>
+                                        <input class="form-control" id="username" placeholder="{{ __('User name credential') }}" type="text">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{ __("Password") }}:</label>
+                                        <input class="form-control" id="password" placeholder="{{ __('User Password credential') }}" type="password">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{ __("Celphone") }}:</label>
+                                        <input class="form-control" id="celphone" placeholder="{{ __('User celphone number') }}" type="text">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{ __("E-mail") }}:</label>
+                                        <input class="form-control" id="email" placeholder="{{ __('User e-mail') }}" type="email">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label>{{ __('Selected Analysis') }}:</label>
+                                    <a class="btn btn-lg" href="#" data-toggle="modal" data-target="#userAnalisysModal"><i class="fa fa-plus"></i></a>
+                                    <a class="btn btn-lg" href="#"><i class="fa fa-minus"></i></a>
+                                    <table class="table table-bordered table-hover">
+                                        <tr>
+                                            <th>-</th>
+                                            <th>{{ __('Analysis') }}</th>
+                                            <th>{{ __('E-mail') }}</th>
+                                            <th>{{ __('Celphone') }}</th>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>An1</td>
+                                            <td>1-Observation</td>
+                                            <td>1-Observation</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>An2</td>
+                                            <td>1-Observation</td>
+                                            <td>1-Observation</td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{ __('Area of interest for notification') }}:</label>
+
+                                        <a class="btn btn-lg" href="#"><i class="fa fa-plus"></i></a>
+                                        <a class="btn btn-lg" href="#"><i class="fa fa-minus"></i></a>
+
+                                        <select class="terrama2-list-align" multiple="" class="form-control" id="sel2">
+                                            <option>hidro</option>
+                                            <option>Municipios_Afetados</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- /.box body -->
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.box body -->
+
+            <div class="box-footer">
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('OK') }}</button>
+            </div> 
+        </div>
+    </div> <!-- end col md 12 -->
+
+{% endblock %}
