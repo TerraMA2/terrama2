@@ -67,7 +67,12 @@ terrama2::core::dao::FilterDAO::save(const Filter& filter, te::da::DataSourceTra
 
 // geom
   if(filter.geometry())
-    query.bind_arg(4, "'" + filter.geometry()->asText() + "'") ;
+  {
+    // VINICIUS: TERRALIB toString() is generating a wrong WKT, need to replace '\n' for ','
+    std::string geom = filter.geometry()->asText();
+    std::replace( geom.begin(), geom.end(), '\n', ',');
+    query.bind_arg(4, "ST_GeomFromText('" + geom + "'," + std::to_string(filter.geometry()->getSRID()) + ")");
+  }
   else
     query.bind_arg(4, "NULL");
 
@@ -133,7 +138,12 @@ terrama2::core::dao::FilterDAO::update(const Filter& filter, te::da::DataSourceT
 
 // geom
   if(filter.geometry())
-    query.bind_arg(3, "'" + filter.geometry()->asText() + "'") ;
+  {
+    // VINICIUS: TERRALIB asText() is generating a wrong WKT, need to replace '\n' for ','
+    std::string geom = filter.geometry()->asText();
+    std::replace( geom.begin(), geom.end(), '\n', ',');
+    query.bind_arg(3, "ST_GeomFromText('" + geom + "'," + std::to_string(filter.geometry()->getSRID()) + ")");
+  }
   else
     query.bind_arg(3, "NULL");
 

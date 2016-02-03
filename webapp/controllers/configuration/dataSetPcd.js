@@ -1,8 +1,7 @@
 module.exports = function(app)
 {
-    function dataSetOccurrenceController(request, response)
+    function dataSetPcdController(request, response)
     {
-        //temp code
         var dataSetType = request.query.type;
 
         if (dataSetType != "static" && dataSetType != "dynamic")
@@ -12,9 +11,9 @@ module.exports = function(app)
         }
         else
         {
-            response.render('configuration/dataSetOccurrence', {kind: "Occurrence", state: dataSetType});
+            response.render('configuration/dataSetPcd', {kind: "PCD", state: dataSetType});
         }
     }
 
-    return dataSetOccurrenceController;
+    return dataSetPcdController;
 }

@@ -4,3 +4,4 @@
 *.*~
 webapp/node_modules
 webapp/npm-debug.log
+webapp/public/externals

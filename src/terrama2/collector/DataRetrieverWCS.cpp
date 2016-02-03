@@ -92,7 +92,6 @@ bool terrama2::collector::DataRetrieverWCS::isOpen()
     // Verifies that the WCS address is valid
     if(curl.fcurl())
     {
-      // VINICIUS: WCS version on uri
       std::string url = dataprovider_.uri() + "&REQUEST=GetCapabilities";
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, url.c_str());
 

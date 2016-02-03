@@ -38,6 +38,56 @@ If you prefer to install from source, download it from: http://www.cs.fsu.edu/~e
 TerraMA2 is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
 
 
+5. libCURL (Mandatory)
+----------------------
+
+libcurl is a multiprotocol file transfer library. Make sure you have at least version 7.42.1 in your system. You can download it from: http://curl.haxx.se/libcurl.
+
+
+6. Google Test (Optional)
+-------------------------
+
+Google Test is the Google's C++ test framework. You can download it from: https://github.com/google/googletest.
+
+
+7. Web Application and Components:
+----------------------------------
+
+For running the web application you will need some libraries:
+
+7.1. Node.js (Mandatory)
+------------------------
+
+Node.js is a JavaScript runtime for server side scripts. Make sure you have version 4.2.6 LTS installed. You can download it from: https://nodejs.org.
+
+7.2 AdminLTE (Mandatory)
+------------------------
+
+TerraMA² web front-end is built on top of AdminLTE web template. You can download it from: https://github.com/almasaeed2010/AdminLTE.
+
+7.3 Bootstrap (Mandatory)
+-------------------------
+
+TerraMA² web front-end is built on top of Bootstrap. You can download it from: http://getbootstrap.com.
+
+7.4 Chart.js (Mandatory)
+------------------------
+
+Chart.js is an HTML5 based framework for drawing charts. You can download it from: http://www.chartjs.org.
+
+7.5 DataTables (Mandatory)
+--------------------------
+
+DataTables is a table plugin for jQuery. It is available at: http://www.datatables.net.
+
+
+7.6 jQuery (Mandatory)
+----------------------
+
+jQuery is a JavaScript library for handling HTML document elements. Make sure to have at least version 2.1.4. It is available at: https://jquery.com.
+
+
+
 Bash script for building all dependencies on Linux Ubuntu 14.04
 ----------------------------------------------------------------
 

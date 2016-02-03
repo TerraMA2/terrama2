@@ -1,6 +1,6 @@
 <div class="box box-default box-solid">
     <div class="box-header with-border">
-        <h3 class="box-title">Filtros</h3>
+        <h3 class="box-title">{{ __('Filter') }}</h3>
         <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
             </button>
@@ -10,27 +10,27 @@
     <div style="display: block;" class="box-body">
         <div class="row">
             <div class="col-md-5">
-               <div class="col-md-3 col-md-offset-6 col-sm-6">
-                    <button class="btn btn-primary btn-lg btn-block" id="filter-button" data-toggle="modal" data-target="#filterModal">Filtro</button>
+               <div class="col-md-4 col-md-offset-5">
+                    <button class="btn btn-primary btn-lg btn-block" id="filter-button" data-toggle="modal" data-target="#filterModal">{{ __('Filter') }}</button>
                 </div>
             </div>
 
             <div class="col-md-7" style="text-align: center; margin-top: 5px;">
                 {# TODO: validate and display filter labels from parameters. #}
                 <div class="col-md-6">
-                    <span>Filtro por data: Sim</span>
+                    <span>{{ __('Filter by Date') }}: {{ __('Yes') }}</span>
                 </div>
 
                 <div class="col-md-6">  
-                    <span>Filtro por pré-analise: Não</span>
+                    <span>{{ __('Filter by Pre-analysis') }}: {{ __('No') }}</span>
                 </div>
 
                 <div class="col-md-6">
-                    <span>Filtro por área: Não</span>
+                    <span>{{ __('Filter by Area') }}: {{ __('No') }}</span>
                 </div>
 
                 <div class="col-md-6">
-                    <span>Filtro por camadas: Não</span>
+                    <span>{{ __('Filter by Bands') }}: {{ __('None') }}</span>
                 </div>
             </div>
         </div>

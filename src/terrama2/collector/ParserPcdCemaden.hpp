@@ -20,37 +20,40 @@
 */
 
 /*!
-  \file integrationtest/ws/collector/Utils.hpp
+  \file terrama2/collector/ParserPcdCemaden.hpp
 
-  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
+  \brief Parser of Pcd of Cemaden
 
-  \author Vinicius Campanha
+  \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
-#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
 
-// STL
-#include <iostream>
+#ifndef __TERRAMA2_COLLECTOR_PARSERPCDCEMADEN_HPP__
+#define __TERRAMA2_COLLECTOR_PARSERPCDCEMADEN_HPP__
 
 // TerraMA2
-#include <terrama2/core/DataManager.hpp>
+#include "Parser.hpp"
 
+//#include <mutex>
 
-void InitializeTerralib();
+namespace terrama2
+{
+  namespace collector
+  {
+    /*!
+       \brief Parser for Pcd of Cemaden.
+     */
+    class ParserPcdCemaden : public Parser
+    {
+     /**
+      \brief \copybrief Parser::read()
+     */
+      public:
+        virtual void read(DataFilterPtr filter,
+                          std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
 
-void FinalizeTerralib();
+    };
+  }
+}
 
-void InitializeTerraMA2(std::string project_path);
-
-void FinalizeTerraMA2();
-
-void DropDatabase();
-
-void CreateDatabase();
-
-terrama2::core::DataProvider buildDataProvider();
-
-terrama2::core::DataSet buildDataSet(uint64_t dataProvider_id);
-
-#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#endif // __TERRAMA2_COLLECTOR_PARSERPCDCEMADEN_HPP__

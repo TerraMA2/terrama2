@@ -27,7 +27,7 @@
 #
 #
 #  Example:
-#  $ TERRAMA2_DEPENDENCIES_DIR="/home/gribeiro/MyLibs" ./install-3rdparty-linux-ubuntu-14.04.sh
+#  $ ./install-3rdparty-linux-ubuntu-14.04.sh /home/gribeiro/MyLibs /home/gribeiro/MyDevel/terrama2/codebase
 #
 
 echo "*****************************************************************"
@@ -84,8 +84,10 @@ valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-linu
 #
 # Check installation dir
 #
-if [ "$TERRAMA2_DEPENDENCIES_DIR" == "" ]; then
-  TERRAMA2_DEPENDENCIES_DIR = "/opt/terrama2"
+if [ "$1" == "" ]; then
+  TERRAMA2_DEPENDENCIES_DIR="/opt/terrama2"
+else
+  TERRAMA2_DEPENDENCIES_DIR="$1"
 fi
 
 export PATH="$PATH:$TERRAMA2_DEPENDENCIES_DIR/bin"
@@ -203,6 +205,43 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/terralib5/lib/libterralib_mod_common.so" ]
   cd ..
 fi
 
+#
+# Node.js
+#
+nodejs_test=`dpkg -s nodejs | grep Status`
+
+if [ "$nodejs_test" != "Status: install ok installed" ]; then
+  curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+  valid $? "Error: could not setup Node.js installation!"
+
+  sudo apt-get install -y nodejs
+  valid $? "Error: could not install Node.js! Please, install Node.js: sudo apt-get -y install nodejs"
+
+  echo "Node.js installed!"
+else
+  echo "Node.js already installed!"
+fi
+
+
+#
+# TerraMA2 Web Dependencies
+#
+
+if [ -f "$2/webapp/app.js" ]; then
+  echo "Installing TerraMA2 web dependencies..."
+  echo ""
+
+  unzip -o terrama2-web-dependencies.zip  &> /dev/null
+  valid $? "Error: Could not install web dependencies!"
+  mv externals "$2/webapp/public" &> /dev/null
+  valid $? "Error: Verify if the externals directory already exists."
+
+  echo "Finished TerraMA2 Web Dependencies"
+  echo ""
+
+  sleep 1s
+
+fi
 
 #
 # Finished!

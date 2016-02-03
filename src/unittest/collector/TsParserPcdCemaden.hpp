@@ -20,37 +20,36 @@
 */
 
 /*!
-  \file integrationtest/ws/collector/Utils.hpp
+  \file terrama2/collector/TsParserPcdCemaden.hpp
 
-  \brief Utility functions to initialize e finalize terralib and TerraMA2 for tests.
+  \brief Tests for the ParserPcdCemaden class.
 
-  \author Vinicius Campanha
+  \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
-#define __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_PARSERPCDCEMADEN_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_PARSERPCDCEMADEN_HPP__
 
-// STL
-#include <iostream>
+//Qt
+#include <QtTest>
 
-// TerraMA2
-#include <terrama2/core/DataManager.hpp>
+class TsParserPcdCemaden: public QObject
+{
+  Q_OBJECT
 
+  private slots:
 
-void InitializeTerralib();
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-void FinalizeTerralib();
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-void InitializeTerraMA2(std::string project_path);
+    //******Test functions********
 
-void FinalizeTerraMA2();
+    void TestCollectorCemaden();
+    
+    //******End of Test functions****
+};
 
-void DropDatabase();
-
-void CreateDatabase();
-
-terrama2::core::DataProvider buildDataProvider();
-
-terrama2::core::DataSet buildDataSet(uint64_t dataProvider_id);
-
-#endif // __TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_UTILS_HPP__
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_PARSERPCDCEMADEN_HPP__

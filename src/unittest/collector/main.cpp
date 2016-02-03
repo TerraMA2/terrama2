@@ -1,5 +1,6 @@
 
 #include "TsCollectorService.hpp"
+#include "TsParserPcdCemaden.hpp"
 #include "TsDataRetrieverWCS.hpp"
 #include "TsDataSetTimer.hpp"
 #include "TsIntegration.hpp"
@@ -12,7 +13,7 @@
 #include "TsParserAscGrid.hpp"
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
-#include "TsTeste.hpp"
+//#include "TsTeste.hpp"
 
 #include "Utils.hpp"
 
@@ -26,8 +27,8 @@ int main(int argc, char *argv[])
   int returnVal = 0;
   QCoreApplication app(argc, argv);
 
-  TsTeste tsTeste;
-  returnVal += QTest::qExec(&tsTeste, argc, argv);
+//  TsTeste tsTeste;
+//  returnVal += QTest::qExec(&tsTeste, argc, argv);
 
   //  TsCollectorService tsCollectorService;
 //  returnVal += QTest::qExec(&tsCollectorService, argc, argv);
@@ -60,6 +61,10 @@ int main(int argc, char *argv[])
 
 //  TsParserPcdToa5 tsParserToa5;
 //  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
+
+//  TsParserPcdCemaden tsParserPcdCemaden;
+//  returnVal += QTest::qExec(&tsParserPcdCemaden, argc, argv);
+
 
 //  TsParserTiff tsParserTiff;
 //  returnVal += QTest::qExec(&tsParserTiff, argc, argv);

@@ -1,7 +1,7 @@
 {# It should have an object in structure like: {kind: "dataset type"} #}
 <div class="box box-default box-solid">
     <div class="box-header with-border">
-        <h3 class="box-title">Dados Gerais</h3>
+        <h3 class="box-title">{{ __('General Data') }}</h3>
         <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
             </button>
@@ -10,23 +10,23 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
         <div class="row">
-            {% if kind == "PCD" %}
+            {% if kind|lower == "pcd" %}
                 <div class="col-md-7">
                     <div class="form-group">
-                        <label>Nome:</label>
+                        <label>{{ __('Name') }}:</label>
                         <input class="form-control" id="name" placeholder="Nome do Data Set" type="text">
                     </div>
                 </div>
                 <!-- /.col md 7 -->
 
-                {% if state == "static" %}
+                {% if state|lower == "static" %}
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Arquivo:</label>
+                        <label>{{ __('File') }}:</label>
                         <div class="input-group">
                             <input type="text" class="form-control" readonly>
                             <span class="input-group-btn">
-                                <button class="btn btn-default" id="staticFile" type="button">Selecionar</button>
+                                <button class="btn btn-default" id="staticFile" type="button">{{ __('Select') }}</button>
                             </span>
                         </div><!-- /input-group -->
                     </div>
@@ -39,7 +39,7 @@
                 {% else %}
                 <div class="col-md-5">
                     <div class="form-group">
-                        <label>Tipo</label>
+                        <label>{{ __('Kind') }}</label>
                         <select class="form-control">
                             <option>PCD INPE</option>
                         </select>
@@ -50,23 +50,23 @@
             {% else %}  
             <div class="col-md-12">
                 <div class="form-group">
-                    <label>Nome:</label>
-                    <input class="form-control" id="name" placeholder="Nome do Data Set" type="text">
+                    <label>{{ __('Name') }}:</label>
+                    <input class="form-control" id="name" placeholder="{{ __('Data Set Name') }}" type="text">
                 </div>
             </div>
             <!-- /.col md 7 -->
 
             {% endif %}
 
-            {% if state != "static" %}
+            {% if state|lower != "static" %}
 
-            <div class="col-md-8">
+            <div class="col-md-3">
                 <div class="form-group">
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
-                            <label>Frequência de Atualização:</label>
+                            <label>{{ __('Data Frequency') }}:</label>
                             <div class="input-group">
-                                <input type="text" class="form-control timepicker" name="dataFrequency">
+                                <input type="text" class="form-control timepicker" name="dataFrequency" data-format="HH:mm:ss">
                                 <div class="input-group-addon">
                                     <i class="fa fa-clock-o"></i>
                                 </div>
@@ -77,11 +77,62 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>{{ __('Schedule') }}:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control timepicker" name="schedule" data-format="HH:mm:ss">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                            </div><!-- /.input group -->
+                        </div><!-- /.form group -->
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>{{ __('Schedule Retry') }}:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control timepicker" name="scheduleRetry" data-format="HH:mm:ss">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                            </div><!-- /.input group -->
+                        </div><!-- /.form group -->
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>{{ __('Schedule Timeout') }}:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control timepicker" name="scheduleTimeout" data-format="HH:mm:ss">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                            </div><!-- /.input group -->
+                        </div><!-- /.form group -->
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+
+            <div class="col-md-2">
                 <div class="form-group">
                     <div class="checkbox">
                         <label class="terrama2-checkbox-align">
-                            <input type="checkbox"> Ativo
+                            <input type="checkbox"> {{ __('Active') }}
                         </label>
                     </div>
                 </div>
@@ -92,8 +143,8 @@
 
             <div class="col-md-12">
                 <div class="form-group">
-                    <label>Descrição</label>
-                    <textarea class="form-control" rows="3" placeholder="Descrição do Data Set"></textarea>
+                    <label>{{ __('Description') }}</label>
+                    <textarea class="form-control" rows="3" placeholder="{{ __('Data Set Description') }}"></textarea>
                 </div>
                 <!-- /.form-group -->
             </div>
