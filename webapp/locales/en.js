@@ -111,7 +111,6 @@
 	"Sign In": "Sign In",
 	"I forgot my password": "I forgot my password",
 	"Register a new membership": "Register a new membership",
-	"Celphone": "Celphone",
 	"E-mail": "E-mail",
 	"User Registration": "User Registration",
 	"User Name": "User Name",
@@ -123,12 +122,14 @@
 	"Username": "Username",
 	"User name credential": "User name credential",
 	"User Password credential": "User Password credential",
-	"User celphone number": "User celphone number",
 	"User e-mail": "User e-mail",
 	"Selected Analysis": "Selected Analysis",
 	"User Analisys Select": "User Analisys Select",
 	"Select the analysis to user": "Select the analysis to user",
 	"Alert Notification": "Alert Notification",
 	"Report": "Report",
-	"Area of interest for notification": "Area of interest for notification"
+	"Area of interest for notification": "Area of interest for notification",
+	"Select Area of Interest": "Select Area of Interest",
+	"Cell phone": "Cell phone",
+	"User cell phone number": "User cell phone number"
 }
