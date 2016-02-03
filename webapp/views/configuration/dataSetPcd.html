@@ -35,6 +35,15 @@
                 $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
             });
 
+            $("#staticFile").click(function(e)
+            {
+                $("#fileInput").trigger('click');
+            });
+
+            $("#fileInput").change(function(e) {
+                $("#fileInputField").val($(this).val());
+            });
+
         })
     </script>
 {% endblock %}

@@ -50,11 +50,20 @@
 
                     <div class="navbar-custom-menu">
                         <ul class="nav navbar-nav">
+                            <li class="user user-menu">
+
+                                    <input type="file" class="terrama2-hidden" id="loadConfigFileInput" accept=".terrama2">
+                                <a aria-expanded="false" href="#" id="loadConfigFileButton">
+                                    <i class="fa fa-folder-open"></i>
+                                    {{ __('Load configuration') }}
+                                    <!-- <span class="hidden-xs"></span> -->
+                                </a>
+                            </li>
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="user user-menu">
                                 <a aria-expanded="false" href="/login">
                                     <i class="glyphicon glyphicon-log-out"></i>
-                                    Logout
+                                    {{ __('Logout') }}
                                     <!-- <span class="hidden-xs"></span> -->
                                 </a>
                             </li>
@@ -151,6 +160,19 @@
         <script src="/externals/bootstrap/js/bootstrap.min.js"></script>
         <script src="/externals/fastclick/fastclick.min.js"></script>
         <script src="/externals/admin-lte/js/app.min.js"></script>
+
+        <script type="text/javascript">
+        $(document).ready(function(){
+            $("#loadConfigFileButton").click(function(e)
+            {
+                $("#loadConfigFileInput").trigger('click');
+            });
+
+            $("#loadConfigFileInput").change(function(e){
+                // TODO load configuration
+            });
+        });
+        </script>
         {# Block for handling TerraMA2 javascripts include #}
         {% block javascripts %}
 
