@@ -1,0 +1,61 @@
+.terrama2-checkbox-align {
+    margin-top: 19px !important;
+    font-weight: 700 !important;
+}
+
+.terrama2-component-align {
+    margin-top: 25px !important;
+}
+
+.terrama2-component-color {
+    background: #D2D6DE none repeat scroll 0% 0%;
+}
+
+.terrama2-nopadding-box
+{
+    padding: 0 !important;
+}
+
+.terrama2-list-align
+{
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.terrama2-list-align option
+{
+    height: 30px !important;
+    padding-top: 5px !important;
+}
+
+.terrama2-header-fixed {
+    width: 100% ;
+}
+
+.terrama2-header-fixed > thead,
+.terrama2-header-fixed > tbody,
+.terrama2-header-fixed > thead > tr,
+.terrama2-header-fixed > tbody > tr,
+.terrama2-header-fixed > thead > tr > th,
+.terrama2-header-fixed > tbody > tr > td {
+    display: block;
+}
+
+.terrama2-header-fixed > tbody > tr:after,
+.terrama2-header-fixed > thead > tr:after {
+    content: ' ';
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
+.terrama2-header-fixed > tbody {
+    overflow-y: auto;
+    height: 150px;
+}
+
+.terrama2-header-fixed > tbody > tr > td,
+.terrama2-header-fixed > thead > tr > th {
+    width: 16.6%;
+    float: left;
+}
