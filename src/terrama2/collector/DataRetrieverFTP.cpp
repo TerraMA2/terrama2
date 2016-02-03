@@ -151,7 +151,7 @@ std::string terrama2::collector::DataRetrieverFTP::retrieveData(const terrama2::
       uriInput = dataprovider_.uri() + datasetitem.path();
 // The host part of the URL contains the address of the server that you want to connect to
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
-      // List files and directories FTP server
+// List files and directories FTP server
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
       // Get data to be written in vector
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::collector::DataRetrieverFTP::write_vector);
