@@ -6,6 +6,10 @@
         <title>{% block title %} {% endblock %}</title>
         <!-- Defines responsive layout to screen -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+        <!-- TerraMA2 -->
+        <link rel="stylesheet" type="text/css" href="/stylesheets/terrama2.css">
+
         <!-- Bootstrap -->
         <link rel="stylesheet" href="/externals/bootstrap/css/bootstrap.min.css">
         <!-- Font Awesome -->
@@ -14,21 +18,6 @@
         <link rel="stylesheet" href="/externals/admin-lte/css/AdminLTE.min.css">
         <!-- Template Skin -->
         <link rel="stylesheet" href="/externals/admin-lte/css/skins/skin-blue.min.css">
-
-        <style type="text/css">
-            .terrama2-checkbox-align {
-              margin-top: 19px !important;
-              font-weight: 700 !important;
-            }
-
-            .terrama2-component-align {
-              margin-top: 25px !important;
-            }
-
-            .terrama2-component-color {
-              background: #D2D6DE none repeat scroll 0% 0%;
-            }
-        </style>
 
         {# Block for including TerraMA2 specific stylesheets #}
         {% block styles %}
@@ -64,6 +53,7 @@
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="user user-menu">
                                 <a aria-expanded="false" href="/login">
+                                    <i class="glyphicon glyphicon-log-out"></i>
                                     Logout
                                     <!-- <span class="hidden-xs"></span> -->
                                 </a>

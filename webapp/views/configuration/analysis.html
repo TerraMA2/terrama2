@@ -2,28 +2,6 @@
 
 {% block title %} TerraMA2 {{ __('Analysis Registration') }} {% endblock %}
 
-{% block styles %}
-<style type="text/css">
-    .terrama2-nopadding-box
-    {
-        padding: 0 !important;
-    }
-
-    .terrama2-list-align
-    {
-        text-align: center !important;
-        width: 100% !important;
-        border: none;
-    }
-
-    .terrama2-list-align option
-    {
-        height: 30px !important;
-        padding-top: 5px !important;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 
     <div class="col-md-12">
@@ -166,7 +144,7 @@
                                             </div>
                                             <div id="inputDataCollapse" class="panel-collapse collapse in">
                                                 <div class="panel-body terrama2-nopadding-box">
-                                                    <select class="terrama2-list-align" multiple="" class="form-control" id="sel2">
+                                                    <select class="terrama2-list-align" style="border: none;" multiple="" class="form-control" id="sel2">
                                                         <option>hidro</option>
                                                         <option>Municipios_Afetados</option>
                                                     </select>

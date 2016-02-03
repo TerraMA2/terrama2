@@ -131,5 +131,6 @@
 	"Area of interest for notification": "Area of interest for notification",
 	"Select Area of Interest": "Select Area of Interest",
 	"Cell phone": "Cell phone",
-	"User cell phone number": "User cell phone number"
+	"User cell phone number": "User cell phone number",
+	"%d Day": "%d Day"
 }
