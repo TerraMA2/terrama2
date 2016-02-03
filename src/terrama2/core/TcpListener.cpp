@@ -89,7 +89,7 @@ void terrama2::core::TcpListener::receiveConnection()
   in.setVersion(QDataStream::Qt_5_2);
 
   RaiiBlock block(blockSize_); Q_UNUSED(block)
-      if(blockSize_ == 0)
+  if(blockSize_ == 0)
   {
     if (tcpSocket->bytesAvailable() < static_cast<int>(sizeof(uint16_t)))
     {
@@ -134,7 +134,19 @@ void terrama2::core::TcpListener::receiveConnection()
     }
     case TcpSignals::PING_SIGNAL:
     {
-      //TODO: return pong!
+      QByteArray bytearray;
+      QDataStream out(&bytearray, QIODevice::WriteOnly);
+      out.setVersion(QDataStream::Qt_5_2);
+
+      out << static_cast<uint16_t>(0);
+      out << TcpSignals::PONG_SIGNAL;
+      out.device()->seek(0);
+      out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
+
+      //wait while sending message
+      qint64 written = tcpSocket->write(bytearray);
+      if(written == -1 || !tcpSocket->waitForBytesWritten())
+        TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
 
       break;
     }

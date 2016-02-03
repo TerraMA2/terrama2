@@ -45,18 +45,56 @@ namespace terrama2
 {
   namespace core
   {
+    //! The TcpDispatcher controls the communication with a remote service through a TCP socket.
     class TcpDispatcher
     {
     public:
+      //! Constructor
       TcpDispatcher(const ServiceData& serviceData);
 
+      /*!
+         \brief Sends a signal to stop the remote service.
+
+         \exception ErrorDescription Raised if could not send the signal.
+       */
       void stopService();
-      bool pingService();
+      /*!
+         \brief Check if remote service is in reach.
+
+         A false return may mean:
+          - the service is not running
+          - the service is unreachable
+          - the service is not listening to the specified port
+
+         \return True if communication with service is possible.
+       */
+      bool pingService() noexcept;
+      /*!
+         \brief Starts the processing of specfied data.
+
+         Processing data vary for each service,
+         a collector service will start collecting the core::DataSet with dataId,
+         a analysis service will start to analyze core::Analysis with dataId.
+
+         \param dataId Id of the data to be processed.
+       */
       void startProcessing(int dataId);
+
+      /*!
+         \brief Sends data to be processed by service.
+         \param jsonArray Serialized data.
+       */
       void sendData(const QJsonArray& jsonArray);
 
     private:
-      std::shared_ptr<QTcpSocket> getInstance();
+      /*!
+         \brief  Creates socket to the remote service.
+         \return Shared pointer of the socket.
+         \exception UnableToConnect Raised when unable to reach remote service.
+       */
+      std::shared_ptr<QTcpSocket> socket();
+
+      //! Remote service communication especifications.
       ServiceData serviceData_;
     };
 
