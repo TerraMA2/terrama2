@@ -7,7 +7,7 @@ module.exports = function(app)
                 },
         "new": function newAnalyseController(request, response)
                 {
-                    response.render("configuration/analyse");
+                    response.render("configuration/analysis");
                 }
     }
     return controllers;
