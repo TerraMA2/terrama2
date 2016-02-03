@@ -75,7 +75,7 @@ bool terrama2::core::TcpDispatcher::pingService() noexcept
     out.setVersion(QDataStream::Qt_5_2);
 
     out << static_cast<uint16_t>(0);
-    out << TcpSignals::STOP_SIGNAL;
+    out << TcpSignals::PING_SIGNAL;
     out.device()->seek(0);
     out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
 
@@ -127,6 +127,12 @@ bool terrama2::core::TcpDispatcher::pingService() noexcept
       }
     }
   }
+  catch(const UnableToConnect&)
+  {
+    //service not running
+    return false;
+  }
+
   catch(...)
   {
     //TODO: specify catch?
