@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
 
@@ -20,27 +21,19 @@
 */
 
 /*!
-  \file terrama2/core/TcpSignals.hpp
+  \file terrama2/core/ErrorCodes.hpp
 
-  \brief Signals for TCP messages.
+  \brief Error codes for retun values.
 
   \author Jano Simas
 */
 
-namespace terrama2 {
-  namespace core {
-    //! Namespace for signals for TCP communication.
-    namespace TcpSignals{
-      //! Signals for TCP communication.
-      enum TcpSignal
-      {
-        VOID_SIGNAL = -1, //!< Null signal, error occurred.
-        STOP_SIGNAL = 0,//!< Stop service signal.
-        DATA_SIGNAL = 1,//!< Data signal, followed by data.
-        START_SIGNAL = 2,//!< Start signal, queue the collection, analysis, ...
-        PING_SIGNAL = 3,//!< Check if the connection is alive and service is running
-        PONG_SIGNAL = 4//!< Return value if connection is alive and service is running
-      };
-    }
-  }
-}
+#ifndef __TERRAMA2_CORE_ERROR_CODES_HPP__
+#define __TERRAMA2_CORE_ERROR_CODES_HPP__
+
+const int TERRALIB_LOAD_ERROR = 101;
+const int COLLECTOR_SERVICE_STAR_ERROR = 102;
+const int TERRALIB_UNLOAD_ERROR = 103;
+const int TERRAMA2_PROJECT_LOAD_ERROR = 104;
+
+#endif //__TERRAMA2_CORE_ERROR_CODES_HPP__

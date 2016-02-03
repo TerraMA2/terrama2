@@ -41,6 +41,7 @@
 // QT
 #include <QTest>
 #include <QJsonDocument>
+#include <QDebug>
 
 // STL
 #include <string>

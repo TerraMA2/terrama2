@@ -113,17 +113,17 @@ void terrama2::core::TcpListener::receiveConnection()
   TcpSignals::TcpSignal signal = static_cast<TcpSignals::TcpSignal >(sigInt);
 
   switch (signal) {
-    case TcpSignals::__STOP__:
+    case TcpSignals::STOP_SIGNAL:
       emit stopSignal();
       break;
-    case TcpSignals::__DATA__:
+    case TcpSignals::DATA_SIGNAL:
     {
       in >> bytearray;
       //new data received
       parseData(bytearray);
       break;
     }
-    case TcpSignals::__START__:
+    case TcpSignals::START_SIGNAL:
     {
       int dataId;
       in >> dataId;
@@ -132,8 +132,17 @@ void terrama2::core::TcpListener::receiveConnection()
 
       break;
     }
-    case TcpSignals::__NULL__:
+    case TcpSignals::PING_SIGNAL:
+    {
+      //TODO: return pong!
+
+      break;
+    }
+    case TcpSignals::VOID_SIGNAL:
       TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving TcpSignal.\n__NULL__ signal.");
+      break;
+    case TcpSignals::PONG_SIGNAL:
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error\n __PONG__ signal received.");
       break;
   }
 

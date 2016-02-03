@@ -33,9 +33,6 @@
 // Qt
 #include <QXmlStreamReader>
 
-// TerraLib
-#include <terralib/qt/plugins/datasource/wcs/WCSConnector.h>
-
 // TerraMA2
 #include "CurlOpener.hpp"
 #include "DataRetrieverWCS.hpp"

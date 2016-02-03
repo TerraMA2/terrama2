@@ -45,20 +45,14 @@
 // TerraMA2
 #include "soapWebService.h"
 #include "../Exception.hpp"
-#include "../Exception.hpp"
 #include "../core/Codes.hpp"
+#include "../../../core/ErrorCodes.hpp"
 #include "../../../core/ApplicationController.hpp"
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Utils.hpp"
 #include "../../../core/Logger.hpp"
 #include "../../../core/TcpListener.hpp"
 #include "../../../collector/CollectorService.hpp"
-
-const int TERRALIB_LOAD_ERROR = 101;
-const int COLLECTOR_SERVICE_STAR_ERROR = 102;
-const int TERRALIB_UNLOAD_ERROR = 103;
-const int TERRAMA2_PROJECT_LOAD_ERROR = 104;
-
 
 class QCloser
 {

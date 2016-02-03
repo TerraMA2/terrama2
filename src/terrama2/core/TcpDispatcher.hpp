@@ -30,12 +30,16 @@
 #ifndef __TERRAMA2_CORE_TCPDISPATCHER_HPP__
 #define __TERRAMA2_CORE_TCPDISPATCHER_HPP__
 
+#include "ServiceData.hpp"
+
 //STL
 #include <memory>
 
 //Qt
 #include <QJsonArray>
 #include <QTcpSocket>
+
+
 
 namespace terrama2
 {
@@ -44,13 +48,19 @@ namespace terrama2
     class TcpDispatcher
     {
     public:
-      static void stopService(const std::string& instance);
-      static void startProcessing(const std::string& instance, int dataId);
-      static void sendData(const std::string& instance, const QJsonArray& jsonArray);
+      TcpDispatcher(const ServiceData& serviceData);
+
+      void stopService();
+      bool pingService();
+      void startProcessing(int dataId);
+      void sendData(const QJsonArray& jsonArray);
 
     private:
-      static std::shared_ptr<QTcpSocket> getInstance(const std::string& instance);
+      std::shared_ptr<QTcpSocket> getInstance();
+      ServiceData serviceData_;
     };
+
+    typedef std::shared_ptr<TcpDispatcher> TcpDispatcherPtr;//!< Shared pointer to a TcpDispatcher.
   }
 }
 

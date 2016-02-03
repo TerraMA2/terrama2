@@ -46,6 +46,7 @@
 
 //QT
 #include <QTimer>
+#include <QCoreApplication>
 
 void TsIntegration::TestReadCsvStorePostGis()
 {
@@ -105,10 +106,10 @@ void TsIntegration::TestReadCsvStorePostGis()
     dataManager.add(dataset);
 
     QTimer timer;
-    QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
     timer.start(15000);
 
-    QApplication::exec();
+    QCoreApplication::exec();
 
     dataManager.removeDataProvider(provider.id());
   }
@@ -200,10 +201,10 @@ void TsIntegration::TestCollectorFTP()
     dataManager.add(dataset);
 
     QTimer timer;
-    QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
     timer.start(15000);
 
-    QApplication::exec();
+    QCoreApplication::exec();
 
     dataManager.removeDataProvider(provider.id());
   }
@@ -278,10 +279,10 @@ void TsIntegration::TestReadPostgisStorePostGis()
     dataManager.add(dataset);
 
     QTimer timer;
-    QObject::connect(&timer, SIGNAL(timeout()), QApplication::instance(), SLOT(quit()));
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
     timer.start(15000);
 
-    QApplication::exec();
+    QCoreApplication::exec();
 
     dataManager.removeDataProvider(provider.id());
   }
