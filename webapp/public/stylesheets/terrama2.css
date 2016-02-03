@@ -59,3 +59,7 @@
     width: 16.6%;
     float: left;
 }
+
+.terrama2-hidden {
+    display: none !important;
+}

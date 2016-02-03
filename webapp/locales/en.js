@@ -132,5 +132,8 @@
 	"Select Area of Interest": "Select Area of Interest",
 	"Cell phone": "Cell phone",
 	"User cell phone number": "User cell phone number",
-	"%d Day": "%d Day"
+	"%d Day": "%d Day",
+	"Load configuration": "Load configuration",
+	"Logout": "Logout",
+	"Code": "Code"
 }
