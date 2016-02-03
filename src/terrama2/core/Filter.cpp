@@ -239,7 +239,7 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
 }
 
 
-terrama2::core::Filter terrama2::core::Filter::FromJson(const QJsonObject& json)
+terrama2::core::Filter terrama2::core::Filter::fromJson(const QJsonObject& json)
 {
   if(! (json.contains("datasetItem")
      && json.contains("discardBefore")
