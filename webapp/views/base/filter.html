@@ -12,10 +12,10 @@
             <div class="col-md-12">
 
                 <ul class="nav nav-tabs" data-tabs="tabs">
-                    <li class="active"><a data-toggle="tab" href="#filterDateTab">Data</a></li>
-                    <li><a data-toggle="tab" href="#filterAreaTab">Área</a></li>
-                    <li><a data-toggle="tab" href="#filterPreAnalysisTab">Pré-Análise</a></li>
-                    <li><a data-toggle="tab" href="#filterBandTab">Camadas</a></li>
+                    <li class="active"><a data-toggle="tab" href="#filterDateTab">{{ __('Date') }}</a></li>
+                    <li><a data-toggle="tab" href="#filterAreaTab">{{ __('Area') }}</a></li>
+                    <li><a data-toggle="tab" href="#filterPreAnalysisTab">{{ __('Pre-Analysis') }}</a></li>
+                    <li><a data-toggle="tab" href="#filterBandTab">{{ __('Bands') }}</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="filterDateTab">
@@ -23,7 +23,7 @@
                             <p></p>
                             <div class='col-md-6'>
                                 <div class="form-group">
-                                    <label>Eliminar dados anteriores à:</label>
+                                    <label>{{ __('Ignores previous data to') }}:</label>
                                     <div class='input-group date' id='datetimepicker6'>
                                         <input type='text' class="form-control" />
                                         <span class="input-group-addon">
@@ -34,7 +34,7 @@
                             </div>
                             <div class='col-md-6'>
                                 <div class="form-group">
-                                    <label>Eliminar dados posteriores à:</label>
+                                    <label>{{ __('Ignores further data to') }}:</label>
                                     <div class='input-group date' id='datetimepicker7'>
                                         <input type='text' class="form-control" />
                                         <span class="input-group-addon">
@@ -55,7 +55,7 @@
                                     <div class="radio">
                                         <label>
                                         <input name="optionsRadios" id="withoutCut" value="option1" checked="" type="radio">
-                                            Não recortar
+                                            {{ __('Do not slice') }}
                                         </label>
                                     </div>
                                 </div>
@@ -66,7 +66,7 @@
                                     <div class="radio">
                                         <label>
                                         <input name="optionsRadios" id="cutByArea" value="option1" checked="" type="radio">
-                                            Recortar dados por área
+                                            {{ __('Slice by area') }}
                                         </label>
                                     </div>
                                 </div>
@@ -77,7 +77,7 @@
                                     <div class="radio">
                                         <label>
                                         <input name="optionsRadios" id="cutByLimits" value="option1" checked="" type="radio">
-                                            Recortar dados por limites do plano
+                                            {{ __('Slice by limits') }}
                                         </label>
                                     </div>
                                 </div>
@@ -94,8 +94,8 @@
                                 <div class="form-group">
                                     <div class="radio">
                                         <label>
-                                        <input name="optionsRadios" id="withoutCut" value="option1" checked="true" type="radio">
-                                            Não efetuar pré-análise
+                                        <input name="optionsRadios" id="doNotMakePreAnalysis" value="option1" checked="true" type="radio">
+                                            {{ __('Do not make pre-analysis') }}
                                         </label>
                                     </div>
                                 </div>
@@ -108,7 +108,7 @@
                                     <div class="radio">
                                         <label>
                                         <input name="optionsRadios" id="cutByArea" value="option1" type="radio">
-                                            Eliminar todos os valores se forem <b>MENORES</b> que:
+                                            {{ __('Ignores all data <b>LESS</b> than') }}:
                                         </label>
                                     </div>
                                 </div>
@@ -127,7 +127,7 @@
                                     <div class="radio">
                                         <label>
                                         <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
-                                            Eliminar todos os valores se forem <b>MAIORES</b> que:
+                                            {{ __('Ignores all data <b>GREATER</b> than') }}:
                                         </label>
                                     </div>
                                 </div>
@@ -146,7 +146,7 @@
                                     <div class="radio">
                                         <label>
                                         <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
-                                            Eliminar se a média for <b>MENOR</b> que:
+                                            {{ __('Ignores if average is <b>LESS</b> than') }}:
                                         </label>
                                     </div>
                                 </div>
@@ -165,7 +165,7 @@
                                     <div class="radio">
                                         <label>
                                         <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
-                                            Eliminar se a média for <b>MAIOR</b> que:
+                                            {{ __('Ignores if average is <b>GREATER</b> than') }}:
                                         </label>
                                     </div>
                                 </div>
@@ -183,7 +183,7 @@
                                 <div class="form-group">
                                     <label>
                                     <input name="optionsRadios" id="cutByLimits" value="option1" type="checkbox">
-                                        Analisar apenas os dados contidos no plano selecionado:
+                                        {{ __('Analyse only data inside selected plan') }}:
                                     </label>
                                 </div>
                             </div>
@@ -203,8 +203,8 @@
                             <p></p>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>Camadas a serem eliminadas:</label>
-                                    <input class="form-control" id="name" type="text">
+                                    <label>{{ __('Bands to be skipped') }}:</label>
+                                    <input class="form-control" id="bands" type="text">
                                 </div>
                             </div>
                         </div>

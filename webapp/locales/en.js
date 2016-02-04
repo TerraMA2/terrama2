@@ -149,5 +149,21 @@
 	"Attribute    ": "Attribute    ",
 	"Selected": "Selected",
 	"Theme": "Theme",
-	"Static Themes": "Static Themes"
+	"Static Themes": "Static Themes",
+	"Date": "Date",
+	"Area": "Area",
+	"Pre-Analysis": "Pre-Analysis",
+	"Bands": "Bands",
+	"Ignores previous data to": "Ignores previous data to",
+	"Ignores further data to": "Ignores further data to",
+	"Do not slice": "Do not slice",
+	"Slice by area": "Slice by area",
+	"Slice by limits": "Slice by limits",
+	"Do not make pre-analysis": "Do not make pre-analysis",
+	"Ignores all data <b>LESS</b> than": "Ignores all data <b>LESS</b> than",
+	"Ignores all data <b>GREATER</b> than": "Ignores all data <b>GREATER</b> than",
+	"Ignores if average is <b>LESS</b> than": "Ignores if average is <b>LESS</b> than",
+	"Ignores if average is <b>GREATER</b> than": "Ignores if average is <b>GREATER</b> than",
+	"Analyse only data inside selected plan": "Analyse only data inside selected plan",
+	"Bands to be skipped": "Bands to be skipped"
 }
