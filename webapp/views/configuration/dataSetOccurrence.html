@@ -7,14 +7,10 @@
 {% block javascripts %}
     <script type="text/javascript" src="/externals/moment/moment.js"></script>
     <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/javascripts/terrama2.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
-        $(".timepicker").datetimepicker({
-            widgetPositioning: {vertical: "bottom"},
-            format: "HH:mm:ss"
-        });
-
         $("#mask-list").on("click", "li", function(e){
             $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
         });
