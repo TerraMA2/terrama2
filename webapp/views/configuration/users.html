@@ -1,6 +1,6 @@
 {% extends "../base/layout.html" %}
 
-{% block title %} TerraMA2 {{ __('Analysis') }} {% endblock %}
+{% block title %} TerraMA2 {{ __('Users') }} {% endblock %}
 
 {% block content %}
 
@@ -8,28 +8,26 @@
     <div class="col-md-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">{{ __('Analysis') }}</h3>
-                <a href="/configuration/analyse" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
+                <h3 class="box-title">{{ __('Users') }}</h3>
+                <a href="/configuration/user" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
             </div><!-- /.box-header -->
 
             <div class="box-body">
-            
+
                 <table class="table table-bordered">
                     <tr>
+                        <th>{{ __('User') }}</th>
                         <th>{{ __('Name') }}</th>
-                        <th>{{ __('Author') }}</th>
-                        <th>{{ __('Description') }}</th>
-                        <th>{{ __('Image Generate') }}</th>
+                        <th>{{ __('Cell phone') }}</th>
+                        <th>{{ __('E-mail') }}</th>
                         <th></th>
                     </tr>
                     <tr>
-                        <td>hidro</td>
-                        <td>User1</td>
-                        <td>Lorem ipsum</td>
+                        <td>joao</td>
+                        <td>Jão</td>
+                        <td>(12) 99999-9999</td>
                         <td>
-                            <span class="label label-success">
-                               <i class="glyphicon glyphicon-ok"></i>
-                           </span>
+                            jao@email.com
                         <td>
                             <button type="button" class="btn btn-primary">{{ __('Edit') }}</button>
                             <button type="button" class="btn btn-danger">{{ __('Remove') }}</button>

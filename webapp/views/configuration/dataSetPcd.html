@@ -1,42 +1,7 @@
 {% extends "../base/layout.html" %}
 
 {% block styles %}
-    <link rel="stylesheet" type="text/css" href="/terrama2.css">
     <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
-
-    <style type="text/css">
-        .terrama2-header-fixed {
-            width: 100% ;
-        }
-
-        .terrama2-header-fixed > thead,
-        .terrama2-header-fixed > tbody,
-        .terrama2-header-fixed > thead > tr,
-        .terrama2-header-fixed > tbody > tr,
-        .terrama2-header-fixed > thead > tr > th,
-        .terrama2-header-fixed > tbody > tr > td {
-            display: block;
-        }
-
-        .terrama2-header-fixed > tbody > tr:after,
-        .terrama2-header-fixed > thead > tr:after {
-            content: ' ';
-            display: block;
-            visibility: hidden;
-            clear: both;
-        }
-
-        .terrama2-header-fixed > tbody {
-            overflow-y: auto;
-            height: 150px;
-        }
-
-        .terrama2-header-fixed > tbody > tr > td,
-        .terrama2-header-fixed > thead > tr > th {
-            width: 16.6%;
-            float: left;
-        }
-    </style>
 {% endblock %}
 
 {% block javascripts %}
@@ -68,6 +33,15 @@
 
             $("#mask-list").on("click", "li", function(e){
                 $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
+            });
+
+            $("#staticFile").click(function(e)
+            {
+                $("#fileInput").trigger('click');
+            });
+
+            $("#fileInput").change(function(e) {
+                $("#fileInputField").val($(this).val());
             });
 
         })
