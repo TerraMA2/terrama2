@@ -55,16 +55,8 @@
 #include <boost/date_time/gregorian/greg_date.hpp>
 
 
-
 void TsParserPcdCemaden::TestCollectorCemaden()
 {
-  QString cemadenFile = terrama2::core::FindInTerraMA2Path("data/pcd_cemaden/1.txt").c_str();
-  QFileInfo info(cemadenFile);
-
-  QUrl uri;
-  uri.setScheme("FILE");
-  uri.setPath(cemadenFile);
-
   try
   {
     // Mask
@@ -72,11 +64,11 @@ void TsParserPcdCemaden::TestCollectorCemaden()
     // 3 - Estação Hidrológica
 
     terrama2::core::DataSetItem item;
-    item.setMask(info.fileName().toStdString());
+    item.setMask("3");
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
-    transferenceData.uriTemporary = "http://150.163.255.240/CEMADEN/resources/parceiros/SP/1";
+    transferenceData.uriTemporary = "http://150.163.255.240/CEMADEN/resources/parceiros/SP/3";
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);

@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
 //  TsParserPcdToa5 tsParserToa5;
 //  returnVal += QTest::qExec(&tsParserToa5, argc, argv);
 
-//  TsParserPcdCemaden tsParserPcdCemaden;
-//  returnVal += QTest::qExec(&tsParserPcdCemaden, argc, argv);
+  TsParserPcdCemaden tsParserPcdCemaden;
+  returnVal += QTest::qExec(&tsParserPcdCemaden, argc, argv);
 
 
 //  TsParserTiff tsParserTiff;
