@@ -135,5 +135,14 @@
 	"%d Day": "%d Day",
 	"Load configuration": "Load configuration",
 	"Logout": "Logout",
-	"Code": "Code"
+	"Code": "Code",
+	"Generate Image": "Generate Image",
+	"Input Data": "Input Data",
+	"Select the inputs to analysis": "Select the inputs to analysis",
+	"Confirm Password": "Confirm Password",
+	"Confirm password": "Confirm password",
+	"Analyses": "Analyses",
+	"Alerts": "Alerts",
+	"Project": "Project",
+	"Alert Registration": "Alert Registration"
 }
