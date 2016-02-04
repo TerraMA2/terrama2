@@ -5,3 +5,6 @@
 webapp/node_modules
 webapp/npm-debug.log
 webapp/public/externals
+
+webcomponents/node_modules
+webcomponents/npm-debug.log
