@@ -27,8 +27,9 @@
   \author Vinicius Campanha
 */
 
-// Qt
-#include <QTextObject>
+//QT
+#include <QString>
+#include <QObject>
 
 // Boost
 #include <boost/format.hpp>

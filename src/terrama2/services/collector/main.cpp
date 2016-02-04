@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/collector/main.cpp
+  \file terrama2/service/collector/main.cpp
 
   \brief Main routine for TerraMA2 Collector Service.
 
@@ -31,7 +31,7 @@
 #include <cstdlib>
 
 //QT
-#include <QApplication>
+#include <QCoreApplication>
 
 #include "../../collector/CollectorService.hpp"
 #include "../../core/TcpListener.hpp"
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_INFO() << "Initializating TerraLib...";
     terrama2::core::initializeTerralib();
 
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
 
     terrama2::core::DataManager::getInstance().load(true);
 
@@ -77,7 +77,11 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_INFO() << "Listening to port: " + std::to_string(port);
     terrama2::core::TcpListener listener;
     QObject::connect(&listener, &terrama2::core::TcpListener::stopSignal, [&](){collectorService.stop(); app.exit();});
-    listener.listen(QHostAddress::Any, port);
+    if(!listener.listen(QHostAddress::Any, port))
+    {
+      //TODO: port in use? some other error...
+      //throw;
+    }
 
     app.exec();
 

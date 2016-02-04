@@ -36,56 +36,141 @@
 #include <QDataStream>
 #include <QJsonDocument>
 
-void terrama2::core::TcpDispatcher::stopService(const std::string& instance)
+terrama2::core::TcpDispatcher::TcpDispatcher(const ServiceData& serviceData)
+  : serviceData_(serviceData)
 {
-  std::shared_ptr<QTcpSocket> socket = getInstance(instance);
+
+}
+
+void terrama2::core::TcpDispatcher::stopService()
+{
+  std::shared_ptr<QTcpSocket> tcpSocket = socket();
 
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_5_2);
 
   out << static_cast<uint16_t>(0);
-  out << TcpSignals::__STOP__;
+  out << TcpSignals::STOP_SIGNAL;
   out.device()->seek(0);
   out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
 
-  qint64 written = socket->write(bytearray);
-  if(written == -1 || !socket->waitForBytesWritten())
+  qint64 written = tcpSocket->write(bytearray);
+  if(written == -1 || !tcpSocket->waitForBytesWritten())
   {
-    QString errMsg = QObject::tr("Could not send stop signal to host: %1").arg(instance.c_str());
+    QString errMsg = QObject::tr("Could not send stop signal to host: %1").arg(serviceData_.name.c_str());
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UnableToConnect() << ErrorDescription(errMsg);
   }
 }
 
-void terrama2::core::TcpDispatcher::startProcessing(const std::string& instance, int dataId)
+bool terrama2::core::TcpDispatcher::pingService() noexcept
 {
-  std::shared_ptr<QTcpSocket> socket = getInstance(instance);
+  try
+  {
+    std::shared_ptr<QTcpSocket> tcpSocket = socket();
+
+    QByteArray bytearray;
+    QDataStream out(&bytearray, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_2);
+
+    out << static_cast<uint16_t>(0);
+    out << TcpSignals::PING_SIGNAL;
+    out.device()->seek(0);
+    out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
+
+    //wait while sending message
+    qint64 written = tcpSocket->write(bytearray);
+    if(written == -1 || !tcpSocket->waitForBytesWritten())
+    {
+      TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with remote service: %1.").arg(QString::fromStdString(serviceData_.name));
+      //unable to send
+      return false;
+    }
+
+    //wait for answer
+    if(tcpSocket->waitForReadyRead())
+    {
+      //check message size
+      if (tcpSocket->bytesAvailable() < static_cast<int>(sizeof(uint16_t)))
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving PONG_SIGNAL from remote service %1.\nWrong message size.").arg(QString::fromStdString(serviceData_.name));
+        return false;
+      }
+
+      //read message size
+      QDataStream in(tcpSocket.get());
+      in.setVersion(QDataStream::Qt_5_2);
+      uint16_t block = 0;
+      in >> block;
+
+      //check message size
+      if (tcpSocket->bytesAvailable() < block)
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving PONG_SIGNAL from remote service %1.\nWrong message size.").arg(QString::fromStdString(serviceData_.name));
+        return false;
+      }
+
+      //read signal
+      int sigInt = -1;
+      in >> sigInt;
+
+      //check signal
+      TcpSignals::TcpSignal signal = static_cast<TcpSignals::TcpSignal >(sigInt);
+      if(signal == TcpSignals::PONG_SIGNAL)
+        return true;
+      else
+      {
+        //wrong signal received
+        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving PONG_SIGNAL from remote service %1.\nWrong answer to PING_SIGNAL.").arg(QString::fromStdString(serviceData_.name));
+        return false;
+      }
+    }
+  }
+  catch(const UnableToConnect&)
+  {
+    //service not running
+    return false;
+  }
+
+  catch(...)
+  {
+    //TODO: specify catch?
+    TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with remote service: %1.").arg(QString::fromStdString(serviceData_.name));
+    return false;
+  }
+
+  return false;
+}
+
+void terrama2::core::TcpDispatcher::startProcessing(int dataId)
+{
+  std::shared_ptr<QTcpSocket> tcpSocket = socket();
 
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_5_2);
 
   out << static_cast<uint16_t>(0);
-  out << TcpSignals::__START__;
+  out << TcpSignals::START_SIGNAL;
   out << dataId;
   out.device()->seek(0);
   out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
 
-  qint64 written = socket->write(bytearray);
-  if(written == -1 || !socket->waitForBytesWritten())
+  qint64 written = tcpSocket->write(bytearray);
+  if(written == -1 || !tcpSocket->waitForBytesWritten())
   {
-    QString errMsg = QObject::tr("Could not send stop signal to host: %1").arg(instance.c_str());
+    QString errMsg = QObject::tr("Could not send stop signal to host: %1").arg(serviceData_.name.c_str());
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UnableToConnect() << ErrorDescription(errMsg);
   }
 }
 
-void terrama2::core::TcpDispatcher::sendData(const std::string& instance, const QJsonArray& jsonArray)
+void terrama2::core::TcpDispatcher::sendData(const QJsonArray& jsonArray)
 {
   try
   {
-    std::shared_ptr<QTcpSocket> socket = getInstance(instance);
+    std::shared_ptr<QTcpSocket> tcpSocket = socket();
 
     QJsonDocument jsonDoc(jsonArray);
 
@@ -94,20 +179,20 @@ void terrama2::core::TcpDispatcher::sendData(const std::string& instance, const 
     out.setVersion(QDataStream::Qt_5_2);
 
     out << static_cast<uint16_t>(0);
-    out << TcpSignals::__DATA__;
+    out << TcpSignals::DATA_SIGNAL;
     out << jsonDoc.toJson();
     out.device()->seek(0);
     out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
 
-    qint64 written = socket->write(bytearray);
-    if(written == -1 || !socket->waitForBytesWritten())
+    qint64 written = tcpSocket->write(bytearray);
+    if(written == -1 || !tcpSocket->waitForBytesWritten())
     {
-      QString errMsg = QObject::tr("Could not send data to host: %1").arg(instance.c_str());
+      QString errMsg = QObject::tr("Could not send data to host: %1").arg(serviceData_.name.c_str());
       TERRAMA2_LOG_ERROR() << errMsg;
       throw UnableToConnect() << ErrorDescription(errMsg);
     }
 
-    socket->disconnectFromHost();
+    tcpSocket->disconnectFromHost();
   }
   catch(...)//TODO: catch instance not found...
   {
@@ -115,21 +200,15 @@ void terrama2::core::TcpDispatcher::sendData(const std::string& instance, const 
   }
 }
 
-std::shared_ptr<QTcpSocket> terrama2::core::TcpDispatcher::getInstance(const std::string& instance)
+std::shared_ptr<QTcpSocket> terrama2::core::TcpDispatcher::socket()
 {
-
-  //TODO: get instance...
-
-  //TODO: if not instace: thrwo
-
-  QString host = "localhost";
-  uint port = 30000;
-
   std::shared_ptr<QTcpSocket> socket = std::make_shared<QTcpSocket>();
-  socket->connectToHost(host, port);
-  if(!socket->waitForConnected(30000))
+  socket->connectToHost(serviceData_.host.c_str(), serviceData_.servicePort);
+
+  QTcpSocket::SocketError socketError = socket->error();
+  if(socketError != QTcpSocket::UnknownSocketError || !socket->waitForConnected(30000))
   {
-    QString errMsg = QObject::tr("Could not connect to host: %1").arg(instance.c_str());
+    QString errMsg = QObject::tr("Could not connect to host: %1\nQSocket error code: %2").arg(QString::fromStdString(serviceData_.name)).arg(static_cast<int>(socketError));
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UnableToConnect() << ErrorDescription(errMsg);
   }

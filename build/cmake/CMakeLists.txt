@@ -182,7 +182,7 @@ endif()
 
 # Compiler options: warning and C++ 11
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11 -pthread")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11")
 endif()
 
 # Turn on multi process compilation on Windows
@@ -275,6 +275,8 @@ option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_COLLECTOR_ENABLED "Build Collector module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_SERVER_ENABLED "Build Server module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+
 CMAKE_DEPENDENT_OPTION(TERRAMA2_COLLECTOR_SERVICE_ENABLED "Build Collector Service module?" ON "TERRAMA2_MOD_COLLECTOR_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED "Build Collector Web Service module?" ON "TERRAMA2_MOD_COLLECTOR_ENABLED" OFF)
@@ -348,6 +350,10 @@ endif()
 
 if(TERRAMA2_MOD_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_mod_collector)
+endif()
+
+if(TERRAMA2_SERVER_ENABLED)
+  add_subdirectory(terrama2_service_server)
 endif()
 
 if(TERRAMA2_COLLECTOR_SERVICE_ENABLED)

@@ -1,6 +1,6 @@
 {% extends "../base/layout.html" %}
 
-{% block title %} TerraMA2 Dados Dinâmicos {% endblock %}
+{% block title %} TerraMA2 {{ __('Analysis') }} {% endblock %}
 
 {% block content %}
 
@@ -8,18 +8,18 @@
     <div class="col-md-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">Análises</h3>
-                <a href="#" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
+                <h3 class="box-title">{{ __('Analysis') }}</h3>
+                <a href="/configuration/analyse" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
             </div><!-- /.box-header -->
 
             <div class="box-body">
-
+            
                 <table class="table table-bordered">
                     <tr>
-                        <th>Nome</th>
-                        <th>Autor</th>
-                        <th>Descrição</th>
-                        <th>Gerar Imagem</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Author') }}</th>
+                        <th>{{ __('Description') }}</th>
+                        <th>{{ __('Image Generate') }}</th>
                         <th></th>
                     </tr>
                     <tr>
@@ -31,8 +31,8 @@
                                <i class="glyphicon glyphicon-ok"></i>
                            </span>
                         <td>
-                            <button type="button" class="btn btn-primary">Editar</button>
-                            <button type="button" class="btn btn-danger">Excluir</button>
+                            <button type="button" class="btn btn-primary">{{ __('Edit') }}</button>
+                            <button type="button" class="btn btn-danger">{{ __('Remove') }}</button>
                         </td>
                     </tr>
                 </table>

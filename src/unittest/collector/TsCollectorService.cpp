@@ -34,7 +34,7 @@
 #include <terrama2/collector/Exception.hpp>
 
 //QT
-#include <QApplication>
+#include <QCoreApplication>
 
 // STL
 #include <memory>
