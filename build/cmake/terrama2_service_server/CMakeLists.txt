@@ -19,39 +19,29 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for TerraMA2's unit test - collector core module.
+#  Description: CMake script for collector service
 #
-#  Author: Gilberto Ribeiro de Queiroz
-#          Paulo R. M. Oliveira
+#  Author: Jano Simas
 #
 
-# Compiler options: pthread for gtest
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-endif()
-
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/server/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/server/*.hpp)
 
 include_directories (
-  ${Boost_INCLUDE_DIR}
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
 )
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-add_executable(terrama2_unittest_core ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+set(CMAKE_AUTOMOC ON)
 
-target_link_libraries(terrama2_unittest_core terrama2_mod_core
-                                             terralib_mod_plugin
-                                             terralib_mod_common)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-qt5_use_modules(terrama2_unittest_core Test)
+add_executable(terrama2_server ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
-add_test(NAME terrama2_unittest_core COMMAND terrama2_unittest_core)
+qt5_use_modules(terrama2_server Core)
+
+target_link_libraries(terrama2_server terrama2_mod_core)

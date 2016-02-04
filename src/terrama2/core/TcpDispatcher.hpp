@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_TCPDISPATCHER_HPP__
 #define __TERRAMA2_CORE_TCPDISPATCHER_HPP__
 
+#include "ServiceData.hpp"
+
 //STL
 #include <memory>
 
@@ -37,20 +39,66 @@
 #include <QJsonArray>
 #include <QTcpSocket>
 
+
+
 namespace terrama2
 {
   namespace core
   {
+    //! The TcpDispatcher controls the communication with a remote service through a TCP socket.
     class TcpDispatcher
     {
     public:
-      static void stopService(const std::string& instance);
-      static void startProcessing(const std::string& instance, int dataId);
-      static void sendData(const std::string& instance, const QJsonArray& jsonArray);
+      //! Constructor
+      TcpDispatcher(const ServiceData& serviceData);
+
+      /*!
+         \brief Sends a signal to stop the remote service.
+
+         \exception ErrorDescription Raised if could not send the signal.
+       */
+      void stopService();
+      /*!
+         \brief Check if remote service is in reach.
+
+         A false return may mean:
+          - the service is not running
+          - the service is unreachable
+          - the service is not listening to the specified port
+
+         \return True if communication with service is possible.
+       */
+      bool pingService() noexcept;
+      /*!
+         \brief Starts the processing of specfied data.
+
+         Processing data vary for each service,
+         a collector service will start collecting the core::DataSet with dataId,
+         a analysis service will start to analyze core::Analysis with dataId.
+
+         \param dataId Id of the data to be processed.
+       */
+      void startProcessing(int dataId);
+
+      /*!
+         \brief Sends data to be processed by service.
+         \param jsonArray Serialized data.
+       */
+      void sendData(const QJsonArray& jsonArray);
 
     private:
-      static std::shared_ptr<QTcpSocket> getInstance(const std::string& instance);
+      /*!
+         \brief  Creates socket to the remote service.
+         \return Shared pointer of the socket.
+         \exception UnableToConnect Raised when unable to reach remote service.
+       */
+      std::shared_ptr<QTcpSocket> socket();
+
+      //! Remote service communication especifications.
+      ServiceData serviceData_;
     };
+
+    typedef std::shared_ptr<TcpDispatcher> TcpDispatcherPtr;//!< Shared pointer to a TcpDispatcher.
   }
 }
 

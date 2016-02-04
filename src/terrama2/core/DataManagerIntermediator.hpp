@@ -27,6 +27,11 @@
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_CORE_DATAMANAGER_INTERMADIATOR_HPP__
+#define __TERRAMA2_CORE_DATAMANAGER_INTERMADIATOR_HPP__
+
+#include "TcpDispatcher.hpp"
+
 //Qt
 #include <QString>
 #include <QJsonObject>
@@ -41,7 +46,7 @@ namespace terrama2
     {
     public:
       //! Constructor for a intermediator for an instance of a service.
-      DataManagerIntermediator(const std::string& instanceName);
+      DataManagerIntermediator(TcpDispatcherPtr tcpDispatcher);
 
       //! Prepare terrama2::core::* classes to be sent via socket.
       template <class T>
@@ -91,8 +96,10 @@ namespace terrama2
        */
       static void processDataSet(const QJsonObject& jsonObject);
 
-      std::string instanceName_; //!< Name of an instace of a service.
+      TcpDispatcherPtr tcpDispatcher_;
       QJsonArray jsonPackage_;//!< JSON string to be sent.
     };
   }
 }
+
+#endif //__TERRAMA2_CORE_DATAMANAGER_INTERMADIATOR_HPP__

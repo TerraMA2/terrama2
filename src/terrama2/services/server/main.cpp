@@ -20,9 +20,9 @@
  */
 
 /*!
-  \file terrama2/service/collector/main.cpp
+  \file terrama2/service/server/main.cpp
 
-  \brief Main routine for TerraMA2 Collector Service.
+  \brief Main routine for TerraMA2 Server.
 
   \author Jano Simas
  */
@@ -32,10 +32,13 @@
 
 //QT
 #include <QCoreApplication>
+#include <QJsonDocument>
 
-#include "../../collector/CollectorService.hpp"
+#include "../../core/ApplicationController.hpp"
+#include "../../core/ServiceManager.hpp"
 #include "../../core/TcpListener.hpp"
 #include "../../core/DataManager.hpp"
+#include "../../core/ErrorCodes.hpp"
 #include "../../core/Logger.hpp"
 #include "../../core/Utils.hpp"
 #include "../../Exception.hpp"
@@ -46,19 +49,10 @@ int main(int argc, char* argv[])
   // check if the parameters was passed correctly
   if(argc < 2)
   {
-    std::cerr << "Usage: collector_service <port number>" << std::endl;
+    std::cerr << "Usage: terrama_server <project path>" << std::endl;
 
     return EXIT_FAILURE;
   }
-
-  int port = std::atoi(argv[1]);
-  if(port < 1024 || port > 49151)
-  {
-    std::cerr << "Usage: collector_service <port number>" << std::endl;
-
-    return EXIT_FAILURE;
-  }
-
 
   try
   {
@@ -66,22 +60,24 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_INFO() << "Initializating TerraLib...";
     terrama2::core::initializeTerralib();
 
+    TERRAMA2_LOG_INFO() << "Loading TerraMA2 Project...";
+    QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
+    QJsonObject project = jdoc.object();
+    if(!terrama2::core::ApplicationController::getInstance().loadProject(project))
+    {
+      TERRAMA2_LOG_ERROR() << "Failure in TerraMA2 initialization: Project File is invalid or does not exist!";
+      exit(TERRAMA2_PROJECT_LOAD_ERROR);
+    }
+
     QCoreApplication app(argc, argv);
 
-    terrama2::core::DataManager::getInstance().load(true);
+    terrama2::core::DataManager& dataManager = terrama2::core::DataManager::getInstance();
+    dataManager.load();
 
-    TERRAMA2_LOG_INFO() << "Starting collector service...";
-    terrama2::collector::CollectorService collectorService;
-    collectorService.start();
-
-    TERRAMA2_LOG_INFO() << "Listening to port: " + std::to_string(port);
-    terrama2::core::TcpListener listener;
-    QObject::connect(&listener, &terrama2::core::TcpListener::stopSignal, [&](){collectorService.stop(); app.exit();});
-    if(!listener.listen(QHostAddress::Any, port))
-    {
-      //TODO: port in use? some other error...
-      //throw;
-    }
+    TERRAMA2_LOG_INFO() << "Starting services...";
+    terrama2::core::ServiceManager serviceManager(&dataManager);
+    QJsonArray services = project.value("services").toArray();
+    serviceManager.addJsonServices(services);
 
     app.exec();
 
@@ -110,4 +106,3 @@ int main(int argc, char* argv[])
 
   return EXIT_FAILURE;
 }
-

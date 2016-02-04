@@ -190,7 +190,7 @@ terrama2::core::DataSetItem terrama2::core::DataSetItem::FromJson(const QJsonObj
   item.setMask(json["mask"].toString().toStdString());
   item.setTimezone(json["timezone"].toString().toStdString());
   item.setPath(json["path"].toString().toStdString());
-  item.setFilter(Filter::FromJson(json["filter"].toObject()));
+  item.setFilter(Filter::fromJson(json["filter"].toObject()));
 
   QJsonObject metadataJson = json["metadata"].toObject();
   std::map<std::string, std::string> metadata;

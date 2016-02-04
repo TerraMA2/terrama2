@@ -173,7 +173,7 @@ void TsSerializer::testFilter()
   terrama2::core::Filter filter = createFilter();
 
   auto json = filter.toJson();
-  terrama2::core::Filter filter2 = terrama2::core::Filter::FromJson(json);
+  terrama2::core::Filter filter2 = terrama2::core::Filter::fromJson(json);
 
   QVERIFY2(filter == filter2, "Filter is different");
 }
