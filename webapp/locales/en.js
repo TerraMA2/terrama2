@@ -144,5 +144,10 @@
 	"Analyses": "Analyses",
 	"Alerts": "Alerts",
 	"Project": "Project",
-	"Alert Registration": "Alert Registration"
+	"Alert Registration": "Alert Registration",
+	"Load Project": "Load Project",
+	"Attribute    ": "Attribute    ",
+	"Selected": "Selected",
+	"Theme": "Theme",
+	"Static Themes": "Static Themes"
 }

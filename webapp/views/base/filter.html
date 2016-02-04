@@ -1,38 +1,219 @@
-<div class="box box-default box-solid">
+<div class="box box-default box-solid collapsed-box">
     <div class="box-header with-border">
         <h3 class="box-title">{{ __('Filter') }}</h3>
         <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
             </button>
         </div>
     </div>
     <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
+    <div class="box-body">
         <div class="row">
-            <div class="col-md-5">
-               <div class="col-md-4 col-md-offset-5">
-                    <button class="btn btn-primary btn-lg btn-block" id="filter-button" data-toggle="modal" data-target="#filterModal">{{ __('Filter') }}</button>
+            <div class="col-md-12">
+
+                <ul class="nav nav-tabs" data-tabs="tabs">
+                    <li class="active"><a data-toggle="tab" href="#filterDateTab">Data</a></li>
+                    <li><a data-toggle="tab" href="#filterAreaTab">Área</a></li>
+                    <li><a data-toggle="tab" href="#filterPreAnalysisTab">Pré-Análise</a></li>
+                    <li><a data-toggle="tab" href="#filterBandTab">Camadas</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="filterDateTab">
+                        <div class="col-md-12">
+                            <p></p>
+                            <div class='col-md-6'>
+                                <div class="form-group">
+                                    <label>Eliminar dados anteriores à:</label>
+                                    <div class='input-group date' id='datetimepicker6'>
+                                        <input type='text' class="form-control" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='col-md-6'>
+                                <div class="form-group">
+                                    <label>Eliminar dados posteriores à:</label>
+                                    <div class='input-group date' id='datetimepicker7'>
+                                        <input type='text' class="form-control" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- ./form-group -->
+                            </div>
+                            <!-- ./col-md-6 -->
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="filterAreaTab">
+                        <div class="col-md-12">
+                            <p></p>
+                            <div class='col-md-12'>
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="withoutCut" value="option1" checked="" type="radio">
+                                            Não recortar
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class='col-md-12'>
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="cutByArea" value="option1" checked="" type="radio">
+                                            Recortar dados por área
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class='col-md-12'>
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="cutByLimits" value="option1" checked="" type="radio">
+                                            Recortar dados por limites do plano
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ./col-md-12 -->
+                        </div>
+                        <!-- ./col-md-12 -->
+                    </div>
+                    <div class="tab-pane" id="filterPreAnalysisTab">
+                        <div class="col-md-12">
+                            <p></p>
+                            <div class='col-md-12'>
+
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="withoutCut" value="option1" checked="true" type="radio">
+                                            Não efetuar pré-análise
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- ./col-md-12 -->
+
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="cutByArea" value="option1" type="radio">
+                                            Eliminar todos os valores se forem <b>MENORES</b> que:
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ./col-md-8 -->
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" id="name" placeholder="" type="text">
+                                </div>
+                            </div>
+                            <!-- ./col-md-4 -->
+
+                            <div class='col-md-8'>
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
+                                            Eliminar todos os valores se forem <b>MAIORES</b> que:
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ./col-md-8 -->
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" id="name" placeholder="" type="text">
+                                </div>
+                            </div>
+                            <!-- ./col-md-4 -->
+
+                            <div class='col-md-8'>
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
+                                            Eliminar se a média for <b>MENOR</b> que:
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ./col-md-8 -->
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" id="name" placeholder="" type="text">
+                                </div>
+                            </div>
+                            <!-- ./col-md-4 -->
+
+                            <div class='col-md-8'>
+                                <div class="form-group">
+                                    <div class="radio">
+                                        <label>
+                                        <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
+                                            Eliminar se a média for <b>MAIOR</b> que:
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ./col-md-8 -->
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" id="name" placeholder="" type="text">
+                                </div>
+                            </div>
+                            <!-- ./col-md-4 -->
+
+                            <div class='col-md-12'>
+                                <div class="form-group">
+                                    <label>
+                                    <input name="optionsRadios" id="cutByLimits" value="option1" type="checkbox">
+                                        Analisar apenas os dados contidos no plano selecionado:
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- ./col-md-12 -->
+
+                            <div class='col-md-12'>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="selectPlans"></textarea>
+                                </div>
+                            </div>
+                            <!-- ./col-md-12 -->
+                        </div> 
+                        <!-- /.col-md-12 -->
+                    </div>
+                    <div class="tab-pane" id="filterBandTab">
+                        <div class="col-md-12">
+                            <p></p>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Camadas a serem eliminadas:</label>
+                                    <input class="form-control" id="name" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ./col-md-12 -->
+                    </div>
                 </div>
+                <!-- ./tab-content -->
             </div>
-
-            <div class="col-md-7" style="text-align: center; margin-top: 5px;">
-                {# TODO: validate and display filter labels from parameters. #}
-                <div class="col-md-6">
-                    <span>{{ __('Filter by Date') }}: {{ __('Yes') }}</span>
-                </div>
-
-                <div class="col-md-6">  
-                    <span>{{ __('Filter by Pre-analysis') }}: {{ __('No') }}</span>
-                </div>
-
-                <div class="col-md-6">
-                    <span>{{ __('Filter by Area') }}: {{ __('No') }}</span>
-                </div>
-
-                <div class="col-md-6">
-                    <span>{{ __('Filter by Bands') }}: {{ __('None') }}</span>
-                </div>
-            </div>
+            <!-- ./col-md-12 -->
         </div>
         <!-- /.row -->
     </div>
