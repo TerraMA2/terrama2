@@ -89,7 +89,7 @@ void terrama2::core::TcpListener::receiveConnection()
   in.setVersion(QDataStream::Qt_5_2);
 
   RaiiBlock block(blockSize_); Q_UNUSED(block)
-      if(blockSize_ == 0)
+  if(blockSize_ == 0)
   {
     if (tcpSocket->bytesAvailable() < static_cast<int>(sizeof(uint16_t)))
     {
@@ -113,17 +113,17 @@ void terrama2::core::TcpListener::receiveConnection()
   TcpSignals::TcpSignal signal = static_cast<TcpSignals::TcpSignal >(sigInt);
 
   switch (signal) {
-    case TcpSignals::__STOP__:
+    case TcpSignals::STOP_SIGNAL:
       emit stopSignal();
       break;
-    case TcpSignals::__DATA__:
+    case TcpSignals::DATA_SIGNAL:
     {
       in >> bytearray;
       //new data received
       parseData(bytearray);
       break;
     }
-    case TcpSignals::__START__:
+    case TcpSignals::START_SIGNAL:
     {
       int dataId;
       in >> dataId;
@@ -132,8 +132,29 @@ void terrama2::core::TcpListener::receiveConnection()
 
       break;
     }
-    case TcpSignals::__NULL__:
+    case TcpSignals::PING_SIGNAL:
+    {
+      QByteArray bytearray;
+      QDataStream out(&bytearray, QIODevice::WriteOnly);
+      out.setVersion(QDataStream::Qt_5_2);
+
+      out << static_cast<uint16_t>(0);
+      out << TcpSignals::PONG_SIGNAL;
+      out.device()->seek(0);
+      out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
+
+      //wait while sending message
+      qint64 written = tcpSocket->write(bytearray);
+      if(written == -1 || !tcpSocket->waitForBytesWritten())
+        TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
+
+      break;
+    }
+    case TcpSignals::VOID_SIGNAL:
       TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving TcpSignal.\n__NULL__ signal.");
+      break;
+    case TcpSignals::PONG_SIGNAL:
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error\n __PONG__ signal received.");
       break;
   }
 

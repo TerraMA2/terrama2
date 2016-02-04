@@ -41,8 +41,8 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataManagerIntermediator::DataManagerIntermediator(const std::string& instanceName)
-  : instanceName_(instanceName)
+terrama2::core::DataManagerIntermediator::DataManagerIntermediator(TcpDispatcherPtr tcpDispatcher)
+  : tcpDispatcher_(tcpDispatcher)
 {
 }
 
@@ -53,7 +53,8 @@ void terrama2::core::DataManagerIntermediator::fromJSON(const QJsonArray& jsonAr
 
 void terrama2::core::DataManagerIntermediator::commit()
 {
-  TcpDispatcher::sendData(instanceName_, jsonPackage_);
+  tcpDispatcher_->sendData(jsonPackage_);
+
   jsonPackage_ = QJsonArray();
 }
 

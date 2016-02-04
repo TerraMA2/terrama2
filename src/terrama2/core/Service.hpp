@@ -43,6 +43,9 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+       \brief Base class for TerraMA2 services.
+     */
     class Service : public QObject
     {
     public:
