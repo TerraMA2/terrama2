@@ -25,6 +25,7 @@ i18n.expressBind(app, {
   defaultLocale: 'en',
   // set the cookie name
   cookieName: 'locale',
+  // allow to change language by query string. i.e: url?lang=es
   query: true
 });
 
