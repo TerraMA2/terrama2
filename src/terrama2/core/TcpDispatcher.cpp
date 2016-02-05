@@ -68,7 +68,7 @@ bool terrama2::core::TcpDispatcher::pingService() noexcept
 {
   try
   {
-    std::shared_ptr<QTcpSocket> tcpSocket = socket();
+    std::shared_ptr<QTcpSocket> tcpSocket = socket(false);
 
     QByteArray bytearray;
     QDataStream out(&bytearray, QIODevice::WriteOnly);
@@ -200,7 +200,7 @@ void terrama2::core::TcpDispatcher::sendData(const QJsonArray& jsonArray)
   }
 }
 
-std::shared_ptr<QTcpSocket> terrama2::core::TcpDispatcher::socket()
+std::shared_ptr<QTcpSocket> terrama2::core::TcpDispatcher::socket(bool log)
 {
   std::shared_ptr<QTcpSocket> socket = std::make_shared<QTcpSocket>();
   socket->connectToHost(serviceData_.host.c_str(), serviceData_.servicePort);
@@ -209,7 +209,9 @@ std::shared_ptr<QTcpSocket> terrama2::core::TcpDispatcher::socket()
   if(socketError != QTcpSocket::UnknownSocketError || !socket->waitForConnected(30000))
   {
     QString errMsg = QObject::tr("Could not connect to host: %1\nQSocket error code: %2").arg(QString::fromStdString(serviceData_.name)).arg(static_cast<int>(socketError));
-    TERRAMA2_LOG_ERROR() << errMsg;
+
+    if(log) TERRAMA2_LOG_ERROR() << errMsg;
+
     throw UnableToConnect() << ErrorDescription(errMsg);
   }
 

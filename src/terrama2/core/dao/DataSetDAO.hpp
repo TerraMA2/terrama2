@@ -197,7 +197,7 @@ namespace terrama2
             \return The dataset created for the current row of the query result.
 
            */
-          static DataSet getDataSet(std::unique_ptr<te::da::DataSet> queryResult, te::da::DataSourceTransactor& transactor);
+          static DataSet getDataSet(std::shared_ptr<te::da::DataSet> queryResult, te::da::DataSourceTransactor& transactor);
       };
     } // end namespace dao
   }   // end namespace core
