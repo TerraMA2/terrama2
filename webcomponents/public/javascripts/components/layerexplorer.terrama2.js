@@ -1,7 +1,7 @@
 "use strict";
 
 /** @class LayerExplorer - Component responsible for presenting an organized list of layers. */
-TMA2WebComponents.components.LayerExplorer = (function() {
+TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
   var selectedLayer = null;
   var parser = null;
@@ -34,10 +34,10 @@ TMA2WebComponents.components.LayerExplorer = (function() {
 
         var subLayersLength = layers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(mapDisplay.createTileWMS(TMA2WebComponents.Config.getConfJsonServer().URL, TMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title));
+          tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title));
         }
       } else {
-        tilesWMSLayers.push(mapDisplay.createTileWMS(TMA2WebComponents.Config.getConfJsonServer().URL, TMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title));
+        tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title));
       }
     }
 
@@ -55,14 +55,14 @@ TMA2WebComponents.components.LayerExplorer = (function() {
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
 
-    var div2 = TMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
+    var div2 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
     "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
-    TMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
+    TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
 
-    /* var div2 = TMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
+    /* var div2 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
     "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
-    TMA2WebComponents.Config.getConfJsonHTML().CheckLayer +
-    TMA2WebComponents.Config.getConfJsonHTML().OpacitySlider; */
+    TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayer +
+    TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider; */
 
     if (layer.getLayers) {
       var sublayersElem = '';
@@ -79,12 +79,12 @@ TMA2WebComponents.components.LayerExplorer = (function() {
       }
     } else {
 
-      var check = layer.get('visible') ? TMA2WebComponents.Config.getConfJsonHTML().CheckLayerChecked : TMA2WebComponents.Config.getConfJsonHTML().CheckLayerUnchecked;
+      var check = layer.get('visible') ? TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerChecked : TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerUnchecked;
 
-      var div1 = TMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
+      var div1 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
       check +
       "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span>" +
-      TMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
+      TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
 
       elem = div1 + " </li>";
     }
@@ -103,7 +103,7 @@ TMA2WebComponents.components.LayerExplorer = (function() {
     map.addLayer(new ol.layer.Group({
       layers: processedLayers,
       name: 'server',
-      title: TMA2WebComponents.Config.getConfJsonServer().Name
+      title: TerraMA2WebComponents.Config.getConfJsonServer().Name
     }));
 
     $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
@@ -207,14 +207,14 @@ TMA2WebComponents.components.LayerExplorer = (function() {
 
   var init = function() {
     parser = new ol.format.WMSCapabilities();
-    mapDisplay = TMA2WebComponents.components.MapDisplay;
+    mapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
     map = mapDisplay.getMap();
-    socket = io(TerraMA2.getTerrama2Url());
+    socket = io(TerraMA2WebComponents.obj.getTerrama2Url());
 
     socket.emit(
       'proxyRequest',
       {
-        url: TMA2WebComponents.Config.getConfJsonServer().URL + TMA2WebComponents.Config.getConfJsonServer().CapabilitiesParams,
+        url: TerraMA2WebComponents.Config.getConfJsonServer().URL + TerraMA2WebComponents.Config.getConfJsonServer().CapabilitiesParams,
         requestId: 'lala'
       }
     );

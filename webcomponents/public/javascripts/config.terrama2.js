@@ -1,7 +1,7 @@
 "use strict";
 
 /** @class Config - Class responsible for load and handle the API configurations. */
-TMA2WebComponents.Config = (function() {
+TerraMA2WebComponents.Config = (function() {
   var confJsonHTML = null;
   var confJsonComponentsJs = null;
   var confJsonComponentsCss = null;
@@ -24,7 +24,7 @@ TMA2WebComponents.Config = (function() {
    * Load the configuration files
    */
   var loadConfigurations = function() {
-    var url = TerraMA2.getTerrama2Url() + "/config/";
+    var url = TerraMA2WebComponents.obj.getTerrama2Url() + "/config/";
 
     confJsonHTML = loadConfigurationFile(url + "html.terrama2.json");
     confJsonComponentsJs = loadConfigurationFile(url + "components.javascript.terrama2.json");

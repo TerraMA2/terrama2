@@ -1,11 +1,11 @@
 "use strict";
 
 /** @class ToolBox - Tool box located at the bottom of the map. */
-TMA2WebComponents.components.ToolBox = (function() {
+TerraMA2WebComponents.webcomponents.ToolBox = (function() {
 
   var init = function() {
-    $("#terrama2-map").append(TMA2WebComponents.Config.getConfJsonHTML().Toolbox);
-    $("#terrama2-map-toolbox").append(TMA2WebComponents.Config.getConfJsonHTML().ToolboxControlButton);
+    $("#terrama2-map").append(TerraMA2WebComponents.Config.getConfJsonHTML().Toolbox);
+    $("#terrama2-map-toolbox").append(TerraMA2WebComponents.Config.getConfJsonHTML().ToolboxControlButton);
 
     $(document).ready(function() {
       $("#terrama2-toolbox-control-button").on("click", function() {

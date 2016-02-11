@@ -10,8 +10,12 @@ if (typeof ol === "undefined") {
 
 "use strict";
 
-/** @class TerraMA2 - Main class of the API. */
-var TerraMA2 = (function() {
+window.TerraMA2WebComponents = {
+  webcomponents: {}
+};
+
+/** @class TerraMA2WebComponents - Main class of the API. */
+TerraMA2WebComponents.obj = (function() {
   var components = null;
   var componentsLength = null;
   var terrama2Url = null;
@@ -66,7 +70,7 @@ var TerraMA2 = (function() {
    * @param {string} layerName - layer name to be filtered
    */
   var applyCQLFilter = function(cql, layerName) {
-    TMA2WebComponents.components.MapDisplay.findBy(TMA2WebComponents.components.MapDisplay.getMap().getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
+    TerraMA2WebComponents.webcomponents.MapDisplay.findBy(TerraMA2WebComponents.webcomponents.MapDisplay.getMap().getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
   };
 
   /**
@@ -76,11 +80,11 @@ var TerraMA2 = (function() {
   var loadComponents = function(i) {
     if(i < componentsLength) {
       $.ajax({
-        url: terrama2Url + "/javascripts/components/" + TMA2WebComponents.Config.getConfJsonComponentsJs()[components[i]],
+        url: terrama2Url + "/javascripts/components/" + TerraMA2WebComponents.Config.getConfJsonComponentsJs()[components[i]],
         dataType: "script",
         success: function() {
-          TMA2WebComponents.components[components[i]].init();
-          injectStylesheet(terrama2Url + "/stylesheets/components/" + TMA2WebComponents.Config.getConfJsonComponentsCss()[components[i]]);
+          TerraMA2WebComponents.webcomponents[components[i]].init();
+          injectStylesheet(terrama2Url + "/stylesheets/components/" + TerraMA2WebComponents.Config.getConfJsonComponentsCss()[components[i]]);
           loadComponents(++i);
         }
       });
@@ -90,10 +94,6 @@ var TerraMA2 = (function() {
   };
 
   var init = function(_terrama2Url, _components) {
-    window.TMA2WebComponents = {
-      components: {}
-    };
-
     components = _components;
     componentsLength = components.length;
     terrama2Url = _terrama2Url;
@@ -102,7 +102,7 @@ var TerraMA2 = (function() {
       url: terrama2Url + "/javascripts/config.terrama2.js",
       dataType: "script",
       success: function() {
-        TMA2WebComponents.Config.init();
+        TerraMA2WebComponents.Config.init();
         loadComponents(0);
         $.ajax({ url: terrama2Url + "/socket.io/socket.io.js", dataType: "script" });
       }

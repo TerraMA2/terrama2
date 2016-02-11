@@ -1,7 +1,7 @@
 "use strict";
 
 /** @class MapDisplay - Class responsible for presenting the map. */
-TMA2WebComponents.components.MapDisplay = (function() {
+TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
   var olMap = new ol.Map({
     renderer: 'canvas',
