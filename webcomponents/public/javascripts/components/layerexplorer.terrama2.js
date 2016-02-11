@@ -1,23 +1,23 @@
 "use strict";
 
 /** @class LayerExplorer - Component responsible for presenting an organized list of layers. */
-var LayerExplorer = function(terrama2) {
+TMA2WebComponents.components.LayerExplorer = (function() {
 
   var selectedLayer = null;
-  var parser = new ol.format.WMSCapabilities();
+  var parser = null;
   var capabilities = null;
-  var mapDisplay = terrama2.getMapDisplay();
-  var map = mapDisplay.getMap();
+  var mapDisplay = null;
+  var map = null;
 
-  var socket = io(terrama2.getTerrama2Url());
+  var socket = null;
 
   /**
    * Return the selected layer
    * @returns {string} selectedLayer - layer name
    */
-  this.getSelectedLayer = function() {
+  var getSelectedLayer = function() {
     return selectedLayer;
-  }
+  };
 
   /**
    * Process the layers from the capabilities and create the openlayers tiled wms layers
@@ -34,15 +34,15 @@ var LayerExplorer = function(terrama2) {
 
         var subLayersLength = layers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title));
+          tilesWMSLayers.push(mapDisplay.createTileWMS(TMA2WebComponents.Config.getConfJsonServer().URL, TMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title));
         }
       } else {
-        tilesWMSLayers.push(mapDisplay.createTileWMS(terrama2.getConfig().getConfJsonServer().URL, terrama2.getConfig().getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title));
+        tilesWMSLayers.push(mapDisplay.createTileWMS(TMA2WebComponents.Config.getConfJsonServer().URL, TMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title));
       }
     }
 
     return tilesWMSLayers;
-  }
+  };
 
   /**
    * Build a layer explorer from the map layers
@@ -55,14 +55,14 @@ var LayerExplorer = function(terrama2) {
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
 
-    var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
+    var div2 = TMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
     "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
-    terrama2.getConfig().getConfJsonHTML().OpacitySlider;
+    TMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
 
-    /* var div2 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
+    /* var div2 = TMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
     "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
-    terrama2.getConfig().getConfJsonHTML().CheckLayer +
-    terrama2.getConfig().getConfJsonHTML().OpacitySlider; */
+    TMA2WebComponents.Config.getConfJsonHTML().CheckLayer +
+    TMA2WebComponents.Config.getConfJsonHTML().OpacitySlider; */
 
     if (layer.getLayers) {
       var sublayersElem = '';
@@ -79,17 +79,17 @@ var LayerExplorer = function(terrama2) {
       }
     } else {
 
-      var check = layer.get('visible') ? terrama2.getConfig().getConfJsonHTML().CheckLayerChecked : terrama2.getConfig().getConfJsonHTML().CheckLayerUnchecked;
+      var check = layer.get('visible') ? TMA2WebComponents.Config.getConfJsonHTML().CheckLayerChecked : TMA2WebComponents.Config.getConfJsonHTML().CheckLayerUnchecked;
 
-      var div1 = terrama2.getConfig().getConfJsonHTML().LiLayer1 + name + terrama2.getConfig().getConfJsonHTML().LiLayer2 +
+      var div1 = TMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
       check +
       "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span>" +
-      terrama2.getConfig().getConfJsonHTML().OpacitySlider;
+      TMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
 
       elem = div1 + " </li>";
     }
     return elem;
-  }
+  };
 
   /**
    * Initialize the layer explorer and put it in the page
@@ -103,7 +103,7 @@ var LayerExplorer = function(terrama2) {
     map.addLayer(new ol.layer.Group({
       layers: processedLayers,
       name: 'server',
-      title: terrama2.getConfig().getConfJsonServer().Name
+      title: TMA2WebComponents.Config.getConfJsonServer().Name
     }));
 
     $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
@@ -117,7 +117,7 @@ var LayerExplorer = function(terrama2) {
     $('input.opacity').slider();
 
     $('.parent_li').find(' > ul > li').hide();
-  }
+  };
 
   /**
    * Set the visibility of a given layer or layer group, if it is visible, it will be hidden, otherwise will be shown
@@ -133,7 +133,7 @@ var LayerExplorer = function(terrama2) {
         layers[i].setVisible(layer.getVisible());
       }
     }
-  }
+  };
 
   /**
    * Load the LayerExplorer events
@@ -203,18 +203,29 @@ var LayerExplorer = function(terrama2) {
         }
       }, 200);
     });
-  }
+  };
 
-  socket.emit(
-    'proxyRequest',
-    {
-      url: terrama2.getConfig().getConfJsonServer().URL + terrama2.getConfig().getConfJsonServer().CapabilitiesParams,
-      requestId: 'lala'
-    }
-  );
-  socket.on('proxyResponse', function(msg) {
-    initializeLayerExplorer(msg.msg);
-    loadEvents();
-  });
+  var init = function() {
+    parser = new ol.format.WMSCapabilities();
+    mapDisplay = TMA2WebComponents.components.MapDisplay;
+    map = mapDisplay.getMap();
+    socket = io(TerraMA2.getTerrama2Url());
 
-}
+    socket.emit(
+      'proxyRequest',
+      {
+        url: TMA2WebComponents.Config.getConfJsonServer().URL + TMA2WebComponents.Config.getConfJsonServer().CapabilitiesParams,
+        requestId: 'lala'
+      }
+    );
+    socket.on('proxyResponse', function(msg) {
+      initializeLayerExplorer(msg.msg);
+      loadEvents();
+    });
+  };
+
+  return {
+    getSelectedLayer: getSelectedLayer,
+    init: init
+  };
+})();

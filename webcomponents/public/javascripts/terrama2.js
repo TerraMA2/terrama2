@@ -11,74 +11,43 @@ if (typeof ol === "undefined") {
 "use strict";
 
 /** @class TerraMA2 - Main class of the API. */
-var TerraMA2 = function(terrama2Url, components) {
-
-  var _this = this;
-
-  var componentsLength = components.length;
-
-  var config = null;
-  var mapDisplay = null;
-  var layerExplorer = null;
-  var toolBox = null;
-  var leftBar = null;
+var TerraMA2 = (function() {
+  var components = null;
+  var componentsLength = null;
+  var terrama2Url = null;
 
   /**
    * Return the length of the components array
    * @returns {number} componentsLength - length of the components array
    */
-  _this.getComponentsLength = function() {
+  var getComponentsLength = function() {
     return componentsLength;
   };
-
-  /**
-   * Return the Config object
-   * @returns {Config} config - Config object
-   */
-  _this.getConfig = function() {
-    return config;
-  };
-
-  /**
-   * Return the MapDisplay object
-   * @returns {MapDisplay} mapDisplay - MapDisplay object
-   */
-  _this.getMapDisplay = function() {
-    return mapDisplay;
-  }
-
-  /**
-   * Return the LayerExplorer object
-   * @returns {LayerExplorer} layerExplorer - LayerExplorer object
-   */
-  _this.getLayerExplorer = function() {
-    return layerExplorer;
-  }
 
   /**
    * Return the url to the TerraMA² web API
    * @returns {string} terrama2Url - url to the TerraMA² web API
    */
-  _this.getTerrama2Url = function() {
+  var getTerrama2Url = function() {
     return terrama2Url;
-  }
+  };
 
   /**
    * Inject a stylesheet to the page
    * @param {string} url - url to the stylesheet
    */
-  _this.injectStylesheet = function(url) {
+  var injectStylesheet = function(url) {
     var link = $("<link>", { rel: "stylesheet", type: "text/css", href: url });
 
     link.appendTo('head');
-  }
+  };
 
   /**
    * Verifies if a given file exist
    * @param {string} url - url to the file
    * @return {boolean}
    */
-  _this.fileExists = function(url) {
+  var fileExists = function(url) {
     $.ajax({
       url: url,
       async: false,
@@ -89,16 +58,16 @@ var TerraMA2 = function(terrama2Url, components) {
         return true;
       }
     });
-  }
+  };
 
   /**
    * Apply a given CQL filter to a given layer
    * @param {string} cql - CQL filter to be applied
    * @param {string} layerName - layer name to be filtered
    */
-  _this.applyCQLFilter = function(cql, layerName) {
-    mapDisplay.findBy(mapDisplay.getMap().getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
-  }
+  var applyCQLFilter = function(cql, layerName) {
+    TMA2WebComponents.components.MapDisplay.findBy(TMA2WebComponents.components.MapDisplay.getMap().getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
+  };
 
   /**
    * Load the TerraMA² components present in the components array
@@ -107,37 +76,45 @@ var TerraMA2 = function(terrama2Url, components) {
   var loadComponents = function(i) {
     if(i < componentsLength) {
       $.ajax({
-        url: terrama2Url + "/javascripts/components/" + config.getConfJsonComponentsJs()[components[i]],
+        url: terrama2Url + "/javascripts/components/" + TMA2WebComponents.Config.getConfJsonComponentsJs()[components[i]],
         dataType: "script",
         success: function() {
-          if(components[i] === "MapDisplay") {
-            mapDisplay = new MapDisplay();
-          } else if(components[i] === "LayerExplorer") {
-            layerExplorer = new LayerExplorer(_this);
-          } else if(components[i] === "ToolBox") {
-            toolBox = new ToolBox(_this);
-          }
-
-          _this.injectStylesheet(terrama2Url + "/stylesheets/components/" + config.getConfJsonComponentsCss()[components[i]]);
-
+          TMA2WebComponents.components[components[i]].init();
+          injectStylesheet(terrama2Url + "/stylesheets/components/" + TMA2WebComponents.Config.getConfJsonComponentsCss()[components[i]]);
           loadComponents(++i);
         }
       });
     } else {
       return;
     }
-  }
+  };
 
-  $.ajax({
-    url: terrama2Url + "/javascripts/config.terrama2.js",
-    dataType: "script",
-    success: function() {
-      config = new Config(_this);
-      config.loadConfigurations();
+  var init = function(_terrama2Url, _components) {
+    window.TMA2WebComponents = {
+      components: {}
+    };
 
-      loadComponents(0);
+    components = _components;
+    componentsLength = components.length;
+    terrama2Url = _terrama2Url;
 
-      $.ajax({ url: terrama2Url + "/socket.io/socket.io.js", dataType: "script" });
-    }
-  });
-}
+    $.ajax({
+      url: terrama2Url + "/javascripts/config.terrama2.js",
+      dataType: "script",
+      success: function() {
+        TMA2WebComponents.Config.init();
+        loadComponents(0);
+        $.ajax({ url: terrama2Url + "/socket.io/socket.io.js", dataType: "script" });
+      }
+    });
+  };
+
+  return {
+  	getComponentsLength: getComponentsLength,
+  	getTerrama2Url: getTerrama2Url,
+  	injectStylesheet: injectStylesheet,
+  	fileExists: fileExists,
+  	applyCQLFilter: applyCQLFilter,
+  	init: init
+  };
+})();
