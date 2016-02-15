@@ -85,7 +85,7 @@
 #include <memory>
 
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
+size_t terrama2::collector::ParserPcdCemaden::write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 {
   std::string data((const char*) ptr, (size_t) size * nmemb);
     *((std::stringstream*) stream) << data;
@@ -108,7 +108,7 @@ void terrama2::collector::ParserPcdCemaden::read(terrama2::collector::DataFilter
     if (curl.fcurl())
     {
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uri.toString().toStdString().c_str());
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, write_data);
+      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::collector::ParserPcdCemaden::write_data);
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, &block);
       res = curl_easy_perform(curl.fcurl());
 
@@ -153,27 +153,27 @@ void terrama2::collector::ParserPcdCemaden::read(terrama2::collector::DataFilter
 
         std::shared_ptr<te::mem::DataSet> dataSet(new te::mem::DataSet(datasetType.get()));
 
-        for (auto&& elemento: cemaden)
+        for (auto&& element: cemaden)
         {
           te::mem::DataSetItem* dataSetItem = new te::mem::DataSetItem(dataSet.get());
 
-          const QJsonObject& cemaden_item = elemento.toObject();
+          const QJsonObject& cemadenItem = element.toObject();
 
-          dataSetItem->setString(CODESTACAO,cemaden_item["codestacao"].toString().toStdString().c_str());
+          dataSetItem->setString(CODESTACAO,cemadenItem["codestacao"].toString().toStdString().c_str());
 
-          x = cemaden_item["latitude"].toDouble();
-          y = cemaden_item["longitude"].toDouble();
+          x = cemadenItem["latitude"].toDouble();
+          y = cemadenItem["longitude"].toDouble();
           te::gm::Point* point = new te::gm::Point(x,y,4326);
           dataSetItem->setGeometry(GEOM,point);
 
-          dataSetItem->setString(CIDADE,cemaden_item["cidade"].toString().toStdString().c_str());
-          dataSetItem->setString(NOME,cemaden_item["nome"].toString().toStdString().c_str());
-          dataSetItem->setString(TIPO,cemaden_item["tipo"].toString().toStdString().c_str());
-          dataSetItem->setString(UF,cemaden_item["uf"].toString().toStdString().c_str());
-          dataSetItem->setDouble(CHUVA,cemaden_item["chuva"].toDouble());
-          dataSetItem->setDouble(NIVEL,cemaden_item["nivel"].toDouble());
+          dataSetItem->setString(CIDADE,cemadenItem["cidade"].toString().toStdString().c_str());
+          dataSetItem->setString(NOME,cemadenItem["nome"].toString().toStdString().c_str());
+          dataSetItem->setString(TIPO,cemadenItem["tipo"].toString().toStdString().c_str());
+          dataSetItem->setString(UF,cemadenItem["uf"].toString().toStdString().c_str());
+          dataSetItem->setDouble(CHUVA,cemadenItem["chuva"].toDouble());
+          dataSetItem->setDouble(NIVEL,cemadenItem["nivel"].toDouble());
 
-          boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(cemaden_item["dataHora"].toString().toStdString().c_str()));
+          boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(cemadenItem["dataHora"].toString().toStdString().c_str()));
           boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(dataSetItem_.timezone()));
           boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
           te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
