@@ -1,7 +1,7 @@
-/** @class MapDisplay - Class responsible for presenting the map. */
-var MapDisplay = function() {
+"use strict";
 
-  var _this = this;
+/** @class MapDisplay - Class responsible for presenting the map. */
+TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
   var olMap = new ol.Map({
     renderer: 'canvas',
@@ -43,9 +43,9 @@ var MapDisplay = function() {
    * Return the map object
    * @returns {ol.Map} olMap - map object
    */
-  this.getMap = function() {
+  var getMap = function() {
     return olMap;
-  }
+  };
 
   /**
    * Create a new tiled wms layer
@@ -55,7 +55,7 @@ var MapDisplay = function() {
    * @param {string} layerTitle - layer title
    * @returns {ol.layer.Tile} olMap - new tiled wms layer
    */
-  this.createTileWMS = function(url, type, layerName, layerTitle) {
+  var createTileWMS = function(url, type, layerName, layerTitle) {
     return new ol.layer.Tile({
       source: new ol.source.TileWMS({
         preload: Infinity,
@@ -69,7 +69,7 @@ var MapDisplay = function() {
       title: layerTitle,
       visible: false
     });
-  }
+  };
 
   /**
    * Find a layer by a given key
@@ -78,8 +78,7 @@ var MapDisplay = function() {
    * @param {string} value - value to be used in the search
    * @returns {ol.layer} found layer
    */
-  this.findBy = function(layer, key, value) {
-
+  var findBy = function(layer, key, value) {
     if(layer.get(key) === value) {
       return layer;
     }
@@ -88,7 +87,7 @@ var MapDisplay = function() {
       var layers = layer.getLayers().getArray(),
       len = layers.length, result;
       for (var i = 0; i < len; i++) {
-        result = _this.findBy(layers[i], key, value);
+        result = findBy(layers[i], key, value);
         if (result) {
           return result;
         }
@@ -96,23 +95,33 @@ var MapDisplay = function() {
     }
 
     return null;
-  }
+  };
 
   /**
    * Update the map size according to its container
    */
-  this.updateMapSize = function() {
+  var updateMapSize = function() {
     var interval = window.setInterval(function() { olMap.updateSize(); }, 10);
     window.setTimeout(function() { clearInterval(interval); }, 300);
-  }
+  };
 
-  olMap.getLayerGroup().set('name', 'root');
-  olMap.getLayerGroup().set('title', 'Geoserver Local');
+  var init = function() {
+    olMap.getLayerGroup().set('name', 'root');
+    olMap.getLayerGroup().set('title', 'Geoserver Local');
 
-  $("#terrama2-map").find('div.ol-zoom').removeClass('ol-zoom').addClass('terrama2-map-simple-zoom');
-  $("#terrama2-map").find('div.ol-attribution').addClass('terrama2-map-attribution');
+    $("#terrama2-map").find('div.ol-zoom').removeClass('ol-zoom').addClass('terrama2-map-simple-zoom');
+    $("#terrama2-map").find('div.ol-attribution').addClass('terrama2-map-attribution');
 
-  $(document).ready(function() {
-    _this.updateMapSize();
-  });
-}
+    $(document).ready(function() {
+      updateMapSize();
+    });
+  };
+
+  return {
+    getMap: getMap,
+  	createTileWMS: createTileWMS,
+  	findBy: findBy,
+  	updateMapSize: updateMapSize,
+  	init: init
+  };
+})();
