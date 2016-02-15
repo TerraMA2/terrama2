@@ -258,6 +258,12 @@ if(NOT CURL_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required libCURL library!")
 endif()
 
+find_package(PythonLibs REQUIRED)
+if(NOT PYTHONLIBS_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required Python library!")
+endif()
+
+
 find_package(GTest)
 find_package(GMock)
 find_package(QuaZip)
@@ -277,6 +283,8 @@ option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_COLLECTOR_ENABLED "Build Collector module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_SERVER_ENABLED "Build Server module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_ANALYSIS_CORE_ENABLED "Build Analysis Core module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_COLLECTOR_SERVICE_ENABLED "Build Collector Service module?" ON "TERRAMA2_MOD_COLLECTOR_ENABLED" OFF)
 
@@ -359,6 +367,10 @@ endif()
 
 if(TERRAMA2_COLLECTOR_SERVICE_ENABLED)
   add_subdirectory(terrama2_service_collector)
+endif()
+
+if(TERRAMA2_MOD_ANALYSIS_CORE_ENABLED)
+  add_subdirectory(terrama2_mod_analysis_core)
 endif()
 
 if(TERRAMA2_MOD_WS_COLLECTOR_CORE_ENABLED)
