@@ -29,6 +29,7 @@
 
 //STL
 #include <cstdlib>
+#include <future>
 
 //QT
 #include <QCoreApplication>
@@ -41,48 +42,154 @@
 #include "../../core/ErrorCodes.hpp"
 #include "../../core/Logger.hpp"
 #include "../../core/Utils.hpp"
+#include "../../core/Project.hpp"
+
+#include "../../ws/collector/core/Codes.hpp"
+
 #include "../../Exception.hpp"
+
+#include "soapWebService.h"
+
+class QCloser
+{
+public:
+  QCloser(){}
+  ~QCloser()
+  {
+    QCoreApplication::exit();
+  }
+};
+
+bool gSoapThread(int port)
+{
+  try
+  {
+    //Finixes the QApplication when the gsoap server is over
+    QCloser qCloser;
+    TERRAMA2_LOG_INFO() << "Starting Webservice...";
+
+    WebService server;
+
+    if(soap_valid_socket(server.master) || soap_valid_socket(server.bind(NULL, port, 100)))
+    {
+      TERRAMA2_LOG_INFO() << "Webservice Started, running on port " << port;
+
+      for (;;)
+      {
+        if (!soap_valid_socket(server.accept()))
+          break;
+
+        if(server.serve() == terrama2::ws::collector::core::EXIT_REQUESTED)
+          break;
+
+        server.destroy();
+        //process signal and QT events
+        QCoreApplication::processEvents();
+      }
+    }
+    else
+    {
+      server.soap_stream_fault(std::cerr);
+
+      server.destroy();
+
+      TERRAMA2_LOG_INFO() << "Webservice finished!";
+
+      return false;
+    }
+
+    TERRAMA2_LOG_INFO() << "Shutdown Webservice...";
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
+    return false;
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+    return false;
+  }
+
+  TERRAMA2_LOG_INFO() << "Webservice finished!";
+
+  return true;
+}
+
 
 int main(int argc, char* argv[])
 {
+  const std::string helpMessage = "\nUsage: terrama2_server [options] port\n"
+                                  "\toptions:\n"
+                                  "\t\t-h, --help\t\t\t\t\tThis message.\n"
+                                  "\t\t-p, --project projectFilePath projectFilePath2 ...\tLoad the project file.\n";
 
   // check if the parameters was passed correctly
-  if(argc < 2)
-  {
-    std::cerr << "Usage: terrama_server <project path>" << std::endl;
+  if(argc < 2 || std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "--help") == 0)
+   {
+     std::cout << helpMessage << std::endl ;
 
+     return EXIT_SUCCESS;
+   }
+
+  //TODO: remove this
+  //check if a project was provided
+  if(std::strcmp(argv[1], "-p") != 0 && std::strcmp(argv[1], "--project") != 0)
+  {
+    std::cout << "\nAlpha version, a project must be provided." << std::endl;
+    std::cout << helpMessage << std::endl ;
+
+    return EXIT_FAILURE;
+  }
+
+  //check webservice port
+  int port = std::atoi(argv[argc-1]);
+  if( port < 1024 || port > 49151)
+  {
+    std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
     return EXIT_FAILURE;
   }
 
   try
   {
-    terrama2::core::initializeLogger("terrama2.log");
+
     TERRAMA2_LOG_INFO() << "Initializating TerraLib...";
     terrama2::core::initializeTerralib();
 
+    //****************************************
+    // Load project
+    terrama2::core::Project project(argv[2]);
+    terrama2::core::initializeLogger(project.logFile());
+
     TERRAMA2_LOG_INFO() << "Loading TerraMA2 Project...";
-    QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
-    QJsonObject project = jdoc.object();
     if(!terrama2::core::ApplicationController::getInstance().loadProject(project))
     {
       TERRAMA2_LOG_ERROR() << "Failure in TerraMA2 initialization: Project File is invalid or does not exist!";
       exit(TERRAMA2_PROJECT_LOAD_ERROR);
     }
+    //****************************************
 
     QCoreApplication app(argc, argv);
 
-    terrama2::core::DataManager& dataManager = terrama2::core::DataManager::getInstance();
-    dataManager.load();
+    auto gSoapThreadHandle = std::async(std::launch::async, gSoapThread, port);
 
-    TERRAMA2_LOG_INFO() << "Starting services...";
-    terrama2::core::ServiceManager serviceManager(&dataManager);
-    QJsonArray services = project.value("services").toArray();
-    serviceManager.addJsonServices(services);
+    if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
+    {
+      //Load TerraMA2 data
+      terrama2::core::DataManager& dataManager = terrama2::core::DataManager::getInstance();
+      dataManager.load();
 
-    app.exec();
+      //Start service manager
+      TERRAMA2_LOG_INFO() << "Starting services...";
+      terrama2::core::ServiceManager serviceManager(&dataManager);
+      //Start remote services
+      serviceManager.addServices(project.serviceList());
 
+      app.exec();
+    }
+
+    //unload and finaliza aplication
     terrama2::core::DataManager::getInstance().unload();
-
     terrama2::core::finalizeTerralib();
 
     return EXIT_SUCCESS;

@@ -54,18 +54,30 @@ namespace terrama2
       ServiceManager(DataManager* dataManager);
       //! Creates a new service based on the ServiceData.
       void addService(const ServiceData& serviceData);
+
+      void addServices(const std::map<std::string, ServiceData>& services);
       //! Creates services based on a json array of service configuration..
       void addJsonServices(const QJsonArray& servicesArray);
       //! Removes an existing service.
       void removeService(const std::string& instanceName);
       //! Creates a DataManagerIntermediator for the service with name instanceName.
-      DataManagerIntermediator intermediator(const std::string& instanceName);
+      DataManagerIntermediatorPtr intermediator(const std::string& instanceName) const;
       //! Returns the TcpDispatcher for the  the service with name instanceName.
-      TcpDispatcherPtr tcpDispatcher(const std::string& instanceName);
+      TcpDispatcherPtr tcpDispatcher(const std::string& instanceName) const;
 
     private:
-      std::map<std::string, ServiceData> serviceDataMap_;//!< Map from instance name to service data.
-      std::map<std::string, TcpDispatcherPtr> dispatcherMap_;//!< Map from instance name to TcpDispatcher.
+      struct ServiceDataStruct
+      {
+        ServiceData serviceData;
+        TcpDispatcherPtr tcpDispatcher;
+        DataManagerIntermediatorPtr dataManagerIntermediator;
+      };
+
+      void addDataStruct(const ServiceData& serviceData, TcpDispatcherPtr dispatcher);
+      ServiceDataStruct dataStruct(const std::string& instance) const;
+
+      terrama2::core::DataManager* dataManager_;
+      std::map<std::string, ServiceDataStruct> serviceDataMap_;//!< Map from instance name to service data.
     };
   }
 }

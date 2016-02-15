@@ -413,7 +413,6 @@ void terrama2::collector::DataFilter::filterDataSet(terrama2::collector::Transfe
     memDataSet->add(dataItem);
   }
 
-  //TODO: Implement filter geometry. update doc
   transferenceData.teDataSet = memDataSet;
 }
 

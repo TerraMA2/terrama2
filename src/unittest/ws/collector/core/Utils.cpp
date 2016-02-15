@@ -76,8 +76,7 @@ void InitializeTerraMA2()
   InitializeTerralib();
 
   std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/ws/collector/data/project.json");
-  QJsonDocument jdoc = terrama2::core::ReadJsonFile(path);
-  QJsonObject project = jdoc.object();
+  terrama2::core::Project project(path.c_str());
   QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(project), true);
   std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
   QVERIFY(dataSource.get());

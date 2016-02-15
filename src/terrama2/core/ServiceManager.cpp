@@ -29,6 +29,7 @@
 
 #include "ServiceManager.hpp"
 #include "../core/Logger.hpp"
+#include "../core/DataManager.hpp"
 
 //QT
 #include <QProcess>
@@ -37,20 +38,42 @@
 #include <cassert>
 
 terrama2::core::ServiceManager::ServiceManager(terrama2::core::DataManager* dataManager)
+  : dataManager_(dataManager)
 {
-  //TODO: connect signals
+}
+
+void terrama2::core::ServiceManager::addDataStruct(const ServiceData& serviceData, TcpDispatcherPtr dispatcher)
+{
+  DataManagerIntermediatorPtr dataManagerIntermediator = std::make_shared<DataManagerIntermediator>(dispatcher);
+  ServiceDataStruct data { serviceData,
+                           dispatcher,
+                           dataManagerIntermediator };
+
+  //service running
+  //save remote service information
+  serviceDataMap_.emplace(serviceData.name, data);
+
+  QObject::connect(dataManager_,
+                   &terrama2::core::DataManager::dataSetAdded,
+                   [dataManagerIntermediator](const terrama2::core::DataSet& dataset){
+                                                                                       *dataManagerIntermediator << dataset;
+                                                                                       dataManagerIntermediator->commit();
+                                                                                       });
+
+  QObject::connect(dataManager_,
+                   &terrama2::core::DataManager::dataProviderAdded,
+                   [dataManagerIntermediator](const terrama2::core::DataProvider& dataprovider){
+                                                                                                 *dataManagerIntermediator << dataprovider;
+                                                                                                 dataManagerIntermediator->commit();
+                                                                                               });
 }
 
 void terrama2::core::ServiceManager::addService(const ServiceData& serviceData)
 {
-  //TODO: ping to check if it's already runnning
   TcpDispatcherPtr dispatcher  = std::make_shared<TcpDispatcher>(serviceData);
   if(dispatcher->pingService())
   {
-    //service running
-    //save remote service information
-    serviceDataMap_.emplace(serviceData.name, serviceData);
-    dispatcherMap_.emplace(serviceData.name, dispatcher);
+    addDataStruct(serviceData, dispatcher);
     return;
   }
 
@@ -63,7 +86,7 @@ void terrama2::core::ServiceManager::addService(const ServiceData& serviceData)
 
   switch (serviceData.type) {
     case ServiceData::COLLECTOR:
-      TERRAMA2_LOG_INFO() << "Starting Collector Service at "+serviceData.host;
+      TERRAMA2_LOG_INFO() << "Starting Collector Service at "+serviceData.host+":"+std::to_string(serviceData.servicePort);
       //prepare collector command
       commandArgs.append(QString::fromStdString(serviceData.pathToBinary)+"/collector_service");
       commandArgs.append(QString::number(serviceData.servicePort));
@@ -98,14 +121,19 @@ void terrama2::core::ServiceManager::addService(const ServiceData& serviceData)
     //TODO: ping
 
     //save remote service information
-    serviceDataMap_.emplace(serviceData.name, serviceData);
-    dispatcherMap_.emplace(serviceData.name, dispatcher);
+    addDataStruct(serviceData, dispatcher);
   }
   else
   {
     //TODO:throw
     //throw
   }
+}
+
+void terrama2::core::ServiceManager::addServices(const std::map<std::string, terrama2::core::ServiceData>& services)
+{
+  for(const auto& service : services)
+    addService(service.second);
 }
 
 void terrama2::core::ServiceManager::addJsonServices(const QJsonArray& servicesArray)
@@ -133,10 +161,7 @@ void terrama2::core::ServiceManager::removeService(const std::string& instanceNa
   localTcpDispatcher->stopService();
 
   if(!localTcpDispatcher->pingService())
-  {
-    dispatcherMap_.erase(instanceName);
     serviceDataMap_.erase(instanceName);
-  }
   else
   {
     //TODO: throw;
@@ -144,15 +169,20 @@ void terrama2::core::ServiceManager::removeService(const std::string& instanceNa
   }
 }
 
-terrama2::core::DataManagerIntermediator terrama2::core::ServiceManager::intermediator(const std::string& instanceName)
+terrama2::core::DataManagerIntermediatorPtr terrama2::core::ServiceManager::intermediator(const std::string& instanceName) const
 {
-  return DataManagerIntermediator(tcpDispatcher(instanceName));
+  return dataStruct(instanceName).dataManagerIntermediator;
 }
 
-terrama2::core::TcpDispatcherPtr terrama2::core::ServiceManager::tcpDispatcher(const std::string& instanceName)
+terrama2::core::TcpDispatcherPtr terrama2::core::ServiceManager::tcpDispatcher(const std::string& instanceName) const
 {
-  std::map<std::string, TcpDispatcherPtr>::const_iterator it = dispatcherMap_.find(instanceName);
-  if(it == dispatcherMap_.cend())
+  return dataStruct(instanceName).tcpDispatcher;
+}
+
+terrama2::core::ServiceManager::ServiceDataStruct terrama2::core::ServiceManager::dataStruct(const std::string& instance) const
+{
+  std::map<std::string, ServiceDataStruct>::const_iterator it = serviceDataMap_.find(instance);
+  if(it == serviceDataMap_.cend())
   {
     //TODO: throw
     throw;

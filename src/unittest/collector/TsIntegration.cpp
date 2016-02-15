@@ -94,8 +94,8 @@ void TsIntegration::TestReadCsvStorePostGis()
     service.start(1);
 
     std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/collector/data/project.json");
-    QJsonDocument jdoc = terrama2::core::ReadJsonFile(path);
-    QJsonObject project = jdoc.object();
+
+    terrama2::core::Project project(path.c_str());
     QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(project), true);
 
     auto& dataManager = terrama2::core::DataManager::getInstance();
@@ -193,8 +193,7 @@ void TsIntegration::TestCollectorFTP()
     service.start(1);
 
     std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/collector/data/project.json");
-    QJsonDocument jdoc = terrama2::core::ReadJsonFile(path);
-    QJsonObject project = jdoc.object();
+    terrama2::core::Project project(path.c_str());
     QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(project), true);
 
     auto& dataManager = terrama2::core::DataManager::getInstance();
@@ -271,8 +270,7 @@ void TsIntegration::TestReadPostgisStorePostGis()
     service.start();
 
     std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/collector/data/project.json");
-    QJsonDocument jdoc = terrama2::core::ReadJsonFile(path);
-    QJsonObject project = jdoc.object();
+    terrama2::core::Project project(path.c_str());
     QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(project), true);
 
     auto& dataManager = terrama2::core::DataManager::getInstance();
