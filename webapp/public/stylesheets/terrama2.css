@@ -63,3 +63,13 @@
 .terrama2-hidden {
     display: none !important;
 }
+
+.terrama2-align-left
+{
+    text-align: left;
+}
+
+.terrama2-link
+{
+    color:#3C8DBC !important;
+}

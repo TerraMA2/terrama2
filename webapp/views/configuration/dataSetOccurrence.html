@@ -7,14 +7,10 @@
 {% block javascripts %}
     <script type="text/javascript" src="/externals/moment/moment.js"></script>
     <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/javascripts/terrama2.js"></script>
 
     <script type="text/javascript">
     $(document).ready(function(){
-        $(".timepicker").datetimepicker({
-            widgetPositioning: {vertical: "bottom"},
-            format: "HH:mm:ss"
-        });
-
         $("#mask-list").on("click", "li", function(e){
             $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
         });
@@ -34,6 +30,20 @@
         $("#datetimepicker7").on("dp.change", function (e) {
             $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
         });
+
+        $("#themeCombobox").change(function(e){
+            var index = $('option:selected',$(this)).index();
+            if (index == 0)
+            {
+                $("#staticComboDiv").removeClass("hidden");
+                $("#intersectionTable th").eq(0).text("Attribute");
+            }
+            else
+            {
+                $("#staticComboDiv").addClass("hidden");
+                $("#intersectionTable th").eq(0).text("Name");
+            }
+        });
     });
     </script>
 {% endblock %}
@@ -41,9 +51,6 @@
 {% block title %} TerraMA2 {{ __('Data Occurrence Registration') }} {% endblock %}
 
 {% block content %}
-    {# Temp code for including filter modal. #}
-    {% include "../base/filterModal.html" %}
-
     <div class="col-md-12">
         <div class="box box-default">
             <div class="box-header with-border">
@@ -62,35 +69,71 @@
                     {% include "../base/parametersData.html" with configuration %}
                 </div>
 
-                <div class="col-md-9">
+                <div class="col-md-12">
                     <!-- Filter component -->
                     {% include "../base/filter.html" with configuration %}
                 </div>
 
-                <div class="col-md-3">
-                                    <!-- Intersection -->
-                <div class="box box-default box-solid">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">{{ __('Pre-processing') }}</h3>
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <!-- /.box-header -->
-                    <div style="display: block;" class="box-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                               <div class="col-md-8 col-md-offset-2">
-                                    <button class="btn btn-primary btn-lg btn-block" id="intersection-button" data-toggle="modal" data-target="#intersectionModal">{{ __('Intersection') }}</button>
-                                </div>
+                <div class="col-md-12">
+                    <div class="box box-default box-solid collapsed-box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('Intersection') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                                </button>
                             </div>
                         </div>
-                        <!-- /.row -->
+                        <!-- /.box-header -->
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label>{{ __('Theme') }}:</label>
+                                        <select class="form-control" id="themeCombobox">
+                                            <option selected>Static</option>
+                                            <option>Dynamic</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group" id="staticComboDiv">
+                                        <label>{{ __('Static Themes') }}:</label>
+                                        <select class="form-control terrama2-list-align" style="padding: 0" multiple>
+                                            <option selected>Lorem ipsus</option>
+                                            <option>Ipsum</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <table class="table table-hover terrama2-header-fixed" id="intersectionTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50%">{{ __('Attribute    ') }}</th>
+                                                <th style="width: 50%">{{ __('Selected') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="width: 50%">field1</td>
+                                                <td style="width: 50%">
+                                                    <span class="label label-success">
+                                                        <i class="glyphicon glyphicon-ok"></i>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width: 50%">field2</td>
+                                                <td style="width: 50%"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- /.box group -->
                     </div>
-                    <!-- /.box group -->
-                </div>
-                <!-- /.box solid -->
+                    <!-- /.box solid -->
                 </div>
 
             </div>

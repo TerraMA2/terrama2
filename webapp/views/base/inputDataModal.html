@@ -1,0 +1,40 @@
+<div class="modal fade" id="inputDataModal" tabindex="-1" role="dialog" aria-labelledby="inputDataModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header terrama2-component-color">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="inputDataModalLabel">{{ __('Select the inputs to analysis') }}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>{{ __('Dynamic Data') }}:</label>
+                            <select class="form-control terrama2-list-align" style="padding: 0;" id="dynamicDataCombobox" multiple>
+                                <option>Lorem ipsum1.1</option>
+                                <option>Lorem ipsum1.2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>{{ __('Static Data') }}:</label>
+                            <select class="form-control terrama2-list-align" style="padding: 0;" id="dynamicDataCombobox" multiple>
+                                <option>Lorem ipsum2.1</option>
+                                <option>Lorem ipsum2.2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">{{ __('OK') }}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('Cancel') }}</button>
+            </div>
+
+        </div>
+    </div>
+</div>
