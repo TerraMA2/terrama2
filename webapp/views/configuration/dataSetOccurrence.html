@@ -60,13 +60,37 @@
             <div style="display: block;" class="box-body">
 
                 <div class="col-md-12">
-                    <!-- General Data Component -->
-                    {% include "../base/generalData.html" with configuration %}
+                    <div class="box box-default box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('General Data') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: block;" class="box-body">
+                            <!-- General Data Component -->
+                            {% include "../base/generalData.html" with configuration %}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-md-12">
-                    <!-- Parameters Component -->
-                    {% include "../base/parametersData.html" with configuration %}
+                    <div class="box box-default box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('Parameters') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: block;" class="box-body">
+                            <!-- Parameters Component -->
+                            {% include "../base/parametersData.html" with configuration %}
+                        </div>
+                    </div>  
                 </div>
 
                 <div class="col-md-12">

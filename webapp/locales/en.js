@@ -165,5 +165,9 @@
 	"Ignores if average is <b>LESS</b> than": "Ignores if average is <b>LESS</b> than",
 	"Ignores if average is <b>GREATER</b> than": "Ignores if average is <b>GREATER</b> than",
 	"Analyse only data inside selected plan": "Analyse only data inside selected plan",
-	"Bands to be skipped": "Bands to be skipped"
+	"Bands to be skipped": "Bands to be skipped",
+	"WFS Attributes": "WFS Attributes",
+	"Ignores data previous to": "Ignores data previous to",
+	"Ignores data after to": "Ignores data after to",
+	"Select the filter area type": "Select the filter area type"
 }

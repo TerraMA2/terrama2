@@ -47,12 +47,6 @@
 {% block title %} TerraMA2 {{ __('PCD Data Registration') }} {% endblock %}
 
 {% block content %}
-    {# Modal for collect rule #}
-    {% include "../base/collectRuleModal.html" %}
-
-    {# Modal for wfs layer #}
-    {% include "../base/wfsLayerModal.html" %}
-
     <div class="col-md-12">
         <div class="box box-default">
             <div class="box-header with-border">
@@ -62,20 +56,9 @@
             <div style="display: block;" class="box-body">
 
                 <div class="col-md-12">
-                    <!-- General Data Component -->
-                    {% include "../base/generalData.html" with configuration %}
-                </div>
-
-                <div class="col-md-12">
-                    <!-- Parameters Component -->
-                    {% include "../base/parametersData.html" with configuration %}
-                </div>
-
-                <div class="col-md-12">
-                    {# It should have an object in structure like: {kind: "dataset type", state: "static|dynamic"} #}
                     <div class="box box-default box-solid">
                         <div class="box-header with-border">
-                            <h3 class="box-title">{{ __('Additional Parameters') }}</h3>
+                            <h3 class="box-title">{{ __('General Data') }}</h3>
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                                 </button>
@@ -83,32 +66,144 @@
                         </div>
                         <!-- /.box-header -->
                         <div style="display: block;" class="box-body">
+                            <!-- General Data Component -->
+                            {% include "../base/generalData.html" with configuration %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="box box-default box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('Parameters') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: block;" class="box-body">
+                            <!-- Parameters Component -->
+                            {% include "../base/parametersData.html" with configuration %}
+                        </div>
+                    </div>  
+                </div>
+
+                <div class="col-md-12">
+                    {# It should have an object in structure like: {kind: "dataset type", state: "static|dynamic"} #}
+                    <div class="box box-default box-solid collapsed-box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('Collect Rule') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: none;" class="box-body">
                             <div class="row">
-                                <div class="col-md-4">
-                                    <!-- Status -->
-                                    <div class="col-md-6">
-                                        <h5>
-                                            <span class="label label-success"><i class="glyphicon glyphicon-ok"></i>LUA</span>
-                                        </h5>
+                                <div class="col-md-12">
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label>{{ __('Language') }}:</label>
+                                            <select class="form-control" id="collectLang">
+                                                <option selected>LUA</option>
+                                                <option>Python</option>
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <button class="btn btn-primary" data-toggle="modal" data-target="#collectRuleModal">{{ __('Collect Rule') }}</button>
+                                    <div class="col-md-7">
+                                        <div class="btn-group" style="padding-top:25px;">
+                                            <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                                                {{ __('Functions') }}
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="#">max</a></li>
+                                                <li><a href="#">min</a></li>
+                                                <li><a href="#">abs</a></li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="btn-group" style="padding-top:25px; margin-left:20px;">
+                                            <button aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                                LUA {{ __('Commands') }}
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="#">if</a></li>
+                                                <li><a href="#">for</a></li>
+                                                <li><a href="#">if else elseif</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{ __('Code') }}:</label>
+                                            <textarea class="form-control" rows="5"></textarea>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- /.box group -->
+                    </div>
+                    <!-- /.box solid -->
+                </div>
 
-                                <div class="col-md-4">
-                                    <!-- WFS Layer -->
-                                    <div class="col-md-6">
-                                        <h5>
-                                            <span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>
-                                        </h5>
+                <div class="col-md-12">
+                    <div class="box box-default box-solid collapsed-box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{{ __('WFS Attributes') }}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div style="display: none;" class="box-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{ __('ID') }}:</label>
+                                            <select class="form-control" id="collectLang">
+                                                <option>Lorem Ipsum</option>
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <button class="btn btn-primary" data-toggle="modal" data-target="#wftLayerModal">{{ __('WFS Attribute') }}</button>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{ __('Date Time') }}:</label>
+                                            <select class="form-control" id="collectLang">
+                                                <option>Lorem ipsum</option>
+                                            </select>
+                                        </div>
                                     </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <label>{{ __('Mask') }}:</label>
+                                                <input type="text" class="form-control" aria-label="..." id="mask">
+                                                <div class="input-group-btn">
+                                                    <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="   false">
+                                                        {{ __('Format') }} <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-right" id="mask-list">
+                                                        <li><a href="javascript:void(0)">{{ __('%d Day') }}</a></li>
+                                                        <li><a href="javascript:void(0)">{{ __('%m Month') }}</a></li>
+                                                    </ul>
+                                                </div><!-- /btn-group -->
+                                            </div><!-- /input-group -->
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col-md-12 -->
                                 </div>
+                                <!-- /.col-md-12 -->
                             </div>
                             <!-- /.row -->
                         </div>
