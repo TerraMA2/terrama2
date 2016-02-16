@@ -116,8 +116,6 @@ namespace terrama2
              Will only filter dates if there is a te::dt::DATETIME_TYPE attribute in the dataset,
              geometry expects a te::dt::GEOMETRY_TYPE attribute.
 
-             \note geometry filter is not implemented yet
-
              \note Updates dataSetLastDateTime_
 
              \param transferenceData Data of the DataSet to be filtered.

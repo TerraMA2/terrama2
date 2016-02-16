@@ -264,11 +264,11 @@ terrama2::core::dao::DataSetDAO::loadAll(uint64_t providerId, te::da::DataSource
                 query += std::to_string(providerId);
                 query += " ORDER BY id ASC";
 
-    std::unique_ptr<te::da::DataSet> queryResult( transactor.query(query));
+    std::shared_ptr<te::da::DataSet> queryResult( transactor.query(query));
 
     while(queryResult->moveNext())
     {
-      datasets.push_back(getDataSet(std::move(queryResult), transactor));
+      datasets.push_back(getDataSet(queryResult, transactor));
     }
   }
   catch(const std::exception& e)
@@ -351,7 +351,7 @@ void terrama2::core::dao::DataSetDAO::saveMetadata(DataSet& dataset, te::da::Dat
   }
 }
 
-terrama2::core::DataSet terrama2::core::dao::DataSetDAO::getDataSet(std::unique_ptr<te::da::DataSet> queryResult, te::da::DataSourceTransactor& transactor)
+terrama2::core::DataSet terrama2::core::dao::DataSetDAO::getDataSet(std::shared_ptr<te::da::DataSet> queryResult, te::da::DataSourceTransactor& transactor)
 {
 
     std::string name = queryResult->getAsString("name");

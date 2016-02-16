@@ -34,23 +34,42 @@
 // TerraMA2
 #include "Parser.hpp"
 
-//#include <mutex>
-
 namespace terrama2
 {
   namespace collector
   {
     /*!
-       \brief Parser for Pcd of Cemaden.
+       \brief The ParserPcdCemaden class is responsible for making the parser of files in JSON format
+              of pluviometric stations and hydrological the WebService CEMADEN.
      */
     class ParserPcdCemaden : public Parser
     {
-     /**
-      \brief \copybrief Parser::read()
-     */
+        /*!
+         \brief Reads the data refered in the uri and converts to a te::da::DataSet.
+
+         If the datatype is known to the parser, it will identify the data and convert to better data types.
+         ex: datetime string to DateTime format and lat, long strings to point geometry.
+
+         \param filter Used to identify the file/table names to be collected.
+         \param transferenceDataVec Will be populated with parsed datasets.
+
+         \exception ParserPcdCemadenException when could not perform the download files.
+         */
+
       public:
         virtual void read(DataFilterPtr filter,
                           std::vector<terrama2::collector::TransferenceData>& transferenceDataVec) override;
+
+      /*!
+         * \brief write_data - data to be written in stringstream.
+         * Define our callback to get called when there's data to be written in stringstream.
+         * \param ptr - pointer to the data stream.
+         * \param size - byte length of each data element.
+         * \param nmemb - data elements.
+         * \param stream - data stream.
+         * \return Returns the number of items that were successfully read.
+       */
+        static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);
 
     };
   }

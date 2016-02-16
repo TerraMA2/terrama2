@@ -111,7 +111,7 @@ void executeQueriesFromFile(QFile *file, QSqlQuery *query)
 //**************************************************************************
 
 
-bool terrama2::core::ApplicationController::loadProject(const QJsonObject& project)
+bool terrama2::core::ApplicationController::loadProject(const Project& project)
 {
   project_ = project;
 
@@ -122,25 +122,20 @@ bool terrama2::core::ApplicationController::loadProject(const QJsonObject& proje
 
   try
   {
-    if(project.contains("database"))
-    {
-      QJsonObject databaseConfig = project["database"].toObject();
-      std::map<std::string, std::string> connInfo;
-      connInfo["PG_HOST"] = databaseConfig["host"].toString().toStdString();
-      connInfo["PG_PORT"] = databaseConfig["port"].toString().toStdString();
-      connInfo["PG_USER"] = databaseConfig["user"].toString().toStdString();
-      connInfo["PG_PASSWORD"] = databaseConfig["password"].toString().toStdString();
-      connInfo["PG_DB_NAME"] = databaseConfig["name"].toString().toStdString();
-      connInfo["PG_CLIENT_ENCODING"] = "UTF-8";
+    ConnectionData databaseData = project.databaseData();
+    std::map<std::string, std::string> connInfo;
+    connInfo["PG_HOST"] = databaseData.host;
+    connInfo["PG_PORT"] = databaseData.port;
+    connInfo["PG_USER"] = databaseData.user;
+    connInfo["PG_PASSWORD"] = databaseData.password;
+    connInfo["PG_DB_NAME"] = databaseData.databaseName;
+    connInfo["PG_CLIENT_ENCODING"] = databaseData.encoding;
 
-      dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
-      dataSource_->setConnectionInfo(connInfo);
-      dataSource_->open();
+    dataSource_ = te::da::DataSourceFactory::make(databaseData.driver);
+    dataSource_->setConnectionInfo(connInfo);
+    dataSource_->open();
 
-      return dataSource_->isOpened();
-    }
-    else
-      return false;
+    return dataSource_->isOpened();
   }
   catch(te::common::Exception& e)
   {
