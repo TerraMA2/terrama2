@@ -109,7 +109,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
 
     var elem = buildLayerExplorer(map.getLayerGroup(), true);
-    $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'><div class='terrama2-leftbox-header'><h2>Camadas</h2></div>" + elem + "</div>");
+    $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'>" + elem + "</div>");
 
     $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
 
