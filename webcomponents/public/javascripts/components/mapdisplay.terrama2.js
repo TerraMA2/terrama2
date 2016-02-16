@@ -71,6 +71,25 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
+
+
+
+  var addGeoJSONVectorLayer = function(url) {
+    olMap.addLayer(
+      new ol.layer.Vector({
+        source: new ol.source.Vector({
+          url: url,
+          format: new ol.format.GeoJSON()
+        })
+      })
+    );
+  };
+
+
+
+
+
+
   /**
    * Find a layer by a given key
    * @param {ol.layer.Group} layer - the layer group where the method will run the search
@@ -122,6 +141,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   	createTileWMS: createTileWMS,
   	findBy: findBy,
   	updateMapSize: updateMapSize,
+    addGeoJSONVectorLayer: addGeoJSONVectorLayer,
   	init: init
   };
 })();
