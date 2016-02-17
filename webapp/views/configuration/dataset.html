@@ -1,7 +1,5 @@
 {% extends "../base/layout.html" %}
 
-{% set configuration = configuration + {generic: true} %}
-
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
 {% endblock %}
@@ -49,10 +47,13 @@
         });
 
         $('#rootwizard').bootstrapWizard(
-            {
+            {'tabClass': 'nav nav-pills wizard',
                 onNext: function(tab, navigation, index) {
                     // validation
-                    $(tab).find("a").append("<i class=\"fa fa-check\" style=\"margin-left: 5px;\"></i>");
+                    var a = $(tab).find("a");
+                    a.find("i").first().removeClass("fa fa-asterisk");
+
+                    a.find("i[id='iStatus']").addClass("fa fa-check");
                 },
                 onTabShow: function(tab, navigation, index) {
                     var $total = navigation.find('li').length;
@@ -77,7 +78,8 @@
 
         $('#rootwizard .finish').click(function() {
             alert('Finished!, Starting over!');
-            $('#initial').trigger('click');
+            // $('#initial').trigger('click');
+            $('#rootwizard').find("a[href*='tab1']").trigger('click');
         })
     });
     </script>
@@ -99,9 +101,26 @@
                         <div class="navbar-inner">
                             <div class="container">
                                 <ul class="terrama2-wizard">
-                                    <li id="initial"><a href="#tab1" data-toggle="tab">Dados Gerais</a></li>
-                                    <li><a href="#tab2" data-toggle="tab">Parâmetros</a></li>
-                                    <li><a href="#tab3" data-toggle="tab">Filtros</a></li>
+                                    <li id="initial">
+                                        <a href="#tab1" data-toggle="tab">
+                                            <i class="fa fa-asterisk" style="color: #a94442; font-size: 12px"></i>
+                                            Dados Gerais 
+                                            <i id="iStatus"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#tab2" data-toggle="tab">
+                                            <i class="fa fa-asterisk" style="color: #a94442; font-size: 12px"></i>
+                                            Parâmetros
+                                            <i id="iStatus"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#tab3" data-toggle="tab">
+                                            Filtros 
+                                            <i id="iStatus"></i>
+                                        </a>
+                                    </li>
 
                                     <!-- temp code for angular -->
                                     <!-- <dataset-wizard dataset="dataset"></dataset-wizard> -->

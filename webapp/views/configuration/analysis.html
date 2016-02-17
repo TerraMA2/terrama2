@@ -73,7 +73,45 @@
                                     <!-- /.form-group -->
                                 </div>
 
-                                {% include "../base/collectSchedule.html" %}
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>{{ __("Status") }}:</label>
+                                        <div class="checkbox">
+                                            <label style="font-weight: 700;">
+                                                <input type="checkbox"> {{ __("Active") }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label style="font-weight: 700; margin-top:25px;">
+                                                <input type="checkbox"> {{ __("Inactive") }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label style="font-weight: 700; margin-top:25px;">
+                                                <input type="checkbox"> {{ __("Conditioned") }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <button class="btn btn-default" style="margin-top:19px;">{{ __("Condition") }}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {# % include "../base/collectSchedule.html" % #}
                             </div>
                             <!-- /.row -->
                         </div>
