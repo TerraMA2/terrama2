@@ -4,6 +4,7 @@
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
   var dragBox = null;
+  var initialExtent = null;
 
   var olMap = new ol.Map({
     renderer: 'canvas',
@@ -179,6 +180,10 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     olMap.getView().fit(extent, olMap.getSize());
   };
 
+  var zoomToInitialExtent = function() {
+    olMap.getView().fit(initialExtent, olMap.getSize());
+  };
+
   var init = function() {
     olMap.getLayerGroup().set('name', 'root');
     olMap.getLayerGroup().set('title', 'Geoserver Local');
@@ -189,6 +194,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     dragBox = new ol.interaction.DragBox({
       condition: ol.events.condition.always
     });
+
+    initialExtent = olMap.getView().calculateExtent(olMap.getSize());
 
     $(document).ready(function() {
       updateMapSize();
@@ -208,6 +215,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     setDragBoxStart: setDragBoxStart,
     setDragBoxEnd: setDragBoxEnd,
     gerDragBoxExtent: gerDragBoxExtent,
+    zoomToInitialExtent: zoomToInitialExtent,
   	init: init
   };
 })();
