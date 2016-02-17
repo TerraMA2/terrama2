@@ -1,0 +1,172 @@
+/* MapDisplay styles */
+
+.terrama2-map {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+.terrama2-map-simple-zoom {
+  top: 20px;
+  right: 50px;
+}
+
+.terrama2-map-simple-zoom:hover {
+  background-color: rgba(255,255,255,.4) !important;
+}
+
+.terrama2-map-simple-zoom > button {
+  background-color: rgba(241, 241, 241, 0.8); !important;
+  color: rgb(84,84,84);
+  outline: none;
+}
+
+.terrama2-map-simple-zoom > button:hover {
+  background-color: rgba(241, 241, 241, 1) !important;
+}
+
+#terrama2-map .ol-attribution > button {
+  background-color: rgba(241, 241, 241, 0.8); !important;
+  color: rgb(84,84,84);
+  outline: none;
+}
+
+#terrama2-map .ol-attribution > button:hover {
+  background-color: rgba(241, 241, 241, 1) !important;
+}
+
+.terrama2-map-attribution {
+  text-align: right;
+  bottom: 20px;
+  right: 50px;
+  max-width: calc(100% - 1.3em);
+}
+
+/* LayerExplorer style */
+
+#terrama2-layerexplorer ul {
+  padding-left: 35px;
+}
+
+#terrama2-layerexplorer ul.layerstack {
+  list-style: none;
+}
+
+#terrama2-layerexplorer ul.layerstack li {
+  border-bottom: 1px solid #ccc;
+  padding: 3px;
+}
+
+#terrama2-layerexplorer ul.layerstack li.selected {
+  background-color: #ddd;
+}
+
+#terrama2-layerexplorer li.parent_li ul li {
+  cursor: default;
+}
+
+#terrama2-layerexplorer li {
+  list-style-type:none;
+  padding: 0px 0px 5px 0px;
+  position:relative;
+  white-space: nowrap;
+  margin-left: 11px;
+}
+
+#terrama2-layerexplorer li > span {
+  padding-left: 12px !important;
+}
+
+#terrama2-layerexplorer li.parent_li, #terrama2-layerexplorer li.parent_li > ul > li {
+  margin: 0 !important;
+}
+
+#terrama2-layerexplorer li::before, #terrama2-layerexplorer li::after {
+  content:'';
+  left:-20px;
+  position:absolute;
+  right:auto;
+}
+
+#terrama2-layerexplorer li > span {
+  display:block;
+  padding: 10px;
+  text-decoration:none;
+}
+
+.terrama2-layerexplorer-plus {
+  float: left;
+  font-size: 25px;
+  font-weight: bold;
+  margin-top: -8px;
+}
+
+.terrama2-layerexplorer-minus {
+  float: left;
+  font-size: 45px;
+  margin-top: -27px;
+  margin-right: -1px;
+}
+
+#terrama2-layerexplorer li.parent_li>span {
+  cursor:pointer;
+}
+
+#terrama2-layerexplorer>ul>li::before, #terrama2-layerexplorer>ul>li::after {
+  border:0;
+}
+
+#terrama2-layerexplorer li:last-child::before {
+  height:30px;
+}
+
+.terrama2-layerexplorer-checkbox {
+  display: block;
+  margin-bottom: -27px !important;
+  margin-left: 20px;
+}
+
+span.terrama2-layerexplorer-checkbox-span {
+  margin-left: 20px !important;
+}
+
+/* ToolBox styles */
+
+#terrama2-map-toolbox {
+  position: absolute;
+  width: 500px;
+  height: 19px;
+  bottom: 0;
+  left: 50%;
+  margin-left: -250px;
+  z-index: 9999;
+  text-align: center;
+  color: white;
+  background-color: rgba(255,255,255,0.5);
+  -webkit-border-top-left-radius: 20px;
+  -webkit-border-top-right-radius: 20px;
+  -moz-border-radius-topleft: 20px;
+  -moz-border-radius-topright: 20px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+#terrama2-map-toolbox:before{
+  content: "";
+  z-index: -1;
+  position: absolute;
+  width: 100%;
+}
+
+#terrama2-map-toolbox:after{
+  content: "";
+  z-index: -1;
+  position: absolute;
+  width: 100%;
+}
+
+#terrama2-toolbox-control-button {
+  width: 100%;
+  cursor: pointer;
+}

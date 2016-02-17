@@ -18,6 +18,8 @@ window.TerraMA2WebComponents = {
 TerraMA2WebComponents.obj = (function() {
   var components = null;
   var componentsLength = null;
+  var componentsLoaded = false;
+
   var terrama2Url = null;
 
   /**
@@ -34,16 +36,6 @@ TerraMA2WebComponents.obj = (function() {
    */
   var getTerrama2Url = function() {
     return terrama2Url;
-  };
-
-  /**
-   * Inject a stylesheet to the page
-   * @param {string} url - url to the stylesheet
-   */
-  var injectStylesheet = function(url) {
-    var link = $("<link>", { rel: "stylesheet", type: "text/css", href: url });
-
-    link.appendTo('head');
   };
 
   /**
@@ -65,32 +57,26 @@ TerraMA2WebComponents.obj = (function() {
   };
 
   /**
-   * Apply a given CQL filter to a given layer
-   * @param {string} cql - CQL filter to be applied
-   * @param {string} layerName - layer name to be filtered
-   */
-  var applyCQLFilter = function(cql, layerName) {
-    TerraMA2WebComponents.webcomponents.MapDisplay.findBy(TerraMA2WebComponents.webcomponents.MapDisplay.getMap().getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
-  };
-
-  /**
    * Load the TerraMA² components present in the components array
    * @param {number} i - current array position
    */
   var loadComponents = function(i) {
     if(i < componentsLength) {
       $.ajax({
-        url: terrama2Url + "/javascripts/components/" + TerraMA2WebComponents.Config.getConfJsonComponentsJs()[components[i]],
+        url: terrama2Url + "/javascripts/components/" + TerraMA2WebComponents.Config.getConfJsonComponents()[components[i]],
         dataType: "script",
         success: function() {
           TerraMA2WebComponents.webcomponents[components[i]].init();
-          injectStylesheet(terrama2Url + "/stylesheets/components/" + TerraMA2WebComponents.Config.getConfJsonComponentsCss()[components[i]]);
           loadComponents(++i);
         }
       });
     } else {
-      return;
+      componentsLoaded = true;
     }
+  };
+
+  var isComponentsLoaded = function() {
+    return componentsLoaded;
   };
 
   var init = function(_terrama2Url, _components) {
@@ -112,9 +98,8 @@ TerraMA2WebComponents.obj = (function() {
   return {
   	getComponentsLength: getComponentsLength,
   	getTerrama2Url: getTerrama2Url,
-  	injectStylesheet: injectStylesheet,
   	fileExists: fileExists,
-  	applyCQLFilter: applyCQLFilter,
+    isComponentsLoaded: isComponentsLoaded,
   	init: init
   };
 })();

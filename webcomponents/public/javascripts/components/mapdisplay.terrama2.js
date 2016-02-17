@@ -3,6 +3,8 @@
 /** @class MapDisplay - Class responsible for presenting the map. */
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
+  var dragBox = null;
+
   var olMap = new ol.Map({
     renderer: 'canvas',
     layers: [
@@ -12,23 +14,27 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
             source: new ol.source.OSM(),
             name: 'osm',
             title: 'Open Street Map',
-            visible: false
+            visible: false,
+            listOnLayerExplorer: true
           }),
           new ol.layer.Tile({
             source: new ol.source.MapQuest({layer: 'osm'}),
             name: 'mapquest_osm',
             title: 'MapQuest OSM',
-            visible: false
+            visible: false,
+            listOnLayerExplorer: true
           }),
           new ol.layer.Tile({
             source: new ol.source.MapQuest({layer: 'sat'}),
             name: 'mapquest_sat',
             title: 'MapQuest Sat&eacute;lite',
-            visible: true
+            visible: true,
+            listOnLayerExplorer: true
           })
         ],
         name: 'bases',
-        title: 'Camadas Base'
+        title: 'Camadas Base',
+        listOnLayerExplorer: true
       })
     ],
     target: 'terrama2-map',
@@ -55,7 +61,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} layerTitle - layer title
    * @returns {ol.layer.Tile} olMap - new tiled wms layer
    */
-  var createTileWMS = function(url, type, layerName, layerTitle) {
+  var createTileWMS = function(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
     return new ol.layer.Tile({
       source: new ol.source.TileWMS({
         preload: Infinity,
@@ -67,22 +73,38 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       }),
       name: layerName,
       title: layerTitle,
-      visible: false
+      visible: layerVisible,
+      listOnLayerExplorer: listOnLayerExplorer
     });
   };
 
-
-
-
-  var addGeoJSONVectorLayer = function(url) {
+  var addTileWMSLayer = function(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
     olMap.addLayer(
-      new ol.layer.Vector({
-        source: new ol.source.Vector({
-          url: url,
-          format: new ol.format.GeoJSON()
-        })
-      })
+      createTileWMS(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer)
     );
+
+    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
+  };
+
+  var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
+    return new ol.layer.Vector({
+      source: new ol.source.Vector({
+        url: url,
+        format: new ol.format.GeoJSON()
+      }),
+      name: layerName,
+      title: layerTitle,
+      visible: layerVisible,
+      listOnLayerExplorer: listOnLayerExplorer
+    });
+  };
+
+  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
+    olMap.addLayer(
+      createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer)
+    );
+
+    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
   };
 
 
@@ -117,11 +139,44 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
+   * Apply a given CQL filter to a given layer
+   * @param {string} cql - CQL filter to be applied
+   * @param {string} layerName - layer name to be filtered
+   */
+  var applyCQLFilter = function(cql, layerName) {
+    findBy(olMap.getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
+  };
+
+  /**
    * Update the map size according to its container
    */
   var updateMapSize = function() {
     var interval = window.setInterval(function() { olMap.updateSize(); }, 10);
     window.setTimeout(function() { clearInterval(interval); }, 300);
+  };
+
+  var addDragBox = function() {
+    olMap.addInteraction(dragBox);
+  };
+
+  var removeDragBox = function() {
+    olMap.removeInteraction(dragBox);
+  };
+
+  var gerDragBoxExtent = function() {
+    return dragBox.getGeometry().getExtent();
+  };
+
+  var setDragBoxStart = function(eventFunction) {
+    dragBox.on('boxstart', eventFunction);
+  };
+
+  var setDragBoxEnd = function(eventFunction) {
+    dragBox.on('boxend', eventFunction);
+  };
+
+  var zoomToExtent = function(extent) {
+    olMap.getView().fit(extent, olMap.getSize());
   };
 
   var init = function() {
@@ -130,6 +185,10 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
     $("#terrama2-map").find('div.ol-zoom').removeClass('ol-zoom').addClass('terrama2-map-simple-zoom');
     $("#terrama2-map").find('div.ol-attribution').addClass('terrama2-map-attribution');
+
+    dragBox = new ol.interaction.DragBox({
+      condition: ol.events.condition.always
+    });
 
     $(document).ready(function() {
       updateMapSize();
@@ -142,6 +201,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   	findBy: findBy,
   	updateMapSize: updateMapSize,
     addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+    applyCQLFilter: applyCQLFilter,
+    addDragBox: addDragBox,
+    removeDragBox: removeDragBox,
+    zoomToExtent: zoomToExtent,
+    setDragBoxStart: setDragBoxStart,
+    setDragBoxEnd: setDragBoxEnd,
+    gerDragBoxExtent: gerDragBoxExtent,
   	init: init
   };
 })();
