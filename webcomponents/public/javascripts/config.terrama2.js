@@ -3,8 +3,7 @@
 /** @class Config - Class responsible for load and handle the API configurations. */
 TerraMA2WebComponents.Config = (function() {
   var confJsonHTML = null;
-  var confJsonComponentsJs = null;
-  var confJsonComponentsCss = null;
+  var confJsonComponents = null;
   var confJsonServer = null;
 
   /**
@@ -27,8 +26,7 @@ TerraMA2WebComponents.Config = (function() {
     var url = TerraMA2WebComponents.obj.getTerrama2Url() + "/config/";
 
     confJsonHTML = loadConfigurationFile(url + "html.terrama2.json");
-    confJsonComponentsJs = loadConfigurationFile(url + "components.javascript.terrama2.json");
-    confJsonComponentsCss = loadConfigurationFile(url + "components.stylesheet.terrama2.json");
+    confJsonComponents = loadConfigurationFile(url + "components.terrama2.json");
     confJsonServer = loadConfigurationFile(url + "server.terrama2.json");
   };
 
@@ -41,19 +39,11 @@ TerraMA2WebComponents.Config = (function() {
   };
 
   /**
-   * Return the javascript files configuration (javascript files paths)
-   * @returns {json} confJsonComponentsJs - javascript files configuration
+   * Return the components files configuration (files paths)
+   * @returns {json} confJsonComponents - files configuration
    */
-  var getConfJsonComponentsJs = function() {
-    return confJsonComponentsJs;
-  };
-
-  /**
-   * Return the stylesheets configuration (stylesheets paths)
-   * @returns {json} confJsonComponentsCss - stylesheets configuration
-   */
-  var getConfJsonComponentsCss = function() {
-    return confJsonComponentsCss;
+  var getConfJsonComponents = function() {
+    return confJsonComponents;
   };
 
   /**
@@ -78,8 +68,7 @@ TerraMA2WebComponents.Config = (function() {
 
   return {
   	getConfJsonHTML: getConfJsonHTML,
-  	getConfJsonComponentsJs: getConfJsonComponentsJs,
-  	getConfJsonComponentsCss: getConfJsonComponentsCss,
+  	getConfJsonComponents: getConfJsonComponents,
   	getConfJsonServer: getConfJsonServer,
   	init: init
   };

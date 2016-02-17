@@ -34,10 +34,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
         var subLayersLength = layers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title));
+          tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, true));
         }
       } else {
-        tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title));
+        tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title, false, true));
       }
     }
 
@@ -64,7 +64,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayer +
     TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider; */
 
-    if (layer.getLayers) {
+    if(layer.getLayers) {
       var sublayersElem = '';
       var layers = layer.getLayers().getArray(),
       len = layers.length;
@@ -78,15 +78,16 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
         elem = div2 + " <ul>" + sublayersElem + "</ul></li>";
       }
     } else {
+      if(layer.get('listOnLayerExplorer')) {
+        var check = layer.get('visible') ? TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerChecked : TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerUnchecked;
 
-      var check = layer.get('visible') ? TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerChecked : TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerUnchecked;
+        var div1 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
+        check +
+        "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span>" +
+        TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
 
-      var div1 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
-      check +
-      "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span>" +
-      TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
-
-      elem = div1 + " </li>";
+        elem = div1 + " </li>";
+      } else elem = "";
     }
     return elem;
   };
@@ -106,10 +107,12 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       title: TerraMA2WebComponents.Config.getConfJsonServer().Name
     }));
 
-    $("#terrama2-leftbar").find("[terrama2-box='terrama2-layerexplorer']").addClass('terrama2-leftbar-button-layers').attr('title', 'Camadas');
+    resetLayerExplorer(map);
+  };
 
-    var elem = buildLayerExplorer(map.getLayerGroup(), true);
-    $('#terrama2-layerexplorer').append("<div class='terrama2-leftbox-content'>" + elem + "</div>");
+  var resetLayerExplorer = function(_map) {
+    var elem = buildLayerExplorer(_map.getLayerGroup(), true);
+    $('#terrama2-layerexplorer').empty().append(elem);
 
     $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
 
@@ -117,6 +120,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     $('input.opacity').slider();
 
     $('.parent_li').find(' > ul > li').hide();
+
+    loadEvents();
   };
 
   /**
@@ -191,18 +196,6 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
         selectedLayer = _$this.attr("data-layerid");
       }
     });
-
-    $('div.terrama2-leftbox-content').on('click', function(e) {
-      var _$this = $(this);
-
-      setTimeout(function() {
-        if(_$this.height() > _$this.parent().height()) {
-          _$this.parent().find('.ui-resizable-e').css('height', _$this.css('height'));
-        } else {
-          _$this.parent().find('.ui-resizable-e').css('height', _$this.parent().css('height'));
-        }
-      }, 200);
-    });
   };
 
   var init = function() {
@@ -220,12 +213,12 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     );
     socket.on('proxyResponse', function(msg) {
       initializeLayerExplorer(msg.msg);
-      loadEvents();
     });
   };
 
   return {
     getSelectedLayer: getSelectedLayer,
+    resetLayerExplorer: resetLayerExplorer,
     init: init
   };
 })();
