@@ -164,7 +164,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     olMap.removeInteraction(dragBox);
   };
 
-  var gerDragBoxExtent = function() {
+  var getDragBoxExtent = function() {
     return dragBox.getGeometry().getExtent();
   };
 
@@ -214,7 +214,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     zoomToExtent: zoomToExtent,
     setDragBoxStart: setDragBoxStart,
     setDragBoxEnd: setDragBoxEnd,
-    gerDragBoxExtent: gerDragBoxExtent,
+    getDragBoxExtent: getDragBoxExtent,
     zoomToInitialExtent: zoomToInitialExtent,
   	init: init
   };
