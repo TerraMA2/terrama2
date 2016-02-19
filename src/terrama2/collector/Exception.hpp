@@ -75,6 +75,10 @@ namespace terrama2
 
     //! Base exception for Parser
     struct ParserException: virtual Exception { };
+
+    //! Base exception for UnPack
+    struct UnpackGZException : virtual Exception { };
+
     //! Base exceptio for ParserCemaden
     struct ParserPcdCemadenException: virtual Exception { };
     //! Raised when a file that doesn't exist is provided.
