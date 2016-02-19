@@ -2,7 +2,16 @@
 
 {% block title %} TerraMA2 {{ __('Analysis Registration') }} {% endblock %}
 
+{% block javascripts %}
+    <script type="text/javascript" src="/externals/moment/moment.js"></script>
+    <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/javascripts/terrama2.js"></script>
+{% endblock %}
+
 {% block content %}
+
+    {# Input modal for select static and dynamic data #}
+    {% include "../base/inputDataModal.html" %}
 
     <div class="col-md-12">
         <div class="box box-default">
@@ -64,44 +73,7 @@
                                     <!-- /.form-group -->
                                 </div>
 
-                                <div class="col-md-10">
-                                    <div class="form-group">
-                                        <label style="display:block;">{{ __("Status") }}:</label>
-                                        <div class="col-md-4">
-                                            <div class="radio">
-                                                <label>
-                                                <input name="optionsRadios" id="activeStatus" value="option1" checked="" type="radio">
-                                                    {{ __("Active") }}
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="radio">
-                                                <label>
-                                                <input name="optionsRadios" id="inactiveStatus" value="option1" checked="" type="radio">
-                                                    {{ __("Inactive") }}
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="radio">
-                                                <label>
-                                                <input name="optionsRadios" id="conditionedStatus" value="option1" checked="" type="radio">
-                                                    {{ __("Conditioned") }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- ./.col-md-2 -->
-
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <button class="btn btn-primary terrama2-component-align btn-block">{{ __('Condition') }}</button>
-                                    </div>
-                                </div>
+                                {% include "../base/collectSchedule.html" %}
                             </div>
                             <!-- /.row -->
                         </div>
@@ -139,8 +111,12 @@
                                     <div class="panel-group">
                                         <div class="panel panel-default">
                                             <div class="panel-heading" style="font-weight: 700;">
-                                                Input Data
-                                                <a class="pull-right" data-toggle="collapse" href="#inputDataCollapse"><i class="fa fa-minus"></i></a>
+                                                <span style="padding-right:12px;">{{ __('Input Data') }}:</span>
+                                                <button data-toggle="modal" data-target="#inputDataModal" class="btn btn-box-tool btn-lg terrama2-link">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-box-tool btn-lg terrama2-link"><i class="fa fa-minus"></i>
+                                                </button>
                                             </div>
                                             <div id="inputDataCollapse" class="panel-collapse collapse in">
                                                 <div class="panel-body terrama2-nopadding-box">

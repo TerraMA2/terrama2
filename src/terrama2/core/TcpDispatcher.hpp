@@ -89,10 +89,11 @@ namespace terrama2
     private:
       /*!
          \brief  Creates socket to the remote service.
+         \param Should errors be logged? used in pingService() where errors result in false return.
          \return Shared pointer of the socket.
          \exception UnableToConnect Raised when unable to reach remote service.
        */
-      std::shared_ptr<QTcpSocket> socket();
+      std::shared_ptr<QTcpSocket> socket(bool log = true);
 
       //! Remote service communication especifications.
       ServiceData serviceData_;

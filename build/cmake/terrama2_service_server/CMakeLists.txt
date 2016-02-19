@@ -28,9 +28,11 @@ file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/server/*.hpp)
 
 include_directories (
+  ${GSOAP_INCLUDE_DIR}
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_server/gsoap"
 )
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
@@ -44,4 +46,6 @@ add_executable(terrama2_server ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
 qt5_use_modules(terrama2_server Core)
 
-target_link_libraries(terrama2_server terrama2_mod_core)
+target_link_libraries(terrama2_server
+                      terrama2_mod_core
+                      terrama2_mod_ws_collector_server)

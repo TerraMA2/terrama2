@@ -55,7 +55,7 @@
                                     <input type="file" class="terrama2-hidden" id="loadConfigFileInput" accept=".terrama2">
                                 <a aria-expanded="false" href="#" id="loadConfigFileButton">
                                     <i class="fa fa-folder-open"></i>
-                                    {{ __('Load configuration') }}
+                                    {{ __('Load Project') }}
                                     <!-- <span class="hidden-xs"></span> -->
                                 </a>
                             </li>
@@ -94,7 +94,7 @@
                     <!-- sidebar menu: : style can be found in sidebar.less -->
                     <ul class="sidebar-menu">
                         <li class="header">{{ __('Main Navigation') }}</li>
-                        <li class="active treeview">
+                        <li class="treeview">
                             <a href="/configuration/static-data">
                                 <i class="fa fa-folder-o"></i><span>{{ __('Static Data') }}</span>
                             </a>
@@ -108,7 +108,13 @@
 
                         <li class="treeview">
                             <a href="/configuration/analyses">
-                                <i class="fa fa-tasks"></i><span>{{ __('Analysis') }}</span>
+                                <i class="fa fa-tasks"></i><span>{{ __('Analyses') }}</span>
+                            </a>
+                        </li>
+
+                        <li class="treeview">
+                            <a href="/configuration/alerts">
+                                <i class="fa fa-bell"></i><span>{{ __('Alerts') }}</span>
                             </a>
                         </li>
 
@@ -169,7 +175,7 @@
             });
 
             $("#loadConfigFileInput").change(function(e){
-                // TODO load configuration
+                // TODO load project
             });
         });
         </script>

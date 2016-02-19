@@ -99,6 +99,8 @@ namespace terrama2
       TcpDispatcherPtr tcpDispatcher_;
       QJsonArray jsonPackage_;//!< JSON string to be sent.
     };
+
+    typedef std::shared_ptr<DataManagerIntermediator> DataManagerIntermediatorPtr;//!< Shared pointer to a DataManagerIntermediator
   }
 }
 

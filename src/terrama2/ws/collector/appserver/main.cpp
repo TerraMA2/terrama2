@@ -25,6 +25,7 @@
   \brief Main routine for TerraMA2 Collector Web Service.
 
   \author Vinicius Campanha
+  \author Jano Simas
  */
 
 // STL
@@ -47,6 +48,7 @@
 #include "../Exception.hpp"
 #include "../core/Codes.hpp"
 #include "../../../core/ErrorCodes.hpp"
+#include "../../../core/Project.hpp"
 #include "../../../core/ApplicationController.hpp"
 #include "../../../core/DataManager.hpp"
 #include "../../../core/Utils.hpp"
@@ -127,59 +129,26 @@ bool gSoapThread(int port)
 int main(int argc, char* argv[])
 {
   // check if the parameters was passed correctly
-  if(argc < 2)
+  if(argc < 3)
   {
-    std::cerr << "Usage: terrama2_mod_ws_collector_appserver <project_File>" << std::endl;
+    std::cerr << "Usage: terrama2_mod_ws_collector_appserver <webservice port> <project_File>" << std::endl;
 
     return EXIT_FAILURE;
   }
 
-  std::string logPath = "";
-  int port = 0;
-
-  QJsonDocument jdoc = terrama2::core::ReadJsonFile(argv[1]);
-  QJsonObject project = jdoc.object();
-
   try
   {
-    if(project.contains("collector_web_service"))
-    {
-      QJsonObject collectionConfig = project["collector_web_service"].toObject();
-      port = collectionConfig["port"].toInt();
+    int port = std::atoi(argv[1]);
 
-      if( port < 1024 || port > 49151)
-      {
-        std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
-        return EXIT_FAILURE;
-      }
-
-      logPath = collectionConfig["log_file"].toString().toStdString();
-      if (logPath.empty())
-      {
-        std::cerr << "Invalid log file destination in project file.";
-        return EXIT_FAILURE;
-      }
-    }
-    else
+    if( port < 1024 || port > 49151)
     {
       std::cerr << "Inform a valid port (between 1024 and 49151) into the project file in order to run the collector application server." << std::endl;
       return EXIT_FAILURE;
     }
-  }
-  catch(terrama2::Exception &e)
-  {
-    std::cerr << "Error at reading port from project: " << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str() << std::endl;;
-    return EXIT_FAILURE;
-  }
-  catch(...)
-  {
-    std::cerr << "Unknown error at reading port from project!" << std::endl;
-    return EXIT_FAILURE;
-  }
 
-  try
-  {
-    terrama2::core::initializeLogger(logPath);
+    terrama2::core::Project project(argv[2]);
+
+    terrama2::core::initializeLogger(project.logFile());
     TERRAMA2_LOG_INFO() << "Initializating TerraLib...";
     terrama2::core::initializeTerralib();
 
@@ -200,8 +169,7 @@ int main(int argc, char* argv[])
       terrama2::collector::CollectorService collectorService;
       collectorService.start();
 
-      if(!(gSoapThreadHandle.wait_for(std::chrono::seconds(5)) == std::future_status::ready))
-        app.exec();
+      app.exec();
     }
 
     terrama2::core::DataManager::getInstance().unload();
