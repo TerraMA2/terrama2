@@ -38,6 +38,8 @@
         <!-- /.col md 5 -->
         {% endif %}
     {% else %}  
+
+    {% if kind|lower == "dataset" %}
     <div class="col-md-9">
         <div class="form-group">
             <label>{{ __('Name') }}:</label>
@@ -45,7 +47,6 @@
         </div>
     </div>
 
-    {% if kind|lower == "dataset" %}
     <div class="col-md-3">
         <div class="form-group">
             <label>{{ __('Kind') }}</label>
@@ -57,6 +58,15 @@
         </div>
     </div>
     <!-- /.col md 3 -->
+
+    {% else %}
+    <div class="col-md-12">
+        <div class="form-group">
+            <label>{{ __('Name') }}:</label>
+            <input class="form-control" id="name" placeholder="{{ __('Data Set Name') }}" type="text">
+        </div>
+    </div>
+
     {% endif %}
 
     {% endif %}

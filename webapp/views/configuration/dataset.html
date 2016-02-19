@@ -79,8 +79,9 @@
         $('#rootwizard .finish').click(function() {
             alert('Finished!, Starting over!');
             // $('#initial').trigger('click');
+            console.log($('#rootwizard'));
             $('#rootwizard').find("a[href*='tab1']").trigger('click');
-        })
+        });
     });
     </script>
 {% endblock %}

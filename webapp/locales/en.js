@@ -170,5 +170,6 @@
 	"Ignores data previous to": "Ignores data previous to",
 	"Ignores data after to": "Ignores data after to",
 	"Select the filter area type": "Select the filter area type",
-	"Data Grid Registration": "Data Grid Registration"
+	"Data Grid Registration": "Data Grid Registration",
+	"Selected Project": "Selected Project"
 }
