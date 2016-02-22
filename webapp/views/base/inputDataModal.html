@@ -6,24 +6,44 @@
                 <h4 class="modal-title" id="inputDataModalLabel">{{ __('Select the inputs to analysis') }}</h4>
             </div>
             <div class="modal-body">
-                <div class="col-md-12">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>{{ __('Dynamic Data') }}:</label>
-                            <select class="form-control terrama2-list-align" style="padding: 0;" id="dynamicDataCombobox" multiple>
-                                <option>Lorem ipsum1.1</option>
-                                <option>Lorem ipsum1.2</option>
-                            </select>
-                        </div>
-                    </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="nav nav-tabs" data-tabs="tabs">
+                            <li class="active"><a data-toggle="tab" href="#dynamicDataTab">{{ __('Date') }}</a></li>
+                            <li><a data-toggle="tab" href="#staticDataTab">{{ __('Area') }}</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="dynamicDataTab">
+                                <div class="col-md-12">
+                                    <p></p>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{ __('Dynamic Data') }}:</label>
+                                            <select class="form-control terrama2-list-align" style="padding: 0;" id="dynamicDataCombobox" multiple>
+                                                <option>Lorem ipsum1.1</option>
+                                                <option>Lorem ipsum1.2</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!-- ./col-md-12 -->
+                                </div>
+                            </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>{{ __('Static Data') }}:</label>
-                            <select class="form-control terrama2-list-align" style="padding: 0;" id="dynamicDataCombobox" multiple>
-                                <option>Lorem ipsum2.1</option>
-                                <option>Lorem ipsum2.2</option>
-                            </select>
+                            <div class="tab-pane" id="staticDataTab">
+                                <div class="col-md-12">
+                                    <p></p>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{ __('Static Data') }}:</label>
+                                            <select class="form-control terrama2-list-align" style="padding: 0;" id="dynamicDataCombobox" multiple>
+                                                <option>Lorem ipsum2.1</option>
+                                                <option>Lorem ipsum2.2</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!-- ./col-md-12 -->
+                                </div>
+                            </div>
                         </div>
                     </div>
 
