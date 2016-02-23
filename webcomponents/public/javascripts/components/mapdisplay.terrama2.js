@@ -184,6 +184,10 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     olMap.getView().fit(initialExtent, olMap.getSize());
   };
 
+  var getCurrentExtension = function() {
+    return olMap.getView().calculateExtent(olMap.getSize());
+  };
+
   var init = function() {
     olMap.getLayerGroup().set('name', 'root');
     olMap.getLayerGroup().set('title', 'Geoserver Local');
@@ -216,6 +220,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     setDragBoxEnd: setDragBoxEnd,
     getDragBoxExtent: getDragBoxExtent,
     zoomToInitialExtent: zoomToInitialExtent,
+    getCurrentExtension: getCurrentExtension,
   	init: init
   };
 })();
