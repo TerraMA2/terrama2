@@ -152,7 +152,7 @@ void terrama2::collector::CollectorService::collect(const terrama2::core::DataPr
           terrama2::collector::Log collectLog(transactor);
 
 
-          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime;// = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
+          std::shared_ptr<te::dt::TimeInstantTZ> lastLogTime;//TODO: = collectLog.getDataSetItemLastDateTime(dataSetItem.id());
           DataFilterPtr filter = std::make_shared<DataFilter>(dataSetItem, lastLogTime);
           assert(filter);
 

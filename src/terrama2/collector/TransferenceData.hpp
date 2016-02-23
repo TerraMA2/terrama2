@@ -67,4 +67,4 @@ namespace terrama2
   }
 }
 
-#endif //TRANFERENCEDATA_
+#endif //__TERRAMA2_COLLECTOR_TRANFERENCEDATA_HPP__

@@ -29,8 +29,8 @@
 */
 
 
-#ifndef __TERRAMA2_COLLECTOR_FILTER_HPP__
-#define __TERRAMA2_COLLECTOR_FILTER_HPP__
+#ifndef __TERRAMA2_COLLECTOR_DATAFILTER_HPP__
+#define __TERRAMA2_COLLECTOR_DATAFILTER_HPP__
 
 #include "Log.hpp"
 #include "TransferenceData.hpp"
@@ -219,4 +219,4 @@ namespace terrama2
 }
 
 
-#endif //__TERRAMA2_COLLECTOR_FILTER_HPP__
+#endif //__TERRAMA2_COLLECTOR_DATAFILTER_HPP__
