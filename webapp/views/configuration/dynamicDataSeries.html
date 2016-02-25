@@ -1,0 +1,214 @@
+{% extends "../base/layout.html" %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+
+    <style type="text/css">
+        .terrama2-filterboxes-align
+        {
+            display: inline-block;
+            margin-left: calc(100% / 10);
+        };
+
+    </style>
+{% endblock %}
+
+{% block title %} TerraMA2 {{ __('Dynamic Data Series') }} {% endblock %}
+
+{% block javascripts %}
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        function filterByType(className)
+        {
+            var column0 = $("#searchList tr td:first-child");
+            return $(column0).find("i[class='fa " + className + "']").parent().parent();
+        }
+
+        $("#searchNameInput").on('keyup', function(){
+            var rex = new RegExp($(this).val(), 'i');
+            $('#searchList tr').hide();
+            var results = $('#searchList tr').filter(function () {
+                return rex.test($(this).text());
+            });
+
+            if (results.length < 1)
+                $("#searchList").append("<tr id='noResults'><td colspan='2'>No results</td></tr>");
+            else
+                $("#searchList").find("tr[id='noResults']").remove();
+
+            $(results).show();
+        });
+
+        $("#collectCheck").on('click', function(){
+            $('#searchList tr').hide();
+            var results = filterByType("fa-download");
+            $(results).show();
+        });
+
+        $("#searchType").on("change", function(e){
+            var fact;
+            var index = $('option:selected',$(this)).index();
+            switch(index)
+            {
+                case 0:
+                    $("#searchList tr").show();
+                    return;
+                    break;
+                case 1:
+                    fact = "fa-balance-scale";
+                    break;
+                case 2:
+                    fact = "fa-download";
+                    break;
+                default:
+                    fact = "fa-home";
+            }
+            $("#searchList tr").hide();
+            var column0 = $("#searchList tr td:first-child");
+            var results = $(column0).find("i[class='fa " + fact + "']");
+            $(results).parent().parent().show();
+        });
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">{{ __('Dynamic Data Series') }}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div style="display: block;" class="box-body">
+
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>{{ __('Name') }}:</label>
+                            <input class="form-control" id="searchNameInput" placeholder="{{ __('Type to search') }}" type="text">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group" style="display:inline-block;">
+                            <div class="checkbox">
+                                <label class="terrama2-checkbox-align">
+                                    <input type="checkbox" id="collectCheck" checked> {{ __('Collect') }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group terrama2-filterboxes-align">
+                            <div class="checkbox">
+                                <label class="terrama2-checkbox-align">
+                                    <input type="checkbox" id="analysisCheck" checked> {{ __('Analysis') }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group terrama2-filterboxes-align">
+                            <div class="checkbox">
+                                <label class="terrama2-checkbox-align">
+                                    <input type="checkbox" id="localCheck" checked> {{ __('Local') }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group terrama2-filterboxes-align">
+                            <div class="checkbox">
+                                <label class="terrama2-checkbox-align">
+                                    <input type="checkbox" id="vectorCheck" checked> {{ __('Vector') }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group terrama2-filterboxes-align">
+                            <div class="checkbox">
+                                <label class="terrama2-checkbox-align">
+                                    <input type="checkbox" id="rasterCheck" checked> {{ __('Raster') }}
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- ./col-md-12 -->
+
+                <div class="col-md-12" style="margin-top: 30px;">
+
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width:5%"></th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Type') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchList">
+                            <tr>
+                                <td>
+                                    <i class="fa fa-balance-scale"></i>
+                                    <!-- <img src="/images/line-small.png" class="terrama2-small-icon"> -->
+                                </td>
+                                <td>PCDQA</td>
+                                <td>
+                                    PCD-INPE
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <i class="fa fa-download"></i>
+                                    <!-- <img src="/images/grid-small.png" class="terrama2-small-icon"> -->
+                                </td>
+                                <td>Prec_Eta15km</td>
+                                <td>
+                                    Grid
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <i class="fa fa-balance-scale"></i>
+                                    <!-- <img src="/images/grid-small.png" class="terrama2-small-icon"> -->
+                                </td>
+                                <td>hidro</td>
+                                <td>
+                                    Grid
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <i class="fa fa-download"></i>
+                                    <!-- <img src="/images/line-small.png" class="terrama2-small-icon"> -->
+                                </td>
+                                <td>Focos_NOAA</td>
+                                <td>
+                                    Occurrence
+                                </td>
+                            </tr>
+
+
+                            <tr>
+                                <td>
+                                    <i class="fa fa-home"></i>
+                                    <!-- <img src="/images/line-small.png" class="terrama2-small-icon"> -->
+                                </td>
+                                <td>raio</td>
+                                <td>
+                                    Grid
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+            <!-- /.box body -->
+        </div>
+    </div> <!-- end col md 12 -->
+
+{% endblock %}
