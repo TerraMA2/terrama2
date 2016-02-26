@@ -19,10 +19,38 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        function filterByType(className)
+        function filterByType(element, className)
         {
             var column0 = $("#searchList tr td:first-child");
-            return $(column0).find("i[class='fa " + className + "']").parent().parent();
+            var items = column0;
+            if($("#collectCheck").is(':checked'))
+            {
+                $(column0).find("i[class='fa fa-download']").parent().parent().show();
+            }
+            else
+            {
+                items = $(column0).find("i").not($("[class='fa fa-download']")).parent().parent();
+            }
+
+            if($("#analysisCheck").is(':checked'))
+            {
+                $(items).find("i[class='fa fa-balance-scale']").parent().parent().show();
+            }
+            else
+            {
+                items = $(items).find("i").not($("[class='fa fa-balance-scale']")).parent().parent();
+            }
+
+            if($("#localCheck").is(':checked'))
+            {
+                $(items).find("i[class='fa fa-home']").parent().parent().show();
+            }
+            else
+            {
+                items = $(items).find("i").not($("[class='fa fa-home']")).parent().parent();
+            }
+
+            return items;
         }
 
         $("#searchNameInput").on('keyup', function(){
@@ -42,32 +70,20 @@
 
         $("#collectCheck").on('click', function(){
             $('#searchList tr').hide();
-            var results = filterByType("fa-download");
+            var results = filterByType($(this), "fa-download");
             $(results).show();
         });
 
-        $("#searchType").on("change", function(e){
-            var fact;
-            var index = $('option:selected',$(this)).index();
-            switch(index)
-            {
-                case 0:
-                    $("#searchList tr").show();
-                    return;
-                    break;
-                case 1:
-                    fact = "fa-balance-scale";
-                    break;
-                case 2:
-                    fact = "fa-download";
-                    break;
-                default:
-                    fact = "fa-home";
-            }
-            $("#searchList tr").hide();
-            var column0 = $("#searchList tr td:first-child");
-            var results = $(column0).find("i[class='fa " + fact + "']");
-            $(results).parent().parent().show();
+        $("#analysisCheck").on('click', function(){
+            $('#searchList tr').hide();
+            var results = filterByType($(this), "fa-balance-scale");
+            $(results).show();
+        });
+
+        $("#localCheck").on('click', function(){
+            $('#searchList tr').hide();
+            var results = filterByType($(this), "fa-home");
+            $(results).show();
         });
     });
 </script>
@@ -116,7 +132,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group terrama2-filterboxes-align">
+<!--                         <div class="form-group terrama2-filterboxes-align">
                             <div class="checkbox">
                                 <label class="terrama2-checkbox-align">
                                     <input type="checkbox" id="vectorCheck" checked> {{ __('Vector') }}
@@ -130,7 +146,7 @@
                                     <input type="checkbox" id="rasterCheck" checked> {{ __('Raster') }}
                                 </label>
                             </div>
-                        </div>
+                        </div> -->
 
                     </div>
                 </div>
@@ -160,10 +176,10 @@
 
                             <tr>
                                 <td>
-                                    <i class="fa fa-download"></i>
+                                    <i class="fa fa-balance-scale"></i>
                                     <!-- <img src="/images/grid-small.png" class="terrama2-small-icon"> -->
                                 </td>
-                                <td>Prec_Eta15km</td>
+                                <td>hidro</td>
                                 <td>
                                     Grid
                                 </td>
@@ -171,10 +187,10 @@
 
                             <tr>
                                 <td>
-                                    <i class="fa fa-balance-scale"></i>
+                                    <i class="fa fa-download"></i>
                                     <!-- <img src="/images/grid-small.png" class="terrama2-small-icon"> -->
                                 </td>
-                                <td>hidro</td>
+                                <td>Prec_Eta15km</td>
                                 <td>
                                     Grid
                                 </td>
