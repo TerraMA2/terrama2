@@ -19,38 +19,30 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        function filterByType(element, className)
+        function filter(objects, element, className)
+        {
+            var expression = "i[class='fa " + className + "']";
+            if($(element).is(':checked'))
+            {
+                $(objects).find(expression).parent().parent().show();
+            }
+            else
+            {
+                objects = $(objects).find("i").not($(expression)).parent().parent();
+            }
+        }
+
+        function filterByType()
         {
             var column0 = $("#searchList tr td:first-child");
-            var items = column0;
-            if($("#collectCheck").is(':checked'))
-            {
-                $(column0).find("i[class='fa fa-download']").parent().parent().show();
-            }
-            else
-            {
-                items = $(column0).find("i").not($("[class='fa fa-download']")).parent().parent();
-            }
+            $(column0).parent().hide();
+            items = column0;
 
-            if($("#analysisCheck").is(':checked'))
-            {
-                $(items).find("i[class='fa fa-balance-scale']").parent().parent().show();
-            }
-            else
-            {
-                items = $(items).find("i").not($("[class='fa fa-balance-scale']")).parent().parent();
-            }
+            filter(items, $("#collectCheck"), "fa-download");
+            filter(items, $("#analysisCheck"), "fa-balance-scale");
+            filter(items, $("#localCheck"), "fa-home");
 
-            if($("#localCheck").is(':checked'))
-            {
-                $(items).find("i[class='fa fa-home']").parent().parent().show();
-            }
-            else
-            {
-                items = $(items).find("i").not($("[class='fa fa-home']")).parent().parent();
-            }
-
-            return items;
+            $(items).show();
         }
 
         $("#searchNameInput").on('keyup', function(){
@@ -69,21 +61,15 @@
         });
 
         $("#collectCheck").on('click', function(){
-            $('#searchList tr').hide();
-            var results = filterByType($(this), "fa-download");
-            $(results).show();
+            filterByType();
         });
 
         $("#analysisCheck").on('click', function(){
-            $('#searchList tr').hide();
-            var results = filterByType($(this), "fa-balance-scale");
-            $(results).show();
+            filterByType();
         });
 
         $("#localCheck").on('click', function(){
-            $('#searchList tr').hide();
-            var results = filterByType($(this), "fa-home");
-            $(results).show();
+            filterByType();
         });
     });
 </script>
