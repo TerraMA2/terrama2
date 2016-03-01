@@ -177,7 +177,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   var zoomToExtent = function(extent) {
-    olMap.getView().fit(extent, olMap.getSize());
+    olMap.getView().fit(extent, olMap.getSize(), { constrainResolution: false });
   };
 
   var zoomToInitialExtent = function() {
