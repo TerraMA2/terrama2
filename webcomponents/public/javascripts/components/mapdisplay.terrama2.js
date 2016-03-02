@@ -87,12 +87,17 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
   };
 
-  var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
+  var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
     return new ol.layer.Vector({
       source: new ol.source.Vector({
         url: url,
-        format: new ol.format.GeoJSON()
+        format: new ol.format.GeoJSON(),
+        strategy: ol.loadingstrategy.bbox
       }),
+      style: function(feature) {
+        var colors = styleFunction(feature, fillColors, strokeColors);
+        return createStyle(colors.fillColor, colors.strokeColor);
+      },
       name: layerName,
       title: layerTitle,
       visible: layerVisible,
@@ -100,18 +105,25 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
-  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
+  var createStyle = function(fill, stroke) {
+    return new ol.style.Style({
+      fill: new ol.style.Fill({
+        color: fill
+      }),
+      stroke: new ol.style.Stroke({
+        color: stroke,
+        width: 2
+      })
+    });
+  };
+
+  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
     olMap.addLayer(
-      createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer)
+      createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction)
     );
 
     TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
   };
-
-
-
-
-
 
   /**
    * Find a layer by a given key
