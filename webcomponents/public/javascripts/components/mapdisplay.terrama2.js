@@ -233,6 +233,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     getDragBoxExtent: getDragBoxExtent,
     zoomToInitialExtent: zoomToInitialExtent,
     getCurrentExtension: getCurrentExtension,
+    addTileWMSLayer: addTileWMSLayer,
   	init: init
   };
 })();
