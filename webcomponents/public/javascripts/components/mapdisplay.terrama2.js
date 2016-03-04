@@ -1,11 +1,20 @@
 "use strict";
 
-/** @class MapDisplay - Class responsible for presenting the map. */
+/**
+ * Class responsible for presenting the map.
+ * @module MapDisplay
+ *
+ * @property {ol.interaction.DragBox} zoomDragBox - DragBox object.
+ * @property {array} initialExtent - Initial extent.
+ * @property {ol.Map} olMap - Map object.
+ */
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
-  var dragBox = null;
+  // DragBox object
+  var zoomDragBox = null;
+  // Initial extent
   var initialExtent = null;
-
+  // Map object
   var olMap = new ol.Map({
     renderer: 'canvas',
     layers: [
@@ -47,20 +56,36 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   });
 
   /**
-   * Return the map object
-   * @returns {ol.Map} olMap - map object
+   * Returns the map object.
+   * @returns {ol.Map} olMap - Map object
+   *
+   * @function getMap
    */
   var getMap = function() {
     return olMap;
   };
 
   /**
-   * Create a new tiled wms layer
-   * @param {string} url - url to the wms layer
-   * @param {string} type - server type
-   * @param {string} layerName - layer name
-   * @param {string} layerTitle - layer title
-   * @returns {ol.layer.Tile} olMap - new tiled wms layer
+   * Updates the map size accordingly to its container.
+   *
+   * @function updateMapSize
+   */
+  var updateMapSize = function() {
+    var interval = window.setInterval(function() { olMap.updateSize(); }, 10);
+    window.setTimeout(function() { clearInterval(interval); }, 300);
+  };
+
+  /**
+   * Creates a new tiled wms layer.
+   * @param {string} url - Url to the wms layer
+   * @param {string} type - Server type
+   * @param {string} layerName - Layer name
+   * @param {string} layerTitle - Layer title
+   * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
+   * @returns {ol.layer.Tile} new ol.layer.Tile - New tiled wms layer
+   *
+   * @function createTileWMS
    */
   var createTileWMS = function(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
     return new ol.layer.Tile({
@@ -79,6 +104,17 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
+  /**
+   * Adds a new tiled wms layer to the map.
+   * @param {string} url - Url to the wms layer
+   * @param {string} type - Server type
+   * @param {string} layerName - Layer name
+   * @param {string} layerTitle - Layer title
+   * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
+   *
+   * @function addTileWMSLayer
+   */
   var addTileWMSLayer = function(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
     olMap.addLayer(
       createTileWMS(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer)
@@ -87,6 +123,20 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
   };
 
+  /**
+   * Creates a new GeoJSON vector layer.
+   * @param {string} url - Url to the wms layer
+   * @param {string} layerName - Layer name
+   * @param {string} layerTitle - Layer title
+   * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
+   * @param {array} fillColors - Array with the fill colors
+   * @param {array} strokeColors - Array with the stroke colors
+   * @param {function} styleFunction - Function create
+   * @returns {ol.layer.Vector} new ol.layer.Vector - New GeoJSON vector layer
+   *
+   * @function createGeoJSONVector
+   */
   var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
     return new ol.layer.Vector({
       source: new ol.source.Vector({
@@ -105,6 +155,14 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
+  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
+    olMap.addLayer(
+      createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction)
+    );
+
+    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
+  };
+
   var createStyle = function(fill, stroke) {
     return new ol.style.Style({
       fill: new ol.style.Fill({
@@ -117,12 +175,36 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
-  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
-    olMap.addLayer(
-      createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction)
-    );
+  var addZoomDragBox = function() {
+    olMap.addInteraction(zoomDragBox);
+  };
 
-    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
+  var removeZoomDragBox = function() {
+    olMap.removeInteraction(zoomDragBox);
+  };
+
+  var getZoomDragBoxExtent = function() {
+    return zoomDragBox.getGeometry().getExtent();
+  };
+
+  var setZoomDragBoxStart = function(eventFunction) {
+    zoomDragBox.on('boxstart', eventFunction);
+  };
+
+  var setZoomDragBoxEnd = function(eventFunction) {
+    zoomDragBox.on('boxend', eventFunction);
+  };
+
+  var getCurrentExtension = function() {
+    return olMap.getView().calculateExtent(olMap.getSize());
+  };
+
+  var zoomToInitialExtent = function() {
+    olMap.getView().fit(initialExtent, olMap.getSize());
+  };
+
+  var zoomToExtent = function(extent) {
+    olMap.getView().fit(extent, olMap.getSize(), { constrainResolution: false });
   };
 
   /**
@@ -160,53 +242,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     findBy(olMap.getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
   };
 
-  /**
-   * Update the map size according to its container
-   */
-  var updateMapSize = function() {
-    var interval = window.setInterval(function() { olMap.updateSize(); }, 10);
-    window.setTimeout(function() { clearInterval(interval); }, 300);
-  };
-
-  var addDragBox = function() {
-    olMap.addInteraction(dragBox);
-  };
-
-  var removeDragBox = function() {
-    olMap.removeInteraction(dragBox);
-  };
-
-  var getDragBoxExtent = function() {
-    return dragBox.getGeometry().getExtent();
-  };
-
-  var setDragBoxStart = function(eventFunction) {
-    dragBox.on('boxstart', eventFunction);
-  };
-
-  var setDragBoxEnd = function(eventFunction) {
-    dragBox.on('boxend', eventFunction);
-  };
-
-  var zoomToExtent = function(extent) {
-    olMap.getView().fit(extent, olMap.getSize(), { constrainResolution: false });
-  };
-
-  var zoomToInitialExtent = function() {
-    olMap.getView().fit(initialExtent, olMap.getSize());
-  };
-
-  var getCurrentExtension = function() {
-    return olMap.getView().calculateExtent(olMap.getSize());
-  };
-
   var init = function() {
     olMap.getLayerGroup().set('name', 'root');
     olMap.getLayerGroup().set('title', 'Geoserver Local');
     var zoomslider = new ol.control.ZoomSlider();
     olMap.addControl(zoomslider);
 
-    dragBox = new ol.interaction.DragBox({
+    zoomDragBox = new ol.interaction.DragBox({
       condition: ol.events.condition.always
     });
 
@@ -219,20 +261,20 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
   return {
     getMap: getMap,
-  	createTileWMS: createTileWMS,
-  	findBy: findBy,
   	updateMapSize: updateMapSize,
-    addGeoJSONVectorLayer: addGeoJSONVectorLayer,
-    applyCQLFilter: applyCQLFilter,
-    addDragBox: addDragBox,
-    removeDragBox: removeDragBox,
-    zoomToExtent: zoomToExtent,
-    setDragBoxStart: setDragBoxStart,
-    setDragBoxEnd: setDragBoxEnd,
-    getDragBoxExtent: getDragBoxExtent,
-    zoomToInitialExtent: zoomToInitialExtent,
-    getCurrentExtension: getCurrentExtension,
+  	createTileWMS: createTileWMS,
     addTileWMSLayer: addTileWMSLayer,
+    addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+    addZoomDragBox: addZoomDragBox,
+    removeZoomDragBox: removeZoomDragBox,
+    getZoomDragBoxExtent: getZoomDragBoxExtent,
+    setZoomDragBoxStart: setZoomDragBoxStart,
+    setZoomDragBoxEnd: setZoomDragBoxEnd,
+    getCurrentExtension: getCurrentExtension,
+    zoomToInitialExtent: zoomToInitialExtent,
+    zoomToExtent: zoomToExtent,
+  	findBy: findBy,
+    applyCQLFilter: applyCQLFilter,
   	init: init
   };
 })();
