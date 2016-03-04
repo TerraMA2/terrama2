@@ -203,9 +203,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var init = function() {
     olMap.getLayerGroup().set('name', 'root');
     olMap.getLayerGroup().set('title', 'Geoserver Local');
-
-    $("#terrama2-map").find('div.ol-zoom').removeClass('ol-zoom').addClass('terrama2-map-simple-zoom');
-    $("#terrama2-map").find('div.ol-attribution').addClass('terrama2-map-attribution');
+    var zoomslider = new ol.control.ZoomSlider();
+    olMap.addControl(zoomslider);
 
     dragBox = new ol.interaction.DragBox({
       condition: ol.events.condition.always
