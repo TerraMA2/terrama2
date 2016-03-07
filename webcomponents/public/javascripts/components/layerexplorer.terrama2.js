@@ -55,15 +55,6 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
 
-    var div2 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
-    "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
-    TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
-
-    /* var div2 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
-    "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
-    TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayer +
-    TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider; */
-
     if(layer.getLayers) {
       var sublayersElem = '';
       var layers = layer.getLayers().getArray(),
@@ -75,6 +66,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       if(firstCall) {
         elem = sublayersElem + "</li>";
       } else {
+        var div2 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
+        "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
+        TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
+
         elem = div2 + " <ul>" + sublayersElem + "</ul></li>";
       }
     } else {
@@ -125,22 +120,6 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   };
 
   /**
-   * Set the visibility of a given layer or layer group, if it is visible, it will be hidden, otherwise will be shown
-   * @param {ol.layer} layer - openlayers layer or layer group
-   */
-  var setLayerVisibility = function(layer) {
-    layer.setVisible(!layer.getVisible());
-
-    if(layer.getLayers) {
-      var layers = layer.getLayers().getArray();
-      var len = layers.length;
-      for (var i = 0; i < len; i++) {
-        layers[i].setVisible(layer.getVisible());
-      }
-    }
-  };
-
-  /**
    * Load the LayerExplorer events
    */
   var loadEvents = function() {
@@ -170,7 +149,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
       var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
 
-      setLayerVisibility(layer);
+      mapDisplay.setLayerVisibility(layer);
 
       var children = _$this.parent('li.parent_li').find(' > ul > li');
       var span = _$this.parent('li.parent_li').find(' > span');

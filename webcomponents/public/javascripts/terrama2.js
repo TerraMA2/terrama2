@@ -1,10 +1,10 @@
-//Make sure jQuery has been loaded before terrama2.js
-if (typeof jQuery === "undefined") {
+// Makes sure that jQuery has been loaded before terrama2.js
+if(typeof jQuery === "undefined") {
   throw new Error("TerraMA² WebComponents requires jQuery");
 }
 
-//Make sure OpenLayers 3 has been loaded before terrama2.js
-if (typeof ol === "undefined") {
+// Makes sure that OpenLayers 3 has been loaded before terrama2.js
+if(typeof ol === "undefined") {
   throw new Error("TerraMA² WebComponents requires Openlayers 3");
 }
 
