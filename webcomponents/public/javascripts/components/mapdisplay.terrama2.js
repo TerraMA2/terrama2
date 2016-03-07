@@ -175,6 +175,37 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
+  /**
+   * Sets the visibility of a given layer or layer group, if it is visible, it will be hidden, otherwise will be shown.
+   * @param {ol.layer} layer - Layer or layer group
+   *
+   * @function setLayerVisibility
+   */
+  var setLayerVisibility = function(layer) {
+    layer.setVisible(!layer.getVisible());
+
+    if(layer.getLayers) {
+      var layers = layer.getLayers().getArray();
+      var len = layers.length;
+      for(var i = 0; i < len; i++) {
+        layers[i].setVisible(layer.getVisible());
+      }
+    }
+  };
+
+  var setLayerVisibilityByName = function(layerName, visibilityFlag) {
+    var layer = findBy(olMap.getLayerGroup(), 'name', layerName);
+    layer.setVisible(visibilityFlag);
+
+    if(layer.getLayers) {
+      var layers = layer.getLayers().getArray();
+      var len = layers.length;
+      for(var i = 0; i < len; i++) {
+        layers[i].setVisible(visibilityFlag);
+      }
+    }
+  };
+
   var addZoomDragBox = function() {
     olMap.addInteraction(zoomDragBox);
   };
@@ -242,6 +273,28 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     findBy(olMap.getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
   };
 
+
+
+  var resolutionChangeEventKey = null;
+
+  var onMapResolutionChange = function(eventFunction) {
+    if(resolutionChangeEventKey !== null) olMap.getView().unByKey(resolutionChangeEventKey);
+    resolutionChangeEventKey = olMap.getView().on('propertychange', function(e) {
+      switch(e.key) {
+        case 'resolution':
+          eventFunction(e);
+          break;
+      }
+    });
+  };
+
+  var getMapResolution = function() {
+    return olMap.getView().getResolution();
+  };
+
+
+
+
   var init = function() {
     olMap.getLayerGroup().set('name', 'root');
     olMap.getLayerGroup().set('title', 'Geoserver Local');
@@ -265,6 +318,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   	createTileWMS: createTileWMS,
     addTileWMSLayer: addTileWMSLayer,
     addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+    setLayerVisibility: setLayerVisibility,
+    setLayerVisibilityByName: setLayerVisibilityByName,
     addZoomDragBox: addZoomDragBox,
     removeZoomDragBox: removeZoomDragBox,
     getZoomDragBoxExtent: getZoomDragBoxExtent,
@@ -275,6 +330,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     zoomToExtent: zoomToExtent,
   	findBy: findBy,
     applyCQLFilter: applyCQLFilter,
+    onMapResolutionChange: onMapResolutionChange,
+    getMapResolution: getMapResolution,
   	init: init
   };
 })();
