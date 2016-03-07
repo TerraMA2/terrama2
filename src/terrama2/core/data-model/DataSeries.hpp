@@ -20,19 +20,16 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataProvider.hpp
+  \file terrama2/core/DataSeries.hpp
 
-  \brief Models the information of a DataProvider (or data server).
+  \brief Models the information of a DataSeries.
 
   \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATASERIES_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATASERIES_HPP__
 
-// TerraMA2
-#include "Project.hpp"  
-  
 // STL
 #include <string>
 
@@ -40,19 +37,17 @@ namespace terrama2
 {
   namespace core
   {
-    struct DataProvider
+    struct DataSeries
     {
-      uint64_t project_id;
+      uint64_t data_provider_id;
+      DataSeriesSemantics data_series_semantics_id;
+      uint64_t id;
       std::string name;
       std::string description;
-      DataProviderType data_provider_type_id;
-      DataProviderIntent data_provider_intent_id;
-      std::string uri;
-      bool active;
-      uint64_t id;
     };
   } // end namespace core
-}   // end namespace terrama2
+} // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
+#endif // __TERRAMA2_CORE_DATA_MODEL_DATASERIES_HPP__
+
 
