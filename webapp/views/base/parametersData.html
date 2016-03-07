@@ -1,139 +1,125 @@
-{# It should have an object in structure like: {kind: "dataset type", state: "static|dynamic"} #}
-<div class="box box-default box-solid">
-    <div class="box-header with-border">
-        <h3 class="box-title">{{ __('Parameters') }}</h3>
-        <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-            </button>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <div class="input-group">
+            <label>{{ __('Mask') }}:</label>
+            <input type="text" class="form-control" aria-label="..." id="mask">
+            <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="   false">
+                     <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" id="mask-list">
+                    <li><a href="javascript:void(0)">{{ __('%Y - Four digits year') }}</a></li>
+                    <li><a href="javascript:void(0)">{{ __('%y - Two digits year') }}</a></li>
+                    <li><a href="javascript:void(0)">{{ __('%d - Day') }}</a></li>
+                </ul>
+            </div><!-- /btn-group -->
+        </div><!-- /input-group -->
+
+    </div>
+    <!-- /.col md 6 -->
+
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>{{ __('Timezone') }}</label>
+            <select class="form-control" id="timezone">
+                <option>00:00</option>
+                <option>12:00</option>
+            </select>
         </div>
     </div>
-    <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
-        <div class="row">
-            <div class="col-md-6">
 
-                <div class="input-group">
-                    <label>{{ __('Mask') }}:</label>
-                    <input type="text" class="form-control" aria-label="..." id="mask">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="   false">
-                            {{ __('Format') }} <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" id="mask-list">
-                            <li><a href="javascript:void(0)">{{ __('%Y - Four digits year') }}</a></li>
-                            <li><a href="javascript:void(0)">{{ __('%y - Two digits year') }}</a></li>
-                            <li><a href="javascript:void(0)">{{ __('%d - Day') }}</a></li>
-                        </ul>
-                    </div><!-- /btn-group -->
-                </div><!-- /input-group -->
-
+    {% if kind|lower == "pcd" %}
+      {% if state == "dynamic" %}
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>{{ __('Latitude') }}:</label>
+                <input class="form-control" id="latitude" placeholder="{{ __('Data Set Latitude') }}" type="number">
             </div>
-            <!-- /.col md 6 -->
-
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>{{ __('Timezone') }}</label>
-                    <select class="form-control" id="timezone">
-                        <option>00:00</option>
-                        <option>12:00</option>
-                    </select>
-                </div>
-            </div>
-
-            {% if kind|lower == "pcd" %}
-              {% if state == "dynamic" %}
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>{{ __('Latitude') }}:</label>
-                        <input class="form-control" id="latitude" placeholder="{{ __('Data Set Latitude') }}" type="number">
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>{{ __('Longitude') }}:</label>
-                        <input class="form-control" id="longitude" placeholder="{{ __('Data Set Longitude') }}" type="number">
-                    </div>
-                </div>
-
-                {# TODO: autocomplete while filling input out. #}
-                <div class="col-md-3">
-                    {% include "projection.html" %}
-                </div>
-
-                <div class="col-md-1">
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label class="terrama2-checkbox-align">
-                                <input type="checkbox" id="pcdActive"> {{ __('Active') }}
-                            </label>
-                        </div>
-                    </div>
-                </div>  
-
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <button class="btn btn-default terrama2-component-align btn-block" id="terrama2-add-pcd">{{ __('Add') }}</button>
-                    </div>
-                    <!-- /.form-group -->
-                </div>
-
-                <div class="col-md-12">
-                    <div class="box-body table-responsive no-padding">
-                        <table class="table table-hover terrama2-header-fixed" id="terrama2-pcd-table">
-                           <thead>
-                               <tr>
-                                   <th>{{ __('Mask') }}</th>
-                                   <th>{{ __('Latitude') }}</th>
-                                   <th>{{ __('Longitude') }}</th>
-                                   <th>{{ __('Active') }}</th>
-                                   <th>{{ __('Projection') }}</th>
-                                   <th>{{ __('Timezone') }}</th>
-                               </tr>
-                           </thead>
-                           <tbody>
-                               <tr>
-                                   <td>PCD1</td>
-                                   <td>10</td>
-                                   <td>10</td>
-                                   <td>
-                                       <span class="label label-success">
-                                           <i class="glyphicon glyphicon-ok"></i>
-                                       </span>
-                                   </td>
-                                   <td>4326</td>
-                                   <td>+02:00</td>
-                               </tr>
-                               <tr>
-                                   <td>PCD2</td>
-                                   <td>20</td>
-                                   <td>20</td>
-                                   <td>
-                                       <span class="label label-danger">
-                                           <i class="glyphicon glyphicon-remove"></i>
-                                       </span>
-                                   </td>
-                                   <td>4326</td>
-                                   <td>+05:00</td>
-                               </tr>
-                           </tbody>
-                       </table>
-                    </div><!-- /.box-body -->
-                </div>
-              {% endif %}
-            {% endif %}
-
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label>{{ __('Path') }}:</label>
-                    <input class="form-control" id="path" placeholder="{{ __('Data Set Path') }}" type="text">
-                </div>
-            </div>
-            <!-- /.col md 6 -->
-
         </div>
-        <!-- /.row -->
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>{{ __('Longitude') }}:</label>
+                <input class="form-control" id="longitude" placeholder="{{ __('Data Set Longitude') }}" type="number">
+            </div>
+        </div>
+
+        {# TODO: autocomplete while filling input out. #}
+        <div class="col-md-3">
+            {% include "projection.html" %}
+        </div>
+
+        <div class="col-md-1">
+            <div class="form-group">
+                <div class="checkbox">
+                    <label class="terrama2-checkbox-align">
+                        <input type="checkbox" id="pcdActive"> {{ __('Active') }}
+                    </label>
+                </div>
+            </div>
+        </div>  
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <button class="btn btn-default terrama2-component-align btn-block" id="terrama2-add-pcd">{{ __('Add') }}</button>
+            </div>
+            <!-- /.form-group -->
+        </div>
+
+        <div class="col-md-12">
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover terrama2-header-fixed" id="terrama2-pcd-table">
+                   <thead>
+                       <tr>
+                           <th>{{ __('Mask') }}</th>
+                           <th>{{ __('Latitude') }}</th>
+                           <th>{{ __('Longitude') }}</th>
+                           <th>{{ __('Active') }}</th>
+                           <th>{{ __('Projection') }}</th>
+                           <th>{{ __('Timezone') }}</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       <tr>
+                           <td>PCD1</td>
+                           <td>10</td>
+                           <td>10</td>
+                           <td>
+                               <span class="label label-success">
+                                   <i class="glyphicon glyphicon-ok"></i>
+                               </span>
+                           </td>
+                           <td>4326</td>
+                           <td>+02:00</td>
+                       </tr>
+                       <tr>
+                           <td>PCD2</td>
+                           <td>20</td>
+                           <td>20</td>
+                           <td>
+                               <span class="label label-danger">
+                                   <i class="glyphicon glyphicon-remove"></i>
+                               </span>
+                           </td>
+                           <td>4326</td>
+                           <td>+05:00</td>
+                       </tr>
+                   </tbody>
+               </table>
+            </div><!-- /.box-body -->
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <div class="col-md-12">
+        <div class="form-group">
+            <label>{{ __('Path') }}:</label>
+            <input class="form-control" id="path" placeholder="{{ __('Data Set Path') }}" type="text">
+        </div>
     </div>
-    <!-- /.box group -->
+    <!-- /.col md 6 -->
+
 </div>
-<!-- /.box solid -->
+<!-- /.row -->

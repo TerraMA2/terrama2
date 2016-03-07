@@ -73,7 +73,45 @@
                                     <!-- /.form-group -->
                                 </div>
 
-                                {% include "../base/collectSchedule.html" %}
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>{{ __("Status") }}:</label>
+                                        <div class="checkbox">
+                                            <label style="font-weight: 700;">
+                                                <input type="checkbox"> {{ __("Active") }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label style="font-weight: 700; margin-top:25px;">
+                                                <input type="checkbox"> {{ __("Inactive") }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label style="font-weight: 700; margin-top:25px;">
+                                                <input type="checkbox"> {{ __("Conditioned") }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <button class="btn btn-default" style="margin-top:19px;">{{ __("Condition") }}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {# % include "../base/collectSchedule.html" % #}
                             </div>
                             <!-- /.row -->
                         </div>
@@ -152,7 +190,19 @@
                                 <div class="col-md-7">
                                     <div class="form-group">
                                         <label>{{ __('Analysis Model') }}:</label>
-                                        <textarea class="form-control" rows="15" placeholder="{{ __('Type here your analysis model') }}"></textarea>
+                                        <textarea class="form-control" rows="20" placeholder="{{ __('Type here your analysis model') }}"></textarea>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="btn-group" style="padding-top:25px;">
+                                            <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                                                {{ __('Functions') }}
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="#">max</a></li>
+                                                <li><a href="#">min</a></li>
+                                                <li><a href="#">abs</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
