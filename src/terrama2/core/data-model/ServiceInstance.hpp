@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/data-model/ServiceInstance.hpp
 
-  \brief
+  \brief Service instance information.
 
   \author Jano Simas
  */
@@ -30,13 +30,25 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_SERVICE_INSTANCE_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_SERVICE_INSTANCE_HPP__
 
+//TerraMA2
 #include "../Config.hpp"
 
 namespace terrama2
 {
   namespace core
   {
-    class Project
+    /*!
+      \class ServiceInstance
+      \brief Encapsulates a single service instance information.
+
+      This struct includes descriptive information as 'name' and 'description',
+      as well as instantiation needed info.
+
+      The service will be instantiated via ssh and the system should have
+      no-pass access (no-pass public key) to the remote server.
+
+    */
+    struct ServiceInstance
     {
       enum ServiceType
       {
@@ -44,7 +56,7 @@ namespace terrama2
         ANALYSIS_SERVICE,//<! Service responsible for processing data
         ALERT_SERVICE//!< Service responsible for reports and risk alerts
       }
-      
+
       uint64_t id; //!< Instance metadata unique identifier.
       ServiceType service_type; //!< Defines the type of service that must be instantiated.
       std::string name;//!< Service instance unique name. Human readable.
