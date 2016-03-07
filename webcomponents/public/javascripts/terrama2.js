@@ -14,34 +14,52 @@ window.TerraMA2WebComponents = {
   webcomponents: {}
 };
 
-/** @class TerraMA2WebComponents - Main class of the API. */
+/**
+ * Main class of the API.
+ * @module TerraMA2WebComponents
+ *
+ * @property {array} components - Array of components names received on the initialization.
+ * @property {int} componentsLength - Length of the components names array.
+ * @property {boolean} componentsLoaded - Flag that indicates if all the components have been loaded.
+ * @property {string} terrama2Url - TerraMA² WebComponents URL.
+ */
 TerraMA2WebComponents.obj = (function() {
-  var components = null;
-  var componentsLength = null;
-  var componentsLoaded = false;
 
+  // Array of components names received on the initialization
+  var components = null;
+  // Length of the components names array
+  var componentsLength = null;
+  // Flag that indicates if all the components have been loaded
+  var componentsLoaded = false;
+  // TerraMA² WebComponents URL
   var terrama2Url = null;
 
   /**
-   * Return the length of the components array
-   * @returns {number} componentsLength - length of the components array
+   * Returns the length of the components names array.
+   * @returns {int} componentsLength - Length of the components names array
+   *
+   * @function getComponentsLength
    */
   var getComponentsLength = function() {
     return componentsLength;
   };
 
   /**
-   * Return the url to the TerraMA² web API
-   * @returns {string} terrama2Url - url to the TerraMA² web API
+   * Returns the URL of the TerraMA² WebComponents.
+   * @returns {string} terrama2Url - URL of the TerraMA² WebComponents
+   *
+   * @function getComponentsLength
    */
   var getTerrama2Url = function() {
     return terrama2Url;
   };
 
   /**
-   * Verifies if a given file exist
-   * @param {string} url - url to the file
-   * @return {boolean}
+   * Verifies if a given file exists.
+   * @param {string} url - URL of the file
+   * @returns {boolean} boolean - Flag that indicates if the file exists
+   *
+   * @function fileExists
    */
   var fileExists = function(url) {
     $.ajax({
@@ -57,8 +75,11 @@ TerraMA2WebComponents.obj = (function() {
   };
 
   /**
-   * Load the TerraMA² components present in the components array
-   * @param {number} i - current array position
+   * Loads the components present in the components array.
+   * @param {int} i - Current array index
+   *
+   * @private
+   * @function loadComponents
    */
   var loadComponents = function(i) {
     if(i < componentsLength) {
@@ -75,10 +96,23 @@ TerraMA2WebComponents.obj = (function() {
     }
   };
 
+  /**
+   * Returns the flag that indicates if all the components have been loaded.
+   * @returns {boolean} componentsLoaded - Flag that indicates if all the components have been loaded
+   *
+   * @function isComponentsLoaded
+   */
   var isComponentsLoaded = function() {
     return componentsLoaded;
   };
 
+  /**
+   * Initializes the necessary features.
+   * @param {string} _terrama2Url - TerraMA² WebComponents URL
+   * @param {array} _components - Array of components names
+   *
+   * @function init
+   */
   var init = function(_terrama2Url, _components) {
     components = _components;
     componentsLength = components.length;

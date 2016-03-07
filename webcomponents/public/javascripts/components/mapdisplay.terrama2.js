@@ -7,6 +7,7 @@
  * @property {ol.interaction.DragBox} zoomDragBox - DragBox object.
  * @property {array} initialExtent - Initial extent.
  * @property {ol.Map} olMap - Map object.
+ * @property {int} resolutionChangeEventKey - Resolution change event key.
  */
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
@@ -54,6 +55,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       zoom: 4
     })
   });
+  // Resolution change event key
+  var resolutionChangeEventKey = null;
 
   /**
    * Returns the map object.
@@ -132,9 +135,10 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
    * @param {array} fillColors - Array with the fill colors
    * @param {array} strokeColors - Array with the stroke colors
-   * @param {function} styleFunction - Function create
+   * @param {function} styleFunction - Function responsible for attributing the colors to the layer features
    * @returns {ol.layer.Vector} new ol.layer.Vector - New GeoJSON vector layer
    *
+   * @private
    * @function createGeoJSONVector
    */
   var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
@@ -155,6 +159,19 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
+  /**
+   * Adds a new GeoJSON vector layer to the map.
+   * @param {string} url - Url to the wms layer
+   * @param {string} layerName - Layer name
+   * @param {string} layerTitle - Layer title
+   * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
+   * @param {array} fillColors - Array with the fill colors
+   * @param {array} strokeColors - Array with the stroke colors
+   * @param {function} styleFunction - Function responsible for attributing the colors to the layer features
+   *
+   * @function addGeoJSONVectorLayer
+   */
   var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
     olMap.addLayer(
       createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction)
@@ -163,6 +180,15 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
   };
 
+  /**
+   * Creates a new Openlayers Style object.
+   * @param {string} fill - Layer fill color
+   * @param {string} stroke - Layer stroke color
+   * @returns {ol.style.Style} new ol.style.Style - New Openlayers Style object
+   *
+   * @private
+   * @function createStyle
+   */
   var createStyle = function(fill, stroke) {
     return new ol.style.Style({
       fill: new ol.style.Fill({
@@ -193,6 +219,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     }
   };
 
+  /**
+   * Sets the visibility of a given layer or layer group by its name.
+   * @param {string} layerName - Layer name
+   * @param {boolean} visibilityFlag - Visibility flag, true to show and false to hide
+   *
+   * @function setLayerVisibilityByName
+   */
   var setLayerVisibilityByName = function(layerName, visibilityFlag) {
     var layer = findBy(olMap.getLayerGroup(), 'name', layerName);
     layer.setVisible(visibilityFlag);
@@ -206,44 +239,91 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     }
   };
 
+  /**
+   * Adds the Zoom DragBox to the map.
+   *
+   * @function addZoomDragBox
+   */
   var addZoomDragBox = function() {
     olMap.addInteraction(zoomDragBox);
   };
 
+  /**
+   * Removes the Zoom DragBox from the map.
+   *
+   * @function removeZoomDragBox
+   */
   var removeZoomDragBox = function() {
     olMap.removeInteraction(zoomDragBox);
   };
 
+  /**
+   * Returns the current Zoom DragBox extent.
+   * @returns {array} extent - Zoom DragBox extent
+   *
+   * @function getZoomDragBoxExtent
+   */
   var getZoomDragBoxExtent = function() {
     return zoomDragBox.getGeometry().getExtent();
   };
 
+  /**
+   * Sets the Zoom DragBox start event.
+   * @param {function} eventFunction - Function to be executed when the event is triggered
+   *
+   * @function setZoomDragBoxStart
+   */
   var setZoomDragBoxStart = function(eventFunction) {
     zoomDragBox.on('boxstart', eventFunction);
   };
 
+  /**
+   * Sets the Zoom DragBox end event.
+   * @param {function} eventFunction - Function to be executed when the event is triggered
+   *
+   * @function setZoomDragBoxEnd
+   */
   var setZoomDragBoxEnd = function(eventFunction) {
     zoomDragBox.on('boxend', eventFunction);
   };
 
-  var getCurrentExtension = function() {
+  /**
+   * Returns the current map extent.
+   * @returns {array} extent - Map extent
+   *
+   * @function getCurrentExtent
+   */
+  var getCurrentExtent = function() {
     return olMap.getView().calculateExtent(olMap.getSize());
   };
 
+  /**
+   * Zooms to the initial map extent.
+   *
+   * @function zoomToInitialExtent
+   */
   var zoomToInitialExtent = function() {
     olMap.getView().fit(initialExtent, olMap.getSize());
   };
 
+  /**
+   * Zooms to the received extent.
+   * @param {array} extent - Extent
+   *
+   * @function zoomToExtent
+   */
   var zoomToExtent = function(extent) {
     olMap.getView().fit(extent, olMap.getSize(), { constrainResolution: false });
   };
 
   /**
-   * Find a layer by a given key
-   * @param {ol.layer.Group} layer - the layer group where the method will run the search
-   * @param {string} key - layer attribute to be used in the search
-   * @param {string} value - value to be used in the search
-   * @returns {ol.layer} found layer
+   * Finds a layer by a given key.
+   * @param {ol.layer.Group} layer - The layer group where the method will run the search
+   * @param {string} key - Layer attribute to be used in the search
+   * @param {string} value - Value to be used in the search
+   * @returns {ol.layer} layer - Layer found
+   *
+   * @function findBy
    */
   var findBy = function(layer, key, value) {
     if(layer.get(key) === value) {
@@ -265,19 +345,23 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
-   * Apply a given CQL filter to a given layer
+   * Applies a given CQL filter to a given layer.
    * @param {string} cql - CQL filter to be applied
-   * @param {string} layerName - layer name to be filtered
+   * @param {string} layerName - Layer name to be filtered
+   *
+   * @function applyCQLFilter
    */
   var applyCQLFilter = function(cql, layerName) {
     findBy(olMap.getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
   };
 
-
-
-  var resolutionChangeEventKey = null;
-
-  var onMapResolutionChange = function(eventFunction) {
+  /**
+   * Sets the Map resolution change event.
+   * @param {function} eventFunction - Function to be executed when the event is triggered
+   *
+   * @function setMapResolutionChange
+   */
+  var setMapResolutionChange = function(eventFunction) {
     if(resolutionChangeEventKey !== null) olMap.getView().unByKey(resolutionChangeEventKey);
     resolutionChangeEventKey = olMap.getView().on('propertychange', function(e) {
       switch(e.key) {
@@ -288,13 +372,21 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
-  var getMapResolution = function() {
+  /**
+   * Returns the current map resolution.
+   * @returns {float} resolution - Map resolution
+   *
+   * @function getCurrentResolution
+   */
+  var getCurrentResolution = function() {
     return olMap.getView().getResolution();
   };
 
-
-
-
+  /**
+   * Initializes the necessary features.
+   *
+   * @function init
+   */
   var init = function() {
     olMap.getLayerGroup().set('name', 'root');
     olMap.getLayerGroup().set('title', 'Geoserver Local');
@@ -325,13 +417,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     getZoomDragBoxExtent: getZoomDragBoxExtent,
     setZoomDragBoxStart: setZoomDragBoxStart,
     setZoomDragBoxEnd: setZoomDragBoxEnd,
-    getCurrentExtension: getCurrentExtension,
+    getCurrentExtent: getCurrentExtent,
     zoomToInitialExtent: zoomToInitialExtent,
     zoomToExtent: zoomToExtent,
   	findBy: findBy,
     applyCQLFilter: applyCQLFilter,
-    onMapResolutionChange: onMapResolutionChange,
-    getMapResolution: getMapResolution,
+    setMapResolutionChange: setMapResolutionChange,
+    getCurrentResolution: getCurrentResolution,
   	init: init
   };
 })();
