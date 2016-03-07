@@ -1,14 +1,29 @@
 "use strict";
 
-/** @class LayerExplorer - Component responsible for presenting an organized list of layers. */
+/**
+ * Component responsible for presenting an organized list of layers.
+ * @module LayerExplorer
+ *
+ * @property {string} selectedLayer - Selected layer id.
+ * @property {object} parser - Capabilities parser.
+ * @property {json} capabilities - Server capabilities.
+ * @property {object} mapDisplay - MapDisplay object.
+ * @property {object} map - Map object.
+ * @property {object} socket - Socket object.
+ */
 TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
+  // Selected layer id
   var selectedLayer = null;
+  // Capabilities parser
   var parser = null;
+  // Server capabilities
   var capabilities = null;
+  // MapDisplay object
   var mapDisplay = null;
+  // Map object
   var map = null;
-
+  // Socket object
   var socket = null;
 
   /**
