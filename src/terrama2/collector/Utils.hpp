@@ -33,6 +33,7 @@
 
 // TerraMA2
 #include "../core/Logger.hpp"
+#include "TransferenceData.hpp"
 
 //STd
 #include <exception>
@@ -55,7 +56,8 @@ namespace terrama2
     boost::local_time::local_date_time DateTimeString2BoostLocalDateTime(const std::string& date, const std::string& time, const std::string& timezone);
     //! Converts a boost::local_time::local_date_time to a date and time string
     void BoostLocalDateTime2DateTimeString(const boost::local_time::local_date_time& boostLocalDate, std::string& date, std::string& time, std::string& timezone);
-
+    //! Remove of downloaded files.
+    void remove(std::vector<TransferenceData>& transferenceDataVec);
 
     //! Class for Resource Acquisition Is Initialization (RAII) of classes the need to open and close.
     template<class T> class OpenClose

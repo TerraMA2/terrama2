@@ -60,24 +60,28 @@ void TsUnpackGZ::TestParseCpvOk()
  try
  {
     terrama2::core::DataSetItem item;
-    item.setMask("Dir_1015km_%A_%M_%d_%h%m.bin.gz");
+    item.setMask("30885.txt.gz");
 
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
+    // 30885.txt.gz
     // data/Eta15km/Dir_10m15km2016020512.bin.gz
     // data/Eta15km/PCD_serrmar_INPE.tar.gz
     // data/Eta15km/exemplo.zip
-    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/Eta15km/PCD_serrmar_INPE.tar.gz");
+    // data/Eta15km/30885.txt.zip
+    // data/Eta15km/serrmar.tar.gz
+    // data/Eta15km/30885.txt.bz2
+    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/Eta15km/serrmar.tar.gz");
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
 
 
-    terrama2::collector::UnpackGZ parser;
-    parser.unpackList(transferenceDataVec);
+    terrama2::collector::UnpackGZ pack;
+    pack.unpackList(transferenceDataVec);
 
-    QVERIFY(transferenceDataVec.at(0).teDataSet.get());
+    QVERIFY(transferenceDataVec.size() > 0);
   }
   catch(boost::exception& e)
   {
