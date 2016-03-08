@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define("DataProviderType",
+  var DataProviderType = sequelize.define("DataProviderType",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -19,9 +19,16 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-
+          DataProviderType.hasMany(models.DataProvider, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
         }
       }
     }
   );
+
+  return DataProviderType;
 };

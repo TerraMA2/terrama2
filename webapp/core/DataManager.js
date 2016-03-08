@@ -53,7 +53,7 @@ var DataManager = {
 
       var fn = function() {
         // todo: insert default values in database
-        models.db.DataProviderType.create({name: "Type1", description: "Desc Type1"}).then(function(result){
+        models.db.DataProviderType.create({name: "FTP", description: "Desc Type1"}).then(function(result){
           models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(result){
             callback();
             return;

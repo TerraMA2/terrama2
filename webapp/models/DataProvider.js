@@ -50,6 +50,13 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataProvider.hasMany(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
         }
       }
     }

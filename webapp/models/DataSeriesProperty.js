@@ -1,27 +1,26 @@
-module.exports = function(sequelize, DataTypes)
-{
-  var Project = sequelize.define("Project", {
+module.exports = function(sequelize, DataTypes) {
+  var DataSeriesProperty = sequelize.define("DataSeriesProperty",
+    {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
       },
-      version: DataTypes.INTEGER,
-      name: {
-        type: DataTypes.STRING,
-        unique: true
-      },
-      description: DataTypes.TEXT
+      attribute: DataTypes.STRING,
+      alias: DataTypes.STRING,
+      position: DataTypes.INTEGER
     },
     {
       underscored: true,
       underscoredAll: true,
+
       classMethods: {
         associate: function(models) {
-          Project.hasMany(models.DataProvider, {
+          DataSeriesProperty.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: "data_series_id",
               allowNull: false
             }
           });
@@ -30,5 +29,5 @@ module.exports = function(sequelize, DataTypes)
     }
   );
 
-  return Project;
+  return DataSeriesProperty;
 };

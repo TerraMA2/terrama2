@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataProviderIntent = sequelize.define("DataProviderIntent",
+  var DataSeries = sequelize.define("DataSeries",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -16,11 +16,27 @@ module.exports = function(sequelize, DataTypes) {
     {
       underscored: true,
       underscoredAll: true,
+
       classMethods: {
         associate: function(models) {
-          DataProviderIntent.hasMany(models.DataProvider, {
+          DataSeries.belongsTo(models.DataProvider, {
             onDelete: "CASCADE",
             foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataSeries.belongsTo(models.DataSeriesSemantic, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataSeries.hasMany(models.DataSeriesProperty, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_id",
               allowNull: false
             }
           });
@@ -29,5 +45,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataProviderIntent;
+  return DataSeries;
 };

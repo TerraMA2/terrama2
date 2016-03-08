@@ -1,24 +1,20 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataProviderIntent = sequelize.define("DataProviderIntent",
+  var DataSeriesType = sequelize.define("DataSeriesType",
     {
-      id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true
-      },
       name: {
         type: DataTypes.STRING,
-        unique: true
+        allowNull: false,
+        primaryKey: true
       },
-      description: DataTypes.TEXT
+      description: DataTypes.STRING
     },
     {
       underscored: true,
       underscoredAll: true,
+
       classMethods: {
         associate: function(models) {
-          DataProviderIntent.hasMany(models.DataProvider, {
+          DataSeriesType.hasMany(models.DataSeriesSemantic, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
@@ -29,5 +25,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataProviderIntent;
+  return DataSeriesType;
 };
