@@ -4,7 +4,7 @@
  * Component responsible for presenting an organized list of layers.
  * @module LayerExplorer
  *
- * @property {string} selectedLayer - Selected layer id.
+ * @property {string} selectedLayer - Selected layer.
  * @property {object} parser - Capabilities parser.
  * @property {json} capabilities - Server capabilities.
  * @property {object} mapDisplay - MapDisplay object.
@@ -13,7 +13,7 @@
  */
 TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
-  // Selected layer id
+  // Selected layer
   var selectedLayer = null;
   // Capabilities parser
   var parser = null;
@@ -27,17 +27,22 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   var socket = null;
 
   /**
-   * Return the selected layer
-   * @returns {string} selectedLayer - layer name
+   * Returns the selected layer.
+   * @returns {string} selectedLayer - Layer name
+   *
+   * @function getSelectedLayer
    */
   var getSelectedLayer = function() {
     return selectedLayer;
   };
 
   /**
-   * Process the layers from the capabilities and create the openlayers tiled wms layers
-   * @param {json} layers - layers list from the capabilities
-   * @returns {array} tilesWMSLayers - openlayers tiled wms layers array
+   * Processes the layers from the capabilities and creates an array of Openlayers tiled WMS layers.
+   * @param {json} layers - List of layers from the server capabilities
+   * @returns {array} tilesWMSLayers - Array of Openlayers tiled WMS layers
+   *
+   * @private
+   * @function processLayers
    */
   var processLayers = function(layers) {
     var tilesWMSLayers = [];
@@ -60,10 +65,13 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   };
 
   /**
-   * Build a layer explorer from the map layers
-   * @param {ol.layer} layer - layer or layers group to be used in the layer explorer
-   * @param {boolean} firstCall - control flag
-   * @returns {string} elem - string containing the HTML code to the layer explorer
+   * Builds a layer explorer from the map layers.
+   * @param {ol.layer} layer - Layer or layers group to be used in the layer explorer
+   * @param {boolean} firstCall - Control flag that indicates if is the first call, being that this is a recursive function
+   * @returns {string} elem - String containing the HTML code to the layer explorer
+   *
+   * @private
+   * @function buildLayerExplorer
    */
   var buildLayerExplorer = function(layer, firstCall) {
     var elem;
@@ -81,30 +89,23 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       if(firstCall) {
         elem = sublayersElem + "</li>";
       } else {
-        var div2 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
-        "<span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span>" +
-        TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
-
-        elem = div2 + " <ul>" + sublayersElem + "</ul></li>";
+        elem = "<li data-layerid='" + name + "'><span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span> <ul>" + sublayersElem + "</ul></li>";
       }
     } else {
       if(layer.get('listOnLayerExplorer')) {
-        var check = layer.get('visible') ? TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerChecked : TerraMA2WebComponents.Config.getConfJsonHTML().CheckLayerUnchecked;
-
-        var div1 = TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer1 + name + TerraMA2WebComponents.Config.getConfJsonHTML().LiLayer2 +
-        check +
-        "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span>" +
-        TerraMA2WebComponents.Config.getConfJsonHTML().OpacitySlider;
-
-        elem = div1 + " </li>";
+        var check = layer.get('visible') ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
+        elem = "<li data-layerid='" + name + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span> </li>";
       } else elem = "";
     }
     return elem;
   };
 
   /**
-   * Initialize the layer explorer and put it in the page
-   * @param {xml} msg - capabilities xml code
+   * Initializes the layer explorer and puts it in the page.
+   * @param {xml} msg - Xml code of the server capabilities
+   *
+   * @private
+   * @function initializeLayerExplorer
    */
   var initializeLayerExplorer = function(msg) {
     capabilities = parser.read(msg);
@@ -120,8 +121,14 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     resetLayerExplorer(map);
   };
 
-  var resetLayerExplorer = function(_map) {
-    var elem = buildLayerExplorer(_map.getLayerGroup(), true);
+  /**
+   * Resets the layer explorer.
+   * @param {ol.Map} mapObj - Map object
+   *
+   * @function resetLayerExplorer
+   */
+  var resetLayerExplorer = function(mapObj) {
+    var elem = buildLayerExplorer(mapObj.getLayerGroup(), true);
     $('#terrama2-layerexplorer').empty().append(elem);
 
     $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
@@ -135,7 +142,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   };
 
   /**
-   * Load the LayerExplorer events
+   * Loads the DOM events.
+   *
+   * @private
+   * @function loadEvents
    */
   var loadEvents = function() {
     $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
@@ -192,6 +202,11 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     });
   };
 
+  /**
+   * Initializes the necessary features.
+   *
+   * @function init
+   */
   var init = function() {
     parser = new ol.format.WMSCapabilities();
     mapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;

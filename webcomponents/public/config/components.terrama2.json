@@ -1,5 +1,4 @@
 {
   "LayerExplorer": "layerexplorer.terrama2.js",
-  "ToolBox": "toolbox.terrama2.js",
   "MapDisplay": "mapdisplay.terrama2.js"
 }

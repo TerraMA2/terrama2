@@ -123,7 +123,14 @@ TerraMA2WebComponents.obj = (function() {
       dataType: "script",
       success: function() {
         TerraMA2WebComponents.Config.init();
-        loadComponents(0);
+
+        var interval = window.setInterval(function() {
+          if(TerraMA2WebComponents.Config.getConfJsonComponents() !== null) {
+            loadComponents(0);
+            clearInterval(interval);
+          }
+        }, 10);
+
         $.ajax({ url: terrama2Url + "/socket.io/socket.io.js", dataType: "script" });
       }
     });
