@@ -51,8 +51,24 @@ var DataManager = {
 
       this.connection = connection;
 
+      var fn = function() {
+        // todo: insert default values in database
+        models.db.DataProviderType.create({name: "Type1", description: "Desc Type1"}).then(function(result){
+          models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(result){
+            callback();
+            return;
+          }).catch(function(e){
+            callback();
+          });
+        }).catch(function(e){
+          callback();
+        });
+      };
+
       connection.sync().then(function () {
-        callback();
+        fn();
+      }, function(err) {
+        fn();
       });
     }
     else
@@ -78,7 +94,7 @@ var DataManager = {
       });
     }
     else
-      throw TypeError("DataManager not initialized yet");
+      throw TypeError("DataManager not initialized yet. Could not save Project");
   },
 
   addDataProvider: function(dataProviderObject, callback) {
@@ -89,10 +105,12 @@ var DataManager = {
         self.data.dataProviders.push(dataProvider);
         callback(dataProvider);
       //  todo: emit signal
+      }).catch(function(err){
+        throw TypeError("Could not save DataProvider: " + err);
       });
     }
     else
-      throw TypeError("DataManager not initialized yet");
+      throw TypeError("DataManager not initialized yet. Could not save DataProvider");
   },
 
   getDataProvider: function(restriction) {
@@ -115,7 +133,7 @@ var DataManager = {
         callback();
       });
     else
-      throw TypeError("DataManager not initialized yet");
+      throw TypeError("DataManager not initialized yet. Could not remove DataProvider");
   },
 
   getDataSerie: function(dataSerieValue)

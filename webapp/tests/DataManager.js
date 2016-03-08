@@ -17,9 +17,7 @@ describe('DataManager', function() {
   // It runs before all tests. It initializes database, creating tables
   before(function(done){
     DataManager.init(function() {
-      DataManager.connection.sync({force: true}).then(function () {
-        done();
-      })
+      done();
     });
   });
 
@@ -56,9 +54,9 @@ describe('DataManager', function() {
       DataManager.load(function(){
         var project = {
           id: 1,
-          name: "Provider 1",
+          name: "Project 1",
           version: 1,
-          description: "Test Provider"
+          description: "Test Project"
         };
 
         DataManager.addProject(project, function(result){
@@ -77,7 +75,9 @@ describe('DataManager', function() {
           uri: "http://provider.com",
           description: "Test Provider",
           active: true,
-          project_id: 1
+          project_id: 1,
+          data_provider_type_id: 1,
+          data_provider_intent_id: 1
         };
 
         DataManager.addDataProvider(provider, function(result){

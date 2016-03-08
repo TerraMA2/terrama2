@@ -1,5 +1,3 @@
-var DataManager = require("../core/DataManager");
-
 module.exports = function(sequelize, DataTypes) {
   var DataProvider = sequelize.define("DataProvider", {
       id: {
@@ -20,6 +18,7 @@ module.exports = function(sequelize, DataTypes) {
     {
       underscored: true,
       underscoredAll: true,
+
       hooks: {
         afterCreate: function(instance, options) {
           // insert it to datamanager
@@ -32,6 +31,20 @@ module.exports = function(sequelize, DataTypes) {
       classMethods: {
         associate: function(models) {
           DataProvider.belongsTo(models.Project, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataProvider.belongsTo(models.DataProviderType, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataProvider.belongsTo(models.DataProviderIntent, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
