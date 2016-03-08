@@ -33,6 +33,8 @@
 //TerraMA2
 #include "../Config.hpp"
 
+typedef unit64_t ProjectId;
+
 namespace terrama2
 {
   namespace core
@@ -43,7 +45,8 @@ namespace terrama2
     */
     struct Project
     {
-      uint64_t id;//!< Project unique identifier.
+      ProjectId id;//!< Project unique identifier.
+      
       /*!
         \brief Project version
 

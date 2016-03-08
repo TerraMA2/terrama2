@@ -33,6 +33,8 @@
 //TerraMA2
 #include "../Config.hpp"
 
+typedef unit64_t ServiceInstanceId;
+
 namespace terrama2
 {
   namespace core
@@ -57,7 +59,7 @@ namespace terrama2
         ALERT_SERVICE//!< Service responsible for reports and risk alerts
       }
 
-      uint64_t id; //!< Instance metadata unique identifier.
+      ServiceInstanceId id; //!< Instance metadata unique identifier.
       ServiceType service_type; //!< Defines the type of service that must be instantiated.
       std::string name;//!< Service instance unique name. Human readable.
       std::string description;//!< Instance description.
