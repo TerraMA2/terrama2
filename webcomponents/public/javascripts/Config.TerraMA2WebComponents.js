@@ -15,7 +15,10 @@ TerraMA2WebComponents.Config = (function() {
   var confJsonServer = null;
 
   /**
-   * Load the configuration files
+   * Loads the configuration files.
+   *
+   * @private
+   * @function loadConfigurations
    */
   var loadConfigurations = function() {
     var url = TerraMA2WebComponents.obj.getTerrama2Url() + "/config/";
@@ -25,21 +28,30 @@ TerraMA2WebComponents.Config = (function() {
   };
 
   /**
-   * Return the components files configuration (files paths)
-   * @returns {json} confJsonComponents - files configuration
+   * Returns the configuration of the components files (files paths).
+   * @returns {json} confJsonComponents - Components configuration
+   *
+   * @function getConfJsonComponents
    */
   var getConfJsonComponents = function() {
     return confJsonComponents;
   };
 
   /**
-   * Return the map server configuration
-   * @returns {json} confJsonServer - map server configuration
+   * Returns the configuration of the map server.
+   * @returns {json} confJsonServer - Configuration of the map server
+   *
+   * @function getConfJsonServer
    */
   var getConfJsonServer = function() {
     return confJsonServer;
   };
 
+  /**
+   * Initializes the necessary features.
+   *
+   * @function init
+   */
   var init = function() {
     loadConfigurations();
   };
