@@ -33,7 +33,7 @@
 //TerraMA2
 #include "../Config.hpp"
 
-typedef unit64_t ServiceInstanceId;
+typedef uint64_t ServiceInstanceId;
 
 namespace terrama2
 {
