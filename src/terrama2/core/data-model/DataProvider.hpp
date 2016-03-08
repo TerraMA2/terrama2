@@ -40,16 +40,30 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \Struct DataProvider
+
+      \brief Models the information of a DataProvider (or data server).
+
+      A DataProvider can be a remote server that provides data through
+      FTP protocol or an OGC Web Service, such as WFS, WCS or SOS.
+
+      It can also be an URI for a folder into the file system.
+
+      A DataProvider contains the list of datasets that belongs to this provider
+      that should be collected for further analysis.
+     */
+
     struct DataProvider
     {
-      uint64_t project_id;
-      std::string name;
-      std::string description;
-      DataProviderType data_provider_type_id;
-      DataProviderIntent data_provider_intent_id;
-      std::string uri;
-      bool active;
-      uint64_t id;
+      uint64_t id; //!< The identifier of the DataProvider.      
+      uint64_t project_id; //!< The identifier of the Project, foreign key.
+      std::string name; //!< Name of the DataProvider, must be unique.
+      std::string description; //!< Description from the source of the DataProvider.
+      DataProviderType data_provider_type_id; //!< The identifier of the DataProviderType, foreign key.
+      DataProviderIntent data_provider_intent_id; //!< The identifier of the DataProviderIntent, foreign key.
+      std::string uri; //!< URI to access the DataProvider data.
+      bool active; //!< DataProvider status.
     };
   } // end namespace core
 }   // end namespace terrama2

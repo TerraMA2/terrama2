@@ -37,13 +37,22 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \Struct DataSeries
+
+      \brief Models the information of a DataSeries.
+
+      A DataSeries is description of a dataset. This is the object to be
+      referenced one collection or analysis. Ex. set of PCD.
+     */
+
     struct DataSeries
     {
-      uint64_t data_provider_id;
-      DataSeriesSemantics data_series_semantics_id;
-      uint64_t id;
-      std::string name;
-      std::string description;
+      uint64_t id; //!< The identifier of the DataSeries.
+      uint64_t data_provider_id; //!< The identifier of the DataProvider, foreign key.
+      DataSeriesSemantics data_series_semantics_id; //!< The identifier of the DataSeriesSemantics, foreign key.
+      std::string name; //!< Name of the DataSeries, must be unique.
+      std::string description; //!< Description of the DataSeries.
     };
   } // end namespace core
 } // end namespace terrama2
