@@ -18,40 +18,40 @@ window.TerraMA2WebComponents = {
  * Main class of the API.
  * @module TerraMA2WebComponents
  *
- * @property {array} components - Array of components names received on the initialization.
- * @property {int} componentsLength - Length of the components names array.
- * @property {boolean} componentsLoaded - Flag that indicates if all the components have been loaded.
- * @property {string} terrama2Url - TerraMA² WebComponents URL.
+ * @property {array} memberComponents - Array of components names received on the initialization.
+ * @property {int} memberComponentsLength - Length of the components names array.
+ * @property {boolean} memberComponentsLoaded - Flag that indicates if all the components have been loaded.
+ * @property {string} memberTerrama2Url - TerraMA² WebComponents URL.
  */
 TerraMA2WebComponents.obj = (function() {
 
   // Array of components names received on the initialization
-  var components = null;
+  var memberComponents = null;
   // Length of the components names array
-  var componentsLength = null;
+  var memberComponentsLength = null;
   // Flag that indicates if all the components have been loaded
-  var componentsLoaded = false;
+  var memberComponentsLoaded = false;
   // TerraMA² WebComponents URL
-  var terrama2Url = null;
+  var memberTerrama2Url = null;
 
   /**
    * Returns the length of the components names array.
-   * @returns {int} componentsLength - Length of the components names array
+   * @returns {int} memberComponentsLength - Length of the components names array
    *
    * @function getComponentsLength
    */
   var getComponentsLength = function() {
-    return componentsLength;
+    return memberComponentsLength;
   };
 
   /**
    * Returns the URL of the TerraMA² WebComponents.
-   * @returns {string} terrama2Url - URL of the TerraMA² WebComponents
+   * @returns {string} memberTerrama2Url - URL of the TerraMA² WebComponents
    *
    * @function getComponentsLength
    */
   var getTerrama2Url = function() {
-    return terrama2Url;
+    return memberTerrama2Url;
   };
 
   /**
@@ -82,44 +82,44 @@ TerraMA2WebComponents.obj = (function() {
    * @function loadComponents
    */
   var loadComponents = function(i) {
-    if(i < componentsLength) {
+    if(i < memberComponentsLength) {
       $.ajax({
-        url: terrama2Url + "/javascripts/components/" + TerraMA2WebComponents.Config.getConfJsonComponents()[components[i]],
+        url: memberTerrama2Url + "/javascripts/components/" + TerraMA2WebComponents.Config.getConfJsonComponents()[memberComponents[i]],
         dataType: "script",
         success: function() {
-          TerraMA2WebComponents.webcomponents[components[i]].init();
+          TerraMA2WebComponents.webcomponents[memberComponents[i]].init();
           loadComponents(++i);
         }
       });
     } else {
-      componentsLoaded = true;
+      memberComponentsLoaded = true;
     }
   };
 
   /**
    * Returns the flag that indicates if all the components have been loaded.
-   * @returns {boolean} componentsLoaded - Flag that indicates if all the components have been loaded
+   * @returns {boolean} memberComponentsLoaded - Flag that indicates if all the components have been loaded
    *
    * @function isComponentsLoaded
    */
   var isComponentsLoaded = function() {
-    return componentsLoaded;
+    return memberComponentsLoaded;
   };
 
   /**
    * Initializes the necessary features.
-   * @param {string} _terrama2Url - TerraMA² WebComponents URL
-   * @param {array} _components - Array of components names
+   * @param {string} terrama2Url - TerraMA² WebComponents URL
+   * @param {array} components - Array of components names
    *
    * @function init
    */
-  var init = function(_terrama2Url, _components) {
-    components = _components;
-    componentsLength = components.length;
-    terrama2Url = _terrama2Url;
+  var init = function(terrama2Url, components) {
+    memberComponents = components;
+    memberComponentsLength = components.length;
+    memberTerrama2Url = terrama2Url;
 
     $.ajax({
-      url: terrama2Url + "/javascripts/Config.TerraMA2WebComponents.js",
+      url: memberTerrama2Url + "/javascripts/Config.TerraMA2WebComponents.js",
       dataType: "script",
       success: function() {
         TerraMA2WebComponents.Config.init();
@@ -131,7 +131,7 @@ TerraMA2WebComponents.obj = (function() {
           }
         }, 10);
 
-        $.ajax({ url: terrama2Url + "/socket.io/socket.io.js", dataType: "script" });
+        $.ajax({ url: memberTerrama2Url + "/socket.io/socket.io.js", dataType: "script" });
       }
     });
   };

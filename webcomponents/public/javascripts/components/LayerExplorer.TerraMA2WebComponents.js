@@ -4,36 +4,36 @@
  * Component responsible for presenting an organized list of layers.
  * @module LayerExplorer
  *
- * @property {string} selectedLayer - Selected layer.
- * @property {object} parser - Capabilities parser.
- * @property {json} capabilities - Server capabilities.
- * @property {object} mapDisplay - MapDisplay object.
- * @property {object} map - Map object.
- * @property {object} socket - Socket object.
+ * @property {string} memberSelectedLayer - Selected layer.
+ * @property {object} memberParser - Capabilities parser.
+ * @property {json} memberCapabilities - Server capabilities.
+ * @property {object} memberMapDisplay - MapDisplay object.
+ * @property {object} memberMap - Map object.
+ * @property {object} memberSocket - Socket object.
  */
 TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
   // Selected layer
-  var selectedLayer = null;
+  var memberSelectedLayer = null;
   // Capabilities parser
-  var parser = null;
+  var memberParser = null;
   // Server capabilities
-  var capabilities = null;
+  var memberCapabilities = null;
   // MapDisplay object
-  var mapDisplay = null;
+  var memberMapDisplay = null;
   // Map object
-  var map = null;
+  var memberMap = null;
   // Socket object
-  var socket = null;
+  var memberSocket = null;
 
   /**
    * Returns the selected layer.
-   * @returns {string} selectedLayer - Layer name
+   * @returns {string} memberSelectedLayer - Layer name
    *
    * @function getSelectedLayer
    */
   var getSelectedLayer = function() {
-    return selectedLayer;
+    return memberSelectedLayer;
   };
 
   /**
@@ -54,10 +54,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
         var subLayersLength = layers.Layer[i].Layer.length;
         for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, true));
+          tilesWMSLayers.push(memberMapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, true));
         }
       } else {
-        tilesWMSLayers.push(mapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title, false, true));
+        tilesWMSLayers.push(memberMapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title, false, true));
       }
     }
 
@@ -108,27 +108,27 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @function initializeLayerExplorer
    */
   var initializeLayerExplorer = function(msg) {
-    capabilities = parser.read(msg);
+    memberCapabilities = memberParser.read(msg);
 
-    var processedLayers = processLayers(capabilities.Capability.Layer);
+    var processedLayers = processLayers(memberCapabilities.Capability.Layer);
 
-    map.addLayer(new ol.layer.Group({
+    memberMap.addLayer(new ol.layer.Group({
       layers: processedLayers,
       name: 'server',
       title: TerraMA2WebComponents.Config.getConfJsonServer().Name
     }));
 
-    resetLayerExplorer(map);
+    resetLayerExplorer(memberMap);
   };
 
   /**
    * Resets the layer explorer.
-   * @param {ol.Map} mapObj - Map object
+   * @param {ol.Map} map - Map object
    *
    * @function resetLayerExplorer
    */
-  var resetLayerExplorer = function(mapObj) {
-    var elem = buildLayerExplorer(mapObj.getLayerGroup(), true);
+  var resetLayerExplorer = function(map) {
+    var elem = buildLayerExplorer(map.getLayerGroup(), true);
     $('#terrama2-layerexplorer').empty().append(elem);
 
     $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
@@ -161,23 +161,21 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
     $('input.opacity').on('slide', function(ev) {
       var layername = $(this).closest('li').data('layerid');
-      var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
+      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'name', layername);
 
       layer.setOpacity(ev.value);
     });
 
     // Handle visibility control
     $('.terrama2-layerexplorer-checkbox').on('click', function(e) {
-      var _$this = $(this);
+      var layername = $(this).closest('li').data('layerid');
 
-      var layername = _$this.closest('li').data('layerid');
+      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'name', layername);
 
-      var layer = mapDisplay.findBy(map.getLayerGroup(), 'name', layername);
+      memberMapDisplay.setLayerVisibility(layer);
 
-      mapDisplay.setLayerVisibility(layer);
-
-      var children = _$this.parent('li.parent_li').find(' > ul > li');
-      var span = _$this.parent('li.parent_li').find(' > span');
+      var children = $(this).parent('li.parent_li').find(' > ul > li');
+      var span = $(this).parent('li.parent_li').find(' > span');
       if (children.is(":visible") || !layer.getVisible()) {
         children.hide('fast');
         span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
@@ -189,15 +187,13 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     });
 
     $('li.parent_li ul li').on('click', function(e) {
-      var _$this = $(this);
-
-      if(_$this.hasClass("selected")) {
-        _$this.removeClass("selected");
-        selectedLayer = null;
+      if($(this).hasClass("selected")) {
+        $(this).removeClass("selected");
+        memberSelectedLayer = null;
       } else {
         $('li.parent_li ul li').removeClass("selected");
-        _$this.addClass("selected");
-        selectedLayer = _$this.attr("data-layerid");
+        $(this).addClass("selected");
+        memberSelectedLayer = $(this).attr("data-layerid");
       }
     });
   };
@@ -208,19 +204,19 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @function init
    */
   var init = function() {
-    parser = new ol.format.WMSCapabilities();
-    mapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
-    map = mapDisplay.getMap();
-    socket = io(TerraMA2WebComponents.obj.getTerrama2Url());
+    memberParser = new ol.format.WMSCapabilities();
+    memberMapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
+    memberMap = memberMapDisplay.getMap();
+    memberSocket = io(TerraMA2WebComponents.obj.getTerrama2Url());
 
-    socket.emit(
+    memberSocket.emit(
       'proxyRequest',
       {
         url: TerraMA2WebComponents.Config.getConfJsonServer().URL + TerraMA2WebComponents.Config.getConfJsonServer().CapabilitiesParams,
         requestId: 'lala'
       }
     );
-    socket.on('proxyResponse', function(msg) {
+    memberSocket.on('proxyResponse', function(msg) {
       initializeLayerExplorer(msg.msg);
     });
   };

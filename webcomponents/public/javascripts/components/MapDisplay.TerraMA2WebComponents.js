@@ -4,19 +4,19 @@
  * Class responsible for presenting the map.
  * @module MapDisplay
  *
- * @property {ol.interaction.DragBox} zoomDragBox - DragBox object.
- * @property {array} initialExtent - Initial extent.
- * @property {ol.Map} olMap - Map object.
- * @property {int} resolutionChangeEventKey - Resolution change event key.
+ * @property {ol.interaction.DragBox} memberZoomDragBox - DragBox object.
+ * @property {array} memberInitialExtent - Initial extent.
+ * @property {ol.Map} memberOlMap - Map object.
+ * @property {int} memberResolutionChangeEventKey - Resolution change event key.
  */
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
   // DragBox object
-  var zoomDragBox = null;
+  var memberZoomDragBox = null;
   // Initial extent
-  var initialExtent = null;
+  var memberInitialExtent = null;
   // Map object
-  var olMap = new ol.Map({
+  var memberOlMap = new ol.Map({
     renderer: 'canvas',
     layers: [
       new ol.layer.Group({
@@ -56,16 +56,16 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     })
   });
   // Resolution change event key
-  var resolutionChangeEventKey = null;
+  var memberResolutionChangeEventKey = null;
 
   /**
    * Returns the map object.
-   * @returns {ol.Map} olMap - Map object
+   * @returns {ol.Map} memberOlMap - Map object
    *
    * @function getMap
    */
   var getMap = function() {
-    return olMap;
+    return memberOlMap;
   };
 
   /**
@@ -74,7 +74,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function updateMapSize
    */
   var updateMapSize = function() {
-    var interval = window.setInterval(function() { olMap.updateSize(); }, 10);
+    var interval = window.setInterval(function() { memberOlMap.updateSize(); }, 10);
     window.setTimeout(function() { clearInterval(interval); }, 300);
   };
 
@@ -119,11 +119,11 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function addTileWMSLayer
    */
   var addTileWMSLayer = function(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
-    olMap.addLayer(
+    memberOlMap.addLayer(
       createTileWMS(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer)
     );
 
-    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
+    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(memberOlMap);
   };
 
   /**
@@ -173,11 +173,11 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function addGeoJSONVectorLayer
    */
   var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
-    olMap.addLayer(
+    memberOlMap.addLayer(
       createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction)
     );
 
-    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(olMap);
+    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(memberOlMap);
   };
 
   /**
@@ -227,7 +227,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function setLayerVisibilityByName
    */
   var setLayerVisibilityByName = function(layerName, visibilityFlag) {
-    var layer = findBy(olMap.getLayerGroup(), 'name', layerName);
+    var layer = findBy(memberOlMap.getLayerGroup(), 'name', layerName);
     layer.setVisible(visibilityFlag);
 
     if(layer.getLayers) {
@@ -245,7 +245,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function addZoomDragBox
    */
   var addZoomDragBox = function() {
-    olMap.addInteraction(zoomDragBox);
+    memberOlMap.addInteraction(memberZoomDragBox);
   };
 
   /**
@@ -254,7 +254,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function removeZoomDragBox
    */
   var removeZoomDragBox = function() {
-    olMap.removeInteraction(zoomDragBox);
+    memberOlMap.removeInteraction(memberZoomDragBox);
   };
 
   /**
@@ -264,7 +264,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function getZoomDragBoxExtent
    */
   var getZoomDragBoxExtent = function() {
-    return zoomDragBox.getGeometry().getExtent();
+    return memberZoomDragBox.getGeometry().getExtent();
   };
 
   /**
@@ -274,7 +274,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function setZoomDragBoxStart
    */
   var setZoomDragBoxStart = function(eventFunction) {
-    zoomDragBox.on('boxstart', eventFunction);
+    memberZoomDragBox.on('boxstart', eventFunction);
   };
 
   /**
@@ -284,7 +284,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function setZoomDragBoxEnd
    */
   var setZoomDragBoxEnd = function(eventFunction) {
-    zoomDragBox.on('boxend', eventFunction);
+    memberZoomDragBox.on('boxend', eventFunction);
   };
 
   /**
@@ -294,7 +294,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function getCurrentExtent
    */
   var getCurrentExtent = function() {
-    return olMap.getView().calculateExtent(olMap.getSize());
+    return memberOlMap.getView().calculateExtent(memberOlMap.getSize());
   };
 
   /**
@@ -303,7 +303,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function zoomToInitialExtent
    */
   var zoomToInitialExtent = function() {
-    olMap.getView().fit(initialExtent, olMap.getSize());
+    memberOlMap.getView().fit(memberInitialExtent, memberOlMap.getSize());
   };
 
   /**
@@ -313,7 +313,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function zoomToExtent
    */
   var zoomToExtent = function(extent) {
-    olMap.getView().fit(extent, olMap.getSize(), { constrainResolution: false });
+    memberOlMap.getView().fit(extent, memberOlMap.getSize(), { constrainResolution: false });
   };
 
   /**
@@ -352,7 +352,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function applyCQLFilter
    */
   var applyCQLFilter = function(cql, layerName) {
-    findBy(olMap.getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
+    findBy(memberOlMap.getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
   };
 
   /**
@@ -362,8 +362,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function setMapResolutionChange
    */
   var setMapResolutionChange = function(eventFunction) {
-    if(resolutionChangeEventKey !== null) olMap.getView().unByKey(resolutionChangeEventKey);
-    resolutionChangeEventKey = olMap.getView().on('propertychange', function(e) {
+    if(memberResolutionChangeEventKey !== null) memberOlMap.getView().unByKey(memberResolutionChangeEventKey);
+    memberResolutionChangeEventKey = memberOlMap.getView().on('propertychange', function(e) {
       switch(e.key) {
         case 'resolution':
           eventFunction(e);
@@ -379,7 +379,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function getCurrentResolution
    */
   var getCurrentResolution = function() {
-    return olMap.getView().getResolution();
+    return memberOlMap.getView().getResolution();
   };
 
   /**
@@ -388,16 +388,16 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function init
    */
   var init = function() {
-    olMap.getLayerGroup().set('name', 'root');
-    olMap.getLayerGroup().set('title', 'Geoserver Local');
+    memberOlMap.getLayerGroup().set('name', 'root');
+    memberOlMap.getLayerGroup().set('title', 'Geoserver Local');
     var zoomslider = new ol.control.ZoomSlider();
-    olMap.addControl(zoomslider);
+    memberOlMap.addControl(zoomslider);
 
-    zoomDragBox = new ol.interaction.DragBox({
+    memberZoomDragBox = new ol.interaction.DragBox({
       condition: ol.events.condition.always
     });
 
-    initialExtent = olMap.getView().calculateExtent(olMap.getSize());
+    memberInitialExtent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
 
     $(document).ready(function() {
       updateMapSize();
