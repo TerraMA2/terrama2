@@ -20,8 +20,8 @@ TerraMA2WebComponents.Config = (function() {
   var loadConfigurations = function() {
     var url = TerraMA2WebComponents.obj.getTerrama2Url() + "/config/";
 
-    $.getJSON(url + "server.terrama2.json", function(data) { confJsonServer = data; });
-    $.getJSON(url + "components.terrama2.json", function(data) { confJsonComponents = data; });
+    $.getJSON(url + "Server.TerraMA2WebComponents.json", function(data) { confJsonServer = data; });
+    $.getJSON(url + "Components.TerraMA2WebComponents.json", function(data) { confJsonComponents = data; });
   };
 
   /**

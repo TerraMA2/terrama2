@@ -119,7 +119,7 @@ TerraMA2WebComponents.obj = (function() {
     terrama2Url = _terrama2Url;
 
     $.ajax({
-      url: terrama2Url + "/javascripts/config.terrama2.js",
+      url: terrama2Url + "/javascripts/Config.TerraMA2WebComponents.js",
       dataType: "script",
       success: function() {
         TerraMA2WebComponents.Config.init();
