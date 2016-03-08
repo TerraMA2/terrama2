@@ -1,0 +1,29 @@
+module.exports = function(sequelize, DataTypes)
+{
+  var Project = sequelize.define("Project", {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      version: DataTypes.INTEGER,
+      name: {
+        type: DataTypes.STRING,
+        unique: true
+      },
+      description: DataTypes.TEXT
+    },
+    {
+      underscored: true,
+      underscoredAll: true,
+      classMethods: {
+        associate: function(models) {
+          //Project.hasMany(models.DataProvider);
+        }
+      }
+    }
+  );
+
+  return Project;
+};
