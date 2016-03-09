@@ -108,7 +108,7 @@ describe('DataManager', function() {
     });
   });
 
-  it('should insert DataProvider in DataManager', function(done) {
+  it('should insert DataProvider', function(done) {
     DataManager.init(function(){
       DataManager.load().then(function(){
         var provider = {
@@ -126,6 +126,27 @@ describe('DataManager', function() {
           return done();
         }).catch(function(err) {
           return done(err);
+        })
+      });
+    });
+  });
+
+  it('should not insert DataProvider', function(done) {
+    DataManager.init(function(){
+      DataManager.load().then(function(){
+        var provider = {
+          name: "Provider 1",
+          uri: "http://provider.com",
+          description: "Test Provider",
+          active: true,
+          project_id: 1,
+          data_provider_type_id: 1
+        };
+
+        DataManager.addDataProvider(provider).then(function(result) {
+          return done("Error: No exception thrown");
+        }).catch(function(err) {
+          return done();
         })
       });
     });
@@ -215,11 +236,26 @@ describe('DataManager', function() {
     });
   });
 
+  it('should destroy a DataSeries', function(done) {
+    DataManager.init(function() {
+      DataManager.load().then(function() {
+
+        DataManager.removeDataSerie({name: "Updated DataSeries1"}).then(function() {
+          assert(DataManager.data.dataSeries.length == 0);
+          return done();
+        }).catch(function(err) {
+          return done(err);
+        });
+
+      });
+    });
+  });
+
   it('should destroy a DataProvider', function(done){
     DataManager.init(function(){
       DataManager.load().then(function(){
         var expected = {
-          name: "Provider 1"
+          name: "UpdatingProvider"
         };
 
         DataManager.removeDataProvider({name: expected.name}).then(function() {

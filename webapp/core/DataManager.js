@@ -6,13 +6,6 @@ var Promise = require('bluebird');
 var Utils = require('./Utils');
 
 // Helpers
-Array.prototype.removeItem = function (key) {
-  var tmp = this.splice(key, 1);
-  if (tmp.length == 1)
-    return tmp[0];
-  return null;
-};
-
 Array.prototype.getItemByParam = function(object) {
   var key = Object.keys(object)[0];
   return this.find(function(item){
@@ -91,6 +84,10 @@ var DataManager = {
       callback();
   },
 
+  /**
+   * It loads database values in memory
+   * @return {Promise} - a 'bluebird' module
+   */
   load: function() {
     var self = this;
 
@@ -129,10 +126,20 @@ var DataManager = {
     });
   },
 
+  getProject: function(projectParam) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var project = self.data.projects.getItemByParam(projectParam);
+      if (project)
+        resolve(Utils.clone(project.dataValues));
+      else
+        reject(new exceptions.ProjectError("Project not found"));
+    });
+  },
+
   addDataSeriesSemantic: function(semanticObject) {
     return new Promise(function(resolve, reject){
       models.db.DataSeriesSemantic.create(semanticObject).then(function(semantic){
-        //self.data.projects.push(project);
         resolve(Utils.clone(semantic));
       }).catch(function(e) {
         reject(e);
@@ -203,17 +210,19 @@ var DataManager = {
   removeDataProvider: function(dataProviderParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var providerToBeRemoved = self.data.dataProviders.removeItem(dataProviderParam);
-
-      if (providerToBeRemoved) {
-        providerToBeRemoved.destroy().then(function (status) {
-          resolve(status);
-        }).catch(function (err) {
-          reject(err);
-        });
+      for(var index = 0; index < self.data.dataProviders.length; ++index) {
+        var provider = self.data.dataProviders[index];
+        if (provider.id === dataProviderParam.id || provider.name === dataProviderParam.name) {
+          provider.destroy().then(function (status) {
+            resolve(status);
+            self.data.dataProviders.splice(index, 1);
+          }).catch(function (err) {
+            reject(err);
+          });
+          return;
+        }
       }
-      else
-        reject(new exceptions.DataManagerError("DataManager not initialized yet"));
+      reject(new exceptions.DataManagerError("DataManager not initialized yet"));
     });
   },
 
@@ -272,8 +281,22 @@ var DataManager = {
     });
   },
 
-  removeDataSerie: function(dataSeriesId) {
-    this.data.dataProviders.removeItem(dataSeriesId);
+  removeDataSerie: function(dataSeriesParam) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      for(var index = 0; index < self.data.dataSeries.length; ++index) {
+        var dataSeries = self.data.dataSeries[index];
+        if (dataSeries.id === dataSeriesParam.id || dataSeries.name === dataSeriesParam.name) {
+          dataSeries.destroy().then(function (status) {
+            resolve(status);
+            self.data.dataSeries.splice(index, 1);
+          }).catch(function (err) {
+            reject(err);
+          });
+          return;
+        }
+      }
+    });
   }
 
 
