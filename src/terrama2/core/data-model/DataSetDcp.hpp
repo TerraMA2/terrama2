@@ -20,24 +20,19 @@
 */
 
 /*!
-  \file terrama2/core/DataSeries.hpp
-
-  \brief Models the information of a DataSeries.
+  \file terrama2/core/DataSetDcp.hpp
 
   \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
-
-// STL
-#include <string>
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
 
 namespace terrama2
 {
   namespace core
   {
-    struct DataSeriesDcp : public DataSeries
+    struct DataSetDcp : public DataSet
     {
 
     };
