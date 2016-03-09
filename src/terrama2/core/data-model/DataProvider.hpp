@@ -31,8 +31,8 @@
 #define __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
 
 // TerraMA2
-#include "../typedef.hpp"
 
+#include "../typedef.hpp"
 // STL
 #include <string>
 
@@ -40,6 +40,7 @@ namespace terrama2
 {
   namespace core
   {
+
     /*!
       \Struct DataProvider
 
