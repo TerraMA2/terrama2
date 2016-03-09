@@ -53,10 +53,19 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       projection: 'EPSG:4326',
       center: [-55, -15],
       zoom: 4
+    }),
+    interactions: ol.interaction.defaults({
+      doubleClickZoom :false
     })
   });
   // Resolution change event key
   var memberResolutionChangeEventKey = null;
+
+  // new
+
+  var memberDoubleclickEventKey = null;
+
+  // new
 
   /**
    * Returns the map object.
@@ -382,6 +391,17 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     return memberOlMap.getView().getResolution();
   };
 
+  // new
+
+  var setMapDoubleclick = function(eventFunction) {
+    if(memberDoubleclickEventKey !== null) memberOlMap.getView().unByKey(memberDoubleclickEventKey);
+    memberDoubleclickEventKey = memberOlMap.on('dblclick', function(e) {
+      eventFunction(e);
+    });
+  };
+
+  // new
+
   /**
    * Initializes the necessary features.
    *
@@ -424,6 +444,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     applyCQLFilter: applyCQLFilter,
     setMapResolutionChange: setMapResolutionChange,
     getCurrentResolution: getCurrentResolution,
+    setMapDoubleclick: setMapDoubleclick,
   	init: init
   };
 })();
