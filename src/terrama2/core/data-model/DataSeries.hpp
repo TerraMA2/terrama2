@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/DataSeries.hpp
+  \file terrama2/core/data-model/DataSeries.hpp
 
   \brief Models the information of a DataSeries.
 
@@ -29,6 +29,8 @@
 
 #ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
+
+#include "../typedef.hpp"
 
 // STL
 #include <string>
@@ -48,8 +50,8 @@ namespace terrama2
 
     struct DataSeries
     {
-      uint64_t id; //!< The identifier of the DataSeries.
-      uint64_t data_provider_id; //!< The identifier of the DataProvider, foreign key.
+      DataSerieId id; //!< The identifier of the DataSeries.
+      DataProviderId data_provider_id; //!< The identifier of the DataProvider, foreign key.
       DataSeriesSemantics data_series_semantics_id; //!< The identifier of the DataSeriesSemantics, foreign key.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.

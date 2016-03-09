@@ -20,25 +20,27 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSetDcp.hpp
+  \file terrama2/core/data-model/DataSet.hpp
 
-  \author Evandro Delatin
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
 
-#include "DataSet.hpp"
+#include "../Typedef.hpp"
 
 namespace terrama2
 {
   namespace core
   {
-    struct DataSetDcp : public DataSet
+    struct DataSet
     {
-
+      DataSetId id;
+      DataSeriesId dataSeriesId;
+      bool active;
     };
   } // end namespace core
 } // end namespace terrama2
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
