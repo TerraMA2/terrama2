@@ -30,18 +30,32 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_PROJECT_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_PROJECT_HPP__
 
+//TerraMA2
 #include "../Config.hpp"
+
+typedef uint64_t ProjectId;
 
 namespace terrama2
 {
   namespace core
   {
-    class Project
+    /*!
+      \class Project
+      \brief Encapsulates a TerraMA2 project information.
+    */
+    struct Project
     {
-      uint64_t id;
+      ProjectId id;//!< Project unique identifier.
+
+      /*!
+        \brief Project version
+
+        Version of the project where it was generated,
+        it may be used when updating the data-model and keeping backward compatibility .
+       */
       uint64_t version;
-      std::string name;
-      std::string description;
+      std::string name;//!< Project name. Human readable.
+      std::string description;//!< Project description.
     };
   }
 }
