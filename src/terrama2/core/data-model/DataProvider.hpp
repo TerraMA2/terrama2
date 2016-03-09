@@ -40,7 +40,6 @@ namespace terrama2
 {
   namespace core
   {
-
     /*!
       \Struct DataProvider
 

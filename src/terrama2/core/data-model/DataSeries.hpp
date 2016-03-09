@@ -50,8 +50,13 @@ namespace terrama2
 
     struct DataSeries
     {
+<<<<<<< HEAD
       DataSerieId id; //!< The identifier of the DataSeries.
       DataProviderId data_provider_id; //!< The identifier of the DataProvider, foreign key.
+=======
+      uint64_t id; //!< The identifier of the DataSeries.
+      uint64_t data_provider_id; //!< The identifier of the DataProvider, foreign key.
+>>>>>>> Adding documentation DataProvider and DataSeries
       DataSeriesSemantics data_series_semantics_id; //!< The identifier of the DataSeriesSemantics, foreign key.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
