@@ -20,17 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSeries.hpp
+  \file terrama2/core/DataSeries.hpp
 
   \brief Models the information of a DataSeries.
 
   \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
-
-#include "../typedef.hpp"
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
 
 // STL
 #include <string>
@@ -39,30 +37,11 @@ namespace terrama2
 {
   namespace core
   {
-    /*!
-      \Struct DataSeries
-
-      \brief Models the information of a DataSeries.
-
-      A DataSeries is description of a dataset. This is the object to be
-      referenced one collection or analysis. Ex. set of PCD.
-     */
-
-    struct DataSeries
+    struct DataSeriesDcp : public DataSeries
     {
-      DataSerieId id; //!< The identifier of the DataSeries.
-      DataProviderId data_provider_id; //!< The identifier of the DataProvider, foreign key.
-      DataSeriesSemantics data_series_semantics_id; //!< The identifier of the DataSeriesSemantics, foreign key.
-      std::string name; //!< Name of the DataSeries, must be unique.
-      std::string description; //!< Description of the DataSeries.
+
     };
   } // end namespace core
 } // end namespace terrama2
 
-<<<<<<< HEAD
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATASERIES_HPP__
-
-
-=======
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
->>>>>>> Creating base class DataAccessor,
+#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__

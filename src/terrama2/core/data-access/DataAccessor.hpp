@@ -37,6 +37,7 @@ namespace terrama2
 {
   namespace core
   {
+<<<<<<< HEAD
     /*!
     \brief Base class to access data from a DataSeries.
 
@@ -53,6 +54,13 @@ namespace terrama2
     protected:
       DataAccessor(DataProvider, DataSeries, DataManager*) {}
       ~DataAccessor() {}
+=======
+    class DataAccessor
+    {
+    protected:
+      DataAccessor(DataProvider, DataSeries, DataManager*) = 0;
+      te::dt::TimeInstantTZ lastDateTime() = 0;
+>>>>>>> merge conflicts
     };
   }
 }
