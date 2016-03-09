@@ -3,6 +3,7 @@ var SIGNALS = require("./Signals");
 var modelsFn = require("../models");
 var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
+var Utils = require('./Utils');
 
 // Helpers
 Array.prototype.removeItem = function (key) {
@@ -61,10 +62,17 @@ var DataManager = {
 
       var fn = function() {
         // todo: insert default values in database
-        models.db.DataProviderType.create({name: "FTP", description: "Desc Type1"}).then(function(result){
-          models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(result){
-            callback();
-            return;
+        models.db.DataProviderType.create({name: "FTP", description: "Desc Type1"}).then(function(providerType){
+          models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
+            models.db.DataFormat.create({name: "Format 1", description: "Format Description"}).then(function(format) {
+              models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
+                callback();
+              }).catch(function(err) {
+                callback();
+              })
+            }).catch(function(err) {
+              callback();
+            });
           }).catch(function(e){
             callback();
           });
@@ -83,12 +91,29 @@ var DataManager = {
       callback();
   },
 
-  load: function(callback) {
+  load: function() {
     var self = this;
 
-    models.db.DataProvider.findAll({}).then(function(dataProviders){
-      self.data.dataProviders = dataProviders;
-      return callback();
+    return new Promise(function(resolve, reject) {
+      models.db.Project.findAll({}).then(function(projects) {
+        self.data.projects = projects;
+
+        models.db.DataProvider.findAll({}).then(function(dataProviders){
+          self.data.dataProviders = dataProviders;
+
+          models.db.DataSeries.findAll({}).then(function(dataSeries) {
+            self.data.dataSeries = dataSeries;
+            resolve();
+          }).catch(function(err) {
+            reject(err);
+          });
+
+        }).catch(function(err) {
+          reject(err);
+        });
+      }).catch(function(err) {
+        reject(err);
+      });
     });
   },
 
@@ -97,7 +122,18 @@ var DataManager = {
     return new Promise(function(resolve, reject){
       models.db.Project.create(projectObject).then(function(project){
         self.data.projects.push(project);
-        resolve(project);
+        resolve(Utils.clone(project.dataValues));
+      }).catch(function(e) {
+        reject(e);
+      });
+    });
+  },
+
+  addDataSeriesSemantic: function(semanticObject) {
+    return new Promise(function(resolve, reject){
+      models.db.DataSeriesSemantic.create(semanticObject).then(function(semantic){
+        //self.data.projects.push(project);
+        resolve(Utils.clone(semantic));
       }).catch(function(e) {
         reject(e);
       });
@@ -109,7 +145,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
         self.data.dataProviders.push(dataProvider);
-        resolve(Object.assign({}, dataProvider.dataValues));
+        resolve(Utils.clone(dataProvider.dataValues));
 
         //  todo: emit signal
 
@@ -125,7 +161,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataProvider = self.data.dataProviders.getItemByParam(restriction);
       if (dataProvider){
-        resolve(Object.assign({}, dataProvider.dataValues));
+        resolve(Utils.clone(dataProvider.dataValues));
       }
       else
         reject(new exceptions.DataProviderError("Could not find a data provider: ", restriction));
@@ -135,7 +171,7 @@ var DataManager = {
   listDataProviders: function() {
     var dataProviderObjectList = [];
     for(var index = 0; index < this.data.dataProviders.length; ++index)
-      dataProviderObjectList.push(this.data.dataProviders[index].dataValues);
+      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index].dataValues));
     return dataProviderObjectList;
   },
 
@@ -152,7 +188,7 @@ var DataManager = {
             active: dataProviderObject.active
           }).then(function() {
             self.data.dataProviders[i] = provider;
-            resolve(provider.dataValues);
+            resolve(Utils.clone(provider.dataValues));
           }).catch(function(err) {
             reject(new exceptions.DataProviderError("Could not update data provider ", err));
           });
@@ -187,10 +223,17 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSerie = self.data.dataSeries.getItemByParam(restriction);
       if (dataSerie)
-        resolve(dataSerie.dataValues);
+        resolve(Utils.clone(dataSerie.dataValues));
       else
         reject(new exceptions.DataSeriesError("Could not find a data provider: ", restriction));
     });
+  },
+
+  listDataSeries: function() {
+    var dataSeriesList = [];
+    for(var index = 0; index < this.data.dataSeries.length; ++index)
+      dataSeriesList.push(this.data.dataSeries[index].dataValues);
+    return dataSeriesList;
   },
 
   addDataSerie: function(dataSeriesObject) {
@@ -198,7 +241,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
         self.data.dataSeries.push(dataSerie);
-        resolve(dataSerie);
+        resolve(Utils.clone(dataSerie.dataValues));
       }).catch(function(err){
        reject(new exceptions.DataProviderError("Could not save DataSeries. " + err));
       });
@@ -206,16 +249,27 @@ var DataManager = {
   },
 
   updateDataSerie: function(dataSeriesObject) {
-    //var dataSerie = this.data.dataSeries.getItemByParam({id: dataSeriesObject.id});
-    for(var dataSerie in this.data.dataSeries)
-    {
-      if (dataSerie.id == dataSeriesObject.id)
-      {
-        dataSerie = dataSeriesObject;
-        return;
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      for(var i = 0; i < self.data.dataSeries.length; ++i) {
+        var element = self.data.dataSeries[i];
+
+        if (element.id === dataSeriesObject.id) {
+          element.updateAttributes({
+            name: dataSeriesObject.name,
+            description: dataSeriesObject.description
+            //  todo: should update include too?
+          }).then(function() {
+            resolve(Utils.clone(element.dataValues));
+          }).catch(function(err) {
+            reject(new exceptions.DataSeriesError("Could not update data series ", err));
+          });
+          return;
+        }
       }
-    }
-    //  occurred error
+
+      reject(new exceptions.DataSeriesError("Data series not found. "));
+    });
   },
 
   removeDataSerie: function(dataSeriesId) {

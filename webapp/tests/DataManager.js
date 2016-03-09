@@ -1,5 +1,44 @@
 var assert = require('assert');
 
+function createProject() {
+  return {
+    id: 1,
+    name: "Project 1",
+    version: 1,
+    description: "Test Project"
+  };
+}
+
+function createDataProvider() {
+  return {
+    id: 1,
+    name: "Provider 1",
+    uri: "http://provider.com",
+    description: "Test Provider",
+    active: true,
+    project_id: createProject().id,
+    data_provider_type_id: 1,
+    data_provider_intent_id: 1
+  };
+}
+
+function createDataSeriesSemantic() {
+  return {
+    name: "Semantic 1",
+    data_format_name: "Format 1",
+    data_series_type_name: "DS Type 1"
+  };
+}
+
+function createDataSeries() {
+  return {
+    name: "DataSeries1",
+    description: "Desc DataSeries1",
+    data_series_semantic_name: createDataSeriesSemantic().name,
+    data_provider_id: createDataProvider().id
+  };
+}
+
 describe('DataManager', function() {
   var MainClass = require('../app');
   var app = require("../app");
@@ -13,12 +52,6 @@ describe('DataManager', function() {
   };
   app.set("databaseConfig", config);
   var DataManager = require("../core/DataManager");
-  var expectedDataSerie = {
-    name: "DataSeries1",
-    description: "Desc DataSeries1",
-    data_series_semantic_id: 1,
-    data_provider_id: 1
-  };
 
   // It runs before all tests. It initializes database, creating tables
   before(function(done){
@@ -48,7 +81,7 @@ describe('DataManager', function() {
 
   it('loads data models to DataManager', function(done) {
     DataManager.init(function(){
-      DataManager.load(function(){
+      DataManager.load().then(function(){
         assert.notEqual(DataManager.data, {});
         return done();
       });
@@ -57,7 +90,7 @@ describe('DataManager', function() {
 
   it('should insert Project in DataManager', function(done) {
     DataManager.init(function(){
-      DataManager.load(function(){
+      DataManager.load().then(function(){
         var project = {
           id: 1,
           name: "Project 1",
@@ -77,7 +110,7 @@ describe('DataManager', function() {
 
   it('should insert DataProvider in DataManager', function(done) {
     DataManager.init(function(){
-      DataManager.load(function(){
+      DataManager.load().then(function(){
         var provider = {
           name: "Provider 1",
           uri: "http://provider.com",
@@ -100,7 +133,7 @@ describe('DataManager', function() {
 
   it('should retrieve a DataProvider', function(done){
     DataManager.init(function(){
-      DataManager.load(function(){
+      DataManager.load().then(function(){
         var expected = {
           name: "Provider 1",
           uri: "http://provider.com",
@@ -125,7 +158,7 @@ describe('DataManager', function() {
 
   it('should update a DataProvider', function(done){
     DataManager.init(function(){
-      DataManager.load(function(){
+      DataManager.load().then(function(){
         var dataProvider = {
           name: "Provider 1"
         };
@@ -143,9 +176,48 @@ describe('DataManager', function() {
     });
   });
 
+  it('should insert DataSeries', function(done) {
+    DataManager.init(function() {
+      DataManager.load().then(function() {
+
+        DataManager.addDataSeriesSemantic(createDataSeriesSemantic()).then(function(semantic) {
+          DataManager.addDataSerie(createDataSeries()).then(function(result) {
+            assert(result.id > 0 && DataManager.data.dataSeries.length == 1);
+            return done();
+          }).catch(function(err) {
+            return done(err);
+          });
+        }).catch(function(err) {
+          return done(err);
+        });
+
+      });
+    });
+  });
+
+  it('should update DataSeries', function(done) {
+    DataManager.init(function() {
+      DataManager.load().then(function() {
+
+        DataManager.getDataSerie({name: "DataSeries1"}).then(function(result) {
+          result.name = "Updated DataSeries1";
+
+          DataManager.updateDataSerie(result).then(function() {
+            assert(result.name === "Updated DataSeries1");
+            return done();
+          }).catch(function(err) {
+            return done(err);
+          });
+
+        });
+
+      });
+    });
+  });
+
   it('should destroy a DataProvider', function(done){
     DataManager.init(function(){
-      DataManager.load(function(){
+      DataManager.load().then(function(){
         var expected = {
           name: "Provider 1"
         };
@@ -159,20 +231,4 @@ describe('DataManager', function() {
       });
     });
   });
-
-  //it('should insert DataSeries', function(done) {
-  //  DataManager.init(function() {
-  //    DataManager.load(function() {
-  //      try {
-  //        DataManager.addDataSerie(expectedDataSerie, function(result) {
-  //          assert(result.id > 0 && DataManager.data.dataSeries.length == 1);
-  //          return done();
-  //        });
-  //      }
-  //      catch (err) {
-  //        return done(err);
-  //      }
-  //    });
-  //  });
-  //});
 });
