@@ -56,8 +56,8 @@ namespace terrama2
 
     struct DataProvider
     {
-      uint64_t id; //!< The identifier of the DataProvider.
-      uint64_t project_id; //!< The identifier of the Project, foreign key.
+      DataProviderId id; //!< The identifier of the DataProvider.
+      ProjectId project_id; //!< The identifier of the Project, foreign key.
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
       DataProviderType data_provider_type_id; //!< The identifier of the DataProviderType, foreign key.
