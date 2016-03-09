@@ -20,35 +20,28 @@
 */
 
 /*!
-  \file terrama2/core/DataProvider.hpp
+  \file terrama2/core/data-model/DataProvider.hpp
 
   \brief Models the information of a DataProvider (or data server).
 
-  \author Gilberto Ribeiro de Queiroz
-  \author Jano Simas
-  \author Paulo R. M. Oliveira
-  \author Vinicius Campanha
+  \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_CORE_DATAPROVIDER_HPP__
-#define __TERRAMA2_CORE_DATAPROVIDER_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
 
 // TerraMA2
-#include "DataSet.hpp"
-
+#include "Project.hpp"  
+  
 // STL
 #include <string>
-#include <vector>
-
-// Qt
-#include <QJsonObject>
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \class DataProvider
+      \Struct DataProvider
 
       \brief Models the information of a DataProvider (or data server).
 
@@ -60,135 +53,20 @@ namespace terrama2
       A DataProvider contains the list of datasets that belongs to this provider
       that should be collected for further analysis.
      */
-    class DataProvider
+
+    struct DataProvider
     {
-      public:
-
-        /*! \brief DataProvider type.
-         Each constant must exist in table terrama2.data_provider_type and the value must be the same from column id.
-         */
-        enum Kind
-        {
-          UNKNOWN_TYPE = 1, //!< Unkown type
-          FTP_TYPE = 2, //!< FTP protocol.
-          HTTP_TYPE = 3, //!< HTTP protocol.
-          FILE_TYPE = 4, //!< Local files.
-          WFS_TYPE = 5, //!< OGC Web Feature Service.
-          WCS_TYPE = 6, //!< OGC Web Coverage Service.
-          SOS_TYPE = 7, //!< OGC Sensor Observation Service.
-          POSTGIS_TYPE = 8 //!< PostGIS database server.
-        };
-
-        /*! \brief DataProvider origin.
-         Each constant must exist in table terrama2.data_provider_origin and the value must be the same from column id.
-         */
-        enum Origin
-        {
-          COLLECTOR = 1, //!< This data provider is used in the collector.
-          ANALYSIS = 2 //!< This data provider is used in the analysis.
-        };
-
-        //! DataProvider status.
-        enum Status
-        {
-          ACTIVE, //!< The data provider is available.
-          INACTIVE //!< The data provider is not available.
-        };
-
-        /*! \brief Constructor. */
-        DataProvider(const std::string& name = "", Kind k = UNKNOWN_TYPE, const uint64_t id = 0);
-
-        /*! \brief Destructor. */
-        ~DataProvider();
-
-        /*! \brief Returns the identifier of the DataProvider. */
-        uint64_t id() const;
-
-        /*! \brief Sets the identifier in the DataProvider and in each DataSet that it contains. */
-        void setId(uint64_t id);
-
-        /*! \brief Returns the name of the DataProvider. */
-        const std::string& name() const;
-
-        /*! \brief Sets the name of the DataProvider. */
-        void setName(const std::string& name);
-
-        /*! \brief Returns the description of the DataProvider. */
-        const std::string& description() const;
-
-        /*! \brief Sets the the description of the DataProvider. */
-        void setDescription(const std::string& description);
-
-        /*! \brief Returns the the kind of the DataProvider. */
-        Kind kind() const;
-
-        /*! \brief Sets the the kind of the DataProvider.  */
-        void setKind(Kind k);
-
-        /*! \brief Returns the the origin of the DataProvider. */
-        Origin origin() const;
-
-        /*! \brief Sets the the origin of the DataProvider.  */
-        void setOrigin(Origin origin);
-
-        /*! \brief Returns the URI of the DataProvider. */
-        const std::string& uri() const;
-
-        /*! \brief Sets the URI of the DataProvider. */
-        void setUri(const std::string& uri);
-
-        /*! \brief Returns the the status of the DataProvider. */
-        Status status() const;
-
-        /*! \brief Sets the the status of the DataProvider. */
-        void setStatus(Status s);
-
-        /*! \brief Returns a reference to the DataSet list to be collected from this DataProvider. */
-        std::vector<DataSet>& datasets();
-
-        /*! \brief Returns a reference to the DataSet list to be collected from this DataProvider. */
-        const std::vector<DataSet>& datasets() const;
-
-        /*!
-          \brief Adds a new DataSet to the DataProvider.
-
-          \param d The the DataSet.
-        */
-        void add(DataSet& d);
-
-        /*!
-          \brief Removes the given DataSet from the provider list.
-
-          \param id The identifier of the DataSet to be removed.
-         */
-        void removeDataSet(const uint64_t id);
-
-        /*! \brief Creates the object from the JSON string. */
-        static DataProvider FromJson(const QJsonObject& json);
-
-        /*! \brief Serialize to JSON. */
-        QJsonObject toJson() const;
-
-        /*! \brief Override operator == */
-        bool operator==(const DataProvider& rhs);
-
-        /*! \brief Override operator != */
-        bool operator!=(const DataProvider& rhs);
-
-      private:
-
-        uint64_t id_; //!< The identifier of the DataProvider.
-        std::string name_; //!< Name of the DataProvider, must be unique.
-        Kind kind_; //!< DataProvider type.
-        Origin origin_; //! DataProvider origin.
-        std::string description_; //!< Brief description from the source of the DataProvider.
-        std::string uri_; //!< URI to access the DataProvider data.
-        Status status_; //!< DataProvider status.
-        std::vector<DataSet> datasets_; //!< The list of datasets available in the DataProvider.
+      uint64_t id; //!< The identifier of the DataProvider.      
+      uint64_t project_id; //!< The identifier of the Project, foreign key.
+      std::string name; //!< Name of the DataProvider, must be unique.
+      std::string description; //!< Description from the source of the DataProvider.
+      DataProviderType data_provider_type_id; //!< The identifier of the DataProviderType, foreign key.
+      DataProviderIntent data_provider_intent_id; //!< The identifier of the DataProviderIntent, foreign key.
+      std::string uri; //!< URI to access the DataProvider data.
+      bool active; //!< DataProvider status.
     };
-
   } // end namespace core
 }   // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_DATAPROVIDER_HPP__
+#endif  // __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
 
