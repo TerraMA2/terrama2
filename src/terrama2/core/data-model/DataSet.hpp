@@ -28,7 +28,7 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
 
-#include "../Typedef.hpp"
+#include "../typedef.hpp"
 
 namespace terrama2
 {
