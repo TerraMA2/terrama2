@@ -20,28 +20,31 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcp.hpp
+  \file terrama2/core/data-access/DcpSeries.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
 
 //TerraMA2
-#include "DataAccessor.hpp"
+#include "../Config.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \brief DataAccessor for DCP DataSeries.
-      
+      \brief A DcpSeries represents a set of DCP.
+
+      The DcpSeries aggregates the te::da::DataSet of each DCP
+       as well as it's position and date-time column
+
     */
-    class DataAccessorDcp : public DataAccessor
+    class DcpSeries
     {
     public:
 
@@ -49,4 +52,4 @@ namespace terrama2
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
