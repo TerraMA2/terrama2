@@ -37,13 +37,10 @@ namespace terrama2
 {
   namespace core
   {
-<<<<<<< HEAD
     /*!
       \brief DataAccessor for DCP DataSeries.
       
     */
-=======
->>>>>>> merge conflicts
     class DataAccessorDcp : public DataAccessor
     {
     public:

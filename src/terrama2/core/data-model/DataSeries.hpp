@@ -59,10 +59,4 @@ namespace terrama2
   } // end namespace core
 } // end namespace terrama2
 
-<<<<<<< HEAD
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATASERIES_HPP__
-
-
-=======
 #endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
->>>>>>> Creating base class DataAccessor,
