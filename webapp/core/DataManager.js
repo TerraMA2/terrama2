@@ -1,7 +1,8 @@
 var tcpManager = require("./TcpManager")();
 var SIGNALS = require("./Signals");
 var modelsFn = require("../models");
-
+var exceptions = require('./Exceptions');
+var Promise = require('bluebird');
 
 // Helpers
 Array.prototype.removeItem = function (key) {
@@ -21,10 +22,13 @@ Array.prototype.getItemByParam = function(object) {
 var models = null;
 var actualConfig = {};
 
-/*
- It must be set in sequelize model hooks to make it synchronized.
- todo: Should it has timer for reload caching object?
-*/
+/**
+ * Controller of the system index.
+ * @class DataManager
+ *
+ * @property {object} data - Object for storing model values, such DataProviders, DataSeries and Projects.
+ * @property {object} connection - 'sequelize' module connection.
+ */
 var DataManager = {
   data: {
     dataSeries: [],
@@ -33,6 +37,10 @@ var DataManager = {
   },
   connection: null,
 
+  /**
+   * It initializes DataManager, loading models and database synchronization
+   * @param {function} callback - A callback function for waiting async operation
+   */
   init: function(callback) {
     var app = require('../app');
     var Sequelize = require("sequelize");
@@ -84,38 +92,44 @@ var DataManager = {
     });
   },
 
-  addProject: function(projectObject, callback) {
-    if (this.connection)
-    {
-      var self = this;
+  addProject: function(projectObject) {
+    var self = this;
+    return new Promise(function(resolve, reject){
       models.db.Project.create(projectObject).then(function(project){
         self.data.projects.push(project);
-        callback(project);
+        resolve(project);
+      }).catch(function(e) {
+        reject(e);
       });
-    }
-    else
-      throw TypeError("DataManager not initialized yet. Could not save Project");
+    });
   },
 
-  addDataProvider: function(dataProviderObject, callback) {
-    if (this.connection)
-    {
-      var self = this;
+  addDataProvider: function(dataProviderObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
         self.data.dataProviders.push(dataProvider);
-        callback(dataProvider);
-      //  todo: emit signal
+        resolve(Object.assign({}, dataProvider.dataValues));
+
+        //  todo: emit signal
+
       }).catch(function(err){
-        throw TypeError("Could not save DataProvider: " + err);
+        var error = exceptions.DataProviderError("Could not save DataProvider. " + err);
+        reject(error);
       });
-    }
-    else
-      throw TypeError("DataManager not initialized yet. Could not save DataProvider");
+    });
   },
 
   getDataProvider: function(restriction) {
-    var dataProvider = this.data.dataProviders.getItemByParam(restriction);
-    return dataProvider ? dataProvider.dataValues : dataProvider;
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var dataProvider = self.data.dataProviders.getItemByParam(restriction);
+      if (dataProvider){
+        resolve(Object.assign({}, dataProvider.dataValues));
+      }
+      else
+        reject(new exceptions.DataProviderError("Could not find a data provider: ", restriction));
+    });
   },
 
   listDataProviders: function() {
@@ -125,25 +139,70 @@ var DataManager = {
     return dataProviderObjectList;
   },
 
-  removeDataProvider: function(dataProviderParam, callback) {
-    var providerToBeRemoved = this.data.dataProviders.removeItem(dataProviderParam);
+  updateDataProvider: function(dataProviderObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      for(var i = 0; i < self.data.dataProviders.length; ++i) {
+        var provider = self.data.dataProviders[i];
+        if (provider.id === dataProviderObject.id) {
+          provider.updateAttributes({
+            name: dataProviderObject.name,
+            description: dataProviderObject.description,
+            uri: dataProviderObject.uri,
+            active: dataProviderObject.active
+          }).then(function() {
+            self.data.dataProviders[i] = provider;
+            resolve(provider.dataValues);
+          }).catch(function(err) {
+            reject(new exceptions.DataProviderError("Could not update data provider ", err));
+          });
+          return;
+        }
+      }
 
-    if (providerToBeRemoved)
-      providerToBeRemoved.destroy().then(function(status) {
-        callback();
-      });
-    else
-      throw TypeError("DataManager not initialized yet. Could not remove DataProvider");
+      reject(new exceptions.DataProviderError("Data provider not found"));
+    });
   },
 
-  getDataSerie: function(dataSerieValue)
+  removeDataProvider: function(dataProviderParam) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var providerToBeRemoved = self.data.dataProviders.removeItem(dataProviderParam);
+
+      if (providerToBeRemoved) {
+        providerToBeRemoved.destroy().then(function (status) {
+          resolve(status);
+        }).catch(function (err) {
+          reject(err);
+        });
+      }
+      else
+        reject(new exceptions.DataManagerError("DataManager not initialized yet"));
+    });
+  },
+
+  getDataSerie: function(restriction)
   {
-    return this.data.dataSeries.getItemByParam(dataSerieValue);
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var dataSerie = self.data.dataSeries.getItemByParam(restriction);
+      if (dataSerie)
+        resolve(dataSerie.dataValues);
+      else
+        reject(new exceptions.DataSeriesError("Could not find a data provider: ", restriction));
+    });
   },
 
   addDataSerie: function(dataSeriesObject) {
-    this.data.dataSeries.push(dataSeriesObject);
-    //tcpManager.emit(SIGNALS.DataSeriesAdded, dataSeriesObject);
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
+        self.data.dataSeries.push(dataSerie);
+        resolve(dataSerie);
+      }).catch(function(err){
+       reject(new exceptions.DataProviderError("Could not save DataSeries. " + err));
+      });
+    });
   },
 
   updateDataSerie: function(dataSeriesObject) {
