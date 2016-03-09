@@ -31,8 +31,8 @@
 #define __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
 
 // TerraMA2
-#include "Project.hpp"  
-  
+#include "../typedef.hpp"
+
 // STL
 #include <string>
 
@@ -56,7 +56,7 @@ namespace terrama2
 
     struct DataProvider
     {
-      uint64_t id; //!< The identifier of the DataProvider.      
+      uint64_t id; //!< The identifier of the DataProvider.
       uint64_t project_id; //!< The identifier of the Project, foreign key.
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
@@ -69,4 +69,3 @@ namespace terrama2
 }   // end namespace terrama2
 
 #endif  // __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
-
