@@ -20,33 +20,38 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcp.hpp
+  \file terrama2/core/data-access/DataRetriever.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
 
 //TerraMA2
-#include "DataAccessor.hpp"
+#include "../Config.hpp"
+#include "../shared.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \brief DataAccessor for DCP DataSeries.
-      
+      \brief Class responsible for storing a DcpSeries.
+
+      Derived classes should be able to iterate through all DCP and
+      store in the permanent storage area.
+
     */
-    class DataAccessorDcp : public DataAccessor
+    class DataStoragerDcp
     {
     public:
-
+      DataStoragerDcp(DataProvider);
+      void store(DcpContainerPtr, DataSet/*output*/);
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__

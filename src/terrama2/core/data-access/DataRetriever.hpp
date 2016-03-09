@@ -20,33 +20,42 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcp.hpp
+  \file terrama2/core/data-access/DataRetriever.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
 
 //TerraMA2
-#include "DataAccessor.hpp"
+#include "../Config.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \brief DataAccessor for DCP DataSeries.
-      
+    \brief Base class to download data from a remote server.
+
+    Derived classes should access a remote server and download files to a temporary storage
+    and return a te::core::URI to this file.
+
     */
-    class DataAccessorDcp : public DataAccessor
+    class DataRetriever
     {
     public:
+      DataRetriever(DataProvider) {}
+      /*!
 
+        \return Uri to the termporary file
+      */
+      te::core::URI retrieveData(DataSeries, DataSet, DataFilter) = 0;
+      te::dt::TimeInstantTZ lastDateTime() = 0;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__

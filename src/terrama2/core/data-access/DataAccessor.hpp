@@ -37,11 +37,22 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+    \brief Base class to access data from a DataSeries.
+
+    Derived classes as responsible for the whole data access process,
+    from downloading, when necessary, to instantiating the proper data access class.
+
+    */
     class DataAccessor
     {
+    public:
+      //! Returns the last Data date found on last access.
+      virtual te::dt::TimeInstantTZ lastDateTime() = 0;
+
     protected:
-      DataAccessor(DataProvider, DataSeries, DataManager*) = 0;
-      te::dt::TimeInstantTZ lastDateTime() = 0;
+      DataAccessor(DataProvider, DataSeries, DataManager*) {}
+      ~DataAccessor() {}
     };
   }
 }
