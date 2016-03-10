@@ -20,28 +20,17 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSet.hpp
+  \file terrama2/core/Typedef.hpp
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
+#ifndef __TERRAMA2_CORE_TYPEDEF_HPP__
+#define __TERRAMA2_CORE_TYPEDEF_HPP__
 
-#include "../typedef.hpp"
+typedef uint64_t DataSetId;
+typedef uint64_t DataSeriesId;
+typedef uint64_t ProjectId;
+typedef uint64_t DataProviderId;
 
-namespace terrama2
-{
-  namespace core
-  {
-    struct DataSet
-    {
-      DataSetId id;
-      DataSeriesId dataSeriesId;
-      bool active;
-      std::map<std::string, std::string> format;
-    };
-  } // end namespace core
-} // end namespace terrama2
-
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
+#endif // __TERRAMA2_CORE_TYPEDEF_HPP__

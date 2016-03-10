@@ -20,29 +20,24 @@
 */
 
 /*!
-  \file terrama2/core/Filter.hpp
+  \file terrama2/core/data-model/Filter.hpp
 
   \brief Filter information of a given DataSetItem.
 
-  \author Paulo R. M. Oliveira
-  \author Gilberto Ribeiro de Queiroz
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_FILTER_HPP__
-#define __TERRAMA2_CORE_FILTER_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_FILTER_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_FILTER_HPP__
 
-// STL
-#include <string>
-#include <memory>
-
-// Qt
-#include <QJsonObject>
+#include "../Config.hpp"
+#include "../typedef.hpp"
 
 // Forward declaration
 namespace te
 {
   namespace dt { class TimeInstantTZ; }
-  namespace gm { class Polygon; }
+  namespace gm { class MultiPolygon; }
 }
 
 
@@ -52,123 +47,21 @@ namespace terrama2
   {
 
     /*!
-      \class Filter
+      \struct Filter
 
       \brief Filter information of a given DataSetItem.
      */
-    class Filter
+    struct Filter
     {
-
-      public:
-
-        /*! \brief Filter by value type.
-         Each constant must exist in table terrama2.filter_expression_type and the value must be the same from column id.
-         */
-        enum ExpressionType
-        {
-          NONE_TYPE = 1, //!< No filter.
-          LESS_THAN_TYPE = 2, //!< Eliminate data when all values are less than a given value
-          GREATER_THAN_TYPE = 3, //!< Eliminate data when all values are greater than a given value
-          MEAN_LESS_THAN_TYPE = 4, //!< Eliminate data when the mean is less than a given value
-          MEAN_GREATER_THAN_TYPE = 5 //!< Eliminate data when the mean is greater than a given value
-        };
-
-        /*!
-          \brief Constructor.
-
-          \param item The associated DataSetItem.
-        */
-        Filter(uint64_t dataSetItemId = 0);
-
-        /*! \brief Destructor. */
-        ~Filter();
-
-
-        /*! Copy constructor */
-        Filter(const Filter& filter);
-
-        /*! Assignment operator */
-        Filter& operator=(const Filter& filter);
-
-        /*! \brief Returns the identifier of the associated DataSetItem. */
-        uint64_t datasetItem() const;
-
-
-        /*!
-          \brief Associates the filter to a given DataSetItem.
-
-          \param item The DataSetItem to be associated to this filter.
-        */
-        void setDataSetItem(uint64_t item);
-
-        /*! \brief Returns the initial date of interest for collecting data from the DataSetItem. */
-        const te::dt::TimeInstantTZ* discardBefore() const;
-
-        /*! \brief Sets the initial date of interest for collecting data from the DataSetItem. */
-        void setDiscardBefore(std::unique_ptr<te::dt::TimeInstantTZ> t);
-
-        /*! \brief Returns the final date of interest for collecting data from the DataSetItem. */
-        const te::dt::TimeInstantTZ* discardAfter() const;
-
-        /*! \brief Sets the final date of interest for collecting data from the DataSetItem. */
-        void setDiscardAfter(std::unique_ptr<te::dt::TimeInstantTZ> t);
-
-        /*! \brief Returns the geometry to be used as area of interest for filtering the data during its collect. */
-        const te::gm::Polygon* geometry() const;
-
-        /*! Sets the geometry to be used as area of interest for filtering the data during its collect. */
-        void setGeometry(std::unique_ptr<te::gm::Polygon> geom);
-
-        /*! \brief Returns the value to be used in a filter by value. */
-        const double* value() const;
-
-        /*! \brief Sets the value to be used in a filter by value. */
-        void setValue(std::unique_ptr<double> v);
-
-        /*! \brief Returns the type of filter by expression. */
-        ExpressionType expressionType() const;
-
-        /*! \brief Sets the type of filter by expression. */
-        void setExpressionType(const ExpressionType t);
-
-        /*! \brief Returns the band filter. */
-        const std::string& bandFilter() const;
-
-        /*! \brief Sets the band filter. */
-        void setBandFilter(const std::string& f);
-
-        /*! \brief Returns the identifier of the static data to use as area of interest. */
-        uint64_t staticDataId() const;
-
-        /*! \brief Sets the identifier of the static data to use as area of interest. */
-        void setStaticDataId(const uint64_t staticDataId);
-
-        /*! \brief Creates the object from the JSON string. */
-        static Filter fromJson(const QJsonObject& json);
-
-        /*! \brief Serialize to JSON. */
-        QJsonObject toJson() const;
-
-        /*! \brief Override operator == */
-        bool operator==(const Filter& rhs);
-
-        /*! \brief Override operator != */
-        bool operator!=(const Filter& rhs);
-
-      private:
-
-        uint64_t datasetItem_; //!< Associates the filter to a given DataSetItem.
+        DataSetId dataSetId; //!< Associates the filter to a given DataSetItem.
         std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Initial date of interest for collecting data from the DataSetItem.
         std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Final date of interest for collecting data from the DataSetItem.
-        std::unique_ptr<te::gm::Polygon> geometry_; //!< Geometry to be used as area of interest for filtering the data during its collect.
+        std::unique_ptr<te::gm::MultiPolygon> geometry_; //!< Geometry to be used as area of interest for filtering the data during its collect.
         std::unique_ptr<double> value_; //!< Value to be used in a filter by value.
-        ExpressionType expressionType_; //!< Type of filter by expression.
-        std::string bandFilter_; //!< Band filter.
-        uint64_t staticDataId_; //!< Identifier of the static data to use as area of interest
+        //TODO: filter by value operation
     };
 
   } // end namespace core
 }   // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_FILTER_HPP__
-
+#endif  // __TERRAMA2_CORE_DATA_MODEL_FILTER_HPP__

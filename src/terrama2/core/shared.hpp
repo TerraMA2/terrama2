@@ -20,28 +20,24 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSet.hpp
+  \file terrama2/core/shared.hpp
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
+#ifndef __TERRAMA2_CORE_SHARED_HPP__
+#define __TERRAMA2_CORE_SHARED_HPP__
 
-#include "../typedef.hpp"
+class DcpSeries;
+typedef std::shared<DcpSeries> DcpSeriesPtr;
 
-namespace terrama2
-{
-  namespace core
-  {
-    struct DataSet
-    {
-      DataSetId id;
-      DataSeriesId dataSeriesId;
-      bool active;
-      std::map<std::string, std::string> format;
-    };
-  } // end namespace core
-} // end namespace terrama2
+class GridSeries;
+typedef std::shared<GridSeries> GridSeriesPtr;
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
+class OccurrenceSeries;
+typedef std::shared<OccurrenceSeries> OccurrenceSeriesPtr;
+
+class MonitoredObjectSeries;
+typedef std::shared<MonitoredObjectSeries> MonitoredObjectSeriesPtr;
+
+#endif // __TERRAMA2_CORE_SHARED_HPP__

@@ -20,28 +20,28 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSet.hpp
+  \file terrama2/core/DataSeries.hpp
 
-  \author Jano Simas
+  \brief Models the information of a DataSeries.
+
+  \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
 
-#include "../typedef.hpp"
+// STL
+#include <string>
 
 namespace terrama2
 {
   namespace core
   {
-    struct DataSet
+    struct DataSeriesDcp : public DataSeries
     {
-      DataSetId id;
-      DataSeriesId dataSeriesId;
-      bool active;
-      std::map<std::string, std::string> format;
+
     };
   } // end namespace core
 } // end namespace terrama2
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
+#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
