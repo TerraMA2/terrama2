@@ -4,6 +4,8 @@
  * Class responsible for loading and handling the API configurations.
  * @module Config
  *
+ * @author Jean Souza [jean.souza@funcate.org.br]
+ *
  * @property {json} memberConfJsonComponents - Configuration JSON containing the paths of the components files.
  * @property {json} memberConfJsonServer - Configuration JSON containing the map server data.
  */
