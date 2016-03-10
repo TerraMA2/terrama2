@@ -33,16 +33,42 @@ DataAccessorDcpInpe()
 : DataAccessorDcp()
 {}
 
-DcpSeriesPtr DataAccessorDcpInpe::getDcpSeries(DataFilter)
+DcpSeriesPtr DataAccessorDcpInpe::getDcpSeries(Filter)
 {
-  DataRetrieverPtr getDataRetriever(DataProvider);
-  //...retrieve data from each Dcp...
+  DataRetrieverPtr dataRetriever = getDataRetriever(DataProvider);
+  std::map<DataSetId, te::core::URI> tempUriMap;
+  for(const auto& dataset : dataSeries_)
+  {
+    std:string mask = getMaks(dataset);
+    te::core::URI uri = dataRetriever->retrieveData(mask, Filter);
+    tempUriMap.emplace(dataset.id, uri);
+  }
 
 
-  te::da::DataSource local;
-  //.. filter and join te::da::dataset from each dataset
-  <<vector>>te::da::dataset dataset;
-  //add each Dcp to a DcpSeriesPtr
+  DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
+  for(const auto& dataset : dataSeries_)
+  {
+    te::da::DataSource local;
+    //.. filter and join te::da::dataset from each dataset
 
-  return DcpSeriesPtr();
+    te::gm::Point position = getPosition(dataset);
+    //add each Dcp to a DcpSeriesPtr
+  }
+
+
+
+  return dcpSeries;
+}
+
+static std::string DataAccessorDcpInpe::getMaks(const DataSet& dataset)
+{
+  return dataset.format["mask"];
+}
+
+static te::gm::Point DataAccessorDcpInpe::getPosition(const DataSet& dataset)
+{
+  std::string wkt = dataset.format["position"];
+  te::gm::Point position; //from WKT;
+
+  return position;
 }

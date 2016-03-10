@@ -45,7 +45,10 @@ namespace terrama2
     class DataAccessorDcpInpe : public DataAccessorDcp
     {
     public:
-      virtual DcpSeriesPtr getDcpSeries(DataFilter) override;
+      virtual DcpSeriesPtr getDcpSeries(Filter) override;
+
+      static std::string getMaks(const DataSet& dataset);
+      static te::gm::Point getPosition(const DataSet& dataset);
     };
   }
 }

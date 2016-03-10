@@ -44,6 +44,8 @@ namespace terrama2
     Derived classes as responsible for the whole data access process,
     from downloading, when necessary, to instantiating the proper data access class.
 
+    Derived classes should also be able read the format data from the dataset format map.
+
     */
     class DataAccessor
     {
