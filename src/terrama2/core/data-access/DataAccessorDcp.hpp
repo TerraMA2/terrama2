@@ -47,7 +47,9 @@ namespace terrama2
     class DataAccessorDcp : public DataAccessor
     {
     public:
-      virtual DcpSeriesPtr getDcpSeries(DataFilter) = 0;
+      virtual DcpSeriesPtr getDcpSeries(DataFilter);
+      virtual te::core::URI retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) = 0;
+      virtual te::gm::Point getPosition(const DataSet& dataset) = 0;
     };
   }
 }

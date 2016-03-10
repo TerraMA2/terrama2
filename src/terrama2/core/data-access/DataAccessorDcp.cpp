@@ -20,37 +20,43 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcpInpe.hpp
+  \file terrama2/core/data-access/DataAccessorDcp.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-
-//TerraMA2
-#include "DataAccessorDcp.hpp"
-
-namespace terrama2
+DcpSeriesPtr DataAccessorDcp::getDcpSeries(DataFilter)
 {
-  namespace core
+  DataRetrieverPtr dataRetriever = getDataRetriever(DataProvider);
+  DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
+
+  for(const auto& dataset : dataSeries_)
   {
-    /*!
-      \class DataAccessorDcpInpe
-      \brief DataAccessor for DCP DataSeries from INPE.
-
-    */
-    class DataAccessorDcpInpe : public DataAccessorDcp
+    try
     {
-    public:
-      virtual te::core::URI retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) override;
+      const DataSetDcp& datasetDcp = dynamic_cast<const DataSetDcp&>(dataset);
 
-      std::string getMask(const DataSet& dataset);
-      virtual te::gm::Point getPosition(const DataSet& dataset) override;
-    };
-  }
+      te::core::URI uri;
+      if(dataRetriever->isRetrivable())
+        uri = retrieveData(dataRetriever, datasetDcp, Filter);
+      else
+        uri = DataProvider.uri;
+
+        te::da::DataSource local;
+        //.. filter and join te::da::dataset from each dataset
+
+        te::gm::Point position = datasetDcp.position();
+        //add each Dcp to a DcpSeriesPtr
+    }//try
+    catch(const std::bad_cast& exp)
+    {
+      //TODO: log This
+      continue;
+    }//bad cast
+
+  }//for each dataset
+
+  return dcpSeries;
 }
-
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__

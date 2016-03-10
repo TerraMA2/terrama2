@@ -33,34 +33,13 @@ DataAccessorDcpInpe()
 : DataAccessorDcp()
 {}
 
-DcpSeriesPtr DataAccessorDcpInpe::getDcpSeries(Filter)
+te::core::URI retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter)
 {
-  DataRetrieverPtr dataRetriever = getDataRetriever(DataProvider);
-  std::map<DataSetId, te::core::URI> tempUriMap;
-  for(const auto& dataset : dataSeries_)
-  {
-    std:string mask = getMaks(dataset);
-    te::core::URI uri = dataRetriever->retrieveData(mask, Filter);
-    tempUriMap.emplace(dataset.id, uri);
-  }
-
-
-  DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
-  for(const auto& dataset : dataSeries_)
-  {
-    te::da::DataSource local;
-    //.. filter and join te::da::dataset from each dataset
-
-    te::gm::Point position = getPosition(dataset);
-    //add each Dcp to a DcpSeriesPtr
-  }
-
-
-
-  return dcpSeries;
+  std::string mask = getMask(dataset);
+  return dataRetriever->retrieveData(mask, filter);
 }
 
-static std::string DataAccessorDcpInpe::getMaks(const DataSet& dataset)
+static std::string DataAccessorDcpInpe::getMask(const DataSet& dataset)
 {
   return dataset.format["mask"];
 }
