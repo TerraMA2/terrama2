@@ -241,7 +241,6 @@ find_package(Doxygen)
 
 find_package(terralib REQUIRED)
 
-# Parou aqui
 
 if(NOT terralib_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find TerraLib libraries!")
