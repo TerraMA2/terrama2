@@ -56,7 +56,7 @@ var DataManager = {
       var Sequelize = require("sequelize");
       var databaseConfig = app.get("databaseConfig");
 
-      if (_.isEqual(databaseConfig, actualConfig)) {
+      if (!_.isEqual(databaseConfig, actualConfig)) {
         actualConfig = databaseConfig;
 
         var connection = new Sequelize(actualConfig.database,

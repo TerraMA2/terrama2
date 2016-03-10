@@ -59,8 +59,8 @@ describe('DataManager', function() {
     "dialect": "postgres",
     define: {
       schema: "terrama2"
-    }
-    //logging: false
+    },
+    logging: false
   };
   app.set("databaseConfig", config);
   var DataManager = require("../core/DataManager");
