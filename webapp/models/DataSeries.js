@@ -16,6 +16,7 @@ module.exports = function(sequelize, DataTypes) {
     {
       underscored: true,
       underscoredAll: true,
+      timestamps: false,
 
       classMethods: {
         associate: function(models) {
@@ -44,6 +45,23 @@ module.exports = function(sequelize, DataTypes) {
           DataSeries.hasMany(models.DataSet, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: "data_series_id",
+              allowNull: false
+            }
+          });
+
+          DataSeries.hasMany(models.Collector, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_input_id",
+              allowNull: false
+            }
+          });
+
+          DataSeries.hasMany(models.Collector, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_output_id",
               allowNull: false
             }
           });

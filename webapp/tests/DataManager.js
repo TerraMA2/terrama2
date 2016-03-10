@@ -32,11 +32,20 @@ function createDataSeriesSemantic() {
 
 function createDataSeries() {
   return {
+    id: 1,
     name: "DataSeries1",
     description: "Desc DataSeries1",
     data_series_semantic_name: createDataSeriesSemantic().name,
     data_provider_id: createDataProvider().id
   };
+}
+
+function createDataSet() {
+  return {
+    name: "DataSet1",
+    active: true,
+    data_series_id: createDataSeries().id
+  }
 }
 
 describe('DataManager', function() {
@@ -48,7 +57,7 @@ describe('DataManager', function() {
     "database": "nodejs_test",
     "host": "127.0.0.1",
     "dialect": "postgres",
-    logging: false
+    //logging: false
   };
   app.set("databaseConfig", config);
   var DataManager = require("../core/DataManager");
@@ -91,12 +100,7 @@ describe('DataManager', function() {
   it('should insert Project in DataManager', function(done) {
     DataManager.init(function(){
       DataManager.load().then(function(){
-        var project = {
-          id: 1,
-          name: "Project 1",
-          version: 1,
-          description: "Test Project"
-        };
+        var project = createProject();
 
         DataManager.addProject(project).then(function(result) {
           assert(result.id > 0 && DataManager.data.projects.length == 1);
@@ -111,15 +115,7 @@ describe('DataManager', function() {
   it('should insert DataProvider', function(done) {
     DataManager.init(function(){
       DataManager.load().then(function(){
-        var provider = {
-          name: "Provider 1",
-          uri: "http://provider.com",
-          description: "Test Provider",
-          active: true,
-          project_id: 1,
-          data_provider_type_id: 1,
-          data_provider_intent_id: 1
-        };
+        var provider = createDataProvider();
 
         DataManager.addDataProvider(provider).then(function(result) {
           assert(result.id > 0 && DataManager.data.dataProviders.length == 1);
@@ -134,14 +130,8 @@ describe('DataManager', function() {
   it('should not insert DataProvider', function(done) {
     DataManager.init(function(){
       DataManager.load().then(function(){
-        var provider = {
-          name: "Provider 1",
-          uri: "http://provider.com",
-          description: "Test Provider",
-          active: true,
-          project_id: 1,
-          data_provider_type_id: 1
-        };
+        var provider = createDataProvider();
+        provider.data_provider_intent_id = 50;
 
         DataManager.addDataProvider(provider).then(function(result) {
           return done("Error: No exception thrown");
@@ -155,13 +145,7 @@ describe('DataManager', function() {
   it('should retrieve a DataProvider', function(done){
     DataManager.init(function(){
       DataManager.load().then(function(){
-        var expected = {
-          name: "Provider 1",
-          uri: "http://provider.com",
-          description: "Test Provider",
-          active: true,
-          project_id: 1
-        };
+        var expected = createDataProvider();
 
         DataManager.getDataProvider({name: expected.name}).then(function(provider) {
 

@@ -1,6 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataProviderIntent = sequelize.define("DataProviderIntent",
-    {
+  var ServiceInstance = sequelize.define("ServiceInstance", {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -11,18 +10,24 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         unique: true
       },
-      description: DataTypes.TEXT
+      host: DataTypes.STRING,
+      port: DataTypes.INTEGER,
+      sshUser: DataTypes.STRING,
+      sshPort: DataTypes.INTEGER,
+      description: DataTypes.TEXT,
+      pathToBinary: DataTypes.STRING,
+      numberOfThreads: DataTypes.INTEGER,
+      runEnviroment: DataTypes.STRING
     },
     {
       underscored: true,
       underscoredAll: true,
-      timestamps: false,
-
       classMethods: {
         associate: function(models) {
-          DataProviderIntent.hasMany(models.DataProvider, {
+          ServiceInstance.belongsTo(models.ServiceType, {
             onDelete: "CASCADE",
             foreignKey: {
+              type: DataTypes.INTEGER,
               allowNull: false
             }
           });
@@ -31,5 +36,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataProviderIntent;
+  return ServiceInstance;
 };

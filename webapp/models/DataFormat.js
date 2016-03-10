@@ -11,6 +11,7 @@ module.exports = function(sequelize, DataTypes) {
     {
       underscored: true,
       underscoredAll: true,
+      timestamps: false,
 
       classMethods: {
         associate: function(models) {
@@ -20,14 +21,6 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
-
-          //DataFormat.belongsToMany(models.DataSeriesType, {
-          //  through: models.DataSeriesSemantic,
-          //  onDelete: "CASCADE",
-          //  foreignKey: {
-          //    allowNull: false
-          //  }
-          //});
         }
       }
     }

@@ -1,18 +1,14 @@
-module.exports = function(sequelize, DataTypes)
-{
-  var Project = sequelize.define("Project", {
+module.exports = function(sequelize, DataTypes) {
+  var DataSetFormat = sequelize.define("DataSetFormat",
+    {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
       },
-      version: DataTypes.INTEGER,
-      name: {
-        type: DataTypes.STRING,
-        unique: true
-      },
-      description: DataTypes.TEXT
+      key: DataTypes.STRING,
+      value: DataTypes.STRING
     },
     {
       underscored: true,
@@ -21,10 +17,12 @@ module.exports = function(sequelize, DataTypes)
 
       classMethods: {
         associate: function(models) {
-          Project.hasMany(models.DataProvider, {
-            onDelete: "CASCADE",
+          DataSetFormat.belongsTo(models.DataSet, {
             foreignKey: {
-              allowNull: false
+              onDelete: "CASCADE",
+              foreignKey: {
+                allowNull: false
+              }
             }
           });
         }
@@ -32,5 +30,5 @@ module.exports = function(sequelize, DataTypes)
     }
   );
 
-  return Project;
+  return DataSetFormat;
 };

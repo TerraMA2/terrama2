@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataSeriesProperty = sequelize.define("DataSeriesProperty",
+  var Collector = sequelize.define("Collector",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -7,9 +7,7 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      attribute: DataTypes.STRING,
-      alias: DataTypes.STRING,
-      position: DataTypes.INTEGER
+      active: DataTypes.BOOLEAN
     },
     {
       underscored: true,
@@ -18,17 +16,25 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          DataSeriesProperty.belongsTo(models.DataSeries, {
+          Collector.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
+              name: "data_series_input_id",
               allowNull: false
             }
           });
+
+          Collector.belongsTo(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_output_id",
+              allowNull: false
+            }
+          })
         }
       }
     }
   );
 
-  return DataSeriesProperty;
+  return Collector;
 };

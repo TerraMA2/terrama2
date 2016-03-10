@@ -18,6 +18,7 @@ module.exports = function(sequelize, DataTypes) {
     {
       underscored: true,
       underscoredAll: true,
+      timestamps: false,
 
       hooks: {
         afterCreate: function(instance, options) {
