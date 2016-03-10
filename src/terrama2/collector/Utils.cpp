@@ -37,6 +37,7 @@
 #include <boost/date_time/local_time/local_time_types.hpp>
 #include <boost/date_time/local_time/posix_time_zone.hpp>
 
+
 boost::local_time::local_date_time terrama2::collector::QDateTime2BoostLocalDateTime(const QDateTime& qDateTime, const QString& offset)
 {
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(offset.toStdString()));
@@ -62,4 +63,20 @@ void terrama2::collector::BoostLocalDateTime2DateTimeString(const boost::local_t
   date = boost::gregorian::to_iso_extended_string(boostLocalDate.date());
   time = boost::posix_time::to_simple_string(boostLocalDate.local_time().time_of_day());
   timezone = boostLocalDate.zone_as_posix_string();
+}
+
+void terrama2::collector::remove(std::vector<TransferenceData>& transferenceDataVec)
+{
+  if(transferenceDataVec.empty())
+    return;
+
+  std::string path;
+
+// Remove the files in temporary folder
+  for(TransferenceData& transferenceData : transferenceDataVec)
+  {
+    path = transferenceData.uriTemporary.c_str();
+    std::remove(path.c_str()); // delete file
+  }
+
 }

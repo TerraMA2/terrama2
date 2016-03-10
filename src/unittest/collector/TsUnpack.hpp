@@ -20,20 +20,20 @@
 */
 
 /*!
-  \file terrama2/collector/TsUnpackGZ.hpp
+  \file terrama2/collector/TsUnpack.hpp
 
-  \brief Tests for the UnpackGZ class.
+  \brief Tests for the Unpack class.
 
   \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_UNPACKGZ_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_UNPACKGZ_HPP__
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_UNPACK_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_UNPACK_HPP__
 
 //Qt
 #include <QtTest>
 
-class TsUnpackGZ: public QObject
+class TsUnpack: public QObject
 {
   Q_OBJECT
 
@@ -54,4 +54,4 @@ class TsUnpackGZ: public QObject
     //******End of Test functions****
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_UNPACKGZ_HPP__
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_UNPACK_HPP__

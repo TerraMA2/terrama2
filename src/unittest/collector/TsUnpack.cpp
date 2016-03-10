@@ -20,14 +20,14 @@
 */
 
 /*!
-  \file terrama2/collector/TsUnpackGZ.cpp
+  \file terrama2/collector/TsUnpack.cpp
 
-  \brief Tests for the UnpackGZ class.
+  \brief Tests for the Unpack class.
 
   \author Evandro Delatin
 */
 
-#include "TsUnpackGZ.hpp"
+#include "TsUnpack.hpp"
 #include "Utils.hpp"
 
 //Qt
@@ -42,7 +42,7 @@
 #include <terrama2/core/DataSetItem.hpp>
 #include <terrama2/collector/Exception.hpp>
 #include <terrama2/collector/DataFilter.hpp>
-#include <terrama2/collector/UnpackGZ.hpp>
+#include <terrama2/collector/Unpack.hpp>
 
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -53,31 +53,32 @@
 #include <boost/date_time/gregorian/greg_date.hpp>
 
 
-
-void TsUnpackGZ::TestParseCpvOk()
+void TsUnpack::TestParseCpvOk()
 {
 
  try
  {
     terrama2::core::DataSetItem item;
-    item.setMask("Dir_1015km_%A_%M_%d_%h%m.bin.gz");
+    item.setMask("serrmar.tar.gz");
 
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
     terrama2::collector::TransferenceData transferenceData;
-    // data/Eta15km/Dir_10m15km2016020512.bin.gz
-    // data/Eta15km/PCD_serrmar_INPE.tar.gz
+    // 30885.txt.gz
     // data/Eta15km/exemplo.zip
-    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/Eta15km/PCD_serrmar_INPE.tar.gz");
+    // data/Eta15km/30885.txt.zip
+    // data/Eta15km/serrmar.tar.gz
+    // data/Eta15km/30885.txt.bz2
+    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/Eta15km/serrmar.tar.gz");
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);
 
 
-    terrama2::collector::UnpackGZ parser;
-    parser.unpackList(transferenceDataVec);
+    terrama2::collector::Unpack fileCompressed;
+    fileCompressed.unpackList(transferenceDataVec);
 
-    QVERIFY(transferenceDataVec.at(0).teDataSet.get());
+    QVERIFY(transferenceDataVec.size() > 0);
   }
   catch(boost::exception& e)
   {
@@ -90,7 +91,7 @@ void TsUnpackGZ::TestParseCpvOk()
   }
 }
 
-void TsUnpackGZ::TestParseFail()
+void TsUnpack::TestParseFail()
 {
   QFAIL("NOT IMPLEMENTED");
 }
