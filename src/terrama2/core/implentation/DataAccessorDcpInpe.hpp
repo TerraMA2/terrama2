@@ -45,7 +45,7 @@ namespace terrama2
     class DataAccessorDcpInpe : public DataAccessorDcp
     {
     public:
-      DcpSeriesPtr getDcpSeries(DataFilter) override;
+      virtual DcpSeriesPtr getDcpSeries(DataFilter) override;
     };
   }
 }
