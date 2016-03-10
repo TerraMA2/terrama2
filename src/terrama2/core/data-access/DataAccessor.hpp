@@ -55,7 +55,7 @@ namespace terrama2
 
     protected:
       /*!
-        \brief
+        \brief TODO: doc DataAccessor
 
         \param filter If defined creates a cache for the filtered data.
       */

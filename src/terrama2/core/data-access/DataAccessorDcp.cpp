@@ -29,26 +29,41 @@
 
 DcpSeriesPtr DataAccessorDcp::getDcpSeries(DataFilter)
 {
-  DataRetrieverPtr dataRetriever = getDataRetriever(DataProvider);
+  //if data provider is not active, nothing to do
+  if(!dataProvider_.active)
+  {
+    //TODO: throw no data to collect
+    //TODO: log this
+  }
+
+  DataRetrieverPtr dataRetriever = getDataRetriever(dataProvider_);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
 
   for(const auto& dataset : dataSeries_)
   {
+    //if the dataset is not active, continue to next.
+    if(!dataset.active)
+      continue;
+
     try
     {
       const DataSetDcp& datasetDcp = dynamic_cast<const DataSetDcp&>(dataset);
 
       te::core::URI uri;
+      // if this data retriever is a remote server that allows to retrieve data to a file,
+      // download the file to a tmeporary location
+      // if not, just get the DataProvider uri
       if(dataRetriever->isRetrivable())
         uri = retrieveData(dataRetriever, datasetDcp, Filter);
       else
-        uri = DataProvider.uri;
+        uri = dataProvider_.uri;
 
+        // creates a DataSource to the data and filters the dataset,
+        // also joins if the DCP comes from separated files
         te::da::DataSource local;
-        //.. filter and join te::da::dataset from each dataset
+        //TODO:.. filter and join te::da::dataset from each dataset
 
-        te::gm::Point position = datasetDcp.position();
-        //add each Dcp to a DcpSeriesPtr
+        //TODO:add each Dcp to a DcpSeriesPtr
     }//try
     catch(const std::bad_cast& exp)
     {

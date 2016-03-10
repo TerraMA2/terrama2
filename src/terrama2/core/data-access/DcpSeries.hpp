@@ -47,7 +47,7 @@ namespace terrama2
     class DcpSeries
     {
     public:
-      void addDcp(position, te::da::dataset);
+      void addDcp(const DataSetDcp& dataset, te::da::dataset);
 
     };
   }

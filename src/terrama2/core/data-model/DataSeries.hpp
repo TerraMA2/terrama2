@@ -55,6 +55,8 @@ namespace terrama2
       DataSeriesSemantics data_series_semantics_id; //!< The identifier of the DataSeriesSemantics, foreign key.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
+
+      std::vector<DataSetId> dataset; //TODO: id or object?
     };
   } // end namespace core
 } // end namespace terrama2

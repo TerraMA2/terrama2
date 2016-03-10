@@ -52,7 +52,7 @@ namespace terrama2
 
         \return Uri to the termporary file
       */
-      virtual te::core::URI retrieveData(const std::string& query, Filter) = 0;
+      virtual te::core::URI retrieveData(const std::string& query, const Filter& filter) = 0;
       virtual te::dt::TimeInstantTZ lastDateTime() = 0;
 
     protected:
