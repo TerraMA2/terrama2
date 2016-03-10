@@ -7,10 +7,6 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      name: {
-        type: DataTypes.STRING,
-        unique: true
-      },
       active: DataTypes.BOOLEAN
     },
     {

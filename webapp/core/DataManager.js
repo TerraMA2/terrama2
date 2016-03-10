@@ -4,6 +4,13 @@ var modelsFn = require("../models");
 var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
+var _ = require('lodash');
+
+// Javascript Lock
+var ReadWriteLock = require('rwlock');
+var lock = new ReadWriteLock();
+
+
 
 // Helpers
 Array.prototype.getItemByParam = function(object) {
@@ -31,6 +38,7 @@ var DataManager = {
 
     dataSeries: [],
     dataProviders: [],
+    dataSets: [], /** It will store data set id list */
     projects: []
   },
   connection: null,
@@ -40,63 +48,65 @@ var DataManager = {
    * @param {function} callback - A callback function for waiting async operation
    */
   init: function(callback) {
-    /*
-      var ReadWriteLock = require('rwlock');
-      var lock = new ReadWriteLock();
-      lock.readLock(function (release) {
-        // do stuff
-        // load from db
-        release();
-      });
-    */
-    var app = require('../app');
-    var Sequelize = require("sequelize");
-    var databaseConfig = app.get("databaseConfig");
+    var self = this;
 
-    if (!Object.is(databaseConfig, actualConfig)) {
-      actualConfig = databaseConfig;
+    // Lock function
+    lock.readLock(function (release) {
+      var app = require('../app');
+      var Sequelize = require("sequelize");
+      var databaseConfig = app.get("databaseConfig");
 
-      var connection = new Sequelize(actualConfig.database,
-        actualConfig.username,
-        actualConfig.password,
-        actualConfig);
+      if (_.isEqual(databaseConfig, actualConfig)) {
+        actualConfig = databaseConfig;
 
-      models = modelsFn();
-      models.load(connection);
+        var connection = new Sequelize(actualConfig.database,
+          actualConfig.username,
+          actualConfig.password,
+          actualConfig);
 
-      var self = this;
-      self.connection = connection;
+        models = modelsFn();
+        models.load(connection);
+
+        self.connection = connection;
 
 
-      var fn = function() {
-        // todo: insert default values in database
-        self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function(providerType) {
-          models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
-            self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
-              models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
-                callback();
+        var fn = function() {
+          // todo: insert default values in database
+          self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function(providerType) {
+            models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
+              self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
+                models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
+                  release();
+                  callback();
+                }).catch(function(err) {
+                  release();
+                  callback();
+                })
               }).catch(function(err) {
+                release();
                 callback();
-              })
-            }).catch(function(err) {
+              });
+            }).catch(function(e){
+              release();
               callback();
             });
           }).catch(function(e){
+            release();
             callback();
           });
-        }).catch(function(e){
-          callback();
-        });
-      };
+        };
 
-      connection.sync().then(function () {
-        fn();
-      }, function(err) {
-        fn();
-      });
-    }
-    else
-      callback();
+        connection.sync().then(function () {
+          fn();
+        }, function(err) {
+          fn();
+        });
+      }
+      else {
+        release();
+        callback();
+      }
+    });
   },
 
   /**
@@ -435,8 +445,10 @@ var DataManager = {
   },
 
   addDataSet: function(dataSetObject) {
+    var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create(dataSetObject).then(function(dataSet) {
+        self.data.dataSets.push(dataSet.id);
         resolve(Utils.clone(dataSet.dataValues));
       }).catch(function(err) {
         reject(err);
@@ -444,8 +456,36 @@ var DataManager = {
     });
   },
 
+  getDataSet: function(dataSetId) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      if (self.data.dataSets.indexOf(dataSetId) != -1) {
+        models.db.DataSet.find({id: dataSetId}).then(function(dataSet) {
+          resolve(Utils.clone(dataSet.dataValues));
+        }).catch(function(err) {
+          reject(err);
+        })
+      } else
+        reject(new exceptions.BaseError("Error in getdataset. TODO"));
+    });
+  },
+
   updateDataSet: function(dataSetObject) {
     return new Promise(function(resolve, reject) {
+      for(var i = 0; i < self.data.dataSeries.length; ++i) {
+        var dataSetId = self.data.dataSeries[i];
+
+        if (dataSetId === dataSeriesObject.id) {
+          // todo: apply for all fields
+          models.db.DataSet.update({active: dataSetObject.active}, {where: {id: dataSetId}}).then(function(result) {
+            resolve(Utils.clone(result.dataValues));
+          }).catch(function(err) {
+            reject(new exceptions.DataSeriesError("Could not update data set", err));
+          });
+          return;
+        }
+        reject(new exceptions.DataSeriesError("Could not update data set", err));
+      }
       resolve(dataSetObject);
     });
   }

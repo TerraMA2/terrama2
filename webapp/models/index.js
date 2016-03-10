@@ -6,7 +6,7 @@ var Sequelize = require("sequelize");
 
 function load(sequelizeObject) {
   fs.readdirSync(__dirname).filter(function(file) {
-    return (file.indexOf(".") !== 0) && (file !== "index.js") && (file !== "provider.js");
+    return (file.indexOf(".") !== 0) && (file !== "index.js");
   }).forEach(function(file) {
     var model = sequelizeObject.import(path.join(__dirname, file));
     db[model.name] = model;

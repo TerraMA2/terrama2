@@ -57,6 +57,9 @@ describe('DataManager', function() {
     "database": "nodejs_test",
     "host": "127.0.0.1",
     "dialect": "postgres",
+    define: {
+      schema: "terrama2"
+    }
     //logging: false
   };
   app.set("databaseConfig", config);

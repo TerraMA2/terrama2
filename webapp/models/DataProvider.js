@@ -63,5 +63,7 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
+  DataProvider.schema('terrama2');
+
   return DataProvider;
 };
