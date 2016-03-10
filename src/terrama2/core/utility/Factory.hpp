@@ -20,37 +20,30 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DcpSeries.hpp
+  \file terrama2/core/utility/Factory.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+ #ifndef __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+ #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
 
-//TerraMA2
-#include "../Config.hpp"
+#include "../shared.hpp"
 
 namespace terrama2
-{
+ {
   namespace core
-  {
-    /*!
-      \brief A DcpSeries represents a set of DCP.
+   {
+    namespace Factory
+     {
+       DataRetrieverPtr getDataRetriever(DataProvider);
 
-      The DcpSeries aggregates the te::da::DataSet of each DCP
-       as well as it's position and date-time column
+    } /* Factory */
 
-    */
-    class DcpSeries
-    {
-    public:
-      void addDcp(position, te::da::dataset);
+  } /* core */
 
-    };
-  }
-}
+} /* terrama2 */
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+#endif // __TERRAMA2_CORE_UTILITY_FACTORY_HPP__

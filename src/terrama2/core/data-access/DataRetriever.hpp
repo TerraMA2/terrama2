@@ -52,8 +52,11 @@ namespace terrama2
 
         \return Uri to the termporary file
       */
-      te::core::URI retrieveData(DataSeries, DataSet, DataFilter) = 0;
-      te::dt::TimeInstantTZ lastDateTime() = 0;
+      virtual te::core::URI retrieveData(DataSeries, DataSet, DataFilter) = 0;
+      virtual te::dt::TimeInstantTZ lastDateTime() = 0;
+
+    protected:
+      DataProvider dataProvider_;
     };
   }
 }

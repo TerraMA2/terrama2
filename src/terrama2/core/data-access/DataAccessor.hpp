@@ -38,6 +38,7 @@ namespace terrama2
   namespace core
   {
     /*!
+    \class DataAccessor
     \brief Base class to access data from a DataSeries.
 
     Derived classes as responsible for the whole data access process,
@@ -51,8 +52,21 @@ namespace terrama2
       virtual te::dt::TimeInstantTZ lastDateTime() = 0;
 
     protected:
-      DataAccessor(DataProvider, DataSeries, DataManager*) {}
-      ~DataAccessor() {}
+      /*!
+        \brief
+
+        \param filter If defined creates a cache for the filtered data.
+      */
+      DataAccessor(DataProvider dataProvider, DataSeries dataSeries, Filter filter = nullptr)
+        : dataProvider_(dataProvider),
+          dataSeries_(dataSeries),
+          filter_(filter) {}
+
+      virtual ~DataAccessor() {}
+
+      DataProvider dataProvider_;
+      DataSeries dataSeries_;
+      Filter filter_;
     };
   }
 }

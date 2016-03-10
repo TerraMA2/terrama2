@@ -49,7 +49,7 @@ namespace terrama2
     {
     public:
       DataStoragerDcp(DataProvider);
-      void store(DcpContainerPtr, DataSet/*output*/);
+      virtual void store(DcpContainerPtr, DataSet/*output*/) = 0;
     };
   }
 }

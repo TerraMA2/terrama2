@@ -40,11 +40,11 @@ namespace terrama2
   namespace core
   {
     /*!
-      \Struct DataSeries
+      \struct DataSeries
 
       \brief Models the information of a DataSeries.
 
-      A DataSeries is description of a dataset. This is the object to be
+      A DataSeries is description of a dataset. This is the set to be
       referenced one collection or analysis. Ex. set of PCD.
      */
 

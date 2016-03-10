@@ -20,37 +20,29 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DcpSeries.hpp
+  \file terrama2/core/data-access/DataAccessorDcpInpe.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+#include "DataAccessorDcpInpe.hpp"
 
-//TerraMA2
-#include "../Config.hpp"
+DataAccessorDcpInpe()
+: DataAccessorDcp()
+{}
 
-namespace terrama2
+DcpSeriesPtr DataAccessorDcpInpe::getDcpSeries(DataFilter)
 {
-  namespace core
-  {
-    /*!
-      \brief A DcpSeries represents a set of DCP.
+  DataRetrieverPtr getDataRetriever(DataProvider);
+  //...retrieve data from each Dcp...
 
-      The DcpSeries aggregates the te::da::DataSet of each DCP
-       as well as it's position and date-time column
 
-    */
-    class DcpSeries
-    {
-    public:
-      void addDcp(position, te::da::dataset);
+  te::da::DataSource local;
+  //.. filter and join te::da::dataset from each dataset
+  <<vector>>te::da::dataset dataset;
+  //add each Dcp to a DcpSeriesPtr
 
-    };
-  }
+  return DcpSeriesPtr();
 }
-
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__

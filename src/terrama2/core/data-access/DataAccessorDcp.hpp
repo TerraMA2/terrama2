@@ -31,20 +31,23 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
 
 //TerraMA2
+#include "../shared.hpp"
 #include "DataAccessor.hpp"
+#include "DcpSeries.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
+      \class DataAccessorDcp
       \brief DataAccessor for DCP DataSeries.
-      
+
     */
     class DataAccessorDcp : public DataAccessor
     {
     public:
-
+      virtual DcpSeriesPtr getDcpSeries(DataFilter) = 0;
     };
   }
 }

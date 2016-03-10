@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/data-model/DataSetDcp.hpp
 
-  \author Evandro Delatin
+  \author Jano Simas
 */
 
 #ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
