@@ -4,6 +4,8 @@
  * Component responsible for presenting an organized list of layers.
  * @module LayerExplorer
  *
+ * @author Jean Souza [jean.souza@funcate.org.br]
+ *
  * @property {string} memberSelectedLayer - Selected layer.
  * @property {object} memberParser - Capabilities parser.
  * @property {json} memberCapabilities - Server capabilities.
