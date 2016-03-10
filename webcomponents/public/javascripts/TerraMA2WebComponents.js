@@ -18,6 +18,8 @@ window.TerraMA2WebComponents = {
  * Main class of the API.
  * @module TerraMA2WebComponents
  *
+ * @author Jean Souza [jean.souza@funcate.org.br]
+ *
  * @property {array} memberComponents - Array of components names received on the initialization.
  * @property {int} memberComponentsLength - Length of the components names array.
  * @property {boolean} memberComponentsLoaded - Flag that indicates if all the components have been loaded.
