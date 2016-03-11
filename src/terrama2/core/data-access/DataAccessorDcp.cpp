@@ -31,21 +31,10 @@
 #include "DataAccessorDcp.hpp"
 #include "DataRetriever.hpp"
 #include "../utility/Factory.hpp"
-#include "../utility/Raii.hpp"
-#include "../utility/FilterMask.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/memory/DataSet.h>
-#include <terralib/dataaccess/utils/Utils.h>
-
-//Qt
-#include <QObject>
-#include <QString>
 
 terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
 {
@@ -78,58 +67,8 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
       else
         uri = dataProvider_.uri;
 
-      // creates a DataSource to the data and filters the dataset,
-      // also joins if the DCP comes from separated files
-      std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
-      std::map<std::string, std::string> connInfo;
-      //FIXME: contruir uri do datasource
-      connInfo["URI"] = typePrefix()+uri;
-      datasource->setConnectionInfo(connInfo);
-
-      //RAII for open/closing the datasource
-      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-      if(!datasource->isOpened())
-      {
-        QString errMsg = QObject::tr("DataProvider could not be opened.");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        //TODO: fix throw
-        //throw UnableToReadDataSetException() << ErrorDescription(errMsg);
-      }
-
-      // get a transactor to interact to the data source
-      std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-      bool first = true;
-      std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
-      std::shared_ptr<te::da::DataSetType> datasetType(nullptr);
-      std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
-
-      std::vector<std::string> validNames = validDataSetNames(*datasetDcp);
-      for(const auto& name : validNames)
-      {
-        //read and adapt all te:da::DataSet from terrama2::core::DataSet
-        if(first)
-        {
-          converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name)));
-          datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-          assert(datasetType);
-
-          completeDataset = std::make_shared<te::mem::DataSet>(datasetType.get());
-          first = false;
-        }
-
-        assert(converter);
-        std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(name));
-        assert(datasetOrig);
-        std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
-
-        //TODO:.. filter and join te::da::dataset from each dataset
-        //TODO: join dataset
-        completeDataset->copy(*dataset);
-      }
-
-      //TODO:add each Dcp to a DcpSeriesPtr
+      std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, *datasetDcp);
+      dcpSeries->addDcp(datasetDcp, memDataSet);
     }//try
     catch(const std::bad_cast& exp)
     {

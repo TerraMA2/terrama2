@@ -34,8 +34,11 @@
 #include "../../Config.hpp"
 #include "../data-model/DataSetDcp.hpp"
 
+//STL
+#include <vector>
+
 //TerraLib
-#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/memory/DataSet.h>
 
 namespace terrama2
 {
@@ -51,7 +54,11 @@ namespace terrama2
     class DcpSeries
     {
     public:
-      void addDcp(const DataSetDcp& dataset, te::da::DataSet& teDataset);
+      void addDcp(const std::shared_ptr<DataSetDcp>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { dcpList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > >& dcpList(){ return dcpList_; }
+
+    private:
+      std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > > dcpList_;
 
     };
   }

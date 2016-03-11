@@ -4,7 +4,7 @@
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/data-model/DataSeries.hpp"
 #include "../core/data-model/DataSetDcp.hpp"
-#include "../implementation/DataAccessorDcpInpe.hpp"
+#include "../impl/DataAccessorDcpInpe.hpp"
 
 
 
@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
   terrama2::core::initializeTerralib();
 
   terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = "file:///home/jsimas/MyDevel/dpi/terrama2-extra/dados";
+  dataProvider.uri = "file:///home/jsimas/MyDevel/dpi/terrama2-extra/data/PCD_serrmar_INPE";
   dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider.dataProviderType = 0;
   dataProvider.active = true;
@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
   std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));
   dataSet->active = true;
   dataSet->dateTimeColumnName = "N/A";
-  dataSet->format.emplace("mask", "angra.txt");
+  dataSet->format.emplace("mask", "30885.txt");
 
   dataProvider.dataSeriesList.push_back(dataSeries);
 
@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
 
   terrama2::core::DataAccessorDcpInpe accessor(dataProvider, dataSeries);
   terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+
+  assert(dcpSeries->dcpList().size() == 1);
 
   terrama2::core::DataProvider dataProvider2;
   terrama2::core::DataSeries dataSeries2;

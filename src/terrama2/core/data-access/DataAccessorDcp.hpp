@@ -38,6 +38,7 @@
 //TerraLib
 #include <terralib/geometry/Point.h>
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/memory/DataSet.h>
 
 namespace terrama2
 {
@@ -61,8 +62,8 @@ namespace terrama2
       virtual std::string typePrefix() const { return ""; }
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(std::string uri, const Filter& filter, const DataSetDcp& datasetDcp) const = 0;
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) = 0;
-      virtual std::vector<std::string> validDataSetNames(const DataSetDcp& dataSetDcp ) const = 0;
       virtual te::gm::Point getPosition(const DataSetDcp& dataset) const = 0;
       virtual std::string dataSourceTye() const = 0;
     };

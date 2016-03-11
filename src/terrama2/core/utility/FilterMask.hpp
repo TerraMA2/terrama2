@@ -41,7 +41,7 @@ namespace terrama2
 {
   namespace core
   {
-    std::vector<std::string> filterNames(const std::string& mask, const Filter& filter, const std::vector<std::string>& names);
+    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name) { return name == mask; } //FIXME: implement name filter
   } // end namespace core
 }   // end namespace terrama2
 
