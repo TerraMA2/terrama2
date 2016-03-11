@@ -333,7 +333,7 @@ if(TERRAMA2_MOD_CORE_ENABLED)
 endif()
 
 if(TERRAMA2_MOD_IMPLEMENTATION_ENABLED)
-  add_subdirectory(terrama2_mod_implementation)
+  add_subdirectory(terrama2_mod_impl)
 endif()
 
 if(TERRAMA2_MOD_COLLECTOR_ENABLED)
