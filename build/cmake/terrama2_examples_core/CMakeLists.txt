@@ -53,7 +53,7 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
    add_executable(${EXAMPLE} ${FILE} ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
    target_link_libraries(${EXAMPLE} terrama2_mod_core
-                                    terrama2_mod_implementation
+                                    terrama2_mod_impl
                                     terralib_mod_plugin
                                     terralib_mod_common)
 endforeach()
