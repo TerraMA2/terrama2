@@ -42,9 +42,9 @@ namespace terrama2
     {
       virtual ~DataSet() {}
 
-      DataSetId id;
-      DataSeriesId dataSeriesId;
-      bool active;
+      DataSetId id = 0;
+      DataSeriesId dataSeriesId = 0;
+      bool active = true;
       std::map<std::string, std::string> format;
     };
   } // end namespace core

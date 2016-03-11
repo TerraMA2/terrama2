@@ -113,7 +113,7 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
       if(!shallowSave)
       {
-        for(auto& dataseries: provider.dataseries)
+        for(auto& dataseries: provider.dataSeriesList)
         {
           pimpl_->dataseries[dataseries.id] = dataseries;
         }
@@ -145,7 +145,7 @@ void terrama2::core::DataManager::add(DataProvider& provider, const bool shallow
 
   if(!shallowSave)
   {
-    for (auto& dataserie : provider.dataseries)
+    for (auto& dataserie : provider.dataSeriesList)
     {
       emit dataSeriesAdded(dataserie);
     }
@@ -178,7 +178,7 @@ void terrama2::core::DataManager::add(DataSeries& dataseries, const bool shallow
 
     try
     {
-      it->second.dataseries.push_back(dataseries);
+      it->second.dataSeriesList.push_back(dataseries);
       pimpl_->dataseries[dataseries.id] = dataseries;
     }
     catch(const terrama2::Exception& e)
@@ -401,7 +401,7 @@ void terrama2::core::DataManager::removeDataProvider(const uint64_t id)
         dataProvider = itDp->second;
 
         // removes all related dataseries from the map
-        for(auto dataseries: dataProvider.dataseries)
+        for(auto dataseries: dataProvider.dataSeriesList)
         {
           auto itDs = pimpl_->dataseries.find(dataseries.id);
           if(itDs != pimpl_->dataseries.end())
@@ -480,8 +480,8 @@ void terrama2::core::DataManager::removeDataSeries(const DataSeriesId id)
         if(it != pimpl_->providers.end())
         {
           provider = it->second;
-          auto pos = std::find(provider.dataseries.begin(), provider.dataseries.end(), dataseries);
-          provider.dataseries.erase(pos);
+          auto pos = std::find(provider.dataSeriesList.begin(), provider.dataSeriesList.end(), dataseries);
+          provider.dataSeriesList.erase(pos);
         }
         else
         {

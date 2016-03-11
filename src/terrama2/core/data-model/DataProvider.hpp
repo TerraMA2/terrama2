@@ -68,16 +68,16 @@ namespace terrama2
         PROCESS_INTENT
       };
 
-      DataProviderId id; //!< The identifier of the DataProvider.
-      ProjectId projectId; //!< The identifier of the Project
+      DataProviderId id = 0; //!< The identifier of the DataProvider.
+      ProjectId projectId = 0; //!< The identifier of the Project
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
-      DataProviderType dataProviderType; //!< Type of the DataProvider (FTP, WCS, ...).
-      DataProviderIntent intent; //!< Intent os the DataProvider.
-      te::common::uri::uri uri; //!< URI to access the DataProvider data.
-      bool active; //!< DataProvider status.
+      DataProviderType dataProviderType = 0; //!< Type of the DataProvider (FTP, WCS, ...).
+      DataProviderIntent intent = PROCESS_INTENT; //!< Intent os the DataProvider.
+      std::string uri; //!< URI to access the DataProvider data.
+      bool active = true; //!< DataProvider status.
 
-      std::vector<DataSeries> dataseries; //TODO: id or object?
+      std::vector<DataSeries> dataSeriesList; //TODO: id or object?
     };
 
   } // end namespace core

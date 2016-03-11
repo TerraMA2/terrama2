@@ -59,24 +59,22 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
   DataRetrieverPtr dataRetriever = Factory::makeRetriever(dataProvider_);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
 
-  for(const auto& datasetId : dataSeries_.datasetList)
+  for(const auto& dataset : dataSeries_.datasetList)
   {
-    DataSet dataset;//TODO: from datasetId
-
     //if the dataset is not active, continue to next.
-    if(!dataset.active)
+    if(!dataset->active)
       continue;
 
     try
     {
-      DataSetDcp& datasetDcp = dynamic_cast<DataSetDcp&>(dataset);
+      std::shared_ptr<DataSetDcp> datasetDcp = std::dynamic_pointer_cast<DataSetDcp>(dataset);
 
       // if this data retriever is a remote server that allows to retrieve data to a file,
       // download the file to a tmeporary location
       // if not, just get the DataProvider uri
-      te::common::uri::uri uri;
+      std::string uri;
       if(dataRetriever->isRetrivable())
-        uri = retrieveData(dataRetriever, datasetDcp, filter);
+        uri = retrieveData(dataRetriever, *datasetDcp, filter);
       else
         uri = dataProvider_.uri;
 
@@ -85,7 +83,7 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
       std::map<std::string, std::string> connInfo;
       //FIXME: contruir uri do datasource
-      // connInfo["URI"] = typePrefix()+uri.toString();
+      connInfo["URI"] = typePrefix()+uri;
       datasource->setConnectionInfo(connInfo);
 
       //RAII for open/closing the datasource
@@ -107,7 +105,7 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
       std::shared_ptr<te::da::DataSetType> datasetType(nullptr);
       std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
-      std::vector<std::string> validNames = validDataSetNames(datasetDcp);
+      std::vector<std::string> validNames = validDataSetNames(*datasetDcp);
       for(const auto& name : validNames)
       {
         //read and adapt all te:da::DataSet from terrama2::core::DataSet

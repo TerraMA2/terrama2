@@ -58,7 +58,7 @@ namespace terrama2
 
         \return Uri to the termporary file
       */
-      virtual te::common::uri::uri retrieveData(const std::string& query, const Filter& filter) { throw 0;} //FIXME: throw here
+      virtual std::string retrieveData(const std::string& query, const Filter& filter) { throw 0;} //FIXME: throw here
       virtual te::dt::TimeInstantTZ lastDateTime() const { throw 0; }//FIXME: throw here
       virtual bool isRetrivable() const { return false; }
 

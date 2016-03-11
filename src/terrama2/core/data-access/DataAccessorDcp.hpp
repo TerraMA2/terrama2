@@ -61,9 +61,9 @@ namespace terrama2
       virtual std::string typePrefix() const { return ""; }
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
-      virtual te::common::uri::uri retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) = 0;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) = 0;
       virtual std::vector<std::string> validDataSetNames(const DataSetDcp& dataSetDcp ) const = 0;
-      virtual te::gm::Point getPosition(const DataSet& dataset) const = 0;
+      virtual te::gm::Point getPosition(const DataSetDcp& dataset) const = 0;
       virtual std::string dataSourceTye() const = 0;
     };
   }
