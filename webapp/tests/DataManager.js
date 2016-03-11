@@ -57,9 +57,9 @@ describe('DataManager', function() {
     "database": "nodejs_test",
     "host": "127.0.0.1",
     "dialect": "postgres",
-    define: {
-      schema: "terrama2"
-    },
+    //define: {
+    //  schema: "terrama2"
+    //},
     logging: false
   };
   app.set("databaseConfig", config);
@@ -68,7 +68,7 @@ describe('DataManager', function() {
   // It runs before all tests. It initializes database, creating tables
   before(function(done){
     DataManager.init(function() {
-      done();
+      return done();
     });
   });
 
@@ -78,7 +78,7 @@ describe('DataManager', function() {
     DataManager.connection.drop({cascade: true}).then(function(e){
       console.log("Cleaning up database");
 
-      done();
+      return done();
     });
   });
 
@@ -191,6 +191,109 @@ describe('DataManager', function() {
         DataManager.addDataSeriesSemantic(createDataSeriesSemantic()).then(function(semantic) {
           DataManager.addDataSerie(createDataSeries()).then(function(result) {
             assert(result.id > 0 && DataManager.data.dataSeries.length == 1);
+            return done();
+          }).catch(function(err) {
+            return done(err);
+          });
+        }).catch(function(err) {
+          return done(err);
+        });
+      });
+    });
+  });
+
+  it('should insert DataSet #dcp', function(done) {
+    DataManager.init(function() {
+      DataManager.load().then(function() {
+
+        DataManager.getDataSerie({id: 1}).then(function(dataSerie) {
+          var dataSetDcp = {
+            id: 1,
+            data_series_id: dataSerie.id,
+            active: true,
+            child: {
+              id: 1,
+              data_set_id: 1,
+              position: {
+                type: 'Point',
+                coordinates: [39.807222,-76.984722],
+                crs:{
+                  type: 'name',
+                  properties : {
+                    name: 'EPSG:4326'}
+                }
+              },
+              timeColumn: "timeColumn"
+            }
+          };
+
+          DataManager.addDataSet(dataSetDcp, "dcp").then(function(result) {
+            assert(DataManager.data.dataSets.length == 1);
+            return done();
+          }).catch(function(err) {
+            return done(err);
+          });
+        }).catch(function(err) {
+          return done(err);
+        });
+      });
+    });
+  });
+
+  it('should insert DataSet #occurrence', function(done) {
+    DataManager.init(function() {
+      DataManager.load().then(function() {
+
+        DataManager.getDataSerie({id: 1}).then(function(dataSerie) {
+          var dataSetOccurrence = {
+            id: 2,
+            data_series_id: dataSerie.id,
+            active: true,
+            child: {
+              id: 2,
+              data_set_id: 2,
+              geometryColumn: "geom_column",
+              timeColumn: "time_field"
+            }
+          };
+          var lenArrayBefore = DataManager.data.dataSets.length;
+
+          DataManager.addDataSet(dataSetOccurrence, "occurrence").then(function(result) {
+            assert(DataManager.data.dataSets.length != lenArrayBefore);
+            return done();
+          }).catch(function(err) {
+            return done(err);
+          });
+        }).catch(function(err) {
+          return done(err);
+        });
+      });
+    });
+  });
+
+  it('should retrieve DataSet', function(done) {
+    DataManager.init(function() {
+      DataManager.load().then(function() {
+
+        DataManager.getDataSet({id: 1, type: "dcp"}).then(function(dset) {
+          assert(dset.timeColumn === "timeColumn");
+          return done();
+        }).catch(function(err) {
+          return done(err);
+        });
+
+      });
+    });
+  });
+
+  it('should update DataSet', function(done) {
+    DataManager.init(function() {
+      DataManager.load().then(function() {
+
+        var params = {id: 1, type: "dcp"};
+        DataManager.getDataSet(params).then(function(dset) {
+          DataManager.updateDataSet(params, {active:false, timeColumn: "TimeColumn3333"}).then(function(result) {
+            assert(result.timeColumn === "TimeColumn3333");
             return done();
           }).catch(function(err) {
             return done(err);

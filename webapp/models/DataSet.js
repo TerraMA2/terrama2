@@ -14,11 +14,47 @@ module.exports = function(sequelize, DataTypes) {
       underscoredAll: true,
       timestamps: false,
 
+      instanceMethods: {
+        getDataSet: function(dataSetType) {
+          if (typeof(dataSetType) === 'string') {
+            switch (dataSetType.toLowerCase()) {
+              case "dcp":
+                return this.getDataSetDcp();
+                break;
+              case "occurrence":
+                return this.getDataSetOccurrence();
+                break;
+              default:
+                return null;
+            }
+          } else
+            throw "Invalid data set type";
+        }
+      },
+
       classMethods: {
         associate: function(models) {
           DataSet.belongsTo(models.DataSeries, {
             foreignKey: {
               name: "data_series_id",
+              onDelete: "CASCADE",
+              foreignKey: {
+                allowNull: false
+              }
+            }
+          });
+
+          DataSet.hasOne(models.DataSetDcp, {
+            foreignKey: {
+              onDelete: "CASCADE",
+              foreignKey: {
+                allowNull: false
+              }
+            }
+          });
+
+          DataSet.hasOne(models.DataSetOccurrence, {
+            foreignKey: {
               onDelete: "CASCADE",
               foreignKey: {
                 allowNull: false

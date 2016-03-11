@@ -444,49 +444,162 @@ var DataManager = {
     });
   },
 
-  addDataSet: function(dataSetObject) {
+  addDataSet: function(dataSetObject, dataSetType) {
+    /**
+     datasetType -> Dcp, Occurrence, Grid
+
+     {
+       active: true,
+       data_series_id: someID,
+       child: -> {}
+     }
+
+     Store => {
+       id: someValue,
+       type: someType
+     }
+     */
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.DataSet.create(dataSetObject).then(function(dataSet) {
-        self.data.dataSets.push(dataSet.id);
-        resolve(Utils.clone(dataSet.dataValues));
+      models.db.DataSet.create({
+        active: dataSetObject.active,
+        data_series_id: dataSetObject.data_series_id
+      }).then(function(dataSet) {
+
+        var onSuccess = function(dSet) {
+          self.data.dataSets.push(dataSet);
+          var output = {id: dataSet.id};
+          output.dataSetType = dataSetType;
+          resolve(output);
+        };
+
+        var onError = function(err) {
+          reject(err);
+        };
+
+        if (dataSetType && typeof(dataSetType) === 'string') {
+          switch(dataSetType) {
+            case "dcp":
+              models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
+              break;
+            case "occurrence":
+              models.db.DataSetOccurrence.create(dataSetObject.child).then(onSuccess).catch(onError);
+              break;
+            case "grid":
+              models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
+              break;
+            default:
+              console.log("KIND NOT Found");
+          }
+        } else {
+          dataSet.destroy().then(function() {
+            reject("Invalid dataset type. DataSet destroyed");
+          }).catch(onError);
+        }
+
       }).catch(function(err) {
         reject(err);
       });
     });
   },
 
-  getDataSet: function(dataSetId) {
+  getDataSet: function(restriction) {
+    /**
+     * { id / data_series_id: someValue, type: SomeType(dcp, occurrence)
+     */
     var self = this;
     return new Promise(function(resolve, reject) {
-      if (self.data.dataSets.indexOf(dataSetId) != -1) {
-        models.db.DataSet.find({id: dataSetId}).then(function(dataSet) {
-          resolve(Utils.clone(dataSet.dataValues));
-        }).catch(function(err) {
-          reject(err);
-        })
-      } else
-        reject(new exceptions.BaseError("Error in getdataset. TODO"));
+      var dataSet = self.data.dataSets.getItemByParam(restriction);
+      if (dataSet) {
+        if (restriction.type) {
+          dataSet.getDataSet(restriction.type).then(function(dset) {
+            var output = Utils.clone(dset.dataValues);
+            output.active = dataSet.active;
+            output.data_series_id = dataSet.data_series_id;
+            resolve(output);
+          }).catch(function(err) {
+            reject(err);
+          });
+          //switch(restriction.type) {
+          //  case "dcp":
+          //    dataSet.getDataSetDcp().then(function(dcp) {
+          //      resolve(Utils.clone(dcp.dataValues));
+          //    });
+          //    break;
+          //  case "occurrence":
+          //    dataSet.getDataSetOccurrence().then(function(occurrence) {
+          //      resolve(Utils.clone(occurrence.dataValues));
+          //    });
+          //    break;
+          //  default:
+          //    break;
+          //}
+        } else
+          reject("DataSet type not found")
+      }
+      else
+        reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
     });
   },
 
-  updateDataSet: function(dataSetObject) {
-    return new Promise(function(resolve, reject) {
-      for(var i = 0; i < self.data.dataSeries.length; ++i) {
-        var dataSetId = self.data.dataSeries[i];
+  updateDataSet: function(restriction, dataSetObject) {
+    /**
+     * restriction => {
+     *   id: someValue,
+     *   type: SomeType(dcp, occurrence),
+     * }
+     *
+     * dataSetObject => {
+     *   timeColumn: ...,
+     *   geometryColumn: ...
+     *   ...
+     * }
+     */
 
-        if (dataSetId === dataSeriesObject.id) {
-          // todo: apply for all fields
-          models.db.DataSet.update({active: dataSetObject.active}, {where: {id: dataSetId}}).then(function(result) {
-            resolve(Utils.clone(result.dataValues));
-          }).catch(function(err) {
-            reject(new exceptions.DataSeriesError("Could not update data set", err));
+    var self = this;
+    return new Promise(function(resolve, reject) {
+
+      var dataSet = self.data.dataSets.getItemByParam(restriction);
+
+      if (dataSet) {
+        dataSet.updateAttributes({active: dataSetObject.active}).then(function() {
+          dataSet.getDataSet(restriction.type).then(function(dSet) {
+            dSet.updateAttributes(dataSetObject).then(function() {
+              var output = Utils.clone(dSet.dataValues);
+              output.active = dataSet.active;
+              output.data_series_id = dataSet.data_series_id;
+              resolve(output);
+            }).catch(function(err) {
+              reject(err);
+            })
           });
-          return;
-        }
-        reject(new exceptions.DataSeriesError("Could not update data set", err));
-      }
-      resolve(dataSetObject);
+        }).catch(function(err) {
+          reject(err);
+        });
+      } else
+        reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
+
+      self.getDataSet(restriction).then(function(dataSetValues) {
+
+      }).catch(function(err) {
+        reject(err);
+      });
+
+      //for(var i = 0; i < self.data.dataSeries.length; ++i) {
+      //  var dataSetId = self.data.dataSeries[i];
+      //
+      //  if (dataSetId === dataSeriesObject.id) {
+      //    // todo: apply for all fields
+      //    models.db.DataSet.update({active: dataSetObject.active}, {where: {id: dataSetId}}).then(function(result) {
+      //      resolve(Utils.clone(result.dataValues));
+      //    }).catch(function(err) {
+      //      reject(new exceptions.DataSeriesError("Could not update data set", err));
+      //    });
+      //    return;
+      //  }
+      //  reject(new exceptions.DataSeriesError("Could not update data set", err));
+      //}
+      //resolve(dataSetObject);
     });
   }
 

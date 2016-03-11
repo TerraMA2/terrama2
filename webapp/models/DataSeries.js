@@ -49,22 +49,6 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
-
-          DataSeries.hasMany(models.Collector, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              name: "data_series_input_id",
-              allowNull: false
-            }
-          });
-
-          DataSeries.hasMany(models.Collector, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              name: "data_series_output_id",
-              allowNull: false
-            }
-          });
         }
       }
     }

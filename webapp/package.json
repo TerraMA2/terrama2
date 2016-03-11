@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha tests"
+    "test": "mocha --timeout 5000 tests"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
