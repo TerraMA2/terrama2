@@ -402,6 +402,13 @@ var DataManager = {
     });
   },
 
+  /**
+   * It updates a DataSeries object. It should be an object containing object filled out with identifier
+   * and model values.
+   *
+   * @param {Object} dataSeriesObject - An object containing DataSeries identifier to get it.
+   * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
   updateDataSerie: function(dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -445,22 +452,23 @@ var DataManager = {
     });
   },
 
-  addDataSet: function(dataSetObject, dataSetType) {
-    /**
-     datasetType -> Dcp, Occurrence, Grid
-
-     {
-       active: true,
-       data_series_id: someID,
-       child: -> {}
-       dataFormats: [{},{},{}]
-     }
-
-     Store => {
-       id: someValue,
-       type: someType
-     }
-     */
+  /**
+   * It saves a DataSet object in database. The object syntax is:
+   * {
+   *   active: true,
+   *   data_series_id: someID,
+   *   child: -> {
+   *     timeColumn...
+   *     geometryColumn...
+   *   }
+   *   dataFormats: [{},{},{}]
+   * }
+   *
+   * @param {string} dataSetType - A string value representing DataSet type. (dcp, occurrence, grid).
+   * @param {Object} dataSetObject - An object containing DataSet values to save it.
+   * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
+  addDataSet: function(dataSetType, dataSetObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
@@ -469,10 +477,9 @@ var DataManager = {
       }).then(function(dataSet) {
 
         var onSuccess = function(dSet) {
-          self.data.dataSets.push(dataSet);
           var output = Utils.clone(dataSet.get());
           output.dataSetType = dataSetType;
-          //self.data.dataSets.push(output);
+          output.child = Utils.clone(dSet.get());
 
           // save dataformat
           if (dataSetObject.dataFormats) {
@@ -486,18 +493,28 @@ var DataManager = {
                 for(var i = 0; i < formats.length; ++i)
                   output.dataFormats.push(Utils.clone(formats[i].dataValues));
 
+                self.data.dataSets.push(output);
+
                 resolve(output);
               });
             }).catch(function (err) {
               reject(err);
             });
-          } else // todo: validate it
+          } else {// todo: validate it
             resolve(output);
+            self.data.dataSets.push(output);
+          }
 
         };
 
         var onError = function(err) {
-          reject(err);
+          reject(new exceptions.DataSetError("Could not save data set." + err));
+        };
+
+        var rollback = function(dataSet) {
+          dataSet.destroy().then(function() {
+            reject(new exceptions.DataSetError("Invalid dataset type. DataSet destroyed"));
+          }).catch(onError);
         };
 
         if (dataSetType && typeof(dataSetType) === 'string') {
@@ -512,12 +529,10 @@ var DataManager = {
               models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;
             default:
-              console.log("KIND NOT Found");
+              rollback(dataSet);
           }
         } else {
-          dataSet.destroy().then(function() {
-            reject("Invalid dataset type. DataSet destroyed");
-          }).catch(onError);
+          rollback(dataSet);
         }
 
       }).catch(function(err) {
@@ -534,20 +549,21 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSet = self.data.dataSets.getItemByParam(restriction);
       if (dataSet) {
-        if (restriction.type) {
-          dataSet.getDataSet(restriction.type).then(function(dset) {
-            var output = Utils.clone(dset.dataValues);
-            output.active = dataSet.active;
-            output.data_series_id = dataSet.data_series_id;
-            resolve(output);
-          }).catch(function(err) {
-            reject(err);
-          });
-        } else
-          reject("DataSet type not found")
+        resolve(Utils.clone(dataSet));
+        //if (restriction.type) {
+        //  dataSet.getDataSet(restriction.type).then(function(dset) {
+        //    var output = Utils.clone(dset.dataValues);
+        //    output.active = dataSet.active;
+        //    output.data_series_id = dataSet.data_series_id;
+        //    resolve(output);
+        //  }).catch(function(err) {
+        //    reject(err);
+        //  });
+        //} else
+        //  reject("DataSet type not found")
       }
       else
-        reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
+        reject(new exceptions.DataSetError("Could not find a data set: ", restriction));
     });
   },
 
@@ -571,32 +587,43 @@ var DataManager = {
       var dataSet = self.data.dataSets.getItemByParam(restriction);
 
       if (dataSet) {
-        dataSet.updateAttributes({active: dataSetObject.active}).then(function() {
-          dataSet.getDataSet(restriction.type).then(function(dSet) {
-            dSet.updateAttributes(dataSetObject).then(function() {
-              var output = Utils.clone(dSet.dataValues);
-              output.active = dataSet.active;
-              output.data_series_id = dataSet.data_series_id;
-              resolve(output);
-            }).catch(function(err) {
-              reject(err);
-            })
+
+        models.db.DataSet.find({id: dataSet.id}).then(function(result) {
+          result.updateAttributes({active: dataSetObject.active}).then(function() {
+            result.getDataSet(restriction.type).then(function(dSet) {
+              dSet.updateAttributes(dataSetObject).then(function() {
+                var output = Utils.clone(result.get());
+                output.child = Utils.clone(dSet.get());
+                resolve(output);
+              }).catch(function(err) {
+                reject(err);
+              })
+            });
+          }).catch(function(err) {
+            reject(err);
           });
         }).catch(function(err) {
           reject(err);
         });
+
       } else
         reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
     });
   },
 
+  /**
+   * It retrieves a list of DataSets in memory.
+   *
+   * @param {Object} dataSetId - An object containing Dataset identifier. {id: someValue}
+   * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
   removeDataSet: function(dataSetId) {
     var self = this;
     return new Promise(function(resolve, reject) {
       for(var index = 0; index < self.data.dataSets.length; ++index) {
         var dataSet = self.data.dataSets[index];
         if (dataSet.id === dataSetId.id) {
-          dataSet.destroy().then(function (status) {
+          models.db.DataSet.destroy({where: {id: dataSet.id}}).then(function (status) {
             resolve(status);
             self.data.dataSets.splice(index, 1);
           }).catch(function (err) {
@@ -605,29 +632,20 @@ var DataManager = {
           return;
         }
       }
+
+      reject(new exceptions.DataSetError("Data set not found."))
     });
   },
 
+  /**
+   * It retrieves a list of DataSets in memory.
+   *
+   * @return {Array<DataSet>} - a 'bluebird' module with DataSeries instance or error callback
+   */
   listDataSets: function() {
     var dataSetsList = [];
-    var dataSetTypeList = [];
-    for(var index = 0; index < this.data.dataSets.length; ++index) {
-      dataSetTypeList.push(this.data.dataSets[index].id);
-      dataSetsList.push(this.data.dataSets[index].id);
-      //dataSetsList.push(Utils.clone(this.data.dataSets[index].dataValues));
-    }
-
-    models.db.DataSet.findAll({
-      where: {
-        id: {
-          $in: dataSetsList
-        }
-      }
-    }).then(function(lst) {
-      console.log(lst);
-    }).catch(function(err) {
-      console.log(err);
-    });
+    for(var index = 0; index < this.data.dataSets.length; ++index)
+      dataSetsList.push(Utils.clone(this.data.dataSets[index].dataValues));
 
     return dataSetsList;
   }

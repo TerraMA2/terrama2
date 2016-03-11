@@ -200,10 +200,8 @@ describe('DataManager', function() {
         ]
       };
 
-      DataManager.addDataSet(dataSetDcp, "dcp").then(function(result) {
+      DataManager.addDataSet("dcp", dataSetDcp).then(function(result) {
         assert(DataManager.data.dataSets.length == 1);
-
-        var d = DataManager.listDataSets();
 
         return done();
       }).catch(function(err) {
@@ -229,7 +227,7 @@ describe('DataManager', function() {
       };
       var lenArrayBefore = DataManager.data.dataSets.length;
 
-      DataManager.addDataSet(dataSetOccurrence, "occurrence").then(function(result) {
+      DataManager.addDataSet("occurrence", dataSetOccurrence).then(function(result) {
         assert(DataManager.data.dataSets.length != lenArrayBefore);
         return done();
       }).catch(function(err) {
@@ -242,7 +240,7 @@ describe('DataManager', function() {
 
   it('should retrieve DataSet', function(done) {
     DataManager.getDataSet({id: 1, type: "dcp"}).then(function(dset) {
-      assert(dset.timeColumn === "timeColumn");
+      assert(dset.child.timeColumn === "timeColumn");
       return done();
     }).catch(function(err) {
       return done(err);
@@ -253,7 +251,7 @@ describe('DataManager', function() {
     var params = {id: 1, type: "dcp"};
     DataManager.getDataSet(params).then(function(dset) {
       DataManager.updateDataSet(params, {active:false, timeColumn: "TimeColumn3333"}).then(function(result) {
-        assert(result.timeColumn === "TimeColumn3333");
+        assert(result.child.timeColumn === "TimeColumn3333");
         return done();
       }).catch(function(err) {
         return done(err);
@@ -261,6 +259,11 @@ describe('DataManager', function() {
     }).catch(function(err) {
       return done(err);
     });
+  });
+
+  it('should list DataSets', function(done) {
+    var dataSets = DataManager.listDataSets();
+    return done(assert(dataSets.length === 2));
   });
 
   it('should update DataSeries', function(done) {
