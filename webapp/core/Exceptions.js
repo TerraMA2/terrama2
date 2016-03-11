@@ -77,6 +77,20 @@ util.inherits(errors.DataSeriesError, errors.BaseError);
 
 
 /**
+ * Thrown when DataSet object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.DataSetError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'DataSetError';
+};
+util.inherits(errors.DataSetError, errors.BaseError);
+
+
+/**
  * Thrown when Project object has inconsistent data.
  *
  * @param {string} message Error message

@@ -20,11 +20,9 @@ module.exports = function(sequelize, DataTypes) {
       classMethods: {
         associate: function(models) {
           DataSetMonitored.belongsTo(models.DataSet, {
+            onDelete: "CASCADE",
             foreignKey: {
-              onDelete: "CASCADE",
-              foreignKey: {
-                allowNull: false
-              }
+              allowNull: false
             }
           });
           //

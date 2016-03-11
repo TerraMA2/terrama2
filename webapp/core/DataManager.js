@@ -1,10 +1,12 @@
-var tcpManager = require("./TcpManager")();
-var SIGNALS = require("./Signals");
+'use strict';
+
 var modelsFn = require("../models");
 var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
+var app = require('../app');
+var tr = app.i18n;
 
 // Javascript Lock
 var ReadWriteLock = require('rwlock');
@@ -52,7 +54,6 @@ var DataManager = {
 
     // Lock function
     lock.readLock(function (release) {
-      var app = require('../app');
       var Sequelize = require("sequelize");
       var databaseConfig = app.get("databaseConfig");
 
@@ -191,7 +192,6 @@ var DataManager = {
 
   /**
    * It saves DataFormat in database.
-   * @todo Load it in memory
    *
    * @param {Object} dataFormatObject - An object containing needed values to create DataFormatObject object.
    * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
@@ -208,7 +208,6 @@ var DataManager = {
 
   /**
    * It saves DataSeriesSemantic in database.
-   * @todo Load it in memory
    *
    * @param {Object} semanticObject - An object containing needed values to create DataSeriesSemantic object.
    * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
@@ -238,7 +237,7 @@ var DataManager = {
         //  todo: emit signal
 
       }).catch(function(err){
-        var error = exceptions.DataProviderError("Could not save DataProvider. " + err);
+        var error = exceptions.DataProviderError("Could not save data provider. " + err);
         reject(error);
       });
     });
@@ -347,14 +346,14 @@ var DataManager = {
       if (dataSerie)
         resolve(Utils.clone(dataSerie.dataValues));
       else
-        reject(new exceptions.DataSeriesError("Could not find a data provider: ", restriction));
+        reject(new exceptions.DataSeriesError("Could not find a data series: ", restriction));
     });
   },
 
   listDataSeries: function() {
     var dataSeriesList = [];
     for(var index = 0; index < this.data.dataSeries.length; ++index)
-      dataSeriesList.push(this.data.dataSeries[index].dataValues);
+      dataSeriesList.push(Utils.clone(this.data.dataSeries[index].dataValues));
     return dataSeriesList;
   },
 
@@ -441,6 +440,8 @@ var DataManager = {
           return;
         }
       }
+
+      reject(new exceptions.DataSeriesError("Data series not found"));
     });
   },
 
@@ -452,6 +453,7 @@ var DataManager = {
        active: true,
        data_series_id: someID,
        child: -> {}
+       dataFormats: [{},{},{}]
      }
 
      Store => {
@@ -468,9 +470,30 @@ var DataManager = {
 
         var onSuccess = function(dSet) {
           self.data.dataSets.push(dataSet);
-          var output = {id: dataSet.id};
+          var output = Utils.clone(dataSet.get());
           output.dataSetType = dataSetType;
-          resolve(output);
+          //self.data.dataSets.push(output);
+
+          // save dataformat
+          if (dataSetObject.dataFormats) {
+            for(var i = 0; i < dataSetObject.dataFormats.length; ++i) {
+              dataSetObject.dataFormats[i].data_set_id = dataSet.id;
+            }
+
+            models.db.DataSetFormat.bulkCreate(dataSetObject.dataFormats, {data_set_id: dataSet.id}).then(function () {
+              models.db.DataSetFormat.findAll({data_set_id: dataSet.id}).then(function(formats) {
+                output.dataFormats = [];
+                for(var i = 0; i < formats.length; ++i)
+                  output.dataFormats.push(Utils.clone(formats[i].dataValues));
+
+                resolve(output);
+              });
+            }).catch(function (err) {
+              reject(err);
+            });
+          } else // todo: validate it
+            resolve(output);
+
         };
 
         var onError = function(err) {
@@ -520,20 +543,6 @@ var DataManager = {
           }).catch(function(err) {
             reject(err);
           });
-          //switch(restriction.type) {
-          //  case "dcp":
-          //    dataSet.getDataSetDcp().then(function(dcp) {
-          //      resolve(Utils.clone(dcp.dataValues));
-          //    });
-          //    break;
-          //  case "occurrence":
-          //    dataSet.getDataSetOccurrence().then(function(occurrence) {
-          //      resolve(Utils.clone(occurrence.dataValues));
-          //    });
-          //    break;
-          //  default:
-          //    break;
-          //}
         } else
           reject("DataSet type not found")
       }
@@ -578,29 +587,49 @@ var DataManager = {
         });
       } else
         reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
-
-      self.getDataSet(restriction).then(function(dataSetValues) {
-
-      }).catch(function(err) {
-        reject(err);
-      });
-
-      //for(var i = 0; i < self.data.dataSeries.length; ++i) {
-      //  var dataSetId = self.data.dataSeries[i];
-      //
-      //  if (dataSetId === dataSeriesObject.id) {
-      //    // todo: apply for all fields
-      //    models.db.DataSet.update({active: dataSetObject.active}, {where: {id: dataSetId}}).then(function(result) {
-      //      resolve(Utils.clone(result.dataValues));
-      //    }).catch(function(err) {
-      //      reject(new exceptions.DataSeriesError("Could not update data set", err));
-      //    });
-      //    return;
-      //  }
-      //  reject(new exceptions.DataSeriesError("Could not update data set", err));
-      //}
-      //resolve(dataSetObject);
     });
+  },
+
+  removeDataSet: function(dataSetId) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      for(var index = 0; index < self.data.dataSets.length; ++index) {
+        var dataSet = self.data.dataSets[index];
+        if (dataSet.id === dataSetId.id) {
+          dataSet.destroy().then(function (status) {
+            resolve(status);
+            self.data.dataSets.splice(index, 1);
+          }).catch(function (err) {
+            reject(err);
+          });
+          return;
+        }
+      }
+    });
+  },
+
+  listDataSets: function() {
+    var dataSetsList = [];
+    var dataSetTypeList = [];
+    for(var index = 0; index < this.data.dataSets.length; ++index) {
+      dataSetTypeList.push(this.data.dataSets[index].id);
+      dataSetsList.push(this.data.dataSets[index].id);
+      //dataSetsList.push(Utils.clone(this.data.dataSets[index].dataValues));
+    }
+
+    models.db.DataSet.findAll({
+      where: {
+        id: {
+          $in: dataSetsList
+        }
+      }
+    }).then(function(lst) {
+      console.log(lst);
+    }).catch(function(err) {
+      console.log(err);
+    });
+
+    return dataSetsList;
   }
 
 };

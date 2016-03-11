@@ -18,11 +18,9 @@ module.exports = function(sequelize, DataTypes) {
       classMethods: {
         associate: function(models) {
           DataSetFormat.belongsTo(models.DataSet, {
+            onDelete: "CASCADE",
             foreignKey: {
-              onDelete: "CASCADE",
-              foreignKey: {
-                allowNull: false
-              }
+              allowNull: false
             }
           });
         }

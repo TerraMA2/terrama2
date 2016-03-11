@@ -45,20 +45,16 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           DataSet.hasOne(models.DataSetDcp, {
+            onDelete: "CASCADE",
             foreignKey: {
-              onDelete: "CASCADE",
-              foreignKey: {
-                allowNull: false
-              }
+              allowNull: false
             }
           });
 
           DataSet.hasOne(models.DataSetOccurrence, {
+            onDelete: "CASCADE",
             foreignKey: {
-              onDelete: "CASCADE",
-              foreignKey: {
-                allowNull: false
-              }
+              allowNull: false
             }
           });
         }
