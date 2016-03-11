@@ -35,11 +35,6 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/analysis
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-
-include_directories (
-  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
-)
-
 include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
