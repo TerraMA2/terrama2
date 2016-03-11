@@ -29,7 +29,7 @@
 
 #include "TcpSignals.hpp"
 #include "TcpDispatcher.hpp"
-#include "Logger.hpp"
+#include "../utility/Logger.hpp"
 
 //Qt
 #include <QByteArray>

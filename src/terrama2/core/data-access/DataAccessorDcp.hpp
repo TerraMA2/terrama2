@@ -35,6 +35,9 @@
 #include "DataAccessor.hpp"
 #include "DcpSeries.hpp"
 
+//TerraLib
+#include <terralib/geometry/Point.h>
+
 namespace terrama2
 {
   namespace core
@@ -47,8 +50,10 @@ namespace terrama2
     class DataAccessorDcp : public DataAccessor
     {
     public:
-      virtual DcpSeriesPtr getDcpSeries(DataFilter);
-      virtual te::core::URI retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) = 0;
+      DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+
+      virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
+      virtual te::common::uri::uri retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) = 0;
       virtual te::gm::Point getPosition(const DataSet& dataset) = 0;
     };
   }

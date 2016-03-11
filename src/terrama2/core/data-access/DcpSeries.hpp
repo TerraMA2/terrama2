@@ -31,7 +31,11 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
+#include "../../Config.hpp"
+#include "../data-model/DataSetDcp.hpp"
+
+//TerraLib
+#include <terralib/dataaccess/dataset/DataSet.h>
 
 namespace terrama2
 {
@@ -47,7 +51,7 @@ namespace terrama2
     class DcpSeries
     {
     public:
-      void addDcp(const DataSetDcp& dataset, te::da::dataset);
+      void addDcp(const DataSetDcp& dataset, te::da::DataSet& teDataset);
 
     };
   }

@@ -2,7 +2,7 @@
 #define __TERRAMA2_CORE_LOGGER_HPP__
 
 // TerraMA2
-#include "Exception.hpp"
+#include "../Exception.hpp"
 
 // Terralib
 #include <terralib/common/Singleton.h>

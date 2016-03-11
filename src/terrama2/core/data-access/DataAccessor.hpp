@@ -31,7 +31,12 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
+#include "../../Config.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/Filter.hpp"
+
+//TerraLib
+#include <terralib/datatype/TimeInstantTZ.h>
 
 namespace terrama2
 {
@@ -59,7 +64,7 @@ namespace terrama2
 
         \param filter If defined creates a cache for the filtered data.
       */
-      DataAccessor(DataProvider dataProvider, DataSeries dataSeries, Filter filter = nullptr)
+      DataAccessor(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter())
         : dataProvider_(dataProvider),
           dataSeries_(dataSeries),
           filter_(filter) {}

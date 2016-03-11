@@ -29,7 +29,7 @@
 
 // TerraMA2
 #include "Version.hpp"
-#include "../Version.hpp"
+#include "../../Version.hpp"
 
 // STL
 #include <cassert>

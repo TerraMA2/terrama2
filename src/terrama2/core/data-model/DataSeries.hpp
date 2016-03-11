@@ -34,6 +34,7 @@
 
 // STL
 #include <string>
+#include <vector>
 
 namespace terrama2
 {
@@ -48,15 +49,18 @@ namespace terrama2
       referenced one collection or analysis. Ex. set of PCD.
      */
 
+    typedef uint64_t DataSeriesSemantics;//TODO: fix types
     struct DataSeries
     {
-      DataSerieId id; //!< The identifier of the DataSeries.
-      DataProviderId data_provider_id; //!< The identifier of the DataProvider, foreign key.
-      DataSeriesSemantics data_series_semantics_id; //!< The identifier of the DataSeriesSemantics, foreign key.
+      DataSeriesId id; //!< The identifier of the DataSeries.
+      DataProviderId dataProviderId; //!< The identifier of the DataProvider
+      DataSeriesSemantics semantic; //!< Semantic of the DataSeries.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
 
-      std::vector<DataSetId> dataset; //TODO: id or object?
+      std::vector<DataSetId> datasetList; //TODO: id or object?
+
+      inline bool operator==(const DataSeries& dataseries){ return id == dataseries.id; }
     };
   } // end namespace core
 } // end namespace terrama2

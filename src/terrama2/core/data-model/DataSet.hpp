@@ -28,7 +28,11 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
 
+//terrama2
 #include "../typedef.hpp"
+
+//STL
+#include <map>
 
 namespace terrama2
 {
@@ -36,6 +40,8 @@ namespace terrama2
   {
     struct DataSet
     {
+      virtual ~DataSet() {}
+
       DataSetId id;
       DataSeriesId dataSeriesId;
       bool active;

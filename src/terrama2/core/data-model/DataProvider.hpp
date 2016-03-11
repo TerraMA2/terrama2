@@ -32,9 +32,14 @@
 
 // TerraMA2
 #include "../typedef.hpp"
+#include "DataSeries.hpp"
 
 // STL
 #include <string>
+#include <vector>
+
+//terralib
+#include <terralib/common/URI/uri.h>
 
 namespace terrama2
 {
@@ -50,20 +55,29 @@ namespace terrama2
 
       It can also be an URI for a folder into the file system.
 
-      A DataProvider contains the list of datasets that belongs to this provider
+      A DataProvider contains the list of dataseries that belongs to this provider
       that should be collected for further analysis.
      */
 
+    typedef uint64_t DataProviderType;//TODO: fix types
     struct DataProvider
     {
+      enum DataProviderIntent
+      {
+        COLLECTOR_INTENT,
+        PROCESS_INTENT
+      };
+
       DataProviderId id; //!< The identifier of the DataProvider.
-      ProjectId project_id; //!< The identifier of the Project, foreign key.
+      ProjectId projectId; //!< The identifier of the Project
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
-      DataProviderType data_provider_type_id; //!< The identifier of the DataProviderType, foreign key.
-      DataProviderIntent data_provider_intent_id; //!< The identifier of the DataProviderIntent, foreign key.
-      std::string uri; //!< URI to access the DataProvider data.
+      DataProviderType dataProviderType; //!< Type of the DataProvider (FTP, WCS, ...).
+      DataProviderIntent intent; //!< Intent os the DataProvider.
+      te::common::uri::uri uri; //!< URI to access the DataProvider data.
       bool active; //!< DataProvider status.
+
+      std::vector<DataSeries> dataseries; //TODO: id or object?
     };
 
   } // end namespace core

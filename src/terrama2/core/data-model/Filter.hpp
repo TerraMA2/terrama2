@@ -30,8 +30,12 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_FILTER_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_FILTER_HPP__
 
-#include "../Config.hpp"
+//TerraMA2
+#include "../../Config.hpp"
 #include "../typedef.hpp"
+
+//STL
+#include <memory>
 
 // Forward declaration
 namespace te
@@ -53,12 +57,17 @@ namespace terrama2
      */
     struct Filter
     {
-        DataSetId dataSetId; //!< Associates the filter to a given DataSetItem.
-        std::unique_ptr<te::dt::TimeInstantTZ> discardBefore_; //!< Initial date of interest for collecting data from the DataSetItem.
-        std::unique_ptr<te::dt::TimeInstantTZ> discardAfter_; //!< Final date of interest for collecting data from the DataSetItem.
-        std::unique_ptr<te::gm::MultiPolygon> geometry_; //!< Geometry to be used as area of interest for filtering the data during its collect.
-        std::unique_ptr<double> value_; //!< Value to be used in a filter by value.
+        Filter() = default;
+        Filter(const Filter &) = default;
+
+        DataSetId dataSetId = 0; //!< Associates the filter to a given DataSetItem.
+        std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_ = nullptr; //!< Initial date of interest for collecting data from the DataSetItem.
+        std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_ = nullptr; //!< Final date of interest for collecting data from the DataSetItem.
+        std::shared_ptr<te::gm::MultiPolygon> geometry_ = nullptr; //!< Geometry to be used as area of interest for filtering the data during its collect.
+        std::shared_ptr<double> value_ = nullptr; //!< Value to be used in a filter by value.
         //TODO: filter by value operation
+
+        //operator bool() const { return dataSetId != 0; }
     };
 
   } // end namespace core

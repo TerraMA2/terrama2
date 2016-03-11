@@ -27,11 +27,17 @@
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
 
 //TerraMA2
-#include "DataAccessorDcp.hpp"
+#include "../shared.hpp"
+#include "../data-access/DataAccessorDcp.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../data-model/Filter.hpp"
+
+//terralib
+#include <terralib/common/URI/uri.h>
 
 namespace terrama2
 {
@@ -45,7 +51,9 @@ namespace terrama2
     class DataAccessorDcpInpe : public DataAccessorDcp
     {
     public:
-      virtual te::core::URI retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) override;
+      DataAccessorDcpInpe(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
+
+      virtual te::common::uri::uri retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) override;
 
       std::string getMask(const DataSet& dataset);
       virtual te::gm::Point getPosition(const DataSet& dataset) override;
@@ -53,4 +61,4 @@ namespace terrama2
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__

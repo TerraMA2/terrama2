@@ -27,7 +27,15 @@
   \author Jano Simas
  */
 
-DcpSeriesPtr DataAccessorDcp::getDcpSeries(DataFilter)
+//TerraMA2
+#include "DataAccessorDcp.hpp"
+#include "DataRetriever.hpp"
+#include "../utility/Factory.hpp"
+
+//TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
+
+DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
 {
   //if data provider is not active, nothing to do
   if(!dataProvider_.active)
@@ -36,34 +44,37 @@ DcpSeriesPtr DataAccessorDcp::getDcpSeries(DataFilter)
     //TODO: log this
   }
 
-  DataRetrieverPtr dataRetriever = getDataRetriever(dataProvider_);
+  DataRetrieverPtr dataRetriever = Factory::getDataRetriever(dataProvider_);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
 
-  for(const auto& dataset : dataSeries_)
+  for(const auto& datasetId : dataSeries_.datasetList)
   {
+    DataSet dataset;//TODO: from datasetId
+
     //if the dataset is not active, continue to next.
     if(!dataset.active)
       continue;
 
     try
     {
-      const DataSetDcp& datasetDcp = dynamic_cast<const DataSetDcp&>(dataset);
+      DataSetDcp& datasetDcp = dynamic_cast<DataSetDcp&>(dataset);
 
-      te::core::URI uri;
+      te::common::uri::uri uri;
       // if this data retriever is a remote server that allows to retrieve data to a file,
       // download the file to a tmeporary location
       // if not, just get the DataProvider uri
       if(dataRetriever->isRetrivable())
-        uri = retrieveData(dataRetriever, datasetDcp, Filter);
+        uri = retrieveData(dataRetriever, datasetDcp, filter);
       else
         uri = dataProvider_.uri;
 
-        // creates a DataSource to the data and filters the dataset,
-        // also joins if the DCP comes from separated files
-        te::da::DataSource local;
-        //TODO:.. filter and join te::da::dataset from each dataset
+      // creates a DataSource to the data and filters the dataset,
+      // also joins if the DCP comes from separated files
 
-        //TODO:add each Dcp to a DcpSeriesPtr
+      //te::da::DataSource local;
+      //TODO:.. filter and join te::da::dataset from each dataset
+
+      //TODO:add each Dcp to a DcpSeriesPtr
     }//try
     catch(const std::bad_cast& exp)
     {

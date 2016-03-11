@@ -28,16 +28,21 @@
 #ifndef __TERRAMA2_CORE_SHARED_HPP__
 #define __TERRAMA2_CORE_SHARED_HPP__
 
-class DcpSeries;
-typedef std::shared<DcpSeries> DcpSeriesPtr;
+#include <memory>
 
-class GridSeries;
-typedef std::shared<GridSeries> GridSeriesPtr;
+namespace terrama2 { namespace core { class DcpSeries; } }
+typedef std::shared_ptr<terrama2::core::DcpSeries> DcpSeriesPtr;
 
-class OccurrenceSeries;
-typedef std::shared<OccurrenceSeries> OccurrenceSeriesPtr;
+namespace terrama2 { namespace core { class GridSeries; } }
+typedef std::shared_ptr<terrama2::core::GridSeries> GridSeriesPtr;
 
-class MonitoredObjectSeries;
-typedef std::shared<MonitoredObjectSeries> MonitoredObjectSeriesPtr;
+namespace terrama2 { namespace core { class OccurrenceSeries; } }
+typedef std::shared_ptr<terrama2::core::OccurrenceSeries> OccurrenceSeriesPtr;
+
+namespace terrama2 { namespace core { class MonitoredObjectSeries; } }
+typedef std::shared_ptr<terrama2::core::MonitoredObjectSeries> MonitoredObjectSeriesPtr;
+
+namespace terrama2 { namespace core { class DataRetriever; } }
+typedef std::shared_ptr<terrama2::core::DataRetriever> DataRetrieverPtr;
 
 #endif // __TERRAMA2_CORE_SHARED_HPP__

@@ -27,26 +27,24 @@
   \author Jano Simas
  */
 
+//TerraMA2
 #include "DataAccessorDcpInpe.hpp"
+#include "../data-access/DataRetriever.hpp"
 
-DataAccessorDcpInpe()
-: DataAccessorDcp()
-{}
-
-te::core::URI retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter)
+te::common::uri::uri terrama2::core::DataAccessorDcpInpe::retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter)
 {
   std::string mask = getMask(dataset);
   return dataRetriever->retrieveData(mask, filter);
 }
 
-static std::string DataAccessorDcpInpe::getMask(const DataSet& dataset)
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(const DataSet& dataset)
 {
-  return dataset.format["mask"];
+  return dataset.format.at("mask");
 }
 
-static te::gm::Point DataAccessorDcpInpe::getPosition(const DataSet& dataset)
+te::gm::Point terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getPosition(const DataSet& dataset)
 {
-  std::string wkt = dataset.format["position"];
+  std::string wkt = dataset.format.at("position");
   te::gm::Point position; //from WKT;
 
   return position;

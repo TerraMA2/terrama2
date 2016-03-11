@@ -30,6 +30,9 @@
 
 #include "DataSet.hpp"
 
+//Terralib
+#include <terralib/geometry/Point.h>
+
 namespace terrama2
 {
   namespace core
