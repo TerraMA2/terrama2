@@ -31,10 +31,10 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
 
 //TerraMA2
-#include "../shared.hpp"
-#include "../data-access/DataAccessorDcp.hpp"
-#include "../data-model/DataSet.hpp"
-#include "../data-model/Filter.hpp"
+#include "../core/shared.hpp"
+#include "../core/data-access/DataAccessorDcp.hpp"
+#include "../core/data-model/DataSet.hpp"
+#include "../core/data-model/Filter.hpp"
 
 //terralib
 #include <terralib/common/URI/uri.h>
@@ -51,12 +51,16 @@ namespace terrama2
     class DataAccessorDcpInpe : public DataAccessorDcp
     {
     public:
-      DataAccessorDcpInpe(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
+      DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
+      virtual ~DataAccessorDcpInpe() {};
 
       virtual te::common::uri::uri retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) override;
 
-      std::string getMask(const DataSet& dataset);
-      virtual te::gm::Point getPosition(const DataSet& dataset) override;
+      std::string getMask(const DataSet& dataset) const;
+      virtual te::gm::Point getPosition(const DataSet& dataset) const override;
+      virtual std::vector<std::string> validDataSetNames(const DataSetDcp& dataSetDcp ) const override;
+      virtual std::string dataSourceTye() const override;
+      virtual std::string typePrefix() const override;
     };
   }
 }

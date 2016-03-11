@@ -20,31 +20,27 @@
  */
 
 /*!
-  \file terrama2/core/utility/Factory.hpp
+  \file terrama2/core/utility/Factory.cpp
 
   \brief
 
   \author Jano Simas
  */
 
- #ifndef __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
- #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+#include "../data-access/DataRetriever.hpp"
+#include "Factory.hpp"
 
-#include "../shared.hpp"
-#include "../data-model/DataProvider.hpp"
-
-namespace terrama2
+terrama2::core::DataRetrieverPtr terrama2::core::Factory::makeRetriever(const DataProvider& dataProvider)
 {
-  namespace core
+  switch (dataProvider.dataProviderType)
   {
-    namespace Factory
-    {
-       DataRetrieverPtr makeRetriever(const DataProvider& dataProvider);
+  case 0:
+    return std::make_shared<DataRetriever>(dataProvider);
+    break;
+  default:
+    //TODO: throw here
+    break;
+  }
 
-    } /* Factory */
-
-  } /* core */
-
-} /* terrama2 */
-
-#endif // __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+  return nullptr;
+}

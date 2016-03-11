@@ -30,19 +30,23 @@
 
 #include <memory>
 
-namespace terrama2 { namespace core { class DcpSeries; } }
-typedef std::shared_ptr<terrama2::core::DcpSeries> DcpSeriesPtr;
+namespace terrama2 {
+   namespace core {
+      class DcpSeries;
+      typedef std::shared_ptr<terrama2::core::DcpSeries> DcpSeriesPtr;
 
-namespace terrama2 { namespace core { class GridSeries; } }
-typedef std::shared_ptr<terrama2::core::GridSeries> GridSeriesPtr;
+      class GridSeries;
+      typedef std::shared_ptr<terrama2::core::GridSeries> GridSeriesPtr;
 
-namespace terrama2 { namespace core { class OccurrenceSeries; } }
-typedef std::shared_ptr<terrama2::core::OccurrenceSeries> OccurrenceSeriesPtr;
+      class OccurrenceSeries;
+      typedef std::shared_ptr<terrama2::core::OccurrenceSeries> OccurrenceSeriesPtr;
 
-namespace terrama2 { namespace core { class MonitoredObjectSeries; } }
-typedef std::shared_ptr<terrama2::core::MonitoredObjectSeries> MonitoredObjectSeriesPtr;
+      class MonitoredObjectSeries;
+      typedef std::shared_ptr<terrama2::core::MonitoredObjectSeries> MonitoredObjectSeriesPtr;
 
-namespace terrama2 { namespace core { class DataRetriever; } }
-typedef std::shared_ptr<terrama2::core::DataRetriever> DataRetrieverPtr;
+      class DataRetriever;
+      typedef std::shared_ptr<terrama2::core::DataRetriever> DataRetrieverPtr;
+  }
+}
 
 #endif // __TERRAMA2_CORE_SHARED_HPP__

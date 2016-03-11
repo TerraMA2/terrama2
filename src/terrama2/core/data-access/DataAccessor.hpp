@@ -56,7 +56,7 @@ namespace terrama2
     {
     public:
       //! Returns the last Data date found on last access.
-      virtual te::dt::TimeInstantTZ lastDateTime() = 0;
+      virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
 
     protected:
       /*!

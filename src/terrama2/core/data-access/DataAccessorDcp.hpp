@@ -37,6 +37,7 @@
 
 //TerraLib
 #include <terralib/geometry/Point.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 
 namespace terrama2
 {
@@ -52,9 +53,18 @@ namespace terrama2
     public:
       DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
 
+      std::shared_ptr<te::da::DataSetTypeConverter> getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType) const;
+      void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
+
       virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
+      virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
+      virtual std::string typePrefix() const { return ""; }
+      virtual te::dt::TimeInstantTZ lastDateTime() const override;
+
       virtual te::common::uri::uri retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) = 0;
-      virtual te::gm::Point getPosition(const DataSet& dataset) = 0;
+      virtual std::vector<std::string> validDataSetNames(const DataSetDcp& dataSetDcp ) const = 0;
+      virtual te::gm::Point getPosition(const DataSet& dataset) const = 0;
+      virtual std::string dataSourceTye() const = 0;
     };
   }
 }

@@ -31,11 +31,23 @@
 #include "DataAccessorDcp.hpp"
 #include "DataRetriever.hpp"
 #include "../utility/Factory.hpp"
+#include "../utility/Raii.hpp"
+#include "../utility/FilterMask.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
+#include <terralib/memory/DataSet.h>
+#include <terralib/dataaccess/utils/Utils.h>
 
-DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
+//Qt
+#include <QObject>
+#include <QString>
+
+terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
 {
   //if data provider is not active, nothing to do
   if(!dataProvider_.active)
@@ -44,7 +56,7 @@ DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
     //TODO: log this
   }
 
-  DataRetrieverPtr dataRetriever = Factory::getDataRetriever(dataProvider_);
+  DataRetrieverPtr dataRetriever = Factory::makeRetriever(dataProvider_);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
 
   for(const auto& datasetId : dataSeries_.datasetList)
@@ -59,10 +71,10 @@ DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
     {
       DataSetDcp& datasetDcp = dynamic_cast<DataSetDcp&>(dataset);
 
-      te::common::uri::uri uri;
       // if this data retriever is a remote server that allows to retrieve data to a file,
       // download the file to a tmeporary location
       // if not, just get the DataProvider uri
+      te::common::uri::uri uri;
       if(dataRetriever->isRetrivable())
         uri = retrieveData(dataRetriever, datasetDcp, filter);
       else
@@ -70,9 +82,54 @@ DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
 
       // creates a DataSource to the data and filters the dataset,
       // also joins if the DCP comes from separated files
+      std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
+      std::map<std::string, std::string> connInfo;
+      //FIXME: contruir uri do datasource
+      // connInfo["URI"] = typePrefix()+uri.toString();
+      datasource->setConnectionInfo(connInfo);
 
-      //te::da::DataSource local;
-      //TODO:.. filter and join te::da::dataset from each dataset
+      //RAII for open/closing the datasource
+      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
+
+      if(!datasource->isOpened())
+      {
+        QString errMsg = QObject::tr("DataProvider could not be opened.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        //TODO: fix throw
+        //throw UnableToReadDataSetException() << ErrorDescription(errMsg);
+      }
+
+      // get a transactor to interact to the data source
+      std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+
+      bool first = true;
+      std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
+      std::shared_ptr<te::da::DataSetType> datasetType(nullptr);
+      std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
+
+      std::vector<std::string> validNames = validDataSetNames(datasetDcp);
+      for(const auto& name : validNames)
+      {
+        //read and adapt all te:da::DataSet from terrama2::core::DataSet
+        if(first)
+        {
+          converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(name)));
+          datasetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+          assert(datasetType);
+
+          completeDataset = std::make_shared<te::mem::DataSet>(datasetType.get());
+          first = false;
+        }
+
+        assert(converter);
+        std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(name));
+        assert(datasetOrig);
+        std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
+
+        //TODO:.. filter and join te::da::dataset from each dataset
+        //TODO: join dataset
+        completeDataset->copy(*dataset);
+      }
 
       //TODO:add each Dcp to a DcpSeriesPtr
     }//try
@@ -85,4 +142,31 @@ DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
   }//for each dataset
 
   return dcpSeries;
+}
+
+std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessorDcp::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType) const
+{
+  std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
+
+  addColumns(converter, datasetType);
+
+  converter->remove("FID");
+  adapt(converter);
+
+  return converter;
+}
+
+void terrama2::core::DataAccessorDcp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+{
+  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+
+    converter->add(i,p->clone());
+  }
+}
+
+te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
+{
+  //TODO: implement lastDateTime
 }

@@ -273,7 +273,12 @@ endif()
 
 option(TERRAMA2_MOD_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 
+#####################################
+#            MODULES
 CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_COLLECTOR_ENABLED "Build Collector module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MOD_IMPLEMENTATION_ENABLED "Build Implementation module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
+
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_SERVER_ENABLED "Build Server module?" ON "TERRAMA2_MOD_CORE_ENABLED" OFF)
 
@@ -292,6 +297,11 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CORE_ENABLED "Build TerraMA2 GUI Core module
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_ADMIN_ENABLED "Build TerraMA2 Administrator GUI?" ON "TERRAMA2_MOD_CORE_ENABLED;TERRAMA2_GUI_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_GUI_CONFIG_ENABLED "Build TerraMA2 Configuration GUI?" ON "TERRAMA2_GUI_CORE_ENABLED" OFF)
+#####################################
+
+
+#####################################
+#            TESTS
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_CORE_ENABLED "Build unittest for core module?" ON "TERRAMA2_MOD_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
@@ -305,6 +315,13 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_WS_COLLECTOR_CLIENT_ENABLED "Build unit
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_INTEGRATIONTEST_WS_COLLECTOR_ENABLED "Build integration test for Collector Web Service?" ON "TERRAMA2_BUILD_INTEGRATIONTEST_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_CLIENT_ENABLED;TERRAMA2_MOD_WS_COLLECTOR_SERVER_ENABLED" OFF)
 
+######################################
+
+
+#####################################
+#            EXAMPLES
+CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_CORE_ENABLED "Build unittest for core module?" ON "TERRAMA2_MOD_CORE_ENABLED;TERRAMA2_MOD_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
+######################################
 
 #
 # process TerraMA2 configuration files
@@ -346,6 +363,10 @@ endif()
 
 if(TERRAMA2_GUI_CONFIG_ENABLED)
   add_subdirectory(terrama2_gui_config)
+endif()
+
+if(TERRAMA2_MOD_IMPLEMENTATION_ENABLED)
+  add_subdirectory(terrama2_mod_implementation)
 endif()
 
 if(TERRAMA2_MOD_COLLECTOR_ENABLED)
@@ -399,6 +420,15 @@ endif()
 if(TERRAMA2_INTEGRATIONTEST_WS_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_integrationtest_ws_collector)
 endif()
+
+
+
+if(TERRAMA2_EXAMPLES_CORE_ENABLED)
+  add_subdirectory(terrama2_examples_core)
+endif()
+
+
+
 
 if(TERRAMA2_DOXYGEN_ENABLED)
   add_subdirectory(terrama2_doxygen)

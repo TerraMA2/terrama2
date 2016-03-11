@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_UTILITY_FILTER_MASK_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
+#include "../../Config.hpp"
 #include "../data-model/Filter.hpp"
 
 //STL

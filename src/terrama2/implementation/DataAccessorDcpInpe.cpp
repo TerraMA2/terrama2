@@ -29,7 +29,7 @@
 
 //TerraMA2
 #include "DataAccessorDcpInpe.hpp"
-#include "../data-access/DataRetriever.hpp"
+#include "../core/data-access/DataRetriever.hpp"
 
 te::common::uri::uri terrama2::core::DataAccessorDcpInpe::retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter)
 {
@@ -37,15 +37,31 @@ te::common::uri::uri terrama2::core::DataAccessorDcpInpe::retrieveData(const Dat
   return dataRetriever->retrieveData(mask, filter);
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(const DataSet& dataset)
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(const DataSet& dataset) const
 {
   return dataset.format.at("mask");
 }
 
-te::gm::Point terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getPosition(const DataSet& dataset)
+te::gm::Point terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getPosition(const DataSet& dataset) const
 {
   std::string wkt = dataset.format.at("position");
   te::gm::Point position; //from WKT;
 
   return position;
+}
+
+std::vector<std::string> terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::validDataSetNames(const DataSetDcp& dataSetDcp ) const
+{
+  //FIXME: implement
+  //filterNames(datasetDcp, filter, transactor->getDataSetNames()
+  return std::vector<std::string>();
+}
+
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceTye() const
+{
+  return "OGR";
+}
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::typePrefix() const
+{
+  return "CSV:";
 }
