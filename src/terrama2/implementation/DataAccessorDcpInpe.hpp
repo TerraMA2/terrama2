@@ -54,10 +54,10 @@ namespace terrama2
       DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
       virtual ~DataAccessorDcpInpe() {};
 
-      virtual te::common::uri::uri retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) override;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) override;
 
-      std::string getMask(const DataSet& dataset) const;
-      virtual te::gm::Point getPosition(const DataSet& dataset) const override;
+      std::string getMask(const DataSetDcp& dataset) const;
+      virtual te::gm::Point getPosition(const DataSetDcp& dataset) const override;
       virtual std::vector<std::string> validDataSetNames(const DataSetDcp& dataSetDcp ) const override;
       virtual std::string dataSourceTye() const override;
       virtual std::string typePrefix() const override;

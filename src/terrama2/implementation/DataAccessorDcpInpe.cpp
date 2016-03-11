@@ -31,18 +31,18 @@
 #include "DataAccessorDcpInpe.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 
-te::common::uri::uri terrama2::core::DataAccessorDcpInpe::retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter)
+std::string terrama2::core::DataAccessorDcpInpe::retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter)
 {
   std::string mask = getMask(dataset);
   return dataRetriever->retrieveData(mask, filter);
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(const DataSet& dataset) const
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(const DataSetDcp& dataset) const
 {
   return dataset.format.at("mask");
 }
 
-te::gm::Point terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getPosition(const DataSet& dataset) const
+te::gm::Point terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getPosition(const DataSetDcp& dataset) const
 {
   std::string wkt = dataset.format.at("position");
   te::gm::Point position; //from WKT;
