@@ -55,7 +55,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     view: new ol.View({
       projection: 'EPSG:4326',
       center: [-55, -15],
-      zoom: 4
+      zoom: 3
     }),
     interactions: ol.interaction.defaults({
       doubleClickZoom :false
