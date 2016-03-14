@@ -38,9 +38,9 @@
             $(column0).parent().hide();
             items = column0;
 
-            filter(items, $("#collectCheck"), "fa-download");
-            filter(items, $("#analysisCheck"), "fa-balance-scale");
-            filter(items, $("#localCheck"), "fa-home");
+            filter(items, $("#pcdInpeCheck"), "fa-map-pin");
+            filter(items, $("#gridCheck"), "fa-th");
+            filter(items, $("#occurrenceCheck"), "fa-fire");
 
             $(items).show();
         }
@@ -60,15 +60,15 @@
             $(results).show();
         });
 
-        $("#collectCheck").on('click', function(){
+        $("#pcdInpeCheck").on('click', function(){
             filterByType();
         });
 
-        $("#analysisCheck").on('click', function(){
+        $("#gridCheck").on('click', function(){
             filterByType();
         });
 
-        $("#localCheck").on('click', function(){
+        $("#occurrenceCheck").on('click', function(){
             filterByType();
         });
     });
@@ -97,7 +97,7 @@
                         <div class="form-group" style="display:inline-block;">
                             <div class="checkbox">
                                 <label class="terrama2-checkbox-align">
-                                    <input type="checkbox" id="collectCheck" checked> {{ __('Collect') }}
+                                    <input type="checkbox" id="pcdInpeCheck" checked> PCD-INPE
                                 </label>
                             </div>
                         </div>
@@ -105,7 +105,7 @@
                         <div class="form-group terrama2-filterboxes-align">
                             <div class="checkbox">
                                 <label class="terrama2-checkbox-align">
-                                    <input type="checkbox" id="analysisCheck" checked> {{ __('Analysis') }}
+                                    <input type="checkbox" id="gridCheck" checked> Grid
                                 </label>
                             </div>
                         </div>
@@ -113,7 +113,7 @@
                         <div class="form-group terrama2-filterboxes-align">
                             <div class="checkbox">
                                 <label class="terrama2-checkbox-align">
-                                    <input type="checkbox" id="localCheck" checked> {{ __('Local') }}
+                                    <input type="checkbox" id="occurrenceCheck" checked> Occurrence
                                 </label>
                             </div>
                         </div>
@@ -151,7 +151,7 @@
                         <tbody id="searchList">
                             <tr>
                                 <td>
-                                    <i class="fa fa-balance-scale"></i>
+                                    <i class="fa fa-map-pin"></i>
                                     <!-- <img src="/images/line-small.png" class="terrama2-small-icon"> -->
                                 </td>
                                 <td>PCDQA</td>
@@ -162,7 +162,7 @@
 
                             <tr>
                                 <td>
-                                    <i class="fa fa-balance-scale"></i>
+                                    <i class="fa fa-th"></i>
                                     <!-- <img src="/images/grid-small.png" class="terrama2-small-icon"> -->
                                 </td>
                                 <td>hidro</td>
@@ -173,7 +173,7 @@
 
                             <tr>
                                 <td>
-                                    <i class="fa fa-download"></i>
+                                    <i class="fa fa-th"></i>
                                     <!-- <img src="/images/grid-small.png" class="terrama2-small-icon"> -->
                                 </td>
                                 <td>Prec_Eta15km</td>
@@ -184,7 +184,7 @@
 
                             <tr>
                                 <td>
-                                    <i class="fa fa-download"></i>
+                                    <i class="fa fa-fire"></i>
                                     <!-- <img src="/images/line-small.png" class="terrama2-small-icon"> -->
                                 </td>
                                 <td>Focos_NOAA</td>
@@ -196,7 +196,7 @@
 
                             <tr>
                                 <td>
-                                    <i class="fa fa-home"></i>
+                                    <i class="fa fa-th"></i>
                                     <!-- <img src="/images/line-small.png" class="terrama2-small-icon"> -->
                                 </td>
                                 <td>raio</td>
