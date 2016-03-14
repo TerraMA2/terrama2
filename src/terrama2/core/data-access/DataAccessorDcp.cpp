@@ -67,8 +67,11 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
       else
         uri = dataProvider_.uri;
 
+      //TODO: Set last date collected in filter
       std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, *datasetDcp);
       dcpSeries->addDcp(datasetDcp, memDataSet);
+
+      //TODO: set last date collected
     }//try
     catch(const std::bad_cast& exp)
     {

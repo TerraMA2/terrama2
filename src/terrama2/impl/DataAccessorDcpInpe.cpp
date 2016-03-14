@@ -119,6 +119,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpInpe::getDataSe
   {
     std::string name = fileInfo.fileName().toStdString();
     std::string baseName = fileInfo.baseName().toStdString();
+    // Verify if the file name matches the mask
     if(!isValidDataSetName(getMask(datasetDcp), filter, name))
       continue;
 
