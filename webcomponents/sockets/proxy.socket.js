@@ -11,15 +11,13 @@ module.exports = function(io) {
       http.get(json.url, function(resp){
         var xml = '';
 
-        resp.on('data', function(chunk) {
-          xml += chunk;
-        });
+        resp.on('data', function(chunk) { xml += chunk; });
 
         resp.on('end', function() {
           xml = xml.replace(/>\s*/g, '>');
           xml = xml.replace(/\s*</g, '<');
 
-          sockets.emit('proxyResponse', { msg: xml, requestId: json.requestId });
+          client.emit('proxyResponse', { msg: xml });
         });
 
       }).on("error", function(e){
