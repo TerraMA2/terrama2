@@ -371,22 +371,26 @@ var DataManager = {
    * @param {Object} restriction - An object containing DataSeries identifier to get it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  getDataSerie: function(restriction)
-  {
+  getDataSerie: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataSerie = self.data.dataSeries.getItemByParam(restriction);
       if (dataSerie)
-        resolve(Utils.clone(dataSerie.dataValues));
+        resolve(Utils.clone(dataSerie.get()));
       else
         reject(new exceptions.DataSeriesError("Could not find a data series: ", restriction));
     });
   },
 
+  /**
+   * It retrieves DataSeries loaded in memory.
+   *
+   * @return {Array<DataSeries>} - An array with DataSeries available/loaded in memory.
+   */
   listDataSeries: function() {
     var dataSeriesList = [];
     for(var index = 0; index < this.data.dataSeries.length; ++index)
-      dataSeriesList.push(Utils.clone(this.data.dataSeries[index].dataValues));
+      dataSeriesList.push(Utils.clone(this.data.dataSeries[index].get()));
     return dataSeriesList;
   },
 
@@ -422,39 +426,11 @@ var DataManager = {
           for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
             var dSet = dataSeriesObject.dataSets[i];
             dataSets.push(self.addDataSet(dSet.type, dSet));
-
-            //var dSet = dataSeriesObject.dataSets[i];
-            //self.addDataSet(dSet.type, dSet).then(function(dataSet) {
-            //  output.dataSets.push(dataSet);
-            //
-            //  if (i === dataSeriesObject.dataSets.length)
-            //    resolve(output);
-            //}).catch(function(err) {
-            //  reject(err);
-            //});
           }
 
           return Promise.all(dataSets);
-          //models.db.DataSet.bulkCreate(dataSeriesObject.dataSets).then(function () {
-          //  models.db.DataSet.findAll({data_series_id: dataSerie.id}).then(function (dSets) {
-          //    dataSerie.setDataSets(dSets).then(function (result) {
-          //      self.data.dataSeries.push(dataSerie);
-          //      resolve(Utils.clone(dataSerie.get()));
-          //    }).catch(function (err) {
-          //      reject(err);
-          //    });
-          //  }).catch(function (err) {
-          //    reject(err);
-          //  });
-          //}).catch(function (err) {
-          //  reject(err);
-          //});
-        }
-        //else {
-        //  self.data.dataSeries.push(dataSerie);
-        //  resolve(Utils.clone(dataSerie.get()));
-        //}
-        else {
+
+        } else {
           // rollback
           dataSerie.destroy().then(function () {
             reject(new exceptions.DataSeriesError("Could not save DataSeries. Data sets not found" + err));
@@ -464,7 +440,7 @@ var DataManager = {
         output.dataSets = dataSets;
         resolve(output);
       }).catch(function(err){
-       reject(new exceptions.DataSeriesError("Could not save DataSeries. " + err));
+        reject(new exceptions.DataSeriesError("Could not save DataSeries. " + err));
       });
     });
   },
@@ -499,6 +475,13 @@ var DataManager = {
     });
   },
 
+  /**
+   * It removes a DataSeries object. It should be an object containing object filled out with identifier
+   * and model values.
+   *
+   * @param {Object} dataSeriesParam - An object containing DataSeries identifier to remove it.
+   * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
   removeDataSerie: function(dataSeriesParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -521,6 +504,7 @@ var DataManager = {
 
   /**
    * It saves a DataSet object in database. The object syntax is:
+   * @example
    * {
    *   active: true,
    *   data_series_id: someID,
@@ -609,6 +593,13 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataSet object. It should be an object containing object filled out with identifier
+   * and model values.
+   *
+   * @param {Object} restriction - An object containing DataSet identifier to get it and type of DataSet.
+   * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
   getDataSet: function(restriction) {
     /**
      * { id / data_series_id: someValue, type: SomeType(dcp, occurrence)
@@ -626,6 +617,14 @@ var DataManager = {
     });
   },
 
+  /**
+   * It updates a DataSet object. It should be an object containing object filled out with identifier
+   * and model values.
+   *
+   * @param {Object} restriction - An object containing DataSeries identifier to get it.
+   * @param {Object} dataSetObject - An object containing DataSet values to be updated.
+   * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
   updateDataSet: function(restriction, dataSetObject) {
     /**
      * restriction => {
@@ -634,6 +633,7 @@ var DataManager = {
      * }
      *
      * dataSetObject => {
+     *   active: ...,
      *   timeColumn: ...,
      *   geometryColumn: ...
      *   ...
