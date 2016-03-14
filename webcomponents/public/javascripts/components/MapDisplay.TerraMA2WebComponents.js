@@ -4,10 +4,13 @@
  * Class responsible for presenting the map.
  * @module MapDisplay
  *
+ * @author Jean Souza [jean.souza@funcate.org.br]
+ *
  * @property {ol.interaction.DragBox} memberZoomDragBox - DragBox object.
  * @property {array} memberInitialExtent - Initial extent.
  * @property {ol.Map} memberOlMap - Map object.
  * @property {int} memberResolutionChangeEventKey - Resolution change event key.
+ * @property {int} memberDoubleClickEventKey - Double click event key.
  */
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
@@ -52,11 +55,16 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     view: new ol.View({
       projection: 'EPSG:4326',
       center: [-55, -15],
-      zoom: 4
+      zoom: 3
+    }),
+    interactions: ol.interaction.defaults({
+      doubleClickZoom :false
     })
   });
   // Resolution change event key
   var memberResolutionChangeEventKey = null;
+  // Double click event key
+  var memberDoubleClickEventKey = null;
 
   /**
    * Returns the map object.
@@ -271,9 +279,9 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * Sets the Zoom DragBox start event.
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
-   * @function setZoomDragBoxStart
+   * @function setZoomDragBoxStartEvent
    */
-  var setZoomDragBoxStart = function(eventFunction) {
+  var setZoomDragBoxStartEvent = function(eventFunction) {
     memberZoomDragBox.on('boxstart', eventFunction);
   };
 
@@ -281,9 +289,9 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * Sets the Zoom DragBox end event.
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
-   * @function setZoomDragBoxEnd
+   * @function setZoomDragBoxEndEvent
    */
-  var setZoomDragBoxEnd = function(eventFunction) {
+  var setZoomDragBoxEndEvent = function(eventFunction) {
     memberZoomDragBox.on('boxend', eventFunction);
   };
 
@@ -314,6 +322,46 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    */
   var zoomToExtent = function(extent) {
     memberOlMap.getView().fit(extent, memberOlMap.getSize(), { constrainResolution: false });
+  };
+
+  /**
+   * Returns the current map resolution.
+   * @returns {float} resolution - Map resolution
+   *
+   * @function getCurrentResolution
+   */
+  var getCurrentResolution = function() {
+    return memberOlMap.getView().getResolution();
+  };
+
+  /**
+   * Sets the Map resolution change event.
+   * @param {function} eventFunction - Function to be executed when the event is triggered
+   *
+   * @function setMapResolutionChangeEvent
+   */
+  var setMapResolutionChangeEvent = function(eventFunction) {
+    if(memberResolutionChangeEventKey !== null) memberOlMap.getView().unByKey(memberResolutionChangeEventKey);
+    memberResolutionChangeEventKey = memberOlMap.getView().on('propertychange', function(e) {
+      switch(e.key) {
+        case 'resolution':
+          eventFunction(e);
+          break;
+      }
+    });
+  };
+
+  /**
+   * Sets the Map double click event.
+   * @param {function} eventFunction - Function to be executed when the event is triggered
+   *
+   * @function setMapDoubleClickEvent
+   */
+  var setMapDoubleClickEvent = function(eventFunction) {
+    if(memberDoubleClickEventKey !== null) memberOlMap.getView().unByKey(memberDoubleClickEventKey);
+    memberDoubleClickEventKey = memberOlMap.on('dblclick', function(e) {
+      eventFunction(e);
+    });
   };
 
   /**
@@ -356,33 +404,6 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
-   * Sets the Map resolution change event.
-   * @param {function} eventFunction - Function to be executed when the event is triggered
-   *
-   * @function setMapResolutionChange
-   */
-  var setMapResolutionChange = function(eventFunction) {
-    if(memberResolutionChangeEventKey !== null) memberOlMap.getView().unByKey(memberResolutionChangeEventKey);
-    memberResolutionChangeEventKey = memberOlMap.getView().on('propertychange', function(e) {
-      switch(e.key) {
-        case 'resolution':
-          eventFunction(e);
-          break;
-      }
-    });
-  };
-
-  /**
-   * Returns the current map resolution.
-   * @returns {float} resolution - Map resolution
-   *
-   * @function getCurrentResolution
-   */
-  var getCurrentResolution = function() {
-    return memberOlMap.getView().getResolution();
-  };
-
-  /**
    * Initializes the necessary features.
    *
    * @function init
@@ -406,8 +427,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
   return {
     getMap: getMap,
-  	updateMapSize: updateMapSize,
-  	createTileWMS: createTileWMS,
+    updateMapSize: updateMapSize,
+    createTileWMS: createTileWMS,
     addTileWMSLayer: addTileWMSLayer,
     addGeoJSONVectorLayer: addGeoJSONVectorLayer,
     setLayerVisibility: setLayerVisibility,
@@ -415,15 +436,16 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     addZoomDragBox: addZoomDragBox,
     removeZoomDragBox: removeZoomDragBox,
     getZoomDragBoxExtent: getZoomDragBoxExtent,
-    setZoomDragBoxStart: setZoomDragBoxStart,
-    setZoomDragBoxEnd: setZoomDragBoxEnd,
+    setZoomDragBoxStartEvent: setZoomDragBoxStartEvent,
+    setZoomDragBoxEndEvent: setZoomDragBoxEndEvent,
     getCurrentExtent: getCurrentExtent,
     zoomToInitialExtent: zoomToInitialExtent,
     zoomToExtent: zoomToExtent,
-  	findBy: findBy,
-    applyCQLFilter: applyCQLFilter,
-    setMapResolutionChange: setMapResolutionChange,
     getCurrentResolution: getCurrentResolution,
-  	init: init
+    setMapResolutionChangeEvent: setMapResolutionChangeEvent,
+    setMapDoubleClickEvent: setMapDoubleClickEvent,
+    findBy: findBy,
+    applyCQLFilter: applyCQLFilter,
+    init: init
   };
 })();
