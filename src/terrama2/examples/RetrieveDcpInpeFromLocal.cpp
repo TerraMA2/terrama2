@@ -6,6 +6,7 @@
 #include "../core/data-model/DataSetDcp.hpp"
 #include "../impl/DataAccessorDcpInpe.hpp"
 
+#include <iostream>
 
 
 int main(int argc, char* argv[])
@@ -36,6 +37,54 @@ int main(int argc, char* argv[])
   terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
   assert(dcpSeries->dcpList().size() == 1);
+
+  std::shared_ptr<te::mem::DataSet> teDataSet = dcpSeries->dcpList().at(0).second;
+
+  int dateColumn = -1;
+  std::string names, types;
+  for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+  {
+    std::string name = teDataSet->getPropertyName(i);
+    names+= name + "\t";
+    if(name == "DateTime")
+    {
+      types+= "DataTime\t";
+      dateColumn = i;
+    }
+    else
+      types+= "Double\t";
+  }
+
+  std::cout << names << std::endl;
+  std::cout << types << std::endl;
+
+  teDataSet->moveBeforeFirst();
+  while(teDataSet->moveNext())
+  {
+    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+    {
+      if(teDataSet->isNull(i))
+      {
+        std::cout << "NULL";
+        continue;
+      }
+
+      if(i == dateColumn)
+      {
+        std::shared_ptr<te::dt::DateTime> dateTime =  teDataSet->getDateTime(i);
+        std::cout << dateTime->toString();
+      }
+      else
+      {
+        double value =  teDataSet->getDouble(i);
+        std::cout << value;
+      }
+
+      std::cout << "\t";
+    }
+    std::cout << std::endl;
+  }
+
 
   terrama2::core::DataProvider dataProvider2;
   terrama2::core::DataSeries dataSeries2;

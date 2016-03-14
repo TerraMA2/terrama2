@@ -54,14 +54,20 @@ namespace terrama2
       DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
       virtual ~DataAccessorDcpInpe() {};
 
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(std::string uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
 
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) override;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const override;
 
       std::string getMask(const DataSetDcp& dataset) const;
       virtual te::gm::Point getPosition(const DataSetDcp& dataset) const override;
       virtual std::string dataSourceTye() const override;
       virtual std::string typePrefix() const override;
+
+      virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+
+      te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+      te::dt::AbstractData* StringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
     };
   }
 }

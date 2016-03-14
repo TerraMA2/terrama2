@@ -55,15 +55,16 @@ namespace terrama2
       DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
 
       std::shared_ptr<te::da::DataSetTypeConverter> getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType) const;
-      void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
 
       virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
+
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
       virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
       virtual std::string typePrefix() const { return ""; }
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(std::string uri, const Filter& filter, const DataSetDcp& datasetDcp) const = 0;
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) = 0;
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const = 0;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const = 0;
       virtual te::gm::Point getPosition(const DataSetDcp& dataset) const = 0;
       virtual std::string dataSourceTye() const = 0;
     };

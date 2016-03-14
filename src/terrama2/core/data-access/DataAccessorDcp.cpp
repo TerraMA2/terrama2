@@ -87,8 +87,8 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessorDcp::g
 
   addColumns(converter, datasetType);
 
-  converter->remove("FID");
   adapt(converter);
+  converter->remove("FID");
 
   return converter;
 }
