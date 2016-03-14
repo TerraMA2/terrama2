@@ -19,50 +19,56 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for collector appserver
+#  Description: CMake script for the TerraMA2 Collector Module.
 #
-#  Author: Vinicius Campanha
+#  Author: Jano Simas
 #
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/appserver/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/appserver/*.hpp)
+#if(WIN32)
+#  add_definitions(-DTMA_CORE_DLL)
+#endif()
+
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/impl/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/impl/*.hpp)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-include_directories (
-  ${GSOAP_INCLUDE_DIR}
+include_directories ( SYSTEM
+  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_server/gsoap"
+  ${CURL_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable(terrama2_mod_ws_collector_appserver ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
+add_library(terrama2_mod_impl SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_mod_ws_collector_appserver terrama2_mod_ws_collector_server
-                                                          terrama2_mod_core
-                                                          terralib_mod_plugin
-                                                          terralib_mod_common
-                                                          terrama2_mod_collector)
+target_link_libraries(terrama2_mod_impl terrama2_mod_core
+                                                  terralib_mod_dataaccess
+                                                  terralib_mod_memory
+                                                  terralib_mod_vp_core
+                                                  terralib_mod_rp
+                                                  ${Boost_FILESYSTEM_LIBRARY}
+                                                  ${Boost_SYSTEM_LIBRARY}
+                                                  ${Boost_REGEX_LIBRARY}
+                                                  ${CURL_LIBRARIES})
 
-qt5_use_modules(terrama2_mod_ws_collector_appserver Widgets)
-
-set_target_properties(terrama2_mod_ws_collector_appserver
+set_target_properties(terrama2_mod_impl
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  INSTALL_NAME_DIR "@executable_path/../lib")
 
-install(TARGETS terrama2_mod_ws_collector_appserver
+install(TARGETS terrama2_mod_impl
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
 install(FILES ${TERRAMA2_HDR_FILES}
-        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/ws/collector/appserver COMPONENT devel)
+        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/collector COMPONENT devel)
 
-export(TARGETS terrama2_mod_ws_collector_appserver APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_mod_impl APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

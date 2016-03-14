@@ -28,8 +28,8 @@
 */
 
 #include "ServiceManager.hpp"
-#include "../core/Logger.hpp"
-#include "../core/DataManager.hpp"
+#include "../utility/Logger.hpp"
+#include "../data-model/DataManager.hpp"
 
 //QT
 #include <QProcess>
@@ -54,11 +54,11 @@ void terrama2::core::ServiceManager::addDataStruct(const ServiceData& serviceDat
   serviceDataMap_.emplace(serviceData.name, data);
 
   QObject::connect(dataManager_,
-                   &terrama2::core::DataManager::dataSetAdded,
-                   [dataManagerIntermediator](const terrama2::core::DataSet& dataset){
-                                                                                       *dataManagerIntermediator << dataset;
-                                                                                       dataManagerIntermediator->commit();
-                                                                                       });
+                   &terrama2::core::DataManager::dataSeriesAdded,
+                   [dataManagerIntermediator](const terrama2::core::DataSeries& dataseries){
+                                                                                              *dataManagerIntermediator << dataseries;
+                                                                                              dataManagerIntermediator->commit();
+                                                                                            });
 
   QObject::connect(dataManager_,
                    &terrama2::core::DataManager::dataProviderAdded,

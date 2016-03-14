@@ -31,9 +31,12 @@
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
 
 #include "../typedef.hpp"
+#include "DataSet.hpp"
 
 // STL
 #include <string>
+#include <vector>
+#include <memory>
 
 namespace terrama2
 {
@@ -48,13 +51,18 @@ namespace terrama2
       referenced one collection or analysis. Ex. set of PCD.
      */
 
+    typedef uint64_t DataSeriesSemantics;//TODO: fix types
     struct DataSeries
     {
-      DataSerieId id; //!< The identifier of the DataSeries.
-      DataProviderId data_provider_id; //!< The identifier of the DataProvider, foreign key.
-      DataSeriesSemantics data_series_semantics_id; //!< The identifier of the DataSeriesSemantics, foreign key.
+      DataSeriesId id = 0; //!< The identifier of the DataSeries.
+      DataProviderId dataProviderId = 0; //!< The identifier of the DataProvider
+      DataSeriesSemantics semantic = 0; //!< Semantic of the DataSeries.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
+
+      std::vector< std::shared_ptr<DataSet> > datasetList; //TODO: id or object?
+
+      inline bool operator==(const DataSeries& dataseries){ return id == dataseries.id; }
     };
   } // end namespace core
 } // end namespace terrama2

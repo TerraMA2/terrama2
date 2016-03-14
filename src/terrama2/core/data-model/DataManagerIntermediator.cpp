@@ -31,8 +31,8 @@
 #include "DataManager.hpp"
 #include "DataProvider.hpp"
 #include "DataSet.hpp"
-#include "Logger.hpp"
-#include "TcpDispatcher.hpp"
+#include "../utility/Logger.hpp"
+#include "../network/TcpDispatcher.hpp"
 
 //qT
 #include <QTcpSocket>
@@ -69,12 +69,13 @@ void terrama2::core::DataManagerIntermediator::processDataProvider(const QJsonOb
 
   try
   {
-    DataProvider dataProvider = DataProvider::FromJson(jsonObject);
+    //FIXME: call datamanager addFromJson
+    DataProvider dataProvider;// = DataProvider::FromJson(jsonObject);
 
     try
     {
       //if there is a DataProvider with this ID, update
-      DataProvider localDataProvider = dataManager.findDataProvider(dataProvider.id()); Q_UNUSED(localDataProvider)
+      DataProvider localDataProvider = dataManager.findDataProvider(dataProvider.id); Q_UNUSED(localDataProvider)
       dataManager.update(dataProvider);
     }
     catch (terrama2::InvalidArgumentException& /*e*/)
@@ -109,18 +110,19 @@ void terrama2::core::DataManagerIntermediator::processDataSet(const QJsonObject&
 
   try
   {
-    DataSet dataSet = DataSet::FromJson(jsonObject);
+    //FIXME: call datamanager addFromJson
+    DataSeries dataSeries;// = DataSet::FromJson(jsonObject);
 
     try
     {
       //if there is a DataSet with this ID, update
-      DataSet localDataSet = dataManager.findDataSet(dataSet.id()); Q_UNUSED(localDataSet)
-      dataManager.update(dataSet);
+      DataSeries localDataSeries = dataManager.findDataSeries(dataSeries.id); Q_UNUSED(localDataSeries)
+      dataManager.update(dataSeries);
     }
     catch (InvalidArgumentException& /*e*/)
     {
       //if no DataSet was found, create a new one
-      dataManager.add(dataSet);
+      dataManager.add(dataSeries);
     }
   }
   catch(terrama2::InvalidArgumentException& /*e*/)
@@ -128,10 +130,10 @@ void terrama2::core::DataManagerIntermediator::processDataSet(const QJsonObject&
     //invalid DataProvider
     if(jsonObject.contains("id"))
     {
-      uint64_t dataSetId = jsonObject["id"].toInt();
+      DataSeriesId dataSeriesId = jsonObject["id"].toInt();
       //if there is a DataSet with this ID, remove
-      DataSet localDataSet = dataManager.findDataSet(dataSetId); Q_UNUSED(localDataSet)
-      dataManager.removeDataSet(dataSetId);
+      DataSeries localDataSeries = dataManager.findDataSeries(dataSeriesId); Q_UNUSED(localDataSeries)
+      dataManager.removeDataSeries(dataSeriesId);
     }
     else
     {

@@ -20,37 +20,27 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcpInpe.hpp
+  \file terrama2/core/utility/Factory.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#include "../data-access/DataRetriever.hpp"
+#include "Factory.hpp"
 
-//TerraMA2
-#include "DataAccessorDcp.hpp"
-
-namespace terrama2
+terrama2::core::DataRetrieverPtr terrama2::core::Factory::makeRetriever(const DataProvider& dataProvider)
 {
-  namespace core
+  switch (dataProvider.dataProviderType)
   {
-    /*!
-      \class DataAccessorDcpInpe
-      \brief DataAccessor for DCP DataSeries from INPE.
-
-    */
-    class DataAccessorDcpInpe : public DataAccessorDcp
-    {
-    public:
-      virtual te::core::URI retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) override;
-
-      std::string getMask(const DataSet& dataset);
-      virtual te::gm::Point getPosition(const DataSet& dataset) override;
-    };
+  case 0:
+    return std::make_shared<DataRetriever>(dataProvider);
+    break;
+  default:
+    //TODO: throw here
+    break;
   }
-}
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+  return nullptr;
+}

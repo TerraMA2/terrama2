@@ -32,12 +32,14 @@
 
 // TerraMA2
 #include "../Exception.hpp"
-"
+
 namespace terrama2
 {
-  //! Base exception class for TerraMA2.
-  struct Exception: virtual Exception {};
-
+  namespace alert
+  {
+    //! Base exception class for TerraMA2.
+    struct Exception: virtual Exception {};
+  }
 }  // end namespace terrama2
 
 #endif  // __TERRAMA2_SERVICES_ALERT_CORE_EXCEPTION_HPP__

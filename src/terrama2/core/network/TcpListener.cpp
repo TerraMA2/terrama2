@@ -29,8 +29,8 @@
 
 #include "TcpListener.hpp"
 #include "TcpSignals.hpp"
-#include "DataManagerIntermediator.hpp"
-#include "Logger.hpp"
+#include "../data-model/DataManagerIntermediator.hpp"
+#include "../utility/Logger.hpp"
 
 //Qt
 #include <QObject>

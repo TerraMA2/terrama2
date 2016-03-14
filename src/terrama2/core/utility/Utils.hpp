@@ -31,10 +31,10 @@
 #define __TERRAMA2_CORE_UTILS_HPP__
 
 // TerraMA2
-#include "DataProvider.hpp"
-#include "DataSet.hpp"
-#include "DataSetItem.hpp"
-#include "Filter.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../data-model/Filter.hpp"
 
 // STL
 #include <string>
@@ -69,42 +69,6 @@ namespace terrama2
     QJsonDocument ReadJsonFile(const std::string& fileName);
 
     /*!
-      \brief Returns a boolean with the status of the server based on the given status.
-
-      \param status Enum with the status of the data provider.
-
-      \return Boolean that determine if the data provider is active.
-     */
-    bool ToBool(DataProvider::Status status);
-
-    /*!
-      \brief Returns a enum with the status of the server based on the given parameter.
-
-      \param active Boolean that determine if the data provider is active.
-
-      \return Enum with the status of the data provider.
-     */
-    DataProvider::Status ToDataProviderStatus(bool active);
-
-    /*!
-      \brief Returns a enum with the kind of the server based on the given parameter.
-
-      \param kind Kind that determine the type of the data provider.
-
-      \return Enum with the type of the data provider.
-     */
-    DataProvider::Kind ToDataProviderKind(uint64_t kind);
-
-    /*!
-      \brief Returns a enum with the origin of the server based on the given parameter.
-
-      \param origin Determine the origin of the provider.
-
-      \return Enum with the origin of the data provider.
-     */
-    DataProvider::Origin ToDataProviderOrigin(uint64_t origin);
-
-    /*!
       \brief Function to convert a boolean to string format.
 
       \param b Boolean to converted.
@@ -112,69 +76,6 @@ namespace terrama2
       \return string String representation of the given boolean.
      */
     std::string ToString(bool b);
-
-    /*!
-      \brief Returns a boolean with the status of the dataset based on the given status.
-
-      \param status Enum with the status of the dataset.
-
-      \return Boolean that determine if the dataset is active.
-     */
-    bool ToBool(DataSet::Status status);
-
-    /*!
-      \brief Returns a enum with the status of the dataset based on the given parameter.
-
-      \param active Boolean that determine if the dataset is active.
-
-      \return Enum with the status of the dataset.
-     */
-    DataSet::Status ToDataSetStatus(bool active);
-
-    /*!
-      \brief Returns a enum with the kind of the dataset based on the given parameter.
-
-      \param kind Kind that determine the type of the dataset.
-
-      \return Enum with the type of the dataset.
-     */
-    DataSet::Kind ToDataSetKind(uint64_t kind);
-
-    /*!
-      \brief Returns a boolean with the status of the dataset item based on the given status.
-
-      \param status Enum with the status of the dataset item.
-
-      \return Boolean that determine if the dataset item is active.
-     */
-    bool ToBool(DataSetItem::Status status);
-
-    /*!
-      \brief Returns a enum with the status of the dataset item based on the given parameter.
-
-      \param active Boolean that determine if the dataset item is active.
-
-      \return Enum with the status of the dataset item.
-     */
-    DataSetItem::Status ToDataSetItemStatus(bool active);
-
-    /*!
-      \brief Returns a enum with the kind of the dataset item based on the given parameter.
-
-      \param kind Kind that determine the type of the dataset item.
-
-      \return Enum with the type of the dataset item.
-     */
-    DataSetItem::Kind ToDataSetItemKind(uint64_t kind);
-
-    /*!
-      \brief Returns a enum with the type of filter based on the given parameter.
-
-      \param kind Kind that determine the type of filter.
-
-      \return Enum with the type of filter.
-     */
-    Filter::ExpressionType ToFilterExpressionType(uint64_t type);
 
     /*! \brief Initializes the terralib and load the plugins. */
     void initializeTerralib();
