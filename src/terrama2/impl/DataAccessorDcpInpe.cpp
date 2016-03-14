@@ -57,15 +57,44 @@ std::string terrama2::core::DataAccessorDcpInpe::retrieveData(const DataRetrieve
 
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(const DataSetDcp& dataset) const
 {
-  return dataset.format.at("mask");
+  try
+  {
+    return dataset.format.at("mask");
+  }
+  catch (...)
+  {
+    //TODO: log this
+    //TODO: throw UndefinedTag
+  }
 }
 
 te::gm::Point terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getPosition(const DataSetDcp& dataset) const
 {
-  std::string wkt = dataset.format.at("position");
-  te::gm::Point position; //from WKT;
+  try
+  {
+    std::string wkt = dataset.format.at("position");
+    te::gm::Point position; //from WKT;
 
-  return position;
+    return position;
+  }
+  catch (...)
+  {
+    //TODO: log this
+    //TODO: throw UndefinedTag
+  }
+}
+
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(const DataSetDcp& dataset) const
+{
+  try
+  {
+    return dataset.format.at("timezone");
+  }
+  catch (...)
+  {
+    //TODO: log this
+    //TODO: throw UndefinedTag
+  }
 }
 
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceTye() const
@@ -118,7 +147,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpInpe::getDataSe
     if(first)
     {
     //read and adapt all te:da::DataSet from terrama2::core::DataSet
-      converter = getConverter(std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(baseName)));
+      converter = getConverter(datasetDcp, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(baseName)));
       std::shared_ptr<te::da::DataSetType> datasetType(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
       assert(datasetType);
       completeDataset = std::make_shared<te::mem::DataSet>(datasetType.get());
@@ -139,7 +168,10 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpInpe::getDataSe
 }
 
 
-te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
+te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::StringToTimestamp(te::da::DataSet* dataset,
+                                                                             const std::vector<std::size_t>& indexes,
+                                                                             int /*dstType*/,
+                                                                             const std::string& timezone) const
 {
   assert(indexes.size() == 1);
 
@@ -157,9 +189,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::StringToTimestamp(te:
 
     assert(boostDate != boost::posix_time::ptime());
 
-    //FIXME: get timezone from dataset
-    // boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(dataSetItem_.timezone()));
-    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
     te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
@@ -217,11 +247,10 @@ te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::StringToDouble(te::da
   return nullptr;
 }
 
-// Change the string 07/21/2015 17:13:00 - PCD INPE format for timestamp
-void terrama2::core::DataAccessorDcpInpe::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+void terrama2::core::DataAccessorDcpInpe::adapt(const DataSetDcp& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
+  //only one timestamp column
   std::string timestampName = "N/A";
-  // converter->remove(timestampName);
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
   //Find the rigth column to adapt
@@ -231,11 +260,13 @@ void terrama2::core::DataAccessorDcpInpe::adapt(std::shared_ptr<te::da::DataSetT
     te::dt::Property* property = properties.at(i);
     if(property->getName() == timestampName)
     {
-      //column found
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::StringToTimestamp, this, _1, _2, _3));
+      // datetime column found
+      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::StringToTimestamp, this, _1, _2, _3, getTimeZone(datasetDcp)));
     }
     else
     {
+      // DCP-INPE dataset columns have the name of the dcp before every column,
+      // remove the name and keep only the column name
       te::dt::Property* property = properties.at(i);
 
       std::string name = property->getName();
@@ -255,22 +286,6 @@ void terrama2::core::DataAccessorDcpInpe::adapt(std::shared_ptr<te::da::DataSetT
 
 void terrama2::core::DataAccessorDcpInpe::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
-  // for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
-  // {
-  //   te::dt::Property* property = datasetType->getProperty(i);
-  //   te::dt::Property* propertyClone = property->clone();
-  //
-  //   std::string name = propertyClone->getName();
-  //   size_t dotPos = name.find('.');
-  //
-  //   if(dotPos != std::string::npos)
-  //   {
-  //     name.erase(std::remove_if(name.begin(), name.begin()+dotPos, &isdigit), name.begin()+dotPos);
-  //     name.erase(0,1);
-  //
-  //     propertyClone->setName(name);
-  //   }
-  //
-  //   converter->add(i, propertyClone);
-  // }
+  // Don't add any columns here,
+  // the converter will add columns
 }
