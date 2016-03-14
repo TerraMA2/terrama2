@@ -161,74 +161,51 @@ describe('DataManager', function() {
 
   it('should insert DataSeries', function(done) {
     DataManager.addDataSeriesSemantic(createDataSeriesSemantic()).then(function(semantic) {
-      DataManager.addDataSerie(createDataSeries()).then(function(result) {
-        assert(result.id > 0 && DataManager.data.dataSeries.length == 1);
-        return done();
-      }).catch(function(err) {
-        return done(err);
-      });
-    }).catch(function(err) {
-      return done(err);
-    });
-  });
+      var dataSeries = createDataSeries();
 
-  it('should insert DataSet #dcp', function(done) {
-    DataManager.getDataSerie({id: 1}).then(function(dataSerie) {
-      var dataSetDcp = {
-        id: 1,
-        data_series_id: dataSerie.id,
-        active: true,
-        child: {
+      dataSeries.dataSets = [
+        {
+          type: "dcp",
           id: 1,
-          data_set_id: 1,
-          position: {
-            type: 'Point',
-            coordinates: [39.807222,-76.984722],
-            crs:{
-              type: 'name',
-              properties : {
-                name: 'EPSG:4326'}
-            }
+          data_series_id: dataSeries.id,
+          active: true,
+          child: {
+            id: 1,
+            data_set_id: 1,
+            position: {
+              type: 'Point',
+              coordinates: [39.807222,-76.984722],
+              crs:{
+                type: 'name',
+                properties : {
+                  name: 'EPSG:4326'}
+              }
+            },
+            timeColumn: "timeColumn"
           },
-          timeColumn: "timeColumn"
+          dataFormats: [
+            {
+              key: "Format1",
+              value: "ValueFormat1"
+            }
+          ]
         },
-        dataFormats: [
-          {
-            key: "Format1",
-            value: "ValueFormat1"
-          }
-        ]
-      };
-
-      DataManager.addDataSet("dcp", dataSetDcp).then(function(result) {
-        assert(DataManager.data.dataSets.length == 1);
-
-        return done();
-      }).catch(function(err) {
-        return done(err);
-      });
-    }).catch(function(err) {
-      return done(err);
-    });
-  });
-
-  it('should insert DataSet #occurrence', function(done) {
-    DataManager.getDataSerie({id: 1}).then(function(dataSerie) {
-      var dataSetOccurrence = {
-        id: 2,
-        data_series_id: dataSerie.id,
-        active: true,
-        child: {
+        {
+          type: "occurrence",
           id: 2,
-          data_set_id: 2,
-          geometryColumn: "geom_column",
-          timeColumn: "time_field"
+          data_series_id: dataSeries.id,
+          active: true,
+          child: {
+            id: 2,
+            data_set_id: 2,
+            geometryColumn: "geom_column",
+            timeColumn: "time_field"
+          }
         }
-      };
-      var lenArrayBefore = DataManager.data.dataSets.length;
+      ];
 
-      DataManager.addDataSet("occurrence", dataSetOccurrence).then(function(result) {
-        assert(DataManager.data.dataSets.length != lenArrayBefore);
+      DataManager.addDataSerie(dataSeries).then(function(result) {
+        assert(result.id > 0 && DataManager.data.dataSeries.length == 1);
         return done();
       }).catch(function(err) {
         return done(err);

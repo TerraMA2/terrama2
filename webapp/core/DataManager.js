@@ -1,5 +1,27 @@
 'use strict';
 
+/**
+ * @license
+ * Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+ *
+ * This file is part of TerraMA2 - a free and open source computational
+ * platform for analysis, monitoring, and alert of geo-environmental extremes.
+ *
+ * TerraMA2 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+
+ * TerraMA2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TerraMA2. See LICENSE. If not, write to
+ * TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
 var modelsFn = require("../models");
 var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
@@ -148,12 +170,18 @@ var DataManager = {
   addProject: function(projectObject) {
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.Project.create(projectObject).then(function(project){
-        self.data.projects.push(project);
-        resolve(Utils.clone(project.dataValues));
-      }).catch(function(e) {
-        reject(e);
+
+      lock.writeLock(function(release) {
+        models.db.Project.create(projectObject).then(function(project){
+          self.data.projects.push(project);
+          resolve(Utils.clone(project.get()));
+          release();
+        }).catch(function(e) {
+          reject(e);
+          release();
+        });
       });
+
     });
   },
 
@@ -165,11 +193,16 @@ var DataManager = {
   getProject: function(projectParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var project = self.data.projects.getItemByParam(projectParam);
-      if (project)
-        resolve(Utils.clone(project.dataValues));
-      else
-        reject(new exceptions.ProjectError("Project not found"));
+
+      lock.readLock(function(release) {
+        var project = self.data.projects.getItemByParam(projectParam);
+        if (project)
+          resolve(Utils.clone(project.dataValues));
+        else
+          reject(new exceptions.ProjectError("Project not found"));
+
+        release();
+      });
     });
   },
 
@@ -183,7 +216,7 @@ var DataManager = {
   addDataProviderType: function(dataProviderTypeObject) {
     return new Promise(function(resolve, reject) {
       models.db.DataProviderType.create(dataProviderTypeObject).then(function(result) {
-        resolve(Utils.clone(result.dataValues));
+        resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
       })
@@ -199,7 +232,7 @@ var DataManager = {
   addDataFormat: function(dataFormatObject) {
     return new Promise(function(resolve, reject) {
       models.db.DataFormat.create(dataFormatObject).then(function(result) {
-        resolve(Utils.clone(result.dataValues));
+        resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
       })
@@ -215,7 +248,7 @@ var DataManager = {
   addDataSeriesSemantic: function(semanticObject) {
     return new Promise(function(resolve, reject){
       models.db.DataSeriesSemantic.create(semanticObject).then(function(semantic){
-        resolve(Utils.clone(semantic));
+        resolve(Utils.clone(semantic.get()));
       }).catch(function(e) {
         reject(e);
       });
@@ -232,7 +265,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
         self.data.dataProviders.push(dataProvider);
-        resolve(Utils.clone(dataProvider.dataValues));
+        resolve(Utils.clone(dataProvider.get()));
 
         //  todo: emit signal
 
@@ -255,7 +288,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataProvider = self.data.dataProviders.getItemByParam(restriction);
       if (dataProvider){
-        resolve(Utils.clone(dataProvider.dataValues));
+        resolve(Utils.clone(dataProvider.get()));
       }
       else
         reject(new exceptions.DataProviderError("Could not find a data provider: ", restriction));
@@ -270,7 +303,7 @@ var DataManager = {
   listDataProviders: function() {
     var dataProviderObjectList = [];
     for(var index = 0; index < this.data.dataProviders.length; ++index)
-      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index].dataValues));
+      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index].get()));
     return dataProviderObjectList;
   },
 
@@ -293,7 +326,7 @@ var DataManager = {
             active: dataProviderObject.active
           }).then(function() {
             self.data.dataProviders[i] = provider;
-            resolve(Utils.clone(provider.dataValues));
+            resolve(Utils.clone(provider.get()));
           }).catch(function(err) {
             reject(new exceptions.DataProviderError("Could not update data provider ", err));
           });
@@ -364,7 +397,11 @@ var DataManager = {
    *
    *   dataSets: [
    *     {
+   *       type: DataSet Child type (dcp, occurrence)
    *       dataSetValuesObject...
+   *       child: {
+   *         dataSetChildValues...
+   *       }
    *     }
    *   ]
    * }
@@ -375,29 +412,59 @@ var DataManager = {
   addDataSerie: function(dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
+        self.data.dataSeries.push(dataSerie);
+        output = Utils.clone(dataSerie.get());
         // if there DataSets to save too
         if (dataSeriesObject.dataSets) {
-          models.db.DataSet.bulkCreate(dataSeriesObject.dataSets).then(function () {
-            models.db.DataSet.findAll({data_series_id: dataSerie.id}).then(function (dSets) {
-              dataSerie.setDataSets(dSets).then(function (result) {
-                self.data.dataSeries.push(dataSerie);
-                resolve(Utils.clone(dataSerie.dataValues));
-              }).catch(function (err) {
-                reject(err);
-              });
-            }).catch(function (err) {
-              reject(err);
-            });
-          }).catch(function (err) {
-            reject(err);
-          });
-        } else {
-          self.data.dataSeries.push(dataSerie);
-          resolve(Utils.clone(dataSerie.dataValues));
+          var dataSets = [];
+          for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
+            var dSet = dataSeriesObject.dataSets[i];
+            dataSets.push(self.addDataSet(dSet.type, dSet));
+
+            //var dSet = dataSeriesObject.dataSets[i];
+            //self.addDataSet(dSet.type, dSet).then(function(dataSet) {
+            //  output.dataSets.push(dataSet);
+            //
+            //  if (i === dataSeriesObject.dataSets.length)
+            //    resolve(output);
+            //}).catch(function(err) {
+            //  reject(err);
+            //});
+          }
+
+          return Promise.all(dataSets);
+          //models.db.DataSet.bulkCreate(dataSeriesObject.dataSets).then(function () {
+          //  models.db.DataSet.findAll({data_series_id: dataSerie.id}).then(function (dSets) {
+          //    dataSerie.setDataSets(dSets).then(function (result) {
+          //      self.data.dataSeries.push(dataSerie);
+          //      resolve(Utils.clone(dataSerie.get()));
+          //    }).catch(function (err) {
+          //      reject(err);
+          //    });
+          //  }).catch(function (err) {
+          //    reject(err);
+          //  });
+          //}).catch(function (err) {
+          //  reject(err);
+          //});
         }
+        //else {
+        //  self.data.dataSeries.push(dataSerie);
+        //  resolve(Utils.clone(dataSerie.get()));
+        //}
+        else {
+          // rollback
+          dataSerie.destroy().then(function () {
+            reject(new exceptions.DataSeriesError("Could not save DataSeries. Data sets not found" + err));
+          });
+        }
+      }).then(function(dataSets){
+        output.dataSets = dataSets;
+        resolve(output);
       }).catch(function(err){
-       reject(new exceptions.DataProviderError("Could not save DataSeries. " + err));
+       reject(new exceptions.DataSeriesError("Could not save DataSeries. " + err));
       });
     });
   },
@@ -420,7 +487,7 @@ var DataManager = {
             name: dataSeriesObject.name,
             description: dataSeriesObject.description
           }).then(function() {
-            resolve(Utils.clone(element.dataValues));
+            resolve(Utils.clone(element.get()));
           }).catch(function(err) {
             reject(new exceptions.DataSeriesError("Could not update data series ", err));
           });
@@ -465,7 +532,7 @@ var DataManager = {
    * }
    *
    * @param {string} dataSetType - A string value representing DataSet type. (dcp, occurrence, grid).
-   * @param {Object} dataSetObject - An object containing DataSet values to save it.
+   * @param {Array<Object>} dataSetObject - An object containing DataSet values to save it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
   addDataSet: function(dataSetType, dataSetObject) {
@@ -511,6 +578,7 @@ var DataManager = {
           reject(new exceptions.DataSetError("Could not save data set." + err));
         };
 
+        // rollback data set function if any error occurred
         var rollback = function(dataSet) {
           dataSet.destroy().then(function() {
             reject(new exceptions.DataSetError("Invalid dataset type. DataSet destroyed"));
@@ -547,23 +615,14 @@ var DataManager = {
      */
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataSet = self.data.dataSets.getItemByParam(restriction);
-      if (dataSet) {
-        resolve(Utils.clone(dataSet));
-        //if (restriction.type) {
-        //  dataSet.getDataSet(restriction.type).then(function(dset) {
-        //    var output = Utils.clone(dset.dataValues);
-        //    output.active = dataSet.active;
-        //    output.data_series_id = dataSet.data_series_id;
-        //    resolve(output);
-        //  }).catch(function(err) {
-        //    reject(err);
-        //  });
-        //} else
-        //  reject("DataSet type not found")
-      }
-      else
-        reject(new exceptions.DataSetError("Could not find a data set: ", restriction));
+      lock.readLock(function (release) {
+        var dataSet = self.data.dataSets.getItemByParam(restriction);
+        if (dataSet)
+          resolve(Utils.clone(dataSet));
+        else
+          reject(new exceptions.DataSetError("Could not find a data set: ", restriction));
+        release();
+      });
     });
   },
 
@@ -645,7 +704,7 @@ var DataManager = {
   listDataSets: function() {
     var dataSetsList = [];
     for(var index = 0; index < this.data.dataSets.length; ++index)
-      dataSetsList.push(Utils.clone(this.data.dataSets[index].dataValues));
+      dataSetsList.push(Utils.clone(this.data.dataSets[index]));
 
     return dataSetsList;
   }
