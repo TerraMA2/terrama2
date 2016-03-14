@@ -59,7 +59,10 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     }),
     interactions: ol.interaction.defaults({
       doubleClickZoom :false
-    })
+    }),
+    controls: ol.control.defaults().extend([
+      new ol.control.ScaleLine()
+    ])
   });
   // Resolution change event key
   var memberResolutionChangeEventKey = null;

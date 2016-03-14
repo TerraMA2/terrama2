@@ -84,7 +84,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       var sublayersElem = '';
       var layers = layer.getLayers().getArray(),
       len = layers.length;
-      for (var i = len - 1; i >= 0; i--) {
+      for(var i = len - 1; i >= 0; i--) {
         sublayersElem += buildLayerExplorer(layers[i]);
       }
 
@@ -152,7 +152,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   var loadEvents = function() {
     $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
-      if (children.is(":visible")) {
+      if(children.is(":visible")) {
         children.hide('fast');
         $(this).find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
       } else {
@@ -178,7 +178,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
       var children = $(this).parent('li.parent_li').find(' > ul > li');
       var span = $(this).parent('li.parent_li').find(' > span');
-      if (children.is(":visible") || !layer.getVisible()) {
+      if(children.is(":visible") || !layer.getVisible()) {
         children.hide('fast');
         span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
       } else {
@@ -214,8 +214,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     memberSocket.emit(
       'proxyRequest',
       {
-        url: TerraMA2WebComponents.Config.getConfJsonServer().URL + TerraMA2WebComponents.Config.getConfJsonServer().CapabilitiesParams,
-        requestId: 'lala'
+        url: TerraMA2WebComponents.Config.getConfJsonServer().URL + TerraMA2WebComponents.Config.getConfJsonServer().CapabilitiesParams
       }
     );
     memberSocket.on('proxyResponse', function(msg) {
