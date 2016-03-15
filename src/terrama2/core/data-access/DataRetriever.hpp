@@ -36,7 +36,6 @@
 #include "../data-model/Filter.hpp"
 
 //terralib
-#include <terralib/common/URI/uri.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 
 namespace terrama2
@@ -47,7 +46,7 @@ namespace terrama2
     \brief Base class to download data from a remote server.
 
     Derived classes should access a remote server and download files to a temporary storage
-    and return a te::common::uri to this file.
+    and return a uri to this file.
 
     */
     class DataRetriever
