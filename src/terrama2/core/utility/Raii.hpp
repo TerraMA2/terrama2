@@ -25,6 +25,9 @@
 #ifndef __TERRAMA2_CORE_UTILITY_RAII_HPP__
 #define __TERRAMA2_CORE_UTILITY_RAII_HPP__
 
+//TerraMA2
+#include "Logger.hpp"
+
 //STd
 #include <exception>
 
@@ -34,7 +37,7 @@
 
 namespace terrama2
 {
-  namespace collector
+  namespace core
   {
     //! Class for Resource Acquisition Is Initialization (RAII) of classes that need to open and close.
     template<class T> class OpenClose

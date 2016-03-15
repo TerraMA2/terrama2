@@ -27,17 +27,20 @@
   \author Gilberto Ribeiro de Queiroz
  */
 
-#ifndef __TERRAMA2_SERVICES_ALERT_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_ALERT_CORE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
 
 // TerraMA2
 #include "../Exception.hpp"
-"
+
 namespace terrama2
 {
-  //! Base exception class for TerraMA2.
-  struct Exception: virtual Exception {};
+
+  namespace analysis {
+    //! Base exception class for TerraMA2.
+    struct Exception: virtual Exception {};
+  } /* analysis */
 
 }  // end namespace terrama2
 
-#endif  // __TERRAMA2_SERVICES_ALERT_CORE_EXCEPTION_HPP__
+#endif  // __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__

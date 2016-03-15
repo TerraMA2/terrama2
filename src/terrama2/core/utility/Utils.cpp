@@ -29,9 +29,8 @@
 
 // TerraMA2
 #include "Utils.hpp"
-#include "../Config.hpp"
-#include "ApplicationController.hpp"
-#include "Exception.hpp"
+#include "../../Config.hpp"
+#include "../Exception.hpp"
 
 #include "Logger.hpp"
 
@@ -131,172 +130,11 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
   return jdocument;
 }
 
-bool
-terrama2::core::ToBool(DataProvider::Status status)
-{
-  switch (status)
-  {
-    case DataProvider::ACTIVE:
-      return true;
-    case DataProvider::INACTIVE:
-      return false;
-    default:
-      return false;
-  }
-}
-
-terrama2::core::DataProvider::Status
-terrama2::core::ToDataProviderStatus(bool active)
-{
-  return (active) ? DataProvider::ACTIVE : DataProvider::INACTIVE;
-}
-
-terrama2::core::DataProvider::Kind
-terrama2::core::ToDataProviderKind(uint64_t kind)
-{
-  // Any invalid number will be associated with unkown type.
-  // Unkown type has value 1.
-  switch (kind)
-  {
-    case 2:
-      return DataProvider::FTP_TYPE;
-    case 3:
-      return DataProvider::HTTP_TYPE;
-    case 4:
-      return DataProvider::FILE_TYPE;
-    case 5:
-      return DataProvider::WFS_TYPE;
-    case 6:
-      return DataProvider::WCS_TYPE;
-    case 7:
-      return DataProvider::SOS_TYPE;
-    default:
-      return DataProvider::UNKNOWN_TYPE;
-  }
-}
-
-
-terrama2::core::DataProvider::Origin
-terrama2::core::ToDataProviderOrigin(uint64_t origin)
-{
-  // Any invalid number will be associated with unkown type.
-  // Unkown type has value 1.
-  if(origin == 1)
-      return DataProvider::COLLECTOR;
-  else
-      return DataProvider::ANALYSIS;
-}
-
 std::string
 terrama2::core::ToString(bool b)
 {
   return b ? "true" : "false";
 }
-
-bool
-terrama2::core::ToBool(DataSet::Status status)
-{
-  switch (status)
-  {
-    case DataSet::ACTIVE:
-      return true;
-    case DataSet::INACTIVE:
-      return false;
-    default:
-      return false;
-  }
-}
-
-
-terrama2::core::DataSet::Status terrama2::core::ToDataSetStatus(bool active)
-{
-  return (active) ? DataSet::ACTIVE : DataSet::INACTIVE;
-}
-
-
-
-terrama2::core::DataSet::Kind
-terrama2::core::ToDataSetKind(uint64_t kind)
-{
-  // Any invalid number will be associated with unkown type.
-  // Unkown type has value 1.
-  switch (kind)
-  {
-    case 2:
-      return DataSet::PCD_TYPE;
-    case 3:
-      return DataSet::OCCURENCE_TYPE;
-    case 4:
-      return DataSet::GRID_TYPE;
-    case 5:
-      return DataSet::STATIC_DATA;
-    default:
-      return DataSet::UNKNOWN_TYPE;
-  }
-}
-
-terrama2::core::DataSetItem::Kind
-terrama2::core::ToDataSetItemKind(uint64_t kind)
-{
-  // Any invalid number will be associated with unkown type.
-  // Unkown type has value 1.
-  switch (kind)
-  {
-    case 2:
-      return DataSetItem::PCD_INPE_TYPE;
-    case 3:
-      return DataSetItem::PCD_TOA5_TYPE;
-    case 4:
-      return DataSetItem::FIRE_POINTS_TYPE;
-    case 5:
-      return DataSetItem::DISEASE_OCCURRENCE_TYPE;
-    case 6:
-      return DataSetItem::GRID_TYPE;
-    default:
-      return DataSetItem::UNKNOWN_TYPE;
-  }
-}
-
-terrama2::core::DataSetItem::Status
-terrama2::core::ToDataSetItemStatus(bool active)
-{
-  return (active) ? DataSetItem::ACTIVE : DataSetItem::INACTIVE;
-}
-
-bool
-terrama2::core::ToBool(DataSetItem::Status status)
-{
-  switch (status)
-  {
-    case DataSetItem::ACTIVE:
-      return true;
-    case DataSetItem::INACTIVE:
-      return false;
-    default:
-      return false;
-  }
-}
-
-terrama2::core::Filter::ExpressionType
-terrama2::core::ToFilterExpressionType(uint64_t type)
-{
-  // Any invalid number will be associated with unkown type.
-  // Unkown type has value 1.
-  switch (type)
-  {
-    case 2:
-      return Filter::LESS_THAN_TYPE;
-    case 3:
-      return Filter::GREATER_THAN_TYPE;
-    case 4:
-      return Filter::MEAN_LESS_THAN_TYPE;
-    case 5:
-      return Filter::MEAN_GREATER_THAN_TYPE;
-    default:
-      return Filter::NONE_TYPE;
-  }
-}
-
 
 void terrama2::core::initializeTerralib()
 {
@@ -320,13 +158,6 @@ void terrama2::core::initializeTerralib()
 
 void terrama2::core::finalizeTerralib()
 {
-  auto dataSource = ApplicationController::getInstance().getDataSource();
-  if(dataSource.get() && dataSource->isOpened())
-  {
-    dataSource->close();
-  }
-
-  dataSource.reset();
   TerraLib::getInstance().finalize();
 }
 

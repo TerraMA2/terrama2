@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_UTILITY_FILTER_MASK_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
+#include "../../Config.hpp"
 #include "../data-model/Filter.hpp"
 
 //STL
@@ -41,7 +41,7 @@ namespace terrama2
 {
   namespace core
   {
-    std::vector<std::string> filterNames(const std::string& mask, const Filter& filter, const std::vector<std::string>& names);
+    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name) { return name == mask; } //FIXME: implement name filter
   } // end namespace core
 }   // end namespace terrama2
 

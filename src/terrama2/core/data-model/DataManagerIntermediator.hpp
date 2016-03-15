@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_INTERMADIATOR_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_INTERMADIATOR_HPP__
 
-#include "TcpDispatcher.hpp"
+#include "../network/TcpDispatcher.hpp"
 
 //Qt
 #include <QString>
@@ -52,8 +52,9 @@ namespace terrama2
       template <class T>
       DataManagerIntermediator& operator<<(const T& obj)
       {
-        QJsonObject jsonObj = obj.toJson();
-        jsonPackage_.append(jsonObj);
+        //FIXME: use datamanager addFromJson
+        //QJsonObject jsonObj = obj.toJson();
+        //jsonPackage_.append(jsonObj);
 
         return *this;
       }

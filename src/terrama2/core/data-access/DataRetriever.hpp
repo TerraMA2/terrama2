@@ -31,7 +31,13 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
+#include "../../Config.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/Filter.hpp"
+
+//terralib
+#include <terralib/common/URI/uri.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 namespace terrama2
 {
@@ -41,7 +47,7 @@ namespace terrama2
     \brief Base class to download data from a remote server.
 
     Derived classes should access a remote server and download files to a temporary storage
-    and return a te::core::URI to this file.
+    and return a te::common::uri to this file.
 
     */
     class DataRetriever
@@ -52,8 +58,9 @@ namespace terrama2
 
         \return Uri to the termporary file
       */
-      virtual te::core::URI retrieveData(const std::string& query, Filter) = 0;
-      virtual te::dt::TimeInstantTZ lastDateTime() = 0;
+      virtual std::string retrieveData(const std::string& query, const Filter& filter) { throw 0;} //FIXME: throw here
+      virtual te::dt::TimeInstantTZ lastDateTime() const { throw 0; }//FIXME: throw here
+      virtual bool isRetrivable() const { return false; }
 
     protected:
       DataProvider dataProvider_;

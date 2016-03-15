@@ -49,7 +49,8 @@ namespace terrama2
     {
     public:
       DataStoragerDcp(DataProvider);
-      virtual void store(DcpContainerPtr, DataSet/*output*/) = 0;
+      //FIXME: review interface. how will a dataset from a DcpSeriesPtr be mapped to the output?
+      virtual void store(DcpSeriesPtr, /*output*/) = 0;
     };
   }
 }
