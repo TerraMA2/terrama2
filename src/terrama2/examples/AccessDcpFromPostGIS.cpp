@@ -23,8 +23,6 @@ int main(int argc, char* argv[])
   uri.setPassword("postgres");
   uri.setPath("/basedeteste");
 
-
-
   terrama2::core::DataProvider dataProvider;
   dataProvider.uri = uri.url().toStdString();
   dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
@@ -52,6 +50,8 @@ int main(int argc, char* argv[])
 
   std::shared_ptr<te::mem::DataSet> teDataSet = dcpSeries->dcpList().at(0).second;
 
+
+//Print column names and types (DateTime/Double)
   int dateColumn = -1;
   std::string names, types;
   for(int i = 0; i < teDataSet->getNumProperties(); ++i)
@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
   std::cout << names << std::endl;
   std::cout << types << std::endl;
 
+//Print values
   teDataSet->moveBeforeFirst();
   while(teDataSet->moveNext())
   {
@@ -96,12 +97,6 @@ int main(int argc, char* argv[])
     }
     std::cout << std::endl;
   }
-
-
-  terrama2::core::DataProvider dataProvider2;
-  terrama2::core::DataSeries dataSeries2;
-  // terrama2::core::DcpStoragerPtr storager = Factory::getDcpStorager(dataProvider2, dataSeries2);
-  // storager->store(dcpSeries);
 
   terrama2::core::finalizeTerralib();
 
