@@ -414,8 +414,6 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var init = function() {
     memberOlMap.getLayerGroup().set('name', 'root');
     memberOlMap.getLayerGroup().set('title', 'Geoserver Local');
-    var zoomslider = new ol.control.ZoomSlider();
-    memberOlMap.addControl(zoomslider);
 
     memberZoomDragBox = new ol.interaction.DragBox({
       condition: ol.events.condition.always
