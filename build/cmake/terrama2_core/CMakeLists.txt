@@ -49,11 +49,11 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_mod_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_library(terrama2_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-qt5_use_modules(terrama2_mod_core Core Sql Network)
+qt5_use_modules(terrama2_core Core Sql Network)
 
-target_link_libraries(terrama2_mod_core terralib_mod_memory
+target_link_libraries(terrama2_core terralib_mod_memory
                                         terralib_mod_dataaccess
                                         terralib_mod_plugin
                                         terralib_mod_common
@@ -61,12 +61,12 @@ target_link_libraries(terrama2_mod_core terralib_mod_memory
                                         ${Boost_SYSTEM_LIBRARY}
                                         ${Boost_LOG_LIBRARY})
 
-set_target_properties(terrama2_mod_core
+set_target_properties(terrama2_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  INSTALL_NAME_DIR "@executable_path/../lib")
 
-install(TARGETS terrama2_mod_core
+install(TARGETS terrama2_core
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
@@ -75,4 +75,4 @@ install(TARGETS terrama2_mod_core
 install(FILES ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/core COMPONENT devel)
 
-export(TARGETS terrama2_mod_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

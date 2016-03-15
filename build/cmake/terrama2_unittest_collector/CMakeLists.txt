@@ -50,8 +50,8 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 add_executable(terrama2_unittest_collector ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-target_link_libraries(terrama2_unittest_collector terrama2_mod_core
-                                                  terrama2_mod_collector
+target_link_libraries(terrama2_unittest_collector terrama2_core
+                                                  terrama2_collector
                                                   terralib_mod_plugin
                                                   terralib_mod_common
                                                   terralib_mod_rp
