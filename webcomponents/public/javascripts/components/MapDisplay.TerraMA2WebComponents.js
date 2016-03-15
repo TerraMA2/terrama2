@@ -251,6 +251,17 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
+   * Returns the flag that indicates if the given layer is visible.
+   * @param {string} layerName - Layer name
+   *
+   * @function isLayerVisible
+   */
+  var isLayerVisible = function(layerName) {
+    var layer = findBy(memberOlMap.getLayerGroup(), 'name', layerName);
+    return layer.get('visible');
+  };
+
+  /**
    * Adds the Zoom DragBox to the map.
    *
    * @function addZoomDragBox
@@ -434,6 +445,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     addGeoJSONVectorLayer: addGeoJSONVectorLayer,
     setLayerVisibility: setLayerVisibility,
     setLayerVisibilityByName: setLayerVisibilityByName,
+    isLayerVisible: isLayerVisible,
     addZoomDragBox: addZoomDragBox,
     removeZoomDragBox: removeZoomDragBox,
     getZoomDragBoxExtent: getZoomDragBoxExtent,
