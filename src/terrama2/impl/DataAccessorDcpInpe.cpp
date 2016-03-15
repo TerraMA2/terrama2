@@ -68,22 +68,6 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(co
   }
 }
 
-te::gm::Point terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getPosition(const DataSetDcp& dataset) const
-{
-  try
-  {
-    std::string wkt = dataset.format.at("position");
-    te::gm::Point position; //from WKT;
-
-    return position;
-  }
-  catch (...)
-  {
-    //TODO: log this
-    //TODO: throw UndefinedTag
-  }
-}
-
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(const DataSetDcp& dataset) const
 {
   try
@@ -127,7 +111,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpInpe::getDataSe
     // also joins if the DCP comes from separated files
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
     std::map<std::string, std::string> connInfo;
-    //FIXME: contruir uri do datasource
+    
     connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
     datasource->setConnectionInfo(connInfo);
 

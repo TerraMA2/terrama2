@@ -64,9 +64,7 @@ namespace terrama2
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const = 0;
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const = 0;
-      virtual te::gm::Point getPosition(const DataSetDcp& dataset) const = 0;
-      virtual std::string dataSourceTye() const = 0;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const { assert(0); }; //FIXME: throw here
     };
   }
 }

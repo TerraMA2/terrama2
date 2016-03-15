@@ -60,8 +60,7 @@ namespace terrama2
 
       std::string getMask(const DataSetDcp& dataset) const;
       std::string getTimeZone(const DataSetDcp& dataset) const;
-      virtual te::gm::Point getPosition(const DataSetDcp& dataset) const override;
-      virtual std::string dataSourceTye() const override;
+      virtual std::string dataSourceTye() const;
       virtual std::string typePrefix() const override;
 
       virtual void adapt(const DataSetDcp& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
