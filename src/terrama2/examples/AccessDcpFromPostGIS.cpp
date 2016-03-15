@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   dataSeries.datasetList.emplace_back(new terrama2::core::DataSetDcp());
   std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));
   dataSet->active = true;
-  dataSet->dateTimeColumnName = "data_time";
+  dataSet->dateTimeColumnName = "date_time";
   dataSet->format.emplace("table_name", "pcd");
 
   dataProvider.dataSeriesList.push_back(dataSeries);
