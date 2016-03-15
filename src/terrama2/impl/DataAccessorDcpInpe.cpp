@@ -274,10 +274,9 @@ void terrama2::core::DataAccessorDcpInpe::adapt(const DataSetDcp& datasetDcp, st
       size_t dotPos = name.find('.');
 
       if(dotPos != std::string::npos)
-      {
-        name.erase(std::remove_if(name.begin(), name.begin()+dotPos, &isdigit), name.begin()+dotPos);
-        name.erase(0,1);
-      }
+        name.erase(0,dotPos + 1);
+
+
       te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(name, te::dt::DOUBLE_TYPE);
       converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::StringToDouble, this, _1, _2, _3));
     }
