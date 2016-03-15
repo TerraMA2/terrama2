@@ -36,6 +36,7 @@
 // Terralib
 #include <terralib/geometry/Point.h>
 #include <terralib/geometry/Polygon.h>
+#include <terralib/geometry/MultiPolygon.h>
 #include <terralib/geometry/LinearRing.h>
 
 #include <terralib/datatype/TimeInstantTZ.h>
@@ -177,13 +178,20 @@ void terrama2::gui::config::FilterDialog::fillGUI(const terrama2::core::Filter& 
     pimpl_->ui_->areaRdb->setChecked(true);
     pimpl_->ui_->areaRdb->clicked();
 
-    const te::gm::Polygon* geom = dynamic_cast<const te::gm::Polygon*>(filter.geometry());
-    const te::gm::LinearRing* square = dynamic_cast<const te::gm::LinearRing*>(geom->getRingN(0));
+    const te::gm::MultiPolygon* geom = dynamic_cast<const te::gm::MultiPolygon*>(filter.geometry());
+    if(geom)
+    {
+      auto polygon = dynamic_cast<const te::gm::Polygon*>(geom->getGeometries()[0]);
+      if(polygon)
+      {
+        const te::gm::LinearRing* square = dynamic_cast<const te::gm::LinearRing*>(polygon->getRingN(0));
 
-    pimpl_->ui_->xMinLed->setText(QString::number(square->getPointN(0)->getX()));
-    pimpl_->ui_->yMinLed->setText(QString::number(square->getPointN(0)->getY()));
-    pimpl_->ui_->xMaxLed->setText(QString::number(square->getPointN(2)->getX()));
-    pimpl_->ui_->yMaxLed->setText(QString::number(square->getPointN(2)->getY()));
+        pimpl_->ui_->xMinLed->setText(QString::number(square->getPointN(0)->getX()));
+        pimpl_->ui_->yMinLed->setText(QString::number(square->getPointN(0)->getY()));
+        pimpl_->ui_->xMaxLed->setText(QString::number(square->getPointN(2)->getX()));
+        pimpl_->ui_->yMaxLed->setText(QString::number(square->getPointN(2)->getY()));
+      }
+    }
   }
 
   if (filter.discardBefore())
@@ -263,7 +271,7 @@ void terrama2::gui::config::FilterDialog::fillObject(terrama2::core::Filter &fil
 {
   if (pimpl_->filterByArea_)
   {
-    std::unique_ptr<te::gm::Polygon> polygon(new te::gm::Polygon(0, te::gm::PolygonType));
+    te::gm::Polygon* polygon(new te::gm::Polygon(0, te::gm::PolygonType));
 
     double minX = pimpl_->ui_->xMinLed->text().toDouble();
     double minY = pimpl_->ui_->yMinLed->text().toDouble();
@@ -279,7 +287,10 @@ void terrama2::gui::config::FilterDialog::fillObject(terrama2::core::Filter &fil
 
     polygon->push_back(square);
 
-    filter.setGeometry(std::move(polygon));
+    std::unique_ptr<te::gm::MultiPolygon> geometry(new te::gm::MultiPolygon(1, te::gm::MultiPolygonType, 4326, nullptr));
+    geometry->add(polygon);
+
+    filter.setGeometry(std::move(geometry));
   }
   else
     filter.setGeometry(nullptr);

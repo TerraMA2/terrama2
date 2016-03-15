@@ -20,23 +20,21 @@
 */
 
 /*!
-  \file terrama2/analysis/core/PythonInterpreter.hpp
+  \file terrama2/analysis/core/AnalysisExecutor.hpp
 
-  \brief Manages the communication of Python and C.
+  \brief Prepare context for an analysis execution.
 
   \author Paulo R. M. Oliveira
 */
 
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+#ifndef __TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__
+#define __TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__
 
-#include "Analysis.hpp"
+// STL
+#include <thread>
+#include <vector>
 
-#include <string>
-
-#include "../../collector/DataFilter.hpp"
-#include <Python.h>
 
 namespace terrama2
 {
@@ -44,17 +42,17 @@ namespace terrama2
   {
     namespace core
     {
-      PyObject* countPoints(PyObject* self, PyObject* args);
-      PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
-      PyObject* result(PyObject* self, PyObject* args);
+      class Analysis;
 
-      void init();
 
-      void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
+      void joinThread(std::thread& t);
+      void joinAllThreads(std::vector<std::thread>& threads);
+      void runAnalysis(const Analysis& analysis);
+      void runMonitoredObjectAnalysis(const Analysis& analysis);
+      void runDCPAnalysis(const Analysis& analysis);
 
-      void finalize();
     }
   }
 }
 
-#endif //__TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+#endif //__TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__

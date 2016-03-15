@@ -62,6 +62,7 @@
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/datatype/SimpleData.h>
 
 te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/)
 {
@@ -104,12 +105,46 @@ te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToTimestamp(te::
   return nullptr;
 }
 
+te::dt::AbstractData* terrama2::collector::ParserPcdInpe::StringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
+{
+  assert(indexes.size() == 1);
+
+  try
+  {
+    std::string strValue = dataset->getAsString(indexes[0]);
+
+    if(strValue.empty())
+    {
+      return nullptr;
+    }
+    else
+    {
+      double value = 0;
+      std::istringstream stream(strValue);//create stream
+      stream >> value;
+
+      te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
+
+      return data;
+    }
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error";
+  }
+
+  return nullptr;
+}
+
 // Change the string 07/21/2015 17:13:00 - PCD INPE format for timestamp
 void terrama2::collector::ParserPcdInpe::adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter)
 {
+  //only one timestamp column
   std::string timestampName = "N/A";
-  converter->remove(timestampName);
-
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
 
   //Find the rigth column to adapt
@@ -119,33 +154,35 @@ void terrama2::collector::ParserPcdInpe::adapt(std::shared_ptr<te::da::DataSetTy
     te::dt::Property* property = properties.at(i);
     if(property->getName() == timestampName)
     {
-      //column found
+      // datetime column found
       converter->add(i, dtProperty, boost::bind(&terrama2::collector::ParserPcdInpe::StringToTimestamp, this, _1, _2, _3));
-      break;
+    }
+    else
+    {
+      // DCP-INPE dataset columns have the name of the dcp before every column,
+      // remove the name and keep only the column name
+      te::dt::Property* property = properties.at(i);
+
+      std::string name = property->getName();
+      size_t dotPos = name.find('.');
+
+      if(dotPos != std::string::npos)
+      {
+        name.erase(0,dotPos + 1);
+      }
+      te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(name, te::dt::DOUBLE_TYPE);
+      converter->add(i, newProperty, boost::bind(&terrama2::collector::ParserPcdInpe::StringToDouble, this, _1, _2, _3));
     }
   }
-
 }
 
 void terrama2::collector::ParserPcdInpe::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType)
 {
-  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
-  {
-    te::dt::Property* p = datasetType->getProperty(i);
-    te::dt::Property* propertyClone = p->clone();
 
-    std::string name = propertyClone->getName();
-    size_t dotPos = name.find('.');
-
-    if(dotPos != std::string::npos)
-    {
-      name.erase(std::remove_if(name.begin(), name.begin()+dotPos, &isdigit), name.begin()+dotPos);
-      name.erase(0,1);
-
-      propertyClone->setName(name);
-    }
-
-    converter->add(i, propertyClone);
-  }
 }
 
+
+std::string terrama2::collector::ParserPcdInpe::typePrefix() const
+{
+  return "CSV:";
+}

@@ -26,4 +26,9 @@
 
   \author Jano Simas
 */
+#include "Parser.hpp"
 
+std::string terrama2::collector::Parser::typePrefix() const
+{
+  return "";
+}

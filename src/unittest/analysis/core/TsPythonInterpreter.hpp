@@ -20,41 +20,27 @@
 */
 
 /*!
-  \file terrama2/analysis/core/PythonInterpreter.hpp
+  \file unittest/core/TsPythonInterpreter.cpp
 
-  \brief Manages the communication of Python and C.
+  \brief Test for PythonInterpreter functions
 
   \author Paulo R. M. Oliveira
 */
 
+//TerraMA2
+#include <terrama2/analysis/core/PythonInterpreter.hpp>
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+//QT
+#include <QtTest/QTest>
 
-#include "Analysis.hpp"
 
-#include <string>
-
-#include "../../collector/DataFilter.hpp"
-#include <Python.h>
-
-namespace terrama2
+class TsPythonInterpreter : public QObject
 {
-  namespace analysis
-  {
-    namespace core
-    {
-      PyObject* countPoints(PyObject* self, PyObject* args);
-      PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
-      PyObject* result(PyObject* self, PyObject* args);
+    Q_OBJECT
 
-      void init();
 
-      void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
+private slots:
+  //void countPointsAnalysis();
+  void sumHistoryPCD();
 
-      void finalize();
-    }
-  }
-}
-
-#endif //__TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+};

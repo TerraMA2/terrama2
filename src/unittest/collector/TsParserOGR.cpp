@@ -105,9 +105,9 @@ void TsParserOGR::TestCsvFile()
   QTemporaryFile file(dir.path()+"/test_XXXXXX.csv");
   file.open();
   file.write("lat,lon,sat,data_pas\n");
-  file.write("-10.7030,  30.3750,AQUA_M,2015-08-26 11:35:00\n");
-  file.write("-10.7020,  30.3840,AQUA_M,2015-08-26 11:35:00\n");
-  file.write("-10.4870,  30.4070,AQUA_M,2015-08-26 11:35:00\n");
+  file.write("-10.7030,  30.3750,AQUA_M,2016-03-07 11:35:00\n");
+  file.write("-10.7020,  30.3840,AQUA_M,2016-03-07 11:35:00\n");
+  file.write("-10.4870,  30.4070,AQUA_M,2016-03-07 11:35:00\n");
   file.close();
   QFileInfo info(file);
 

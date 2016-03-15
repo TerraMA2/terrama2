@@ -55,7 +55,8 @@ target_link_libraries(terrama2_mod_analysis_core terrama2_mod_core
                                                  terralib_mod_memory
                                                  terralib_mod_vp_core
                                                  terralib_mod_rp
-                                                 ${PYTHON_LIBRARIES})
+                                                 ${PYTHON_LIBRARIES}
+                                                 ${Boost_REGEX_LIBRARY})
 
 set_target_properties(terrama2_mod_analysis_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

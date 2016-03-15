@@ -282,7 +282,12 @@ bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int mi
   if(seconds > -1
      && (hours == -1   || hours == discardBeforeTime.hours())
      && (minutes == -1 || minutes == discardBeforeTime.minutes())
-     && (seconds == -1 || seconds > discardBeforeTime.seconds()))
+     && seconds > discardBeforeTime.seconds())
+    return true;
+
+  if(hours == -1
+     && minutes == -1
+     && seconds == -1)
     return true;
 
   return false;
@@ -312,10 +317,9 @@ bool terrama2::collector::DataFilter::isBeforeDiscardAfterTime(int hours, int mi
      && (hours == -1 || hours == discardAfterTime.hours())
      && minutes < discardAfterTime.minutes())
     return true;
-  if(seconds > -1
-     && (hours   == -1 || hours == discardAfterTime.hours())
-     && (minutes == -1 || minutes == discardAfterTime.minutes())
-     && (seconds == -1 || seconds < discardAfterTime.seconds()))
+  if(hours == -1
+     && minutes == -1
+     && seconds == -1)
     return true;
 
   return false;

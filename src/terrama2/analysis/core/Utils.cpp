@@ -62,4 +62,31 @@ terrama2::analysis::core::Analysis::ScriptLanguage terrama2::analysis::core::ToS
   }
   throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid script language"));
 }
+/*
+boost::posix_time::time_duration terrama2::analysis::core::getUTCOffset()
+{
+  using namespace boost::posix_time;
 
+  // boost::date_time::c_local_adjustor uses the C-API to adjust a
+  // moment given in utc to the same moment in the local time zone.
+  typedef boost::date_time::c_local_adjustor<ptime> local_adj;
+
+  const ptime utc_now = second_clock::universal_time();
+  const ptime now = local_adj::utc_to_local(utc_now);
+
+  return now - utc_now;
+}
+
+std::string terrama2::analysis::core::getUTCOffsetString()
+{
+  std::stringstream out;
+
+  using namespace boost::posix_time;
+  time_facet* tf = new time_facet();
+  tf->time_duration_format("%+%H:%M");
+  out.imbue(std::locale(out.getloc(), tf));
+
+  out << get_utc_offset();
+
+  return out.str();
+}*/

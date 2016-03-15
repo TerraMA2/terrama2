@@ -50,14 +50,14 @@ uint64_t terrama2::analysis::core::Analysis::id() const
 	return id_;
 }
 
-void terrama2::analysis::core::Analysis::setAdditionalMapList(const std::vector<terrama2::core::DataSet>& additionalMapList)
+void terrama2::analysis::core::Analysis::setAdditionalDataList(const std::vector<terrama2::core::DataSet>& additionalDataList)
 {
-  additionalMapList_ = additionalMapList;
+  additionalDataList_ = additionalDataList;
 }
 
-std::vector<terrama2::core::DataSet> terrama2::analysis::core::Analysis::additionalMapList() const
+std::vector<terrama2::core::DataSet> terrama2::analysis::core::Analysis::additionalDataList() const
 {
-  return additionalMapList_;
+  return additionalDataList_;
 }
 
 void terrama2::analysis::core::Analysis::setMonitoredObject(const terrama2::core::DataSet& monitoredObject)
@@ -73,6 +73,17 @@ terrama2::core::DataSet terrama2::analysis::core::Analysis::monitoredObject() co
 void terrama2::analysis::core::Analysis::setScriptLanguage(const ScriptLanguage scriptLanguage)
 {
 	scriptLanguage_ = scriptLanguage;
+}
+
+void terrama2::analysis::core::Analysis::setDCP(const terrama2::core::DataSet& pcd, Influence influence)
+{
+  pcd_ = pcd;
+  mapInfluence_[pcd.id()] = influence;
+}
+
+terrama2::core::DataSet terrama2::analysis::core::Analysis::DCP() const
+{
+  return pcd_;
 }
 
 terrama2::analysis::core::Analysis::ScriptLanguage terrama2::analysis::core::Analysis::scriptLanguage() const
@@ -110,10 +121,24 @@ terrama2::analysis::core::Analysis::Type terrama2::analysis::core::Analysis::typ
 	return type_;
 }
 
+terrama2::analysis::core::Analysis::Influence terrama2::analysis::core::Analysis::influence(uint64_t datasetId) const
+{
+  auto it = mapInfluence_.find(datasetId);
+
+  if(it == mapInfluence_.end())
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Could not find an influence configuration for this dataset."));
+  return it->second;
+}
+
+void terrama2::analysis::core::Analysis::setInfluence(uint64_t datasetId, Influence influence)
+{
+  mapInfluence_[datasetId] = influence;
+}
+
 terrama2::analysis::core::Analysis terrama2::analysis::core::Analysis::FromJson(const QJsonObject& json)
 {
   if(!(json.contains("id")
-     && json.contains("additionalMapList")
+     && json.contains("staticDataList")
      && json.contains("monitoredObject")
      && json.contains("scriptLanguage")
      && json.contains("script")
@@ -128,14 +153,14 @@ terrama2::analysis::core::Analysis terrama2::analysis::core::Analysis::FromJson(
   analysis.setScript(json["script"].toString().toStdString());
   analysis.setDescription(json["description"].toString().toStdString());
 
-  QJsonArray additionalMapListJson =  json["additionalMapList"].toArray();
-  std::vector<terrama2::core::DataSet> additionalMapList;
-  for (const QJsonValue & value: additionalMapListJson)
+  QJsonArray staticDataListJson =  json["staticDataList"].toArray();
+  std::vector<terrama2::core::DataSet> staticDataList;
+  for (const QJsonValue & value: staticDataListJson)
   {
     auto dataset = terrama2::core::DataSet::FromJson(value.toObject());
-    additionalMapList.push_back(dataset);
+    staticDataList.push_back(dataset);
   }
-  analysis.setAdditionalMapList(additionalMapList);
+  analysis.setAdditionalDataList(staticDataList);
 
   analysis.setType(ToType(json["type"].toInt()));
 
@@ -149,7 +174,7 @@ QJsonObject terrama2::analysis::core::Analysis::toJson() const
   json["id"] = QJsonValue((int)id_);
 
   QJsonArray additionMapListJson;
-  for(auto additionalMap : additionalMapList_)
+  for(auto additionalMap : additionalDataList_)
   {
     additionMapListJson.append(additionalMap.toJson());
   }

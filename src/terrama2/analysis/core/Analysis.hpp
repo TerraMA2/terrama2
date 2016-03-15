@@ -48,6 +48,21 @@ namespace terrama2
 
         public:
 
+          enum InfluenceType
+          {
+            RADIUS_TOUCHES,
+            RADIUS_CENTER,
+            REGION
+          };
+
+          struct Influence
+          {
+            InfluenceType type;
+            uint64_t dataset;
+            std::string attribute;
+            double radius;
+          };
+
           enum Type
           {
             PCD_TYPE,
@@ -65,11 +80,15 @@ namespace terrama2
           void setId(uint64_t id);
 					uint64_t id() const;
 
-          void setAdditionalMapList(const std::vector<terrama2::core::DataSet>& additionalMapList);
-          std::vector<terrama2::core::DataSet> additionalMapList() const;
+          void setAdditionalDataList(const std::vector<terrama2::core::DataSet>& additionalDataList);
+          std::vector<terrama2::core::DataSet> additionalDataList() const;
 
 					void setMonitoredObject(const terrama2::core::DataSet& monitoredObject);
 					terrama2::core::DataSet monitoredObject() const;
+
+
+          void setDCP(const terrama2::core::DataSet& DCP, Influence influence);
+          terrama2::core::DataSet DCP() const;
 
 					void setScriptLanguage(const ScriptLanguage scriptLanguage);
 					ScriptLanguage scriptLanguage() const;
@@ -83,6 +102,8 @@ namespace terrama2
 					void setType(const Type type);
           Type type() const;
 
+          Influence influence(uint64_t datasetId) const;
+          void setInfluence(uint64_t datasetId, Influence influence);
 
           /*! \brief Creates the object from the JSON string. */
           static Analysis FromJson(const QJsonObject& json);
@@ -92,12 +113,15 @@ namespace terrama2
 
 				private:
 					uint64_t id_;
-          std::vector<terrama2::core::DataSet> additionalMapList_;
+          std::vector<terrama2::core::DataSet> additionalDataList_;
 					terrama2::core::DataSet monitoredObject_;
+          terrama2::core::DataSet pcd_;
 					ScriptLanguage scriptLanguage_;
 					std::string script_;
 					std::string description_;
           Type type_;
+          std::map<uint64_t, Influence> mapInfluence_;
+
 			};
 		}
   }

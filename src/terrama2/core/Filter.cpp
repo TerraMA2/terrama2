@@ -37,7 +37,7 @@
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/Geometry.h>
-#include <terralib/geometry/Polygon.h>
+#include <terralib/geometry/MultiPolygon.h>
 #include <terralib/geometry/WKTReader.h>
 
 // Qt
@@ -90,12 +90,12 @@ void terrama2::core::Filter::setDiscardAfter(std::unique_ptr<te::dt::TimeInstant
   discardAfter_ = std::move(t);
 }
 
-const te::gm::Polygon* terrama2::core::Filter::geometry() const
+const te::gm::MultiPolygon* terrama2::core::Filter::geometry() const
 {
   return geometry_.get();
 }
 
-void terrama2::core::Filter::setGeometry(std::unique_ptr<te::gm::Polygon> geom)
+void terrama2::core::Filter::setGeometry(std::unique_ptr<te::gm::MultiPolygon> geom)
 {
   geometry_ = std::move(geom);
 }
@@ -168,9 +168,9 @@ terrama2::core::Filter& terrama2::core::Filter::operator=(const terrama2::core::
       geometry_.reset(nullptr);
     else
     {
-      te::gm::Polygon* geom = dynamic_cast<te::gm::Polygon*>(rhs.geometry_.get());
+      te::gm::MultiPolygon* geom = dynamic_cast<te::gm::MultiPolygon*>(rhs.geometry_.get());
       if(geom != nullptr)
-        geometry_.reset(new te::gm::Polygon(*geom));
+        geometry_.reset(new te::gm::MultiPolygon(*geom));
       else
         geometry_.reset(nullptr);
     }
@@ -219,9 +219,9 @@ terrama2::core::Filter::Filter(const terrama2::core::Filter& rhs)
     geometry_.reset(nullptr);
   else
   {
-    te::gm::Polygon* geom = dynamic_cast<te::gm::Polygon*>(rhs.geometry_.get());
+    te::gm::MultiPolygon* geom = dynamic_cast<te::gm::MultiPolygon*>(rhs.geometry_.get());
     if(geom != nullptr)
-      geometry_.reset(new te::gm::Polygon(*geom));
+      geometry_.reset(new te::gm::MultiPolygon(*geom));
     else
       geometry_.reset(nullptr);
   }
@@ -300,7 +300,7 @@ terrama2::core::Filter terrama2::core::Filter::fromJson(const QJsonObject& json)
 
   if(!json["geometry"].isNull())
   {
-    std::unique_ptr<te::gm::Polygon> geometry(static_cast<te::gm::Polygon*>(te::gm::WKTReader::read(json["geometry"].toString().toStdString().c_str())));
+    std::unique_ptr<te::gm::MultiPolygon> geometry(static_cast<te::gm::MultiPolygon*>(te::gm::WKTReader::read(json["geometry"].toString().toStdString().c_str())));
     filter.setGeometry(std::move(geometry));
   }
 

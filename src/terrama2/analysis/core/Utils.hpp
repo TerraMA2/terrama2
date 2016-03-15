@@ -59,6 +59,7 @@ namespace terrama2
        */
       Analysis::ScriptLanguage ToScriptLanguage(uint64_t scriptLanguage);
 
+
     } // end namespace core
   }   // end namespace analysis
 }     // end namespace terrama2

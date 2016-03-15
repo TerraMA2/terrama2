@@ -76,6 +76,14 @@ namespace terrama2
         *
      */
     te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType);
+
+    te::dt::AbstractData* StringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+
+
+    /*!
+      \brief Returns the type prefix to read the file.
+     */
+    std::string typePrefix() const override;
   };
  }
 }
