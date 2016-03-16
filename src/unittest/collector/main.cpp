@@ -13,7 +13,7 @@
 #include "TsParserAscGrid.hpp"
 #include "TsFactory.hpp"
 #include "TsUtils.hpp"
-#include "TsUnpackGZ.hpp"
+#include "TsUnpack.hpp"
 
 #include "Utils.hpp"
 
@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
 //  TsParserPcdCemaden tsParserPcdCemaden;
 //  returnVal += QTest::qExec(&tsParserPcdCemaden, argc, argv);
 
-//  TsUnpackGZ tsUnpackGZ;
-//  returnVal += QTest::qExec(&tsUnpackGZ, argc, argv);
+//  TsUnpack tsUnpack;
+//  returnVal += QTest::qExec(&tsUnpack, argc, argv);
 
 //  TsParserTiff tsParserTiff;
 //  returnVal += QTest::qExec(&tsParserTiff, argc, argv);
