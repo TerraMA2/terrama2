@@ -17,8 +17,8 @@ function createDataProvider() {
     description: "Test Provider",
     active: true,
     project_id: createProject().id,
-    data_provider_type_id: 1,
-    data_provider_intent_id: 1
+    data_provider_type_name: "FTP",
+    data_provider_intent_name: "Intent1"
   };
 }
 
@@ -145,19 +145,16 @@ describe('DataManager', function() {
   });
 
   it('should update a DataProvider', function(done){
-    var dataProvider = {
-      name: "Provider 1"
-    };
-    DataManager.getDataProvider({name: dataProvider.name}).then(function(provider) {
-      provider.name = "UpdatingProvider";
+    var dataProvider = createDataProvider();
+    dataProvider.name = "UpdatingProvider";
 
-      DataManager.updateDataProvider(provider).then(function(result) {
-        assert(result.name === "UpdatingProvider");
-        return done();
-      }).catch(function(err) {
-        return done(err);
-      });
+    DataManager.updateDataProvider(dataProvider).then(function(result) {
+      assert(result.name === "UpdatingProvider");
+      return done();
+    }).catch(function(err) {
+      return done(err);
     });
+
   });
 
   it('should insert DataSeries', function(done) {
@@ -278,10 +275,10 @@ describe('DataManager', function() {
 
   it('should destroy a DataProvider', function(done){
     var expected = {
-      name: "UpdatingProvider"
+      id: 1
     };
 
-    DataManager.removeDataProvider({name: expected.name}).then(function() {
+    DataManager.removeDataProvider({id: expected.id}).then(function() {
       assert(DataManager.data.dataProviders.length === 0);
       return done();
     }).catch(function(err) {

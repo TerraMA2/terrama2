@@ -64,6 +64,7 @@ var DataManager = {
     projects: []
   },
   connection: null,
+  isLoaded: false,
 
   /**
    * It sets active database configuration for models synchronization
@@ -149,23 +150,48 @@ var DataManager = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
+      if (self.isLoaded) {
+        resolve();
+        return;
+      }
+
+      var clean = function() {
+        self.data.dataProviders = [];
+        self.data.dataSeries = [];
+        self.data.dataSets = [];
+        self.data.projects = [];
+      };
+
       models.db.Project.findAll({}).then(function(projects) {
-        self.data.projects = projects;
+        //self.data.projects = projects;
+        projects.forEach(function(project) {
+          self.data.projects.push(project.get());
+        });
 
         models.db.DataProvider.findAll({}).then(function(dataProviders){
-          self.data.dataProviders = dataProviders;
+          dataProviders.forEach(function(dataProvider) {
+            self.data.dataProviders.push(dataProvider.get());
+          });
+          //self.data.dataProviders = dataProviders;
 
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
-            self.data.dataSeries = dataSeries;
+            dataSeries.forEach(function(dSeries) {
+              self.data.dataSeries.push(dSeries.get());
+            });
+            //self.data.dataSeries = dataSeries;
+            self.isLoaded = true;
             resolve();
           }).catch(function(err) {
+            clean();
             reject(err);
           });
 
         }).catch(function(err) {
+          clean();
           reject(err);
         });
       }).catch(function(err) {
+        clean();
         reject(err);
       });
     });
@@ -182,7 +208,7 @@ var DataManager = {
 
       lock.writeLock(function(release) {
         models.db.Project.create(projectObject).then(function(project){
-          self.data.projects.push(project);
+          self.data.projects.push(project.get());
           resolve(Utils.clone(project.get()));
           release();
         }).catch(function(e) {
@@ -206,7 +232,7 @@ var DataManager = {
       lock.readLock(function(release) {
         var project = getItemByParam(self.data.projects, projectParam);
         if (project)
-          resolve(Utils.clone(project.dataValues));
+          resolve(Utils.clone(project));
         else
           reject(new exceptions.ProjectError("Project not found"));
 
@@ -215,10 +241,36 @@ var DataManager = {
     });
   },
 
+  updateProject: function(projectObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.getProject({id: projectObject.id}).then(function(project) {
+
+        models.db.Project.update(projectObject, {
+          fields: ["name", "description", "version"],
+          where: {
+            id: project.id
+          }
+        }).then(function(rows) {
+          var projectItem = getItemByParam(self.data.projects, {id: projectObject.id});
+          projectItem.name = projectObject.name;
+          projectItem.description = projectObject.description;
+          projectItem.version = projectObject.version;
+
+          resolve(Utils.clone(projectItem));
+        }).catch(function(err) {
+          reject(new exceptions.ProjectError("Could update project"));
+        });
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  },
+
   listProjects: function() {
     var projectList = [];
     for(var index = 0; index < this.data.projects.length; ++index)
-      projectList.push(Utils.clone(this.data.projects[index].get()));
+      projectList.push(Utils.clone(this.data.projects[index]));
     return projectList;
   },
 
@@ -295,7 +347,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
-        self.data.dataProviders.push(dataProvider);
+        self.data.dataProviders.push(dataProvider.get());
         resolve(Utils.clone(dataProvider.get()));
 
         //  todo: emit signal
@@ -318,7 +370,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataProvider = getItemByParam(self.data.dataProviders, restriction);
       if (dataProvider){
-        resolve(Utils.clone(dataProvider.get()));
+        resolve(Utils.clone(dataProvider));
       }
       else
         reject(new exceptions.DataProviderError("Could not find a data provider: ", restriction));
@@ -333,7 +385,7 @@ var DataManager = {
   listDataProviders: function() {
     var dataProviderObjectList = [];
     for(var index = 0; index < this.data.dataProviders.length; ++index)
-      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index].get()));
+      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index]));
     return dataProviderObjectList;
   },
 
@@ -346,25 +398,27 @@ var DataManager = {
   updateDataProvider: function(dataProviderObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      for(var i = 0; i < self.data.dataProviders.length; ++i) {
-        var provider = self.data.dataProviders[i];
-        if (provider.id === dataProviderObject.id) {
-          provider.updateAttributes({
-            name: dataProviderObject.name,
-            description: dataProviderObject.description,
-            uri: dataProviderObject.uri,
-            active: dataProviderObject.active
-          }).then(function() {
-            self.data.dataProviders[i] = provider;
-            resolve(Utils.clone(provider.get()));
-          }).catch(function(err) {
-            reject(new exceptions.DataProviderError("Could not update data provider ", err));
-          });
-          return;
-        }
-      }
+      var dataProvider = getItemByParam(self.data.dataProviders, {id: dataProviderObject.id});
 
-      reject(new exceptions.DataProviderError("Data provider not found"));
+      if (dataProvider) {
+        models.db.DataProvider.update(dataProviderObject, {
+          fields: ["name", "description", "uri", "active"],
+          where: {
+            id: dataProvider.id
+          }
+        }).then(function() {
+          //self.data.dataProviders[i] = provider.get();
+          dataProvider.name = dataProviderObject.name;
+          dataProvider.description = dataProviderObject.description;
+          dataProvider.uri = dataProviderObject.uri;
+          dataProvider.active = dataProviderObject.active;
+
+          resolve(Utils.clone(dataProvider));
+        }).catch(function(err) {
+          reject(new exceptions.DataProviderError("Could not update data provider ", err));
+        });
+      } else
+        reject(new exceptions.DataProviderError("Data provider not found"));
     });
   },
 
@@ -381,16 +435,16 @@ var DataManager = {
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
         if (provider.id === dataProviderParam.id || provider.name === dataProviderParam.name) {
-          provider.destroy().then(function (status) {
-            resolve(status);
+          models.db.DataProvider.destroy({where: {id: provider.id}}).then(function() {
             self.data.dataProviders.splice(index, 1);
-          }).catch(function (err) {
+            resolve();
+          }).catch(function(err) {
             reject(err);
           });
           return;
         }
       }
-      reject(new exceptions.DataManagerError("DataManager not initialized yet"));
+      reject(new exceptions.DataManagerError("DataProvider not found"));
     });
   },
 
@@ -406,7 +460,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSerie = getItemByParam(self.data.dataSeries, restriction);
       if (dataSerie)
-        resolve(Utils.clone(dataSerie.get()));
+        resolve(Utils.clone(dataSerie));
       else
         reject(new exceptions.DataSeriesError("Could not find a data series: ", restriction));
     });
@@ -420,7 +474,7 @@ var DataManager = {
   listDataSeries: function() {
     var dataSeriesList = [];
     for(var index = 0; index < this.data.dataSeries.length; ++index)
-      dataSeriesList.push(Utils.clone(this.data.dataSeries[index].get()));
+      dataSeriesList.push(Utils.clone(this.data.dataSeries[index]));
     return dataSeriesList;
   },
 
@@ -448,7 +502,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
-        self.data.dataSeries.push(dataSerie);
+        //self.data.dataSeries.push(dataSerie.get());
         output = Utils.clone(dataSerie.get());
         // if there DataSets to save too
         if (dataSeriesObject.dataSets) {
@@ -467,6 +521,7 @@ var DataManager = {
           });
         }
       }).then(function(dataSets){
+        self.data.dataSeries.push(Utils.clone(output));
         output.dataSets = dataSets;
         resolve(output);
       }).catch(function(err){
@@ -485,23 +540,45 @@ var DataManager = {
   updateDataSerie: function(dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      for(var i = 0; i < self.data.dataSeries.length; ++i) {
-        var element = self.data.dataSeries[i];
+      var dataSeries = getItemByParam(self.data.dataSeries, {id: dataSeriesObject.id});
 
-        if (element.id === dataSeriesObject.id) {
-          element.updateAttributes({
-            name: dataSeriesObject.name,
-            description: dataSeriesObject.description
-          }).then(function() {
-            resolve(Utils.clone(element.get()));
-          }).catch(function(err) {
-            reject(new exceptions.DataSeriesError("Could not update data series ", err));
-          });
-          return;
-        }
-      }
+      if (dataSeries) {
+        models.db.DataSeries.update(dataSeriesObject, {
+          fields: ['name', 'description'],
+          where: {
+            $or: [
+              {id: dataSeriesObject.id},
+              {name: dataSeriesObject.name}
+            ]
+          }
+        }).then(function(rows) {
+          dataSeries.name = dataSeriesObject.name;
+          dataSeries.description = dataSeriesObject.description;
 
-      reject(new exceptions.DataSeriesError("Data series not found. "));
+          resolve(Utils.clone(dataSeries));
+        }).catch(function(err) {
+          reject(new exceptions.DataSeriesError("Could not update data series ", err));
+        });
+
+      } else
+        reject(new exceptions.DataSeriesError("Data series not found. "));
+      //for(var i = 0; i < self.data.dataSeries.length; ++i) {
+      //  var element = self.data.dataSeries[i];
+      //
+      //  if (element.id === dataSeriesObject.id) {
+      //    element.updateAttributes({
+      //      name: dataSeriesObject.name,
+      //      description: dataSeriesObject.description
+      //    }).then(function() {
+      //      resolve(Utils.clone(element.get()));
+      //    }).catch(function(err) {
+      //      reject(new exceptions.DataSeriesError("Could not update data series ", err));
+      //    });
+      //    return;
+      //  }
+      //}
+      //
+      //reject(new exceptions.DataSeriesError("Data series not found. "));
     });
   },
 
@@ -518,12 +595,32 @@ var DataManager = {
       for(var index = 0; index < self.data.dataSeries.length; ++index) {
         var dataSeries = self.data.dataSeries[index];
         if (dataSeries.id === dataSeriesParam.id || dataSeries.name === dataSeriesParam.name) {
-          dataSeries.destroy().then(function (status) {
-            resolve(status);
+          models.db.DataSeries.destroy({where: {
+            $or: [
+              {id: dataSeriesParam.id},
+              {name: dataSeriesParam.name}
+            ]
+          }}).then(function (status) {
+            self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
+              if (dSet.data_series_id === dataSeries.id)
+                self.data.dataSets.splice(dSetIndex, 1);
+            });
             self.data.dataSeries.splice(index, 1);
+            resolve(status);
           }).catch(function (err) {
             reject(err);
           });
+          //
+          //dataSeries.destroy().then(function (status) {
+          //  self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
+          //    if (dSet.data_series_id === dataSeries.id)
+          //      self.data.dataSets.splice(dSetIndex, 1);
+          //  });
+          //  self.data.dataSeries.splice(index, 1);
+          //  resolve(status);
+          //}).catch(function (err) {
+          //  reject(err);
+          //});
           return;
         }
       }
