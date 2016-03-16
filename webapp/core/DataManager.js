@@ -27,22 +27,20 @@ var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
-var app = require('../app');
-var tr = app.i18n;
 
 // Javascript Lock
 var ReadWriteLock = require('rwlock');
 var lock = new ReadWriteLock();
 
 
-
 // Helpers
-Array.prototype.getItemByParam = function(object) {
+function getItemByParam(array, object) {
   var key = Object.keys(object)[0];
-  return this.find(function(item){
+  return array.find(function(item){
     return (item[key] == object[key]);
   });
-};
+}
+
 
 var models = null;
 var actualConfig = {};
@@ -68,6 +66,15 @@ var DataManager = {
   connection: null,
 
   /**
+   * It sets active database configuration for models synchronization
+   * @param {Object} configuration - An object with database configuration
+   */
+  setConfiguration: function(configuration) {
+    if (configuration && !_.isEqual(actualConfig, configuration))
+      actualConfig = configuration;
+  },
+
+  /**
    * It initializes DataManager, loading models and database synchronization
    * @param {function} callback - A callback function for waiting async operation
    */
@@ -77,11 +84,8 @@ var DataManager = {
     // Lock function
     lock.readLock(function (release) {
       var Sequelize = require("sequelize");
-      var databaseConfig = app.get("databaseConfig");
 
-      if (!_.isEqual(databaseConfig, actualConfig)) {
-        actualConfig = databaseConfig;
-
+      if (actualConfig) {
         var connection = new Sequelize(actualConfig.database,
           actualConfig.username,
           actualConfig.password,
@@ -96,23 +100,28 @@ var DataManager = {
         var fn = function() {
           // todo: insert default values in database
           self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function(providerType) {
-            models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
-              self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
-                models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
-                  release();
-                  callback();
+            self.addDataProviderType({name: "HTTP", description: "Desc Http"}).then(function(httpType) {
+              models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
+                self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
+                  models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
+                    release();
+                    callback();
+                  }).catch(function(err) {
+                    release();
+                    callback();
+                  })
                 }).catch(function(err) {
                   release();
                   callback();
-                })
-              }).catch(function(err) {
+                });
+              }).catch(function(e){
                 release();
                 callback();
               });
-            }).catch(function(e){
+            }).catch(function(e) {
               release();
               callback();
-            });
+            })
           }).catch(function(e){
             release();
             callback();
@@ -195,7 +204,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
 
       lock.readLock(function(release) {
-        var project = self.data.projects.getItemByParam(projectParam);
+        var project = getItemByParam(self.data.projects, projectParam);
         if (project)
           resolve(Utils.clone(project.dataValues));
         else
@@ -204,6 +213,13 @@ var DataManager = {
         release();
       });
     });
+  },
+
+  listProjects: function() {
+    var projectList = [];
+    for(var index = 0; index < this.data.projects.length; ++index)
+      projectList.push(Utils.clone(this.data.projects[index].get()));
+    return projectList;
   },
 
   /**
@@ -217,6 +233,21 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       models.db.DataProviderType.create(dataProviderTypeObject).then(function(result) {
         resolve(Utils.clone(result.get()));
+      }).catch(function(err) {
+        reject(err);
+      })
+    });
+  },
+
+  listDataProviderType: function() {
+    return new Promise(function(resolve, reject) {
+      models.db.DataProviderType.findAll({}).then(function(result) {
+        var output = [];
+        result.forEach(function(element) {
+          output.push(Utils.clone(element.get()));
+        });
+
+        resolve(output);
       }).catch(function(err) {
         reject(err);
       })
@@ -270,8 +301,7 @@ var DataManager = {
         //  todo: emit signal
 
       }).catch(function(err){
-        var error = exceptions.DataProviderError("Could not save data provider. " + err);
-        reject(error);
+        reject(new exceptions.DataProviderError("Could not save data provider. " + err));
       });
     });
   },
@@ -286,7 +316,7 @@ var DataManager = {
   getDataProvider: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataProvider = self.data.dataProviders.getItemByParam(restriction);
+      var dataProvider = getItemByParam(self.data.dataProviders, restriction);
       if (dataProvider){
         resolve(Utils.clone(dataProvider.get()));
       }
@@ -374,7 +404,7 @@ var DataManager = {
   getDataSerie: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataSerie = self.data.dataSeries.getItemByParam(restriction);
+      var dataSerie = getItemByParam(self.data.dataSeries, restriction);
       if (dataSerie)
         resolve(Utils.clone(dataSerie.get()));
       else
@@ -607,7 +637,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       lock.readLock(function (release) {
-        var dataSet = self.data.dataSets.getItemByParam(restriction);
+        var dataSet = getItemByParam(self.data.dataSets, restriction);
         if (dataSet)
           resolve(Utils.clone(dataSet));
         else
@@ -643,7 +673,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
 
-      var dataSet = self.data.dataSets.getItemByParam(restriction);
+      var dataSet = getItemByParam(self.data.dataSets, restriction);
 
       if (dataSet) {
 

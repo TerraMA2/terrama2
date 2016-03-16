@@ -62,8 +62,9 @@ describe('DataManager', function() {
     //},
     logging: false
   };
-  app.set("databaseConfig", config);
+
   var DataManager = require("../core/DataManager");
+  DataManager.setConfiguration(config);
 
   // It runs before all tests. It initializes database, creating tables
   before(function(done){
