@@ -28,27 +28,23 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
             source: new ol.source.OSM(),
             name: 'osm',
             title: 'Open Street Map',
-            visible: false,
-            listOnLayerExplorer: true
+            visible: false
           }),
           new ol.layer.Tile({
             source: new ol.source.MapQuest({layer: 'osm'}),
             name: 'mapquest_osm',
             title: 'MapQuest OSM',
-            visible: false,
-            listOnLayerExplorer: true
+            visible: false
           }),
           new ol.layer.Tile({
             source: new ol.source.MapQuest({layer: 'sat'}),
             name: 'mapquest_sat',
             title: 'MapQuest Sat&eacute;lite',
-            visible: true,
-            listOnLayerExplorer: true
+            visible: true
           })
         ],
         name: 'bases',
-        title: 'Camadas Base',
-        listOnLayerExplorer: true
+        title: 'Camadas Base'
       })
     ],
     target: 'terrama2-map',
@@ -96,12 +92,11 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} layerName - Layer name
    * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
    * @returns {ol.layer.Tile} new ol.layer.Tile - New tiled wms layer
    *
    * @function createTileWMS
    */
-  var createTileWMS = function(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
+  var createTileWMS = function(url, type, layerName, layerTitle, layerVisible) {
     return new ol.layer.Tile({
       source: new ol.source.TileWMS({
         preload: Infinity,
@@ -113,8 +108,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       }),
       name: layerName,
       title: layerTitle,
-      visible: layerVisible,
-      listOnLayerExplorer: listOnLayerExplorer
+      visible: layerVisible
     });
   };
 
@@ -125,16 +119,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} layerName - Layer name
    * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
    *
    * @function addTileWMSLayer
    */
-  var addTileWMSLayer = function(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer) {
+  var addTileWMSLayer = function(url, type, layerName, layerTitle, layerVisible) {
     memberOlMap.addLayer(
-      createTileWMS(url, type, layerName, layerTitle, layerVisible, listOnLayerExplorer)
+      createTileWMS(url, type, layerName, layerTitle, layerVisible)
     );
-
-    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(memberOlMap);
   };
 
   /**
@@ -143,7 +134,6 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} layerName - Layer name
    * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
    * @param {array} fillColors - Array with the fill colors
    * @param {array} strokeColors - Array with the stroke colors
    * @param {function} styleFunction - Function responsible for attributing the colors to the layer features
@@ -152,7 +142,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @private
    * @function createGeoJSONVector
    */
-  var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
+  var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, fillColors, strokeColors, styleFunction) {
     return new ol.layer.Vector({
       source: new ol.source.Vector({
         url: url,
@@ -165,8 +155,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       },
       name: layerName,
       title: layerTitle,
-      visible: layerVisible,
-      listOnLayerExplorer: listOnLayerExplorer
+      visible: layerVisible
     });
   };
 
@@ -176,19 +165,16 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} layerName - Layer name
    * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-   * @param {boolean} listOnLayerExplorer - Flag that indicates if the layer should be listed on the layer explorer
    * @param {array} fillColors - Array with the fill colors
    * @param {array} strokeColors - Array with the stroke colors
    * @param {function} styleFunction - Function responsible for attributing the colors to the layer features
    *
    * @function addGeoJSONVectorLayer
    */
-  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction) {
+  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, fillColors, strokeColors, styleFunction) {
     memberOlMap.addLayer(
-      createGeoJSONVector(url, layerName, layerTitle, layerVisible, listOnLayerExplorer, fillColors, strokeColors, styleFunction)
+      createGeoJSONVector(url, layerName, layerTitle, layerVisible, fillColors, strokeColors, styleFunction)
     );
-
-    TerraMA2WebComponents.webcomponents.LayerExplorer.resetLayerExplorer(memberOlMap);
   };
 
   /**

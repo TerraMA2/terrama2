@@ -17,7 +17,7 @@ module.exports = function(io) {
           xml = xml.replace(/>\s*/g, '>');
           xml = xml.replace(/\s*</g, '<');
 
-          client.emit('proxyResponse', { msg: xml });
+          client.emit('proxyResponse', { msg: xml, additionalParameters: json.additionalParameters });
         });
 
       }).on("error", function(e){
