@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
 
-#include "DataSeriesSemantic.hpp"
+#include "../data-model/DataSeriesSemantic.hpp"
 
 //STL
 #include <string>
