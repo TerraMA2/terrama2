@@ -12,6 +12,7 @@
     "debug": "~2.2.0",
     "express": "~4.13.1",
     "express-load": "^1.1.15",
+    "ftp": "^0.3.10",
     "i18n-2": "0.6.3",
     "method-override": "^2.3.5",
     "mocha": "^2.4.5",

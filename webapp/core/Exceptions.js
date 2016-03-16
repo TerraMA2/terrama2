@@ -102,3 +102,17 @@ errors.ProjectError = function(message) {
   this.name = 'ProjectError';
 };
 util.inherits(errors.ProjectError, errors.BaseError);
+
+
+/**
+ * Thrown when check connection has failed.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.ConnectionError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ConnectionError';
+};
+util.inherits(errors.ConnectionError, errors.BaseError);
