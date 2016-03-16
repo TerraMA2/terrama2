@@ -18,6 +18,17 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberZoomDragBox = null;
   // Initial extent
   var memberInitialExtent = null;
+
+  // new
+
+  var memberSources = {
+    openStreetMap: new ol.source.OSM(),
+    mapQuestOsm: new ol.source.MapQuest({layer: 'osm'}),
+    mapQuestSat: new ol.source.MapQuest({layer: 'sat'})
+  };
+
+  // new
+
   // Map object
   var memberOlMap = new ol.Map({
     renderer: 'canvas',
@@ -54,7 +65,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       zoom: 3
     }),
     interactions: ol.interaction.defaults({
-      doubleClickZoom :false
+      doubleClickZoom: false
     }),
     controls: ol.control.defaults().extend([
       new ol.control.ScaleLine()
