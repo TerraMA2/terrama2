@@ -2,105 +2,184 @@
 
 {% block title %} TerraMA2 {{ __("Data Provider Registration") }} {% endblock %}
 
+{% block javascripts %}
+<script src="/externals/angular/angular.min.js"></script>
+<!--<script src="/javascripts/angular/app.js"></script>-->
+
+<script>
+    angular.module("terrama2.dataprovider.registration", [])
+       .config(['$interpolateProvider', function($interpolateProvider) {
+           $interpolateProvider.startSymbol('{[');
+           $interpolateProvider.endSymbol(']}');
+       }])
+      .controller("Ctrl", function($scope, $http) {
+        $http.get("/api/DataProviderType/", {}).success(function(typeList) {
+          $scope.kindList = typeList;
+        }).error(function(err) {
+          console.log("err type: ", err);
+        });
+
+        $scope.errorFound = false;
+        $scope.isDynamic = {{ (state|lower === "dynamic") }};
+        $scope.alertBox = {};
+        $scope.isChecking = false;
+        $scope.message = "";
+        $scope.remoteFieldsRequired = false;
+        $scope.dataProvider = {
+          kind: "",
+          user: "",
+          password: "",
+          address: "",
+          port: "",
+          path: ""
+        };
+        $scope.onKindChanged = function() {
+          $scope.remoteFieldsRequired = $scope.dataProvider.kind.toLocaleLowerCase() !== "file";
+        };
+
+        $scope.save = function() {
+          if (!$scope.form.$valid) {
+            angular.forEach($scope.form.$error, function (field) {
+              angular.forEach(field, function(errorField){
+                errorField.$setTouched();
+              })
+            });
+            return;
+          }
+          $http.post("/api/DataProvider", $scope.dataProvider).success(function(dataProvider) {
+            console.log(dataProvider);
+          }).error(function(err) {
+            console.log(err);
+          });
+        };
+        $scope.checkConnection = function() {
+//          var url = $scope.dataProvider.kind.toLowerCase()+"://"+$scope.dataProvider.user+":"+$scope.dataProvider.password+"@"+$scope.dataProvider.address+":"+$scope.dataProvider.port+$scope.dataProvider.path;
+          $scope.isChecking = true;
+          $scope.resetState = function() {
+            $scope.errorFound = false;
+            $scope.alertBox.message = "";
+          };
+          $http.post("/uri/", $scope.dataProvider).success(function(data) {
+            $scope.alertBox.title = "Connection Status";
+            if (data.message){ // error found
+              $scope.errorFound = true;
+              $scope.alertBox.message = data.message;
+            } else {
+              $scope.errorFound = false;
+              $scope.alertBox.message = "Connection Successful";
+            }
+
+          }).error(function(err) {
+            $scope.alertBox.title = "Connection Status";
+            $scope.errorFound = true;
+            $scope.alertBox.message = err.message;
+          }).finally(function() {
+            $scope.isChecking = false;
+          });
+        };
+      });
+</script>
+{% endblock %}
+
 {% block content %}
 
-<div class="col-md-12">
-    <div class="col-md-12">
+<div class="col-md-12" ng-app="terrama2.dataprovider.registration">
+    <div class="col-md-12" ng-controller="Ctrl">
         <div class="box box-default">
             <div class="box-header with-border">
-              <h3 class="box-title">{{ __("Data Provider Registration") }}</h3>
+                <h3 class="box-title">{{ __("Data Provider Registration") }}</h3>
             </div>
             <!-- /.box-header -->
             <div style="display: block;" class="box-body">
+                <div ng-show="alertBox.message" ng-class="{'alert alert-danger alert-dismissible': errorFound, 'alert alert-success alert-dismissible': !errorFound}">
+                    <button type="button" class="close" ng-click="resetState()">×</button>
+                    <h4><i ng-class="{'icon fa fa-exclamation-triangle': errorFound, 'icon fa fa-check': !errorFound}"></i> {[ alertBox.title ]}</h4>
+                    {[ alertBox.message ]}
+                </div>
+
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>{{ __("Name") }}:</label>
-                            <input class="form-control" id="name" placeholder="{{ __('Data Provider Name') }}" type="text">
-                        </div>
-                    </div>
-                    <!-- /.col -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>{{ __("Kind") }}</label>
-                            <select class="form-control">
-                                <option>FTP</option>
-                                <option>HTTP</option>
-                                <option>FILE</option>
-                                <option>WCS</option>
-                                <option>WFS</option>
-                                <option>SOS</option>
-                            </select>
-                        </div>
-                        <!-- /.form-group -->
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>{{ __("Description") }}:</label>
-                            <textarea class="form-control" rows="3" placeholder="{{ __('Data Provider Description') }}"></textarea>
-                        </div>
-                        <!-- /.form-group -->
-                    </div>
-                    <!-- /.col -->
-
-                    <div class="col-md-8">
-                        <div class="form-group">
-                            <label>{{ __("Address") }}:</label>
-                            <input class="form-control" id="address" placeholder="{{ __('Data Provider Address')}}" type="text">
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>{{ __("Port") }}:</label>
-                            <input class="form-control" id="port" placeholder="{{ __('Port')}}" type="number" min="0" max="65535">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>{{ __("User") }}:</label>
-                            <input class="form-control" id="user" placeholder="{{ __('User to connect') }}" type="text">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>{{ __("Password") }}:</label>
-                            <input class="form-control" id="password" placeholder="{{ __('User password')}}" type="password">
-                        </div>
-                    </div>
-
-                    {% if (state|lower == "dynamic") %}
-                    {# Displays the server active checkbox #}
-                    <div class="col-md-10">
-                        <div class="form-group">
-                            <label>{{ __("Path") }}:</label>
-                            <input class="form-control" id="path" placeholder="{{ __('Base Path Destination')}}" type="text">
-                        </div>
-                    </div>
-
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="checkbox">
-                                <label style="font-weight: 700; margin-top:19px;">
-                                    <input type="checkbox"> {{ __("Active Server") }}
-                                </label>
+                    <form name="form">
+                        <div class="col-md-6">
+                            <div class="form-group" ng-class="{'has-error': form.name.$touched && form.name.$invalid}">
+                                <label>{{ __("Name") }}:</label>
+                                <input class="form-control" name="name" ng-model="dataProvider.name" placeholder="{{ __('Data Provider Name') }}" type="text" required>
+                                <span class="help-block" ng-show="form.name.$touched && form.name.$invalid" ng-class="{'has-error': form.name.$invalid}">{{ __('Data provider name is required') }}</span>
                             </div>
                         </div>
-                    </div>
-
-                    {% else %}
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>{{ __("Path") }}:</label>
-                            <input class="form-control" id="path" placeholder="{{ __('Base Path Destination')}}" type="text">
+                        <!-- /.col -->
+                        <div class="col-md-6">
+                            <div class="form-group" ng-class="{'has-error': form.kind.$touched && form.kind.$invalid}">
+                                <label>{{ __("Kind") }}</label>
+                                <select class="form-control" name="kind" ng-model="dataProvider.kind" ng-change="onKindChanged()" required>
+                                    <option ng-repeat="item in kindList" value="{[ item.name ]}">{[ item.name ]}</option>
+                                    <!--<option>FTP</option>-->
+                                    <!--<option>HTTP</option>-->
+                                    <!--<option>FILE</option>-->
+                                    <!--<option>WCS</option>-->
+                                    <!--<option>WFS</option>-->
+                                    <!--<option>SOS</option>-->
+                                </select>
+                              <span class="help-block" ng-show="form.kind.$touched && form.kind.$invalid" ng-class="{'has-error': form.kind.$invalid}">{{ __('Data provider kind is required') }}</span>
+                            </div>
+                            <!-- /.form-group -->
                         </div>
-                    </div>
 
-                    {% endif %}
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{ __("Description") }}:</label>
+                                <textarea class="form-control" ng-model="dataProvider.description" rows="3" placeholder="{{ __('Data Provider Description') }}"></textarea>
+                            </div>
+                            <!-- /.form-group -->
+                        </div>
+                        <!-- /.col -->
+
+                        <div class="col-md-8">
+                            <div class="form-group" ng-class="{'has-error': form.address.$touched && form.address.$invalid && remoteFieldsRequired}">
+                                <label>{{ __("Address") }}:</label>
+                                <input class="form-control" name="address" ng-model="dataProvider.address" placeholder="{{ __('Data Provider Address')}}" type="text" required>
+                              <span class="help-block" ng-show="form.address.$touched && form.address.$invalid && remoteFieldsRequired" ng-class="{'has-error': form.address.$touched && form.address.$invalid && remoteFieldsRequired}">{{ __('Data provider address is required for') }} {[ dataProvider.kind ]}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group" ng-class="{'has-error': form.port.$invalid && remoteFieldsRequired}">
+                                <label>{{ __("Port") }}:</label>
+                                <input class="form-control" id="port" placeholder="{{ __('Port')}}" ng-model="dataProvider.port" type="number" min="0" max="65535" required>
+                              <span class="help-block" ng-show="form.port.$touched && form.port.$invalid" ng-class="{'has-error': form.port.$invalid && remoteFieldsRequired}">{{ __('Data provider port is required for') }} {[ dataProvider.kind ]}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ __("User") }}:</label>
+                                <input class="form-control" id="user" ng-model="dataProvider.user" placeholder="{{ __('User to connect') }}" type="text">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ __("Password") }}:</label>
+                                <input class="form-control" id="password" ng-model="dataProvider.password" placeholder="{{ __('User password')}}" type="password">
+                            </div>
+                        </div>
+
+                        <div ng-class="isDynamic ? 'col-md-10' : 'col-md-12' ">
+                            <div class="form-group">
+                                <label>{{ __("Path") }}:</label>
+                                <input class="form-control" id="path" ng-model="dataProvider.path" placeholder="{{ __('Base Path Destination')}}" type="text" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2" ng-show="isDynamic">
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label style="font-weight: 700; margin-top:19px;">
+                                        <input type="checkbox" ng-model="dataProvider.active"> {{ __("Active Server") }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
                 <!-- /.row -->
             </div>
@@ -108,8 +187,12 @@
 
             <div class="box-footer">
                 <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __("Cancel") }}</button>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __("Check Connection")}}</button>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __("OK") }}</button>
+                <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection();" style="margin-left: 10px;">{{ __("Check Connection")}}</button>
+                <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ __("OK") }}</button>
+            </div>
+
+            <div class="overlay" ng-show="isChecking">
+                <i class="fa fa-refresh fa-spin"></i>
             </div>
         </div>
     </div> <!-- end col md 6 -->
