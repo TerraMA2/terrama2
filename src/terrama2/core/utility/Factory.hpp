@@ -31,14 +31,15 @@
  #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
 
 #include "../shared.hpp"
+#include "../data-model/DataProvider.hpp"
 
 namespace terrama2
- {
+{
   namespace core
-   {
+  {
     namespace Factory
-     {
-       DataRetrieverPtr getDataRetriever(DataProvider);
+    {
+       DataRetrieverPtr makeRetriever(const DataProvider& dataProvider);
 
     } /* Factory */
 

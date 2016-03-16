@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_CORE_TCPDISPATCHER_HPP__
 #define __TERRAMA2_CORE_TCPDISPATCHER_HPP__
 
-#include "ServiceData.hpp"
+#include "../utility/ServiceData.hpp"
 
 //STL
 #include <memory>

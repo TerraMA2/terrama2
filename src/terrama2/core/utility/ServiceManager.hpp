@@ -31,8 +31,8 @@
 #ifndef __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 #define __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 
-#include "DataManagerIntermediator.hpp"
-#include "TcpDispatcher.hpp"
+#include "../data-model/DataManagerIntermediator.hpp"
+#include "../network/TcpDispatcher.hpp"
 #include "ServiceData.hpp"
 
 //STL

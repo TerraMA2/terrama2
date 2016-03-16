@@ -19,24 +19,25 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for TerraMA2's integration test - Web Service collector module.
+#  Description: CMake script for the TerraMA2 Collector Module.
 #
-#  Author: Vinicius Camapanha
+#  Author: Jano Simas
 #
 
+#if(WIN32)
+#  add_definitions(-DTMA_CORE_DLL)
+#endif()
 
+SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/examples/")
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/integrationtest/ws/collector/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/integrationtest/ws/collector/*.hpp)
-
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.hpp)
 
 include_directories (
-  ${Boost_INCLUDE_DIR}
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
-  ${GSOAP_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  "${CMAKE_BINARY_DIR}/terrama2_mod_ws_collector_client/gsoap")
+)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -44,12 +45,15 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-add_executable(terrama2_integrationtest_ws_collector ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+foreach(FILE ${TERRAMA2_SRC_FILES})
+   STRING(REGEX REPLACE ".cpp" "" EXAMPLE "${FILE}")
+   STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_COLLECTOR_DIR}" "" EXAMPLE "${EXAMPLE}")
 
-target_link_libraries(terrama2_integrationtest_ws_collector  terrama2_mod_ws_collector_core
-                                                             terrama2_mod_ws_collector_client
-                                                             terrama2_mod_core
-                                                             terralib_mod_plugin
-                                                             terralib_mod_common)
 
-qt5_use_modules(terrama2_integrationtest_ws_collector Test)
+   add_executable(${EXAMPLE} ${FILE} ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+
+   target_link_libraries(${EXAMPLE} terrama2_mod_core
+                                    terrama2_mod_impl
+                                    terralib_mod_plugin
+                                    terralib_mod_common)
+endforeach()
