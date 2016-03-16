@@ -136,13 +136,15 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
     var processedLayers = processCapabilitiesLayers(memberCapabilities.Capability.Layer, serverUrl, serverType);
 
-    memberMap.addLayer(new ol.layer.Group({
+    var layerGroup = new ol.layer.Group({
       layers: processedLayers,
       name: 'server',
       title: serverName
-    }));
+    });
 
-    var elem = buildCapabilitiesLayers(memberMap.getLayerGroup(), true);
+    memberMap.addLayer(layerGroup);
+
+    var elem = buildCapabilitiesLayers(layerGroup);
     $('#terrama2-layerexplorer').empty().append(elem);
 
     // Handle opacity slider control
@@ -183,13 +185,12 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   /**
    * Builds the capabilities layers.
    * @param {ol.layer} layer - Layer or layers group to be used in the layer explorer
-   * @param {boolean} firstCall - Control flag that indicates if is the first call, being that this is a recursive function
    * @returns {string} elem - String containing the HTML code to the layers
    *
    * @private
    * @function buildCapabilitiesLayers
    */
-  var buildCapabilitiesLayers = function(layer, firstCall) {
+  var buildCapabilitiesLayers = function(layer) {
     var name = layer.get('name') ? layer.get('name') : "Group";
     var title = layer.get('title') ? layer.get('title') : "Group";
 
@@ -201,13 +202,11 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       for(var i = len - 1; i >= 0; i--)
         sublayersElem += buildCapabilitiesLayers(layers[i]);
 
-      if(firstCall)
-        var elem = sublayersElem;
-      else
-        var elem = createLayerGroup(name, title, sublayersElem);
+      var elem = createLayerGroup(name, title, sublayersElem);
     } else {
       var elem = createLayer(name, title, layer.get('visible'));
     }
+
     return elem;
   };
 
