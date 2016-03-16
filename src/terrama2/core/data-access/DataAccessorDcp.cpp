@@ -31,21 +31,28 @@
 #include "DataAccessorDcp.hpp"
 #include "DataRetriever.hpp"
 #include "../utility/Factory.hpp"
+#include "../utility/Logger.hpp"
+#include "../Exception.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/memory/DataSet.h>
+
+//Qt
+#include <QObject>
 
 terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
 {
   //if data provider is not active, nothing to do
   if(!dataProvider_.active)
   {
-    //TODO: throw no data to collect
-    //TODO: log this
+    QString errMsg = QObject::tr("Disabled data provider (Should not arrive here!)");
+
+    throw DisabledDataProviderException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
 
-  DataRetrieverPtr dataRetriever = Factory::makeRetriever(dataProvider_);
+  DataRetrieverPtr dataRetriever = Factory::MakeRetriever(dataProvider_);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
 
   for(const auto& dataset : dataSeries_.datasetList)
@@ -75,7 +82,8 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
     }//try
     catch(const std::bad_cast& exp)
     {
-      //TODO: log This
+      QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
+      TERRAMA2_LOG_ERROR() << errMsg;
       continue;
     }//bad cast
 
@@ -109,4 +117,11 @@ void terrama2::core::DataAccessorDcp::addColumns(std::shared_ptr<te::da::DataSet
 te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
 {
   //TODO: implement lastDateTime
+  assert(0);
 }
+
+std::string terrama2::core::DataAccessorDcp::retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const
+{
+  QString errMsg = QObject::tr("Non retrievable DataAccessor.");
+  throw NotRetrivableException() << ErrorDescription(errMsg);
+};

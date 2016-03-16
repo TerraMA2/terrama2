@@ -65,6 +65,7 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getMask(co
   {
     //TODO: log this
     //TODO: throw UndefinedTag
+    throw;
   }
 }
 
@@ -78,6 +79,7 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZon
   {
     //TODO: log this
     //TODO: throw UndefinedTag
+    throw;
   }
 }
 
@@ -111,7 +113,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpInpe::getDataSe
     // also joins if the DCP comes from separated files
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
     std::map<std::string, std::string> connInfo;
-    
+
     connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
     datasource->setConnectionInfo(connInfo);
 
@@ -153,7 +155,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpInpe::getDataSe
 }
 
 
-te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::StringToTimestamp(te::da::DataSet* dataset,
+te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::stringToTimestamp(te::da::DataSet* dataset,
                                                                              const std::vector<std::size_t>& indexes,
                                                                              int /*dstType*/,
                                                                              const std::string& timezone) const
@@ -197,7 +199,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::StringToTimestamp(te:
   return nullptr;
 }
 
-te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::StringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
+te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
   assert(indexes.size() == 1);
 
@@ -246,7 +248,7 @@ void terrama2::core::DataAccessorDcpInpe::adapt(const DataSetDcp& datasetDcp, st
     if(property->getName() == timestampName)
     {
       // datetime column found
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::StringToTimestamp, this, _1, _2, _3, getTimeZone(datasetDcp)));
+      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::stringToTimestamp, this, _1, _2, _3, getTimeZone(datasetDcp)));
     }
     else
     {
@@ -262,7 +264,7 @@ void terrama2::core::DataAccessorDcpInpe::adapt(const DataSetDcp& datasetDcp, st
 
 
       te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(name, te::dt::DOUBLE_TYPE);
-      converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::StringToDouble, this, _1, _2, _3));
+      converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::stringToDouble, this, _1, _2, _3));
     }
   }
 

@@ -38,7 +38,6 @@ namespace terrama2
     {
       std::string dateTimeColumnName;
       std::string geometryColumnName;
-      uint64_t srid;
     };
   } // end namespace core
 } // end namespace terrama2

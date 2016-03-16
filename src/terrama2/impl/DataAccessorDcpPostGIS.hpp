@@ -49,8 +49,10 @@ namespace terrama2
       DataAccessorDcpPostGIS(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
       virtual ~DataAccessorDcpPostGIS() {};
 
-      std::string getTableName(const DataSetDcp& datasetDcp) const;
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
+
+    protected:
+      std::string getTableName(const DataSetDcp& datasetDcp) const;
       virtual std::string dataSourceTye() const;
     };
   }

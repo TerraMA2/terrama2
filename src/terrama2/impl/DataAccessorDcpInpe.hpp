@@ -36,9 +36,6 @@
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"
 
-//terralib
-#include <terralib/common/URI/uri.h>
-
 namespace terrama2
 {
   namespace core
@@ -56,6 +53,7 @@ namespace terrama2
 
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
 
+    protected:
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const override;
 
       std::string getMask(const DataSetDcp& dataset) const;
@@ -72,9 +70,9 @@ namespace terrama2
         \note Format recognized:  mm/dd/YYYY HH:MM:SS"
 
       */
-      te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
+      te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
       //! Convert string to double
-      te::dt::AbstractData* StringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+      te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
     };
   }
 }
