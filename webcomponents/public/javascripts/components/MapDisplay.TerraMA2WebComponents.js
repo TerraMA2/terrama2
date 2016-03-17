@@ -8,9 +8,12 @@
  *
  * @property {ol.interaction.DragBox} memberZoomDragBox - DragBox object.
  * @property {array} memberInitialExtent - Initial extent.
+ * @property {object} memberParser - Capabilities parser.
  * @property {ol.Map} memberOlMap - Map object.
  * @property {int} memberResolutionChangeEventKey - Resolution change event key.
  * @property {int} memberDoubleClickEventKey - Double click event key.
+ * @property {object} memberSocket - Socket object.
+ * @property {function} memberCallbackCapabilitiesLayers - Callback of the function addCapabilitiesLayers.
  */
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
@@ -18,6 +21,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberZoomDragBox = null;
   // Initial extent
   var memberInitialExtent = null;
+  // Capabilities parser
+  var memberParser = null;
 
   // new
 
@@ -37,25 +42,25 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
         layers: [
           new ol.layer.Tile({
             source: new ol.source.OSM(),
-            name: 'osm',
-            title: 'Open Street Map',
+            id: 'osm',
+            name: 'Open Street Map',
             visible: false
           }),
           new ol.layer.Tile({
             source: new ol.source.MapQuest({layer: 'osm'}),
-            name: 'mapquest_osm',
-            title: 'MapQuest OSM',
+            id: 'mapquest_osm',
+            name: 'MapQuest OSM',
             visible: false
           }),
           new ol.layer.Tile({
             source: new ol.source.MapQuest({layer: 'sat'}),
-            name: 'mapquest_sat',
-            title: 'MapQuest Sat&eacute;lite',
+            id: 'mapquest_sat',
+            name: 'MapQuest Sat&eacute;lite',
             visible: true
           })
         ],
-        name: 'bases',
-        title: 'Camadas Base'
+        id: 'bases',
+        name: 'Camadas Base'
       })
     ],
     target: 'terrama2-map',
@@ -75,6 +80,10 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberResolutionChangeEventKey = null;
   // Double click event key
   var memberDoubleClickEventKey = null;
+  // Socket object
+  var memberSocket = null;
+  // Callback of the function addCapabilitiesLayers
+  var memberCallbackCapabilitiesLayers = null;
 
   /**
    * Returns the map object.
@@ -100,15 +109,17 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * Creates a new tiled wms layer.
    * @param {string} url - Url to the wms layer
    * @param {string} type - Server type
+   * @param {string} layerId - Layer id
    * @param {string} layerName - Layer name
-   * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-   * @returns {ol.layer.Tile} new ol.layer.Tile - New tiled wms layer
+   * @param {float} minResolution - Layer minimum resolution
+   * @param {float} maxResolution - Layer maximum resolution
+   * @returns {ol.layer.Tile} tile - New tiled wms layer
    *
    * @function createTileWMS
    */
-  var createTileWMS = function(url, type, layerName, layerTitle, layerVisible) {
-    return new ol.layer.Tile({
+  var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution) {
+    var tile = new ol.layer.Tile({
       source: new ol.source.TileWMS({
         preload: Infinity,
         url: url,
@@ -117,44 +128,64 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
           'LAYERS': layerName, 'TILED': true
         }
       }),
+      id: layerId,
       name: layerName,
-      title: layerTitle,
       visible: layerVisible
     });
+
+    if(minResolution !== undefined && minResolution !== null)
+      tile.setMinResolution(minResolution);
+
+    if(maxResolution !== undefined && maxResolution !== null)
+      tile.setMaxResolution(maxResolution);
+
+    // test
+
+    tile.on('change:visible', function(e) {
+      alert(e.key);
+    });
+
+    // test
+
+    return tile;
   };
 
   /**
    * Adds a new tiled wms layer to the map.
    * @param {string} url - Url to the wms layer
    * @param {string} type - Server type
+   * @param {string} layerId - Layer id
    * @param {string} layerName - Layer name
-   * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+   * @param {float} minResolution - Layer minimum resolution
+   * @param {float} maxResolution - Layer maximum resolution
    *
    * @function addTileWMSLayer
    */
-  var addTileWMSLayer = function(url, type, layerName, layerTitle, layerVisible) {
+  var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution) {
     memberOlMap.addLayer(
-      createTileWMS(url, type, layerName, layerTitle, layerVisible)
+      createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution)
     );
   };
 
   /**
    * Creates a new GeoJSON vector layer.
    * @param {string} url - Url to the wms layer
+   * @param {string} layerId - Layer id
    * @param {string} layerName - Layer name
-   * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+   * @param {float} minResolution - Layer minimum resolution
+   * @param {float} maxResolution - Layer maximum resolution
    * @param {array} fillColors - Array with the fill colors
    * @param {array} strokeColors - Array with the stroke colors
    * @param {function} styleFunction - Function responsible for attributing the colors to the layer features
-   * @returns {ol.layer.Vector} new ol.layer.Vector - New GeoJSON vector layer
+   * @returns {ol.layer.Vector} vector - New GeoJSON vector layer
    *
    * @private
    * @function createGeoJSONVector
    */
-  var createGeoJSONVector = function(url, layerName, layerTitle, layerVisible, fillColors, strokeColors, styleFunction) {
-    return new ol.layer.Vector({
+  var createGeoJSONVector = function(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction) {
+    var vector = new ol.layer.Vector({
       source: new ol.source.Vector({
         url: url,
         format: new ol.format.GeoJSON(),
@@ -164,28 +195,98 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
         var colors = styleFunction(feature, fillColors, strokeColors);
         return createStyle(colors.fillColor, colors.strokeColor);
       },
+      id: layerId,
       name: layerName,
-      title: layerTitle,
       visible: layerVisible
     });
+
+    if(minResolution !== undefined && minResolution !== null)
+      vector.setMinResolution(minResolution);
+
+    if(maxResolution !== undefined && maxResolution !== null)
+      vector.setMaxResolution(maxResolution);
+
+    return vector;
   };
 
   /**
    * Adds a new GeoJSON vector layer to the map.
    * @param {string} url - Url to the wms layer
+   * @param {string} layerId - Layer id
    * @param {string} layerName - Layer name
-   * @param {string} layerTitle - Layer title
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+   * @param {float} minResolution - Layer minimum resolution
+   * @param {float} maxResolution - Layer maximum resolution
    * @param {array} fillColors - Array with the fill colors
    * @param {array} strokeColors - Array with the stroke colors
    * @param {function} styleFunction - Function responsible for attributing the colors to the layer features
    *
    * @function addGeoJSONVectorLayer
    */
-  var addGeoJSONVectorLayer = function(url, layerName, layerTitle, layerVisible, fillColors, strokeColors, styleFunction) {
+  var addGeoJSONVectorLayer = function(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction) {
     memberOlMap.addLayer(
-      createGeoJSONVector(url, layerName, layerTitle, layerVisible, fillColors, strokeColors, styleFunction)
+      createGeoJSONVector(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction)
     );
+  };
+
+  /**
+   * Adds the layers of a given capabilities to the map.
+   * @param {string} capabilitiesUrl - Capabilities URL
+   * @param {string} serverUrl - Server URL
+   * @param {string} serverType - Server type
+   * @param {string} serverId - Server id
+   * @param {string} serverName - Server name
+   * @param {function} callback - Callback function
+   *
+   * @function addCapabilitiesLayers
+   */
+  var addCapabilitiesLayers = function(capabilitiesUrl, serverUrl, serverType, serverId, serverName, callback) {
+    memberCallbackCapabilitiesLayers = callback;
+    memberSocket.emit('proxyRequest', { url: capabilitiesUrl, additionalParameters: { serverUrl: serverUrl, serverType: serverType, serverId: serverId, serverName: serverName } });
+  };
+
+  /**
+   * Creates the capabilities layers in the map.
+   * @param {xml} xml - Xml code of the server capabilities
+   * @param {string} serverUrl - Server URL
+   * @param {string} serverType - Server type
+   * @param {string} serverId - Server id
+   * @param {string} serverName - Server name
+   *
+   * @private
+   * @function createCapabilitiesLayers
+   */
+  var createCapabilitiesLayers = function(xml, serverUrl, serverType, serverId, serverName) {
+    var capabilities = memberParser.read(xml);
+    var layers = capabilities.Capability.Layer;
+
+    var tilesWMSLayers = [];
+
+    var layersLength = layers.Layer.length;
+    for(var i = 0; i < layersLength; i++) {
+      if(layers.Layer[i].hasOwnProperty('Layer')) {
+
+        var subLayersLength = layers.Layer[i].Layer.length;
+        for(var j = 0; j < subLayersLength; j++) {
+          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false));
+        }
+      } else {
+        tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false));
+      }
+    }
+
+    var layerGroup = new ol.layer.Group({
+      layers: tilesWMSLayers,
+      id: serverId,
+      name: serverName
+    });
+
+    memberOlMap.addLayer(layerGroup);
+
+    if(memberCallbackCapabilitiesLayers !== undefined && memberCallbackCapabilitiesLayers !== null)
+      memberCallbackCapabilitiesLayers();
+
+    memberCallbackCapabilitiesLayers = null;
   };
 
   /**
@@ -228,14 +329,14 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
-   * Sets the visibility of a given layer or layer group by its name.
-   * @param {string} layerName - Layer name
+   * Sets the visibility of a given layer or layer group by its id.
+   * @param {string} layerId - Layer id
    * @param {boolean} visibilityFlag - Visibility flag, true to show and false to hide
    *
-   * @function setLayerVisibilityByName
+   * @function setLayerVisibilityById
    */
-  var setLayerVisibilityByName = function(layerName, visibilityFlag) {
-    var layer = findBy(memberOlMap.getLayerGroup(), 'name', layerName);
+  var setLayerVisibilityById = function(layerId, visibilityFlag) {
+    var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
     layer.setVisible(visibilityFlag);
 
     if(layer.getLayers) {
@@ -249,12 +350,12 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
   /**
    * Returns the flag that indicates if the given layer is visible.
-   * @param {string} layerName - Layer name
+   * @param {string} layerId - Layer id
    *
    * @function isLayerVisible
    */
-  var isLayerVisible = function(layerName) {
-    var layer = findBy(memberOlMap.getLayerGroup(), 'name', layerName);
+  var isLayerVisible = function(layerId) {
+    var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
     return layer.get('visible');
   };
 
@@ -406,12 +507,24 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   /**
    * Applies a given CQL filter to a given layer.
    * @param {string} cql - CQL filter to be applied
-   * @param {string} layerName - Layer name to be filtered
+   * @param {string} layerId - Layer id to be filtered
    *
    * @function applyCQLFilter
    */
-  var applyCQLFilter = function(cql, layerName) {
-    findBy(memberOlMap.getLayerGroup(), 'name', layerName).getSource().updateParams({ "CQL_FILTER": cql });
+  var applyCQLFilter = function(cql, layerId) {
+    findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource().updateParams({ "CQL_FILTER": cql });
+  };
+
+  /**
+   * Loads the sockets listeners.
+   *
+   * @private
+   * @function loadSocketsListeners
+   */
+  var loadSocketsListeners = function() {
+    memberSocket.on('proxyResponse', function(response) {
+      createCapabilitiesLayers(response.msg, response.additionalParameters.serverUrl, response.additionalParameters.serverType, response.additionalParameters.serverId, response.additionalParameters.serverName);
+    });
   };
 
   /**
@@ -420,14 +533,19 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function init
    */
   var init = function() {
+    memberParser = new ol.format.WMSCapabilities();
+    memberSocket = io(TerraMA2WebComponents.obj.getTerrama2Url());
+
+    memberOlMap.getLayerGroup().set('id', 'root');
     memberOlMap.getLayerGroup().set('name', 'root');
-    memberOlMap.getLayerGroup().set('title', 'Geoserver Local');
 
     memberZoomDragBox = new ol.interaction.DragBox({
       condition: ol.events.condition.always
     });
 
     memberInitialExtent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
+
+    loadSocketsListeners();
 
     $(document).ready(function() {
       updateMapSize();
@@ -440,8 +558,9 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     createTileWMS: createTileWMS,
     addTileWMSLayer: addTileWMSLayer,
     addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+    addCapabilitiesLayers: addCapabilitiesLayers,
     setLayerVisibility: setLayerVisibility,
-    setLayerVisibilityByName: setLayerVisibilityByName,
+    setLayerVisibilityById: setLayerVisibilityById,
     isLayerVisible: isLayerVisible,
     addZoomDragBox: addZoomDragBox,
     removeZoomDragBox: removeZoomDragBox,
