@@ -67,8 +67,11 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
       else
         uri = dataProvider_.uri;
 
+      //TODO: Set last date collected in filter
       std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, *datasetDcp);
       dcpSeries->addDcp(datasetDcp, memDataSet);
+
+      //TODO: set last date collected
     }//try
     catch(const std::bad_cast& exp)
     {
@@ -81,13 +84,13 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
   return dcpSeries;
 }
 
-std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessorDcp::getConverter(const std::shared_ptr<te::da::DataSetType>& datasetType) const
+std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessorDcp::getConverter( const DataSetDcp& datasetDcp, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
 
   addColumns(converter, datasetType);
 
-  adapt(converter);
+  adapt(datasetDcp, converter);
   converter->remove("FID");
 
   return converter;
