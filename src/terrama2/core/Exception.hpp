@@ -61,6 +61,20 @@ namespace terrama2
 
     //#################################
 
+    //#################################
+    //     Network Module Exceptions
+
+    struct NetworkException: virtual Exception{ };
+
+    //#################################
+
+    //#################################
+    //     Utility Module Exceptions
+
+    struct UtilityException: virtual Exception{ };
+
+    //#################################
+
   }  // end namespace core
 }  // end namespace terrama2
 

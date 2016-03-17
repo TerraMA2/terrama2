@@ -49,19 +49,19 @@
 #include <QJsonObject>
 #include <QString>
 
-std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
+std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
 // 1st: look in the neighborhood of the executable
   boost::filesystem::path tma_path = boost::filesystem::current_path();
 
-  boost::filesystem::path eval_path = tma_path / p;
+  boost::filesystem::path eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
   tma_path /= "..";
 
-  eval_path = tma_path / p;
+  eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
@@ -73,7 +73,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
   {
     tma_path = tma_env;
 
-    eval_path = tma_path / p;
+    eval_path = tma_path / fileName;
 
     if(boost::filesystem::exists(eval_path))
       return eval_path.string();
@@ -82,7 +82,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 // 3th: look into install prefix-path
   tma_path = TERRAMA2_INSTALL_PREFIX_PATH;
 
-  eval_path = tma_path / p;
+  eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
@@ -90,7 +90,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 // 4nd: look into the codebase path
   tma_path = TERRAMA2_CODEBASE_PATH;
 
-  eval_path = tma_path / p;
+  eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
@@ -128,12 +128,6 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
   }
 
   return jdocument;
-}
-
-std::string
-terrama2::core::ToString(bool b)
-{
-  return b ? "true" : "false";
 }
 
 void terrama2::core::initializeTerralib()

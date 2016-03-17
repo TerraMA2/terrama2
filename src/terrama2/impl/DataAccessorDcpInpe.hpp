@@ -48,22 +48,22 @@ namespace terrama2
     class DataAccessorDcpInpe : public DataAccessorDcp
     {
     public:
-      DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
+      DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorDcpInpe() {};
 
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
 
     protected:
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const override;
-
-      std::string getMask(const DataSetDcp& dataset) const;
-      std::string getTimeZone(const DataSetDcp& dataset) const;
       virtual std::string dataSourceTye() const;
       virtual std::string typePrefix() const override;
 
       virtual void adapt(const DataSetDcp& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
+    private:
+      std::string getMask(const DataSetDcp& dataset) const;
+      std::string getTimeZone(const DataSetDcp& dataset) const;
       /*!
         \brief Convert string to TimeInstantTZ.
 

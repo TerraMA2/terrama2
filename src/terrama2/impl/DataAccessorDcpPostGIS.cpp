@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcpInpe.hpp
+  \file terrama2/core/data-access/DataAccessorDcpPostGIS.hpp
 
   \brief
 
@@ -39,6 +39,13 @@
 #include <QUrl>
 #include <QObject>
 
+terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+ : DataAccessorDcp(dataProvider, dataSeries, filter)
+{
+  if(dataSeries.semantic.name != "PCD-PostGIS")
+    throw; //TODO: throw wrong DataSeries semantic
+}
+
 std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSetDcp& datasetDcp) const
 {
   try
@@ -49,6 +56,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSetDc
   {
     //TODO: log this
     //TODO: throw UndefinedTag
+    throw;
   }
 }
 

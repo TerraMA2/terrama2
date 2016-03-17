@@ -49,6 +49,13 @@
 #include <QUrl>
 #include <QFileInfoList>
 
+terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+ : DataAccessorDcp(dataProvider, dataSeries, filter)
+{
+  if(dataSeries.semantic.name != "PCD-Inpe")
+    throw; //TODO: throw wrong DataSeries semantic
+}
+
 std::string terrama2::core::DataAccessorDcpInpe::retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const
 {
   std::string mask = getMask(dataset);
