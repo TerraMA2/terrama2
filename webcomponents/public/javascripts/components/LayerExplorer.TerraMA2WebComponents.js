@@ -7,30 +7,21 @@
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
  * @property {string} memberSelectedLayer - Selected layer.
- * @property {object} memberParser - Capabilities parser.
- * @property {json} memberCapabilities - Server capabilities.
  * @property {object} memberMapDisplay - MapDisplay object.
  * @property {object} memberMap - Map object.
- * @property {object} memberSocket - Socket object.
  */
 TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
   // Selected layer
   var memberSelectedLayer = null;
-  // Capabilities parser
-  var memberParser = null;
-  // Server capabilities
-  var memberCapabilities = null;
   // MapDisplay object
   var memberMapDisplay = null;
   // Map object
   var memberMap = null;
-  // Socket object
-  var memberSocket = null;
 
   /**
    * Returns the selected layer.
-   * @returns {string} memberSelectedLayer - Layer name
+   * @returns {string} memberSelectedLayer - Layer id
    *
    * @function getSelectedLayer
    */
@@ -40,171 +31,114 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
   /**
    * Creates a layer group.
+   * @param {string} id - Layer group id
    * @param {string} name - Layer group name
-   * @param {string} title - Layer group title
    * @param {string} layers - HTML code of the layers that will be inside of the layer group
    * @returns {string} html - HTML code of the layer group
    *
    * @private
    * @function createLayerGroup
    */
-  var createLayerGroup = function(name, title, layers) {
-    return "<li data-layerid='" + name + "' id='" + name.replace(':', '') + "' class='parent_li'><span class='group-title'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span><ul class='children'>" + layers + "</ul></li>";
+  var createLayerGroup = function(id, name, layers) {
+    return "<li data-layerid='" + id + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + name + "</span><ul class='children'>" + layers + "</ul></li>";
   };
 
   /**
    * Creates a layer.
+   * @param {string} id - Layer id
    * @param {string} name - Layer name
-   * @param {string} title - Layer title
    * @param {boolean} visible - Flag that indicates if the layer should be visible when created
    * @returns {string} html - HTML code of the layer
    *
    * @private
    * @function createLayer
    */
-  var createLayer = function(name, title, visible) {
+  var createLayer = function(id, name, visible) {
     var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
 
-    return "<li data-layerid='" + name + "' id='" + name.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span></li>";
+    return "<li data-layerid='" + id + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
   };
 
   /**
    * Adds a layer group to the layer explorer.
+   * @param {string} id - Layer group id
    * @param {string} name - Layer group name
-   * @param {string} title - Layer group title
    * @param {string} layers - HTML code of the layers that will be inside of the layer group
    * @param {string} parent - Parent element id
    *
    * @function addLayerGroup
    */
-  var addLayerGroup = function(name, title, layers, parent) {
+  var addLayerGroup = function(id, name, layers, parent) {
     if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
-      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayerGroup(name, title, layers));
+      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayerGroup(id, name, layers));
 
       if(!$('#' + parent.replace(':', '')).hasClass('open'))
         $('#' + parent.replace(':', '')).find(' > ul > li').hide();
     } else {
-      $('#' + parent.replace(':', '')).append(createLayerGroup(name, title, layers));
+      $('#' + parent.replace(':', '')).append(createLayerGroup(id, name, layers));
     }
   };
 
   /**
    * Adds a layer to the layer explorer.
+   * @param {string} id - Layer id
    * @param {string} name - Layer name
-   * @param {string} title - Layer title
    * @param {boolean} visible - Flag that indicates if the layer should be visible when created
    * @param {string} parent - Parent element id
    *
    * @function addLayer
    */
-  var addLayer = function(name, title, visible, parent) {
+  var addLayer = function(id, name, visible, parent) {
     if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
-      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayer(name, title, visible));
+      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayer(id, name, visible));
 
       if(!$('#' + parent.replace(':', '')).hasClass('open'))
-        $('#' + name.replace(':', '')).hide();
+        $('#' + id.replace(':', '')).hide();
     } else {
-      $('#' + parent.replace(':', '')).append(createLayer(name, title, visible));
+      $('#' + parent.replace(':', '')).append(createLayer(id, name, visible));
     }
   };
 
   /**
-   * Adds the layers of a given capabilities to the layer explorer and the map.
-   * @param {string} capabilitiesUrl - Capabilities URL
-   * @param {string} serverUrl - Server URL
-   * @param {string} serverType - Server type
-   * @param {string} serverName - Server name
+   * Adds a layer or a layer group to the layer explorer with data from the map.
+   * @param {string} id - Layer or layer group id
    *
-   * @function addCapabilitiesLayers
+   * @function addLayersFromMap
    */
-  var addCapabilitiesLayers = function(capabilitiesUrl, serverUrl, serverType, serverName) {
-    memberSocket.emit('proxyRequest', { url: capabilitiesUrl, additionalParameters: { serverUrl: serverUrl, serverType: serverType, serverName: serverName } });
-  };
+  var addLayersFromMap = function(id) {
+    var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
-  /**
-   * Creates the capabilities layers in the layer explorer and in the map.
-   * @param {xml} xml - Xml code of the server capabilities
-   * @param {string} serverUrl - Server URL
-   * @param {string} serverType - Server type
-   * @param {string} serverName - Server name
-   *
-   * @private
-   * @function createCapabilitiesLayers
-   */
-  var createCapabilitiesLayers = function(xml, serverUrl, serverType, serverName) {
-    memberCapabilities = memberParser.read(xml);
+    if(data !== null) {
+      var elem = buildLayersFromMap(data);
+      $('#terrama2-layerexplorer').append(elem);
 
-    var processedLayers = processCapabilitiesLayers(memberCapabilities.Capability.Layer, serverUrl, serverType);
+      // Handle opacity slider control
+      $('input.opacity').slider();
 
-    var layerGroup = new ol.layer.Group({
-      layers: processedLayers,
-      name: 'server',
-      title: serverName
-    });
-
-    memberMap.addLayer(layerGroup);
-
-    var elem = buildCapabilitiesLayers(layerGroup);
-    $('#terrama2-layerexplorer').empty().append(elem);
-
-    // Handle opacity slider control
-    $('input.opacity').slider();
-
-    $('.parent_li').find(' > ul > li').hide();
-  };
-
-  /**
-   * Processes the layers from the capabilities and creates an array of Openlayers tiled WMS layers.
-   * @param {json} layers - List of layers from the server capabilities
-   * @param {string} serverUrl - Server URL
-   * @param {string} serverType - Server type
-   * @returns {array} tilesWMSLayers - Array of Openlayers tiled WMS layers
-   *
-   * @private
-   * @function processCapabilitiesLayers
-   */
-  var processCapabilitiesLayers = function(layers, serverUrl, serverType) {
-    var tilesWMSLayers = [];
-
-    var layersLength = layers.Layer.length;
-    for(var i = 0; i < layersLength; i++) {
-      if(layers.Layer[i].hasOwnProperty('Layer')) {
-
-        var subLayersLength = layers.Layer[i].Layer.length;
-        for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(memberMapDisplay.createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false));
-        }
-      } else {
-        tilesWMSLayers.push(memberMapDisplay.createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false));
-      }
+      $('.parent_li').find(' > ul > li').hide();
     }
-
-    return tilesWMSLayers;
   };
 
   /**
-   * Builds the capabilities layers.
+   * Builds a layer or a layer group with data from the map.
    * @param {ol.layer} layer - Layer or layers group to be used in the layer explorer
    * @returns {string} elem - String containing the HTML code to the layers
    *
    * @private
-   * @function buildCapabilitiesLayers
+   * @function buildLayersFromMap
    */
-  var buildCapabilitiesLayers = function(layer) {
-    var name = layer.get('name') ? layer.get('name') : "Group";
-    var title = layer.get('title') ? layer.get('title') : "Group";
-
+  var buildLayersFromMap = function(layer) {
     if(layer.getLayers) {
       var sublayersElem = '',
           layers = layer.getLayers().getArray(),
           len = layers.length;
 
       for(var i = len - 1; i >= 0; i--)
-        sublayersElem += buildCapabilitiesLayers(layers[i]);
+        sublayersElem += buildLayersFromMap(layers[i]);
 
-      var elem = createLayerGroup(name, title, sublayersElem);
+      var elem = createLayerGroup(layer.get('id'), layer.get('name'), sublayersElem);
     } else {
-      var elem = createLayer(name, title, layer.get('visible'));
+      var elem = createLayer(layer.get('id'), layer.get('name'), layer.get('visible'));
     }
 
     return elem;
@@ -217,7 +151,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @function loadEvents
    */
   var loadEvents = function() {
-    $('#terrama2-layerexplorer').on('click', 'span.group-title', function(ev) {
+    $('#terrama2-layerexplorer').on('click', 'span.group-name', function(ev) {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
       if(children.is(":visible")) {
         children.hide('fast');
@@ -231,16 +165,16 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     });
 
     $('input.opacity').on('slide', function(ev) {
-      var layername = $(this).closest('li').data('layerid');
-      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'name', layername);
+      var layerid = $(this).closest('li').data('layerid');
+      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', layerid);
 
       layer.setOpacity(ev.value);
     });
 
     // Handle visibility control
     $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(ev) {
-      var layername = $(this).closest('li').data('layerid');
-      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'name', layername);
+      var layerid = $(this).closest('li').data('layerid');
+      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', layerid);
 
       if(layer !== null) {
         memberMapDisplay.setLayerVisibility(layer);
@@ -272,37 +206,21 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   };
 
   /**
-   * Loads the sockets listeners.
-   *
-   * @private
-   * @function loadSocketsListeners
-   */
-  var loadSocketsListeners = function() {
-    memberSocket.on('proxyResponse', function(response) {
-      createCapabilitiesLayers(response.msg, response.additionalParameters.serverUrl, response.additionalParameters.serverType, response.additionalParameters.serverName);
-    });
-  };
-
-  /**
    * Initializes the necessary features.
    *
    * @function init
    */
   var init = function() {
-    memberParser = new ol.format.WMSCapabilities();
     memberMapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
     memberMap = memberMapDisplay.getMap();
-    memberSocket = io(TerraMA2WebComponents.obj.getTerrama2Url());
-
     loadEvents();
-    loadSocketsListeners();
   };
 
   return {
     getSelectedLayer: getSelectedLayer,
     addLayerGroup: addLayerGroup,
     addLayer: addLayer,
-    addCapabilitiesLayers: addCapabilitiesLayers,
+    addLayersFromMap: addLayersFromMap,
     init: init
   };
 })();
