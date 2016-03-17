@@ -139,14 +139,6 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     if(maxResolution !== undefined && maxResolution !== null)
       tile.setMaxResolution(maxResolution);
 
-    // test
-
-    tile.on('change:visible', function(e) {
-      alert(e.key);
-    });
-
-    // test
-
     return tile;
   };
 
@@ -447,6 +439,20 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
+   * Verifies if the current resolution is valid for a given layer.
+   * @param {string} layerId - Layer id
+   * @returns {boolean} flag - Flag that indicates if the current resolution is valid for the layer
+   *
+   * @function isCurrentResolutionValidForLayer
+   */
+  var isCurrentResolutionValidForLayer = function(layerId) {
+    var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+    var currentResolution = getCurrentResolution();
+
+    return layer!== null && (layer.getMaxResolution() >= currentResolution && layer.getMinResolution() <= currentResolution);
+  };
+
+  /**
    * Sets the Map resolution change event.
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
@@ -571,6 +577,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     zoomToInitialExtent: zoomToInitialExtent,
     zoomToExtent: zoomToExtent,
     getCurrentResolution: getCurrentResolution,
+    isCurrentResolutionValidForLayer: isCurrentResolutionValidForLayer,
     setMapResolutionChangeEvent: setMapResolutionChangeEvent,
     setMapDoubleClickEvent: setMapDoubleClickEvent,
     findBy: findBy,
