@@ -32,6 +32,7 @@
 
 #include "../typedef.hpp"
 #include "DataSet.hpp"
+#include "DataSeriesSemantic.hpp"
 
 // STL
 #include <string>
@@ -51,12 +52,11 @@ namespace terrama2
       referenced one collection or analysis. Ex. set of PCD.
      */
 
-    typedef uint64_t DataSeriesSemantics;//TODO: fix types
     struct DataSeries
     {
       DataSeriesId id = 0; //!< The identifier of the DataSeries.
       DataProviderId dataProviderId = 0; //!< The identifier of the DataProvider
-      DataSeriesSemantics semantic = 0; //!< Semantic of the DataSeries.
+      DataSeriesSemantic semantic; //!< Semantic of the DataSeries.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
 

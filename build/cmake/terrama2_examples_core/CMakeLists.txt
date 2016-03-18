@@ -50,7 +50,7 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
    STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_COLLECTOR_DIR}" "" EXAMPLE "${EXAMPLE}")
 
 
-   add_executable(${EXAMPLE} ${FILE} ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+   add_executable(${EXAMPLE} ${FILE})
 
    target_link_libraries(${EXAMPLE} terrama2_core
                                     terrama2_impl

@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
   dataProvider.active = true;
 
   terrama2::core::DataSeries dataSeries;
-  dataSeries.semantic = 0;
+  dataSeries.semantic.name = "PCD-Inpe";
 
   dataSeries.datasetList.emplace_back(new terrama2::core::DataSetDcp());
   std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));
@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
 
   std::shared_ptr<te::mem::DataSet> teDataSet = dcpSeries->dcpList().at(0).second;
 
+//Print column names and types (DateTime/Double)
   int dateColumn = -1;
   std::string names, types;
   for(int i = 0; i < teDataSet->getNumProperties(); ++i)
@@ -58,6 +59,7 @@ int main(int argc, char* argv[])
   std::cout << names << std::endl;
   std::cout << types << std::endl;
 
+//Print values
   teDataSet->moveBeforeFirst();
   while(teDataSet->moveNext())
   {
@@ -84,12 +86,6 @@ int main(int argc, char* argv[])
     }
     std::cout << std::endl;
   }
-
-
-  terrama2::core::DataProvider dataProvider2;
-  terrama2::core::DataSeries dataSeries2;
-  // terrama2::core::DcpStoragerPtr storager = Factory::getDcpStorager(dataProvider2, dataSeries2);
-  // storager->store(dcpSeries);
 
   terrama2::core::finalizeTerralib();
 

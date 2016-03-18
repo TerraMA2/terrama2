@@ -20,29 +20,38 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSetDcp.hpp
+  \file terrama2/core/data-model/DataSeriesSemantic.hpp
+
+  \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTIC_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTIC_HPP__
 
-#include "DataSet.hpp"
-
-//Terralib
-#include <terralib/geometry/Point.h> 
+#include <string>
 
 namespace terrama2
 {
   namespace core
   {
-    struct DataSetDcp : public DataSet
+    typedef uint64_t DataFormat;
+    struct DataSeriesSemantic
     {
-      te::gm::Point position;//TODO: A posição é sempre um ponto? pode ser uma região?
-      std::string dateTimeColumnName;
-    };
-  } // end namespace core
-} // end namespace terrama2
+      enum MacroType {
+        DCP,
+        OCCURRENCE,
+        GRID,
+        MONITORED,
+        STATIC
+      };
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
+      std::string name;
+      MacroType macroType = STATIC;
+      DataFormat dataFormat = 0;
+    };
+  } /* core */
+} /* terrama2 */
+
+#endif //__TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTIC_HPP__

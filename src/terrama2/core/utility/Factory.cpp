@@ -30,7 +30,7 @@
 #include "../data-access/DataRetriever.hpp"
 #include "Factory.hpp"
 
-terrama2::core::DataRetrieverPtr terrama2::core::Factory::makeRetriever(const DataProvider& dataProvider)
+terrama2::core::DataRetrieverPtr terrama2::core::Factory::MakeRetriever(const DataProvider& dataProvider)
 {
   switch (dataProvider.dataProviderType)
   {
