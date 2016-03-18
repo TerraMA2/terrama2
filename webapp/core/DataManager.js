@@ -100,33 +100,38 @@ var DataManager = {
 
         var fn = function() {
           // todo: insert default values in database
-          self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function(providerType) {
-            self.addDataProviderType({name: "HTTP", description: "Desc Http"}).then(function(httpType) {
-              models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
-                self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
-                  models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
-                    release();
-                    callback();
+          self.addDataProviderType({name: "FILE", description: "Desc File"}).then(function() {
+            self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function(providerType) {
+              self.addDataProviderType({name: "HTTP", description: "Desc Http"}).then(function(httpType) {
+                models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
+                  self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
+                    models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
+                      release();
+                      callback();
+                    }).catch(function() {
+                      release();
+                      callback();
+                    })
                   }).catch(function() {
                     release();
                     callback();
-                  })
-                }).catch(function() {
+                  });
+                }).catch(function(){
                   release();
                   callback();
                 });
-              }).catch(function(){
+              }).catch(function() {
                 release();
                 callback();
-              });
-            }).catch(function() {
+              })
+            }).catch(function(){
               release();
               callback();
-            })
-          }).catch(function(){
+            });
+          }).catch(function(err) {
             release();
             callback();
-          });
+          })
         };
 
         connection.sync().then(function () {
@@ -279,7 +284,7 @@ var DataManager = {
    * @todo Load it in memory
    *
    * @param {Object} dataProviderTypeObject - An object containing needed values to create DataProviderType object.
-   * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
+   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
    */
   addDataProviderType: function(dataProviderTypeObject) {
     return new Promise(function(resolve, reject) {
@@ -310,7 +315,7 @@ var DataManager = {
    * It saves DataFormat in database.
    *
    * @param {Object} dataFormatObject - An object containing needed values to create DataFormatObject object.
-   * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
+   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
    */
   addDataFormat: function(dataFormatObject) {
     return new Promise(function(resolve, reject) {
@@ -323,15 +328,15 @@ var DataManager = {
   },
 
   /**
-   * It saves DataSeriesSemantic in database.
+   * It saves DataSeriesSemantics in database.
    *
-   * @param {Object} semanticObject - An object containing needed values to create DataSeriesSemantic object.
-   * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
+   * @param {Object} semanticsObject - An object containing needed values to create DataSeriesSemantics object.
+   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
    */
-  addDataSeriesSemantic: function(semanticObject) {
+  addDataSeriesSemantics: function(semanticsObject) {
     return new Promise(function(resolve, reject){
-      models.db.DataSeriesSemantic.create(semanticObject).then(function(semantic){
-        resolve(Utils.clone(semantic.get()));
+      models.db.DataSeriesSemantics.create(semanticsObject).then(function(semantics){
+        resolve(Utils.clone(semantics.get()));
       }).catch(function(e) {
         reject(e);
       });

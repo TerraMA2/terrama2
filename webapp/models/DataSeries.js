@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          DataSeries.belongsTo(models.DataSeriesSemantic, {
+          DataSeries.belongsTo(models.DataSeriesSemantics, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false

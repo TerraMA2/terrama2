@@ -158,7 +158,7 @@ describe('DataManager', function() {
   });
 
   it('should insert DataSeries', function(done) {
-    DataManager.addDataSeriesSemantic(createDataSeriesSemantic()).then(function(semantic) {
+    DataManager.addDataSeriesSemantics(createDataSeriesSemantic()).then(function(semantic) {
       var dataSeries = createDataSeries();
 
       dataSeries.dataSets = [
