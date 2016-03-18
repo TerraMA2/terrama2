@@ -1,6 +1,9 @@
 var FtpRequest = require("./FtpRequest");
 var HttpRequest = require("./HttpRequest");
-var Promise = require('bluebird');
+var FileRequest = require("./FileRequest");
+var PostgisRequest = require("./PostgisRequest");
+var WcsRequest = require("./WcsRequest");
+var ConnectionError = require("./Exceptions").ConnectionError;
 
 var RequestFactory = {
   build: function(requestParameters) {
@@ -13,13 +16,17 @@ var RequestFactory = {
           return new HttpRequest(requestParameters);
           break;
         case "file":
-          throw new TypeError("Not supported yet");
+          return new FileRequest(requestParameters);
           break;
+        case "postgis":
+          return new PostgisRequest(requestParameters);
+        case "wcs":
+          return new WcsRequest(requestParameters);
         default:
-          throw new TypeError("Invalid kind");
+          throw new ConnectionError("Invalid request type");
       }
     }
-    throw new TypeError("Kind error");
+    throw new ConnectionError("Request type not found");
   }
 };
 

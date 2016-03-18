@@ -24,6 +24,7 @@ FtpRequest.prototype.request = function() {
       var error;
       switch (err.code) {
         case "ENOTFOUND":
+        case 421:
           error = new Exceptions.ConnectionError("Host not found");
           break;
         case "ECONNREFUSED":
