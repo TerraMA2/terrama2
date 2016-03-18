@@ -116,6 +116,17 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       $('input.opacity').slider();
 
       $('.parent_li').find(' > ul > li').hide();
+
+      // new
+
+      $("#terrama2-layerexplorer").sortable();
+      $("#terrama2-layerexplorer").disableSelection();
+
+      $(".children").sortable();
+      $(".children").disableSelection();
+
+      // new
+
     }
   };
 

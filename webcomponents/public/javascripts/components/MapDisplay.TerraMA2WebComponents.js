@@ -23,52 +23,11 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberInitialExtent = null;
   // Capabilities parser
   var memberParser = null;
-
-  // new
-
-  var memberSources = {
-    openStreetMap: new ol.source.OSM(),
-    mapQuestOsm: new ol.source.MapQuest({layer: 'osm'}),
-    mapQuestSat: new ol.source.MapQuest({layer: 'sat'})
-  };
-
-  // new
-
   // Map object
   var memberOlMap = new ol.Map({
     renderer: 'canvas',
-    layers: [
-      new ol.layer.Group({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM(),
-            id: 'osm',
-            name: 'Open Street Map',
-            visible: false
-          }),
-          new ol.layer.Tile({
-            source: new ol.source.MapQuest({layer: 'osm'}),
-            id: 'mapquest_osm',
-            name: 'MapQuest OSM',
-            visible: false
-          }),
-          new ol.layer.Tile({
-            source: new ol.source.MapQuest({layer: 'sat'}),
-            id: 'mapquest_sat',
-            name: 'MapQuest Sat&eacute;lite',
-            visible: true
-          })
-        ],
-        id: 'bases',
-        name: 'Camadas Base'
-      })
-    ],
     target: 'terrama2-map',
-    view: new ol.View({
-      projection: 'EPSG:4326',
-      center: [-55, -15],
-      zoom: 3
-    }),
+    view: new ol.View({ projection: 'EPSG:4326', center: [-55, -15], zoom: 3 }),
     interactions: ol.interaction.defaults({
       doubleClickZoom: false
     }),
@@ -218,6 +177,42 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var addGeoJSONVectorLayer = function(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction) {
     memberOlMap.addLayer(
       createGeoJSONVector(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction)
+    );
+  };
+
+  /**
+   * Adds a layer group of base layers to the map.
+   * @param {string} id - Layer id
+   * @param {string} name - Layer name
+   *
+   * @function addBaseLayers
+   */
+  var addBaseLayers = function(id, name) {
+    memberOlMap.addLayer(
+      new ol.layer.Group({
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM(),
+            id: 'osm',
+            name: 'Open Street Map',
+            visible: false
+          }),
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'osm'}),
+            id: 'mapquest_osm',
+            name: 'MapQuest OSM',
+            visible: false
+          }),
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'sat'}),
+            id: 'mapquest_sat',
+            name: 'MapQuest Sat&eacute;lite',
+            visible: true
+          })
+        ],
+        id: id,
+        name: name
+      })
     );
   };
 
@@ -564,6 +559,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     createTileWMS: createTileWMS,
     addTileWMSLayer: addTileWMSLayer,
     addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+    addBaseLayers: addBaseLayers,
     addCapabilitiesLayers: addCapabilitiesLayers,
     setLayerVisibility: setLayerVisibility,
     setLayerVisibilityById: setLayerVisibilityById,
