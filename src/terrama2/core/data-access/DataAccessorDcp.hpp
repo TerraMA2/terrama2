@@ -54,6 +54,7 @@ namespace terrama2
     {
     public:
       DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      virtual ~DataAccessorDcp() {}
 
       virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
       // Doc in base class

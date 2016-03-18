@@ -53,6 +53,7 @@ namespace terrama2
     {
     public:
       DataRetriever(DataProvider) {}
+      virtual ~DataRetriever() {}
       /*!
 
         \return Uri to the termporary file

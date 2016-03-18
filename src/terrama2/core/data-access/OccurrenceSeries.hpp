@@ -45,11 +45,8 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief A DcpSeries represents a set of DCP.
-
-      The DcpSeries aggregates the te::da::DataSet of each DCP
-       as well as it's position and date-time column
-
+      \class OccurrenceSeries
+      \brief A OccurrenceSeries represents a set of Occurrences of a phenomena.
     */
     class OccurrenceSeries
     {

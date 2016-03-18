@@ -45,7 +45,7 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorDcp
+      \class DataAccessorOccurrence
       \brief DataAccessor for Occurence DataSeries.
 
       Occurrence data are any data:
@@ -59,6 +59,7 @@ namespace terrama2
     {
     public:
       DataAccessorOccurrence(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      virtual ~DataAccessorOccurrence() {}
 
       virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
       // Doc in base class

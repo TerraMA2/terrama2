@@ -43,7 +43,7 @@ namespace terrama2
     /*!
       \class DataAccessorPostGis
 
-      Base class for DataAccessor classes that access a PostgreSQL/PostGIS SGDB.
+      \brief Base class for DataAccessor classes that access a PostgreSQL/PostGIS SGDB.
 
     */
     class DataAccessorPostGis : public virtual DataAccessor
@@ -51,6 +51,8 @@ namespace terrama2
     public:
       // Doc in base class
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const;
+
+    protected:
       // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const {throw;}//TODO: throw here
       //! Recover table name where data is stored
