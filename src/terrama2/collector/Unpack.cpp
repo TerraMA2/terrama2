@@ -60,8 +60,8 @@
 #include <QLocale>
 #include <QFile>
 #include <QByteArray>
-#include <JlCompress.h>
-#include <quazip.h>
+#include <quazip/quazip.h>
+#include <quazip/JlCompress.h>
 
 // Boost
 #include <fstream>

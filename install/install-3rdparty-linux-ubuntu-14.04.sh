@@ -97,33 +97,38 @@ echo "installing 3rd-party libraries to '$TERRAMA2_DEPENDENCIES_DIR' ..."
 echo ""
 sleep 1s
 
-
 #
-# gSOAP
+# Quazip
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
-  echo "installing gSOAP..."
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
+  echo "installing Quazip..."
   echo ""
   sleep 1s
 
-  unzip gsoap_2.8.23.zip
-  valid $? "Error: could not uncompress gsoap_2.8.23.zip!"
+  unzip -o quazip-0.7.zip &> /dev/null
+  valid $? "Error: could not uncompress quazip-0.7.zip!"
 
-  cd gsoap-2.8
-  valid $? "Error: could not enter gsoap-2.8!"
+  cd quazip-0.7
+  valid $? "Error: could not enter quazip-0.7!"
 
-  ./configure CXXFLAGS="-O2 -fPIC" --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR 
-  valid $? "Error: could not configure gSOAP!"
+  qmake PREFIX=$TERRAMA2_DEPENDENCIES_DIR
+ 
+  valid $? "Error: could not make Quazip!"
 
   make
-  valid $? "Error: could not make gSOAP!"
+  valid $? "Error: could not make Quazip!"
 
   make install
-  valid $? "Error: Could not install gSOAP!"
+  valid $? "Error: Could not install Quazip!"
 
+  cp quazip/libquazip.so $TERRAMA2_DEPENDENCIES_DIR/lib/
+  valid $? "Error: could not copy libquazip.so!"
+
+  cp -r $TERRAMA2_DEPENDENCIES_DIR/quazip/include/quazip/ $TERRAMA2_DEPENDENCIES_DIR/include/
+  valid $? "Error: could not copy include dir!"
+  
   cd ..
 fi
-
 
 #
 # GMock 
@@ -227,7 +232,7 @@ fi
 # TerraMA2 Web Dependencies
 #
 
-if [ -f "$2/webapp/app.js" ]; then
+if [ ! -d "$2/webapp/public/externals" ]; then
   echo "Installing TerraMA2 web dependencies..."
   echo ""
 
@@ -246,7 +251,7 @@ fi
 #
 # Finished!
 #
-clear
+#clear
 echo "*****************************************************************"
 echo "* TerraMA2 3rd-party Libraries Installer for Linux Ubuntu 14.04 *"
 echo "*****************************************************************"

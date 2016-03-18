@@ -59,7 +59,7 @@ void TsUnpack::TestParseCpvOk()
  try
  {
     terrama2::core::DataSetItem item;
-    item.setMask("serrmar.tar.gz");
+    item.setMask("30885.txt.zip");
 
     terrama2::collector::DataFilterPtr filter = std::make_shared<terrama2::collector::DataFilter>(item);
 
@@ -69,7 +69,7 @@ void TsUnpack::TestParseCpvOk()
     // data/Eta15km/30885.txt.zip
     // data/Eta15km/serrmar.tar.gz
     // data/Eta15km/30885.txt.bz2
-    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/Eta15km/serrmar.tar.gz");
+    transferenceData.uriTemporary = "file://"+terrama2::core::FindInTerraMA2Path("data/Eta15km/30885.txt.zip");
 
     std::vector<terrama2::collector::TransferenceData> transferenceDataVec;
     transferenceDataVec.push_back(transferenceData);

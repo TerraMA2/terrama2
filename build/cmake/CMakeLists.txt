@@ -260,7 +260,7 @@ endif()
 
 find_package(GTest)
 find_package(GMock)
-
+find_package(QuaZip)
 
 #
 # build options

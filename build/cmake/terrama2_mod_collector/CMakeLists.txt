@@ -39,8 +39,10 @@ include_directories (
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${CURL_INCLUDE_DIRS}
-  ${QUAZIP_PATH}
+  ${QUAZIP_INCLUDE_DIR}
 )
+
+message(STATUS "${QUAZIP_INCLUDE_DIR}")
 
 set(CMAKE_AUTOMOC ON)
 
@@ -60,7 +62,7 @@ target_link_libraries(terrama2_mod_collector terrama2_mod_core
                                              ${Boost_REGEX_LIBRARY}
                                              ${Boost_IOSTREAMS_LIBRARY}
                                              ${CURL_LIBRARIES}
-                                             ${QUAZIP})
+                                             ${QUAZIP_LIBRARIES})
 
 set_target_properties(terrama2_mod_collector
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
