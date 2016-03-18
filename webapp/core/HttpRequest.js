@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var NodeUtils = require('util');
 var Requester = require('request');
+var UriBuilder = require("./UriBuilder");
 
 var HttpRequest = function(params) {
   AbstractRequest.apply(this, arguments);
@@ -16,13 +17,8 @@ HttpRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
 
-  //   todo: implement it correctly
-    var uri = NodeUtils.format("%s://%s:%s@%s:%s%s", self.params.kind.toLowerCase(),
-                                                     self.params.user,
-                                                     self.params.password,
-                                                     self.params.address,
-                                                     self.params.port,
-                                                     self.params.path);
+    var uri = UriBuilder.buildUri(self.params);
+
     Requester(uri, function(err, resp, body) {
       if (err)
         reject(new Exceptions.ConnectionError("Error in http request"));

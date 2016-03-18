@@ -15,10 +15,11 @@ module.exports = function(app) {
     },
 
     "get": function(request, response) {
-      var name = request.query.name;
+      var id = request.params.id;
 
-      if (name) {
-        DataManager.getProject({name: name}).then(function(project) {
+      if (id) {
+        DataManager.getProject({id: id}).then(function(project) {
+          console.log(project);
           response.json(project);
         }).catch(function(err) {
           response.status(400);
@@ -26,6 +27,25 @@ module.exports = function(app) {
         })
       } else {
         response.json(DataManager.listProjects());
+      }
+    },
+
+    "put": function(request, response) {
+      var id = request.params.id;
+
+      if (id) {
+        var projectGiven = request.body;
+        projectGiven.id = id;
+        DataManager.updateProject(projectGiven).then(function(project) {
+          console.log('updated');
+          response.json(project);
+        }).catch(function(err) {
+          response.status(400);
+          response.json({status: 400, message: err.message});
+        })
+      } else {
+        response.status(400);
+        response.json({status: 400, message: "Project name not identified"});
       }
     }
 

@@ -107,23 +107,23 @@ var DataManager = {
                   models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
                     release();
                     callback();
-                  }).catch(function(err) {
+                  }).catch(function() {
                     release();
                     callback();
                   })
-                }).catch(function(err) {
+                }).catch(function() {
                   release();
                   callback();
                 });
-              }).catch(function(e){
+              }).catch(function(){
                 release();
                 callback();
               });
-            }).catch(function(e) {
+            }).catch(function() {
               release();
               callback();
             })
-          }).catch(function(e){
+          }).catch(function(){
             release();
             callback();
           });
@@ -353,7 +353,7 @@ var DataManager = {
         //  todo: emit signal
 
       }).catch(function(err){
-        reject(new exceptions.DataProviderError("Could not save data provider. " + err));
+        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
       });
     });
   },

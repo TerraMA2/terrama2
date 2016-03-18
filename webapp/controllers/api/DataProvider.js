@@ -1,44 +1,47 @@
-var DataManager = require("../../core/DataManager.js");
-//var Url = require('url');
-var Util = require('util');
+var DataManager = require("../../core/DataManager");
+var UriBuilder = require("../../core/UriBuilder");
+var RequestFactory = require("../../core/RequestFactory");
 
 module.exports = function(app) {
   return {
     "post": function(request, response) {
       var dataProviderReceived = request.body;
+      var uri = UriBuilder.buildUri(dataProviderReceived);
 
-      var uri = Util.format("%s://%s:%s@%s:%s%s", dataProviderReceived.kind.toLowerCase(),
-                                                  dataProviderReceived.user,
-                                                  dataProviderReceived.password,
-                                                  dataProviderReceived.address,
-                                                  dataProviderReceived.port,
-                                                  dataProviderReceived.path);
+      var requester = RequestFactory.build(dataProviderReceived);
 
-      var project = {
-        version: 1,
-        name: "Project " + dataProviderReceived.name,
-        description: "project aa"
-
+      var handleError = function(response, err, code) {
+        response.status(code);
+        response.json({status: code || 400, message: err.message});
       };
 
-      DataManager.addProject(project).then(function(projectOutput) {
-        var dataProviderObject = {
-          name: dataProviderReceived.name,
-          uri: uri,
-          description: dataProviderReceived.description,
-          data_provider_intent_name: "Intent1",
-          data_provider_type_name: dataProviderReceived.kind,
-          project_id: projectOutput.id, // todo: its temp code.get it from frontend
-          active: dataProviderReceived.active || false
-        };
+      // check connection
+      requester.request().then(function() {
+        var projectName = dataProviderReceived.project;
 
+        // check project
+        DataManager.getProject({name: projectName}).then(function(project) {
+          var dataProviderObject = {
+            name: dataProviderReceived.name,
+            uri: uri,
+            description: dataProviderReceived.description,
+            data_provider_intent_name: "Intent1",
+            data_provider_type_name: dataProviderReceived.kind,
+            project_id: project.id, // todo: its temp code.get it from frontend
+            active: dataProviderReceived.active || false
+          };
 
-        DataManager.addDataProvider(dataProviderObject).then(function(result) {
-          response.json(result);
+          // try to save
+          DataManager.addDataProvider(dataProviderObject).then(function(result) {
+            response.json(result);
+          }).catch(function(err) {
+            handleError(response, err, 400);
+          });
         }).catch(function(err) {
-          response.status(400);
-          response.json({status: 400, message: err.message});
-        });
+          handleError(response, err, 400);
+        })
+      }).catch(function(err) {
+        handleError(response, err, 400);
       });
 
     },
