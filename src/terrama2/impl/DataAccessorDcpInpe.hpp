@@ -59,14 +59,22 @@ namespace terrama2
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const override;
 
       std::string getMask(const DataSetDcp& dataset) const;
+      std::string getTimeZone(const DataSetDcp& dataset) const;
       virtual te::gm::Point getPosition(const DataSetDcp& dataset) const override;
       virtual std::string dataSourceTye() const override;
       virtual std::string typePrefix() const override;
 
-      virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+      virtual void adapt(const DataSetDcp& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
-      te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+      /*!
+        \brief Convert string to TimeInstantTZ.
+
+        \note Format recognized:  mm/dd/YYYY HH:MM:SS"
+
+      */
+      te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
+      //! Convert string to double
       te::dt::AbstractData* StringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
     };
   }
