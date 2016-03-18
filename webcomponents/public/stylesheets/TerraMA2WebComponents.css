@@ -8,8 +8,8 @@
 }
 
 #terrama2-map .ol-zoom {
-  top: 130px;
-  right: 50px;
+  top: 20px;
+  right: 15px;
   left: auto !important;
 }
 
@@ -34,35 +34,9 @@
 #terrama2-map .ol-attribution {
   text-align: right;
   bottom: 20px;
-  right: 50px;
+  right: 15px;
   max-width: calc(100% - 1.3em);
 }
-
-#terrama2-map .ol-zoomslider {
-  top: 46px !important;
-  right: 50px !important;
-  left: auto !important;
-  background-color: transparent !important;
-}
-
-#terrama2-map .ol-zoomslider > button {
-  left: auto !important;
-  background-color: rgba(241, 241, 241, 0.8); !important;
-  color: rgb(84,84,84);
-  outline: none;
-}
-
-#terrama2-map .ol-zoomslider > button:hover { background-color: rgba(241, 241, 241, 1) !important; }
-
-#terrama2-map .ol-zoom .ol-zoom-out { margin-top: 204px; }
-
-#terrama2-map .ol-touch .ol-zoom .ol-zoom-out { margin-top: 212px; }
-
-#terrama2-map .ol-touch .ol-zoomslider { top: 2.75em; }
-
-#terrama2-map .ol-zoom-in.ol-has-tooltip:hover [role=tooltip], #terrama2-map .ol-zoom-in.ol-has-tooltip:focus [role=tooltip] { top: 3px; }
-
-#terrama2-map .ol-zoom-out.ol-has-tooltip:hover [role=tooltip], #terrama2-map .ol-zoom-out.ol-has-tooltip:focus [role=tooltip] { top: 232px; }
 
 /* LayerExplorer style */
 

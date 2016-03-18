@@ -7,30 +7,21 @@
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
  * @property {string} memberSelectedLayer - Selected layer.
- * @property {object} memberParser - Capabilities parser.
- * @property {json} memberCapabilities - Server capabilities.
  * @property {object} memberMapDisplay - MapDisplay object.
  * @property {object} memberMap - Map object.
- * @property {object} memberSocket - Socket object.
  */
 TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
   // Selected layer
   var memberSelectedLayer = null;
-  // Capabilities parser
-  var memberParser = null;
-  // Server capabilities
-  var memberCapabilities = null;
   // MapDisplay object
   var memberMapDisplay = null;
   // Map object
   var memberMap = null;
-  // Socket object
-  var memberSocket = null;
 
   /**
    * Returns the selected layer.
-   * @returns {string} memberSelectedLayer - Layer name
+   * @returns {string} memberSelectedLayer - Layer id
    *
    * @function getSelectedLayer
    */
@@ -39,108 +30,118 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   };
 
   /**
-   * Processes the layers from the capabilities and creates an array of Openlayers tiled WMS layers.
-   * @param {json} layers - List of layers from the server capabilities
-   * @returns {array} tilesWMSLayers - Array of Openlayers tiled WMS layers
+   * Creates a layer group.
+   * @param {string} id - Layer group id
+   * @param {string} name - Layer group name
+   * @param {string} layers - HTML code of the layers that will be inside of the layer group
+   * @returns {string} html - HTML code of the layer group
    *
    * @private
-   * @function processLayers
+   * @function createLayerGroup
    */
-  var processLayers = function(layers) {
-    var tilesWMSLayers = [];
-
-    var layersLength = layers.Layer.length;
-
-    for(var i = 0; i < layersLength; i++) {
-      if(layers.Layer[i].hasOwnProperty('Layer')) {
-
-        var subLayersLength = layers.Layer[i].Layer.length;
-        for(var j = 0; j < subLayersLength; j++) {
-          tilesWMSLayers.push(memberMapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, true));
-        }
-      } else {
-        tilesWMSLayers.push(memberMapDisplay.createTileWMS(TerraMA2WebComponents.Config.getConfJsonServer().URL, TerraMA2WebComponents.Config.getConfJsonServer().Type, layers.Layer[i].Name, layers.Layer[i].Title, false, true));
-      }
-    }
-
-    return tilesWMSLayers;
+  var createLayerGroup = function(id, name, layers) {
+    return "<li data-layerid='" + id + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + name + "</span><ul class='children'>" + layers + "</ul></li>";
   };
 
   /**
-   * Builds a layer explorer from the map layers.
-   * @param {ol.layer} layer - Layer or layers group to be used in the layer explorer
-   * @param {boolean} firstCall - Control flag that indicates if is the first call, being that this is a recursive function
-   * @returns {string} elem - String containing the HTML code to the layer explorer
+   * Creates a layer.
+   * @param {string} id - Layer id
+   * @param {string} name - Layer name
+   * @param {boolean} visible - Flag that indicates if the layer should be visible when created
+   * @returns {string} html - HTML code of the layer
    *
    * @private
-   * @function buildLayerExplorer
+   * @function createLayer
    */
-  var buildLayerExplorer = function(layer, firstCall) {
-    var elem;
-    var name = layer.get('name') ? layer.get('name') : "Group";
-    var title = layer.get('title') ? layer.get('title') : "Group";
+  var createLayer = function(id, name, visible) {
+    var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
 
-    if(layer.getLayers) {
-      var sublayersElem = '';
-      var layers = layer.getLayers().getArray(),
-      len = layers.length;
-      for (var i = len - 1; i >= 0; i--) {
-        sublayersElem += buildLayerExplorer(layers[i]);
-      }
+    return "<li data-layerid='" + id + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
+  };
 
-      if(firstCall) {
-        elem = sublayersElem + "</li>";
-      } else {
-        elem = "<li data-layerid='" + name + "'><span><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + title + "</span> <ul>" + sublayersElem + "</ul></li>";
-      }
+  /**
+   * Adds a layer group to the layer explorer.
+   * @param {string} id - Layer group id
+   * @param {string} name - Layer group name
+   * @param {string} layers - HTML code of the layers that will be inside of the layer group
+   * @param {string} parent - Parent element id
+   *
+   * @function addLayerGroup
+   */
+  var addLayerGroup = function(id, name, layers, parent) {
+    if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
+      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayerGroup(id, name, layers));
+
+      if(!$('#' + parent.replace(':', '')).hasClass('open'))
+        $('#' + parent.replace(':', '')).find(' > ul > li').hide();
     } else {
-      if(layer.get('listOnLayerExplorer')) {
-        var check = layer.get('visible') ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
-        elem = "<li data-layerid='" + name + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + title + "</span> </li>";
-      } else elem = "";
+      $('#' + parent.replace(':', '')).append(createLayerGroup(id, name, layers));
     }
-    return elem;
   };
 
   /**
-   * Initializes the layer explorer and puts it in the page.
-   * @param {xml} msg - Xml code of the server capabilities
+   * Adds a layer to the layer explorer.
+   * @param {string} id - Layer id
+   * @param {string} name - Layer name
+   * @param {boolean} visible - Flag that indicates if the layer should be visible when created
+   * @param {string} parent - Parent element id
+   *
+   * @function addLayer
+   */
+  var addLayer = function(id, name, visible, parent) {
+    if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
+      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayer(id, name, visible));
+
+      if(!$('#' + parent.replace(':', '')).hasClass('open'))
+        $('#' + id.replace(':', '')).hide();
+    } else {
+      $('#' + parent.replace(':', '')).append(createLayer(id, name, visible));
+    }
+  };
+
+  /**
+   * Adds a layer or a layer group to the layer explorer with data from the map.
+   * @param {string} id - Layer or layer group id
+   *
+   * @function addLayersFromMap
+   */
+  var addLayersFromMap = function(id) {
+    var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
+
+    if(data !== null) {
+      var elem = buildLayersFromMap(data);
+      $('#terrama2-layerexplorer').append(elem);
+
+      // Handle opacity slider control
+      $('input.opacity').slider();
+
+      $('.parent_li').find(' > ul > li').hide();
+    }
+  };
+
+  /**
+   * Builds a layer or a layer group with data from the map.
+   * @param {ol.layer} layer - Layer or layers group to be used in the layer explorer
+   * @returns {string} elem - String containing the HTML code to the layers
    *
    * @private
-   * @function initializeLayerExplorer
+   * @function buildLayersFromMap
    */
-  var initializeLayerExplorer = function(msg) {
-    memberCapabilities = memberParser.read(msg);
+  var buildLayersFromMap = function(layer) {
+    if(layer.getLayers) {
+      var sublayersElem = '',
+          layers = layer.getLayers().getArray(),
+          len = layers.length;
 
-    var processedLayers = processLayers(memberCapabilities.Capability.Layer);
+      for(var i = len - 1; i >= 0; i--)
+        sublayersElem += buildLayersFromMap(layers[i]);
 
-    memberMap.addLayer(new ol.layer.Group({
-      layers: processedLayers,
-      name: 'server',
-      title: TerraMA2WebComponents.Config.getConfJsonServer().Name
-    }));
+      var elem = createLayerGroup(layer.get('id'), layer.get('name'), sublayersElem);
+    } else {
+      var elem = createLayer(layer.get('id'), layer.get('name'), layer.get('visible'));
+    }
 
-    resetLayerExplorer(memberMap);
-  };
-
-  /**
-   * Resets the layer explorer.
-   * @param {ol.Map} map - Map object
-   *
-   * @function resetLayerExplorer
-   */
-  var resetLayerExplorer = function(map) {
-    var elem = buildLayerExplorer(map.getLayerGroup(), true);
-    $('#terrama2-layerexplorer').empty().append(elem);
-
-    $('#terrama2-layerexplorer li:has(ul)').addClass('parent_li');
-
-    // Handle opacity slider control
-    $('input.opacity').slider();
-
-    $('.parent_li').find(' > ul > li').hide();
-
-    loadEvents();
+    return elem;
   };
 
   /**
@@ -150,45 +151,49 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @function loadEvents
    */
   var loadEvents = function() {
-    $('#terrama2-layerexplorer li.parent_li > span').on('click', function() {
+    $('#terrama2-layerexplorer').on('click', 'span.group-name', function(ev) {
       var children = $(this).parent('li.parent_li').find(' > ul > li');
-      if (children.is(":visible")) {
+      if(children.is(":visible")) {
         children.hide('fast');
         $(this).find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
+        $(this).parent('li.parent_li').removeClass('open');
       } else {
         children.show('fast');
         $(this).find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus').html('-');
+        $(this).parent('li.parent_li').addClass('open');
       }
     });
 
     $('input.opacity').on('slide', function(ev) {
-      var layername = $(this).closest('li').data('layerid');
-      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'name', layername);
+      var layerid = $(this).closest('li').data('layerid');
+      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', layerid);
 
       layer.setOpacity(ev.value);
     });
 
     // Handle visibility control
-    $('.terrama2-layerexplorer-checkbox').on('click', function(e) {
-      var layername = $(this).closest('li').data('layerid');
+    $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(ev) {
+      var layerid = $(this).closest('li').data('layerid');
+      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', layerid);
 
-      var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'name', layername);
+      if(layer !== null) {
+        memberMapDisplay.setLayerVisibility(layer);
 
-      memberMapDisplay.setLayerVisibility(layer);
-
-      var children = $(this).parent('li.parent_li').find(' > ul > li');
-      var span = $(this).parent('li.parent_li').find(' > span');
-      if (children.is(":visible") || !layer.getVisible()) {
-        children.hide('fast');
-        span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
-      } else {
-        children.show('fast');
-        span.find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus').html('-');
+        var children = $(this).parent('li.parent_li').find(' > ul > li');
+        var span = $(this).parent('li.parent_li').find(' > span');
+        if(children.is(":visible") || !layer.getVisible()) {
+          children.hide('fast');
+          span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
+        } else {
+          children.show('fast');
+          span.find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus').html('-');
+        }
       }
-      e.stopPropagation();
+
+      ev.stopPropagation();
     });
 
-    $('li.parent_li ul li').on('click', function(e) {
+    $('#terrama2-layerexplorer').on('click', 'li.layer', function() {
       if($(this).hasClass("selected")) {
         $(this).removeClass("selected");
         memberSelectedLayer = null;
@@ -206,26 +211,16 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @function init
    */
   var init = function() {
-    memberParser = new ol.format.WMSCapabilities();
     memberMapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
     memberMap = memberMapDisplay.getMap();
-    memberSocket = io(TerraMA2WebComponents.obj.getTerrama2Url());
-
-    memberSocket.emit(
-      'proxyRequest',
-      {
-        url: TerraMA2WebComponents.Config.getConfJsonServer().URL + TerraMA2WebComponents.Config.getConfJsonServer().CapabilitiesParams,
-        requestId: 'lala'
-      }
-    );
-    memberSocket.on('proxyResponse', function(msg) {
-      initializeLayerExplorer(msg.msg);
-    });
+    loadEvents();
   };
 
   return {
     getSelectedLayer: getSelectedLayer,
-    resetLayerExplorer: resetLayerExplorer,
+    addLayerGroup: addLayerGroup,
+    addLayer: addLayer,
+    addLayersFromMap: addLayersFromMap,
     init: init
   };
 })();
