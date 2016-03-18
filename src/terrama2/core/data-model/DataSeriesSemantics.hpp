@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSeriesSemantic.hpp
+  \file terrama2/core/data-model/DataSeriesSemantics.hpp
 
   \brief
 
@@ -47,7 +47,7 @@ namespace terrama2
        -  TODO: MacroType?
        - DataFormat : Defines how the data should be accessed.
          It could be a 'CSV' file or a PostgreSQL/PostGIS database.
-       - Semantics : Indicates how the data is organized
+       - Semantics : Represents the data internal structure, as attributes names and data-type
 
     */
     struct DataSeriesSemantics
