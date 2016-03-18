@@ -92,33 +92,38 @@ export LD_LIBRARY_PATH="$PATH:$TERRAMA2_DEPENDENCIES_DIR/lib"
 echo "installing 3rd-party libraries to '$TERRAMA2_DEPENDENCIES_DIR' ..."
 sleep 1s
 
-
 #
-# gSOAP
+# Quazip
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
-  echo "installing gSOAP..."
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
+  echo "installing Quazip..."
   echo ""
   sleep 1s
 
-  unzip gsoap_2.8.23.zip
-  valid $? "Error: could not uncompress gsoap_2.8.23.zip!"
+  unzip -o quazip-0.7.zip &> /dev/null
+  valid $? "Error: could not uncompress quazip-0.7.zip!"
 
-  cd gsoap-2.8
-  valid $? "Error: could not enter gsoap-2.8!"
+  cd quazip-0.7
+  valid $? "Error: could not enter quazip-0.7!"
 
-  ./configure --disable-ssl --disable-samples --prefix=$TERRAMA2_DEPENDENCIES_DIR
-  valid $? "Error: could not configure gSOAP!"
+  qmake PREFIX=$TERRAMA2_DEPENDENCIES_DIR
+ 
+  valid $? "Error: could not make Quazip!"
 
   make
-  valid $? "Error: could not make gSOAP!"
+  valid $? "Error: could not make Quazip!"
 
   make install
-  valid $? "Error: Could not install gSOAP!"
+  valid $? "Error: Could not install Quazip!"
 
+  cp quazip/libquazip.so $TERRAMA2_DEPENDENCIES_DIR/lib/
+  valid $? "Error: could not copy libquazip.so!"
+
+  cp -r $TERRAMA2_DEPENDENCIES_DIR/quazip/include/quazip/ $TERRAMA2_DEPENDENCIES_DIR/include/
+  valid $? "Error: could not copy include dir!"
+  
   cd ..
 fi
-
 
 #
 # GMock 
@@ -200,6 +205,43 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/terralib5/lib/libterralib_mod_common.dylib
   cd ..
 fi
 
+#
+# Node.js
+#
+nodejs_test=`dpkg -s nodejs | grep Status`
+
+if [ "$nodejs_test" != "Status: install ok installed" ]; then
+  curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+  valid $? "Error: could not setup Node.js installation!"
+
+  sudo apt-get install -y nodejs
+  valid $? "Error: could not install Node.js! Please, install Node.js: sudo apt-get -y install nodejs"
+
+  echo "Node.js installed!"
+else
+  echo "Node.js already installed!"
+fi
+
+
+#
+# TerraMA2 Web Dependencies
+#
+
+if [ ! -d "$2/webapp/public/externals" ]; then
+  echo "Installing TerraMA2 web dependencies..."
+  echo ""
+
+  unzip -o terrama2-web-dependencies.zip  &> /dev/null
+  valid $? "Error: Could not install web dependencies!"
+  mv externals "$2/webapp/public" &> /dev/null
+  valid $? "Error: Verify if the externals directory already exists."
+
+  echo "Finished TerraMA2 Web Dependencies"
+  echo ""
+
+  sleep 1s
+
+fi
 
 #
 # Finished!
