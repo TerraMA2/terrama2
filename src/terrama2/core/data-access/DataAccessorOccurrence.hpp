@@ -46,7 +46,13 @@ namespace terrama2
   {
     /*!
       \class DataAccessorDcp
-      \brief DataAccessor for DCP DataSeries.
+      \brief DataAccessor for Occurence DataSeries.
+
+      Occurrence data are any data:
+       - With a Date/Time attribute
+       - With a geographic position attribute
+
+      Data of lightining occurrence is an example.
 
     */
     class DataAccessorOccurrence : public virtual DataAccessor
@@ -55,9 +61,11 @@ namespace terrama2
       DataAccessorOccurrence(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
 
       virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
+      // Doc in base class
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
     protected:
+      // Doc in base class
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }

@@ -45,10 +45,9 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief A DcpSeries represents a set of DCP.
+      \brief A DcpSeries represents a set of DCP (Data Collecting Plataform).
 
       The DcpSeries aggregates the te::da::DataSet of each DCP
-       as well as it's position and date-time column
 
     */
     class DcpSeries

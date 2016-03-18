@@ -41,8 +41,8 @@ namespace terrama2
   {
     struct Filter;
     /*!
-      \class DataAccessorDcpInpe
-      \brief DataAccessor for DCP DataSeries from INPE.
+      \class DataAccessorOccurrenceMvf
+      \brief DataAccessor for the Monitoring Vegetation Fire program of INPE - www.inpe.br/queimadas
 
     */
     class DataAccessorOccurrenceMvf : public DataAccessorOccurrence, virtual public DataAccessorFile
@@ -59,10 +59,15 @@ namespace terrama2
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
     private:
+      //! Recover projection information from dataset
       Srid getSrid(const DataSet& dataSet) const;
+      //! Recover timezone information from dataset
       std::string getTimeZone(const DataSet& dataSet) const;
+      //! Name of column with Date/Time information
       std::string timestampColumnName() const;
+      //! Name of column with latitude information
       std::string latitudeColumnName() const;
+      //! Name of column with longitude information
       std::string longitudeColumnName() const;
       /*!
         \brief Convert string to TimeInstantTZ.

@@ -51,7 +51,7 @@ terrama2::core::DataAccessorOccurrenceMvf::DataAccessorOccurrenceMvf(const DataP
 : DataAccessor(dataProvider, dataSeries, filter),
   DataAccessorOccurrence(dataProvider, dataSeries, filter)
 {
- if(dataSeries.semantic.name != "OCCURRENCE-mvf")
+ if(dataSeries.semantics.name != "OCCURRENCE-mvf")
    throw; //TODO: throw wrong DataSeries semantic
 }
 

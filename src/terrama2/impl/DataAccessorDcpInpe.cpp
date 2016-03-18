@@ -52,8 +52,8 @@ terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(const DataProvider& dat
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorDcp(dataProvider, dataSeries, filter)
 {
-  if(dataSeries.semantic.name != "PCD-inpe")
-    throw; //TODO: throw wrong DataSeries semantic
+  if(dataSeries.semantics.name != "PCD-inpe")
+    throw; //TODO: throw wrong DataSeries semantics
 }
 
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::timestampColumn() const
@@ -83,75 +83,6 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::typePrefix
 {
   return "CSV:";
 }
-//
-// std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpInpe::getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const
-// {
-//   QUrl url(uri.c_str());
-//   QDir dir(url.path());
-//   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-//   if(fileInfoList.empty())
-//   {
-//     //TODO: log here
-//     //TODO: throw here
-//     return nullptr;
-//   }
-//
-//   bool first = true;
-//   std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
-//   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
-//   for(const auto& fileInfo : fileInfoList)
-//   {
-//     std::string name = fileInfo.fileName().toStdString();
-//     std::string baseName = fileInfo.baseName().toStdString();
-//     // Verify if the file name matches the mask
-//     if(!isValidDataSetName(getMask(dataSet), filter, name))
-//       continue;
-//
-//     // creates a DataSource to the data and filters the dataset,
-//     // also joins if the DCP comes from separated files
-//     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
-//     std::map<std::string, std::string> connInfo;
-//
-//     connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
-//     datasource->setConnectionInfo(connInfo);
-//
-//     //RAII for open/closing the datasource
-//     OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-//
-//     if(!datasource->isOpened())
-//     {
-//       QString errMsg = QObject::tr("DataProvider could not be opened.");
-//       TERRAMA2_LOG_ERROR() << errMsg;
-//
-//       continue;
-//     }
-//
-//     // get a transactor to interact to the data source
-//     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-//
-//     if(first)
-//     {
-//     //read and adapt all te:da::DataSet from terrama2::core::DataSet
-//       converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(baseName)));
-//       std::shared_ptr<te::da::DataSetType> datasetType(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-//       assert(datasetType);
-//       completeDataset = std::make_shared<te::mem::DataSet>(datasetType.get());
-//       first = false;
-//     }
-//
-//     assert(converter);
-//     std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(baseName));
-//     assert(datasetOrig);
-//     std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
-//
-//     //TODO:.. filter and join te::da::dataset from each dataset
-//     //TODO: join dataset
-//     completeDataset->copy(*dataset);
-//   }
-//
-//   return completeDataset;
-// }
-
 
 te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::stringToTimestamp(te::da::DataSet* dataset,
                                                                              const std::vector<std::size_t>& indexes,

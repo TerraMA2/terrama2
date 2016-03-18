@@ -41,16 +41,20 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorFile
+      \class DataAccessorPostGis
+
+      Base class for DataAccessor classes that access a PostgreSQL/PostGIS SGDB.
 
     */
     class DataAccessorPostGis : public virtual DataAccessor
     {
     public:
-      DataAccessorPostGis() {}
+      // Doc in base class
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const;
-      virtual std::string getTableName(const DataSet& dataSet) const = 0;
+      // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const {throw;}//TODO: throw here
+      //! Recover table name where data is stored
+      virtual std::string getTableName(const DataSet& dataSet) const = 0;
     };
   }
 }

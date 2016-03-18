@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
   dataProvider.active = true;
 
   terrama2::core::DataSeries dataSeries;
-  dataSeries.semantic.name = "PCD-postgis";
+  dataSeries.semantics.name = "PCD-postgis";
 
   dataSeries.datasetList.emplace_back(new terrama2::core::DataSetDcp());
   std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   {
     std::string name = teDataSet->getPropertyName(i);
     names+= name + "\t";
-    if(name == "DateTime")
+    if(name == "date_time")
     {
       types+= "DataTime\t";
       dateColumn = i;

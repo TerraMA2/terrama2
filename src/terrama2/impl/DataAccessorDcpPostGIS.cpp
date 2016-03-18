@@ -43,8 +43,8 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(const DataProvide
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorDcp(dataProvider, dataSeries, filter)
 {
-  if(dataSeries.semantic.name != "PCD-postgis")
-    throw; //TODO: throw wrong DataSeries semantic
+  if(dataSeries.semantics.name != "PCD-postgis")
+    throw; //TODO: throw wrong DataSeries semantics
 }
 
 std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSet& dataSet) const
@@ -60,48 +60,6 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSet& 
     throw;
   }
 }
-
-// std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorDcpPostGIS::getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const
-// {
-//   QUrl url(uri.c_str());
-//
-//   std::string tableName = getTableName(dataSet);
-//
-//   // creates a DataSource to the data and filters the dataset,
-//   // also joins if the DCP comes from separated files
-//   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
-//
-//   std::map<std::string, std::string> connInfo{{"PG_HOST", url.host().toStdString()},
-//                                               {"PG_PORT", std::to_string(url.port())},
-//                                               {"PG_USER", url.userName().toStdString()},
-//                                               {"PG_PASSWORD", url.password().toStdString()},
-//                                               {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-//                                               {"PG_CONNECT_TIMEOUT", "4"},
-//                                               {"PG_CLIENT_ENCODING", "UTF-8"}
-//                                             };
-//
-//   datasource->setConnectionInfo(connInfo);
-//
-//   //RAII for open/closing the datasource
-//   OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-//
-//   if(!datasource->isOpened())
-//   {
-//     QString errMsg = QObject::tr("DataProvider could not be opened.");
-//     TERRAMA2_LOG_ERROR() << errMsg;
-//     //TODO: throw here
-//     throw;
-//   }
-//
-//   // get a transactor to interact to the data source
-//   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-//   //TODO: implement filter in query
-//   std::shared_ptr<te::da::DataSet> dataset = transactor->getDataSet(tableName);
-//
-//   std::shared_ptr<te::mem::DataSet> completeDataset = std::make_shared<te::mem::DataSet>(*dataset);
-//
-//   return completeDataset;
-// }
 
 std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceTye() const
 {

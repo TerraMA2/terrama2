@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
   dataProvider.active = true;
 
   terrama2::core::DataSeries dataSeries;
-  dataSeries.semantic.name = "OCCURRENCE-mvf";
+  dataSeries.semantics.name = "OCCURRENCE-mvf";
 
   dataSeries.datasetList.emplace_back(new terrama2::core::DataSetOccurrence());
   std::shared_ptr<terrama2::core::DataSetOccurrence> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetOccurrence>(dataSeries.datasetList.at(0));

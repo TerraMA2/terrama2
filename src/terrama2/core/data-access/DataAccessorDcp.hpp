@@ -43,6 +43,12 @@ namespace terrama2
       \class DataAccessorDcp
       \brief DataAccessor for DCP DataSeries.
 
+      DCP are Data Collecting Plataforms, here we consider that:
+       - It's fixed, one static geographical position associated
+       - The data has a Date/Time attribute
+
+      A weather station is an example of DCP.
+
     */
     class DataAccessorDcp : public virtual DataAccessor
     {
@@ -50,9 +56,11 @@ namespace terrama2
       DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
 
       virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
+      // Doc in base class
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
     protected:
+      // Doc in base class
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }

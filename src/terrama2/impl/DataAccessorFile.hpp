@@ -43,14 +43,17 @@ namespace terrama2
     /*!
       \class DataAccessorFile
 
+      Base class for DataAccessor classes that access a file.
+
     */
     class DataAccessorFile : public virtual DataAccessor
     {
     public:
-      DataAccessorFile() {}
-
+      // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const override;
+      // Doc in base class
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const override;
+      //! Recover file mask
       virtual std::string getMask(const DataSet& dataset) const;
     };
   }

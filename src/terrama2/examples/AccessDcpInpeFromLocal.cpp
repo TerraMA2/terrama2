@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
   dataProvider.active = true;
 
   terrama2::core::DataSeries dataSeries;
-  dataSeries.semantic.name = "PCD-inpe";
+  dataSeries.semantics.name = "PCD-inpe";
 
   dataSeries.datasetList.emplace_back(new terrama2::core::DataSetDcp());
   std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));

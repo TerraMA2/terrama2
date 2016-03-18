@@ -20,17 +20,17 @@
 */
 
 /*!
-  \file terrama2/core/data-model/SemanticManager.hpp
+  \file terrama2/core/data-model/SemanticsManager.hpp
 
   \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_SEMANTICS_MANAGER_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_SEMANTICS_MANAGER_HPP__
 
-#include "../data-model/DataSeriesSemantic.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
 
 //STL
 #include <string>
@@ -39,16 +39,16 @@ namespace terrama2
 {
   namespace core
   {
-    class SemanticManager {
+    class SemanticsManager {
     public:
-      SemanticManager (){}
-      ~SemanticManager (){}
+      SemanticsManager (){}
+      ~SemanticsManager (){}
 
       /*!
 
-        \exception TODO: raised when a semantic with same name is already present
+        \exception TODO: raised when a semantics with same name is already present
       */
-      DataSeriesSemantic  addSemantic(const std::string& name, const DataSeriesSemantic::MacroType& macroType, const DataFormat& format);
+      DataSeriesSemantics  addSemantics(const std::string& name, const DataSeriesSemantics::MacroType& macroType, const DataFormat& format);
 
     private:
 
@@ -56,4 +56,4 @@ namespace terrama2
   } /* core */
 } /* terrama2 */
 
-#endif //__TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
+#endif //__TERRAMA2_CORE_DATA_MODEL_SEMANTICS_MANAGER_HPP__

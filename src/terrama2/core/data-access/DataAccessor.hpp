@@ -36,7 +36,7 @@
 #include "../shared.hpp"
 
 #include "DataRetriever.hpp"
-#include "../data-model/DataSeriesSemantic.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
 
@@ -70,7 +70,7 @@ namespace terrama2
     public:
       //! Returns the last Data date found on last access.
       virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
-      DataSeriesSemantic semantic() const { return dataSeries_.semantic; }
+      DataSeriesSemantics semantics() const { return dataSeries_.semantics; }
 
       //! Utility function for converting string to double in the te::da::DataSet contruction.
       te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
