@@ -35,11 +35,6 @@
 #include "DataAccessor.hpp"
 #include "DcpSeries.hpp"
 
-//TerraLib
-#include <terralib/geometry/Point.h>
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/memory/DataSet.h>
-
 namespace terrama2
 {
   namespace core
@@ -49,7 +44,7 @@ namespace terrama2
       \brief DataAccessor for DCP DataSeries.
 
     */
-    class DataAccessorDcp : public DataAccessor
+    class DataAccessorDcp : public virtual DataAccessor
     {
     public:
       DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
@@ -58,14 +53,7 @@ namespace terrama2
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
     protected:
-      std::shared_ptr<te::da::DataSetTypeConverter> getConverter( const DataSetDcp& datasetDcp, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
-
-      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
-      virtual void adapt(const DataSetDcp& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
-      virtual std::string typePrefix() const { return ""; }
-      
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const = 0;
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const;
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }
 }

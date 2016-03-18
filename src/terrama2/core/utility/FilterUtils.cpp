@@ -20,29 +20,17 @@
 */
 
 /*!
-  \file terrama2/core/utility/Filter.hpp
+  \file terrama2/core/utility/FilterUtils.cpp
 
   \brief Filter information of a given DataSetItem.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_UTILITY_FILTER_MASK_HPP__
-#define __TERRAMA2_CORE_UTILITY_FILTER_MASK_HPP__
+#include "FilterUtils.hpp"
 
-//TerraMA2
-#include "../../Config.hpp"
-#include "../data-model/Filter.hpp"
-
-//STL
-#include <vector>
-
-namespace terrama2
+bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name)
 {
-  namespace core
-  {
-    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name) { return name == mask; } //FIXME: implement name filter
-  } // end namespace core
-}   // end namespace terrama2
-
-#endif  // __TERRAMA2_CORE_UTILITY_FILTER_MASK_HPP__
+  //FIXME: implement name filter
+  return name == mask;
+}

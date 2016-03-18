@@ -48,14 +48,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_library(terrama2_impl SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
 target_link_libraries(terrama2_impl terrama2_core
-                                                  terralib_mod_dataaccess
-                                                  terralib_mod_memory
-                                                  terralib_mod_vp_core
-                                                  terralib_mod_rp
-                                                  ${Boost_FILESYSTEM_LIBRARY}
-                                                  ${Boost_SYSTEM_LIBRARY}
-                                                  ${Boost_REGEX_LIBRARY}
-                                                  ${CURL_LIBRARIES})
+                                    terralib_mod_dataaccess
+                                    terralib_mod_memory
+                                    terralib_mod_vp_core
+                                    terralib_mod_rp
+                                    ${Boost_FILESYSTEM_LIBRARY}
+                                    ${Boost_SYSTEM_LIBRARY}
+                                    ${Boost_REGEX_LIBRARY}
+                                    ${CURL_LIBRARIES})
 
 set_target_properties(terrama2_impl
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
@@ -69,6 +69,6 @@ install(TARGETS terrama2_impl
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
 install(FILES ${TERRAMA2_HDR_FILES}
-        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/collector COMPONENT devel)
+DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/impl COMPONENT devel)
 
 export(TARGETS terrama2_impl APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

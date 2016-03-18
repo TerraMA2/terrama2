@@ -46,28 +46,28 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
+add_library(terrama2_analysis SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
-target_link_libraries(terrama2_analysis_core terrama2_core
-                                             terrama2_collector
-                                             terralib_mod_dataaccess
-                                             terralib_mod_memory
-                                             terralib_mod_vp_core
-                                             terralib_mod_rp
-                                             ${PYTHON_LIBRARIES})
+target_link_libraries(terrama2_analysis terrama2_core
+                                        terrama2_collector
+                                        terralib_mod_dataaccess
+                                        terralib_mod_memory
+                                        terralib_mod_vp_core
+                                        terralib_mod_rp
+                                        ${PYTHON_LIBRARIES})
 
 set_target_properties(terrama2_analysis_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  INSTALL_NAME_DIR "@executable_path/../lib")
 
-install(TARGETS terrama2_analysis_core
+install(TARGETS terrama2_analysis
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
 install(FILES ${TERRAMA2_HDR_FILES}
-        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/core COMPONENT devel)
+DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/analysis COMPONENT devel)
 
-export(TARGETS terrama2_analysis_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_analysis APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

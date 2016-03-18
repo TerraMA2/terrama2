@@ -36,8 +36,8 @@ namespace terrama2
   {
     struct DataSetOccurrence : public DataSet
     {
-      std::string dateTimeColumnName;
-      std::string geometryColumnName;
+      // std::string dateTimeColumnName;
+      // std::string geometryColumnName;
     };
   } // end namespace core
 } // end namespace terrama2

@@ -27,12 +27,12 @@
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_OCCURRENCE_SERIES_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_OCCURRENCE_SERIES_HPP__
 
 //TerraMA2
 #include "../../Config.hpp"
-#include "../data-model/DataSetDcp.hpp"
+#include "../data-model/DataSetOccurrence.hpp"
 
 //STL
 #include <vector>
@@ -51,17 +51,17 @@ namespace terrama2
        as well as it's position and date-time column
 
     */
-    class DcpSeries
+    class OccurrenceSeries
     {
     public:
-      void addDcp(const std::shared_ptr<DataSetDcp>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > >& dcpList(){ return datasetList_; }
+      void addOccurrence(const std::shared_ptr<DataSetOccurrence>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<std::shared_ptr<DataSetOccurrence>, std::shared_ptr<te::mem::DataSet> > >& occurrenceList(){ return datasetList_; }
 
     private:
-      std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > > datasetList_;
+      std::vector<std::pair<std::shared_ptr<DataSetOccurrence>, std::shared_ptr<te::mem::DataSet> > > datasetList_;
 
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_OCCURRENCE_SERIES_HPP__

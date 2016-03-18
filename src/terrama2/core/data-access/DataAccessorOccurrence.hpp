@@ -20,24 +20,24 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DcpSeries.hpp
+  \file terrama2/core/data-access/DataAccessorOccurrence.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
-#include "../data-model/DataSetDcp.hpp"
-
-//STL
-#include <vector>
+#include "../shared.hpp"
+#include "DataAccessor.hpp"
+#include "OccurrenceSeries.hpp"
 
 //TerraLib
+#include <terralib/geometry/Point.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/memory/DataSet.h>
 
 namespace terrama2
@@ -45,23 +45,22 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief A DcpSeries represents a set of DCP.
-
-      The DcpSeries aggregates the te::da::DataSet of each DCP
-       as well as it's position and date-time column
+      \class DataAccessorDcp
+      \brief DataAccessor for DCP DataSeries.
 
     */
-    class DcpSeries
+    class DataAccessorOccurrence : public virtual DataAccessor
     {
     public:
-      void addDcp(const std::shared_ptr<DataSetDcp>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > >& dcpList(){ return datasetList_; }
+      DataAccessorOccurrence(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
 
-    private:
-      std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > > datasetList_;
+      virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
+      virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
+    protected:
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__

@@ -31,6 +31,8 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
 
 //TerraMA2
+#include "DataAccessorPostGis.hpp"
+
 #include "../core/shared.hpp"
 #include "../core/data-access/DataAccessorDcp.hpp"
 
@@ -43,17 +45,20 @@ namespace terrama2
       \brief DataAccessor for DCP DataSeries in a PostGIS database.
 
     */
-    class DataAccessorDcpPostGIS : public DataAccessorDcp
+    class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGis
     {
     public:
       DataAccessorDcpPostGIS(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorDcpPostGIS() {};
+      virtual ~DataAccessorDcpPostGIS() {}
 
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
+      // virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataset) const override;
 
     protected:
-      std::string getTableName(const DataSetDcp& datasetDcp) const;
-      virtual std::string dataSourceTye() const;
+      virtual std::string getTableName(const DataSet& dataSet) const override;
+      virtual std::string dataSourceTye() const override;
+
+    private:
+//      virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter( const DataSet& dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const override {throw;} //TODO: throw here?
     };
   }
 }

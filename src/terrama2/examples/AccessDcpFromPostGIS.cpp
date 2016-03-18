@@ -30,13 +30,13 @@ int main(int argc, char* argv[])
   dataProvider.active = true;
 
   terrama2::core::DataSeries dataSeries;
-  dataSeries.semantic.name = "PCD-PostGIS";
+  dataSeries.semantic.name = "PCD-postgis";
 
   dataSeries.datasetList.emplace_back(new terrama2::core::DataSetDcp());
   std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));
   dataSet->active = true;
-  dataSet->dateTimeColumnName = "date_time";
   dataSet->format.emplace("table_name", "pcd");
+  dataSet->format.emplace("timestamp_column", "date_time");
 
   dataProvider.dataSeriesList.push_back(dataSeries);
 
