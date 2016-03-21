@@ -52,7 +52,11 @@ terrama2::core::DataAccessorOccurrenceMvf::DataAccessorOccurrenceMvf(const DataP
   DataAccessorOccurrence(dataProvider, dataSeries, filter)
 {
  if(dataSeries.semantics.name != "OCCURRENCE-mvf")
-   throw; //TODO: throw wrong DataSeries semantic
+ {
+   QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+   TERRAMA2_LOG_ERROR() << errMsg;
+   throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+ }
 }
 
 std::string terrama2::core::DataAccessorOccurrenceMvf::dataSourceTye() const

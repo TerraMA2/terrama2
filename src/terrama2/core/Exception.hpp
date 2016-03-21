@@ -53,6 +53,11 @@ namespace terrama2
     struct NotRetrivableException: virtual DataAccessorException { };
     //! Raised when a format value is accessed and not set.
     struct UndefinedTagException: virtual DataAccessorException { };
+    //! Raised when there is no data to be accessed
+    struct NoDataException: virtual DataAccessorException { };
+    //! Raised when a DataAccessor trys to access data from a DataSeries with a different semantics
+    struct WrongDataSeriesSemanticsException: virtual DataAccessorException { };
+
 
     //#################################
 

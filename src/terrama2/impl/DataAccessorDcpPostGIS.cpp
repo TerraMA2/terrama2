@@ -44,7 +44,11 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(const DataProvide
    DataAccessorDcp(dataProvider, dataSeries, filter)
 {
   if(dataSeries.semantics.name != "PCD-postgis")
-    throw; //TODO: throw wrong DataSeries semantics
+  {
+    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+  }
 }
 
 std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSet& dataSet) const

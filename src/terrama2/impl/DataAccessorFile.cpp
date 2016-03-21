@@ -75,9 +75,9 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
    if(fileInfoList.empty())
    {
-     //TODO: log here
-     //TODO: throw here
-     return nullptr;
+     QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet.id);
+     TERRAMA2_LOG_ERROR() << errMsg;
+     throw NoDataException() << ErrorDescription(errMsg);
    }
 
    bool first = true;
@@ -146,6 +146,13 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      //TODO: join dataset
      completeDataset->copy(*teDataSet);
    }// for each file
+
+   if(completeDataset->isEmpty())
+   {
+     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet.id);
+     TERRAMA2_LOG_ERROR() << errMsg;
+     throw NoDataException() << ErrorDescription(errMsg);
+   }
 
    return completeDataset;
  }

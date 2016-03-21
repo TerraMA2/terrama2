@@ -53,7 +53,11 @@ terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(const DataProvider& dat
    DataAccessorDcp(dataProvider, dataSeries, filter)
 {
   if(dataSeries.semantics.name != "PCD-inpe")
-    throw; //TODO: throw wrong DataSeries semantics
+  {
+    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+  }
 }
 
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::timestampColumn() const

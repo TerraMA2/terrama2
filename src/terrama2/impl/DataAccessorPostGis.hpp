@@ -54,7 +54,7 @@ namespace terrama2
 
     protected:
       // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const {throw;}//TODO: throw here
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const;
       //! Recover table name where data is stored
       virtual std::string getTableName(const DataSet& dataSet) const = 0;
     };
