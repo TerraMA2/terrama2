@@ -124,17 +124,21 @@ void TsDataFilter::TestGeometry()
 
     terrama2::core::Filter       filter;
 
-    te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType, 4326);
-    const double xc(10), yc(10), halfSize(5);
+    te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
+
+    double xc(5), yc(5), halfSize(5);
     s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
     s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
     s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
     s->setPoint(3, xc + halfSize, yc - halfSize); // lower rigth
     s->setPoint(4, xc - halfSize, yc - halfSize); // closing
 
-    std::unique_ptr< te::gm::Polygon > geom(new te::gm::Polygon(0, te::gm::PolygonType, 4326));
-    geom->push_back(s);
-    filter.setGeometry(std::move(geom));
+    te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
+    p->push_back(s);
+
+    std::unique_ptr<te::gm::MultiPolygon> geometry(new te::gm::MultiPolygon(1, te::gm::MultiPolygonType, 4326, nullptr));
+    geometry->add(p);
+    filter.setGeometry(std::move(geometry));
     dataItem.setFilter(filter);
 
     terrama2::collector::DataFilter datafilter(dataItem);

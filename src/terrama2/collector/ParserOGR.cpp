@@ -71,7 +71,6 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::collector::ParserOGR::ge
 
   addColumns(converter, datasetType);
 
-  converter->remove("FID");
   adapt(converter);
 
   return converter;
@@ -110,7 +109,8 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
       //create a datasource and open
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR"));
       std::map<std::string, std::string> connInfo;
-      connInfo["URI"] = "CSV:"+fileInfo.absoluteFilePath().toStdString();
+
+      connInfo["URI"] = typePrefix() + fileInfo.absoluteFilePath().toStdString();
       datasource->setConnectionInfo(connInfo);
 
       //RAII for open/closing the datasource
@@ -132,6 +132,7 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
 
       assert(converter);
       std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(fileInfo.baseName().toStdString()));
+
       assert(datasetOrig);
       std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 
@@ -154,6 +155,5 @@ void terrama2::collector::ParserOGR::read(DataFilterPtr filter, std::vector<Tran
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UnableToReadDataSetException() << ErrorDescription(errMsg);
   }
-
-  return;
 }
+

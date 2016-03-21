@@ -87,6 +87,11 @@ namespace terrama2
       virtual void read(DataFilterPtr filter,
                         std::vector<terrama2::collector::TransferenceData>& transferenceData) = 0;
 
+      /*!
+        \brief Returns the type prefix to read the file.
+       */
+      virtual std::string typePrefix() const;
+
     protected:
       core::DataSetItem dataSetItem_;//!< core::DataSetItem stored to retrieve information in minor cases.
     };

@@ -38,6 +38,7 @@
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/geometry/MultiPolygon.h>
 
 // Qt
 #include <QObject>
@@ -258,7 +259,7 @@ terrama2::core::dao::FilterDAO::load(const DataSetItem& datasetItem, te::da::Dat
 
     if(!filter_result->isNull("geom"))
     {
-      std::unique_ptr<te::gm::Polygon> geom(dynamic_cast<te::gm::Polygon*>(filter_result->getGeometry("geom").release()));
+      std::unique_ptr<te::gm::MultiPolygon> geom(dynamic_cast<te::gm::MultiPolygon*>(filter_result->getGeometry("geom").release()));
       filter.setGeometry(std::move(geom));
     }
 

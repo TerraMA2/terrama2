@@ -46,6 +46,7 @@
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/geometry/WKTReader.h>
+#include <terralib/geometry/MultiPolygon.h>
 
 // TerraMA2
 #include "../../../core/DataManager.hpp"
@@ -426,7 +427,7 @@ std::vector< terrama2::core::DataSetItem > terrama2::ws::collector::core::Struct
 
     if(!struct_dataset_items.at(i).filter_geometry.empty())
     {
-      std::unique_ptr< te::gm::Polygon > geom(dynamic_cast<te::gm::Polygon*>(te::gm::WKTReader::read(struct_dataset_items.at(i).filter_geometry.c_str())));
+      std::unique_ptr< te::gm::MultiPolygon > geom(dynamic_cast<te::gm::MultiPolygon*>(te::gm::WKTReader::read(struct_dataset_items.at(i).filter_geometry.c_str())));
       geom->setSRID(struct_dataset_items.at(i).filter_geometry_srid);
       filter.setGeometry(std::move(geom));
     }

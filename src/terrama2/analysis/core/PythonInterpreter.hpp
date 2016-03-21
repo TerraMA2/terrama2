@@ -20,40 +20,43 @@
 */
 
 /*!
-  \file unittest/core/TsSerializer.cpp
+  \file terrama2/analysis/core/PythonInterpreter.hpp
 
-  \brief Test for Serializer class
+  \brief Manages the communication of Python and C.
 
   \author Paulo R. M. Oliveira
 */
 
-//TerraMA2
-#include <terrama2/core/DataProvider.hpp>
-#include <terrama2/core/DataSet.hpp>
-#include <terrama2/core/DataSetItem.hpp>
-#include <terrama2/core/Intersection.hpp>
-#include <terrama2/core/Filter.hpp>
 
-//QT
-#include <QtTest/QTest>
+#ifndef __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+#define __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
 
+#include "Analysis.hpp"
 
-class TsSerializer : public QObject
+#include <string>
+
+#include "../../collector/DataFilter.hpp"
+#include <Python.h>
+
+namespace terrama2
 {
-    Q_OBJECT
+  namespace analysis
+  {
+    namespace core
+    {
+      PyObject* countPoints(PyObject* self, PyObject* args);
+      PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
+      PyObject* result(PyObject* self, PyObject* args);
 
-public:
-  terrama2::core::Intersection createIntersection();
-  terrama2::core::Filter createFilter();
-  terrama2::core::DataSetItem createDataSetItem();
-  terrama2::core::DataSet createDataSet();
-  terrama2::core::DataProvider createDataProvider();
+      std::string createMonitoredObjectFunction(const std::string& script);
 
-private slots:
-    void testIntersection();
-    void testFilter();
-    void testDataSetItem();
-    void testDataSet();
-    void testDataProvider();
+      void init();
 
-};
+      void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
+
+      void finalize();
+    }
+  }
+}
+
+#endif //__TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__

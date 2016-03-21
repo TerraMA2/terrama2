@@ -95,6 +95,8 @@ void terrama2::core::PCD::setLocation(te::gm::Point* location)
   metadata[LONGITUDE] = longitude;
   metadata[LATITUDE] = latitude;
   dataSetItem_.setMetadata(metadata);
+
+  dataSetItem_.setSrid(location->getSRID());
 }
 
 terrama2::core::DataSetItem terrama2::core::PCD::dataSetItem() const

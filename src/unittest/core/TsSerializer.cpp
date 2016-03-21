@@ -35,6 +35,7 @@
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/LinearRing.h>
 #include <terralib/geometry/Polygon.h>
+#include <terralib/geometry/MultiPolygon.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 
 // Qt
@@ -88,8 +89,9 @@ terrama2::core::Filter TsSerializer::createFilter()
   te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
   p->push_back(s);
 
-  std::unique_ptr< te::gm::Polygon > geom(p);
-  filter.setGeometry(std::move(geom));
+  std::unique_ptr<te::gm::MultiPolygon> geometry(new te::gm::MultiPolygon(1, te::gm::MultiPolygonType, 4326, nullptr));
+  geometry->add(p);
+  filter.setGeometry(std::move(geometry));
 
   boost::local_time::time_zone_ptr zone(new  boost::local_time::posix_time_zone("+00"));
   boost::local_time::local_date_time boostTime(boost::gregorian::date(2015,6,15), boost::posix_time::time_duration(0,0,0,0), zone, true);

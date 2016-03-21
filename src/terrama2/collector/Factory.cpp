@@ -82,6 +82,11 @@ terrama2::collector::ParserPtr terrama2::collector::Factory::makeParser(const te
       ParserPtr newParser = std::make_shared<ParserTiff>();
       return newParser;
     }
+    case core::DataSetItem::STATIC_DATA:
+    {
+      ParserPtr newParser = std::make_shared<ParserOGR>();
+      return newParser;
+    }
     default:
     {
       QString errMsg = QObject::tr("The DataSetItem (%1) type is not compatible with FILE scheme.").arg(datasetItem.id());

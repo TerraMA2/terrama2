@@ -88,7 +88,6 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
   int minutes = -1;
   int seconds  = -1;
 
-  //**********************
   //get date values from names
 
   //get year value
@@ -113,7 +112,6 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
   if(maskData.secondPos != -1)
     seconds = std::stoi(name.substr(maskData.secondPos, 2));
 
-  //****************************
 
   try
   {
@@ -127,7 +125,7 @@ bool terrama2::collector::DataFilter::filterName(const std::string& name)
 
     updateLastDateTimeCollected(time);
   }
-  catch(boost::exception& /*e*/)
+  catch(boost::exception& )
   {
     //invalid date or time, go on and compare as possible....
 
@@ -284,7 +282,12 @@ bool terrama2::collector::DataFilter::isAfterDiscardBeforeTime(int hours, int mi
   if(seconds > -1
      && (hours == -1   || hours == discardBeforeTime.hours())
      && (minutes == -1 || minutes == discardBeforeTime.minutes())
-     && (seconds == -1 || seconds > discardBeforeTime.seconds()))
+     && seconds > discardBeforeTime.seconds())
+    return true;
+
+  if(hours == -1
+     && minutes == -1
+     && seconds == -1)
     return true;
 
   return false;
@@ -314,10 +317,9 @@ bool terrama2::collector::DataFilter::isBeforeDiscardAfterTime(int hours, int mi
      && (hours == -1 || hours == discardAfterTime.hours())
      && minutes < discardAfterTime.minutes())
     return true;
-  if(seconds > -1
-     && (hours   == -1 || hours == discardAfterTime.hours())
-     && (minutes == -1 || minutes == discardAfterTime.minutes())
-     && (seconds == -1 || seconds < discardAfterTime.seconds()))
+  if(hours == -1
+     && minutes == -1
+     && seconds == -1)
     return true;
 
   return false;
@@ -520,11 +522,6 @@ void terrama2::collector::DataFilter::processMask()
   //boost regex
   maskData.regex = boost::regex(mask);
 }
-
-
-
-
-
 
 
 

@@ -66,7 +66,8 @@ namespace terrama2
           PCD_TOA5_TYPE = 3, //!< PCD format TOA5.
           FIRE_POINTS_TYPE = 4, //!< Fire points data.
           DISEASE_OCCURRENCE_TYPE = 5, //!< Disease occurence data.
-          GRID_TYPE = 6 //!< For sattelite images or grid data.
+          GRID_TYPE = 6, //!< For sattelite images or grid data.
+          STATIC_DATA = 7, //!< Identifies a static data.
         };
 
         //! DataSet item status.

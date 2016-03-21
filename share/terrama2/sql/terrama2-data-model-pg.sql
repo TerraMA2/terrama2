@@ -100,7 +100,7 @@ COMMENT ON COLUMN terrama2.dataset_item_type.id IS 'Dataset item type identifier
 COMMENT ON COLUMN terrama2.dataset_item_type.name IS 'Name that identifies the dataset item type';
 COMMENT ON COLUMN terrama2.dataset_item_type.description IS 'Brief description about the dataset item type';
 
-INSERT INTO terrama2.dataset_item_type(name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD-INPE', 'INPE Format'), ('PCD-TOA5', 'TOA5'), ('FIRE POINTS', 'Occurrence of fire'), ('DISEASE OCCURRENCE', 'Occurrence of diseases'), ('GRID', 'Grid');
+INSERT INTO terrama2.dataset_item_type(name, description) VALUES ('UNKNOWN_TYPE', 'Unknow format'), ('PCD-INPE', 'INPE Format'), ('PCD-TOA5', 'TOA5'), ('FIRE POINTS', 'Occurrence of fire'), ('DISEASE OCCURRENCE', 'Occurrence of diseases'), ('GRID', 'Grid'), ('Static data', 'Identifies a static data');
 
 
 CREATE TABLE terrama2.dataset_item ( id  SERIAL NOT NULL PRIMARY KEY, kind  INTEGER NOT NULL, active  BOOLEAN, dataset_id INTEGER, mask  VARCHAR(255), timezone text DEFAULT '+00:00', path VARCHAR(255), srid INT, CONSTRAINT fk_dataset_data_type_id FOREIGN KEY(kind) REFERENCES terrama2.dataset_item_type(id) ON UPDATE CASCADE ON DELETE RESTRICT, CONSTRAINT fk_data_dataset_id FOREIGN KEY(dataset_id) REFERENCES terrama2.dataset(id) ON UPDATE CASCADE ON DELETE CASCADE, CONSTRAINT fk_dataset_item_srid FOREIGN KEY(srid) REFERENCES public.spatial_ref_sys(srid) ON UPDATE CASCADE ON DELETE CASCADE);

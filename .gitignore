@@ -8,3 +8,4 @@ webapp/public/externals
 
 webcomponents/node_modules
 webcomponents/npm-debug.log
+.atom-gdb.json

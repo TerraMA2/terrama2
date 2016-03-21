@@ -20,40 +20,27 @@
 */
 
 /*!
-  \file unittest/core/TsSerializer.cpp
+  \file unittest/core/TsPythonInterpreter.cpp
 
-  \brief Test for Serializer class
+  \brief Test for PythonInterpreter functions
 
   \author Paulo R. M. Oliveira
 */
 
 //TerraMA2
-#include <terrama2/core/DataProvider.hpp>
-#include <terrama2/core/DataSet.hpp>
-#include <terrama2/core/DataSetItem.hpp>
-#include <terrama2/core/Intersection.hpp>
-#include <terrama2/core/Filter.hpp>
+#include <terrama2/analysis/core/PythonInterpreter.hpp>
 
 //QT
 #include <QtTest/QTest>
 
 
-class TsSerializer : public QObject
+class TsPythonInterpreter : public QObject
 {
     Q_OBJECT
 
-public:
-  terrama2::core::Intersection createIntersection();
-  terrama2::core::Filter createFilter();
-  terrama2::core::DataSetItem createDataSetItem();
-  terrama2::core::DataSet createDataSet();
-  terrama2::core::DataProvider createDataProvider();
 
 private slots:
-    void testIntersection();
-    void testFilter();
-    void testDataSetItem();
-    void testDataSet();
-    void testDataProvider();
+  void countPointsAnalysis();
+  void sumHistoryPCD();
 
 };

@@ -125,7 +125,7 @@ terrama2::core::DataSet TsCore::buildDataSet()
 
   te::gm::LinearRing* s = new te::gm::LinearRing(5, te::gm::LineStringType);
 
-  const double &xc(5), &yc(5), &halfSize(5);
+  double xc(5), yc(5), halfSize(5);
   s->setPoint(0, xc - halfSize, yc - halfSize); // lower left
   s->setPoint(1, xc - halfSize, yc + halfSize); // upper left
   s->setPoint(2, xc + halfSize, yc + halfSize); // upper rigth
@@ -135,8 +135,9 @@ terrama2::core::DataSet TsCore::buildDataSet()
   te::gm::Polygon* p = new te::gm::Polygon(0, te::gm::PolygonType);
   p->push_back(s);
 
-  std::unique_ptr< te::gm::Polygon > geom(p);
-  filter.setGeometry(std::move(geom));
+  std::unique_ptr<te::gm::MultiPolygon> geometry(new te::gm::MultiPolygon(1, te::gm::MultiPolygonType, 4326, nullptr));
+  geometry->add(p);
+  filter.setGeometry(std::move(geometry));
 
   dataSetItem1.setFilter(filter);
 
