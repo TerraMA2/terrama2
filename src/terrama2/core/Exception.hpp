@@ -51,6 +51,8 @@ namespace terrama2
     struct DisabledDataProviderException: virtual DataAccessorException { };
     //! Raised when trying to retrieve data from a non retrivable Retriever
     struct NotRetrivableException: virtual DataAccessorException { };
+    //! Raised when a format value is accessed and not set.
+    struct UndefinedTagException: virtual DataAccessorException { };
 
     //#################################
 

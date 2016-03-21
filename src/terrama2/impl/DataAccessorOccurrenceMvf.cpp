@@ -120,18 +120,18 @@ void terrama2::core::DataAccessorOccurrenceMvf::addColumns(std::shared_ptr<te::d
   // the converter will add columns
 }
 
-Srid terrama2::core::DataAccessorOccurrenceMvf::getSrid(const DataSet& dataset) const
+Srid terrama2::core::DataAccessorOccurrenceMvf::getSrid(const DataSet& dataSet) const
 {
   try
   {
-    Srid srid = std::stoi(dataset.format.at("srid"));
+    Srid srid = std::stoi(dataSet.format.at("srid"));
     return srid;
   }
   catch (...)
   {
-    //TODO: log this
-    //TODO: throw UndefinedTag
-    throw;
+    QString errMsg = QObject::tr("Undefined srid in dataset: %1.").arg(dataSet.id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 
@@ -150,17 +150,17 @@ std::string terrama2::core::DataAccessorOccurrenceMvf::longitudeColumnName() con
   return "lon";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::getTimeZone(const DataSet& dataset) const
+std::string terrama2::core::DataAccessorOccurrenceMvf::getTimeZone(const DataSet& dataSet) const
 {
   try
   {
-    return dataset.format.at("timezone");
+    return dataSet.format.at("timezone");
   }
   catch (...)
   {
-    //TODO: log this
-    //TODO: throw UndefinedTag
-    throw;
+    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet.id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 

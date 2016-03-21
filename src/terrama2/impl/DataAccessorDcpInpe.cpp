@@ -61,17 +61,17 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::timestampC
   return "N/A";
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(const DataSet& dataset) const
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(const DataSet& dataSet) const
 {
   try
   {
-    return dataset.format.at("timezone");
+    return dataSet.format.at("timezone");
   }
   catch (...)
   {
-    //TODO: log this
-    //TODO: throw UndefinedTag
-    throw;
+    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet.id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 

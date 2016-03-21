@@ -29,6 +29,7 @@
 
 #include "DataAccessorFile.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
 
 //STL
@@ -47,17 +48,17 @@
 #include <terralib/datatype/DateTimeProperty.h>
 
 
-std::string terrama2::core::DataAccessorFile::getMask(const DataSet& dataset) const
+std::string terrama2::core::DataAccessorFile::getMask(const DataSet& dataSet) const
 {
   try
   {
-    return dataset.format.at("mask");
+    return dataSet.format.at("mask");
   }
   catch (...)
   {
-    //TODO: log this
-    //TODO: throw UndefinedTag
-    throw;
+    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet.id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 

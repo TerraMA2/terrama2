@@ -55,9 +55,9 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSet& 
   }
   catch (...)
   {
-    //TODO: log this
-    //TODO: throw UndefinedTag
-    throw;
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet.id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 
