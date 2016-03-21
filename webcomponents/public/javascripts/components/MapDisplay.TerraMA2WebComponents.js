@@ -494,9 +494,9 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     if(layer.getLayers) {
       var layers = layer.getLayers().getArray(),
       len = layers.length, result;
-      for (var i = 0; i < len; i++) {
+      for(var i = 0; i < len; i++) {
         result = findBy(layers[i], key, value);
-        if (result) {
+        if(result) {
           return result;
         }
       }
@@ -526,6 +526,20 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     memberSocket.on('proxyResponse', function(response) {
       createCapabilitiesLayers(response.msg, response.additionalParameters.serverUrl, response.additionalParameters.serverType, response.additionalParameters.serverId, response.additionalParameters.serverName);
     });
+  };
+
+  /**
+   * Alters the index of a layer.
+   * @param {string} parent - Parent id
+   * @param {int} indexFrom - Current index of the layer
+   * @param {int} indexTo - New index
+   *
+   * @function alterLayerIndex
+   */
+  var alterLayerIndex = function(parent, indexFrom, indexTo) {
+    var layers = findBy(memberOlMap.getLayerGroup(), 'id', parent).getLayers();
+    var layer = layers.removeAt(indexFrom);
+    layers.insertAt(indexTo, layer);
   };
 
   /**
@@ -578,6 +592,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     setMapDoubleClickEvent: setMapDoubleClickEvent,
     findBy: findBy,
     applyCQLFilter: applyCQLFilter,
+    alterLayerIndex: alterLayerIndex,
     init: init
   };
 })();
