@@ -53,7 +53,6 @@
 using namespace terrama2::analysis::core;
 
 
-/*
 void TsPythonInterpreter::countPointsAnalysis()
 {
 
@@ -62,7 +61,7 @@ void TsPythonInterpreter::countPointsAnalysis()
 
   analysis.setId(1);
 
-  std::string script = "x = countPoints(\"Ocorrencia\", 0, \"2h\", \"\")\nresult(x)";
+  std::string script = "x = countPoints(\"Ocorrencia\", 0.1, \"2h\", \"\")\nresult(x)";
 
   analysis.setScript(script);
   analysis.setScriptLanguage(Analysis::PYTHON);
@@ -103,7 +102,6 @@ void TsPythonInterpreter::countPointsAnalysis()
   terrama2::analysis::core::runAnalysis(analysis);
 
 }
-*/
 
 
 void TsPythonInterpreter::sumHistoryPCD()
@@ -111,7 +109,7 @@ void TsPythonInterpreter::sumHistoryPCD()
 
   Analysis analysis;
 
-  analysis.setId(1);
+  analysis.setId(2);
 
   std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"10h\")\nresult(x)";
 

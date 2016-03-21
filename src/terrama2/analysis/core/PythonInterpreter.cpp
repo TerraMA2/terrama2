@@ -30,8 +30,7 @@
 
 
 #include "PythonInterpreter.hpp"
-
-#include "../../analysis/core/Context.hpp"
+#include "BufferMemory.hpp"
 #include "../../analysis/core/Analysis.hpp"
 #include "../../collector/TransferenceData.hpp"
 #include "../../collector/Parser.hpp"
@@ -40,6 +39,7 @@
 #include "../../core/DataSetItem.hpp"
 #include "../../core/DataManager.hpp"
 #include "../../core/Utils.hpp"
+#include "../../analysis/core/Context.hpp"
 
 #include <ctime>
 
@@ -54,20 +54,37 @@
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/vp/BufferMemory.h>
 
 
+void saveUsingOGR(te::da::DataSet* dataset, te::da::DataSetType* dst, const std::string& filename)
+{
+
+  std::map<std::string, std::string> connInfo;
+  connInfo["URI"] = filename;
+  connInfo["DRIVER"] = "ESRI Shapefile";
+
+  std::auto_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR");
+  dsOGR->setConnectionInfo(connInfo);
+  dsOGR->open();
+
+  dataset->moveBeforeFirst();
+
+  te::da::Create(dsOGR.get(), dst, dataset);
+
+  dsOGR->close();
+  dsOGR.release();
+  connInfo.clear();
+}
+
 PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 {
 
-  PyObject * main = PyImport_AddModule("__main__"); // borrowed
-  if (main == NULL)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-    throw terrama2::InitializationException() << ErrorDescription(QObject::tr("Could not add operation context"));
-  }
-  PyObject *pDict = PyModule_GetDict(main); // borrowed
+  PyThreadState* state = PyThreadState_Get();
+  PyObject* pDict = state->dict;
 
   // Geom index
   PyObject *geomKey = PyString_FromString("index");
@@ -110,9 +127,9 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  auto datasetContext = Context::getInstance().getContextDataset(analysis.id(), moItem.id(), "");
+  auto moDsContext = Context::getInstance().getContextDataset(analysis.id(), moItem.id(), "");
 
-  auto geom = datasetContext->dataset->getGeometry(index, datasetContext->geometryPos);
+  auto geom = moDsContext->dataset->getGeometry(index, moDsContext->geometryPos);
   if(!geom.get())
   {
     QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
@@ -257,26 +274,41 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 
         }
 
-        // Frees the GIL, from now on can not use the interpreter
+
+        // Save thread state before entering multi-thread zone
+
         Py_BEGIN_ALLOW_THREADS
 
         std::vector<uint64_t> indexes;
+        std::shared_ptr<SyncronizedDataSet> syncDs = contextDataset->dataset;
 
-        auto sampleGeom = contextDataset->dataset->getGeometry(0, contextDataset->geometryPos);
-        geom->transform(sampleGeom->getSRID());
-
-        contextDataset->rtree.search(*geom->getMBR(), indexes);
-
-        for(uint64_t index : indexes)
+        if(contextDataset->dataset->size() > 0)
         {
-          auto occurenceGeom = contextDataset->dataset->getGeometry(index, contextDataset->geometryPos);
-          if(occurenceGeom->intersects(geom.get()))
-          {
-            ++count;
+          auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
+          geom->transform(sampleGeom->getSRID());
 
-            // TODO: Paulo: Criar buffer e remover pontos dentro do buffer.
+          contextDataset->rtree.search(*geom->getMBR(), indexes);
+
+          std::vector<std::shared_ptr<te::gm::Geometry> > geometries;
+
+          for(uint64_t i : indexes)
+          {
+            auto occurenceGeom = syncDs->getGeometry(i, contextDataset->geometryPos);
+            if(occurenceGeom->intersects(geom.get()))
+            {
+              geometries.push_back(occurenceGeom);
+            }
+          }
+
+          if(!geometries.empty())
+          {
+            std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
+            auto bufferDs = createBuffer(geometries, box, radius);
+
+            count = bufferDs->size();
           }
         }
+
 
 
         // All operations are done, acquires the GIL and set the return value
@@ -284,8 +316,6 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
       }
     }
   }
-
-
 
 
   if(found)
@@ -297,13 +327,8 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 
 PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args)
 {
-  PyObject * main = PyImport_AddModule("__main__"); // borrowed
-  if (main == NULL)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-    throw terrama2::InitializationException() << ErrorDescription(QObject::tr("Could not add operation context"));
-  }
-  PyObject *pDict = PyModule_GetDict(main); // borrowed
+  PyThreadState* state = PyThreadState_Get();
+  PyObject* pDict = state->dict;
 
   // Geom index
   PyObject *geomKey = PyString_FromString("index");
@@ -507,7 +532,7 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
           auto influence = analysis.influence(selectedItem.id());
           if(influence.type == Analysis::RADIUS_CENTER)
           {
-            auto buffer = dcpLocation->buffer(5, 16, te::gm::CapButtType);
+            auto buffer = dcpLocation->buffer(influence.radius, 16, te::gm::CapButtType);
 
             auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
 
@@ -554,21 +579,16 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
   if(found)
     return Py_BuildValue("d", sum);
 
-  return NULL;
+  return Py_BuildValue("d", 0.);
 
 
 }
 
 PyObject* terrama2::analysis::core::result(PyObject* self, PyObject* args)
 {
+  PyThreadState* state = PyThreadState_Get();
+  PyObject* pDict = state->dict;
 
-  PyObject * main = PyImport_AddModule("__main__"); // borrowed
-  if (main == NULL)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-    throw terrama2::InitializationException() << ErrorDescription(QObject::tr("Could not add operation context"));
-  }
-  PyObject *pDict = PyModule_GetDict(main); // borrowed
 
   // Geom index
   PyObject *geomKey = PyString_FromString("index");
@@ -585,7 +605,7 @@ PyObject* terrama2::analysis::core::result(PyObject* self, PyObject* args)
 
   if (!PyArg_ParseTuple(args, "d", &result))
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Could not read the parameters from function countPoints.");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Could not read the parameters from function result.");
     return NULL;
   }
 
@@ -637,70 +657,36 @@ void terrama2::analysis::core::init()
 
 void terrama2::analysis::core::runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes)
 {
-  // grab the global interpreter lock
-  PyEval_AcquireLock();
-  // swap in my thread state
-  PyThreadState_Swap(state);
-
-
-  PyObject * main = PyImport_AddModule("__main__"); // borrowed
-  if (main == NULL)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-    throw terrama2::InitializationException() << terrama2::ErrorDescription(QObject::tr("Could not add operation context"));
-  }
-
-  PyObject *pDict = PyModule_GetDict(main); // borrowed
-
-  PyObject *geomIdKey = PyString_FromString("index");
-  PyObject *analysisKey = PyString_FromString("analysis");
 
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
   for(uint64_t index : indexes)
   {
+    // grab the global interpreter lock
+    PyEval_AcquireLock();
+    // swap in my thread state
+    PyThreadState_Swap(state);
 
-    std::cout << "Running script for index: " << index << std::endl;
+
     PyThreadState_Clear(state);
 
     PyObject *indexValue = PyInt_FromLong(index);
-    if (indexValue == NULL)
-    {
-      TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-      throw terrama2::InitializationException() << terrama2::ErrorDescription(QObject::tr("Could not add geom index to the context"));
-    }
-
-    if (PyDict_SetItem(pDict, geomIdKey, indexValue) < 0)
-    {
-      TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-      throw terrama2::InitializationException() << terrama2::ErrorDescription(QObject::tr("Could not add geom index to the context"));
-    }
-
     PyObject *analysisValue = PyInt_FromLong(analysisId);
-    if (analysisValue == NULL)
-    {
-      TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-      throw terrama2::InitializationException() << terrama2::ErrorDescription(QObject::tr("Could not add analysis ID to the context"));
-    }
 
-    if (PyDict_SetItem(pDict, analysisKey, analysisValue) < 0)
-    {
-      TERRAMA2_LOG_ERROR() << QObject::tr("Could not add operation context");
-      throw terrama2::InitializationException() << terrama2::ErrorDescription(QObject::tr("Could not add analysis ID to the context"));
-    }
-
+    PyObject* poDict = PyDict_New();
+    PyDict_SetItemString(poDict, "index", indexValue);
+    PyDict_SetItemString(poDict, "analysis", analysisValue);
+    state->dict = poDict;
 
     PyRun_SimpleString("from terrama2 import *");
     PyRun_SimpleString(analysis.script().c_str());
 
+
+    // release our hold on the global interpreter
+    PyEval_ReleaseLock();
   }
 
-  // clear the thread state
-  PyThreadState_Swap(NULL);
-
-  // release our hold on the global interpreter
-  PyEval_ReleaseLock();
 
 }
 

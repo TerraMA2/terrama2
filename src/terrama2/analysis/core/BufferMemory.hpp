@@ -20,23 +20,32 @@
 */
 
 /*!
-  \file terrama2/analysis/core/PythonInterpreter.hpp
+  \file terrama2/analysis/core/Utils.hpp
 
-  \brief Manages the communication of Python and C.
+  \brief Utility functions for TerraMA2 Analysis module.
 
   \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
+#define __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+// STL
+#include <memory>
+#include <vector>
 
-#include "Analysis.hpp"
-
-#include <string>
-
-#include "../../collector/DataFilter.hpp"
-#include <Python.h>
+namespace te
+{
+  namespace mem
+  {
+    class DataSet;
+  }
+  namespace gm
+  {
+    class Geometry;
+    class Envelope;
+  }
+}
 
 namespace terrama2
 {
@@ -44,19 +53,12 @@ namespace terrama2
   {
     namespace core
     {
-      PyObject* countPoints(PyObject* self, PyObject* args);
-      PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
-      PyObject* result(PyObject* self, PyObject* args);
+      class SyncronizedDataSet;
 
-      std::string createMonitoredObjectFunction(const std::string& script);
+      std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance);
 
-      void init();
+    } // end namespace core
+  }   // end namespace analysis
+}     // end namespace terrama2
 
-      void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
-
-      void finalize();
-    }
-  }
-}
-
-#endif //__TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+#endif // __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__

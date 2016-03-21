@@ -40,7 +40,7 @@ class TsPythonInterpreter : public QObject
 
 
 private slots:
-  //void countPointsAnalysis();
+  void countPointsAnalysis();
   void sumHistoryPCD();
 
 };

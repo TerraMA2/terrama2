@@ -29,8 +29,8 @@
 
 #include "AnalysisExecutor.hpp"
 
-#include "Context.hpp"
 #include "PythonInterpreter.hpp"
+#include "Context.hpp"
 #include "../../Exception.hpp"
 #include "../../core/Logger.hpp"
 #include "../../core/PCD.hpp"
@@ -110,14 +110,14 @@ void terrama2::analysis::core::runMonitoredObjectAnalysis(const Analysis& analys
     parser->read(filter, transferenceDataVec);
 
     assert(transferenceDataVec.size() == 1);
-    std::shared_ptr<te::da::DataSet> teMonitoredOobjectDs = transferenceDataVec[0].teDataSet;
+    std::shared_ptr<te::da::DataSet> teMonitoredObjectDs = transferenceDataVec[0].teDataSet;
 
     auto metadata = dataSetItem.metadata();
     std::string identifier = metadata["identifier"];
 
-    terrama2::analysis::core::Context::getInstance().addDataset(analysis.id(), dataSetItem.id(), "", teMonitoredOobjectDs, identifier, true);
+    terrama2::analysis::core::Context::getInstance().addDataset(analysis.id(), dataSetItem.id(), "", teMonitoredObjectDs, identifier, true);
 
-    int size = teMonitoredOobjectDs->size();
+    int size = teMonitoredObjectDs->size();
 
      //check for the number o threads to create
     int threadNumber = std::thread::hardware_concurrency();
@@ -160,6 +160,7 @@ void terrama2::analysis::core::runMonitoredObjectAnalysis(const Analysis& analys
         indexes.push_back(j);
       }
 
+
       // create a thread state object for this thread
       PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
@@ -167,9 +168,6 @@ void terrama2::analysis::core::runMonitoredObjectAnalysis(const Analysis& analys
 
       begin += packageSize;
     }
-
-    // release the lock
-    PyEval_ReleaseLock();
 
     joinAllThreads(threads);
 
@@ -241,27 +239,27 @@ void terrama2::analysis::core::runDCPAnalysis(const Analysis& analysis)
       parser->read(filter, transferenceDataVec);
 
       assert(transferenceDataVec.size() == 1);
-      std::shared_ptr<te::da::DataSet> teMonitoredOobjectDs = transferenceDataVec[0].teDataSet;
-      std::shared_ptr<te::da::DataSetType> teMonitoredOobjectDst = transferenceDataVec[0].teDataSetType;
+      std::shared_ptr<te::da::DataSet> teMonitoredObjectDs = transferenceDataVec[0].teDataSet;
+      std::shared_ptr<te::da::DataSetType> teMonitoredObjectDst = transferenceDataVec[0].teDataSetType;
 
       auto metadata = dcpItem.metadata();
       std::string identifier = metadata["identifier"];
 
       uint64_t identifierPos = 0;
-      for(int i = 0; i < teMonitoredOobjectDst->size(); i++)
+      for(int i = 0; i < teMonitoredObjectDst->size(); i++)
       {
-        if(identifier == teMonitoredOobjectDst->getProperty(i)->getName())
+        if(identifier == teMonitoredObjectDst->getProperty(i)->getName())
         {
           identifierPos = i;
           break;
         }
       }
 
-      terrama2::analysis::core::Context::getInstance().addDCP(analysis.id(), dcp, teMonitoredOobjectDs, identifierPos, true);
+      terrama2::analysis::core::Context::getInstance().addDCP(analysis.id(), dcp, teMonitoredObjectDs, identifierPos, true);
     }
 
 
-    int size = teMonitoredOobjectDs->size();
+    int size = teMonitoredObjectDs->size();
 
      //check for the number o threads to create
     int threadNumber = std::thread::hardware_concurrency();

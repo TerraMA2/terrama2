@@ -48,6 +48,9 @@
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
 
+#include <Python.h>
+
+
 namespace terrama2
 {
   namespace analysis
@@ -109,7 +112,7 @@ namespace terrama2
           Analysis getAnalysis(const uint64_t id);
           void addAnalysis(const Analysis& analysis);
 
-          std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const uint64_t datasetItemId, const std::string& dateFilter) const;
+          std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const uint64_t datasetItemId, const std::string& dateFilter = "") const;
           std::shared_ptr<ContextDataset> addDataset(const uint64_t analysisId, const uint64_t datasetItemId, const std::string& dateFilter, std::shared_ptr<te::da::DataSet>& dataset, std::string identifier, bool createSpatialIndex = true);
           std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, const uint64_t datasetItemId, const terrama2::core::PCD& dcp, const std::string& dateFilter, std::shared_ptr<te::da::DataSet>& dataset, std::shared_ptr<te::da::DataSetType>& datasetType);
           bool exists(const uint64_t analysisId, const uint64_t datasetItemId, const std::string& dateFilter) const;
