@@ -33,30 +33,32 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * Creates a layer group.
    * @param {string} id - Layer group id
    * @param {string} name - Layer group name
+   * @param {string} parent - Parent id
    * @param {string} layers - HTML code of the layers that will be inside of the layer group
    * @returns {string} html - HTML code of the layer group
    *
    * @private
    * @function createLayerGroup
    */
-  var createLayerGroup = function(id, name, layers) {
-    return "<li data-layerid='" + id + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + name + "</span><ul class='children'>" + layers + "</ul></li>";
+  var createLayerGroup = function(id, name, parent, layers) {
+    return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + name + "</span><ul class='children'>" + layers + "</ul></li>";
   };
 
   /**
    * Creates a layer.
    * @param {string} id - Layer id
    * @param {string} name - Layer name
+   * @param {string} parent - Parent id
    * @param {boolean} visible - Flag that indicates if the layer should be visible when created
    * @returns {string} html - HTML code of the layer
    *
    * @private
    * @function createLayer
    */
-  var createLayer = function(id, name, visible) {
+  var createLayer = function(id, name, parent, visible) {
     var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
 
-    return "<li data-layerid='" + id + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
+    return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
   };
 
   /**
@@ -70,12 +72,12 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    */
   var addLayerGroup = function(id, name, layers, parent) {
     if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
-      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayerGroup(id, name, layers));
+      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayerGroup(id, name, parent, layers));
 
       if(!$('#' + parent.replace(':', '')).hasClass('open'))
         $('#' + parent.replace(':', '')).find(' > ul > li').hide();
     } else {
-      $('#' + parent.replace(':', '')).append(createLayerGroup(id, name, layers));
+      $('#' + parent.replace(':', '')).append(createLayerGroup(id, name, parent, layers));
     }
   };
 
@@ -90,12 +92,12 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    */
   var addLayer = function(id, name, visible, parent) {
     if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
-      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayer(id, name, visible));
+      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayer(id, name, parent, visible));
 
       if(!$('#' + parent.replace(':', '')).hasClass('open'))
         $('#' + id.replace(':', '')).hide();
     } else {
-      $('#' + parent.replace(':', '')).append(createLayer(id, name, visible));
+      $('#' + parent.replace(':', '')).append(createLayer(id, name, parent, visible));
     }
   };
 
@@ -109,47 +111,37 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
     if(data !== null) {
-      var elem = buildLayersFromMap(data);
+      var elem = buildLayersFromMap(data, '#terrama2-layerexplorer');
       $('#terrama2-layerexplorer').append(elem);
 
       // Handle opacity slider control
       $('input.opacity').slider();
 
       $('.parent_li').find(' > ul > li').hide();
-
-      // new
-
-      $("#terrama2-layerexplorer").sortable();
-      $("#terrama2-layerexplorer").disableSelection();
-
-      $(".children").sortable();
-      $(".children").disableSelection();
-
-      // new
-
     }
   };
 
   /**
    * Builds a layer or a layer group with data from the map.
    * @param {ol.layer} layer - Layer or layers group to be used in the layer explorer
+   * @param {string} parent - Parent id
    * @returns {string} elem - String containing the HTML code to the layers
    *
    * @private
    * @function buildLayersFromMap
    */
-  var buildLayersFromMap = function(layer) {
+  var buildLayersFromMap = function(layer, parent) {
     if(layer.getLayers) {
       var sublayersElem = '',
           layers = layer.getLayers().getArray(),
           len = layers.length;
 
-      for(var i = len - 1; i >= 0; i--)
-        sublayersElem += buildLayersFromMap(layers[i]);
+      for(var i = 0; i < len; i++)
+        sublayersElem += buildLayersFromMap(layers[i], layer.get('id'));
 
-      var elem = createLayerGroup(layer.get('id'), layer.get('name'), sublayersElem);
+      var elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
     } else {
-      var elem = createLayer(layer.get('id'), layer.get('name'), layer.get('visible'));
+      var elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'));
     }
 
     return elem;
@@ -214,6 +206,18 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
         memberSelectedLayer = $(this).attr("data-layerid");
       }
     });
+
+    $(".children").sortable({
+      start: function(event, ui) {
+        $(this).attr('data-previndex', ui.item.index());
+      },
+      update: function(event, ui) {
+        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        $(this).removeAttr('data-previndex');
+      }
+    });
+
+    $(".children").disableSelection();
   };
 
   /**
