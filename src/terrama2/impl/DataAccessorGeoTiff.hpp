@@ -20,43 +20,40 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorFile.hpp
+  \file terrama2/core/data-access/DataAccessorGeoTiff.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOTIFF_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOTIFF_HPP__
 
 //TerraMA2
+#include "DataAccessorFile.hpp"
 #include "../core/shared.hpp"
-#include "../core/data-access/DataAccessor.hpp"
-#include "../core/data-model/DataSet.hpp"
-#include "../core/data-model/Filter.hpp"
+#include "../core/data-access/DataAccessorGrid.hpp"
 
 namespace terrama2
 {
   namespace core
   {
+    struct Filter;
     /*!
-      \class DataAccessorFile
+      \class DataAccessorGeoTiff
 
-      \brief Base class for DataAccessor classes that access a file.
-      
     */
-    class DataAccessorFile : public virtual DataAccessor
+    class DataAccessorGeoTiff : public DataAccessorGrid, virtual public DataAccessorFile
     {
     public:
-      // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const override;
-      // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const override;
-      //! Recover file mask
-      virtual std::string getMask(const DataSet& dataset) const;
+      DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorGeoTiff() {}
+
+    protected:
+      virtual std::string dataSourceTye() const override;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOTIFF_HPP__

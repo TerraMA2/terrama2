@@ -31,6 +31,9 @@
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Raii.hpp"
 
+//STL
+#include <algorithm>
+
 //QT
 #include <QUrl>
 #include <QDir>
@@ -109,10 +112,23 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      // get a transactor to interact to the data source
      std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
+     // Some drivers use tha base name and other use filename with extension
+     std::string dataSetName;
+     std::vector<std::string> dataSetNames = transactor->getDataSetNames();
+     auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
+     auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
+     if(itBaseName != dataSetNames.cend())
+       dataSetName = baseName;
+     else if(itFileName != dataSetNames.cend())
+       dataSetName = name;
+     //No valid dataset name found
+     if(dataSetName.empty())
+       continue;
+
      if(first)
      {
      //read and adapt all te:da::DataSet from terrama2::core::DataSet
-       converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(baseName)));
+       converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
        std::shared_ptr<te::da::DataSetType> datasetType(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
        assert(datasetType);
        completeDataset = std::make_shared<te::mem::DataSet>(datasetType.get());
@@ -120,14 +136,15 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      }
 
      assert(converter);
-     std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(baseName));
-     assert(datasetOrig);
-     std::shared_ptr<te::da::DataSet> dataset(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
+     std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
+      assert(datasetOrig);
+     std::shared_ptr<te::da::DataSet> teDataSet(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 
+     //FIXME: Nor working with raster!!
      //TODO:.. filter and join te::da::dataset from each dataset
      //TODO: join dataset
-     completeDataset->copy(*dataset);
-   }
+     completeDataset->copy(*teDataSet);
+   }// for each file
 
    return completeDataset;
  }

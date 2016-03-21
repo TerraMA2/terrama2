@@ -20,43 +20,45 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorFile.hpp
+  \file terrama2/core/data-access/GridSeries.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__
 
 //TerraMA2
-#include "../core/shared.hpp"
-#include "../core/data-access/DataAccessor.hpp"
-#include "../core/data-model/DataSet.hpp"
-#include "../core/data-model/Filter.hpp"
+#include "../../Config.hpp"
+#include "../data-model/DataSetGrid.hpp"
+
+//STL
+#include <vector>
+
+//TerraLib
+#include <terralib/raster.h>
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \class DataAccessorFile
+      \brief
 
-      \brief Base class for DataAccessor classes that access a file.
-      
     */
-    class DataAccessorFile : public virtual DataAccessor
+    class GridSeries
     {
     public:
-      // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const override;
-      // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const override;
-      //! Recover file mask
-      virtual std::string getMask(const DataSet& dataset) const;
+      void addGrid(const std::shared_ptr<DataSetGrid>& dataset, std::shared_ptr<te::rst::Raster>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<std::shared_ptr<DataSetGrid>, std::shared_ptr<te::rst::Raster> > >& gridList(){ return datasetList_; }
+
+    private:
+      std::vector<std::pair<std::shared_ptr<DataSetGrid>, std::shared_ptr<te::rst::Raster> > > datasetList_;
+
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__

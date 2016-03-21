@@ -20,34 +20,22 @@
  */
 
 /*!
-  \file terrama2/core/utility/Factory.hpp
+  \file terrama2/core/data-access/DataAccessorGeoTiff.cpp
 
   \brief
 
   \author Jano Simas
  */
 
- #ifndef __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
- #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+#include "DataAccessorGeoTiff.hpp"
 
-#include "../shared.hpp"
-#include "../data-model/DataProvider.hpp"
-
-namespace terrama2
+terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+ : DataAccessor(dataProvider, dataSeries, filter),
+   DataAccessorGrid(dataProvider, dataSeries, filter)
 {
-  namespace core
-  {
-    namespace Factory
-    {
-      /*!
-        \brief Creates a DataRetriever to the server.
-      */
-       DataRetrieverPtr MakeRetriever(const DataProvider& dataProvider);
+  if(dataSeries.semantics.name != "GRID-geotiff")
+    throw; //TODO: throw wrong DataSeries semantics
+}
 
-    } /* Factory */
 
-  } /* core */
-
-} /* terrama2 */
-
-#endif // __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+std::string terrama2::core::DataAccessorGeoTiff::dataSourceTye() const { return "GDAL"; };

@@ -20,43 +20,44 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorFile.hpp
+  \file terrama2/core/data-access/DataAccessorGrid.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__
 
 //TerraMA2
-#include "../core/shared.hpp"
-#include "../core/data-access/DataAccessor.hpp"
-#include "../core/data-model/DataSet.hpp"
-#include "../core/data-model/Filter.hpp"
+#include "../shared.hpp"
+#include "DataAccessor.hpp"
+#include "DcpSeries.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \class DataAccessorFile
+      \class DataAccessorGrid
 
-      \brief Base class for DataAccessor classes that access a file.
-      
     */
-    class DataAccessorFile : public virtual DataAccessor
+    class DataAccessorGrid : public virtual DataAccessor
     {
     public:
+      DataAccessorGrid(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      virtual ~DataAccessorGrid() {}
+
+      virtual GridSeriesPtr getGridSeries(const Filter& filter);
       // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const override;
+      virtual te::dt::TimeInstantTZ lastDateTime() const override;
+
+    protected:
       // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const override;
-      //! Recover file mask
-      virtual std::string getMask(const DataSet& dataset) const;
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__

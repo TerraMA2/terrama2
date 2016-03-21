@@ -33,10 +33,15 @@
 
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/datatype/SimpleData.h>
+#include <terralib/datatype/Property.h>
 
 //QT
 #include <QObject>
+
+//STL
+#include <algorithm>
 
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
@@ -80,7 +85,11 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   addColumns(converter, datasetType);
 
   adapt(dataset, converter);
-  converter->remove("FID");
+  std::string id = "FID";
+  const std::vector< te::dt::Property * > & propertyList = converter->getResult()->getProperties();
+  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property){ return property->getName() == id; });
+  if(it != propertyList.cend())
+    converter->remove(id);
 
   return converter;
 }

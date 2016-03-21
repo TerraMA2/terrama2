@@ -60,7 +60,7 @@ namespace terrama2
     \brief Base class to access data from a DataSeries.
 
     Derived classes as responsible for the whole data access process,
-    from downloading, when necessary, to instantiating the proper data access class.
+    from downloading, when necessary, to accessing and filtering the raw data.
 
     Derived classes should also be able read the format data from the dataset format map.
 

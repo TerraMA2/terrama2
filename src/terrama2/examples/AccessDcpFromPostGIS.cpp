@@ -23,16 +23,19 @@ int main(int argc, char* argv[])
   uri.setPassword("postgres");
   uri.setPath("/basedeteste");
 
+//DataProvider information
   terrama2::core::DataProvider dataProvider;
   dataProvider.uri = uri.url().toStdString();
   dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider.dataProviderType = 0;
   dataProvider.active = true;
 
+//DataSeries information
   terrama2::core::DataSeries dataSeries;
   dataSeries.semantics.name = "PCD-postgis";
 
   dataSeries.datasetList.emplace_back(new terrama2::core::DataSetDcp());
+  //DataSet information
   std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));
   dataSet->active = true;
   dataSet->format.emplace("table_name", "pcd");
@@ -40,9 +43,10 @@ int main(int argc, char* argv[])
 
   dataProvider.dataSeriesList.push_back(dataSeries);
 
-  // angra.txt
+  //empty filter
   terrama2::core::Filter filter;
 
+//accessing data
   terrama2::core::DataAccessorDcpPostGIS accessor(dataProvider, dataSeries);
   terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
