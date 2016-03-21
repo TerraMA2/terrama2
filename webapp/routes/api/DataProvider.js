@@ -4,5 +4,6 @@ module.exports = function (app) {
 
   app.get('/api/DataProvider/', controller.get);
   app.post('/api/DataProvider/', controller.post);
+  app.put('/api/DataProvider/:name', controller.put);
 
 };

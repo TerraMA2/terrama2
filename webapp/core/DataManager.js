@@ -97,40 +97,39 @@ var DataManager = {
 
         self.connection = connection;
 
+        var releaseCallback = function() {
+          release();
+          callback();
+        };
 
         var fn = function() {
           // todo: insert default values in database
           self.addDataProviderType({name: "FILE", description: "Desc File"}).then(function() {
-            self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function(providerType) {
-              self.addDataProviderType({name: "HTTP", description: "Desc Http"}).then(function(httpType) {
-                models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
-                  self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
-                    models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
-                      release();
-                      callback();
+            self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function() {
+              self.addDataProviderType({name: "HTTP", description: "Desc Http"}).then(function() {
+                self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}).then(function() {
+                  models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(){
+                    self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function() {
+                      models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function() {
+                        releaseCallback();
+                      }).catch(function() {
+                        releaseCallback();
+                      })
                     }).catch(function() {
-                      release();
-                      callback();
-                    })
-                  }).catch(function() {
-                    release();
-                    callback();
+                      releaseCallback();
+                    });
+                  }).catch(function(){
+                    releaseCallback();
                   });
-                }).catch(function(){
-                  release();
-                  callback();
-                });
+                })
               }).catch(function() {
-                release();
-                callback();
+                releaseCallback();
               })
             }).catch(function(){
-              release();
-              callback();
+              releaseCallback();
             });
-          }).catch(function(err) {
-            release();
-            callback();
+          }).catch(function() {
+            releaseCallback();
           })
         };
 
@@ -141,8 +140,7 @@ var DataManager = {
         });
       }
       else {
-        release();
-        callback();
+        releaseCallback();
       }
     });
   },
@@ -168,7 +166,6 @@ var DataManager = {
       };
 
       models.db.Project.findAll({}).then(function(projects) {
-        //self.data.projects = projects;
         projects.forEach(function(project) {
           self.data.projects.push(project.get());
         });
@@ -177,7 +174,6 @@ var DataManager = {
           dataProviders.forEach(function(dataProvider) {
             self.data.dataProviders.push(dataProvider.get());
           });
-          //self.data.dataProviders = dataProviders;
 
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
             dataSeries.forEach(function(dSeries) {
@@ -378,7 +374,7 @@ var DataManager = {
         resolve(Utils.clone(dataProvider));
       }
       else
-        reject(new exceptions.DataProviderError("Could not find a data provider: ", restriction));
+        reject(new exceptions.DataProviderError("Could not find a data provider: " + restriction[Object.keys(restriction)[0]]));
     });
   },
 
@@ -403,7 +399,7 @@ var DataManager = {
   updateDataProvider: function(dataProviderObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataProvider = getItemByParam(self.data.dataProviders, {id: dataProviderObject.id});
+      var dataProvider = getItemByParam(self.data.dataProviders, dataProviderObject);
 
       if (dataProvider) {
         models.db.DataProvider.update(dataProviderObject, {
@@ -412,10 +408,15 @@ var DataManager = {
             id: dataProvider.id
           }
         }).then(function() {
-          //self.data.dataProviders[i] = provider.get();
-          dataProvider.name = dataProviderObject.name;
-          dataProvider.description = dataProviderObject.description;
-          dataProvider.uri = dataProviderObject.uri;
+          if (dataProviderObject.name)
+            dataProvider.name = dataProviderObject.name;
+
+          if (dataProviderObject.description)
+            dataProvider.description = dataProviderObject.description;
+
+          if (dataProviderObject.uri)
+            dataProvider.uri = dataProviderObject.uri;
+
           dataProvider.active = dataProviderObject.active;
 
           resolve(Utils.clone(dataProvider));
@@ -567,23 +568,6 @@ var DataManager = {
 
       } else
         reject(new exceptions.DataSeriesError("Data series not found. "));
-      //for(var i = 0; i < self.data.dataSeries.length; ++i) {
-      //  var element = self.data.dataSeries[i];
-      //
-      //  if (element.id === dataSeriesObject.id) {
-      //    element.updateAttributes({
-      //      name: dataSeriesObject.name,
-      //      description: dataSeriesObject.description
-      //    }).then(function() {
-      //      resolve(Utils.clone(element.get()));
-      //    }).catch(function(err) {
-      //      reject(new exceptions.DataSeriesError("Could not update data series ", err));
-      //    });
-      //    return;
-      //  }
-      //}
-      //
-      //reject(new exceptions.DataSeriesError("Data series not found. "));
     });
   },
 
@@ -615,17 +599,6 @@ var DataManager = {
           }).catch(function (err) {
             reject(err);
           });
-          //
-          //dataSeries.destroy().then(function (status) {
-          //  self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
-          //    if (dSet.data_series_id === dataSeries.id)
-          //      self.data.dataSets.splice(dSetIndex, 1);
-          //  });
-          //  self.data.dataSeries.splice(index, 1);
-          //  resolve(status);
-          //}).catch(function (err) {
-          //  reject(err);
-          //});
           return;
         }
       }

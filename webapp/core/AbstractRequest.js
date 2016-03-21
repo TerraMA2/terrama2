@@ -5,6 +5,9 @@ var AbstractRequest = function(params) {
     throw new Error("Cannot instantiate abstract class");
   }
 
+  if (!params.path.startsWith("/"))
+    params.path = "/" + params.path;
+
   this.params = params;
   this.uri = UriBuilder.buildUri(params);
 };

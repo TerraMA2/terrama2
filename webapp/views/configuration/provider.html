@@ -4,139 +4,32 @@
 
 {% block javascripts %}
 <script src="/externals/angular/angular.min.js"></script>
-<!--<script src="/javascripts/angular/app.js"></script>-->
-<script src="/javascripts/angular/alert-box.js"></script>
 
 <script>
-  angular.module("terrama2.dataprovider.registration", ['terrama2.alertbox'])
-    .config(['$interpolateProvider', function($interpolateProvider) {
-      $interpolateProvider.startSymbol('{[');
-      $interpolateProvider.endSymbol(']}');
-    }])
-    .controller("Ctrl", function($scope, $http, $q) {
-      $http.get("/api/DataProviderType/", {}).success(function(typeList) {
-        $scope.kindList = typeList;
-      }).error(function(err) {
-        console.log("err type: ", err);
-      });
-
-      $scope.isEditing = false;
-      $scope.errorFound = false;
-      $scope.isDynamic = {{ (state|lower === "dynamic") }};
-      $scope.alertBox = {};
-      $scope.isChecking = false;
-      $scope.message = "";
-      $scope.remoteFieldsRequired = false;
-      $scope.dataProvider = {
-        kind: "",
-        user: "",
-        password: "",
-        address: "",
-        port: "",
-        path: "",
-        project: "{{ activeProject.name }}",
-        active: $scope.isDynamic
-      };
-      $scope.onKindChanged = function() {
-        $scope.remoteFieldsRequired = $scope.dataProvider.kind.toLocaleLowerCase() !== "file";
-      };
-
-      $scope.save = function() {
-        if (!$scope.form.$valid) {
-          angular.forEach($scope.form.$error, function (field) {
-            angular.forEach(field, function(errorField){
-              errorField.$setTouched();
-            })
-          });
-          return;
-        }
-
-        $scope.alertBox.title = "Data Provider Registration";
-        $scope.errorFound = false;
-        $http.post("/api/DataProvider", $scope.dataProvider).success(function(dataProvider) {
-          $scope.alertBox.message = "Data Provider has been saved";
-          $scope.isEditing = true;
-        }).error(function(err) {
-          $scope.errorFound = true;
-          $scope.alertBox.message = err.message;
-          console.log(err);
-        });
-      };
-      $scope.checkConnection = function() {
-        $scope.isChecking = true; // for handling loading page
-        $scope.resetState = function() {
-          $scope.errorFound = false;
-          $scope.alertBox.message = "";
-        };
-
-        // Timeout in seconds for handling connections
-        $scope.timeOutSeconds = 8;
-
-        // Function for requests success, error and timeout
-        var makeRequest = function() {
-          var timeOut = $q.defer();
-          var result = $q.defer();
-          var expired = false;
-          setTimeout(function() {
-            expired = true;
-            timeOut.resolve();
-          }, 1000 * $scope.timeOutSeconds);
-
-          var httpRequest = $http({
-            method: "POST",
-            url: "/uri/",
-            data: $scope.dataProvider,
-            timeout: timeOut.promise
-          });
-
-          httpRequest.success(function(data) {
-            result.resolve(data);
-          });
-
-          httpRequest.error(function(err) {
-            if (expired)
-              result.reject({message: "Timeout: Request took longer than " + $scope.timeOutSeconds + " seconds."});
-            else
-              result.reject(err);
-          });
-
-          return result.promise;
-        };
-
-        var request = makeRequest();
-
-        request.then(function(data) {
-          $scope.alertBox.title = "Connection Status";
-          if (data.message){ // error found
-            $scope.errorFound = true;
-            $scope.alertBox.message = data.message;
-          } else {
-            $scope.errorFound = false;
-            $scope.alertBox.message = "Connection Successful";
-          }
-        }).catch(function(err) {
-          $scope.alertBox.title = "Connection Status";
-          $scope.errorFound = true;
-          $scope.alertBox.message = err.message;
-        }).finally(function() {
-          $scope.isChecking = false;
-        });
-      };
-    });
+  // Setting it to define data provider: static or dynamic
+  var configuration = {
+    project: "{{ activeProject.name }}",
+    isDynamic: {{ (state|lower === "dynamic") }},
+    isEditing: {{ isEditing || false }},
+    dataProvider: {{ dataProvider|json|safe || {} }},
+    saveConfig: {{ saveConfig|json|safe }}
+  };
 </script>
+
+<script src="/javascripts/angular/dataProviderRegistration.js"></script>
+
 {% endblock %}
 
 {% block content %}
 
 <div class="col-md-12" ng-app="terrama2.dataprovider.registration">
-  <div class="col-md-12" ng-controller="Ctrl">
+  <div class="col-md-12" ng-controller="RegisterController">
     <div class="box box-default">
       <div class="box-header with-border">
         <h3 class="box-title">{{ __("Data Provider Registration") }}</h3>
       </div>
       <!-- /.box-header -->
       <div style="display: block;" class="box-body">
-        <!--<terrama2-alert-box title="alertBox.title" message="alertBox.message" errorFound="errorFound"></terrama2-alert-box>-->
         <div ng-show="alertBox.message" ng-class="{'alert alert-danger alert-dismissible': errorFound, 'alert alert-success alert-dismissible': !errorFound}">
           <button type="button" class="close" ng-click="resetState()">×</button>
           <h4><i ng-class="{'icon fa fa-exclamation-triangle': errorFound, 'icon fa fa-check': !errorFound}"></i> {[ alertBox.title ]}</h4>
@@ -145,7 +38,7 @@
 
         <div class="row">
           <form name="form">
-            <input type="hidden" name="project" ng-model="dataProvider.project" ng-value="{{ activeProject.name }}">
+            <!--<input type="hidden" name="project" ng-model="dataProvider.project" ng-value="{{ activeProject.name }}">-->
             <div class="col-md-6">
               <div class="form-group" ng-class="{'has-error': form.name.$touched && form.name.$invalid}">
                 <label>{{ __("Name") }}:</label>
@@ -158,7 +51,7 @@
               <div class="form-group" ng-class="{'has-error': form.kind.$touched && form.kind.$invalid}">
                 <label>{{ __("Type") }}:</label>
                 <select class="form-control" name="kind" ng-model="dataProvider.kind" ng-change="onKindChanged()" ng-disabled="isEditing" required>
-                  <option ng-repeat="item in kindList" value="{[ item.name ]}">{[ item.name ]}</option>
+                  <option ng-repeat="item in kindList" value="{[ item.name ]}" title="{[ item.description ]}">{[ item.name ]}</option>
                 </select>
                 <span class="help-block" ng-show="form.kind.$touched && form.kind.$invalid" ng-class="{'has-error': form.kind.$invalid}">{{ __('Data provider kind is required') }}</span>
               </div>
@@ -217,7 +110,7 @@
               <div class="form-group">
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
-                    <input type="checkbox" name="active" ng-model="dataProvider.active" ng-init="template.disabled" ng-checked="isDynamic" > {{ __("Active Server") }}
+                    <input type="checkbox" name="active" ng-model="dataProvider.active" ng-init="$scope.dataProvider.active"> {{ __("Active Server") }}
                   </label>
                 </div>
               </div>

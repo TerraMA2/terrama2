@@ -59,6 +59,23 @@ module.exports = function(app) {
       } else {
         response.json(DataManager.listDataProviders());
       }
+    },
+
+    put: function(request, response) {
+      var dataProviderName = request.params.name;
+
+      if (dataProviderName) {
+        DataManager.updateDataProvider({name: dataProviderName, active: request.body.active}).then(function() {
+          response.json({status: 200});
+        }).catch(function(err) {
+          response.status(400);
+          response.json({status: 400, message: err.message});
+        })
+
+      } else {
+        response.status(400);
+        response.json({status: 400, message: "DataProvider name not identified"});
+      }
     }
 
   };

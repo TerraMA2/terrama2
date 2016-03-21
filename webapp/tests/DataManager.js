@@ -77,8 +77,6 @@ describe('DataManager', function() {
   after(function(done){
     var DataManager = require("../core/DataManager");
     DataManager.connection.drop({cascade: true}).then(function(e){
-      console.log("Cleaning up database");
-
       return done();
     });
   });
