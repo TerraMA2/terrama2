@@ -26,7 +26,9 @@ function buildObject(uriString) {
   // todo: parse
   var uriObject = URL.parse(uriString);
 
-  var auth = uriObject.auth.split(':');
+  var auth;
+  if (uriObject.auth)
+    auth = uriObject.auth.split(':');
 
   return {
     kind: uriObject.protocol.substr(0, uriObject.protocol.length-1).toUpperCase(),

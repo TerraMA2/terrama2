@@ -79,11 +79,6 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
       data: $scope.dataProvider
     }).success(function(dataProvider) {
       $scope.alertBox.message = "Data Provider has been saved";
-      if (!$scope.isEditing) {
-        $scope.dataProvider = dataProvider;
-      } else {
-
-      }
       $scope.isEditing = true;
       console.log(dataProvider);
     }).error(function(err) {
@@ -92,12 +87,14 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
       console.log(err);
     });
   };
+
+  $scope.resetState = function() {
+    $scope.errorFound = false;
+    $scope.alertBox.message = "";
+  };
+
   $scope.checkConnection = function() {
     $scope.isChecking = true; // for handling loading page
-    $scope.resetState = function() {
-      $scope.errorFound = false;
-      $scope.alertBox.message = "";
-    };
 
     // Timeout in seconds for handling connections
     $scope.timeOutSeconds = 8;

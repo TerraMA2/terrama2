@@ -11,7 +11,11 @@ module.exports = function(app) {
       if (!dataProviderName) {
         Utils.UrlHandler(request, response, "DataProvider", 'configuration/provider', {
           isEditing: false,
-          dataProvider: {}
+          dataProvider: {},
+          saveConfig: {
+            url: "/api/DataProvider",
+            method: "POST"
+          }
         });
 
         return;
