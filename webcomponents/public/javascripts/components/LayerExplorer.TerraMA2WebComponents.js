@@ -79,6 +79,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     } else {
       $('#' + parent.replace(':', '')).append(createLayerGroup(id, name, parent, layers));
     }
+
+    setSortable();
   };
 
   /**
@@ -99,6 +101,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     } else {
       $('#' + parent.replace(':', '')).append(createLayer(id, name, parent, visible));
     }
+
+    setSortable();
   };
 
   /**
@@ -118,6 +122,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       $('input.opacity').slider();
 
       $('.parent_li').find(' > ul > li').hide();
+
+      setSortable();
     }
   };
 
@@ -206,8 +212,16 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
         memberSelectedLayer = $(this).attr("data-layerid");
       }
     });
+  };
 
-    $(".children").sortable({
+  /**
+   * Sets the sortable elements.
+   *
+   * @private
+   * @function setSortable
+   */
+  var setSortable = function() {
+    $('.children').sortable({
       start: function(event, ui) {
         $(this).attr('data-previndex', ui.item.index());
       },
@@ -217,7 +231,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       }
     });
 
-    $(".children").disableSelection();
+    $('.children').disableSelection();
   };
 
   /**
