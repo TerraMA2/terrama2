@@ -54,9 +54,9 @@
 #terrama2-layerexplorer li.parent_li ul li { cursor: default; }
 
 #terrama2-layerexplorer li {
-  list-style-type:none;
-  padding: 0px 0px 5px 0px;
-  position:relative;
+  list-style-type: none;
+  padding: 5px 0;
+  position: relative;
   white-space: nowrap;
   margin-left: 11px;
 }
@@ -73,9 +73,9 @@
 }
 
 #terrama2-layerexplorer li > span {
-  display:block;
+  display: block;
   padding: 10px;
-  text-decoration:none;
+  text-decoration: none;
 }
 
 .terrama2-layerexplorer-plus {
@@ -92,11 +92,11 @@
   margin-right: -1px;
 }
 
-#terrama2-layerexplorer li.parent_li>span { cursor:pointer; }
+#terrama2-layerexplorer li.parent_li>span { cursor: pointer; }
 
-#terrama2-layerexplorer>ul>li::before, #terrama2-layerexplorer>ul>li::after { border:0; }
+#terrama2-layerexplorer>ul>li::before, #terrama2-layerexplorer>ul>li::after { border: 0; }
 
-#terrama2-layerexplorer li:last-child::before { height:30px; }
+#terrama2-layerexplorer li:last-child::before { height: 30px; }
 
 .terrama2-layerexplorer-checkbox {
   display: block;
