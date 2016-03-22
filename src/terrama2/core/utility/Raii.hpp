@@ -135,6 +135,12 @@ namespace terrama2
         return file_;
       }
 
+
+      std::FILE* file() const
+      {
+        return file_;
+      }
+
     private:
       std::FILE* file_;
     };
