@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 
 //DataProvider information
   terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = "file:///home/jsimas/MyDevel/dpi/terrama2-extra/test_data/geotiff";
+  dataProvider.uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
   dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider.dataProviderType = 0;
   dataProvider.active = true;

@@ -1,9 +1,12 @@
+
 #include <terrama2/core/shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
+
+#include <terrama2_config.hpp>
 
 #include <iostream>
 
@@ -14,7 +17,7 @@ int main(int argc, char* argv[])
 
   //DataProvider information
   terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = "file:///home/jsimas/MyDevel/dpi/terrama2-extra/test_data/PCD_serrmar_INPE";
+  dataProvider.uri = "file://"+TERRAMA2_DATA_DIR+"/PCD_serrmar_INPE";
   dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider.dataProviderType = 0;
   dataProvider.active = true;

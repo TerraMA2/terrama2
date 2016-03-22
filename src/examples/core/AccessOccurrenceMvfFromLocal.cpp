@@ -1,3 +1,4 @@
+
 #include <terrama2/core/shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -15,7 +16,7 @@ int main(int argc, char* argv[])
 
 //DataProvider information
   terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = "file:///home/jsimas/MyDevel/dpi/terrama2-extra/test_data/fire_system";
+  dataProvider.uri = "file://"+TERRAMA2_DATA_DIR+"/fire_system";
   dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider.dataProviderType = 0;
   dataProvider.active = true;
