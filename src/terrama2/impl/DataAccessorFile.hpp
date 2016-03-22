@@ -44,11 +44,12 @@ namespace terrama2
       \class DataAccessorFile
 
       \brief Base class for DataAccessor classes that access a file.
-      
+
     */
     class DataAccessorFile : public virtual DataAccessor
     {
     public:
+      virtual ~DataAccessorFile() {}
       // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const override;
       // Doc in base class
