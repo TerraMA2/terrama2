@@ -39,6 +39,9 @@ namespace terrama2
   {
     namespace Factory
     {
+      /*!
+        \brief Creates a DataRetriever to the server.
+      */
        DataRetrieverPtr MakeRetriever(const DataProvider& dataProvider);
 
     } /* Factory */

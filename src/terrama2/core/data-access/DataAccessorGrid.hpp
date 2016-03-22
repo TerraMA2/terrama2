@@ -20,41 +20,44 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataRetriever.hpp
+  \file terrama2/core/data-access/DataAccessorGrid.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
 #include "../shared.hpp"
+#include "DataAccessor.hpp"
+#include "DcpSeries.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \brief Class responsible for storing a DcpSeries.
-
-      Derived classes should be able to iterate through all DCP and
-      store in the permanent storage area.
+      \class DataAccessorGrid
 
     */
-    class DataStoragerDcp
+    class DataAccessorGrid : public virtual DataAccessor
     {
     public:
-      DataStoragerDcp(DataProvider);
-      virtual ~DataStoragerDcp() {}
-      
-      //FIXME: review interface. how will a dataset from a DcpSeriesPtr be mapped to the output?
-      virtual void store(DcpSeriesPtr, /*output*/) = 0;
+      DataAccessorGrid(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      virtual ~DataAccessorGrid() {}
+
+      virtual GridSeriesPtr getGridSeries(const Filter& filter);
+      // Doc in base class
+      virtual te::dt::TimeInstantTZ lastDateTime() const override;
+
+    protected:
+      // Doc in base class
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__

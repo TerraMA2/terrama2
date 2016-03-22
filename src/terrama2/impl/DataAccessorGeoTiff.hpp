@@ -20,41 +20,40 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataRetriever.hpp
+  \file terrama2/core/data-access/DataAccessorGeoTiff.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOTIFF_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOTIFF_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
-#include "../shared.hpp"
+#include "DataAccessorFile.hpp"
+#include "../core/shared.hpp"
+#include "../core/data-access/DataAccessorGrid.hpp"
 
 namespace terrama2
 {
   namespace core
   {
+    struct Filter;
     /*!
-      \brief Class responsible for storing a DcpSeries.
-
-      Derived classes should be able to iterate through all DCP and
-      store in the permanent storage area.
+      \class DataAccessorGeoTiff
 
     */
-    class DataStoragerDcp
+    class DataAccessorGeoTiff : public DataAccessorGrid, public DataAccessorFile
     {
     public:
-      DataStoragerDcp(DataProvider);
-      virtual ~DataStoragerDcp() {}
-      
-      //FIXME: review interface. how will a dataset from a DcpSeriesPtr be mapped to the output?
-      virtual void store(DcpSeriesPtr, /*output*/) = 0;
+      DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorGeoTiff() {}
+
+    protected:
+      virtual std::string dataSourceTye() const override;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOTIFF_HPP__

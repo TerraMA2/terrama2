@@ -20,41 +20,45 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataRetriever.hpp
+  \file terrama2/core/data-access/DcpSeries.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_OCCURRENCE_SERIES_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_OCCURRENCE_SERIES_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
-#include "../shared.hpp"
+#include "../../Config.hpp"
+#include "../data-model/DataSetOccurrence.hpp"
+
+//STL
+#include <vector>
+
+//TerraLib
+#include <terralib/memory/DataSet.h>
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \brief Class responsible for storing a DcpSeries.
-
-      Derived classes should be able to iterate through all DCP and
-      store in the permanent storage area.
-
+      \class OccurrenceSeries
+      \brief A OccurrenceSeries represents a set of Occurrences of a phenomena.
     */
-    class DataStoragerDcp
+    class OccurrenceSeries
     {
     public:
-      DataStoragerDcp(DataProvider);
-      virtual ~DataStoragerDcp() {}
-      
-      //FIXME: review interface. how will a dataset from a DcpSeriesPtr be mapped to the output?
-      virtual void store(DcpSeriesPtr, /*output*/) = 0;
+      void addOccurrence(const std::shared_ptr<DataSetOccurrence>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<std::shared_ptr<DataSetOccurrence>, std::shared_ptr<te::mem::DataSet> > >& occurrenceList(){ return datasetList_; }
+
+    private:
+      std::vector<std::pair<std::shared_ptr<DataSetOccurrence>, std::shared_ptr<te::mem::DataSet> > > datasetList_;
+
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_OCCURRENCE_SERIES_HPP__

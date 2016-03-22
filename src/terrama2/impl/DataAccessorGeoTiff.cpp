@@ -20,41 +20,31 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataRetriever.hpp
+  \file terrama2/core/data-access/DataAccessorGeoTiff.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#include "DataAccessorGeoTiff.hpp"
+#include "../core/utility/Logger.hpp"
 
-//TerraMA2
-#include "../Config.hpp"
-#include "../shared.hpp"
+//QT
+#include <QString>
+#include <QObject>
 
-namespace terrama2
+terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+ : DataAccessor(dataProvider, dataSeries, filter),
+   DataAccessorGrid(dataProvider, dataSeries, filter)
 {
-  namespace core
+  if(dataSeries.semantics.name != "GRID-geotiff")
   {
-    /*!
-      \brief Class responsible for storing a DcpSeries.
-
-      Derived classes should be able to iterate through all DCP and
-      store in the permanent storage area.
-
-    */
-    class DataStoragerDcp
-    {
-    public:
-      DataStoragerDcp(DataProvider);
-      virtual ~DataStoragerDcp() {}
-      
-      //FIXME: review interface. how will a dataset from a DcpSeriesPtr be mapped to the output?
-      virtual void store(DcpSeriesPtr, /*output*/) = 0;
-    };
+    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+
+std::string terrama2::core::DataAccessorGeoTiff::dataSourceTye() const { return "GDAL"; };

@@ -20,50 +20,61 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcp.cpp
+  \file terrama2/core/data-access/DataAccessorGrid.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-//TerraMA2
-#include "DataAccessorDcp.hpp"
-#include "DataRetriever.hpp"
-#include "../utility/Factory.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
+#include "DataAccessorGrid.hpp"
+#include "GridSeries.hpp"
+#include "../data-model/DataSetGrid.hpp"
+#include "../utility//Logger.hpp"
+#include "../shared.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/memory/DataSet.h>
-
-//Qt
+//QT
+#include <QString>
 #include <QObject>
 
-terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
+//TerraLib
+#include <terralib/dataaccess/utils/Utils.h>
+
+terrama2::core::GridSeriesPtr terrama2::core::DataAccessorGrid::getGridSeries(const Filter& filter)
 {
   auto series = getSeries(filter);
-  DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
+  GridSeriesPtr gridSeries = std::make_shared<GridSeries>();
   for(auto& serie : series)
   {
     try
     {
-      std::shared_ptr<DataSetDcp> dataset = std::dynamic_pointer_cast<DataSetDcp>(serie.first);
-      dcpSeries->addDcp(dataset, serie.second);
+      std::shared_ptr<DataSetGrid> dataSet = std::dynamic_pointer_cast<DataSetGrid>(serie.first);
+
+      auto teDataSet = serie.second;
+      while(teDataSet->moveNext())
+      {
+        std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
+        std::shared_ptr<te::rst::Raster> raster(teDataSet->getRaster(rpos));
+        gridSeries->addGrid(dataSet, raster);
+      }
     }
     catch(const std::bad_cast& exp)
     {
-      QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
+      QString errMsg = QObject::tr("Bad Cast to DataSetGrid");
       TERRAMA2_LOG_ERROR() << errMsg;
       continue;
     }//bad cast
   }
 
-  return dcpSeries;
+  return gridSeries;
 }
 
-void terrama2::core::DataAccessorDcp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+te::dt::TimeInstantTZ terrama2::core::DataAccessorGrid::lastDateTime() const
+{
+  throw; //implemnt last date time
+}
+
+void terrama2::core::DataAccessorGrid::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
   {
@@ -71,10 +82,4 @@ void terrama2::core::DataAccessorDcp::addColumns(std::shared_ptr<te::da::DataSet
 
     converter->add(i,p->clone());
   }
-}
-
-te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
-{
-  //TODO: implement lastDateTime
-  assert(0);
 }

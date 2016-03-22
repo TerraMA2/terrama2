@@ -20,58 +20,67 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcpInpe.hpp
+  \file terrama2/core/data-access/DataAccessorOccurrenceMvf.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__
 
 //TerraMA2
 #include "DataAccessorFile.hpp"
 #include "../core/shared.hpp"
-#include "../core/data-access/DataAccessorDcp.hpp"
-#include "../core/data-model/DataSet.hpp"
-#include "../core/data-model/Filter.hpp"
+#include "../core/data-access/DataAccessorOccurrence.hpp"
 
 namespace terrama2
 {
   namespace core
   {
+    struct Filter;
     /*!
-      \class DataAccessorDcpInpe
-      \brief DataAccessor for DCP DataSeries from INPE.
+      \class DataAccessorOccurrenceMvf
+      \brief DataAccessor for the Monitoring Vegetation Fire program of INPE - www.inpe.br/queimadas
 
     */
-    class DataAccessorDcpInpe : public DataAccessorDcp, public DataAccessorFile
+    class DataAccessorOccurrenceMvf : public DataAccessorOccurrence, public DataAccessorFile
     {
     public:
-      DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorDcpInpe() {}
+      DataAccessorOccurrenceMvf(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorOccurrenceMvf() {}
 
     protected:
       virtual std::string dataSourceTye() const override;
       virtual std::string typePrefix() const override;
 
-      virtual void adapt(const DataSet& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+      virtual void adapt(const DataSet& dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
     private:
-      std::string getTimeZone(const DataSet& dataset) const;
-      std::string timestampColumn() const;
-
+      //! Recover projection information from dataset
+      Srid getSrid(const DataSet& dataSet) const;
+      //! Recover timezone information from dataset
+      std::string getTimeZone(const DataSet& dataSet) const;
+      //! Name of column with Date/Time information
+      std::string timestampColumnName() const;
+      //! Name of column with latitude information
+      std::string latitudeColumnName() const;
+      //! Name of column with longitude information
+      std::string longitudeColumnName() const;
       /*!
         \brief Convert string to TimeInstantTZ.
 
-        \note Format recognized:  mm/dd/YYYY HH:MM:SS"
+        \note Format recognized:  YYYY-mm-dd HH:MM:SS"
 
       */
       te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
+
+      //! Convert string to Geometry
+      te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__

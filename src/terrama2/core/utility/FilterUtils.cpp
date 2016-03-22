@@ -20,40 +20,17 @@
 */
 
 /*!
-  \file terrama2/core/data-model/SemanticManager.hpp
+  \file terrama2/core/utility/FilterUtils.cpp
 
-  \brief
+  \brief Filter information of a given DataSetItem.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
+#include "FilterUtils.hpp"
 
-#include "../data-model/DataSeriesSemantic.hpp"
-
-//STL
-#include <string>
-
-namespace terrama2
+bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name)
 {
-  namespace core
-  {
-    class SemanticManager {
-    public:
-      SemanticManager (){}
-      ~SemanticManager (){}
-
-      /*!
-
-        \exception TODO: raised when a semantic with same name is already present
-      */
-      DataSeriesSemantic  addSemantic(const std::string& name, const DataSeriesSemantic::MacroType& macroType, const DataFormat& format);
-
-    private:
-
-    };
-  } /* core */
-} /* terrama2 */
-
-#endif //__TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
+  //FIXME: implement name filter
+  return name == mask;
+}

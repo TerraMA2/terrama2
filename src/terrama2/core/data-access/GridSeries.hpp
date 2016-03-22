@@ -20,41 +20,45 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataRetriever.hpp
+  \file terrama2/core/data-access/GridSeries.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
-#include "../shared.hpp"
+#include "../../Config.hpp"
+#include "../data-model/DataSetGrid.hpp"
+
+//STL
+#include <vector>
+
+//TerraLib
+#include <terralib/raster.h>
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \brief Class responsible for storing a DcpSeries.
-
-      Derived classes should be able to iterate through all DCP and
-      store in the permanent storage area.
+      \brief
 
     */
-    class DataStoragerDcp
+    class GridSeries
     {
     public:
-      DataStoragerDcp(DataProvider);
-      virtual ~DataStoragerDcp() {}
-      
-      //FIXME: review interface. how will a dataset from a DcpSeriesPtr be mapped to the output?
-      virtual void store(DcpSeriesPtr, /*output*/) = 0;
+      void addGrid(const std::shared_ptr<DataSetGrid>& dataset, std::shared_ptr<te::rst::Raster>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<std::shared_ptr<DataSetGrid>, std::shared_ptr<te::rst::Raster> > >& gridList(){ return datasetList_; }
+
+    private:
+      std::vector<std::pair<std::shared_ptr<DataSetGrid>, std::shared_ptr<te::rst::Raster> > > datasetList_;
+
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__

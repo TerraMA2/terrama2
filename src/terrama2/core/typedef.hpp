@@ -37,4 +37,6 @@ typedef uint64_t DataSetId;
 typedef uint64_t DataSeriesId;
 typedef uint64_t DataProviderId;
 
+typedef int Srid;
+
 #endif // __TERRAMA2_CORE_TYPEDEF_HPP__

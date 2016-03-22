@@ -34,12 +34,11 @@ namespace terrama2 {
       //! Signals for TCP communication.
       enum TcpSignal
       {
-        VOID_SIGNAL = -1, //!< Null signal, error occurred.
-        STOP_SIGNAL = 0,//!< Stop service signal.
+        TERMINATE_SIGNAL = 0,//!< Stop service signal.
+        STATUS_SIGNAL = 3,//!< Check if the connection is alive and get service information
         DATA_SIGNAL = 1,//!< Data signal, followed by data.
-        START_SIGNAL = 2,//!< Start signal, queue the collection, analysis, ...
-        PING_SIGNAL = 3,//!< Check if the connection is alive and service is running
-        PONG_SIGNAL = 4//!< Return value if connection is alive and service is running
+        START_SIGNAL = 2//!< Start signal, queue the collection, analysis, ...
+
       };
     }
   }

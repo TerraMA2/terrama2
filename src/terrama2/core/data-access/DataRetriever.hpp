@@ -53,6 +53,7 @@ namespace terrama2
     {
     public:
       DataRetriever(DataProvider) {}
+      virtual ~DataRetriever() {}
       /*!
 
         \return Uri to the termporary file
@@ -61,6 +62,8 @@ namespace terrama2
 
       virtual te::dt::TimeInstantTZ lastDateTime() const;
 
+
+      //!  Returns true if the data should be downloaded to a file or false if should be access directly.
       virtual bool isRetrivable() const;
 
     protected:

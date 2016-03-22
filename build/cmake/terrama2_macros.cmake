@@ -28,52 +28,6 @@
 #          Vinicius Campanha
 #
 
-#
-# Macro TERRAMA2_GSOAP_SOAPCPP2
-#
-#  Author: Gilberto Ribeiro de Queiroz
-#          Vinicius Campanha
-#
-# Description: Generate the gSoap service files for server or client
-#
-# Parameters:
-#   file_path......: C++ header file with service API definition. (input)
-#   namespace......: Web service name. (input)
-#   type...........: Target web service stubs: server or client. (input)
-#   include_dirs...: Additional include directories when generating service stubs. (input)
-#   GSOAP_HDR_FILES: Generated header files. (output)
-#   GSOAP_SRC_FILES: Generated source files. (output)
-#   GSOAP_NSM_FILES: Generated nsm files. (output)
-#
-MACRO(TERRAMA2_GSOAP_SOAPCPP2 file_path namespace type include_dirs GSOAP_HDR_FILES GSOAP_SRC_FILES GSOAP_NSM_FILES)
-
-  if(${type} STREQUAL "server")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -S -i -w -x -I${GSOAP_IMPORT_DIR} -I${include_dirs} ${file_path})
-    set(ARCHIVE_TYPE Service)
-  elseif(${type} STREQUAL "client")
-    set(COMMAND_LINE ${GSOAP_SOAPCPP2_EXECUTABLE} ARGS -C -i -w -x -I${GSOAP_IMPORT_DIR} -I${include_dirs} ${file_path})
-    set(ARCHIVE_TYPE Proxy)
-  endif()
-
-  make_directory(${CMAKE_CURRENT_BINARY_DIR}/gsoap)
-
-  set(${GSOAP_HDR_FILES} ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soap${namespace}${ARCHIVE_TYPE}.h
-                         ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapH.h
-                         ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapStub.h)
-
-  set(${GSOAP_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soap${namespace}${ARCHIVE_TYPE}.cpp
-                         ${CMAKE_CURRENT_BINARY_DIR}/gsoap/soapC.cpp)
-
-  set(${GSOAP_NSM_FILES} ${CMAKE_CURRENT_BINARY_DIR}/gsoap/${namespace}.nsmap)
-
-  add_custom_command(OUTPUT ${${GSOAP_HDR_FILES}} ${${GSOAP_SRC_FILES}} ${${GSOAP_NSM_FILES}}
-                     COMMAND ${COMMAND_LINE}
-                     DEPENDS ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebService.hpp ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/ws/collector/core/WebServiceDataTypes.hpp
-                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gsoap
-                     COMMENT "Generating gSoap Web Service Files." VERBATIM)
-
-ENDMACRO(TERRAMA2_GSOAP_SOAPCPP2)
-
 
 #
 # Function TERRAMA2_ADD_QT_TRANSLATION
@@ -100,4 +54,3 @@ function(TERRAMA2_ADD_QT_TRANSLATION qm_files ts_files qm_out_dir)
   endforeach()
   set(${qm_files} ${qt_qm_files} PARENT_SCOPE)
 endfunction(TERRAMA2_ADD_QT_TRANSLATION)
-

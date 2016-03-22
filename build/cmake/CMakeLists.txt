@@ -237,12 +237,6 @@ if(NOT terralib_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find TerraLib libraries!")
 endif()
 
-find_package(gsoap REQUIRED)
-
-if(NOT GSOAP_FOUND)
-  message(FATAL_ERROR "TerraMA2: could not find required gSOAP library!")
-endif()
-
 find_package(CURL REQUIRED)
 
 if(NOT CURL_FOUND)
