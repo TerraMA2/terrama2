@@ -133,11 +133,11 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
   return jdocument;
 }
 
-std::string
-terrama2::core::ToString(bool b)
-{
-  return b ? "true" : "false";
-}
+//std::string
+//terrama2::core::ToString(bool b)
+//{
+//  return b ? "true" : "false";
+//}
 
 void terrama2::core::initializeTerralib()
 {
