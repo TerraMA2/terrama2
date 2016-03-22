@@ -51,7 +51,7 @@ namespace terrama2
       virtual ~DataAccessorGeoTiff() {}
 
     protected:
-      virtual std::string dataSourceTye() const override;
+      virtual std::string dataSourceType() const override;
     };
   }
 }

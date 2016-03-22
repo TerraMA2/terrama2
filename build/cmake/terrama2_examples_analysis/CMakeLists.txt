@@ -19,7 +19,7 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for the TerraMA2 Collector Module.
+#  Description: CMake script for the TerraMA2 analysis example.
 #
 #  Author: Jano Simas
 #
@@ -28,10 +28,10 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/core/")
+SET(TERRAMA2_EXAMPLE_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/analysis/")
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_DIR}*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_DIR}*.hpp)
 
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
@@ -47,12 +47,13 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 foreach(FILE ${TERRAMA2_SRC_FILES})
    STRING(REGEX REPLACE ".cpp" "" EXAMPLE "${FILE}")
-   STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_COLLECTOR_DIR}" "" EXAMPLE "${EXAMPLE}")
+   STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_DIR}" "" EXAMPLE "${EXAMPLE}")
 
 
    add_executable(${EXAMPLE} ${FILE})
 
    target_link_libraries(${EXAMPLE} terrama2_core
+                                    terrama2_analysis
                                     terrama2_impl
                                     terralib_mod_plugin
                                     terralib_mod_common)

@@ -100,7 +100,7 @@ namespace terrama2
       /*!
          \brief Driver that must be used to access a DataSource
        */
-      virtual std::string dataSourceTye() const = 0;
+      virtual std::string dataSourceType() const = 0;
 
       /*!
          \brief Creates a converter to make the necessary convertions of data type.

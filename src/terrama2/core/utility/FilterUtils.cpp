@@ -29,6 +29,8 @@
 
 #include "FilterUtils.hpp"
 
+#include <string>
+
 bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name)
 {
   //FIXME: implement name filter

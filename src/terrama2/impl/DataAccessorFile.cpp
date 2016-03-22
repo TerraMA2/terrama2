@@ -93,7 +93,7 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
      // creates a DataSource to the data and filters the dataset,
      // also joins if the DCP comes from separated files
-     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
+     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
      std::map<std::string, std::string> connInfo;
 
      connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;

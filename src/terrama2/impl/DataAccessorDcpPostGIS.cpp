@@ -65,7 +65,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSet& 
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceTye() const
+std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
 {
   return "POSTGIS";
 }
