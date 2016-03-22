@@ -60,7 +60,7 @@ terrama2::core::DataAccessorOccurrenceMvf::DataAccessorOccurrenceMvf(const DataP
  }
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::dataSourceTye() const
+std::string terrama2::core::DataAccessorOccurrenceMvf::dataSourceType() const
 {
   return "OGR";
 }

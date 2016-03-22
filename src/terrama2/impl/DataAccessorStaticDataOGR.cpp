@@ -20,32 +20,38 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorGeoTiff.cpp
+  \file terrama2/core/impl/DataAccessorStaticDataOGR.cpp
 
-  \brief
+  \brief DataAccessor class for static data accessed via OGR driver.
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
  */
 
-#include "DataAccessorGeoTiff.hpp"
+//TerraMA2
+#include "DataAccessorStaticDataOGR.hpp"
+
+#include "../core/Exception.hpp"
+#include "../core/data-model/DataProvider.hpp"
+#include "../core/data-model/DataSeries.hpp"
+#include "../core/data-model/Filter.hpp"
 #include "../core/utility/Logger.hpp"
 
-//QT
-#include <QString>
+// QT
 #include <QObject>
 
-terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
- : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorGrid(dataProvider, dataSeries, filter),
-   DataAccessorFile(dataProvider, dataSeries, filter)
+terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+: DataAccessor(dataProvider, dataSeries, filter)
 {
-  if(dataSeries.semantics.name != "GRID-geotiff")
-  {
-    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
-  }
+ if(dataSeries.semantics.name != "STATIC_DATA-ogr")
+ {
+   QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+   TERRAMA2_LOG_ERROR() << errMsg;
+   throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+ }
 }
 
 
-std::string terrama2::core::DataAccessorGeoTiff::dataSourceType() const { return "GDAL"; };
+std::string terrama2::core::DataAccessorStaticDataOGR::dataSourceType() const
+{
+  return "OGR";
+}

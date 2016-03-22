@@ -80,7 +80,7 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZon
   }
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceTye() const
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceType() const
 {
   return "OGR";
 }

@@ -47,7 +47,7 @@
 
    // creates a DataSource to the data and filters the dataset,
    // also joins if the DCP comes from separated files
-   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
+   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
 
    std::map<std::string, std::string> connInfo{{"PG_HOST", url.host().toStdString()},
                                                {"PG_PORT", std::to_string(url.port())},

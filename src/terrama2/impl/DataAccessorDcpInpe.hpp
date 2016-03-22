@@ -53,7 +53,7 @@ namespace terrama2
       virtual ~DataAccessorDcpInpe() {}
 
     protected:
-      virtual std::string dataSourceTye() const override;
+      virtual std::string dataSourceType() const override;
       virtual std::string typePrefix() const override;
 
       virtual void adapt(const DataSet& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;

@@ -52,7 +52,7 @@ namespace terrama2
       virtual ~DataAccessorOccurrenceMvf() {}
 
     protected:
-      virtual std::string dataSourceTye() const override;
+      virtual std::string dataSourceType() const override;
       virtual std::string typePrefix() const override;
 
       virtual void adapt(const DataSet& dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
