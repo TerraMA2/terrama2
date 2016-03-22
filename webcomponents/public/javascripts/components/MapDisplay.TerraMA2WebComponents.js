@@ -28,12 +28,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     renderer: 'canvas',
     target: 'terrama2-map',
     view: new ol.View({ projection: 'EPSG:4326', center: [-55, -15], zoom: 3 }),
-    interactions: ol.interaction.defaults({
-      doubleClickZoom: false
-    }),
-    controls: ol.control.defaults().extend([
-      new ol.control.ScaleLine()
-    ])
+    interactions: ol.interaction.defaults({ doubleClickZoom: false }),
+    controls: ol.control.defaults().extend([ new ol.control.ScaleLine() ])
   });
   // Resolution change event key
   var memberResolutionChangeEventKey = null;
@@ -110,13 +106,22 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
    * @param {float} minResolution - Layer minimum resolution
    * @param {float} maxResolution - Layer maximum resolution
+   * @param {string} parentGroup - Parent group id
    *
    * @function addTileWMSLayer
    */
-  var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution) {
-    memberOlMap.addLayer(
-      createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution)
-    );
+  var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup) {
+    var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
+
+    if(layerGroup !== null) {
+      var layers = layerGroup.getLayers();
+
+      layers.push(
+        createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution)
+      );
+
+      layerGroup.setLayers(layers);
+    }
   };
 
   /**
@@ -171,13 +176,22 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {array} fillColors - Array with the fill colors
    * @param {array} strokeColors - Array with the stroke colors
    * @param {function} styleFunction - Function responsible for attributing the colors to the layer features
+   * @param {string} parentGroup - Parent group id
    *
    * @function addGeoJSONVectorLayer
    */
-  var addGeoJSONVectorLayer = function(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction) {
-    memberOlMap.addLayer(
-      createGeoJSONVector(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction)
-    );
+  var addGeoJSONVectorLayer = function(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction, parentGroup) {
+    var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
+
+    if(layerGroup !== null) {
+      var layers = layerGroup.getLayers();
+
+      layers.push(
+        createGeoJSONVector(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction)
+      );
+
+      layerGroup.setLayers(layers);
+    }
   };
 
   /**
@@ -487,18 +501,16 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function findBy
    */
   var findBy = function(layer, key, value) {
-    if(layer.get(key) === value) {
+    if(layer.get(key) === value)
       return layer;
-    }
 
     if(layer.getLayers) {
       var layers = layer.getLayers().getArray(),
       len = layers.length, result;
       for(var i = 0; i < len; i++) {
         result = findBy(layers[i], key, value);
-        if(result) {
+        if(result)
           return result;
-        }
       }
     }
 

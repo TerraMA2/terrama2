@@ -61,6 +61,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
   };
 
+  // remove
+
   /**
    * Adds a layer group to the layer explorer.
    * @param {string} id - Layer group id
@@ -105,6 +107,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     setSortable();
   };
 
+  // remove
+
   /**
    * Adds a layer or a layer group to the layer explorer with data from the map.
    * @param {string} id - Layer or layer group id
@@ -115,7 +119,7 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
     if(data !== null) {
-      var elem = buildLayersFromMap(data, '#terrama2-layerexplorer');
+      var elem = buildLayersFromMap(data, 'root');
       $('#terrama2-layerexplorer').append(elem);
 
       // Handle opacity slider control
@@ -232,6 +236,20 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     });
 
     $('.children').disableSelection();
+
+    ///
+
+    $('#terrama2-layerexplorer').sortable({
+      start: function(event, ui) {
+        $(this).attr('data-previndex', ui.item.index());
+      },
+      update: function(event, ui) {
+        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        $(this).removeAttr('data-previndex');
+      }
+    });
+
+    $('#terrama2-layerexplorer').disableSelection();
   };
 
   /**
