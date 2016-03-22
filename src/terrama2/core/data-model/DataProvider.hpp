@@ -38,9 +38,6 @@
 #include <string>
 #include <vector>
 
-//terralib
-#include <terralib/common/URI/uri.h>
-
 namespace terrama2
 {
   namespace core

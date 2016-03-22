@@ -33,6 +33,7 @@
 //TerraMA2
 #include "../../Config.hpp"
 #include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSeriesSemantic.hpp"
 #include "../data-model/Filter.hpp"
 
 //TerraLib
@@ -57,6 +58,7 @@ namespace terrama2
     public:
       //! Returns the last Data date found on last access.
       virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
+      DataSeriesSemantic semantic() const { return dataSeries_.semantic; } 
 
     protected:
       /*!

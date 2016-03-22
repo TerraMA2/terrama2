@@ -20,29 +20,40 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSetDcp.hpp
+  \file terrama2/core/data-model/SemanticManager.hpp
+
+  \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__
 
-#include "DataSet.hpp"
+#include "../data-model/DataSeriesSemantic.hpp"
 
-//Terralib
-#include <terralib/geometry/Point.h> 
+//STL
+#include <string>
 
 namespace terrama2
 {
   namespace core
   {
-    struct DataSetDcp : public DataSet
-    {
-      te::gm::Point position;//TODO: A posição é sempre um ponto? pode ser uma região?
-      std::string dateTimeColumnName;
-    };
-  } // end namespace core
-} // end namespace terrama2
+    class SemanticManager {
+    public:
+      SemanticManager (){}
+      ~SemanticManager (){}
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
+      /*!
+
+        \exception TODO: raised when a semantic with same name is already present
+      */
+      DataSeriesSemantic  addSemantic(const std::string& name, const DataSeriesSemantic::MacroType& macroType, const DataFormat& format);
+
+    private:
+
+    };
+  } /* core */
+} /* terrama2 */
+
+#endif //__TERRAMA2_CORE_DATA_MODEL_SEMANTIC_MANAGER_HPP__

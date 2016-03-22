@@ -20,31 +20,33 @@
  */
 
 /*!
-  \file terrama2/core/utility/Factory.hpp
+  \file terrama2/core/data-access/DataRetriever.cpp
 
   \brief
 
   \author Jano Simas
  */
 
- #ifndef __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
- #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+ #include "DataRetriever.hpp"
+ #include "../Exception.hpp"
 
-#include "../shared.hpp"
-#include "../data-model/DataProvider.hpp"
+//Qt
+#include <QString>
+#include <QObject>
 
-namespace terrama2
+std::string terrama2::core::DataRetriever::retrieveData(const std::string& query, const Filter& filter)
 {
-  namespace core
-  {
-    namespace Factory
-    {
-       DataRetrieverPtr MakeRetriever(const DataProvider& dataProvider);
+  QString errMsg = QObject::tr("Non retrievable DataRetriever.");
+  throw NotRetrivableException() << ErrorDescription(errMsg);
+};
 
-    } /* Factory */
+te::dt::TimeInstantTZ terrama2::core::DataRetriever::lastDateTime() const
+{
+  QString errMsg = QObject::tr("Non retrievable DataRetriever.");
+  throw NotRetrivableException() << ErrorDescription(errMsg);
+};
 
-  } /* core */
-
-} /* terrama2 */
-
-#endif // __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+bool terrama2::core::DataRetriever::isRetrivable() const
+{
+  return false;
+}

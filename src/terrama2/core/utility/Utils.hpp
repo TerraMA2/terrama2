@@ -54,7 +54,7 @@ namespace terrama2
 
       \return A complete path to the file or directory if it is found, otherwise returns an empty string.
      */
-    std::string FindInTerraMA2Path(const std::string& p);
+    std::string FindInTerraMA2Path(const std::string& fileName);
 
     /*!
       \brief Read a JSON document and parse it.
@@ -67,15 +67,6 @@ namespace terrama2
       \exception JSonParserException  Throw this type of exception if JSON document is not valid.
      */
     QJsonDocument ReadJsonFile(const std::string& fileName);
-
-    /*!
-      \brief Function to convert a boolean to string format.
-
-      \param b Boolean to converted.
-
-      \return string String representation of the given boolean.
-     */
-    std::string ToString(bool b);
 
     /*! \brief Initializes the terralib and load the plugins. */
     void initializeTerralib();

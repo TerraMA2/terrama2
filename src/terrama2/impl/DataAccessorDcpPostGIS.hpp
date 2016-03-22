@@ -20,53 +20,42 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataRetriever.hpp
+  \file terrama2/core/data-access/DataAccessorDcpPostGIS.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
-#include "../data-model/DataProvider.hpp"
-#include "../data-model/Filter.hpp"
-
-//terralib
-#include <terralib/datatype/TimeInstantTZ.h>
+#include "../core/shared.hpp"
+#include "../core/data-access/DataAccessorDcp.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-    \brief Base class to download data from a remote server.
-
-    Derived classes should access a remote server and download files to a temporary storage
-    and return a uri to this file.
+      \class DataAccessorDcpPostGIS
+      \brief DataAccessor for DCP DataSeries in a PostGIS database.
 
     */
-    class DataRetriever
+    class DataAccessorDcpPostGIS : public DataAccessorDcp
     {
     public:
-      DataRetriever(DataProvider) {}
-      /*!
+      DataAccessorDcpPostGIS(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorDcpPostGIS() {};
 
-        \return Uri to the termporary file
-      */
-      virtual std::string retrieveData(const std::string& query, const Filter& filter);
-
-      virtual te::dt::TimeInstantTZ lastDateTime() const;
-
-      virtual bool isRetrivable() const;
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
 
     protected:
-      DataProvider dataProvider_;
+      std::string getTableName(const DataSetDcp& datasetDcp) const;
+      virtual std::string dataSourceTye() const;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__

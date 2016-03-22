@@ -52,20 +52,19 @@
 // Curl
 #include <curl/curl.h>
 
-
-std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
+std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
 // 1st: look in the neighborhood of the executable
   boost::filesystem::path tma_path = boost::filesystem::current_path();
 
-  boost::filesystem::path eval_path = tma_path / p;
+  boost::filesystem::path eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
   tma_path /= "..";
 
-  eval_path = tma_path / p;
+  eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
@@ -77,7 +76,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
   {
     tma_path = tma_env;
 
-    eval_path = tma_path / p;
+    eval_path = tma_path / fileName;
 
     if(boost::filesystem::exists(eval_path))
       return eval_path.string();
@@ -86,7 +85,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 // 3th: look into install prefix-path
   tma_path = TERRAMA2_INSTALL_PREFIX_PATH;
 
-  eval_path = tma_path / p;
+  eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
@@ -94,7 +93,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& p)
 // 4nd: look into the codebase path
   tma_path = TERRAMA2_CODEBASE_PATH;
 
-  eval_path = tma_path / p;
+  eval_path = tma_path / fileName;
 
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
@@ -158,6 +157,7 @@ void terrama2::core::initializeTerralib()
 
   te::plugin::PluginManager::getInstance().loadAll();
 }
+
 
 void terrama2::core::finalizeTerralib()
 {
