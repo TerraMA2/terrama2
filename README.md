@@ -88,6 +88,8 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 - **jQuery (Mandatory):** jQuery is a JavaScript library for handling HTML document elements. Make sure to have at least version 2.1.4. It is available at: https://jquery.com.
 
+- **AngularJS (Mandatory):** AngularJS is a SuperHeroic javascript MTW framework for handling client side application. Make sure to have at least version 1.5.0. It is available at: https://angularjs.org/.
+
 
 ### Bash script for building all dependencies on Linux Ubuntu 14.04
 
@@ -99,7 +101,7 @@ We have prepared a special bash script for building and installing the dependenc
 
 - Open the shell command line and call the script *install-3rdparty-linux-ubuntu-14.04.sh* setting the target to install all the stuffs from these third-party libraries and tools:
 ```
-$ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-14.04.sh
+$ ./install-3rdparty-linux-ubuntu-14.04.sh /home/gribeiro/MyLibs /home/gribeiro/MyDevel/terrama2/codebase
 ```
 
 **Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
