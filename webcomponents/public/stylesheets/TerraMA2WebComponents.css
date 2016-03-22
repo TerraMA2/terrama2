@@ -106,4 +106,4 @@
 
 span.terrama2-layerexplorer-checkbox-span { margin-left: 20px !important; }
 
-#terrama2-layerexplorer ul.children > li.layer:active { cursor: move; }
+#terrama2-layerexplorer ul.children > li.layer:active, #terrama2-layerexplorer > li.layer:active, #terrama2-layerexplorer > li.parent_li:active { cursor: move; }

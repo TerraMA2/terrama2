@@ -112,15 +112,17 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   /**
    * Adds a layer or a layer group to the layer explorer with data from the map.
    * @param {string} id - Layer or layer group id
+   * @param {string} parentLayerGroup - Parent layer group id
+   * @param {string} parentHtml - Parent HTML id
    *
    * @function addLayersFromMap
    */
-  var addLayersFromMap = function(id) {
+  var addLayersFromMap = function(id, parentLayerGroup, parentHtml) {
     var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
     if(data !== null) {
-      var elem = buildLayersFromMap(data, 'root');
-      $('#terrama2-layerexplorer').append(elem);
+      var elem = buildLayersFromMap(data, parentLayerGroup);
+      $('#' + parentHtml).append(elem);
 
       // Handle opacity slider control
       $('input.opacity').slider();
