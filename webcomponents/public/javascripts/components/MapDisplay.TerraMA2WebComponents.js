@@ -121,6 +121,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       );
 
       layerGroup.setLayers(layers);
+
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(layerId, parentGroup, 'terrama2-layerexplorer');
     }
   };
 
@@ -191,6 +193,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       );
 
       layerGroup.setLayers(layers);
+
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(layerId, parentGroup, 'terrama2-layerexplorer');
     }
   };
 
@@ -202,32 +206,42 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function addBaseLayers
    */
   var addBaseLayers = function(id, name) {
-    memberOlMap.addLayer(
-      new ol.layer.Group({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM(),
-            id: 'osm',
-            name: 'Open Street Map',
-            visible: false
-          }),
-          new ol.layer.Tile({
-            source: new ol.source.MapQuest({layer: 'osm'}),
-            id: 'mapquest_osm',
-            name: 'MapQuest OSM',
-            visible: false
-          }),
-          new ol.layer.Tile({
-            source: new ol.source.MapQuest({layer: 'sat'}),
-            id: 'mapquest_sat',
-            name: 'MapQuest Sat&eacute;lite',
-            visible: true
-          })
-        ],
-        id: id,
-        name: name
-      })
-    );
+    var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'root');
+
+    if(layerGroup !== null) {
+      var layers = layerGroup.getLayers();
+
+      layers.push(
+        new ol.layer.Group({
+          layers: [
+            new ol.layer.Tile({
+              source: new ol.source.OSM(),
+              id: 'osm',
+              name: 'Open Street Map',
+              visible: false
+            }),
+            new ol.layer.Tile({
+              source: new ol.source.MapQuest({layer: 'osm'}),
+              id: 'mapquest_osm',
+              name: 'MapQuest OSM',
+              visible: false
+            }),
+            new ol.layer.Tile({
+              source: new ol.source.MapQuest({layer: 'sat'}),
+              id: 'mapquest_sat',
+              name: 'MapQuest Sat&eacute;lite',
+              visible: true
+            })
+          ],
+          id: id,
+          name: name
+        })
+      );
+
+      layerGroup.setLayers(layers);
+
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(id, 'root', 'terrama2-layerexplorer');
+    }
   };
 
   /**
@@ -282,10 +296,20 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       name: serverName
     });
 
-    memberOlMap.addLayer(layerGroup);
+    var parentLayerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'root');
 
-    if(memberCallbackCapabilitiesLayers !== undefined && memberCallbackCapabilitiesLayers !== null)
-      memberCallbackCapabilitiesLayers();
+    if(parentLayerGroup !== null) {
+      var parentSubLayers = parentLayerGroup.getLayers();
+
+      parentSubLayers.push(
+        layerGroup
+      );
+
+      parentLayerGroup.setLayers(parentSubLayers);
+
+      if(memberCallbackCapabilitiesLayers !== undefined && memberCallbackCapabilitiesLayers !== null)
+        memberCallbackCapabilitiesLayers();
+    }
 
     memberCallbackCapabilitiesLayers = null;
   };
