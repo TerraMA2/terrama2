@@ -46,7 +46,7 @@ namespace terrama2
       \brief DataAccessor for DCP DataSeries from INPE.
 
     */
-    class DataAccessorDcpInpe : public DataAccessorDcp, virtual public DataAccessorFile
+    class DataAccessorDcpInpe : public DataAccessorDcp, public DataAccessorFile
     {
     public:
       DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());

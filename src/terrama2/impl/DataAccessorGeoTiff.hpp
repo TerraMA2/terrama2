@@ -44,7 +44,7 @@ namespace terrama2
       \class DataAccessorGeoTiff
 
     */
-    class DataAccessorGeoTiff : public DataAccessorGrid, virtual public DataAccessorFile
+    class DataAccessorGeoTiff : public DataAccessorGrid, public DataAccessorFile
     {
     public:
       DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
