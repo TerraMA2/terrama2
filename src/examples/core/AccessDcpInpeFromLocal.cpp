@@ -17,7 +17,10 @@ int main(int argc, char* argv[])
 
   //DataProvider information
   terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = "file://"+TERRAMA2_DATA_DIR+"/PCD_serrmar_INPE";
+  dataProvider.uri = "file://";
+  dataProvider.uri+=TERRAMA2_DATA_DIR;
+  dataProvider.uri+="/PCD_serrmar_INPE";
+
   dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider.dataProviderType = 0;
   dataProvider.active = true;
