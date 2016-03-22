@@ -45,7 +45,7 @@ namespace terrama2
       \brief DataAccessor for the Monitoring Vegetation Fire program of INPE - www.inpe.br/queimadas
 
     */
-    class DataAccessorOccurrenceMvf : public DataAccessorOccurrence, virtual public DataAccessorFile
+    class DataAccessorOccurrenceMvf : public DataAccessorOccurrence, public DataAccessorFile
     {
     public:
       DataAccessorOccurrenceMvf(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
