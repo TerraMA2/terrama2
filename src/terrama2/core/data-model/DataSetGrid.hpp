@@ -25,24 +25,20 @@
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_GRID_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_GRID_HPP__
 
 #include "DataSet.hpp"
-
-//Terralib
-#include <terralib/geometry/Point.h>
 
 namespace terrama2
 {
   namespace core
   {
-    struct DataSetDcp : public DataSet
+    struct DataSetGrid : public DataSet
     {
-      te::gm::Point position;//TODO: A posição é sempre um ponto? pode ser uma região?
-      // std::string dateTimeColumnName;
+
     };
   } // end namespace core
 } // end namespace terrama2
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SET_GRID_HPP__

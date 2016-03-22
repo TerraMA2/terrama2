@@ -32,7 +32,7 @@
 
 #include "../typedef.hpp"
 #include "DataSet.hpp"
-#include "DataSeriesSemantic.hpp"
+#include "DataSeriesSemantics.hpp"
 
 // STL
 #include <string>
@@ -56,7 +56,7 @@ namespace terrama2
     {
       DataSeriesId id = 0; //!< The identifier of the DataSeries.
       DataProviderId dataProviderId = 0; //!< The identifier of the DataProvider
-      DataSeriesSemantic semantic; //!< Semantic of the DataSeries.
+      DataSeriesSemantics semantics; //!< Semantics of the DataSeries.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
 

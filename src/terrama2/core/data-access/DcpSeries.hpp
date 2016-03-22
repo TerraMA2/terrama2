@@ -45,20 +45,19 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief A DcpSeries represents a set of DCP.
+      \brief A DcpSeries represents a set of DCP (Data Collecting Plataform).
 
       The DcpSeries aggregates the te::da::DataSet of each DCP
-       as well as it's position and date-time column
 
     */
     class DcpSeries
     {
     public:
-      void addDcp(const std::shared_ptr<DataSetDcp>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { dcpList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > >& dcpList(){ return dcpList_; }
+      void addDcp(const std::shared_ptr<DataSetDcp>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > >& dcpList(){ return datasetList_; }
 
     private:
-      std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > > dcpList_;
+      std::vector<std::pair<std::shared_ptr<DataSetDcp>, std::shared_ptr<te::mem::DataSet> > > datasetList_;
 
     };
   }

@@ -20,29 +20,29 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSetDcp.hpp
+  \file terrama2/core/utility/FilterUtils.hpp
+
+  \brief Filter information of a given DataSetItem.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_DCP_HPP__
+#ifndef __TERRAMA2_CORE_UTILITY_FILTER_UTILS_HPP__
+#define __TERRAMA2_CORE_UTILITY_FILTER_UTILS_HPP__
 
-#include "DataSet.hpp"
+//TerraMA2
+#include "../../Config.hpp"
+#include "../data-model/Filter.hpp"
 
-//Terralib
-#include <terralib/geometry/Point.h>
+//STL
+#include <vector>
 
 namespace terrama2
 {
   namespace core
   {
-    struct DataSetDcp : public DataSet
-    {
-      te::gm::Point position;//TODO: A posição é sempre um ponto? pode ser uma região?
-      // std::string dateTimeColumnName;
-    };
+    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name);
   } // end namespace core
-} // end namespace terrama2
+}   // end namespace terrama2
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_DCP_HPP__
+#endif  // __TERRAMA2_CORE_UTILITY_FILTER_UTILS_HPP__

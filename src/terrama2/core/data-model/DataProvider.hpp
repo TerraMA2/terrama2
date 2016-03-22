@@ -70,7 +70,7 @@ namespace terrama2
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
       DataProviderType dataProviderType = 0; //!< Type of the DataProvider (FTP, WCS, ...).
-      DataProviderIntent intent = PROCESS_INTENT; //!< Intent os the DataProvider.
+      DataProviderIntent intent = PROCESS_INTENT; //!< Intent os the DataProvider (Collect or Process)
       std::string uri; //!< URI to access the DataProvider data.
       bool active = true; //!< DataProvider status.
 

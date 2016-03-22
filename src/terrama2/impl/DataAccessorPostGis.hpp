@@ -20,42 +20,45 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcpPostGIS.hpp
+  \file terrama2/core/data-access/DataAccessorPostGis.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_POSTGIS_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_POSTGIS_HPP__
 
 //TerraMA2
-#include "DataAccessorPostGis.hpp"
-
 #include "../core/shared.hpp"
-#include "../core/data-access/DataAccessorDcp.hpp"
+#include "../core/data-access/DataAccessor.hpp"
+#include "../core/data-model/DataSet.hpp"
+#include "../core/data-model/Filter.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \class DataAccessorDcpPostGIS
-      \brief DataAccessor for DCP DataSeries in a PostGIS database.
+      \class DataAccessorPostGis
+
+      \brief Base class for DataAccessor classes that access a PostgreSQL/PostGIS SGDB.
 
     */
-    class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGis
+    class DataAccessorPostGis : public virtual DataAccessor
     {
     public:
-      DataAccessorDcpPostGIS(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorDcpPostGIS() {}
+      // Doc in base class
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const;
 
     protected:
-      virtual std::string getTableName(const DataSet& dataSet) const override;
-      virtual std::string dataSourceTye() const override;
+      // Doc in base class
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const;
+      //! Recover table name where data is stored
+      virtual std::string getTableName(const DataSet& dataSet) const = 0;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_POSTGIS_HPP__

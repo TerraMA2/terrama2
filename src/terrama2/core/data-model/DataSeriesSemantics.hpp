@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSeriesSemantic.hpp
+  \file terrama2/core/data-model/DataSeriesSemantics.hpp
 
   \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTIC_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTIC_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTICS_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTICS_HPP__
 
 #include <string>
 
@@ -37,7 +37,20 @@ namespace terrama2
   namespace core
   {
     typedef uint64_t DataFormat;
-    struct DataSeriesSemantic
+
+    /*!
+      \struct DataSeriesSemantics
+
+      \brief The DataSeriesSemantics describes the format of the data.
+
+      It's separated in 3 characteristics:
+       -  TODO: MacroType?
+       - DataFormat : Defines how the data should be accessed.
+         It could be a 'CSV' file or a PostgreSQL/PostGIS database.
+       - Semantics : Represents the data internal structure, as attributes names and data-type
+
+    */
+    struct DataSeriesSemantics
     {
       enum MacroType {
         DCP,
@@ -54,4 +67,4 @@ namespace terrama2
   } /* core */
 } /* terrama2 */
 
-#endif //__TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTIC_HPP__
+#endif //__TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTICS_HPP__

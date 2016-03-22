@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcp.cpp
+  \file terrama2/core/data-access/DataAccessorOccurrence.cpp
 
   \brief
 
@@ -28,7 +28,7 @@
  */
 
 //TerraMA2
-#include "DataAccessorDcp.hpp"
+#include "DataAccessorOccurrence.hpp"
 #include "DataRetriever.hpp"
 #include "../utility/Factory.hpp"
 #include "../utility/Logger.hpp"
@@ -41,16 +41,16 @@
 //Qt
 #include <QObject>
 
-terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
+terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getOccurrenceSeries(const Filter& filter)
 {
   auto series = getSeries(filter);
-  DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
+  OccurrenceSeriesPtr occurrenceSeries = std::make_shared<OccurrenceSeries>();
   for(auto& serie : series)
   {
     try
     {
-      std::shared_ptr<DataSetDcp> dataset = std::dynamic_pointer_cast<DataSetDcp>(serie.first);
-      dcpSeries->addDcp(dataset, serie.second);
+      std::shared_ptr<DataSetOccurrence> dataset = std::dynamic_pointer_cast<DataSetOccurrence>(serie.first);
+      occurrenceSeries->addOccurrence(dataset, serie.second);
     }
     catch(const std::bad_cast& exp)
     {
@@ -60,10 +60,10 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
     }//bad cast
   }
 
-  return dcpSeries;
+  return occurrenceSeries;
 }
 
-void terrama2::core::DataAccessorDcp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+void terrama2::core::DataAccessorOccurrence::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
   {
@@ -73,7 +73,7 @@ void terrama2::core::DataAccessorDcp::addColumns(std::shared_ptr<te::da::DataSet
   }
 }
 
-te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
+te::dt::TimeInstantTZ terrama2::core::DataAccessorOccurrence::lastDateTime() const
 {
   //TODO: implement lastDateTime
   assert(0);

@@ -20,43 +20,48 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcp.hpp
+  \file terrama2/core/data-access/DataAccessorOccurrence.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
 
 //TerraMA2
 #include "../shared.hpp"
 #include "DataAccessor.hpp"
-#include "DcpSeries.hpp"
+#include "OccurrenceSeries.hpp"
+
+//TerraLib
+#include <terralib/geometry/Point.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/memory/DataSet.h>
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \class DataAccessorDcp
-      \brief DataAccessor for DCP DataSeries.
+      \class DataAccessorOccurrence
+      \brief DataAccessor for Occurence DataSeries.
 
-      DCP are Data Collecting Plataforms, here we consider that:
-       - It's fixed, one static geographical position associated
-       - The data has a Date/Time attribute
+      Occurrence data are any data:
+       - With a Date/Time attribute
+       - With a geographic position attribute
 
-      A weather station is an example of DCP.
+      Data of lightining occurrence is an example.
 
     */
-    class DataAccessorDcp : public virtual DataAccessor
+    class DataAccessorOccurrence : public virtual DataAccessor
     {
     public:
-      DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
-      virtual ~DataAccessorDcp() {}
+      DataAccessorOccurrence(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      virtual ~DataAccessorOccurrence() {}
 
-      virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
+      virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
       // Doc in base class
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
@@ -67,4 +72,4 @@ namespace terrama2
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
