@@ -64,6 +64,8 @@ namespace terrama2
 
     Derived classes should also be able read the format data from the dataset format map.
 
+    \warning Derived classes should have virtual inheritance.
+
     */
     class DataAccessor
     {
