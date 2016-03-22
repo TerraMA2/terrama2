@@ -35,6 +35,10 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.hpp)
 
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${CMAKE_BINARY_DIR}
+)
+
+include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
 )
