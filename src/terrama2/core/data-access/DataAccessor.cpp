@@ -109,27 +109,35 @@ std::map<std::shared_ptr<terrama2::core::DataSet>, std::shared_ptr<te::mem::Data
 
   std::map<std::shared_ptr<DataSet>, std::shared_ptr<te::mem::DataSet> > series;
 
-  DataRetrieverPtr dataRetriever = Factory::MakeRetriever(dataProvider_);
-  for(const auto& dataset : dataSeries_.datasetList)
+  try
   {
-    //if the dataset is not active, continue to next.
-    if(!dataset->active)
-      continue;
+    DataRetrieverPtr dataRetriever = Factory::MakeRetriever(dataProvider_);
+    for(const auto& dataset : dataSeries_.datasetList)
+    {
+      //if the dataset is not active, continue to next.
+      if(!dataset->active)
+        continue;
 
-    // if this data retriever is a remote server that allows to retrieve data to a file,
-    // download the file to a tmeporary location
-    // if not, just get the DataProvider uri
-    std::string uri;
-    if(dataRetriever->isRetrivable())
-      uri = retrieveData(dataRetriever, *dataset, filter);
-    else
-      uri = dataProvider_.uri;
+      // if this data retriever is a remote server that allows to retrieve data to a file,
+      // download the file to a tmeporary location
+      // if not, just get the DataProvider uri
+      std::string uri;
+      if(dataRetriever->isRetrivable())
+        uri = retrieveData(dataRetriever, *dataset, filter);
+      else
+        uri = dataProvider_.uri;
 
-    //TODO: Set last date collected in filter
-    std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, *dataset);
+      //TODO: Set last date collected in filter
+      std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, *dataset);
 
-    series.emplace(dataset, memDataSet);
-  }//for each dataset
+      series.emplace(dataset, memDataSet);
+    }//for each dataset
+  }
+  catch(...)
+  {
+    //TODO: catch cannot open DataProvider, log here
+    assert(0);
+  }
 
   return series;
 }
