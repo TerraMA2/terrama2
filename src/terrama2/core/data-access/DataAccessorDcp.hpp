@@ -60,9 +60,6 @@ namespace terrama2
       // Doc in base class
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
-    protected:
-      // Doc in base class
-      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }
 }
