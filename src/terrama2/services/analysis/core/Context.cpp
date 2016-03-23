@@ -126,7 +126,7 @@ std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::co
   return datasetContext;
 }
 
-std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::core::Context::addDCP(const uint64_t analysisId, const terrama2::core::DataSetDcp& dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset)
+std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::core::Context::addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset)
 {
   std::unique_lock<std::mutex> lock(mutex_);
 
@@ -143,12 +143,12 @@ std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::co
   }
   auto analysis = it->second;
 
-  auto influence = analysis.influence(dcp.dataSeriesId);
+  auto influence = analysis.influence(dcp->dataSeriesId);
 
   if(influence.type != Analysis::REGION)
   {
-    auto buffer = dcp.position->buffer(influence.radius);
-    datasetContext->rtree.insert(*buffer->getMBR(), dcp.id);
+    auto buffer = dcp->position->buffer(influence.radius);
+    datasetContext->rtree.insert(*buffer->getMBR(), dcp->id);
   }
   else
   {
@@ -159,7 +159,7 @@ std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::co
   datasetContext->dataset = syncDataset;
 
   ContextKey key;
-  key.datasetId_ = dcp.id;
+  key.datasetId_ = dcp->id;
   key.analysisId_ = analysisId;
   key.dateFilter_ = dateFilter;
   datasetMap_[key] = datasetContext;

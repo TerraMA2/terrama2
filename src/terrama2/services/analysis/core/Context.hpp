@@ -113,7 +113,7 @@ namespace terrama2
 
           std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
           std::shared_ptr<ContextDataset> addDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset, std::string identifier, bool createSpatialIndex = true);
-          std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, const terrama2::core::DataSetDcp& dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset);
+          std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset);
           bool exists(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
 
 

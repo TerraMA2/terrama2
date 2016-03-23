@@ -36,10 +36,10 @@
 // QT
 #include <QObject>
 
-terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
 : DataAccessor(dataProvider, dataSeries, filter)
 {
- if(dataSeries.semantics.name != "STATIC_DATA-ogr")
+ if(dataSeries->semantics.name != "STATIC_DATA-ogr")
  {
    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
    TERRAMA2_LOG_ERROR() << errMsg;

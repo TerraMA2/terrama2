@@ -58,7 +58,7 @@ namespace terrama2
     {
       public:
 
-        DataAccessorStaticDataOGR(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+        DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
         virtual ~DataAccessorStaticDataOGR();
 
 

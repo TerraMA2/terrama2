@@ -53,7 +53,7 @@ namespace terrama2
 
     protected:
 
-      virtual std::string getTableName(const DataSet& dataSet) const override;
+      virtual std::string getTableName(DataSetPtr dataSet) const override;
       virtual std::string dataSourceType() const override;
     };
   }

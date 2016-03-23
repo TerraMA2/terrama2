@@ -47,22 +47,22 @@ uint64_t terrama2::analysis::core::Analysis::id() const
 	return id_;
 }
 
-void terrama2::analysis::core::Analysis::setAdditionalDataList(const std::vector<terrama2::core::DataSeries>& additionalDataList)
+void terrama2::analysis::core::Analysis::setAdditionalDataList(const std::vector<terrama2::core::DataSeriesPtr>& additionalDataList)
 {
   additionalDataList_ = additionalDataList;
 }
 
-std::vector<terrama2::core::DataSeries> terrama2::analysis::core::Analysis::additionalDataList() const
+std::vector<terrama2::core::DataSeriesPtr> terrama2::analysis::core::Analysis::additionalDataList() const
 {
   return additionalDataList_;
 }
 
-void terrama2::analysis::core::Analysis::setMonitoredObject(const terrama2::core::DataSeries& monitoredObject)
+void terrama2::analysis::core::Analysis::setMonitoredObject(terrama2::core::DataSeriesPtr monitoredObject)
 {
 	monitoredObject_ = monitoredObject;
 }
 
-terrama2::core::DataSeries terrama2::analysis::core::Analysis::monitoredObject() const
+terrama2::core::DataSeriesPtr terrama2::analysis::core::Analysis::monitoredObject() const
 {
   return monitoredObject_;
 }
@@ -72,13 +72,13 @@ void terrama2::analysis::core::Analysis::setScriptLanguage(const ScriptLanguage 
 	scriptLanguage_ = scriptLanguage;
 }
 
-void terrama2::analysis::core::Analysis::setDCP(const terrama2::core::DataSeries& pcd, Influence influence)
+void terrama2::analysis::core::Analysis::setDCP(terrama2::core::DataSeriesPtr pcd, Influence influence)
 {
   pcd_ = pcd;
-  mapInfluence_[pcd.id] = influence;
+  mapInfluence_[pcd->id] = influence;
 }
 
-terrama2::core::DataSeries terrama2::analysis::core::Analysis::DCP() const
+terrama2::core::DataSeriesPtr terrama2::analysis::core::Analysis::DCP() const
 {
   return pcd_;
 }

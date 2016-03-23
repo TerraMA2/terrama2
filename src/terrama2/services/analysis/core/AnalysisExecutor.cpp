@@ -86,21 +86,21 @@ void terrama2::analysis::core::runMonitoredObjectAnalysis(const Analysis& analys
 {
   try
   {
-    terrama2::core::DataSeries dataSeries = analysis.monitoredObject();
+    auto dataSeries = analysis.monitoredObject();
 
-    auto datasets = dataSeries.datasetList;
+    auto datasets = dataSeries->datasetList;
 
     assert(datasets.size() == 1);
     auto dataset = datasets[0];
 
-    auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries.dataProviderId);
+    auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries->dataProviderId);
     terrama2::core::Filter filter;
 
     //accessing data
     terrama2::core::DataAccessorStaticDataOGR accessor(dataProvider, dataSeries);
 
 
-    auto teDataset = accessor.getDataSet(dataProvider.uri , filter, *dataset.get());
+    auto teDataset = accessor.getDataSet(dataProvider->uri , filter, dataset);
 
     auto format = dataset->format;
     std::string identifier = format["identifier"];
