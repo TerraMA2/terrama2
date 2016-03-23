@@ -36,8 +36,6 @@ int main(int argc, char* argv[])
 
   dataSeries->datasetList.emplace_back(dataSet);
   
-  dataProvider->dataSeriesList.push_back(dataSeriesPtr);
-
   //empty filter
   terrama2::core::Filter filter;
 //accessing data

@@ -37,8 +37,6 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("srid", "4326");
   dataSeries->datasetList.emplace_back(dataSet);
 
-  dataProvider->dataSeriesList.push_back(dataSeriesPtr);
-
   //empty filter
   terrama2::core::Filter filter;
   //accessing data

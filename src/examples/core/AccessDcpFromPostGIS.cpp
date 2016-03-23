@@ -44,8 +44,6 @@ int main(int argc, char* argv[])
 
   dataSeries->datasetList.emplace_back(dataSet);
 
-  dataProvider->dataSeriesList.push_back(dataSeriesPtr);
-
 //accessing data
   terrama2::core::DataAccessorDcpPostGIS accessor(dataProviderPtr, dataSeriesPtr);
   //empty filter
