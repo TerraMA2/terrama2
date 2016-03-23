@@ -15,31 +15,33 @@ int main(int argc, char* argv[])
   terrama2::core::initializeTerralib();
 
 //DataProvider information
-  terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = "file://";
-  dataProvider.uri += TERRAMA2_DATA_DIR;
-  dataProvider.uri += "/geotiff";
-  
-  dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider.dataProviderType = 0;
-  dataProvider.active = true;
+  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->uri = "file://";
+  dataProvider->uri += TERRAMA2_DATA_DIR;
+  dataProvider->uri += "/geotiff";
+
+  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->dataProviderType = 0;
+  dataProvider->active = true;
 
 //DataSeries information
-  terrama2::core::DataSeries dataSeries;
-  dataSeries.semantics.name = "GRID-geotiff";
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  dataSeries->semantics.name = "GRID-geotiff";
 
-  dataSeries.datasetList.emplace_back(new terrama2::core::DataSetGrid());
-  //DataSet information
-  std::shared_ptr<terrama2::core::DataSetGrid> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetGrid>(dataSeries.datasetList.at(0));
+  terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
   dataSet->active = true;
   dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
-  dataProvider.dataSeriesList.push_back(dataSeries);
+  dataSeries->datasetList.emplace_back(dataSet);
+  
+  dataProvider->dataSeriesList.push_back(dataSeriesPtr);
 
   //empty filter
   terrama2::core::Filter filter;
 //accessing data
-  terrama2::core::DataAccessorGeoTiff accessor(dataProvider, dataSeries);
+  terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
   terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
   assert(gridSeries->gridList().size() == 1);

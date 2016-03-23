@@ -72,7 +72,7 @@ namespace terrama2
     public:
       //! Returns the last Data date found on last access.
       virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
-      DataSeriesSemantics semantics() const { return dataSeries_.semantics; }
+      DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
 
       //! Utility function for converting string to double in the te::da::DataSet contruction.
       te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -83,7 +83,7 @@ namespace terrama2
 
         \param filter If defined creates a cache for the filtered data.
       */
-      DataAccessor(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter())
+      DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
         : dataProvider_(dataProvider),
           dataSeries_(dataSeries),
           filter_(filter) {}
@@ -114,7 +114,7 @@ namespace terrama2
          \param datasetType DataSetType from dataSet
          \return Converter
        */
-      virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter( const DataSet& dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
+      virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter( DataSetPtr dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
 
       /*!
          \brief Add original attributes to the converter without convertion
@@ -123,7 +123,7 @@ namespace terrama2
       /*!
          \brief Add addapted attributes to the converter
        */
-      virtual void adapt(const DataSet& dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
+      virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
 
       /*!
          \brief Retrieve data from server.
@@ -131,7 +131,7 @@ namespace terrama2
          Retrieved data is subjetc to filter.
 
        */
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const = 0;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const = 0;
 
       /*!
          \brief Get a memory dataset do core::DataSet.
@@ -139,13 +139,13 @@ namespace terrama2
          \param filter Filter applyed to the dataset
          \return Filtered dataset
        */
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const = 0;
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
 
-      virtual std::map<std::shared_ptr<DataSet>, std::shared_ptr<te::mem::DataSet>> getSeries(const Filter& filter) const;
+      virtual std::map<DataSetPtr, std::shared_ptr<te::mem::DataSet> > getSeries(const Filter& filter) const;
 
 
-      DataProvider dataProvider_;
-      DataSeries dataSeries_;
+      DataProviderPtr dataProvider_;
+      DataSeriesPtr dataSeries_;
       Filter filter_;
     };
   }

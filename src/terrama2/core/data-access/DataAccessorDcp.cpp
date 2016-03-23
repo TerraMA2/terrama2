@@ -49,7 +49,7 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
   {
     try
     {
-      std::shared_ptr<DataSetDcp> dataset = std::dynamic_pointer_cast<DataSetDcp>(serie.first);
+      DataSetDcpPtr dataset = std::dynamic_pointer_cast<const DataSetDcp>(serie.first);
       dcpSeries->addDcp(dataset, serie.second);
     }
     catch(const std::bad_cast& exp)

@@ -54,13 +54,13 @@ namespace terrama2
         {}
 		virtual ~DataAccessorPostGis() {}
       // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const;
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
 
     protected:
       // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const override;
       //! Recover table name where data is stored
-      virtual std::string getTableName(const DataSet& dataSet) const = 0;
+      virtual std::string getTableName(DataSetPtr dataSet) const = 0;
     };
   }
 }

@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
 
 #include "../typedef.hpp"
+#include "../shared.hpp"
 #include "DataSet.hpp"
 #include "DataSeriesSemantics.hpp"
 
@@ -60,7 +61,7 @@ namespace terrama2
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
 
-      std::vector< std::shared_ptr<DataSet> > datasetList; //TODO: id or object?
+      std::vector< DataSetPtr > datasetList; //TODO: id or object?
 
       inline bool operator==(const DataSeries& dataseries){ return id == dataseries.id; }
     };

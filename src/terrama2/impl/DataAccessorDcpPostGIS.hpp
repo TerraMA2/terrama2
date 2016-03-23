@@ -48,11 +48,11 @@ namespace terrama2
     class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGis
     {
     public:
-      DataAccessorDcpPostGIS(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorDcpPostGIS() {}
 
     protected:
-      virtual std::string getTableName(const DataSet& dataSet) const override;
+      virtual std::string getTableName(DataSetPtr dataSet) const override;
       virtual std::string dataSourceType() const override;
     };
   }

@@ -34,12 +34,12 @@
 #include <QString>
 #include <QObject>
 
-terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorGrid(dataProvider, dataSeries, filter),
    DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries.semantics.name != "GRID-geotiff")
+  if(dataSeries->semantics.name != "GRID-geotiff")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
