@@ -86,7 +86,7 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
   // Reads the object monitored
-  auto datasets = analysis.monitoredObject().datasetList;
+  auto datasets = analysis.monitoredObject()->datasetList;
   assert(datasets.size() == 1);
   auto datasetMO = datasets[0];
   if(!Context::getInstance().exists(analysis.id(), datasetMO->id))
@@ -187,10 +187,10 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 
   for(auto dataSeries : analysis.additionalDataList())
   {
-    if(dataSeries.name == dataSeriesName)
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
-      auto datasets = dataSeries.datasetList;
+      auto datasets = dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
@@ -201,17 +201,17 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
         else
         {
 
-          auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries.dataProviderId);
+          auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries->dataProviderId);
           terrama2::core::Filter filter;
 
           std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
           filter.discardBefore_ = std::move(titz);
 
           //accessing data
-          terrama2::core::DataAccessorDcpInpe accessor(dataProvider, dataSeries);
+          terrama2::core::DataAccessorOccurrenceMvf accessor(dataProvider, dataSeries);
 
 
-          auto teDataset = accessor.getDataSet(dataProvider.uri, filter, *dataset.get());
+          auto teDataset = accessor.getDataSet(dataProvider->uri, filter, dataset);
 
           teDataset->moveFirst();
           auto format = dataset->format;
@@ -304,7 +304,7 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
 
   // Reads the object monitored
-  auto datasets = analysis.monitoredObject().datasetList;
+  auto datasets = analysis.monitoredObject()->datasetList;
   assert(datasets.size() == 1);
   auto datasetMO = datasets[0];
   if(!Context::getInstance().exists(analysis.id(), datasetMO->id))
@@ -407,11 +407,11 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
   for(auto dataSeries : analysis.additionalDataList())
   {
-    if(dataSeries.name == dataSeriesName)
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries.dataProviderId);
+      auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries->dataProviderId);
 
       terrama2::core::Filter filter;
       std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
@@ -422,9 +422,9 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
       for(auto pairDatasetDCP : dcpSeries->dcpList())
       {
-        std::shared_ptr<terrama2::core::DataSetDcp> datasetDCP = pairDatasetDCP.first;
+        terrama2::core::DataSetDcpPtr datasetDCP = pairDatasetDCP.first;
         std::shared_ptr<te::mem::DataSet> teDataset = pairDatasetDCP.second;
-        contextDataset = Context::getInstance().addDCP(analysisId, *datasetDCP.get(), dateFilterStr, teDataset);
+        contextDataset = Context::getInstance().addDCP(analysisId, datasetDCP, dateFilterStr, teDataset);
 
 
         // Frees the GIL, from now on can not use the interpreter
@@ -432,7 +432,7 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
         auto positionDCP = datasetDCP->position;
 
-        auto influence = analysis.influence(dataSeries.id);
+        auto influence = analysis.influence(dataSeries->id);
         if(influence.type == Analysis::RADIUS_CENTER)
         {
           auto buffer = positionDCP->buffer(influence.radius, 16, te::gm::CapButtType);
@@ -530,7 +530,7 @@ PyObject* terrama2::analysis::core::result(PyObject* self, PyObject* args)
   if(analysis.type() == Analysis::MONITORED_OBJECT_TYPE)
   {
     auto dataSeries = analysis.monitoredObject();
-    auto datasetList = dataSeries.datasetList;
+    auto datasetList = dataSeries->datasetList;
     assert(datasetList.size() == 1);
     auto dataset = datasetList[0];
     if(Context::getInstance().exists(analysisId, dataset->id))

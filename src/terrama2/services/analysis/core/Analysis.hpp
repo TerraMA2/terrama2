@@ -80,15 +80,15 @@ namespace terrama2
           void setId(uint64_t id);
 					uint64_t id() const;
 
-          void setAdditionalDataList(const std::vector<terrama2::core::DataSeries>& additionalDataList);
-          std::vector<terrama2::core::DataSeries> additionalDataList() const;
+          void setAdditionalDataList(const std::vector<terrama2::core::DataSeriesPtr>& additionalDataList);
+          std::vector<terrama2::core::DataSeriesPtr> additionalDataList() const;
 
-          void setMonitoredObject(const terrama2::core::DataSeries& monitoredObject);
-          terrama2::core::DataSeries monitoredObject() const;
+          void setMonitoredObject(terrama2::core::DataSeriesPtr monitoredObject);
+          terrama2::core::DataSeriesPtr monitoredObject() const;
 
 
-          void setDCP(const terrama2::core::DataSeries& DCP, Influence influence);
-          terrama2::core::DataSeries DCP() const;
+          void setDCP(terrama2::core::DataSeriesPtr DCP, Influence influence);
+          terrama2::core::DataSeriesPtr DCP() const;
 
 					void setScriptLanguage(const ScriptLanguage scriptLanguage);
 					ScriptLanguage scriptLanguage() const;
@@ -107,9 +107,9 @@ namespace terrama2
 
 				private:
 					uint64_t id_;
-          std::vector<terrama2::core::DataSeries> additionalDataList_;
-					terrama2::core::DataSeries monitoredObject_;
-          terrama2::core::DataSeries pcd_;
+          std::vector<terrama2::core::DataSeriesPtr> additionalDataList_;
+          terrama2::core::DataSeriesPtr monitoredObject_;
+          terrama2::core::DataSeriesPtr pcd_;
 					ScriptLanguage scriptLanguage_;
 					std::string script_;
 					std::string description_;
