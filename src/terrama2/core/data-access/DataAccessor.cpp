@@ -141,3 +141,14 @@ std::map<std::shared_ptr<terrama2::core::DataSet>, std::shared_ptr<te::mem::Data
 
   return series;
 }
+
+
+void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+{
+  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+
+    converter->add(i,p->clone());
+  }
+}

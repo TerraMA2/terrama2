@@ -1,10 +1,10 @@
 
-#include "../core/shared.hpp"
-#include "../core/utility/Utils.hpp"
-#include "../core/data-model/DataProvider.hpp"
-#include "../core/data-model/DataSeries.hpp"
-#include "../core/data-model/DataSetDcp.hpp"
-#include "../impl/DataAccessorDcpPostGIS.hpp"
+#include <terrama2/core/shared.hpp>
+#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/data-model/DataProvider.hpp>
+#include <terrama2/core/data-model/DataSeries.hpp>
+#include <terrama2/core/data-model/DataSetDcp.hpp>
+#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
 
 #include <iostream>
 

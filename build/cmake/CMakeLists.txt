@@ -243,6 +243,11 @@ if(NOT CURL_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required libCURL library!")
 endif()
 
+find_package(PythonLibs REQUIRED)
+if(NOT PYTHONLIBS_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required Python library!")
+endif()
+
 find_package(GTest)
 find_package(GMock)
 
@@ -265,6 +270,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_COLLECTOR_ENABLED "Build Collector module?" ON "
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_IMPLEMENTATION_ENABLED "Build Implementation module?" ON "TERRAMA2_CORE_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_ANALYSIS_CORE_ENABLED "Build Analysis core module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+
 #####################################
 
 
@@ -274,6 +281,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_IMPLEMENTATION_ENABLED "Build Implementation mod
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_CORE_ENABLED "Build unittest for core module?" ON "TERRAMA2_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_COLLECTOR_ENABLED "Build unittest for collector module?" ON "TERRAMA2_COLLECTOR_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_ANALYSIS_ENABLED "Build unittest for analysis module?" ON "TERRAMA2_ANALYSIS_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
 ######################################
 
@@ -323,12 +332,20 @@ if(TERRAMA2_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_collector)
 endif()
 
+if(TERRAMA2_ANALYSIS_CORE_ENABLED)
+  add_subdirectory(terrama2_analysis_core)
+endif()
+
 if(TERRAMA2_UNITTEST_CORE_ENABLED)
   add_subdirectory(terrama2_unittest_core)
 endif()
 
 if(TERRAMA2_UNITTEST_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_unittest_collector)
+endif()
+
+if(TERRAMA2_UNITTEST_ANALYSIS_ENABLED)
+  add_subdirectory(terrama2_unittest_analysis)
 endif()
 
 if(TERRAMA2_EXAMPLES_CORE_ENABLED)

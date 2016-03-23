@@ -31,9 +31,6 @@
 #include "DataAccessorStaticDataOGR.hpp"
 
 #include "../core/Exception.hpp"
-#include "../core/data-model/DataProvider.hpp"
-#include "../core/data-model/DataSeries.hpp"
-#include "../core/data-model/Filter.hpp"
 #include "../core/utility/Logger.hpp"
 
 // QT
@@ -46,8 +43,20 @@ terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(const DataP
  {
    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
    TERRAMA2_LOG_ERROR() << errMsg;
-   throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+   throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
  }
+}
+
+terrama2::core::DataAccessorStaticDataOGR::~DataAccessorStaticDataOGR()
+{
+
+}
+
+te::dt::TimeInstantTZ terrama2::core::DataAccessorStaticDataOGR::lastDateTime() const
+{
+  QString errMsg = QObject::tr("No data available.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw NoDataException() << ErrorDescription(errMsg);
 }
 
 

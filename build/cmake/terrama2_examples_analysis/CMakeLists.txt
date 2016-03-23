@@ -35,8 +35,13 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_DIR}*.hpp)
 
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+)
+
+include_directories ( SYSTEM
+  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${PYTHON_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -53,8 +58,9 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
    add_executable(${EXAMPLE} ${FILE})
 
    target_link_libraries(${EXAMPLE} terrama2_core
-                                    terrama2_analysis
+                                    terrama2_analysis_core
                                     terrama2_impl
                                     terralib_mod_plugin
-                                    terralib_mod_common)
+                                    terralib_mod_common
+                                    ${PYTHON_LIBRARIES})
 endforeach()

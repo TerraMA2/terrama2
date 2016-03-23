@@ -63,15 +63,6 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
   return dcpSeries;
 }
 
-void terrama2::core::DataAccessorDcp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
-{
-  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
-  {
-    te::dt::Property* p = datasetType->getProperty(i);
-
-    converter->add(i,p->clone());
-  }
-}
 
 te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
 {

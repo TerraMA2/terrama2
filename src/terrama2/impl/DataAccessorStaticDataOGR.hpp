@@ -33,10 +33,16 @@
 //TerraMA2
 #include "DataAccessorFile.hpp"
 #include "../core/shared.hpp"
+#include "../core/data-model/DataProvider.hpp"
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"
 
+// TerraLib
+#include <terralib/memory/DataSet.h>
+
+// STL
 #include <memory>
+#include <string>
 
 namespace terrama2
 {
@@ -50,16 +56,16 @@ namespace terrama2
     */
     class DataAccessorStaticDataOGR : public DataAccessorFile
     {
-    public:
+      public:
 
-      DataAccessorStaticDataOGR(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorStaticDataOGR();
+        DataAccessorStaticDataOGR(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+        virtual ~DataAccessorStaticDataOGR();
 
-      // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const override;
 
-      // Doc in base class
-      std::string dataSourceType() const override;
+        virtual te::dt::TimeInstantTZ lastDateTime() const override;
+
+        // Doc in base class
+        virtual std::string dataSourceType() const override;
     };
   }
 }
