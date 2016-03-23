@@ -46,6 +46,8 @@ namespace terrama2
       DataSeriesId dataSeriesId = 0;
       bool active = true;
       std::map<std::string, std::string> format;
+
+      inline bool operator==(const DataSet& rhs){ return id == rhs.id; }
     };
   } // end namespace core
 } // end namespace terrama2

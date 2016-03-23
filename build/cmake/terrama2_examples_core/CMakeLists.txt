@@ -39,6 +39,7 @@ include_directories (
 
 include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
 )

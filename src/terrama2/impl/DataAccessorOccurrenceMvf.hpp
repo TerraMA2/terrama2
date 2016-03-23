@@ -48,21 +48,21 @@ namespace terrama2
     class DataAccessorOccurrenceMvf : public DataAccessorOccurrence, public DataAccessorFile
     {
     public:
-      DataAccessorOccurrenceMvf(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      DataAccessorOccurrenceMvf(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorOccurrenceMvf() {}
 
     protected:
       virtual std::string dataSourceType() const override;
       virtual std::string typePrefix() const override;
 
-      virtual void adapt(const DataSet& dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+      virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
     private:
       //! Recover projection information from dataset
-      Srid getSrid(const DataSet& dataSet) const;
+      Srid getSrid(DataSetPtr dataSet) const;
       //! Recover timezone information from dataset
-      std::string getTimeZone(const DataSet& dataSet) const;
+      std::string getTimeZone(DataSetPtr dataSet) const;
       //! Name of column with Date/Time information
       std::string timestampColumnName() const;
       //! Name of column with latitude information

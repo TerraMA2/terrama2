@@ -1,5 +1,3 @@
-
-
 #include <terrama2/core/shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -16,30 +14,32 @@ int main(int argc, char* argv[])
   terrama2::core::initializeTerralib();
 
 //DataProvider information
-  terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = "file:///home/jsimas/MyDevel/dpi/terrama2-extra/test_data/fire_system";
-  dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider.dataProviderType = 0;
-  dataProvider.active = true;
+  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->uri = "file://";
+  dataProvider->uri += TERRAMA2_DATA_DIR;
+  dataProvider->uri += "/fire_system";
+
+  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->dataProviderType = 0;
+  dataProvider->active = true;
 
 //DataSeries information
-  terrama2::core::DataSeries dataSeries;
-  dataSeries.semantics.name = "OCCURRENCE-mvf";
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  dataSeries->semantics.name = "OCCURRENCE-mvf";
 
-  dataSeries.datasetList.emplace_back(new terrama2::core::DataSetOccurrence());
-  //DataSet information
-  std::shared_ptr<terrama2::core::DataSetOccurrence> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetOccurrence>(dataSeries.datasetList.at(0));
+  terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
   dataSet->active = true;
   dataSet->format.emplace("mask", "fires.csv");
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
-
-  dataProvider.dataSeriesList.push_back(dataSeries);
+  dataSeries->datasetList.emplace_back(dataSet);
 
   //empty filter
   terrama2::core::Filter filter;
   //accessing data
-  terrama2::core::DataAccessorOccurrenceMvf accessor(dataProvider, dataSeries);
+  terrama2::core::DataAccessorOccurrenceMvf accessor(dataProviderPtr, dataSeriesPtr);
   terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
 
   assert(occurrenceSeries->occurrenceList().size() == 1);

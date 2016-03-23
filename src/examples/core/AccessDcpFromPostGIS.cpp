@@ -24,30 +24,30 @@ int main(int argc, char* argv[])
   uri.setPath("/basedeteste");
 
 //DataProvider information
-  terrama2::core::DataProvider dataProvider;
-  dataProvider.uri = uri.url().toStdString();
-  dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider.dataProviderType = 0;
-  dataProvider.active = true;
+  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->uri = uri.url().toStdString();
+  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->dataProviderType = 0;
+  dataProvider->active = true;
 
 //DataSeries information
-  terrama2::core::DataSeries dataSeries;
-  dataSeries.semantics.name = "PCD-postgis";
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  dataSeries->semantics.name = "PCD-postgis";
 
-  dataSeries.datasetList.emplace_back(new terrama2::core::DataSetDcp());
-  //DataSet information
-  std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::dynamic_pointer_cast<terrama2::core::DataSetDcp>(dataSeries.datasetList.at(0));
+//DataSet information
+  terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
   dataSet->format.emplace("table_name", "pcd");
   dataSet->format.emplace("timestamp_column", "date_time");
 
-  dataProvider.dataSeriesList.push_back(dataSeries);
-
-  //empty filter
-  terrama2::core::Filter filter;
+  dataSeries->datasetList.emplace_back(dataSet);
 
 //accessing data
-  terrama2::core::DataAccessorDcpPostGIS accessor(dataProvider, dataSeries);
+  terrama2::core::DataAccessorDcpPostGIS accessor(dataProviderPtr, dataSeriesPtr);
+  //empty filter
+  terrama2::core::Filter filter;
   terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
   assert(dcpSeries->dcpList().size() == 1);

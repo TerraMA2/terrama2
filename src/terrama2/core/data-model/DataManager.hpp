@@ -69,31 +69,6 @@ namespace terrama2
 
       public:
 
-        /*!
-          \brief Loads from the database all information about data providers and its dataseries.
-
-          If the data manager was already loaded it doesn't have effect.
-
-          Emits dataManagerLoaded() signal when all the data from the database has been loaded.
-
-          \param memory Set the core::DataManager to use a database or memory
-
-          \pre The database with TerraMA2 metadata must have been initialized in the application controller.
-
-          \exception terrama2::Exception If it is not possible to load TerraMA2 metadata.
-
-          \note Thread-safe.
-         */
-        void load(bool memory = false);
-
-        /*!
-          \brief Unload the metadata of all data providers.
-
-          Emits dataManagerUnloaded() signal when all the data from the database has been loaded.
-
-          \note Thread-safe.
-         */
-        void unload() noexcept;
 
         /*!
           \brief Add the data provider to the database and register it in the manager.
@@ -106,39 +81,18 @@ namespace terrama2
           \param provider    The data provider to be added to the database and registered into the manager.
           \param shallowSave If true it will only save the data provider attributes.
 
-          \pre The provider must not have a valid ID (its ID must be zero).
+          \pre The provider must have a valid ID (its ID must not be zero).
           \pre A provider with the same name must not be already in the manager.
-          \pre If not performing a shallow save, the contained dataseries must not have a valid ID (all IDs must be zero).
-
-          \pos The informed data provider will have a valid ID (> 0).
-          \pos If not performing a shallow save, the dataseries within this provider will have a valid ID (> 0).
+          \pre If not performing a shallow save, the contained dataseries must have a valid ID (all IDs must not be zero).
 
           \exception terrama2::Exception If it is not possible to add the data provider.
 
           \note Thread-safe.
          */
-        void add(DataProvider& provider, const bool shallowSave = false);
+        void add(DataProviderPtr provider);
 
-        /*!
-          \brief Add the dataseries to the database and register it in the manager.
-
-          Emits the dataSeriesAdded() signal when finished.
-          Emits the dataProviderUpdated() signal when finished.
-
-          \param dataseries     The dataseries to be added.
-          \param shallowSave If true it will only save the dataseries attributes.
-
-          \pre The dataseries must not have an ID.
-          \pre A dataseries with the same name must not be already in the manager.
-          \pre The dataseries must be associated to a valid and registered data provider.
-
-          \pos The informed dataseries will have a valid ID.
-
-          \exception terrama2::Exception If it is not possible to load add the dataseries.
-
-          \note Thread-safe.
-         */
-        void add(DataSeries& dataseries, const bool shallowSave = false);
+        //TODO: doc here
+        void add(DataSeriesPtr dataseries);
 
         /*!
           \brief Update a given data provider in the database.
@@ -158,7 +112,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void update(DataProvider& provider, const bool shallowSave = false);
+        void update(DataProviderPtr provider);
 
         /*!
           \brief Update a given dataseries in the database.
@@ -175,7 +129,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        void update(DataSeries& dataseries, const bool shallowSave = false);
+        void update(DataSeriesPtr dataseries, const bool shallowSave = false);
 
         /*!
           \brief Removes a given data provider.
@@ -183,6 +137,7 @@ namespace terrama2
           Emits dataProviderRemoved() signal if the data provider is removed successfully.
 
           \param id ID of the data provider to remove.
+          \param shallowRemove If false will remove every DataSeries dependent from the DataProvider
 
           \pre The data provider must have a valid ID.
 
@@ -194,7 +149,7 @@ namespace terrama2
           \note Thread-safe.
          */
 
-        void removeDataProvider(const uint64_t id);
+        void removeDataProvider(const DataProviderId id, const bool shallowRemove = false);
 
         /*!
           \brief Removes the dataseries with the given id.
@@ -220,13 +175,13 @@ namespace terrama2
 
           \param name The data provider name.
 
-          \return DataProvider A smart pointer to the data provider
+          \return DataProviderPtr A smart pointer to the data provider
 
           \exception terrama2::Exception If some error occur when trying to find the data provider.
 
           \note Thread-safe.
          */
-        DataProvider findDataProvider(const std::string& name) const;
+        DataProviderPtr findDataProvider(const std::string& name) const;
 
         /*!
           \brief Retrieves the data provider with the given id.
@@ -241,7 +196,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataProvider findDataProvider(const uint64_t id) const;
+        DataProviderPtr findDataProvider(const DataProviderId id) const;
 
         /*!
           \brief Search for a dataseries with the given name
@@ -254,7 +209,7 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataSeries findDataSeries(const std::string& name) const;
+        DataSeriesPtr findDataSeries(const std::string& name) const;
 
         /*!
           \brief Search for a dataseries with the given id
@@ -267,73 +222,28 @@ namespace terrama2
 
           \note Thread-safe.
          */
-        DataSeries findDataSeries(const uint64_t id) const;
-
-        /*!
-          \brief Retrieves all data provider.
-
-          In case there is no data provider in the database it will return an empty vector.
-
-          \return std::vector<DataProvider> A list with all data providers.
-
-          \note Thread-safe.
-         */
-        std::vector<terrama2::core::DataProvider> providers(const terrama2::core::DataProvider::DataProviderIntent intent = terrama2::core::DataProvider::COLLECTOR_INTENT) const;
-
-        /*!
-          \brief Retrieve all dataseries from the database.
-          In case none is found it will return an empty vector.
-
-          \return Vector with all dataseries.
-
-          \note Thread-safe.
-         */
-        std::vector<terrama2::core::DataSeries> dataSeries() const;
-
-        /*!
-         \brief Verify if the given name is being used by another dataseries.
-
-         \return True if the given name is available.
-
-         \param name The dataseries name.
-        */
-        bool isDataseriesNameValid(const std::string& name) const;
-
-        /*!
-         \brief Verify if the given name is being used by another data provider.
-
-         \return True if the given name is available.
-
-         \param name The data provider name.
-         */
-        bool isDataProviderNameValid(const std::string& name) const;
+        DataSeriesPtr findDataSeries(const DataSeriesId id) const;
 
       signals:
 
-        //! Signal to notify that the data manager has been loaded.
-        void dataManagerLoaded();
-
-        //! Signal to notify that the data manager has been unloaded.
-        void dataManagerUnloaded();
-
         //! Signal to notify that a provider has been added.
-        void dataProviderAdded(const DataProvider&);
+        void dataProviderAdded(DataProviderPtr);
 
         //! Signal to notify that a provider has been removed.
-        void dataProviderRemoved(const DataProvider&);
+        void dataProviderRemoved(DataProviderId);
 
         //! Signal to notify that a provider has been updated.
-        void dataProviderUpdated(const DataProvider&);
+        void dataProviderUpdated(DataProviderPtr);
 
 
         //! Signal to notify that a dataseries has been added.
-        void dataSeriesAdded(const DataSeries&);
+        void dataSeriesAdded(DataSeriesPtr);
 
         //! Signal to notify that a dataseries has been removed.
         void dataSeriesRemoved(DataSeriesId);
 
         //! Signal to notify that a dataseries has been updated.
-        void dataSeriesUpdated(const DataSeries&);
+        void dataSeriesUpdated(DataSeriesPtr);
 
 
       protected:
@@ -353,4 +263,3 @@ namespace terrama2
 }   // end namespace terrama2
 
 #endif  // __TERRAMA2_CORE_DATAMANAGER_HPP__
-

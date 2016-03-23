@@ -32,6 +32,7 @@
 
 //TerraMA2
 #include "../../Config.hpp"
+#include "../shared.hpp"
 #include "../data-model/DataSetGrid.hpp"
 
 //STL
@@ -51,11 +52,11 @@ namespace terrama2
     class GridSeries
     {
     public:
-      void addGrid(const std::shared_ptr<DataSetGrid>& dataset, std::shared_ptr<te::rst::Raster>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<std::shared_ptr<DataSetGrid>, std::shared_ptr<te::rst::Raster> > >& gridList(){ return datasetList_; }
+      void addGrid(DataSetGridPtr dataset, std::shared_ptr<te::rst::Raster>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > >& gridList(){ return datasetList_; }
 
     private:
-      std::vector<std::pair<std::shared_ptr<DataSetGrid>, std::shared_ptr<te::rst::Raster> > > datasetList_;
+      std::vector<std::pair<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > > datasetList_;
 
     };
   }

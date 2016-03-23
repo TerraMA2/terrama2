@@ -35,9 +35,10 @@ namespace terrama2 {
       enum TcpSignal
       {
         TERMINATE_SIGNAL = 0,//!< Stop service signal.
-        STATUS_SIGNAL = 3,//!< Check if the connection is alive and get service information
-        DATA_SIGNAL = 1,//!< Data signal, followed by data.
-        START_SIGNAL = 2//!< Start signal, queue the collection, analysis, ...
+        STATUS_SIGNAL = 1,//!< Check if the connection is alive and get service information
+        DATA_SIGNAL = 2,//!< Data signal, followed by data.
+        START_SIGNAL = 3,//!< Start signal, queue the collection, analysis, ...
+        ERROR_SIGNAL = 4//!< Error signal, send error message to node.js server
 
       };
     }

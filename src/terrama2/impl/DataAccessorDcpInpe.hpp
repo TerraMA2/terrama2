@@ -49,18 +49,18 @@ namespace terrama2
     class DataAccessorDcpInpe : public DataAccessorDcp, public DataAccessorFile
     {
     public:
-      DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorDcpInpe() {}
 
     protected:
       virtual std::string dataSourceType() const override;
       virtual std::string typePrefix() const override;
 
-      virtual void adapt(const DataSet& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+      virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
     private:
-      std::string getTimeZone(const DataSet& dataset) const;
+      std::string getTimeZone(DataSetPtr dataset) const;
       std::string timestampColumn() const;
 
       /*!
