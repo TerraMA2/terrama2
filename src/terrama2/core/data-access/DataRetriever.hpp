@@ -36,7 +36,6 @@
 #include "../data-model/Filter.hpp"
 
 //terralib
-#include <terralib/common/URI/uri.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 
 namespace terrama2
@@ -47,20 +46,25 @@ namespace terrama2
     \brief Base class to download data from a remote server.
 
     Derived classes should access a remote server and download files to a temporary storage
-    and return a te::common::uri to this file.
+    and return a uri to this file.
 
     */
     class DataRetriever
     {
     public:
       DataRetriever(DataProvider) {}
+      virtual ~DataRetriever() {}
       /*!
 
         \return Uri to the termporary file
       */
-      virtual std::string retrieveData(const std::string& query, const Filter& filter) { throw 0;} //FIXME: throw here
-      virtual te::dt::TimeInstantTZ lastDateTime() const { throw 0; }//FIXME: throw here
-      virtual bool isRetrivable() const { return false; }
+      virtual std::string retrieveData(const std::string& query, const Filter& filter);
+
+      virtual te::dt::TimeInstantTZ lastDateTime() const;
+
+
+      //!  Returns true if the data should be downloaded to a file or false if should be access directly.
+      virtual bool isRetrivable() const;
 
     protected:
       DataProvider dataProvider_;

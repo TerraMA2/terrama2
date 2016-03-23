@@ -17,7 +17,7 @@
 
 /*!
   \file terrama2/core/utility/Raii.hpp
-  \brief Generic classes for RAII control.
+  \brief Utility classes for RAII control.
   \author Jano Simas
 */
 

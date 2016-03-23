@@ -40,13 +40,47 @@ namespace terrama2
     //! Base excection for core module.
     struct Exception : virtual terrama2::Exception { };
 
-    //! Indicates that an exception comming from TerraLib Data Access module.
+    //#################################
+    //     Data Access Module Exceptions
+
     struct DataAccessException: virtual Exception{ };
 
-    //! Exception to be used when a DataSet can not be removed because it's in use by an analysis.
-    struct DataSetInUseException: virtual Exception{ };
+    //! Base Exception for DataAccessor
+    struct DataAccessorException: virtual DataAccessException { };
+    //! Raised when the DataProvider is innactive and SHOULD be active
+    struct DisabledDataProviderException: virtual DataAccessorException { };
+    //! Raised when trying to retrieve data from a non retrivable Retriever
+    struct NotRetrivableException: virtual DataAccessorException { };
+    //! Raised when a format value is accessed and not set.
+    struct UndefinedTagException: virtual DataAccessorException { };
+    //! Raised when there is no data to be accessed
+    struct NoDataException: virtual DataAccessorException { };
+    //! Raised when a DataAccessor trys to access data from a DataSeries with a different semantics
+    struct WrongDataSeriesSemanticsException: virtual DataAccessorException { };
 
-    struct UnableToConnect : virtual Exception{ };
+
+    //#################################
+
+    //#################################
+    //     Data Model Module Exceptions
+
+    struct DataModelException: virtual Exception{ };
+
+    //#################################
+
+    //#################################
+    //     Network Module Exceptions
+
+    struct NetworkException: virtual Exception{ };
+
+    //#################################
+
+    //#################################
+    //     Utility Module Exceptions
+
+    struct UtilityException: virtual Exception{ };
+
+    //#################################
 
   }  // end namespace core
 }  // end namespace terrama2

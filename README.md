@@ -41,7 +41,7 @@ If you want to build TerraMA² from source, first take a look at the section **D
 - **[build/cmake:](https://github.com/TerraMA2/terrama2/tree/master/build/cmake)** Contains the CMake scripts with commands, macros and functions used to build the environment for compiling libraries and executables in different platforms using the CMake tool.
 
 - **[examples:](https://github.com/TerraMA2/terrama2/tree/master/examples)** Some examples on how to use TerraMA² API and GUI.
- 
+
 - **[install:](https://github.com/TerraMA2/terrama2/tree/master/install)** Bash scripts for helping building and installing TerraMA².
 
 - **licenses:** Copyright notices of third-party libraries used by TerraMA². **Not available yet!**
@@ -51,7 +51,7 @@ If you want to build TerraMA² from source, first take a look at the section **D
 - **[share:](https://github.com/TerraMA2/terrama2/tree/master/share)** XML Schema (.xsd), JSON files, plugin manifest files, translations files and OGC specifications that is shared and installed with TerraMA².
 
 - **[src:](https://github.com/TerraMA2/terrama2/tree/master/src)** Contains the source code of TerraMA² and its automatic test system.
- 
+
 - **[tool:](https://github.com/TerraMA2/terrama2/tree/master/tools)** Contains some helper tools for managig TerraMA² code.
 
 ## C++ Dependencies
@@ -63,14 +63,12 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 - **Qt (Mandatory):** Make sure you have an installed Qt version 5.2.1 or later. Linux users may use any package manager to perform an easy installation. Mac OS X can use package managers such as Homebrew (http://brew.sh) or MacPorts (http://www.macports.org) in order to have an easy installation. If you prefer to install from source, download it from: http://qt-project.org/downloads.
 
-- **gSOAP (Mandatory):** Make sure you have an installed gSOAP version 2.8.23 or later. If you prefer to install from source, download it from: http://www.cs.fsu.edu/~engelen/soap.html.
-
 - **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
 
 - **libCURL (Mandatory):** libcurl is a multiprotocol file transfer library. Make sure you have at least version 7.42.1 in your system. You can download it from: http://curl.haxx.se/libcurl.
 
 - **Google Test (Optional):** Google Test is the Google's C++ test framework. You can download it from: https://github.com/google/googletest.
- 
+
 ## Web Application and Components Dependencies
 
 The file named **[DEPENDENCIES](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** in the root of TerraMA² source tree contains the official list of third-party libraries and tools that you must install before building TerraMA² from source.
@@ -116,7 +114,7 @@ We have prepared a special bash script for building and installing the dependenc
 
 - Copy one of the scripts to the same folder you have downloaded the 3rd-party package:
   - [install-3rdparty-macosx-yosemite.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-macosx-yosemite.sh)
-  - [install-3rdparty-macosx-el-capitan.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-macosx-el-capitan.sh) 
+  - [install-3rdparty-macosx-el-capitan.sh](https://raw.githubusercontent.com/TerraMA2/terrama2/master/install/install-3rdparty-macosx-el-capitan.sh)
 
 - Open the shell command line.
 
@@ -390,6 +388,3 @@ Any problem should be reported to terrama2-team@dpi.inpe.br.
 
 
 For more information on TerraMA², please, visit its main web page at: http://www.dpi.inpe.br/terrama2.
-
-
-

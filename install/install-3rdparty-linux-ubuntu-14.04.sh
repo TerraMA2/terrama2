@@ -97,36 +97,8 @@ echo "installing 3rd-party libraries to '$TERRAMA2_DEPENDENCIES_DIR' ..."
 echo ""
 sleep 1s
 
-
 #
-# gSOAP
-#
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgsoap++.a" ]; then
-  echo "installing gSOAP..."
-  echo ""
-  sleep 1s
-
-  unzip gsoap_2.8.23.zip
-  valid $? "Error: could not uncompress gsoap_2.8.23.zip!"
-
-  cd gsoap-2.8
-  valid $? "Error: could not enter gsoap-2.8!"
-
-  ./configure CXXFLAGS="-O2 -fPIC" --disable-ssl --prefix=$TERRAMA2_DEPENDENCIES_DIR 
-  valid $? "Error: could not configure gSOAP!"
-
-  make
-  valid $? "Error: could not make gSOAP!"
-
-  make install
-  valid $? "Error: Could not install gSOAP!"
-
-  cd ..
-fi
-
-
-#
-# GMock 
+# GMock
 # Site: https://github.com/google/googletest
 #
 if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
@@ -252,4 +224,3 @@ echo "* TerraMA2 3rd-party Libraries Installer for Linux Ubuntu 14.04 *"
 echo "*****************************************************************"
 echo ""
 echo "finished successfully!"
-

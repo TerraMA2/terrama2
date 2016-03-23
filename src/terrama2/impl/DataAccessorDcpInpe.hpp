@@ -31,13 +31,11 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
 
 //TerraMA2
+#include "DataAccessorFile.hpp"
 #include "../core/shared.hpp"
 #include "../core/data-access/DataAccessorDcp.hpp"
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"
-
-//terralib
-#include <terralib/common/URI/uri.h>
 
 namespace terrama2
 {
@@ -48,26 +46,30 @@ namespace terrama2
       \brief DataAccessor for DCP DataSeries from INPE.
 
     */
-    class DataAccessorDcpInpe : public DataAccessorDcp
+    class DataAccessorDcpInpe : public DataAccessorDcp, public DataAccessorFile
     {
     public:
-      DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter()) : DataAccessorDcp(dataProvider, dataSeries, filter) {}
-      virtual ~DataAccessorDcpInpe() {};
+      DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorDcpInpe() {}
 
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSetDcp& datasetDcp) const override;
-
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSetDcp& dataset, const Filter& filter) const override;
-
-      std::string getMask(const DataSetDcp& dataset) const;
-      virtual te::gm::Point getPosition(const DataSetDcp& dataset) const override;
+    protected:
       virtual std::string dataSourceTye() const override;
       virtual std::string typePrefix() const override;
 
-      virtual void adapt(std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+      virtual void adapt(const DataSet& datasetDcp, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
-      te::dt::AbstractData* StringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
-      te::dt::AbstractData* StringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+    private:
+      std::string getTimeZone(const DataSet& dataset) const;
+      std::string timestampColumn() const;
+
+      /*!
+        \brief Convert string to TimeInstantTZ.
+
+        \note Format recognized:  mm/dd/YYYY HH:MM:SS"
+
+      */
+      te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
     };
   }
 }

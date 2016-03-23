@@ -28,7 +28,7 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/examples/")
+SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/examples/core/")
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.hpp)
@@ -50,10 +50,10 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
    STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_COLLECTOR_DIR}" "" EXAMPLE "${EXAMPLE}")
 
 
-   add_executable(${EXAMPLE} ${FILE} ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+   add_executable(${EXAMPLE} ${FILE})
 
-   target_link_libraries(${EXAMPLE} terrama2_mod_core
-                                    terrama2_mod_impl
+   target_link_libraries(${EXAMPLE} terrama2_core
+                                    terrama2_impl
                                     terralib_mod_plugin
                                     terralib_mod_common)
 endforeach()
