@@ -61,9 +61,9 @@ namespace terrama2
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
 
-      std::vector< DataSetPtr > datasetList; //TODO: id or object?
+      std::vector< DataSetPtr > datasetList;
 
-      inline bool operator==(const DataSeries& dataseries){ return id == dataseries.id; }
+      inline bool operator==(const DataSeries& rhs){ return id == rhs.id; }
     };
   } // end namespace core
 } // end namespace terrama2
