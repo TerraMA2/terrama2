@@ -46,5 +46,16 @@ FtpRequest.prototype.request = function() {
   });
 };
 
+FtpRequest.prototype.fields = function() {
+  return {
+    name: "FTP",
+    ip: "text",
+    port: "number",
+    username: "text",
+    password: "text",
+    path: "text"
+  }
+};
+
 
 module.exports = FtpRequest;

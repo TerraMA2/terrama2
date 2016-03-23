@@ -12,6 +12,7 @@
       $scope.isSubmiting = false;
 
       $scope.project = {{ (project || {})|json|safe }};
+      $scope.project.version = 4;
 
       $scope.save = function() {
         if (!$scope.form.$valid) {

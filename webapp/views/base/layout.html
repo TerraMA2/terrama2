@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html {% block ngApp %}{% endblock %} i18n-locale="{{i18n.getLocale()}}">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -31,169 +31,149 @@
   <![endif]-->
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
-<div class="wrapper">
+  <div class="wrapper">
 
-  <header class="main-header">
+    <header class="main-header">
 
-    <!-- Logo -->
-    <a href="/" class="logo">
-      <span class="logo-mini"><b></b>MA²</span>
-      <span class="logo-lg"><b>TerraMA2</b></span>
-    </a>
-
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top" role="navigation">
-      <!-- Sidebar toggle button-->
-      <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-        <span class="sr-only">Toggle navigation</span>
+      <!-- Logo -->
+      <a href="/" class="logo">
+        <span class="logo-mini"><b></b>MA²</span>
+        <span class="logo-lg"><b>TerraMA2</b></span>
       </a>
 
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          {% if (activeProject) %}
-          <li class="user user-menu">
-            <a aria-expanded="false" href="/configuration/projects/edit/{{ activeProject.name }}">Project Selected: {{ activeProject.name }}</a>
+      <!-- Header Navbar: style can be found in header.less -->
+      <nav class="navbar navbar-static-top" role="navigation">
+        <!-- Sidebar toggle button-->
+        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+          <span class="sr-only">Toggle navigation</span>
+        </a>
 
-            <!--<input type="file" class="terrama2-hidden" id="loadConfigFileInput" accept=".terrama2">-->
-            <!--<a aria-expanded="false" href="#" id="loadConfigFileButton">-->
-            <!--<i class="fa fa-folder-open"></i>-->
-            <!--{{ __('Load Project') }}-->
-            <!--&lt;!&ndash; <span class="hidden-xs"></span> &ndash;&gt;-->
-            <!--</a>-->
-          </li>
+        <div class="navbar-custom-menu">
+          <ul class="nav navbar-nav">
+            <!-- User Account: style can be found in dropdown.less -->
+            <li class="user user-menu">
+              <a aria-expanded="false" href="/login">
+                <i class="glyphicon glyphicon-log-out"></i>
+                {{ __('Logout') }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
 
-          {% else %}
+    </header>
 
-          <li>
-            <a aria-expanded="false" href="/configuration/projects/">There is no project selected</a>
-          </li>
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+      <!-- sidebar: style can be found in sidebar.less -->
+      <section class="sidebar">
 
-          {% endif %}
-          <!-- User Account: style can be found in dropdown.less -->
-          <li class="user user-menu">
-            <a aria-expanded="false" href="/login">
-              <i class="glyphicon glyphicon-log-out"></i>
-              {{ __('Logout') }}
-              <!-- <span class="hidden-xs"></span> -->
+        <!-- Sidebar user panel -->
+        <div class="user-panel">
+          <div class="pull-left image" style="min-height: 40px;">
+            <img src="/images/terrama2_logo.png" class="img-square" alt="User Image">
+          </div>
+
+          <div class="pull-left info">
+            <p>TerraMA2 {{ __('User') }}</p>
+            <a href="#"><i class="fa fa-circle text-success"></i> {{ __('Online') }}</a>
+          </div>
+        </div>
+        <!-- /.search form -->
+
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu">
+          <li class="header">{{ activeProject.name }}</li>
+          <li class="treeview">
+            <a href="/configuration/static-data">
+              <i class="fa fa-folder-o"></i><span>{{ __('Static Data') }}</span>
             </a>
           </li>
+
+          <li class="treeview">
+            <a href="/configuration/dynamic/dataseries">
+              <i class="fa fa-exchange"></i><span>{{ __('Dynamic Data') }}</span>
+            </a>
+          </li>
+
+          <li class="treeview">
+            <a href="/configuration/analyses">
+              <i class="fa fa-tasks"></i><span>{{ __('Analyses') }}</span>
+            </a>
+          </li>
+
+          <li class="treeview">
+            <a href="/configuration/alerts">
+              <i class="fa fa-bell"></i><span>{{ __('Alerts') }}</span>
+            </a>
+          </li>
+
+          <li class="treeview">
+            <a href="/configuration/users">
+              <i class="fa fa-users"></i><span>{{ __('Users') }}</span>
+            </a>
+          </li>
+
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-gears"></i><span>{{ __('Administration') }}</span>
+            </a>
+          </li>
+
         </ul>
-      </div>
-    </nav>
+        <!-- /.ul sidebar -->
+      </section>
+      <!-- /.sidebar -->
+    </aside>
+    <!-- /. aside main-sidebar -->
 
-  </header>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+      <!-- Main content -->
+      <section class="content">
+        <div class="row">
 
-  <!-- Left side column. contains the logo and sidebar -->
-  <aside class="main-sidebar">
-    <!-- sidebar: style can be found in sidebar.less -->
-    <section class="sidebar">
+          {# Block for handling content of each TerraMA2 page #}
+          {% block content %}
 
-      <!-- Sidebar user panel -->
-      <div class="user-panel">
-        <div class="pull-left image" style="min-height: 40px;">
-          <img src="/images/terrama2_logo.png" class="img-square" alt="User Image">
+          {% endblock %}
+
         </div>
+      </section><!-- /.content -->
+    </div><!-- /.content-wrapper -->
 
-        <div class="pull-left info">
-          <p>TerraMA2 {{ __('User') }}</p>
-          <a href="#"><i class="fa fa-circle text-success"></i> {{ __('Online') }}</a>
-        </div>
+    <footer class="main-footer">
+      <div class="pull-right hidden-xs">
+        <b>{{ __('Version') }}</b> 2.3.0
       </div>
-      <!-- /.search form -->
+      <strong>Copyright &copy; 2007 National Institute For Space Research (INPE) - Brazil </strong> All rights reserved.
+    </footer>
 
-      <!-- sidebar menu: : style can be found in sidebar.less -->
-      <ul class="sidebar-menu">
-        <li class="header">{{ __('Main Navigation') }}</li>
-        <li class="treeview">
-          <a href="/configuration/static-data">
-            <i class="fa fa-folder-o"></i><span>{{ __('Static Data') }}</span>
-          </a>
-        </li>
+  </div>
+  <!-- ./wrapper -->
 
-        <li class="treeview">
-          <a href="/configuration/dynamic/dataseries">
-            <i class="fa fa-exchange"></i><span>{{ __('Dynamic Data') }}</span>
-          </a>
-        </li>
+  <script src="/externals/jQuery/jQuery-2.1.4.min.js"></script>
+  <script src="/externals/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/externals/fastclick/fastclick.min.js"></script>
+  <script src="/externals/admin-lte/js/app.min.js"></script>
 
-        <li class="treeview">
-          <a href="/configuration/analyses">
-            <i class="fa fa-tasks"></i><span>{{ __('Analyses') }}</span>
-          </a>
-        </li>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $("#loadConfigFileButton").click(function(e)
+      {
+        $("#loadConfigFileInput").trigger('click');
+      });
 
-        <li class="treeview">
-          <a href="/configuration/alerts">
-            <i class="fa fa-bell"></i><span>{{ __('Alerts') }}</span>
-          </a>
-        </li>
+      $("#loadConfigFileInput").change(function(e){
+        // TODO load project
+      });
 
-        <li class="treeview">
-          <a href="/configuration/users">
-            <i class="fa fa-users"></i><span>{{ __('Users') }}</span>
-          </a>
-        </li>
-
-        <li class="treeview">
-          <a href="#">
-            <i class="fa fa-gears"></i><span>{{ __('Administration') }}</span>
-          </a>
-        </li>
-
-      </ul>
-      <!-- /.ul sidebar -->
-    </section>
-    <!-- /.sidebar -->
-  </aside>
-  <!-- /. aside main-sidebar -->
-
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-      <div class="row">
-
-        {# Block for handling content of each TerraMA2 page #}
-        {% block content %}
-
-        {% endblock %}
-
-      </div>
-    </section><!-- /.content -->
-  </div><!-- /.content-wrapper -->
-
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>{{ __('Version') }}</b> 2.3.0
-    </div>
-    <strong>Copyright &copy; 2007 National Institute For Space Research (INPE) - Brazil </strong> All rights reserved.
-  </footer>
-
-</div>
-<!-- ./wrapper -->
-
-<script src="/externals/jQuery/jQuery-2.1.4.min.js"></script>
-<script src="/externals/bootstrap/js/bootstrap.min.js"></script>
-<script src="/externals/fastclick/fastclick.min.js"></script>
-<script src="/externals/admin-lte/js/app.min.js"></script>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#loadConfigFileButton").click(function(e)
-    {
-      $("#loadConfigFileInput").trigger('click');
     });
+  </script>
+  {# Block for handling TerraMA2 javascripts include #}
+  {% block javascripts %}
 
-    $("#loadConfigFileInput").change(function(e){
-      // TODO load project
-    });
-
-  });
-</script>
-{# Block for handling TerraMA2 javascripts include #}
-{% block javascripts %}
-
-{% endblock %}
+  {% endblock %}
 
 </body>
 </html>

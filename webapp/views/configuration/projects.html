@@ -47,15 +47,14 @@
       <div class="col-md-12">
         <div class="col-md-7">
           <div class="form-group">
-            <label>{{ __('Name') }}:</label>
-            <input class="form-control" id="searchNameInput" placeholder="{{ __('Type to search') }}" type="text">
+            <input class="form-control" id="searchNameInput" style="margin-top: 24px;" placeholder="{{ __('Type to search') }}" type="text">
           </div>
         </div>
 
         <div class="col-md-3">
-          <!--<div class="form-group">-->
-            <!--<button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search"></i>Advanced</button>-->
-          <!--</div>-->
+          <div class="form-group">
+            <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>Advanced</button>
+          </div>
         </div>
 
         <div class="col-md-2">
@@ -77,62 +76,12 @@
           </thead>
           <tbody id="searchList">
             <tr ng-repeat="project in projects">
-              <td><a href="/configuration/projects/edit/{[ project.name ]}">{[ project.name ]}</a></td>
+              <td><a href="/configuration/projects/{[ project.name ]}/activate" title="{{ __('It will activate ') }}{[ project.name ]}">{[ project.name ]}</a></td>
               <td>{[ project.description ]}</td>
             </tr>
             <tr ng-show="!projects.length">
               <td colspan="2">No project found</td>
             </tr>
-
-            <!--<tr>-->
-              <!--<td>-->
-                <!--<i class="fa fa-map-pin"></i>-->
-              <!--</td>-->
-              <!--<td>Project 1</td>-->
-              <!--<td>-->
-                <!--Lorem ipsum Project1-->
-              <!--</td>-->
-            <!--</tr>-->
-
-            <!--<tr>-->
-              <!--<td>-->
-                <!--<i class="fa fa-th"></i>-->
-              <!--</td>-->
-              <!--<td>Project 2</td>-->
-              <!--<td>-->
-                <!--Lorem ipsum Project2-->
-              <!--</td>-->
-            <!--</tr>-->
-
-            <!--<tr>-->
-              <!--<td>-->
-                <!--<i class="fa fa-th"></i>-->
-              <!--</td>-->
-              <!--<td>Project 3</td>-->
-              <!--<td>-->
-                <!--Lorem ipsum Project3-->
-              <!--</td>-->
-            <!--</tr>-->
-
-            <!--<tr>-->
-              <!--<td>-->
-                <!--<i class="fa fa-fire"></i>-->
-              <!--</td>-->
-              <!--<td>Project 4</td>-->
-              <!--<td>-->
-                <!--Lorem ipsum Project4-->
-              <!--</td>-->
-            <!--</tr>-->
-
-            <!--<tr>-->
-              <!--<td>-->
-                <!--<i class="fa fa-th"></i>-->
-              <!--</td>-->
-              <!--<td>Project 5</td>-->
-              <!--<td>-->
-                <!--Lorem ipsum Project5-->
-              <!--</td>-->
-            <!--</tr>-->
 
           </tbody>
         </table>

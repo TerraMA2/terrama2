@@ -116,3 +116,17 @@ errors.ConnectionError = function(message) {
   this.name = 'ConnectionError';
 };
 util.inherits(errors.ConnectionError, errors.BaseError);
+
+
+/**
+ * Thrown when URI ill-formed.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.UriError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'UriError';
+};
+util.inherits(errors.UriError, errors.BaseError);

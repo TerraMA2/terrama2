@@ -28,5 +28,12 @@ FileRequest.prototype.request = function() {
   });
 };
 
+FileRequest.prototype.fields = function() {
+  return {
+    "name": "FILE",
+    "path": "text"
+  }
+};
+
 
 module.exports = FileRequest;

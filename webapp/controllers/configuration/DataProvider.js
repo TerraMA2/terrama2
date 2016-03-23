@@ -37,8 +37,7 @@ module.exports = function(app) {
           }
         });
       }).catch(function(err) {
-        console.log(err);
-        response.send(err);
+        response.render("base/404");
       });
     }
   };

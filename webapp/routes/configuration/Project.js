@@ -4,6 +4,7 @@ module.exports = function (app) {
 
   app.get('/configuration/projects', controller.get);
   app.get('/configuration/projects/new', controller.new);
+  app.get('/configuration/projects/:name/activate', controller.activate);
   app.get('/configuration/projects/edit/:name', controller.edit);
 
 };

@@ -16,4 +16,8 @@ AbstractRequest.prototype.request = function() {
   throw new Error("It must be implemented");
 };
 
+AbstractRequest.prototype.fields = function() {
+  throw new Error("It must be implemented");
+};
+
 module.exports = AbstractRequest;

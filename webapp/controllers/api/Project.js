@@ -1,4 +1,6 @@
 var DataManager = require("../../core/DataManager.js");
+var Utils = require("../../core/Utils");
+var ProjectError = require("../../core/Exceptions").ProjectError;
 
 
 module.exports = function(app) {
@@ -9,8 +11,7 @@ module.exports = function(app) {
       DataManager.addProject(projectObject).then(function(project) {
         response.json(project);
       }).catch(function(err) {
-        response.status(400);
-        response.json({status: 400, message: err.message});
+        Utils.handleRequestError(response, err, 400);
       });
     },
 
@@ -22,8 +23,7 @@ module.exports = function(app) {
           console.log(project);
           response.json(project);
         }).catch(function(err) {
-          response.status(400);
-          response.json({status: 400, message: err.message});
+          Utils.handleRequestError(response, err, 400);
         })
       } else {
         response.json(DataManager.listProjects());
@@ -37,17 +37,15 @@ module.exports = function(app) {
         var projectGiven = request.body;
         projectGiven.id = id;
         DataManager.updateProject(projectGiven).then(function(project) {
-          console.log('updated');
           response.json(project);
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
         })
       } else {
-        response.status(400);
-        response.json({status: 400, message: "Project name not identified"});
+        Utils.handleRequestError(request, new ProjectError("Project name not identified"), 400);
       }
-    }
+    },
 
   };
 };

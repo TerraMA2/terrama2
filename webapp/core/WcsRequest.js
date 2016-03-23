@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var Requester = require('request');
 var NodeUtils = require('util');
+var UriBuilder = require('./UriBuilder');
 
 var WcsRequest = function(params) {
   AbstractRequest.apply(this, arguments);
@@ -15,7 +16,9 @@ WcsRequest.prototype = Object.create(AbstractRequest.prototype, {
 WcsRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
-    var uri = self.uri + "?service=WCS&version=2.0.1&request=GetCapabilities";
+    var object = Object.assign(self.params, {});
+    object.kind = "http";
+    var uri = UriBuilder.buildUri(object) + "?service=WCS&version=2.0.1&request=GetCapabilities";
 
     Requester(uri, function(err, resp, body) {
       if (err)

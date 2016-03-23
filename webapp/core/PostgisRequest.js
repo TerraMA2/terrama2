@@ -45,5 +45,16 @@ PostgisRequest.prototype.request = function() {
   });
 };
 
+PostgisRequest.prototype.fields = function() {
+  return {
+    name: "HTTP",
+    ip: "text",
+    port: "number",
+    username: "text",
+    password: "text",
+    path: "text"
+  }
+};
+
 
 module.exports = PostgisRequest;
