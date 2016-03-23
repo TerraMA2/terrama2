@@ -102,3 +102,31 @@ errors.ProjectError = function(message) {
   this.name = 'ProjectError';
 };
 util.inherits(errors.ProjectError, errors.BaseError);
+
+
+/**
+ * Thrown when check connection has failed.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.ConnectionError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ConnectionError';
+};
+util.inherits(errors.ConnectionError, errors.BaseError);
+
+
+/**
+ * Thrown when URI ill-formed.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.UriError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'UriError';
+};
+util.inherits(errors.UriError, errors.BaseError);

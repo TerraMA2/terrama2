@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          DataSeriesType.hasMany(models.DataSeriesSemantic, {
+          DataSeriesType.hasMany(models.DataSeriesSemantics, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false

@@ -1,0 +1,99 @@
+{% extends "../base/layout.html" %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+
+<style type="text/css">
+
+</style>
+{% endblock %}
+
+{% block title %} TerraMA2 {{ __('Projects') }} {% endblock %}
+
+{% block javascripts %}
+
+<script src="/externals/angular/angular.min.js"></script>
+<script src="/javascripts/angular/app.js"></script>
+<script type="text/javascript">
+  angular.module("terrama2.projects", ['terrama2'])
+    .controller("ProjectController", function($scope, $http) {
+      $scope.projects = [];
+      $scope.loading = true;
+
+      setTimeout(function() {
+        $http.get("/api/Project/", {}).success(function(projects) {
+          console.log(projects);
+          $scope.projects = projects;
+        }).error(function(err) {
+          console.log("Err in retrieving projects");
+        }).finally(function() {
+          $scope.loading = false;
+        });
+      }, 1000);
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12" ng-app="terrama2.projects">
+  <div class="box box-default" ng-controller="ProjectController">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ __('Projects') }}</h3>
+    </div>
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body">
+
+      <div class="col-md-12">
+        <div class="col-md-7">
+          <div class="form-group">
+            <input class="form-control" id="searchNameInput" style="margin-top: 24px;" placeholder="{{ __('Type to search') }}" type="text">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>Advanced</button>
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <a href="/configuration/projects/new" class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-plus"></i></a>
+          </div>
+        </div>
+      </div>
+      <!-- ./col-md-12 -->
+
+      <div class="col-md-12" style="margin-top: 30px;">
+
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th style="width: 50%;">{{ __('Name') }}</th>
+              <th>{{ __('Description') }}</th>
+            </tr>
+          </thead>
+          <tbody id="searchList">
+            <tr ng-repeat="project in projects">
+              <td><a href="/configuration/projects/{[ project.name ]}/activate" title="{{ __('It will activate ') }}{[ project.name ]}">{[ project.name ]}</a></td>
+              <td>{[ project.description ]}</td>
+            </tr>
+            <tr ng-show="!projects.length">
+              <td colspan="2">No project found</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+    <!-- /.box body -->
+
+    <div class="overlay" ng-show="loading">
+      <i class="fa fa-refresh fa-spin"></i>
+    </div>
+  </div>
+</div> <!-- end col md 12 -->
+
+{% endblock %}

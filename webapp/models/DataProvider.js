@@ -12,7 +12,10 @@ module.exports = function(sequelize, DataTypes) {
         unique: true
       },
       description: DataTypes.TEXT,
-      active: DataTypes.BOOLEAN
+      active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false
+      }
 
     },
     {
