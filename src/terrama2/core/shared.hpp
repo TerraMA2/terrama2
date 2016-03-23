@@ -32,6 +32,21 @@
 
 namespace terrama2 {
    namespace core {
+      struct DataProvider;
+      typedef std::shared_ptr<const terrama2::core::DataProvider> DataProviderPtr;
+
+      struct DataSeries;
+      typedef std::shared_ptr<const terrama2::core::DataSeries> DataSeriesPtr;
+
+      struct DataSet;
+      typedef std::shared_ptr<const terrama2::core::DataSet> DataSetPtr;
+      struct DataSetDcp;
+      typedef std::shared_ptr<const terrama2::core::DataSetDcp> DataSetDcpPtr;
+      struct DataSetOccurrence;
+      typedef std::shared_ptr<const terrama2::core::DataSetOccurrence> DataSetOccurrencePtr;
+      struct DataSetGrid;
+      typedef std::shared_ptr<const terrama2::core::DataSetGrid> DataSetGridPtr;
+
       class DcpSeries;
       typedef std::shared_ptr<terrama2::core::DcpSeries> DcpSeriesPtr;
 

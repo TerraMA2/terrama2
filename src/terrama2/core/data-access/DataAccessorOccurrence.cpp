@@ -49,7 +49,7 @@ terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getO
   {
     try
     {
-      std::shared_ptr<DataSetOccurrence> dataset = std::dynamic_pointer_cast<DataSetOccurrence>(serie.first);
+      DataSetOccurrencePtr dataset = std::dynamic_pointer_cast<const DataSetOccurrence>(serie.first);
       occurrenceSeries->addOccurrence(dataset, serie.second);
     }
     catch(const std::bad_cast& exp)

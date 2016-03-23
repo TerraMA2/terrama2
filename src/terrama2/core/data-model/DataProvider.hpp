@@ -74,7 +74,7 @@ namespace terrama2
       std::string uri; //!< URI to access the DataProvider data.
       bool active = true; //!< DataProvider status.
 
-      std::vector<DataSeries> dataSeriesList; //TODO: id or object?
+      std::vector<DataSeriesPtr> dataSeriesList; //TODO: id or object?
     };
 
   } // end namespace core
