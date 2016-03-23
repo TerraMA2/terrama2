@@ -36,6 +36,11 @@ typedef uint64_t ProjectId;
 typedef uint64_t DataSetId;
 typedef uint64_t DataSeriesId;
 typedef uint64_t DataProviderId;
+namespace terrama2 {
+  namespace core {
+    inline uint64_t InvalidId(){ return 0;}
+  } /* core */
+} /* terrama2 */
 
 typedef int Srid;
 

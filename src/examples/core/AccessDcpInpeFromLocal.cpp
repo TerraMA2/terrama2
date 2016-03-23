@@ -38,8 +38,6 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("timezone", "+00");
 
   dataSeries->datasetList.emplace_back(dataSet);
-  //DataSet information
-    dataProvider->dataSeriesList.push_back(dataSeriesPtr);
 
   //empty filter
   terrama2::core::Filter filter;
