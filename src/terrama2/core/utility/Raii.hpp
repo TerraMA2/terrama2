@@ -18,7 +18,9 @@
 /*!
   \file terrama2/core/utility/Raii.hpp
   \brief Utility classes for RAII control.
+
   \author Jano Simas
+  \author Evandro Delatin
 */
 
 
@@ -135,7 +137,7 @@ namespace terrama2
         return file_;
       }
 
-
+     //! Assume ownership of file.
       std::FILE* file() const
       {
         return file_;

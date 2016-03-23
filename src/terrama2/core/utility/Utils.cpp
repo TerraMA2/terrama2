@@ -133,12 +133,6 @@ terrama2::core::ReadJsonFile(const std::string & fileName)
   return jdocument;
 }
 
-//std::string
-//terrama2::core::ToString(bool b)
-//{
-//  return b ? "true" : "false";
-//}
-
 void terrama2::core::initializeTerralib()
 {
   // Initialize the Terralib support
@@ -172,8 +166,8 @@ void terrama2::core::initializeTerraMA()
 
 void terrama2::core::finalizeTerraMA()
 {
-  curl_global_cleanup();
   terrama2::core::finalizeTerralib();
+  curl_global_cleanup();
 }
 
 void terrama2::core::initializeLogger(const std::string& pathFile)

@@ -1,11 +1,11 @@
 
-#include "../core/shared.hpp"
-#include "../core/utility/Utils.hpp"
-#include "../core/data-model/DataProvider.hpp"
-#include "../core/data-model/DataSeries.hpp"
-#include "../core/data-model/DataSetGrid.hpp"
-#include "../impl/DataAccessorGeoTiff.hpp"
-#include "../core/data-access/GridSeries.hpp"
+#include <terrama2/core/shared.hpp>
+#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/data-model/DataProvider.hpp>
+#include <terrama2/core/data-model/DataSeries.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
+#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/core/data-access/GridSeries.hpp>
 
 #include <iostream>
 
