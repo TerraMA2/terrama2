@@ -58,7 +58,6 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
    add_executable(${EXAMPLE} ${FILE})
 
    target_link_libraries(${EXAMPLE} terrama2_core
-                                    terrama2_analysis_core
                                     terrama2_impl
                                     terralib_mod_plugin
                                     terralib_mod_common)

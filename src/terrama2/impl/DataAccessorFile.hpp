@@ -44,7 +44,7 @@ namespace terrama2
       \class DataAccessorFile
 
       \brief Base class for DataAccessor classes that access a file.
-
+      
     */
     class DataAccessorFile : public virtual DataAccessor
     {
