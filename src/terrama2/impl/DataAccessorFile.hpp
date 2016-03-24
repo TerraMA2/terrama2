@@ -49,6 +49,9 @@ namespace terrama2
     class DataAccessorFile : public virtual DataAccessor
     {
     public:
+        DataAccessorFile(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter())
+          : DataAccessor(dataProvider, dataSeries, filter)
+        {}
       // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const override;
       // Doc in base class

@@ -74,6 +74,12 @@ namespace terrama2
     /*! \brief Finalizes the terralib. */
     void finalizeTerralib();
 
+    /*! \brief Initializes the terralib and Curl Global. */
+    void initializeTerraMA();
+
+    /*! \brief Finalizes TerraLib and Curl Global. */
+    void finalizeTerraMA();
+
     /*!
       \brief Initializes terrama2 logger module.
       \param pathFile A string value defining where is to open/save log file.

@@ -50,7 +50,8 @@
 
 terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorDcp(dataProvider, dataSeries, filter)
+   DataAccessorDcp(dataProvider, dataSeries, filter),
+   DataAccessorFile(dataProvider, dataSeries, filter)
 {
   if(dataSeries.semantics.name != "PCD-inpe")
   {
