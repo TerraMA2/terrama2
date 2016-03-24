@@ -34,13 +34,14 @@
 #include "Analysis.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/data-model/DataManager.hpp"
-#include "../../../core/data-model/DataSetDCP.hpp"
+#include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../impl/DataAccessorOccurrenceMvf.hpp"
 #include "../../../impl/DataAccessorDcpInpe.hpp"
 
 
 #include <ctime>
+#include <iomanip>
 
 #include <QObject>
 
@@ -110,7 +111,8 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 
   std::time_t t = std::time(NULL);
   std::stringstream ss;
-  ss << std::put_time(std::gmtime(&t), "%Z");
+  //FIXME: PAULO: won't compile in linux (clang & gcc)
+  // ss << std::put_time(std::gmtime(&t), "%Z");
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(ss.str()));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
@@ -330,7 +332,8 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
   std::time_t t = std::time(NULL);
   std::stringstream ss;
-  ss << std::put_time(std::gmtime(&t), "%Z");
+  //FIXME: PAULO: won't compile in linux (clang & gcc)
+  //ss << std::put_time(std::gmtime(&t), "%Z");
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(ss.str()));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
