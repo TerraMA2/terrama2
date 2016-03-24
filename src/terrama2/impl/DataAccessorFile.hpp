@@ -44,12 +44,12 @@ namespace terrama2
       \class DataAccessorFile
 
       \brief Base class for DataAccessor classes that access a file.
-      
+
     */
     class DataAccessorFile : public virtual DataAccessor
     {
     public:
-        DataAccessorFile(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter())
+        DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
           : DataAccessor(dataProvider, dataSeries, filter)
         {}
 		virtual ~DataAccessorFile() {}

@@ -49,7 +49,7 @@ namespace terrama2
     class DataAccessorPostGis : public virtual DataAccessor
     {
     public:
-        DataAccessorPostGis(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter())
+        DataAccessorPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
           : DataAccessor(dataProvider, dataSeries, filter)
         {}
 		virtual ~DataAccessorPostGis() {}
