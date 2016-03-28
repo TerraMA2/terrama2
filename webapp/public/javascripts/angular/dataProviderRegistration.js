@@ -1,15 +1,17 @@
 'use strict';
 
-var app = angular.module("terrama2.dataprovider.registration", []);
-app.config(['$interpolateProvider', function($interpolateProvider) {
-  $interpolateProvider.startSymbol('{[');
-  $interpolateProvider.endSymbol(']}');
-}]);
-
+var app = angular.module("terrama2.dataprovider.registration", ['schemaForm']);
 
 app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, $http, $q) {
+  $scope.model = {};
+  $scope.schema = {};
+  $scope.form = [];
+
   $http.get("/api/DataProviderType/", {}).success(function(typeList) {
-    $scope.kindList = typeList;
+    typeList.forEach(function(dataProviderType) {
+      $scope.typeList = typeList;
+    });
+
   }).error(function(err) {
     console.log("err type: ", err);
   });
@@ -21,10 +23,10 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
   $scope.isChecking = false;
   $scope.message = "";
   $scope.remoteFieldsRequired = false;
+  $scope.protocol = configuration.dataProvider.kind,
   $scope.dataProvider = {
     name: configuration.dataProvider.name,
     description: configuration.dataProvider.description,
-    kind: configuration.dataProvider.kind,
     user: configuration.dataProvider.user,
     password: configuration.dataProvider.password,
     address: configuration.dataProvider.address,
@@ -39,26 +41,25 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
     $scope.remoteFieldsRequired = true;
   };
 
-  $scope.onKindChanged = function() {
+  $scope.onSchemeChanged = function() {
     // todo: disable fields?
+    $scope.typeList.forEach(function(dataProviderType) {
+      if (dataProviderType.name === $scope.protocol) {
+        $scope.model = {};
+        $scope.schema = {
+          type: "object",
+          properties: dataProviderType.properties,
+          required: dataProviderType.required || []
+        };
 
-    switch ($scope.dataProvider.kind.toLocaleLowerCase()) {
-      case "file":
-        $scope.remoteFieldsRequired = false;
-        $scope.dataProvider.port = "";
-        break;
-      case "http":
-        helperPort(80);
-        break;
-      case "ftp":
-        helperPort(21);
-        break;
-      case "postgis":
-        helperPort(5432);
-        break;
-      default:
-        ;
-    }
+        if (dataProviderType.display)
+          $scope.form = dataProviderType.display;
+        else
+          $scope.form = ["*"];
+
+        $scope.$broadcast('schemaFormRedraw');
+      }
+    });
   };
 
   $scope.save = function() {
@@ -93,7 +94,12 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
     $scope.alertBox.message = "";
   };
 
-  $scope.checkConnection = function() {
+  $scope.checkConnection = function(form) {
+    $scope.$broadcast('schemaFormValidate');
+
+    if (!form.$valid)
+      return;
+
     $scope.isChecking = true; // for handling loading page
 
     // Timeout in seconds for handling connections
@@ -109,10 +115,13 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
         timeOut.resolve();
       }, 1000 * $scope.timeOutSeconds);
 
+      var params = $scope.model;
+      params.protocol = $scope.protocol;
+
       var httpRequest = $http({
         method: "POST",
         url: "/uri/",
-        data: $scope.dataProvider,
+        data: params,
         timeout: timeOut.promise
       });
 

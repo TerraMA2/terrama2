@@ -2,6 +2,10 @@ var AbstractRequest = require('./AbstractRequest');
 var Client = require('ftp');
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
+var FormField = require("./Enums").FormField;
+var UriPattern = require("./Enums").Uri;
+var Utils = require("./Utils");
+
 
 var FtpRequest = function(params) {
   AbstractRequest.apply(this, arguments);
@@ -38,24 +42,24 @@ FtpRequest.prototype.request = function() {
     });
 
     client.connect({
-      user: self.params.user,
-      pass: self.params.password,
-      host: self.params.address,
-      port: self.params.port
+      user: self.params[self.syntax().USER],
+      pass: self.params[self.syntax().PASSWORD],
+      host: self.params[self.syntax().HOST],
+      port: self.params[self.syntax().PORT]
     });
   });
 };
 
-FtpRequest.prototype.fields = function() {
-  return {
-    name: "FTP",
-    ip: "text",
-    port: "number",
-    username: "text",
-    password: "text",
-    path: "text"
-  }
-};
-
-
+FtpRequest.fields = function() {
+  return Utils.makeCommonRequestFields("FTP", 21, null, [UriPattern.HOST, UriPattern.PORT, UriPattern.PATHNAME], [
+      UriPattern.HOST,
+      UriPattern.PORT,
+      UriPattern.USER,
+      {
+        key: UriPattern.PASSWORD,
+        type: FormField.PASSWORD
+      },
+      UriPattern.PATHNAME
+    ]);
+}
 module.exports = FtpRequest;
