@@ -4,9 +4,11 @@
 
 // todo: define straightforward signals
 var SIGNALS = {
-  Connected: 1,
-  DataProviderAdded: 2,
-  DataSeriesAdded: 3
+  TerminateSignal: 0, // Stop service signal
+  StatusSignal: 1, // Check if the connection is alive and get service information
+  DataSignal: 2, // Data signal, followed by data
+  StartSignal: 3, // Start signal, queue the collection, analysis, etc
+  ErrorSignal: 4 // Error signal, send error message to node.js server
 };
 
 module.exports = SIGNALS;
