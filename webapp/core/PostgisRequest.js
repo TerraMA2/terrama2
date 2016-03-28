@@ -56,33 +56,6 @@ PostgisRequest.prototype.request = function() {
 };
 
 PostgisRequest.fields = function() {
-  var properties = {};
-  properties[UriPattern.HOST] = {
-    title: "Address",
-    type: FormField.TEXT
-  };
-
-  properties[UriPattern.PORT] = {
-    title: "Port",
-    type: FormField.NUMBER,
-    default: 5432
-  };
-
-  properties[UriPattern.USER] = {
-    title: "Username",
-    type: FormField.TEXT
-  };
-
-  properties[UriPattern.PASSWORD] = {
-    title: "Password",
-    type: FormField.TEXT
-  };
-
-  properties["database"] = {
-    title: "DataBase name",
-    type: FormField.TEXT
-  };
-
   return Utils.makeCommonRequestFields("POSTGIS", 5432, "database", [UriPattern.HOST, UriPattern.PORT, UriPattern.USER, "database"], [
       UriPattern.HOST,
       UriPattern.PORT,
