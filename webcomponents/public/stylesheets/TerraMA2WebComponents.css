@@ -9,7 +9,7 @@
 
 #terrama2-map .ol-zoom {
   top: 20px;
-  right: 50px;
+  right: 15px;
   left: auto !important;
 }
 
@@ -34,35 +34,9 @@
 #terrama2-map .ol-attribution {
   text-align: right;
   bottom: 20px;
-  right: 50px;
+  right: 15px;
   max-width: calc(100% - 1.3em);
 }
-
-#terrama2-map .ol-zoomslider {
-  top: 46px !important;
-  right: 50px !important;
-  left: auto !important;
-  background-color: transparent !important;
-}
-
-#terrama2-map .ol-zoomslider > button {
-  left: auto !important;
-  background-color: rgba(241, 241, 241, 0.8); !important;
-  color: rgb(84,84,84);
-  outline: none;
-}
-
-#terrama2-map .ol-zoomslider > button:hover { background-color: rgba(241, 241, 241, 1) !important; }
-
-#terrama2-map .ol-zoom .ol-zoom-out { margin-top: 204px; }
-
-#terrama2-map .ol-touch .ol-zoom .ol-zoom-out { margin-top: 212px; }
-
-#terrama2-map .ol-touch .ol-zoomslider { top: 2.75em; }
-
-#terrama2-map .ol-zoom-in.ol-has-tooltip:hover [role=tooltip], #terrama2-map .ol-zoom-in.ol-has-tooltip:focus [role=tooltip] { top: 3px; }
-
-#terrama2-map .ol-zoom-out.ol-has-tooltip:hover [role=tooltip], #terrama2-map .ol-zoom-out.ol-has-tooltip:focus [role=tooltip] { top: 232px; }
 
 /* LayerExplorer style */
 
@@ -80,9 +54,9 @@
 #terrama2-layerexplorer li.parent_li ul li { cursor: default; }
 
 #terrama2-layerexplorer li {
-  list-style-type:none;
-  padding: 0px 0px 5px 0px;
-  position:relative;
+  list-style-type: none;
+  padding: 5px 0;
+  position: relative;
   white-space: nowrap;
   margin-left: 11px;
 }
@@ -99,9 +73,9 @@
 }
 
 #terrama2-layerexplorer li > span {
-  display:block;
+  display: block;
   padding: 10px;
-  text-decoration:none;
+  text-decoration: none;
 }
 
 .terrama2-layerexplorer-plus {
@@ -118,11 +92,11 @@
   margin-right: -1px;
 }
 
-#terrama2-layerexplorer li.parent_li>span { cursor:pointer; }
+#terrama2-layerexplorer li.parent_li>span { cursor: pointer; }
 
-#terrama2-layerexplorer>ul>li::before, #terrama2-layerexplorer>ul>li::after { border:0; }
+#terrama2-layerexplorer>ul>li::before, #terrama2-layerexplorer>ul>li::after { border: 0; }
 
-#terrama2-layerexplorer li:last-child::before { height:30px; }
+#terrama2-layerexplorer li:last-child::before { height: 30px; }
 
 .terrama2-layerexplorer-checkbox {
   display: block;
@@ -131,3 +105,5 @@
 }
 
 span.terrama2-layerexplorer-checkbox-span { margin-left: 20px !important; }
+
+#terrama2-layerexplorer ul.children > li.layer:active, #terrama2-layerexplorer > li.layer:active, #terrama2-layerexplorer > li.parent_li:active { cursor: move; }
