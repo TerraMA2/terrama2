@@ -69,19 +69,26 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
    * @param {float} minResolution - Layer minimum resolution
    * @param {float} maxResolution - Layer maximum resolution
+   * @param {string} time - Time parameter for temporal layers
    * @returns {ol.layer.Tile} tile - New tiled wms layer
    *
    * @function createTileWMS
    */
-  var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution) {
+  var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time) {
+    var params = {
+      'LAYERS': layerName,
+      'TILED': true
+    };
+
+    if(time !== null && time !== undefined && time !== '')
+      params['TIME'] = time;
+
     var tile = new ol.layer.Tile({
       source: new ol.source.TileWMS({
         preload: Infinity,
         url: url,
         serverType: type,
-        params: {
-          'LAYERS': layerName, 'TILED': true
-        }
+        params: params
       }),
       id: layerId,
       name: layerName,
@@ -107,10 +114,11 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {float} minResolution - Layer minimum resolution
    * @param {float} maxResolution - Layer maximum resolution
    * @param {string} parentGroup - Parent group id
+   * @param {string} time - Time parameter for temporal layers
    *
    * @function addTileWMSLayer
    */
-  var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup) {
+  var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time) {
     var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
 
     if(layerGroup !== null) {
