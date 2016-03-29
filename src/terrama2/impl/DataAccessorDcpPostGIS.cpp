@@ -66,6 +66,34 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(DataSetPtr data
   }
 }
 
+std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimeColumnName(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("date_time_column");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorDcpPostGIS::getGeometryColumnName(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("geometry_column");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
 {
   return "POSTGIS";

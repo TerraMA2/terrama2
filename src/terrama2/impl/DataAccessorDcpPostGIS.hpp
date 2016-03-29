@@ -53,6 +53,9 @@ namespace terrama2
 
     protected:
       virtual std::string getTableName(DataSetPtr dataSet) const override;
+      virtual std::string getDateTimeColumnName(DataSetPtr dataSet) const override;
+      virtual std::string getGeometryColumnName(DataSetPtr dataSet) const override;
+
       virtual std::string dataSourceType() const override;
     };
   }
