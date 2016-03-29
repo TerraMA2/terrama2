@@ -1,83 +1,82 @@
-function emitObject(signal, object)
-{
-  // todo: implement it
-  //process()
+var net = require('net');
+var Signals = require('./Signals.js');
 
-  try
-  {
-    //if (!isNumber(signal))
-    //  throw TypeError(signal + " is not a valid signal");
+var TcpManager = module.exports = {};
 
+TcpManager.sendData = function(data) {
+  emit(Signals.DataSignal, data);
+};
+
+var emit = function(signal, object) {
+  try {
+    if(isNaN(signal)) throw TypeError(signal + " is not a valid signal!");
+
+    // Stringifies the message
     var jsonMessage = JSON.stringify(object);
 
-    // 8 bytes (2 ints)
+    // The size of the message plus the size of two integers, 4 bytes each
     var totalSize = jsonMessage.length + 8;
 
-    var buffer = new Buffer(totalSize);
-    buffer.fill(0);
+    // Creates the buffer and fills it with zeros
+    var buffer = new Buffer(totalSize).fill(0);
 
-    buffer.write(jsonMessage, 8, jsonMessage.length);
+    // Writes the message (string) in the buffer with UTF-8 encoding
+    buffer.write(jsonMessage, 8, jsonMessage.length, 'utf8');
 
-    for (var j = 0; j < signal; ++j)
-    {
-      buffer.writeUInt8(signal >> (j * 8), 3);
-    }
+    // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
+    buffer.writeUInt32BE(signal, 0);
 
-    var toArrayBuffer = function(buffer) {
-      var ab = new ArrayBuffer(buffer.length);
-      var view = new Uint8Array(ab);
-      for (var i = 0; i < buffer.length; ++i) {
-        view[i] = buffer[i];
-      }
-      return ab;
-    };
+    // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
+    buffer.writeUInt32BE(totalSize, 4);
 
-    for (var i = 0; i < totalSize; ++i)
-    {
-      buffer.writeUInt8(totalSize >> (i * 8), 7);
-    }
+    var client = new net.Socket();
 
-    console.log("Sending: " + buffer.toString());
+    client.connect(1337, '127.0.0.1', function() {
+      client.write(buffer);
+    });
 
-    //this.server.socket.write(buffer.toString());
-    this.server.socket.write(jsonMessage);
-  }
-  catch(error)
-  {
-    // socket error
+    client.on('data', function(data) {
+      console.log('\n\n[CLIENT] Received:\n');
+      console.log(data);
+    });
+
+    client.on('close', function() {
+      console.log('\n\n[CLIENT] Connection closed');
+    });
+  } catch(error) {
     throw error;
   }
-}
+};
 
-// Private
-var server = require('net').createServer();
+var server = net.createServer();
 
-server.socket = null;
+server.on('connection', function(socket) {
 
-server.on('connection', function (socket) {
-  console.log("Connection : " + socket);
+  socket.on('data', function(buffer) {
+    try {
+      var signal = buffer.readUInt32BE(0);
+      var bufferSize = buffer.readUInt32BE(4);
 
-  // saving connection socket
-  server.socket = socket;
+      if(!Buffer.isBuffer(buffer) || bufferSize !== buffer.length) throw TypeError("Invalid buffer!");
 
-  socket.on('data', function(byteArrayMessage){
-    // processByteArray(byteArrayMessage);
-    console.log("ByteArray: " + byteArrayMessage);
-    console.log("String of ByteArray: " + byteArrayMessage.toString());
+      var message = buffer.toString('utf8', 8);
+
+      console.log("\n\n[SERVER] Signal:\n");
+      console.log(signal);
+
+      console.log("\n\n[SERVER] Buffer Size:\n");
+      console.log(bufferSize);
+
+      console.log("\n\n[SERVER] Message:\n");
+      console.log(message);
+    } catch(error) {
+      throw error;
+    }
   });
 
-  socket.on("close", function(state){
-    console.log("Disconnected: " + state);
-    server.socket = null;
+  socket.on("close", function(hasError){
+    console.log("Has error: " + hasError);
   });
 });
 
-// todo: Its temp code. It should get from configuration
-server.listen(8080);
-
-module.exports = function() {
-  return {
-    emit: emitObject,
-    server: server
-  };
-};
+server.listen(1337, '0.0.0.0');
