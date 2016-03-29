@@ -13,7 +13,6 @@ module.exports = function(app) {
       DataManager.getDataProvider({id: dataProviderId}).then(function(dataProvider) {
         return response.render("configuration/providers", {dataProvider: dataProvider.name, method: method});
       }).catch(function(err) {
-        console.log("Err : " + err);
         return response.render("configuration/providers");
       });
     },
