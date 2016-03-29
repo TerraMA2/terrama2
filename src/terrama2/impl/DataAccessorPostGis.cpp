@@ -96,7 +96,7 @@
    std::vector<te::da::Expression*> where;
    if(filter.discardBefore.get())
    {
-     te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(filter.discardBefore.get());
+     te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore.get()));
      te::da::Expression* discardBeforeExpression = new te::da::GreaterThan(dateTimeProperty, discardBeforeVal);
 
      where.push_back(discardBeforeExpression);
@@ -104,7 +104,7 @@
 
    if(filter.discardAfter.get())
    {
-     te::da::Expression* discardAfterVal = new te::da::LiteralDateTime(filter.discardAfter.get());
+     te::da::Expression* discardAfterVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardAfter.get()));
      te::da::Expression* discardAfterExpression = new te::da::LessThan(dateTimeProperty, discardAfterVal);
 
      where.push_back(discardAfterExpression);
@@ -112,7 +112,7 @@
 
    if(filter.geometry.get())
    {
-     te::da::Expression* geometryVal = new te::da::LiteralGeom(filter.geometry.get());
+     te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.geometry->clone()));
      te::da::Expression* intersectExpression = new te::da::ST_Intersects(geometryProperty, geometryVal);
 
      where.push_back(intersectExpression);
@@ -145,10 +145,7 @@
    fields->push_back(propertyName);
 
    te::da::Select select(fields, from, whereCondition);
-   std::auto_ptr<te::da::DataSet> dataset = transactor->query(select);
-
-   //TODO: implement filter in query
-   std::shared_ptr<te::da::DataSet> teDataSet = transactor->getDataSet(tableName);
+   std::shared_ptr<te::da::DataSet> teDataSet = transactor->query(select);
    if(teDataSet->isEmpty())
    {
      QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
