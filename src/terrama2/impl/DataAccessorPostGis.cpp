@@ -39,7 +39,7 @@
 #include <QUrl>
 #include <QObject>
 
- std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorPostGis::getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const
+ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorPostGis::getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const
  {
    QUrl url(uri.c_str());
 
@@ -47,7 +47,7 @@
 
    // creates a DataSource to the data and filters the dataset,
    // also joins if the DCP comes from separated files
-   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
+   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
 
    std::map<std::string, std::string> connInfo{{"PG_HOST", url.host().toStdString()},
                                                {"PG_PORT", std::to_string(url.port())},
@@ -77,7 +77,7 @@
    std::shared_ptr<te::da::DataSet> teDataSet = transactor->getDataSet(tableName);
    if(teDataSet->isEmpty())
    {
-     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet.id);
+     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
      TERRAMA2_LOG_ERROR() << errMsg;
      throw NoDataException() << ErrorDescription(errMsg);
    }
@@ -87,7 +87,7 @@
    return completeDataset;
  }
 
-std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataSet, const Filter& filter) const
+std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const
 {
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
   TERRAMA2_LOG_ERROR() << errMsg;

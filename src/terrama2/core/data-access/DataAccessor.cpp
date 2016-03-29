@@ -78,7 +78,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
  return nullptr;
 }
 
-std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( const DataSet& dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
 
@@ -94,12 +94,11 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-
-std::map<std::shared_ptr<terrama2::core::DataSet>, std::shared_ptr<te::mem::DataSet> > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::map<terrama2::core::DataSetPtr, std::shared_ptr<te::mem::DataSet> > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
 {
 
   //if data provider is not active, nothing to do
-  if(!dataProvider_.active)
+  if(!dataProvider_->active)
   {
     QString errMsg = QObject::tr("Disabled data provider (Should not arrive here!)");
 
@@ -107,12 +106,12 @@ std::map<std::shared_ptr<terrama2::core::DataSet>, std::shared_ptr<te::mem::Data
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
 
-  std::map<std::shared_ptr<DataSet>, std::shared_ptr<te::mem::DataSet> > series;
+  std::map<DataSetPtr, std::shared_ptr<te::mem::DataSet> > series;
 
   try
   {
     DataRetrieverPtr dataRetriever = Factory::MakeRetriever(dataProvider_);
-    for(const auto& dataset : dataSeries_.datasetList)
+    for(const auto& dataset : dataSeries_->datasetList)
     {
       //if the dataset is not active, continue to next.
       if(!dataset->active)
@@ -123,12 +122,12 @@ std::map<std::shared_ptr<terrama2::core::DataSet>, std::shared_ptr<te::mem::Data
       // if not, just get the DataProvider uri
       std::string uri;
       if(dataRetriever->isRetrivable())
-        uri = retrieveData(dataRetriever, *dataset, filter);
+        uri = retrieveData(dataRetriever, dataset, filter);
       else
-        uri = dataProvider_.uri;
+        uri = dataProvider_->uri;
 
       //TODO: Set last date collected in filter
-      std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, *dataset);
+      std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, dataset);
 
       series.emplace(dataset, memDataSet);
     }//for each dataset
@@ -140,4 +139,15 @@ std::map<std::shared_ptr<terrama2::core::DataSet>, std::shared_ptr<te::mem::Data
   }
 
   return series;
+}
+
+
+void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+{
+  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
+  {
+    te::dt::Property* p = datasetType->getProperty(i);
+
+    converter->add(i,p->clone());
+  }
 }

@@ -47,11 +47,11 @@ namespace terrama2
     class DataAccessorGeoTiff : public DataAccessorGrid, public DataAccessorFile
     {
     public:
-      DataAccessorGeoTiff(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter = Filter());
+      DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorGeoTiff() {}
 
     protected:
-      virtual std::string dataSourceTye() const override;
+      virtual std::string dataSourceType() const override;
     };
   }
 }

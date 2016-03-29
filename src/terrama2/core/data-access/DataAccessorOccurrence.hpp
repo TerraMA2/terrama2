@@ -58,7 +58,7 @@ namespace terrama2
     class DataAccessorOccurrence : public virtual DataAccessor
     {
     public:
-      DataAccessorOccurrence(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      DataAccessorOccurrence(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
       virtual ~DataAccessorOccurrence() {}
 
       virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);

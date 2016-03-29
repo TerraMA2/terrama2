@@ -39,7 +39,7 @@ namespace terrama2
   {
     struct DataSetDcp : public DataSet
     {
-      te::gm::Point position;//TODO: A posição é sempre um ponto? pode ser uma região?
+      te::gm::Point* position;//TODO: A posição é sempre um ponto? pode ser uma região?
       // std::string dateTimeColumnName;
     };
   } // end namespace core
