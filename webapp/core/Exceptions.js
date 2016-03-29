@@ -130,3 +130,17 @@ errors.UriError = function(message) {
   this.name = 'UriError';
 };
 util.inherits(errors.UriError, errors.BaseError);
+
+
+/**
+ * Thrown when could not load Plugin.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.PluginError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'PluginError';
+};
+util.inherits(errors.PluginError, errors.BaseError);

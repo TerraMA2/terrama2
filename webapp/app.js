@@ -11,7 +11,8 @@ var express = require('express'),
     server = require('http').Server(app);
 
 // Set SWIG template engine
-app.engine('html', swig.renderFile);
+var customSwig = new swig.Swig({varControls: ["{[", "]}"]});
+app.engine('html', customSwig.renderFile);
 app.set('view engine', 'html');
 
 // Set template directories

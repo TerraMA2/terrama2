@@ -2,15 +2,24 @@ var AbstractRequest = require("./AbstractRequest");
 var pg = require('pg');
 var Promise = require("bluebird");
 var ConnectionError = require("./Exceptions").ConnectionError;
+var FormField = require('./Enums').FormField;
+var UriPattern = require("./Enums").Uri;
+var Utils = require("./Utils");
 
 
 function PostgisRequest(requestParameters) {
   AbstractRequest.apply(this, arguments);
 }
 
-PostgisRequest.prototype = Object.create(AbstractRequest, {
-  constructor: PostgisRequest
-});
+PostgisRequest.prototype = Object.create(AbstractRequest.prototype);
+PostgisRequest.prototype.constructor = PostgisRequest;
+
+PostgisRequest.prototype.syntax = function() {
+  var pattern = Object.assign({}, UriPattern);
+
+  pattern.PATHNAME = "database";
+  return pattern;
+}
 
 PostgisRequest.prototype.request = function() {
   var self = this;
@@ -45,16 +54,17 @@ PostgisRequest.prototype.request = function() {
   });
 };
 
-PostgisRequest.prototype.fields = function() {
-  return {
-    name: "HTTP",
-    ip: "text",
-    port: "number",
-    username: "text",
-    password: "text",
-    path: "text"
-  }
-};
-
+PostgisRequest.fields = function() {
+  return Utils.makeCommonRequestFields("POSTGIS", 5432, "database", [UriPattern.HOST, UriPattern.PORT, UriPattern.USER, "database"], [
+      UriPattern.HOST,
+      UriPattern.PORT,
+      UriPattern.USER,
+      {
+        key: UriPattern.PASSWORD,
+        type: FormField.PASSWORD
+      },
+      "database"
+    ]);
+}
 
 module.exports = PostgisRequest;
