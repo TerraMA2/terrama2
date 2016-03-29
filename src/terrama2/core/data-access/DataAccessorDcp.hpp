@@ -53,16 +53,13 @@ namespace terrama2
     class DataAccessorDcp : public virtual DataAccessor
     {
     public:
-      DataAccessorDcp(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      DataAccessorDcp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
       virtual ~DataAccessorDcp() {}
 
       virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
       // Doc in base class
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
-    protected:
-      // Doc in base class
-      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }
 }

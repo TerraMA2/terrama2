@@ -27,22 +27,20 @@ var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
-var app = require('../app');
-var tr = app.i18n;
 
 // Javascript Lock
 var ReadWriteLock = require('rwlock');
 var lock = new ReadWriteLock();
 
 
-
 // Helpers
-Array.prototype.getItemByParam = function(object) {
+function getItemByParam(array, object) {
   var key = Object.keys(object)[0];
-  return this.find(function(item){
+  return array.find(function(item){
     return (item[key] == object[key]);
   });
-};
+}
+
 
 var models = null;
 var actualConfig = {};
@@ -66,6 +64,16 @@ var DataManager = {
     projects: []
   },
   connection: null,
+  isLoaded: false,
+
+  /**
+   * It sets active database configuration for models synchronization
+   * @param {Object} configuration - An object with database configuration
+   */
+  setConfiguration: function(configuration) {
+    if (configuration && !_.isEqual(actualConfig, configuration))
+      actualConfig = configuration;
+  },
 
   /**
    * It initializes DataManager, loading models and database synchronization
@@ -77,11 +85,8 @@ var DataManager = {
     // Lock function
     lock.readLock(function (release) {
       var Sequelize = require("sequelize");
-      var databaseConfig = app.get("databaseConfig");
 
-      if (!_.isEqual(databaseConfig, actualConfig)) {
-        actualConfig = databaseConfig;
-
+      if (actualConfig) {
         var connection = new Sequelize(actualConfig.database,
           actualConfig.username,
           actualConfig.password,
@@ -92,31 +97,40 @@ var DataManager = {
 
         self.connection = connection;
 
+        var releaseCallback = function() {
+          release();
+          callback();
+        };
 
         var fn = function() {
           // todo: insert default values in database
-          self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function(providerType) {
-            models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(intent){
-              self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function(format) {
-                models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function(dsType) {
-                  release();
-                  callback();
-                }).catch(function(err) {
-                  release();
-                  callback();
+          self.addDataProviderType({name: "FILE", description: "Desc File"}).then(function() {
+            self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function() {
+              self.addDataProviderType({name: "HTTP", description: "Desc Http"}).then(function() {
+                self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}).then(function() {
+                  models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(){
+                    self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function() {
+                      models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function() {
+                        releaseCallback();
+                      }).catch(function() {
+                        releaseCallback();
+                      })
+                    }).catch(function() {
+                      releaseCallback();
+                    });
+                  }).catch(function(){
+                    releaseCallback();
+                  });
                 })
-              }).catch(function(err) {
-                release();
-                callback();
-              });
-            }).catch(function(e){
-              release();
-              callback();
+              }).catch(function() {
+                releaseCallback();
+              })
+            }).catch(function(){
+              releaseCallback();
             });
-          }).catch(function(e){
-            release();
-            callback();
-          });
+          }).catch(function() {
+            releaseCallback();
+          })
         };
 
         connection.sync().then(function () {
@@ -126,8 +140,7 @@ var DataManager = {
         });
       }
       else {
-        release();
-        callback();
+        releaseCallback();
       }
     });
   },
@@ -140,23 +153,46 @@ var DataManager = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
+      if (self.isLoaded) {
+        resolve();
+        return;
+      }
+
+      var clean = function() {
+        self.data.dataProviders = [];
+        self.data.dataSeries = [];
+        self.data.dataSets = [];
+        self.data.projects = [];
+      };
+
       models.db.Project.findAll({}).then(function(projects) {
-        self.data.projects = projects;
+        projects.forEach(function(project) {
+          self.data.projects.push(project.get());
+        });
 
         models.db.DataProvider.findAll({}).then(function(dataProviders){
-          self.data.dataProviders = dataProviders;
+          dataProviders.forEach(function(dataProvider) {
+            self.data.dataProviders.push(dataProvider.get());
+          });
 
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
-            self.data.dataSeries = dataSeries;
+            dataSeries.forEach(function(dSeries) {
+              self.data.dataSeries.push(dSeries.get());
+            });
+            //self.data.dataSeries = dataSeries;
+            self.isLoaded = true;
             resolve();
           }).catch(function(err) {
+            clean();
             reject(err);
           });
 
         }).catch(function(err) {
+          clean();
           reject(err);
         });
       }).catch(function(err) {
+        clean();
         reject(err);
       });
     });
@@ -173,7 +209,7 @@ var DataManager = {
 
       lock.writeLock(function(release) {
         models.db.Project.create(projectObject).then(function(project){
-          self.data.projects.push(project);
+          self.data.projects.push(project.get());
           resolve(Utils.clone(project.get()));
           release();
         }).catch(function(e) {
@@ -195,9 +231,9 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
 
       lock.readLock(function(release) {
-        var project = self.data.projects.getItemByParam(projectParam);
+        var project = getItemByParam(self.data.projects, projectParam);
         if (project)
-          resolve(Utils.clone(project.dataValues));
+          resolve(Utils.clone(project));
         else
           reject(new exceptions.ProjectError("Project not found"));
 
@@ -206,12 +242,45 @@ var DataManager = {
     });
   },
 
+  updateProject: function(projectObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.getProject({id: projectObject.id}).then(function(project) {
+
+        models.db.Project.update(projectObject, {
+          fields: ["name", "description", "version"],
+          where: {
+            id: project.id
+          }
+        }).then(function(rows) {
+          var projectItem = getItemByParam(self.data.projects, {id: projectObject.id});
+          projectItem.name = projectObject.name;
+          projectItem.description = projectObject.description;
+          projectItem.version = projectObject.version;
+
+          resolve(Utils.clone(projectItem));
+        }).catch(function(err) {
+          reject(new exceptions.ProjectError("Could update project"));
+        });
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  },
+
+  listProjects: function() {
+    var projectList = [];
+    for(var index = 0; index < this.data.projects.length; ++index)
+      projectList.push(Utils.clone(this.data.projects[index]));
+    return projectList;
+  },
+
   /**
    * It saves DataProviderType in database.
    * @todo Load it in memory
    *
    * @param {Object} dataProviderTypeObject - An object containing needed values to create DataProviderType object.
-   * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
+   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
    */
   addDataProviderType: function(dataProviderTypeObject) {
     return new Promise(function(resolve, reject) {
@@ -223,11 +292,26 @@ var DataManager = {
     });
   },
 
+  listDataProviderType: function() {
+    return new Promise(function(resolve, reject) {
+      models.db.DataProviderType.findAll({}).then(function(result) {
+        var output = [];
+        result.forEach(function(element) {
+          output.push(Utils.clone(element.get()));
+        });
+
+        resolve(output);
+      }).catch(function(err) {
+        reject(err);
+      })
+    });
+  },
+
   /**
    * It saves DataFormat in database.
    *
    * @param {Object} dataFormatObject - An object containing needed values to create DataFormatObject object.
-   * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
+   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
    */
   addDataFormat: function(dataFormatObject) {
     return new Promise(function(resolve, reject) {
@@ -240,15 +324,15 @@ var DataManager = {
   },
 
   /**
-   * It saves DataSeriesSemantic in database.
+   * It saves DataSeriesSemantics in database.
    *
-   * @param {Object} semanticObject - An object containing needed values to create DataSeriesSemantic object.
-   * @return {Promise} - a 'bluebird' module with semantic instance or error callback.
+   * @param {Object} semanticsObject - An object containing needed values to create DataSeriesSemantics object.
+   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
    */
-  addDataSeriesSemantic: function(semanticObject) {
+  addDataSeriesSemantics: function(semanticsObject) {
     return new Promise(function(resolve, reject){
-      models.db.DataSeriesSemantic.create(semanticObject).then(function(semantic){
-        resolve(Utils.clone(semantic.get()));
+      models.db.DataSeriesSemantics.create(semanticsObject).then(function(semantics){
+        resolve(Utils.clone(semantics.get()));
       }).catch(function(e) {
         reject(e);
       });
@@ -264,14 +348,13 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
-        self.data.dataProviders.push(dataProvider);
+        self.data.dataProviders.push(dataProvider.get());
         resolve(Utils.clone(dataProvider.get()));
 
         //  todo: emit signal
 
       }).catch(function(err){
-        var error = exceptions.DataProviderError("Could not save data provider. " + err);
-        reject(error);
+        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
       });
     });
   },
@@ -286,12 +369,12 @@ var DataManager = {
   getDataProvider: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataProvider = self.data.dataProviders.getItemByParam(restriction);
+      var dataProvider = getItemByParam(self.data.dataProviders, restriction);
       if (dataProvider){
-        resolve(Utils.clone(dataProvider.get()));
+        resolve(Utils.clone(dataProvider));
       }
       else
-        reject(new exceptions.DataProviderError("Could not find a data provider: ", restriction));
+        reject(new exceptions.DataProviderError("Could not find a data provider: " + restriction[Object.keys(restriction)[0]]));
     });
   },
 
@@ -303,7 +386,7 @@ var DataManager = {
   listDataProviders: function() {
     var dataProviderObjectList = [];
     for(var index = 0; index < this.data.dataProviders.length; ++index)
-      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index].get()));
+      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index]));
     return dataProviderObjectList;
   },
 
@@ -316,25 +399,32 @@ var DataManager = {
   updateDataProvider: function(dataProviderObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      for(var i = 0; i < self.data.dataProviders.length; ++i) {
-        var provider = self.data.dataProviders[i];
-        if (provider.id === dataProviderObject.id) {
-          provider.updateAttributes({
-            name: dataProviderObject.name,
-            description: dataProviderObject.description,
-            uri: dataProviderObject.uri,
-            active: dataProviderObject.active
-          }).then(function() {
-            self.data.dataProviders[i] = provider;
-            resolve(Utils.clone(provider.get()));
-          }).catch(function(err) {
-            reject(new exceptions.DataProviderError("Could not update data provider ", err));
-          });
-          return;
-        }
-      }
+      var dataProvider = getItemByParam(self.data.dataProviders, dataProviderObject);
 
-      reject(new exceptions.DataProviderError("Data provider not found"));
+      if (dataProvider) {
+        models.db.DataProvider.update(dataProviderObject, {
+          fields: ["name", "description", "uri", "active"],
+          where: {
+            id: dataProvider.id
+          }
+        }).then(function() {
+          if (dataProviderObject.name)
+            dataProvider.name = dataProviderObject.name;
+
+          if (dataProviderObject.description)
+            dataProvider.description = dataProviderObject.description;
+
+          if (dataProviderObject.uri)
+            dataProvider.uri = dataProviderObject.uri;
+
+          dataProvider.active = dataProviderObject.active;
+
+          resolve(Utils.clone(dataProvider));
+        }).catch(function(err) {
+          reject(new exceptions.DataProviderError("Could not update data provider ", err));
+        });
+      } else
+        reject(new exceptions.DataProviderError("Data provider not found"));
     });
   },
 
@@ -351,16 +441,16 @@ var DataManager = {
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
         if (provider.id === dataProviderParam.id || provider.name === dataProviderParam.name) {
-          provider.destroy().then(function (status) {
-            resolve(status);
+          models.db.DataProvider.destroy({where: {id: provider.id}}).then(function() {
             self.data.dataProviders.splice(index, 1);
-          }).catch(function (err) {
+            resolve();
+          }).catch(function(err) {
             reject(err);
           });
           return;
         }
       }
-      reject(new exceptions.DataManagerError("DataManager not initialized yet"));
+      reject(new exceptions.DataManagerError("DataProvider not found"));
     });
   },
 
@@ -374,9 +464,9 @@ var DataManager = {
   getDataSerie: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataSerie = self.data.dataSeries.getItemByParam(restriction);
+      var dataSerie = getItemByParam(self.data.dataSeries, restriction);
       if (dataSerie)
-        resolve(Utils.clone(dataSerie.get()));
+        resolve(Utils.clone(dataSerie));
       else
         reject(new exceptions.DataSeriesError("Could not find a data series: ", restriction));
     });
@@ -390,7 +480,7 @@ var DataManager = {
   listDataSeries: function() {
     var dataSeriesList = [];
     for(var index = 0; index < this.data.dataSeries.length; ++index)
-      dataSeriesList.push(Utils.clone(this.data.dataSeries[index].get()));
+      dataSeriesList.push(Utils.clone(this.data.dataSeries[index]));
     return dataSeriesList;
   },
 
@@ -418,7 +508,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
-        self.data.dataSeries.push(dataSerie);
+        //self.data.dataSeries.push(dataSerie.get());
         output = Utils.clone(dataSerie.get());
         // if there DataSets to save too
         if (dataSeriesObject.dataSets) {
@@ -437,6 +527,7 @@ var DataManager = {
           });
         }
       }).then(function(dataSets){
+        self.data.dataSeries.push(Utils.clone(output));
         output.dataSets = dataSets;
         resolve(output);
       }).catch(function(err){
@@ -455,23 +546,28 @@ var DataManager = {
   updateDataSerie: function(dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      for(var i = 0; i < self.data.dataSeries.length; ++i) {
-        var element = self.data.dataSeries[i];
+      var dataSeries = getItemByParam(self.data.dataSeries, {id: dataSeriesObject.id});
 
-        if (element.id === dataSeriesObject.id) {
-          element.updateAttributes({
-            name: dataSeriesObject.name,
-            description: dataSeriesObject.description
-          }).then(function() {
-            resolve(Utils.clone(element.get()));
-          }).catch(function(err) {
-            reject(new exceptions.DataSeriesError("Could not update data series ", err));
-          });
-          return;
-        }
-      }
+      if (dataSeries) {
+        models.db.DataSeries.update(dataSeriesObject, {
+          fields: ['name', 'description'],
+          where: {
+            $or: [
+              {id: dataSeriesObject.id},
+              {name: dataSeriesObject.name}
+            ]
+          }
+        }).then(function(rows) {
+          dataSeries.name = dataSeriesObject.name;
+          dataSeries.description = dataSeriesObject.description;
 
-      reject(new exceptions.DataSeriesError("Data series not found. "));
+          resolve(Utils.clone(dataSeries));
+        }).catch(function(err) {
+          reject(new exceptions.DataSeriesError("Could not update data series ", err));
+        });
+
+      } else
+        reject(new exceptions.DataSeriesError("Data series not found. "));
     });
   },
 
@@ -488,9 +584,18 @@ var DataManager = {
       for(var index = 0; index < self.data.dataSeries.length; ++index) {
         var dataSeries = self.data.dataSeries[index];
         if (dataSeries.id === dataSeriesParam.id || dataSeries.name === dataSeriesParam.name) {
-          dataSeries.destroy().then(function (status) {
-            resolve(status);
+          models.db.DataSeries.destroy({where: {
+            $or: [
+              {id: dataSeriesParam.id},
+              {name: dataSeriesParam.name}
+            ]
+          }}).then(function (status) {
+            self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
+              if (dSet.data_series_id === dataSeries.id)
+                self.data.dataSets.splice(dSetIndex, 1);
+            });
             self.data.dataSeries.splice(index, 1);
+            resolve(status);
           }).catch(function (err) {
             reject(err);
           });
@@ -607,7 +712,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       lock.readLock(function (release) {
-        var dataSet = self.data.dataSets.getItemByParam(restriction);
+        var dataSet = getItemByParam(self.data.dataSets, restriction);
         if (dataSet)
           resolve(Utils.clone(dataSet));
         else
@@ -643,7 +748,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
 
-      var dataSet = self.data.dataSets.getItemByParam(restriction);
+      var dataSet = getItemByParam(self.data.dataSets, restriction);
 
       if (dataSet) {
 

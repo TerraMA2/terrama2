@@ -39,12 +39,12 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorDcp(dataProvider, dataSeries, filter),
    DataAccessorPostGis(dataProvider, dataSeries, filter)
 {
-  if(dataSeries.semantics.name != "PCD-postgis")
+  if(dataSeries->semantics.name != "PCD-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -52,21 +52,21 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(const DataProvide
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(const DataSet& dataSet) const
+std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(DataSetPtr dataSet) const
 {
   try
   {
-    return dataSet.format.at("table_name");
+    return dataSet->format.at("table_name");
   }
   catch (...)
   {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet.id);
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceTye() const
+std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
 {
   return "POSTGIS";
 }

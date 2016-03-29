@@ -52,7 +52,7 @@ namespace terrama2
     class DataRetriever
     {
     public:
-      DataRetriever(DataProvider) {}
+      DataRetriever(DataProviderPtr) {}
       virtual ~DataRetriever() {}
       /*!
 
@@ -67,7 +67,7 @@ namespace terrama2
       virtual bool isRetrivable() const;
 
     protected:
-      DataProvider dataProvider_;
+      DataProviderPtr dataProvider_;
     };
   }
 }

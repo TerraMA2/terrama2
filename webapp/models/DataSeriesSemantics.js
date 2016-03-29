@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataSeriesSemantic = sequelize.define("DataSeriesSemantic",
+  var DataSeriesSemantics = sequelize.define("DataSeriesSemantics",
     {
       name: {
         type: DataTypes.STRING,
@@ -14,21 +14,21 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          DataSeriesSemantic.belongsTo(models.DataSeriesType, {
+          DataSeriesSemantics.belongsTo(models.DataSeriesType, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
             }
           });
 
-          DataSeriesSemantic.belongsTo(models.DataFormat, {
+          DataSeriesSemantics.belongsTo(models.DataFormat, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
             }
           });
 
-          DataSeriesSemantic.hasMany(models.DataSeries, {
+          DataSeriesSemantics.hasMany(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
@@ -39,5 +39,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataSeriesSemantic;
+  return DataSeriesSemantics;
 };

@@ -30,9 +30,9 @@
 #include "../data-access/DataRetriever.hpp"
 #include "Factory.hpp"
 
-terrama2::core::DataRetrieverPtr terrama2::core::Factory::MakeRetriever(const DataProvider& dataProvider)
+terrama2::core::DataRetrieverPtr terrama2::core::Factory::MakeRetriever(DataProviderPtr dataProvider)
 {
-  switch (dataProvider.dataProviderType)
+  switch (dataProvider->dataProviderType)
   {
   case 0:
     return std::make_shared<DataRetriever>(dataProvider);
