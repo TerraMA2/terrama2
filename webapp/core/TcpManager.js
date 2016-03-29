@@ -1,11 +1,13 @@
 var net = require('net');
-var server = net.createServer();
-
-server.socket = null;
+var Signals = require('./Signals.js');
 
 var TcpManager = module.exports = {};
 
-TcpManager.emit = function(signal, object) {
+TcpManager.sendData = function(data) {
+  emit(Signals.DataSignal, data);
+};
+
+var emit = function(signal, object) {
   try {
     if(isNaN(signal)) throw TypeError(signal + " is not a valid signal!");
 
@@ -27,14 +29,11 @@ TcpManager.emit = function(signal, object) {
     // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(totalSize, 4);
 
-    //var client = new net.Socket();
+    var client = new net.Socket();
 
-    //client.connect(1337, '127.0.0.1', function() {
-      //client.write(buffer);
-      //client.end();
-    //});
-
-    this.server.socket.write(buffer);
+    client.connect(1337, '127.0.0.1', function() {
+      client.write(buffer);
+    });
 
     client.on('data', function(data) {
       console.log('\n\n[CLIENT] Received:\n');
@@ -49,9 +48,9 @@ TcpManager.emit = function(signal, object) {
   }
 };
 
-server.on('connection', function(socket) {
+var server = net.createServer();
 
-  server.socket = socket;
+server.on('connection', function(socket) {
 
   socket.on('data', function(buffer) {
     try {
@@ -75,10 +74,9 @@ server.on('connection', function(socket) {
     }
   });
 
-  socket.on("close", function(state){
-    console.log("Disconnected: " + state);
-    server.socket = null;
+  socket.on("close", function(hasError){
+    console.log("Has error: " + hasError);
   });
 });
 
-server.listen(1337, '127.0.0.1');
+server.listen(1337, '0.0.0.0');
