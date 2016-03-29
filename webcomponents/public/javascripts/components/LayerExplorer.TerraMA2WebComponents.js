@@ -192,7 +192,12 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
         $(this).attr('data-previndex', ui.item.index());
       },
       update: function(event, ui) {
-        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        var interval = window.setInterval(function() {
+          if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
+            TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+            clearInterval(interval);
+          }
+        }, 10);
         $(this).removeAttr('data-previndex');
       }
     });
@@ -204,7 +209,13 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
         $(this).attr('data-previndex', ui.item.index());
       },
       update: function(event, ui) {
-        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        var interval = window.setInterval(function() {
+          if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
+            TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+            clearInterval(interval);
+          }
+        }, 10);
+
         $(this).removeAttr('data-previndex');
       }
     });
