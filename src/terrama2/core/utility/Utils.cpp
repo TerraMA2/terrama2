@@ -49,6 +49,9 @@
 #include <QJsonObject>
 #include <QString>
 
+// Curl
+#include <curl/curl.h>
+
 std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
 // 1st: look in the neighborhood of the executable
@@ -153,6 +156,18 @@ void terrama2::core::initializeTerralib()
 void terrama2::core::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
+}
+
+void terrama2::core::initializeTerraMA()
+{
+  curl_global_init(CURL_GLOBAL_ALL);
+  terrama2::core::initializeTerralib();
+}
+
+void terrama2::core::finalizeTerraMA()
+{
+  terrama2::core::finalizeTerralib();
+  curl_global_cleanup();
 }
 
 void terrama2::core::initializeLogger(const std::string& pathFile)

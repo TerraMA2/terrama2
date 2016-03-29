@@ -32,6 +32,7 @@
 
 //TerraMA2
 #include "../../Config.hpp"
+#include "../shared.hpp"
 #include "../data-model/DataSetOccurrence.hpp"
 
 //STL
@@ -51,11 +52,11 @@ namespace terrama2
     class OccurrenceSeries
     {
     public:
-      void addOccurrence(const std::shared_ptr<DataSetOccurrence>& dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<std::shared_ptr<DataSetOccurrence>, std::shared_ptr<te::mem::DataSet> > >& occurrenceList(){ return datasetList_; }
+      void addOccurrence(DataSetOccurrencePtr dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
+      const std::vector<std::pair<DataSetOccurrencePtr, std::shared_ptr<te::mem::DataSet> > >& occurrenceList(){ return datasetList_; }
 
     private:
-      std::vector<std::pair<std::shared_ptr<DataSetOccurrence>, std::shared_ptr<te::mem::DataSet> > > datasetList_;
+      std::vector<std::pair<DataSetOccurrencePtr, std::shared_ptr<te::mem::DataSet> > > datasetList_;
 
     };
   }

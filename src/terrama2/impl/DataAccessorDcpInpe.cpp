@@ -48,11 +48,12 @@
 #include <QUrl>
 #include <QFileInfoList>
 
-terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(const DataProvider& dataProvider, const DataSeries& dataSeries, const Filter& filter)
+terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorDcp(dataProvider, dataSeries, filter)
+   DataAccessorDcp(dataProvider, dataSeries, filter),
+   DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries.semantics.name != "PCD-inpe")
+  if(dataSeries->semantics.name != "PCD-inpe")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -65,21 +66,21 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::timestampC
   return "N/A";
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(const DataSet& dataSet) const
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(DataSetPtr dataSet) const
 {
   try
   {
-    return dataSet.format.at("timezone");
+    return dataSet->format.at("timezone");
   }
   catch (...)
   {
-    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet.id);
+    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceTye() const
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceType() const
 {
   return "OGR";
 }
@@ -132,7 +133,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::stringToTimestamp(te:
   return nullptr;
 }
 
-void terrama2::core::DataAccessorDcpInpe::adapt(const DataSet& dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+void terrama2::core::DataAccessorDcpInpe::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   //only one timestamp column
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);

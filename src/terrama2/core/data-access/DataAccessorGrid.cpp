@@ -48,7 +48,7 @@ terrama2::core::GridSeriesPtr terrama2::core::DataAccessorGrid::getGridSeries(co
   {
     try
     {
-      std::shared_ptr<DataSetGrid> dataSet = std::dynamic_pointer_cast<DataSetGrid>(serie.first);
+      DataSetGridPtr dataSet = std::dynamic_pointer_cast<const DataSetGrid>(serie.first);
 
       auto teDataSet = serie.second;
       while(teDataSet->moveNext())

@@ -18,7 +18,9 @@
 /*!
   \file terrama2/core/utility/Raii.hpp
   \brief Utility classes for RAII control.
+
   \author Jano Simas
+  \author Evandro Delatin
 */
 
 
@@ -30,6 +32,10 @@
 
 //STd
 #include <exception>
+
+// Libcurl
+#include <curl/curl.h>
+
 
 namespace terrama2
 {
@@ -131,9 +137,55 @@ namespace terrama2
         return file_;
       }
 
+     //! Assume ownership of file.
+      std::FILE* file() const
+      {
+        return file_;
+      }
+
     private:
       std::FILE* file_;
     };
+
+    //! Class for Resource Acquisition Is Initialization (RAII) of Curl.
+    class CurlOpener
+    {
+      public:
+
+       //! Constructor.
+       CurlOpener()
+       {
+         curl_ = curl_easy_init();
+       } 
+
+       /*!
+           The init function performs the function curl_easy_cleanup closing all handle connections 
+           curl and then performs the initialization of the curl.
+       */
+       void init()
+       {
+         curl_easy_cleanup(curl_);
+         curl_ = curl_easy_init();
+       }
+
+       //! Assume ownership of curl.
+       CURL* fcurl() const
+       {
+         return curl_;
+       }
+
+       /*! When CurlOpener destructor is called, the function curl_easy_cleanup is used automatically. 
+           The function curl_easy_cleanup close all connections this handle curl.
+       */
+       ~CurlOpener()
+       {
+         curl_easy_cleanup(curl_);
+       }
+
+      private:
+        CURL* curl_; //!< Attribute for Handler Curl.
+     };
+
   }
 }
 

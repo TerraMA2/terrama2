@@ -28,13 +28,18 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/examples/core/")
+SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/core/")
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.hpp)
 
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${CMAKE_BINARY_DIR}
+)
+
+include_directories ( SYSTEM
+  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
 )

@@ -44,17 +44,21 @@ namespace terrama2
       \class DataAccessorFile
 
       \brief Base class for DataAccessor classes that access a file.
-      
+
     */
     class DataAccessorFile : public virtual DataAccessor
     {
     public:
+        DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+          : DataAccessor(dataProvider, dataSeries, filter)
+        {}
+		virtual ~DataAccessorFile() {}
       // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const override;
+      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const override;
       // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const override;
+      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
       //! Recover file mask
-      virtual std::string getMask(const DataSet& dataset) const;
+      virtual std::string getMask(DataSetPtr dataset) const;
     };
   }
 }

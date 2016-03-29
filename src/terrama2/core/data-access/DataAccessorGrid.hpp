@@ -46,7 +46,7 @@ namespace terrama2
     class DataAccessorGrid : public virtual DataAccessor
     {
     public:
-      DataAccessorGrid(DataProvider dataProvider, DataSeries dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+      DataAccessorGrid(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
       virtual ~DataAccessorGrid() {}
 
       virtual GridSeriesPtr getGridSeries(const Filter& filter);

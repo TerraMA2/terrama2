@@ -42,7 +42,7 @@ namespace terrama2
       /*!
         \brief Creates a DataRetriever to the server.
       */
-       DataRetrieverPtr MakeRetriever(const DataProvider& dataProvider);
+       DataRetrieverPtr MakeRetriever(DataProviderPtr dataProvider);
 
     } /* Factory */
 

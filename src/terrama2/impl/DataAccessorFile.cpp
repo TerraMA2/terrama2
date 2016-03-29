@@ -48,34 +48,34 @@
 #include <terralib/datatype/DateTimeProperty.h>
 
 
-std::string terrama2::core::DataAccessorFile::getMask(const DataSet& dataSet) const
+std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
 {
   try
   {
-    return dataSet.format.at("mask");
+    return dataSet->format.at("mask");
   }
   catch (...)
   {
-    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet.id);
+    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
 
-std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, const DataSet& dataset, const Filter& filter) const
+std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
 {
   std::string mask = getMask(dataset);
   return dataRetriever->retrieveData(mask, filter);
 }
 
- std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::getDataSet(const std::string& uri, const Filter& filter, const DataSet& dataSet) const
+ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const
  {
    QUrl url(uri.c_str());
    QDir dir(url.path());
    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
    if(fileInfoList.empty())
    {
-     QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet.id);
+     QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet->id);
      TERRAMA2_LOG_ERROR() << errMsg;
      throw NoDataException() << ErrorDescription(errMsg);
    }
@@ -93,7 +93,7 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
      // creates a DataSource to the data and filters the dataset,
      // also joins if the DCP comes from separated files
-     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceTye()));
+     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
      std::map<std::string, std::string> connInfo;
 
      connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
@@ -149,7 +149,7 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
    if(completeDataset->isEmpty())
    {
-     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet.id);
+     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
      TERRAMA2_LOG_ERROR() << errMsg;
      throw NoDataException() << ErrorDescription(errMsg);
    }
