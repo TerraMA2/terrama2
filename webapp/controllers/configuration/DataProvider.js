@@ -1,6 +1,7 @@
 var DataManager = require("../../core/DataManager");
 var Utils = require('../../helpers/Utils');
 var UriBuilder = require('../../core/UriBuilder');
+var RequestFactory = require("../../core/RequestFactory");
 
 
 module.exports = function(app) {
@@ -22,21 +23,24 @@ module.exports = function(app) {
       }
 
       DataManager.getDataProvider({name: dataProviderName}).then(function(dataProvider) {
-        var uriObject = UriBuilder.buildObject(dataProvider.uri);
-        dataProvider.uri = uriObject;
+        var requester = RequestFactory.buildFromUri(dataProvider.uri);
+
         Utils.UrlHandler(request, response, "DataProvider", 'configuration/provider', {
           isEditing: true,
-          dataProvider: Object.assign({
+          dataProvider: {
             name: dataProvider.name,
             description: dataProvider.description,
-            active: dataProvider.active
-          }, uriObject),
+            active: dataProvider.active,
+            data_provider_type_name: dataProvider.data_provider_type_name,
+            uriObject: requester.params
+          },
           saveConfig: {
             url: "/api/DataProvider/" + dataProvider.name,
             method: "PUT"
           }
         });
       }).catch(function(err) {
+        console.log(err);
         response.render("base/404");
       });
     }

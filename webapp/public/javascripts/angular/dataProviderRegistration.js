@@ -3,9 +3,22 @@
 var app = angular.module("terrama2.dataprovider.registration", ['schemaForm']);
 
 app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, $http, $q) {
-  $scope.model = {};
-  $scope.schema = {};
-  $scope.form = [];
+  $scope.model = configuration.dataProvider.uriObject || {};
+
+  if (configuration.fields) {
+    $scope.schema = {
+    type: "object",
+      properties: configuration.fields.properties,
+      required: configuration.fields.required
+    };
+  } else
+    $scope.schema = {};
+  
+  $scope.form = configuration.fields.display || [];
+
+//  redraw form
+  if ($scope.form)
+    $scope.$broadcast('schemaFormRedraw');
 
   $http.get("/api/DataProviderType/", {}).success(function(typeList) {
     typeList.forEach(function(dataProviderType) {
@@ -23,15 +36,10 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
   $scope.isChecking = false;
   $scope.message = "";
   $scope.remoteFieldsRequired = false;
-  $scope.protocol = configuration.dataProvider.kind,
+  $scope.protocol = configuration.dataProvider.data_provider_type_name;
   $scope.dataProvider = {
     name: configuration.dataProvider.name,
     description: configuration.dataProvider.description,
-    user: configuration.dataProvider.user,
-    password: configuration.dataProvider.password,
-    address: configuration.dataProvider.address,
-    port: parseInt(configuration.dataProvider.port),
-    path: configuration.dataProvider.path,
     project: configuration.project,
     active: configuration.dataProvider.active
   };
@@ -42,9 +50,9 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
   };
 
   $scope.onSchemeChanged = function() {
-    // todo: disable fields?
     $scope.typeList.forEach(function(dataProviderType) {
       if (dataProviderType.name === $scope.protocol) {
+        // temp code for port changing
         $scope.model = {};
         $scope.schema = {
           type: "object",
@@ -62,9 +70,15 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
     });
   };
 
+  var isValidDataProviderTypeForm = function(form) {
+    $scope.$broadcast('schemaFormValidate');
+
+    return form.$valid;
+  };
+
   $scope.save = function() {
-    if (!$scope.form.$valid) {
-      angular.forEach($scope.form.$error, function (field) {
+    if (!$scope.dataProviderForm.$valid) {
+      angular.forEach($scope.dataProviderForm.$error, function (field) {
         angular.forEach(field, function(errorField){
           errorField.$setTouched();
         })
@@ -72,12 +86,19 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
       return;
     }
 
+    if (!isValidDataProviderTypeForm($scope.connectionForm))
+      return;
+
     $scope.alertBox.title = "Data Provider Registration";
     $scope.errorFound = false;
+
+    var formData = $scope.dataProvider;
+    formData.uriObject = $scope.model;
+
     $http({
       url: configuration.saveConfig.url,
       method: configuration.saveConfig.method,
-      data: $scope.dataProvider
+      data: formData
     }).success(function(dataProvider) {
       $scope.alertBox.message = "Data Provider has been saved";
       $scope.isEditing = true;
@@ -95,9 +116,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
   };
 
   $scope.checkConnection = function(form) {
-    $scope.$broadcast('schemaFormValidate');
-
-    if (!form.$valid)
+    if (!isValidDataProviderTypeForm(form))
       return;
 
     $scope.isChecking = true; // for handling loading page

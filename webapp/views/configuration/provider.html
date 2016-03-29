@@ -19,7 +19,8 @@
     isDynamic: {[ (state|lower === "dynamic") ]},
     isEditing: {[ isEditing || false ]},
     dataProvider: {[ dataProvider|json|safe || {} ]},
-    saveConfig: {[ saveConfig|json|safe ]}
+    saveConfig: {[ saveConfig|json|safe ]},
+    fields: {[ fields|json|safe || {} ]}
   };
 </script>
 
@@ -43,47 +44,30 @@
           {{ alertBox.message }}
         </div>
 
-        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel">
-          <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
-              <div class="modal-header terrama2-component-color">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="confirmModalLabel">{[ __('Data Provider Confirmation') ]}</h4>
-              </div>
-              <div class="modal-body">
-                <div class="row">
-
-                </div>
-              </div>
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" ng-click="save()" data-dismiss="modal">{[ __('Yes') ]}</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">{[ __('No') ]}</button>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-
         <div class="row">
 
-          <form name="form2">
+          <form name="dataProviderForm">
             <div class="col-md-7">
-              <div class="form-group" ng-class="{'has-error': form.name.$touched && form.name.$invalid}">
+              <div class="form-group has-feedback" ng-class="{'has-error': dataProviderForm.name.$touched && dataProviderForm.name.$invalid, 'has-success': dataProviderForm.name.$touched && dataProviderForm.name.$valid}">
                 <label>{[ __("Name") ]}:</label>
                 <input class="form-control" name="name" ng-model="dataProvider.name" placeholder="{[ __('Data Provider Name') ]}" type="text" ng-disabled="isEditing" required>
-                <span class="help-block" ng-show="form.name.$touched && form.name.$invalid" ng-class="{'has-error': form.name.$invalid}">{[ __('Data provider name is required') ]}</span>
+
+                <span class="form-control-feedback glyphicon" ng-show="dataProviderForm.name.$touched" ng-class="{'glyphicon-ok': dataProviderForm.name.$valid, 'glyphicon-remove': dataProviderForm.name.$invalid }"></span>
+
+                <span class="help-block" ng-show="dataProviderForm.name.$touched && dataProviderForm.name.$invalid" ng-class="{'has-error': dataProviderForm.name.$invalid}">{[ __('Data provider name is required') ]}</span>
               </div>
             </div>
             <!-- /.col -->
             <div ng-class="isDynamic ? 'col-md-3' : 'col-md-5' ">
-              <div class="form-group" ng-class="{'has-error': form.protocol.$touched && form.protocol.$invalid}">
+              <div class="form-group has-feedback" ng-class="{'has-error': dataProviderForm.protocol.$touched && dataProviderForm.protocol.$invalid, 'has-success': dataProviderForm.protocol.$touched && dataProviderForm.protocol.$valid}">
                 <label>{[ __("Type") ]}:</label>
                 <select class="form-control" name="protocol" ng-model="protocol" ng-change="onSchemeChanged()" ng-disabled="isEditing" required>
                   <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ item.name }}</option>
                 </select>
-                <span class="help-block" ng-show="form.protocol.$touched && form.protocol.$invalid" ng-class="{'has-error': form.protocol.$invalid}">{[ __('Data provider protocol is required') ]}</span>
+
+                <span class="form-control-feedback glyphicon" ng-show="dataProviderForm.protocol.$touched" ng-class="{'glyphicon-ok': dataProviderForm.protocol.$valid, 'glyphicon-remove': dataProviderForm.protocol.$invalid }"></span>
+
+                <span class="help-block" ng-show="dataProviderForm.protocol.$touched && dataProviderForm.protocol.$invalid" ng-class="{'has-error': dataProviderForm.protocol.$invalid}">{[ __('Data provider protocol is required') ]}</span>
               </div>
               <!-- /.form-group -->
             </div>
@@ -121,7 +105,7 @@
       <div class="box-footer">
         <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</button>
         <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(connectionForm);" style="margin-left: 10px;">{[ __("Check Connection")]}</button>
-        <button type="submit" class="btn btn-primary pull-right" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#confirmModal" style="margin-left: 10px;">{[ __("OK") ]}</button>
+        <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __("OK") ]}</button>
       </div>
 
       <div class="overlay" ng-show="isChecking">

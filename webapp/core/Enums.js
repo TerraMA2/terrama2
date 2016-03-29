@@ -1,4 +1,9 @@
 module.exports = {
+  /**
+   * It defines structure for display fields in web forms
+   * @readonly
+   * @enum {FormField}
+  */
   FormField: {
     TEXT: "string",
     NUMBER: "number",
@@ -8,6 +13,11 @@ module.exports = {
     PASSWORD: "password"
   },
 
+  /**
+   * It is used for handling structure for custom request syntaxes
+   * @readonly
+   * @enum {FormField}
+  */
   Uri: {
     HOST: 'hostname',
     PORT: 'port',
