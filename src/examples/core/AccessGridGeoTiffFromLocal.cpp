@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
   dataSeries->datasetList.emplace_back(dataSet);
-
+  
   //empty filter
   terrama2::core::Filter filter;
 //accessing data

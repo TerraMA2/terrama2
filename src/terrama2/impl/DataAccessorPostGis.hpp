@@ -49,7 +49,10 @@ namespace terrama2
     class DataAccessorPostGis : public virtual DataAccessor
     {
     public:
-      virtual ~DataAccessorPostGis() {}
+        DataAccessorPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+          : DataAccessor(dataProvider, dataSeries, filter)
+        {}
+		virtual ~DataAccessorPostGis() {}
       // Doc in base class
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
 

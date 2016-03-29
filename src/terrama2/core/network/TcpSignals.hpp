@@ -39,7 +39,6 @@ namespace terrama2 {
         DATA_SIGNAL = 2,//!< Data signal, followed by data.
         START_SIGNAL = 3,//!< Start signal, queue the collection, analysis, ...
         ERROR_SIGNAL = 4//!< Error signal, send error message to node.js server
-
       };
     }
   }

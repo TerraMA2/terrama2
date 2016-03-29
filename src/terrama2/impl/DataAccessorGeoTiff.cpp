@@ -36,7 +36,8 @@
 
 terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorGrid(dataProvider, dataSeries, filter)
+   DataAccessorGrid(dataProvider, dataSeries, filter),
+   DataAccessorFile(dataProvider, dataSeries, filter)
 {
   if(dataSeries->semantics.name != "GRID-geotiff")
   {

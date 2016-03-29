@@ -37,7 +37,8 @@
 #include <QObject>
 
 terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
-: DataAccessor(dataProvider, dataSeries, filter)
+: DataAccessor(dataProvider, dataSeries, filter),
+  DataAccessorFile(dataProvider, dataSeries, filter)
 {
  if(dataSeries->semantics.name != "STATIC_DATA-ogr")
  {

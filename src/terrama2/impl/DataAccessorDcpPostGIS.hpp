@@ -52,7 +52,6 @@ namespace terrama2
       virtual ~DataAccessorDcpPostGIS() {}
 
     protected:
-
       virtual std::string getTableName(DataSetPtr dataSet) const override;
       virtual std::string dataSourceType() const override;
     };

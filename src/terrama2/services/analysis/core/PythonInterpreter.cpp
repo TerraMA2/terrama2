@@ -34,7 +34,7 @@
 #include "Analysis.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/data-model/DataManager.hpp"
-#include "../../../core/data-model/DataSetDCP.hpp"
+#include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/shared.hpp"
 #include "../../../impl/DataAccessorOccurrenceMvf.hpp"
@@ -42,6 +42,7 @@
 
 
 #include <ctime>
+#include <iomanip>
 
 #include <QObject>
 
@@ -355,11 +356,13 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     return NULL;
   }
 
-  std::time_t tt = std::time(NULL);
-  std::stringstream ss;
-  ss << std::put_time(std::gmtime(&tt), "%Z");
+  time_t ts = 0;
+  struct tm t;
+  char buf[16];
+  ::localtime_r(&ts, &t);
+  ::strftime(buf, sizeof(buf), "%Z", &t);
 
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(ss.str()));
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
 
   char format = dateFilterStr.at(dateFilterStr.size() - 1);

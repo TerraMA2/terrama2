@@ -1,15 +1,16 @@
 module.exports = function(sequelize, DataTypes) {
   var DataProviderType = sequelize.define("DataProviderType",
     {
-      id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true
-      },
+      //id: {
+      //  type: DataTypes.INTEGER,
+      //  allowNull: false,
+      //  primaryKey: true,
+      //  autoIncrement: true
+      //},
       name: {
         type: DataTypes.STRING,
-        unique: true
+        unique: true,
+        primaryKey: true
       },
       description: DataTypes.TEXT
     },

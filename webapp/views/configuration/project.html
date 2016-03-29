@@ -1,0 +1,105 @@
+{% extends "../base/layout.html" %}
+
+{% block title %} TerraMA2 {{ __("Project Registration") }} {% endblock %}
+
+{% block javascripts %}
+<script src="/externals/angular/angular.min.js"></script>
+<script src="/javascripts/angular/app.js"></script>
+
+<script type="text/javascript">
+  angular.module("terrama2.project.registration", ['terrama2'])
+    .controller("ProjectRegistration", function($scope, $http) {
+      $scope.isSubmiting = false;
+
+      $scope.project = {{ (project || {})|json|safe }};
+      $scope.project.version = 4;
+
+      $scope.save = function() {
+        if (!$scope.form.$valid) {
+          angular.forEach($scope.form.$error, function (field) {
+            angular.forEach(field, function(errorField){
+              errorField.$setTouched();
+            })
+          });
+          return;
+        }
+
+        $scope.isSubmiting = true;
+        $http({
+          method: "{{ method }}",
+          url: "{{ url }}",
+          data: $scope.project
+        }).success(function(project) {
+          alert("Project saved");
+          console.log(project);
+        }).error(function(err) {
+          console.log(err);
+        }).finally(function(){
+          $scope.isSubmiting = false;
+        });
+      };
+    });
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="col-md-12" ng-app="terrama2.project.registration">
+  <div class="col-md-12" ng-controller="ProjectRegistration">
+    <div class="box box-default">
+      <div class="box-header with-border">
+        <h3 class="box-title">{{ __("Project Registration") }}</h3>
+      </div>
+      <!-- /.box-header -->
+      <div style="display: block;" class="box-body">
+        <div class="row">
+          <form name="form">
+            <div class="col-md-6">
+              <div class="form-group" ng-class="{'has-error': form.name.$touched && form.name.$invalid}">
+                <label>{{ __("Name") }}:</label>
+                <input class="form-control" name="name" ng-model="project.name" placeholder="{{ __('Project Name') }}" type="text" required>
+                <span class="help-block has-error" ng-show="form.name.$touched && form.name.$invalid">{{ __('Project name is required') }}</span>
+              </div>
+            </div>
+            <!-- /.col -->
+
+            <div class="col-md-6">
+              <div class="form-group" ng-class="{'has-error': form.version.$touched && form.version.$invalid}">
+                <label>{{ __("Version") }}:</label>
+                <input class="form-control" name="version" ng-model="project.version" placeholder="{{ __('Project version') }}" type="text" required>
+                <span class="help-block has-error" ng-show="form.version.$touched && form.version.$error.required">{{ __('Project version is required') }}</span>
+                <!--<span class="help-block has-error" ng-show="form.version.$touched && form.version.$error.number">{{ __('Project version is not a valid number') }}</span>-->
+              </div>
+            </div>
+            <!-- /.col -->
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>{{ __("Description") }}:</label>
+                <textarea class="form-control" rows="3" name="description" ng-model="project.description"  placeholder="{{ __('Project Description') }}"></textarea>
+              </div>
+              <!-- /.form-group -->
+            </div>
+            <!-- /.col -->
+
+          </form>
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.box body -->
+
+      <div class="box-footer">
+        <a href="/configuration/projects" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __("Cancel") }}</a>
+        <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ __("OK") }}</button>
+      </div>
+
+      <div class="overlay" ng-show="isSubmiting">
+        <i class="fa fa-refresh fa-spin"></i>
+      </div>
+    </div>
+  </div> <!-- end col md 6 -->
+</div> <!-- end col md 12 -->
+
+{% endblock %}

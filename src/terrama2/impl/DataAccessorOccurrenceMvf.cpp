@@ -49,13 +49,14 @@
 
 terrama2::core::DataAccessorOccurrenceMvf::DataAccessorOccurrenceMvf(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
 : DataAccessor(dataProvider, dataSeries, filter),
-  DataAccessorOccurrence(dataProvider, dataSeries, filter)
+  DataAccessorOccurrence(dataProvider, dataSeries, filter),
+  DataAccessorFile(dataProvider, dataSeries, filter)
 {
  if(dataSeries->semantics.name != "OCCURRENCE-mvf")
  {
    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
    TERRAMA2_LOG_ERROR() << errMsg;
-   throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+   throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
  }
 }
 
