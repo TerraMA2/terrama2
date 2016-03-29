@@ -1,0 +1,129 @@
+{% extends "../base/layout.html" %}
+
+{% set tabActive = "static-data" %}
+
+{% block staticDataMenu %}active{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+{% endblock %}
+
+{% block title %} TerraMA2 {[ __('Data Providers') ]} {% endblock %}
+
+{% block javascripts %}
+
+<script src="/externals/angular/angular.min.js"></script>
+<script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
+<script type="text/javascript">
+  angular.module("terrama2.providers", ['terrama2', 'terrama2.components.messagebox'])
+    .controller("DataProviderController", function($scope, $http) {
+      $scope.dataProviders = [];
+      $scope.loading = true;
+      $scope.errorFound = false;
+      $scope.method = "{[ method ]}";
+      $scope.alertBox = {
+        title: "Data Provider",
+        message: "{[ dataProvider ]}"
+      };
+
+      switch($scope.method) {
+        case "PUT":
+          $scope.alertBox.message += " has been updated";
+          break;
+        case "POST":
+          $scope.alertBox.message += " has been saved";
+          break;
+        case "DELETE":
+          $scope.alertBox.message += " has been removed";
+          break;
+        default:
+          ;
+      }
+
+      $scope.close = function() {
+        $scope.errorFound = false;
+        $scope.alertBox.message = "";
+      };
+
+      $http.get("/api/DataProvider/", {}).success(function(dataProviders) {
+        $scope.dataProviders = dataProviders;
+      }).error(function(err) {
+        console.log("Err in retrieving DataProviders " + err);
+      }).finally(function() {
+        $scope.loading = false;
+      });
+
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12" ng-app="terrama2.providers">
+  <div class="box box-default" ng-controller="DataProviderController">
+    <div class="box-header with-border">
+      <h3 class="box-title">{[ __('Data Providers') ]}</h3>
+    </div>
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body">
+
+      <div class="col-md-12">
+        <div class="col-md-7">
+          <div class="form-group">
+            <input class="form-control" id="searchNameInput" style="margin-top: 24px;" placeholder="{[ __('Type to search') ]}" type="text">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>Advanced</button>
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <a href="/configuration/providers/new" class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-plus"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="close()"></terrama2-message-box>
+      </div>
+      <!-- ./col-md-12 -->
+
+      <div class="col-md-12" style="margin-top: 30px;">
+
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th style="width: 50%;">{[ __('Name') ]}</th>
+              <th>{[ __('Description') ]}</th>
+              <!-- <th></th> -->
+            </tr>
+          </thead>
+          <tbody id="searchList">
+            <tr ng-repeat="provider in dataProviders">
+              <td><a ng-href="/configuration/providers/edit/{{ provider.name }}">{{ provider.name }}</a></td>
+              <td>{{ provider.description }}</td>
+              <!-- <td><a href="/configuration/{{ provider.name }}/dataseries/new" class="btn btn-primary">Add DataSeries</a></td> -->
+            </tr>
+            <tr ng-show="!dataProviders.length">
+              <td colspan="2">No data provider found</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+    <!-- /.box body -->
+
+    <div class="overlay" ng-show="loading">
+      <i class="fa fa-refresh fa-spin"></i>
+    </div>
+  </div>
+</div> <!-- end col md 12 -->
+
+{% endblock %}

@@ -1,8 +1,8 @@
 'use strict';
 
-var app = angular.module("terrama2.dataprovider.registration", ['schemaForm']);
+var app = angular.module("terrama2.dataprovider.registration", ['schemaForm', 'terrama2.components.messagebox']);
 
-app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, $http, $q) {
+app.controller("RegisterController", ["$scope", "$http", "$q", "$window", function($scope, $http, $q, $window) {
   $scope.model = configuration.dataProvider.uriObject || {};
 
   if (configuration.fields) {
@@ -11,6 +11,8 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
       properties: configuration.fields.properties,
       required: configuration.fields.required
     };
+
+    $scope.options = {formDefaults: {readonly: true}};
   } else
     $scope.schema = {};
   
@@ -30,7 +32,6 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
   });
 
   $scope.errorFound = false;
-  $scope.isDynamic = configuration.isDynamic;
   $scope.isEditing = configuration.isEditing;
   $scope.alertBox = {};
   $scope.isChecking = false;
@@ -93,7 +94,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
     $scope.errorFound = false;
 
     var formData = $scope.dataProvider;
-    formData.uriObject = $scope.model;
+    formData.uriObject = Object.assign({protocol: $scope.protocol}, $scope.model);
 
     $http({
       url: configuration.saveConfig.url,
@@ -103,6 +104,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", function($scope, 
       $scope.alertBox.message = "Data Provider has been saved";
       $scope.isEditing = true;
       console.log(dataProvider);
+      $window.location.href = "/configuration/providers?id=" + dataProvider.id + "&method=" + configuration.saveConfig.method;
     }).error(function(err) {
       $scope.errorFound = true;
       $scope.alertBox.message = err.message;

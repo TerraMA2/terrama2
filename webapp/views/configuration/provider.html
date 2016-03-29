@@ -24,7 +24,8 @@
   };
 </script>
 
-<script src="/javascripts/angular/dataProviderRegistration.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
+<script src="/javascripts/angular/data-provider/registration.js"></script>
 
 {% endblock %}
 
@@ -38,11 +39,7 @@
       </div>
       <!-- /.box-header -->
       <div style="display: block;" class="box-body">
-        <div ng-show="alertBox.message" ng-class="{'alert alert-danger alert-dismissible': errorFound, 'alert alert-success alert-dismissible': !errorFound}">
-          <button type="button" class="close" ng-click="resetState()">×</button>
-          <h4><i ng-class="{'icon fa fa-exclamation-triangle': errorFound, 'icon fa fa-check': !errorFound}"></i> {{ alertBox.title }}</h4>
-          {{ alertBox.message }}
-        </div>
+        <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="resetState()"></terrama2-message-box>
 
         <div class="row">
 
@@ -58,7 +55,7 @@
               </div>
             </div>
             <!-- /.col -->
-            <div ng-class="isDynamic ? 'col-md-3' : 'col-md-5' ">
+            <div class="col-md-3">
               <div class="form-group has-feedback" ng-class="{'has-error': dataProviderForm.protocol.$touched && dataProviderForm.protocol.$invalid, 'has-success': dataProviderForm.protocol.$touched && dataProviderForm.protocol.$valid}">
                 <label>{[ __("Type") ]}:</label>
                 <select class="form-control" name="protocol" ng-model="protocol" ng-change="onSchemeChanged()" ng-disabled="isEditing" required>
@@ -72,7 +69,7 @@
               <!-- /.form-group -->
             </div>
 
-            <div class="col-md-2" ng-show="isDynamic">
+            <div class="col-md-2">
               <div class="form-group">
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
@@ -103,7 +100,7 @@
       <!-- /.box body -->
 
       <div class="box-footer">
-        <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</button>
+        <a href="/configuration/providers" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
         <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(connectionForm);" style="margin-left: 10px;">{[ __("Check Connection")]}</button>
         <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __("OK") ]}</button>
       </div>

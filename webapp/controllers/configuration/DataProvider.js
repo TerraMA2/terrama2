@@ -6,26 +6,36 @@ var RequestFactory = require("../../core/RequestFactory");
 
 module.exports = function(app) {
   return {
-    "get": function(request, response) {
+    get: function(request, response) {
+      var dataProviderId = request.query.id,
+          method = request.query.method;
+
+      DataManager.getDataProvider({id: dataProviderId}).then(function(dataProvider) {
+        return response.render("configuration/providers", {dataProvider: dataProvider.name, method: method});
+      }).catch(function(err) {
+        console.log("Err : " + err);
+        return response.render("configuration/providers");
+      });
+    },
+
+    new: function(request, response) {
+      return response.render("configuration/provider", {
+        isEditing: false,
+        dataProvider: {},
+        saveConfig: {
+          url: "/api/DataProvider",
+          method: "POST"
+        }
+      });
+    },
+
+    edit: function(request, response) {
       var dataProviderName = request.params.name;
-
-      if (!dataProviderName) {
-        Utils.UrlHandler(request, response, "DataProvider", 'configuration/provider', {
-          isEditing: false,
-          dataProvider: {},
-          saveConfig: {
-            url: "/api/DataProvider",
-            method: "POST"
-          }
-        });
-
-        return;
-      }
 
       DataManager.getDataProvider({name: dataProviderName}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
 
-        Utils.UrlHandler(request, response, "DataProvider", 'configuration/provider', {
+        return response.render('configuration/provider', {
           isEditing: true,
           dataProvider: {
             name: dataProvider.name,

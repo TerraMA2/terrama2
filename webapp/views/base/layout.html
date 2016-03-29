@@ -1,3 +1,9 @@
+{% set MENU_URLS = {"static-data": {name: __('Static Data'), url: "/configuration/static-data", icon: "fa-folder-o"}} %}
+{% set MENU_URLS["dynamic-data"] = {name: __('Dynamic Data'), url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
+{% set MENU_URLS["analyses"] = {name: __('Analyses'), url: "/configuration/analyses", icon: "fa-tasks"} %}
+{% set MENU_URLS["alerts"] = {name: __('Alerts'), url: "/configuration/alerts", icon: "fa-bell"} %}
+{% set MENU_URLS["users"] = {name: __('Users'), url: "/configuration/users", icon: "fa-users"} %}
+
 <!DOCTYPE html>
 <html {% block ngApp %}{% endblock %} i18n-locale="{{i18n.getLocale()}}">
 <head>
@@ -76,7 +82,7 @@
 
           <div class="pull-left info">
             <p>TerraMA2 {[ __('User') ]}</p>
-            <a href="#"><i class="fa fa-circle text-success"></i> {[ __('Online') ]}</a>
+            <!-- <a href="#"><i class="fa fa-circle text-success"></i> {[ __('Online') ]}</a> -->
           </div>
         </div>
         <!-- /.search form -->
@@ -84,35 +90,14 @@
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu">
           <li class="header">{[ activeProject.name ]}</li>
-          <li class="treeview">
-            <a href="/configuration/static-data">
-              <i class="fa fa-folder-o"></i><span>{[ __('Static Data') ]}</span>
-            </a>
-          </li>
 
-          <li class="treeview">
-            <a href="/configuration/dynamic/dataseries">
-              <i class="fa fa-exchange"></i><span>{[ __('Dynamic Data') ]}</span>
-            </a>
-          </li>
-
-          <li class="treeview">
-            <a href="/configuration/analyses">
-              <i class="fa fa-tasks"></i><span>{[ __('Analyses') ]}</span>
-            </a>
-          </li>
-
-          <li class="treeview">
-            <a href="/configuration/alerts">
-              <i class="fa fa-bell"></i><span>{[ __('Alerts') ]}</span>
-            </a>
-          </li>
-
-          <li class="treeview">
-            <a href="/configuration/users">
-              <i class="fa fa-users"></i><span>{[ __('Users') ]}</span>
-            </a>
-          </li>
+          {% for tab in MENU_URLS %}
+            <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
+              <a href="{[ tab.url ]}">
+                <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
+              </a>
+            </li>
+          {% endfor %}
 
           <li class="treeview">
             <a href="#">
