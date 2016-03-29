@@ -11,9 +11,8 @@ function PostgisRequest(requestParameters) {
   AbstractRequest.apply(this, arguments);
 }
 
-PostgisRequest.prototype = Object.create(AbstractRequest, {
-  constructor: PostgisRequest
-});
+PostgisRequest.prototype = Object.create(AbstractRequest.prototype);
+PostgisRequest.prototype.constructor = PostgisRequest;
 
 PostgisRequest.prototype.syntax = function() {
   var pattern = Object.assign({}, UriPattern);

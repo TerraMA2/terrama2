@@ -9,9 +9,8 @@ var FileRequest = function(params) {
   AbstractRequest.apply(this, arguments);
 };
 
-FileRequest.prototype = Object.create(AbstractRequest.prototype, {
-  'constructor': FileRequest
-});
+FileRequest.prototype = Object.create(AbstractRequest.prototype);
+FileRequest.prototype.constructor = FileRequest;
 
 FileRequest.prototype.request = function() {
   var self = this;

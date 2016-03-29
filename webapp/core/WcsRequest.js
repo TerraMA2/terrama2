@@ -9,9 +9,8 @@ var WcsRequest = function(params) {
   AbstractRequest.apply(this, arguments);
 };
 
-WcsRequest.prototype = Object.create(AbstractRequest.prototype, {
-  'constructor': WcsRequest
-});
+WcsRequest.prototype = Object.create(AbstractRequest.prototype);
+WcsRequest.prototype.constructor = WcsRequest;
 
 WcsRequest.prototype.request = function() {
   var self = this;

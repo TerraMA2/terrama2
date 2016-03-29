@@ -11,9 +11,8 @@ var FtpRequest = function(params) {
   AbstractRequest.apply(this, arguments);
 };
 
-FtpRequest.prototype = Object.create(AbstractRequest.prototype, {
-  'constructor': FtpRequest
-});
+FtpRequest.prototype = Object.create(AbstractRequest.prototype);
+FtpRequest.prototype.constructor = FtpRequest;
 
 FtpRequest.prototype.request = function() {
   var self = this;

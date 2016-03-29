@@ -11,9 +11,8 @@ var HttpRequest = function(params) {
   AbstractRequest.apply(this, arguments);
 };
 
-HttpRequest.prototype = Object.create(AbstractRequest.prototype, {
-  'constructor': HttpRequest
-});
+HttpRequest.prototype = Object.create(AbstractRequest.prototype);
+HttpRequest.prototype.constructor = HttpRequest;
 
 HttpRequest.prototype.request = function() {
   var self = this;
