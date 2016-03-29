@@ -18,17 +18,17 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::analysis::core::init();
+  terrama2::services::analysis::core::init();
 
-  terrama2::analysis::core::Analysis analysis;
+  terrama2::services::analysis::core::Analysis analysis;
 
-  analysis.setId(1);
+  analysis.id = 1;
 
   std::string script = "x = countPoints(\"Occurrence\", 0.1, \"2h\", \"\")\nresult(x)";
 
-  analysis.setScript(script);
-  analysis.setScriptLanguage(terrama2::analysis::core::Analysis::PYTHON);
-  analysis.setType(terrama2::analysis::core::Analysis::MONITORED_OBJECT_TYPE);
+  analysis.script = script;
+  analysis.scriptLanguage = terrama2::services::analysis::core::PYTHON;
+  analysis.type = terrama2::services::analysis::core::MONITORED_OBJECT_TYPE;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -65,7 +65,11 @@ int main(int argc, char* argv[])
   dataSeries->datasetList.push_back(dataSetPtr);
   terrama2::core::DataManager::getInstance().add(dataSeriesPtr);
 
-  analysis.setMonitoredObject(dataSeriesPtr);
+  terrama2::services::analysis::core::AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeries = dataSeriesPtr;
+  monitoredObjectADS.type = terrama2::services::analysis::core::DATASERIES_MONITORED_OBJECT_TYPE;
+
 
   terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
@@ -98,17 +102,23 @@ int main(int argc, char* argv[])
 
   occurrenceSeries->datasetList.push_back(occurrenceDatasetPtr);
 
-
   terrama2::core::DataManager::getInstance().add(occurrenceSeriesPtr);
 
-  std::vector<terrama2::core::DataSeriesPtr> staticDataList;
-  staticDataList.push_back(occurrenceSeriesPtr);
-  analysis.setAdditionalDataList(staticDataList);
+  terrama2::services::analysis::core::AnalysisDataSeries occurrenceADS;
+  occurrenceADS.id = 2;
+  occurrenceADS.dataSeries = occurrenceSeriesPtr;
+  occurrenceADS.type = terrama2::services::analysis::core::ADDITIONAL_DATA_TYPE;
+
+  std::vector<terrama2::services::analysis::core::AnalysisDataSeries> analysisDataSeriesList;
+  analysisDataSeriesList.push_back(monitoredObjectADS);
+  analysisDataSeriesList.push_back(occurrenceADS);
+
+  analysis.analysisDataSeriesList = analysisDataSeriesList;
 
 
-  terrama2::analysis::core::runAnalysis(analysis);
+  terrama2::services::analysis::core::runAnalysis(analysis);
 
-  terrama2::analysis::core::finalize();
+  terrama2::services::analysis::core::finalize();
 
   terrama2::core::finalizeTerralib();
 

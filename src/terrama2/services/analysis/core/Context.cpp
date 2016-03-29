@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/Context.cpp
+  \file terrama2/services/analysis/core/Context.cpp
 
   \brief Class to store the context of execution of an python script.
 
@@ -42,20 +42,20 @@
 #include <terralib/sam/kdtree.h>
 
 
-std::map<std::string, double> terrama2::analysis::core::Context::analysisResult(uint64_t analysisId)
+std::map<std::string, double> terrama2::services::analysis::core::Context::analysisResult(uint64_t analysisId)
 {
   std::unique_lock<std::mutex> lock(mutex_);
   return analysisResult_[analysisId];
 }
 
-void terrama2::analysis::core::Context::setAnalysisResult(uint64_t analysisId, std::string geomId, double result)
+void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t analysisId, std::string geomId, double result)
 {
   std::unique_lock<std::mutex> lock(mutex_);
   auto& valueMap = analysisResult_[analysisId];
   valueMap[geomId] = result;
 }
 
-terrama2::analysis::core::Analysis terrama2::analysis::core::Context::getAnalysis(const uint64_t id)
+terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(const uint64_t id)
 {
   std::unique_lock<std::mutex> lock(mutex_);
   auto it = analysis_.find(id);
@@ -69,13 +69,13 @@ terrama2::analysis::core::Analysis terrama2::analysis::core::Context::getAnalysi
   }
 }
 
-void terrama2::analysis::core::Context::addAnalysis(const Analysis& analysis)
+void terrama2::services::analysis::core::Context::addAnalysis(const Analysis& analysis)
 {
   std::unique_lock<std::mutex> lock(mutex_);
-  analysis_[analysis.id()] = analysis;
+  analysis_[analysis.id] = analysis;
 }
 
-std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::core::Context::getContextDataset(const uint64_t analysisId, const uint64_t datasetId, const std::string& dateFilter) const
+std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::services::analysis::core::Context::getContextDataset(const uint64_t analysisId, const uint64_t datasetId, const std::string& dateFilter) const
 {
   std::unique_lock<std::mutex> lock(mutex_);
 
@@ -94,7 +94,7 @@ std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::co
   return empty;
 }
 
-std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::core::Context::addDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset, std::string identifier, bool createSpatialIndex)
+std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::services::analysis::core::Context::addDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset, std::string identifier, bool createSpatialIndex)
 {
  std::unique_lock<std::mutex> lock(mutex_);
 
@@ -126,7 +126,7 @@ std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::co
   return datasetContext;
 }
 
-std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::core::Context::addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset)
+std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::services::analysis::core::Context::addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset)
 {
   std::unique_lock<std::mutex> lock(mutex_);
 
@@ -143,17 +143,27 @@ std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::co
   }
   auto analysis = it->second;
 
-  auto influence = analysis.influence(dcp->dataSeriesId);
+  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  {
+    for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+    {
+      if(dataset->id == dcp->id)
+      {
+        auto metadata = analysisDataSeries.metadata;
 
-  if(influence.type != Analysis::REGION)
-  {
-    auto buffer = dcp->position->buffer(influence.radius);
-    datasetContext->rtree.insert(*buffer->getMBR(), dcp->id);
-  }
-  else
-  {
-    assert(false);
-    // TODO: Implement influence by region
+        if(metadata["INFLUENCE_TYPE"] != "REGION")
+        {
+          auto buffer = dcp->position->buffer(atof(metadata["RADIUS"].c_str()));
+          datasetContext->rtree.insert(*buffer->getMBR(), dcp->id);
+        }
+        else
+        {
+          assert(false);
+          // TODO: Implement influence by region
+        }
+
+      }
+    }
   }
 
   datasetContext->dataset = syncDataset;
@@ -167,7 +177,7 @@ std::shared_ptr<terrama2::analysis::core::ContextDataset> terrama2::analysis::co
   return datasetContext;
 }
 
-bool terrama2::analysis::core::Context::exists(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter) const
+bool terrama2::services::analysis::core::Context::exists(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter) const
 {
   std::unique_lock<std::mutex> lock(mutex_);
 

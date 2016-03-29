@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/alert/core/Exception.hpp
+  \file terrama2/services/analysis/core/Exception.hpp
 
   \brief Base exception classes in TerraMA2.
 
@@ -31,16 +31,27 @@
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
 
 // TerraMA2
-#include "../Exception.hpp"
+#include "../../../core/Exception.hpp"
+
 
 namespace terrama2
 {
+  namespace services
+  {
+    namespace analysis
+    {
+      namespace core
+      {
+        //! Base exception class for TerraMA2.
+        struct Exception: virtual terrama2::core::Exception {};
 
-  namespace analysis {
-    //! Base exception class for TerraMA2.
-    struct Exception: virtual Exception {};
-  } /* analysis */
+        struct InvalidFrequencyException: virtual Exception {};
 
-}  // end namespace terrama2
+        struct InvalidParameterException: virtual Exception {};
+
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif  // __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__

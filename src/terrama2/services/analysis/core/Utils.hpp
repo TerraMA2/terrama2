@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/Utils.hpp
+  \file terrama2/services/analysis/core/Utils.hpp
 
   \brief Utility functions for TerraMA2 Analysis module.
 
@@ -35,33 +35,35 @@
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
+      namespace core
+      {
 
-      /*!
-        \brief Returns a enum with the type of the Analysis based on the given parameter.
+        /*!
+          \brief Returns a enum with the type of the Analysis based on the given parameter.
 
-        \param type Type of the analysis.
+          \param type Type of the analysis.
 
-        \return Enum with the type of the analysis.
-       */
-      Analysis::Type ToType(uint64_t type);
-
-
-      /*!
-        \brief Returns a enum with the script language of the Analysis based on the given parameter.
-
-        \param scriptLanguage Script language of the analysis.
-
-        \return Enum with the script language of the analysis.
-       */
-      Analysis::ScriptLanguage ToScriptLanguage(uint64_t scriptLanguage);
+          \return Enum with the type of the analysis.
+         */
+        AnalysisType ToType(uint64_t type);
 
 
-    } // end namespace core
-  }   // end namespace analysis
-}     // end namespace terrama2
+        /*!
+          \brief Returns a enum with the script language of the Analysis based on the given parameter.
+
+          \param scriptLanguage Script language of the analysis.
+
+          \return Enum with the script language of the analysis.
+         */
+        ScriptLanguage ToScriptLanguage(uint64_t scriptLanguage);
+
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif // __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__

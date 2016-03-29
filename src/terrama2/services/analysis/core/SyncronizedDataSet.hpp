@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/SyncronizedDataSet.hpp
+  \file terrama2/services/analysis/core/SyncronizedDataSet.hpp
 
   \brief Thread-safe dataset.
 
@@ -38,50 +38,53 @@
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
-      class SyncronizedDataSet
+      namespace core
       {
-        public:
-          SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset);
-          ~SyncronizedDataSet();
+        class SyncronizedDataSet
+        {
+          public:
+            SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset);
+            ~SyncronizedDataSet();
 
-          std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, uint64_t columnIndex) const;
-          std::string getString(uint64_t row, uint64_t columnIndex) const;
-          double getDouble(uint64_t row, uint64_t columnIndex) const;
-          bool getBool(uint64_t row, uint64_t columnIndex) const;
-          int16_t getInt16(uint64_t row, uint64_t columnIndex) const;
-          int32_t getInt32(uint64_t row, uint64_t columnIndex) const;
-          int64_t getInt64(uint64_t row, uint64_t columnIndex) const;
-          std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, uint64_t columnIndex) const;
-          std::auto_ptr<te::dt::DateTime> getDateTime(uint64_t row, uint64_t columnIndex) const;
-          bool isNull(uint64_t row, std::size_t columnIndex) const;
+            std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, uint64_t columnIndex) const;
+            std::string getString(uint64_t row, uint64_t columnIndex) const;
+            double getDouble(uint64_t row, uint64_t columnIndex) const;
+            bool getBool(uint64_t row, uint64_t columnIndex) const;
+            int16_t getInt16(uint64_t row, uint64_t columnIndex) const;
+            int32_t getInt32(uint64_t row, uint64_t columnIndex) const;
+            int64_t getInt64(uint64_t row, uint64_t columnIndex) const;
+            std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, uint64_t columnIndex) const;
+            std::auto_ptr<te::dt::DateTime> getDateTime(uint64_t row, uint64_t columnIndex) const;
+            bool isNull(uint64_t row, std::size_t columnIndex) const;
 
 
-          std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, std::string columnName) const;
-          std::string getString(uint64_t row, std::string columnName) const;
-          double getDouble(uint64_t row, std::string columnName) const;
-          bool getBool(uint64_t row, std::string columnName) const;
-          int16_t getInt16(uint64_t row, std::string columnName) const;
-          int32_t getInt32(uint64_t row, std::string columnName) const;
-          int64_t getInt64(uint64_t row, std::string columnName) const;
-          std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, std::string columnName) const;
-          std::auto_ptr<te::dt::DateTime> getDateTime(uint64_t row, std::string columnName) const;
-          bool isNull(uint64_t row, std::string columnName) const;
+            std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, std::string columnName) const;
+            std::string getString(uint64_t row, std::string columnName) const;
+            double getDouble(uint64_t row, std::string columnName) const;
+            bool getBool(uint64_t row, std::string columnName) const;
+            int16_t getInt16(uint64_t row, std::string columnName) const;
+            int32_t getInt32(uint64_t row, std::string columnName) const;
+            int64_t getInt64(uint64_t row, std::string columnName) const;
+            std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, std::string columnName) const;
+            std::auto_ptr<te::dt::DateTime> getDateTime(uint64_t row, std::string columnName) const;
+            bool isNull(uint64_t row, std::string columnName) const;
 
-          uint64_t size() const;
+            uint64_t size() const;
 
-          std::shared_ptr<te::da::DataSet> dataset() const;
+            std::shared_ptr<te::da::DataSet> dataset() const;
 
-        protected:
-          std::shared_ptr<te::da::DataSet> dataset_;
-          mutable std::mutex mutex_;
+          protected:
+            std::shared_ptr<te::da::DataSet> dataset_;
+            mutable std::mutex mutex_;
 
-      };
-    }
-  }
-}
+        };
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_ANALYSIS_CORE_SyncronizedDataSet_HPP__

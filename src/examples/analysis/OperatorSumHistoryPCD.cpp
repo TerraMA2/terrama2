@@ -18,17 +18,17 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::analysis::core::init();
+  terrama2::services::analysis::core::init();
 
-  terrama2::analysis::core::Analysis analysis;
+  terrama2::services::analysis::core::Analysis analysis;
 
-  analysis.setId(1);
+  analysis.id = 1;
 
   std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"10h\")\nresult(x)";
 
-  analysis.setScript(script);
-  analysis.setScriptLanguage(terrama2::analysis::core::Analysis::PYTHON);
-  analysis.setType(terrama2::analysis::core::Analysis::MONITORED_OBJECT_TYPE);
+  analysis.script = script;
+  analysis.scriptLanguage = terrama2::services::analysis::core::PYTHON;
+  analysis.type = terrama2::services::analysis::core::MONITORED_OBJECT_TYPE;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -62,7 +62,6 @@ int main(int argc, char* argv[])
   dataSeries->datasetList.push_back(dataSetPtr);
   terrama2::core::DataManager::getInstance().add(dataSeriesPtr);
 
-  analysis.setMonitoredObject(dataSeriesPtr);
 
   terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
@@ -75,6 +74,12 @@ int main(int argc, char* argv[])
 
 
   terrama2::core::DataManager::getInstance().add(dataProvider2Ptr);
+
+  terrama2::services::analysis::core::AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeries = dataSeriesPtr;
+  monitoredObjectADS.type = terrama2::services::analysis::core::DATASERIES_MONITORED_OBJECT_TYPE;
+
 
   //DataSeries information
   terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
@@ -94,25 +99,26 @@ int main(int argc, char* argv[])
   dcpDataset->dataSeriesId = 2;
   dcpDataset->id = 2;
   dcpDataset->position = new te::gm::Point(-44.46540, -23.00506, 4674, nullptr);
-
-
   dcpSeries->datasetList.push_back(dcpDatasetPtr);
 
+  terrama2::services::analysis::core::AnalysisDataSeries pcdADS;
+  pcdADS.id = 2;
+  pcdADS.dataSeries = dcpSeriesPtr;
+  pcdADS.type = terrama2::services::analysis::core::ADDITIONAL_DATA_TYPE;
+  pcdADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
+  pcdADS.metadata["RADIUS"] = "50";
 
   terrama2::core::DataManager::getInstance().add(dcpSeriesPtr);
 
-  std::vector<terrama2::core::DataSeriesPtr> staticDataList;
-  staticDataList.push_back(dcpSeriesPtr);
-  analysis.setAdditionalDataList(staticDataList);
+  std::vector<terrama2::services::analysis::core::AnalysisDataSeries> analysisDataSeriesList;
+  analysisDataSeriesList.push_back(pcdADS);
+  analysisDataSeriesList.push_back(monitoredObjectADS);
+  analysis.analysisDataSeriesList = analysisDataSeriesList;
 
-  terrama2::analysis::core::Analysis::Influence influence;
-  influence.type = terrama2::analysis::core::Analysis::InfluenceType::RADIUS_CENTER;
-  influence.radius = 50;
-  analysis.setInfluence(dcpSeries->id, influence);
 
-  terrama2::analysis::core::runAnalysis(analysis);
+  terrama2::services::analysis::core::runAnalysis(analysis);
 
-  terrama2::analysis::core::finalize();
+  terrama2::services::analysis::core::finalize();
 
   terrama2::core::finalizeTerralib();
 

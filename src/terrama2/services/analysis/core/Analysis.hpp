@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/Analysis.hpp
+  \file terrama2/services/analysis/core/Analysis.hpp
 
   \brief Model class for the analysis configuration.
 
@@ -39,86 +39,60 @@
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
-			class Analysis
+      namespace core
       {
+        enum AnalysisType
+        {
+          PCD_TYPE,
+          MONITORED_OBJECT_TYPE,
+          GRID_TYPE,
+          TERRAME_TYPE
+        };
 
-        public:
+        enum ScriptLanguage
+        {
+          PYTHON,
+          LUA
+        };
 
-          enum InfluenceType
-          {
-            RADIUS_TOUCHES,
-            RADIUS_CENTER,
-            REGION
-          };
+        enum AnalysisDataSeriesType
+        {
+          DATASERIES_MONITORED_OBJECT_TYPE,
+          DATASERIES_GRID_TYPE,
+          DATASERIES_PCD_TYPE,
+          ADDITIONAL_DATA_TYPE
+        };
 
-          struct Influence
-          {
-            InfluenceType type;
-            DataSeriesId dataSeriesId;
-            std::string attribute;
-            double radius;
-          };
+        struct AnalysisDataSeries
+        {
+          uint64_t id;
+          terrama2::core::DataSeriesPtr dataSeries;
+          AnalysisDataSeriesType type;
+          std::string alias;
+          std::map<std::string, std::string> metadata;
+        };
 
-          enum Type
-          {
-            PCD_TYPE,
-            MONITORED_OBJECT_TYPE,
-            GRID_TYPE,
-            TERRAME_TYPE
-          };
+        struct Analysis
+        {
+          uint64_t id;
+          uint64_t projectId;
+					ScriptLanguage scriptLanguage;
+					std::string script;
+          AnalysisType type;
+					std::string name;
+					std::string description;
+          terrama2::core::DataSet outputDataset;
+          std::map<std::string, std::string> metadata;
+          std::vector<AnalysisDataSeries> analysisDataSeriesList;
+        };
 
-          enum ScriptLanguage
-          {
-            PYTHON,
-            LUA
-          };
-
-          void setId(uint64_t id);
-					uint64_t id() const;
-
-          void setAdditionalDataList(const std::vector<terrama2::core::DataSeriesPtr>& additionalDataList);
-          std::vector<terrama2::core::DataSeriesPtr> additionalDataList() const;
-
-          void setMonitoredObject(terrama2::core::DataSeriesPtr monitoredObject);
-          terrama2::core::DataSeriesPtr monitoredObject() const;
-
-
-          void setDCP(terrama2::core::DataSeriesPtr DCP, Influence influence);
-          terrama2::core::DataSeriesPtr DCP() const;
-
-					void setScriptLanguage(const ScriptLanguage scriptLanguage);
-					ScriptLanguage scriptLanguage() const;
-
-					void setScript(const std::string& script);
-					std::string script() const;
-
-					void setDescription(const std::string& description);
-					std::string description() const;
-
-					void setType(const Type type);
-          Type type() const;
-
-          Influence influence(DataSeriesId dataSeriesId) const;
-          void setInfluence(DataSeriesId dataSeriesId, Influence influence);
-
-				private:
-					uint64_t id_;
-          std::vector<terrama2::core::DataSeriesPtr> additionalDataList_;
-          terrama2::core::DataSeriesPtr monitoredObject_;
-          terrama2::core::DataSeriesPtr pcd_;
-					ScriptLanguage scriptLanguage_;
-					std::string script_;
-					std::string description_;
-          Type type_;
-          std::map<DataSeriesId, Influence> mapInfluence_;
-
-			};
-		}
-  }
-}
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_ANALYSIS_CORE_ANALYSIS_HPP__

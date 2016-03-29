@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/PythonInterpreter.cpp
+  \file terrama2/services/analysis/core/PythonInterpreter.cpp
 
   \brief Manages the communication of Python and C.
 
@@ -36,6 +36,7 @@
 #include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/data-model/DataSetDCP.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/shared.hpp"
 #include "../../../impl/DataAccessorOccurrenceMvf.hpp"
 #include "../../../impl/DataAccessorDcpInpe.hpp"
 
@@ -51,7 +52,7 @@
 #include <terralib/geometry/MultiPolygon.h>
 
 
-PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
+PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObject* args)
 {
 
   PyThreadState* state = PyThreadState_Get();
@@ -85,19 +86,31 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
+
+  std::shared_ptr<ContextDataset> moDsContext;
+
   // Reads the object monitored
-  auto datasets = analysis.monitoredObject()->datasetList;
-  assert(datasets.size() == 1);
-  auto datasetMO = datasets[0];
-  if(!Context::getInstance().exists(analysis.id(), datasetMO->id))
+  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-    errMsg = errMsg.arg(analysisId);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    return NULL;
+    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    {
+      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
+      auto datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+
+      if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
+
+      moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+
+    }
+
   }
 
-  auto moDsContext = Context::getInstance().getContextDataset(analysis.id(), datasetMO->id);
 
   auto geom = moDsContext->dataset->getGeometry(index, moDsContext->geometryPos);
   if(!geom.get())
@@ -108,12 +121,16 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  std::time_t t = std::time(NULL);
-  std::stringstream ss;
-  ss << std::put_time(std::gmtime(&t), "%Z");
+  time_t ts = 0;
+  struct tm t;
+  char buf[16];
+  ::localtime_r(&ts, &t);
+  ::strftime(buf, sizeof(buf), "%Z", &t);
 
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(ss.str()));
+
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
+
 
   char format = dateFilterStr.at(dateFilterStr.size() - 1);
   if(format == 'h')
@@ -185,12 +202,12 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 
   std::shared_ptr<ContextDataset> contextDataset;
 
-  for(auto dataSeries : analysis.additionalDataList())
+  for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(dataSeries->name == dataSeriesName)
+    if(analysisDataSeries.dataSeries->name == dataSeriesName)
     {
       found = true;
-      auto datasets = dataSeries->datasetList;
+      auto datasets = analysisDataSeries.dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
@@ -201,14 +218,14 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
         else
         {
 
-          auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries->dataProviderId);
+          auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
           terrama2::core::Filter filter;
 
           std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
           filter.discardBefore_ = std::move(titz);
 
           //accessing data
-          terrama2::core::DataAccessorOccurrenceMvf accessor(dataProvider, dataSeries);
+          terrama2::core::DataAccessorOccurrenceMvf accessor(dataProvider, analysisDataSeries.dataSeries);
 
 
           auto teDataset = accessor.getDataSet(dataProvider->uri, filter, dataset);
@@ -269,7 +286,7 @@ PyObject* terrama2::analysis::core::countPoints(PyObject* self, PyObject* args)
 }
 
 
-PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args)
+PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -304,18 +321,30 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
 
   // Reads the object monitored
-  auto datasets = analysis.monitoredObject()->datasetList;
-  assert(datasets.size() == 1);
-  auto datasetMO = datasets[0];
-  if(!Context::getInstance().exists(analysis.id(), datasetMO->id))
+  std::shared_ptr<ContextDataset> moDsContext;
+  terrama2::core::DataSetPtr datasetMO;
+
+  // Reads the object monitored
+  auto analysisDataSeriesList = analysis.analysisDataSeriesList;
+  for(auto analysisDataSeries : analysisDataSeriesList)
   {
-    QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-    errMsg = errMsg.arg(analysisId);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    return NULL;
+    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    {
+      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
+      datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+
+      if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
+
+      moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+    }
   }
 
-  auto moDsContext = Context::getInstance().getContextDataset(analysis.id(), datasetMO->id);
 
   auto geom = moDsContext->dataset->getGeometry(index, moDsContext->geometryPos);
   if(!geom.get())
@@ -326,11 +355,9 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
     return NULL;
   }
 
-
-
-  std::time_t t = std::time(NULL);
+  std::time_t tt = std::time(NULL);
   std::stringstream ss;
-  ss << std::put_time(std::gmtime(&t), "%Z");
+  ss << std::put_time(std::gmtime(&tt), "%Z");
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(ss.str()));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
@@ -405,19 +432,19 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
   std::shared_ptr<ContextDataset> contextDataset;
 
-  for(auto dataSeries : analysis.additionalDataList())
+  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(dataSeries->name == dataSeriesName)
+    if(analysisDataSeries.dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(dataSeries->dataProviderId);
+      auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
 
       terrama2::core::Filter filter;
       std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
       filter.discardBefore_ = std::move(titz);
 
-      terrama2::core::DataAccessorDcpInpe accessor(dataProvider, dataSeries);
+      terrama2::core::DataAccessorDcpInpe accessor(dataProvider, analysisDataSeries.dataSeries);
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
       for(auto pairDatasetDCP : dcpSeries->dcpList())
@@ -432,57 +459,69 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
         auto positionDCP = datasetDCP->position;
 
-        auto influence = analysis.influence(dataSeries->id);
-        if(influence.type == Analysis::RADIUS_CENTER)
+        for(auto analysisDataSeries : analysis.analysisDataSeriesList)
         {
-          auto buffer = positionDCP->buffer(influence.radius, 16, te::gm::CapButtType);
-
-          int srid  = positionDCP->getSRID();
-          if(srid == 0)
+          for(auto dataset : analysisDataSeries.dataSeries->datasetList)
           {
-            auto format = datasetMO->format;
-            if(format.find("srid") != format.end())
+            if(dataset->id == datasetDCP->id)
             {
-              srid = std::stoi(format["srid"]);
-            }
-          }
+              auto metadata = analysisDataSeries.metadata;
 
-          auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
-
-          if(polygon != nullptr)
-          {
-            auto centroid = polygon->getCentroid();
-            if(centroid->getSRID() == 0)
-              centroid->setSRID(srid);
-            else if(centroid->getSRID() != srid && srid != 0)
-              centroid->transform(srid);
-
-            if(centroid->within(buffer))
-            {
-              uint64_t size = contextDataset->dataset->size();
-              for(unsigned int i = 0; i < size; ++i)
+              if(metadata["INFLUENCE_TYPE"] != "RADIUS_CENTER")
               {
-                if(!contextDataset->dataset->isNull(i, attribute))
+
+                auto buffer = positionDCP->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
+
+                int srid  = positionDCP->getSRID();
+                if(srid == 0)
                 {
-                  try
+                  auto format = datasetMO->format;
+                  if(format.find("srid") != format.end())
                   {
-                    double value = contextDataset->dataset->getDouble(i, attribute);
-                    sum += value;
+                    srid = std::stoi(format["srid"]);
                   }
-                  catch(...)
+                }
+
+                auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
+
+                if(polygon != nullptr)
+                {
+                  auto centroid = polygon->getCentroid();
+                  if(centroid->getSRID() == 0)
+                    centroid->setSRID(srid);
+                  else if(centroid->getSRID() != srid && srid != 0)
+                    centroid->transform(srid);
+
+                  if(centroid->within(buffer))
                   {
-                    // In case the DCP doesn't the specified column
-                    continue;
+                    uint64_t size = contextDataset->dataset->size();
+                    for(unsigned int i = 0; i < size; ++i)
+                    {
+                      if(!contextDataset->dataset->isNull(i, attribute))
+                      {
+                        try
+                        {
+                          double value = contextDataset->dataset->getDouble(i, attribute);
+                          sum += value;
+                        }
+                        catch(...)
+                        {
+                          // In case the DCP doesn't the specified column
+                          continue;
+                        }
+                      }
+                    }
                   }
+                }
+                else
+                {
+                  // TODO: Monitored object is not a multi polygon.
+                  assert(false);
                 }
               }
             }
           }
-          else
-          {
-            // TODO: Monitored object is not a multi polygon.
-            assert(false);
-          }
+
         }
 
         // All operations are done, acquires the GIL and set the return value
@@ -501,7 +540,7 @@ PyObject* terrama2::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args
 
 }
 
-PyObject* terrama2::analysis::core::result(PyObject* self, PyObject* args)
+PyObject* terrama2::services::analysis::core::result(PyObject* self, PyObject* args)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -527,19 +566,35 @@ PyObject* terrama2::analysis::core::result(PyObject* self, PyObject* args)
   }
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
-  if(analysis.type() == Analysis::MONITORED_OBJECT_TYPE)
+  if(analysis.type == MONITORED_OBJECT_TYPE)
   {
-    auto dataSeries = analysis.monitoredObject();
-    auto datasetList = dataSeries->datasetList;
-    assert(datasetList.size() == 1);
-    auto dataset = datasetList[0];
-    if(Context::getInstance().exists(analysisId, dataset->id))
+    std::shared_ptr<ContextDataset> moDsContext;
+    terrama2::core::DataSetPtr datasetMO;
+
+    // Reads the object monitored
+    auto analysisDataSeriesList = analysis.analysisDataSeriesList;
+    for(auto analysisDataSeries : analysisDataSeriesList)
     {
-      auto contextDs = Context::getInstance().getContextDataset(analysisId, dataset->id);
-      if(contextDs->identifier.empty())
-        assert(false);
-      std::string geomId = contextDs->dataset->getString(index, contextDs->identifier);
-      Context::getInstance().setAnalysisResult(analysisId, geomId, result);
+      if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+      {
+        assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
+        datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+
+        if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+        {
+          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return NULL;
+        }
+
+        moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+
+        if(moDsContext->identifier.empty())
+          assert(false);
+        std::string geomId = moDsContext->dataset->getString(index, moDsContext->identifier);
+        Context::getInstance().setAnalysisResult(analysisId, geomId, result);
+      }
     }
   }
 
@@ -547,14 +602,14 @@ PyObject* terrama2::analysis::core::result(PyObject* self, PyObject* args)
 }
 
 static PyMethodDef module_methods[] = {
-  { "countPoints", terrama2::analysis::core::countPoints, METH_VARARGS, "Count points operator"},
-  { "sumHistoryPCD", terrama2::analysis::core::sumHistoryPCD, METH_VARARGS, "Sum history PCD"},
-  { "result", terrama2::analysis::core::result, METH_VARARGS, "Set the result value"},
+  { "countPoints", terrama2::services::analysis::core::countPoints, METH_VARARGS, "Count points operator"},
+  { "sumHistoryPCD", terrama2::services::analysis::core::sumHistoryPCD, METH_VARARGS, "Sum history PCD"},
+  { "result", terrama2::services::analysis::core::result, METH_VARARGS, "Set the result value"},
   { NULL, NULL, 0, NULL }
 };
 
 static PyObject * terrama2Error;
-void terrama2::analysis::core::init()
+void terrama2::services::analysis::core::init()
 {
   Py_Initialize();
 
@@ -573,7 +628,7 @@ void terrama2::analysis::core::init()
 }
 
 
-void terrama2::analysis::core::runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes)
+void terrama2::services::analysis::core::runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes)
 {
 
 
@@ -598,7 +653,7 @@ void terrama2::analysis::core::runMonitoredObjAnalysis(PyThreadState* state, uin
     state->dict = poDict;
 
     PyRun_SimpleString("from terrama2 import *");
-    PyRun_SimpleString(analysis.script().c_str());
+    PyRun_SimpleString(analysis.script.c_str());
 
 
     // release our hold on the global interpreter
@@ -609,7 +664,7 @@ void terrama2::analysis::core::runMonitoredObjAnalysis(PyThreadState* state, uin
 }
 
 
-void terrama2::analysis::core::finalize()
+void terrama2::services::analysis::core::finalize()
 {
   // shut down the interpreter
   PyEval_AcquireLock();

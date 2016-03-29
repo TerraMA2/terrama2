@@ -8,7 +8,7 @@
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/GeometryProperty.h>
 
-std::shared_ptr<te::mem::DataSet> terrama2::analysis::core::createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance)
+std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance)
 {
 
   // Creates memory dataset for buffer

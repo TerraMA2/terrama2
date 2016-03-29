@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/Utils.hpp
+  \file terrama2/services/analysis/core/Utils.hpp
 
   \brief Utility functions for TerraMA2 Analysis module.
 
@@ -49,16 +49,19 @@ namespace te
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
-      class SyncronizedDataSet;
+      namespace core
+      {
+        class SyncronizedDataSet;
 
-      std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance);
+        std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance);
 
-    } // end namespace core
-  }   // end namespace analysis
-}     // end namespace terrama2
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif // __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__

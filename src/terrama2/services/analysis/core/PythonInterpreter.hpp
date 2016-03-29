@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/PythonInterpreter.hpp
+  \file terrama2/services/analysis/core/PythonInterpreter.hpp
 
   \brief Manages the communication of Python and C.
 
@@ -46,23 +46,26 @@
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
-      PyObject* countPoints(PyObject* self, PyObject* args);
-      PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
-      PyObject* result(PyObject* self, PyObject* args);
+      namespace core
+      {
+        PyObject* countPoints(PyObject* self, PyObject* args);
+        PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
+        PyObject* result(PyObject* self, PyObject* args);
 
-      std::string createMonitoredObjectFunction(const std::string& script);
+        std::string createMonitoredObjectFunction(const std::string& script);
 
-      void init();
+        void init();
 
-      void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
+        void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
 
-      void finalize();
-    }
-  }
-}
+        void finalize();
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__

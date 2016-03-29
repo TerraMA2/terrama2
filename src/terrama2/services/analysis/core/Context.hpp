@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/Context.hpp
+  \file terrama2/services/analysis/core/Context.hpp
 
   \brief Class to store the context of execution of an python script.
 
@@ -52,79 +52,82 @@
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
-      struct ContextDataset
+      namespace core
       {
-        std::shared_ptr<SyncronizedDataSet> dataset;
-        std::shared_ptr<te::da::DataSetType> datasetType;
-        std::string identifier;
-        int64_t geometryPos;
-        te::sam::rtree::Index<uint64_t, 8> rtree;
+        struct ContextDataset
+        {
+          std::shared_ptr<SyncronizedDataSet> dataset;
+          std::shared_ptr<te::da::DataSetType> datasetType;
+          std::string identifier;
+          int64_t geometryPos;
+          te::sam::rtree::Index<uint64_t, 8> rtree;
 
-      };
+        };
 
-      struct ContextKey
-      {
-        DataSetId datasetId_;
-        uint64_t analysisId_;
-        std::string dateFilter_;
-      };
+        struct ContextKey
+        {
+          DataSetId datasetId_;
+          uint64_t analysisId_;
+          std::string dateFilter_;
+        };
 
-      struct ContextKeyComparer
-      {
-          bool operator()( const ContextKey& lhs , const ContextKey& rhs) const
-          {
-            if(lhs.analysisId_ < rhs.analysisId_)
+        struct ContextKeyComparer
+        {
+            bool operator()( const ContextKey& lhs , const ContextKey& rhs) const
             {
-              return true;
+              if(lhs.analysisId_ < rhs.analysisId_)
+              {
+                return true;
+              }
+              else if(lhs.analysisId_ > rhs.analysisId_)
+              {
+                return false;
+              }
+              else if(lhs.datasetId_ < rhs.datasetId_)
+              {
+                return true;
+              }
+              else if(lhs.datasetId_ > rhs.datasetId_)
+              {
+                return true;
+              }
+              else
+              {
+                return lhs.dateFilter_.compare(rhs.dateFilter_) < 0;
+              }
             }
-            else if(lhs.analysisId_ > rhs.analysisId_)
-            {
-              return false;
-            }
-            else if(lhs.datasetId_ < rhs.datasetId_)
-            {
-              return true;
-            }
-            else if(lhs.datasetId_ > rhs.datasetId_)
-            {
-              return true;
-            }
-            else
-            {
-              return lhs.dateFilter_.compare(rhs.dateFilter_) < 0;
-            }
-          }
-      };
+        };
 
-      bool operator<(const ContextKey & lhs, const ContextKey & rhs);
+        bool operator<(const ContextKey & lhs, const ContextKey & rhs);
 
-      class Context : public te::common::Singleton<Context>
-      {
-        public:
-          std::map<std::string, double> analysisResult(uint64_t analysisId);
-          void setAnalysisResult(uint64_t analysisId, std::string geomId, double result);
+        class Context : public te::common::Singleton<Context>
+        {
+          public:
+            std::map<std::string, double> analysisResult(uint64_t analysisId);
+            void setAnalysisResult(uint64_t analysisId, std::string geomId, double result);
 
-          Analysis getAnalysis(const uint64_t id);
-          void addAnalysis(const Analysis& analysis);
+            Analysis getAnalysis(const uint64_t id);
+            void addAnalysis(const Analysis& analysis);
 
-          std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
-          std::shared_ptr<ContextDataset> addDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset, std::string identifier, bool createSpatialIndex = true);
-          std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset);
-          bool exists(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            std::shared_ptr<ContextDataset> addDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset, std::string identifier, bool createSpatialIndex = true);
+            std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset);
+            bool exists(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
 
 
-        private:
-          std::map<uint64_t, Analysis> analysis_;
-          std::map<uint64_t, std::map<std::string, double> > analysisResult_;
-          std::map<ContextKey, std::shared_ptr<ContextDataset>, ContextKeyComparer> datasetMap_;
-          mutable std::mutex mutex_;
-			};
-		}
-  }
-}
+          private:
+            std::map<uint64_t, Analysis> analysis_;
+            std::map<uint64_t, std::map<std::string, double> > analysisResult_;
+            std::map<ContextKey, std::shared_ptr<ContextDataset>, ContextKeyComparer> datasetMap_;
+            mutable std::mutex mutex_;
+  			};
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__

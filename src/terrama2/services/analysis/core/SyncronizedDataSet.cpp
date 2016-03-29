@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/SyncronizedDataSet.cpp
+  \file terrama2/services/analysis/core/SyncronizedDataSet.cpp
 
   \brief Thread-safe memory dataset.
 
@@ -32,50 +32,50 @@
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
-terrama2::analysis::core::SyncronizedDataSet::SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset)
+terrama2::services::analysis::core::SyncronizedDataSet::SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset)
 : dataset_(dataset)
 {
 }
 
-terrama2::analysis::core::SyncronizedDataSet::~SyncronizedDataSet()
+terrama2::services::analysis::core::SyncronizedDataSet::~SyncronizedDataSet()
 {
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::analysis::core::SyncronizedDataSet::dataset() const
+std::shared_ptr<te::da::DataSet> terrama2::services::analysis::core::SyncronizedDataSet::dataset() const
 {
   return dataset_;
 }
 
 
-std::shared_ptr<te::gm::Geometry> terrama2::analysis::core::SyncronizedDataSet::getGeometry(uint64_t row, uint64_t columnIndex) const
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::SyncronizedDataSet::getGeometry(uint64_t row, uint64_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getGeometry(columnIndex);
 }
 
-std::string terrama2::analysis::core::SyncronizedDataSet::getString(uint64_t row, uint64_t columnIndex) const
+std::string terrama2::services::analysis::core::SyncronizedDataSet::getString(uint64_t row, uint64_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getString(columnIndex);
 }
 
-double terrama2::analysis::core::SyncronizedDataSet::getDouble(uint64_t row, uint64_t columnIndex) const
+double terrama2::services::analysis::core::SyncronizedDataSet::getDouble(uint64_t row, uint64_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getDouble(columnIndex);
 }
 
-bool terrama2::analysis::core::SyncronizedDataSet::getBool(uint64_t row, uint64_t columnIndex) const
+bool terrama2::services::analysis::core::SyncronizedDataSet::getBool(uint64_t row, uint64_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getBool(columnIndex);
 }
 
-int16_t terrama2::analysis::core::SyncronizedDataSet::getInt16(uint64_t row, uint64_t columnIndex) const
+int16_t terrama2::services::analysis::core::SyncronizedDataSet::getInt16(uint64_t row, uint64_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -83,7 +83,7 @@ int16_t terrama2::analysis::core::SyncronizedDataSet::getInt16(uint64_t row, uin
 }
 
 
-int32_t terrama2::analysis::core::SyncronizedDataSet::getInt32(uint64_t row, uint64_t columnIndex) const
+int32_t terrama2::services::analysis::core::SyncronizedDataSet::getInt32(uint64_t row, uint64_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -91,7 +91,7 @@ int32_t terrama2::analysis::core::SyncronizedDataSet::getInt32(uint64_t row, uin
 }
 
 
-int64_t terrama2::analysis::core::SyncronizedDataSet::getInt64(uint64_t row, uint64_t columnIndex) const
+int64_t terrama2::services::analysis::core::SyncronizedDataSet::getInt64(uint64_t row, uint64_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -99,7 +99,7 @@ int64_t terrama2::analysis::core::SyncronizedDataSet::getInt64(uint64_t row, uin
 }
 
 
-bool terrama2::analysis::core::SyncronizedDataSet::isNull(uint64_t row, std::size_t columnIndex) const
+bool terrama2::services::analysis::core::SyncronizedDataSet::isNull(uint64_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -107,35 +107,35 @@ bool terrama2::analysis::core::SyncronizedDataSet::isNull(uint64_t row, std::siz
 }
 
 
-std::shared_ptr<te::gm::Geometry> terrama2::analysis::core::SyncronizedDataSet::getGeometry(uint64_t row, std::string columnName) const
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::SyncronizedDataSet::getGeometry(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getGeometry(columnName);
 }
 
-std::string terrama2::analysis::core::SyncronizedDataSet::getString(uint64_t row, std::string columnName) const
+std::string terrama2::services::analysis::core::SyncronizedDataSet::getString(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getString(columnName);
 }
 
-double terrama2::analysis::core::SyncronizedDataSet::getDouble(uint64_t row, std::string columnName) const
+double terrama2::services::analysis::core::SyncronizedDataSet::getDouble(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getDouble(columnName);
 }
 
-bool terrama2::analysis::core::SyncronizedDataSet::getBool(uint64_t row, std::string columnName) const
+bool terrama2::services::analysis::core::SyncronizedDataSet::getBool(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getBool(columnName);
 }
 
-int16_t terrama2::analysis::core::SyncronizedDataSet::getInt16(uint64_t row, std::string columnName) const
+int16_t terrama2::services::analysis::core::SyncronizedDataSet::getInt16(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -143,7 +143,7 @@ int16_t terrama2::analysis::core::SyncronizedDataSet::getInt16(uint64_t row, std
 }
 
 
-int32_t terrama2::analysis::core::SyncronizedDataSet::getInt32(uint64_t row, std::string columnName) const
+int32_t terrama2::services::analysis::core::SyncronizedDataSet::getInt32(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -151,7 +151,7 @@ int32_t terrama2::analysis::core::SyncronizedDataSet::getInt32(uint64_t row, std
 }
 
 
-int64_t terrama2::analysis::core::SyncronizedDataSet::getInt64(uint64_t row, std::string columnName) const
+int64_t terrama2::services::analysis::core::SyncronizedDataSet::getInt64(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -159,14 +159,14 @@ int64_t terrama2::analysis::core::SyncronizedDataSet::getInt64(uint64_t row, std
 }
 
 
-bool terrama2::analysis::core::SyncronizedDataSet::isNull(uint64_t row, std::string columnName) const
+bool terrama2::services::analysis::core::SyncronizedDataSet::isNull(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->isNull(columnName);
 }
 
-uint64_t terrama2::analysis::core::SyncronizedDataSet::size() const
+uint64_t terrama2::services::analysis::core::SyncronizedDataSet::size() const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   return dataset_->size();

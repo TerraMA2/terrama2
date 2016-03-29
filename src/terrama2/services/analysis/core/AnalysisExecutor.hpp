@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/analysis/core/AnalysisExecutor.hpp
+  \file terrama2/services/analysis/core/AnalysisExecutor.hpp
 
   \brief Prepare context for an analysis execution.
 
@@ -38,21 +38,24 @@
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
-      class Analysis;
+      namespace core
+      {
+        struct Analysis;
 
 
-      void joinThread(std::thread& t);
-      void joinAllThreads(std::vector<std::thread>& threads);
-      void runAnalysis(const Analysis& analysis);
-      void runMonitoredObjectAnalysis(const Analysis& analysis);
-      void runDCPAnalysis(const Analysis& analysis);
+        void joinThread(std::thread& t);
+        void joinAllThreads(std::vector<std::thread>& threads);
+        void runAnalysis(const Analysis& analysis);
+        void runMonitoredObjectAnalysis(const Analysis& analysis);
+        void runDCPAnalysis(const Analysis& analysis);
 
-    }
-  }
-}
+      } // end namespace core
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__
