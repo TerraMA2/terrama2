@@ -37,7 +37,8 @@ module.exports = function(app) {
           saveConfig: {
             url: "/api/DataProvider/" + dataProvider.name,
             method: "PUT"
-          }
+          },
+          fields: requester.constructor.fields()
         });
       }).catch(function(err) {
         console.log(err);

@@ -15,6 +15,13 @@ Plugin.prototype.initialize = function(pluginsPath) {
   var self = this;
   return new Promise(function(resolve, reject) {
     try {
+      try {
+        fs.mkdirSync(path.join(__dirname, "../plugins"));
+      } catch(e) {
+        if (e.code !== 'EEXIST')
+          console.log("Failed while creating plugins folder: " + e);
+      }
+
       var unparsedDirectories = fs.readdirSync(pluginsPath);
 
       unparsedDirectories.forEach(function (unparsedDir) {
