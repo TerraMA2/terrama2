@@ -24,6 +24,7 @@ window.TerraMA2WebComponents = {
  * @property {int} memberComponentsLength - Length of the components names array.
  * @property {boolean} memberComponentsLoaded - Flag that indicates if all the components have been loaded.
  * @property {string} memberTerrama2Url - TerraMA² WebComponents URL.
+ * @property {json} memberConfJsonComponents - Configuration JSON containing the paths of the components files.
  */
 TerraMA2WebComponents.obj = (function() {
 
@@ -35,6 +36,8 @@ TerraMA2WebComponents.obj = (function() {
   var memberComponentsLoaded = false;
   // TerraMA² WebComponents URL
   var memberTerrama2Url = null;
+  // Configuration JSON containing the paths of the components files
+  var memberConfJsonComponents = null;
 
   /**
    * Returns the length of the components names array.
@@ -86,7 +89,7 @@ TerraMA2WebComponents.obj = (function() {
   var loadComponents = function(i) {
     if(i < memberComponentsLength) {
       $.ajax({
-        url: memberTerrama2Url + "/javascripts/components/" + TerraMA2WebComponents.Config.getConfJsonComponents()[memberComponents[i]],
+        url: memberTerrama2Url + "/javascripts/components/" + memberConfJsonComponents[memberComponents[i]],
         dataType: "script",
         success: function() {
           TerraMA2WebComponents.webcomponents[memberComponents[i]].init();
@@ -109,6 +112,18 @@ TerraMA2WebComponents.obj = (function() {
   };
 
   /**
+   * Loads the configuration files.
+   *
+   * @private
+   * @function loadConfigurations
+   */
+  var loadConfigurations = function() {
+    var url = memberTerrama2Url + "/config/";
+
+    $.getJSON(url + "Components.TerraMA2WebComponents.json", function(data) { memberConfJsonComponents = data; });
+  };
+
+  /**
    * Initializes the necessary features.
    * @param {string} terrama2Url - TerraMA² WebComponents URL
    * @param {array} components - Array of components names
@@ -119,23 +134,16 @@ TerraMA2WebComponents.obj = (function() {
     memberComponents = components;
     memberComponentsLength = components.length;
     memberTerrama2Url = terrama2Url;
+    loadConfigurations();
 
-    $.ajax({
-      url: memberTerrama2Url + "/javascripts/Config.TerraMA2WebComponents.js",
-      dataType: "script",
-      success: function() {
-        TerraMA2WebComponents.Config.init();
-
-        var interval = window.setInterval(function() {
-          if(TerraMA2WebComponents.Config.getConfJsonComponents() !== null) {
-            loadComponents(0);
-            clearInterval(interval);
-          }
-        }, 10);
-
-        $.ajax({ url: memberTerrama2Url + "/socket.io/socket.io.js", dataType: "script" });
+    var interval = window.setInterval(function() {
+      if(memberConfJsonComponents !== null) {
+        loadComponents(0);
+        clearInterval(interval);
       }
-    });
+    }, 10);
+
+    $.ajax({ url: memberTerrama2Url + "/socket.io/socket.io.js", dataType: "script" });
   };
 
   return {
