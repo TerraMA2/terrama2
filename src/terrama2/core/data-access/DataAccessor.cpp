@@ -28,6 +28,7 @@
  */
 
 #include "DataAccessor.hpp"
+#include "../Exception.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/Factory.hpp"
 
@@ -143,11 +144,21 @@ std::map<terrama2::core::DataSetPtr, std::shared_ptr<te::mem::DataSet> > terrama
         QDir dir(url.path());
         if(!dir.removeRecursively())
         {
-          QString errMsg = QObject::tr("Data folde could not be remove.\n%1").arg(url.path());
+          QString errMsg = QObject::tr("Data folder could not be removed.\n%1").arg(url.path());
           TERRAMA2_LOG_ERROR() << errMsg.toStdString();
         }
       }
     }//for each dataset
+  }
+  catch(const boost::exception& e)
+  {
+    std::cout << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString() << std::endl;
+    assert(0);
+  }
+  catch(const std::exception& e)
+  {
+    std::cout << e.what() << std::endl;
+    assert(0);
   }
   catch(...)
   {
