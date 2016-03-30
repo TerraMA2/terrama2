@@ -414,6 +414,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
         layers[i].setVisible(layer.getVisible());
       }
     }
+
+    $(document).trigger("layerVisibilityChange", [layer.get('id')]);
   };
 
   /**
@@ -434,6 +436,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
         layers[i].setVisible(visibilityFlag);
       }
     }
+
+    $(document).trigger("layerVisibilityChange", [layerId]);
   };
 
   /**
@@ -445,6 +449,19 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var isLayerVisible = function(layerId) {
     var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
     return layer.get('visible');
+  };
+
+  /**
+   * Sets the layer visibility change event.
+   * @param {function} eventFunction - Function to be executed when the event is triggered
+   *
+   * @function setLayerVisibilityChangeEvent
+   */
+  var setLayerVisibilityChangeEvent = function(eventFunction) {
+    $(document).unbind("layerVisibilityChange");
+    $(document).on("layerVisibilityChange", function(e, layerId) {
+      eventFunction(e, layerId);
+    });
   };
 
   /**
@@ -678,6 +695,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     setLayerVisibility: setLayerVisibility,
     setLayerVisibilityById: setLayerVisibilityById,
     isLayerVisible: isLayerVisible,
+    setLayerVisibilityChangeEvent: setLayerVisibilityChangeEvent,
     addZoomDragBox: addZoomDragBox,
     removeZoomDragBox: removeZoomDragBox,
     getZoomDragBoxExtent: getZoomDragBoxExtent,
