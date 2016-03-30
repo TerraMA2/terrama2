@@ -20,36 +20,31 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcpPostGIS.hpp
+  \file terrama2/core/data-access/DataAccessorOccurrencePostGis.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_POSTGIS_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_POSTGIS_HPP__
 
 //TerraMA2
 #include "DataAccessorPostGis.hpp"
 
 #include "../core/shared.hpp"
-#include "../core/data-access/DataAccessorDcp.hpp"
+#include "../core/data-access/DataAccessorOccurrence.hpp"
 
 namespace terrama2
 {
   namespace core
   {
-    /*!
-      \class DataAccessorDcpPostGIS
-      \brief DataAccessor for DCP DataSeries in a PostGIS database.
-
-    */
-    class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGis
+    class DataAccessorOccurrencePostGis : public DataAccessorOccurrence, public DataAccessorPostGis
     {
     public:
-      DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorDcpPostGIS() {}
+      DataAccessorOccurrencePostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorOccurrencePostGis() {}
 
     protected:
       virtual std::string getTableName(DataSetPtr dataSet) const override;
@@ -61,4 +56,4 @@ namespace terrama2
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_POSTGIS_HPP__

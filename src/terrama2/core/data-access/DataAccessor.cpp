@@ -38,6 +38,8 @@
 #include <terralib/datatype/Property.h>
 
 //QT
+#include <QUrl>
+#include <QDir>
 #include <QObject>
 
 //STL
@@ -117,12 +119,16 @@ std::map<terrama2::core::DataSetPtr, std::shared_ptr<te::mem::DataSet> > terrama
       if(!dataset->active)
         continue;
 
+      bool removeFolder = false;
       // if this data retriever is a remote server that allows to retrieve data to a file,
       // download the file to a tmeporary location
       // if not, just get the DataProvider uri
       std::string uri;
       if(dataRetriever->isRetrivable())
+      {
         uri = retrieveData(dataRetriever, dataset, filter);
+        removeFolder = true;
+      }
       else
         uri = dataProvider_->uri;
 
@@ -130,6 +136,17 @@ std::map<terrama2::core::DataSetPtr, std::shared_ptr<te::mem::DataSet> > terrama
       std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, dataset);
 
       series.emplace(dataset, memDataSet);
+
+      if(removeFolder)
+      {
+        QUrl url(uri.c_str());
+        QDir dir(url.path());
+        if(!dir.removeRecursively())
+        {
+          QString errMsg = QObject::tr("Data folde could not be remove.\n%1").arg(url.path());
+          TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+        }
+      }
     }//for each dataset
   }
   catch(...)

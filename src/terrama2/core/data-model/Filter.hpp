@@ -37,11 +37,14 @@
 //STL
 #include <memory>
 
+//terralib
+
+#include <terralib/geometry/Geometry.h>
+
 // Forward declaration
 namespace te
 {
   namespace dt { class TimeInstantTZ; }
-  namespace gm { class MultiPolygon; }
 }
 
 
@@ -60,11 +63,10 @@ namespace terrama2
         Filter() = default;
         Filter(const Filter &) = default;
 
-        DataSetId dataSetId = 0; //!< Associates the filter to a given DataSetItem.
-        std::shared_ptr<te::dt::TimeInstantTZ> discardBefore_ = nullptr; //!< Initial date of interest for collecting data from the DataSetItem.
-        std::shared_ptr<te::dt::TimeInstantTZ> discardAfter_ = nullptr; //!< Final date of interest for collecting data from the DataSetItem.
-        std::shared_ptr<te::gm::MultiPolygon> geometry_ = nullptr; //!< Geometry to be used as area of interest for filtering the data during its collect.
-        std::shared_ptr<double> value_ = nullptr; //!< Value to be used in a filter by value.
+        std::shared_ptr<te::dt::TimeInstantTZ> discardBefore = nullptr; //!< Initial date of interest for collecting data from the DataSetItem.
+        std::shared_ptr<te::dt::TimeInstantTZ> discardAfter = nullptr; //!< Final date of interest for collecting data from the DataSetItem.
+        std::shared_ptr<te::gm::Geometry> geometry = nullptr; //!< Geometry to be used as area of interest for filtering the data during its collect.
+        std::shared_ptr<double> value = nullptr; //!< Value to be used in a filter by value.
         //TODO: filter by value operation
 
         //operator bool() const { return dataSetId != 0; }
