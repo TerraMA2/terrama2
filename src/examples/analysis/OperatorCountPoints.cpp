@@ -99,6 +99,8 @@ int main(int argc, char* argv[])
   occurrenceDataset->format.emplace("mask", "exporta_20150826_2030.csv");
   occurrenceDataset->format.emplace("timezone", "+00");
   occurrenceDataset->format.emplace("srid", "4326");
+  occurrenceDataset->dataSeriesId = 2;
+  occurrenceDataset->id = 2;
 
   occurrenceSeries->datasetList.push_back(occurrenceDatasetPtr);
 

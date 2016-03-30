@@ -87,16 +87,24 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
-
   std::shared_ptr<ContextDataset> moDsContext;
 
   // Reads the object monitored
-  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
-      auto datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+      terrama2::core::DataSeriesPtr& dataSeries = analysisDataSeries.dataSeries;
+      assert(dataSeries->datasetList.size() == 1);
+      auto datasetMO = dataSeries->datasetList[0];
+
+      if(datasetMO->id == 0)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid dataset for monitored object."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
 
       if(!Context::getInstance().exists(analysis.id, datasetMO->id))
       {
@@ -108,6 +116,13 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
 
       moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
 
+      if(!moDsContext)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
     }
 
   }
@@ -237,6 +252,14 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
 
           contextDataset = Context::getInstance().addDataset(analysisId, dataset->id, dateFilterStr, teDataset, identifier, true);
 
+          if(!contextDataset)
+          {
+            QString errMsg(QObject::tr("Analysis: %1 -> Could not recover dataset."));
+            errMsg = errMsg.arg(analysisId);
+            TERRAMA2_LOG_ERROR() << errMsg;
+            return NULL;
+          }
+
         }
 
 
@@ -321,15 +344,13 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
 
-  // Reads the object monitored
   std::shared_ptr<ContextDataset> moDsContext;
   terrama2::core::DataSetPtr datasetMO;
 
   // Reads the object monitored
-  auto analysisDataSeriesList = analysis.analysisDataSeriesList;
-  for(auto analysisDataSeries : analysisDataSeriesList)
+  for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
       assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
       datasetMO = analysisDataSeries.dataSeries->datasetList[0];
@@ -343,6 +364,14 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
       }
 
       moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+
+      if(!moDsContext)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
     }
   }
 
@@ -470,7 +499,7 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
             {
               auto metadata = analysisDataSeries.metadata;
 
-              if(metadata["INFLUENCE_TYPE"] != "RADIUS_CENTER")
+              if(metadata["INFLUENCE_TYPE"] != "REGION")
               {
 
                 auto buffer = positionDCP->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
@@ -495,7 +524,7 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
                   else if(centroid->getSRID() != srid && srid != 0)
                     centroid->transform(srid);
 
-                  if(centroid->within(buffer))
+                  if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
                   {
                     uint64_t size = contextDataset->dataset->size();
                     for(unsigned int i = 0; i < size; ++i)
