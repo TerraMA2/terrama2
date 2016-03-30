@@ -18,6 +18,8 @@
 #include <QUrl>
 #include <QObject>
 #include <QDir>
+#include <QFile>
+#include <QDebug>
 
 // Libcurl
 #include <curl/curl.h>
@@ -51,12 +53,21 @@ int main(int argc, char* argv[])
   terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr);
 
   std::string path;
-  path = retrieverFTP.retrieveData("exporta_20160101_0130.csv", filter);
+  std::string mask = "exporta_20160101_0130.csv";
+  path = retrieverFTP.retrieveData(mask, filter);
 
   curl_global_cleanup();
 
-  // Remove paste of download files.
   QUrl uriLocal(path.c_str());
+  path = uriLocal.path().toStdString() + mask;
+  QFile file(path.c_str());
+  // Check if the file exists before deleting the folder.
+  if (file.exists())
+    qDebug() << "Successfully Test!";
+  else
+    qDebug() << "Test failed!";
+
+  // Remove paste of download files.
   QDir dir(uriLocal.path());
   if (dir.exists())
     dir.removeRecursively();

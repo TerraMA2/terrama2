@@ -150,7 +150,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 // Get a file listing from server
     if(curl.fcurl())
     {   
-      uriInput = dataProvider_->uri;
+      uriInput = dataProvider_->uri+"/";
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::core::DataRetrieverFTP::write_vector);
@@ -162,7 +162,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       {
         boost::split(vectorFiles, block, boost::is_any_of("\n"));
 
-        if(vectorFiles.size() && vectorFiles.back().empty())
+        if(!vectorFiles.empty() && vectorFiles.back().empty())
           vectorFiles.pop_back();
       }
       else
@@ -192,8 +192,8 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 // Performs the download of files in the vectorNames
         if (curlDown.fcurl())
         {          
-          uri_origin = dataProvider_->uri + file;
-          std::string filePath = temporaryFolder_+file;
+          uri_origin = dataProvider_->uri +"/"+file;
+          std::string filePath = temporaryFolder_+"/"+file;
 
           terrama2::core::FilePtr opener(filePath.c_str(), "wb");
 
