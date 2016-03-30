@@ -6,9 +6,10 @@ module.exports = function(app) {
   return {
     "post": function(request, response) {
       var dataProviderReceived = request.body;
-      var uri = UriBuilder.buildUri(dataProviderReceived);
 
-      var requester = RequestFactory.build(dataProviderReceived);
+      var uriObject = dataProviderReceived.uriObject;
+
+      var requester = RequestFactory.build(uriObject);
 
       var handleError = function(response, err, code) {
         response.status(code);
@@ -23,10 +24,10 @@ module.exports = function(app) {
         DataManager.getProject({name: projectName}).then(function(project) {
           var dataProviderObject = {
             name: dataProviderReceived.name,
-            uri: uri,
+            uri: requester.uri,
             description: dataProviderReceived.description,
             data_provider_intent_name: "Intent1",
-            data_provider_type_name: dataProviderReceived.kind,
+            data_provider_type_name: uriObject[requester.syntax().SCHEME],
             project_id: project.id, // todo: its temp code.get it from frontend
             active: dataProviderReceived.active || false
           };
