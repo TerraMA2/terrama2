@@ -96,16 +96,16 @@
    std::vector<te::da::Expression*> where;
    if(filter.discardBefore.get())
    {
-     te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore.get()));
-     te::da::Expression* discardBeforeExpression = new te::da::GreaterThan(dateTimeProperty, discardBeforeVal);
+     te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore->clone()));
+     te::da::Expression* discardBeforeExpression = new te::da::GreaterThan(dateTimeProperty->clone(), discardBeforeVal);
 
      where.push_back(discardBeforeExpression);
    }
 
    if(filter.discardAfter.get())
    {
-     te::da::Expression* discardAfterVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardAfter.get()));
-     te::da::Expression* discardAfterExpression = new te::da::LessThan(dateTimeProperty, discardAfterVal);
+     te::da::Expression* discardAfterVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardAfter->clone()));
+     te::da::Expression* discardAfterExpression = new te::da::LessThan(dateTimeProperty->clone(), discardAfterVal);
 
      where.push_back(discardAfterExpression);
    }
@@ -125,18 +125,13 @@
    te::da::Where* whereCondition = nullptr;
    if(!where.empty())
    {
-     if(where.size() == 1)
-     {
-       whereCondition = new te::da::Where(where.front());
-     }
-     else
-     {
-       te::da::Expression* expr = where.front();
-       for(int i = 1; i < where.size(); ++i)
-         expr = new te::da::And(expr, where.at(i));
 
-       whereCondition = new te::da::Where(expr);
-     }
+     te::da::Expression* expr = where.front();
+     for(int i = 1; i < where.size(); ++i)
+       expr = new te::da::And(expr, where.at(i));
+
+     whereCondition = new te::da::Where(expr);
+
    }
 
    te::da::Fields* fields = new te::da::Fields;
