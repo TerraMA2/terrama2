@@ -29,7 +29,7 @@
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
 
 //terrama2
-#include "../typedef.hpp"
+#include "../Typedef.hpp"
 
 //STL
 #include <map>

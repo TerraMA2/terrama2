@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
 
 //TerraMA2
-#include "../shared.hpp"
+#include "../Shared.hpp"
 #include "DataAccessor.hpp"
 #include "OccurrenceSeries.hpp"
 

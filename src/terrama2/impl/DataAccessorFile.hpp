@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
 
 //TerraMA2
-#include "../core/shared.hpp"
+#include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessor.hpp"
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"

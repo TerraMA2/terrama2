@@ -32,7 +32,7 @@
 
 //TerraMA2
 #include "../../Config.hpp"
-#include "../typedef.hpp"
+#include "../Typedef.hpp"
 
 //STL
 #include <memory>

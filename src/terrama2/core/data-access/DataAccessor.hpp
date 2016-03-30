@@ -33,7 +33,7 @@
 //TerraMA2
 #include "../../Config.hpp"
 
-#include "../shared.hpp"
+#include "../Shared.hpp"
 
 #include "DataRetriever.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"

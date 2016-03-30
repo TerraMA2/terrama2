@@ -30,8 +30,8 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
 
-#include "../typedef.hpp"
-#include "../shared.hpp"
+#include "../Typedef.hpp"
+#include "../Shared.hpp"
 #include "DataSet.hpp"
 #include "DataSeriesSemantics.hpp"
 

@@ -32,7 +32,7 @@
 
 //TerraMA2
 #include "../Config.hpp"
-#include "../shared.hpp"
+#include "../Shared.hpp"
 
 namespace terrama2
 {

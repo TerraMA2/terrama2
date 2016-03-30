@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/shared.hpp
+  \file terrama2/core/Shared.hpp
 
   \author Jano Simas
 */

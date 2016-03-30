@@ -36,6 +36,7 @@ typedef uint64_t ScheduleId;
 typedef uint64_t DataSetId;
 typedef uint64_t DataSeriesId;
 typedef uint64_t DataProviderId;
+
 namespace terrama2 {
   namespace core {
     inline uint64_t InvalidId(){ return 0;}
