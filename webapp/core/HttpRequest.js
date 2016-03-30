@@ -3,14 +3,16 @@ var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var NodeUtils = require('util');
 var Requester = require('request');
+var FormField = require('./Enums').FormField;
+var UriPattern = require("./Enums").Uri;
+var Utils = require("./Utils");
 
 var HttpRequest = function(params) {
   AbstractRequest.apply(this, arguments);
 };
 
-HttpRequest.prototype = Object.create(AbstractRequest.prototype, {
-  'constructor': HttpRequest
-});
+HttpRequest.prototype = Object.create(AbstractRequest.prototype);
+HttpRequest.prototype.constructor = HttpRequest;
 
 HttpRequest.prototype.request = function() {
   var self = this;
@@ -30,15 +32,17 @@ HttpRequest.prototype.request = function() {
   });
 };
 
-HttpRequest.prototype.fields = function() {
-  return {
-    name: "HTTP",
-    ip: "text",
-    port: "number",
-    username: "text",
-    password: "text",
-    path: "text"
-  }
+HttpRequest.fields = function() {
+  return Utils.makeCommonRequestFields("HTTP", 80, null, [UriPattern.HOST, UriPattern.PORT], [
+        UriPattern.HOST,
+        UriPattern.PORT,
+        UriPattern.USER,
+        {
+          key: UriPattern.PASSWORD,
+          type: FormField.PASSWORD
+        },
+        UriPattern.PATHNAME
+      ])
 };
 
 

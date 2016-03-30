@@ -97,6 +97,9 @@ echo "installing 3rd-party libraries to '$TERRAMA2_DEPENDENCIES_DIR' ..."
 echo ""
 sleep 1s
 
+mkdir -p "$TERRAMA2_DEPENDENCIES_DIR/lib/"
+mkdir -p "$TERRAMA2_DEPENDENCIES_DIR/bin/"
+
 #
 # GMock
 # Site: https://github.com/google/googletest
@@ -105,7 +108,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
   echo "installing GMock..."
   sleep 1s
 
-  unzip googletest-master.zip
+  unzip -o googletest-master.zip
   valid $? "Error: could not uncompress googletestmaster.zip!"
 
   cd googletest-master/googletest

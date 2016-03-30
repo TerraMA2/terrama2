@@ -238,7 +238,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
           terrama2::core::Filter filter;
 
           std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-          filter.discardBefore_ = std::move(titz);
+          filter.discardBefore = std::move(titz);
 
           //accessing data
           terrama2::core::DataAccessorOccurrenceMvf accessor(dataProvider, analysisDataSeries.dataSeries);
@@ -474,7 +474,7 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
 
       terrama2::core::Filter filter;
       std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-      filter.discardBefore_ = std::move(titz);
+      filter.discardBefore = std::move(titz);
 
       terrama2::core::DataAccessorDcpInpe accessor(dataProvider, analysisDataSeries.dataSeries);
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);

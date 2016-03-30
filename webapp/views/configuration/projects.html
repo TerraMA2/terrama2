@@ -8,7 +8,7 @@
 </style>
 {% endblock %}
 
-{% block title %} TerraMA2 {{ __('Projects') }} {% endblock %}
+{% block title %} TerraMA2 {[ __('Projects') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -20,16 +20,15 @@
       $scope.projects = [];
       $scope.loading = true;
 
-      setTimeout(function() {
-        $http.get("/api/Project/", {}).success(function(projects) {
-          console.log(projects);
-          $scope.projects = projects;
-        }).error(function(err) {
-          console.log("Err in retrieving projects");
-        }).finally(function() {
-          $scope.loading = false;
-        });
-      }, 1000);
+      $http.get("/api/Project/", {}).success(function(projects) {
+        console.log(projects);
+        $scope.projects = projects;
+      }).error(function(err) {
+        console.log("Err in retrieving projects");
+      }).finally(function() {
+        $scope.loading = false;
+      });
+
     });
 </script>
 
@@ -39,7 +38,7 @@
 <div class="col-md-12" ng-app="terrama2.projects">
   <div class="box box-default" ng-controller="ProjectController">
     <div class="box-header with-border">
-      <h3 class="box-title">{{ __('Projects') }}</h3>
+      <h3 class="box-title">{[ __('Projects') ]}</h3>
     </div>
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
@@ -47,7 +46,7 @@
       <div class="col-md-12">
         <div class="col-md-7">
           <div class="form-group">
-            <input class="form-control" id="searchNameInput" style="margin-top: 24px;" placeholder="{{ __('Type to search') }}" type="text">
+            <input class="form-control" id="searchNameInput" style="margin-top: 24px;" placeholder="{[ __('Type to search') ]}" type="text">
           </div>
         </div>
 
@@ -70,14 +69,14 @@
         <table class="table table-bordered">
           <thead>
             <tr>
-              <th style="width: 50%;">{{ __('Name') }}</th>
-              <th>{{ __('Description') }}</th>
+              <th style="width: 50%;">{[ __('Name') ]}</th>
+              <th>{[ __('Description') ]}</th>
             </tr>
           </thead>
           <tbody id="searchList">
             <tr ng-repeat="project in projects">
-              <td><a href="/configuration/projects/{[ project.name ]}/activate" title="{{ __('It will activate ') }}{[ project.name ]}">{[ project.name ]}</a></td>
-              <td>{[ project.description ]}</td>
+              <td><a href="/configuration/projects/{{ project.name }}/activate" title="{[ __('It will activate ') ]}{{ project.name }}">{{ project.name }}</a></td>
+              <td>{{ project.description }}</td>
             </tr>
             <tr ng-show="!projects.length">
               <td colspan="2">No project found</td>

@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcpPostGIS.hpp
+  \file terrama2/core/data-access/DataAccessorOccurrencePostGis.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorDcpPostGIS.hpp"
+#include "DataAccessorOccurrencePostGis.hpp"
 #include "../core/utility/Raii.hpp"
 
 //TerraLib
@@ -39,12 +39,12 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorOccurrencePostGis::DataAccessorOccurrencePostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorDcp(dataProvider, dataSeries, filter),
+   DataAccessorOccurrence(dataProvider, dataSeries, filter),
    DataAccessorPostGis(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "PCD-postgis")
+  if(dataSeries->semantics.name != "OCCURRENCE-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -52,7 +52,7 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr d
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrencePostGis::getTableName(DataSetPtr dataSet) const
 {
   try
   {
@@ -66,7 +66,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(DataSetPtr data
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimeColumnName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrencePostGis::getDateTimeColumnName(DataSetPtr dataSet) const
 {
   try
   {
@@ -80,7 +80,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimeColumnName(DataSe
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getGeometryColumnName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrencePostGis::getGeometryColumnName(DataSetPtr dataSet) const
 {
   try
   {
@@ -94,7 +94,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getGeometryColumnName(DataSe
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
+std::string terrama2::core::DataAccessorOccurrencePostGis::dataSourceType() const
 {
   return "POSTGIS";
 }

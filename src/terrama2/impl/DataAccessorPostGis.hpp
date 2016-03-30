@@ -61,6 +61,8 @@ namespace terrama2
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const override;
       //! Recover table name where data is stored
       virtual std::string getTableName(DataSetPtr dataSet) const = 0;
+      virtual std::string getDateTimeColumnName(DataSetPtr dataSet) const = 0;
+      virtual std::string getGeometryColumnName(DataSetPtr dataSet) const = 0;
     };
   }
 }
