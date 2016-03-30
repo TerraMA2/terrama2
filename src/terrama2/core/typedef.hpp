@@ -32,7 +32,7 @@
 
 typedef uint64_t ServiceInstanceId;
 typedef uint64_t ProjectId;
-
+typedef uint64_t ScheduleId;
 typedef uint64_t DataSetId;
 typedef uint64_t DataSeriesId;
 typedef uint64_t DataProviderId;
