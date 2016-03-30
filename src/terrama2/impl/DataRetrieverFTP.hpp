@@ -66,7 +66,7 @@ namespace terrama2
        * \param scheme information. Ex. "file://".
        * \param temporaryFolder Folder information where the files will be saved. Ex. "/tmp/".
        */
-      explicit DataRetrieverFTP(const core::DataProvider& dataprovider);
+        explicit DataRetrieverFTP(DataProviderPtr dataprovider);
 
       /*!
        * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.

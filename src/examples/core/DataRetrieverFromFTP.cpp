@@ -38,20 +38,20 @@ int main(int argc, char* argv[])
   curl_global_init(CURL_GLOBAL_ALL);
 
   //DataProvider information
-  terrama2::core::DataProvider dataProvider;
-
-  dataProvider.uri = url.url().toStdString();
-  dataProvider.intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider.dataProviderType = 0;
-  dataProvider.active = true;
+  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->uri = url.url().toStdString();
+  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->dataProviderType = 0;
+  dataProvider->active = true;
 
   //empty filter
   terrama2::core::Filter filter;
   //accessing data
-  terrama2::core::DataRetrieverFTP accessorFTP(dataProvider);
+  terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr);
 
   std::string path;
-  path = accessorFTP.retrieveData("exporta_20160101_0130.csv", filter);
+  path = retrieverFTP.retrieveData("exporta_20160101_0130.csv", filter);
 
   curl_global_cleanup();
 

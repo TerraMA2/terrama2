@@ -52,12 +52,12 @@
 #include <QDir>
 #include <QDebug>
 
-terrama2::core::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataProvider& dataprovider)
+terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider)
   : DataRetriever(dataprovider)
 {
   temporaryFolder_ = "/tmp/terrama2-download/";
   scheme_ = "file://";
-  dataProvider_.uri = dataprovider.uri;
+  dataProvider_ = dataprovider;
 
   // Create the directory where you will download the files.
   QDir dir(temporaryFolder_.c_str());
@@ -75,7 +75,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(const terrama2::core::DataPro
   {
     if(curl.fcurl())
     {
-      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, dataprovider.uri.c_str());
+      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, dataprovider->uri.c_str());
       curl_easy_setopt(curl.fcurl(), CURLOPT_FTPLISTONLY, 1);
       curl_easy_setopt(curl.fcurl(), CURLOPT_CONNECTTIMEOUT, 3);
       curl_easy_setopt(curl.fcurl(), CURLOPT_NOBODY, 1);
@@ -150,7 +150,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 // Get a file listing from server
     if(curl.fcurl())
     {   
-      uriInput = dataProvider_.uri;
+      uriInput = dataProvider_->uri;
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
       curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::core::DataRetrieverFTP::write_vector);
@@ -192,7 +192,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 // Performs the download of files in the vectorNames
         if (curlDown.fcurl())
         {          
-          uri_origin = dataProvider_.uri + file;
+          uri_origin = dataProvider_->uri + file;
           std::string filePath = temporaryFolder_+file;
 
           terrama2::core::FilePtr opener(filePath.c_str(), "wb");
