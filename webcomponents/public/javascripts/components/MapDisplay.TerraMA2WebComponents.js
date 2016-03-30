@@ -165,7 +165,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       var layers = layerGroup.getLayers();
 
       layers.push(
-        createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution)
+        createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time)
       );
 
       layerGroup.setLayers(layers);
