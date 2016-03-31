@@ -20,39 +20,33 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorDcp.cpp
+  \file terrama2/core/data-access/SeriesAggregation.hpp
 
   \brief
 
   \author Jano Simas
  */
 
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_SERIES_AGGREGATION_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_SERIES_AGGREGATION_HPP__
+
 //TerraMA2
-#include "DataAccessorDcp.hpp"
-#include "DataRetriever.hpp"
-#include "../utility/Factory.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
+#include "../../Config.hpp"
+#include "../Shared.hpp"
+#include "Series.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/memory/DataSet.h>
-
-//Qt
-#include <QObject>
-
-terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
+namespace terrama2
 {
-  auto series = getSeries(filter);
-  DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
-  dcpSeries->addDcpSeries(series); 
-
-  return dcpSeries;
+  namespace core
+  {
+    class SeriesAggregation
+    {
+    public:
+      const std::map<DataSetPtr, Series>& getSeries() {return dataSeriesMap_;}
+    protected:
+      std::map<DataSetPtr, Series> dataSeriesMap_;
+    };
+  }
 }
 
-
-te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
-{
-  //TODO: implement lastDateTime
-  assert(0);
-}
+#endif // __TERRAMA2_CORE_DATA_ACCESS_SERIES_AGGREGATION_HPP__

@@ -29,9 +29,13 @@
 
 #include "DataManager.hpp"
 
+struct terrama2::services::collector::core::DataManager::CImpl
+{
+  std::map<CollectorId, CollectorPtr> collectors;
+};
+
 terrama2::services::collector::core::CollectorPtr
 terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
-  //FIXME: implement DataManager::collector
-  return nullptr;
+  return pcimpl_->collectors.at(id);
 }

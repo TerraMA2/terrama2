@@ -97,7 +97,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::map<terrama2::core::DataSetPtr, std::shared_ptr<te::mem::DataSet> > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
 {
 
   //if data provider is not active, nothing to do
@@ -109,7 +109,7 @@ std::map<terrama2::core::DataSetPtr, std::shared_ptr<te::mem::DataSet> > terrama
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
 
-  std::map<DataSetPtr, std::shared_ptr<te::mem::DataSet> > series;
+  std::map<DataSetPtr, Series > series;
 
   try
   {
@@ -134,9 +134,16 @@ std::map<terrama2::core::DataSetPtr, std::shared_ptr<te::mem::DataSet> > terrama
         uri = dataProvider_->uri;
 
       //TODO: Set last date collected in filter
-      std::shared_ptr<te::mem::DataSet> memDataSet = getDataSet(uri, filter, dataset);
+      std::shared_ptr<te::mem::DataSet> memDataSet;
+      std::shared_ptr<te::da::DataSetType> dataSetType;
+      getDataSet(uri, filter, dataset, memDataSet, dataSetType);
 
-      series.emplace(dataset, memDataSet);
+      Series tempSeries;
+      tempSeries.dataSet = dataset;
+      tempSeries.teDataSet = memDataSet;
+      tempSeries.teDataSetType = dataSetType;
+
+      series.emplace(dataset, tempSeries);
 
       if(removeFolder)
       {

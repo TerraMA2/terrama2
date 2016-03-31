@@ -5,11 +5,14 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/impl/DataStoragerPostGis.hpp>
 
 #include <terrama2_config.hpp>
 
 #include <iostream>
 
+//QT
+#include <QUrl>
 
 int main(int argc, char* argv[])
 {
@@ -48,54 +51,37 @@ int main(int argc, char* argv[])
 
   assert(dcpSeries->getDcpSeries().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.teDataSet;
+  QUrl uri;
+  uri.setScheme("postgis");
+  uri.setHost("localhost");
+  uri.setPort(5432);
+  uri.setUserName("postgres");
+  uri.setPassword("postgres");
+  uri.setPath("/basedeteste");
 
-//Print column names and types (DateTime/Double)
-  int dateColumn = -1;
-  std::string names, types;
-  for(int i = 0; i < teDataSet->getNumProperties(); ++i)
-  {
-    std::string name = teDataSet->getPropertyName(i);
-    names+= name + "\t";
-    if(name == "DateTime")
-    {
-      types+= "DataTime\t";
-      dateColumn = i;
-    }
-    else
-      types+= "Double\t";
-  }
+  //DataProvider information
+  terrama2::core::DataProvider* dataProviderPostGis = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPostGisPtr(dataProviderPostGis);
+  dataProviderPostGis->uri = uri.url().toStdString();
 
-  std::cout << names << std::endl;
-  std::cout << types << std::endl;
+  dataProviderPostGis->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  dataProviderPostGis->dataProviderType = 0;
+  dataProviderPostGis->active = true;
 
-//Print values
-  teDataSet->moveBeforeFirst();
-  while(teDataSet->moveNext())
-  {
-    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
-    {
-      if(teDataSet->isNull(i))
-      {
-        std::cout << "NULL";
-        continue;
-      }
+  //DataSeries information
+  terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+  dataSeries->semantics.name = "DCP-postgis";
 
-      if(i == dateColumn)
-      {
-        std::shared_ptr<te::dt::DateTime> dateTime =  teDataSet->getDateTime(i);
-        std::cout << dateTime->toString();
-      }
-      else
-      {
-        double value =  teDataSet->getDouble(i);
-        std::cout << value;
-      }
+  terrama2::core::DataSetDcp* dataSetOutput = new terrama2::core::DataSetDcp();
+  terrama2::core::DataSetPtr dataSetOutputPtr(dataSetOutput);
+  dataSetOutput->active = true;
+  dataSetOutput->format.emplace("table_name", "inpe");
+  dataSetOutput->format.emplace("timestamp_column", "DateTime");
 
-      std::cout << "\t";
-    }
-    std::cout << std::endl;
-  }
+  terrama2::core::DataStoragerPostGis dataStorager(dataProviderPostGisPtr);
+
+  dataStorager.store( (*dcpSeries->getDcpSeries().begin()).second, dataSetOutputPtr);
 
   terrama2::core::finalizeTerralib();
 

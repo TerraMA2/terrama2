@@ -20,41 +20,45 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataRetriever.hpp
+  \file terrama2/core/data-access/DataStorager.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
 
 //TerraMA2
-#include "../Config.hpp"
+#include "../../Config.hpp"
 #include "../Shared.hpp"
+
+#include "../data-model/DataManager.hpp"
+#include "../data-access/Series.hpp"
+
+namespace te {
+  namespace mem {
+    class DataSet;
+  } /* mem */
+} /* te */
 
 namespace terrama2
 {
   namespace core
   {
-    /*!
-      \brief Class responsible for storing a DcpSeries.
-
-      Derived classes should be able to iterate through all DCP and
-      store in the permanent storage area.
-
-    */
-    class DataStoragerDcp
+    class DataStorager
     {
     public:
-      DataStoragerDcp(DataProvider);
-      virtual ~DataStoragerDcp() {}
-      
-      //FIXME: review interface. how will a dataset from a DcpSeriesPtr be mapped to the output?
-      virtual void store(DcpSeriesPtr, /*output*/) = 0;
+      DataStorager(DataProviderPtr outputDataProvider) : dataProvider_(outputDataProvider) {}
+      ~DataStorager() {}
+
+      virtual void store(Series series, DataSetPtr outputDataSet) const = 0;
+
+    protected:
+      DataProviderPtr dataProvider_;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__

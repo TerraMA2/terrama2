@@ -61,6 +61,12 @@ namespace terrama2
           DataManager& operator=(DataManager&& other) = default;
 
           CollectorPtr findCollector(CollectorId id) const;
+
+        protected:
+
+          struct CImpl;
+
+          CImpl* pcimpl_;  //!< Pimpl idiom.
         };
       } // end namespace core
     }   // end namespace collector

@@ -34,12 +34,19 @@
 #include "../../Config.hpp"
 #include "../Shared.hpp"
 #include "../data-model/DataSetOccurrence.hpp"
+#include "../utility/Logger.hpp"
+#include "Series.hpp"
+#include "SeriesAggregation.hpp"
 
 //STL
 #include <vector>
 
 //TerraLib
 #include <terralib/memory/DataSet.h>
+
+//Qt
+#include <QString>
+#include <QObject>
 
 namespace terrama2
 {
@@ -49,14 +56,32 @@ namespace terrama2
       \class OccurrenceSeries
       \brief A OccurrenceSeries represents a set of Occurrences of a phenomena.
     */
-    class OccurrenceSeries
+    class OccurrenceSeries : public SeriesAggregation
     {
     public:
-      void addOccurrence(DataSetOccurrencePtr dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<DataSetOccurrencePtr, std::shared_ptr<te::mem::DataSet> > >& occurrenceList(){ return datasetList_; }
+      void addOccurrences(std::map<DataSetPtr, Series > seriesMap)
+      {
+        dataSeriesMap_ = seriesMap;
+        for(const auto& item : seriesMap)
+        {
+          try
+          {
+            DataSetOccurrencePtr dataset = std::dynamic_pointer_cast<const DataSetOccurrence>(item.first);
+            occurrenceMap.emplace(dataset, item.second);
+          }
+          catch(const std::bad_cast& exp)
+          {
+            QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
+            TERRAMA2_LOG_ERROR() << errMsg;
+            continue;
+          }//bad cast
+        }
+      }
+
+      const std::map<DataSetOccurrencePtr, Series>& getOccurrences(){ return occurrenceMap; }
 
     private:
-      std::vector<std::pair<DataSetOccurrencePtr, std::shared_ptr<te::mem::DataSet> > > datasetList_;
+      std::map<DataSetOccurrencePtr, Series> occurrenceMap;
 
     };
   }
