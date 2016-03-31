@@ -5,7 +5,7 @@
 {% set MENU_URLS["users"] = {name: __('Users'), url: "/configuration/users", icon: "fa-users"} %}
 
 <!DOCTYPE html>
-<html {% block ngApp %}{% endblock %} i18n-locale="{{i18n.getLocale()}}">
+<html {% block ngApp %}{% endblock %} i18n-locale="{[ i18n.getLocale() ]}">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
