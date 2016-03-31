@@ -62,22 +62,13 @@
       <div style="display: block;" class="box-body">
         <div class="row">
           <form name="form">
-            <div class="col-md-6">
+            <div class="col-md-12">
               <div class="form-group" ng-class="{'has-error': form.name.$touched && form.name.$invalid}">
                 <label>{[ __("Name") ]}:</label>
                 <input class="form-control" name="name" ng-model="project.name" placeholder="{[ __('Project Name') ]}" type="text" required>
                 <span class="help-block has-error" ng-show="form.name.$touched && form.name.$error.required && form.name.$invalid">{[ __('Project name is required') ]}</span>
 
                 <span class="help-block has-error" ng-show="errorFound">{{ errorFound }}</span>
-              </div>
-            </div>
-            <!-- /.col -->
-
-            <div class="col-md-6">
-              <div class="form-group" ng-class="{'has-error': form.version.$touched && form.version.$invalid}">
-                <label>{[ __("Version") ]}:</label>
-                <input class="form-control" name="version" ng-model="project.version" placeholder="{[ __('Project version') ]}" type="text" required>
-                <span class="help-block has-error" ng-show="form.version.$touched && form.version.$error.required">{[ __('Project version is required') ]}</span>
               </div>
             </div>
             <!-- /.col -->

@@ -13,6 +13,8 @@
 {% block javascripts %}
 
 <script src="/externals/angular/angular.min.js"></script>
+<script src="/externals/angular/i18n-angular.min.js"></script>
+
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
@@ -39,7 +41,6 @@
           break;
         default:
           $scope.alertBox.message = "";
-          ;
       }
 
       $scope.close = function() {
