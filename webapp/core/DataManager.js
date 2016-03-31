@@ -126,6 +126,7 @@ var DataManager = {
           Promise.all(inserts).then(function() {
             var arr = [];
             arr.push(self.addDataSeriesSemantics({name: "PCD-INPE", data_format_name: "Pcd", data_series_type_name: "DS Type 1"}));
+            arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: "DS Type 1"}));
 
             Promise.all(arr).then(function(){
               releaseCallback();
