@@ -35,22 +35,25 @@ file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
+include_directories (
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+)
+
 include_directories ( SYSTEM
-  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${CURL_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable(terrama2_collector_service SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_executable(terrama2_collector_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
 qt5_use_modules(terrama2_collector_service Core)
 
-target_link_libraries(terrama2_collector_service terrama2_collector_core)
+target_link_libraries(terrama2_collector_service terrama2_core
+                                                 terrama2_collector_core)
 
 set_target_properties(terrama2_collector_service
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
