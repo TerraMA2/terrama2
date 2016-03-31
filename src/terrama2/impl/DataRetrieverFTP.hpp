@@ -37,7 +37,7 @@
 
 // TerraMA2
 #include "../core/data-access/DataRetriever.hpp"
-#include "../core/shared.hpp"
+#include "../core/Shared.hpp"
 
 // LibCurl
 #include <curl/curl.h>
@@ -85,7 +85,7 @@ namespace terrama2
          * \return Returns the absolute path of the folder that contains the files that have been made the download.
          * \exception DataRetrieverError when could not perform the download files.
          * \exception DataRetrieverError when Unknown error, Could not perform the download files.
-         */     
+         */
         virtual std::string retrieveData(const std::string& mask, const Filter& filter) override;
 
       /*!
@@ -121,4 +121,3 @@ namespace terrama2
 }
 
 #endif //__TERRAMA2_IMPL_DATARETRIEVERFTP_HPP__
-

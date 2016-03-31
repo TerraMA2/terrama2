@@ -37,9 +37,6 @@
 #include "DataProvider.hpp"
 #include "DataSeries.hpp"
 
-// TerraLib
-#include <terralib/common/Singleton.h>
-
 // STL
 #include <memory>
 
@@ -61,13 +58,16 @@ namespace terrama2
 
       Take care to keep it synchronized.
      */
-    class DataManager : public QObject, public te::common::Singleton<DataManager>
+    class DataManager : public QObject
     {
       Q_OBJECT
 
-      friend class te::common::Singleton<DataManager>;
-
       public:
+
+        DataManager();
+
+        //! Destructor.
+        virtual ~DataManager();
 
 
         /*!
@@ -247,12 +247,6 @@ namespace terrama2
 
 
       protected:
-
-        //! Default constructor: use the getInstance class method to get access to the singleton.
-        DataManager();
-
-        //! Destructor.
-        ~DataManager();
 
         struct Impl;
 

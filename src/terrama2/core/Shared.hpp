@@ -59,6 +59,10 @@ namespace terrama2 {
       class MonitoredObjectSeries;
       typedef std::shared_ptr<terrama2::core::MonitoredObjectSeries> MonitoredObjectSeriesPtr;
 
+
+      class DataAccessor;
+      typedef std::shared_ptr<terrama2::core::DataAccessor> DataAccessorPtr;
+
       class DataRetriever;
       typedef std::shared_ptr<terrama2::core::DataRetriever> DataRetrieverPtr;
   }
