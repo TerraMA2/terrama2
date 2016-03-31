@@ -33,7 +33,7 @@
 //TerraMA2
 #include "DataAccessorPostGis.hpp"
 
-#include "../core/shared.hpp"
+#include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorDcp.hpp"
 
 namespace terrama2

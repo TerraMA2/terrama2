@@ -20,48 +20,47 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DcpSeries.hpp
+  \file terrama2/core/utility/DataAccessFactory.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+ #ifndef __TERRAMA2_CORE_UTILITY_DATA_ACCESSOR_FACTORY_HPP__
+ #define __TERRAMA2_CORE_UTILITY_DATA_ACCESSOR_FACTORY_HPP__
 
-//TerraMA2
-#include "../../Config.hpp"
 #include "../Shared.hpp"
-#include "../data-model/DataSetDcp.hpp"
+#include "../data-model/Filter.hpp"
 
-//STL
-#include <vector>
-
-//TerraLib
-#include <terralib/memory/DataSet.h>
+// TerraLib
+#include <terralib/common/Singleton.h>
 
 namespace terrama2
 {
   namespace core
   {
-    /*!
-      \brief A DcpSeries represents a set of DCP (Data Collecting Plataform).
-
-      The DcpSeries aggregates the te::da::DataSet of each DCP
-
-    */
-    class DcpSeries
+    class DataAccessFactory : public te::common::Singleton<DataAccessFactory>
     {
     public:
-      void addDcp(DataSetDcpPtr dataset, std::shared_ptr<te::mem::DataSet>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<DataSetDcpPtr, std::shared_ptr<te::mem::DataSet> > >& dcpList(){ return datasetList_; }
 
-    private:
-      std::vector<std::pair<DataSetDcpPtr, std::shared_ptr<te::mem::DataSet> > > datasetList_;
+      DataAccessorPtr makeDataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter());
 
+    protected:
+      friend class te::common::Singleton<DataAccessFactory>;
+
+      DataAccessFactory() {}
+      ~DataAccessFactory() {}
+
+      DataAccessFactory(const DataAccessFactory& other) = delete;
+      DataAccessFactory(DataAccessFactory&& other) = delete;
+      DataAccessFactory& operator=(const DataAccessFactory& other) = delete;
+      DataAccessFactory& operator=(DataAccessFactory&& other) = delete;
     };
-  }
-}
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
+
+  } /* core */
+
+} /* terrama2 */
+
+#endif // __TERRAMA2_CORE_UTILITY_DATA_ACCESSOR_FACTORY_HPP__

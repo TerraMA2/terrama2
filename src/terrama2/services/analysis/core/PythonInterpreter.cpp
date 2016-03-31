@@ -36,7 +36,7 @@
 #include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
-#include "../../../core/shared.hpp"
+#include "../../../core/Shared.hpp"
 #include "../../../impl/DataAccessorOccurrenceMvf.hpp"
 #include "../../../impl/DataAccessorDcpInpe.hpp"
 

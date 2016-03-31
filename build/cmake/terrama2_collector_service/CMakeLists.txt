@@ -28,46 +28,39 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-file(GLOB_RECURSE TERRAMA2_SRC_FILES
-        ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/*.cpp)
-file(GLOB_RECURSE TERRAMA2_HDR_FILES
-        ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/appserver/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/appserver/*.hpp)
 
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 include_directories (
-  ${Boost_INCLUDE_DIR}
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+)
+
+include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${CURL_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_collector SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_executable(terrama2_collector_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-qt5_use_modules(terrama2_collector Core)
+qt5_use_modules(terrama2_collector_service Core)
 
-target_link_libraries(terrama2_collector terrama2_core
-                                         terralib_mod_dataaccess
-                                         terralib_mod_memory
-                                         terralib_mod_vp_core
-                                         terralib_mod_rp
-                                         ${Boost_FILESYSTEM_LIBRARY}
-                                         ${Boost_SYSTEM_LIBRARY}
-                                         ${Boost_REGEX_LIBRARY}
-                                         ${CURL_LIBRARIES})
+target_link_libraries(terrama2_collector_service terrama2_core
+                                                 terrama2_collector_core)
 
-set_target_properties(terrama2_collector
+set_target_properties(terrama2_collector_service
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
-                                 INSTALL_NAME_DIR "@executable_path/../lib")
+                               INSTALL_NAME_DIR "@executable_path/../bin")
 
-install(TARGETS terrama2_collector
+install(TARGETS terrama2_collector_service
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
@@ -76,4 +69,4 @@ install(TARGETS terrama2_collector
 install(FILES ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/collector COMPONENT devel)
 
-export(TARGETS terrama2_collector APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_collector_service APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

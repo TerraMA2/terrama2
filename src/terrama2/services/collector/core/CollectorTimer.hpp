@@ -20,36 +20,39 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSet.hpp
+  \file terrama2/services/collector/core/Collector.hpp
+
+  \brief Model class for the collector configuration.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
 
-//terrama2
-#include "../Typedef.hpp"
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
 
-//STL
-#include <map>
+#include "Typedef.hpp"
+
+//QT
+#include <QTimer>
 
 namespace terrama2
 {
-  namespace core
+  namespace services
   {
-    struct DataSet
+    namespace collector
     {
-      virtual ~DataSet() {}
+      namespace core
+      {
+        class CollectorTimer : public QTimer
+        {
+          Q_OBJECT
 
-      DataSetId id = 0;
-      DataSeriesId dataSeriesId = 0;
-      bool active = true;
-      std::map<std::string, std::string> format;
+        };
 
-      inline bool operator==(const DataSet& rhs){ return id == rhs.id; }
-    };
-  } // end namespace core
-} // end namespace terrama2
+      } // end namespace core
+    }   // end namespace collector
+  }     // end namespace services
+}       // end namespace terrama2
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
+#endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__

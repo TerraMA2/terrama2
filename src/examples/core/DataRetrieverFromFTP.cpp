@@ -1,6 +1,6 @@
 
 // TerraMA2
-#include <terrama2/core/shared.hpp>
+#include <terrama2/core/Shared.hpp>
 #include <terrama2/impl/DataRetrieverFTP.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -27,7 +27,7 @@
 
 int main(int argc, char* argv[])
 {
-  QUrl url;	
+  QUrl url;
 
   // Fire
   url.setHost("ftp.dgi.inpe.br");
@@ -72,5 +72,5 @@ int main(int argc, char* argv[])
   if (dir.exists())
     dir.removeRecursively();
 
-  return 0; 
+  return 0;
 }

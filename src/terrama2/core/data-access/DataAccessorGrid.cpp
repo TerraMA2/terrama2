@@ -31,7 +31,7 @@
 #include "GridSeries.hpp"
 #include "../data-model/DataSetGrid.hpp"
 #include "../utility//Logger.hpp"
-#include "../shared.hpp"
+#include "../Shared.hpp"
 
 //QT
 #include <QString>

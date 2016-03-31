@@ -33,7 +33,7 @@
 //TerraMA2
 #include "../../Config.hpp"
 
-#include "../shared.hpp"
+#include "../Shared.hpp"
 
 #include "DataRetriever.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
@@ -72,7 +72,10 @@ namespace terrama2
     public:
       //! Returns the last Data date found on last access.
       virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
+
       DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
+
+      virtual std::map<DataSetPtr, std::shared_ptr<te::mem::DataSet> > getSeries(const Filter& filter) const;
 
       //! Utility function for converting string to double in the te::da::DataSet contruction.
       te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -141,9 +144,6 @@ namespace terrama2
          \return Filtered dataset
        */
       virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
-
-      virtual std::map<DataSetPtr, std::shared_ptr<te::mem::DataSet> > getSeries(const Filter& filter) const;
-
 
       DataProviderPtr dataProvider_;
       DataSeriesPtr dataSeries_;

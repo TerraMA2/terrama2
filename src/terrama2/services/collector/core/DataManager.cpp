@@ -20,36 +20,18 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSet.hpp
+  \file terrama2/services/collector/core/Collector.hpp
+
+  \brief Model class for the collector configuration.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SET_HPP__
+#include "DataManager.hpp"
 
-//terrama2
-#include "../Typedef.hpp"
-
-//STL
-#include <map>
-
-namespace terrama2
+terrama2::services::collector::core::CollectorPtr
+terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
-  namespace core
-  {
-    struct DataSet
-    {
-      virtual ~DataSet() {}
-
-      DataSetId id = 0;
-      DataSeriesId dataSeriesId = 0;
-      bool active = true;
-      std::map<std::string, std::string> format;
-
-      inline bool operator==(const DataSet& rhs){ return id == rhs.id; }
-    };
-  } // end namespace core
-} // end namespace terrama2
-
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_HPP__
+  //FIXME: implement DataManager::collector
+  return nullptr;
+}

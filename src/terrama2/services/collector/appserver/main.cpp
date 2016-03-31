@@ -28,5 +28,30 @@
  */
 
 // TerraMA2
-#include "../core/"
+#include <terrama2/services/collector/core/Service.hpp>
+#include <terrama2/services/collector/core/DataManager.hpp>
 
+//STL
+#include <memory>
+#include <iostream>
+
+//Qt
+#include <QCoreApplication>
+#include <QTimer>
+
+int main(int argc, char* argv[])
+{
+  QCoreApplication app(argc, argv);
+
+  auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
+  terrama2::services::collector::core::Service service(dataManager);
+  service.start();
+  service.addToQueue(1);
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(2000);
+  app.exec();
+
+  service.stop();
+  return 0;
+}

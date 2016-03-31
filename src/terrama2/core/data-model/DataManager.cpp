@@ -36,7 +36,7 @@
 #include "DataSeries.hpp"
 #include "DataSet.hpp"
 #include "../Exception.hpp"
-#include "../typedef.hpp"
+#include "../Typedef.hpp"
 
 // TerraMA2 Logger
 #include "../utility/Logger.hpp"

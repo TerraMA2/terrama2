@@ -20,34 +20,16 @@
  */
 
 /*!
-  \file terrama2/core/utility/Factory.hpp
+  \file terrama2/core/utility/DataAccessFactory.hpp
 
   \brief
 
   \author Jano Simas
  */
 
- #ifndef __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
- #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+#include "DataAccessFactory.hpp"
 
-#include "../Shared.hpp"
-#include "../data-model/DataProvider.hpp"
-
-namespace terrama2
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessFactory::makeDataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter)
 {
-  namespace core
-  {
-    namespace Factory
-    {
-      /*!
-        \brief Creates a DataRetriever to the server.
-      */
-       DataRetrieverPtr MakeRetriever(DataProviderPtr dataProvider);
-
-    } /* Factory */
-
-  } /* core */
-
-} /* terrama2 */
-
-#endif // __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+  return nullptr;
+}
