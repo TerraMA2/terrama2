@@ -1,7 +1,7 @@
 <div class="col-md-12">
   <div class="box box-default box-solid">
     <div class="box-header with-border">
-      <h3 class="box-title">{[ i18n.__('General Data') ]}</h3>
+      <h3 class="box-title">{{ i18n.__('General Data') }}</h3>
       <div class="box-tools pull-right">
         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
         </button>
@@ -17,7 +17,7 @@
 <div class="col-md-12">
   <div class="box box-default box-solid">
     <div class="box-header with-border">
-      <h3 class="box-title">{[ i18n.__('Parameters Data') ]}</h3>
+      <h3 class="box-title">{{ i18n.__('Parameters Data') }}</h3>
       <div class="box-tools pull-right">
         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
         </button>
@@ -26,6 +26,22 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
       <div ng-include="'/javascripts/angular/parametersData.html'"></div>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-12">
+  <div class="box box-default box-solid">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ i18n.__('Filter') }}</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+        </button>
+      </div>
+    </div>
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body">
+      <div ng-include="'/javascripts/angular/filter.html'"></div>
     </div>
   </div>
 </div>

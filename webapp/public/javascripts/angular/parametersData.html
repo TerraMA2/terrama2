@@ -2,16 +2,16 @@
 <div class="row">
   <div class="col-md-6">
     <div class="input-group">
-      <label>{[ i18n.__('Mask') ]}:</label>
+      <label>{{ i18n.__('Mask') }}:</label>
       <input type="text" class="form-control" aria-label="..." id="mask">
       <div class="input-group-btn">
-        <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="   false">
+        <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right" id="mask-list">
-          <li><a href="javascript:void(0)">{[ i18n.__('%Y - Four digits year') ]}</a></li>
-          <li><a href="javascript:void(0)">{[ i18n.__('%y - Two digits year') ]}</a></li>
-          <li><a href="javascript:void(0)">{[ i18n.__('%d - Day') ]}</a></li>
+          <li><a href="javascript:void(0)">{{ i18n.__('%Y - Four digits year') }}</a></li>
+          <li><a href="javascript:void(0)">{{ i18n.__('%y - Two digits year') }}</a></li>
+          <li><a href="javascript:void(0)">{{ i18n.__('%d - Day') }}</a></li>
         </ul>
       </div><!-- /btn-group -->
     </div><!-- /input-group -->
@@ -21,7 +21,7 @@
 
   <div class="col-md-6">
     <div class="form-group">
-      <label>{[ i18n.__('Timezone') ]}</label>
+      <label>{{ i18n.__('Timezone') }}</label>
       <select class="form-control" id="timezone">
         <option>00:00</option>
         <option>12:00</option>
@@ -29,30 +29,30 @@
     </div>
   </div>
 
-  <div ng-show="params.kind.toLowerCase() === 'pcd'; params.state.toLowerCase() === 'dynamic'">
+  <div ng-show="(semantics === 'pcd' || semantics === 'dcp') && isDynamic">
     <div class="col-md-3" >
       <div class="form-group">
-        <label>{[ i18n.__('Latitude') ]}:</label>
-        <input class="form-control" id="latitude" placeholder="{[ i18n.__('Data Set Latitude') ]}" type="number">
+        <label>{{ i18n.__('Latitude') }}:</label>
+        <input class="form-control" id="latitude" placeholder="{{ i18n.__('Data Set Latitude') }}" type="number">
       </div>
     </div>
 
     <div class="col-md-3">
       <div class="form-group">
-        <label>{[ i18n.__('Longitude') ]}:</label>
-        <input class="form-control" id="longitude" placeholder="{[ i18n.__('Data Set Longitude') ]}" type="number">
+        <label>{{ i18n.__('Longitude') }}:</label>
+        <input class="form-control" id="longitude" placeholder="{{ i18n.__('Data Set Longitude') }}" type="number">
       </div>
     </div>
 
     <div class="col-md-3">
-      <terrama2-projection url="{[ params.projection.url ]}"></terrama2-projection>
+      <terrama2-projection url="{{ params.projection.url }}"></terrama2-projection>
     </div>
 
     <div class="col-md-1">
       <div class="form-group">
         <div class="checkbox">
           <label class="terrama2-checkbox-align">
-            <input type="checkbox" id="pcdActive"> {[ i18n.__('Active') ]}
+            <input type="checkbox" id="pcdActive"> {{ i18n.__('Active') }}
           </label>
         </div>
       </div>
@@ -60,7 +60,7 @@
 
     <div class="col-md-2">
       <div class="form-group">
-        <button class="btn btn-default terrama2-component-align btn-block" id="terrama2-add-pcd">{[ i18n.__('Add') ]}</button>
+        <button class="btn btn-default terrama2-component-align btn-block" id="terrama2-add-pcd">{{ i18n.__('Add') }}</button>
       </div>
       <!-- /.form-group -->
     </div>
@@ -70,12 +70,12 @@
         <table class="table table-hover terrama2-header-fixed" id="terrama2-pcd-table">
           <thead>
           <tr>
-            <th>{[ i18n.__('Mask') ]}</th>
-            <th>{[ i18n.__('Latitude') ]}</th>
-            <th>{[ i18n.__('Longitude') ]}</th>
-            <th>{[ i18n.__('Active') ]}</th>
-            <th>{[ i18n.__('Projection') ]}</th>
-            <th>{[ i18n.__('Timezone') ]}</th>
+            <th>{{ i18n.__('Mask') }}</th>
+            <th>{{ i18n.__('Latitude') }}</th>
+            <th>{{ i18n.__('Longitude') }}</th>
+            <th>{{ i18n.__('Active') }}</th>
+            <th>{{ i18n.__('Projection') }}</th>
+            <th>{{ i18n.__('Timezone') }}</th>
           </tr>
           </thead>
           <tbody>
@@ -111,8 +111,8 @@
 
   <div class="col-md-12">
     <div class="form-group">
-      <label>{[ i18n.__('Path') ]}:</label>
-      <input class="form-control" id="path" placeholder="{[ i18n.__('Data Set Path') ]}" type="text">
+      <label>{{ i18n.__('Path') }}:</label>
+      <input class="form-control" id="path" placeholder="{{ i18n.__('Data Set Path') }}" type="text">
     </div>
   </div>
   <!-- /.col md 6 -->
