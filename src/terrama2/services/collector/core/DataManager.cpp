@@ -20,38 +20,18 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/services/collector/core/Collector.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Model class for the collector configuration.
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Jano Simas
+*/
 
-// TerraMA2
-#include <terrama2/services/collector/core/Service.hpp>
-#include <terrama2/services/collector/core/DataManager.hpp>
+#include "DataManager.hpp"
 
-//STL
-#include <memory>
-#include <iostream>
-
-//Qt
-#include <QCoreApplication>
-#include <QTimer>
-
-int main(int argc, char* argv[])
+terrama2::services::collector::core::CollectorPtr
+terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
-  QCoreApplication app(argc, argv);
-
-  auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
-  terrama2::services::collector::core::Service service(dataManager);
-  service.start();
-  service.addToQueue(1);
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(2000);
-  app.exec();
-
-  service.stop();
-  return 0;
+  //FIXME: implement DataManager::collector
+  return nullptr;
 }

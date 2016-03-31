@@ -20,38 +20,39 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/services/collector/core/Collector.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Model class for the collector configuration.
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Jano Simas
+*/
 
-// TerraMA2
-#include <terrama2/services/collector/core/Service.hpp>
-#include <terrama2/services/collector/core/DataManager.hpp>
 
-//STL
-#include <memory>
-#include <iostream>
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
 
-//Qt
-#include <QCoreApplication>
+#include "Typedef.hpp"
+
+//QT
 #include <QTimer>
 
-int main(int argc, char* argv[])
+namespace terrama2
 {
-  QCoreApplication app(argc, argv);
+  namespace services
+  {
+    namespace collector
+    {
+      namespace core
+      {
+        class CollectorTimer : public QTimer
+        {
+          Q_OBJECT
 
-  auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
-  terrama2::services::collector::core::Service service(dataManager);
-  service.start();
-  service.addToQueue(1);
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(2000);
-  app.exec();
+        };
 
-  service.stop();
-  return 0;
-}
+      } // end namespace core
+    }   // end namespace collector
+  }     // end namespace services
+}       // end namespace terrama2
+
+#endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__

@@ -20,38 +20,32 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/core/Shared.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \author Jano Simas
+*/
 
-  \author Gilberto Ribeiro de Queiroz
- */
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_SHARED_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_SHARED_HPP__
 
-// TerraMA2
-#include <terrama2/services/collector/core/Service.hpp>
-#include <terrama2/services/collector/core/DataManager.hpp>
-
-//STL
 #include <memory>
-#include <iostream>
 
-//Qt
-#include <QCoreApplication>
-#include <QTimer>
+namespace terrama2 {
+   namespace services {
+     namespace collector {
+       namespace core {
 
-int main(int argc, char* argv[])
-{
-  QCoreApplication app(argc, argv);
+         struct Collector;
+         typedef std::shared_ptr<const terrama2::services::collector::core::Collector> CollectorPtr;
 
-  auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
-  terrama2::services::collector::core::Service service(dataManager);
-  service.start();
-  service.addToQueue(1);
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(2000);
-  app.exec();
+         struct Intersection;
+         typedef std::shared_ptr<const terrama2::services::collector::core::Intersection> IntersectionPtr;
 
-  service.stop();
-  return 0;
+         struct CollectorTimer;
+         typedef std::shared_ptr<const terrama2::services::collector::core::CollectorTimer> CollectorTimerPtr;
+       } /* core */
+     } /* collector */
+  }
 }
+
+#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_SHARED_HPP__
