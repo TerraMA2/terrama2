@@ -104,33 +104,37 @@ var DataManager = {
 
         var fn = function() {
           // todo: insert default values in database
-          self.addDataProviderType({name: "FILE", description: "Desc File"}).then(function() {
-            self.addDataProviderType({name: "FTP", description: "Desc Type1"}).then(function() {
-              self.addDataProviderType({name: "HTTP", description: "Desc Http"}).then(function() {
-                self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}).then(function() {
-                  models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}).then(function(){
-                    self.addDataFormat({name: "Format 1", description: "Format Description"}).then(function() {
-                      models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}).then(function() {
-                        releaseCallback();
-                      }).catch(function() {
-                        releaseCallback();
-                      })
-                    }).catch(function() {
-                      releaseCallback();
-                    });
-                  }).catch(function(){
-                    releaseCallback();
-                  });
-                })
-              }).catch(function() {
-                releaseCallback();
-              })
-            }).catch(function(){
+          var inserts = [];
+
+          // data provider type defaults 
+          inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
+          inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
+          inserts.push(self.addDataProviderType({name: "HTTP", description: "Desc Http"}));
+          inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
+
+          // data provider intent defaults
+          inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
+          
+          // data series type defaults
+          inserts.push(models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}));
+
+          // data formats semantics defaults
+          inserts.push(models.db.DataFormat.create({name: "Pcd", description: "PCD description"}));
+          inserts.push(models.db.DataFormat.create({name: "Occurrence", description: "Occurrencedescription"}));
+          inserts.push(self.addDataFormat({name: "Grid", description: "Format Description"}));
+
+          Promise.all(inserts).then(function() {
+            var arr = [];
+            arr.push(self.addDataSeriesSemantics({name: "PCD-INPE", data_format_name: "Pcd", data_series_type_name: "DS Type 1"}));
+
+            Promise.all(arr).then(function(){
               releaseCallback();
-            });
-          }).catch(function() {
-            releaseCallback();
-          })
+            }).catch(function(err) {
+              releaseCallback();
+            })
+          }).catch(function(err) {
+            releaseCallback()
+          });
         };
 
         connection.sync().then(function () {
@@ -213,7 +217,10 @@ var DataManager = {
           resolve(Utils.clone(project.get()));
           release();
         }).catch(function(e) {
-          reject(e);
+          var message = "Could not save project: ";
+          if (e.errors)
+            message += e.errors[0].message;
+          reject(new exceptions.ProjectError(message));
           release();
         });
       });
@@ -323,6 +330,22 @@ var DataManager = {
     });
   },
 
+  listDataFormats: function() {
+    return new Promise(function(resolve, reject) {
+      models.db.DataFormat.findAll({}).then(function(dataFormats) {
+        var output = [];
+
+        dataFormats.forEach(function(dataFormat){
+          output.push(Utils.clone(dataFormat.get()));
+        });
+
+        resolve(output);
+      }).catch(function(err) {
+        reject(new exceptions.DataFormatError("Could not retrieve data format"));
+      })
+    });
+  },
+
   /**
    * It saves DataSeriesSemantics in database.
    *
@@ -336,6 +359,22 @@ var DataManager = {
       }).catch(function(e) {
         reject(e);
       });
+    });
+  },
+
+  listDataSeriesSemantics: function(restriction) {
+    return new Promise(function(resolve, reject) {
+      models.db.DataSeriesSemantics.findAll({where: restriction}).then(function(semanticsList) {
+        var output = [];
+
+        semanticsList.forEach(function(semantics) {
+          output.push(Utils.clone(semantics.get()));
+        });
+
+        resolve(output);
+      }).catch(function(err) {
+        reject(new exceptions.DataSeriesSemanticsError("Could not retrieve data series semantics"));
+      })
     });
   },
 
