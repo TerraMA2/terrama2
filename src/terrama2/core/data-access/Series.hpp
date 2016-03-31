@@ -20,45 +20,38 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStorager.hpp
+  \file terrama2/core/data-access/Series.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_SERIES_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_SERIES_HPP__
 
 //TerraMA2
 #include "../../Config.hpp"
 #include "../Shared.hpp"
+#include "../data-model/DataSetOccurrence.hpp"
 
-#include "../data-model/DataManager.hpp"
-#include "../data-access/Series.hpp"
+//STL
+#include <vector>
 
-namespace te {
-  namespace mem {
-    class DataSet;
-  } /* mem */
-} /* te */
+//TerraLib
+#include <terralib/memory/DataSet.h>
 
 namespace terrama2
 {
   namespace core
   {
-    class DataStorager
+    struct Series
     {
-    public:
-      DataStorager(DataProviderPtr outputDataProvider) : dataProvider_(outputDataProvider) {}
-      ~DataStorager() {}
-
-      virtual void store(Series series, DataSetPtr outputDataSet) const = 0;
-
-    protected:
-      DataProviderPtr dataProvider_;
+      DataSetPtr dataSet;
+      std::shared_ptr<te::mem::DataSet> teDataSet;
+      std::shared_ptr<te::da::DataSetType> teDataSetType;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_SERIES_HPP__

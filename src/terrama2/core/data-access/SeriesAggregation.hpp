@@ -20,45 +20,33 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStorager.hpp
+  \file terrama2/core/data-access/SeriesAggregation.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_SERIES_AGGREGATION_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_SERIES_AGGREGATION_HPP__
 
 //TerraMA2
 #include "../../Config.hpp"
 #include "../Shared.hpp"
-
-#include "../data-model/DataManager.hpp"
-#include "../data-access/Series.hpp"
-
-namespace te {
-  namespace mem {
-    class DataSet;
-  } /* mem */
-} /* te */
+#include "Series.hpp"
 
 namespace terrama2
 {
   namespace core
   {
-    class DataStorager
+    class SeriesAggregation
     {
     public:
-      DataStorager(DataProviderPtr outputDataProvider) : dataProvider_(outputDataProvider) {}
-      ~DataStorager() {}
-
-      virtual void store(Series series, DataSetPtr outputDataSet) const = 0;
-
+      const std::map<DataSetPtr, Series>& getSeries() {return dataSeriesMap_;}
     protected:
-      DataProviderPtr dataProvider_;
+      std::map<DataSetPtr, Series> dataSeriesMap_;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_SERIES_AGGREGATION_HPP__

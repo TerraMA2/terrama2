@@ -37,34 +37,11 @@
 #include <QString>
 #include <QObject>
 
-//TerraLib
-#include <terralib/dataaccess/utils/Utils.h>
-
 terrama2::core::GridSeriesPtr terrama2::core::DataAccessorGrid::getGridSeries(const Filter& filter)
 {
   auto series = getSeries(filter);
   GridSeriesPtr gridSeries = std::make_shared<GridSeries>();
-  for(auto& serie : series)
-  {
-    try
-    {
-      DataSetGridPtr dataSet = std::dynamic_pointer_cast<const DataSetGrid>(serie.first);
-
-      auto teDataSet = serie.second;
-      while(teDataSet->moveNext())
-      {
-        std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
-        std::shared_ptr<te::rst::Raster> raster(teDataSet->getRaster(rpos));
-        gridSeries->addGrid(dataSet, raster);
-      }
-    }
-    catch(const std::bad_cast& exp)
-    {
-      QString errMsg = QObject::tr("Bad Cast to DataSetGrid");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      continue;
-    }//bad cast
-  }
+  gridSeries->addGridSeries(series);
 
   return gridSeries;
 }

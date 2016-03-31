@@ -56,7 +56,7 @@ namespace terrama2
       // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const override;
       // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
+      virtual void getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet>& teDataSet, std::shared_ptr<te::da::DataSetType>& teDataSetType) const override;
       //! Recover file mask
       virtual std::string getMask(DataSetPtr dataset) const;
     };

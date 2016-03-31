@@ -36,12 +36,14 @@
 #include "../Shared.hpp"
 
 #include "DataRetriever.hpp"
+#include "Series.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/memory/DataSet.h>
 
@@ -75,7 +77,7 @@ namespace terrama2
 
       DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
 
-      virtual std::map<DataSetPtr, std::shared_ptr<te::mem::DataSet> > getSeries(const Filter& filter) const;
+      virtual std::map<DataSetPtr, Series > getSeries(const Filter& filter) const;
 
       //! Utility function for converting string to double in the te::da::DataSet contruction.
       te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -143,7 +145,7 @@ namespace terrama2
          \param filter Filter applyed to the dataset
          \return Filtered dataset
        */
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+      virtual void getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet>& teDataSet, std::shared_ptr<te::da::DataSetType>& teDataSetType) const = 0;
 
       DataProviderPtr dataProvider_;
       DataSeriesPtr dataSeries_;

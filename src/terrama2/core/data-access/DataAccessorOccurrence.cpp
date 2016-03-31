@@ -45,21 +45,8 @@ terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getO
 {
   auto series = getSeries(filter);
   OccurrenceSeriesPtr occurrenceSeries = std::make_shared<OccurrenceSeries>();
-  for(auto& serie : series)
-  {
-    try
-    {
-      DataSetOccurrencePtr dataset = std::dynamic_pointer_cast<const DataSetOccurrence>(serie.first);
-      occurrenceSeries->addOccurrence(dataset, serie.second);
-    }
-    catch(const std::bad_cast& exp)
-    {
-      QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      continue;
-    }//bad cast
-  }
-
+  occurrenceSeries->addOccurrences(series);
+  
   return occurrenceSeries;
 }
 
