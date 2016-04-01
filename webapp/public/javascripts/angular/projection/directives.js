@@ -19,6 +19,7 @@ angular.module("terrama2.projection", [])
         $scope.setActive = function(value) {
           console.log(value);
           $scope.projection = value.name;
+          $scope.onFocus = false;
         }
       }
     }
