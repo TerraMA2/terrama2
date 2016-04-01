@@ -18,7 +18,6 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::services::analysis::core::init();
 
   terrama2::services::analysis::core::Analysis analysis;
 
@@ -117,8 +116,6 @@ int main(int argc, char* argv[])
 
 
   terrama2::services::analysis::core::runAnalysis(analysis);
-
-  terrama2::services::analysis::core::finalize();
 
   terrama2::core::finalizeTerralib();
 

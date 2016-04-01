@@ -48,18 +48,13 @@
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
-struct terrama2::core::DataManager::Impl
-{
-  std::map<DataProviderId, DataProviderPtr> providers; //!< A map from data-provider-id to data-provider.
-  std::map<DataSeriesId, DataSeriesPtr> dataseries;       //!< A map from data-set-id to dataseries.
-  std::recursive_mutex mtx;                             //!< A mutex to syncronize all operations.
-};
+
 
 void terrama2::core::DataManager::add(DataProviderPtr provider)
 {
   // Inside a block so the lock is released before emitting the signal
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(provider->name.empty())
       throw terrama2::InvalidArgumentException() <<
@@ -69,7 +64,7 @@ void terrama2::core::DataManager::add(DataProviderPtr provider)
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
 
-    pimpl_->providers[provider->id] = provider;
+    providers_[provider->id] = provider;
   }
 
   emit dataProviderAdded(provider);
@@ -79,7 +74,7 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
 {
   // Inside a block so the lock is released before emitting the signal
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(dataseries->name.empty())
       throw terrama2::InvalidArgumentException() <<
@@ -89,18 +84,18 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
 
-    auto itPr = pimpl_->providers.find(dataseries->dataProviderId);
+    auto itPr = providers_.find(dataseries->dataProviderId);
 
-    if(itPr == pimpl_->providers.end())
+    if(itPr == providers_.end())
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("Can not add a dataseries with a non-registered data provider."));
 
-    auto itDs = pimpl_->dataseries.find(dataseries->id);
-    if(itDs != pimpl_->dataseries.end())
+    auto itDs = dataseries_.find(dataseries->id);
+    if(itDs != dataseries_.end())
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("DataSeries already registered. Is this an update?"));
 
-    pimpl_->dataseries[dataseries->id] = dataseries;
+    dataseries_[dataseries->id] = dataseries;
   }
 
   emit dataSeriesAdded(dataseries);
@@ -109,7 +104,7 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
 void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr provider)
 {
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
     removeDataProvider(provider->id, true);
     add(provider);
@@ -122,7 +117,7 @@ void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr provide
 void terrama2::core::DataManager::update(terrama2::core::DataSeriesPtr dataseries, const bool shallowSave)
 {
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
     removeDataSeries(dataseries->id);
     add(dataseries);
@@ -135,19 +130,19 @@ void terrama2::core::DataManager::update(terrama2::core::DataSeriesPtr dataserie
 void terrama2::core::DataManager::removeDataProvider(const DataProviderId id, const bool shallowRemove)
 {
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
-    auto itPr = pimpl_->providers.find(id);
-    if(itPr == pimpl_->providers.end())
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    auto itPr = providers_.find(id);
+    if(itPr == providers_.end())
     {
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("DataProvider not registered."));
     }
 
-    pimpl_->providers.erase(itPr);
+    providers_.erase(itPr);
 
     if(!shallowRemove)
     {
-      for(const auto& pair : pimpl_->dataseries)
+      for(const auto& pair : dataseries_)
       {
         const auto& dataseries = pair.second;
         if(dataseries->dataProviderId == id)
@@ -162,15 +157,15 @@ void terrama2::core::DataManager::removeDataProvider(const DataProviderId id, co
 void terrama2::core::DataManager::removeDataSeries(const DataSeriesId id)
 {
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
-    const auto& it = pimpl_->dataseries.find(id);
-    if(it == pimpl_->dataseries.end())
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    const auto& it = dataseries_.find(id);
+    if(it == dataseries_.end())
     {
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("DataSeries not registered."));
     }
 
-    pimpl_->dataseries.erase(it);
+    dataseries_.erase(it);
   }
 
   emit dataSeriesRemoved(id);
@@ -178,10 +173,10 @@ void terrama2::core::DataManager::removeDataSeries(const DataSeriesId id)
 
 terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const std::string& name) const
 {
-  std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = std::find_if(pimpl_->providers.cbegin(), pimpl_->providers.cend(), [name](std::pair<DataProviderId, DataProviderPtr> provider){ return provider.second->name == name; });
-  if(it == pimpl_->providers.cend())
+  const auto& it = std::find_if(providers_.cbegin(), providers_.cend(), [name](std::pair<DataProviderId, DataProviderPtr> provider){ return provider.second->name == name; });
+  if(it == providers_.cend())
   {
     throw terrama2::InvalidArgumentException() <<
           ErrorDescription(QObject::tr("DataProvider not registered."));
@@ -192,10 +187,10 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
 
 terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const DataProviderId id) const
 {
-  std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = pimpl_->providers.find(id);
-  if(it == pimpl_->providers.cend())
+  const auto& it = providers_.find(id);
+  if(it == providers_.cend())
   {
     throw terrama2::InvalidArgumentException() <<
           ErrorDescription(QObject::tr("DataProvider not registered."));
@@ -206,10 +201,10 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
 
 terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const std::string& name) const
 {
-  std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = std::find_if(pimpl_->dataseries.cbegin(), pimpl_->dataseries.cend(), [name](std::pair<DataSeriesId, DataSeriesPtr> series){ return series.second->name == name; });
-  if(it == pimpl_->dataseries.cend())
+  const auto& it = std::find_if(dataseries_.cbegin(), dataseries_.cend(), [name](std::pair<DataSeriesId, DataSeriesPtr> series){ return series.second->name == name; });
+  if(it == dataseries_.cend())
   {
     throw terrama2::InvalidArgumentException() <<
           ErrorDescription(QObject::tr("DataSeries not registered."));
@@ -220,10 +215,10 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
 
 terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const DataSeriesId id) const
 {
-  std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = pimpl_->dataseries.find(id);
-  if(it == pimpl_->dataseries.cend())
+  const auto& it = dataseries_.find(id);
+  if(it == dataseries_.cend())
   {
     throw terrama2::InvalidArgumentException() <<
           ErrorDescription(QObject::tr("DataSeries not registered."));
@@ -233,7 +228,6 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
 }
 
 terrama2::core::DataManager::DataManager()
-  : pimpl_(new Impl)
 {
   qRegisterMetaType<DataProvider>("DataProvider");
   qRegisterMetaType<DataSeries>("DataSeries");
@@ -242,5 +236,4 @@ terrama2::core::DataManager::DataManager()
 
 terrama2::core::DataManager::~DataManager()
 {
-  delete pimpl_;
 }

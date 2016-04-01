@@ -59,7 +59,7 @@ void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>
 
 void terrama2::services::analysis::core::runAnalysis(const Analysis& analysis)
 {
-
+/*
   terrama2::services::analysis::core::Context::getInstance().addAnalysis(analysis);
   switch(analysis.type)
   {
@@ -80,12 +80,17 @@ void terrama2::services::analysis::core::runAnalysis(const Analysis& analysis)
       throw Exception()  << ErrorDescription(errMsg);
     }
   }
+  */
+  std::cout << "FUNFOU"<< std::endl;
 }
 
 void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analysis& analysis)
 {
   try
   {
+
+
+    terrama2::services::analysis::core::initInterpreter();
 
     for(auto analysisDataSeries : analysis.analysisDataSeriesList)
     {
@@ -194,6 +199,8 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analys
 
         // release the lock
         PyEval_ReleaseLock();
+
+        terrama2::services::analysis::core::finalizeInterpreter();
 
         break;
       }

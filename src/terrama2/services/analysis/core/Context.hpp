@@ -39,6 +39,7 @@
 
 #include "Analysis.hpp"
 #include "SyncronizedDataSet.hpp"
+#include "DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 
 // STL
@@ -110,9 +111,8 @@ namespace terrama2
             std::map<std::string, double> analysisResult(uint64_t analysisId);
             void setAnalysisResult(uint64_t analysisId, std::string geomId, double result);
 
-            Analysis getAnalysis(const uint64_t id);
-            void addAnalysis(const Analysis& analysis);
-
+            void setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager);
+            Analysis getAnalysis(AnalysisId analysisId) const;
             std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
             std::shared_ptr<ContextDataset> addDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset, std::string identifier, bool createSpatialIndex = true);
             std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset);
@@ -120,7 +120,7 @@ namespace terrama2
 
 
           private:
-            std::map<uint64_t, Analysis> analysis_;
+            std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
             std::map<uint64_t, std::map<std::string, double> > analysisResult_;
             std::map<ContextKey, std::shared_ptr<ContextDataset>, ContextKeyComparer> datasetMap_;
             mutable std::mutex mutex_;

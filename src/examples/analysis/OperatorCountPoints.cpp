@@ -1,28 +1,38 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 
 #include <terrama2/services/analysis/core/Analysis.hpp>
+#include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 
+// STL
 #include <iostream>
+#include <memory>
+
+// QT
+#include <QTimer>
+#include <QCoreApplication>
 
 
 int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::services::analysis::core::init();
 
+  QCoreApplication app(argc, argv);
+
+  std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManager(new terrama2::services::analysis::core::DataManager());
   terrama2::services::analysis::core::Analysis analysis;
 
   analysis.id = 1;
+  analysis.active = true;
 
   std::string script = "x = countPoints(\"Occurrence\", 0.1, \"2h\", \"\")\nresult(x)";
 
@@ -41,7 +51,7 @@ int main(int argc, char* argv[])
 
 
 
-  terrama2::core::DataManager::getInstance().add(dataProviderPtr);
+  dataManager->add(dataProviderPtr);
 
 
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
@@ -63,7 +73,7 @@ int main(int argc, char* argv[])
   dataSet->dataSeriesId = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
-  terrama2::core::DataManager::getInstance().add(dataSeriesPtr);
+  dataManager->add(dataSeriesPtr);
 
   terrama2::services::analysis::core::AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
@@ -81,7 +91,7 @@ int main(int argc, char* argv[])
   dataProvider2->id = 2;
 
 
-  terrama2::core::DataManager::getInstance().add(dataProvider2Ptr);
+  dataManager->add(dataProvider2Ptr);
 
   //DataSeries information
   terrama2::core::DataSeries* occurrenceSeries = new terrama2::core::DataSeries();
@@ -104,7 +114,7 @@ int main(int argc, char* argv[])
 
   occurrenceSeries->datasetList.push_back(occurrenceDatasetPtr);
 
-  terrama2::core::DataManager::getInstance().add(occurrenceSeriesPtr);
+  dataManager->add(occurrenceSeriesPtr);
 
   terrama2::services::analysis::core::AnalysisDataSeries occurrenceADS;
   occurrenceADS.id = 2;
@@ -117,12 +127,19 @@ int main(int argc, char* argv[])
 
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 
+  analysis.schedule.frequency = 1;
+  analysis.schedule.frequencyUnit = terrama2::core::MINUTE;
 
-  terrama2::services::analysis::core::runAnalysis(analysis);
 
-  terrama2::services::analysis::core::finalize();
+  terrama2::services::analysis::core::Service service(dataManager);
+  service.start();
+  service.addAnalysis(1);
 
-  terrama2::core::finalizeTerralib();
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(1000);
+  app.exec();
+
 
   return 0;
 }

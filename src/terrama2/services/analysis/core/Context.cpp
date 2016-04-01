@@ -55,25 +55,6 @@ void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t ana
   valueMap[geomId] = result;
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(const uint64_t id)
-{
-  std::unique_lock<std::mutex> lock(mutex_);
-  auto it = analysis_.find(id);
-  if(it != analysis_.end())
-    return it->second;
-  else
-  {
-    QString msg(QObject::tr("Could not add operation context"));
-    TERRAMA2_LOG_ERROR() << msg;
-    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
-  }
-}
-
-void terrama2::services::analysis::core::Context::addAnalysis(const Analysis& analysis)
-{
-  std::unique_lock<std::mutex> lock(mutex_);
-  analysis_[analysis.id] = analysis;
-}
 
 std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::services::analysis::core::Context::getContextDataset(const uint64_t analysisId, const uint64_t datasetId, const std::string& dateFilter) const
 {
@@ -134,14 +115,13 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::se
 
   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(dataset));
 
-  auto it = analysis_.find(analysisId);
-  if(it == analysis_.end())
+  auto analysis = getAnalysis(analysisId);
+  if(analysis.id != analysisId)
   {
     QString msg(QObject::tr("Could not find analysis %1 in context.").arg(analysisId));
     TERRAMA2_LOG_ERROR() << msg;
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
   }
-  auto analysis = it->second;
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
@@ -188,4 +168,9 @@ bool terrama2::services::analysis::core::Context::exists(const uint64_t analysis
 
   auto it = datasetMap_.find(key);
   return it != datasetMap_.end();
+}
+
+terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(AnalysisId analysisId) const
+{
+  return dataManager_.lock()->findAnalysis(analysisId);
 }

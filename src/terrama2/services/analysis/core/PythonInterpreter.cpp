@@ -641,7 +641,7 @@ static PyMethodDef module_methods[] = {
 };
 
 static PyObject * terrama2Error;
-void terrama2::services::analysis::core::init()
+void terrama2::services::analysis::core::initInterpreter()
 {
   Py_Initialize();
 
@@ -696,7 +696,7 @@ void terrama2::services::analysis::core::runMonitoredObjAnalysis(PyThreadState* 
 }
 
 
-void terrama2::services::analysis::core::finalize()
+void terrama2::services::analysis::core::finalizeInterpreter()
 {
   // shut down the interpreter
   PyEval_AcquireLock();

@@ -39,6 +39,7 @@
 
 // STL
 #include <memory>
+#include <mutex>
 
 // QT
 #include <QObject>
@@ -248,9 +249,16 @@ namespace terrama2
 
       protected:
 
-        struct Impl;
+        //! Default constructor: use the getInstance class method to get access to the singleton.
+        DataManager();
 
-        Impl* pimpl_;  //!< Pimpl idiom.
+        //! Destructor.
+        ~DataManager();
+
+        std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
+        std::map<DataSeriesId, DataSeriesPtr> dataseries_;       //!< A map from data-set-id to dataseries.
+        mutable std::recursive_mutex mtx_;                             //!< A mutex to syncronize all operations.
+
     };
 
   } // end namespace core
