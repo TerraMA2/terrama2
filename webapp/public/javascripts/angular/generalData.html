@@ -3,7 +3,7 @@
   <div class="col-md-7">
     <div class="form-group">
       <label for="name">{{ i18n.__('Name') }}:</label>
-      <input class="form-control" id="name" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text">
+      <input class="form-control" id="name" name="name" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text">
     </div>
   </div>
   <!-- /.col md 7 -->
@@ -11,7 +11,7 @@
   <div class="col-md-5">
     <div class="form-group">
       <label>{{ i18n.__('Semantics') }}:</label>
-      <select class="form-control" ng-model="dataSeries.semantics" ng-options="semantics.name for semantics in dataSeriesSemantics" ng-change="onDataSemanticsChange();">
+      <select class="form-control" ng-model="dataSeries.semantics" ng-options="semantics.name for semantics in dataSeriesSemantics" ng-change="onDataSemanticsChange();" name="d">
         <!--<option ng-repeat="semantics in dataSeriesSemantics">{{ semantics.name }}</option>-->
       </select>
     </div>
@@ -29,7 +29,7 @@
   <div class="col-md-5">
     <div class="form-group">
       <label>{{ i18n.__('Provider') }}:</label>
-      <select class="form-control" ng-model="dataSeries.dataProvider" ng-change="changeDataProvider()">
+      <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()">
         <option value="" ng-click="onDataProviderClick(-1)">New dataprovider</option>
         <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
       </select>

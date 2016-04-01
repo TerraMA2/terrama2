@@ -9,7 +9,9 @@
     </div>
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
-      <div ng-include="'/javascripts/angular/generalData.html'"></div>
+      <form name="generalDataForm">
+        <div ng-include="'/javascripts/angular/generalData.html'"></div>
+      </form>
     </div>
   </div>
 </div>
@@ -41,7 +43,14 @@
     </div>
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
-      <div ng-include="'/javascripts/angular/filter.html'"></div>
+      <form name="filterForm">
+        <div ng-include="'/javascripts/angular/filter.html'"></div>
+      </form>
     </div>
   </div>
+</div>
+
+<div class="box-footer">
+  <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-click="save()">{{ i18n.__('OK') }}</button>
+  <button class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</button>
 </div>

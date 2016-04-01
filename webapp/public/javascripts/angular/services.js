@@ -136,4 +136,17 @@ angular.module("terrama2.services", [])
         return $http.get("/api/DataSeriesSemantics", {dataFormat: dataFormat});
       }
     }
+  }])
+
+  .factory("DataSeriesFactory", ["$http", function($http) {
+    var url = "/api/DataSeries";
+    return {
+      get: function() {
+        return $http.get(url, {});
+      },
+      
+      post: function(dataSeriesObject) {
+        return $http.post(url, dataSeriesObject);
+      }
+    }
   }]);

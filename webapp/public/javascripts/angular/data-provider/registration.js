@@ -120,7 +120,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
       var defaultRedirectTo = "/configuration/providers?id=" + dataProvider.id + "&method=" + configuration.saveConfig.method + "&";
 
-      var redirectData = makeRedirectUrl({dataProvider: dataProvider.id});
+      var redirectData = makeRedirectUrl({data_provider_id: dataProvider.id});
 
       $window.location.href = (redirectData || defaultRedirectTo);
     }).error(function(err) {

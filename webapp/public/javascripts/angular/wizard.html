@@ -25,7 +25,7 @@
           </li>
         </ul>
       </div>
-    </div>
+0    </div>
   </div>
 
   <div id="bar" class="progress progress-xs active">
@@ -48,7 +48,9 @@
       <li class="previous first" style="display:none;"><a href="#">First</a></li>
       <li class="previous"><a href="#">Previous</a></li>
       <li class="next"><a href="#">Next</a></li>
-      <li class="next finish" style="display:none;"><a href="javascript:;">Finish</a></li>
+      <li class="next finish" style="display:none;">
+        <a href="javascript:;" ng-click="save()">Finish</a>
+      </li>
     </ul>
   </div>
 </div>
@@ -119,11 +121,11 @@
       }
     );
 
-    $('#rootwizard .finish').click(function() {
-      alert('Finished!, Starting over!');
-      // $('#initial').trigger('click');
-      console.log($('#rootwizard'));
-      $('#rootwizard').find("a[href*='tab1']").trigger('click');
-    });
+//    $('#rootwizard .finish').click(function() {
+//      alert('Finished!, Starting over!');
+//      // $('#initial').trigger('click');
+//      console.log($('#rootwizard'));
+//      $('#rootwizard').find("a[href*='tab1']").trigger('click');
+//    });
   });
 </script>

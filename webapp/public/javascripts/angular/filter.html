@@ -15,7 +15,7 @@
             <div class="form-group">
               <label>{{ i18n.__('Ignores data previous to') }}:</label>
               <div class='input-group date' id='datetimepicker6'>
-                <input type='text' class="form-control" />
+                <input type='text' name="beforeDate" ng-model="filter.beforeDate" class="form-control" />
                 <span class="input-group-addon">
                   <span class="glyphicon glyphicon-calendar"></span>
                 </span>
@@ -26,7 +26,7 @@
             <div class="form-group">
               <label>{{ i18n.__('Ignores data after to') }}:</label>
               <div class='input-group date' id='datetimepicker7'>
-                <input type='text' class="form-control" />
+                <input type='text' name="afterDate" ng-model="filter.afterDate" class="form-control" />
                 <span class="input-group-addon">
                   <span class="glyphicon glyphicon-calendar"></span>
                 </span>
@@ -43,7 +43,8 @@
           <div class='col-md-12'>
             <div class="form-group">
               <label>{{ i18n.__('Select the filter area type') }}:</label>
-              <select class="form-control" id="filterAreaCombobox">
+              <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-model="filter.area.type
+              ">
                 <option selected>Do not filter</option>
                 <option>Filter by limits</option>
               </select>
@@ -53,28 +54,28 @@
           <div class="col-md-6">
             <div class="form-group">
               <label>X min:</label>
-              <input class="form-control" id="minX" placeholder="" type="text">
+              <input class="form-control" id="minX" name="filterMinX" ng-model="filter.area.minX" placeholder="" type="text">
             </div>
           </div>
 
           <div class="col-md-6">
             <div class="form-group">
               <label>X max:</label>
-              <input class="form-control" id="maxX" placeholder="" type="text">
+              <input class="form-control" id="maxX" name="filterMaxX" ng-model="filter.area.maxX" placeholder="" type="text">
             </div>
           </div>
 
           <div class="col-md-6">
             <div class="form-group">
               <label>Y min:</label>
-              <input class="form-control" id="minY" placeholder="" type="text">
+              <input class="form-control" id="minY" name="filterMinY" ng-model="filter.area.minY" placeholder="" type="text">
             </div>
           </div>
 
           <div class="col-md-6">
             <div class="form-group">
               <label>Y max:</label>
-              <input class="form-control" id="maxY" placeholder="" type="text">
+              <input class="form-control" id="maxY" name="filterMaxY" ng-model="filter.area.maxY" placeholder="" type="text">
             </div>
           </div>
         </div>
@@ -88,7 +89,7 @@
             <div class="form-group">
               <div class="radio">
                 <label>
-                  <input name="optionsRadios" id="doNotMakePreAnalysis" value="option1" checked="true" type="radio">
+                  <input name="optionsRadios" id="doNotMakePreAnalysis" ng-model="filter.preAnalysis.type" value="option1" checked="true" type="radio">
                   {{ i18n.__('Do not make pre-analysis') }}
                 </label>
               </div>
