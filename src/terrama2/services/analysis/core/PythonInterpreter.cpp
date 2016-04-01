@@ -40,10 +40,6 @@
 #include "../../../impl/DataAccessorOccurrenceMvf.hpp"
 #include "../../../impl/DataAccessorDcpInpe.hpp"
 
-
-#include <ctime>
-#include <iomanip>
-
 #include <QObject>
 
 
@@ -137,84 +133,6 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
     return NULL;
   }
 
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
-
-
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
-  boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
-
-
-  char format = dateFilterStr.at(dateFilterStr.size() - 1);
-  if(format == 'h')
-  {
-    std::string hoursStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int hours = atoi(hoursStr.c_str());
-      ldt -= boost::posix_time::hours(hours);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-  else if(format == 'm')
-  {
-    std::string minutesStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int minutes = atoi(minutesStr.c_str());
-      ldt -= boost::posix_time::minutes(minutes);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-  else if(format == 's')
-  {
-    std::string secondsStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int seconds = atoi(secondsStr.c_str());
-      ldt -= boost::posix_time::seconds(seconds);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-  else if(format == 'd')
-  {
-    std::string daysStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int days = atoi(daysStr.c_str());
-      //FIXME: subtrair dias
-      ldt -= boost::posix_time::hours(days);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-
 
   std::shared_ptr<ContextDataset> contextDataset;
 
@@ -234,23 +152,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
         else
         {
 
-          auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
-          terrama2::core::Filter filter;
-
-          std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-          filter.discardBefore = std::move(titz);
-
-          //accessing data
-          terrama2::core::DataAccessorOccurrenceMvf accessor(dataProvider, analysisDataSeries.dataSeries);
-
-
-          auto teDataset = accessor.getDataSet(dataProvider->uri, filter, dataset);
-
-          teDataset->moveFirst();
-          auto format = dataset->format;
-          std::string identifier = format["identifier"];
-
-          contextDataset = Context::getInstance().addDataset(analysisId, dataset->id, dateFilterStr, teDataset, identifier, true);
+          Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
 
           if(!contextDataset)
           {
@@ -385,82 +287,6 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     return NULL;
   }
 
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
-
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
-  boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
-
-  char format = dateFilterStr.at(dateFilterStr.size() - 1);
-  if(format == 'h')
-  {
-    std::string hoursStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int hours = atoi(hoursStr.c_str());
-      ldt -= boost::posix_time::hours(hours);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-  else if(format == 'm')
-  {
-    std::string minutesStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int minutes = atoi(minutesStr.c_str());
-      ldt -= boost::posix_time::minutes(minutes);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-  else if(format == 's')
-  {
-    std::string secondsStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int seconds = atoi(secondsStr.c_str());
-      ldt -= boost::posix_time::seconds(seconds);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-  else if(format == 'd')
-  {
-    std::string daysStr = dateFilterStr.substr(0, dateFilterStr.size() - 1);
-    try
-    {
-      int days = atoi(daysStr.c_str());
-      //FIXME: subtrair dias
-      assert(false);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NULL;
-    }
-  }
-
 
   std::shared_ptr<ContextDataset> contextDataset;
 
@@ -470,33 +296,25 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     {
       found = true;
 
-      auto dataProvider = terrama2::core::DataManager::getInstance().findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
-
-      terrama2::core::Filter filter;
-      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-      filter.discardBefore = std::move(titz);
-
-      terrama2::core::DataAccessorDcpInpe accessor(dataProvider, analysisDataSeries.dataSeries);
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
-
-      for(auto pairDatasetDCP : dcpSeries->dcpList())
+      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
       {
-        terrama2::core::DataSetDcpPtr datasetDCP = pairDatasetDCP.first;
-        std::shared_ptr<te::mem::DataSet> teDataset = pairDatasetDCP.second;
-        contextDataset = Context::getInstance().addDCP(analysisId, datasetDCP, dateFilterStr, teDataset);
-
+        if(Context::getInstance().exists(analysisId, dataset->id, dateFilterStr))
+        {
+          contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
+        }
+        else
+        {
+          Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+        }
 
         // Frees the GIL, from now on can not use the interpreter
         Py_BEGIN_ALLOW_THREADS
-
-        auto positionDCP = datasetDCP->position;
 
         for(auto analysisDataSeries : analysis.analysisDataSeriesList)
         {
           for(auto dataset : analysisDataSeries.dataSeries->datasetList)
           {
-            if(dataset->id == datasetDCP->id)
-            {
+            /*
               auto metadata = analysisDataSeries.metadata;
 
               if(metadata["INFLUENCE_TYPE"] != "REGION")
@@ -551,16 +369,17 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
                   assert(false);
                 }
               }
-            }
+            }*/
           }
-
         }
 
         // All operations are done, acquires the GIL and set the return value
         Py_END_ALLOW_THREADS
 
-        break;
       }
+
+
+      break;
     }
   }
 

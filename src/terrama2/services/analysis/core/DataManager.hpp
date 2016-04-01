@@ -45,6 +45,20 @@ namespace terrama2
         class DataManager : public terrama2::core::DataManager
         {
           Q_OBJECT
+
+          public:
+
+            DataManager();
+            virtual ~DataManager ();
+
+            using terrama2::core::DataManager::add;
+            using terrama2::core::DataManager::update;
+
+            void add(const Analysis& analysis);
+            void update(const Analysis& analysis);
+            void removeAnalysis(AnalysisId analysisId);
+            Analysis findAnalysis(const AnalysisId analysisId);
+
           signals:
 
             //! Signal to notify that a provider has been added.
@@ -55,16 +69,6 @@ namespace terrama2
 
             //! Signal to notify that a provider has been updated.
             void analysisUpdated(Analysis);
-
-          public:
-
-            DataManager();
-            virtual ~DataManager ();
-
-            void add(const Analysis& analysis);
-            void update(const Analysis& analysis);
-            void removeAnalysis(AnalysisId analysisId);
-            Analysis findAnalysis(const AnalysisId analysisId);
 
 
           protected:

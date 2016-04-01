@@ -11,6 +11,7 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 
 // STL
 #include <iostream>
@@ -20,6 +21,7 @@
 #include <QTimer>
 #include <QCoreApplication>
 
+using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
@@ -28,8 +30,8 @@ int main(int argc, char* argv[])
 
   QCoreApplication app(argc, argv);
 
-  std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManager(new terrama2::services::analysis::core::DataManager());
-  terrama2::services::analysis::core::Analysis analysis;
+  DataManagerPtr dataManager(new DataManager());
+  Analysis analysis;
 
   analysis.id = 1;
   analysis.active = true;
@@ -37,11 +39,11 @@ int main(int argc, char* argv[])
   std::string script = "x = countPoints(\"Occurrence\", 0.1, \"2h\", \"\")\nresult(x)";
 
   analysis.script = script;
-  analysis.scriptLanguage = terrama2::services::analysis::core::PYTHON;
-  analysis.type = terrama2::services::analysis::core::MONITORED_OBJECT_TYPE;
+  analysis.scriptLanguage = PYTHON;
+  analysis.type = MONITORED_OBJECT_TYPE;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
   dataProvider->name = "Provider";
   dataProvider->uri = "file:///Users/paulo/Workspace/data/shp";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
@@ -75,10 +77,10 @@ int main(int argc, char* argv[])
   dataSeries->datasetList.push_back(dataSetPtr);
   dataManager->add(dataSeriesPtr);
 
-  terrama2::services::analysis::core::AnalysisDataSeries monitoredObjectADS;
+  AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeries = dataSeriesPtr;
-  monitoredObjectADS.type = terrama2::services::analysis::core::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
 
 
   terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
@@ -116,12 +118,12 @@ int main(int argc, char* argv[])
 
   dataManager->add(occurrenceSeriesPtr);
 
-  terrama2::services::analysis::core::AnalysisDataSeries occurrenceADS;
+  AnalysisDataSeries occurrenceADS;
   occurrenceADS.id = 2;
   occurrenceADS.dataSeries = occurrenceSeriesPtr;
-  occurrenceADS.type = terrama2::services::analysis::core::ADDITIONAL_DATA_TYPE;
+  occurrenceADS.type = ADDITIONAL_DATA_TYPE;
 
-  std::vector<terrama2::services::analysis::core::AnalysisDataSeries> analysisDataSeriesList;
+  std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysisDataSeriesList.push_back(occurrenceADS);
 
@@ -131,7 +133,7 @@ int main(int argc, char* argv[])
   analysis.schedule.frequencyUnit = terrama2::core::MINUTE;
 
 
-  terrama2::services::analysis::core::Service service(dataManager);
+  Service service(dataManager);
   service.start();
   service.addAnalysis(1);
 

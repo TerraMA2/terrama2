@@ -20,19 +20,15 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Exception.hpp
+  \file terrama2/services/analysis/core/Shared.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \author Paulo R. M. Oliveira
+*/
 
-  \author Gilberto Ribeiro de Queiroz
- */
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
-
-// TerraMA2
-#include "../../../core/Exception.hpp"
-
+#include <memory>
 
 namespace terrama2
 {
@@ -42,17 +38,12 @@ namespace terrama2
     {
       namespace core
       {
-        //! Base exception class for TerraMA2.
-        struct Exception: virtual terrama2::core::Exception {};
-
-        struct InvalidFrequencyException: virtual Exception {};
-
-        struct InvalidParameterException: virtual Exception {};
-
+          class DataManager;
+          typedef std::shared_ptr<terrama2::services::analysis::core::DataManager> DataManagerPtr;
 
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif  // __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__

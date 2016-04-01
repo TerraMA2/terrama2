@@ -34,6 +34,7 @@
 #include "../../../core/utility/Service.hpp"
 #include "Analysis.hpp"
 #include "AnalysisTimer.hpp"
+#include "Shared.hpp"
 
 #include <memory>
 
@@ -54,7 +55,7 @@ namespace terrama2
           Q_OBJECT
 
           public:
-            Service(std::shared_ptr<DataManager> dataManager);
+            Service(DataManagerPtr dataManager);
             virtual ~Service();
 
           public slots:
@@ -84,7 +85,7 @@ namespace terrama2
 
 
             std::queue<uint64_t> analysisQueue_; //!< Analysis queue.
-            std::shared_ptr<DataManager> dataManager_; //!< Data manager.
+            DataManagerPtr dataManager_; //!< Data manager.
 
         };
 

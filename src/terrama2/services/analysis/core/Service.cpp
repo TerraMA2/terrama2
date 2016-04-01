@@ -32,7 +32,7 @@
 #include "DataManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 
-terrama2::services::analysis::core::Service::Service(std::shared_ptr<DataManager> dataManager)
+terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
   dataManager_(dataManager)
 {
