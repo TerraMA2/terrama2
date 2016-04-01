@@ -61,68 +61,24 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
     return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
   };
 
-  // remove
-
-  /**
-   * Adds a layer group to the layer explorer.
-   * @param {string} id - Layer group id
-   * @param {string} name - Layer group name
-   * @param {string} layers - HTML code of the layers that will be inside of the layer group
-   * @param {string} parent - Parent element id
-   *
-   * @function addLayerGroup
-   */
-  var addLayerGroup = function(id, name, layers, parent) {
-    if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
-      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayerGroup(id, name, parent, layers));
-
-      if(!$('#' + parent.replace(':', '')).hasClass('open'))
-        $('#' + parent.replace(':', '')).find(' > ul > li').hide();
-    } else {
-      $('#' + parent.replace(':', '')).append(createLayerGroup(id, name, parent, layers));
-    }
-
-    setSortable();
-  };
-
-  /**
-   * Adds a layer to the layer explorer.
-   * @param {string} id - Layer id
-   * @param {string} name - Layer name
-   * @param {boolean} visible - Flag that indicates if the layer should be visible when created
-   * @param {string} parent - Parent element id
-   *
-   * @function addLayer
-   */
-  var addLayer = function(id, name, visible, parent) {
-    if($('#' + parent.replace(':', '')).hasClass('parent_li')) {
-      $('#' + parent.replace(':', '') + ' > ul.children').append(createLayer(id, name, parent, visible));
-
-      if(!$('#' + parent.replace(':', '')).hasClass('open'))
-        $('#' + id.replace(':', '')).hide();
-    } else {
-      $('#' + parent.replace(':', '')).append(createLayer(id, name, parent, visible));
-    }
-
-    setSortable();
-  };
-
-  // remove
-
   /**
    * Adds a layer or a layer group to the layer explorer with data from the map.
    * @param {string} id - Layer or layer group id
-   * @param {string} parentLayerGroup - Parent layer group id
-   * @param {string} parentHtml - Parent HTML id
+   * @param {string} parent - Parent id
    *
    * @function addLayersFromMap
    */
-  var addLayersFromMap = function(id, parentLayerGroup, parentHtml) {
+  var addLayersFromMap = function(id, parent) {
     var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
     if(data !== null) {
-      var elem = buildLayersFromMap(data, parentLayerGroup);
-      $('#' + parentHtml).append(elem);
+      var elem = buildLayersFromMap(data, parent);
+
+      if(parent === 'terrama2-layerexplorer') {
+        $('#' + parent).append(elem);
+      } else {
+        $('#' + parent + ' > ul.children').append(elem);
+      }
 
       // Handle opacity slider control
       $('input.opacity').slider();
@@ -143,6 +99,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @function buildLayersFromMap
    */
   var buildLayersFromMap = function(layer, parent) {
+    var elem = "";
+
     if(layer.getLayers) {
       var sublayersElem = '',
           layers = layer.getLayers().getArray(),
@@ -151,9 +109,11 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       for(var i = 0; i < len; i++)
         sublayersElem += buildLayersFromMap(layers[i], layer.get('id'));
 
-      var elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
+      if(!$("#" + layer.get('id').replace(':', '')).length)
+        elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
     } else {
-      var elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'));
+      if(!$("#" + layer.get('id').replace(':', '')).length)
+        elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'));
     }
 
     return elem;
@@ -239,8 +199,6 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
     $('.children').disableSelection();
 
-    ///
-
     $('#terrama2-layerexplorer').sortable({
       start: function(event, ui) {
         $(this).attr('data-previndex', ui.item.index());
@@ -260,15 +218,18 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @function init
    */
   var init = function() {
-    memberMapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
-    memberMap = memberMapDisplay.getMap();
-    loadEvents();
+    var interval = window.setInterval(function() {
+      if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
+        memberMapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
+        memberMap = memberMapDisplay.getMap();
+        loadEvents();
+        clearInterval(interval);
+      }
+    }, 10);
   };
 
   return {
     getSelectedLayer: getSelectedLayer,
-    addLayerGroup: addLayerGroup,
-    addLayer: addLayer,
     addLayersFromMap: addLayersFromMap,
     init: init
   };
