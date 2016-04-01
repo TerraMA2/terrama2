@@ -39,6 +39,7 @@
 
 // STL
 #include <memory>
+#include <mutex>
 
 // QT
 #include <QObject>
@@ -245,12 +246,12 @@ namespace terrama2
         //! Signal to notify that a dataseries has been updated.
         void dataSeriesUpdated(DataSeriesPtr);
 
-
       protected:
 
-        struct Impl;
+        std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
+        std::map<DataSeriesId, DataSeriesPtr> dataseries_;       //!< A map from data-set-id to dataseries.
+        mutable std::recursive_mutex mtx_;                             //!< A mutex to syncronize all operations.
 
-        Impl* pimpl_;  //!< Pimpl idiom.
     };
 
   } // end namespace core

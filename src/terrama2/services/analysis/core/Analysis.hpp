@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Analysis.hpp
+  \file terrama2/services/analysis/core/DataManager.hpp
 
   \brief Model class for the analysis configuration.
 
@@ -32,6 +32,7 @@
 #define __TERRAMA2_ANALYSIS_CORE_ANALYSIS_HPP__
 
 #include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-model/Schedule.hpp"
 
 // STL
 #include <string>
@@ -45,6 +46,10 @@ namespace terrama2
     {
       namespace core
       {
+
+        typedef uint64_t AnalysisDataSeriesId;
+        typedef uint64_t AnalysisId;
+
         enum AnalysisType
         {
           PCD_TYPE,
@@ -69,7 +74,7 @@ namespace terrama2
 
         struct AnalysisDataSeries
         {
-          uint64_t id;
+          AnalysisDataSeriesId id = 0;
           terrama2::core::DataSeriesPtr dataSeries;
           AnalysisDataSeriesType type;
           std::string alias;
@@ -78,16 +83,18 @@ namespace terrama2
 
         struct Analysis
         {
-          uint64_t id;
-          uint64_t projectId;
+          AnalysisId id = 0;
+          uint64_t projectId = 0;
 					ScriptLanguage scriptLanguage;
 					std::string script;
           AnalysisType type;
 					std::string name;
 					std::string description;
+          bool active = true;
           terrama2::core::DataSet outputDataset;
           std::map<std::string, std::string> metadata;
           std::vector<AnalysisDataSeries> analysisDataSeriesList;
+          terrama2::core::Schedule schedule;
         };
 
       } // end namespace core

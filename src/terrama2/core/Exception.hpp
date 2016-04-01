@@ -40,6 +40,10 @@ namespace terrama2
     //! Base excection for core module.
     struct Exception : virtual terrama2::Exception { };
 
+
+    //! Raised when the data manager is not a valid pointer.
+    struct InvalidDataManagerException: virtual Exception {};
+
     //#################################
     //     Data Access Module Exceptions
 

@@ -20,29 +20,15 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/PythonInterpreter.hpp
-
-  \brief Manages the communication of Python and C.
+  \file terrama2/services/analysis/core/Shared.hpp
 
   \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
-
-#include "Analysis.hpp"
-
-#include <string>
-
-#include "Context.hpp"
-
-#include <terralib/dataaccess/dataset/DataSet.h>
-
-// Boost
-#include "boost/date_time/local_time/local_time.hpp"
-
-#include <Python.h>
+#include <memory>
 
 namespace terrama2
 {
@@ -52,20 +38,12 @@ namespace terrama2
     {
       namespace core
       {
-        PyObject* countPoints(PyObject* self, PyObject* args);
-        PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
-        PyObject* result(PyObject* self, PyObject* args);
+          class DataManager;
+          typedef std::shared_ptr<terrama2::services::analysis::core::DataManager> DataManagerPtr;
 
-        std::string createMonitoredObjectFunction(const std::string& script);
-
-        void initInterpreter();
-
-        void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
-
-        void finalizeInterpreter();
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif //__TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__

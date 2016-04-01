@@ -10,25 +10,34 @@
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
+#include <terrama2/services/analysis/core/Service.hpp>
 
 #include <iostream>
 
+// QT
+#include <QTimer>
+#include <QCoreApplication>
+
+using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::services::analysis::core::init();
+  QCoreApplication app(argc, argv);
 
-  terrama2::services::analysis::core::Analysis analysis;
+  Analysis analysis;
+
+  DataManagerPtr dataManager(new DataManager());
 
   analysis.id = 1;
 
   std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"10h\")\nresult(x)";
 
   analysis.script = script;
-  analysis.scriptLanguage = terrama2::services::analysis::core::PYTHON;
-  analysis.type = terrama2::services::analysis::core::MONITORED_OBJECT_TYPE;
+  analysis.scriptLanguage = PYTHON;
+  analysis.type = MONITORED_OBJECT_TYPE;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -40,7 +49,7 @@ int main(int argc, char* argv[])
   dataProvider->id = 1;
 
 
-  terrama2::core::DataManager::getInstance().add(dataProviderPtr);
+  dataManager->add(dataProviderPtr);
 
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
@@ -60,7 +69,7 @@ int main(int argc, char* argv[])
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
-  terrama2::core::DataManager::getInstance().add(dataSeriesPtr);
+  dataManager->add(dataSeriesPtr);
 
 
   terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
@@ -73,12 +82,12 @@ int main(int argc, char* argv[])
   dataProvider2->id = 2;
 
 
-  terrama2::core::DataManager::getInstance().add(dataProvider2Ptr);
+  dataManager->add(dataProvider2Ptr);
 
-  terrama2::services::analysis::core::AnalysisDataSeries monitoredObjectADS;
+  AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeries = dataSeriesPtr;
-  monitoredObjectADS.type = terrama2::services::analysis::core::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
 
 
   //DataSeries information
@@ -101,24 +110,32 @@ int main(int argc, char* argv[])
   dcpDataset->position = new te::gm::Point(-44.46540, -23.00506, 4674, nullptr);
   dcpSeries->datasetList.push_back(dcpDatasetPtr);
 
-  terrama2::services::analysis::core::AnalysisDataSeries pcdADS;
+  AnalysisDataSeries pcdADS;
   pcdADS.id = 2;
   pcdADS.dataSeries = dcpSeriesPtr;
-  pcdADS.type = terrama2::services::analysis::core::ADDITIONAL_DATA_TYPE;
+  pcdADS.type = ADDITIONAL_DATA_TYPE;
   pcdADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
   pcdADS.metadata["RADIUS"] = "50";
 
-  terrama2::core::DataManager::getInstance().add(dcpSeriesPtr);
+  dataManager->add(dcpSeriesPtr);
 
-  std::vector<terrama2::services::analysis::core::AnalysisDataSeries> analysisDataSeriesList;
+  std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(pcdADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 
+  dataManager->add(analysis);
 
-  terrama2::services::analysis::core::runAnalysis(analysis);
 
-  terrama2::services::analysis::core::finalize();
+  Service service(dataManager);
+  service.start();
+  service.addAnalysis(1);
+
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(1000);
+  app.exec();
+
 
   terrama2::core::finalizeTerralib();
 
