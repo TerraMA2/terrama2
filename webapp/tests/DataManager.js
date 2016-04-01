@@ -25,7 +25,7 @@ function createDataProvider() {
 function createDataSeriesSemantic() {
   return {
     name: "Semantic 1",
-    data_format_name: "Format 1",
+    data_format_name: "Pcd",
     data_series_type_name: "DS Type 1"
   };
 }
@@ -200,7 +200,7 @@ describe('DataManager', function() {
         }
       ];
 
-      DataManager.addDataSerie(dataSeries).then(function(result) {
+      DataManager.addDataSeries(dataSeries).then(function(result) {
         assert(result.id > 0 && DataManager.data.dataSeries.length == 1);
         return done();
       }).catch(function(err) {
@@ -212,7 +212,7 @@ describe('DataManager', function() {
   });
 
   it('should retrieve DataSet', function(done) {
-    DataManager.getDataSet({id: 1, type: "dcp"}).then(function(dset) {
+    DataManager.getDataSet({id: 1, type: "Pcd"}).then(function(dset) {
       assert(dset.child.timeColumn === "timeColumn");
       return done();
     }).catch(function(err) {
