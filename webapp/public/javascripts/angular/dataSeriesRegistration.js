@@ -95,7 +95,6 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
         var semanticsName = $scope.dataSeries.semantics.name || "";
 
         $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(Object.assign({semantics: semanticsName}, $scope.dataSeries));
-        // $window.open("/configuration/providers/new", "Data Provider Registration", 'width=600,height=500,scrollbars=yes');
       };
 
       $scope.removePcd = function(pcdItem) {
@@ -183,50 +182,10 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
             break;
         }
 
-        // preparing data set array to send
-        // $scope.dataSets.forEach(function(dataSet) {
-        //   var dataSetStructure = {
-        //     active: dataSet.active,
-        //     child: {}
-        //   };
-        //
-        //   dataSetStructure.child.type = dataSetType;
-        //   switch(dataSetType.toLowerCase()) {
-        //     case "dcp":
-        //     case "pcd":
-        //       $scope.pcds.forEach(function(pcd) {
-        //
-        //       });
-        //
-        //       dataSetStructure.child.position = {
-        //         type: 'Point',
-        //         coordinates: [$scope.parametersData.latitude, $scope.parametersData.longitude],
-        //         crs:{
-        //           type: 'name',
-        //           properties : {
-        //             name: 'EPSG:4326'
-        //           }
-        //         }
-        //       };
-        //
-        //       break;
-        //
-        //     case "occurrence":
-        //       break;
-        //
-        //     case "grid":
-        //       break;
-        //
-        //     default:
-        //       break;
-        //   }
-        // });
-
         console.log(dataToSend);
         DataSeriesFactory.post(dataToSend).success(function(data) {
-          //   redirect to list data series || analysis
+          //   redirect to list data series || analysis: TODO
           console.log(data);
-          alert("Foi");
         }).error(function(err) {
           console.log(err);
           alert("Error found")

@@ -12,9 +12,8 @@ var express = require('express'),
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
 
-
+// Setting internationalization
 i18n.configure( {
-  // setup some locales - other locales default to en silently
   locales        : [ "en", "pt", "fr", "es" ],
   directory      : __dirname + "/locales",
   objectNotation : true
@@ -33,25 +32,10 @@ app.set('views', __dirname + '/views');
 app.use(i18n.init);
 app.use(i18nRoutes.getLocale);
 
-// This line should be removed with express 4.0
 i18nRoutes.configure(app, {"extension": ".js", directory : __dirname + "/locales/"});
-
-// Set up the internacionalization
-// i18n.expressBind(app, {
-//   // setup some locales - other locales default to vi silently
-//   locales: ['pt', 'en', 'es'],
-//   // set the default locale
-//   defaultLocale: 'en',
-//   // set the cookie name
-//   cookieName: 'locale',
-//   // allow to change language by query string. i.e: url?lang=es
-//   query: true
-// });
 
 // set up the internacionalization middleware
 app.use(function(req, res, next) {
-  // req.i18n.setLocaleFromQuery();
-  // req.i18n.setLocaleFromCookie();
   next();
 });
 
