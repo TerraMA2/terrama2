@@ -134,6 +134,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
   }
 
 
+
   std::shared_ptr<ContextDataset> contextDataset;
 
   for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
@@ -141,27 +142,21 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
     if(analysisDataSeries.dataSeries->name == dataSeriesName)
     {
       found = true;
+
+      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+
       auto datasets = analysisDataSeries.dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
-        if(Context::getInstance().exists(analysisId, dataset->id, dateFilterStr))
+
+        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
+        if(!contextDataset)
         {
-          contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
-        }
-        else
-        {
-
-          Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
-
-          if(!contextDataset)
-          {
-            QString errMsg(QObject::tr("Analysis: %1 -> Could not recover dataset."));
-            errMsg = errMsg.arg(analysisId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            return NULL;
-          }
-
+          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover dataset."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return NULL;
         }
 
 

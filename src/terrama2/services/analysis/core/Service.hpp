@@ -79,7 +79,7 @@ namespace terrama2
             virtual bool checkNextData() override;
 
 
-            static void run(uint64_t analysisId);
+            static void run(Analysis analysis);
 
             void prepareTask(uint64_t analysisId);
 

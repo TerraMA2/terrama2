@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
   Analysis analysis;
 
   analysis.id = 1;
+  analysis.name = "Analysis";
   analysis.active = true;
 
   std::string script = "x = countPoints(\"Occurrence\", 0.1, \"2h\", \"\")\nresult(x)";
@@ -132,7 +133,9 @@ int main(int argc, char* argv[])
   analysis.schedule.frequency = 1;
   analysis.schedule.frequencyUnit = terrama2::core::MINUTE;
 
+  dataManager->add(analysis);
 
+  Context::getInstance().setDataManager(dataManager);
   Service service(dataManager);
   service.start();
   service.addAnalysis(1);

@@ -30,6 +30,7 @@
 #include "Service.hpp"
 #include "Exception.hpp"
 #include "DataManager.hpp"
+#include "AnalysisExecutor.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
@@ -80,7 +81,8 @@ void terrama2::services::analysis::core::Service::prepareTask(uint64_t analysisI
 {
   try
   {
-    taskQueue_.emplace(std::bind(&run, analysisId));
+    Analysis analysis = dataManager_->findAnalysis(analysisId);
+    taskQueue_.emplace(std::bind(&run, analysis));
   }
   catch(std::exception& e)
   {
@@ -107,7 +109,7 @@ void terrama2::services::analysis::core::Service::addToQueue(uint64_t analysisId
   }
 }
 
-void terrama2::services::analysis::core::Service::run(uint64_t analysisId)
+void terrama2::services::analysis::core::Service::run(Analysis analysis)
 {
-  std::cout << "RODOU" << std::endl;
+  terrama2::services::analysis::core::runAnalysis(analysis);
 }
