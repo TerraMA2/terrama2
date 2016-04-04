@@ -1,56 +1,61 @@
 {% extends "../base/layout.html" %}
 
-{% block title %} TerraMA2 {{ __('Analysis') }} {% endblock %}
+{% set tabActive = "analyses" %}
+
+{% block ngApp %} ng-app="terrama2.analyses" {% endblock %}
+
+{% block title %} TerraMA2 {[ __('Analyses') ]} {% endblock %}
+
+{% block javascripts %}
+
+<script src="/externals/angular/angular.min.js"></script>
+<script src="/externals/angular/i18n-angular.min.js"></script>
+<script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/table/table.js"></script>
+
+<script>
+  angular.module('terrama2.analyses', ['terrama2.table'])
+    .controller("ListController", ['$scope', function($scope) {
+      $scope.model = [
+        {
+          name: "An_1",
+          type: "Grid"
+        },
+        {
+          name: "An_2",
+          type: "Pcd"
+        },
+        {
+          name: "An_3",
+          type: "Monitored Object"
+        }
+      ];
+
+      $scope.fields = ['name', 'type'];
+      $scope.linkToAdd = "/configuration/analyses/new";
+      $scope.link = function(object) {
+        return "";
+      }
+    }]);
+</script>
+
+{% endblock %}
 
 {% block content %}
 
-<div class="col-md-12">
-    <div class="col-md-12">
-        <div class="box">
-            <div class="box-header with-border">
-                <h3 class="box-title">{{ __('Analysis') }}</h3>
-                <a href="/configuration/analyse" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
-            </div><!-- /.box-header -->
+<div class="col-md-12" ng-controller="ListController">
+  <div class="col-md-12">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">{[ __('Analyses') ]}</h3>
+      </div><!-- /.box-header -->
 
-            <div class="box-body">
-            
-                <table class="table table-bordered">
-                    <tr>
-                        <th>{{ __('Name') }}</th>
-                        <th>{{ __('Author') }}</th>
-                        <th>{{ __('Description') }}</th>
-                        <th>{{ __('Generate Image') }}</th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <td>hidro</td>
-                        <td>User1</td>
-                        <td>Lorem ipsum</td>
-                        <td>
-                            <span class="label label-success">
-                               <i class="glyphicon glyphicon-ok"></i>
-                           </span>
-                        <td>
-                            <button type="button" class="btn btn-primary">{{ __('Edit') }}</button>
-                            <button type="button" class="btn btn-danger">{{ __('Remove') }}</button>
-                        </td>
-                    </tr>
-                </table>
+      <div class="box-body">
+        <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
+      </div><!-- /.box-body -->
 
-            </div><!-- /.box-body -->
-
-            <div class="box-footer clearfix">
-                <ul class="pagination pagination-sm no-margin pull-right">
-                    <li><a href="#">&laquo;</a></li>
-                    <li><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">&raquo;</a></li>
-                </ul>
-            </div>
-            
-        </div><!-- /.box -->
-    </div> <!-- end col md 6 -->
+    </div><!-- /.box -->
+  </div> <!-- end col md 6 -->
 
 </div> <!-- end col md 12 -->
 

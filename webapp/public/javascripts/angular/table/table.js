@@ -7,13 +7,18 @@ angular.module('terrama2.table', ['terrama2'])
         fields: '=fields',
         model: '=model',
         link: '&',
-        icon: '&iconFn',
+        icon: '&',
         linkToAdd: '=linkToAdd'
       },
       
       controller: function($scope, i18n) {
         $scope.i18n = i18n;
         $scope.searchInput = '';
+        
+        $scope.isFunction = function() {
+          return angular.isFunction(icon());
+        };
+        
         $scope.capitalizeIt = function(str) {
           return str.charAt(0).toUpperCase() + str.slice(1);
         }

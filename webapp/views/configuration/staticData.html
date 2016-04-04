@@ -1,6 +1,6 @@
 {% extends "../base/layout.html" %}
 
-{% set tabActive = "dynamic-Data" %}
+{% set tabActive = "static-data" %}
 
 {% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
 
@@ -26,11 +26,11 @@
         },
         iconFn: function(object) {
             if (object.type === 'Grid')
-                return "fa-th";
+                return "<img src='/images/grid-small.png'>";
             if (object.type === 'Occurrence')
-                return "fa-fire";
+                return "fa fa-fire";
             if (object.type === 'Pcd')
-                return "fa-map-pin";
+                return "fa fa-map-pin";
         }
     };
 
@@ -56,7 +56,7 @@
         <div class="box-body">
 
             <div class="col-md-12">
-                <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
+                <terrama2-table fields="fields" model="model" icon="iconFn" link="link" link-to-add="linkToAdd"></terrama2-table>
             </div>
 
         </div><!-- /.box-body -->
