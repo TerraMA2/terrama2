@@ -3,7 +3,15 @@
 {% block ngApp %}ng-app="terrama2.dataseries.registration"{% endblock %}
 
 {% block styles %}
-    <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+
+  <style>
+    .terrama2-pcd-table > tbody > tr > td,
+    .terrama2-pcd-table > thead > tr > th {
+      width: 14% !important;
+      float: left !important;
+    }
+  </style>
 {% endblock %}
 
 {% block javascripts %}
@@ -19,7 +27,7 @@
       projection: {
         url: "https://restcountries.eu/rest/v1/name/united"
       }
-    }
+    };
 
     var configuration = {
       dataSeries: {[ dataSeries|json|safe ]}

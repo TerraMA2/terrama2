@@ -1,9 +1,12 @@
 module.exports = function(app) {
+  return {
+    login: function (request, response) {
+      response.render('login');
+    },
 
-    function loginController(request, response)
-    {
-        response.render('login');
-    };
-
-    return loginController;
+    logout: function(request, response) {
+      app.locals.activeProject = {};
+      response.redirect("/login");
+    }
+  };
 };
