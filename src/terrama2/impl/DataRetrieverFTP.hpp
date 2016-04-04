@@ -42,7 +42,7 @@
 // LibCurl
 #include <curl/curl.h>
 
-//Qt
+// Qt
 #include <QTemporaryDir>
 
 namespace terrama2
@@ -59,17 +59,21 @@ namespace terrama2
     class DataRetrieverFTP: public DataRetriever
     {
     public:
-      /*!
-       * \brief DataRetrieverFTP Constructor:
-       *  Initializes the Curl and check the URL to download.
-       * \param dataprovider Dataprovider information.
-       * \param scheme information. Ex. "file://".
-       * \param temporaryFolder Folder information where the files will be saved. Ex. "/tmp/".
-       */
-        explicit DataRetrieverFTP(DataProviderPtr dataprovider);
 
       /*!
-       * \brief Destructor - When Data Retrieve FTP destructor is called, it runs the removal of the temporary folder files.
+       * \brief DataRetrieverFTP Constructor:
+       * Initializes the Curl and check the URL to download.
+       * Initializes scheme information. Ex. "file://".
+       * Initializes temporaFolder Folder information where the files will be saved. Ex. "/tmp/".
+       * Create the directory where you will download the files. Ex. "/tmp/terrama2-download/".
+       * \param dataprovider dataprovider Dataprovider information.
+       * \exception DataRetrieverFTPException when FTP address is invalid.
+       * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
+      */
+      explicit DataRetrieverFTP(DataProviderPtr dataprovider);
+
+      /*!
+       * \brief DataRetrieverFTP Default Destructor.
        *
        */
       virtual ~DataRetrieverFTP();
@@ -78,15 +82,14 @@ namespace terrama2
       virtual bool isRetrivable() const noexcept override;
 
       /*!
-         * \brief Retrieving remote data from FTP servers.
-         * \param Filter to the data files.
-         * \param Datasetitem datasetitem information.
-         * \param Log_uris log information.
-         * \return Returns the absolute path of the folder that contains the files that have been made the download.
-         * \exception DataRetrieverError when could not perform the download files.
-         * \exception DataRetrieverError when Unknown error, Could not perform the download files.
-         */     
-        virtual std::string retrieveData(const std::string& mask, const Filter& filter) override;
+       * \brief retrieveData Retrieving remote data from FTP servers.
+       * \param mask Mask to the data files.
+       * \param filter Filter to the data files.
+       * \return Returns the absolute path of the folder that contains the files that have been made the download.
+       * \exception DataRetrieverFTPException when could not perform the download files.
+       * \exception DataRetrieverFTPException when Unknown error, Could not perform the download files.
+      */
+      virtual std::string retrieveData(const std::string& mask, const Filter& filter) override;
 
       /*!
        * \brief write_response - data to be written in file.
