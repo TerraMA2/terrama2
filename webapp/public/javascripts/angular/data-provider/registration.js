@@ -2,7 +2,9 @@
 
 var app = angular.module("terrama2.dataprovider.registration", ['schemaForm', 'terrama2.components.messagebox']);
 
-app.controller("RegisterController", ["$scope", "$http", "$q", "$window", function($scope, $http, $q, $window) {
+app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", 
+  function($scope, $http, $q, $window, $httpParamSerializer, $location) {
+  
   $scope.model = configuration.dataProvider.uriObject || {};
 
   if (configuration.fields) {
@@ -30,6 +32,18 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", functi
   }).error(function(err) {
     console.log("err type: ", err);
   });
+
+  var makeRedirectUrl = function(extra) {
+    var redirectUrl = configuration.redirectTo.redirectTo;
+    redirectUrl += (redirectUrl.indexOf('?') === -1) ? '?' : '&';
+
+    var redirectData = Object.assign(extra instanceof Object ? extra : {}, configuration.redirectTo);
+    delete redirectData.redirectTo;
+
+    return redirectUrl + $httpParamSerializer(redirectData);
+  }
+
+  $scope.redirectUrl = makeRedirectUrl();
 
   $scope.errorFound = false;
   $scope.isEditing = configuration.isEditing;
@@ -103,8 +117,12 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", functi
     }).success(function(dataProvider) {
       $scope.alertBox.message = "Data Provider has been saved";
       $scope.isEditing = true;
-      console.log(dataProvider);
-      $window.location.href = "/configuration/providers?id=" + dataProvider.id + "&method=" + configuration.saveConfig.method;
+
+      var defaultRedirectTo = "/configuration/providers?id=" + dataProvider.id + "&method=" + configuration.saveConfig.method + "&";
+
+      var redirectData = makeRedirectUrl({data_provider_id: dataProvider.id});
+
+      $window.location.href = (redirectData || defaultRedirectTo);
     }).error(function(err) {
       $scope.errorFound = true;
       $scope.alertBox.message = err.message;

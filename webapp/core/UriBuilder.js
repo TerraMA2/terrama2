@@ -28,11 +28,12 @@ function buildObject(uriString, uriSyntax) {
     auth = uriObject.auth.split(':');
 
   var output = {};
-
-  output[uriSyntax.HOST] = uriObject.protocol.substr(0, uriObject.protocol.length-1).toUpperCase();
+  
+  output[uriSyntax.SCHEME] = uriObject.protocol.substr(0, uriObject.protocol.length-1).toUpperCase();
+  output[uriSyntax.HOST] = uriObject.hostname;
   output[uriSyntax.PORT] = parseInt(uriObject.port);
   output[uriSyntax.USER] = auth ? auth[0] : '';
-  output[uriSyntax.PASSWORD] = auth ? auth[1] : ''
+  output[uriSyntax.PASSWORD] = auth ? auth[1] : '';
   output[uriSyntax.PATHNAME] = uriObject.pathname;
 
   return output;

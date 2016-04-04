@@ -1,0 +1,213 @@
+<div class="row">
+  <div class="col-md-12">
+
+    <ul class="nav nav-tabs" data-tabs="tabs">
+      <li class="active"><a data-toggle="tab" href="#filterDateTab{{ stateApp.current.name }}">{{ i18n.__('Date') }}</a></li>
+      <li><a data-toggle="tab" href="#filterAreaTab{{ stateApp.current.name }}">{{ i18n.__('Area') }}</a></li>
+      <li><a data-toggle="tab" href="#filterPreAnalysisTab{{ stateApp.current.name }}">{{ i18n.__('Pre-Analysis') }}</a></li>
+      <li><a data-toggle="tab" href="#filterBandTab{{ stateApp.current.name }}">{{ i18n.__('Bands') }}</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="filterDateTab{{ stateApp.current.name }}">
+        <div class="col-md-12">
+          <p></p>
+          <div class='col-md-6'>
+            <div class="form-group">
+              <label>{{ i18n.__('Ignores data previous to') }}:</label>
+              <div class='input-group date' id='datetimepicker6'>
+                <input type='text' name="beforeDate" ng-model="filter.beforeDate" class="form-control" />
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class='col-md-6'>
+            <div class="form-group">
+              <label>{{ i18n.__('Ignores data after to') }}:</label>
+              <div class='input-group date' id='datetimepicker7'>
+                <input type='text' name="afterDate" ng-model="filter.afterDate" class="form-control" />
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+            <!-- ./form-group -->
+          </div>
+          <!-- ./col-md-6 -->
+        </div>
+      </div>
+      <div class="tab-pane" id="filterAreaTab{{ stateApp.current.name }}">
+        <div class="col-md-12">
+          <p></p>
+          <div class='col-md-12'>
+            <div class="form-group">
+              <label>{{ i18n.__('Select the filter area type') }}:</label>
+              <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-model="filter.area.type
+              ">
+                <option selected>Do not filter</option>
+                <option>Filter by limits</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>X min:</label>
+              <input class="form-control" id="minX" name="filterMinX" ng-model="filter.area.minX" placeholder="" type="text">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>X max:</label>
+              <input class="form-control" id="maxX" name="filterMaxX" ng-model="filter.area.maxX" placeholder="" type="text">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Y min:</label>
+              <input class="form-control" id="minY" name="filterMinY" ng-model="filter.area.minY" placeholder="" type="text">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Y max:</label>
+              <input class="form-control" id="maxY" name="filterMaxY" ng-model="filter.area.maxY" placeholder="" type="text">
+            </div>
+          </div>
+        </div>
+        <!-- ./col-md-12 -->
+      </div>
+      <div class="tab-pane" id="filterPreAnalysisTab{{ stateApp.current.name }}">
+        <div class="col-md-12">
+          <p></p>
+          <div class='col-md-12'>
+
+            <div class="form-group">
+              <div class="radio">
+                <label>
+                  <input name="optionsRadios" id="doNotMakePreAnalysis" ng-model="filter.preAnalysis.type" value="option1" checked="true" type="radio">
+                  {{ i18n.__('Do not make pre-analysis') }}
+                </label>
+              </div>
+            </div>
+
+          </div>
+          <!-- ./col-md-12 -->
+
+          <div class="col-md-8">
+            <div class="form-group">
+              <div class="radio">
+                <label>
+                  <input name="optionsRadios" id="cutByArea" value="option1" type="radio">
+                  {{ i18n.__('Ignores all data LESS than') }}:
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- ./col-md-8 -->
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="form-control" id="name" placeholder="" type="text">
+            </div>
+          </div>
+          <!-- ./col-md-4 -->
+
+          <div class='col-md-8'>
+            <div class="form-group">
+              <div class="radio">
+                <label>
+                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
+                  {{ i18n.__('Ignores all data GREATER than') }}:
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- ./col-md-8 -->
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="form-control" id="name" placeholder="" type="text">
+            </div>
+          </div>
+          <!-- ./col-md-4 -->
+
+          <div class='col-md-8'>
+            <div class="form-group">
+              <div class="radio">
+                <label>
+                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
+                  {{ i18n.__('Ignores if average is LESS than') }}:
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- ./col-md-8 -->
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="form-control" id="name" placeholder="" type="text">
+            </div>
+          </div>
+          <!-- ./col-md-4 -->
+
+          <div class='col-md-8'>
+            <div class="form-group">
+              <div class="radio">
+                <label>
+                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio">
+                  {{ i18n.__('Ignores if average is GREATER than') }}:
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- ./col-md-8 -->
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <input class="form-control" id="name" placeholder="" type="text">
+            </div>
+          </div>
+          <!-- ./col-md-4 -->
+
+          <div class='col-md-12'>
+            <div class="form-group">
+              <label>
+                <input name="optionsRadios" id="cutByLimits" value="option1" type="checkbox">
+                {{ i18n.__('Analyse only data inside selected plan') }}:
+              </label>
+            </div>
+          </div>
+          <!-- ./col-md-12 -->
+
+          <div class='col-md-12'>
+            <div class="form-group">
+              <textarea class="form-control" id="selectPlans"></textarea>
+            </div>
+          </div>
+          <!-- ./col-md-12 -->
+        </div> 
+        <!-- /.col-md-12 -->
+      </div>
+      <div class="tab-pane" id="filterBandTab{{ stateApp.current.name }}">
+        <div class="col-md-12">
+          <p></p>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>{{ i18n.__('Bands to be skipped') }}:</label>
+              <input class="form-control" id="bands" type="text">
+            </div>
+          </div>
+        </div>
+        <!-- ./col-md-12 -->
+      </div>
+    </div>
+    <!-- ./tab-content -->
+  </div>
+  <!-- ./col-md-12 -->
+</div>
+<!-- ./row -->

@@ -5,7 +5,7 @@
 {% set MENU_URLS["users"] = {name: __('Users'), url: "/configuration/users", icon: "fa-users"} %}
 
 <!DOCTYPE html>
-<html {% block ngApp %}{% endblock %} i18n-locale="{{i18n.getLocale()}}">
+<html {% block ngApp %}{% endblock %} i18n-locale="{[ i18n.getLocale() ]}">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -58,7 +58,7 @@
           <ul class="nav navbar-nav">
             <!-- User Account: style can be found in dropdown.less -->
             <li class="user user-menu">
-              <a aria-expanded="false" href="/login">
+              <a aria-expanded="false" href="/logout">
                 <i class="glyphicon glyphicon-log-out"></i>
                 {[ __('Logout') ]}
               </a>
@@ -87,26 +87,28 @@
         </div>
         <!-- /.search form -->
 
-        <!-- sidebar menu: : style can be found in sidebar.less -->
-        <ul class="sidebar-menu">
-          <li class="header">{[ activeProject.name ]}</li>
+        {% if (activeProject.name) %}
+          <!-- sidebar menu: : style can be found in sidebar.less -->
+          <ul class="sidebar-menu">
+            <li class="header">{[ activeProject.name ]}</li>
 
-          {% for tab in MENU_URLS %}
-            <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
-              <a href="{[ tab.url ]}">
-                <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
+            {% for tab in MENU_URLS %}
+              <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
+                <a href="{[ tab.url ]}">
+                  <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
+                </a>
+              </li>
+            {% endfor %}
+
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-gears"></i><span>{[ __('Administration') ]}</span>
               </a>
             </li>
-          {% endfor %}
 
-          <li class="treeview">
-            <a href="#">
-              <i class="fa fa-gears"></i><span>{[ __('Administration') ]}</span>
-            </a>
-          </li>
-
-        </ul>
-        <!-- /.ul sidebar -->
+          </ul>
+          <!-- /.ul sidebar -->
+        {% endif %}
       </section>
       <!-- /.sidebar -->
     </aside>
