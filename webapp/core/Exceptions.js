@@ -105,6 +105,34 @@ util.inherits(errors.ProjectError, errors.BaseError);
 
 
 /**
+ * Thrown when DataSeriesSemanticsError object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.DataSeriesSemanticsError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'DataSeriesSemanticsError';
+};
+util.inherits(errors.DataSeriesSemanticsError, errors.BaseError);
+
+
+/**
+ * Thrown when DataFormatError object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.DataFormatError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'DataFormatError';
+};
+util.inherits(errors.DataFormatError, errors.BaseError);
+
+
+/**
  * Thrown when check connection has failed.
  *
  * @param {string} message Error message

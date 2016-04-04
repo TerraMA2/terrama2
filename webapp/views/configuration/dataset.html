@@ -1,163 +1,66 @@
 {% extends "../base/layout.html" %}
 
+{% block ngApp %}ng-app="terrama2.dataseries.registration"{% endblock %}
+
 {% block styles %}
-    <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+
+  <style>
+    .terrama2-pcd-table > tbody > tr > td,
+    .terrama2-pcd-table > thead > tr > th {
+      width: 14% !important;
+      float: left !important;
+    }
+  </style>
 {% endblock %}
 
 {% block javascripts %}
-    <script type="text/javascript" src="/externals/moment/moment.js"></script>
-    <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
-    <script type="text/javascript" src="/javascripts/terrama2.js"></script>
-    <script type="text/javascript" src="/externals/bootstrap/js/jquery.bootstrap.wizard.js"></script>
+  <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
+  <script type="text/javascript" src="/externals/angular/angular-ui-router.min.js"></script>
+  <script type="text/javascript" src="/javascripts/angular/app.js"></script>
+  <script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
 
-    <script type="text/javascript">
-    $(document).ready(function(){
-        $("#mask-list").on("click", "li", function(e){
-            $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
-        });
+  <script type="text/javascript">
+    var params = {
+      kind: "{[ kind ]}",
+      state: "{[ state ]}",
+      projection: {
+        url: "https://restcountries.eu/rest/v1/name/united"
+      }
+    };
 
-        $('#datetimepicker6').datetimepicker({
-            widgetPositioning: {vertical: "bottom"},
-            format: 'DD-MM-YY HH:mm'
-        });
-        $('#datetimepicker7').datetimepicker({
-            widgetPositioning: {vertical: "bottom"},
-            format: 'DD-MM-YY HH:mm',
-            useCurrent: false
-        });
-        $("#datetimepicker6").on("dp.change", function (e) {
-            $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
-        });
-        $("#datetimepicker7").on("dp.change", function (e) {
-            $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
-        });
+    var configuration = {
+      dataSeries: {[ dataSeries|json|safe ]}
+    }
+  </script>
 
-        $("#themeCombobox").change(function(e){
-            var index = $('option:selected',$(this)).index();
-            if (index == 0)
-            {
-                $("#staticComboDiv").removeClass("hidden");
-                $("#intersectionTable th").eq(0).text("Attribute");
-            }
-            else
-            {
-                $("#staticComboDiv").addClass("hidden");
-                $("#intersectionTable th").eq(0).text("Name");
-            }
-        });
+  <script type="text/javascript" src="/javascripts/angular/services.js"></script>
+  <script type="text/javascript" src="/javascripts/angular/projection/directives.js"></script>
+  <script type="text/javascript" src="/javascripts/angular/dataSeriesRegistration.js"></script>
 
-        $('#rootwizard').bootstrapWizard(
-            {'tabClass': 'nav nav-pills wizard',
-                onNext: function(tab, navigation, index) {
-                    // validation
-                    var a = $(tab).find("a");
-                    a.find("i").first().removeClass("fa fa-asterisk");
+  <script type="text/javascript" src="/externals/moment/moment.js"></script>
+  <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+  <script type="text/javascript" src="/javascripts/terrama2.js"></script>
+  <script type="text/javascript" src="/externals/bootstrap/js/jquery.bootstrap.wizard.js"></script>
 
-                    a.find("i[id='iStatus']").addClass("fa fa-check");
-                },
-                onTabShow: function(tab, navigation, index) {
-                    var $total = navigation.find('li').length;
-                    var $current = index+1;
-                    var $percent = ($current/$total) * 100;
-                    $('#rootwizard .progress-bar').css({width:$percent+'%'});
-
-                    if($current >= $total)
-                    {
-                        $('#rootwizard').find('.pager .next').hide();
-                        $('#rootwizard').find('.pager .finish').show();
-                        $('#rootwizard').find('.pager .finish').removeClass("disabled");
-                    }
-                    else
-                    {
-                        $('#rootwizard').find('.pager .next').show();
-                        $('#rootwizard').find('.pager .finish').hide();
-                    }
-                }
-            }
-        );
-
-        $('#rootwizard .finish').click(function() {
-            alert('Finished!, Starting over!');
-            // $('#initial').trigger('click');
-            console.log($('#rootwizard'));
-            $('#rootwizard').find("a[href*='tab1']").trigger('click');
-        });
-    });
-    </script>
 {% endblock %}
 
-{% block title %} TerraMA2 {{ __('Data Occurrence Registration') }} {% endblock %}
+{% block title %} TerraMA2 {{ __('Data Series Registration') }} {% endblock %}
 
 {% block content %}
-    <div class="col-md-12" ng-app="terrama2">
-        <div class="box box-default" ng-controller="datasetWizardController">
-            <div class="box-header with-border">
-                <h3 class="box-title">{{ __('Data Occurrence Registration') }}</h3>
-            </div>
-            <!-- /.box-header -->
-            <div style="display: block;" class="box-body">
+  <div class="col-md-12" ng-controller="RegisterDataSeries">
+    <div class="box box-default">
+      <div class="box-header with-border">
+        <h3 class="box-title">{[ __('Data Series Registration') ]}</h3>
+        <a ui-sref="advancedMode" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{[ __('Expert mode')]}</a>
+        <a ui-sref="wizardMode" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{[ __('Wizard mode')]}</a>
+      </div>
+      <!-- /.box-header -->
+      <div style="display: block;" class="box-body" ui-view>
 
-                <div id="rootwizard">
-                    <div class="navbar">
-                        <div class="navbar-inner">
-                            <div class="container">
-                                <ul class="terrama2-wizard">
-                                    <li id="initial">
-                                        <a href="#tab1" data-toggle="tab">
-                                            <i class="fa fa-asterisk" style="color: #a94442; font-size: 12px"></i>
-                                            Dados Gerais 
-                                            <i id="iStatus"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#tab2" data-toggle="tab">
-                                            <i class="fa fa-asterisk" style="color: #a94442; font-size: 12px"></i>
-                                            Parâmetros
-                                            <i id="iStatus"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#tab3" data-toggle="tab">
-                                            Filtros 
-                                            <i id="iStatus"></i>
-                                        </a>
-                                    </li>
-
-                                    <!-- temp code for angular -->
-                                    <!-- <dataset-wizard dataset="dataset"></dataset-wizard> -->
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="bar" class="progress progress-xs active">
-                        <div class="progress-bar progress-bar-primary progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
-                    </div>
-
-                    <div class="tab-content">
-                        <div class="tab-pane" id="tab1">
-                            <!-- General Data Component -->
-                            {% include "../base/generalData.html" with configuration %}
-                        </div>
-                        <div class="tab-pane" id="tab2">
-                            <!-- Parameters Component -->
-                            {% include "../base/parametersData.html" with configuration %}
-                        </div>
-                        <div class="tab-pane" id="tab3">
-                            {% include "../base/filter.html" with configuration %}
-                        </div>
-                        <ul class="pager wizard">
-                            <li class="previous first" style="display:none;"><a href="#">First</a></li>
-                            <li class="previous"><a href="#">Previous</a></li>
-                            <li class="next"><a href="#">Next</a></li>
-                            <li class="next finish" style="display:none;"><a href="javascript:;">Finish</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
-            <!-- /.box body -->
-        </div>
-    </div> <!-- end col md 12 -->
+      </div>
+      <!-- /.box body -->
+    </div>
+  </div> <!-- end col md 12 -->
 
 {% endblock %}

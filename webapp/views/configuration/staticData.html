@@ -1,108 +1,67 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "dynamic-Data" %}
+
+{% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
+
 {% block title %} TerraMA2 {{ __('Static Data')}} {% endblock %}
+
+{% block javascripts %}
+
+<script type="text/javascript">
+    var configuration = {
+        model: [
+            {
+                name: "Roads",
+                type: "Vectorial"
+            },
+            {
+                name: "Vegetation",
+                type: "Grid"
+            }
+        ],
+        fields: ['name', 'type'],
+        link: function(object) {
+            return "/configuration/dataset?type=static#wizard";
+        },
+        iconFn: function(object) {
+            if (object.type === 'Grid')
+                return "fa-th";
+            if (object.type === 'Occurrence')
+                return "fa-fire";
+            if (object.type === 'Pcd')
+                return "fa-map-pin";
+        }
+    };
+
+    configuration.linkToAdd = configuration.link({});
+
+</script>
+
+<script src="/externals/angular/angular.min.js"></script>
+<script src="/externals/angular/i18n-angular.min.js"></script>
+<script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/data-series/data-series.js"></script>
+<script src="/javascripts/angular/table/table.js"></script>
+{% endblock %}
 
 {% block content %}
 
-<div class="col-md-12">
-    <div class="col-md-6">
-        <div class="box">
-            <div class="box-header with-border">
-                <h3 class="box-title">{{ __("Data Providers") }}</h3>
-                <a href="/configuration/provider?type=static" class="btn" style="color: inherit;"><i class="fa fa-plus"></i></a>
-            </div><!-- /.box-header -->
+<div class="col-md-12" ng-controller="ListController">
+    <div class="box">
+        <div class="box-header with-border">
+            <h3 class="box-title">{[ __("Static Data") ]}</h3>
+        </div><!-- /.box-header -->
 
-            <div class="box-body">
+        <div class="box-body">
 
-                <table class="table table-bordered">
-                    <tr>
-                        <th style="width: 10px"><input type="checkbox"></th>
-                        <th>{{ __('Name') }}</th>
-                        <th>{{ __('Address') }}</th>
-                        <th>{{ __('Kind') }}</th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox" checked></td>
-                        <td>DSA</td>
-                        <td>dsa.inpe.br</td>
-                        <td>FTP</td>
-                        <td>
-                            <button type="button" class="btn btn-primary">{{ __('Edit') }}</button>
-                            <button type="button" class="btn btn-danger">{{ __('Remove') }}</button>
-                        </td>
-                    </tr>
-                </table>
-
-            </div><!-- /.box-body -->
-
-            <div class="box-footer clearfix">
-                <ul class="pagination pagination-sm no-margin pull-right">
-                    <li><a href="#">&laquo;</a></li>
-                    <li><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">&raquo;</a></li>
-                </ul>
+            <div class="col-md-12">
+                <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
             </div>
-            
-        </div><!-- /.box -->
-    </div> <!-- end col md 6 -->
 
+        </div><!-- /.box-body -->
 
-    <div class="col-md-6">
-        <div class="box">
-
-            <div class="box-header with-border">
-                <h3 class="box-title">{{ __("Data Sets") }}</h3>
-                <div class="btn-group">
-                    <button type="button" class="btn dropdown-toggle" style="background-color:white;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-plus"></i>
-                    </button>
-
-                    <ul class="dropdown-menu">
-                        <li><a href="/configuration/occurrence?type=static">{{ __('Occurrence') }}</a></li>
-                        <li><a href="/configuration/pcd?type=static">{{ __('PCD') }} </a></li>
-                        <li><a href="/configuration/grid?type=static">{{ __('GRID') }}</a></li>
-                    </ul>
-                </div>
-            </div><!-- /.box-header -->
-
-            <div class="box-body">
-
-                <table class="table table-bordered">
-
-                    <tr>
-                        <th style="width: 10px"><input type="checkbox"></th>
-                        <th>{{ __('Name') }}</th>
-                        <th>{{ __('Kind') }}</th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox"></td>
-                        <td>DSA</td>
-                        <td>FTP</td>
-                        <td>
-                            <button type="button" class="btn btn-primary">{{ __('Edit') }}</button>
-                            <button type="button" class="btn btn-danger">{{ __('Remove') }}</button>
-                        </td>
-                    </tr>
-
-                </table>
-
-            </div><!-- /.box-body -->
-
-            <div class="box-footer clearfix">
-                <ul class="pagination pagination-sm no-margin pull-right">
-                    <li><a href="#">&laquo;</a></li>
-                    <li><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">&raquo;</a></li>
-                </ul>
-            </div>
-        </div><!-- /.box -->
-    </div> <!-- end col md 6 -->
+    </div><!-- /.box -->
 
 </div> <!-- end col md 12 -->
 

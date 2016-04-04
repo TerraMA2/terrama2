@@ -1,7 +1,10 @@
 <div class="form-group">
-  <label>{[ i18n.__('Projection') ]}</label>
-  <input class="form-control" id="projection" ng-model="projection" ng-blur="onFocus=false;" ng-click="onFocus=true;" placeholder="{[ i18n.__('Data Set Projection') ]}" type="text">
+  <label>{{ i18n.__('Projection') }}</label>
+  <input class="form-control" id="projection" ng-model="projection" ng-click="onFocus=true;" placeholder="{{ i18n.__('Data Set Projection') }}" type="text">
   <div class="list-group" ng-show="onFocus" style="max-height: 200px; overflow-y: scroll; position: absolute; z-index: 1000;">
-    <button class="list-group-item" ng-repeat="found in projections | filter:projection" ng-click="setActive(found)">{[ found.name ]}</button>
+    <a href="#" class="list-group-item" ng-repeat="found in projections | filter:projection" ng-click="setActive(found)">
+      <h4 class="list-group-item-heading">{{ found.name }}</h4>
+      <p class="list-group-item-text">{{ found.description }}</p>
+    </a>
   </div>
 </div>

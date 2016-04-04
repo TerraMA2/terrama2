@@ -20,7 +20,8 @@
     isEditing: {[ isEditing || false ]},
     dataProvider: {[ dataProvider|json|safe || {} ]},
     saveConfig: {[ saveConfig|json|safe ]},
-    fields: {[ fields|json|safe || {} ]}
+    fields: {[ fields|json|safe || {} ]},
+    redirectTo: {[ (redirectTo || {})|json|safe ]}
   };
 </script>
 
@@ -100,7 +101,7 @@
       <!-- /.box body -->
 
       <div class="box-footer">
-        <a href="/configuration/providers" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
+        <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
         <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(connectionForm);" style="margin-left: 10px;">{[ __("Check Connection")]}</button>
         <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __("OK") ]}</button>
       </div>

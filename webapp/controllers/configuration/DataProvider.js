@@ -18,18 +18,22 @@ module.exports = function(app) {
     },
 
     new: function(request, response) {
+      var redirectTo = request.query.redirectTo ? request.query : {redirectTo: "/configuration/providers"};
+
       return response.render("configuration/provider", {
         isEditing: false,
         dataProvider: {},
         saveConfig: {
           url: "/api/DataProvider",
           method: "POST"
-        }
+        },
+        redirectTo: redirectTo
       });
     },
 
     edit: function(request, response) {
       var dataProviderName = request.params.name;
+      var redirectTo = request.query.redirectTo ? request.query : {redirectTo: "/configuration/providers"};
 
       DataManager.getDataProvider({name: dataProviderName}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
@@ -47,7 +51,8 @@ module.exports = function(app) {
             url: "/api/DataProvider/" + dataProvider.name,
             method: "PUT"
           },
-          fields: requester.constructor.fields()
+          fields: requester.constructor.fields(),
+          redirectTo: redirectTo
         });
       }).catch(function(err) {
         console.log(err);

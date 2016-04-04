@@ -1,18 +1,18 @@
 var assert = require("assert");
+var UriPattern = require("../core/Enums").Uri;
 
 
 describe('RequestFactory', function() {
   var RequestFactory = require("../core/RequestFactory");
 
   it("should connect PostGIS server", function(done) {
-    var params = {
-      address: "127.0.0.1",
-      port: 5432,
-      path: "/postgres",
-      password: "postgres",
-      user: "postgres",
-      kind: "POSTGIS"
-    };
+    var params = {};
+    params[UriPattern.SCHEME] = "POSTGIS";
+    params[UriPattern.HOST] = "127.0.0.1";
+    params[UriPattern.PORT] = 5432;
+    params["database"] = "nodejs";
+    params[UriPattern.USER] = "postgres";
+    params[UriPattern.PASSWORD] = "postgres";
 
     RequestFactory.build(params).request().then(function() {
       return done();
@@ -22,14 +22,11 @@ describe('RequestFactory', function() {
   });
 
   it("should connect Http server", function(done) {
-    var params = {
-      address: "www.inpe.br",
-      port: 80,
-      path: "/",
-      password: "",
-      user: "",
-      kind: "HTTP"
-    };
+    var params = {};
+    params[UriPattern.SCHEME] = "HTTP";
+    params[UriPattern.HOST] = "www.inpe.br";
+    params[UriPattern.PORT] = 80;
+    params[UriPattern.PATHNAME] = "/";
 
     RequestFactory.build(params).request().then(function() {
       return done();
@@ -39,10 +36,9 @@ describe('RequestFactory', function() {
   });
 
   it("should connect local FILE", function(done) {
-    var params = {
-      path: __dirname, // current path
-      kind: "FILE"
-    };
+    var params = {};
+    params[UriPattern.SCHEME] = "FILE";
+    params[UriPattern.PATHNAME] = __dirname;
 
     RequestFactory.build(params).request().then(function() {
       return done();
@@ -52,14 +48,13 @@ describe('RequestFactory', function() {
   });
 
   it("should connect FTP server", function(done) {
-    var params = {
-      address: "ftp.cptec.inpe.br",
-      port: 21,
-      path: "/",
-      password: "eymar@dpi.inpe.br",
-      user: "anonymous",
-      kind: "FTP"
-    };
+    var params = {};
+    params[UriPattern.SCHEME] = "FTP";
+    params[UriPattern.HOST] = "ftp.cptec.inpe.br";
+    params[UriPattern.PORT] = 21;
+    params[UriPattern.PATHNAME] = "/";
+    params[UriPattern.PASSWORD] = "eymar@dpi.inpe.br";
+    params[UriPattern.USER] = "anonymous";
 
     RequestFactory.build(params).request().then(function() {
       return done();
@@ -69,12 +64,11 @@ describe('RequestFactory', function() {
   });
 
   it("should connect WCS server", function(done) {
-    var params = {
-      address: "flanche.net",
-      port: 9090,
-      path: "/rasdaman/",
-      kind: "WCS"
-    };
+    var params = {};
+    params[UriPattern.SCHEME] = "WCS";
+    params[UriPattern.HOST] = "flanche.net";
+    params[UriPattern.PORT] = 9090;
+    params[UriPattern.PATHNAME] = "/rasdaman/";
 
     RequestFactory.build(params).request().then(function() {
       return done();
