@@ -39,6 +39,7 @@
 //Qt
 #include <QObject>
 
+
 namespace terrama2
 {
   namespace core
@@ -48,6 +49,8 @@ namespace terrama2
      */
     class Service : public QObject
     {
+      Q_OBJECT
+
     public:
       //populates core data and
       Service();
@@ -75,11 +78,12 @@ namespace terrama2
       void stop() noexcept;
 
     protected:
+
       /*!
          \brief Returns if the main loop should continue.
          \return True if there is data to be tasked OR is stop is true.
        */
-      virtual bool mainLoopWaitCondition() noexcept = 0;
+      virtual bool mainLoopWaitCondition() = 0;
 
       /*!
          \brief Watches for data that needs to be processed.

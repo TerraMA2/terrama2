@@ -58,11 +58,11 @@ namespace terrama2
 
         std::string createMonitoredObjectFunction(const std::string& script);
 
-        void init();
+        void initInterpreter();
 
         void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
 
-        void finalize();
+        void finalizeInterpreter();
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

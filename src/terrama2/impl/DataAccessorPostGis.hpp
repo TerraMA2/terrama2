@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_POSTGIS_HPP__
 
 //TerraMA2
-#include "../core/shared.hpp"
+#include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessor.hpp"
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"
@@ -54,13 +54,15 @@ namespace terrama2
         {}
 		virtual ~DataAccessorPostGis() {}
       // Doc in base class
-      virtual std::shared_ptr<te::mem::DataSet> getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
+      virtual void getDataSet(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet>& teDataSet, std::shared_ptr<te::da::DataSetType>& teDataSetType) const override;
 
     protected:
       // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const override;
       //! Recover table name where data is stored
       virtual std::string getTableName(DataSetPtr dataSet) const = 0;
+      virtual std::string getDateTimeColumnName(DataSetPtr dataSet) const = 0;
+      virtual std::string getGeometryColumnName(DataSetPtr dataSet) const = 0;
     };
   }
 }

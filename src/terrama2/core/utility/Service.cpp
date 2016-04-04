@@ -42,33 +42,34 @@ terrama2::core::Service::~Service()
 
 void terrama2::core::Service::start(uint threadNumber)
 {
+
   // if service already running, throws
-    if(mainLoopThread_.valid())
-      throw; //TODO: create new exception
+  if(mainLoopThread_.valid())
+    throw; //TODO: create new exception
 
-    try
-    {
-      stop_ = false;
-      //start the loop thread
-      mainLoopThread_ = std::async(std::launch::async, &Service::mainLoopThread, this);
+  try
+  {
+    stop_ = false;
+    //start the loop thread
+    mainLoopThread_ = std::async(std::launch::async, &Service::mainLoopThread, this);
 
-      //check for the number o threads to create
-      if(threadNumber)
-        threadNumber = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
-      if(!threadNumber)
-        threadNumber = 1; //if not able to find out set to 1
+    //check for the number o threads to create
+    if(threadNumber)
+      threadNumber = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
+    if(!threadNumber)
+      threadNumber = 1; //if not able to find out set to 1
 
-      //Starts collection threads
-      for (uint i = 0; i < threadNumber; ++i)
-        processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this));
-    }
-    catch(const std::exception& e)
-    {
-      QString errMsg(tr("Unable to start collector service: %1."));
-      errMsg = errMsg.arg(e.what());
+    //Starts collection threads
+    for (uint i = 0; i < threadNumber; ++i)
+      processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this));
+  }
+  catch(const std::exception& e)
+  {
+    QString errMsg(tr("Unable to start collector service: %1."));
+    errMsg = errMsg.arg(e.what());
 
-      throw; //TODO: create new exception
-    }
+    throw; //TODO: create new exception
+  }
 }
 
 void terrama2::core::Service::stop() noexcept
@@ -97,6 +98,7 @@ void terrama2::core::Service::stop() noexcept
 
 void terrama2::core::Service::mainLoopThread() noexcept
 {
+
   while(true)
   {
     try

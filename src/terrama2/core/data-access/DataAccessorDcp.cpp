@@ -45,20 +45,7 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
 {
   auto series = getSeries(filter);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
-  for(auto& serie : series)
-  {
-    try
-    {
-      DataSetDcpPtr dataset = std::dynamic_pointer_cast<const DataSetDcp>(serie.first);
-      dcpSeries->addDcp(dataset, serie.second);
-    }
-    catch(const std::bad_cast& exp)
-    {
-      QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      continue;
-    }//bad cast
-  }
+  dcpSeries->addDcpSeries(series); 
 
   return dcpSeries;
 }

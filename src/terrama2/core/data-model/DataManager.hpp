@@ -37,11 +37,9 @@
 #include "DataProvider.hpp"
 #include "DataSeries.hpp"
 
-// TerraLib
-#include <terralib/common/Singleton.h>
-
 // STL
 #include <memory>
+#include <mutex>
 
 // QT
 #include <QObject>
@@ -61,13 +59,16 @@ namespace terrama2
 
       Take care to keep it synchronized.
      */
-    class DataManager : public QObject, public te::common::Singleton<DataManager>
+    class DataManager : public QObject
     {
       Q_OBJECT
 
-      friend class te::common::Singleton<DataManager>;
-
       public:
+
+        DataManager();
+
+        //! Destructor.
+        virtual ~DataManager();
 
 
         /*!
@@ -245,18 +246,12 @@ namespace terrama2
         //! Signal to notify that a dataseries has been updated.
         void dataSeriesUpdated(DataSeriesPtr);
 
-
       protected:
 
-        //! Default constructor: use the getInstance class method to get access to the singleton.
-        DataManager();
+        std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
+        std::map<DataSeriesId, DataSeriesPtr> dataseries_;       //!< A map from data-set-id to dataseries.
+        mutable std::recursive_mutex mtx_;                             //!< A mutex to syncronize all operations.
 
-        //! Destructor.
-        ~DataManager();
-
-        struct Impl;
-
-        Impl* pimpl_;  //!< Pimpl idiom.
     };
 
   } // end namespace core

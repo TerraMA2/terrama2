@@ -68,7 +68,11 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
   return dataRetriever->retrieveData(mask, filter);
 }
 
- std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const
+ void terrama2::core::DataAccessorFile::getDataSet(const std::string& uri,
+                                                   const terrama2::core::Filter& filter,
+                                                   terrama2::core::DataSetPtr dataSet,
+                                                   std::shared_ptr<te::mem::DataSet>& teDataSet,
+                                                   std::shared_ptr<te::da::DataSetType>& teDataSetType) const
  {
    QUrl url(uri.c_str());
    QDir dir(url.path());
@@ -130,9 +134,9 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      {
      //read and adapt all te:da::DataSet from terrama2::core::DataSet
        converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
-       std::shared_ptr<te::da::DataSetType> datasetType(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-       assert(datasetType);
-       completeDataset = std::make_shared<te::mem::DataSet>(datasetType.get());
+       teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+       assert(teDataSetType.get());
+       completeDataset = std::make_shared<te::mem::DataSet>(teDataSetType.get());
        first = false;
      }
 
@@ -151,8 +155,8 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
    {
      QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
      TERRAMA2_LOG_ERROR() << errMsg;
-     throw NoDataException() << ErrorDescription(errMsg);
+     throw terrama2::core::NoDataException() << terrama2::ErrorDescription(errMsg);
    }
 
-   return completeDataset;
+   teDataSet = completeDataset;
  }

@@ -44,7 +44,7 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr d
    DataAccessorDcp(dataProvider, dataSeries, filter),
    DataAccessorPostGis(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "PCD-postgis")
+  if(dataSeries->semantics.name != "DCP-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -57,6 +57,34 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(DataSetPtr data
   try
   {
     return dataSet->format.at("table_name");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimeColumnName(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("date_time_column");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorDcpPostGIS::getGeometryColumnName(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("geometry_column");
   }
   catch (...)
   {

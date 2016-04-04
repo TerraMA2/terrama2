@@ -48,6 +48,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
 
+qt5_use_modules(terrama2_analysis_core Core)
+
+
 target_link_libraries(terrama2_analysis_core  terrama2_core
                                               terrama2_impl
                                               terralib_mod_dataaccess

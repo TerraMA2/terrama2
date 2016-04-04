@@ -1,5 +1,5 @@
 
-#include <terrama2/core/shared.hpp>
+#include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics.name = "PCD-postgis";
+  dataSeries->semantics.name = "DCP-postgis";
 
 //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
@@ -50,9 +50,9 @@ int main(int argc, char* argv[])
   terrama2::core::Filter filter;
   terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
-  assert(dcpSeries->dcpList().size() == 1);
+  assert(dcpSeries->getDcpSeries().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = dcpSeries->dcpList().at(0).second;
+  std::shared_ptr<te::mem::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.teDataSet;
 
 
 //Print column names and types (DateTime/Double)
