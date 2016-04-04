@@ -33,6 +33,9 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
+#include "../Shared.hpp"
+#include "../Typedef.hpp"
+
 // STL
 #include <memory>
 #include <mutex>
@@ -65,6 +68,8 @@ namespace terrama2
 
         //! Destructor.
         virtual ~DataManager();
+
+        std::unique_lock<std::recursive_mutex> getLock();
 
 
         /*!

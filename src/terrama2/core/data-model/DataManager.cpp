@@ -52,7 +52,7 @@
 
 std::unique_lock<std::recursive_mutex> terrama2::core::DataManager::getLock()
 {
-  std::unique_lock<std::recursive_mutex> lock(pimpl_->mtx);
+  std::unique_lock<std::recursive_mutex> lock(mtx_);
   return std::move(lock);
 }
 
@@ -242,10 +242,4 @@ terrama2::core::DataManager::DataManager()
 
 terrama2::core::DataManager::~DataManager()
 {
-}
-
-terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const DataSetId id) const
-{
-  //FIXME: how to map datasets?
-  return nullptr;
 }

@@ -145,7 +145,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     {
       //store each item
       DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
-      auto outputDataSet = std::find(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet){ return dataSet->id == outputDataSetId; });
+      auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet){ return dataSet->id == outputDataSetId; });
       dataStorager->store(item.second, *outputDataSet);
     }
   }
@@ -170,16 +170,16 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 void terrama2::services::collector::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
-  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, &terrama2::services::collector::core::Service::addCollector);
-  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, &terrama2::services::collector::core::Service::removeCollector);
-  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorUpdated, &terrama2::services::collector::core::Service::updateCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this, &terrama2::services::collector::core::Service::addCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this, &terrama2::services::collector::core::Service::removeCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorUpdated, this, &terrama2::services::collector::core::Service::updateCollector);
 }
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
   std::lock_guard<std::mutex> lock (mutex_);
 
-  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule);
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id);
   connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
   timers_.emplace(collector->id, timer);
 

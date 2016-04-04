@@ -35,15 +35,10 @@
 //STL
 #include <mutex>
 
-struct terrama2::services::collector::core::DataManager::CImpl
-{
-  std::map<CollectorId, CollectorPtr> collectors;
-};
-
 terrama2::services::collector::core::CollectorPtr
 terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
-  return pcimpl_->collectors.at(id);
+  return collectors_.at(id);
 }
 
 
@@ -51,13 +46,13 @@ void terrama2::services::collector::core::DataManager::add(terrama2::services::c
 {
   // Inside a block so the lock is released before emitting the signal
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(collector->id == terrama2::core::InvalidId())
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
 
-    pcimpl_->collectorr[collector->id] = collector;
+    collectors_[collector->id] = collector;
   }
 
   emit collectorAdded(collector);
@@ -66,7 +61,7 @@ void terrama2::services::collector::core::DataManager::add(terrama2::services::c
 void terrama2::services::collector::core::DataManager::update(terrama2::services::collector::core::CollectorPtr collector)
 {
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
     removeCollector(collector->id);
     add(collector);
@@ -79,15 +74,15 @@ void terrama2::services::collector::core::DataManager::update(terrama2::services
 void terrama2::services::collector::core::DataManager::removeCollector(CollectorId collectorId)
 {
   {
-    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
-    auto itPr = pcimpl_->collectors.find(collectorId);
-    if(itPr == pcimpl_->collectors.end())
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    auto itPr = collectors_.find(collectorId);
+    if(itPr == collectors_.end())
     {
       throw terrama2::InvalidArgumentException() <<
             ErrorDescription(QObject::tr("DataProvider not registered."));
     }
 
-    pcimpl_->collectors.erase(itPr);
+    collectors_.erase(itPr);
   }
 
   emit collectorRemoved(collectorId);

@@ -68,9 +68,7 @@ namespace terrama2
 
         protected:
 
-          struct CImpl;
-
-          CImpl* pcimpl_;  //!< Pimpl idiom.
+          std::map<CollectorId, CollectorPtr> collectors_;
         };
       } // end namespace core
     }   // end namespace collector
