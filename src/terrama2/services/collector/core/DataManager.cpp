@@ -28,6 +28,12 @@
 */
 
 #include "DataManager.hpp"
+#include "Collector.hpp"
+#include "Exception.hpp"
+#include "../../../core/Exception.hpp"
+
+//STL
+#include <mutex>
 
 struct terrama2::services::collector::core::DataManager::CImpl
 {
@@ -38,4 +44,51 @@ terrama2::services::collector::core::CollectorPtr
 terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
   return pcimpl_->collectors.at(id);
+}
+
+
+void terrama2::services::collector::core::DataManager::add(terrama2::services::collector::core::CollectorPtr collector)
+{
+  // Inside a block so the lock is released before emitting the signal
+  {
+    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+
+    if(collector->id == terrama2::core::InvalidId())
+      throw terrama2::InvalidArgumentException() <<
+            ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
+
+    pcimpl_->collectorr[collector->id] = collector;
+  }
+
+  emit collectorAdded(collector);
+}
+
+void terrama2::services::collector::core::DataManager::update(terrama2::services::collector::core::CollectorPtr collector)
+{
+  {
+    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    blockSignals(true);
+    removeCollector(collector->id);
+    add(collector);
+    blockSignals(false);
+  }
+
+  emit collectorUpdated(collector);
+}
+
+void terrama2::services::collector::core::DataManager::removeCollector(CollectorId collectorId)
+{
+  {
+    std::lock_guard<std::recursive_mutex> lock(pimpl_->mtx);
+    auto itPr = pcimpl_->collectors.find(collectorId);
+    if(itPr == pcimpl_->collectors.end())
+    {
+      throw terrama2::InvalidArgumentException() <<
+            ErrorDescription(QObject::tr("DataProvider not registered."));
+    }
+
+    pcimpl_->collectors.erase(itPr);
+  }
+
+  emit collectorRemoved(collectorId);
 }

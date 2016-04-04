@@ -136,12 +136,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
       //TODO: Set last date collected in filter
       std::shared_ptr<te::mem::DataSet> memDataSet;
       std::shared_ptr<te::da::DataSetType> dataSetType;
-      getDataSet(uri, filter, dataset, memDataSet, dataSetType);
-
-      Series tempSeries;
-      tempSeries.dataSet = dataset;
-      tempSeries.teDataSet = memDataSet;
-      tempSeries.teDataSetType = dataSetType;
+      Series tempSeries = getSeries(uri, filter, dataset);
 
       series.emplace(dataset, tempSeries);
 

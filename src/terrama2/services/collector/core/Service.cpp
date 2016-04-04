@@ -30,18 +30,24 @@
 #include "Service.hpp"
 #include "Collector.hpp"
 
+#include "../../../core/Shared.hpp"
+
 #include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-model/DataSet.hpp"
 #include "../../../core/data-model/Filter.hpp"
 
 #include "../../../core/data-access/DataAccessor.hpp"
+#include "../../../core/data-access/DataStorager.hpp"
 
+#include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessFactory.hpp"
+#include "../../../core/utility/DataStoragerFactory.hpp"
 
 terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
   : dataManager_(dataManager)
 {
-
+  connectDataManager();
 }
 
 bool terrama2::services::collector::core::Service::mainLoopWaitCondition() noexcept
@@ -63,7 +69,7 @@ bool terrama2::services::collector::core::Service::checkNextData()
   prepareTask(collectorId);
 
   //remove from queue
-  collectorQueue_.pop();
+  collectorQueue_.pop_front();
 
   //is there more data to process?
   return !collectorQueue_.empty();
@@ -83,23 +89,124 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 
 void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId)
 {
-  collectorQueue_.push(collectorId);
+  std::lock_guard<std::mutex> lock (mutex_);
+
+  collectorQueue_.push_back(collectorId);
 }
 
 void terrama2::services::collector::core::Service::collect(CollectorId collectorId, std::weak_ptr<DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();
+  if(!dataManager.get())
+  {
+    //TODO: log error
+    return;
+  }
 
-  auto collectorPtr = dataManager->findCollector(collectorId);
+  try
+  {
+    //////////////////////////////////////////////////////////
+    //  aquiring metadata
+    auto lock = dataManager->getLock();
 
-  auto inputDataSeries = dataManager->findDataSeries(collectorPtr->inputDataSeries);
-  auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+    auto collectorPtr = dataManager->findCollector(collectorId);
 
-  terrama2::core::Filter filter;
-  auto dataAccessor = terrama2::core::DataAccessFactory::getInstance().makeDataAccessor(inputDataProvider, inputDataSeries);
-  auto dataMap = dataAccessor->getSeries(filter);
+  //input data
+    auto inputDataSeries = dataManager->findDataSeries(collectorPtr->inputDataSeries);
+    auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
-  auto outputDataSeries = dataManager->findDataSeries(collectorPtr->outputDataSeries);
-  auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
-  //FIXME: create storager
+  //output data
+    auto outputDataSeries = dataManager->findDataSeries(collectorPtr->outputDataSeries);
+    auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
+
+    // dataManager no longer in use
+    lock.unlock();
+    dataManager.reset();
+
+    /////////////////////////////////////////////////////////////////////////
+    //  recovering data
+
+    terrama2::core::Filter filter;
+    auto dataAccessor = terrama2::core::DataAccessFactory::getInstance().makeDataAccessor(inputDataProvider, inputDataSeries);
+    auto dataMap = dataAccessor->getSeries(filter);
+    if(dataMap.empty())
+    {
+      //TODO: log this
+      return;
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // storing data
+
+    auto inputOutputMap = collectorPtr->inputOutputMap;
+    auto dataSetLst = outputDataSeries->datasetList;
+    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().makeDataStorager(inputDataProvider);
+    for(const auto& item : dataMap)
+    {
+      //store each item
+      DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
+      auto outputDataSet = std::find(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet){ return dataSet->id == outputDataSetId; });
+      dataStorager->store(item.second, *outputDataSet);
+    }
+  }
+  catch (const terrama2::Exception& e)
+  {
+    //should have been loggen on emition
+  }
+  catch (const boost::exception& e)
+  {
+    //TODO: log error
+  }
+  catch (const std::exception& e)
+  {
+    //TODO: log error
+  }
+  catch (...)
+  {
+    //TODO: log error
+  }
+}
+
+void terrama2::services::collector::core::Service::connectDataManager()
+{
+  auto dataManager = dataManager_.lock();
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, &terrama2::services::collector::core::Service::addCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, &terrama2::services::collector::core::Service::removeCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorUpdated, &terrama2::services::collector::core::Service::updateCollector);
+}
+
+void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
+{
+  std::lock_guard<std::mutex> lock (mutex_);
+
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule);
+  connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
+  timers_.emplace(collector->id, timer);
+
+  addToQueue(collector->id);
+}
+
+void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId)
+{
+  try
+  {
+    std::lock_guard<std::mutex> lock (mutex_);
+
+    auto timer = timers_.at(collectorId);
+    timer->disconnect();
+    timers_.erase(collectorId);
+
+    //remove from queue
+    collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());
+  }
+  catch (...)
+  {
+    //TODO: catch errors
+  }
+}
+
+void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector)
+{
+  removeCollector(collector->id);
+  addCollector(collector);
 }

@@ -43,12 +43,18 @@
 
 // STL
 #include <algorithm>
-#include <mutex>
+#include <memory>
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 
+
+std::unique_lock<std::recursive_mutex> terrama2::core::DataManager::getLock()
+{
+  std::unique_lock<std::recursive_mutex> lock(pimpl_->mtx);
+  return std::move(lock);
+}
 
 void terrama2::core::DataManager::add(DataProviderPtr provider)
 {
@@ -229,11 +235,17 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
 
 terrama2::core::DataManager::DataManager()
 {
-  qRegisterMetaType<DataProvider>("DataProvider");
-  qRegisterMetaType<DataSeries>("DataSeries");
+  qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
+  qRegisterMetaType<DataSeriesPtr>("DataSeriesPtr");
   qRegisterMetaType<uint64_t>("uint64_t");
 }
 
 terrama2::core::DataManager::~DataManager()
 {
+}
+
+terrama2::core::DataSetPtr terrama2::core::DataManager::findDataSet(const DataSetId id) const
+{
+  //FIXME: how to map datasets?
+  return nullptr;
 }

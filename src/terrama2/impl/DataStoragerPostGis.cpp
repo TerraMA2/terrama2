@@ -29,6 +29,7 @@
 
 #include "DataStoragerPostGis.hpp"
 
+#include "../core/data-model/DataProvider.hpp"
 #include "../core/utility/Raii.hpp"
 
 //terralib

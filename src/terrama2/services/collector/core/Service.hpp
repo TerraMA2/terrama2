@@ -39,7 +39,7 @@
 #include "DataManager.hpp"
 
 //STL
-#include "memory"
+#include <memory>
 
 namespace terrama2
 {
@@ -51,6 +51,8 @@ namespace terrama2
       {
         class Service : public terrama2::core::Service
         {
+          Q_OBJECT
+
         public:
           Service(std::weak_ptr<DataManager> dataManager);
 
@@ -63,6 +65,9 @@ namespace terrama2
           public slots:
             //! Slot to be called when a DataSetTimer times out.
             void addToQueue(CollectorId collectorId);
+            void addCollector(CollectorPtr);
+            void updateCollector(CollectorPtr collector);
+            void removeCollector(CollectorId collectorId);
 
           protected:
             //comments on base class
@@ -78,8 +83,8 @@ namespace terrama2
 
             std::weak_ptr<DataManager> dataManager_;
 
-            std::map<CollectorId, CollectorTimerPtr> timers_;
-            std::queue<CollectorId> collectorQueue_;
+            std::map<CollectorId, terrama2::core::TimerPtr> timers_;
+            std::deque<CollectorId> collectorQueue_;
         };
 
       } // end namespace core

@@ -33,10 +33,6 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
-// TerraMA2
-#include "DataProvider.hpp"
-#include "DataSeries.hpp"
-
 // STL
 #include <memory>
 #include <mutex>
