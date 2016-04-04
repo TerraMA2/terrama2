@@ -49,6 +49,7 @@ namespace terrama2
 
         struct InvalidParameterException: virtual Exception {};
 
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

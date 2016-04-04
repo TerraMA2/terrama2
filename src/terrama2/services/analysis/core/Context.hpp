@@ -39,7 +39,9 @@
 
 #include "Analysis.hpp"
 #include "SyncronizedDataSet.hpp"
+#include "DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
+#include "../../../core/data-model/DataSeries.hpp"
 
 // STL
 #include <memory>
@@ -110,20 +112,20 @@ namespace terrama2
             std::map<std::string, double> analysisResult(uint64_t analysisId);
             void setAnalysisResult(uint64_t analysisId, std::string geomId, double result);
 
-            Analysis getAnalysis(const uint64_t id);
-            void addAnalysis(const Analysis& analysis);
-
+            void setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager);
+            Analysis getAnalysis(AnalysisId analysisId) const;
             std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
-            std::shared_ptr<ContextDataset> addDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset, std::string identifier, bool createSpatialIndex = true);
+            void loadContext(const Analysis& analysis);
             std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset);
             bool exists(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            void addDataset(const uint64_t analysisId, terrama2::core::DataSeriesPtr dataSeries, std::string dateFilter, bool createSpatialIndex = true);
 
 
           private:
-            std::map<uint64_t, Analysis> analysis_;
+            std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
             std::map<uint64_t, std::map<std::string, double> > analysisResult_;
             std::map<ContextKey, std::shared_ptr<ContextDataset>, ContextKeyComparer> datasetMap_;
-            mutable std::mutex mutex_;
+            mutable std::recursive_mutex mutex_;
   			};
       } // end namespace core
     }   // end namespace analysis

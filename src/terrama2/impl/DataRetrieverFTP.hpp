@@ -37,7 +37,7 @@
 
 // TerraMA2
 #include "../core/data-access/DataRetriever.hpp"
-#include "../core/shared.hpp"
+#include "../core/Shared.hpp"
 
 // LibCurl
 #include <curl/curl.h>
@@ -59,7 +59,6 @@ namespace terrama2
     class DataRetrieverFTP: public DataRetriever
     {
     public:
-
       /*!
        * \brief DataRetrieverFTP Constructor:
        * Initializes the Curl and check the URL to download.

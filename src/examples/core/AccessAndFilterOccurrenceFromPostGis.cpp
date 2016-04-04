@@ -1,5 +1,5 @@
 
-#include <terrama2/core/shared.hpp>
+#include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
@@ -52,17 +52,17 @@ int main(int argc, char* argv[])
   terrama2::core::DataAccessorOccurrencePostGis accessor(dataProviderPtr, dataSeriesPtr);
   //empty filter
   terrama2::core::Filter filter;
-  // boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
-  //
-  // std::string dateTime = "2015-08-26 15:18:40";
-  // boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-  // boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-  // filter.discardBefore = std::make_shared<te::dt::TimeInstantTZ>(date);
-  //
-  // std::string dateTimeAfter = "2015-08-26 15:18:42";
-  // boost::posix_time::ptime boostDateAfter(boost::posix_time::time_from_string(dateTimeAfter));
-  // boost::local_time::local_date_time dateAfter(boostDateAfter.date(), boostDateAfter.time_of_day(), zone, true);
-  // filter.discardAfter = std::make_shared<te::dt::TimeInstantTZ>(dateAfter);
+   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+
+   std::string dateTime = "2015-08-26 16:38:50";
+   boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+   boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+   filter.discardBefore = std::make_shared<te::dt::TimeInstantTZ>(date);
+
+  std::string dateTimeAfter = "2015-08-26 16:38:55";
+  boost::posix_time::ptime boostDateAfter(boost::posix_time::time_from_string(dateTimeAfter));
+  boost::local_time::local_date_time dateAfter(boostDateAfter.date(), boostDateAfter.time_of_day(), zone, true);
+  filter.discardAfter = std::make_shared<te::dt::TimeInstantTZ>(dateAfter);
 
   std::string boundingBoxWkt = "POLYGON((-51.11 -17.74, -41.11 -17.74, -41.11 -20.83, -51.11 -20.83, -51.11 -17.74))";
   te::gm::Geometry* geometry = te::gm::WKTReader::read(boundingBoxWkt.c_str());
@@ -72,9 +72,9 @@ int main(int argc, char* argv[])
 
   terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
 
-  assert(occurrenceSeries->occurrenceList().size() == 1);
+  assert(occurrenceSeries->getOccurrences().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = occurrenceSeries->occurrenceList().at(0).second;
+  std::shared_ptr<te::mem::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.teDataSet;
 
 
 //Print column names and types (DateTime/Double)

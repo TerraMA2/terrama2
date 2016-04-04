@@ -30,7 +30,7 @@
  #ifndef __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
  #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
 
-#include "../shared.hpp"
+#include "../Shared.hpp"
 #include "../data-model/DataProvider.hpp"
 
 namespace terrama2

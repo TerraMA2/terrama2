@@ -32,7 +32,7 @@
 
 //TerraMA2
 #include "DataAccessorFile.hpp"
-#include "../core/shared.hpp"
+#include "../core/Shared.hpp"
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"

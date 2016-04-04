@@ -32,14 +32,22 @@
 
 //TerraMA2
 #include "../../Config.hpp"
-#include "../shared.hpp"
+#include "../Shared.hpp"
 #include "../data-model/DataSetGrid.hpp"
+#include "../utility/Logger.hpp"
+#include "Series.hpp"
+#include "SeriesAggregation.hpp"
 
 //STL
 #include <vector>
 
 //TerraLib
 #include <terralib/raster.h>
+#include <terralib/dataaccess/utils/Utils.h>
+
+//Qt
+#include <QString>
+#include <QObject>
 
 namespace terrama2
 {
@@ -49,14 +57,38 @@ namespace terrama2
       \brief
 
     */
-    class GridSeries
+    class GridSeries : public SeriesAggregation
     {
     public:
-      void addGrid(DataSetGridPtr dataset, std::shared_ptr<te::rst::Raster>& memDataset) { datasetList_.emplace_back(dataset, memDataset);}
-      const std::vector<std::pair<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > >& gridList(){ return datasetList_; }
+      void addGridSeries(std::map<DataSetPtr, Series > seriesMap)
+      {
+        dataSeriesMap_ = seriesMap;
+        for(const auto& item : seriesMap)
+        {
+          try
+          {
+            DataSetGridPtr dataSet = std::dynamic_pointer_cast<const DataSetGrid>(item.first);
+
+            auto teDataSet = item.second.teDataSet;
+            while(teDataSet->moveNext())
+            {
+              std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
+              std::shared_ptr<te::rst::Raster> raster(teDataSet->getRaster(rpos));
+              rasterMap_.emplace(dataSet, raster);
+            }
+          }
+          catch(const std::bad_cast& exp)
+          {
+            QString errMsg = QObject::tr("Bad Cast to DataSetGrid");
+            TERRAMA2_LOG_ERROR() << errMsg;
+            continue;
+          }//bad cast
+        }
+      }
+      const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridList(){ return rasterMap_; }
 
     private:
-      std::vector<std::pair<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > > datasetList_;
+      std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;
 
     };
   }

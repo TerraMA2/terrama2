@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_MODEL_DATAPROVIDER_HPP__
 
 // TerraMA2
-#include "../typedef.hpp"
+#include "../Typedef.hpp"
 #include "DataSeries.hpp"
 
 // STL

@@ -1,5 +1,5 @@
 
-#include <terrama2/core/shared.hpp>
+#include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
@@ -43,9 +43,9 @@ int main(int argc, char* argv[])
   terrama2::core::DataAccessorOccurrenceMvf accessor(dataProviderPtr, dataSeriesPtr);
   terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
 
-  assert(occurrenceSeries->occurrenceList().size() == 1);
+  assert(occurrenceSeries->getOccurrences().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = occurrenceSeries->occurrenceList().at(0).second;
+  std::shared_ptr<te::mem::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.teDataSet;
 
 //Print column names and types (DateTime/Double)
   int dateColumn = -1;
