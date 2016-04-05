@@ -31,10 +31,27 @@
         }
       ];
 
+      $scope.iconProperties = {
+        type: "img"
+      };
+
       $scope.fields = ['name', 'type'];
       $scope.linkToAdd = "/configuration/analyses/new";
       $scope.link = function(object) {
         return "";
+      };
+
+      $scope.icon = function(object) {
+        switch(object.type) {
+          case "Monitored Object":
+            return "/images/monitored-object.png";
+            break;
+          case "Grid":
+            return "/images/grid-small.png";
+            break;
+          default:
+            return "/images/map-pin.png";
+        }
       }
     }]);
 </script>
@@ -51,7 +68,7 @@
       </div><!-- /.box-header -->
 
       <div class="box-body">
-        <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
+        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd"></terrama2-table>
       </div><!-- /.box-body -->
 
     </div><!-- /.box -->

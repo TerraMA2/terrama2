@@ -1,7 +1,7 @@
 {% if (user && user.role === 'admin') %}
 
 {% set MENU_URLS = {"databases": {name: __('Databases'), url: "/administration/databases/new", icon: "fa-database"}} %}
-{% set MENU_URLS["services"] = {name: __('Static Data'), url: "/administration/services", icon: "fa-laptop"} %}
+{% set MENU_URLS["services"] = {name: __('Services'), url: "/administration/services", icon: "fa-laptop"} %}
 {% set MENU_URLS["users"] = {name: __('Users'), url: "/administration/users", icon: "fa-users"} %}
 
 {% else %}
@@ -12,6 +12,7 @@
 {% set MENU_URLS["dynamic-data"] = {name: __('Dynamic Data'), url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
 {% set MENU_URLS["analyses"] = {name: __('Analyses'), url: "/configuration/analyses", icon: "fa-tasks"} %}
 {% set MENU_URLS["alerts"] = {name: __('Alerts'), url: "/configuration/alerts", icon: "fa-bell"} %}
+{% set MENU_URLS["map-display"] = {name: __('Map Display'), url: "/configuration/mapdisplay", icon: "fa-map"} %}
 
 {% endif %}
 
@@ -47,7 +48,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini {% block bodyClass %}{% endblock %}">
   <div class="wrapper">
 
     <header class="main-header">
@@ -114,7 +115,7 @@
           {% if (activeProject.name) %}
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
-              <li class="header">{[ activeProject.name ]}</li>
+              <li class="header" style="font-size:18px;font-weight: bold;">{[ activeProject.name ]}</li>
 
               {% for tab in MENU_URLS %}
               <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
