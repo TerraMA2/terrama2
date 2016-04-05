@@ -62,7 +62,7 @@ bool terrama2::services::analysis::core::Service::checkNextData()
   prepareTask(analysisId);
 
   //remove from queue
-  analysisQueue_.pop();
+  analysisQueue_.erase(analysisQueue_.begin());
 
   //is there more data to process?
   return !analysisQueue_.empty();
@@ -77,8 +77,9 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
 {
-  // add to queue to run now
-  addToQueue(analysisId);
+  auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysisId);
+  if(it != analysisQueue_.end())
+    analysisQueue_.erase(it);
 }
 
 void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId)
@@ -108,7 +109,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     //Lock Thread and add to the queue
     std::lock_guard<std::mutex> lock(mutex_);
 
-    analysisQueue_.push(analysisId);
+    analysisQueue_.push_back(analysisId);
 
     //wake loop thread
     mainLoopCondition_.notify_one();

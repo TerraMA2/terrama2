@@ -90,7 +90,7 @@ namespace terrama2
             void connectDataManager();
 
 
-            std::queue<AnalysisId> analysisQueue_; //!< Analysis queue.
+            std::vector<AnalysisId> analysisQueue_; //!< Analysis queue.
             DataManagerPtr dataManager_; //!< Data manager.
 
         };
