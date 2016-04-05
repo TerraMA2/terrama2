@@ -65,8 +65,6 @@
                   <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ item.name }}</option>
                 </select>
 
-                <span class="form-control-feedback glyphicon" ng-show="dataProviderForm.protocol.$touched" ng-class="{'glyphicon-ok': dataProviderForm.protocol.$valid, 'glyphicon-remove': dataProviderForm.protocol.$invalid }"></span>
-
                 <span class="help-block" ng-show="dataProviderForm.protocol.$touched && dataProviderForm.protocol.$invalid" ng-class="{'has-error': dataProviderForm.protocol.$invalid}">{[ __('Data provider protocol is required') ]}</span>
               </div>
               <!-- /.form-group -->
