@@ -11,9 +11,9 @@
     </div>
   </div>
 
-  <div class="col-md-2">
+  <div class="col-md-2" ng-show="linkToAdd">
     <div class="form-group">
-      <a href="{{ linkToAdd }}" class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-plus"></i></a>
+      <a ng-href="{{ linkToAdd }}" class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-plus"></i></a>
     </div>
   </div>
 </div>
@@ -37,7 +37,7 @@
       </td>
       <td ng-repeat="field in fields ">
 
-        <a href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
+        <a ng-href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
         <!--{{ element[field] }}-->
       </td>
     </tr>

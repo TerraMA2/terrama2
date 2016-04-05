@@ -220,5 +220,6 @@
 	"Database password": "Database password",
 	"Test connection": "Test connection",
 	"Users Handling": "Users Handling",
-	"Data Provider": "Data Provider"
+	"Data Provider": "Data Provider",
+	"Map Display": "Map Display"
 }

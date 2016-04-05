@@ -23,7 +23,7 @@ angular.module('terrama2.table', ['terrama2'])
         $scope.width = $scope.iconProperties.height || 24;
 
         $scope.isFunction = function() {
-          return angular.isFunction(icon());
+          return angular.isFunction($scope.icon());
         };
         
         $scope.capitalizeIt = function(str) {

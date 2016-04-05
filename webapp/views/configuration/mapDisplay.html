@@ -1,0 +1,72 @@
+{% extends "../base/layout.html" %}
+
+{% set tabActive = "map-display" %}
+
+{% block ngApp %} ng-app="terrama2.mapDisplay" {% endblock %}
+
+{% block title %} TerraMA2 {[ __('Map Display') ]} {% endblock %}
+
+{% block javascripts %}
+
+<script src="/externals/angular/angular.min.js"></script>
+<script src="/externals/angular/i18n-angular.min.js"></script>
+<script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/table/table.js"></script>
+
+<script>
+  angular.module('terrama2.mapDisplay', ['terrama2.table'])
+    .controller("ListController", ['$scope', function($scope) {
+      $scope.model = [
+        {
+          title: "Map1",
+          description: "Lorem ipsum"
+        },
+        {
+          title: "Map generated2",
+          description: "Lorem ipsum"
+        },
+        {
+          title: "Map 3",
+          description: "Lorem ipsum22"
+        }
+      ];
+
+      $scope.fields = ['title', 'description'];
+      $scope.linkToAdd = "";
+      $scope.link = function(object) {
+        return "";
+      };
+
+      $scope.iconProperties = {
+        type: "img",
+        width: 64,
+        height: 64
+      };
+
+      $scope.icon = function(object) {
+        return "/images/mapDisplay.png";
+      }
+    }]);
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="col-md-12" ng-controller="ListController">
+  <div class="col-md-12">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">{[ __('Map Display') ]}</h3>
+      </div><!-- /.box-header -->
+
+      <div class="box-body">
+        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd"></terrama2-table>
+      </div><!-- /.box-body -->
+
+    </div><!-- /.box -->
+  </div> <!-- end col md 6 -->
+
+</div> <!-- end col md 12 -->
+
+{% endblock %}
