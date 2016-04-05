@@ -52,7 +52,7 @@ namespace terrama2
     //! Base Exception for DataAccessor
     struct DataAccessorException: virtual DataAccessException { };
     //! Raised when the DataProvider is innactive and SHOULD be active
-    struct DisabledDataProviderException: virtual DataAccessorException { };
+    struct DataProviderException: virtual DataAccessorException { };
     //! Raised when trying to retrieve data from a non retrivable Retriever
     struct NotRetrivableException: virtual DataAccessorException { };
     //! Raised when a format value is accessed and not set.
@@ -86,6 +86,11 @@ namespace terrama2
     //     Utility Module Exceptions
 
     struct UtilityException: virtual Exception{ };
+
+      //! An exception indicating a parser error.
+      struct JSonParserException: virtual UtilityException { };
+
+      struct ServiceException: virtual UtilityException { };
 
     //#################################
 

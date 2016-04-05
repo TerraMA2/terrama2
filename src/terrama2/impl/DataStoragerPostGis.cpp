@@ -62,7 +62,7 @@ void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr output
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg;
-    return; //TODO: throw exception...
+    throw DataProviderException() << ErrorDescription(errMsg);
   }
 
   std::string destinationDataSetName = getTableName(outputDataSet);

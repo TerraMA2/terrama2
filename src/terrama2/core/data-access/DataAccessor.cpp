@@ -105,7 +105,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   {
     QString errMsg = QObject::tr("Disabled data provider (Should not arrive here!)");
 
-    throw DisabledDataProviderException() << ErrorDescription(errMsg);
+    throw DataProviderException() << ErrorDescription(errMsg);
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
 

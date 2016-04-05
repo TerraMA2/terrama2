@@ -99,7 +99,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
   {
-    //TODO: log error
+    TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
     return;
   }
 
@@ -131,7 +131,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      //TODO: log this
+      TERRAMA2_LOG_ERROR() << tr("No data to collect.");
       return;
     }
 
@@ -155,15 +155,16 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch (const boost::exception& e)
   {
-    //TODO: log error
+
+    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e);
   }
   catch (const std::exception& e)
   {
-    //TODO: log error
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch (...)
   {
-    //TODO: log error
+    TERRAMA2_LOG_ERROR() << tr("Unkonwn error.");
   }
 }
 
