@@ -20,19 +20,22 @@
           name: "Service",
           message: "Could not start service",
           date: '12/03/2016 12:00',
-          type: 'Service'
+          type: 'Service',
+          status: 'Error'
         },
         {
           name: "An_1",
           message: "Error accessing \"DataXXX\"",
           date: '12/03/2016 12:30',
-          type: 'Analysis'
+          type: 'Analysis',
+          status: 'Error'
         },
         {
           name: "Collector 2324",
           message: "No data collected",
           date: '12/03/2016 14:30',
-          type: 'Collector'
+          type: 'Collector',
+          status: 'NoDataCollected'
         }
       ];
 
@@ -43,12 +46,14 @@
       };
 
       $scope.iconFn = function(object) {
-        if (object.type === 'Service')
-          return "fa-th";
-        if (object.type === 'Collector')
-          return "fa-fire";
-        if (object.type === 'Analysis')
-          return "fa-map-pin";
+        if (object.status === 'Error')
+          return "fa fa-remove label-danger";
+        if (object.status === 'NoDataCollected')
+          return "fa fa-warning label-warning";
+      };
+
+      $scope.iconProperties = {
+        type: "icon"
       };
 
       $scope.linkToAdd = "/configuration/status";
@@ -62,13 +67,13 @@
 <div class="col-md-12" ng-controller="ListController">
   <div class="box">
     <div class="box-header with-border">
-      <h3 class="box-title">{[ __("Static Data") ]}</h3>
+      <h3 class="box-title">{[ __("Status") ]}</h3>
     </div><!-- /.box-header -->
 
     <div class="box-body">
 
       <div class="col-md-12">
-        <terrama2-table fields="fields" model="model" link="link" icon="iconFn" link-to-add="linkToAdd"></terrama2-table>
+        <terrama2-table fields="fields" model="model" link="link" icon="iconFn" icon-properties="iconProperties" link-to-add="linkToAdd"></terrama2-table>
       </div>
 
     </div><!-- /.box-body -->

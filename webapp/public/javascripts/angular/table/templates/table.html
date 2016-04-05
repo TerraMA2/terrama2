@@ -30,8 +30,10 @@
     <tbody id="searchList">
     <tr ng-repeat="element in model | filter:searchInput">
       <td ng-show="isFunction()" style="width: 50px;">
-        <!--<i class="{{ icon()(element) }}"></i>-->
-        {{ icon() ? icon()(element) : ""}}
+        <img ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
+        <span ng-if="iconProperties.type === 'icon'" class="label">
+          <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
+        </span>
       </td>
       <td ng-repeat="field in fields ">
 

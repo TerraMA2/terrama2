@@ -37,6 +37,10 @@
         return "";
       };
 
+      $scope.iconProperties = {
+        type: "icon"
+      };
+
       $scope.icon = function(object) {
         if (object.color === 'blue')
           return "fa fa-check label-primary";
@@ -64,7 +68,7 @@
       </div><!-- /.box-header -->
 
       <div class="box-body">
-        <terrama2-table fields="fields" model="model" link="link" icon="icon" link-to-add="linkToAdd"></terrama2-table>
+        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd"></terrama2-table>
       </div><!-- /.box-body -->
 
     </div><!-- /.box -->

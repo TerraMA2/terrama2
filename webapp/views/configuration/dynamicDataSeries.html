@@ -38,11 +38,14 @@
         },
         iconFn: function(object) {
             if (object.type === 'Grid')
-                return "fa-th";
+                return "/images/grid-small.png";
             if (object.type === 'Occurrence')
                 return "fa-fire";
-            if (object.type === 'Pcd')
-                return "fa-map-pin";
+            if (object.type === 'Pcd-Inpe')
+                return "/images/map-pin.png";
+        },
+        iconProperties: {
+            type: "img"
         }
     };
 
@@ -68,7 +71,7 @@
             <div style="display: block;" class="box-body">
 
                 <div class="col-md-12">
-                    <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
+                    <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn"></terrama2-table>
                 </div>
 
             </div>

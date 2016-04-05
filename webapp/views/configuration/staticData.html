@@ -25,12 +25,15 @@
             return "/configuration/dataset?type=static#wizard";
         },
         iconFn: function(object) {
-            if (object.type === 'Grid')
-                return "<img src='/images/grid-small.png'>";
-            if (object.type === 'Occurrence')
-                return "fa fa-fire";
-            if (object.type === 'Pcd')
-                return "fa fa-map-pin";
+            if (object.type === 'Grid') {
+                return "/images/grid-small.png";
+            }
+            if (object.type === 'Vectorial')
+                return "/images/line-small.png";
+        },
+
+        iconProperties: {
+          type: "img"
         }
     };
 
@@ -56,7 +59,7 @@
         <div class="box-body">
 
             <div class="col-md-12">
-                <terrama2-table fields="fields" model="model" icon="iconFn" link="link" link-to-add="linkToAdd"></terrama2-table>
+                <terrama2-table fields="fields" model="model" icon="iconFn" link="link" icon-properties="iconProperties" link-to-add="linkToAdd"></terrama2-table>
             </div>
 
         </div><!-- /.box-body -->
