@@ -29,11 +29,11 @@
 
 #include "DataManager.hpp"
 #include "../../../Exception.hpp"
+#include "../../../core/utility/Logger.hpp"
 
 
 terrama2::services::analysis::core::DataManager::DataManager()
 {
-
 }
 
 terrama2::services::analysis::core::DataManager::~DataManager ()
@@ -47,17 +47,23 @@ void terrama2::services::analysis::core::DataManager::add(const Analysis& analys
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(analysis.name.empty())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add an analysis with empty name."));
+    {
+      QString errMsg = QObject::tr("Can not add an analysis with empty name.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     if(analysis.id == terrama2::core::InvalidId())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add an analysis with an invalid id."));
+    {
+      QString errMsg = QObject::tr("Can not add an analysis with an invalid id.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     analysis_[analysis.id] = analysis;
   }
 
-  emit analysisAdded(analysis);
+  emit analysisAdded(analysis.id);
 }
 
 void terrama2::services::analysis::core::DataManager::update(const Analysis& analysis)
@@ -70,7 +76,7 @@ void terrama2::services::analysis::core::DataManager::update(const Analysis& ana
     blockSignals(false);
   }
 
-  emit analysisUpdated(analysis);
+  emit analysisUpdated(analysis.id);
 }
 
 void terrama2::services::analysis::core::DataManager::removeAnalysis(const AnalysisId analysisId)
@@ -80,8 +86,9 @@ void terrama2::services::analysis::core::DataManager::removeAnalysis(const Analy
     auto itPr = analysis_.find(analysisId);
     if(itPr == analysis_.end())
     {
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Analysis not registered."));
+      QString errMsg = QObject::tr("Analysis not registered.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
     analysis_.erase(itPr);
@@ -98,8 +105,9 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   const auto& it = std::find_if(analysis_.cbegin(), analysis_.cend(), [analysisId](std::pair<AnalysisId, Analysis> analysis){ return analysis.second.id == analysisId;});
   if(it == analysis_.cend())
   {
-    throw terrama2::InvalidArgumentException() <<
-          ErrorDescription(QObject::tr("Analysis not registered."));
+    QString errMsg = QObject::tr("Analysis not registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   return it->second;

@@ -95,7 +95,7 @@ namespace terrama2
               }
               else if(lhs.datasetId_ > rhs.datasetId_)
               {
-                return true;
+                return false;
               }
               else
               {

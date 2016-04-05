@@ -134,6 +134,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
   }
 
 
+
   std::shared_ptr<ContextDataset> contextDataset;
 
   for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
@@ -141,27 +142,21 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
     if(analysisDataSeries.dataSeries->name == dataSeriesName)
     {
       found = true;
+
+      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+
       auto datasets = analysisDataSeries.dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
-        if(Context::getInstance().exists(analysisId, dataset->id, dateFilterStr))
+
+        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
+        if(!contextDataset)
         {
-          contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
-        }
-        else
-        {
-
-          Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
-
-          if(!contextDataset)
-          {
-            QString errMsg(QObject::tr("Analysis: %1 -> Could not recover dataset."));
-            errMsg = errMsg.arg(analysisId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            return NULL;
-          }
-
+          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover dataset."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return NULL;
         }
 
 
@@ -296,81 +291,87 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     {
       found = true;
 
+      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+
       for(auto dataset : analysisDataSeries.dataSeries->datasetList)
       {
-        if(Context::getInstance().exists(analysisId, dataset->id, dateFilterStr))
+        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
+
+        terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
+        if(!dcpDataset)
         {
-          contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
+          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return NULL;
         }
-        else
+
+
+        if(dcpDataset->position == nullptr)
         {
-          Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+          QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return NULL;
         }
 
         // Frees the GIL, from now on can not use the interpreter
         Py_BEGIN_ALLOW_THREADS
 
-        for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+        auto metadata = analysisDataSeries.metadata;
+
+        if(metadata["INFLUENCE_TYPE"] != "REGION")
         {
-          for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+
+          auto buffer = dcpDataset->position->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
+
+          int srid  = dcpDataset->position->getSRID();
+          if(srid == 0)
           {
-            /*
-              auto metadata = analysisDataSeries.metadata;
+            auto format = datasetMO->format;
+            if(format.find("srid") != format.end())
+            {
+              srid = std::stoi(format["srid"]);
+            }
+          }
 
-              if(metadata["INFLUENCE_TYPE"] != "REGION")
+          auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
+
+          if(polygon != nullptr)
+          {
+            auto centroid = polygon->getCentroid();
+            if(centroid->getSRID() == 0)
+              centroid->setSRID(srid);
+            else if(centroid->getSRID() != srid && srid != 0)
+              centroid->transform(srid);
+
+            if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
+            {
+              uint64_t size = contextDataset->dataset->size();
+              for(unsigned int i = 0; i < size; ++i)
               {
-
-                auto buffer = positionDCP->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
-
-                int srid  = positionDCP->getSRID();
-                if(srid == 0)
+                if(!contextDataset->dataset->isNull(i, attribute))
                 {
-                  auto format = datasetMO->format;
-                  if(format.find("srid") != format.end())
+                  try
                   {
-                    srid = std::stoi(format["srid"]);
+                    double value = contextDataset->dataset->getDouble(i, attribute);
+                    sum += value;
                   }
-                }
-
-                auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
-
-                if(polygon != nullptr)
-                {
-                  auto centroid = polygon->getCentroid();
-                  if(centroid->getSRID() == 0)
-                    centroid->setSRID(srid);
-                  else if(centroid->getSRID() != srid && srid != 0)
-                    centroid->transform(srid);
-
-                  if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
+                  catch(...)
                   {
-                    uint64_t size = contextDataset->dataset->size();
-                    for(unsigned int i = 0; i < size; ++i)
-                    {
-                      if(!contextDataset->dataset->isNull(i, attribute))
-                      {
-                        try
-                        {
-                          double value = contextDataset->dataset->getDouble(i, attribute);
-                          sum += value;
-                        }
-                        catch(...)
-                        {
-                          // In case the DCP doesn't the specified column
-                          continue;
-                        }
-                      }
-                    }
+                    // In case the DCP doesn't the specified column
+                    continue;
                   }
-                }
-                else
-                {
-                  // TODO: Monitored object is not a multi polygon.
-                  assert(false);
                 }
               }
-            }*/
+            }
           }
+          else
+          {
+            // TODO: Monitored object is not a multi polygon.
+            assert(false);
+          }
+
         }
 
         // All operations are done, acquires the GIL and set the return value

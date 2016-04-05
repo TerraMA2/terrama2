@@ -61,6 +61,10 @@ namespace terrama2
         DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
         virtual ~DataAccessorStaticDataOGR();
 
+        static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        {
+          return new DataAccessorStaticDataOGR(dataProvider, dataSeries, filter);
+        }
 
         virtual te::dt::TimeInstantTZ lastDateTime() const override;
 

@@ -51,6 +51,11 @@ namespace terrama2
       DataAccessorOccurrenceMvf(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorOccurrenceMvf() {}
 
+      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      {
+        return new DataAccessorOccurrenceMvf(dataProvider, dataSeries, filter);
+      }
+
     protected:
       virtual std::string dataSourceType() const override;
       virtual std::string typePrefix() const override;

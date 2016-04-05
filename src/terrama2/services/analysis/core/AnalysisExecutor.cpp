@@ -54,8 +54,6 @@ void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>
 
 void terrama2::services::analysis::core::runAnalysis(const Analysis& analysis)
 {
-/*
-  terrama2::services::analysis::core::Context::getInstance().addAnalysis(analysis);
   switch(analysis.type)
   {
     case MONITORED_OBJECT_TYPE:
@@ -75,8 +73,6 @@ void terrama2::services::analysis::core::runAnalysis(const Analysis& analysis)
       throw Exception()  << ErrorDescription(errMsg);
     }
   }
-  */
-  std::cout << "FUNFOU"<< std::endl;
 }
 
 void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analysis& analysis)
@@ -98,8 +94,9 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analys
         auto contextDataset = terrama2::services::analysis::core::Context::getInstance().getContextDataset(analysis.id, dataset->id);
         if(!contextDataset->dataset)
         {
-          throw terrama2::InvalidArgumentException() <<
-                      ErrorDescription(QObject::tr("Can not add a data provider with empty name."));
+          QString errMsg = QObject::tr("Can not add a data provider with empty name.");
+          TERRAMA2_LOG_WARNING() << errMsg;
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
         }
         size = contextDataset->dataset->size();
 
