@@ -8,8 +8,8 @@ angular.module('terrama2.table', ['terrama2'])
         model: '=model',
         link: '&',
         icon: '&',
-        iconProperties: '=iconProperties',
-        linkToAdd: '=linkToAdd'
+        iconProperties: '=?iconProperties',
+        linkToAdd: '=?linkToAdd'
       },
       
       controller: function($scope, i18n) {

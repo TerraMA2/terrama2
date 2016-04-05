@@ -221,5 +221,11 @@
 	"Test connection": "Test connection",
 	"Users Handling": "Users Handling",
 	"Data Provider": "Data Provider",
-	"Map Display": "Map Display"
+	"Map Display": "Map Display",
+	"Service Description": "Service Description",
+	"Ssh Hostname": "Ssh Hostname",
+	"Ssh username": "Ssh username",
+	"Ssh Port": "Ssh Port",
+	"Path to script": "Path to script",
+	"Script path to run": "Script path to run"
 }
