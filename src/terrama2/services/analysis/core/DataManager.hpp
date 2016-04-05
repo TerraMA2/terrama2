@@ -62,16 +62,17 @@ namespace terrama2
           signals:
 
             //! Signal to notify that a provider has been added.
-            void analysisAdded(Analysis);
+            void analysisAdded(AnalysisId);
 
             //! Signal to notify that a provider has been removed.
             void analysisRemoved(AnalysisId);
 
             //! Signal to notify that a provider has been updated.
-            void analysisUpdated(Analysis);
+            void analysisUpdated(AnalysisId);
 
 
           protected:
+
             std::map<AnalysisId, Analysis> analysis_; //!< A map from data-analysis-id to data-analysis.
         };
 

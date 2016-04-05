@@ -94,8 +94,9 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analys
         auto contextDataset = terrama2::services::analysis::core::Context::getInstance().getContextDataset(analysis.id, dataset->id);
         if(!contextDataset->dataset)
         {
-          throw terrama2::InvalidArgumentException() <<
-                      ErrorDescription(QObject::tr("Can not add a data provider with empty name."));
+          QString errMsg = QObject::tr("Can not add a data provider with empty name.");
+          TERRAMA2_LOG_WARNING() << errMsg;
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
         }
         size = contextDataset->dataset->size();
 

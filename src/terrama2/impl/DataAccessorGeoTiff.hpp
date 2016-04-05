@@ -50,6 +50,11 @@ namespace terrama2
       DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorGeoTiff() {}
 
+      inline static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      {
+        return new DataAccessorGeoTiff(dataProvider, dataSeries, filter);
+      }
+
     protected:
       virtual std::string dataSourceType() const override;
     };

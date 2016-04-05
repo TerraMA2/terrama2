@@ -37,6 +37,7 @@ terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
   dataManager_(dataManager)
 {
+  connectDataManager();
 }
 
 terrama2::services::analysis::core::Service::~Service()
@@ -68,16 +69,25 @@ bool terrama2::services::analysis::core::Service::checkNextData()
 }
 
 
-void terrama2::services::analysis::core::Service::addAnalysis(uint64_t analysisId)
+void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
 {
-
   // add to queue to run now
-    addToQueue(analysisId);
-
+  addToQueue(analysisId);
 }
 
+void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
+{
+  // add to queue to run now
+  addToQueue(analysisId);
+}
 
-void terrama2::services::analysis::core::Service::prepareTask(uint64_t analysisId)
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId)
+{
+  // the analysis object will only be fetched when the execution proccess begin.
+  // we only have the id so there is no need to update.
+}
+
+void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId)
 {
   try
   {
@@ -91,7 +101,7 @@ void terrama2::services::analysis::core::Service::prepareTask(uint64_t analysisI
 }
 
 
-void terrama2::services::analysis::core::Service::addToQueue(uint64_t analysisId)
+void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId)
 {
   try
   {
@@ -112,4 +122,11 @@ void terrama2::services::analysis::core::Service::addToQueue(uint64_t analysisId
 void terrama2::services::analysis::core::Service::run(Analysis analysis)
 {
   terrama2::services::analysis::core::runAnalysis(analysis);
+}
+
+void terrama2::services::analysis::core::Service::connectDataManager()
+{
+  connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addAnalysis);
+  connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
+  connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
 }

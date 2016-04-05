@@ -29,6 +29,7 @@
 
 // TerraMA2
 #include "Utils.hpp"
+#include "DataAccessorFactory.hpp"
 #include "../../Config.hpp"
 #include "../Exception.hpp"
 
@@ -156,12 +157,16 @@ void terrama2::core::initializeTerralib()
 void terrama2::core::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
+
+
 }
 
 void terrama2::core::initializeTerraMA()
 {
   curl_global_init(CURL_GLOBAL_ALL);
   terrama2::core::initializeTerralib();
+
+
 }
 
 void terrama2::core::finalizeTerraMA()

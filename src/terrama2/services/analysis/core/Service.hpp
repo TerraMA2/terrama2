@@ -60,9 +60,13 @@ namespace terrama2
 
           public slots:
 
-            void addAnalysis(uint64_t analysisId);
+            void addAnalysis(AnalysisId analysisId);
 
-            void addToQueue(uint64_t analysisId);
+            void removeAnalysis(AnalysisId analysisId);
+
+            void updateAnalysis(AnalysisId analysisId);
+
+            void addToQueue(AnalysisId analysisId);
 
           protected:
 
@@ -83,8 +87,10 @@ namespace terrama2
 
             void prepareTask(uint64_t analysisId);
 
+            void connectDataManager();
 
-            std::queue<uint64_t> analysisQueue_; //!< Analysis queue.
+
+            std::queue<AnalysisId> analysisQueue_; //!< Analysis queue.
             DataManagerPtr dataManager_; //!< Data manager.
 
         };

@@ -30,11 +30,11 @@
 #include "Context.hpp"
 #include "Analysis.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/DataAccessorFactory.hpp"
+#include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
 #include "../../../core/Exception.hpp"
-#include "../../../impl/DataAccessorStaticDataOGR.hpp"
-#include "../../../impl/DataAccessorOccurrenceMvf.hpp"
 
 // QT
 #include <QString>
@@ -111,8 +111,8 @@ void terrama2::services::analysis::core::Context::loadContext(const terrama2::se
       terrama2::core::Filter filter;
 
       //accessing data
-      terrama2::core::DataAccessorStaticDataOGR accessor(dataProvider, analysisDataSeries.dataSeries);
-      auto seriesMap = accessor.getSeries(filter);
+      terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, analysisDataSeries.dataSeries);
+      auto seriesMap = accessor->getSeries(filter);
       auto series = seriesMap[dataset];
 
       auto format = dataset->format;
@@ -329,8 +329,8 @@ void terrama2::services::analysis::core::Context::addDataset(const uint64_t anal
   filter.discardBefore = std::move(titz);
 
   //accessing data
-  terrama2::core::DataAccessorOccurrenceMvf accessor(dataProvider, dataSeries);
-  std::map<terrama2::core::DataSetPtr, terrama2::core::Series > seriesMap = accessor.getSeries(filter);
+  terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
+  std::map<terrama2::core::DataSetPtr, terrama2::core::Series > seriesMap = accessor->getSeries(filter);
 
   for(auto mapItem : seriesMap)
   {
