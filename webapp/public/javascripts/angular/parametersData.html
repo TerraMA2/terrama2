@@ -2,7 +2,7 @@
 <div class="row">
   <form name="parametersDataForm">
     <div class="col-md-6">
-      <div class="form-group" ng-class="{'has-error': parametersDataForm.mask.$touched && parametersDataForm.mask.$invalid, 'has-success': parametersDataForm.mask.$valid}">
+      <div class="form-group" ng-class="{'has-error': parametersDataForm.mask.$dirty && parametersDataForm.mask.$invalid, 'has-success': parametersDataForm.mask.$valid}">
         <div class="input-group">
           <label>{{ i18n.__('Mask') }}:</label>
           <input type="text" class="form-control" ng-model="parametersData.mask" aria-label="..." name="mask" required>
@@ -20,7 +20,7 @@
 
         </div><!-- /input-group -->
 
-        <span class="help-block" ng-show="parametersDataForm.mask.$touched && parametersDataForm.mask.$error.required">
+        <span class="help-block" ng-show="parametersDataForm.mask.$dirty && parametersDataForm.mask.$error.required">
           {{ i18n.__("Mask is required") }}
         </span>
 
@@ -30,33 +30,33 @@
     <!-- /.col md 6 -->
 
     <div class="col-md-6">
-      <div class="form-group" ng-class="{'has-error': parametersDataForm.timezone.$touched && parametersDataForm.timezone.$invalid, 'has-success': parametersDataForm.timezone.$valid}">
+      <div class="form-group" ng-class="{'has-error': parametersDataForm.timezone.$dirty && parametersDataForm.timezone.$invalid, 'has-success': parametersDataForm.timezone.$valid}">
         <label>{{ i18n.__('Timezone') }}</label>
         <select class="form-control" name="timezone" ng-model="parametersData.timezone" required>
           <option>00:00</option>
           <option>12:00</option>
         </select>
 
-        <span class="help-block" ng-show="parametersDataForm.timezone.$touched && parametersDataForm.timezone.$error.required"> {{ i18n.__("Timezone is required") }}</span>
+        <span class="help-block" ng-show="parametersDataForm.timezone.$dirty && parametersDataForm.timezone.$error.required"> {{ i18n.__("Timezone is required") }}</span>
       </div>
     </div>
 
     <div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'pcd' || semantics === 'dcp') && isDynamic">
       <div class="col-md-3" >
-        <div class="form-group" ng-class="{'has-error': parametersDataForm.latitude.$touched && parametersDataForm.latitude.$invalid, 'has-success': parametersDataForm.latitude.$touched && parametersDataForm.latitude.$valid}">
+        <div class="form-group" ng-class="{'has-error': parametersDataForm.latitude.$dirty && parametersDataForm.latitude.$invalid, 'has-success': parametersDataForm.latitude.$dirty && parametersDataForm.latitude.$valid}">
           <label>{{ i18n.__('Latitude') }}:</label>
           <input class="form-control" name="latitude" ng-model="parametersData.latitude" placeholder="{{ i18n.__('Data Set Latitude') }}" type="number" ng-required="semantics === 'pcd' || semantics === 'dcp'">
 
-          <label class="help-block text-danger" ng-show="parametersDataForm.latitude.$touched && parametersDataForm.latitude.$error.number">{{ i18n.__("Latitude is invalid") }}</label>
+          <label class="help-block text-danger" ng-show="parametersDataForm.latitude.$dirty && parametersDataForm.latitude.$error.number">{{ i18n.__("Latitude is invalid") }}</label>
         </div>
       </div>
 
       <div class="col-md-3">
-        <div class="form-group" ng-class="{'has-error': parametersDataForm.longitude.$invalid && parametersDataForm.longitude.$touched, 'has-success': parametersDataForm.longitude.$touched && parametersDataForm.longitude.$valid}">
+        <div class="form-group" ng-class="{'has-error': parametersDataForm.longitude.$invalid && parametersDataForm.longitude.$dirty, 'has-success': parametersDataForm.longitude.$dirty && parametersDataForm.longitude.$valid}">
           <label>{{ i18n.__('Longitude') }}:</label>
           <input class="form-control" name="longitude" ng-model="parametersData.longitude" placeholder="{{ i18n.__('Data Set Longitude') }}" type="number">
 
-          <label class="help-block text-danger" ng-show="parametersDataForm.longitude.$touched && parametersDataForm.longitude.$error.number">{{ i18n.__("Longitude is invalid") }}</label>
+          <label class="help-block text-danger" ng-show="parametersDataForm.longitude.$dirty && parametersDataForm.longitude.$error.number">{{ i18n.__("Longitude is invalid") }}</label>
         </div>
       </div>
 
@@ -117,9 +117,11 @@
     </div>
 
     <div class="col-md-12">
-      <div class="form-group">
+      <div class="form-group" ng-class="{'has-error': parametersDataForm.path.$dirty && parametersDataForm.path.$invalid, 'has-success': parametersDataForm.path.$dirty && parametersDataForm.path.$valid}">
         <label>{{ i18n.__('Path') }}:</label>
         <input class="form-control" name="path" placeholder="{{ i18n.__('Data Set Path') }}" ng-model="parametersData.path" type="text" required>
+
+        <label class="help-block text-danger" ng-show="parametersDataForm.path.$dirty && parametersDataForm.path.$error.required">{{ i18n.__("Path is required") }}</label>
       </div>
     </div>
     <!-- /.col md 6 -->

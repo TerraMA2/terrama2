@@ -26,5 +26,11 @@ module.exports = {
     AUTH: 'auth',
     USER: 'user',
     PASSWORD: 'password'
+  },
+  
+  DataSeriesType: {
+    DCP: 'Dcp',
+    OCCURRENCE: 'Occurrence',
+    GRID: 'Grid'
   }
 };

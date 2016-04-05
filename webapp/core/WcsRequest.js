@@ -18,10 +18,11 @@ WcsRequest.prototype.constructor = WcsRequest;
 WcsRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
-    var uri = self.uri + "?service=WCS&version=2.0.1&request=GetCapabilities";
-
-    Requester(uri, function(err, resp, body) {
-      console.log(err);
+    var args = Object.assign({}, self.params);
+    args[UriPattern.SCHEME] = "HTTP";
+    var uriWcsAsHttp = UriBuilder.buildUri(args, self.syntax()) + "?service=WCS&version=2.0.1&request=GetCapabilities";
+    
+    Requester(uriWcsAsHttp, function(err, resp, body) {
       if (err)
         reject(new Exceptions.ConnectionError("Error in wcs request"));
       else {

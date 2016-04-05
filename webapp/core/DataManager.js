@@ -27,6 +27,9 @@ var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
+var Enums = require('./Enums');
+
+var DataSeriesType = Enums.DataSeriesType;
 
 // Javascript Lock
 var ReadWriteLock = require('rwlock');
@@ -116,17 +119,19 @@ var DataManager = {
           inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
           
           // data series type defaults
-          inserts.push(models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}));
+          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
+          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
+          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
 
-          // data formats semantics defaults
-          inserts.push(models.db.DataFormat.create({name: "Pcd", description: "PCD description"}));
-          inserts.push(models.db.DataFormat.create({name: "Occurrence", description: "Occurrencedescription"}));
-          inserts.push(self.addDataFormat({name: "Grid", description: "Format Description"}));
+          // data formats semantics defaults todo: check it
+          inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
+          inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
+          inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
 
           Promise.all(inserts).then(function() {
             var arr = [];
-            arr.push(self.addDataSeriesSemantics({name: "PCD-INPE", data_format_name: "Pcd", data_series_type_name: "DS Type 1"}));
-            arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: "DS Type 1"}));
+            arr.push(self.addDataSeriesSemantics({name: "PCD-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+            arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
             Promise.all(arr).then(function(){
               releaseCallback();
@@ -718,15 +723,17 @@ var DataManager = {
           }).catch(onError);
         };
 
+        dataSetObject.child.data_set_id = dataSet.id;
+
         if (dataSeriesSemantic && dataSeriesSemantic instanceof Object) {
-          switch(dataSeriesSemantic.name) {
-            case "dcp":
+          switch(dataSeriesSemantic.data_series_type_name) {
+            case DataSeriesType.DCP:
               models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;
-            case "occurrence":
+            case DataSeriesType.OCCURRENCE:
               models.db.DataSetOccurrence.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;
-            case "grid":
+            case DataSeriesType.GRID:
               models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;
             default:

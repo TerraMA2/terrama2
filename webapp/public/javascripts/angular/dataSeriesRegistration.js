@@ -1,8 +1,4 @@
 angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'terrama2.projection', 'terrama2.services'])
-  .config(["$locationProvider", function($locationProvider) {
-    $locationProvider.hashPrefix('!');
-  }])
-
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
       abstract: true,
@@ -14,14 +10,22 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
       }
     });
 
-    $urlRouterProvider.otherwise("/advanced");
+    $urlRouterProvider.otherwise(function ($injector, $location) {
+      var $state = $injector.get('$state');
+
+      if ($location.$$hash.indexOf("/wizard" == -1) || $location.$$hash.indexOf("/advanced") == -1) 
+        if ($state.current.name)
+          $state.go($state.current.name);
+        else
+          $state.go('advanced');
+    });
 
     $stateProvider
-      .state('wizardMode', {
+      .state('wizard', {
         parent: 'main',
         url: "/wizard",
         templateUrl: '/javascripts/angular/wizard.html'
-      }).state('advancedMode', {
+      }).state('advanced', {
         parent: 'main',
         url: "/advanced",
         templateUrl: '/javascripts/angular/advanced.html'
@@ -36,8 +40,7 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
       $scope.semantics = "";
       $scope.isDynamic = params.state.toLowerCase() === "dynamic";
       $scope.pcds = [];
-      $scope.parametersData = {};
-
+      $scope.parametersData = configuration.parametersData || {};
 
       $scope.dataSeries = {
         data_provider_id: configuration.dataSeries.dataProvider || "",
@@ -54,6 +57,7 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
           semanticsList.forEach(function(semantics) {
             if (semantics.name === configuration.dataSeries.semantics) {
               $scope.dataSeries.semantics = semantics;
+              $scope.onDataSemanticsChange();
               return;
             }
           })
@@ -85,7 +89,6 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_format_name.toLowerCase();
-
       };
 
       $scope.onDataProviderClick = function(index) {
@@ -93,8 +96,11 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
         var url = $window.location.pathname + "&type=" + params.state;
 
         var semanticsName = $scope.dataSeries.semantics.name || "";
+        var output = Object.assign({}, $scope.dataSeries);
+        output.semantics = semanticsName;
+        output.parametersData = $scope.parametersData;
 
-        $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(Object.assign({semantics: semanticsName}, $scope.dataSeries));
+        $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
       };
 
       $scope.removePcd = function(pcdItem) {
@@ -120,8 +126,9 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
           $scope.pcds.push(pcd);
           var path = $scope.parametersData.path;
 
-          angular.element("terrama2-add-pcd").focus();
+          angular.element("body").focus();
 
+          this.parametersDataForm.$setPristine();
           this.parametersDataForm.$setUntouched();
 
           $scope.parametersData = {path: path};
@@ -133,24 +140,20 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
       };
 
       $scope.save = function() {
-        console.log("GeneralData Form: ", $scope.generalDataForm);
-        console.log("ParametersData Form: ", $scope.parametersDataForm);
-        console.log("Filter Form: ", $scope.filterForm);
-
         var dataToSend = Object.assign({}, $scope.dataSeries);
-        dataToSend.data_series_semantics_name = $scope.dataSeries.semantics.name;
+        dataToSend.data_series_semantic_name = $scope.dataSeries.semantics.name;
 
-        var dataSetType = dataToSend.semantics.data_series_type_name;
+        var semantics = dataToSend.semantics;
         delete dataToSend.semantics;
 
         dataToSend.dataSets = [];
 
-        switch(dataSetType.toLowerCase()) {
+        switch(semantics.data_series_type_name.toLowerCase()) {
           case "dcp":
           case "pcd":
             $scope.pcds.forEach(function(pcd) {
               var dataSetStructure = {
-                type: dataSetType,
+                semantics: semantics,
                 active: pcd.active,
                 child: {
                   position: {
