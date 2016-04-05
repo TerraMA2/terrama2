@@ -55,10 +55,9 @@
 #include <QUrl>
 #include <QObject>
 
-void terrama2::core::DataAccessorPostGis::getDataSet(const std::string& uri,
-                                                     const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet,
-                                                     std::shared_ptr<te::mem::DataSet>& teDataSet,
-                                                     std::shared_ptr<te::da::DataSetType>& teDataSetType) const
+terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri,
+                                                     const terrama2::core::Filter& filter,
+                                                     terrama2::core::DataSetPtr dataSet) const
 {
  QUrl url(uri.c_str());
 
@@ -152,8 +151,12 @@ void terrama2::core::DataAccessorPostGis::getDataSet(const std::string& uri,
 
  std::shared_ptr<te::mem::DataSet> completeDataset = std::make_shared<te::mem::DataSet>(*tempDataSet);
 
- teDataSet = completeDataset;
- teDataSetType = transactor->getDataSetType(tableName);
+ Series series;
+ series.dataSet = dataSet;
+ series.teDataSet = completeDataset;
+ series.teDataSetType = transactor->getDataSetType(tableName);
+
+ return series;
 }
 
 std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const

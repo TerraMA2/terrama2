@@ -32,14 +32,8 @@
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_DATAMANAGER_HPP__
 
 #include "../../../core/data-model/DataManager.hpp"
-#include "../../../core/Typedef.hpp"
-#include "../../../core/Shared.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
-
-// STL
-#include <string>
-#include <vector>
 
 namespace terrama2
 {
@@ -51,6 +45,8 @@ namespace terrama2
       {
         class DataManager : public terrama2::core::DataManager
         {
+          Q_OBJECT
+
         public:
           DataManager(){}
 
@@ -60,13 +56,19 @@ namespace terrama2
           DataManager& operator=(const DataManager& other) = default;
           DataManager& operator=(DataManager&& other) = default;
 
+          void add(CollectorPtr collector);
+          void update(CollectorPtr collector);
+          void removeCollector(CollectorId collectorId);
           CollectorPtr findCollector(CollectorId id) const;
+
+        signals:
+          void collectorAdded(CollectorPtr);
+          void collectorUpdated(CollectorPtr);
+          void collectorRemoved(CollectorId);
 
         protected:
 
-          struct CImpl;
-
-          CImpl* pcimpl_;  //!< Pimpl idiom.
+          std::map<CollectorId, CollectorPtr> collectors_;
         };
       } // end namespace core
     }   // end namespace collector

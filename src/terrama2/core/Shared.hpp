@@ -65,6 +65,13 @@ namespace terrama2 {
 
       class DataRetriever;
       typedef std::shared_ptr<terrama2::core::DataRetriever> DataRetrieverPtr;
+
+      class DataStorager;
+      typedef std::shared_ptr<terrama2::core::DataStorager> DataStoragerPtr;
+
+
+      class Timer;
+      typedef std::shared_ptr<const terrama2::core::Timer> TimerPtr;
   }
 }
 

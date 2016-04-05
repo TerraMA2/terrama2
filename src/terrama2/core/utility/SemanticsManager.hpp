@@ -49,6 +49,7 @@ namespace terrama2
         \exception TODO: raised when a semantics with same name is already present
       */
       DataSeriesSemantics  addSemantics(const std::string& name, const DataSeriesSemantics::MacroType& macroType, const DataFormat& format);
+      DataSeriesSemantics  getSemantics(const std::string& name){assert(0);}//TODO: getSemantics
 
     private:
 

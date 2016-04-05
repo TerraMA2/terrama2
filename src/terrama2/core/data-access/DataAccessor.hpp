@@ -145,7 +145,7 @@ namespace terrama2
          \param filter Filter applyed to the dataset
          \return Filtered dataset
        */
-      virtual void getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet>& teDataSet, std::shared_ptr<te::da::DataSetType>& teDataSetType) const = 0;
+      virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
 
       DataProviderPtr dataProvider_;
       DataSeriesPtr dataSeries_;

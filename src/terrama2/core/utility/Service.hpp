@@ -39,7 +39,6 @@
 //Qt
 #include <QObject>
 
-
 namespace terrama2
 {
   namespace core
@@ -78,7 +77,6 @@ namespace terrama2
       void stop() noexcept;
 
     protected:
-
       /*!
          \brief Returns if the main loop should continue.
          \return True if there is data to be tasked OR is stop is true.
