@@ -20,30 +20,33 @@
 */
 
 /*!
-  \file terrama2/core/Shared.hpp
+  \file terrama2/core/utility/JSonUtils.hpp
+
+  \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_SHARED_HPP__
-#define __TERRAMA2_SERVICES_COLLECTOR_CORE_SHARED_HPP__
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../data-model/DataSetDcp.hpp"
+#include "../data-model/DataSetGrid.hpp"
+#include "../data-model/DataSetOccurrence.hpp"
 
-#include <memory>
+#include "SemanticsManager.hpp"
+
+//Qt
+#include <QJsonObject>
 
 namespace terrama2 {
-   namespace services {
-     namespace collector {
-       namespace core {
-
-         struct Collector;
-         typedef std::shared_ptr<const terrama2::services::collector::core::Collector> CollectorPtr;
-
-         struct Intersection;
-         typedef std::shared_ptr<const terrama2::services::collector::core::Intersection> IntersectionPtr;
-
-       } /* core */
-     } /* collector */
-  }
-}
-
-#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_SHARED_HPP__
+  namespace core {
+    DataProviderPtr fromDataProviderJson(QJsonObject json);
+    DataSeriesPtr fromDataSeriesJson(QJsonObject json, SemanticsManager* semanticsManager);
+    void addBaseDataSetData(QJsonObject json, DataSet* dataset);
+    DataSetPtr fromDataSetDcpJson(QJsonObject json);
+    DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);
+    DataSetPtr fromDataSetGridJson(QJsonObject json);
+  } /* core */
+} /* terrama2 */

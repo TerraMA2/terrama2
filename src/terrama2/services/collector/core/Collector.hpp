@@ -32,6 +32,7 @@
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
 
 #include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/Typedef.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
@@ -56,11 +57,12 @@ namespace terrama2
 
           bool active = true;
 
-					DataSeriesId inputDataSeries = 0;
+          DataSeriesId inputDataSeries = 0;
           DataSeriesId outputDataSeries = 0;
 
           std::map<DataSetId, DataSetId> inputOutputMap;
 
+          terrama2::core::Schedule schedule;
           IntersectionPtr intersection;
         };
 

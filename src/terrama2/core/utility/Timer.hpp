@@ -20,39 +20,57 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/Collector.hpp
+  \file terrama2/core/utility/Timer.hpp
 
-  \brief Model class for the collector configuration.
+  \brief
 
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_CORE_TIMER_HPP__
+#define __TERRAMA2_CORE_TIMER_HPP__
 
-#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
-#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
+#include "../Typedef.hpp"
+#include "../data-model/Schedule.hpp"
 
-#include "Typedef.hpp"
-
-//QT
+//Qt
 #include <QTimer>
 
 namespace terrama2
 {
-  namespace services
+  namespace core
   {
-    namespace collector
+    class Timer : public QTimer
     {
-      namespace core
-      {
-        class CollectorTimer : public QTimer
-        {
-          Q_OBJECT
+      Q_OBJECT
 
-        };
+    public:
+      Timer(const Schedule& dataSchedule, uint64_t processId);
 
-      } // end namespace core
-    }   // end namespace collector
-  }     // end namespace services
-}       // end namespace terrama2
+      virtual ~Timer();
+      Timer(const Timer& other) = delete;
+      Timer(Timer&& other) = delete;
+      Timer& operator=(const Timer& other) = delete;
+      Timer& operator=(Timer&& other) = delete;
 
-#endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
+      uint64_t processId()   const;
+
+      signals:
+
+      void timerSignal(uint64_t processId) const;
+
+      private slots:
+
+      //! Slot called when the timer times out, emits timerSignal.
+      void timeoutSlot() const;
+      void scheduleSlot() const;
+
+      private:
+      void prepareTimer(const terrama2::core::Schedule& dataSchedule);
+
+      struct Impl;
+      Impl* impl_;
+    };
+  }
+}
+#endif //__TERRAMA2_CORE_TIMER_HPP__
