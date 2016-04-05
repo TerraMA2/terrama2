@@ -63,14 +63,21 @@ void terrama2::core::DataManager::add(DataProviderPtr provider)
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(provider->name.empty())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a data provider with empty name."));
+    {
+      QString errMsg = QObject::tr("Can not add a data provider with empty name.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
 
     if(provider->id == terrama2::core::InvalidId())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
+    {
+      QString errMsg = QObject::tr("Can not add a data provider with an invalid id.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
-    providers_[provider->id] = provider;
+    providers_.emplace(provider->id, provider);
   }
 
   emit dataProviderAdded(provider);
@@ -83,25 +90,36 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(dataseries->name.empty())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a data provider with empty name."));
+    {
+      QString errMsg = QObject::tr("Can not add a data series with empty name.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     if(dataseries->id == terrama2::core::InvalidId())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
+    {
+      QString errMsg = QObject::tr("Can not add a data series with empty name.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     auto itPr = providers_.find(dataseries->dataProviderId);
-
     if(itPr == providers_.end())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a dataseries with a non-registered data provider."));
+    {
+      QString errMsg = QObject::tr("Can not add a dataseries with a non-registered data provider.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     auto itDs = dataseries_.find(dataseries->id);
     if(itDs != dataseries_.end())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("DataSeries already registered. Is this an update?"));
+    {
+      QString errMsg = QObject::tr("DataSeries already registered. Is this an update?");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
-    dataseries_[dataseries->id] = dataseries;
+    dataseries_.emplace(dataseries->id, dataseries);
   }
 
   emit dataSeriesAdded(dataseries);
@@ -140,8 +158,9 @@ void terrama2::core::DataManager::removeDataProvider(const DataProviderId id, co
     auto itPr = providers_.find(id);
     if(itPr == providers_.end())
     {
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("DataProvider not registered."));
+      QString errMsg = QObject::tr("DataProvider not registered.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
     providers_.erase(itPr);
@@ -167,8 +186,9 @@ void terrama2::core::DataManager::removeDataSeries(const DataSeriesId id)
     const auto& it = dataseries_.find(id);
     if(it == dataseries_.end())
     {
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("DataSeries not registered."));
+      QString errMsg = QObject::tr("DataSeries not registered.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
     dataseries_.erase(it);
@@ -184,8 +204,9 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   const auto& it = std::find_if(providers_.cbegin(), providers_.cend(), [name](std::pair<DataProviderId, DataProviderPtr> provider){ return provider.second->name == name; });
   if(it == providers_.cend())
   {
-    throw terrama2::InvalidArgumentException() <<
-          ErrorDescription(QObject::tr("DataProvider not registered."));
+    QString errMsg = QObject::tr("DataProvider not registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   return it->second;
@@ -198,8 +219,9 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   const auto& it = providers_.find(id);
   if(it == providers_.cend())
   {
-    throw terrama2::InvalidArgumentException() <<
-          ErrorDescription(QObject::tr("DataProvider not registered."));
+    QString errMsg = QObject::tr("DataProvider not registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   return it->second;
@@ -212,8 +234,9 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
   const auto& it = std::find_if(dataseries_.cbegin(), dataseries_.cend(), [name](std::pair<DataSeriesId, DataSeriesPtr> series){ return series.second->name == name; });
   if(it == dataseries_.cend())
   {
-    throw terrama2::InvalidArgumentException() <<
-          ErrorDescription(QObject::tr("DataSeries not registered."));
+    QString errMsg = QObject::tr("DataSeries not registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   return it->second;
@@ -226,8 +249,9 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
   const auto& it = dataseries_.find(id);
   if(it == dataseries_.cend())
   {
-    throw terrama2::InvalidArgumentException() <<
-          ErrorDescription(QObject::tr("DataSeries not registered."));
+    QString errMsg = QObject::tr("DataSeries not registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   return it->second;
