@@ -53,6 +53,8 @@ namespace terrama2
           : DataAccessor(dataProvider, dataSeries, filter)
         {}
 		virtual ~DataAccessorPostGis() {}
+
+      using terrama2::core::DataAccessor::getSeries;
       // Doc in base class
       virtual Series getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet) const override;
 

@@ -92,6 +92,7 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
   std::lock_guard<std::mutex> lock (mutex_);
 
   collectorQueue_.push_back(collectorId);
+  mainLoopCondition_.notify_one();
 }
 
 void terrama2::services::collector::core::Service::collect(CollectorId collectorId, std::weak_ptr<DataManager> weakDataManager)
@@ -178,11 +179,13 @@ void terrama2::services::collector::core::Service::connectDataManager()
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
-  std::lock_guard<std::mutex> lock (mutex_);
+  {
+    std::lock_guard<std::mutex> lock (mutex_);
 
-  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id);
-  connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
-  timers_.emplace(collector->id, timer);
+    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id);
+    connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
+    timers_.emplace(collector->id, timer);
+  }
 
   addToQueue(collector->id);
 }
@@ -208,6 +211,5 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
 void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector)
 {
-  removeCollector(collector->id);
-  addCollector(collector);
+  //Only the Id of the collector is stored, no need to update
 }

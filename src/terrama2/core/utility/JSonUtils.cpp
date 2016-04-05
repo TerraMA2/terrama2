@@ -139,7 +139,12 @@ void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSe
   dataSet->dataSeriesId = json["data_series_id"].toInt();
   dataSet->active = json["active"].toBool();
 
-  //TODO: std::map<std::string, std::string> format;
+  auto formatObj= json["format"].toObject();
+  for(auto it = formatObj.begin(); it != formatObj.end(); ++it)
+  {
+    dataSet->format.emplace(it.key().toStdString(), it.value().toString().toStdString());
+  }
+
 }
 
 terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
