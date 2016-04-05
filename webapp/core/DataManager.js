@@ -531,7 +531,11 @@ var DataManager = {
    *
    *   dataSets: [
    *     {
-   *       type: DataSet Child type (dcp, occurrence)
+   *       semantics: {
+   *         name: ...
+   *         format_name: ...
+   *         type_name: ...
+   *       }
    *       dataSetValuesObject...
    *       child: {
    *         dataSetChildValues...
@@ -543,19 +547,19 @@ var DataManager = {
    * @param {Object} dataSeriesObject - An object containing DataSeries values to save it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSerie: function(dataSeriesObject) {
+  addDataSeries: function(dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
-        //self.data.dataSeries.push(dataSerie.get());
         output = Utils.clone(dataSerie.get());
         // if there DataSets to save too
         if (dataSeriesObject.dataSets) {
           var dataSets = [];
           for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
             var dSet = dataSeriesObject.dataSets[i];
-            dataSets.push(self.addDataSet(dSet.type, dSet));
+            dSet.data_series_id = dataSerie.id;
+            dataSets.push(self.addDataSet(dSet.semantics, dSet));
           }
 
           return Promise.all(dataSets);
@@ -660,11 +664,11 @@ var DataManager = {
    *   dataFormats: [{},{},{}]
    * }
    *
-   * @param {string} dataSetType - A string value representing DataSet type. (dcp, occurrence, grid).
+   * @param {string} dataSeriesSemantic - A string value representing DataSet type. (dcp, occurrence, grid).
    * @param {Array<Object>} dataSetObject - An object containing DataSet values to save it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSet: function(dataSetType, dataSetObject) {
+  addDataSet: function(dataSeriesSemantic, dataSetObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
@@ -674,7 +678,7 @@ var DataManager = {
 
         var onSuccess = function(dSet) {
           var output = Utils.clone(dataSet.get());
-          output.dataSetType = dataSetType;
+          output.semantics = dataSeriesSemantic;
           output.child = Utils.clone(dSet.get());
 
           // save dataformat
@@ -714,8 +718,8 @@ var DataManager = {
           }).catch(onError);
         };
 
-        if (dataSetType && typeof(dataSetType) === 'string') {
-          switch(dataSetType) {
+        if (dataSeriesSemantic && dataSeriesSemantic instanceof Object) {
+          switch(dataSeriesSemantic.name) {
             case "dcp":
               models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;

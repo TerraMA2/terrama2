@@ -1,8 +1,20 @@
-{% set MENU_URLS = {"static-data": {name: __('Static Data'), url: "/configuration/static-data", icon: "fa-folder-o"}} %}
+{% if (user && user.role === 'admin') %}
+
+{% set MENU_URLS = {"databases": {name: __('Databases'), url: "/administration/databases/new", icon: "fa-database"}} %}
+{% set MENU_URLS["services"] = {name: __('Services'), url: "/administration/services", icon: "fa-laptop"} %}
+{% set MENU_URLS["users"] = {name: __('Users'), url: "/administration/users", icon: "fa-users"} %}
+
+{% else %}
+
+{% set MENU_URLS = {"status": {name: __('Status'), url: "/configuration/status", icon: "fa-feed"}} %}
+{% set MENU_URLS["data-provider"] = {name: __('Data Provider'), url: "/configuration/providers", icon: "fa-cubes"} %}
+{% set MENU_URLS["static-data"] = {name: __('Static Data'), url: "/configuration/static-data", icon: "fa-folder-o"} %}
 {% set MENU_URLS["dynamic-data"] = {name: __('Dynamic Data'), url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
 {% set MENU_URLS["analyses"] = {name: __('Analyses'), url: "/configuration/analyses", icon: "fa-tasks"} %}
 {% set MENU_URLS["alerts"] = {name: __('Alerts'), url: "/configuration/alerts", icon: "fa-bell"} %}
-{% set MENU_URLS["users"] = {name: __('Users'), url: "/configuration/users", icon: "fa-users"} %}
+{% set MENU_URLS["map-display"] = {name: __('Map Display'), url: "/configuration/mapdisplay", icon: "fa-map"} %}
+
+{% endif %}
 
 <!DOCTYPE html>
 <html {% block ngApp %}{% endblock %} i18n-locale="{[ i18n.getLocale() ]}">
@@ -36,7 +48,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini {% block bodyClass %}{% endblock %}">
   <div class="wrapper">
 
     <header class="main-header">
@@ -74,6 +86,7 @@
       <!-- sidebar: style can be found in sidebar.less -->
       <section class="sidebar">
 
+        {% if (user.name) %}
         <!-- Sidebar user panel -->
         <div class="user-panel">
           <div class="pull-left image" style="min-height: 40px;">
@@ -81,33 +94,41 @@
           </div>
 
           <div class="pull-left info">
-            <p>TerraMA2 {[ __('User') ]}</p>
-            <!-- <a href="#"><i class="fa fa-circle text-success"></i> {[ __('Online') ]}</a> -->
+            <p>{[ user.name ]}</p>
           </div>
         </div>
         <!-- /.search form -->
+        {% endif %}
 
-        {% if (activeProject.name) %}
-          <!-- sidebar menu: : style can be found in sidebar.less -->
+        {% if (user && user.role === 'admin') %}
           <ul class="sidebar-menu">
-            <li class="header">{[ activeProject.name ]}</li>
+          {% for tab in MENU_URLS %}
+            <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
+              <a href="{[ tab.url ]}">
+                <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
+              </a>
+            </li>
+          {% endfor %}
+          </ul>
+        {% else %}
 
-            {% for tab in MENU_URLS %}
+          {% if (activeProject.name) %}
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu">
+              <li class="header" style="font-size:18px;font-weight: bold;">{[ activeProject.name ]}</li>
+
+              {% for tab in MENU_URLS %}
               <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
                 <a href="{[ tab.url ]}">
                   <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
                 </a>
               </li>
-            {% endfor %}
+              {% endfor %}
 
-            <li class="treeview">
-              <a href="#">
-                <i class="fa fa-gears"></i><span>{[ __('Administration') ]}</span>
-              </a>
-            </li>
+            </ul>
+            <!-- /.ul sidebar -->
+          {% endif %}
 
-          </ul>
-          <!-- /.ul sidebar -->
         {% endif %}
       </section>
       <!-- /.sidebar -->

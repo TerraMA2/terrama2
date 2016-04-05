@@ -9,4 +9,6 @@ angular.module('terrama2.listDataSeries', ['terrama2.table'])
     $scope.linkToAdd = configuration.linkToAdd || null;
 
     $scope.iconFn = configuration.iconFn || null;
+      
+    $scope.iconProperties = configuration.iconProperties || {};
   }]);

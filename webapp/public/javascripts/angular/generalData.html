@@ -30,8 +30,8 @@
     <div class="form-group">
       <label>{{ i18n.__('Provider') }}:</label>
       <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()">
-        <option value="" ng-click="onDataProviderClick(-1)">New dataprovider</option>
         <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
+        <option value="" ng-click="onDataProviderClick(-1)">New dataprovider</option>
       </select>
     </div>
   </div>

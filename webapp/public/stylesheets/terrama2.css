@@ -79,3 +79,9 @@
     width: 16px !important;
     height: 16px !important;
 }
+
+.terrama2-alert-icon {
+    display: inline !important;
+    text-align: center !important;
+    padding: .3em .6em .3em !important;
+}

@@ -1,10 +1,10 @@
 {% extends "../base/layout.html" %}
 
-{% set tabActive = "analyses" %}
+{% set tabActive = "map-display" %}
 
-{% block ngApp %} ng-app="terrama2.analyses" {% endblock %}
+{% block ngApp %} ng-app="terrama2.mapDisplay" {% endblock %}
 
-{% block title %} TerraMA2 {[ __('Analyses') ]} {% endblock %}
+{% block title %} TerraMA2 {[ __('Map Display') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -14,44 +14,37 @@
 <script src="/javascripts/angular/table/table.js"></script>
 
 <script>
-  angular.module('terrama2.analyses', ['terrama2.table'])
+  angular.module('terrama2.mapDisplay', ['terrama2.table'])
     .controller("ListController", ['$scope', function($scope) {
       $scope.model = [
         {
-          name: "An_1",
-          type: "Grid"
+          title: "Map1",
+          description: "Lorem ipsum"
         },
         {
-          name: "An_2",
-          type: "Pcd"
+          title: "Map generated2",
+          description: "Lorem ipsum"
         },
         {
-          name: "An_3",
-          type: "Monitored Object"
+          title: "Map 3",
+          description: "Lorem ipsum22"
         }
       ];
 
-      $scope.iconProperties = {
-        type: "img"
+      $scope.fields = ['title', 'description'];
+      $scope.linkToAdd = "";
+      $scope.link = function(object) {
+        return "";
       };
 
-      $scope.fields = ['name', 'type'];
-      $scope.linkToAdd = "/configuration/analyses/new";
-      $scope.link = function(object) {
-        return "/configuration/analyses/new";
+      $scope.iconProperties = {
+        type: "img",
+        width: 64,
+        height: 64
       };
 
       $scope.icon = function(object) {
-        switch(object.type) {
-          case "Monitored Object":
-            return "/images/monitored-object.png";
-            break;
-          case "Grid":
-            return "/images/grid-small.png";
-            break;
-          default:
-            return "/images/map-pin.png";
-        }
+        return "/images/map-display.png";
       }
     }]);
 </script>
@@ -64,7 +57,7 @@
   <div class="col-md-12">
     <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">{[ __('Analyses') ]}</h3>
+        <h3 class="box-title">{[ __('Map Display') ]}</h3>
       </div><!-- /.box-header -->
 
       <div class="box-body">
