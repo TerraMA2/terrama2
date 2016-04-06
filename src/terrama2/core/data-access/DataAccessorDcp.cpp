@@ -55,3 +55,14 @@ te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
   //TODO: implement lastDateTime
   assert(0);
 }
+
+bool terrama2::core::DataAccessorDcp::intersects(DataSetPtr dataset, const Filter& filter) const
+{
+  if(!filter.geometry.get())
+    return true;
+
+  auto dataSetDcp =std::dynamic_pointer_cast<const DataSetDcp>(dataset);
+  assert(dataSetDcp.get());
+  assert(dataSetDcp->position);
+  return dataSetDcp->position->intersects(filter.geometry.get());
+}

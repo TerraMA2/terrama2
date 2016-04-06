@@ -65,7 +65,7 @@ void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr output
     throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  std::string destinationDataSetName = getTableName(outputDataSet);
+  std::string destinationDataSetName = getDataSetName(outputDataSet);
 
   std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);

@@ -54,7 +54,7 @@ namespace terrama2
       virtual void store(Series series, DataSetPtr outputDataSet) const override;
 
     protected:
-      std::string getTableName(DataSetPtr dataSet) const
+      std::string getDataSetName(DataSetPtr dataSet) const
       {
         try
         {
