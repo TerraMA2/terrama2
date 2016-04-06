@@ -28,8 +28,60 @@
  */
 
 #include "DataStoragerFactory.hpp"
+#include "../data-access/DataStorager.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../utility/Logger.hpp"
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::makeDataStorager(DataProviderPtr dataProvider)
+#include <QObject>
+#include <QString>
+
+void terrama2::core::DataStoragerFactory::add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f)
 {
-  return nullptr;
+  auto it = factoriesMap_.find(dataProviderType);
+
+  if(it != factoriesMap_.end())
+  {
+    QString errMsg = QObject::tr("A data storager factory for this type already exists!");
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  factoriesMap_.emplace(dataProviderType, f);
+}
+
+void terrama2::core::DataStoragerFactory::remove(const terrama2::core::DataProviderType& dataProviderType)
+{
+  auto it = factoriesMap_.find(dataProviderType);
+
+  if(it == factoriesMap_.end())
+  {
+    QString errMsg = QObject::tr("There is no registered data storager factory for this type.");
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  factoriesMap_.erase(it);
+}
+
+bool terrama2::core::DataStoragerFactory::find(const terrama2::core::DataProviderType& dataProviderType)
+{
+  auto it = factoriesMap_.find(dataProviderType);
+
+  return (it != factoriesMap_.end());
+}
+
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(terrama2::core::DataProviderPtr dataProvider) const
+{
+  auto it = factoriesMap_.find(dataProvider->dataProviderType);
+
+  if(it == factoriesMap_.end())
+  {
+    QString errMsg = QObject::tr("Could not find a data storager factory for this type.");
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  DataStoragerPtr dataStorager(it->second(dataProvider));
+
+  return dataStorager;
 }
