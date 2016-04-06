@@ -62,7 +62,7 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
 {
   QUrl url(uri.c_str());
 
- std::string tableName = getDataSetName(dataSet);
+  std::string tableName = getDataSetName(dataSet);
 
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files
@@ -93,17 +93,17 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
   // get a transactor to interact to the data source
   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
- std::vector<te::da::Expression*> where;
- addDateTimeFilter(dataSet, filter, where);
- addGeometryFilter(dataSet, filter, where);
+  std::vector<te::da::Expression*> where;
+  addDateTimeFilter(dataSet, filter, where);
+  addGeometryFilter(dataSet, filter, where);
 
- te::da::FromItem* t1 = new te::da::DataSetName(tableName);
- te::da::From* from = new te::da::From;
- from->push_back(t1);
+  te::da::FromItem* t1 = new te::da::DataSetName(tableName);
+  te::da::From* from = new te::da::From;
+  from->push_back(t1);
 
- te::da::Where* whereCondition = nullptr;
- if(!where.empty())
- {
+  te::da::Where* whereCondition = nullptr;
+  if(!where.empty())
+  {
 
    te::da::Expression* expr = where.front();
    for(int i = 1; i < where.size(); ++i)
