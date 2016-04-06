@@ -38,10 +38,10 @@
 #include <terralib/memory/DataSet.h>
 
 #include "Analysis.hpp"
-#include "SyncronizedDataSet.hpp"
 #include "DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-access/Series.hpp"
 
 // STL
 #include <memory>
@@ -62,10 +62,9 @@ namespace terrama2
       {
         struct ContextDataset
         {
-          std::shared_ptr<SyncronizedDataSet> dataset;
-          std::shared_ptr<te::da::DataSetType> datasetType;
+          terrama2::core::Series series;
           std::string identifier;
-          int64_t geometryPos;
+          int64_t geometryPos = -1;
           te::sam::rtree::Index<uint64_t, 8> rtree;
 
         };
@@ -114,16 +113,16 @@ namespace terrama2
 
             void setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager);
             Analysis getAnalysis(AnalysisId analysisId) const;
-            std::shared_ptr<ContextDataset> getContextDataset(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            std::shared_ptr<ContextDataset> getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
             void loadContext(const Analysis& analysis);
-            std::shared_ptr<ContextDataset> addDCP(const uint64_t analysisId, terrama2::core::DataSetDcpPtr dcp, const std::string& dateFilter, std::shared_ptr<te::mem::DataSet>& dataset);
-            bool exists(const uint64_t analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
-            void addDataset(const uint64_t analysisId, terrama2::core::DataSeriesPtr dataSeries, std::string dateFilter, bool createSpatialIndex = true);
 
+            bool exists(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            void addDataset(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter, bool createSpatialIndex = true);
+            void addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter);
 
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
-            std::map<uint64_t, std::map<std::string, double> > analysisResult_;
+            std::map<AnalysisId, std::map<std::string, double> > analysisResult_;
             std::map<ContextKey, std::shared_ptr<ContextDataset>, ContextKeyComparer> datasetMap_;
             mutable std::recursive_mutex mutex_;
   			};

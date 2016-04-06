@@ -20,18 +20,18 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Exception.hpp
+  \file terrama2/services/analysis/core/Typedef.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \author Jano Simas
+*/
 
-  \author Gilberto Ribeiro de Queiroz
- */
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+#include <cstdint>
 
-// TerraMA2
-#include "../../../core/Exception.hpp"
+typedef uint64_t AnalysisDataSeriesId;
+typedef uint64_t AnalysisId;
 
 
 namespace terrama2
@@ -40,21 +40,10 @@ namespace terrama2
   {
     namespace analysis
     {
-      namespace core
-      {
-        //! Base exception class for TerraMA2.
-        struct Exception: virtual terrama2::core::Exception {};
-
-        struct InvalidFrequencyException: virtual Exception {};
-
-        struct InvalidParameterException: virtual Exception {};
-
-        struct InvalidDataSetException: virtual Exception {};
-
-
-      } // end namespace core
+      inline uint64_t InvalidId(){ return 0;}
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif  // __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__

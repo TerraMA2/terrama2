@@ -37,6 +37,7 @@
 #include "../utility/Logger.hpp"
 #include "Series.hpp"
 #include "SeriesAggregation.hpp"
+#include "SyncronizedDataSet.hpp"
 
 //STL
 #include <vector>
@@ -69,11 +70,11 @@ namespace terrama2
           {
             DataSetGridPtr dataSet = std::dynamic_pointer_cast<const DataSetGrid>(item.first);
 
-            auto teDataSet = item.second.teDataSet;
-            while(teDataSet->moveNext())
+            auto teDataSet = item.second.syncDataSet;
+            for (int i = 0; i < teDataSet->size(); ++i)
             {
-              std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
-              std::shared_ptr<te::rst::Raster> raster(teDataSet->getRaster(rpos));
+              std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet->dataset().get(), te::dt::RASTER_TYPE);
+              std::shared_ptr<te::rst::Raster> raster = teDataSet->getRaster(i, rpos);
               rasterMap_.emplace(dataSet, raster);
             }
           }
