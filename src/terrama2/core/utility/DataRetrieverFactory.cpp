@@ -27,61 +27,61 @@
   \author Jano Simas
  */
 
-#include "DataStoragerFactory.hpp"
-#include "../data-access/DataStorager.hpp"
+#include "DataRetrieverFactory.hpp"
+#include "../data-access/DataRetriever.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../utility/Logger.hpp"
 
 #include <QObject>
 #include <QString>
 
-void terrama2::core::DataStoragerFactory::add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f)
+void terrama2::core::DataRetrieverFactory::add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f)
 {
   auto it = factoriesMap_.find(dataProviderType);
 
   if(it != factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("A data storager factory for this type already exists!");
+    QString errMsg = QObject::tr("A data retriever factory for this type already exists!");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+    throw terrama2::core::DataRetrieverFTPException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.emplace(dataProviderType, f);
 }
 
-void terrama2::core::DataStoragerFactory::remove(const terrama2::core::DataProviderType& dataProviderType)
+void terrama2::core::DataRetrieverFactory::remove(const terrama2::core::DataProviderType& dataProviderType)
 {
   auto it = factoriesMap_.find(dataProviderType);
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("There is no registered data storager factory for this type.");
+    QString errMsg = QObject::tr("There is no registered data retriever factory for this type.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+    throw terrama2::core::DataRetrieverFTPException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.erase(it);
 }
 
-bool terrama2::core::DataStoragerFactory::find(const terrama2::core::DataProviderType& dataProviderType)
+bool terrama2::core::DataRetrieverFactory::find(const terrama2::core::DataProviderType& dataProviderType)
 {
   auto it = factoriesMap_.find(dataProviderType);
 
   return (it != factoriesMap_.end());
 }
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(terrama2::core::DataProviderPtr dataProvider) const
+terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFactory::make(terrama2::core::DataProviderPtr dataProvider) const
 {
   auto it = factoriesMap_.find(dataProvider->dataProviderType);
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("Could not find a data storager factory for this type.");
-    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+    // if the data retriever for this type is not registered,
+    // create a base data retriever (non-retrievable)
+    return DataRetrieverPtr(terrama2::core::DataRetriever::make(dataProvider));
   }
 
-  DataStoragerPtr dataStorager(it->second(dataProvider));
+  DataRetrieverPtr dataRetriever(it->second(dataProvider));
 
-  return dataStorager;
+  return dataRetriever;
 }

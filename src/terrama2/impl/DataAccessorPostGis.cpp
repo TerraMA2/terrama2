@@ -85,7 +85,7 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
  {
    QString errMsg = QObject::tr("DataProvider could not be opened.");
    TERRAMA2_LOG_ERROR() << errMsg;
-   //TODO: throw here
+   throw NoDataException() << ErrorDescription(errMsg);
    throw;
  }
 

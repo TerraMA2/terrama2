@@ -30,7 +30,6 @@
 //TerraMA2
 #include "DataAccessorDcp.hpp"
 #include "DataRetriever.hpp"
-#include "../utility/Factory.hpp"
 #include "../utility/Logger.hpp"
 #include "../Exception.hpp"
 
@@ -45,7 +44,7 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
 {
   auto series = getSeries(filter);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
-  dcpSeries->addDcpSeries(series); 
+  dcpSeries->addDcpSeries(series);
 
   return dcpSeries;
 }

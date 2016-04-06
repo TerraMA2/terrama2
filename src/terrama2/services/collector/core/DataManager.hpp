@@ -56,6 +56,9 @@ namespace terrama2
           DataManager& operator=(const DataManager& other) = default;
           DataManager& operator=(DataManager&& other) = default;
 
+          using terrama2::core::DataManager::add;
+          using terrama2::core::DataManager::update;
+          
           void add(CollectorPtr collector);
           void update(CollectorPtr collector);
           void removeCollector(CollectorId collectorId);

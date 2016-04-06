@@ -48,8 +48,8 @@ void terrama2::core::DataAccessorFactory::add(const std::string& semanticName, F
   if(it != factoriesMap_.end())
   {
     QString errMsg = QObject::tr("A data accessor factory with this name already exists: %1!").arg(semanticName.c_str());
-    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_[semanticName] = f;
@@ -62,8 +62,8 @@ void terrama2::core::DataAccessorFactory::remove(const std::string& semanticName
   if(it == factoriesMap_.end())
   {
     QString errMsg = QObject::tr("There is no registered data accessor factory named : %1!").arg(semanticName.c_str());
-    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.erase(it);
@@ -84,8 +84,8 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terram
   if(it == factoriesMap_.end())
   {
     QString errMsg = QObject::tr("Could not find a data accessor factory for this semantic: %1!").arg(dataSeries->semantics.name.c_str());
-    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
   std::shared_ptr<DataAccessor> dataAccessor(factoriesMap_[dataSeries->semantics.name.c_str()](dataProvider, dataSeries, filter));

@@ -41,7 +41,7 @@
 
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/Logger.hpp"
-#include "../../../core/utility/DataAccessFactory.hpp"
+#include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
 
 terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
@@ -92,6 +92,7 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
   std::lock_guard<std::mutex> lock (mutex_);
 
   collectorQueue_.push_back(collectorId);
+  mainLoopCondition_.notify_one();
 }
 
 void terrama2::services::collector::core::Service::collect(CollectorId collectorId, std::weak_ptr<DataManager> weakDataManager)
@@ -99,7 +100,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
   {
-    //TODO: log error
+    TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
     return;
   }
 
@@ -127,11 +128,11 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     //  recovering data
 
     terrama2::core::Filter filter;
-    auto dataAccessor = terrama2::core::DataAccessFactory::getInstance().makeDataAccessor(inputDataProvider, inputDataSeries);
+    auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      //TODO: log this
+      TERRAMA2_LOG_ERROR() << tr("No data to collect.");
       return;
     }
 
@@ -140,7 +141,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     auto inputOutputMap = collectorPtr->inputOutputMap;
     auto dataSetLst = outputDataSeries->datasetList;
-    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().makeDataStorager(inputDataProvider);
+    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataProvider);
     for(const auto& item : dataMap)
     {
       //store each item
@@ -155,15 +156,16 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch (const boost::exception& e)
   {
-    //TODO: log error
+
+    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e);
   }
   catch (const std::exception& e)
   {
-    //TODO: log error
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch (...)
   {
-    //TODO: log error
+    TERRAMA2_LOG_ERROR() << tr("Unkonwn error.");
   }
 }
 
@@ -177,11 +179,13 @@ void terrama2::services::collector::core::Service::connectDataManager()
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
-  std::lock_guard<std::mutex> lock (mutex_);
+  {
+    std::lock_guard<std::mutex> lock (mutex_);
 
-  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id);
-  connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
-  timers_.emplace(collector->id, timer);
+    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id);
+    connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
+    timers_.emplace(collector->id, timer);
+  }
 
   addToQueue(collector->id);
 }
@@ -207,6 +211,5 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
 void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector)
 {
-  removeCollector(collector->id);
-  addCollector(collector);
+  //Only the Id of the collector is stored, no need to update
 }
