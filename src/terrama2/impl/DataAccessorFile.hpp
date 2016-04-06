@@ -49,10 +49,10 @@ namespace terrama2
     class DataAccessorFile : public virtual DataAccessor
     {
     public:
-        DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-          : DataAccessor(dataProvider, dataSeries, filter)
-        {}
-		virtual ~DataAccessorFile() {}
+      DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+        : DataAccessor(dataProvider, dataSeries, filter)
+      {}
+      virtual ~DataAccessorFile() {}
 
       using terrama2::core::DataAccessor::getSeries;
       // Doc in base class
