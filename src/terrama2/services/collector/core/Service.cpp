@@ -41,7 +41,7 @@
 
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/Logger.hpp"
-#include "../../../core/utility/DataAccessFactory.hpp"
+#include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
 
 terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
@@ -127,7 +127,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     //  recovering data
 
     terrama2::core::Filter filter;
-    auto dataAccessor = terrama2::core::DataAccessFactory::getInstance().makeDataAccessor(inputDataProvider, inputDataSeries);
+    auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
