@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.name = "STATIC_DATA-ogr";
+  dataSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -117,6 +118,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr occurrenceSeriesPtr(occurrenceSeries);
   occurrenceSeries->dataProviderId = dataProvider2->id;
   occurrenceSeries->semantics.name = "OCCURRENCE-mvf";
+  occurrenceSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::OCCURRENCE;
   occurrenceSeries->name = "Occurrence";
   occurrenceSeries->id = 2;
   occurrenceSeries->dataProviderId = 2;

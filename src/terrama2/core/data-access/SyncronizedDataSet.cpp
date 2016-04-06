@@ -52,7 +52,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::core::SyncronizedDataSet::getGeometr
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
-  return dataset_->getGeometry(columnIndex);
+  return std::shared_ptr<te::gm::Geometry>(dataset_->getGeometry(columnIndex));
 }
 
 std::string terrama2::core::SyncronizedDataSet::getString(uint64_t row, uint64_t columnIndex) const
@@ -115,12 +115,18 @@ std::shared_ptr<te::rst::Raster> terrama2::core::SyncronizedDataSet::getRaster(u
   return std::shared_ptr<te::rst::Raster>(dataset_->getRaster(columnIndex));
 }
 
+std::shared_ptr<te::dt::DateTime> terrama2::core::SyncronizedDataSet::getDateTime(uint64_t row, uint64_t columnIndex) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return std::shared_ptr<te::dt::DateTime>(dataset_->getDateTime(columnIndex));
+}
 
 std::shared_ptr<te::gm::Geometry> terrama2::core::SyncronizedDataSet::getGeometry(uint64_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
-  return dataset_->getGeometry(columnName);
+  return std::shared_ptr<te::gm::Geometry>(dataset_->getGeometry(columnName));
 }
 
 std::string terrama2::core::SyncronizedDataSet::getString(uint64_t row, std::string columnName) const
@@ -182,6 +188,13 @@ std::shared_ptr<te::rst::Raster> terrama2::core::SyncronizedDataSet::getRaster(u
   return std::shared_ptr<te::rst::Raster>(dataset_->getRaster(columnName));
 }
 
+
+std::shared_ptr<te::dt::DateTime> terrama2::core::SyncronizedDataSet::getDateTime(uint64_t row, std::string columnName) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return std::shared_ptr<te::dt::DateTime>(dataset_->getDateTime(columnName));
+}
 
 uint64_t terrama2::core::SyncronizedDataSet::size() const
 {
