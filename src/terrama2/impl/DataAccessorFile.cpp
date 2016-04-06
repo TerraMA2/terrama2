@@ -160,6 +160,7 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      throw terrama2::core::NoDataException() << terrama2::ErrorDescription(errMsg);
    }
 
-   series.teDataSet = completeDataset;
+   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
+   series.syncDataSet = syncDataset;
    return series;
  }

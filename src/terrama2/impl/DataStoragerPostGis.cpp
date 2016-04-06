@@ -97,7 +97,7 @@ void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr output
     GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
   }
 
-  transactorDestination->add(newDataSetType->getName(), series.teDataSet.get(), options);
+  transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), options);
 
   scopedTransaction.commit();
 }

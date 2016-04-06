@@ -34,6 +34,7 @@
 #include "../../Config.hpp"
 #include "../Shared.hpp"
 #include "../data-model/DataSetOccurrence.hpp"
+#include "SyncronizedDataSet.hpp"
 
 //STL
 #include <vector>
@@ -48,7 +49,7 @@ namespace terrama2
     struct Series
     {
       DataSetPtr dataSet;
-      std::shared_ptr<te::mem::DataSet> teDataSet;
+      SyncronizedDataSetPtr syncDataSet;
       std::shared_ptr<te::da::DataSetType> teDataSetType;
     };
   }

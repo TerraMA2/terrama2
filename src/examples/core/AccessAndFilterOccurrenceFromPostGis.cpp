@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 
   assert(occurrenceSeries->getOccurrences().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.teDataSet;
+  auto teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.syncDataSet->dataset();
 
 
 //Print column names and types (DateTime/Double)
