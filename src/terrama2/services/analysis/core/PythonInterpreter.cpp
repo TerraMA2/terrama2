@@ -38,8 +38,6 @@
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/data-access/SyncronizedDataSet.hpp"
 #include "../../../core/Shared.hpp"
-#include "../../../impl/DataAccessorOccurrenceMvf.hpp"
-#include "../../../impl/DataAccessorDcpInpe.hpp"
 
 #include <QObject>
 
@@ -292,7 +290,15 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     {
       found = true;
 
-      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+      if(analysisDataSeries.dataSeries->semantics.macroType != terrama2::core::DataSeriesSemantics::DCP)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
+
+      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilterStr);
 
       for(auto dataset : analysisDataSeries.dataSeries->datasetList)
       {

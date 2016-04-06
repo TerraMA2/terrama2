@@ -63,7 +63,7 @@ namespace terrama2
         int32_t getInt32(uint64_t row, uint64_t columnIndex) const;
         int64_t getInt64(uint64_t row, uint64_t columnIndex) const;
         std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, uint64_t columnIndex) const;
-        std::auto_ptr<te::dt::DateTime> getDateTime(uint64_t row, uint64_t columnIndex) const;
+        std::shared_ptr<te::dt::DateTime> getDateTime(uint64_t row, uint64_t columnIndex) const;
         bool isNull(uint64_t row, std::size_t columnIndex) const;
 
         std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, std::string columnName) const;
@@ -74,7 +74,7 @@ namespace terrama2
         int32_t getInt32(uint64_t row, std::string columnName) const;
         int64_t getInt64(uint64_t row, std::string columnName) const;
         std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, std::string columnName) const;
-        std::auto_ptr<te::dt::DateTime> getDateTime(uint64_t row, std::string columnName) const;
+        std::shared_ptr<te::dt::DateTime> getDateTime(uint64_t row, std::string columnName) const;
         bool isNull(uint64_t row, std::string columnName) const;
 
         uint64_t size() const;
