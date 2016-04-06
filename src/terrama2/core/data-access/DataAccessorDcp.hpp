@@ -60,6 +60,7 @@ namespace terrama2
       // Doc in base class
       virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
+      virtual bool intersects(DataSetPtr dataset, const Filter& filter) const override;
     };
   }
 }
