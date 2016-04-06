@@ -101,3 +101,8 @@ void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr output
 
   scopedTransaction.commit();
 }
+
+terrama2::core::DataStorager* terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
+{
+  return new DataStoragerPostGis(dataProvider);
+}

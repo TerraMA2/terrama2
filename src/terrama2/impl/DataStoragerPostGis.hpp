@@ -49,6 +49,8 @@ namespace terrama2
        : DataStorager(outputDataProvider) {}
       ~DataStoragerPostGis() {}
 
+      static DataStorager* make(DataProviderPtr dataProvider);
+
       virtual void store(Series series, DataSetPtr outputDataSet) const override;
 
     protected:
