@@ -38,10 +38,10 @@
 #include <terralib/memory/DataSet.h>
 
 #include "Analysis.hpp"
-#include "SyncronizedDataSet.hpp"
 #include "DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-access/Series.hpp"
 
 // STL
 #include <memory>
@@ -62,8 +62,7 @@ namespace terrama2
       {
         struct ContextDataset
         {
-          std::shared_ptr<SyncronizedDataSet> dataset;
-          std::shared_ptr<te::da::DataSetType> datasetType;
+          terrama2::core::Series series;
           std::string identifier;
           int64_t geometryPos;
           te::sam::rtree::Index<uint64_t, 8> rtree;

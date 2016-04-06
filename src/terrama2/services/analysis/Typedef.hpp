@@ -20,52 +20,30 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Utils.hpp
+  \file terrama2/services/analysis/core/Typedef.hpp
 
-  \brief Utility functions for TerraMA2 Analysis module.
-
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
 
-// STL
-#include <memory>
-#include <vector>
+#include <cstdint>
 
-namespace te
-{
-  namespace mem
-  {
-    class DataSet;
-  }
-  namespace gm
-  {
-    class Geometry;
-    class Envelope;
-  }
-}
+typedef uint64_t AnalysisDataSeriesId;
+typedef uint64_t AnalysisId;
+
 
 namespace terrama2
 {
-  namespace core
-  {
-    class SyncronizedDataSet;
-  }
-
   namespace services
   {
     namespace analysis
     {
-      namespace core
-      {
-
-        std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance);
-
-      } // end namespace core
+      inline uint64_t InvalidId(){ return 0;}
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif // __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
+
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__

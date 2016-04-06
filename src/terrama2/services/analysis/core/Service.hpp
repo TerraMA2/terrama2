@@ -31,10 +31,10 @@
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 
 //STL
-#include "../../../core/utility/Service.hpp"
 #include "Analysis.hpp"
 #include "AnalysisTimer.hpp"
-#include "Shared.hpp"
+#include "../Shared.hpp"
+#include "../../../core/utility/Service.hpp"
 
 #include <memory>
 

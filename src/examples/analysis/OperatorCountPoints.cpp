@@ -12,7 +12,7 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/Shared.hpp>
+#include <terrama2/services/analysis/Shared.hpp>
 
 
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>

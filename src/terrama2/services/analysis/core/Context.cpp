@@ -120,14 +120,11 @@ void terrama2::services::analysis::core::Context::loadContext(const terrama2::se
 
       std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
 
-      std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.teDataSet.get(), te::dt::GEOMETRY_TYPE);
+      std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
-      std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(series.teDataSet));
-
-
+      datasetContext->series = series;
       datasetContext->identifier = identifier;
       datasetContext->geometryPos = geomPropertyPosition;
-      datasetContext->dataset = syncDataset;
 
       ContextKey key;
       key.datasetId_ = dataset->id;
@@ -144,8 +141,6 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::se
 
   std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
 
-  std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(dataset));
-
   auto analysis = getAnalysis(analysisId);
   if(analysis.id != analysisId)
   {
@@ -154,30 +149,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::se
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
   }
 
-  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
-  {
-    for(auto dataset : analysisDataSeries.dataSeries->datasetList)
-    {
-      if(dataset->id == dcp->id)
-      {
-        auto metadata = analysisDataSeries.metadata;
-
-        if(metadata["INFLUENCE_TYPE"] != "REGION")
-        {
-          auto buffer = dcp->position->buffer(atof(metadata["RADIUS"].c_str()));
-          datasetContext->rtree.insert(*buffer->getMBR(), dcp->id);
-        }
-        else
-        {
-          assert(false);
-          // TODO: Implement influence by region
-        }
-
-      }
-    }
-  }
-
-  datasetContext->dataset = syncDataset;
+  assert(false); // TODO: series pcd
 
   ContextKey key;
   key.datasetId_ = dcp->id;
@@ -336,26 +308,23 @@ void terrama2::services::analysis::core::Context::addDataset(const uint64_t anal
   {
     auto series = mapItem.second;
 
-    series.teDataSet->moveFirst();
     auto format = series.dataSet->format;
     std::string identifier = format["identifier"];
 
     std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
 
-    std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.teDataSet.get(), te::dt::GEOMETRY_TYPE);
+    std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
-    std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(series.teDataSet));
-
-
+    datasetContext->series = series;
     datasetContext->identifier = identifier;
     datasetContext->geometryPos = geomPropertyPosition;
-    datasetContext->dataset = syncDataset;
 
     if(createSpatialIndex)
     {
-      for(std::size_t i = 0; i < syncDataset->size(); ++i)
+      int size = series.syncDataSet->size();
+      for(std::size_t i = 0; i < size; ++i)
       {
-        auto geom = syncDataset->getGeometry(i, geomPropertyPosition);
+        auto geom = series.syncDataSet->getGeometry(i, geomPropertyPosition);
         datasetContext->rtree.insert(*geom->getMBR(), i);
       }
     }
