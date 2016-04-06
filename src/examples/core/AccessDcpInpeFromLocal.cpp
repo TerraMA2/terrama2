@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
   dataProvider->uri+="/PCD_serrmar_INPE";
 
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 
   //DataSeries information

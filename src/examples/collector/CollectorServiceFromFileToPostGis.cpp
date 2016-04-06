@@ -30,6 +30,8 @@
 // TerraMA2
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/DataAccessorFactory.hpp>
+#include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -37,6 +39,15 @@
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/collector/core/Collector.hpp>
+
+#include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
+#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
+#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
+#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
+
+#include <terrama2/impl/DataStoragerPostGis.hpp>
 
 //STL
 #include <memory>
@@ -52,6 +63,18 @@ int main(int argc, char* argv[])
   try
   {
     terrama2::core::initializeTerralib();
+
+    terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+
+    terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
+
+
+
     QCoreApplication app(argc, argv);
 
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
@@ -72,7 +95,6 @@ int main(int argc, char* argv[])
     dataProvider->name = "DataProvider queimadas local";
 
     dataManager->add(dataProviderPtr);
-
 
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
@@ -110,7 +132,7 @@ int main(int argc, char* argv[])
     outputDataProvider->name = "DataProvider queimadas postgis";
     outputDataProvider->uri = uri.url().toStdString();
     outputDataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-    outputDataProvider->dataProviderType = 0;
+    outputDataProvider->dataProviderType = "POSTGIS";
     outputDataProvider->active = true;
 
     dataManager->add(outputDataProviderPtr);

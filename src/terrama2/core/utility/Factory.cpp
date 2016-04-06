@@ -32,15 +32,5 @@
 
 terrama2::core::DataRetrieverPtr terrama2::core::Factory::MakeRetriever(DataProviderPtr dataProvider)
 {
-  switch (dataProvider->dataProviderType)
-  {
-  case 0:
-    return std::make_shared<DataRetriever>(dataProvider);
-    break;
-  default:
-    //TODO: throw here
-    break;
-  }
-
-  return nullptr;
+  return std::make_shared<DataRetriever>(dataProvider);
 }

@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->uri = uri.url().toStdString();
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "POSTGIS";
   dataProvider->active = true;
 
 //DataSeries information
