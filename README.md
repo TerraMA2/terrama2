@@ -388,3 +388,4 @@ Any problem should be reported to terrama2-team@dpi.inpe.br.
 
 
 For more information on TerraMA², please, visit its main web page at: http://www.dpi.inpe.br/terrama2.
+
