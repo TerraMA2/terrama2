@@ -89,6 +89,12 @@ var DataManager = {
     lock.readLock(function (release) {
       var Sequelize = require("sequelize");
 
+      var releaseCallback = function() {
+        release();
+        callback();
+      };
+
+
       if (actualConfig) {
         var connection = new Sequelize(actualConfig.database,
           actualConfig.username,
@@ -99,11 +105,6 @@ var DataManager = {
         models.load(connection);
 
         self.connection = connection;
-
-        var releaseCallback = function() {
-          release();
-          callback();
-        };
 
         var fn = function() {
           // todo: insert default values in database
@@ -135,17 +136,17 @@ var DataManager = {
 
             Promise.all(arr).then(function(){
               releaseCallback();
-            }).catch(function(err) {
+            }).catch(function() {
               releaseCallback();
             })
-          }).catch(function(err) {
+          }).catch(function() {
             releaseCallback()
           });
         };
 
         connection.sync().then(function () {
           fn();
-        }, function(err) {
+        }, function() {
           fn();
         });
       }
@@ -506,14 +507,14 @@ var DataManager = {
    * @param {Object} restriction - An object containing DataSeries identifier to get it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  getDataSerie: function(restriction) {
+  getDataSeries: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataSerie = getItemByParam(self.data.dataSeries, restriction);
       if (dataSerie)
         resolve(Utils.clone(dataSerie));
       else
-        reject(new exceptions.DataSeriesError("Could not find a data series: ", restriction));
+        reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
     });
   },
 
@@ -558,6 +559,13 @@ var DataManager = {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
         output = Utils.clone(dataSerie.get());
+
+        var rollback = function(err) {
+          dataSerie.destroy().then(function () {
+            reject(err);
+          });
+        };
+
         // if there DataSets to save too
         if (dataSeriesObject.dataSets) {
           var dataSets = [];
@@ -567,18 +575,19 @@ var DataManager = {
             dataSets.push(self.addDataSet(dSet.semantics, dSet));
           }
 
-          return Promise.all(dataSets);
+          Promise.all(dataSets).then(function(dataSets){
+            self.data.dataSeries.push(Utils.clone(output));
+            output.dataSets = dataSets;
+            resolve(output);
+          }).catch(function(err) {
+            rollback(err);
+          });
 
         } else {
-          // rollback
-          dataSerie.destroy().then(function () {
-            reject(new exceptions.DataSeriesError("Could not save DataSeries. Data sets not found" + err));
-          });
+          // rollback dataseries
+          rollback(new exceptions.DataSeriesError("Could not save DataSeries. " + err.message));
+
         }
-      }).then(function(dataSets){
-        self.data.dataSeries.push(Utils.clone(output));
-        output.dataSets = dataSets;
-        resolve(output);
       }).catch(function(err){
         reject(new exceptions.DataSeriesError("Could not save DataSeries. " + err));
       });
@@ -706,8 +715,8 @@ var DataManager = {
               reject(err);
             });
           } else {// todo: validate it
-            resolve(output);
             self.data.dataSets.push(output);
+            resolve(output);
           }
 
         };
@@ -719,6 +728,7 @@ var DataManager = {
         // rollback data set function if any error occurred
         var rollback = function(dataSet) {
           dataSet.destroy().then(function() {
+            console.log("rollback");
             reject(new exceptions.DataSetError("Invalid dataset type. DataSet destroyed"));
           }).catch(onError);
         };

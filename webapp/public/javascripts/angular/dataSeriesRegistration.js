@@ -1,4 +1,11 @@
-angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'terrama2.projection', 'terrama2.services'])
+angular.module('terrama2.dataseries.registration', [
+    'terrama2',
+    'ui.router',
+    'terrama2.projection',
+    'terrama2.services',
+    'ui.bootstrap.datetimepicker',
+    'ui.dateTimeInput'
+  ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
       abstract: true,
@@ -13,10 +20,11 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
     $urlRouterProvider.otherwise(function ($injector, $location) {
       var $state = $injector.get('$state');
 
-      if ($location.$$hash.indexOf("/wizard" == -1) || $location.$$hash.indexOf("/advanced") == -1) 
-        if ($state.current.name)
+      // It prevents wrong state in user request.
+      if ($location.$$hash.indexOf("/wizard" == -1) || $location.$$hash.indexOf("/advanced") == -1)
+        if ($state.current.name) // go to current state
           $state.go($state.current.name);
-        else
+        else // go to default state
           $state.go('advanced');
     });
 
@@ -40,10 +48,12 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
       $scope.semantics = "";
       $scope.isDynamic = params.state.toLowerCase() === "dynamic";
       $scope.pcds = [];
+
+      $scope.filter = {};
       $scope.parametersData = configuration.parametersData || {};
 
       $scope.dataSeries = {
-        data_provider_id: configuration.dataSeries.dataProvider || "",
+        data_provider_id: configuration.dataSeries.data_provider_id || "",
         name: configuration.dataSeries.name || "",
         access: configuration.dataSeries.access
       };
@@ -126,8 +136,6 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
           $scope.pcds.push(pcd);
           var path = $scope.parametersData.path;
 
-          angular.element("body").focus();
-
           this.parametersDataForm.$setPristine();
           this.parametersDataForm.$setUntouched();
 
@@ -139,7 +147,21 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
         console.log($scope.dataSeries);
       };
 
+      var errorHelper = function(form) {
+        angular.forEach(form.$error, function (field) {
+          angular.forEach(field, function(errorField){
+            errorField.$setDirty();
+          })
+        });
+      };
+
       $scope.save = function() {
+        if(this.generalDataForm.$invalid) {
+          errorHelper(this.generalDataForm);
+          // errorHelper(this.parametersDataForm);
+          return;
+        }
+
         var dataToSend = Object.assign({}, $scope.dataSeries);
         dataToSend.data_series_semantic_name = $scope.dataSeries.semantics.name;
 
@@ -159,7 +181,7 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
                   position: {
                     type: 'Point',
                     coordinates: [pcd.latitude, pcd.longitude],
-                    crs:{
+                    crs: {
                       type: 'name',
                       properties : {
                         name: pcd.projection
@@ -175,7 +197,15 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
             break;
 
           case "occurrence":
-            dataToSend.dataSets.push({type: dataSetType, active: this.parametersDataForm.active});
+            var dataSet = {
+              semantics: semantics,
+              active: $scope.parametersData.active,
+              child: {
+
+              }
+            };
+
+            dataToSend.dataSets.push(dataSet);
             break;
 
           case "grid":
@@ -188,7 +218,9 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
         console.log(dataToSend);
         DataSeriesFactory.post(dataToSend).success(function(data) {
           //   redirect to list data series || analysis: TODO
+          alert("Saved");
           console.log(data);
+          $window.location.href = "/configuration/dynamic/dataseries";
         }).error(function(err) {
           console.log(err);
           alert("Error found")
