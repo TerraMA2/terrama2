@@ -29,9 +29,12 @@
 
 // TerraMA2
 #include <terrama2/core/Shared.hpp>
+
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
+#include <terrama2/core/utility/DataRetrieverFactory.hpp>
+
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -48,6 +51,8 @@
 #include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
 
 #include <terrama2/impl/DataStoragerPostGis.hpp>
+
+#include <terrama2/core/data-access/DataRetriever.hpp>
 
 //STL
 #include <memory>
@@ -72,8 +77,6 @@ int main(int argc, char* argv[])
     terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
 
     terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
-
-
 
     QCoreApplication app(argc, argv);
 
@@ -184,6 +187,7 @@ int main(int argc, char* argv[])
   catch(...)
   {
     //TODO: o que fazer com uncaught exception
+    std::cout << "\n\nException...\n" << std::endl;
   }
 
   return 0;
