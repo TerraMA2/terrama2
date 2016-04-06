@@ -141,7 +141,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     auto inputOutputMap = collectorPtr->inputOutputMap;
     auto dataSetLst = outputDataSeries->datasetList;
-    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().makeDataStorager(inputDataProvider);
+    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataProvider);
     for(const auto& item : dataMap)
     {
       //store each item
