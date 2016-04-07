@@ -20,15 +20,15 @@
  */
 
 /*!
-  \file terrama2/core/utility/DataStoragerFactory.hpp
+  \file terrama2/core/utility/DataRetrieverFactory.hpp
 
   \brief
 
   \author Jano Simas
  */
 
- #ifndef __TERRAMA2_CORE_UTILITY_DATA_STORAGER_FACTORY_HPP__
- #define __TERRAMA2_CORE_UTILITY_DATA_STORAGER_FACTORY_HPP__
+ #ifndef __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
+ #define __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
 
 #include "../Shared.hpp"
 #include "../data-model/DataProvider.hpp"
@@ -44,11 +44,11 @@ namespace terrama2
 {
   namespace core
   {
-    class DataStoragerFactory : public te::common::Singleton<DataStoragerFactory>
+    class DataRetrieverFactory : public te::common::Singleton<DataRetrieverFactory>
     {
     public:
 
-      typedef std::function<DataStorager* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
+      typedef std::function<DataRetriever* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
 
       void add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f);
 
@@ -56,19 +56,19 @@ namespace terrama2
 
       bool find(const terrama2::core::DataProviderType& dataProviderType);
 
-      terrama2::core::DataStoragerPtr make(terrama2::core::DataProviderPtr dataProvider) const;
+      terrama2::core::DataRetrieverPtr make(terrama2::core::DataProviderPtr dataProvider) const;
 
 
     protected:
-      friend class te::common::Singleton<DataStoragerFactory>;
+      friend class te::common::Singleton<DataRetrieverFactory>;
 
-      DataStoragerFactory() {}
-      ~DataStoragerFactory() {}
+      DataRetrieverFactory() {}
+      ~DataRetrieverFactory() {}
 
-      DataStoragerFactory(const DataStoragerFactory& other) = delete;
-      DataStoragerFactory(DataStoragerFactory&& other) = delete;
-      DataStoragerFactory& operator=(const DataStoragerFactory& other) = delete;
-      DataStoragerFactory& operator=(DataStoragerFactory&& other) = delete;
+      DataRetrieverFactory(const DataRetrieverFactory& other) = delete;
+      DataRetrieverFactory(DataRetrieverFactory&& other) = delete;
+      DataRetrieverFactory& operator=(const DataRetrieverFactory& other) = delete;
+      DataRetrieverFactory& operator=(DataRetrieverFactory&& other) = delete;
 
       std::map<terrama2::core::DataProviderType, FactoryFnctType> factoriesMap_;
     };
@@ -78,4 +78,4 @@ namespace terrama2
 
 } /* terrama2 */
 
-#endif // __TERRAMA2_CORE_UTILITY_DATA_STORAGER_FACTORY_HPP__
+#endif // __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__

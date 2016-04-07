@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
   dataProvider->uri += "/fire_system";
 
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 
 //DataSeries information
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
   assert(occurrenceSeries->getOccurrences().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.teDataSet;
+  std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.syncDataSet->dataset();
 
 //Print column names and types (DateTime/Double)
   int dateColumn = -1;

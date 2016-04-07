@@ -52,7 +52,7 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr d
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorDcpPostGIS::getDataSetName(DataSetPtr dataSet) const
 {
   try
   {
@@ -66,7 +66,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getTableName(DataSetPtr data
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimeColumnName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimePropertyName(DataSetPtr dataSet) const
 {
   try
   {
@@ -80,7 +80,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimeColumnName(DataSe
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getGeometryColumnName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorDcpPostGIS::getGeometryPropertyName(DataSetPtr dataSet) const
 {
   try
   {

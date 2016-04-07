@@ -32,6 +32,7 @@
 #include "DataManager.hpp"
 #include "AnalysisExecutor.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Timer.hpp"
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
@@ -71,12 +72,20 @@ bool terrama2::services::analysis::core::Service::checkNextData()
 
 void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
 {
+  Analysis analysis = dataManager_->findAnalysis(analysisId);
+
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId);
+  connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+  timers_.emplace(analysisId, timer);
+
   // add to queue to run now
   addToQueue(analysisId);
 }
 
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
 {
+  std::lock_guard<std::mutex> lock(mutex_);
+
   auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysisId);
   if(it != analysisQueue_.end())
     analysisQueue_.erase(it);

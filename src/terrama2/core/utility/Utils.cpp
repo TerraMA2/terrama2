@@ -102,38 +102,6 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
   return "";
 }
 
-QJsonDocument
-terrama2::core::ReadJsonFile(const std::string & fileName)
-{
-  QFile file(fileName.c_str());
-
-  if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    QString err_msg(QObject::tr("Could not open file: %1."));
-    err_msg = err_msg.arg(fileName.c_str());
-
-    throw terrama2::FileOpenException() << terrama2::ErrorDescription(err_msg);
-  }
-
-  QByteArray doc_data = file.readAll();
-
-  file.close();
-
-  QJsonParseError parse_error;
-
-  QJsonDocument jdocument = QJsonDocument::fromJson(doc_data, &parse_error);
-
-  if(jdocument.isNull())
-  {
-    QString err_msg(QObject::tr("Error parsing file '%1': %2."));
-    err_msg = err_msg.arg(fileName.c_str()).arg(parse_error.errorString());
-
-    throw terrama2::JSonParserException() << terrama2::ErrorDescription(err_msg);
-  }
-
-  return jdocument;
-}
-
 void terrama2::core::initializeTerralib()
 {
   // Initialize the Terralib support

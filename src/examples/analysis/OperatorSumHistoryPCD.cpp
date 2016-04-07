@@ -12,7 +12,7 @@
 #include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/Shared.hpp>
+#include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
@@ -46,13 +46,15 @@ int main(int argc, char* argv[])
 
   QCoreApplication app(argc, argv);
 
-  Analysis analysis;
 
   DataManagerPtr dataManager(new DataManager());
 
+  Context::getInstance().setDataManager(dataManager);
+
+  Analysis analysis;
   analysis.id = 1;
 
-  std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"10h\")\nresult(x)";
+  std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"2h\")\nresult(x)";
   analysis.name = "Sum History DCP";
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
@@ -63,7 +65,7 @@ int main(int argc, char* argv[])
   dataProvider->name = "Provider";
   dataProvider->uri = "file:///Users/paulo/Workspace/data/shp";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
 
@@ -74,6 +76,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.name = "STATIC_DATA-ogr";
+  dataSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -96,7 +99,7 @@ int main(int argc, char* argv[])
   dataProvider2->name = "Provider";
   dataProvider2->uri = "file:///Users/paulo/Workspace/data";
   dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider2->dataProviderType = 0;
+  dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
   dataProvider2->id = 2;
 
@@ -114,6 +117,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.name = "DCP-inpe";
+  dcpSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::DCP;
   dcpSeries->name = "PCD-Angra";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
@@ -146,7 +150,6 @@ int main(int argc, char* argv[])
   dataManager->add(analysis);
 
 
-  Context::getInstance().setDataManager(dataManager);
   Service service(dataManager);
   service.start();
   service.addAnalysis(1);

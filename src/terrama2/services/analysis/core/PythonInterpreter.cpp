@@ -36,9 +36,8 @@
 #include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/data-access/SyncronizedDataSet.hpp"
 #include "../../../core/Shared.hpp"
-#include "../../../impl/DataAccessorOccurrenceMvf.hpp"
-#include "../../../impl/DataAccessorDcpInpe.hpp"
 
 #include <QObject>
 
@@ -124,7 +123,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
   }
 
 
-  auto geom = moDsContext->dataset->getGeometry(index, moDsContext->geometryPos);
+  auto geom = moDsContext->series.syncDataSet->getGeometry(index, moDsContext->geometryPos);
   if(!geom.get())
   {
     QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
@@ -153,10 +152,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
         contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
         if(!contextDataset)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover dataset."));
-          errMsg = errMsg.arg(analysisId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return NULL;
+          continue;
         }
 
 
@@ -165,9 +161,9 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
         Py_BEGIN_ALLOW_THREADS
 
         std::vector<uint64_t> indexes;
-        std::shared_ptr<SyncronizedDataSet> syncDs = contextDataset->dataset;
+        terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
 
-        if(contextDataset->dataset->size() > 0)
+        if(contextDataset->series.syncDataSet->size() > 0)
         {
           auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
           geom->transform(sampleGeom->getSRID());
@@ -273,7 +269,7 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
   }
 
 
-  auto geom = moDsContext->dataset->getGeometry(index, moDsContext->geometryPos);
+  auto geom = moDsContext->series.syncDataSet->getGeometry(index, moDsContext->geometryPos);
   if(!geom.get())
   {
     QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
@@ -291,7 +287,15 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     {
       found = true;
 
-      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+      if(analysisDataSeries.dataSeries->semantics.macroType != terrama2::core::DataSeriesSemantics::DCP)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
+
+      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilterStr);
 
       for(auto dataset : analysisDataSeries.dataSeries->datasetList)
       {
@@ -347,14 +351,14 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
 
             if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
             {
-              uint64_t size = contextDataset->dataset->size();
+              uint64_t size = contextDataset->series.syncDataSet->size();
               for(unsigned int i = 0; i < size; ++i)
               {
-                if(!contextDataset->dataset->isNull(i, attribute))
+                if(!contextDataset->series.syncDataSet->isNull(i, attribute))
                 {
                   try
                   {
-                    double value = contextDataset->dataset->getDouble(i, attribute);
+                    double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
                     sum += value;
                   }
                   catch(...)
@@ -444,7 +448,7 @@ PyObject* terrama2::services::analysis::core::result(PyObject* self, PyObject* a
 
         if(moDsContext->identifier.empty())
           assert(false);
-        std::string geomId = moDsContext->dataset->getString(index, moDsContext->identifier);
+        std::string geomId = moDsContext->series.syncDataSet->getString(index, moDsContext->identifier);
         Context::getInstance().setAnalysisResult(analysisId, geomId, result);
       }
     }

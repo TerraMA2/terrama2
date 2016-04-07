@@ -50,3 +50,7 @@ bool terrama2::core::DataRetriever::isRetrivable() const
 {
   return false;
 }
+terrama2::core::DataRetriever* terrama2::core::DataRetriever::make(DataProviderPtr dataProvider)
+{
+  return new DataRetriever(dataProvider);
+}

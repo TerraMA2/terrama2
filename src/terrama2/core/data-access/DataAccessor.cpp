@@ -30,7 +30,7 @@
 #include "DataAccessor.hpp"
 #include "../Exception.hpp"
 #include "../utility/Logger.hpp"
-#include "../utility/Factory.hpp"
+#include "../utility/DataRetrieverFactory.hpp"
 
 //terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -105,7 +105,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   {
     QString errMsg = QObject::tr("Disabled data provider (Should not arrive here!)");
 
-    throw DisabledDataProviderException() << ErrorDescription(errMsg);
+    throw DataProviderException() << ErrorDescription(errMsg);
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
 
@@ -113,11 +113,14 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
 
   try
   {
-    DataRetrieverPtr dataRetriever = Factory::MakeRetriever(dataProvider_);
+    DataRetrieverPtr dataRetriever = DataRetrieverFactory::getInstance().make(dataProvider_);
     for(const auto& dataset : dataSeries_->datasetList)
     {
       //if the dataset is not active, continue to next.
       if(!dataset->active)
+        continue;
+
+      if(!intersects(dataset, filter))
         continue;
 
       bool removeFolder = false;
@@ -155,17 +158,14 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   catch(const boost::exception& e)
   {
     std::cout << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString() << std::endl;
-    assert(0);
   }
   catch(const std::exception& e)
   {
     std::cout << e.what() << std::endl;
-    assert(0);
   }
   catch(...)
   {
     //TODO: catch cannot open DataProvider, log here
-    assert(0);
   }
 
   return series;

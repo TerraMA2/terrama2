@@ -56,18 +56,6 @@ namespace terrama2
      */
     std::string FindInTerraMA2Path(const std::string& fileName);
 
-    /*!
-      \brief Read a JSON document and parse it.
-
-      \param file_name The file to be read (with absolute or relative path).
-
-      \return A valid JSON document or throws an exception.
-
-      \exception FileOpenException Throw this type of exception if a file could not be open.
-      \exception JSonParserException  Throw this type of exception if JSON document is not valid.
-     */
-    QJsonDocument ReadJsonFile(const std::string& fileName);
-
     /*! \brief Initializes the terralib and load the plugins. */
     void initializeTerralib();
 

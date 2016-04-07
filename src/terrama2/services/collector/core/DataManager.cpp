@@ -31,6 +31,7 @@
 #include "Collector.hpp"
 #include "Exception.hpp"
 #include "../../../core/Exception.hpp"
+#include "../../../core/utility/Logger.hpp"
 
 //STL
 #include <mutex>
@@ -49,8 +50,11 @@ void terrama2::services::collector::core::DataManager::add(terrama2::services::c
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(collector->id == terrama2::core::InvalidId())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
+    {
+      QString errMsg = QObject::tr("Can not add a data provider with an invalid id.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     collectors_[collector->id] = collector;
   }
@@ -78,8 +82,9 @@ void terrama2::services::collector::core::DataManager::removeCollector(Collector
     auto itPr = collectors_.find(collectorId);
     if(itPr == collectors_.end())
     {
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("DataProvider not registered."));
+      QString errMsg = QObject::tr("DataProvider not registered.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
     collectors_.erase(itPr);
