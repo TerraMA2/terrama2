@@ -27,7 +27,6 @@
   \author Jano Simas
 */
 
-
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
 
@@ -69,6 +68,6 @@ namespace terrama2
       } // end namespace core
     }   // end namespace collector
   }     // end namespace services
-}       // end namespace terrama2
+} // end namespace terrama2
 
 #endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__

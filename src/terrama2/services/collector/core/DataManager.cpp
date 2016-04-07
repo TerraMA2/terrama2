@@ -33,15 +33,13 @@
 #include "../../../core/Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 
-//STL
+// STL
 #include <mutex>
 
-terrama2::services::collector::core::CollectorPtr
-terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
+terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
   return collectors_.at(id);
 }
-
 
 void terrama2::services::collector::core::DataManager::add(terrama2::services::collector::core::CollectorPtr collector)
 {
