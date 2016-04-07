@@ -80,11 +80,6 @@ void terrama2::core::Timer::scheduleSlot() const
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 {
-//  FIXME: implement prepareTimer, needs unit conversion
-//  te::dt::TimeDuration frequency = dataSchedule.dataFrequency();
-//  int seconds = frequency.getTimeDuration().total_seconds();
-
-
   enum
   {
     UOM_second =  1040
@@ -92,22 +87,31 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   // Base of Time measure: second
   te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(UOM_second,"second", "s", te::common::MeasureType::Time));
-  std::vector<std::string> secondAlternativeNames {"sec", "ss"};
+  std::vector<std::string> secondAlternativeNames {"s", "sec", "ss", "seconds"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomSecond, secondAlternativeNames);
 
   te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "minute", "min", te::common::MeasureType::Time, UOM_second, 60.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> minuteAlternativeNames {"min"};
+  std::vector<std::string> minuteAlternativeNames {"min", "minutes"};
 
   te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "hour", "h", te::common::MeasureType::Time, UOM_second, 3600.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> hourAlternativeNames {"hh", "h"};
+  std::vector<std::string> hourAlternativeNames {"hh", "h", "hours"};
 
   te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "day", "d", te::common::MeasureType::Time, UOM_second, 86400.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> dayAlternativeNames {"d", "dd"};
+  std::vector<std::string> dayAlternativeNames {"d", "dd", "days"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomMinute, minuteAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomHour, hourAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomDay, dayAlternativeNames);
+
+  te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.frequencyUnit);
+
+  if(!uom)
+  {
+    QString errMsg = QObject::tr("Invalid unit frequency.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
+  }
 
   double seconds = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
 

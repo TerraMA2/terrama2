@@ -25,14 +25,6 @@
 #          Paulo R. M. Oliveira
 #
 
-# Compiler options: pthread for gtest
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-endif()
-
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.hpp)
-
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
 )
@@ -46,15 +38,14 @@ include_directories (SYSTEM
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
-source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/core/*.hpp)
 
 add_executable(terrama2_unittest_core ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+
+qt5_use_modules(terrama2_unittest_core Test)
 
 target_link_libraries(terrama2_unittest_core terrama2_core
                                              terralib_mod_plugin
                                              terralib_mod_common)
 
-qt5_use_modules(terrama2_unittest_core Test)
-
-add_test(NAME terrama2_unittest_core COMMAND terrama2_unittest_core)
