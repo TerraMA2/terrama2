@@ -151,13 +151,13 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      //TODO:.. filter and join te::da::dataset from each dataset
      //TODO: join dataset
 
+     completeDataset->copy(*teDataSet);
+
      if(completeDataset->isEmpty())
      {
        QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
        TERRAMA2_LOG_WARNING() << errMsg;
      }
-
-     completeDataset->copy(*teDataSet);
    }// for each file
 
 
