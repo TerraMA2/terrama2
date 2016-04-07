@@ -71,6 +71,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
 
     if(!controlAlreadyExists) {
+      $("#terrama2-map").append('<div id="terrama2-map-info"></div>');
+
       var mousePositionControl = new ol.control.MousePosition({
         coordinateFormat: ol.coordinate.createStringXY(6),
         projection: 'EPSG:4326',
@@ -88,6 +90,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function removeMousePosition
    */
   var removeMousePosition = function() {
+    $("#terrama2-map-info").remove();
+
     memberOlMap.getControls().forEach(function(control, i) {
       if(control instanceof ol.control.MousePosition) {
         memberOlMap.removeControl(control);
