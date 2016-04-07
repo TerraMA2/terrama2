@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_POSTGIS_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_POSTGIS_HPP__
 
-//TerraMA2
+// TerraMA2
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessor.hpp"
 #include "../core/data-model/DataSet.hpp"
@@ -51,10 +51,11 @@ namespace terrama2
     class DataAccessorPostGis : public virtual DataAccessor
     {
     public:
-        DataAccessorPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-          : DataAccessor(dataProvider, dataSeries, filter)
-        {}
-		virtual ~DataAccessorPostGis() {}
+      DataAccessorPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+        : DataAccessor(dataProvider, dataSeries, filter)
+      {
+      }
+      virtual ~DataAccessorPostGis() {}
 
       using terrama2::core::DataAccessor::getSeries;
       // Doc in base class
@@ -68,8 +69,10 @@ namespace terrama2
       virtual std::string getDateTimePropertyName(DataSetPtr dataSet) const = 0;
       virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const = 0;
 
-      virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const ;
-      virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const ;
+      virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
+                                     std::vector<te::da::Expression*> where) const;
+      virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
+                                     std::vector<te::da::Expression*> where) const;
     };
   }
 }
