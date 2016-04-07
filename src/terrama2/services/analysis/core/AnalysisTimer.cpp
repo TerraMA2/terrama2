@@ -90,26 +90,26 @@ void terrama2::services::analysis::core::AnalysisTimer::prepareTimer(const terra
 {
   terrama2::core::Schedule schedule = analysis.schedule;
   long frequency = schedule.frequency;
-  switch (schedule.frequencyUnit)
-  {
-    case terrama2::core::SECOND:
-      break;
-    case terrama2::core::MINUTE:
-      frequency *= 60;
-      break;
-    case terrama2::core::HOUR:
-      frequency *= 60 * 60;
-      break;
-    case terrama2::core::DAY:
-      frequency *= 60 * 60 * 24;
-      break;
-    case terrama2::core::WEEK:
-      frequency *= 60 * 60 * 24 * 7;
-      break;
-    case terrama2::core::MONTH:
-      frequency *= 60 * 60 * 24 * 30;
-      break;
-  }
+  // switch (schedule.frequencyUnit)
+  // {
+  //   case terrama2::core::SECOND:
+  //     break;
+  //   case terrama2::core::MINUTE:
+  //     frequency *= 60;
+  //     break;
+  //   case terrama2::core::HOUR:
+  //     frequency *= 60 * 60;
+  //     break;
+  //   case terrama2::core::DAY:
+  //     frequency *= 60 * 60 * 24;
+  //     break;
+  //   case terrama2::core::WEEK:
+  //     frequency *= 60 * 60 * 24 * 7;
+  //     break;
+  //   case terrama2::core::MONTH:
+  //     frequency *= 60 * 60 * 24 * 30;
+  //     break;
+  // }
 
   connect(&impl_->timer, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
   impl_->timer.start(frequency*1000);

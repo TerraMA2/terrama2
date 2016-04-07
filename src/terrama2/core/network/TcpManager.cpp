@@ -59,37 +59,49 @@ void terrama2::core::TcpManager::parseData(QByteArray bytearray)
     if(jsonDoc.isArray())
     {
       assert(0);
-      terrama2::core::DataManager* dataManager;//FIXME: get dataManager
+      terrama2::core::DataManager* dataManager; // FIXME: get dataManager
       auto jsonArray = jsonDoc.array();
-      std::for_each(jsonArray.constBegin(), jsonArray.constEnd(), std::bind(&terrama2::core::DataManager::addFromJSON, dataManager, std::placeholders::_1));
+      std::for_each(jsonArray.constBegin(), jsonArray.constEnd(),
+                    std::bind(&terrama2::core::DataManager::addFromJSON, dataManager, std::placeholders::_1));
     }
     else
       TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an array.\n");
   }
 }
 
-void terrama2::core::TcpManager::receiveConnection()
+bool terrama2::core::TcpManager::sendLog(std::string log)
 {
-  TERRAMA2_LOG_INFO() << QObject::tr("Receiving new configuration...");
+  QByteArray bytearray;
+  QDataStream out(&bytearray, QIODevice::WriteOnly);
+  out.setVersion(QDataStream::Qt_5_2);
 
-  QTcpSocket* tcpSocket = nextPendingConnection();
-  if(!tcpSocket)
-    return;
+  out << static_cast<uint16_t>(0);
+  out << TcpSignals::ERROR_SIGNAL;
+  out << log.c_str();
+  out.device()->seek(0);
+  out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
 
-  if(!tcpSocket->waitForReadyRead())
+  // wait while sending message
+  qint64 written = tcpSocket_->write(bytearray);
+  if(written == -1 || !tcpSocket_->waitForBytesWritten())
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nSocket timeout.");
-    return;
+    // couldn't write to socket
+    return false;
   }
+  else
+    return true;
+}
 
-  QDataStream in(tcpSocket);
+void terrama2::core::TcpManager::readReadySlot()
+{
+  QDataStream in(tcpSocket_);
   in.setVersion(QDataStream::Qt_5_2);
 
   RaiiBlock block(blockSize_);
   Q_UNUSED(block)
   if(blockSize_ == 0)
   {
-    if(tcpSocket->bytesAvailable() < static_cast<int>(sizeof(uint16_t)))
+    if(tcpSocket_->bytesAvailable() < static_cast<int>(sizeof(uint16_t)))
     {
       TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nInvalid message size.");
       return;
@@ -98,7 +110,7 @@ void terrama2::core::TcpManager::receiveConnection()
     in >> blockSize_;
   }
 
-  if(tcpSocket->bytesAvailable() < blockSize_)
+  if(tcpSocket_->bytesAvailable() < blockSize_)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nWrong message size.");
     return;
@@ -143,8 +155,8 @@ void terrama2::core::TcpManager::receiveConnection()
     out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
 
     // wait while sending message
-    qint64 written = tcpSocket->write(bytearray);
-    if(written == -1 || !tcpSocket->waitForBytesWritten())
+    qint64 written = tcpSocket_->write(bytearray);
+    if(written == -1 || !tcpSocket_->waitForBytesWritten())
       TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
 
     break;
@@ -154,7 +166,16 @@ void terrama2::core::TcpManager::receiveConnection()
     break;
   }
 
-  // not essetial (TcpManager is the parent) but frees memory
-  delete tcpSocket;
   blockSize_ = 0;
+}
+
+void terrama2::core::TcpManager::receiveConnection()
+{
+  TERRAMA2_LOG_INFO() << QObject::tr("Receiving new configuration...");
+
+  tcpSocket_ = nextPendingConnection();
+  if(!tcpSocket_)
+    return;
+
+  connect(tcpSocket_, &QTcpSocket::readyRead, this, &terrama2::core::TcpManager::readReadySlot);
 }

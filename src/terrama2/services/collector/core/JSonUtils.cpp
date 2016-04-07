@@ -28,13 +28,14 @@
 */
 
 #include "../../../core/Exception.hpp"
+#include "../../../core/utility/JSonUtils.hpp"
 
 #include "JSonUtils.hpp"
 
-//Terralib
+// Terralib
 #include <terralib/geometry/WKTReader.h>
 
-//Qt
+// Qt
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QObject>
@@ -46,16 +47,37 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
   }
 
-  if(!(json.contains("id")
-      && json.contains("project_id")
-      && json.contains("name")
-      && json.contains("description")
-      && json.contains("intent")
-      && json.contains("uri")
-      && json.contains("active")))
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  if(!(json.contains("id") && json.contains("project_id") && json.contains("service_instance_id") && json.contains("input_data_series") &&
+       json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") && json.contains("intersection") &&
+       json.contains("active")))
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
-   terrama2::services::collector::core::CollectorPtr collectorPtr = nullptr;
+  terrama2::services::collector::core::Collector* collector = new terrama2::services::collector::core::Collector();
+  terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
 
-   return collectorPtr;
+  collector->id = json["id"].toInt();
+  collector->projectId = json["project_id"].toInt();
+
+  collector->inputDataSeries = json["input_data_series"].toInt();
+  collector->outputDataSeries = json["output_data_series"].toInt();
+
+  auto inOutArray = json["output_data_series"].toArray();
+  auto it = inOutArray.begin();
+  for(; it != inOutArray.end(); ++it)
+  {
+    auto obj = (*it).toObject();
+    collector->inputOutputMap.emplace(obj["input"].toInt(), obj["output"].toInt());
+  }
+
+  collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  collector->intersection = terrama2::services::collector::core::fromIntersectionJson(json["intersection"].toObject());
+  collector->active = json["active"].toBool();
+
+  return collectorPtr;
+}
+
+terrama2::services::collector::core::IntersectionPtr terrama2::services::collector::core::fromIntersectionJson(QJsonObject json)
+{
+  assert(0);
+  return nullptr;
 }

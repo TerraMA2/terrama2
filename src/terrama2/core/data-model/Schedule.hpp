@@ -67,12 +67,12 @@ namespace terrama2
 
       ScheduleId id = 0; //!< Schedule identifier.
       uint64_t frequency = 0; //!< The time frequency.
-      ScheduleUnit frequencyUnit; //!< Unit of the time frequency.
+      std::string frequencyUnit; //!< Unit of the time frequency.
       te::dt::TimeDuration schedule; //!< Schedule time.
       uint64_t scheduleRetry = 0; //!< The time frequency to retry.
-      ScheduleUnit scheduleRetryUnit; //!< Unit of the schedule retry.
+      std::string scheduleRetryUnit; //!< Unit of the schedule retry.
       uint64_t scheduleTimeout = 0; //!< The time limit to retry.
-      ScheduleUnit scheduleTimeoutUnit; //!< Unit of the schedule timeout.
+      std::string scheduleTimeoutUnit; //!< Unit of the schedule timeout.
 
       inline bool operator==(const Schedule& rhs){ return id == rhs.id; }
     };
