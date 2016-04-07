@@ -87,6 +87,9 @@ namespace terrama2
 
     struct UtilityException: virtual Exception{ };
 
+    //! Raised when the receives an invalid collect frequency
+    struct InvalidCollectFrequencyException: virtual UtilityException { };
+
     //#################################
 
   }  // end namespace core

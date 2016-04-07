@@ -27,7 +27,14 @@
   \author Jano Simas
 */
 
+//Terralib
+#include <terralib/common/UnitsOfMeasureManager.h>
+
+// TerraMA2
 #include "Timer.hpp"
+#include "../Exception.hpp"
+#include "../utility/Logger.hpp"
+
 
 struct terrama2::core::Timer::Impl
 {
@@ -73,29 +80,48 @@ void terrama2::core::Timer::scheduleSlot() const
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 {
-  //FIXME: implement prepareTimer, needs unit conversion
-  // te::dt::TimeDuration frequency = dataSchedule.dataFrequency();
-  // int seconds = frequency.getTimeDuration().total_seconds();
-  // if(seconds > 0)
-  // {
-  //   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-  //   impl_->timer_.start(seconds*1000);
-  // }
-  // else
-  // {
-  //   impl_->schedule_ = dataSchedule.schedule();
-  //
-  //   long seconds = impl_->schedule_.getTimeDuration().total_seconds();
-  //   if(seconds <= 0)
-  //   {
-  //     QString errMsg = QObject::tr("Invalid collect frequency.");
-  //     TERRAMA2_LOG_ERROR() << errMsg;
-  //     throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
-  //   }
-  //
-  //   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(scheduleSlot()), Qt::UniqueConnection);
-  //   impl_->timer_.start(60000);//check each minute
-  // }
+//  FIXME: implement prepareTimer, needs unit conversion
+//  te::dt::TimeDuration frequency = dataSchedule.dataFrequency();
+//  int seconds = frequency.getTimeDuration().total_seconds();
+
+
+  enum
+  {
+    UOM_second =  1040
+  };
+
+  // Base of Time measure: second
+  te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(UOM_second,"second", "s", te::common::MeasureType::Time));
+  std::vector<std::string> secondAlternativeNames {"sec", "ss"};
+
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomSecond, secondAlternativeNames);
+
+  te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "minute", "min", te::common::MeasureType::Time, UOM_second, 60.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> minuteAlternativeNames {"min"};
+
+  te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "hour", "h", te::common::MeasureType::Time, UOM_second, 3600.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> hourAlternativeNames {"hh", "h"};
+
+  te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "day", "d", te::common::MeasureType::Time, UOM_second, 86400.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> dayAlternativeNames {"d", "dd"};
+
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomMinute, minuteAlternativeNames);
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomHour, hourAlternativeNames);
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomDay, dayAlternativeNames);
+
+  double seconds = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
+
+   if(seconds > 0)
+   {
+     connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
+     impl_->timer_.start(seconds*1000);
+   }
+   else
+   {
+     QString errMsg = QObject::tr("Invalid collect frequency.");
+     TERRAMA2_LOG_ERROR() << errMsg;
+     throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
+   }
 }
 
 uint64_t terrama2::core::Timer::processId() const
