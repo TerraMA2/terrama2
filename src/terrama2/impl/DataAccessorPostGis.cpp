@@ -123,8 +123,6 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
     TERRAMA2_LOG_WARNING() << errMsg;
   }
 
-  std::shared_ptr<te::mem::DataSet> completeDataset = std::make_shared<te::mem::DataSet>(*tempDataSet);
-
   Series series;
   series.dataSet = dataSet;
   series.syncDataSet.reset(new terrama2::core::SyncronizedDataSet(tempDataSet));
@@ -141,7 +139,7 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
 }
 
 void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                                            std::vector<te::da::Expression*> where) const
+                                                            std::vector<te::da::Expression*>& where) const
 {
   te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
   if(filter.discardBefore.get())
@@ -162,7 +160,7 @@ void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::Data
 }
 
 void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                                            std::vector<te::da::Expression*> where) const
+                                                            std::vector<te::da::Expression*>& where) const
 {
   te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
   if(filter.geometry.get())

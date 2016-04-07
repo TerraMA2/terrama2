@@ -70,7 +70,7 @@ std::string terrama2::core::DataAccessorOccurrencePostGis::getDateTimePropertyNa
 {
   try
   {
-    return dataSet->format.at("date_time_column");
+    return dataSet->format.at("timestamp_property");
   }
   catch (...)
   {
@@ -84,7 +84,7 @@ std::string terrama2::core::DataAccessorOccurrencePostGis::getGeometryPropertyNa
 {
   try
   {
-    return dataSet->format.at("geometry_column");
+    return dataSet->format.at("geometry_property");
   }
   catch (...)
   {

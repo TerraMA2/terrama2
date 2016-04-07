@@ -55,12 +55,12 @@ int main(int argc, char* argv[])
   {
     std::string name = teDataSet->getPropertyName(i);
     names+= name + "\t";
-    if(name == "DateTime")
+    if(name == "data_pas")
     {
       types+= "DataTime\t";
       dateColumn = i;
     }
-    else if(name == "geom")
+    else if(name == "position")
     {
       types+= "Geometry\t";
       geomColumn = i;
@@ -78,29 +78,8 @@ int main(int argc, char* argv[])
   {
     for(int i = 0; i < teDataSet->getNumProperties(); ++i)
     {
-      if(teDataSet->isNull(i))
-      {
-        std::cout << "NULL";
-        continue;
-      }
 
-      if(i == dateColumn)
-      {
-        std::shared_ptr<te::dt::DateTime> dateTime(teDataSet->getDateTime(i));
-        std::cout << dateTime->toString();
-      }
-      else if(i == geomColumn)
-      {
-        std::shared_ptr<te::gm::Geometry> geometry(teDataSet->getGeometry(i));
-        assert(geometry.get());
-        std::cout << "<<geometry>>";
-      }
-      else
-      {
-        std::cout << teDataSet->getAsString(i);
-      }
-
-      std::cout << "\t";
+      std::cout << teDataSet->getAsString(i) << "\t";
     }
     std::cout << std::endl;
   }

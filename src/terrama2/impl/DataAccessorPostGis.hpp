@@ -70,9 +70,9 @@ namespace terrama2
       virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const = 0;
 
       virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                     std::vector<te::da::Expression*> where) const;
+                                     std::vector<te::da::Expression*>& where) const;
       virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                     std::vector<te::da::Expression*> where) const;
+                                     std::vector<te::da::Expression*>& where) const;
     };
   }
 }
