@@ -149,6 +149,8 @@ namespace terrama2
        */
       virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
 
+      virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
+
       DataProviderPtr dataProvider_;
       DataSeriesPtr dataSeries_;
       Filter filter_;

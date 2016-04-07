@@ -120,6 +120,9 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
       if(!dataset->active)
         continue;
 
+      if(!intersects(dataset, filter))
+        continue;
+
       bool removeFolder = false;
       // if this data retriever is a remote server that allows to retrieve data to a file,
       // download the file to a tmeporary location

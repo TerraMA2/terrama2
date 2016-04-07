@@ -62,7 +62,7 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
 {
   QUrl url(uri.c_str());
 
-  std::string tableName = getTableName(dataSet);
+  std::string tableName = getDataSetName(dataSet);
 
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files
@@ -93,33 +93,9 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
   // get a transactor to interact to the data source
   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimeColumnName(dataSet));
-  te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryColumnName(dataSet));
-
   std::vector<te::da::Expression*> where;
-  if(filter.discardBefore.get())
-  {
-   te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore->clone()));
-   te::da::Expression* discardBeforeExpression = new te::da::GreaterThan(dateTimeProperty->clone(), discardBeforeVal);
-
-   where.push_back(discardBeforeExpression);
-  }
-
-  if(filter.discardAfter.get())
-  {
-   te::da::Expression* discardAfterVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardAfter->clone()));
-   te::da::Expression* discardAfterExpression = new te::da::LessThan(dateTimeProperty->clone(), discardAfterVal);
-
-   where.push_back(discardAfterExpression);
-  }
-
-  if(filter.geometry.get())
-  {
-   te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.geometry->clone()));
-   te::da::Expression* intersectExpression = new te::da::ST_Intersects(geometryProperty, geometryVal);
-
-   where.push_back(intersectExpression);
-  }
+  addDateTimeFilter(dataSet, filter, where);
+  addGeometryFilter(dataSet, filter, where);
 
   te::da::FromItem* t1 = new te::da::DataSetName(tableName);
   te::da::From* from = new te::da::From;
@@ -149,6 +125,8 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
     TERRAMA2_LOG_WARNING() << errMsg;
   }
 
+  std::shared_ptr<te::mem::DataSet> completeDataset = std::make_shared<te::mem::DataSet>(*tempDataSet);
+
   Series series;
   series.dataSet = dataSet;
   series.syncDataSet.reset(new terrama2::core::SyncronizedDataSet(tempDataSet));
@@ -162,4 +140,36 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
   TERRAMA2_LOG_ERROR() << errMsg;
   throw NoDataException() << ErrorDescription(errMsg);
+}
+
+void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const
+{
+  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
+  if(filter.discardBefore.get())
+  {
+    te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore->clone()));
+    te::da::Expression* discardBeforeExpression = new te::da::GreaterThan(dateTimeProperty->clone(), discardBeforeVal);
+
+    where.push_back(discardBeforeExpression);
+  }
+
+  if(filter.discardAfter.get())
+  {
+    te::da::Expression* discardAfterVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardAfter->clone()));
+    te::da::Expression* discardAfterExpression = new te::da::LessThan(dateTimeProperty->clone(), discardAfterVal);
+
+    where.push_back(discardAfterExpression);
+  }
+}
+
+void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const
+{
+  te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
+  if(filter.geometry.get())
+  {
+    te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.geometry->clone()));
+    te::da::Expression* intersectExpression = new te::da::ST_Intersects(geometryProperty, geometryVal);
+
+    where.push_back(intersectExpression);
+  }
 }
