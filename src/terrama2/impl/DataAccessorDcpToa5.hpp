@@ -118,6 +118,18 @@ namespace terrama2
         std::string timestampColumn() const;
 
         /*!
+         * \brief recordColumn Get record column.
+         * \return Return Record Column.
+         */
+        std::string recordColumn() const;
+
+        /*!
+         * \brief stationColumn Get station column.
+         * \return Return Station Column.
+         */
+        std::string stationColumn() const;
+
+        /*!
          * \brief stringToTimestamp is the function is responsible for handling the date and time fields
             * in the format timestamp TOA5 file.
             * \param dataset te::da::DataSet* dataset is input data set;

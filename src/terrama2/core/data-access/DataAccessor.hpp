@@ -81,6 +81,12 @@ namespace terrama2
 
       //! Utility function for converting string to double in the te::da::DataSet contruction.
       te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+
+      //! Utility function for converting string to int32 in the te::da::DataSet contruction.
+      te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+
+      //! Get folder of DCP.
+      std::string getFolder(DataSetPtr dataSet) const;
     protected:
 
       /*!

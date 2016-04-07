@@ -37,6 +37,7 @@
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/datatype/SimpleData.h>
 #include <terralib/datatype/Property.h>
+#include <terralib/datatype/Enums.h>
 
 //QT
 #include <QUrl>
@@ -54,7 +55,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
  {
    std::string strValue = dataset->getAsString(indexes[0]);
 
-   if(strValue.empty())
+   if((strValue.empty()) || (strValue == "NAN"))
    {
      return nullptr;
    }
@@ -80,6 +81,56 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
 
  return nullptr;
 }
+
+te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
+{
+ assert(indexes.size() == 1);
+
+ try
+ {
+   std::string strValue = dataset->getAsString(indexes[0]);
+
+   if(strValue.empty())
+   {
+     return nullptr;
+   }
+   else
+   {
+     boost::int32_t value = 0;
+     std::istringstream stream(strValue);//create stream
+     stream >> value;
+
+     te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
+
+     return data;
+   }
+ }
+ catch(std::exception& e)
+ {
+   TERRAMA2_LOG_ERROR() << e.what();
+ }
+ catch(...)
+ {
+   TERRAMA2_LOG_ERROR() << "Unknown error";
+ }
+
+ return nullptr;
+}
+
+std::string terrama2::core::DataAccessor::getFolder(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("folder");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined folder in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
@@ -131,7 +182,8 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
         removeFolder = true;
       }
       else
-        uri = dataProvider_->uri;
+      //  uri = dataProvider_->uri;
+        uri = dataProvider_->uri +"/"+ getFolder(dataset);
 
       //TODO: Set last date collected in filter
       std::shared_ptr<te::mem::DataSet> memDataSet;

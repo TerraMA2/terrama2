@@ -57,18 +57,27 @@ terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataPro
    DataAccessorDcp(dataProvider, dataSeries, filter),
    DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "PCD-TOA5")
+  if(dataSeries->semantics.name != "DCP-toa5")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
   }
-
 }
 
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::timestampColumn() const
 {
   return "TIMESTAMP";
+}
+
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::recordColumn() const
+{
+  return "RECORD";
+}
+
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::stationColumn() const
+{
+  return "Estacao_ID";
 }
 
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getTimeZone(DataSetPtr dataSet) const
@@ -140,11 +149,39 @@ void terrama2::core::DataAccessorDcpToa5::adapt(DataSetPtr dataset, std::shared_
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
+
+    if (property->getName() == recordColumn())
+    {
+      te::dt::Property* property = properties.at(i);
+
+      std::string name = property->getName();
+
+      te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(name, te::dt::INT32_TYPE);
+      converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+    }
+
+    if (property->getName() == stationColumn())
+    {
+      te::dt::Property* property = properties.at(i);
+
+      converter->add(i, property->clone());
+    }
+
     if(property->getName() == timestampColumn())
     {
       // datetime column found
       converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpToa5::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataset)));
-      break;
+    }
+    else if((property->getName() != timestampColumn()) && (property->getName() != stationColumn()) && (property->getName() != recordColumn()))
+    {
+      // DCP-TOA5 dataset columns have the name of the dcp before every column,
+      // remove the name and keep only the column name
+      te::dt::Property* property = properties.at(i);
+
+      std::string name = property->getName();
+
+      te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(name, te::dt::DOUBLE_TYPE);
+      converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
     }
   }
 }

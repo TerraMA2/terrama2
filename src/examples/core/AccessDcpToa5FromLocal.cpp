@@ -15,7 +15,10 @@ int main(int argc, char* argv[])
   //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->uri = "file:///home/terrama2/Projeto/terrama2/codebase/data/pcd_toa5/toa5_origem/CPV";
+  dataProvider->uri = "file://";
+  dataProvider->uri+=TERRAMA2_DATA_DIR;
+  //dataProvider->uri+="/pcd_toa5/GRM";
+  dataProvider->uri+="/pcd_toa5";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider->dataProviderType = 0;
   dataProvider->active = true;
@@ -23,12 +26,13 @@ int main(int argc, char* argv[])
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics.name = "PCD-TOA5";
+  dataSeries->semantics.name = "DCP-toa5";
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("mask", "CPV_slow_2014_01_02_1931.dat");
+  dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
   dataSet->format.emplace("timezone", "+00");
+  dataSet->format.emplace("folder", "/GRM");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -43,17 +47,43 @@ int main(int argc, char* argv[])
 
   std::shared_ptr<te::mem::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.teDataSet;
 
-//Print column names and types (DateTime)
-  int dateColumn = -1;
+//Print column names and types (DateTime/Int/String/Double)
+  int dateColumnDateTime = -1;
+  int dateColumnRecord = -1;
+  int dateColumnStation = -1;
+
   std::string names, types;
   for(int i = 0; i < teDataSet->getNumProperties(); ++i)
   {
+    bool isdouble = true;
     std::string name = teDataSet->getPropertyName(i);
     names+= name + "\t";
+
+    if (name == "RECORD")
+    {
+      types+= "INT32\t";
+      dateColumnRecord = i;
+      isdouble = false;
+    }
+
+    if (name == "Estacao_ID")
+    {
+      types+= "String\t";
+      dateColumnStation = i;
+      isdouble = false;
+    }
+
     if(name == "DateTime")
     {
       types+= "DataTime\t";
-      dateColumn = i;
+      dateColumnDateTime = i;
+      isdouble = false;
+    }
+
+    if (isdouble)
+    {
+      types+= "Double\t";
+      isdouble = true;
     }
   }
 
@@ -66,16 +96,39 @@ int main(int argc, char* argv[])
   {
     for(int i = 0; i < teDataSet->getNumProperties(); ++i)
     {
+      bool isdouble = true;
       if(teDataSet->isNull(i))
       {
+        isdouble = false;
         std::cout << "NULL";
-        continue;
       }
 
-      if(i == dateColumn)
+      if(i == dateColumnRecord)
+      {
+        int value_int = teDataSet->getInt32(i);
+        std::cout << value_int;
+        isdouble = false;
+      }
+
+      if(i == dateColumnStation)
+      {
+        std::string value_str = teDataSet->getString(i);
+        std::cout << value_str;
+        isdouble = false;
+      }
+
+      if(i == dateColumnDateTime)
       {
         std::shared_ptr<te::dt::DateTime> dateTime =  teDataSet->getDateTime(i);
         std::cout << dateTime->toString();
+        isdouble = false;
+      }
+
+      if(isdouble)
+      {
+        double value =  teDataSet->getDouble(i);
+        std::cout << value;
+        isdouble = true;
       }
 
       std::cout << "\t";
