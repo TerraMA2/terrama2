@@ -26,9 +26,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberOlMap = new ol.Map({
     renderer: 'canvas',
     target: 'terrama2-map',
-    view: new ol.View({ projection: 'EPSG:4326', center: [-55, -15], zoom: 3 }),
-    interactions: ol.interaction.defaults({ doubleClickZoom: false }),
-    controls: ol.control.defaults().extend([ new ol.control.ScaleLine() ])
+    view: new ol.View({ projection: 'EPSG:4326', center: [-55, -15], zoom: 3 })
   });
   // Resolution change event key
   var memberResolutionChangeEventKey = null;
@@ -55,6 +53,113 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var updateMapSize = function() {
     var interval = window.setInterval(function() { memberOlMap.updateSize(); }, 10);
     window.setTimeout(function() { clearInterval(interval); }, 300);
+  };
+
+  /**
+   * Adds a mouse position display in the map.
+   *
+   * @function addMousePosition
+   */
+  var addMousePosition = function() {
+    var controlAlreadyExists = false;
+
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.MousePosition) {
+        controlAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!controlAlreadyExists) {
+      var mousePositionControl = new ol.control.MousePosition({
+        coordinateFormat: ol.coordinate.createStringXY(6),
+        projection: 'EPSG:4326',
+        className: 'terrama2-mouse-position',
+        target: document.getElementById('terrama2-map-info')
+      });
+
+      memberOlMap.addControl(mousePositionControl);
+    }
+  };
+
+  /**
+   * Removes the mouse position display from the map.
+   *
+   * @function removeMousePosition
+   */
+  var removeMousePosition = function() {
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.MousePosition) {
+        memberOlMap.removeControl(control);
+        return;
+      }
+    });
+  };
+
+  /**
+   * Adds a scale display in the map.
+   *
+   * @function addScale
+   */
+  var addScale = function() {
+    var controlAlreadyExists = false;
+
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.ScaleLine) {
+        controlAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!controlAlreadyExists)
+      memberOlMap.addControl(new ol.control.ScaleLine());
+  };
+
+  /**
+   * Removes the scale display from the map.
+   *
+   * @function removeScale
+   */
+  var removeScale = function() {
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.ScaleLine) {
+        memberOlMap.removeControl(control);
+        return;
+      }
+    });
+  };
+
+  /**
+   * Enables the double click zoom.
+   *
+   * @function enableDoubleClickZoom
+   */
+  var enableDoubleClickZoom = function() {
+    var interactionAlreadyExists = false;
+
+    memberOlMap.getInteractions().forEach(function(interaction, i) {
+      if(interaction instanceof ol.interaction.DoubleClickZoom) {
+        interactionAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!interactionAlreadyExists)
+      memberOlMap.addInteraction(new ol.interaction.DoubleClickZoom());
+  };
+
+  /**
+   * Disables the double click zoom.
+   *
+   * @function disableDoubleClickZoom
+   */
+  var disableDoubleClickZoom = function() {
+    memberOlMap.getInteractions().forEach(function(interaction, i) {
+      if(interaction instanceof ol.interaction.DoubleClickZoom) {
+        memberOlMap.removeInteraction(interaction);
+        return;
+      }
+    });
   };
 
   /**
@@ -686,6 +791,12 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   return {
     getMap: getMap,
     updateMapSize: updateMapSize,
+    addMousePosition: addMousePosition,
+    removeMousePosition: removeMousePosition,
+    addScale: addScale,
+    removeScale: removeScale,
+    enableDoubleClickZoom: enableDoubleClickZoom,
+    disableDoubleClickZoom: disableDoubleClickZoom,
     addLayerGroup: addLayerGroup,
     createTileWMS: createTileWMS,
     addTileWMSLayer: addTileWMSLayer,
