@@ -49,13 +49,17 @@ namespace te
 
 namespace terrama2
 {
+  namespace core
+  {
+    class SyncronizedDataSet;
+  }
+
   namespace services
   {
     namespace analysis
     {
       namespace core
       {
-        class SyncronizedDataSet;
 
         std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance);
 

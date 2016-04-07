@@ -1,19 +1,19 @@
 {% extends "../base/layout.html" %}
-{% set tabActive = "dynamic-Data" %}
+{% set tabActive = "dynamic-data" %}
 
 {% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
 
 {% block styles %}
-    <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
 
-    <style type="text/css">
-        .terrama2-filterboxes-align
-        {
-            display: inline-block;
-            margin-left: calc(100% / 10);
-        };
+<style type="text/css">
+  .terrama2-filterboxes-align
+  {
+    display: inline-block;
+    margin-left: calc(100% / 10);
+  };
 
-    </style>
+</style>
 {% endblock %}
 
 {% block title %} TerraMA2 {[ __('Dynamic Data Series') ]} {% endblock %}
@@ -21,32 +21,53 @@
 {% block javascripts %}
 
 <script type="text/javascript">
-    var configuration = {
-        model: [
-            {
-                name: "PCD1",
-                type: "Pcd-Inpe"
-            },
-            {
-                name: "GRID1",
-                type: "Grid"
-            }
-        ],
-        fields: ['name', 'type'],
-        link: function(object) {
-            return "/configuration/dataset?type=static#wizard";
-        },
-        iconFn: function(object) {
-            if (object.type === 'Grid')
-                return "fa-th";
-            if (object.type === 'Occurrence')
-                return "fa-fire";
-            if (object.type === 'Pcd')
-                return "fa-map-pin";
-        }
-    };
+  var configuration = {
+    model: [
+      {
+        name: "PCD1",
+        type: "Pcd-Inpe"
+      },
+      {
+        name: "GRID1",
+        type: "Grid"
+      },
 
-    configuration.linkToAdd = configuration.link({});
+      {
+        name: "An_1",
+        type: "Grid"
+      },
+
+      {
+        name: "An_2",
+        type: "Pcd"
+      },
+      {
+        name: "An_3",
+        type: "Monitored Object"
+      }
+    ],
+    fields: ['name', 'type'],
+    link: function(object) {
+      return "/configuration/dataset?type=dynamic#wizard";
+    },
+    iconFn: function(object) {
+      switch(object.type) {
+        case "Monitored Object":
+          return "/images/monitored-object.png";
+          break;
+        case "Grid":
+          return "/images/grid-small.png";
+          break;
+        default:
+          return "/images/map-pin.png";
+      }
+    },
+    iconProperties: {
+      type: "img"
+    }
+  };
+
+  configuration.linkToAdd = configuration.link({});
 
 </script>
 
@@ -59,21 +80,21 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-md-12" ng-controller="ListController">
-        <div class="box box-default">
-            <div class="box-header with-border">
-                <h3 class="box-title">{[ __('Dynamic Data Series') ]}</h3>
-            </div>
-            <!-- /.box-header -->
-            <div style="display: block;" class="box-body">
+<div class="col-md-12" ng-controller="ListController">
+  <div class="box box-default">
+    <div class="box-header with-border">
+      <h3 class="box-title">{[ __('Dynamic Data Series') ]}</h3>
+    </div>
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body">
 
-                <div class="col-md-12">
-                    <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
-                </div>
+      <div class="col-md-12">
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn"></terrama2-table>
+      </div>
 
-            </div>
-            <!-- /.box body -->
-        </div>
-    </div> <!-- end col md 12 -->
+    </div>
+    <!-- /.box body -->
+  </div>
+</div> <!-- end col md 12 -->
 
 {% endblock %}

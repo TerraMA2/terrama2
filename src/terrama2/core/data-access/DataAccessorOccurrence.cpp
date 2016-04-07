@@ -30,7 +30,6 @@
 //TerraMA2
 #include "DataAccessorOccurrence.hpp"
 #include "DataRetriever.hpp"
-#include "../utility/Factory.hpp"
 #include "../utility/Logger.hpp"
 #include "../Exception.hpp"
 
@@ -46,7 +45,7 @@ terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getO
   auto series = getSeries(filter);
   OccurrenceSeriesPtr occurrenceSeries = std::make_shared<OccurrenceSeries>();
   occurrenceSeries->addOccurrences(series);
-  
+
   return occurrenceSeries;
 }
 

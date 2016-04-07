@@ -30,12 +30,15 @@
 #include "Service.hpp"
 #include "Exception.hpp"
 #include "DataManager.hpp"
+#include "AnalysisExecutor.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Timer.hpp"
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
   dataManager_(dataManager)
 {
+  connectDataManager();
 }
 
 terrama2::services::analysis::core::Service::~Service()
@@ -60,27 +63,46 @@ bool terrama2::services::analysis::core::Service::checkNextData()
   prepareTask(analysisId);
 
   //remove from queue
-  analysisQueue_.pop();
+  analysisQueue_.erase(analysisQueue_.begin());
 
   //is there more data to process?
   return !analysisQueue_.empty();
 }
 
 
-void terrama2::services::analysis::core::Service::addAnalysis(uint64_t analysisId)
+void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
 {
+  Analysis analysis = dataManager_->findAnalysis(analysisId);
+
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId);
+  connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+  timers_.emplace(analysisId, timer);
 
   // add to queue to run now
-    addToQueue(analysisId);
-
+  addToQueue(analysisId);
 }
 
+void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
+{
+  std::lock_guard<std::mutex> lock(mutex_);
 
-void terrama2::services::analysis::core::Service::prepareTask(uint64_t analysisId)
+  auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysisId);
+  if(it != analysisQueue_.end())
+    analysisQueue_.erase(it);
+}
+
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId)
+{
+  // the analysis object will only be fetched when the execution proccess begin.
+  // we only have the id so there is no need to update.
+}
+
+void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&run, analysisId));
+    Analysis analysis = dataManager_->findAnalysis(analysisId);
+    taskQueue_.emplace(std::bind(&run, analysis));
   }
   catch(std::exception& e)
   {
@@ -89,14 +111,14 @@ void terrama2::services::analysis::core::Service::prepareTask(uint64_t analysisI
 }
 
 
-void terrama2::services::analysis::core::Service::addToQueue(uint64_t analysisId)
+void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId)
 {
   try
   {
     //Lock Thread and add to the queue
     std::lock_guard<std::mutex> lock(mutex_);
 
-    analysisQueue_.push(analysisId);
+    analysisQueue_.push_back(analysisId);
 
     //wake loop thread
     mainLoopCondition_.notify_one();
@@ -107,7 +129,14 @@ void terrama2::services::analysis::core::Service::addToQueue(uint64_t analysisId
   }
 }
 
-void terrama2::services::analysis::core::Service::run(uint64_t analysisId)
+void terrama2::services::analysis::core::Service::run(Analysis analysis)
 {
-  std::cout << "RODOU" << std::endl;
+  terrama2::services::analysis::core::runAnalysis(analysis);
+}
+
+void terrama2::services::analysis::core::Service::connectDataManager()
+{
+  connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addAnalysis);
+  connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
+  connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
 }

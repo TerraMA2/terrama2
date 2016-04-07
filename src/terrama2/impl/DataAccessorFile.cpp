@@ -68,11 +68,9 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
   return dataRetriever->retrieveData(mask, filter);
 }
 
- void terrama2::core::DataAccessorFile::getDataSet(const std::string& uri,
-                                                   const terrama2::core::Filter& filter,
-                                                   terrama2::core::DataSetPtr dataSet,
-                                                   std::shared_ptr<te::mem::DataSet>& teDataSet,
-                                                   std::shared_ptr<te::da::DataSetType>& teDataSetType) const
+ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
+                                                                    const terrama2::core::Filter& filter,
+                                                                    terrama2::core::DataSetPtr dataSet) const
  {
    QUrl url(uri.c_str());
    QDir dir(url.path());
@@ -83,6 +81,10 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      TERRAMA2_LOG_ERROR() << errMsg;
      throw NoDataException() << ErrorDescription(errMsg);
    }
+
+   //return value
+   Series series;
+   series.dataSet = dataSet;
 
    bool first = true;
    std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
@@ -134,9 +136,9 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      {
      //read and adapt all te:da::DataSet from terrama2::core::DataSet
        converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
-       teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-       assert(teDataSetType.get());
-       completeDataset = std::make_shared<te::mem::DataSet>(teDataSetType.get());
+       series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+       assert(series.teDataSetType.get());
+       completeDataset = std::make_shared<te::mem::DataSet>(series.teDataSetType.get());
        first = false;
      }
 
@@ -148,15 +150,18 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      //FIXME: Nor working with raster!!
      //TODO:.. filter and join te::da::dataset from each dataset
      //TODO: join dataset
+
      completeDataset->copy(*teDataSet);
+
+     if(completeDataset->isEmpty())
+     {
+       QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
+       TERRAMA2_LOG_WARNING() << errMsg;
+     }
    }// for each file
 
-   if(completeDataset->isEmpty())
-   {
-     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
-     TERRAMA2_LOG_ERROR() << errMsg;
-     throw terrama2::core::NoDataException() << terrama2::ErrorDescription(errMsg);
-   }
 
-   teDataSet = completeDataset;
+   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
+   series.syncDataSet = syncDataset;
+   return series;
  }

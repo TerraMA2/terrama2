@@ -1,0 +1,87 @@
+/*
+ Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+
+ This file is part of TerraMA2 - a free and open source computational
+ platform for analysis, monitoring, and alert of geo-environmental extremes.
+
+ TerraMA2 is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation, either version 3 of the License,
+ or (at your option) any later version.
+
+ TerraMA2 is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with TerraMA2. See LICENSE. If not, write to
+ TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+ */
+
+/*!
+  \file terrama2/core/utility/DataAccessFactory.hpp
+
+  \brief
+
+  \author Jano Simas
+ */
+
+#include "DataStoragerFactory.hpp"
+#include "../data-access/DataStorager.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../utility/Logger.hpp"
+
+#include <QObject>
+#include <QString>
+
+void terrama2::core::DataStoragerFactory::add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f)
+{
+  auto it = factoriesMap_.find(dataProviderType);
+
+  if(it != factoriesMap_.end())
+  {
+    QString errMsg = QObject::tr("A data storager factory for this type already exists!");
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  factoriesMap_.emplace(dataProviderType, f);
+}
+
+void terrama2::core::DataStoragerFactory::remove(const terrama2::core::DataProviderType& dataProviderType)
+{
+  auto it = factoriesMap_.find(dataProviderType);
+
+  if(it == factoriesMap_.end())
+  {
+    QString errMsg = QObject::tr("There is no registered data storager factory for this type.");
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  factoriesMap_.erase(it);
+}
+
+bool terrama2::core::DataStoragerFactory::find(const terrama2::core::DataProviderType& dataProviderType)
+{
+  auto it = factoriesMap_.find(dataProviderType);
+
+  return (it != factoriesMap_.end());
+}
+
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(terrama2::core::DataProviderPtr dataProvider) const
+{
+  auto it = factoriesMap_.find(dataProvider->dataProviderType);
+
+  if(it == factoriesMap_.end())
+  {
+    QString errMsg = QObject::tr("Could not find a data storager factory for this type.");
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  DataStoragerPtr dataStorager(it->second(dataProvider));
+
+  return dataStorager;
+}

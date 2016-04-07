@@ -41,8 +41,9 @@ namespace terrama2 {
          struct Intersection;
          typedef std::shared_ptr<const terrama2::services::collector::core::Intersection> IntersectionPtr;
 
-         struct CollectorTimer;
-         typedef std::shared_ptr<const terrama2::services::collector::core::CollectorTimer> CollectorTimerPtr;
+         class DataManager;
+         typedef std::shared_ptr<terrama2::services::collector::core::DataManager> DataManagerPtr;
+
        } /* core */
      } /* collector */
   }

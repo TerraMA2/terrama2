@@ -46,7 +46,7 @@ module.exports = function(app) {
         app.locals.activeProject = {name: project.name};
 
         // Redirect for start application
-        response.redirect("/configuration/providers");
+        response.redirect("/configuration/status");
       }).catch(function(err) {
         console.log(err);
         response.render('base/404');

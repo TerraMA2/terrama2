@@ -31,14 +31,18 @@
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_EXCEPTION_HPP__
 
 // TerraMA2
-#include "../Exception.hpp"
+#include "../../../core/Exception.hpp"
 
 namespace terrama2
 {
-  namespace collector {
-    //! Base exception class for TerraMA2.
-    struct Exception: virtual Exception {};
-  } /* collector */
+  namespace services {
+    namespace collector {
+      //! Base exception class for TerraMA2.
+      struct Exception: virtual terrama2::core::Exception {};
+
+
+    } /* collector */
+  } /* services */
 }  // end namespace terrama2
 
 #endif  // __TERRAMA2_SERVICES_COLLECTOR_CORE_EXCEPTION_HPP__

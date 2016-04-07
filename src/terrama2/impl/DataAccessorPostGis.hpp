@@ -36,6 +36,8 @@
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"
 
+#include <terralib/dataaccess/query/Expression.h>
+
 namespace terrama2
 {
   namespace core
@@ -53,16 +55,21 @@ namespace terrama2
           : DataAccessor(dataProvider, dataSeries, filter)
         {}
 		virtual ~DataAccessorPostGis() {}
+
+      using terrama2::core::DataAccessor::getSeries;
       // Doc in base class
-      virtual void getDataSet(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet>& teDataSet, std::shared_ptr<te::da::DataSetType>& teDataSetType) const override;
+      virtual Series getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet) const override;
 
     protected:
       // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const override;
       //! Recover table name where data is stored
-      virtual std::string getTableName(DataSetPtr dataSet) const = 0;
-      virtual std::string getDateTimeColumnName(DataSetPtr dataSet) const = 0;
-      virtual std::string getGeometryColumnName(DataSetPtr dataSet) const = 0;
+      virtual std::string getDataSetName(DataSetPtr dataSet) const = 0;
+      virtual std::string getDateTimePropertyName(DataSetPtr dataSet) const = 0;
+      virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const = 0;
+
+      virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const ;
+      virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const ;
     };
   }
 }

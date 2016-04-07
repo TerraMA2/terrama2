@@ -54,6 +54,9 @@ namespace terrama2
     public:
       DataRetriever(DataProviderPtr) {}
       virtual ~DataRetriever() {}
+
+      static DataRetriever* make(DataProviderPtr dataProvider);
+
       /*!
 
         \return Uri to the termporary file

@@ -20,39 +20,30 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/Collector.hpp
-
-  \brief Model class for the collector configuration.
+  \file terrama2/services/analysis/core/Typedef.hpp
 
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
 
-#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
-#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
+#include <cstdint>
 
-#include "Typedef.hpp"
+typedef uint64_t AnalysisDataSeriesId;
+typedef uint64_t AnalysisId;
 
-//QT
-#include <QTimer>
 
 namespace terrama2
 {
   namespace services
   {
-    namespace collector
+    namespace analysis
     {
-      namespace core
-      {
-        class CollectorTimer : public QTimer
-        {
-          Q_OBJECT
-
-        };
-
-      } // end namespace core
-    }   // end namespace collector
+      inline uint64_t InvalidId(){ return 0;}
+    }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_TIMER_HPP__
+
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__

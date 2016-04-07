@@ -28,6 +28,7 @@
 */
 
 #include "Service.hpp"
+#include "Logger.hpp"
 
 terrama2::core::Service::Service()
   : stop_(false)
@@ -45,7 +46,12 @@ void terrama2::core::Service::start(uint threadNumber)
 
   // if service already running, throws
   if(mainLoopThread_.valid())
-    throw; //TODO: create new exception
+  {
+    QString errMsg = tr("Service alredy running.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ServiceException() << ErrorDescription(errMsg);
+  }
+
 
   try
   {
@@ -68,7 +74,8 @@ void terrama2::core::Service::start(uint threadNumber)
     QString errMsg(tr("Unable to start collector service: %1."));
     errMsg = errMsg.arg(e.what());
 
-    throw; //TODO: create new exception
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ServiceException() << ErrorDescription(errMsg);
   }
 }
 
@@ -123,9 +130,9 @@ void terrama2::core::Service::mainLoopThread() noexcept
       if(stop_)
         break;
     }
-    catch(std::exception& /*e*/)
+    catch(std::exception& e)
     {
-      //TODO: log this
+      TERRAMA2_LOG_ERROR() << e.what();
     }
   }
 }
@@ -161,11 +168,10 @@ void terrama2::core::Service::processingTaskThread() noexcept
 
       if(stop_)
         break;
-      //TODO: look for another task before sleeping again?
     }
   }
-  catch(std::exception& /*e*/)
+  catch(std::exception& e)
   {
-    //TODO: log this
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }

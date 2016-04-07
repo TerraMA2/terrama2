@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
@@ -8,10 +9,20 @@
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
 #include <terrama2/services/analysis/core/Analysis.hpp>
+#include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/Shared.hpp>
+#include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
+
+#include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
+#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
+#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
+#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
+
+
 
 #include <iostream>
 
@@ -25,16 +36,26 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
+
+  terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
+  terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
+  terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
+  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
+  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
+  terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+
   QCoreApplication app(argc, argv);
 
-  Analysis analysis;
 
   DataManagerPtr dataManager(new DataManager());
 
+  Context::getInstance().setDataManager(dataManager);
+
+  Analysis analysis;
   analysis.id = 1;
 
-  std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"10h\")\nresult(x)";
-
+  std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"2h\")\nresult(x)";
+  analysis.name = "Sum History DCP";
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
   analysis.type = MONITORED_OBJECT_TYPE;
@@ -44,7 +65,7 @@ int main(int argc, char* argv[])
   dataProvider->name = "Provider";
   dataProvider->uri = "file:///Users/paulo/Workspace/data/shp";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
 
@@ -55,6 +76,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.name = "STATIC_DATA-ogr";
+  dataSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -77,7 +99,7 @@ int main(int argc, char* argv[])
   dataProvider2->name = "Provider";
   dataProvider2->uri = "file:///Users/paulo/Workspace/data";
   dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider2->dataProviderType = 0;
+  dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
   dataProvider2->id = 2;
 
@@ -94,7 +116,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
-  dcpSeries->semantics.name = "PCD-inpe";
+  dcpSeries->semantics.name = "DCP-inpe";
+  dcpSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::DCP;
   dcpSeries->name = "PCD-Angra";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;

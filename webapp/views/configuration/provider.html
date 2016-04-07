@@ -1,5 +1,7 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "data-provider" %}
+
 {% block title %} TerraMA2 {[ __("Data Provider Registration") ]} {% endblock %}
 
 {% block ngApp %} ng-app="terrama2.dataprovider.registration" {% endblock %}
@@ -63,8 +65,6 @@
                   <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ item.name }}</option>
                 </select>
 
-                <span class="form-control-feedback glyphicon" ng-show="dataProviderForm.protocol.$touched" ng-class="{'glyphicon-ok': dataProviderForm.protocol.$valid, 'glyphicon-remove': dataProviderForm.protocol.$invalid }"></span>
-
                 <span class="help-block" ng-show="dataProviderForm.protocol.$touched && dataProviderForm.protocol.$invalid" ng-class="{'has-error': dataProviderForm.protocol.$invalid}">{[ __('Data provider protocol is required') ]}</span>
               </div>
               <!-- /.form-group -->
@@ -101,9 +101,9 @@
       <!-- /.box body -->
 
       <div class="box-footer">
+        <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __("OK") ]}</button>
         <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
         <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(connectionForm);" style="margin-left: 10px;">{[ __("Check Connection")]}</button>
-        <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __("OK") ]}</button>
       </div>
 
       <div class="overlay" ng-show="isChecking">

@@ -211,3 +211,23 @@
   <!-- ./col-md-12 -->
 </div>
 <!-- ./row -->
+
+<script>
+  $(document).ready(function() {
+    $('#datetimepicker6').datetimepicker({
+      widgetPositioning: {vertical: "bottom"},
+      format: 'DD-MM-YY HH:mm'
+    });
+    $('#datetimepicker7').datetimepicker({
+      widgetPositioning: {vertical: "bottom"},
+      format: 'DD-MM-YY HH:mm',
+      useCurrent: false
+    });
+    $("#datetimepicker6").on("dp.change", function (e) {
+      $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
+    });
+    $("#datetimepicker7").on("dp.change", function (e) {
+      $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
+    });
+  });
+</script>

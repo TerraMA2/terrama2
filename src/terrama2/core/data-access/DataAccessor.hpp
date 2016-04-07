@@ -87,6 +87,9 @@ namespace terrama2
 
       //! Get folder of DCP.
       std::string getFolder(DataSetPtr dataSet) const;
+
+      virtual ~DataAccessor() {}
+
     protected:
 
       /*!
@@ -99,7 +102,7 @@ namespace terrama2
           dataSeries_(dataSeries),
           filter_(filter) {}
 
-      virtual ~DataAccessor() {}
+    
 
       /*!
          \brief Prefix especification for drivers.
@@ -151,7 +154,9 @@ namespace terrama2
          \param filter Filter applyed to the dataset
          \return Filtered dataset
        */
-      virtual void getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet>& teDataSet, std::shared_ptr<te::da::DataSetType>& teDataSetType) const = 0;
+      virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+
+      virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
 
       DataProviderPtr dataProvider_;
       DataSeriesPtr dataSeries_;

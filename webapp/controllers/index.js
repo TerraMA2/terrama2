@@ -1,7 +1,9 @@
 module.exports = function(app) {
 
   function indexController(request, response) {
-    response.render('index');
+    app.locals.activeProject = {};
+    app.locals.user = {};
+    return response.redirect("/login");
   }
 
   return indexController;

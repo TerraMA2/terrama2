@@ -1,5 +1,5 @@
 #include "BufferMemory.hpp"
-#include "SyncronizedDataSet.hpp"
+#include "../../../core/data-access/SyncronizedDataSet.hpp"
 
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/utils/Utils.h>
