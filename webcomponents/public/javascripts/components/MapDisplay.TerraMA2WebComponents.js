@@ -236,6 +236,113 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
+   * Adds a mouse position display in the map.
+   *
+   * @function addMousePosition
+   */
+  var addMousePosition = function() {
+    var controlAlreadyExists = false;
+
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.MousePosition) {
+        controlAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!controlAlreadyExists) {
+      var mousePositionControl = new ol.control.MousePosition({
+        coordinateFormat: ol.coordinate.createStringXY(6),
+        projection: 'EPSG:4326',
+        className: 'terrama2-mouse-position',
+        target: document.getElementById('terrama2-map-info')
+      });
+
+      memberOlMap.addControl(mousePositionControl);
+    }
+  };
+
+  /**
+   * Removes the mouse position display from the map.
+   *
+   * @function removeMousePosition
+   */
+  var removeMousePosition = function() {
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.MousePosition) {
+        memberOlMap.removeControl(control);
+        return;
+      }
+    });
+  };
+
+  /**
+   * Adds a scale display in the map.
+   *
+   * @function addScale
+   */
+  var addScale = function() {
+    var controlAlreadyExists = false;
+
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.ScaleLine) {
+        controlAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!controlAlreadyExists)
+      memberOlMap.addControl(new ol.control.ScaleLine());
+  };
+
+  /**
+   * Removes the scale display from the map.
+   *
+   * @function removeScale
+   */
+  var removeScale = function() {
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.ScaleLine) {
+        memberOlMap.removeControl(control);
+        return;
+      }
+    });
+  };
+
+  /**
+   * Enables the double click zoom.
+   *
+   * @function enableDoubleClickZoom
+   */
+  var enableDoubleClickZoom = function() {
+    var interactionAlreadyExists = false;
+
+    memberOlMap.getInteractions().forEach(function(interaction, i) {
+      if(interaction instanceof ol.interaction.DoubleClickZoom) {
+        interactionAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!interactionAlreadyExists)
+      memberOlMap.addInteraction(new ol.interaction.DoubleClickZoom());
+  };
+
+  /**
+   * Disables the double click zoom.
+   *
+   * @function disableDoubleClickZoom
+   */
+  var disableDoubleClickZoom = function() {
+    memberOlMap.getInteractions().forEach(function(interaction, i) {
+      if(interaction instanceof ol.interaction.DoubleClickZoom) {
+        memberOlMap.removeInteraction(interaction);
+        return;
+      }
+    });
+  };
+
+  /**
    * Creates a new layer group.
    * @param {string} id - Layer group id
    * @param {string} name - Layer group name
@@ -938,7 +1045,6 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   return {
     getMap: getMap,
     updateMapSize: updateMapSize,
-    correctLongitude: correctLongitude,
     addMousePosition: addMousePosition,
     removeMousePosition: removeMousePosition,
     addScale: addScale,
