@@ -30,11 +30,15 @@
 #include "DataManager.hpp"
 #include "Collector.hpp"
 #include "Exception.hpp"
+#include "JSonUtils.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 // STL
 #include <mutex>
+
+// Qt
+#include <QJsonValue>
 
 terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
@@ -89,4 +93,39 @@ void terrama2::services::collector::core::DataManager::removeCollector(Collector
   }
 
   emit collectorRemoved(collectorId);
+}
+
+void terrama2::services::collector::core::DataManager::addFromJSON(const QJsonValue& jsonValue)
+{
+  try
+  {
+    QJsonObject object = jsonValue.toObject();
+    QString coreClass = object["class"].toString();
+
+    if(coreClass == "Collector")
+    {
+      auto dataPtr = terrama2::services::collector::core::fromCollectorJson(object);
+      add(dataPtr);
+    }
+    else
+    {
+      terrama2::core::DataManager::DataManager::addFromJSON(object);
+    }
+  }
+  catch(terrama2::Exception& /*e*/)
+  {
+    // loggend on throw...
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str();
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+  }
 }
