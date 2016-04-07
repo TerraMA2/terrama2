@@ -32,11 +32,11 @@
 
 //STL
 #include "Analysis.hpp"
-#include "AnalysisTimer.hpp"
 #include "../Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 
 #include <memory>
+#include <map>
 
 namespace terrama2
 {
@@ -90,6 +90,7 @@ namespace terrama2
             void connectDataManager();
 
 
+            std::map<AnalysisId, terrama2::core::TimerPtr> timers_;
             std::vector<AnalysisId> analysisQueue_; //!< Analysis queue.
             DataManagerPtr dataManager_; //!< Data manager.
 

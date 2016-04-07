@@ -152,10 +152,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
         contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
         if(!contextDataset)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover dataset."));
-          errMsg = errMsg.arg(analysisId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return NULL;
+          continue;
         }
 
 

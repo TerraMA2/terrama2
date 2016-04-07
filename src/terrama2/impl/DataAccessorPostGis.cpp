@@ -120,8 +120,7 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
   if(tempDataSet->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_WARNING() << errMsg;
   }
 
   std::shared_ptr<te::mem::DataSet> completeDataset = std::make_shared<te::mem::DataSet>(*tempDataSet);
