@@ -155,17 +155,14 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   catch(const boost::exception& e)
   {
     std::cout << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString() << std::endl;
-    assert(0);
   }
   catch(const std::exception& e)
   {
     std::cout << e.what() << std::endl;
-    assert(0);
   }
   catch(...)
   {
     //TODO: catch cannot open DataProvider, log here
-    assert(0);
   }
 
   return series;

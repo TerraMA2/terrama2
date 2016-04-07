@@ -46,10 +46,12 @@ int main(int argc, char* argv[])
 
   QCoreApplication app(argc, argv);
 
-  Analysis analysis;
 
   DataManagerPtr dataManager(new DataManager());
 
+  Context::getInstance().setDataManager(dataManager);
+
+  Analysis analysis;
   analysis.id = 1;
 
   std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"2h\")\nresult(x)";
@@ -63,7 +65,7 @@ int main(int argc, char* argv[])
   dataProvider->name = "Provider";
   dataProvider->uri = "file:///Users/paulo/Workspace/data/shp";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
 
@@ -97,7 +99,7 @@ int main(int argc, char* argv[])
   dataProvider2->name = "Provider";
   dataProvider2->uri = "file:///Users/paulo/Workspace/data";
   dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider2->dataProviderType = 0;
+  dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
   dataProvider2->id = 2;
 
@@ -148,7 +150,6 @@ int main(int argc, char* argv[])
   dataManager->add(analysis);
 
 
-  Context::getInstance().setDataManager(dataManager);
   Service service(dataManager);
   service.start();
   service.addAnalysis(1);
