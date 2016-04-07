@@ -1,7 +1,7 @@
 var AbstractRequest = require('./AbstractRequest');
 var Promise = require('bluebird');
 var fs = require('fs');
-var FormField = require("./Enums").FormField;
+var Form = require("./Enums").Form;
 var UriPattern = require("./Enums").Uri;
 var Utils = require("./Utils");
 
@@ -34,7 +34,7 @@ FileRequest.fields = function() {
   var properties = {};
   properties[UriPattern.PATHNAME] = {
     title: "Path",
-    type: FormField.TEXT
+    type: Form.Field.TEXT
   };
   return {
     "name": "FILE",

@@ -5,7 +5,7 @@ var Requester = require('request');
 var NodeUtils = require('util');
 var UriBuilder = require('./UriBuilder');
 var UriPattern = require('../core/Enums').Uri;
-var FormField = require('../core/Enums').FormField;
+var Form = require('../core/Enums').Form;
 var Utils = require('../core/Utils');
 
 var WcsRequest = function(params) {
@@ -44,7 +44,7 @@ WcsRequest.fields = function() {
     UriPattern.USER,
     {
       key: UriPattern.PASSWORD,
-      type: FormField.PASSWORD
+      type: Form.Field.PASSWORD
     },
     UriPattern.PATHNAME
   ])
