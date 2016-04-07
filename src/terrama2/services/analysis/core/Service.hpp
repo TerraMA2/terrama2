@@ -32,7 +32,6 @@
 
 //STL
 #include "Analysis.hpp"
-#include "AnalysisTimer.hpp"
 #include "../Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 
