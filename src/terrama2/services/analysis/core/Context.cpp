@@ -81,9 +81,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::se
   auto it = datasetMap_.find(key);
   if(it == datasetMap_.end())
   {
-    QString msg(QObject::tr("Could not find dataset in Context: [ Analysis = %1 ], [ DataSet = %2 ], [ Date filter = %3 ].").arg(std::to_string(analysisId).c_str(), std::to_string(datasetId).c_str(), dateFilter.c_str()));
-    TERRAMA2_LOG_ERROR() << msg;
-    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
+    return std::shared_ptr<terrama2::services::analysis::core::ContextDataset>();
   }
 
   return it->second;

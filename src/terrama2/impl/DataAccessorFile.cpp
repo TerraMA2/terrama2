@@ -150,15 +150,16 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      //FIXME: Nor working with raster!!
      //TODO:.. filter and join te::da::dataset from each dataset
      //TODO: join dataset
+
      completeDataset->copy(*teDataSet);
+
+     if(completeDataset->isEmpty())
+     {
+       QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
+       TERRAMA2_LOG_WARNING() << errMsg;
+     }
    }// for each file
 
-   if(completeDataset->isEmpty())
-   {
-     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
-     TERRAMA2_LOG_ERROR() << errMsg;
-     throw terrama2::core::NoDataException() << terrama2::ErrorDescription(errMsg);
-   }
 
    std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
    series.syncDataSet = syncDataset;
