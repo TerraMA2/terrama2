@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.name = "STATIC_DATA-ogr";
-  dataSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.name = "DCP-inpe";
-  dcpSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::DCP;
+  dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
   dcpSeries->name = "PCD-Angra";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;

@@ -32,27 +32,40 @@
 
 #include "../data-model/DataSeriesSemantics.hpp"
 
-//STL
+// STL
 #include <string>
+#include <map>
+
+// TerraLib
+#include <terralib/common/Singleton.h>
 
 namespace terrama2
 {
   namespace core
   {
-    class SemanticsManager {
+    class SemanticsManager : public te::common::Singleton<SemanticsManager>
+    {
     public:
-      SemanticsManager (){}
-      ~SemanticsManager (){}
-
       /*!
 
         \exception TODO: raised when a semantics with same name is already present
       */
-      DataSeriesSemantics  addSemantics(const std::string& name, const DataSeriesSemantics::MacroType& macroType, const DataFormat& format);
-      DataSeriesSemantics  getSemantics(const std::string& name){assert(0);}//TODO: getSemantics
+      DataSeriesSemantics addSemantics(const std::string& name, const DataSeriesSemantics::DataSeriesType& dataSeriesType, const DataFormat& format);
+      DataSeriesSemantics getSemantics(const std::string& name);
+
+    protected:
+      friend class te::common::Singleton<SemanticsManager>;
+
+      SemanticsManager() {}
+      virtual ~SemanticsManager() {}
+
+      SemanticsManager(const SemanticsManager& other) = delete;
+      SemanticsManager(SemanticsManager&& other) = delete;
+      SemanticsManager& operator=(const SemanticsManager& other) = delete;
+      SemanticsManager& operator=(SemanticsManager&& other) = delete;
 
     private:
-
+      std::map<std::string, DataSeriesSemantics> semanticsMap_;
     };
   } /* core */
 } /* terrama2 */

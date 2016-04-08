@@ -101,7 +101,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
    QJsonArray dataSetArray = json["datasets"].toArray();
 
    std::function<terrama2::core::DataSetPtr(QJsonObject)> createDataSet = nullptr;
-   switch (dataSeries->semantics.macroType)
+   switch (dataSeries->semantics.dataSeriesType)
    {
    case DataSeriesSemantics::DCP:
      createDataSet = fromDataSetDcpJson;

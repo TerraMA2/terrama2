@@ -36,7 +36,7 @@ namespace terrama2
 {
   namespace core
   {
-    typedef uint64_t DataFormat;
+    typedef std::string DataFormat;
 
     /*!
       \struct DataSeriesSemantics
@@ -44,7 +44,7 @@ namespace terrama2
       \brief The DataSeriesSemantics describes the format of the data.
 
       It's separated in 3 characteristics:
-       -  TODO: MacroType?
+       - DataSeriesType : Know types of DataSeries
        - DataFormat : Defines how the data should be accessed.
          It could be a 'CSV' file or a PostgreSQL/PostGIS database.
        - Semantics : Represents the data internal structure, as attributes names and data-type
@@ -52,16 +52,16 @@ namespace terrama2
     */
     struct DataSeriesSemantics
     {
-      enum MacroType {
-        DCP,
-        OCCURRENCE,
-        GRID,
-        MONITORED,
-        STATIC
+      enum DataSeriesType {
+        DCP = 1,
+        OCCURRENCE = 2,
+        GRID = 3,
+        MONITORED = 4,
+        STATIC = 5
       };
 
       std::string name;
-      MacroType macroType = STATIC;
+      DataSeriesType dataSeriesType = STATIC;
       DataFormat dataFormat = 0;
     };
   } /* core */
