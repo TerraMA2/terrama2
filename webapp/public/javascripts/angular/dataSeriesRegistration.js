@@ -4,7 +4,8 @@ angular.module('terrama2.dataseries.registration', [
     'terrama2.projection',
     'terrama2.services',
     'ui.bootstrap.datetimepicker',
-    'ui.dateTimeInput'
+    'ui.dateTimeInput',
+    'schemaForm'
   ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
@@ -43,6 +44,9 @@ angular.module('terrama2.dataseries.registration', [
 
   .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory) {
+      $scope.schema = {};
+      $scope.form = [];
+      $scope.model = {};
 
       $scope.stateApp = $state;
       $scope.semantics = "";
@@ -60,7 +64,7 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.dataSeries.semantics = {};
 
-      DataSeriesSemanticsFactory.get().success(function(semanticsList) {
+      DataSeriesSemanticsFactory.list().success(function(semanticsList) {
         $scope.dataSeriesSemantics = semanticsList;
 
         if (configuration.dataSeries.semantics) {
@@ -99,6 +103,23 @@ angular.module('terrama2.dataseries.registration', [
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_format_name.toLowerCase();
+        
+        DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.name, {metadata:true}).success(function(data) {
+          console.log("Data: ", data);
+          $scope.model = {};
+          $scope.form = data.metadata.form;
+          $scope.schema = {
+            type: 'object',
+            properties: data.metadata.schema.properties,
+            required: data.metadata.schema.required
+          };
+          $scope.$broadcast('schemaFormRedraw');
+        }).error(function(err) {
+          console.log("Error in semantics change: " + err);
+          $scope.model = {};
+          $scope.form = [];
+          $scope.schema = {};
+        })
       };
 
       $scope.onDataProviderClick = function(index) {
