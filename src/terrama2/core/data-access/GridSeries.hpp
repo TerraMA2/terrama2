@@ -31,24 +31,13 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
-#include "../Shared.hpp"
 #include "../data-model/DataSetGrid.hpp"
-#include "../utility/Logger.hpp"
 #include "Series.hpp"
 #include "SeriesAggregation.hpp"
-#include "SyncronizedDataSet.hpp"
-
-//STL
-#include <vector>
 
 //TerraLib
 #include <terralib/raster.h>
-#include <terralib/dataaccess/utils/Utils.h>
 
-//Qt
-#include <QString>
-#include <QObject>
 
 namespace terrama2
 {
@@ -61,32 +50,9 @@ namespace terrama2
     class GridSeries : public SeriesAggregation
     {
     public:
-      void addGridSeries(std::map<DataSetPtr, Series > seriesMap)
-      {
-        dataSeriesMap_ = seriesMap;
-        for(const auto& item : seriesMap)
-        {
-          try
-          {
-            DataSetGridPtr dataSet = std::dynamic_pointer_cast<const DataSetGrid>(item.first);
+      void addGridSeries(std::map<DataSetPtr, Series > seriesMap);
 
-            auto teDataSet = item.second.syncDataSet;
-            for (int i = 0; i < teDataSet->size(); ++i)
-            {
-              std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet->dataset().get(), te::dt::RASTER_TYPE);
-              std::shared_ptr<te::rst::Raster> raster = teDataSet->getRaster(i, rpos);
-              rasterMap_.emplace(dataSet, raster);
-            }
-          }
-          catch(const std::bad_cast& exp)
-          {
-            QString errMsg = QObject::tr("Bad Cast to DataSetGrid");
-            TERRAMA2_LOG_ERROR() << errMsg;
-            continue;
-          }//bad cast
-        }
-      }
-      const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridList(){ return rasterMap_; }
+      const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridList();
 
     private:
       std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;

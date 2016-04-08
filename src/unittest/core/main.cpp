@@ -1,28 +1,30 @@
 //TerraMA2
-#include "TsApplicationController.hpp"
-#include "TsDataManager.hpp"
-#include "TsLogger.hpp"
-#include "Utils.hpp"
-#include "TsSerializer.hpp"
+#include <terrama2/core/utility/Utils.hpp>
+
+#include "TsUtility.hpp"
 
 
 int main(int argc, char **argv)
 {
-  initializeTerraMA2();
+  terrama2::core::initializeTerraMA();
 
-  TsApplicationController testApplicationController;
-  int ret = QTest::qExec(&testApplicationController, argc, argv);
+  TsUtility testUtility;
+  int ret = QTest::qExec(&testUtility, argc, argv);
 
-  TsSerializer testSerializer;
-  ret += QTest::qExec(&testSerializer, argc, argv);
+  //  TsApplicationController testApplicationController;
+  //  int ret = QTest::qExec(&testApplicationController, argc, argv);
 
-  TsDataManager testDataManager;
-  ret += QTest::qExec(&testDataManager, argc, argv);
+  //  TsSerializer testSerializer;
+  //  ret += QTest::qExec(&testSerializer, argc, argv);
 
-  TsLogger testLogger;
-  ret = QTest::qExec(&testLogger, argc, argv);
+  //  TsDataManager testDataManager;
+  //  ret += QTest::qExec(&testDataManager, argc, argv);
 
-  finalizeTerraMA2();
+  //  TsLogger testLogger;
+  //  ret = QTest::qExec(&testLogger, argc, argv);
+
+
+  terrama2::core::finalizeTerraMA();
 
   return ret;
 }

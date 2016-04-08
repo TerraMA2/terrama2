@@ -42,7 +42,7 @@ namespace terrama2
     class SeriesAggregation
     {
     public:
-      const std::map<DataSetPtr, Series>& getSeries() {return dataSeriesMap_;}
+      const std::map<DataSetPtr, Series>& getSeries();
     protected:
       std::map<DataSetPtr, Series> dataSeriesMap_;
     };
