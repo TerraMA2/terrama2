@@ -31,21 +31,8 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
-#include "../Shared.hpp"
 #include "../data-model/DataSetDcp.hpp"
-#include "../utility/Logger.hpp"
 #include "SeriesAggregation.hpp"
-
-//STL
-#include <vector>
-
-//TerraLib
-#include <terralib/memory/DataSet.h>
-
-//Qt
-#include <QString>
-#include <QObject>
 
 namespace terrama2
 {
@@ -60,25 +47,9 @@ namespace terrama2
     class DcpSeries : public SeriesAggregation
     {
     public:
-      void addDcpSeries(std::map<DataSetPtr, Series > seriesMap)
-      {
-        dataSeriesMap_ = seriesMap;
-        for(const auto& item : seriesMap)
-        {
-          try
-          {
-            DataSetDcpPtr dataset = std::dynamic_pointer_cast<const DataSetDcp>(item.first);
-            dcpMap_.emplace(dataset, item.second);
-          }
-          catch(const std::bad_cast& exp)
-          {
-            QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
-            TERRAMA2_LOG_ERROR() << errMsg;
-            continue;
-          }//bad cast
-        }
-      }
-      const std::map<DataSetDcpPtr, Series>& getDcpSeries(){ return dcpMap_; }
+      void addDcpSeries(std::map<DataSetPtr, Series > seriesMap);
+
+      const std::map<DataSetDcpPtr, Series>& getDcpSeries();
 
     private:
       std::map<DataSetDcpPtr, Series> dcpMap_;

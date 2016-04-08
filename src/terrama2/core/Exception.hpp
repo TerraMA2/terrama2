@@ -89,10 +89,13 @@ namespace terrama2
 
     struct UtilityException: virtual Exception{ };
 
-      //! An exception indicating a parser error.
-      struct JSonParserException: virtual UtilityException { };
+    //! Raised when the receives an invalid collect frequency
+    struct InvalidCollectFrequencyException: virtual UtilityException { };
 
-      struct ServiceException: virtual UtilityException { };
+    //! An exception indicating a parser error.
+    struct JSonParserException: virtual UtilityException { };
+
+    struct ServiceException: virtual UtilityException { };
 
     //#################################
 

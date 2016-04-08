@@ -40,22 +40,6 @@ namespace terrama2
 {
   namespace core
   {
-
-    /*!
-      \enum ScheduleUnit
-
-      \brief Schedule unit enumeration.
-    */
-    enum ScheduleUnit
-    {
-      SECOND = 1,
-      MINUTE = 2,
-      HOUR = 3,
-      DAY = 4,
-      WEEK = 5,
-      MONTH = 6
-    };
-
     /*!
       \struct Schedule
 

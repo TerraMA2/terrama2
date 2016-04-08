@@ -20,43 +20,26 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStorager.hpp
+  \file terrama2/core/data-access/DataStorager.cpp
 
   \brief
 
   \author Jano Simas
+  \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
-
 //TerraMA2
-#include "../Shared.hpp"
-#include "../data-model/DataManager.hpp"
-#include "../data-access/Series.hpp"
+#include "DataStorager.hpp"
+#include "../../Config.hpp"
 
-namespace te {
-  namespace mem {
-    class DataSet;
-  } /* mem */
-} /* te */
 
-namespace terrama2
+terrama2::core::DataStorager::DataStorager(DataProviderPtr outputDataProvider)
+  : dataProvider_(outputDataProvider)
 {
-  namespace core
-  {
-    class DataStorager
-    {
-    public:
-      DataStorager(DataProviderPtr outputDataProvider);
-      ~DataStorager();
 
-      virtual void store(Series series, DataSetPtr outputDataSet) const = 0;
-
-    protected:
-      DataProviderPtr dataProvider_;
-    };
-  }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
+terrama2::core::DataStorager::~DataStorager()
+{
+
+}

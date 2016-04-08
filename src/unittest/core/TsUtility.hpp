@@ -20,44 +20,28 @@
 */
 
 /*!
-  \file unittest/core/TsLogger.cpp
+  \file unittest/core/TsUtility.hpp
 
-  \brief Test for TerraMA2 logging module
+  \brief Tests for Core Utility class
 
-  \author Raphael Willian da Costa
+  \author Vinicius Campanha
 */
 
-#include "TsLogger.hpp"
+//TerraMA2
 
-#include <terrama2/core/Logger.hpp>
-#include <terrama2/core/Exception.hpp>
+//QT
+#include <QtTest/QTest>
 
 
-void TsLogger::init()
+class TsUtility : public QObject
 {
+  Q_OBJECT
 
-}
+public:
 
-void TsLogger::testLoad()
-{
-  terrama2::core::Logger::getInstance().addStream("/home/raphael/Documents/tmp/terrama2.log");
-  terrama2::core::Logger::getInstance().initialize();
 
-  auto exception = terrama2::core::DataAccessException() << terrama2::ErrorDescription("**Expected DataAccess Error**");
-
-  for(int i = 0; i < 20; ++i)
-    TERRAMA2_LOG_TRACE() << "Trace Message Lorem ipsu " + std::to_string(i);
-
-  // logging an exception
-  TERRAMA2_LOG_ERROR() << exception;
-}
-
-void TsLogger::testUnload()
-{
-
-}
-
-void TsLogger::cleanup()
-{
-
-}
+private slots:
+  void testTimerNoFrequencyException();
+  void testTimerInvalidUnitException();
+  void testTimer();
+};

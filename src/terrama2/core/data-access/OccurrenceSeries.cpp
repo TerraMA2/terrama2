@@ -20,43 +20,51 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStorager.hpp
+  \file terrama2/core/data-access/DcpSeries.cpp
 
   \brief
 
   \author Jano Simas
+  \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
-
 //TerraMA2
+#include "OccurrenceSeries.hpp"
+#include "../../Config.hpp"
 #include "../Shared.hpp"
-#include "../data-model/DataManager.hpp"
-#include "../data-access/Series.hpp"
+#include "../utility/Logger.hpp"
 
-namespace te {
-  namespace mem {
-    class DataSet;
-  } /* mem */
-} /* te */
+//STL
+#include <vector>
 
-namespace terrama2
+//TerraLib
+#include <terralib/memory/DataSet.h>
+
+//Qt
+#include <QString>
+#include <QObject>
+
+
+void terrama2::core::OccurrenceSeries::addOccurrences(std::map<DataSetPtr, Series > seriesMap)
 {
-  namespace core
+  dataSeriesMap_ = seriesMap;
+  for(const auto& item : seriesMap)
   {
-    class DataStorager
+    try
     {
-    public:
-      DataStorager(DataProviderPtr outputDataProvider);
-      ~DataStorager();
-
-      virtual void store(Series series, DataSetPtr outputDataSet) const = 0;
-
-    protected:
-      DataProviderPtr dataProvider_;
-    };
+      DataSetOccurrencePtr dataset = std::dynamic_pointer_cast<const DataSetOccurrence>(item.first);
+      occurrenceMap.emplace(dataset, item.second);
+    }
+    catch(const std::bad_cast& exp)
+    {
+      QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      continue;
+    }//bad cast
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
+const std::map<terrama2::core::DataSetOccurrencePtr, terrama2::core::Series>& terrama2::core::OccurrenceSeries::getOccurrences()
+{
+  return occurrenceMap;
+}
