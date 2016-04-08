@@ -52,7 +52,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    */
   var updateMapSize = function() {
     var interval = window.setInterval(function() { memberOlMap.updateSize(); }, 10);
-    window.setTimeout(function() { clearInterval(interval); }, 300);
+    window.setTimeout(function() { clearInterval(interval); }, 600);
   };
 
   /**
