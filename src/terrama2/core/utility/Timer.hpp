@@ -53,19 +53,19 @@ namespace terrama2
       Timer& operator=(const Timer& other) = delete;
       Timer& operator=(Timer&& other) = delete;
 
-      uint64_t processId()   const;
+      uint64_t processId() const;
 
-      signals:
+    signals:
 
       void timerSignal(uint64_t processId) const;
 
-      private slots:
+    private slots:
 
       //! Slot called when the timer times out, emits timerSignal.
       void timeoutSlot() const;
       void scheduleSlot() const;
 
-      private:
+    private:
       void prepareTimer(const terrama2::core::Schedule& dataSchedule);
 
       struct Impl;
