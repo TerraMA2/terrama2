@@ -17,10 +17,9 @@ int main(int argc, char* argv[])
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->uri = "file://";
   dataProvider->uri+=TERRAMA2_DATA_DIR;
-  //dataProvider->uri+="/pcd_toa5/GRM";
   dataProvider->uri+="/pcd_toa5";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 
   //DataSeries information
@@ -32,7 +31,7 @@ int main(int argc, char* argv[])
   dataSet->active = true;
   dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
   dataSet->format.emplace("timezone", "+00");
-  dataSet->format.emplace("folder", "/GRM");
+  dataSet->format.emplace("folder", "GRM");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -45,7 +44,7 @@ int main(int argc, char* argv[])
 
   assert(dcpSeries->getDcpSeries().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.teDataSet;
+  std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.syncDataSet->dataset();
 
 //Print column names and types (DateTime/Int/String/Double)
   int dateColumnDateTime = -1;

@@ -61,6 +61,8 @@ namespace terrama2
          */
         virtual ~DataAccessorDcpToa5() {}
 
+        static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+
       protected:
         /*!
          * \brief dataSourceType Driver that must be used to access a DataSource.
@@ -100,8 +102,8 @@ namespace terrama2
          * \param uri Uri to the dataset;
          * \param filter Filter applyed to the dataset;
          * \param dataSet It contains description of a dataset. Ex. information of PCD-TOA5;
-         */
-        virtual void getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet>& teDataSet, std::shared_ptr<te::da::DataSetType>& teDataSetType) const override;
+         */      
+        virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
 
       private:
         /*!

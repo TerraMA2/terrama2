@@ -25,6 +25,7 @@
   \brief
 
   \author Jano Simas
+  \author Evandro Delatin
  */
 
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_HPP__

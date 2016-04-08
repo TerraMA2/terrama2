@@ -25,6 +25,7 @@
   \brief
 
   \author Jano Simas
+  \author Evandro Delatin
  */
 
 #include "DataAccessor.hpp"
@@ -131,7 +132,6 @@ std::string terrama2::core::DataAccessor::getFolder(DataSetPtr dataSet) const
   }
 }
 
-
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
@@ -185,7 +185,6 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
         removeFolder = true;
       }
       else
-      //  uri = dataProvider_->uri;
         uri = dataProvider_->uri +"/"+ getFolder(dataset);
 
       //TODO: Set last date collected in filter

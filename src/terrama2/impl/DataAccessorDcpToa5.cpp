@@ -50,6 +50,7 @@
 #include <QDebug>
 #include <QTemporaryFile>
 #include <QTemporaryDir>
+#include <QTextStream>
 
 
 terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
@@ -192,9 +193,10 @@ void terrama2::core::DataAccessorDcpToa5::addColumns(std::shared_ptr<te::da::Dat
   // the converter will add columns
 }
 
-void terrama2::core::DataAccessorDcpToa5::getDataSet(const std::string& uri, const Filter& filter, DataSetPtr dataSet,
-                                                                                  std::shared_ptr<te::mem::DataSet>& teDataSet,
-                                                                                  std::shared_ptr<te::da::DataSetType>& teDataSetType) const
+terrama2::core::Series terrama2::core::DataAccessorDcpToa5::getSeries(const std::string& uri,
+                                                                   const terrama2::core::Filter& filter,
+                                                                   terrama2::core::DataSetPtr dataSet) const
+
 {
   std::string mask = getMask(dataSet);
 
@@ -212,26 +214,34 @@ void terrama2::core::DataAccessorDcpToa5::getDataSet(const std::string& uri, con
 
   QFile tempFile(tempDir.path()+"/"+originalInfo.fileName());
   tempFile.open(QIODevice::ReadWrite);
-  file.readLine();//ignore first line
-  tempFile.write(file.readLine()); //headers line
 
-  //ignore third and fourth lines
-  file.readLine();
-  file.readLine();
+  QString column = file.readLine();//Verify first line
+  if(!column.contains("TIMESTAMP",Qt::CaseInsensitive))
+  {
+    tempFile.write(file.readLine()); //headers line
 
-  //read all file
-  tempFile.write(file.readAll()); //headers line
+    //ignore third and fourth lines
+    file.readLine();
+    file.readLine();
 
+    //read all file
+    tempFile.write(file.readAll()); //headers line
+
+    file.close();
+    tempFile.close();
+
+    // Overwrite file.
+    file.open(QIODevice::WriteOnly);
+    tempFile.open(QIODevice::ReadOnly);
+    file.write(tempFile.readAll());
+  }
   file.close();
   tempFile.close();
 
-  // Overwrite file.
-  file.open(QIODevice::WriteOnly);
-  tempFile.open(QIODevice::ReadOnly);
-  file.write(tempFile.readAll());
+  return terrama2::core::DataAccessorFile::getSeries(uri, filter, dataSet);
+}
 
-  file.close();
-  tempFile.close();
-
-  return terrama2::core::DataAccessorFile::getDataSet(uri, filter, dataSet, teDataSet, teDataSetType);
+terrama2::core::DataAccessor* terrama2::core::DataAccessorDcpToa5::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+{
+  return new DataAccessorDcpToa5(dataProvider, dataSeries, filter);
 }
