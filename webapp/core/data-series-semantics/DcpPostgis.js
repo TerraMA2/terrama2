@@ -18,15 +18,15 @@ DcpPostgis.schema = function() {
     type: Form.Type.OBJECT,
     properties: {
       mask: {
-        type: Form.FormField.TEXT,
+        type: Form.Field.TEXT,
         title: "Mask"
       },
       timezone: {
-        type: Form.FormField.TEXT,
+        type: Form.Field.TEXT,
         title: "Timezone"
       },
       path: {
-        type: Form.FormField.TEXT,
+        type: Form.Field.TEXT,
         title: "Path"
       }
     },

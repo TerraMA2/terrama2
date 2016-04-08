@@ -8,9 +8,6 @@ var DataSeriesType = require('./Enums').DataSeriesType;
 var AbstractSemantics = module.exports = function(semanticsObject) {
   if (this.constructor === AbstractSemantics)
     throw new Error("AbstractSemantic cannot be instantiated");
-  
-  // // adding extra structure for semantics (forms display)
-  // this.structure = structureObject instanceof Object ? structureObject : {};
 
   switch (semanticsObject.data_series_type_name) {
     case DataSeriesType.DCP:

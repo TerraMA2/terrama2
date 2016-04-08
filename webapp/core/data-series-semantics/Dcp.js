@@ -8,11 +8,7 @@ var Form = Enums.Form;
 var Dcp = function(args) {
   if (!args.name)
     throw new DataSeriesSemanticsError("Dcp name is required.");
-  
-  // var structure = {};
-  // if (args.structure)
-  //   structure = Object.assign({}, args.structure);
-  
+
   var object = {};
   object[DataSeriesSemantics.NAME] = args.name;
   object[DataSeriesSemantics.FORMAT] = "DCP";
@@ -30,11 +26,13 @@ Dcp.schema = function() {
     properties: {
       latitude: {
         type: Form.Field.NUMBER,
-        title: "Latitude"
+        title: "Latitude",
+        htmlClass: "col-md-6"
       },
       longitude: {
         type: Form.Field.NUMBER,
-        title: "Longitude"
+        title: "Longitude",
+        htmlClass: "col-md-6"
       }
     },
 
@@ -44,8 +42,14 @@ Dcp.schema = function() {
 
 Dcp.form = function() {
   return [
-    'latitude',
-    'longitude'
+    {
+      key: "latitude",
+      htmlClass: "col-md-6"
+    },
+    {
+      key: "longitude",
+      htmlClass: "col-md-6"
+    }
   ];
 };
 
