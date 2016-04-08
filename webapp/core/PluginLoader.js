@@ -10,6 +10,10 @@ instance.on('unloaded', function(name) {
   console.log("Plugin: " + name + " has been unloaded");
 });
 
+instance.on('unloadAll', function() {
+  console.log("Plugins unloaded");
+});
+
 instance.on('error', function(err) {
   console.log("Error: " + err.message);
 });
@@ -17,5 +21,6 @@ instance.on('error', function(err) {
 
 module.exports = {
   plugin: instance,
-  initialize: instance.initialize
+  initialize: instance.initialize,
+  unloadAll: instance.unloadAll
 };
