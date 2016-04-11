@@ -27,8 +27,8 @@
   \author Jano Simas
  */
 
- #include "DataRetriever.hpp"
- #include "../Exception.hpp"
+#include "DataRetriever.hpp"
+#include "../Exception.hpp"
 
 //Qt
 #include <QString>

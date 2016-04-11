@@ -55,7 +55,7 @@
 
 std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
-// 1st: look in the neighborhood of the executable
+  // 1st: look in the neighborhood of the executable
   boost::filesystem::path tma_path = boost::filesystem::current_path();
 
   boost::filesystem::path eval_path = tma_path / fileName;
@@ -70,7 +70,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
-// 2rd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
+  // 2rd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
   const char* tma_env = getenv(TERRAMA2_DIR_VAR_NAME);
 
   if(tma_env != nullptr)
@@ -83,7 +83,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
       return eval_path.string();
   }
 
-// 3th: look into install prefix-path
+  // 3th: look into install prefix-path
   tma_path = TERRAMA2_INSTALL_PREFIX_PATH;
 
   eval_path = tma_path / fileName;
@@ -91,7 +91,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
-// 4nd: look into the codebase path
+  // 4nd: look into the codebase path
   tma_path = TERRAMA2_CODEBASE_PATH;
 
   eval_path = tma_path / fileName;

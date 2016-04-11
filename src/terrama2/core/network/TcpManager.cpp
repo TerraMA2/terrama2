@@ -35,11 +35,11 @@
 
 class RaiiBlock
 {
-public:
-  RaiiBlock(uint32_t& block) : block_(block) {}
-  ~RaiiBlock() { block_ = 0; }
+  public:
+    RaiiBlock(uint32_t& block) : block_(block) {}
+    ~RaiiBlock() {block_ = 0;}
 
-  uint32_t& block_;
+    uint32_t& block_;
 };
 
 bool terrama2::core::TcpManager::listen(std::weak_ptr<terrama2::core::DataManager> dataManager, const QHostAddress& address, quint16 port)

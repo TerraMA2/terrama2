@@ -56,26 +56,26 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
   }
 
   if(!(json.contains("id")
-      && json.contains("project_id")
-      && json.contains("name")
-      && json.contains("description")
-      && json.contains("intent")
-      && json.contains("uri")
-      && json.contains("active")))
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+       && json.contains("project_id")
+       && json.contains("name")
+       && json.contains("description")
+       && json.contains("intent")
+       && json.contains("uri")
+       && json.contains("active")))
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
-   terrama2::core::DataProvider* provider = new terrama2::core::DataProvider();
-   terrama2::core::DataProviderPtr providerPtr(provider);
+  terrama2::core::DataProvider* provider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr providerPtr(provider);
 
-   provider->id = json["id"].toInt();
-   provider->projectId = json["project_id"].toInt();
-   provider->name = json["name"].toString().toStdString();
-   provider->description = json["description"].toString().toStdString();
-   provider->intent = static_cast<terrama2::core::DataProvider::DataProviderIntent>(json["intent"].toInt());
-   provider->uri = json["uri"].toString().toStdString();
-   provider->active = json["active"].toBool();
+  provider->id = json["id"].toInt();
+  provider->projectId = json["project_id"].toInt();
+  provider->name = json["name"].toString().toStdString();
+  provider->description = json["description"].toString().toStdString();
+  provider->intent = static_cast<terrama2::core::DataProvider::DataProviderIntent>(json["intent"].toInt());
+  provider->uri = json["uri"].toString().toStdString();
+  provider->active = json["active"].toBool();
 
-   return providerPtr;
+  return providerPtr;
 }
 
 terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject json)
@@ -86,49 +86,49 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
   }
 
   if(!(json.contains("id")
-      && json.contains("data_provider_id")
-      && json.contains("semantics")
-      && json.contains("name")
-      && json.contains("description")))
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+       && json.contains("data_provider_id")
+       && json.contains("semantics")
+       && json.contains("name")
+       && json.contains("description")))
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
-   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
 
-   dataSeries->id = json["id"].toInt();
-   dataSeries->dataProviderId = json["data_provider_id"].toInt();
-   dataSeries->semantics = SemanticsManager::getInstance().getSemantics(json["semantics"].toString().toStdString());
-   dataSeries->name = json["name"].toString().toStdString();
-   dataSeries->description = json["description"].toString().toStdString();
+  dataSeries->id = json["id"].toInt();
+  dataSeries->dataProviderId = json["data_provider_id"].toInt();
+  dataSeries->semantics = SemanticsManager::getInstance().getSemantics(json["semantics"].toString().toStdString());
+  dataSeries->name = json["name"].toString().toStdString();
+  dataSeries->description = json["description"].toString().toStdString();
 
-   QJsonArray dataSetArray = json["datasets"].toArray();
+  QJsonArray dataSetArray = json["datasets"].toArray();
 
-   std::function<terrama2::core::DataSetPtr(QJsonObject)> createDataSet = nullptr;
-   switch (dataSeries->semantics.dataSeriesType)
-   {
-   case DataSeriesSemantics::DCP:
-     createDataSet = fromDataSetDcpJson;
-     break;
-   case DataSeriesSemantics::OCCURRENCE:
-     createDataSet = fromDataSetOccurrenceJson;
-     break;
-   case DataSeriesSemantics::GRID:
-     createDataSet = fromDataSetGridJson;
-     break;
-   default:
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object.\n Unknown DataSet type."));
-     break;
-   }
+  std::function<terrama2::core::DataSetPtr(QJsonObject)> createDataSet = nullptr;
+  switch(dataSeries->semantics.dataSeriesType)
+  {
+  case DataSeriesSemantics::DCP:
+    createDataSet = fromDataSetDcpJson;
+    break;
+  case DataSeriesSemantics::OCCURRENCE:
+    createDataSet = fromDataSetOccurrenceJson;
+    break;
+  case DataSeriesSemantics::GRID:
+    createDataSet = fromDataSetGridJson;
+    break;
+  default:
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object.\n Unknown DataSet type."));
+    break;
+  }
 
-   for(auto json : dataSetArray)
-   {
-     if(json.isObject())
+  for(auto json : dataSetArray)
+  {
+    if(json.isObject())
       dataSeries->datasetList.push_back(createDataSet(json.toObject()));
     else
       throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
-   }
+  }
 
-   return dataSeriesPtr;
+  return dataSeriesPtr;
 }
 
 void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSet* dataSet)
@@ -139,10 +139,10 @@ void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSe
   }
 
   if(!(json.contains("id")
-      && json.contains("data_series_id")
-      && json.contains("active")
-      && json.contains("format")))
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+       && json.contains("data_series_id")
+       && json.contains("active")
+       && json.contains("format")))
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
   dataSet->id = json["id"].toInt();
   dataSet->dataSeriesId = json["data_series_id"].toInt();
@@ -164,7 +164,7 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
   addBaseDataSetData(json, dataSet);
 
   if(!json.contains("position"))
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
   std::string wkt = json["position"].toString().toStdString();
   te::gm::Geometry* geom = te::gm::WKTReader::read(wkt.c_str());
@@ -208,14 +208,14 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   }
 
   if(!(json.contains("id")
-      && json.contains("frequency")
-      && json.contains("frequency_unit")
-      && json.contains("schedule")
-      && json.contains("schedule_retry")
-      && json.contains("schedule_retry_unit")
-      && json.contains("schedule_timeout")
-      && json.contains("schedule_timeout_unit")))
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+       && json.contains("frequency")
+       && json.contains("frequency_unit")
+       && json.contains("schedule")
+       && json.contains("schedule_retry")
+       && json.contains("schedule_retry_unit")
+       && json.contains("schedule_timeout")
+       && json.contains("schedule_timeout_unit")))
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
   terrama2::core::Schedule schedule;
   schedule.id = json["id"].toInt();

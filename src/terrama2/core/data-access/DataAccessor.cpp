@@ -48,40 +48,40 @@
 
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
- assert(indexes.size() == 1);
+  assert(indexes.size() == 1);
 
- try
- {
-   std::string strValue = dataset->getAsString(indexes[0]);
+  try
+  {
+    std::string strValue = dataset->getAsString(indexes[0]);
 
-   if(strValue.empty())
-   {
-     return nullptr;
-   }
-   else
-   {
-     double value = 0;
-     std::istringstream stream(strValue);//create stream
-     stream >> value;
+    if(strValue.empty())
+    {
+      return nullptr;
+    }
+    else
+    {
+      double value = 0;
+      std::istringstream stream(strValue);//create stream
+      stream >> value;
 
-     te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
+      te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
 
-     return data;
-   }
- }
- catch(std::exception& e)
- {
-   TERRAMA2_LOG_ERROR() << e.what();
- }
- catch(...)
- {
-   TERRAMA2_LOG_ERROR() << "Unknown error";
- }
+      return data;
+    }
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error";
+  }
 
- return nullptr;
+  return nullptr;
 }
 
-std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter(DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
 
@@ -89,8 +89,8 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
 
   adapt(dataset, converter);
   std::string id = "FID";
-  const std::vector< te::dt::Property * > & propertyList = converter->getResult()->getProperties();
-  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property){ return property->getName() == id; });
+  const std::vector< te::dt::Property* >& propertyList = converter->getResult()->getProperties();
+  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property) { return property->getName() == id; });
   if(it != propertyList.cend())
     converter->remove(id);
 

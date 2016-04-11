@@ -41,10 +41,10 @@ struct terrama2::core::Timer::Impl
   Impl()
     : schedule_(0,0,0) {}
 
-    Schedule             dataSchedule_;
-    QTimer               timer_;//<! Timer to next collection.
-    te::dt::TimeDuration schedule_;//<! Schedule to next collection.
-    uint64_t             processId_;
+  Schedule             dataSchedule_;
+  QTimer               timer_;//<! Timer to next collection.
+  te::dt::TimeDuration schedule_;//<! Schedule to next collection.
+  uint64_t             processId_;
 };
 
 terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId)
@@ -72,7 +72,7 @@ void terrama2::core::Timer::scheduleSlot() const
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
   if(impl_->schedule_.getHours() == now.time_of_day().hours()
-     && impl_->schedule_.getMinutes() == now.time_of_day().minutes())
+      && impl_->schedule_.getMinutes() == now.time_of_day().minutes())
   {
     emit timerSignal(impl_->processId_);
   }
@@ -115,17 +115,17 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   double seconds = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
 
-   if(seconds > 0)
-   {
-     connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-     impl_->timer_.start(seconds*1000);
-   }
-   else
-   {
-     QString errMsg = QObject::tr("Invalid collect frequency.");
-     TERRAMA2_LOG_ERROR() << errMsg;
-     throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
-   }
+  if(seconds > 0)
+  {
+    connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
+    impl_->timer_.start(seconds*1000);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("Invalid collect frequency.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
+  }
 }
 
 uint64_t terrama2::core::Timer::processId() const
