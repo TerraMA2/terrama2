@@ -12,15 +12,10 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/Shared.hpp>
 
-
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
-#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
-#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
+#include <terrama2/impl/Utils.hpp>
 
 // STL
 #include <iostream>
@@ -31,19 +26,13 @@
 #include <QCoreApplication>
 #include <QUrl>
 
-
 using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+  terrama2::core::registerDataAccessor();
 
   QCoreApplication app(argc, argv);
 
@@ -54,7 +43,7 @@ int main(int argc, char* argv[])
   analysis.name = "Analysis";
   analysis.active = true;
 
-  std::string script = "x = countPoints(\"Occurrence\", 0.1, \"1h\", \"\")\nresult(x)";
+  std::string script = "x = countPoints(\"Occurrence\", 0.1, \"1h\", \"\")\nadd_value(x)";
 
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
@@ -68,8 +57,6 @@ int main(int argc, char* argv[])
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
-
-
 
   dataManager->add(dataProviderPtr);
 

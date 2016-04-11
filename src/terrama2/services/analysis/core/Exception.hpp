@@ -51,6 +51,8 @@ namespace terrama2
 
         struct InvalidDataSetException: virtual Exception {};
 
+        struct PythonInterpreterException: virtual Exception {};
+
 
       } // end namespace core
     }   // end namespace analysis

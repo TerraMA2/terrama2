@@ -15,14 +15,7 @@
 #include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
-#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
-#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-
-
+#include <terrama2/impl/Utils.hpp>
 
 #include <iostream>
 
@@ -36,13 +29,7 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-
-  terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+  terrama2::core::registerDataAccessor();
 
   QCoreApplication app(argc, argv);
 
@@ -51,10 +38,10 @@ int main(int argc, char* argv[])
 
   Context::getInstance().setDataManager(dataManager);
 
+  std::string script = "x = dcpHistory.sum(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\nadd_value(x)";
+
   Analysis analysis;
   analysis.id = 1;
-
-  std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"2h\")\nresult(x)";
   analysis.name = "Sum History DCP";
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
@@ -118,7 +105,7 @@ int main(int argc, char* argv[])
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.name = "DCP-inpe";
   dcpSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::DCP;
-  dcpSeries->name = "PCD-Angra";
+  dcpSeries->name = "DCP-Angra";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
 
@@ -133,17 +120,17 @@ int main(int argc, char* argv[])
   dcpDataset->position = new te::gm::Point(-44.46540, -23.00506, 4674, nullptr);
   dcpSeries->datasetList.push_back(dcpDatasetPtr);
 
-  AnalysisDataSeries pcdADS;
-  pcdADS.id = 2;
-  pcdADS.dataSeries = dcpSeriesPtr;
-  pcdADS.type = ADDITIONAL_DATA_TYPE;
-  pcdADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
-  pcdADS.metadata["RADIUS"] = "50";
+  AnalysisDataSeries dcpADS;
+  dcpADS.id = 2;
+  dcpADS.dataSeries = dcpSeriesPtr;
+  dcpADS.type = ADDITIONAL_DATA_TYPE;
+  dcpADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
+  dcpADS.metadata["RADIUS"] = "50";
 
   dataManager->add(dcpSeriesPtr);
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
-  analysisDataSeriesList.push_back(pcdADS);
+  analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 

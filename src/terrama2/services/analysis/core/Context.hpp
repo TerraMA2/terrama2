@@ -114,11 +114,11 @@ namespace terrama2
             void setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager);
             Analysis getAnalysis(AnalysisId analysisId) const;
             std::shared_ptr<ContextDataset> getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
-            void loadContext(const Analysis& analysis);
+            void loadMonitoredObject(const Analysis& analysis);
 
             bool exists(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
-            void addDataset(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter, bool createSpatialIndex = true);
-            void addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter);
+            void addDataset(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter = "", bool createSpatialIndex = true);
+            void addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter = "", const bool lastValue = false);
 
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;

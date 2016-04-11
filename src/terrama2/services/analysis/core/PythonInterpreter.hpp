@@ -33,15 +33,6 @@
 
 #include "Analysis.hpp"
 
-#include <string>
-
-#include "Context.hpp"
-
-#include <terralib/dataaccess/dataset/DataSet.h>
-
-// Boost
-#include "boost/date_time/local_time/local_time.hpp"
-
 #include <Python.h>
 
 namespace terrama2
@@ -52,17 +43,45 @@ namespace terrama2
     {
       namespace core
       {
+        enum StatisticOperation
+        {
+          MEAN,
+          SUM,
+          MAX,
+          MIN,
+          STANDARD_DEVIATION,
+          MEDIAN
+        };
+
         PyObject* countPoints(PyObject* self, PyObject* args);
-        PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
+
+        PyObject* sumHistoryDCP(PyObject* self, PyObject* args);
+        PyObject* meanHistoryDCP(PyObject* self, PyObject* args);
+        PyObject* minHistoryDCP(PyObject* self, PyObject* args);
+        PyObject* maxHistoryDCP(PyObject* self, PyObject* args);
+        PyObject* medianHistoryDCP(PyObject* self, PyObject* args);
+        PyObject* standardDeviationHistoryDCP(PyObject* self, PyObject* args);
+
+        PyObject* operatorHistoryDCP(PyObject* args, StatisticOperation statisticOperation);
+
+        PyObject* sumDCP(PyObject* self, PyObject* args);
+        PyObject* meanDCP(PyObject* self, PyObject* args);
+        PyObject* minDCP(PyObject* self, PyObject* args);
+        PyObject* maxDCP(PyObject* self, PyObject* args);
+        PyObject* standardDeviationDCP(PyObject* self, PyObject* args);
+        PyObject* medianDCP(PyObject* self, PyObject* args);
+
+        PyObject* operatorDCP(PyObject* args, StatisticOperation statisticOperation);
+
+
         PyObject* result(PyObject* self, PyObject* args);
 
-        std::string createMonitoredObjectFunction(const std::string& script);
-
         void initInterpreter();
-
-        void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
-
         void finalizeInterpreter();
+
+        void runScriptMonitoredObjectAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
+        void runScriptDCPAnalysis(PyThreadState* state, uint64_t analysisId);
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

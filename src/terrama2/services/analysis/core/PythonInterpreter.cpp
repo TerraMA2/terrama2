@@ -30,9 +30,12 @@
 
 
 #include "PythonInterpreter.hpp"
+#include "Context.hpp"
 #include "BufferMemory.hpp"
 #include "Analysis.hpp"
+#include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
 #include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
@@ -40,6 +43,9 @@
 #include "../../../core/Shared.hpp"
 
 #include <QObject>
+#include <QFile>
+#include <QString>
+#include <QTextStream>
 
 
 // TerraLib
@@ -50,7 +56,6 @@
 
 PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObject* args)
 {
-
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
 
@@ -203,7 +208,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
 }
 
 
-PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyObject* args)
+PyObject* terrama2::services::analysis::core::operatorHistoryDCP(PyObject* args, StatisticOperation statisticOperation)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -221,10 +226,10 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
   // Reads parameters
   const char* dataSeriesName;
   const char* attribute;
-  int pcdId;
+  int DCPId;
   const char* dateFilter;
 
-  if (!PyArg_ParseTuple(args, "ssis", &dataSeriesName, &attribute, &pcdId, &dateFilter))
+  if (!PyArg_ParseTuple(args, "ssis", &dataSeriesName, &attribute, &DCPId, &dateFilter))
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Could not read function parameters.");
     return NULL;
@@ -232,6 +237,11 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
 
   std::string dateFilterStr(dateFilter);
   double sum = 0;
+  double max = std::numeric_limits<double>::min();
+  double min = std::numeric_limits<double>::max();
+  double median = 0;
+  double mean = 0;
+  double standardDeviation = 0;
   bool found = false;
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
@@ -295,7 +305,7 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
         return NULL;
       }
 
-      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilterStr);
+      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilterStr, false);
 
       for(auto dataset : analysisDataSeries.dataSeries->datasetList)
       {
@@ -349,6 +359,7 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
             else if(centroid->getSRID() != srid && srid != 0)
               centroid->transform(srid);
 
+            std::vector<double> values;
             if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
             {
               uint64_t size = contextDataset->series.syncDataSet->size();
@@ -359,15 +370,29 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
                   try
                   {
                     double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
+                    values.push_back(value);
                     sum += value;
+                    if(value > max)
+                      max = value;
+                    if(value < min)
+                      min = value;
                   }
                   catch(...)
                   {
-                    // In case the DCP doesn't the specified column
+                    // In case the DCP doesn't have the specified column
                     continue;
                   }
                 }
               }
+
+              mean = sum / size;
+              std::sort (values.begin(), values.end());
+              double half = values.size() / 2;
+              if(values.size() % 2 == 0)
+              {
+                median = values[(int)half] + values[(int)half - 1] / 2;
+              }
+
             }
           }
           else
@@ -375,7 +400,6 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
             // TODO: Monitored object is not a multi polygon.
             assert(false);
           }
-
         }
 
         // All operations are done, acquires the GIL and set the return value
@@ -388,11 +412,316 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     }
   }
 
+
   if(found)
-    return Py_BuildValue("d", sum);
+  {
+    switch (statisticOperation)
+    {
+      case SUM:
+        return Py_BuildValue("d", sum);
+      case MEAN:
+        return Py_BuildValue("d", mean);
+      case MIN:
+        return Py_BuildValue("d", min);
+      case MAX:
+        return Py_BuildValue("d", max);
+      case STANDARD_DEVIATION:
+        return Py_BuildValue("d", standardDeviation);
+      case MEDIAN:
+        return Py_BuildValue("d", median);
+    }
+  }
 
   return Py_BuildValue("d", 0.);
 
+}
+
+
+PyObject* terrama2::services::analysis::core::sumHistoryDCP(PyObject* self, PyObject* args)
+{
+  return operatorHistoryDCP(args, SUM);
+}
+
+PyObject* terrama2::services::analysis::core::meanHistoryDCP(PyObject* self, PyObject* args)
+{
+  return operatorHistoryDCP(args, MEAN);
+}
+
+PyObject* terrama2::services::analysis::core::minHistoryDCP(PyObject* self, PyObject* args)
+{
+  return operatorHistoryDCP(args, MIN);
+}
+
+PyObject* terrama2::services::analysis::core::maxHistoryDCP(PyObject* self, PyObject* args)
+{
+  return operatorHistoryDCP(args, MAX);
+}
+
+PyObject* terrama2::services::analysis::core::medianHistoryDCP(PyObject* self, PyObject* args)
+{
+  return operatorHistoryDCP(args, MEDIAN);
+}
+
+PyObject* terrama2::services::analysis::core::standardDeviationHistoryDCP(PyObject* self, PyObject* args)
+{
+  return operatorHistoryDCP(args, STANDARD_DEVIATION);
+}
+
+PyObject* terrama2::services::analysis::core::sumDCP(PyObject* self, PyObject* args)
+{
+  return operatorDCP(args, SUM);
+}
+
+PyObject* terrama2::services::analysis::core::meanDCP(PyObject* self, PyObject* args)
+{
+  return operatorDCP(args, MEAN);
+}
+
+PyObject* terrama2::services::analysis::core::minDCP(PyObject* self, PyObject* args)
+{
+  return operatorDCP(args, MIN);
+}
+
+PyObject* terrama2::services::analysis::core::maxDCP(PyObject* self, PyObject* args)
+{
+  return operatorDCP(args, MAX);
+}
+
+PyObject* terrama2::services::analysis::core::standardDeviationDCP(PyObject* self, PyObject* args)
+{
+  return operatorDCP(args, STANDARD_DEVIATION);
+}
+
+PyObject* terrama2::services::analysis::core::medianDCP(PyObject* self, PyObject* args)
+{
+  return operatorDCP(args, MEDIAN);
+}
+
+PyObject* terrama2::services::analysis::core::operatorDCP(PyObject* args, StatisticOperation statisticOperation)
+{
+  PyThreadState* state = PyThreadState_Get();
+  PyObject* pDict = state->dict;
+
+  // Geom index
+  PyObject *geomKey = PyString_FromString("index");
+  PyObject* geomIdPy = PyDict_GetItem(pDict, geomKey);
+  uint64_t index = PyInt_AsLong(geomIdPy);
+
+  // Analysis ID
+  PyObject *analysisKey = PyString_FromString("analysis");
+  PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
+  uint64_t analysisId = PyInt_AsLong(analysisPy);
+
+  // Reads parameters
+  const char* dataSeriesName;
+  const char* attribute;
+  double bufferDistance = 0;
+  int bufferType = 0;
+  std::vector<std::string> ids;
+
+  if (!PyArg_ParseTuple(args, "ssis|[items]", &dataSeriesName, &attribute, bufferDistance, &bufferType, &ids))
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Could not read function parameters.");
+    return NULL;
+  }
+
+  double sum = 0;
+  double max = std::numeric_limits<double>::min();
+  double min = std::numeric_limits<double>::max();
+  double median = 0;
+  double mean = 0;
+  double standardDeviation = 0;
+  bool found = false;
+
+  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+
+
+  std::shared_ptr<ContextDataset> moDsContext;
+  terrama2::core::DataSetPtr datasetMO;
+
+  // Reads the object monitored
+  for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
+  {
+    if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
+      datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+
+      if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
+
+      moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+
+      if(!moDsContext)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
+    }
+  }
+
+
+  auto geom = moDsContext->series.syncDataSet->getGeometry(index, moDsContext->geometryPos);
+  if(!geom.get())
+  {
+    QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
+    errMsg = errMsg.arg(analysisId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return NULL;
+  }
+
+
+  std::shared_ptr<ContextDataset> contextDataset;
+
+  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  {
+    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    {
+      found = true;
+
+      if(analysisDataSeries.dataSeries->semantics.macroType != terrama2::core::DataSeriesSemantics::DCP)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NULL;
+      }
+
+      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, "", true);
+
+      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      {
+        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id);
+
+        terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
+        if(!dcpDataset)
+        {
+          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return NULL;
+        }
+
+
+        if(dcpDataset->position == nullptr)
+        {
+          QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return NULL;
+        }
+
+        // Frees the GIL, from now on can not use the interpreter
+        Py_BEGIN_ALLOW_THREADS
+
+        auto metadata = analysisDataSeries.metadata;
+
+        if(metadata["INFLUENCE_TYPE"] != "REGION")
+        {
+
+          auto buffer = dcpDataset->position->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
+
+          int srid  = dcpDataset->position->getSRID();
+          if(srid == 0)
+          {
+            auto format = datasetMO->format;
+            if(format.find("srid") != format.end())
+            {
+              srid = std::stoi(format["srid"]);
+            }
+          }
+
+          auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
+
+          if(polygon != nullptr)
+          {
+            auto centroid = polygon->getCentroid();
+            if(centroid->getSRID() == 0)
+              centroid->setSRID(srid);
+            else if(centroid->getSRID() != srid && srid != 0)
+              centroid->transform(srid);
+
+            std::vector<double> values;
+            if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
+            {
+              uint64_t size = contextDataset->series.syncDataSet->size();
+              for(unsigned int i = 0; i < size; ++i)
+              {
+                if(!contextDataset->series.syncDataSet->isNull(i, attribute))
+                {
+                  try
+                  {
+                    double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
+                    values.push_back(value);
+                    sum += value;
+                    if(value > max)
+                      max = value;
+                    if(value < min)
+                      min = value;
+                  }
+                  catch(...)
+                  {
+                    // In case the DCP doesn't have the specified column
+                    continue;
+                  }
+                }
+              }
+
+              mean = sum / size;
+              std::sort (values.begin(), values.end());
+              double half = values.size() / 2;
+              if(values.size() % 2 == 0)
+              {
+                median = values[(int)half] + values[(int)half - 1] / 2;
+              }
+
+            }
+          }
+          else
+          {
+            // TODO: Monitored object is not a multi polygon.
+            assert(false);
+          }
+        }
+
+        // All operations are done, acquires the GIL and set the return value
+        Py_END_ALLOW_THREADS
+
+      }
+
+
+      break;
+    }
+  }
+
+
+  if(found)
+  {
+    switch (statisticOperation)
+    {
+      case SUM:
+        return Py_BuildValue("d", sum);
+      case MEAN:
+        return Py_BuildValue("d", mean);
+      case MIN:
+        return Py_BuildValue("d", min);
+      case MAX:
+        return Py_BuildValue("d", max);
+      case STANDARD_DEVIATION:
+        return Py_BuildValue("d", standardDeviation);
+      case MEDIAN:
+        return Py_BuildValue("d", median);
+    }
+  }
+
+  return Py_BuildValue("d", 0.);
 
 }
 
@@ -457,10 +786,34 @@ PyObject* terrama2::services::analysis::core::result(PyObject* self, PyObject* a
   return new PyObject();
 }
 
-static PyMethodDef module_methods[] = {
-  { "countPoints", terrama2::services::analysis::core::countPoints, METH_VARARGS, "Count points operator"},
-  { "sumHistoryPCD", terrama2::services::analysis::core::sumHistoryPCD, METH_VARARGS, "Sum history PCD"},
-  { "result", terrama2::services::analysis::core::result, METH_VARARGS, "Set the result value"},
+static PyMethodDef history_methods[] = {
+  { "sum", terrama2::services::analysis::core::sumHistoryDCP, METH_VARARGS, "Sum history DCP"},
+  { "mean", terrama2::services::analysis::core::meanHistoryDCP, METH_VARARGS, "Mean history DCP"},
+  { "min", terrama2::services::analysis::core::minHistoryDCP, METH_VARARGS, "Min history DCP"},
+  { "max", terrama2::services::analysis::core::maxHistoryDCP, METH_VARARGS, "Max history DCP"},
+  { "standard_deviation", terrama2::services::analysis::core::standardDeviationHistoryDCP, METH_VARARGS, "Standard deviation history DCP"},
+  { "mean", terrama2::services::analysis::core::meanHistoryDCP, METH_VARARGS, "Median history DCP"},
+  { NULL, NULL, 0, NULL }
+};
+
+static PyMethodDef dcp_methods[] = {
+  { "sum", terrama2::services::analysis::core::sumDCP, METH_VARARGS, "Sum DCP"},
+  { "mean", terrama2::services::analysis::core::meanDCP, METH_VARARGS, "Mean DCP"},
+  { "min", terrama2::services::analysis::core::minDCP, METH_VARARGS, "Min DCP"},
+  { "max", terrama2::services::analysis::core::maxDCP, METH_VARARGS, "Max DCP"},
+  { "standard_deviation", terrama2::services::analysis::core::standardDeviationDCP, METH_VARARGS, "Standard deviation DCP"},
+  { "median", terrama2::services::analysis::core::meanDCP, METH_VARARGS, "Median DCP"},
+  { NULL, NULL, 0, NULL }
+};
+
+static PyMethodDef occurrence_methods[] = {
+  { "count", terrama2::services::analysis::core::countPoints, METH_VARARGS, "Count points operator"},
+  { NULL, NULL, 0, NULL }
+};
+
+
+static PyMethodDef terrama2_methods[] = {
+  { "add_value", terrama2::services::analysis::core::result, METH_VARARGS, "Set the result value"},
   { NULL, NULL, 0, NULL }
 };
 
@@ -471,23 +824,58 @@ void terrama2::services::analysis::core::initInterpreter()
 
   PyEval_InitThreads();
 
-  PyObject *m = Py_InitModule("terrama2", module_methods);
+  PyObject *m = Py_InitModule("history", history_methods);
   if (m == NULL)
+  {
     return;
+  }
+
+  m = Py_InitModule("dcp", dcp_methods);
+  if (m == NULL)
+  {
+    return;
+  }
+
+  m = Py_InitModule("occurrence", occurrence_methods);
+  if (m == NULL)
+  {
+    return;
+  }
+
+  m = Py_InitModule("terrama2", terrama2_methods);
+  if (m == NULL)
+  {
+    return;
+  }
+
+  std::string initFile = terrama2::core::FindInTerraMA2Path("share/terrama2/python/init.py");
+  QFile file(initFile.c_str());
+
+  if (!file.open(QFile::ReadOnly | QFile::Text))
+  {
+    QString errMsg = QObject::tr("Could not read python init file: %1").arg(initFile.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw PythonInterpreterException() << ErrorDescription(errMsg);
+  }
+
+  QTextStream in(&file);
+
+  PyRun_SimpleString(in.readAll().toStdString().c_str());
 
   terrama2Error = PyErr_NewException("terrama2.error", NULL, NULL);
   Py_INCREF(terrama2Error);
   PyModule_AddObject(m, "error", terrama2Error);
+
+
+
 
   // release our hold on the global interpreter
   PyEval_ReleaseLock();
 }
 
 
-void terrama2::services::analysis::core::runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes)
+void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes)
 {
-
-
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
   for(uint64_t index : indexes)
@@ -508,17 +896,40 @@ void terrama2::services::analysis::core::runMonitoredObjAnalysis(PyThreadState* 
     PyDict_SetItemString(poDict, "analysis", analysisValue);
     state->dict = poDict;
 
-    PyRun_SimpleString("from terrama2 import *");
     PyRun_SimpleString(analysis.script.c_str());
 
 
     // release our hold on the global interpreter
     PyEval_ReleaseLock();
   }
-
-
 }
 
+
+void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, uint64_t analysisId)
+{
+  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+
+  // grab the global interpreter lock
+  PyEval_AcquireLock();
+  // swap in my thread state
+  PyThreadState_Swap(state);
+
+  PyThreadState_Clear(state);
+
+  PyObject *analysisValue = PyInt_FromLong(analysisId);
+
+  PyObject* poDict = PyDict_New();
+  PyDict_SetItemString(poDict, "analysis", analysisValue);
+  state->dict = poDict;
+
+  PyRun_SimpleString("import history");
+  PyRun_SimpleString("from import history");
+  PyRun_SimpleString(analysis.script.c_str());
+
+
+  // release our hold on the global interpreter
+  PyEval_ReleaseLock();
+}
 
 void terrama2::services::analysis::core::finalizeInterpreter()
 {
