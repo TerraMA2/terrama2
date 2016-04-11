@@ -938,6 +938,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   return {
     getMap: getMap,
     updateMapSize: updateMapSize,
+    correctLongitude: correctLongitude,
     addMousePosition: addMousePosition,
     removeMousePosition: removeMousePosition,
     addScale: addScale,
