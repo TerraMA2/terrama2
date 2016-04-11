@@ -56,6 +56,53 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
+   * Corrects the longitude of the map, if it's wrong. That's necessary because Openlayers 3 (in the current version) has a bug, when the map is moved to the right or to the left the X coordinate keeps growing.
+   * @param {float} longitude - Original longitude
+   * @returns {float} correctedLongitude - Corrected longitude
+   *
+   * @private
+   * @function correctLongitude
+   */
+  var correctLongitude = function(longitude) {
+    // Variable that will keep the corrected longitude
+    var correctedLongitude = parseFloat(longitude);
+    // Variable that will keep the original longitude
+    var originalLongitude = parseFloat(longitude);
+
+    // The correction is executed only if the longitude is incorrect
+    if(originalLongitude > 180 || originalLongitude <= -180) {
+      // If the longitude is negative, it's converted to a positive float, otherwise just to a float
+      longitude = originalLongitude < 0 ? longitude * -1 : parseFloat(longitude);
+
+      // Division of the longitude by 180:
+      //   If the result is an even negative integer, nothing is added, subtracted or rounded
+      //   If the result is an odd negative integer, is added 1 to the result
+      //   If the result is a positive integer, is subtracted 1 from the result
+      //   If isn't integer but its integer part is even, it's rounded down
+      //   Otherwise, it's rounded up
+      var divisionResult = 0;
+      if((originalLongitude / 180) % 2 === -0)
+        divisionResult = longitude / 180;
+      else if((originalLongitude / 180) % 2 === -1)
+        divisionResult = (longitude / 180) + 1;
+      else if((longitude / 180) % 1 === 0)
+        divisionResult = (longitude / 180) - 1;
+      else if(parseInt(longitude / 180) % 2 === 0)
+        divisionResult = parseInt(longitude / 180);
+      else
+        divisionResult = Math.ceil(longitude / 180);
+
+      // If the division result is greater than zero, the correct longitude is calculated:
+      //   If the original longitude is negative, the division result multiplied by 180 is added to it
+      //   Otherwise, the division result multiplied by 180 is subtracted from it
+      if(divisionResult > 0)
+        correctedLongitude = (originalLongitude < 0) ? originalLongitude + (divisionResult * 180) : originalLongitude - (divisionResult * 180);
+    }
+
+    return correctedLongitude;
+  };
+
+  /**
    * Adds a mouse position display in the map.
    *
    * @function addMousePosition
@@ -74,7 +121,11 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       $("#terrama2-map").append('<div id="terrama2-map-info"></div>');
 
       var mousePositionControl = new ol.control.MousePosition({
-        coordinateFormat: ol.coordinate.createStringXY(6),
+        coordinateFormat: (function(precision) {
+          return (function(coordinates) {
+            return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision);
+          });
+        })(6),
         projection: 'EPSG:4326',
         className: 'terrama2-mouse-position',
         target: document.getElementById('terrama2-map-info')
@@ -569,7 +620,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var setLayerVisibilityChangeEvent = function(eventFunction) {
     $(document).unbind("layerVisibilityChange");
     $(document).on("layerVisibilityChange", function(e, layerId) {
-      eventFunction(e, layerId);
+      eventFunction(layerId);
     });
   };
 
@@ -598,7 +649,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function getZoomDragBoxExtent
    */
   var getZoomDragBoxExtent = function() {
-    return memberZoomDragBox.getGeometry().getExtent();
+    var extentTmp = memberZoomDragBox.getGeometry().getExtent();
+    var extent = [correctLongitude(extentTmp[0]), extentTmp[1], correctLongitude(extentTmp[2]), extentTmp[3]];
+
+    // Zoom to the correct extent
+    zoomToExtent(extent);
+
+    return extent;
   };
 
   /**
@@ -608,7 +665,9 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function setZoomDragBoxStartEvent
    */
   var setZoomDragBoxStartEvent = function(eventFunction) {
-    memberZoomDragBox.on('boxstart', eventFunction);
+    memberZoomDragBox.on('boxstart', function(e) {
+      eventFunction();
+    });
   };
 
   /**
@@ -618,7 +677,9 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function setZoomDragBoxEndEvent
    */
   var setZoomDragBoxEndEvent = function(eventFunction) {
-    memberZoomDragBox.on('boxend', eventFunction);
+    memberZoomDragBox.on('boxend', function(e) {
+      eventFunction();
+    });
   };
 
   /**
@@ -628,7 +689,9 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @function getCurrentExtent
    */
   var getCurrentExtent = function() {
-    return memberOlMap.getView().calculateExtent(memberOlMap.getSize());
+    var extentTmp = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
+    var extent = [correctLongitude(extentTmp[0]), extentTmp[1], correctLongitude(extentTmp[2]), extentTmp[3]];
+    return extent;
   };
 
   /**
@@ -685,7 +748,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     memberResolutionChangeEventKey = memberOlMap.getView().on('propertychange', function(e) {
       switch(e.key) {
         case 'resolution':
-          eventFunction(e);
+          eventFunction();
           break;
       }
     });
@@ -700,7 +763,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var setMapDoubleClickEvent = function(eventFunction) {
     if(memberDoubleClickEventKey !== null) memberOlMap.getView().unByKey(memberDoubleClickEventKey);
     memberDoubleClickEventKey = memberOlMap.on('dblclick', function(e) {
-      eventFunction(e);
+      eventFunction(correctLongitude(e.coordinate[0]), e.coordinate[1]);
     });
   };
 
@@ -795,6 +858,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   return {
     getMap: getMap,
     updateMapSize: updateMapSize,
+    correctLongitude: correctLongitude,
     addMousePosition: addMousePosition,
     removeMousePosition: removeMousePosition,
     addScale: addScale,
