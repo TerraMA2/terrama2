@@ -44,15 +44,32 @@ angular.module('terrama2.dataseries.registration', [
 
   .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory) {
+      // definition of schema form
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
 
+      // table fields
+      $scope.tableFields = [];
+
+      // injecting state handler in scope
       $scope.stateApp = $state;
+
+      // injecting helper functions in scope
+      $scope.capitalizeIt = function(text) {
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      };
+      $scope.isBoolean = function(value) {
+        return typeof value === 'boolean';
+      };
+
       $scope.semantics = "";
       $scope.isDynamic = params.state.toLowerCase() === "dynamic";
-      $scope.pcds = [];
+      $scope.dcps = [];
+      
+      $scope.updatingDcp = false;
 
+      // filter values
       $scope.filter = {};
       $scope.parametersData = configuration.parametersData || {};
 
@@ -105,7 +122,23 @@ angular.module('terrama2.dataseries.registration', [
         $scope.semantics = $scope.dataSeries.semantics.data_format_name.toLowerCase();
         
         DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.name, {metadata:true}).success(function(data) {
-          console.log("Data: ", data);
+          $scope.tableFields = [];
+          // building table fields. Check if form is for all ('*')
+          if (data.metadata.form.indexOf('*') != -1) {
+            // ignore form and make it from properties
+            var properties = data.metadata.schema.properties;
+            for(var key in properties) {
+              if (properties.hasOwnProperty(key)) {
+                $scope.tableFields.push(key);
+              }
+            }
+          } else {
+            // form is mapped
+            data.metadata.form.forEach(function(element) {
+              $scope.tableFields.push(element.key);
+            })
+          }
+
           $scope.model = {};
           $scope.form = data.metadata.form;
           $scope.schema = {
@@ -115,17 +148,16 @@ angular.module('terrama2.dataseries.registration', [
           };
           $scope.$broadcast('schemaFormRedraw');
         }).error(function(err) {
-          console.log("Error in semantics change: " + err);
+          console.log("Error in semantics change: ", err);
           $scope.model = {};
           $scope.form = [];
           $scope.schema = {};
+          $scope.$broadcast('schemaFormRedraw');
         })
       };
 
       $scope.onDataProviderClick = function(index) {
-
         var url = $window.location.pathname + "&type=" + params.state;
-
         var semanticsName = $scope.dataSeries.semantics.name || "";
         var output = Object.assign({}, $scope.dataSeries);
         output.semantics = semanticsName;
@@ -134,33 +166,29 @@ angular.module('terrama2.dataseries.registration', [
         $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
       };
 
-      $scope.removePcd = function(pcdItem) {
-        $scope.pcds.forEach(function(pcd, pcdIndex, array) {
+      $scope.removePcd = function(dcpItem) {
+        $scope.dcps.forEach(function(dcp, pcdIndex, array) {
           // todo: which fields should compare to remove?
-          if (pcd.mask === pcdItem.mask) {
+          if (dcp.mask === dcpItem.mask) {
             array.splice(pcdIndex, 1);
             return;
           }
         });
       };
 
-      $scope.addHelperMask = function(maskFormat) {
-        if ($scope.parametersData && $scope.parametersData.mask)
-          $scope.parametersData.mask += maskFormat;
-        else
-          $scope.parametersData.mask = maskFormat;
+      var isValidParametersForm = function(form) {
+        $scope.$broadcast('schemaFormValidate');
+
+        return form.$valid;
       };
+      
+      $scope.addDcp = function() {
+        if (isValidParametersForm(this.parametersForm)) {
+          $scope.dcps.push(Object.assign({}, $scope.model));
+          $scope.model = {};
 
-      $scope.addPcd = function(pcd) {
-        if (this.parametersDataForm.$valid) {
-
-          $scope.pcds.push(pcd);
-          var path = $scope.parametersData.path;
-
-          this.parametersDataForm.$setPristine();
-          this.parametersDataForm.$setUntouched();
-
-          $scope.parametersData = {path: path};
+          // reset form to do not display feedback class
+          this.parametersForm.$setPristine();
         }
       };
 
@@ -179,7 +207,11 @@ angular.module('terrama2.dataseries.registration', [
       $scope.save = function() {
         if(this.generalDataForm.$invalid) {
           errorHelper(this.generalDataForm);
-          // errorHelper(this.parametersDataForm);
+          return;
+        }
+        // checking parameters form (semantics) is invalid
+        if (!isValidParametersForm()) {
+          errorHelper(this.parametersForm);
           return;
         }
 
@@ -194,7 +226,7 @@ angular.module('terrama2.dataseries.registration', [
         switch(semantics.data_series_type_name.toLowerCase()) {
           case "dcp":
           case "pcd":
-            $scope.pcds.forEach(function(pcd) {
+            $scope.dcps.forEach(function(pcd) {
               var dataSetStructure = {
                 semantics: semantics,
                 active: pcd.active,
@@ -238,8 +270,6 @@ angular.module('terrama2.dataseries.registration', [
 
         console.log(dataToSend);
         DataSeriesFactory.post(dataToSend).success(function(data) {
-          //   redirect to list data series || analysis: TODO
-          alert("Saved");
           console.log(data);
           $window.location.href = "/configuration/dynamic/dataseries";
         }).error(function(err) {

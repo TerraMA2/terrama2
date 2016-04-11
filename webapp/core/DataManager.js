@@ -131,7 +131,8 @@ var DataManager = {
 
           Promise.all(inserts).then(function() {
             var arr = [];
-            arr.push(self.addDataSeriesSemantics({name: "PCD-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+            arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+            arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
             arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
             Promise.all(arr).then(function(){
@@ -365,6 +366,21 @@ var DataManager = {
         resolve(Utils.clone(semantics.get()));
       }).catch(function(e) {
         reject(e);
+      });
+    });
+  },
+
+  getDataSeriesSemantics: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listDataSeriesSemantics(restriction).then(function(semanticsList) {
+        if (semanticsList.length === 1)
+          return resolve(semanticsList[0]);
+
+        // error getting more than one or none
+        return reject(new exceptions.DataSeriesSemanticsError("DataSeriesSemantics not found"));
+      }).catch(function(err) {
+        reject(err);
       });
     });
   },

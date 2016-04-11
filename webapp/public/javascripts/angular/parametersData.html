@@ -1,38 +1,37 @@
 
 <div class="row">
   <div class="col-md-12">
-    <form sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+    <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+    <div class="col-md-2 terrama2-top-field">
+      <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp()">{{ i18n.__('Add') }}</button>
+    </div>
   </div>
 
   <div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'pcd' || semantics === 'dcp') && isDynamic">
 
     <div class="col-md-12">
       <div class="box-body table-responsive no-padding">
-        <table class="table table-hover terrama2-header-fixed" id="terrama2-pcd-table">
+        <table class="table table-hover">
           <thead>
           <tr>
-            <th>{{ i18n.__('Mask') }}</th>
-            <th>{{ i18n.__('Latitude') }}</th>
-            <th>{{ i18n.__('Longitude') }}</th>
-            <th>{{ i18n.__('Active') }}</th>
-            <th>{{ i18n.__('Projection') }}</th>
-            <th>{{ i18n.__('Timezone') }}</th>
+            <th ng-repeat="field in tableFields">{{ capitalizeIt(field) }}</th>
+            <th></th>
           </tr>
           </thead>
-          <tbody>
-          <tr ng-repeat="pcd in pcds track by $index">
-            <td>{{ pcd.mask }}</td>
-            <td>{{ pcd.latitude }}</td>
-            <td>{{ pcd.longitude }}</td>
-            <td>
-                <span class="label" ng-class="{'label-success': pcd.active, 'label-danger': !pcd.active}">
-                  <i class="glyphicon" ng-class="{'glyphicon-ok': pcd.active, 'glyphicon-remove': !pcd.active}"></i>
-                </span>
+          <tbody style="overflow-y: auto; height: 150px;">
+          <tr ng-repeat="dcp in dcps track by $index">
+            <td ng-repeat="field in tableFields">
+              <!-- boolean types -->
+              <span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
+                <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
+              </span>
+              <!--{{ dcp }}-->
+              <span ng-if="!isBoolean(dcp[field]) && $index !== (tableFields.length - 1)">
+                {{ dcp[field]}}
+              </span>
             </td>
-            <td>{{ pcd.projection }}</td>
             <td>
-              {{ pcd.timezone }}
-              <button class="btn btn-danger" ng-click="removePcd(pcd)">{{ i18n.__("Remove") }}</button>
+              <button class="btn btn-danger" ng-click="removePcd(dcp)">{{ i18n.__("Remove") }}</button>
             </td>
           </tr>
           </tbody>

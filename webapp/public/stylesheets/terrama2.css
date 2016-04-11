@@ -85,3 +85,11 @@
     text-align: center !important;
     padding: .3em .6em .3em !important;
 }
+
+.terrama2-top-field {
+    top: 25px !important;
+}
+
+.terrama2-feedback-icon {
+    margin-right: 20px !important;
+}

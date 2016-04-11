@@ -34,7 +34,9 @@
 
   <div class="tab-content">
     <div class="tab-pane" id="tab1">
-      <div ng-include="'/javascripts/angular/generalData.html'"></div>
+      <form name="generalDataForm">
+        <div ng-include="'/javascripts/angular/generalData.html'"></div>
+      </form>
     </div>
     <div class="tab-pane" id="tab2">
       <div ng-include="'/javascripts/angular/parametersData.html'"></div>
@@ -57,22 +59,6 @@
   $(document).ready(function(){
     $("#mask-list").on("click", "li", function(e){
       $("#mask").val($("#mask").val() + $(this).children().text().substring(0, 2));
-    });
-
-    $('#datetimepicker6').datetimepicker({
-      widgetPositioning: {vertical: "bottom"},
-      format: 'DD-MM-YY HH:mm'
-    });
-    $('#datetimepicker7').datetimepicker({
-      widgetPositioning: {vertical: "bottom"},
-      format: 'DD-MM-YY HH:mm',
-      useCurrent: false
-    });
-    $("#datetimepicker6").on("dp.change", function (e) {
-      $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
-    });
-    $("#datetimepicker7").on("dp.change", function (e) {
-      $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
     });
 
     $("#themeCombobox").change(function(e){
