@@ -233,3 +233,8 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 // returns the absolute path of the folder that contains the files that have been made the download.
   return scheme_+temporaryFolder_;
 }
+
+terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
+{
+  return new DataRetrieverFTP(dataProvider);
+}
