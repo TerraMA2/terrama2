@@ -31,7 +31,7 @@
 #include "../core/utility/Raii.hpp"
 #include "../core/data-access/SyncronizedDataSet.hpp"
 
-//TerraLib
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -52,13 +52,12 @@
 
 #include <terralib/geometry/MultiPolygon.h>
 
-//QT
+// QT
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri,
-                                                     const terrama2::core::Filter& filter,
-                                                     terrama2::core::DataSetPtr dataSet) const
+terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
+                                                                      terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
 
@@ -69,25 +68,24 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
 
   std::map<std::string, std::string> connInfo{{"PG_HOST", url.host().toStdString()},
-                                             {"PG_PORT", std::to_string(url.port())},
-                                             {"PG_USER", url.userName().toStdString()},
-                                             {"PG_PASSWORD", url.password().toStdString()},
-                                             {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-                                             {"PG_CONNECT_TIMEOUT", "4"},
-                                             {"PG_CLIENT_ENCODING", "UTF-8"}
-                                           };
+                                              {"PG_PORT", std::to_string(url.port())},
+                                              {"PG_USER", url.userName().toStdString()},
+                                              {"PG_PASSWORD", url.password().toStdString()},
+                                              {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
+                                              {"PG_CONNECT_TIMEOUT", "4"},
+                                              {"PG_CLIENT_ENCODING", "UTF-8"}};
 
   datasource->setConnectionInfo(connInfo);
 
-  //RAII for open/closing the datasource
-  OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
+  // RAII for open/closing the datasource
+  OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
 
   if(!datasource->isOpened())
   {
-   QString errMsg = QObject::tr("DataProvider could not be opened.");
-   TERRAMA2_LOG_ERROR() << errMsg;
-   throw NoDataException() << ErrorDescription(errMsg);
-   throw;
+    QString errMsg = QObject::tr("DataProvider could not be opened.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NoDataException() << ErrorDescription(errMsg);
+    throw;
   }
 
   // get a transactor to interact to the data source
@@ -105,11 +103,11 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
   if(!where.empty())
   {
 
-   te::da::Expression* expr = where.front();
-   for(int i = 1; i < where.size(); ++i)
-     expr = new te::da::And(expr, where.at(i));
+    te::da::Expression* expr = where.front();
+    for(int i = 1; i < where.size(); ++i)
+      expr = new te::da::And(expr, where.at(i));
 
-   whereCondition = new te::da::Where(expr);
+    whereCondition = new te::da::Where(expr);
   }
 
   te::da::Fields* fields = new te::da::Fields;
@@ -124,8 +122,6 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_WARNING() << errMsg;
   }
-
-  std::shared_ptr<te::mem::DataSet> completeDataset = std::make_shared<te::mem::DataSet>(*tempDataSet);
 
   Series series;
   series.dataSet = dataSet;
@@ -142,7 +138,8 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
   throw NoDataException() << ErrorDescription(errMsg);
 }
 
-void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const
+void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
+                                                            std::vector<te::da::Expression*>& where) const
 {
   te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
   if(filter.discardBefore.get())
@@ -162,7 +159,8 @@ void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::Data
   }
 }
 
-void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*> where) const
+void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
+                                                            std::vector<te::da::Expression*>& where) const
 {
   te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
   if(filter.geometry.get())

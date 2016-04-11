@@ -3,6 +3,7 @@
 
 // TerraMA2
 #include "../Exception.hpp"
+#include "../network/TcpManager.hpp"
 
 // Terralib
 #include <terralib/common/Singleton.h>
@@ -55,7 +56,7 @@ namespace terrama2
         const std::string& path() const;
 
         //! It sets path of terrama2 log and add ostream to sink backend
-        void addStream(const std::string& stream_name);
+        void addStream(const std::string& stream_name, TcpManager* tcpManager = nullptr);
 
       protected:
         /*!

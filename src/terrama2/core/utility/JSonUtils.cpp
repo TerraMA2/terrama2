@@ -26,7 +26,13 @@
 
   \author Jano Simas
 */
-
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../data-model/DataSetDcp.hpp"
+#include "../data-model/DataSetGrid.hpp"
+#include "../data-model/DataSetOccurrence.hpp"
 #include "../Exception.hpp"
 
 #include "JSonUtils.hpp"
@@ -189,4 +195,35 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetGridJson(QJsonObject json)
   addBaseDataSetData(json, dataSet);
 
   return dataSetPtr;
+}
+
+terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
+{
+  if(json["class"].toString() != "Schedule")
+  {
+    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  }
+
+  if(!(json.contains("id")
+      && json.contains("frequency")
+      && json.contains("frequency_unit")
+      && json.contains("schedule")
+      && json.contains("schedule_retry")
+      && json.contains("schedule_retry_unit")
+      && json.contains("schedule_timeout")
+      && json.contains("schedule_timeout_unit")))
+     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+
+  terrama2::core::Schedule schedule;
+  schedule.id = json["id"].toInt();
+  schedule.frequency = json["frequency"].toInt();
+  schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
+  //TODO: schedule time duration
+  // schedule.schedule = json["schedule"].toInt();
+  schedule.scheduleRetry = json["schedule_retry"].toInt();
+  schedule.scheduleRetryUnit = json["schedule_retry_unit"].toString().toStdString();
+  schedule.scheduleTimeout = json["schedule_timeout"].toInt();
+  schedule.scheduleTimeoutUnit = json["schedule_timeout_unit"].toString().toStdString();
+
+  return schedule;
 }

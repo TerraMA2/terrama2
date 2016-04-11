@@ -35,14 +35,17 @@
 
 namespace terrama2
 {
-  namespace services {
-    namespace collector {
+  namespace services
+  {
+    namespace collector
+    {
       //! Base exception class for TerraMA2.
-      struct Exception: virtual terrama2::core::Exception {};
-
+      struct Exception : virtual terrama2::core::Exception
+      {
+      };
 
     } /* collector */
-  } /* services */
-}  // end namespace terrama2
+  }   /* services */
+} // end namespace terrama2
 
-#endif  // __TERRAMA2_SERVICES_COLLECTOR_CORE_EXCEPTION_HPP__
+#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_EXCEPTION_HPP__
