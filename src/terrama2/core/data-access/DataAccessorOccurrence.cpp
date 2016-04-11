@@ -30,7 +30,6 @@
 //TerraMA2
 #include "DataAccessorOccurrence.hpp"
 #include "DataRetriever.hpp"
-#include "../utility/Factory.hpp"
 #include "../utility/Logger.hpp"
 #include "../Exception.hpp"
 
@@ -46,18 +45,8 @@ terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getO
   auto series = getSeries(filter);
   OccurrenceSeriesPtr occurrenceSeries = std::make_shared<OccurrenceSeries>();
   occurrenceSeries->addOccurrences(series);
-  
+
   return occurrenceSeries;
-}
-
-void terrama2::core::DataAccessorOccurrence::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
-{
-  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
-  {
-    te::dt::Property* p = datasetType->getProperty(i);
-
-    converter->add(i,p->clone());
-  }
 }
 
 te::dt::TimeInstantTZ terrama2::core::DataAccessorOccurrence::lastDateTime() const

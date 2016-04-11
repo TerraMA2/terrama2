@@ -33,6 +33,7 @@
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
+#include "../Typedef.hpp"
 
 // STL
 #include <string>
@@ -46,10 +47,6 @@ namespace terrama2
     {
       namespace core
       {
-
-        typedef uint64_t AnalysisDataSeriesId;
-        typedef uint64_t AnalysisId;
-
         enum AnalysisType
         {
           PCD_TYPE,

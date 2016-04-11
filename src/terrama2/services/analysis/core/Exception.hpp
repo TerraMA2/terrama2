@@ -49,6 +49,8 @@ namespace terrama2
 
         struct InvalidParameterException: virtual Exception {};
 
+        struct InvalidDataSetException: virtual Exception {};
+
 
       } // end namespace core
     }   // end namespace analysis

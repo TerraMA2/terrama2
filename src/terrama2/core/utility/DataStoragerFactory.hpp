@@ -31,9 +31,14 @@
  #define __TERRAMA2_CORE_UTILITY_DATA_STORAGER_FACTORY_HPP__
 
 #include "../Shared.hpp"
+#include "../data-model/DataProvider.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
+
+// STL
+#include <functional>
+#include <map>
 
 namespace terrama2
 {
@@ -43,7 +48,16 @@ namespace terrama2
     {
     public:
 
-      DataStoragerPtr makeDataStorager(DataProviderPtr dataProvider);
+      typedef std::function<DataStorager* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
+
+      void add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f);
+
+      void remove(const terrama2::core::DataProviderType& dataProviderType);
+
+      bool find(const terrama2::core::DataProviderType& dataProviderType);
+
+      terrama2::core::DataStoragerPtr make(terrama2::core::DataProviderPtr dataProvider) const;
+
 
     protected:
       friend class te::common::Singleton<DataStoragerFactory>;
@@ -55,6 +69,8 @@ namespace terrama2
       DataStoragerFactory(DataStoragerFactory&& other) = delete;
       DataStoragerFactory& operator=(const DataStoragerFactory& other) = delete;
       DataStoragerFactory& operator=(DataStoragerFactory&& other) = delete;
+
+      std::map<terrama2::core::DataProviderType, FactoryFnctType> factoriesMap_;
     };
 
 

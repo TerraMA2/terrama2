@@ -52,6 +52,8 @@ namespace terrama2
       DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorDcpInpe() {}
 
+      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+
     protected:
       virtual std::string dataSourceType() const override;
       virtual std::string typePrefix() const override;

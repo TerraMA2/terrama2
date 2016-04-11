@@ -81,6 +81,9 @@ namespace terrama2
 
       //! Utility function for converting string to double in the te::da::DataSet contruction.
       te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+
+      virtual ~DataAccessor() {}
+
     protected:
 
       /*!
@@ -93,7 +96,6 @@ namespace terrama2
           dataSeries_(dataSeries),
           filter_(filter) {}
 
-      virtual ~DataAccessor() {}
 
       /*!
          \brief Prefix especification for drivers.
@@ -146,6 +148,8 @@ namespace terrama2
          \return Filtered dataset
        */
       virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+
+      virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
 
       DataProviderPtr dataProvider_;
       DataSeriesPtr dataSeries_;

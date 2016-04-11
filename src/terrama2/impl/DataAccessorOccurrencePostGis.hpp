@@ -46,10 +46,15 @@ namespace terrama2
       DataAccessorOccurrencePostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorOccurrencePostGis() {}
 
+      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      {
+        return new DataAccessorOccurrencePostGis(dataProvider, dataSeries, filter);
+      }
+
     protected:
-      virtual std::string getTableName(DataSetPtr dataSet) const override;
-      virtual std::string getDateTimeColumnName(DataSetPtr dataSet) const override;
-      virtual std::string getGeometryColumnName(DataSetPtr dataSet) const override;
+      virtual std::string getDataSetName(DataSetPtr dataSet) const override;
+      virtual std::string getDateTimePropertyName(DataSetPtr dataSet) const override;
+      virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const override;
 
       virtual std::string dataSourceType() const override;
     };

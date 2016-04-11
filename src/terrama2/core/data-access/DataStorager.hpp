@@ -31,9 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
 #include "../Shared.hpp"
-
 #include "../data-model/DataManager.hpp"
 #include "../data-access/Series.hpp"
 
@@ -50,8 +48,8 @@ namespace terrama2
     class DataStorager
     {
     public:
-      DataStorager(DataProviderPtr outputDataProvider) : dataProvider_(outputDataProvider) {}
-      ~DataStorager() {}
+      DataStorager(DataProviderPtr outputDataProvider);
+      ~DataStorager();
 
       virtual void store(Series series, DataSetPtr outputDataSet) const = 0;
 

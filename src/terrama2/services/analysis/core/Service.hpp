@@ -31,12 +31,12 @@
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 
 //STL
-#include "../../../core/utility/Service.hpp"
 #include "Analysis.hpp"
-#include "AnalysisTimer.hpp"
-#include "Shared.hpp"
+#include "../Shared.hpp"
+#include "../../../core/utility/Service.hpp"
 
 #include <memory>
+#include <map>
 
 namespace terrama2
 {
@@ -60,9 +60,13 @@ namespace terrama2
 
           public slots:
 
-            void addAnalysis(uint64_t analysisId);
+            void addAnalysis(AnalysisId analysisId);
 
-            void addToQueue(uint64_t analysisId);
+            void removeAnalysis(AnalysisId analysisId);
+
+            void updateAnalysis(AnalysisId analysisId);
+
+            void addToQueue(AnalysisId analysisId);
 
           protected:
 
@@ -79,12 +83,15 @@ namespace terrama2
             virtual bool checkNextData() override;
 
 
-            static void run(uint64_t analysisId);
+            static void run(Analysis analysis);
 
             void prepareTask(uint64_t analysisId);
 
+            void connectDataManager();
 
-            std::queue<uint64_t> analysisQueue_; //!< Analysis queue.
+
+            std::map<AnalysisId, terrama2::core::TimerPtr> timers_;
+            std::vector<AnalysisId> analysisQueue_; //!< Analysis queue.
             DataManagerPtr dataManager_; //!< Data manager.
 
         };

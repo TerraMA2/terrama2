@@ -38,15 +38,19 @@ std::string terrama2::core::DataRetriever::retrieveData(const std::string& query
 {
   QString errMsg = QObject::tr("Non retrievable DataRetriever.");
   throw NotRetrivableException() << ErrorDescription(errMsg);
-};
+}
 
 te::dt::TimeInstantTZ terrama2::core::DataRetriever::lastDateTime() const
 {
   QString errMsg = QObject::tr("Non retrievable DataRetriever.");
   throw NotRetrivableException() << ErrorDescription(errMsg);
-};
+}
 
 bool terrama2::core::DataRetriever::isRetrivable() const
 {
   return false;
+}
+terrama2::core::DataRetriever* terrama2::core::DataRetriever::make(DataProviderPtr dataProvider)
+{
+  return new DataRetriever(dataProvider);
 }

@@ -20,44 +20,30 @@
 */
 
 /*!
-  \file unittest/core/TsLogger.cpp
+  \file terrama2/services/analysis/core/Typedef.hpp
 
-  \brief Test for TerraMA2 logging module
-
-  \author Raphael Willian da Costa
+  \author Jano Simas
 */
 
-#include "TsLogger.hpp"
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
 
-#include <terrama2/core/Logger.hpp>
-#include <terrama2/core/Exception.hpp>
+#include <cstdint>
+
+typedef uint64_t AnalysisDataSeriesId;
+typedef uint64_t AnalysisId;
 
 
-void TsLogger::init()
+namespace terrama2
 {
+  namespace services
+  {
+    namespace analysis
+    {
+      inline uint64_t InvalidId(){ return 0;}
+    }   // end namespace analysis
+  }     // end namespace services
+}       // end namespace terrama2
 
-}
 
-void TsLogger::testLoad()
-{
-  terrama2::core::Logger::getInstance().addStream("/home/raphael/Documents/tmp/terrama2.log");
-  terrama2::core::Logger::getInstance().initialize();
-
-  auto exception = terrama2::core::DataAccessException() << terrama2::ErrorDescription("**Expected DataAccess Error**");
-
-  for(int i = 0; i < 20; ++i)
-    TERRAMA2_LOG_TRACE() << "Trace Message Lorem ipsu " + std::to_string(i);
-
-  // logging an exception
-  TERRAMA2_LOG_ERROR() << exception;
-}
-
-void TsLogger::testUnload()
-{
-
-}
-
-void TsLogger::cleanup()
-{
-
-}
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__

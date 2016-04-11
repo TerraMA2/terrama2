@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->uri = uri.url().toStdString();
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "POSTGIS";
   dataProvider->active = true;
 
 //DataSeries information
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
   dataSet->format.emplace("table_name", "pcd");
-  dataSet->format.emplace("timestamp_column", "date_time");
+  dataSet->format.emplace("timestamp_property", "date_time");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 
   assert(dcpSeries->getDcpSeries().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.teDataSet;
+  std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.syncDataSet->dataset();
 
 
 //Print column names and types (DateTime/Double)

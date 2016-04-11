@@ -52,7 +52,7 @@ terrama2::core::DataAccessorOccurrencePostGis::DataAccessorOccurrencePostGis(Dat
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::getTableName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrencePostGis::getDataSetName(DataSetPtr dataSet) const
 {
   try
   {
@@ -66,11 +66,11 @@ std::string terrama2::core::DataAccessorOccurrencePostGis::getTableName(DataSetP
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::getDateTimeColumnName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrencePostGis::getDateTimePropertyName(DataSetPtr dataSet) const
 {
   try
   {
-    return dataSet->format.at("date_time_column");
+    return dataSet->format.at("timestamp_property");
   }
   catch (...)
   {
@@ -80,11 +80,11 @@ std::string terrama2::core::DataAccessorOccurrencePostGis::getDateTimeColumnName
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::getGeometryColumnName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrencePostGis::getGeometryPropertyName(DataSetPtr dataSet) const
 {
   try
   {
-    return dataSet->format.at("geometry_column");
+    return dataSet->format.at("geometry_property");
   }
   catch (...)
   {

@@ -62,10 +62,10 @@ void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr output
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg;
-    return; //TODO: throw exception...
+    throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  std::string destinationDataSetName = getTableName(outputDataSet);
+  std::string destinationDataSetName = getDataSetName(outputDataSet);
 
   std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
@@ -97,7 +97,12 @@ void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr output
     GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
   }
 
-  transactorDestination->add(newDataSetType->getName(), series.teDataSet.get(), options);
+  transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), options);
 
   scopedTransaction.commit();
+}
+
+terrama2::core::DataStorager* terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
+{
+  return new DataStoragerPostGis(dataProvider);
 }

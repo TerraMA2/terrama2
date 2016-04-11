@@ -56,7 +56,7 @@ namespace terrama2
       that should be collected for further analysis.
      */
 
-    typedef uint64_t DataProviderType;//TODO: fix types
+    typedef std::string DataProviderType;
     struct DataProvider
     {
       enum DataProviderIntent
@@ -69,7 +69,7 @@ namespace terrama2
       ProjectId projectId = 0; //!< The identifier of the Project
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
-      DataProviderType dataProviderType = 0; //!< Type of the DataProvider (FTP, WCS, ...).
+      DataProviderType dataProviderType; //!< Type of the DataProvider (FTP, WCS, ...).
       DataProviderIntent intent = PROCESS_INTENT; //!< Intent os the DataProvider (Collect or Process)
       std::string uri; //!< URI to access the DataProvider data.
       bool active = true; //!< DataProvider status.

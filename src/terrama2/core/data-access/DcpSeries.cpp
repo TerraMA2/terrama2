@@ -20,34 +20,52 @@
  */
 
 /*!
-  \file terrama2/core/utility/Factory.hpp
+  \file terrama2/core/data-access/DcpSeries.cpp
 
   \brief
 
   \author Jano Simas
+  \author Vinicius Campanha
  */
 
- #ifndef __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
- #define __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
 
+//TerraMA2
+#include "DcpSeries.hpp"
+#include "../../Config.hpp"
 #include "../Shared.hpp"
-#include "../data-model/DataProvider.hpp"
+#include "../utility/Logger.hpp"
 
-namespace terrama2
+//STL
+#include <vector>
+
+//TerraLib
+#include <terralib/memory/DataSet.h>
+
+//Qt
+#include <QString>
+#include <QObject>
+
+
+void terrama2::core::DcpSeries::addDcpSeries(std::map<DataSetPtr, Series > seriesMap)
 {
-  namespace core
+  dataSeriesMap_ = seriesMap;
+  for(const auto& item : seriesMap)
   {
-    namespace Factory
+    try
     {
-      /*!
-        \brief Creates a DataRetriever to the server.
-      */
-       DataRetrieverPtr MakeRetriever(DataProviderPtr dataProvider);
+      DataSetDcpPtr dataset = std::dynamic_pointer_cast<const DataSetDcp>(item.first);
+      dcpMap_.emplace(dataset, item.second);
+    }
+    catch(const std::bad_cast& exp)
+    {
+      QString errMsg = QObject::tr("Bad Cast to DataSetDcp");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      continue;
+    }//bad cast
+  }
+}
 
-    } /* Factory */
-
-  } /* core */
-
-} /* terrama2 */
-
-#endif // __TERRAMA2_CORE_UTILITY_FACTORY_HPP__
+const std::map<terrama2::core::DataSetDcpPtr, terrama2::core::Series>& terrama2::core::DcpSeries::getDcpSeries()
+{
+  return dcpMap_;
+}

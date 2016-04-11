@@ -27,14 +27,13 @@
   \author Jano Simas
  */
 
-
 #include "DataAccessorOccurrenceMvf.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/FilterUtils.hpp"
 
-//terralib
+// terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
@@ -43,21 +42,20 @@
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/geometry/GeometryProperty.h>
 
-//Qt
+// Qt
 #include <QUrl>
 #include <QDir>
 
 terrama2::core::DataAccessorOccurrenceMvf::DataAccessorOccurrenceMvf(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
-: DataAccessor(dataProvider, dataSeries, filter),
-  DataAccessorOccurrence(dataProvider, dataSeries, filter),
-  DataAccessorFile(dataProvider, dataSeries, filter)
+  : DataAccessor(dataProvider, dataSeries, filter), DataAccessorOccurrence(dataProvider, dataSeries, filter),
+    DataAccessorFile(dataProvider, dataSeries, filter)
 {
- if(dataSeries->semantics.name != "OCCURRENCE-mvf")
- {
-   QString errMsg = QObject::tr("Wrong DataSeries semantics.");
-   TERRAMA2_LOG_ERROR() << errMsg;
-   throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
- }
+  if(dataSeries->semantics.name != "OCCURRENCE-mvf")
+  {
+    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw WrongDataSeriesSemanticsException() << ErrorDescription(errMsg);
+  }
 }
 
 std::string terrama2::core::DataAccessorOccurrenceMvf::dataSourceType() const
@@ -71,30 +69,31 @@ std::string terrama2::core::DataAccessorOccurrenceMvf::typePrefix() const
 
 void terrama2::core::DataAccessorOccurrenceMvf::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
-  //only one timestamp column
+  // only one timestamp column
   int lonPos = -1;
   int latPos = -1;
 
-  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
+  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(timestampPropertyName(), te::dt::TIME_INSTANT_TZ);
 
-  //Find the rigth column to adapt
+  // Find the rigth column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
-    if(property->getName() == timestampColumnName())
+    if(property->getName() == timestampPropertyName())
     {
       // datetime column found
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceMvf::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
+      converter->add(i, dtProperty,
+                     boost::bind(&terrama2::core::DataAccessorOccurrenceMvf::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
     }
-    else if(property->getName() == latitudeColumnName() || property->getName() == longitudeColumnName())
+    else if(property->getName() == latitudePropertyName() || property->getName() == longitudePropertyName())
     {
-      //update latitude column index
-      if(property->getName() == latitudeColumnName())
+      // update latitude column index
+      if(property->getName() == latitudePropertyName())
         latPos = i;
 
-      //update longitude column index
-      if(property->getName() == longitudeColumnName())
+      // update longitude column index
+      if(property->getName() == longitudePropertyName())
         lonPos = i;
 
       if(latPos == -1 || lonPos == -1)
@@ -107,19 +106,20 @@ void terrama2::core::DataAccessorOccurrenceMvf::adapt(DataSetPtr dataSet, std::s
       latLonAttributes.push_back(lonPos);
       latLonAttributes.push_back(latPos);
 
-      te::gm::GeometryProperty* newProperty = new te::gm::GeometryProperty("geom", srid, te::gm::PointType);
+      te::gm::GeometryProperty* newProperty = new te::gm::GeometryProperty(geometryPropertyName(), srid, te::gm::PointType);
       converter->add(latLonAttributes, newProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceMvf::stringToPoint, this, _1, _2, _3, srid));
     }
     else
     {
       // the only other columns is the satellite name
       te::dt::Property* p = converter->getConvertee()->getProperty(i);
-      converter->add(i,p->clone());
+      converter->add(i, p->clone());
     }
   }
 }
 
-void terrama2::core::DataAccessorOccurrenceMvf::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+void terrama2::core::DataAccessorOccurrenceMvf::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+                                                           const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   // Don't add any columns here,
   // the converter will add columns
@@ -132,7 +132,7 @@ Srid terrama2::core::DataAccessorOccurrenceMvf::getSrid(DataSetPtr dataSet) cons
     Srid srid = std::stoi(dataSet->format.at("srid"));
     return srid;
   }
-  catch (...)
+  catch(...)
   {
     QString errMsg = QObject::tr("Undefined srid in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -140,19 +140,24 @@ Srid terrama2::core::DataAccessorOccurrenceMvf::getSrid(DataSetPtr dataSet) cons
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::timestampColumnName() const
+std::string terrama2::core::DataAccessorOccurrenceMvf::timestampPropertyName() const
 {
   return "data_pas";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::latitudeColumnName() const
+std::string terrama2::core::DataAccessorOccurrenceMvf::latitudePropertyName() const
 {
   return "lat";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::longitudeColumnName() const
+std::string terrama2::core::DataAccessorOccurrenceMvf::longitudePropertyName() const
 {
   return "lon";
+}
+
+std::string terrama2::core::DataAccessorOccurrenceMvf::geometryPropertyName() const
+{
+  return "position";
 }
 
 std::string terrama2::core::DataAccessorOccurrenceMvf::getTimeZone(DataSetPtr dataSet) const
@@ -161,7 +166,7 @@ std::string terrama2::core::DataAccessorOccurrenceMvf::getTimeZone(DataSetPtr da
   {
     return dataSet->format.at("timezone");
   }
-  catch (...)
+  catch(...)
   {
     QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -169,11 +174,13 @@ std::string terrama2::core::DataAccessorOccurrenceMvf::getTimeZone(DataSetPtr da
   }
 }
 
-te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const
+te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
+                                                                                   int /*dstType*/, const std::string& timezone) const
 {
   assert(indexes.size() == 1);
 
-  try {
+  try
+  {
     std::string dateTime = dataset->getAsString(indexes[0]);
 
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
@@ -201,7 +208,8 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToTimesta
   return nullptr;
 }
 
-te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const
+te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
+                                                                               int dstType, const Srid& srid) const
 {
   assert(dataset);
   assert(indexes.size() == 2);

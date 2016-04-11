@@ -20,30 +20,28 @@
 */
 
 /*!
-  \file unittest/core/TestApplicationController.cpp
+  \file unittest/core/TsUtility.hpp
 
-  \brief Test for ApplicationController functionalities
+  \brief Tests for Core Utility class
 
-  \author Paulo R. M. Oliveira
+  \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__
+//TerraMA2
 
 //QT
-#include <QtTest>
+#include <QtTest/QTest>
 
-class TsApplicationController: public QObject
+
+class TsUtility : public QObject
 {
   Q_OBJECT
 
-  private slots:
+public:
 
-    void testLoadProject();
-    void testCreateDatabase();
+
+private slots:
+  void testTimerNoFrequencyException();
+  void testTimerInvalidUnitException();
+  void testTimer();
 };
-
-
-
-
-#endif  // __TERRAMA2_UNITTEST_CORE_TESTAPPLICATIONCONTROLLER_HPP__

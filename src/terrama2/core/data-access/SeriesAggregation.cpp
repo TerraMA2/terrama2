@@ -20,27 +20,19 @@
  */
 
 /*!
-  \file terrama2/core/utility/Factory.cpp
+  \file terrama2/core/data-access/SeriesAggregation.cpp
 
   \brief
 
   \author Jano Simas
+  \author Vinicius Campanha
  */
 
-#include "../data-access/DataRetriever.hpp"
-#include "Factory.hpp"
+//TerraMA2
+#include "SeriesAggregation.hpp"
 
-terrama2::core::DataRetrieverPtr terrama2::core::Factory::MakeRetriever(DataProviderPtr dataProvider)
+
+const std::map<terrama2::core::DataSetPtr, terrama2::core::Series>& terrama2::core::SeriesAggregation::getSeries()
 {
-  switch (dataProvider->dataProviderType)
-  {
-  case 0:
-    return std::make_shared<DataRetriever>(dataProvider);
-    break;
-  default:
-    //TODO: throw here
-    break;
-  }
-
-  return nullptr;
+  return dataSeriesMap_;
 }

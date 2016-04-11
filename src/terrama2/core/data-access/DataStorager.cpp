@@ -20,16 +20,26 @@
  */
 
 /*!
-  \file terrama2/core/utility/DataAccessFactory.hpp
+  \file terrama2/core/data-access/DataStorager.cpp
 
   \brief
 
   \author Jano Simas
+  \author Vinicius Campanha
  */
 
-#include "DataAccessFactory.hpp"
+//TerraMA2
+#include "DataStorager.hpp"
+#include "../../Config.hpp"
 
-terrama2::core::DataAccessorPtr terrama2::core::DataAccessFactory::makeDataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter)
+
+terrama2::core::DataStorager::DataStorager(DataProviderPtr outputDataProvider)
+  : dataProvider_(outputDataProvider)
 {
-  return nullptr;
+
+}
+
+terrama2::core::DataStorager::~DataStorager()
+{
+
 }

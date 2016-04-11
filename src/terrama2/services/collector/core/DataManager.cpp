@@ -30,17 +30,20 @@
 #include "DataManager.hpp"
 #include "Collector.hpp"
 #include "Exception.hpp"
+#include "JSonUtils.hpp"
 #include "../../../core/Exception.hpp"
+#include "../../../core/utility/Logger.hpp"
 
-//STL
+// STL
 #include <mutex>
 
-terrama2::services::collector::core::CollectorPtr
-terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
+// Qt
+#include <QJsonValue>
+
+terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
   return collectors_.at(id);
 }
-
 
 void terrama2::services::collector::core::DataManager::add(terrama2::services::collector::core::CollectorPtr collector)
 {
@@ -49,8 +52,11 @@ void terrama2::services::collector::core::DataManager::add(terrama2::services::c
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
     if(collector->id == terrama2::core::InvalidId())
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("Can not add a data provider with an invalid id."));
+    {
+      QString errMsg = QObject::tr("Can not add a data provider with an invalid id.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     collectors_[collector->id] = collector;
   }
@@ -78,12 +84,48 @@ void terrama2::services::collector::core::DataManager::removeCollector(Collector
     auto itPr = collectors_.find(collectorId);
     if(itPr == collectors_.end())
     {
-      throw terrama2::InvalidArgumentException() <<
-            ErrorDescription(QObject::tr("DataProvider not registered."));
+      QString errMsg = QObject::tr("DataProvider not registered.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
     collectors_.erase(itPr);
   }
 
   emit collectorRemoved(collectorId);
+}
+
+void terrama2::services::collector::core::DataManager::addFromJSON(const QJsonValue& jsonValue)
+{
+  try
+  {
+    QJsonObject object = jsonValue.toObject();
+    QString coreClass = object["class"].toString();
+
+    if(coreClass == "Collector")
+    {
+      auto dataPtr = terrama2::services::collector::core::fromCollectorJson(object);
+      add(dataPtr);
+    }
+    else
+    {
+      terrama2::core::DataManager::DataManager::addFromJSON(object);
+    }
+  }
+  catch(terrama2::Exception& /*e*/)
+  {
+    // loggend on throw...
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str();
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+  }
 }

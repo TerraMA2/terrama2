@@ -27,7 +27,6 @@
   \author Jano Simas
 */
 
-
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_DATAMANAGER_HPP__
 
@@ -48,13 +47,18 @@ namespace terrama2
           Q_OBJECT
 
         public:
-          DataManager(){}
+          DataManager() {}
+
+          virtual void addFromJSON(const QJsonValue& jsonValue) override;
 
           virtual ~DataManager() {}
           DataManager(const DataManager& other) = default;
           DataManager(DataManager&& other) = default;
           DataManager& operator=(const DataManager& other) = default;
           DataManager& operator=(DataManager&& other) = default;
+
+          using terrama2::core::DataManager::add;
+          using terrama2::core::DataManager::update;
 
           void add(CollectorPtr collector);
           void update(CollectorPtr collector);
@@ -67,12 +71,11 @@ namespace terrama2
           void collectorRemoved(CollectorId);
 
         protected:
-
           std::map<CollectorId, CollectorPtr> collectors_;
         };
       } // end namespace core
     }   // end namespace collector
   }     // end namespace services
-}       // end namespace terrama2
+} // end namespace terrama2
 
 #endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_DATAMANAGER_HPP__

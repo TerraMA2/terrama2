@@ -23,13 +23,13 @@ int main(int argc, char* argv[])
   dataProvider->uri+="/PCD_serrmar_INPE";
 
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = 0;
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics.name = "PCD-inpe";
+  dataSeries->semantics.name = "DCP-inpe";
 
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
   assert(dcpSeries->getDcpSeries().size() == 1);
 
-  std::shared_ptr<te::mem::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.teDataSet;
+  std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.syncDataSet->dataset();
 
 //Print column names and types (DateTime/Double)
   int dateColumn = -1;

@@ -30,19 +30,26 @@
 
 #include <memory>
 
-namespace terrama2 {
-   namespace services {
-     namespace collector {
-       namespace core {
+namespace terrama2
+{
+  namespace services
+  {
+    namespace collector
+    {
+      namespace core
+      {
 
-         struct Collector;
-         typedef std::shared_ptr<const terrama2::services::collector::core::Collector> CollectorPtr;
+        struct Collector;
+        typedef std::shared_ptr<const terrama2::services::collector::core::Collector> CollectorPtr;
 
-         struct Intersection;
-         typedef std::shared_ptr<const terrama2::services::collector::core::Intersection> IntersectionPtr;
+        struct Intersection;
+        typedef std::shared_ptr<const terrama2::services::collector::core::Intersection> IntersectionPtr;
 
-       } /* core */
-     } /* collector */
+        class DataManager;
+        typedef std::shared_ptr<terrama2::services::collector::core::DataManager> DataManagerPtr;
+
+      } /* core */
+    }   /* collector */
   }
 }
 
