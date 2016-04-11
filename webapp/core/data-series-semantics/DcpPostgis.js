@@ -14,33 +14,44 @@ DcpPostgis.identifier = function() {
 };
 
 DcpPostgis.schema = function() {
-  return {
-    type: Form.Type.OBJECT,
-    properties: {
-      mask: {
-        type: Form.Field.TEXT,
-        title: "Mask"
-      },
-      timezone: {
-        type: Form.Field.TEXT,
-        title: "Timezone"
-      },
-      path: {
-        type: Form.Field.TEXT,
-        title: "Path"
-      }
-    },
+  var dcpSchema = Dcp.schema.call(this);
+  dcpSchema.properties.mask = {
+    type: Form.Field.TEXT,
+    title: "Mask"
+  };
 
-    required: ['mask', 'timezone', 'path']
-  }
+  dcpSchema.properties.timezone = {
+    type: Form.Field.TEXT,
+    title: "Timezone"
+  };
+
+  dcpSchema.required = dcpSchema.required.concat(['mask', 'timezone']);
+
+  return dcpSchema;
 };
 
 DcpPostgis.form = function() {
   return [
-    'mask',
-    'timezone',
-    'path'
-  ];
+    {
+      key: 'mask',
+      htmlClass: "col-md-6"
+    },
+    {
+      key: 'timezone',
+      type: 'select',
+      htmlClass: "col-md-6",
+      titleMap: [
+        {
+          value: '00:00',
+          name: '00:00'
+        },
+        {
+          value: '12:00',
+          name: '12:00'
+        }
+      ]
+    }
+  ].concat(Dcp.form.call(this));
 };
 
 module.exports = DcpPostgis;

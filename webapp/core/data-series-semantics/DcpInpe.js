@@ -2,6 +2,10 @@ var Dcp = require('./Dcp');
 var Enums = require('./../Enums');
 var Form = Enums.Form;
 
+/**
+ * It handles DCP-INPE semantics type.
+ * @constructor
+ */
 var DcpInpe = function() {
   Dcp.call(this, {name: "DCP-INPE"});
 };
@@ -25,15 +29,32 @@ DcpInpe.schema = function() {
     title: "Timezone"
   };
   
-  dcpSchema.required.concat(['mask', 'timezone']);
+  dcpSchema.required = dcpSchema.required.concat(['mask', 'timezone']);
 
   return dcpSchema;
 };
 
 DcpInpe.form = function() {
   return [
-    'mask',
-    'timezone'
+    {
+      key: 'mask',
+      htmlClass: "col-md-6"
+    },
+    {
+      key: 'timezone',
+      htmlClass: "col-md-6",
+      type: 'select',
+      titleMap: [
+        {
+          value: '00:00',
+          name: '00:00'
+        },
+        {
+          value: '12:00',
+          name: '12:00'
+        }
+      ]
+    }
   ].concat(Dcp.form.call(this));
 };
 

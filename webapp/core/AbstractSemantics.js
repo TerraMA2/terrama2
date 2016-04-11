@@ -1,4 +1,5 @@
 var DataSeriesType = require('./Enums').DataSeriesType;
+var FormField = require("./Enums").Form.Field;
 
 /**
  * Generic DataSeriesSemantics type.
@@ -55,7 +56,13 @@ AbstractSemantics.prototype.get = function() {
  * @return {Object}
  */
 AbstractSemantics.schema = function() {
-  return {};
+  return {
+    active: {
+      title: "Active",
+      type: FormField.CHECKBOX,
+      default: true
+    }
+  };
 };
 
 /**
@@ -64,7 +71,14 @@ AbstractSemantics.schema = function() {
  * @return {Object}
  */
 AbstractSemantics.form = function() {
-  return [];
+  return [
+    {
+      key: 'active',
+      disableSuccessState: true,
+      disableErrorState: true,
+      htmlClass: 'col-md-1 terrama2-top-field'
+    }
+  ];
 };
 
 /**
