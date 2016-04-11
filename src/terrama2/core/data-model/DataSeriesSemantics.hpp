@@ -62,7 +62,7 @@ namespace terrama2
 
       std::string name;
       DataSeriesType dataSeriesType = STATIC;
-      DataFormat dataFormat = 0;
+      DataFormat dataFormat;
     };
   } /* core */
 } /* terrama2 */

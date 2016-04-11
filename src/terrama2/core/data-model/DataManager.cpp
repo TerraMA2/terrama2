@@ -286,8 +286,7 @@ void terrama2::core::DataManager::addFromJSON(const QJsonValue& jsonValue)
     }
     else if(coreClass == "DataSeries")
     {
-      terrama2::core::SemanticsManager* semanticsManager;//FIXME: create a semantic manager
-      auto dataPtr = terrama2::core::fromDataSeriesJson(object, semanticsManager);
+      auto dataPtr = terrama2::core::fromDataSeriesJson(object);
       add(dataPtr);
     }
     else
@@ -295,8 +294,9 @@ void terrama2::core::DataManager::addFromJSON(const QJsonValue& jsonValue)
       // even known classes can be here, DataSetItem, Filter, etc
       // should not arrive here if not inside a DataSet or DataProvider
 
-      TERRAMA2_LOG_ERROR() << QObject::tr("Unknown class received: %1").arg(coreClass);
-      // TODO: throw here
+      QString errMsg = QObject::tr("Unknown class received: %1").arg(coreClass);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataManagerException() << ErrorDescription(errMsg);
     }
   }
   catch(terrama2::Exception& /*e*/)

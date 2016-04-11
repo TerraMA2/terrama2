@@ -75,6 +75,8 @@ namespace terrama2
 
     struct DataModelException: virtual Exception{ };
 
+    struct DataManagerException: virtual DataModelException{ };
+
     //#################################
 
     //#################################
@@ -96,6 +98,8 @@ namespace terrama2
     struct JSonParserException: virtual UtilityException { };
 
     struct ServiceException: virtual UtilityException { };
+
+    struct SemanticsException: virtual UtilityException { };
 
     //#################################
 

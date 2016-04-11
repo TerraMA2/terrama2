@@ -27,12 +27,15 @@
 
 #include <QTcpServer>
 
+#include <memory>
+
 class QTcpSocket;
 
 namespace terrama2
 {
   namespace core
   {
+    class DataManager;
     /*!
        \brief The TcpManager class waits for a connection from the central TerraMA² server for new terrama2::core::* classes.
 
@@ -48,9 +51,11 @@ namespace terrama2
       virtual ~TcpManager(){}
 
       bool sendLog(std::string log);
+      bool listen(std::weak_ptr<terrama2::core::DataManager> dataManager, const QHostAddress &address = QHostAddress::Any, quint16 port = 0);
 
     signals:
       void stopSignal();
+      void startProcess(uint64_t);
 
     private slots:
       //! Slot called when a new conenction arrives.
@@ -58,10 +63,13 @@ namespace terrama2
       void readReadySlot();
 
     private:
-      uint16_t blockSize_; //!< Size of the message received.
+      using QTcpServer::listen;
+
+      uint32_t blockSize_; //!< Size of the message received.
       void parseData(QByteArray bytearray);
 
-      QTcpSocket* tcpSocket_;
+      QTcpSocket* tcpSocket_ = nullptr;
+      std::weak_ptr<terrama2::core::DataManager> dataManager_;
     };
   }
 }

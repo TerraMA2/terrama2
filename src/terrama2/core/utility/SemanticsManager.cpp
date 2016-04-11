@@ -28,14 +28,23 @@
 */
 
 #include "SemanticsManager.hpp"
+#include "../Exception.hpp"
+#include "Logger.hpp"
 
-terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemantics(const std::string& name, const DataSeriesSemantics::DataSeriesType& dataSeriesType, const DataFormat& format)
+// Qt
+#include <QString>
+#include <QObject>
+
+terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemantics(const std::string& name,
+                                                                                   const DataSeriesSemantics::DataSeriesType& dataSeriesType,
+                                                                                   const DataFormat& format)
 {
   auto it = semanticsMap_.find(name);
   if(it != semanticsMap_.cend())
   {
-    //TODO: create exception
-    throw;
+    QString errMsg = QObject::tr("Semantics %1 already registered.").arg(name.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::SemanticsException() << ErrorDescription(errMsg);
   }
 
   DataSeriesSemantics semantics;
@@ -53,8 +62,9 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::getSemanti
   auto it = semanticsMap_.find(name);
   if(it == semanticsMap_.cend())
   {
-    //TODO: create exception
-    throw;
+    QString errMsg = QObject::tr("Semantics %1 not registered.").arg(name.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw terrama2::core::SemanticsException() << ErrorDescription(errMsg);
   }
 
   return it->second;

@@ -37,7 +37,7 @@
 namespace terrama2 {
   namespace core {
     DataProviderPtr fromDataProviderJson(QJsonObject json);
-    DataSeriesPtr fromDataSeriesJson(QJsonObject json, SemanticsManager* semanticsManager);
+    DataSeriesPtr fromDataSeriesJson(QJsonObject json);
     void addBaseDataSetData(QJsonObject json, DataSet* dataset);
     DataSetPtr fromDataSetDcpJson(QJsonObject json);
     DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);

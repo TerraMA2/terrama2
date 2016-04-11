@@ -31,16 +31,65 @@
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
 
-//STL
+#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/DataAccessorFactory.hpp>
+#include <terrama2/core/utility/DataStoragerFactory.hpp>
+#include <terrama2/core/utility/DataRetrieverFactory.hpp>
+
+#include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
+#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
+#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
+#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
+
+#include <terrama2/impl/DataStoragerPostGis.hpp>
+
+#include <terrama2/core/data-access/DataRetriever.hpp>
+
+// STL
 #include <memory>
 #include <iostream>
 
-//Qt
+// Qt
 #include <QCoreApplication>
 #include <QTimer>
 
 int main(int argc, char* argv[])
 {
+  try
+  {
+    terrama2::core::initializeTerraMA();
+
+    terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+
+    terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
+
+    QCoreApplication app(argc, argv);
+    terrama2::core::TcpManager tcpManager;
+    auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
+    tcpManager.listen(dataManager, QHostAddress::Any, 30000);
+
+    terrama2::services::collector::core::Service service(dataManager);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::collector::core::Service::addToQueue);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::collector::core::Service::stop);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);
+    service.start();
+
+    app.exec();
+
+    terrama2::core::finalizeTerraMA();
+  }
+  catch(...)
+  {
+    // TODO: o que fazer com uncaught exception
+    std::cout << "\n\nException...\n" << std::endl;
+  }
 
   return 0;
 }

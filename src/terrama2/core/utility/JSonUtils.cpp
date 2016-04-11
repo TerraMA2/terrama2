@@ -33,6 +33,8 @@
 #include "../data-model/DataSetDcp.hpp"
 #include "../data-model/DataSetGrid.hpp"
 #include "../data-model/DataSetOccurrence.hpp"
+#include "../utility/SemanticsManager.hpp"
+#include "../utility/Logger.hpp"
 #include "../Exception.hpp"
 
 #include "JSonUtils.hpp"
@@ -47,6 +49,7 @@
 
 terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject json)
 {
+  TERRAMA2_LOG_DEBUG() << "New DataProvider";
   if(json["class"].toString() != "DataProvider")
   {
     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
@@ -75,7 +78,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
    return providerPtr;
 }
 
-terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject json, SemanticsManager* semanticsManager)
+terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject json)
 {
   if(json["class"].toString() != "DataSeries")
   {
@@ -94,7 +97,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
 
    dataSeries->id = json["id"].toInt();
    dataSeries->dataProviderId = json["data_provider_id"].toInt();
-   dataSeries->semantics = semanticsManager->getSemantics(json["semantics"].toString().toStdString());
+   dataSeries->semantics = SemanticsManager::getInstance().getSemantics(json["semantics"].toString().toStdString());
    dataSeries->name = json["name"].toString().toStdString();
    dataSeries->description = json["description"].toString().toStdString();
 
