@@ -49,14 +49,11 @@ namespace terrama2
       */
       enum Status
       {
-        UNKNNOW     = 0, /*!< Is not possible to know de data status */
-        ERROR       = 1, /*!< Was not possible to manipulate data */
-        COLLECTING  = 2, /*!< Collecting Data */
-        COLLECTED   = 3, /*!< Data was collected */
-        NODATA      = 4, /*!< The source don't contains data */
-        IMPORTED    = 4, /*!< The data was imported to TerraMA2 */
-        PROCESSING  = 5, /*!< The data is now being processed */
-        PROCESSED   = 6  /*!< Data processed */
+        UNKNOWN     = 0, /*!< Is not possible to know de data status */
+        ERROR       = 1, /*!< Error during process */
+        START       = 2, /*!< The process started */
+        DOWNLOADED  = 3, /*!< The data was downloaded */
+        DONE        = 4  /*!< Process finished */
       };
 
       void insert(uint64_t id, Status status, std::string originURI, std::string actualURI)
