@@ -38,6 +38,7 @@
 
 //terralib
 #include <terralib/common/PlatformUtils.h>
+#include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
 
@@ -52,6 +53,18 @@
 
 // Curl
 #include <curl/curl.h>
+
+namespace te
+{
+  namespace common
+  {
+    enum
+    {
+      UOM_second =  1040
+    };
+  } // end of namespace common
+} // end of namespace te
+
 
 std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
@@ -119,6 +132,28 @@ void terrama2::core::initializeTerralib()
   te::plugin::PluginManager::getInstance().add(info);
 
   te::plugin::PluginManager::getInstance().loadAll();
+
+  // Base of Time measure: second
+  te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"second", "s", te::common::MeasureType::Time));
+  std::vector<std::string> secondAlternativeNames {"s", "sec", "ss", "seconds"};
+
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomSecond, secondAlternativeNames);
+
+  // minute
+  te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "minute", "min", te::common::MeasureType::Time, te::common::UOM_second, 60.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> minuteAlternativeNames {"min", "minutes"};
+
+  // hour
+  te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "hour", "h", te::common::MeasureType::Time, te::common::UOM_second, 3600.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> hourAlternativeNames {"hh", "h", "hours"};
+
+  // day
+  te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "day", "d", te::common::MeasureType::Time, te::common::UOM_second, 86400.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> dayAlternativeNames {"d", "dd", "days"};
+
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomMinute, minuteAlternativeNames);
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomHour, hourAlternativeNames);
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomDay, dayAlternativeNames);
 }
 
 
@@ -133,7 +168,6 @@ void terrama2::core::initializeTerraMA()
 {
   curl_global_init(CURL_GLOBAL_ALL);
   terrama2::core::initializeTerralib();
-
 
 }
 

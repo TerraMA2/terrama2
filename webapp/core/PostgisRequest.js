@@ -2,7 +2,7 @@ var AbstractRequest = require("./AbstractRequest");
 var pg = require('pg');
 var Promise = require("bluebird");
 var ConnectionError = require("./Exceptions").ConnectionError;
-var FormField = require('./Enums').FormField;
+var Form = require('./Enums').Form;
 var UriPattern = require("./Enums").Uri;
 var Utils = require("./Utils");
 
@@ -31,6 +31,7 @@ PostgisRequest.prototype.request = function() {
       if (err) {
         var errorMessage = "Error in postgis connection: ";
         switch (err.code) {
+          case 'ENOTFOUND':
           case "ENETUNREACH": // host not found
             errorMessage += "Invalid host";
             break;
@@ -61,7 +62,7 @@ PostgisRequest.fields = function() {
       UriPattern.USER,
       {
         key: UriPattern.PASSWORD,
-        type: FormField.PASSWORD
+        type: Form.Field.PASSWORD
       },
       "database"
     ]);

@@ -8,9 +8,19 @@ angular.module("terrama2.services", [])
   }])
 
   .factory("DataSeriesSemanticsFactory", ["$http", function($http) {
+    var url = "/api/DataSeriesSemantics/";
     return {
-      get: function(dataFormat) {
-        return $http.get("/api/DataSeriesSemantics", {dataFormat: dataFormat});
+      get: function(semanticsName, extra) {
+        var data = extra instanceof Object ? extra : {};
+        return $http({
+          method: 'GET',
+          url: url + semanticsName,
+          params: data
+        });
+      },
+      
+      list: function(extra) {
+        return $http.get(url, extra instanceof Object ? extra : {});
       }
     }
   }])

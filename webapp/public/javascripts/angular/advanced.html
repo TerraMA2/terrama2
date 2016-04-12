@@ -27,7 +27,10 @@
     </div>
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
-      <div ng-include="'/javascripts/angular/parametersData.html'"></div>
+      <form name="parametersDataForm">
+        <form sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+        <div ng-include="'/javascripts/angular/parametersData.html'"></div>
+      </form>
     </div>
   </div>
 </div>

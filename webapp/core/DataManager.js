@@ -27,6 +27,9 @@ var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
+var Enums = require('./Enums');
+
+var DataSeriesType = Enums.DataSeriesType;
 
 // Javascript Lock
 var ReadWriteLock = require('rwlock');
@@ -86,6 +89,12 @@ var DataManager = {
     lock.readLock(function (release) {
       var Sequelize = require("sequelize");
 
+      var releaseCallback = function() {
+        release();
+        callback();
+      };
+
+
       if (actualConfig) {
         var connection = new Sequelize(actualConfig.database,
           actualConfig.username,
@@ -96,11 +105,6 @@ var DataManager = {
         models.load(connection);
 
         self.connection = connection;
-
-        var releaseCallback = function() {
-          release();
-          callback();
-        };
 
         var fn = function() {
           // todo: insert default values in database
@@ -116,31 +120,34 @@ var DataManager = {
           inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
           
           // data series type defaults
-          inserts.push(models.db.DataSeriesType.create({name: "DS Type 1", description: "DS Type1 Desc"}));
+          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
+          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
+          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
 
-          // data formats semantics defaults
-          inserts.push(models.db.DataFormat.create({name: "Pcd", description: "PCD description"}));
-          inserts.push(models.db.DataFormat.create({name: "Occurrence", description: "Occurrencedescription"}));
-          inserts.push(self.addDataFormat({name: "Grid", description: "Format Description"}));
+          // data formats semantics defaults todo: check it
+          inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
+          inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
+          inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
 
           Promise.all(inserts).then(function() {
             var arr = [];
-            arr.push(self.addDataSeriesSemantics({name: "PCD-INPE", data_format_name: "Pcd", data_series_type_name: "DS Type 1"}));
-            arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: "DS Type 1"}));
+            arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+            arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+            arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
             Promise.all(arr).then(function(){
               releaseCallback();
-            }).catch(function(err) {
+            }).catch(function() {
               releaseCallback();
             })
-          }).catch(function(err) {
+          }).catch(function() {
             releaseCallback()
           });
         };
 
         connection.sync().then(function () {
           fn();
-        }, function(err) {
+        }, function() {
           fn();
         });
       }
@@ -363,6 +370,21 @@ var DataManager = {
     });
   },
 
+  getDataSeriesSemantics: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listDataSeriesSemantics(restriction).then(function(semanticsList) {
+        if (semanticsList.length === 1)
+          return resolve(semanticsList[0]);
+
+        // error getting more than one or none
+        return reject(new exceptions.DataSeriesSemanticsError("DataSeriesSemantics not found"));
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  },
+
   listDataSeriesSemantics: function(restriction) {
     return new Promise(function(resolve, reject) {
       models.db.DataSeriesSemantics.findAll({where: restriction}).then(function(semanticsList) {
@@ -501,14 +523,14 @@ var DataManager = {
    * @param {Object} restriction - An object containing DataSeries identifier to get it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  getDataSerie: function(restriction) {
+  getDataSeries: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataSerie = getItemByParam(self.data.dataSeries, restriction);
       if (dataSerie)
         resolve(Utils.clone(dataSerie));
       else
-        reject(new exceptions.DataSeriesError("Could not find a data series: ", restriction));
+        reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
     });
   },
 
@@ -553,6 +575,13 @@ var DataManager = {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
         output = Utils.clone(dataSerie.get());
+
+        var rollback = function(err) {
+          dataSerie.destroy().then(function () {
+            reject(err);
+          });
+        };
+
         // if there DataSets to save too
         if (dataSeriesObject.dataSets) {
           var dataSets = [];
@@ -562,18 +591,19 @@ var DataManager = {
             dataSets.push(self.addDataSet(dSet.semantics, dSet));
           }
 
-          return Promise.all(dataSets);
+          Promise.all(dataSets).then(function(dataSets){
+            self.data.dataSeries.push(Utils.clone(output));
+            output.dataSets = dataSets;
+            resolve(output);
+          }).catch(function(err) {
+            rollback(err);
+          });
 
         } else {
-          // rollback
-          dataSerie.destroy().then(function () {
-            reject(new exceptions.DataSeriesError("Could not save DataSeries. Data sets not found" + err));
-          });
+          // rollback dataseries
+          rollback(new exceptions.DataSeriesError("Could not save DataSeries. " + err.message));
+
         }
-      }).then(function(dataSets){
-        self.data.dataSeries.push(Utils.clone(output));
-        output.dataSets = dataSets;
-        resolve(output);
       }).catch(function(err){
         reject(new exceptions.DataSeriesError("Could not save DataSeries. " + err));
       });
@@ -701,8 +731,8 @@ var DataManager = {
               reject(err);
             });
           } else {// todo: validate it
-            resolve(output);
             self.data.dataSets.push(output);
+            resolve(output);
           }
 
         };
@@ -714,19 +744,22 @@ var DataManager = {
         // rollback data set function if any error occurred
         var rollback = function(dataSet) {
           dataSet.destroy().then(function() {
+            console.log("rollback");
             reject(new exceptions.DataSetError("Invalid dataset type. DataSet destroyed"));
           }).catch(onError);
         };
 
+        dataSetObject.child.data_set_id = dataSet.id;
+
         if (dataSeriesSemantic && dataSeriesSemantic instanceof Object) {
-          switch(dataSeriesSemantic.name) {
-            case "dcp":
+          switch(dataSeriesSemantic.data_series_type_name) {
+            case DataSeriesType.DCP:
               models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;
-            case "occurrence":
+            case DataSeriesType.OCCURRENCE:
               models.db.DataSetOccurrence.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;
-            case "grid":
+            case DataSeriesType.GRID:
               models.db.DataSetDcp.create(dataSetObject.child).then(onSuccess).catch(onError);
               break;
             default:

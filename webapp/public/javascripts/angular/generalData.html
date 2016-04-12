@@ -1,38 +1,45 @@
 <div class="row">
 
   <div class="col-md-7">
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required, 'has-success': generalDataForm.name.$dirty && generalDataForm.name.$valid}">
       <label for="name">{{ i18n.__('Name') }}:</label>
-      <input class="form-control" id="name" name="name" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text">
+      <input class="form-control" id="name" name="name" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text" required>
+
+      <label class="help-block text-danger" ng-show="generalDataForm.name.$dirty && generalDataForm.name.$error.required">{{ i18n.__("Data series name is required") }}</label>
     </div>
   </div>
   <!-- /.col md 7 -->
 
   <div class="col-md-5">
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': generalDataForm.semantics.$dirty && generalDataForm.semantics.$invalid, 'has-success': generalDataForm.semantics.$dirty && generalDataForm.semantics.$valid}">
       <label>{{ i18n.__('Semantics') }}:</label>
-      <select class="form-control" ng-model="dataSeries.semantics" ng-options="semantics.name for semantics in dataSeriesSemantics" ng-change="onDataSemanticsChange();" name="d">
-        <!--<option ng-repeat="semantics in dataSeriesSemantics">{{ semantics.name }}</option>-->
+      <select class="form-control" name="semantics" ng-model="dataSeries.semantics" ng-options="semantics.name for semantics in dataSeriesSemantics" ng-change="onDataSemanticsChange();" required>
       </select>
+
+      <label class="help-block text-danger" ng-show="generalDataForm.semantics.$dirty && generalDataForm.semantics.$error.required">{{ i18n.__("Data series semantics is required") }}</label>
     </div>
   </div>
 
   <div class="col-md-7">
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': generalDataForm.access.$dirty && generalDataForm.access.$error.required, 'has-success': generalDataForm.access.$dirty && generalDataForm.access.$valid}">
       <label>{{ i18n.__('Access') }}:</label>
-      <select class="form-control" ng-model="dataSeries.access">
+      <select class="form-control" ng-model="dataSeries.access" name="access" required>
         <option>Collect</option>
       </select>
+
+      <label class="help-block text-danger" ng-show="generalDataForm.access.$dirty && generalDataForm.access.$error.required">{{ i18n.__("Data series access is required") }}</label>
     </div>
   </div>
 
   <div class="col-md-5">
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$error.required, 'has-success': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$valid}">
       <label>{{ i18n.__('Provider') }}:</label>
-      <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()">
+      <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()" required>
         <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
-        <option value="" ng-click="onDataProviderClick(-1)">New dataprovider</option>
+        <!--<option value="" ng-click="onDataProviderClick(-1)">New dataprovider</option>-->
       </select>
+
+      <label class="help-block text-danger" ng-show="generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$error.required">{{ i18n.__("Data provider is required") }}</label>
     </div>
   </div>
 
