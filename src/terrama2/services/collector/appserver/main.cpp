@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
 
-    QCoreApplication app(argc, argv);
+      QCoreApplication app(argc, argv);
     terrama2::core::TcpManager tcpManager;
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
     tcpManager.listen(dataManager, QHostAddress::Any, 30000);
