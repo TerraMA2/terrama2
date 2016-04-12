@@ -47,29 +47,32 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::now()
   return std::make_shared< te::dt::TimeInstantTZ >(ldt);
 }
 
-void terrama2::core::TimeUtils::addMonth(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, uint64_t i)
+void terrama2::core::TimeUtils::addMonth(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t months)
 {
   boost::local_time::local_date_time t = timeInstant->getTimeInstantTZ();
 
-  t += boost::gregorian::months(i);
+  t += boost::gregorian::months(months);
 
-  timeInstant.reset(new te::dt::TimeInstantTZ(t));
+  te::dt::TimeInstantTZ temp(t);
+  (*timeInstant) = temp;
 }
 
-void terrama2::core::TimeUtils::addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, uint64_t i)
+void terrama2::core::TimeUtils::addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t days)
 {
   boost::local_time::local_date_time t = timeInstant->getTimeInstantTZ();
 
-  t += boost::gregorian::days(i);
+  t += boost::gregorian::days(days);
 
-  timeInstant.reset(new te::dt::TimeInstantTZ(t));
+  te::dt::TimeInstantTZ temp(t);
+  (*timeInstant) = temp;
 }
 
-void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, uint64_t i)
+void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t years)
 {
   boost::local_time::local_date_time t = timeInstant->getTimeInstantTZ();
 
-  t += boost::gregorian::years(i);
+  t += boost::gregorian::years(years);
 
-  timeInstant.reset(new te::dt::TimeInstantTZ(t));
+  te::dt::TimeInstantTZ temp(t);
+  (*timeInstant) = temp;
 }

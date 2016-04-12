@@ -40,13 +40,36 @@ namespace terrama2
     namespace TimeUtils
     {
 
+      /*!
+        \brief Return a TimeInstantTZ with the local timestamp
+
+        \return A TimeInstantTZ with the local timestamp
+      */
       std::shared_ptr< te::dt::TimeInstantTZ > now();
 
-      void addMonth(std::shared_ptr<te::dt::TimeInstantTZ> timeInstant, uint64_t i);
+      /*!
+        \brief Add or subtrac a number of months from a TimeInstantTZ
 
-      void addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, uint64_t i);
+        \param timeInstant A TimeInstantTZ to be added or subtracted
+        \param month A number of months to add or subtract in the TimeInstantTZ
+       */
+      void addMonth(std::shared_ptr<te::dt::TimeInstantTZ> timeInstant, int64_t months);
 
-      void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, uint64_t i);
+      /*!
+        \brief Add or subtrac a number of days from a TimeInstantTZ
+
+        \param timeInstant A TimeInstantTZ to be added or subtracted
+        \param days A number of days to add or subtract in the TimeInstantTZ
+       */
+      void addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t days);
+
+      /*!
+        \brief Add or subtrac a number of years from a TimeInstantTZ
+
+        \param timeInstant A TimeInstantTZ to be added or subtracted
+        \param years A number of years to add or subtract in the TimeInstantTZ
+       */
+      void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t years);
 
     }
   }
