@@ -2,7 +2,7 @@ var AbstractRequest = require('./AbstractRequest');
 var Client = require('ftp');
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
-var FormField = require("./Enums").FormField;
+var Form = require("./Enums").Form;
 var UriPattern = require("./Enums").Uri;
 var Utils = require("./Utils");
 
@@ -56,7 +56,7 @@ FtpRequest.fields = function() {
       UriPattern.USER,
       {
         key: UriPattern.PASSWORD,
-        type: FormField.PASSWORD
+        type: Form.Field.PASSWORD
       },
       UriPattern.PATHNAME
     ]);

@@ -66,9 +66,9 @@ describe('RequestFactory', function() {
   it("should connect WCS server", function(done) {
     var params = {};
     params[UriPattern.SCHEME] = "WCS";
-    params[UriPattern.HOST] = "flanche.net";
-    params[UriPattern.PORT] = 9090;
-    params[UriPattern.PATHNAME] = "/rasdaman/";
+    params[UriPattern.HOST] = "sedac.ciesin.columbia.edu";
+    params[UriPattern.PORT] = 80;
+    params[UriPattern.PATHNAME] = "/geoserver/wcs";
 
     RequestFactory.build(params).request().then(function() {
       return done();

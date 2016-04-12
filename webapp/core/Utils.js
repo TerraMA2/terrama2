@@ -1,5 +1,5 @@
 var Enums = require("./Enums");
-var FormField = Enums.FormField;
+var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
 
   handleRequestError: function(response, err, code) {
     response.status(code);
-    response.json({status: code, message: err.message});
+    return response.json({status: code, message: err.message});
   },
 
   makeCommonRequestFields: function(scheme, port, exceptField, required, displayOrder) {

@@ -2,34 +2,50 @@
   <div class="col-md-12">
 
     <ul class="nav nav-tabs" data-tabs="tabs">
-      <li class="active"><a data-toggle="tab" href="#filterDateTab{{ stateApp.current.name }}">{{ i18n.__('Date') }}</a></li>
-      <li><a data-toggle="tab" href="#filterAreaTab{{ stateApp.current.name }}">{{ i18n.__('Area') }}</a></li>
-      <li><a data-toggle="tab" href="#filterPreAnalysisTab{{ stateApp.current.name }}">{{ i18n.__('Pre-Analysis') }}</a></li>
-      <li><a data-toggle="tab" href="#filterBandTab{{ stateApp.current.name }}">{{ i18n.__('Bands') }}</a></li>
+      <li class="active"><a data-toggle="tab" href="#filterDateTab">{{ i18n.__('Date') }}</a></li>
+      <li><a data-toggle="tab" href="#filterAreaTab">{{ i18n.__('Area') }}</a></li>
+      <li><a data-toggle="tab" href="#filterPreAnalysisTab">{{ i18n.__('Pre-Analysis') }}</a></li>
+      <li><a data-toggle="tab" href="#filterBandTab">{{ i18n.__('Bands') }}</a></li>
     </ul>
     <div class="tab-content">
-      <div class="tab-pane active" id="filterDateTab{{ stateApp.current.name }}">
+      <div class="tab-pane active" id="filterDateTab">
         <div class="col-md-12">
           <p></p>
           <div class='col-md-6'>
             <div class="form-group">
               <label>{{ i18n.__('Ignores data previous to') }}:</label>
-              <div class='input-group date' id='datetimepicker6'>
-                <input type='text' name="beforeDate" ng-model="filter.beforeDate" class="form-control" />
-                <span class="input-group-addon">
-                  <span class="glyphicon glyphicon-calendar"></span>
-                </span>
+              <div class="dropdown dropup">
+                <a class="dropdown-toggle" id="dropdownBeforeDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2">
+                  <div class="input-group">
+                    <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD HH:mm" data-ng-model="filter.date.beforeDate">
+
+                    <span class="input-group-addon">
+                      <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel">
+                  <datetimepicker data-ng-model="filter.date.beforeDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownBeforeDate' }"/>
+                </ul>
               </div>
             </div>
           </div>
           <div class='col-md-6'>
             <div class="form-group">
               <label>{{ i18n.__('Ignores data after to') }}:</label>
-              <div class='input-group date' id='datetimepicker7'>
-                <input type='text' name="afterDate" ng-model="filter.afterDate" class="form-control" />
-                <span class="input-group-addon">
-                  <span class="glyphicon glyphicon-calendar"></span>
-                </span>
+              <div class="dropdown dropup">
+                <a class="dropdown-toggle" id="dropdownAfterDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2">
+                  <div class="input-group">
+                    <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD hh:mm" data-ng-model="filter.date.afterDate">
+
+                    <span class="input-group-addon">
+                      <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel">
+                  <datetimepicker data-ng-model="filter.date.afterDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownAfterDate' }"/>
+                </ul>
               </div>
             </div>
             <!-- ./form-group -->
@@ -37,14 +53,13 @@
           <!-- ./col-md-6 -->
         </div>
       </div>
-      <div class="tab-pane" id="filterAreaTab{{ stateApp.current.name }}">
+      <div class="tab-pane" id="filterAreaTab">
         <div class="col-md-12">
           <p></p>
           <div class='col-md-12'>
             <div class="form-group">
               <label>{{ i18n.__('Select the filter area type') }}:</label>
-              <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-model="filter.area.type
-              ">
+              <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-model="filter.area.type">
                 <option selected>Do not filter</option>
                 <option>Filter by limits</option>
               </select>
@@ -81,7 +96,7 @@
         </div>
         <!-- ./col-md-12 -->
       </div>
-      <div class="tab-pane" id="filterPreAnalysisTab{{ stateApp.current.name }}">
+      <div class="tab-pane" id="filterPreAnalysisTab">
         <div class="col-md-12">
           <p></p>
           <div class='col-md-12'>
@@ -131,7 +146,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <input class="form-control" id="name" placeholder="" type="text">
+              <input class="form-control" name="greater_than" ng-model="filter.pre_analysis.greater_than" placeholder="" type="text">
             </div>
           </div>
           <!-- ./col-md-4 -->
@@ -150,7 +165,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <input class="form-control" id="name" placeholder="" type="text">
+              <input class="form-control" name="less_than" ng-model="filter.pre_analysis.less_than" placeholder="" type="text">
             </div>
           </div>
           <!-- ./col-md-4 -->
@@ -169,7 +184,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <input class="form-control" id="name" placeholder="" type="text">
+              <input class="form-control" name="avg_greater_than" ng-model="filter.pre_analysis.avg_greater_than" placeholder="" type="text">
             </div>
           </div>
           <!-- ./col-md-4 -->
@@ -186,20 +201,20 @@
 
           <div class='col-md-12'>
             <div class="form-group">
-              <textarea class="form-control" id="selectPlans"></textarea>
+              <textarea class="form-control" name="plan" ng-model="filter.pre_analysis.plan" id="selectPlans"></textarea>
             </div>
           </div>
           <!-- ./col-md-12 -->
         </div> 
         <!-- /.col-md-12 -->
       </div>
-      <div class="tab-pane" id="filterBandTab{{ stateApp.current.name }}">
+      <div class="tab-pane" id="filterBandTab">
         <div class="col-md-12">
           <p></p>
           <div class="col-md-12">
             <div class="form-group">
               <label>{{ i18n.__('Bands to be skipped') }}:</label>
-              <input class="form-control" id="bands" type="text">
+              <input class="form-control" id="bands" name="bands" ng-model="filter.bands.name" type="text">
             </div>
           </div>
         </div>
@@ -211,23 +226,3 @@
   <!-- ./col-md-12 -->
 </div>
 <!-- ./row -->
-
-<script>
-  $(document).ready(function() {
-    $('#datetimepicker6').datetimepicker({
-      widgetPositioning: {vertical: "bottom"},
-      format: 'DD-MM-YY HH:mm'
-    });
-    $('#datetimepicker7').datetimepicker({
-      widgetPositioning: {vertical: "bottom"},
-      format: 'DD-MM-YY HH:mm',
-      useCurrent: false
-    });
-    $("#datetimepicker6").on("dp.change", function (e) {
-      $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
-    });
-    $("#datetimepicker7").on("dp.change", function (e) {
-      $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
-    });
-  });
-</script>

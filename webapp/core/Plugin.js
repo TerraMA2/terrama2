@@ -86,7 +86,7 @@ Plugin.prototype.load = function(pluginPath, packageJson) {
   }
 };
 
-Plugin.prototype.unload = function(pluginName) {
+Plugin.prototype.unloadPlugin = function(pluginName) {
   var plugin = this.plugins[pluginName];
 
   // todo: check if plugin executing
@@ -94,6 +94,17 @@ Plugin.prototype.unload = function(pluginName) {
     delete this.plugins[pluginName];
     this.emit("unloaded", pluginName);
   }
+};
+
+Plugin.prototype.unloadAll = function() {
+  // todo: check if plugin executing
+  var self = this;
+  Object.keys(self.plugins || {}).forEach(function(pluginKey) {
+    delete self.plugins[pluginKey];
+  });
+
+  this.emit("unloadAll");
+  
 };
 
 
