@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
   dataSet->active = true;
   dataSet->format.emplace("mask", "30885.txt");
   dataSet->format.emplace("timezone", "+00");
+  dataSet->format.emplace("folder", "");
 
   dataSeries->datasetList.emplace_back(dataSet);
 

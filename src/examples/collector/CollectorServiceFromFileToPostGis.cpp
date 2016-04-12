@@ -54,11 +54,11 @@
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
 
-//STL
+// STL
 #include <memory>
 #include <iostream>
 
-//Qt
+// Qt
 #include <QCoreApplication>
 #include <QTimer>
 #include <QUrl>
@@ -82,9 +82,9 @@ int main(int argc, char* argv[])
 
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
 
-  ///////////////////////////////////////////////
-  //     input
-    //DataProvider information
+    ///////////////////////////////////////////////
+    //     input
+    // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = "file://";
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
     dataManager->add(dataProviderPtr);
 
-    //DataSeries information
+    // DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->id = 1;
@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
     uri.setPassword("postgres");
     uri.setPath("/basedeteste");
 
-  //DataProvider information
+    // DataProvider information
     terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
     outputDataProvider->id = 2;
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
     dataManager->add(outputDataProviderPtr);
 
-  //DataSeries information
+    // DataSeries information
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->id = 2;
@@ -150,13 +150,11 @@ int main(int argc, char* argv[])
 
     dataManager->add(outputDataSeriesPtr);
 
-  //DataSet information
+    // DataSet information
     terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
     outputDataSet->active = true;
     outputDataSet->id = 2;
     outputDataSet->format.emplace("table_name", "queimadas");
-    outputDataSet->format.emplace("date_time_column", "data_pas");
-    outputDataSet->format.emplace("geometry_column", "geom");
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
@@ -186,7 +184,7 @@ int main(int argc, char* argv[])
   }
   catch(...)
   {
-    //TODO: o que fazer com uncaught exception
+    // TODO: o que fazer com uncaught exception
     std::cout << "\n\nException...\n" << std::endl;
   }
 

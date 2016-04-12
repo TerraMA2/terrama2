@@ -137,8 +137,8 @@ int main(int argc, char* argv[])
   occurrenceDataSet->active = true;
   occurrenceDataSet->id = 2;
   occurrenceDataSet->format.emplace("table_name", "queimadas");
-  occurrenceDataSet->format.emplace("date_time_column", "datetime");
-  occurrenceDataSet->format.emplace("geometry_column", "geom");
+  occurrenceDataSet->format.emplace("timestamp_property", "datetime");
+  occurrenceDataSet->format.emplace("geometry_property", "geom");
 
   outputDataSeries->datasetList.emplace_back(occurrenceDataSet);
 

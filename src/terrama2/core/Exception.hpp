@@ -65,10 +65,8 @@ namespace terrama2
     //! Base Exception for DataStorager
     struct DataStoragerException: virtual DataAccessException { };
 
-    //#################################
-    // Implementation Module Exceptions
     //! Base exception for DataRetrieverFTP
-    struct DataRetrieverFTPException : virtual Exception { };
+    struct DataRetrieverFTPException : virtual DataAccessException { };
 
     //#################################
     //     Data Model Module Exceptions

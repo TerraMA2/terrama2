@@ -84,6 +84,7 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSource
 {
   return "OGR";
 }
+
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::typePrefix() const
 {
   return "CSV:";

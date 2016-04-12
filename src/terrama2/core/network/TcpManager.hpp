@@ -27,6 +27,8 @@
 
 #include <QTcpServer>
 
+class QTcpSocket;
+
 namespace terrama2
 {
   namespace core
@@ -45,16 +47,21 @@ namespace terrama2
       //! Default destructor.
       virtual ~TcpManager(){}
 
+      bool sendLog(std::string log);
+
     signals:
       void stopSignal();
 
     private slots:
       //! Slot called when a new conenction arrives.
       void receiveConnection();
+      void readReadySlot();
 
     private:
       uint16_t blockSize_; //!< Size of the message received.
       void parseData(QByteArray bytearray);
+
+      QTcpSocket* tcpSocket_;
     };
   }
 }
