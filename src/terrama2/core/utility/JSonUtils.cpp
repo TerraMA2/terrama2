@@ -167,10 +167,10 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
   std::string wkt = json["position"].toString().toStdString();
-  te::gm::Geometry* geom = te::gm::WKTReader::read(wkt.c_str());
-  te::gm::Point* point = dynamic_cast<te::gm::Point*>(geom);
+  auto geom = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(wkt.c_str()));
+  auto point = std::dynamic_pointer_cast<te::gm::Point>(geom);
 
-  if(!point)
+  if(!point.get())
   {
     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
   }

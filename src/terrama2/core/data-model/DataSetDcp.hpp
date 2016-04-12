@@ -33,14 +33,16 @@
 //Terralib
 #include <terralib/geometry/Point.h>
 
+//STL
+#include <memory>
+
 namespace terrama2
 {
   namespace core
   {
     struct DataSetDcp : public DataSet
     {
-      te::gm::Point* position;//TODO: A posição é sempre um ponto? pode ser uma região? delete?
-      // std::string dateTimeColumnName;
+      std::shared_ptr<te::gm::Point> position;//TODO: A posição é sempre um ponto? pode ser uma região? delete?
     };
   } // end namespace core
 } // end namespace terrama2
