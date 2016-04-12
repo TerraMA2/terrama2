@@ -54,9 +54,21 @@
 // Curl
 #include <curl/curl.h>
 
+namespace te
+{
+  namespace common
+  {
+    enum
+    {
+      UOM_second =  1040
+    };
+  } // end of namespace common
+} // end of namespace te
+
+
 std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
-// 1st: look in the neighborhood of the executable
+  // 1st: look in the neighborhood of the executable
   boost::filesystem::path tma_path = boost::filesystem::current_path();
 
   boost::filesystem::path eval_path = tma_path / fileName;
@@ -71,7 +83,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
-// 2rd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
+  // 2rd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
   const char* tma_env = getenv(TERRAMA2_DIR_VAR_NAME);
 
   if(tma_env != nullptr)
@@ -84,7 +96,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
       return eval_path.string();
   }
 
-// 3th: look into install prefix-path
+  // 3th: look into install prefix-path
   tma_path = TERRAMA2_INSTALL_PREFIX_PATH;
 
   eval_path = tma_path / fileName;
@@ -92,7 +104,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
-// 4nd: look into the codebase path
+  // 4nd: look into the codebase path
   tma_path = TERRAMA2_CODEBASE_PATH;
 
   eval_path = tma_path / fileName;
@@ -121,27 +133,22 @@ void terrama2::core::initializeTerralib()
 
   te::plugin::PluginManager::getInstance().loadAll();
 
-  enum
-  {
-    UOM_second =  1040
-  };
-
   // Base of Time measure: second
-  te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(UOM_second,"second", "s", te::common::MeasureType::Time));
+  te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"second", "s", te::common::MeasureType::Time));
   std::vector<std::string> secondAlternativeNames {"s", "sec", "ss", "seconds"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomSecond, secondAlternativeNames);
 
   // minute
-  te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "minute", "min", te::common::MeasureType::Time, UOM_second, 60.0, 0.0, 0.0, 1.0));
+  te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "minute", "min", te::common::MeasureType::Time, te::common::UOM_second, 60.0, 0.0, 0.0, 1.0));
   std::vector<std::string> minuteAlternativeNames {"min", "minutes"};
 
   // hour
-  te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "hour", "h", te::common::MeasureType::Time, UOM_second, 3600.0, 0.0, 0.0, 1.0));
+  te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "hour", "h", te::common::MeasureType::Time, te::common::UOM_second, 3600.0, 0.0, 0.0, 1.0));
   std::vector<std::string> hourAlternativeNames {"hh", "h", "hours"};
 
   // day
-  te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "day", "d", te::common::MeasureType::Time, UOM_second, 86400.0, 0.0, 0.0, 1.0));
+  te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "day", "d", te::common::MeasureType::Time, te::common::UOM_second, 86400.0, 0.0, 0.0, 1.0));
   std::vector<std::string> dayAlternativeNames {"d", "dd", "days"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomMinute, minuteAlternativeNames);
