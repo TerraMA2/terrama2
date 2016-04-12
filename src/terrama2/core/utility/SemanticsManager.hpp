@@ -45,27 +45,31 @@ namespace terrama2
   {
     class SemanticsManager : public te::common::Singleton<SemanticsManager>
     {
-    public:
-      /*!
+      public:
+        /*!
 
-        \exception TODO: raised when a semantics with same name is already present
-      */
-      DataSeriesSemantics addSemantics(const std::string& name, const DataSeriesSemantics::DataSeriesType& dataSeriesType, const DataFormat& format);
-      DataSeriesSemantics getSemantics(const std::string& name);
+          \exception terrama2::core::SemanticsException raised when a semantics with same name is already present
+        */
+        DataSeriesSemantics addSemantics(const std::string& name, const DataSeriesSemantics::DataSeriesType& dataSeriesType, const DataFormat& format);
+        /*!
 
-    protected:
-      friend class te::common::Singleton<SemanticsManager>;
+          \exception terrama2::core::SemanticsException raised when the semantics is not defined
+        */
+        DataSeriesSemantics getSemantics(const std::string& name);
 
-      SemanticsManager() {}
-      virtual ~SemanticsManager() {}
+      protected:
+        friend class te::common::Singleton<SemanticsManager>;
 
-      SemanticsManager(const SemanticsManager& other) = delete;
-      SemanticsManager(SemanticsManager&& other) = delete;
-      SemanticsManager& operator=(const SemanticsManager& other) = delete;
-      SemanticsManager& operator=(SemanticsManager&& other) = delete;
+        SemanticsManager() {}
+        virtual ~SemanticsManager() {}
 
-    private:
-      std::map<std::string, DataSeriesSemantics> semanticsMap_;
+        SemanticsManager(const SemanticsManager& other) = delete;
+        SemanticsManager(SemanticsManager&& other) = delete;
+        SemanticsManager& operator=(const SemanticsManager& other) = delete;
+        SemanticsManager& operator=(SemanticsManager&& other) = delete;
+
+      private:
+        std::map<std::string, DataSeriesSemantics> semanticsMap_;
     };
   } /* core */
 } /* terrama2 */

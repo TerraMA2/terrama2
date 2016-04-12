@@ -52,18 +52,18 @@ namespace terrama2
             virtual void addFromJSON(const QJsonValue& jsonValue) override;
 
             virtual ~DataManager() {}
-            DataManager(const DataManager& other) = default;
-            DataManager(DataManager&& other) = default;
-            DataManager& operator=(const DataManager& other) = default;
-            DataManager& operator=(DataManager&& other) = default;
+            DataManager(const DataManager& other) = delete;
+            DataManager(DataManager&& other) = delete;
+            DataManager& operator=(const DataManager& other) = delete;
+            DataManager& operator=(DataManager&& other) = delete;
 
             using terrama2::core::DataManager::add;
             using terrama2::core::DataManager::update;
 
-            void add(CollectorPtr collector);
-            void update(CollectorPtr collector);
-            void removeCollector(CollectorId collectorId);
-            CollectorPtr findCollector(CollectorId id) const;
+            virtual void add(CollectorPtr collector);
+            virtual void update(CollectorPtr collector);
+            virtual void removeCollector(CollectorId collectorId);
+            virtual CollectorPtr findCollector(CollectorId id) const;
 
           signals:
             void collectorAdded(CollectorPtr);

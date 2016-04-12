@@ -67,6 +67,10 @@ namespace terrama2
 
         //! Destructor.
         virtual ~DataManager();
+        DataManager(const DataManager& other) = delete;
+        DataManager(DataManager&& other) = delete;
+        DataManager& operator=(const DataManager& other) = delete;
+        DataManager& operator=(DataManager&& other) = delete;
 
         std::unique_lock<std::recursive_mutex> getLock();
 
@@ -91,10 +95,10 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        void add(DataProviderPtr provider);
+        virtual void add(DataProviderPtr provider);
 
         // TODO: doc here
-        void add(DataSeriesPtr dataseries);
+        virtual void add(DataSeriesPtr dataseries);
 
         /*!
         \brief Update a given data provider in the database.
@@ -114,7 +118,7 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        void update(DataProviderPtr provider);
+        virtual void update(DataProviderPtr provider);
 
         /*!
         \brief Update a given dataseries in the database.
@@ -131,7 +135,7 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        void update(DataSeriesPtr dataseries, const bool shallowSave = false);
+        virtual void update(DataSeriesPtr dataseries, const bool shallowSave = false);
 
         /*!
         \brief Removes a given data provider.
@@ -151,7 +155,7 @@ namespace terrama2
         \note Thread-safe.
         */
 
-        void removeDataProvider(const DataProviderId id, const bool shallowRemove = false);
+        virtual void removeDataProvider(const DataProviderId id, const bool shallowRemove = false);
 
         /*!
         \brief Removes the dataseries with the given id.
@@ -168,7 +172,7 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        void removeDataSeries(const DataSeriesId id);
+        virtual void removeDataSeries(const DataSeriesId id);
 
         /*!
         \brief Retrieves the data provider with the given name.
@@ -183,7 +187,7 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        DataProviderPtr findDataProvider(const std::string& name) const;
+        virtual DataProviderPtr findDataProvider(const std::string& name) const;
 
         /*!
         \brief Retrieves the data provider with the given id.
@@ -198,7 +202,7 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        DataProviderPtr findDataProvider(const DataProviderId id) const;
+        virtual DataProviderPtr findDataProvider(const DataProviderId id) const;
 
         /*!
         \brief Search for a dataseries with the given name
@@ -211,7 +215,7 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        DataSeriesPtr findDataSeries(const std::string& name) const;
+        virtual DataSeriesPtr findDataSeries(const std::string& name) const;
 
         /*!
         \brief Search for a dataseries with the given id
@@ -224,7 +228,7 @@ namespace terrama2
 
         \note Thread-safe.
         */
-        DataSeriesPtr findDataSeries(const DataSeriesId id) const;
+        virtual DataSeriesPtr findDataSeries(const DataSeriesId id) const;
 
       signals:
 
