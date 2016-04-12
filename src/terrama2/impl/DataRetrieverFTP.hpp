@@ -51,7 +51,7 @@ namespace terrama2
   {
     /*!
        * \brief The DataRetrieverFTP class performs the download of
-       * occurrences of files, PCD-TOA5, PCD_INPE, GRADES ETA15km.
+       * occurrences of files, DCP-TOA5, DCP-INPE, GRADES ETA15km.
        *
        * \warning The DataRetrieverFTP class only performs the download of files, but does not
        * perform the removal of the files after downloading.
@@ -111,6 +111,8 @@ namespace terrama2
        * \return Returns the number of items that were successfully read.
        */
       static size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data);
+
+      static DataRetriever* make(DataProviderPtr dataProvider);
 
     private:
       std::vector<std::string> vectorNames_; //! vector filtered names.
