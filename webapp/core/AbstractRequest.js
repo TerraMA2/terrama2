@@ -13,6 +13,10 @@ var AbstractRequest = function(params) {
   }
 
   if (params instanceof Object) {
+    var splitHost = params[this.syntax().HOST].split("://");
+    if (splitHost.length > 1)
+      params[this.syntax().HOST] = splitHost[1];
+    
     this.params = params;
     this.uri = UriBuilder.buildUri(params, this.syntax());
   }
