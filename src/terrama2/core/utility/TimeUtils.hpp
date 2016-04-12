@@ -42,6 +42,12 @@ namespace terrama2
 
       std::shared_ptr< te::dt::TimeInstantTZ > now();
 
+      void addMonth(std::shared_ptr<te::dt::TimeInstantTZ> timeInstant, uint64_t i);
+
+      void addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, uint64_t i);
+
+      void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, uint64_t i);
+
     }
   }
 }
