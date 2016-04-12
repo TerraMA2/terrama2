@@ -1,7 +1,4 @@
-import history
-import dcp
-import occurrence
-from terrama2 import *
+import terrama2
 
 class Buffer:
     OUTSIDE = 1

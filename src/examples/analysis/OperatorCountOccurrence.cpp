@@ -1,4 +1,3 @@
-
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
@@ -43,7 +42,7 @@ int main(int argc, char* argv[])
   analysis.name = "Analysis";
   analysis.active = true;
 
-  std::string script = "x = countPoints(\"Occurrence\", 0.1, \"1h\", \"\")\nadd_value(x)";
+  std::string script = "x = terrama2.count(\"Occurrence\", 100, 1, \"1h\", \"\", [\"id1\", \"id2\"])";
 
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;

@@ -1,0 +1,11 @@
+--indent-classes
+--indent-namespaces
+--indent-col1-comments
+--unpad-paren
+--keep-one-line-blocks
+--indent=spaces=2
+-A1
+--align-pointer=type
+--align-reference=type
+--mode=c
+--lineend=linux

@@ -30,6 +30,152 @@
 
 
 #include "PythonInterpreter.hpp"
+
+#include <boost/python.hpp>
+
+#include <QObject>
+
+#include "BufferMemory.hpp"
+#include "Context.hpp"
+#include "Analysis.hpp"
+#include "Exception.hpp"
+#include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
+#include "../../../core/data-model/DataManager.hpp"
+#include "../../../core/data-model/DataSetDcp.hpp"
+#include "../../../core/data-model/Filter.hpp"
+#include "../../../core/data-access/SyncronizedDataSet.hpp"
+#include "../../../core/Shared.hpp"
+
+
+// TerraLib
+#include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/vp/BufferMemory.h>
+#include <terralib/geometry/MultiPolygon.h>
+
+using namespace boost::python;
+
+int terrama2::services::analysis::core::countPoints(std::string dataSeriesName, double radius, int bufferType, std::string dateFilter, std::string restriction, boost::python::list& ids)
+{
+  object module(handle<>(borrowed(PyImport_AddModule("__main__"))));
+  object dictionary = module.attr("__dict__");
+  object analysisObj = dictionary["analysis"];
+  int analysisId = extract<int>(analysisObj);
+
+  object indexObj = dictionary["index"];
+  int geomIndex = extract<int>(analysisObj);
+
+  std::cerr << dataSeriesName << std::endl;
+
+  for (int i = 0; i < len(ids); ++i)
+  {
+    std::cout << boost::python::extract<const char*>(ids[i]) << std::endl;
+  }
+
+  std::cout << "Geom Index: " << geomIndex << std::endl;
+  std::cout << "Analysis: " << analysisId << std::endl;
+  return 1;
+}
+
+BOOST_PYTHON_MODULE(terrama2)
+{
+  def("count", terrama2::services::analysis::core::countPoints);
+}
+
+#if PY_MAJOR_VERSION >= 3
+#   define INIT_MODULE PyInit_terrama2
+    extern "C" PyObject* INIT_MODULE();
+#else
+#   define INIT_MODULE initterrama2
+    extern "C" void INIT_MODULE();
+#endif
+
+
+static PyObject * terrama2Error;
+void terrama2::services::analysis::core::initInterpreter()
+{
+  Py_Initialize();
+
+  PyEval_InitThreads();
+
+  // release our hold on the global interpreter
+  PyEval_ReleaseLock();
+}
+
+void terrama2::services::analysis::core::finalizeInterpreter()
+{
+  // shut down the interpreter
+  PyEval_AcquireLock();
+  Py_Finalize();
+}
+
+
+
+void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes)
+{
+  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+
+  for(uint64_t index : indexes)
+  {
+    // grab the global interpreter lock
+    PyEval_AcquireLock();
+    // swap in my thread state
+    PyThreadState_Swap(state);
+
+
+    PyThreadState_Clear(state);
+
+    PyImport_AppendInittab((char*)"terrama2", INIT_MODULE);
+    Py_Initialize();
+    object main_module = import("__main__");
+    dict main_namespace = extract<dict>(main_module.attr("__dict__"));
+    object mymodule = import("terrama2");
+
+    std::string initFile = terrama2::core::FindInTerraMA2Path("share/terrama2/python/init.py");
+    if(initFile.empty())
+    {
+      QString errMsg = QObject::tr("Could not read python init file.");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw PythonInterpreterException() << ErrorDescription(errMsg);
+    }
+    exec_file(initFile.c_str(), main_namespace, main_namespace);
+
+    // release our hold on the global interpreter
+    PyEval_ReleaseLock();
+  }
+}
+
+
+void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, uint64_t analysisId)
+{
+  /*
+  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+
+  // grab the global interpreter lock
+  PyEval_AcquireLock();
+  // swap in my thread state
+  PyThreadState_Swap(state);
+
+  PyThreadState_Clear(state);
+
+  PyObject *analysisValue = PyInt_FromLong(analysisId);
+
+  PyObject* poDict = PyDict_New();
+  PyDict_SetItemString(poDict, "analysis", analysisValue);
+  state->dict = poDict;
+
+  PyRun_SimpleString("import history");
+  PyRun_SimpleString("from import history");
+  PyRun_SimpleString(analysis.script.c_str());
+
+
+  // release our hold on the global interpreter
+  PyEval_ReleaseLock();
+  */
+}
+
+
+/*
 #include "Context.hpp"
 #include "BufferMemory.hpp"
 #include "Analysis.hpp"
@@ -873,67 +1019,4 @@ void terrama2::services::analysis::core::initInterpreter()
   PyEval_ReleaseLock();
 }
 
-
-void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes)
-{
-  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
-
-  for(uint64_t index : indexes)
-  {
-    // grab the global interpreter lock
-    PyEval_AcquireLock();
-    // swap in my thread state
-    PyThreadState_Swap(state);
-
-
-    PyThreadState_Clear(state);
-
-    PyObject *indexValue = PyInt_FromLong(index);
-    PyObject *analysisValue = PyInt_FromLong(analysisId);
-
-    PyObject* poDict = PyDict_New();
-    PyDict_SetItemString(poDict, "index", indexValue);
-    PyDict_SetItemString(poDict, "analysis", analysisValue);
-    state->dict = poDict;
-
-    PyRun_SimpleString(analysis.script.c_str());
-
-
-    // release our hold on the global interpreter
-    PyEval_ReleaseLock();
-  }
-}
-
-
-void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, uint64_t analysisId)
-{
-  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
-
-  // grab the global interpreter lock
-  PyEval_AcquireLock();
-  // swap in my thread state
-  PyThreadState_Swap(state);
-
-  PyThreadState_Clear(state);
-
-  PyObject *analysisValue = PyInt_FromLong(analysisId);
-
-  PyObject* poDict = PyDict_New();
-  PyDict_SetItemString(poDict, "analysis", analysisValue);
-  state->dict = poDict;
-
-  PyRun_SimpleString("import history");
-  PyRun_SimpleString("from import history");
-  PyRun_SimpleString(analysis.script.c_str());
-
-
-  // release our hold on the global interpreter
-  PyEval_ReleaseLock();
-}
-
-void terrama2::services::analysis::core::finalizeInterpreter()
-{
-  // shut down the interpreter
-  PyEval_AcquireLock();
-  Py_Finalize();
-}
+*/

@@ -33,7 +33,7 @@
 
 #include "Analysis.hpp"
 
-#include <Python.h>
+#include <boost/python.hpp>
 
 namespace terrama2
 {
@@ -53,28 +53,7 @@ namespace terrama2
           MEDIAN
         };
 
-        PyObject* countPoints(PyObject* self, PyObject* args);
-
-        PyObject* sumHistoryDCP(PyObject* self, PyObject* args);
-        PyObject* meanHistoryDCP(PyObject* self, PyObject* args);
-        PyObject* minHistoryDCP(PyObject* self, PyObject* args);
-        PyObject* maxHistoryDCP(PyObject* self, PyObject* args);
-        PyObject* medianHistoryDCP(PyObject* self, PyObject* args);
-        PyObject* standardDeviationHistoryDCP(PyObject* self, PyObject* args);
-
-        PyObject* operatorHistoryDCP(PyObject* args, StatisticOperation statisticOperation);
-
-        PyObject* sumDCP(PyObject* self, PyObject* args);
-        PyObject* meanDCP(PyObject* self, PyObject* args);
-        PyObject* minDCP(PyObject* self, PyObject* args);
-        PyObject* maxDCP(PyObject* self, PyObject* args);
-        PyObject* standardDeviationDCP(PyObject* self, PyObject* args);
-        PyObject* medianDCP(PyObject* self, PyObject* args);
-
-        PyObject* operatorDCP(PyObject* args, StatisticOperation statisticOperation);
-
-
-        PyObject* result(PyObject* self, PyObject* args);
+        int countPoints(std::string dataSeriesName, double radius, int bufferType, std::string dateFilter, std::string restriction, boost::python::list& ids);
 
         void initInterpreter();
         void finalizeInterpreter();
