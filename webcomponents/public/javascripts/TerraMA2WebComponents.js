@@ -16,7 +16,7 @@ window.TerraMA2WebComponents = {
 
 /**
  * Main class of the API.
- * @module TerraMA2WebComponents
+ * @class TerraMA2WebComponents
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
@@ -44,6 +44,8 @@ TerraMA2WebComponents.obj = (function() {
    * @returns {int} memberComponentsLength - Length of the components names array
    *
    * @function getComponentsLength
+   * @memberof TerraMA2WebComponents
+   * @inner
    */
   var getComponentsLength = function() {
     return memberComponentsLength;
@@ -54,6 +56,8 @@ TerraMA2WebComponents.obj = (function() {
    * @returns {string} memberTerrama2Url - URL of the TerraMA² WebComponents
    *
    * @function getComponentsLength
+   * @memberof TerraMA2WebComponents
+   * @inner
    */
   var getTerrama2Url = function() {
     return memberTerrama2Url;
@@ -65,6 +69,8 @@ TerraMA2WebComponents.obj = (function() {
    * @returns {boolean} boolean - Flag that indicates if the file exists
    *
    * @function fileExists
+   * @memberof TerraMA2WebComponents
+   * @inner
    */
   var fileExists = function(url) {
     $.ajax({
@@ -85,6 +91,8 @@ TerraMA2WebComponents.obj = (function() {
    *
    * @private
    * @function loadComponents
+   * @memberof TerraMA2WebComponents
+   * @inner
    */
   var loadComponents = function(i) {
     if(i < memberComponentsLength) {
@@ -106,6 +114,8 @@ TerraMA2WebComponents.obj = (function() {
    * @returns {boolean} memberComponentsLoaded - Flag that indicates if all the components have been loaded
    *
    * @function isComponentsLoaded
+   * @memberof TerraMA2WebComponents
+   * @inner
    */
   var isComponentsLoaded = function() {
     return memberComponentsLoaded;
@@ -116,6 +126,8 @@ TerraMA2WebComponents.obj = (function() {
    *
    * @private
    * @function loadConfigurations
+   * @memberof TerraMA2WebComponents
+   * @inner
    */
   var loadConfigurations = function() {
     var url = memberTerrama2Url + "/config/";
@@ -129,6 +141,8 @@ TerraMA2WebComponents.obj = (function() {
    * @param {array} components - Array of components names
    *
    * @function init
+   * @memberof TerraMA2WebComponents
+   * @inner
    */
   var init = function(terrama2Url, components) {
     memberComponents = components;
