@@ -31,7 +31,12 @@ var Enums = require('./Enums');
 
 // data model
 var DataProvider = require("./data-model/DataProvider");
+var DataSeries = require("./data-model/DataSeries");
+var DataSetDcp = require("./data-model/DataSetDcp");
+var DataSetFactory = require("./data-model/DataSetFactory");
 
+
+// Available DataSeriesType
 var DataSeriesType = Enums.DataSeriesType;
 
 // Javascript Lock
@@ -187,12 +192,12 @@ var DataManager = {
 
         models.db.DataProvider.findAll({}).then(function(dataProviders){
           dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(dataProvider.get());
+            self.data.dataProviders.push(new DataProvider(dataProvider.get()));
           });
 
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
             dataSeries.forEach(function(dSeries) {
-              self.data.dataSeries.push(dSeries.get());
+              self.data.dataSeries.push(new DataSeries(dSeries.get()));
             });
 
             //todo: include grid too
@@ -453,17 +458,16 @@ var DataManager = {
   /**
    * It saves DataProvider in database and load it in memory
    * @param {Object} dataProviderObject - An object containing needed values to create DataProvider object.
-   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
+   * @return {Promise<DataProvider>} - a 'bluebird' module with DataProvider instance or error callback
    */
   addDataProvider: function(dataProviderObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
-        // var dProvider = new DataProvider(dataProvider.get());
-        self.data.dataProviders.push(dataProvider.get());
+        var dProvider = new DataProvider(dataProvider.get());
+        self.data.dataProviders.push(dProvider);
 
-        // resolve(dProvider);
-        resolve(Utils.clone(dataProvider.get()));
+        resolve(dProvider);
 
         //  todo: emit signal
 
@@ -478,16 +482,14 @@ var DataManager = {
    * name identifier.
    *
    * @param {Object} restriction - An object containing DataProvider identifier to get it.
-   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
+   * @return {Promise<DataProvider>} - a 'bluebird' module with DataProvider instance or error callback
    */
   getDataProvider: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataProvider = getItemByParam(self.data.dataProviders, restriction);
-      if (dataProvider){
-        resolve(Utils.clone(dataProvider));
-        // resolve(dataProvider);
-      }
+      if (dataProvider)
+        resolve(new DataProvider(dataProvider));
       else
         reject(new exceptions.DataProviderError("Could not find a data provider: " + restriction[Object.keys(restriction)[0]]));
     });
@@ -496,12 +498,13 @@ var DataManager = {
   /**
    * It retrieves DataProviders loaded in memory.
    *
-   * @return {Array} - An array with DataProviders available/loaded in memory.
+   * @return {Array<DataProvider>} - An array with DataProviders available/loaded in memory.
    */
   listDataProviders: function() {
     var dataProviderObjectList = [];
-    for(var index = 0; index < this.data.dataProviders.length; ++index)
-      dataProviderObjectList.push(Utils.clone(this.data.dataProviders[index]));
+    this.data.dataProviders.forEach(function(dataProvider) {
+      dataProviderObjectList.push(new DataProvider(dataProvider));
+    });
     return dataProviderObjectList;
   },
 
@@ -534,7 +537,7 @@ var DataManager = {
 
           dataProvider.active = dataProviderObject.active;
 
-          resolve(Utils.clone(dataProvider));
+          resolve(new DataProvider(dataProvider));
         }).catch(function(err) {
           reject(new exceptions.DataProviderError("Could not update data provider ", err));
         });
@@ -560,7 +563,7 @@ var DataManager = {
             self.data.dataProviders.splice(index, 1);
             resolve();
           }).catch(function(err) {
-            reject(err);
+            reject(new exceptions.DataProviderError("Could not remove DataProvider ", err));
           });
           return;
         }
@@ -581,7 +584,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSerie = getItemByParam(self.data.dataSeries, restriction);
       if (dataSerie)
-        resolve(Utils.clone(dataSerie));
+        resolve(new DataSeries(dataSerie));
       else
         reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
     });
@@ -594,8 +597,9 @@ var DataManager = {
    */
   listDataSeries: function() {
     var dataSeriesList = [];
-    for(var index = 0; index < this.data.dataSeries.length; ++index)
-      dataSeriesList.push(Utils.clone(this.data.dataSeries[index]));
+    this.data.dataSeries.forEach(function(dataSeries) {
+      dataSeriesList.push(new DataSeries(dataSeries));
+    });
     return dataSeriesList;
   },
 
@@ -627,7 +631,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
-        output = Utils.clone(dataSerie.get());
+        output = new DataSeries(dataSerie.get());
 
         var rollback = function(err) {
           dataSerie.destroy().then(function () {
@@ -647,8 +651,8 @@ var DataManager = {
             }
 
             Promise.all(dataSets).then(function(dataSets){
-              self.data.dataSeries.push(Utils.clone(output));
-              output.dataSets = dataSets;
+              self.data.dataSeries.push(new DataSeries(output));
+              output.datasets = dataSets;
               resolve(output);
             }).catch(function(err) {
               rollback(err);
@@ -659,9 +663,11 @@ var DataManager = {
             rollback(new exceptions.DataSeriesError("Could not save DataSeries. " + err.message));
 
           }
+        }).catch(function(err) {
+          rollback(err);
         });
       }).catch(function(err){
-        reject(new exceptions.DataSeriesError("Could not save DataSeries. " + err));
+        reject(new exceptions.DataSeriesError("Could not save DataSeries. ", err));
       });
     });
   },
@@ -691,7 +697,7 @@ var DataManager = {
           dataSeries.name = dataSeriesObject.name;
           dataSeries.description = dataSeriesObject.description;
 
-          resolve(Utils.clone(dataSeries));
+          resolve(new DataSeries(dataSeries));
         }).catch(function(err) {
           reject(new exceptions.DataSeriesError("Could not update data series ", err));
         });
@@ -727,7 +733,7 @@ var DataManager = {
             self.data.dataSeries.splice(index, 1);
             resolve(status);
           }).catch(function (err) {
-            reject(err);
+            reject(new exceptions.DataSeriesError("Could not remove DataSeries: ", err));
           });
           return;
         }
@@ -741,23 +747,12 @@ var DataManager = {
    * It saves a DataSet object in database. The object syntax is:
    * @example
    * {
-   *   active: true,
-   *   data_series_id: someID,
-   *   position: {...},
-   *   format: {...}
-   * }
-   *
-   *
-   * {
-   *   "class" : "DataSet",
    *   "id" : INT,
    *   "data_series_id" : INT,
    *   "active" : BOOL,
    *   "format" : {...},
    *   "position" : STRING::WKT
    * }
-   *
-   *
    *
    * @param {string} dataSeriesSemantic - A string value representing DataSet type. (dcp, occurrence, grid).
    * @param {Array<Object>} dataSetObject - An object containing DataSet values to save it.
@@ -772,39 +767,40 @@ var DataManager = {
       }).then(function(dataSet) {
 
         var onSuccess = function(dSet) {
-          var output = Object.assign(Utils.clone(dSet.get()), dataSet.get());
-          output.class = "DataSet";
+          var output;
+          output = DataSetFactory.build(Object.assign(Utils.clone(dSet.get()), dataSet.get()));
 
           output.semantics = dataSeriesSemantic;
 
           // save dataformat
           if (dataSetObject.format) {
             var formats = dataSetObject.format;
+            var formatList = [];
 
             if (formats instanceof Array) {
-              formats.forEach(function(element) {
-                element.data_set_id = dataSet.id;
-              });
+              formatList = formats;
             } else if (formats instanceof Object) {
               for(var key in formats) {
                 if (formats.hasOwnProperty(key)) {
-                  formats[key].data_set_id = dataSet.id;
+                  formatList.push({
+                    data_set_id: dataSet.id,
+                    key: key,
+                    value: formats[key]
+                  });
                 }
               }
             } else {
               // invalid
-              formats = [];
             }
 
-            models.db.DataSetFormat.bulkCreate(formats, {data_set_id: dataSet.id}).then(function () {
+            models.db.DataSetFormat.bulkCreate(formatList, {data_set_id: dataSet.id}).then(function () {
               models.db.DataSetFormat.findAll({data_set_id: dataSet.id}).then(function(dataSetFormats) {
-                output.dataFormats = {};
+                output.format = {};
                 dataSetFormats.forEach(function(dataSetFormat) {
-                  output.dataFormats[dataSetFormat.key] = dataSetFormat.value;
+                  output.format[dataSetFormat.key] = dataSetFormat.value;
                 });
 
                 self.data.dataSets.push(output);
-
                 resolve(output);
               });
             }).catch(function (err) {
@@ -814,7 +810,6 @@ var DataManager = {
             self.data.dataSets.push(output);
             resolve(output);
           }
-
         };
 
         var onError = function(err) {
@@ -843,6 +838,10 @@ var DataManager = {
               break;
             case DataSeriesType.GRID:
               //  todo: implement it
+              rollback(dataSet);
+              break;
+            case DataSeriesType.MONITORED:
+            //  todo: implement it
               rollback(dataSet);
               break;
             default:
@@ -891,6 +890,7 @@ var DataManager = {
           var output = Utils.clone(dataSet);
 
           if (output.position && format === Enums.Format.WKT)
+            // Getting wkt representation of Point from GeoJSON
             models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(output.position) + "')) as geom").then(function(wktGeom) {
               // it retrieves an array with data result (array) and query executed.
               // if data result is empty or greater than 1, its not allowed.

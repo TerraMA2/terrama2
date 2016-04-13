@@ -8,7 +8,7 @@ module.exports = function(app) {
       var dataSeriesObject = request.body;
 
       DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-        return response.json(dataSeriesResult);
+        return response.json(dataSeriesResult.toObject());
       }).catch(function(err) {
         return Utils.handleRequestError(response, err, 400);
       });
@@ -20,12 +20,16 @@ module.exports = function(app) {
 
       if (dataSeriesId) {
         DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
-          return response.json(dataSeries);
+          return response.json(dataSeries.toObject());
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });
       } else {
-        return response.json(DataManager.listDataSeries());
+        var output = [];
+        DataManager.listDataSeries().forEach(function(dataSeries) {
+          output.push(dataSeries.toObject());
+        });
+        return response.json(output);
       }
     },
 
