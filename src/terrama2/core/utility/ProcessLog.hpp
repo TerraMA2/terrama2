@@ -40,43 +40,38 @@ namespace terrama2
 {
   namespace core
   {
-    namespace ProcessLog
+    /*!
+      \enum Status
+
+      \brief Possible status of manipulate data.
+    */
+    enum Status
     {
-      /*!
-        \enum Status
+      UNKNOWN     = 0, /*!< Is not possible to know de data status */
+      ERROR       = 1, /*!< Error during process */
+      START       = 2, /*!< The process started */
+      DOWNLOADED  = 3, /*!< The data was downloaded */
+      DONE        = 4  /*!< Process finished */
+    };
 
-        \brief Possible status of manipulate data.
-      */
-      enum Status
-      {
-        UNKNOWN     = 0, /*!< Is not possible to know de data status */
-        ERROR       = 1, /*!< Error during process */
-        START       = 2, /*!< The process started */
-        DOWNLOADED  = 3, /*!< The data was downloaded */
-        DONE        = 4  /*!< Process finished */
-      };
+    class ProcessLog
+    {
+      public:
+        ProcessLog(uint64_t processID) : processID_(processID) {}
 
-      void insert(uint64_t id, Status status, std::string originURI, std::string actualURI)
-      {
+        virtual void addValue(std::string tag, std::string value) = 0;
 
-      }
+        virtual void update(Status status, te::dt::TimeInstantTZ dataTimestamp) = 0;
 
-      void update(uint64_t id, Status status, std::string originURI, std::string actualURI, te::dt::TimeInstantTZ dataTimestamp)
-      {
+        virtual void error(std::string description) = 0;
 
-      }
+        virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate() = 0;
 
-      void error(uint64_t id, Status status, std::string description)
-      {
+      protected:
+        uint64_t processID_;
+        uint64_t primaryKey_;
 
-      }
-
-      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate(uint64_t id)
-      {
-        // VINICIUS:
-        return terrama2::core::TimeUtils::now();
-      }
-    }
+    };
   }
 }
 #endif //__TERRAMA2_CORE_PROCESSLOG_HPP__
