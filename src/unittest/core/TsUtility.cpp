@@ -29,6 +29,7 @@
 
 //TerraMA2
 #include <terrama2/core/utility/Timer.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 
 #include "TsUtility.hpp"
 
@@ -135,4 +136,85 @@ void TsUtility::testTimer()
   {
     QFAIL("Should not be here!");
   }
+}
+
+void TsUtility::testTimeUtilsAddMonth()
+{
+  std::string dateTime = "2016-Apr-12 12:59:00.373302BRT+00";
+
+  boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dt(new te::dt::TimeInstantTZ(date));
+
+  terrama2::core::TimeUtils::addMonth(dt, 3);
+  terrama2::core::TimeUtils::addMonth(dt, -1);
+
+  std::string dateTime2 = "2016-Jun-12 12:59:00.373302BRT+00";
+
+  boost::posix_time::ptime boostDate2(boost::posix_time::time_from_string(dateTime2));
+
+  boost::local_time::time_zone_ptr zone2(new boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time date2(boostDate2.date(), boostDate2.time_of_day(), zone2, true);
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dt2(new te::dt::TimeInstantTZ(date2));
+
+  if(*dt.get() != *dt2.get())
+    QFAIL("Should not be here!");
+}
+
+void TsUtility::testTimeUtilsAddDay()
+{
+  std::string dateTime = "2016-Apr-12 12:59:00.373302BRT+00";
+
+  boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dt(new te::dt::TimeInstantTZ(date));
+
+  terrama2::core::TimeUtils::addDay(dt, 3);
+  terrama2::core::TimeUtils::addDay(dt, -1);
+
+  std::string dateTime2 = "2016-Apr-14 12:59:00.373302BRT+00";
+
+  boost::posix_time::ptime boostDate2(boost::posix_time::time_from_string(dateTime2));
+
+  boost::local_time::time_zone_ptr zone2(new boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time date2(boostDate2.date(), boostDate2.time_of_day(), zone2, true);
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dt2(new te::dt::TimeInstantTZ(date2));
+
+  if(*dt.get() != *dt2.get())
+    QFAIL("Should not be here!");
+}
+
+void TsUtility::testTimeUtilsAddYear()
+{
+  std::string dateTime = "2016-Apr-12 12:59:00.373302BRT+00";
+
+  boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dt(new te::dt::TimeInstantTZ(date));
+
+  terrama2::core::TimeUtils::addYear(dt, 3);
+  terrama2::core::TimeUtils::addYear(dt, -1);
+
+  std::string dateTime2 = "2018-Apr-12 12:59:00.373302BRT+00";
+
+  boost::posix_time::ptime boostDate2(boost::posix_time::time_from_string(dateTime2));
+
+  boost::local_time::time_zone_ptr zone2(new boost::local_time::posix_time_zone("+00"));
+  boost::local_time::local_date_time date2(boostDate2.date(), boostDate2.time_of_day(), zone2, true);
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dt2(new te::dt::TimeInstantTZ(date2));
+
+  if(*dt.get() != *dt2.get())
+    QFAIL("Should not be here!");
 }

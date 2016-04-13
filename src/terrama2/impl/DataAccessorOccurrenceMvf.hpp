@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__
 
-//TerraMA2
+// TerraMA2
 #include "DataAccessorFile.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorOccurrence.hpp"
@@ -61,7 +61,8 @@ namespace terrama2
       virtual std::string typePrefix() const override;
 
       virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
-      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+                              const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
     private:
       //! Recover projection information from dataset
@@ -69,18 +70,20 @@ namespace terrama2
       //! Recover timezone information from dataset
       std::string getTimeZone(DataSetPtr dataSet) const;
       //! Name of column with Date/Time information
-      std::string timestampColumnName() const;
+      std::string timestampPropertyName() const;
       //! Name of column with latitude information
-      std::string latitudeColumnName() const;
+      std::string latitudePropertyName() const;
       //! Name of column with longitude information
-      std::string longitudeColumnName() const;
+      std::string longitudePropertyName() const;
+      std::string geometryPropertyName() const;
       /*!
         \brief Convert string to TimeInstantTZ.
 
         \note Format recognized:  YYYY-mm-dd HH:MM:SS"
 
       */
-      te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
+      te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/,
+                                              const std::string& timezone) const;
 
       //! Convert string to Geometry
       te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;

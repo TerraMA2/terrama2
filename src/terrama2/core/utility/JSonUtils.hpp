@@ -26,14 +26,8 @@
 
   \author Jano Simas
 */
-
-#include "../data-model/DataProvider.hpp"
-#include "../data-model/DataSeries.hpp"
-#include "../data-model/DataSeriesSemantics.hpp"
-#include "../data-model/DataSet.hpp"
-#include "../data-model/DataSetDcp.hpp"
-#include "../data-model/DataSetGrid.hpp"
-#include "../data-model/DataSetOccurrence.hpp"
+#include "../Shared.hpp"
+#include "../data-model/Schedule.hpp"
 
 #include "SemanticsManager.hpp"
 
@@ -48,5 +42,7 @@ namespace terrama2 {
     DataSetPtr fromDataSetDcpJson(QJsonObject json);
     DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);
     DataSetPtr fromDataSetGridJson(QJsonObject json);
+
+    Schedule fromScheduleJson(QJsonObject json);
   } /* core */
 } /* terrama2 */

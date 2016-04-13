@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
   dataSet->active = true;
   dataSet->format.emplace("table_name", "fires");
-  dataSet->format.emplace("date_time_column", "data_pas");
-  dataSet->format.emplace("geometry_column", "geom");
+  dataSet->format.emplace("timestamp_property", "data_pas");
+  dataSet->format.emplace("geometry_property", "geom");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
       types+= "DataTime\t";
       dateColumn = i;
     }
-    if(name == "geom")
+    else if(name == "geom")
     {
       types+= "Geometry\t";
       geomColumn = i;
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
       }
       else
       {
-        std::cout << teDataSet->getInt16(i);
+        std::cout << teDataSet->getInt32(i);
       }
 
       std::cout << "\t";

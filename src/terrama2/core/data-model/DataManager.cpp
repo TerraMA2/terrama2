@@ -40,6 +40,7 @@
 
 // TerraMA2 Logger
 #include "../utility/Logger.hpp"
+#include "../utility/JSonUtils.hpp"
 
 // STL
 #include <algorithm>
@@ -47,8 +48,6 @@
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-
-
 
 std::unique_lock<std::recursive_mutex> terrama2::core::DataManager::getLock()
 {
@@ -68,7 +67,6 @@ void terrama2::core::DataManager::add(DataProviderPtr provider)
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
-
 
     if(provider->id == terrama2::core::InvalidId())
     {
@@ -201,7 +199,10 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = std::find_if(providers_.cbegin(), providers_.cend(), [name](std::pair<DataProviderId, DataProviderPtr> provider){ return provider.second->name == name; });
+  const auto& it = std::find_if(providers_.cbegin(), providers_.cend(), [name](std::pair<DataProviderId, DataProviderPtr> provider)
+                                {
+                                  return provider.second->name == name;
+                                });
   if(it == providers_.cend())
   {
     QString errMsg = QObject::tr("DataProvider not registered.");
@@ -231,7 +232,10 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = std::find_if(dataseries_.cbegin(), dataseries_.cend(), [name](std::pair<DataSeriesId, DataSeriesPtr> series){ return series.second->name == name; });
+  const auto& it = std::find_if(dataseries_.cbegin(), dataseries_.cend(), [name](std::pair<DataSeriesId, DataSeriesPtr> series)
+                                {
+                                  return series.second->name == name;
+                                });
   if(it == dataseries_.cend())
   {
     QString errMsg = QObject::tr("DataSeries not registered.");
@@ -266,4 +270,49 @@ terrama2::core::DataManager::DataManager()
 
 terrama2::core::DataManager::~DataManager()
 {
+}
+
+void terrama2::core::DataManager::addFromJSON(const QJsonValue& jsonValue)
+{
+  try
+  {
+    QJsonObject object = jsonValue.toObject();
+    QString coreClass = object["class"].toString();
+
+    if(coreClass == "DataProvider")
+    {
+      auto dataPtr = terrama2::core::fromDataProviderJson(object);
+      add(dataPtr);
+    }
+    else if(coreClass == "DataSeries")
+    {
+      terrama2::core::SemanticsManager* semanticsManager;//FIXME: create a semantic manager
+      auto dataPtr = terrama2::core::fromDataSeriesJson(object, semanticsManager);
+      add(dataPtr);
+    }
+    else
+    {
+      // even known classes can be here, DataSetItem, Filter, etc
+      // should not arrive here if not inside a DataSet or DataProvider
+
+      TERRAMA2_LOG_ERROR() << QObject::tr("Unknown class received: %1").arg(coreClass);
+      // TODO: throw here
+    }
+  }
+  catch(terrama2::Exception& /*e*/)
+  {
+    // loggend on throw...
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str();
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+  }
 }

@@ -1,8 +1,12 @@
-angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'terrama2.projection', 'terrama2.services'])
-  .config(["$locationProvider", function($locationProvider) {
-    $locationProvider.hashPrefix('!');
-  }])
-
+angular.module('terrama2.dataseries.registration', [
+    'terrama2',
+    'ui.router',
+    'terrama2.projection',
+    'terrama2.services',
+    'ui.bootstrap.datetimepicker',
+    'ui.dateTimeInput',
+    'schemaForm'
+  ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
       abstract: true,
@@ -14,14 +18,23 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
       }
     });
 
-    $urlRouterProvider.otherwise("/advanced");
+    $urlRouterProvider.otherwise(function ($injector, $location) {
+      var $state = $injector.get('$state');
+
+      // It prevents wrong state in user request.
+      if ($location.$$hash.indexOf("/wizard" == -1) || $location.$$hash.indexOf("/advanced") == -1)
+        if ($state.current.name) // go to current state
+          $state.go($state.current.name);
+        else // go to default state
+          $state.go('advanced');
+    });
 
     $stateProvider
-      .state('wizardMode', {
+      .state('wizard', {
         parent: 'main',
         url: "/wizard",
         templateUrl: '/javascripts/angular/wizard.html'
-      }).state('advancedMode', {
+      }).state('advanced', {
         parent: 'main',
         url: "/advanced",
         templateUrl: '/javascripts/angular/advanced.html'
@@ -31,29 +44,51 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
 
   .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory) {
+      // definition of schema form
+      $scope.schema = {};
+      $scope.form = [];
+      $scope.model = {};
 
+      // table fields
+      $scope.tableFields = [];
+
+      // injecting state handler in scope
       $scope.stateApp = $state;
+
+      // injecting helper functions in scope
+      $scope.capitalizeIt = function(text) {
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      };
+      $scope.isBoolean = function(value) {
+        return typeof value === 'boolean';
+      };
+
       $scope.semantics = "";
       $scope.isDynamic = params.state.toLowerCase() === "dynamic";
-      $scope.pcds = [];
-      $scope.parametersData = {};
+      $scope.dcps = [];
+      
+      $scope.updatingDcp = false;
 
+      // filter values
+      $scope.filter = {};
+      $scope.parametersData = configuration.parametersData || {};
 
       $scope.dataSeries = {
-        data_provider_id: configuration.dataSeries.dataProvider || "",
+        data_provider_id: configuration.dataSeries.data_provider_id || "",
         name: configuration.dataSeries.name || "",
         access: configuration.dataSeries.access
       };
 
       $scope.dataSeries.semantics = {};
 
-      DataSeriesSemanticsFactory.get().success(function(semanticsList) {
+      DataSeriesSemanticsFactory.list().success(function(semanticsList) {
         $scope.dataSeriesSemantics = semanticsList;
 
         if (configuration.dataSeries.semantics) {
           semanticsList.forEach(function(semantics) {
             if (semantics.name === configuration.dataSeries.semantics) {
               $scope.dataSeries.semantics = semantics;
+              $scope.onDataSemanticsChange();
               return;
             }
           })
@@ -85,46 +120,75 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_format_name.toLowerCase();
+        
+        DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.name, {metadata:true}).success(function(data) {
+          $scope.tableFields = [];
+          // building table fields. Check if form is for all ('*')
+          if (data.metadata.form.indexOf('*') != -1) {
+            // ignore form and make it from properties
+            var properties = data.metadata.schema.properties;
+            for(var key in properties) {
+              if (properties.hasOwnProperty(key)) {
+                $scope.tableFields.push(key);
+              }
+            }
+          } else {
+            // form is mapped
+            data.metadata.form.forEach(function(element) {
+              $scope.tableFields.push(element.key);
+            })
+          }
 
+          $scope.model = {};
+          $scope.form = data.metadata.form;
+          $scope.schema = {
+            type: 'object',
+            properties: data.metadata.schema.properties,
+            required: data.metadata.schema.required
+          };
+          $scope.$broadcast('schemaFormRedraw');
+        }).error(function(err) {
+          console.log("Error in semantics change: ", err);
+          $scope.model = {};
+          $scope.form = [];
+          $scope.schema = {};
+          $scope.$broadcast('schemaFormRedraw');
+        })
       };
 
       $scope.onDataProviderClick = function(index) {
-
         var url = $window.location.pathname + "&type=" + params.state;
-
         var semanticsName = $scope.dataSeries.semantics.name || "";
+        var output = Object.assign({}, $scope.dataSeries);
+        output.semantics = semanticsName;
+        output.parametersData = $scope.parametersData;
 
-        $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(Object.assign({semantics: semanticsName}, $scope.dataSeries));
+        $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
       };
 
-      $scope.removePcd = function(pcdItem) {
-        $scope.pcds.forEach(function(pcd, pcdIndex, array) {
+      $scope.removePcd = function(dcpItem) {
+        $scope.dcps.forEach(function(dcp, pcdIndex, array) {
           // todo: which fields should compare to remove?
-          if (pcd.mask === pcdItem.mask) {
+          if (dcp.mask === dcpItem.mask) {
             array.splice(pcdIndex, 1);
             return;
           }
         });
       };
 
-      $scope.addHelperMask = function(maskFormat) {
-        if ($scope.parametersData && $scope.parametersData.mask)
-          $scope.parametersData.mask += maskFormat;
-        else
-          $scope.parametersData.mask = maskFormat;
+      var isValidParametersForm = function(form) {
+        $scope.$broadcast('schemaFormValidate');
+
+        return form.$valid;
       };
+      
+      $scope.addDcp = function() {
+        if (isValidParametersForm(this.parametersForm)) {
+          $scope.dcps.push(Object.assign({}, $scope.model));
+          $scope.model = {};
 
-      $scope.addPcd = function(pcd) {
-        if (this.parametersDataForm.$valid) {
-
-          $scope.pcds.push(pcd);
-          var path = $scope.parametersData.path;
-
-          angular.element("terrama2-add-pcd").focus();
-
-          this.parametersDataForm.$setUntouched();
-
-          $scope.parametersData = {path: path};
+          // reset form to do not display feedback class
+          this.parametersForm.$setPristine();
         }
       };
 
@@ -132,31 +196,45 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
         console.log($scope.dataSeries);
       };
 
+      var errorHelper = function(form) {
+        angular.forEach(form.$error, function (field) {
+          angular.forEach(field, function(errorField){
+            errorField.$setDirty();
+          })
+        });
+      };
+
       $scope.save = function() {
-        console.log("GeneralData Form: ", $scope.generalDataForm);
-        console.log("ParametersData Form: ", $scope.parametersDataForm);
-        console.log("Filter Form: ", $scope.filterForm);
+        if(this.generalDataForm.$invalid) {
+          errorHelper(this.generalDataForm);
+          return;
+        }
+        // checking parameters form (semantics) is invalid
+        if (!isValidParametersForm()) {
+          errorHelper(this.parametersForm);
+          return;
+        }
 
         var dataToSend = Object.assign({}, $scope.dataSeries);
-        dataToSend.data_series_semantics_name = $scope.dataSeries.semantics.name;
+        dataToSend.data_series_semantic_name = $scope.dataSeries.semantics.name;
 
-        var dataSetType = dataToSend.semantics.data_series_type_name;
+        var semantics = dataToSend.semantics;
         delete dataToSend.semantics;
 
         dataToSend.dataSets = [];
 
-        switch(dataSetType.toLowerCase()) {
+        switch(semantics.data_series_type_name.toLowerCase()) {
           case "dcp":
           case "pcd":
-            $scope.pcds.forEach(function(pcd) {
+            $scope.dcps.forEach(function(pcd) {
               var dataSetStructure = {
-                type: dataSetType,
+                semantics: semantics,
                 active: pcd.active,
                 child: {
                   position: {
                     type: 'Point',
                     coordinates: [pcd.latitude, pcd.longitude],
-                    crs:{
+                    crs: {
                       type: 'name',
                       properties : {
                         name: pcd.projection
@@ -172,7 +250,15 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
             break;
 
           case "occurrence":
-            dataToSend.dataSets.push({type: dataSetType, active: this.parametersDataForm.active});
+            var dataSet = {
+              semantics: semantics,
+              active: $scope.parametersData.active,
+              child: {
+
+              }
+            };
+
+            dataToSend.dataSets.push(dataSet);
             break;
 
           case "grid":
@@ -184,8 +270,8 @@ angular.module('terrama2.dataseries.registration', ['terrama2', 'ui.router', 'te
 
         console.log(dataToSend);
         DataSeriesFactory.post(dataToSend).success(function(data) {
-          //   redirect to list data series || analysis: TODO
           console.log(data);
+          $window.location.href = "/configuration/dynamic/dataseries";
         }).error(function(err) {
           console.log(err);
           alert("Error found")

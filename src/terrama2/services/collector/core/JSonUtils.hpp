@@ -20,25 +20,17 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/Collector.hpp
+  \file src/terrama2/services/collector/core/JSonUtils.hpp
 
-  \brief Model class for the collector configuration.
+  \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
-#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
-
-#include "../../../core/data-model/DataSeries.hpp"
-#include "../../../core/data-model/Schedule.hpp"
-#include "../../../core/Typedef.hpp"
-#include "Typedef.hpp"
+#include "Collector.hpp"
 #include "Shared.hpp"
-
-// STL
-#include <string>
-#include <vector>
+// Qt
+#include <QJsonObject>
 
 namespace terrama2
 {
@@ -48,26 +40,9 @@ namespace terrama2
     {
       namespace core
       {
-        struct Collector
-        {
-          CollectorId id = 0;
-          ProjectId projectId = 0;
-          ServiceInstanceId serviceInstanceId = 0;
-
-          bool active = true;
-
-          DataSeriesId inputDataSeries = 0;
-          DataSeriesId outputDataSeries = 0;
-
-          std::map<DataSetId, DataSetId> inputOutputMap;
-
-          terrama2::core::Schedule schedule;
-          IntersectionPtr intersection;
-        };
-
-      } // end namespace core
-    }   // end namespace collector
-  }     // end namespace services
-} // end namespace terrama2
-
-#endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
+        CollectorPtr fromCollectorJson(QJsonObject json);
+        IntersectionPtr fromIntersectionJson(QJsonObject json);
+      } /* core */
+    }   /* collector */
+  }     /* services */
+} /* terrama2 */

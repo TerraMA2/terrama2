@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
   dataSet->format.emplace("table_name", "pcd");
-  dataSet->format.emplace("timestamp_column", "date_time");
+  dataSet->format.emplace("timestamp_property", "date_time");
 
   dataSeries->datasetList.emplace_back(dataSet);
 

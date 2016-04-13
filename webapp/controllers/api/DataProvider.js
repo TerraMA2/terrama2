@@ -1,5 +1,4 @@
 var DataManager = require("../../core/DataManager");
-var UriBuilder = require("../../core/UriBuilder");
 var RequestFactory = require("../../core/RequestFactory");
 
 module.exports = function(app) {

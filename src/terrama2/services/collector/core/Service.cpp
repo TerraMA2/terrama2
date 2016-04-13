@@ -57,21 +57,20 @@ bool terrama2::services::collector::core::Service::mainLoopWaitCondition() noexc
 
 bool terrama2::services::collector::core::Service::checkNextData()
 {
-    //check if there is data to collect
+  // check if there is data to collect
   if(collectorQueue_.empty())
     return false;
 
-
-  //get first data
+  // get first data
   const auto& collectorId = collectorQueue_.front();
 
-  //prepare task for collecting
+  // prepare task for collecting
   prepareTask(collectorId);
 
-  //remove from queue
+  // remove from queue
   collectorQueue_.pop_front();
 
-  //is there more data to process?
+  // is there more data to process?
   return !collectorQueue_.empty();
 }
 
@@ -89,7 +88,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 
 void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId)
 {
-  std::lock_guard<std::mutex> lock (mutex_);
+  std::lock_guard<std::mutex> lock(mutex_);
 
   collectorQueue_.push_back(collectorId);
   mainLoopCondition_.notify_one();
@@ -112,11 +111,11 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     auto collectorPtr = dataManager->findCollector(collectorId);
 
-  //input data
+    // input data
     auto inputDataSeries = dataManager->findDataSeries(collectorPtr->inputDataSeries);
     auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
-  //output data
+    // output data
     auto outputDataSeries = dataManager->findDataSeries(collectorPtr->outputDataSeries);
     auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
 
@@ -144,26 +143,29 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataProvider);
     for(const auto& item : dataMap)
     {
-      //store each item
+      // store each item
       DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
-      auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet){ return dataSet->id == outputDataSetId; });
+      auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet)
+                                        {
+                                          return dataSet->id == outputDataSetId;
+                                        });
       dataStorager->store(item.second, *outputDataSet);
     }
   }
-  catch (const terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
-    //should have been loggen on emition
+    // should have been loggen on emition
   }
-  catch (const boost::exception& e)
+  catch(const boost::exception& e)
   {
 
-    TERRAMA2_LOG_ERROR() << boost::get_error_info< terrama2::ErrorDescription >(e);
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
   }
-  catch (const std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
-  catch (...)
+  catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unkonwn error.");
   }
@@ -172,15 +174,18 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 void terrama2::services::collector::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
-  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this, &terrama2::services::collector::core::Service::addCollector);
-  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this, &terrama2::services::collector::core::Service::removeCollector);
-  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorUpdated, this, &terrama2::services::collector::core::Service::updateCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this,
+          &terrama2::services::collector::core::Service::addCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this,
+          &terrama2::services::collector::core::Service::removeCollector);
+  connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorUpdated, this,
+          &terrama2::services::collector::core::Service::updateCollector);
 }
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
   {
-    std::lock_guard<std::mutex> lock (mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
 
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id);
     connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
@@ -194,22 +199,22 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 {
   try
   {
-    std::lock_guard<std::mutex> lock (mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
 
     auto timer = timers_.at(collectorId);
     timer->disconnect();
     timers_.erase(collectorId);
 
-    //remove from queue
+    // remove from queue
     collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());
   }
-  catch (...)
+  catch(...)
   {
-    //TODO: catch errors
+    // TODO: catch errors
   }
 }
 
 void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector)
 {
-  //Only the Id of the collector is stored, no need to update
+  // Only the Id of the collector is stored, no need to update
 }

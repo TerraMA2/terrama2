@@ -56,7 +56,7 @@ namespace terrama2
       that should be collected for further analysis.
      */
 
-    typedef std::string DataProviderType;//TODO: fix types
+    typedef std::string DataProviderType;
     struct DataProvider
     {
       enum DataProviderIntent

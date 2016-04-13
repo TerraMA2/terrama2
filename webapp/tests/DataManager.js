@@ -1,4 +1,7 @@
 var assert = require('assert');
+var Enums = require('../core/Enums');
+
+var DataSeriesType = Enums.DataSeriesType;
 
 function createProject() {
   return {
@@ -25,8 +28,8 @@ function createDataProvider() {
 function createDataSeriesSemantic() {
   return {
     name: "Semantic 1",
-    data_format_name: "Pcd",
-    data_series_type_name: "DS Type 1"
+    data_format_name: DataSeriesType.DCP,
+    data_series_type_name: DataSeriesType.DCP
   };
 }
 
@@ -156,12 +159,13 @@ describe('DataManager', function() {
   });
 
   it('should insert DataSeries', function(done) {
-    DataManager.addDataSeriesSemantics(createDataSeriesSemantic()).then(function(semantic) {
+    var semantics = createDataSeriesSemantic();
+    DataManager.addDataSeriesSemantics(semantics).then(function(semantic) {
       var dataSeries = createDataSeries();
 
       dataSeries.dataSets = [
         {
-          type: "dcp",
+          semantics: semantics,
           id: 1,
           data_series_id: dataSeries.id,
           active: true,
@@ -187,7 +191,11 @@ describe('DataManager', function() {
           ]
         },
         {
-          type: "occurrence",
+          semantics: {
+            name: "FIRE_POINTS",
+            data_format_name: "Occurrence",
+            data_series_type_name: DataSeriesType.OCCURRENCE
+          },
           id: 2,
           data_series_id: dataSeries.id,
           active: true,
@@ -212,7 +220,7 @@ describe('DataManager', function() {
   });
 
   it('should retrieve DataSet', function(done) {
-    DataManager.getDataSet({id: 1, type: "Pcd"}).then(function(dset) {
+    DataManager.getDataSet({id: 1, type: DataSeriesType.DCP}).then(function(dset) {
       assert(dset.child.timeColumn === "timeColumn");
       return done();
     }).catch(function(err) {
@@ -221,7 +229,7 @@ describe('DataManager', function() {
   });
 
   it('should update DataSet', function(done) {
-    var params = {id: 1, type: "dcp"};
+    var params = {id: 1, type: DataSeriesType.DCP};
     DataManager.getDataSet(params).then(function(dset) {
       DataManager.updateDataSet(params, {active:false, timeColumn: "TimeColumn3333"}).then(function(result) {
         assert(result.child.timeColumn === "TimeColumn3333");
@@ -250,6 +258,8 @@ describe('DataManager', function() {
         return done(err);
       });
 
+    }).catch(function(err) {
+      return done(err);
     });
   });
 
