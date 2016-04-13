@@ -9,12 +9,16 @@ var express = require('express'),
     swig = require('swig'),
     setupPassport = require('./setupPassport'),
     session = require('express-session'),
+    flash = require('connect-flash'),
     // i18n = require('i18n-2'),
     i18n = require( "i18n" );
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
 
-app.use(session({ secret: '4564f6s4fdsfdfd', resave: false, saveUninitialized: false }));
+app.use(session({ secret: KEY, resave: false, saveUninitialized: false }));
+
+
+app.use(flash());
 
 // Setting internationalization
 i18n.configure( {
