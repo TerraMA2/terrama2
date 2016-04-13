@@ -182,7 +182,7 @@ angular.module('terrama2.dataseries.registration', [
         return form.$valid;
       };
       
-      $scope.addDcp = function() {
+      $scope.addDcp = function(aaaa) {
         if (isValidParametersForm(this.parametersForm)) {
           $scope.dcps.push(Object.assign({}, $scope.model));
           $scope.model = {};
@@ -210,7 +210,7 @@ angular.module('terrama2.dataseries.registration', [
           return;
         }
         // checking parameters form (semantics) is invalid
-        if (!isValidParametersForm()) {
+        if ($scope.dcps.length === 0 && isValidParametersForm(this.parametersForm)) {
           errorHelper(this.parametersForm);
           return;
         }
@@ -226,19 +226,24 @@ angular.module('terrama2.dataseries.registration', [
         switch(semantics.data_series_type_name.toLowerCase()) {
           case "dcp":
           case "pcd":
-            $scope.dcps.forEach(function(pcd) {
+            $scope.dcps.forEach(function(dcp) {
+              var format = {};
+              for(var key in dcp) {
+                if (dcp.hasOwnProperty(key))
+                  if (key !== "latitude" && key !== "longitude" && key !== "active")
+                    format[key] = dcp[key];
+              }
+              
               var dataSetStructure = {
-                semantics: semantics,
-                active: pcd.active,
-                child: {
-                  position: {
-                    type: 'Point',
-                    coordinates: [pcd.latitude, pcd.longitude],
-                    crs: {
-                      type: 'name',
-                      properties : {
-                        name: pcd.projection
-                      }
+                active: dcp.active,
+                format: format,
+                position: {
+                  type: 'Point',
+                  coordinates: [dcp.latitude, dcp.longitude],
+                  crs: {
+                    type: 'name',
+                    properties : {
+                      name: dcp.projection
                     }
                   }
                 }

@@ -39,7 +39,14 @@
       </form>
     </div>
     <div class="tab-pane" id="tab2">
-      <div ng-include="'/javascripts/angular/parametersData.html'"></div>
+      <!-- schema form -->
+      <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+
+      <div class="col-md-2 terrama2-top-field">
+        <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+      </div>
+
+      <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
     </div>
     <div class="tab-pane" id="tab3">
       <div ng-include="'/javascripts/angular/filter.html'"></div>
