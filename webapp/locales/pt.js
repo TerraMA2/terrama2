@@ -8,5 +8,17 @@
 	"Alerts": "Alerts",
 	"Users": "Users",
 	"Administration": "Administration",
-	"Version": "Version"
+	"Version": "Version",
+	"Login": "Login",
+	"Sign in to start your session": "Sign in to start your session",
+	"Remember Me": "Remember Me",
+	"Sign In": "Sign In",
+	"Status": "Status",
+	"Data Provider": "Data Provider",
+	"Map Display": "Map Display",
+	"Projects": "Projects",
+	"Type to search": "Type to search",
+	"Name": "Name",
+	"Description": "Description",
+	"It will activate ": "It will activate "
 }
