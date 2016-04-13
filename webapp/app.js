@@ -7,10 +7,14 @@ var express = require('express'),
     app = express(),
     load = require('express-load'),
     swig = require('swig'),
+    setupPassport = require('./setupPassport'),
+    session = require('express-session'),
     // i18n = require('i18n-2'),
     i18n = require( "i18n" );
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
+
+app.use(session({ secret: '4564f6s4fdsfdfd', resave: false, saveUninitialized: false }));
 
 // Setting internationalization
 i18n.configure( {
@@ -43,13 +47,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
-app.use(function(req, res, next) {
+/*app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
-});
+});*/
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+setupPassport(app);
 
 load('controllers')
   .then('routes')
