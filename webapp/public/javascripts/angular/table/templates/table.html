@@ -23,7 +23,7 @@
     <thead>
     <tr>
       <th ng-show="isFunction()"></th>
-      <th ng-repeat="field in fields">{{ capitalizeIt(field) }}</th>
+      <th ng-repeat="field in displayFields">{{ field }}</th>
     </tr>
     </thead>
 
@@ -35,7 +35,7 @@
           <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
         </span>
       </td>
-      <td ng-repeat="field in fields ">
+      <td ng-repeat="field in identityFields ">
 
         <a ng-href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
         <!--{{ element[field] }}-->
