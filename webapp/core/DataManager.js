@@ -519,6 +519,24 @@ var DataManager = {
   },
 
   /**
+   * It saves User in database and load it in memory
+   * @param {Object} userObject - An object containing needed values to create User object.
+   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
+   */
+  addUser: function(userObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.User.create(userObject).then(function(user){
+        self.data.users.push(user.get());
+        resolve(Utils.clone(user.get()));
+
+      }).catch(function(err){
+        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
+      });
+    });
+  },
+
+  /**
    * It retrieves a DataProvider object from restriction. It should be an object containing either id identifier or
    * name identifier.
    *
