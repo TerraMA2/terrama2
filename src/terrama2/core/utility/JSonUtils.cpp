@@ -208,18 +208,20 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
       && json.contains("frequency")
       && json.contains("frequency_unit")
       && json.contains("schedule")
+      && json.contains("schedule_unit")
       && json.contains("schedule_retry")
       && json.contains("schedule_retry_unit")
       && json.contains("schedule_timeout")
       && json.contains("schedule_timeout_unit")))
      throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
+
   terrama2::core::Schedule schedule;
   schedule.id = json["id"].toInt();
   schedule.frequency = json["frequency"].toInt();
   schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
-  //TODO: schedule time duration
-  // schedule.schedule = json["schedule"].toInt();
+  schedule.schedule = json["schedule"].toInt();
+  schedule.scheduleUnit = json["schedule_unit"].toString().toStdString();
   schedule.scheduleRetry = json["schedule_retry"].toInt();
   schedule.scheduleRetryUnit = json["schedule_retry_unit"].toString().toStdString();
   schedule.scheduleTimeout = json["schedule_timeout"].toInt();
