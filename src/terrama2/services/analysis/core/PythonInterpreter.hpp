@@ -45,15 +45,40 @@ namespace terrama2
       {
         enum StatisticOperation
         {
-          MEAN,
-          SUM,
-          MAX,
-          MIN,
-          STANDARD_DEVIATION,
-          MEDIAN
+          MIN = 1,
+          MAX = 2,
+          SUM = 3,
+          MEAN = 4,
+          MEDIAN = 5,
+          STANDARD_DEVIATION = 6,
+          COUNT = 7
         };
 
-        int countPoints(std::string dataSeriesName, double radius, int bufferType, std::string dateFilter, std::string restriction, boost::python::list& ids);
+        enum Buffer
+        {
+          EXTERN = 1,
+          INTERN = 2,
+          INTERN_PLUS_EXTERN = 3,
+          OBJECT_PLUS_EXTERN = 4,
+          OBJECT_WITHOUT_INTERN = 5
+        };
+
+        void addValue(std::string attribute, double value);
+
+        int dcpCount(std::string dataSeriesName, double radius, Buffer bufferType);
+        int dcpMin(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        int dcpMax(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        int dcpMean(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        int dcpMedian(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        int dcpSum(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        int dcpStandardDeviation(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+
+        int dcpOperator(StatisticOperation statisticOperation, std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+
+        int occurrenceCount(std::string dataSeriesName, double radius, int bufferType, std::string dateFilter, std::string restriction);
+
+        void exportDCP();
+        void exportOccurrence();
 
         void initInterpreter();
         void finalizeInterpreter();

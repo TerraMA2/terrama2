@@ -34,6 +34,8 @@
 #include <boost/python.hpp>
 
 #include <QObject>
+#include <QTextStream>
+#include <QFile>
 
 #include "BufferMemory.hpp"
 #include "Context.hpp"
@@ -55,31 +57,281 @@
 
 using namespace boost::python;
 
-int terrama2::services::analysis::core::countPoints(std::string dataSeriesName, double radius, int bufferType, std::string dateFilter, std::string restriction, boost::python::list& ids)
+int terrama2::services::analysis::core::occurrenceCount(std::string dataSeriesName, double radius, int bufferType, std::string dateFilter, std::string restriction)
 {
   object module(handle<>(borrowed(PyImport_AddModule("__main__"))));
   object dictionary = module.attr("__dict__");
+
   object analysisObj = dictionary["analysis"];
   int analysisId = extract<int>(analysisObj);
 
   object indexObj = dictionary["index"];
-  int geomIndex = extract<int>(analysisObj);
+  int index = extract<int>(indexObj);
 
-  std::cerr << dataSeriesName << std::endl;
+  uint64_t count = 0;
+  bool found = false;
 
-  for (int i = 0; i < len(ids); ++i)
+  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+
+  std::shared_ptr<ContextDataset> moDsContext;
+
+  // Reads the object monitored
+  for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    std::cout << boost::python::extract<const char*>(ids[i]) << std::endl;
+    if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      terrama2::core::DataSeriesPtr& dataSeries = analysisDataSeries.dataSeries;
+      assert(dataSeries->datasetList.size() == 1);
+      auto datasetMO = dataSeries->datasetList[0];
+
+      if(datasetMO->id == 0)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid dataset for monitored object."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return 0;
+      }
+
+      if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return 0;
+      }
+
+      moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+
+      if(!moDsContext)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return 0;
+      }
+    }
   }
 
-  std::cout << "Geom Index: " << geomIndex << std::endl;
-  std::cout << "Analysis: " << analysisId << std::endl;
-  return 1;
+
+  auto geom = moDsContext->series.syncDataSet->getGeometry(index, moDsContext->geometryPos);
+  if(!geom.get())
+  {
+    QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
+    errMsg = errMsg.arg(analysisId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return 0;
+  }
+
+
+
+  std::shared_ptr<ContextDataset> contextDataset;
+
+  for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
+  {
+    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    {
+      found = true;
+
+      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilter, true);
+
+      auto datasets = analysisDataSeries.dataSeries->datasetList;
+
+      for(auto dataset : datasets)
+      {
+
+        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
+        if(!contextDataset)
+        {
+          continue;
+        }
+
+
+        // Save thread state before entering multi-thread zone
+
+        Py_BEGIN_ALLOW_THREADS
+
+        std::vector<uint64_t> indexes;
+        terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
+
+        if(contextDataset->series.syncDataSet->size() > 0)
+        {
+          auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
+          geom->transform(sampleGeom->getSRID());
+
+          contextDataset->rtree.search(*geom->getMBR(), indexes);
+
+          std::vector<std::shared_ptr<te::gm::Geometry> > geometries;
+
+          for(uint64_t i : indexes)
+          {
+            auto occurenceGeom = syncDs->getGeometry(i, contextDataset->geometryPos);
+            if(occurenceGeom->intersects(geom.get()))
+            {
+              geometries.push_back(occurenceGeom);
+            }
+          }
+
+          if(!geometries.empty())
+          {
+            std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
+            if(radius != 0.)
+            {
+              auto bufferDs = createBuffer(geometries, box, radius);
+              count = bufferDs->size();
+            }
+            else
+            {
+              count = geometries.size();
+            }
+          }
+        }
+
+        // All operations are done, acquires the GIL and set the return value
+        Py_END_ALLOW_THREADS
+      }
+    }
+  }
+
+  return count;
 }
+
+void terrama2::services::analysis::core::addValue(std::string attribute, double value)
+{
+  object module(handle<>(borrowed(PyImport_AddModule("__main__"))));
+  object dictionary = module.attr("__dict__");
+
+  object analysisObj = dictionary["analysis"];
+  int analysisId = extract<int>(analysisObj);
+
+  object indexObj = dictionary["index"];
+  int index = extract<int>(indexObj);
+  std::cerr << index << ": " << value << std::endl;
+
+  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+  if(analysis.type == MONITORED_OBJECT_TYPE)
+  {
+    std::shared_ptr<ContextDataset> moDsContext;
+    terrama2::core::DataSetPtr datasetMO;
+
+    // Reads the object monitored
+    auto analysisDataSeriesList = analysis.analysisDataSeriesList;
+    for(auto analysisDataSeries : analysisDataSeriesList)
+    {
+      if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+      {
+        assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
+        datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+
+        if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+        {
+          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+          errMsg = errMsg.arg(analysisId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+        }
+
+        moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+
+        if(moDsContext->identifier.empty())
+          assert(false);
+        std::string geomId = moDsContext->series.syncDataSet->getString(index, moDsContext->identifier);
+        Context::getInstance().setAnalysisResult(analysisId, geomId, value);
+      }
+    }
+  }
+}
+
+
+int terrama2::services::analysis::core::dcpCount(std::string dataSeriesName, double radius, Buffer bufferType)
+{
+  return dcpOperator(COUNT, dataSeriesName, radius, bufferType);
+}
+
+int terrama2::services::analysis::core::dcpMin(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids)
+{
+  return dcpOperator(MIN, dataSeriesName, radius, bufferType, ids);
+}
+
+int terrama2::services::analysis::core::dcpMax(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids)
+{
+  return dcpOperator(MAX, dataSeriesName, radius, bufferType, ids);
+}
+
+int terrama2::services::analysis::core::dcpMean(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids)
+{
+  return dcpOperator(MEAN, dataSeriesName, radius, bufferType, ids);
+}
+
+int terrama2::services::analysis::core::dcpMedian(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids)
+{
+  return dcpOperator(MEDIAN, dataSeriesName, radius, bufferType, ids);
+}
+
+int terrama2::services::analysis::core::dcpSum(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids)
+{
+  return dcpOperator(SUM, dataSeriesName, radius, bufferType, ids);
+}
+
+int terrama2::services::analysis::core::dcpStandardDeviation(std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids)
+{
+  return dcpOperator(STANDARD_DEVIATION, dataSeriesName, radius, bufferType, ids);
+}
+
+int terrama2::services::analysis::core::dcpOperator(StatisticOperation statisticOperation, std::string dataSeriesName, double radius, Buffer bufferType, boost::python::list ids)
+{
+  return 0;
+}
+
+void terrama2::services::analysis::core::exportDCP()
+{
+  // map the dcp namespace to a sub-module
+  // make "from terrama2.dcp import <function>" work
+  object dcpModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp"))));
+  // make "from terrama2 import dcp" work
+  scope().attr("dcp") = dcpModule;
+  // set the current scope to the new sub-module
+  scope dcpScope = dcpModule;
+  // export functions inside dcp namespace
+  def("dcp::min", terrama2::services::analysis::core::dcpMin);
+  def("dcp::max", terrama2::services::analysis::core::dcpMax);
+  def("dcp::mean", terrama2::services::analysis::core::dcpMean);
+  def("dcp::median", terrama2::services::analysis::core::dcpMedian);
+  def("dcp::sum", terrama2::services::analysis::core::dcpSum);
+  def("dcp::standardDeviation", terrama2::services::analysis::core::dcpStandardDeviation);
+}
+
+void terrama2::services::analysis::core::exportOccurrence()
+{
+  // map the occurrence namespace to a sub-module
+  // make "from terrama2.occurrence import <function>" work
+  object occurrenceModule(handle<>(borrowed(PyImport_AddModule("terrama2.occurrence"))));
+  // make "from terrama2 import occurrence" work
+  scope().attr("occurrence") = occurrenceModule;
+  // set the current scope to the new sub-module
+  scope occurrenceScope = occurrenceModule;
+  // export functions inside occurrence namespace
+  def("count", terrama2::services::analysis::core::occurrenceCount);
+}
+
 
 BOOST_PYTHON_MODULE(terrama2)
 {
-  def("count", terrama2::services::analysis::core::countPoints);
+  // specify that this module is actually a package
+  object package = scope();
+  package.attr("__path__") = "terrama2";
+
+
+  def("add_value", terrama2::services::analysis::core::addValue);
+
+  enum_<terrama2::services::analysis::core::Buffer>("Buffer")
+          .value("EXTERN", terrama2::services::analysis::core::EXTERN)
+          .value("INTERN", terrama2::services::analysis::core::INTERN)
+          .value("INTERN_PLUS_EXTERN", terrama2::services::analysis::core::INTERN_PLUS_EXTERN)
+          .value("OBJECT_PLUS_EXTERN", terrama2::services::analysis::core::OBJECT_PLUS_EXTERN)
+          .value("OBJECT_WITHOUT_INTERN", terrama2::services::analysis::core::OBJECT_WITHOUT_INTERN);
+
+  terrama2::services::analysis::core::exportDCP();
+  terrama2::services::analysis::core::exportOccurrence();
+
 }
 
 #if PY_MAJOR_VERSION >= 3
@@ -97,6 +349,8 @@ void terrama2::services::analysis::core::initInterpreter()
   Py_Initialize();
 
   PyEval_InitThreads();
+
+  PyImport_AppendInittab((char*)"terrama2", INIT_MODULE);
 
   // release our hold on the global interpreter
   PyEval_ReleaseLock();
@@ -125,11 +379,11 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
 
     PyThreadState_Clear(state);
 
-    PyImport_AppendInittab((char*)"terrama2", INIT_MODULE);
-    Py_Initialize();
     object main_module = import("__main__");
     dict main_namespace = extract<dict>(main_module.attr("__dict__"));
     object mymodule = import("terrama2");
+    main_namespace["analysis"] = analysis.id;
+    main_namespace["index"] = index;
 
     std::string initFile = terrama2::core::FindInTerraMA2Path("share/terrama2/python/init.py");
     if(initFile.empty())
@@ -138,7 +392,20 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
       TERRAMA2_LOG_WARNING() << errMsg;
       throw PythonInterpreterException() << ErrorDescription(errMsg);
     }
-    exec_file(initFile.c_str(), main_namespace, main_namespace);
+
+    QFile file(initFile.c_str());
+
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+      QString errMsg = QObject::tr("Could not read python init file: %1").arg(initFile.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+      throw PythonInterpreterException() << ErrorDescription(errMsg);
+    }
+
+    QTextStream in(&file);
+
+    exec(in.readAll().toStdString().c_str(), main_namespace, main_namespace);
+    exec(analysis.script.c_str(), main_namespace, main_namespace);
 
     // release our hold on the global interpreter
     PyEval_ReleaseLock();
@@ -227,7 +494,7 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
     return NULL;
   }
 
-  std::string dateFilterStr(dateFilter);
+  std::string dateFilter(dateFilter);
   uint64_t count = 0;
   bool found = false;
 
@@ -293,14 +560,14 @@ PyObject* terrama2::services::analysis::core::countPoints(PyObject* self, PyObje
     {
       found = true;
 
-      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilterStr, true);
+      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilter, true);
 
       auto datasets = analysisDataSeries.dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
 
-        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
+        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
         if(!contextDataset)
         {
           continue;
@@ -381,7 +648,7 @@ PyObject* terrama2::services::analysis::core::operatorHistoryDCP(PyObject* args,
     return NULL;
   }
 
-  std::string dateFilterStr(dateFilter);
+  std::string dateFilter(dateFilter);
   double sum = 0;
   double max = std::numeric_limits<double>::min();
   double min = std::numeric_limits<double>::max();
@@ -451,11 +718,11 @@ PyObject* terrama2::services::analysis::core::operatorHistoryDCP(PyObject* args,
         return NULL;
       }
 
-      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilterStr, false);
+      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilter, false);
 
       for(auto dataset : analysisDataSeries.dataSeries->datasetList)
       {
-        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilterStr);
+        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
 
         terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
         if(!dcpDataset)

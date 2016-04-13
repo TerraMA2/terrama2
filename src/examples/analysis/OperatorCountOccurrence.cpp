@@ -42,7 +42,9 @@ int main(int argc, char* argv[])
   analysis.name = "Analysis";
   analysis.active = true;
 
-  std::string script = "x = terrama2.count(\"Occurrence\", 100, 1, \"1h\", \"\", [\"id1\", \"id2\"])";
+  std::string script = "from terrama2 import *\n"
+                       "x = occurrence.count(\"Occurrence\", 0, Buffer.OBJECT_PLUS_EXTERN, \"12h\", \"\")\n"
+                       "add_value(\"Count\", x)";
 
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
