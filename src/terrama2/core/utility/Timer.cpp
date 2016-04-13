@@ -33,7 +33,6 @@
 
 // TerraMA2
 #include "Timer.hpp"
-#include "ProcessLog.hpp"
 #include "../Exception.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/TimeUtils.hpp"
@@ -48,14 +47,16 @@ struct terrama2::core::Timer::Impl
     QTimer               timer_;//<! Timer to next collection.
     te::dt::TimeDuration schedule_;//<! Schedule to next collection.
     uint64_t             processId_;
+    std::shared_ptr< te::dt::TimeInstantTZ > lastEmit_;
 };
 
-terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId)
+terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLog > log)
 {
 
   impl_ = new Impl();
   impl_->dataSchedule_ = dataSchedule;
   impl_->processId_ = processId;
+  impl_->lastEmit_ = log->getLastProcessDate();
 
   prepareTimer(dataSchedule);
 }
@@ -65,9 +66,12 @@ terrama2::core::Timer::~Timer()
   delete impl_;
 }
 
-void terrama2::core::Timer::timeoutSlot() const
+void terrama2::core::Timer::timeoutSlot()
 {
   emit timerSignal(impl_->processId_);
+
+  impl_->lastEmit_ = terrama2::core::TimeUtils::now();
+  prepareTimer(impl_->dataSchedule_);
 }
 
 void terrama2::core::Timer::scheduleSlot() const
@@ -101,13 +105,12 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   double secondsFrequency = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
 
-  std::shared_ptr < te::dt::TimeInstantTZ > lastProcess = terrama2::core::ProcessLog::getLastProcessDate(processId());
   std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
 
   double secondsSinceLastProcess = 0;
 
-  if(lastProcess)
-    secondsSinceLastProcess = *nowTZ.get() - *lastProcess.get();
+  if(impl_->lastEmit_)
+    secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
 
   double seconds = secondsFrequency - secondsSinceLastProcess;
 
@@ -119,9 +122,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
    }
    else
    {
-     // Timer with one second
-     connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-     impl_->timer_.start(1*1000);
+     timeoutSlot();
    }
 }
 
