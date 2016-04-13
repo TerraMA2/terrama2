@@ -25,9 +25,9 @@ module.exports = function(app) {
             name: dataProviderReceived.name,
             uri: requester.uri,
             description: dataProviderReceived.description,
-            data_provider_intent_name: "Intent1",
+            data_provider_intent_name: dataProviderReceived.data_provider_intent_name || requester.intent(),
             data_provider_type_name: uriObject[requester.syntax().SCHEME],
-            project_id: project.id, // todo: its temp code.get it from frontend
+            project_id: project.id,
             active: dataProviderReceived.active || false
           };
 
