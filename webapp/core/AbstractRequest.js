@@ -13,7 +13,7 @@ var AbstractRequest = function(params) {
   }
 
   if (params instanceof Object) {
-    var splitHost = params[this.syntax().HOST].split("://");
+    var splitHost = (params[this.syntax().HOST] || "").split("://");
     if (splitHost.length > 1)
       params[this.syntax().HOST] = splitHost[1];
     
