@@ -1,6 +1,7 @@
 angular.module('terrama2.dataseries.registration', [
     'terrama2',
     'ui.router',
+    'mgo-angular-wizard', // wizard
     'terrama2.projection',
     'terrama2.services',
     'ui.bootstrap.datetimepicker',
@@ -61,6 +62,11 @@ angular.module('terrama2.dataseries.registration', [
       };
       $scope.isBoolean = function(value) {
         return typeof value === 'boolean';
+      };
+
+      // Wizard validations
+      $scope.isFirstStepValid = function(obj) {
+        return this.generalDataForm.$valid;
       };
 
       $scope.semantics = "";
