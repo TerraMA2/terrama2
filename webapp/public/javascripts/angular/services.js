@@ -28,8 +28,12 @@ angular.module("terrama2.services", [])
   .factory("DataSeriesFactory", ["$http", function($http) {
     var url = "/api/DataSeries";
     return {
-      get: function() {
-        return $http.get(url, {});
+      get: function(extra) {
+        return $http({
+          method: 'GET',
+          url: url,
+          params: extra instanceof Object ? extra : {}
+        });
       },
       
       post: function(dataSeriesObject) {

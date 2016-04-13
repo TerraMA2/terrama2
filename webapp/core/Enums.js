@@ -45,13 +45,19 @@ module.exports = {
   DataSeriesType: {
     DCP: 'Dcp',
     OCCURRENCE: 'Occurrence',
-    GRID: 'Grid'
+    GRID: 'Grid',
+    MONITORED: 'Monitored'
   },
 
   DataSeriesSemantics: {
     NAME: "name",
     FORMAT: "data_format_name",
     TYPE: "data_series_type_name"
+  },
+  
+  DataProviderIntent: {
+    COLLECT: 'Collect',
+    PROCESSING: 'Processing'
   },
 
   /**

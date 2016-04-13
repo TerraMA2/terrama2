@@ -1,5 +1,7 @@
 var UriBuilder = require("./UriBuilder");
-var UriPattern = require("./Enums").Uri;
+var Enums = require("./Enums");
+var UriPattern = Enums.Uri;
+var Intent = Enums.DataProviderIntent;
 
 
 /**
@@ -59,6 +61,15 @@ AbstractRequest.prototype.syntax = function() {
  */
 AbstractRequest.fields = function() {
   throw new Error("It must be implemented");
+};
+
+/**
+ * It defines intent of request. See more in @see Enums.DataProviderIntent
+ * @abstract
+ * @return {String}
+ */
+AbstractRequest.prototype.intent = function() {
+  return Intent.COLLECT;
 };
 
 module.exports = AbstractRequest;

@@ -20,7 +20,6 @@ module.exports = function(app) {
 
       if (id) {
         DataManager.getProject({id: id}).then(function(project) {
-          console.log(project);
           response.json(project);
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);

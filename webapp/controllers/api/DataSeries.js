@@ -1,6 +1,7 @@
 var DataManager = require("../../core/DataManager");
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
+var Intent = require('./../../core/Enums').DataProviderIntent;
 
 module.exports = function(app) {
   return {
@@ -17,8 +18,33 @@ module.exports = function(app) {
 
     get: function(request, response) {
       var dataSeriesId = request.params.id;
+      var dataSeriesType = request.query.type;
+
+      var dataProviderIntent;
+      
+      // list dataseries restriction
+      var restriction = {};
+
+      if (dataSeriesType) {
+        // checking data series: static or dynamic to filter data series output
+        switch(dataSeriesType) {
+          case "static":
+            dataProviderIntent = Intent.PROCESSING;
+            break;
+          case "dynamic":
+            dataProviderIntent = Intent.COLLECT;
+            break;
+          default:
+            return Utils.handleRequestError(response, new DataSeriesError("Invalid data series type. Available: \'static\' and \'dynamic\'"), 400);
+        }
+        
+        restriction.DataProvider = {
+          data_provider_intent_name: dataProviderIntent
+        };
+      }
 
       if (dataSeriesId) {
+
         DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
           return response.json(dataSeries.toObject());
         }).catch(function(err) {
@@ -26,7 +52,7 @@ module.exports = function(app) {
         });
       } else {
         var output = [];
-        DataManager.listDataSeries().forEach(function(dataSeries) {
+        DataManager.listDataSeries(restriction).forEach(function(dataSeries) {
           output.push(dataSeries.toObject());
         });
         return response.json(output);

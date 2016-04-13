@@ -125,8 +125,9 @@ var DataManager = {
           inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
 
           // data provider intent defaults
-          inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
-          
+          inserts.push(models.db.DataProviderIntent.create({name: "Collect", description: "Desc Collect intent"}));
+          inserts.push(models.db.DataProviderIntent.create({name: "Processing", description: "Desc Processing intent"}));
+
           // data series type defaults
           inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
           inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
@@ -196,8 +197,20 @@ var DataManager = {
           });
 
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
-            dataSeries.forEach(function(dSeries) {
-              self.data.dataSeries.push(new DataSeries(dSeries.get()));
+
+            // getting semantics
+            models.db.DataSeriesSemantics.findAll({}).then(function(semanticsList) {
+
+              dataSeries.forEach(function(dSeries) {
+                semanticsList.forEach(function(semantics) {
+                  if (semantics.name === dSeries.data_series_semantic_name) {
+                    self.data.dataSeries.push(new DataSeries(Object.assign({semantics: semantics.get()}, dSeries.get())));
+                  }
+                });
+              });
+
+            }).catch(function(err) {
+
             });
 
             //todo: include grid too
@@ -498,12 +511,32 @@ var DataManager = {
   /**
    * It retrieves DataProviders loaded in memory.
    *
+   * @param {Object} restriction - An object containing DataProvider filter values
    * @return {Array<DataProvider>} - An array with DataProviders available/loaded in memory.
    */
-  listDataProviders: function() {
+  listDataProviders: function(restriction) {
     var dataProviderObjectList = [];
+
+    if (restriction === undefined || restriction === null)
+      restriction = {};
+
+    var keys = Object.keys(restriction);
+
     this.data.dataProviders.forEach(function(dataProvider) {
-      dataProviderObjectList.push(new DataProvider(dataProvider));
+
+      // todo: implement better approach
+      var keyCont = 0;
+      keys.forEach(function (key) {
+        if (dataProvider[key] === restriction[key])
+          ++keyCont;
+        else
+          return;
+      });
+
+      if (keyCont == keys.length)
+        dataProviderObjectList.push(new DataProvider(dataProvider));
+
+      keyCont = 0;
     });
     return dataProviderObjectList;
   },
@@ -593,13 +626,31 @@ var DataManager = {
   /**
    * It retrieves DataSeries loaded in memory.
    *
+   * @param {Object} restriction - an object to filter result
    * @return {Array<DataSeries>} - An array with DataSeries available/loaded in memory.
    */
-  listDataSeries: function() {
+  listDataSeries: function(restriction) {
     var dataSeriesList = [];
-    this.data.dataSeries.forEach(function(dataSeries) {
-      dataSeriesList.push(new DataSeries(dataSeries));
-    });
+
+    // todo: should have parent search module? #tempCode for filtering
+    if (restriction && restriction.hasOwnProperty('DataProvider')) {
+      var dataProviderRestriction = restriction.DataProvider;
+
+      var dataProviders = this.listDataProviders(dataProviderRestriction);
+
+      this.data.dataSeries.forEach(function(dataSeries) {
+        dataProviders.forEach(function(dataProvider) {
+          if (dataSeries.data_provider_id === dataProvider.id)
+            dataSeriesList.push(new DataSeries(dataSeries));
+        });
+      });
+      
+    } else {
+      this.data.dataSeries.forEach(function(dataSeries) {
+        dataSeriesList.push(new DataSeries(dataSeries));
+      });
+    }
+
     return dataSeriesList;
   },
 
