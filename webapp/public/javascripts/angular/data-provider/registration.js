@@ -37,7 +37,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     var redirectUrl = configuration.redirectTo.redirectTo;
     redirectUrl += (redirectUrl.indexOf('?') === -1) ? '?' : '&';
 
-    var redirectData = Object.assign(extra instanceof Object ? extra : {}, configuration.redirectTo);
+    var redirectData = Object.assign(configuration.redirectTo, extra instanceof Object ? extra : {});
     delete redirectData.redirectTo;
 
     return redirectUrl + $httpParamSerializer(redirectData);

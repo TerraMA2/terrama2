@@ -1,129 +1,44 @@
 
 <div class="row">
-  <form name="parametersDataForm">
-    <div class="col-md-6">
-      <div class="form-group" ng-class="{'has-error': parametersDataForm.mask.$touched && parametersDataForm.mask.$invalid, 'has-success': parametersDataForm.mask.$valid}">
-        <div class="input-group">
-          <label>{{ i18n.__('Mask') }}:</label>
-          <input type="text" class="form-control" ng-model="parametersData.mask" aria-label="..." name="mask" required>
-          <div class="input-group-btn">
-            <button type="button" class="btn btn-default dropdown-toggle" style="margin-top: 25px;" data-toggle="dropdown"   aria-haspopup="true" aria-expanded="false">
-              <span class="caret"></span>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-right" id="mask-list">
-              <li><a href="javascript:void(0)" ng-click="addHelperMask('%Y')">{{ i18n.__('%Y - Four digits year') }}</a></li>
-              <li><a href="javascript:void(0)" ng-click="addHelperMask('%y')">{{ i18n.__('%y - Two digits year') }}</a></li>
-              <li><a href="javascript:void(0)" ng-click="addHelperMask('%d')">{{ i18n.__('%d - Day') }}</a></li>
-            </ul>
-          </div><!-- /btn-group -->
-
-        </div><!-- /input-group -->
-
-        <span class="help-block" ng-show="parametersDataForm.mask.$touched && parametersDataForm.mask.$error.required">
-          {{ i18n.__("Mask is required") }}
-        </span>
-
-      </div>
-
+  <div class="col-md-12">
+    <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+    <div class="col-md-2 terrama2-top-field">
+      <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp()">{{ i18n.__('Add') }}</button>
     </div>
-    <!-- /.col md 6 -->
+  </div>
 
-    <div class="col-md-6">
-      <div class="form-group" ng-class="{'has-error': parametersDataForm.timezone.$touched && parametersDataForm.timezone.$invalid, 'has-success': parametersDataForm.timezone.$valid}">
-        <label>{{ i18n.__('Timezone') }}</label>
-        <select class="form-control" name="timezone" ng-model="parametersData.timezone" required>
-          <option>00:00</option>
-          <option>12:00</option>
-        </select>
-
-        <span class="help-block" ng-show="parametersDataForm.timezone.$touched && parametersDataForm.timezone.$error.required"> {{ i18n.__("Timezone is required") }}</span>
-      </div>
-    </div>
-
-    <div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'pcd' || semantics === 'dcp') && isDynamic">
-      <div class="col-md-3" >
-        <div class="form-group" ng-class="{'has-error': parametersDataForm.latitude.$touched && parametersDataForm.latitude.$invalid, 'has-success': parametersDataForm.latitude.$touched && parametersDataForm.latitude.$valid}">
-          <label>{{ i18n.__('Latitude') }}:</label>
-          <input class="form-control" name="latitude" ng-model="parametersData.latitude" placeholder="{{ i18n.__('Data Set Latitude') }}" type="number" ng-required="semantics === 'pcd' || semantics === 'dcp'">
-
-          <label class="help-block text-danger" ng-show="parametersDataForm.latitude.$touched && parametersDataForm.latitude.$error.number">{{ i18n.__("Latitude is invalid") }}</label>
-        </div>
-      </div>
-
-      <div class="col-md-3">
-        <div class="form-group" ng-class="{'has-error': parametersDataForm.longitude.$invalid && parametersDataForm.longitude.$touched, 'has-success': parametersDataForm.longitude.$touched && parametersDataForm.longitude.$valid}">
-          <label>{{ i18n.__('Longitude') }}:</label>
-          <input class="form-control" name="longitude" ng-model="parametersData.longitude" placeholder="{{ i18n.__('Data Set Longitude') }}" type="number">
-
-          <label class="help-block text-danger" ng-show="parametersDataForm.longitude.$touched && parametersDataForm.longitude.$error.number">{{ i18n.__("Longitude is invalid") }}</label>
-        </div>
-      </div>
-
-      <div class="col-md-3">
-        <terrama2-projection url="/javascripts/angular/projection/projection.json" projection="parametersData.projection"></terrama2-projection>
-      </div>
-
-      <div class="col-md-1">
-        <div class="form-group">
-          <div class="checkbox">
-            <label class="terrama2-checkbox-align">
-              <input type="checkbox" ng-init="true" name="active" ng-model="parametersData.active"> {{ i18n.__('Active') }}
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-2">
-        <div class="form-group">
-          <button class="btn btn-default terrama2-component-align btn-block glyphicon glyphicon-plus" id="terrama2-add-pcd" ng-click="addPcd(parametersData)">{{ i18n.__('Add') }}</button>
-        </div>
-        <!-- /.form-group -->
-      </div>
-
-      <div class="col-md-12">
-        <div class="box-body table-responsive no-padding">
-          <table class="table table-hover terrama2-header-fixed" id="terrama2-pcd-table">
-            <thead>
-            <tr>
-              <th>{{ i18n.__('Mask') }}</th>
-              <th>{{ i18n.__('Latitude') }}</th>
-              <th>{{ i18n.__('Longitude') }}</th>
-              <th>{{ i18n.__('Active') }}</th>
-              <th>{{ i18n.__('Projection') }}</th>
-              <th>{{ i18n.__('Timezone') }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="pcd in pcds track by $index">
-              <td>{{ pcd.mask }}</td>
-              <td>{{ pcd.latitude }}</td>
-              <td>{{ pcd.longitude }}</td>
-              <td>
-                <span class="label" ng-class="{'label-success': pcd.active, 'label-danger': !pcd.active}">
-                  <i class="glyphicon" ng-class="{'glyphicon-ok': pcd.active, 'glyphicon-remove': !pcd.active}"></i>
-                </span>
-              </td>
-              <td>{{ pcd.projection }}</td>
-              <td>
-                {{ pcd.timezone }}
-                <button class="btn btn-danger" ng-click="removePcd(pcd)">{{ i18n.__("Remove") }}</button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div><!-- /.box-body -->
-      </div>
-    </div>
+  <div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'pcd' || semantics === 'dcp') && isDynamic">
 
     <div class="col-md-12">
-      <div class="form-group">
-        <label>{{ i18n.__('Path') }}:</label>
-        <input class="form-control" name="path" placeholder="{{ i18n.__('Data Set Path') }}" ng-model="parametersData.path" type="text" required>
-      </div>
+      <div class="box-body table-responsive no-padding">
+        <table class="table table-hover">
+          <thead>
+          <tr>
+            <th ng-repeat="field in tableFields">{{ capitalizeIt(field) }}</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody style="overflow-y: auto; height: 150px;">
+          <tr ng-repeat="dcp in dcps track by $index">
+            <td ng-repeat="field in tableFields">
+              <!-- boolean types -->
+              <span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
+                <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
+              </span>
+              <!--{{ dcp }}-->
+              <span ng-if="!isBoolean(dcp[field]) && $index !== (tableFields.length - 1)">
+                {{ dcp[field]}}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-danger" ng-click="removePcd(dcp)">{{ i18n.__("Remove") }}</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div><!-- /.box-body -->
     </div>
-    <!-- /.col md 6 -->
-  </form>
+  </div>
 
 </div>
 <!-- /.row -->

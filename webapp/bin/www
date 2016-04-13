@@ -33,6 +33,12 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
   server.listen(port);
   server.on('error', onError);
   server.on('listening', onListening);
+  server.on('close', onClose);
+
+  // detecting sigint error and then close server
+  process.on('SIGINT', function(){
+    server.close();
+  });
 
   io.attach(server);
   load('sockets').into(io);
@@ -85,6 +91,13 @@ function onError(error) {
     default:
       throw error;
   }
+}
+
+/**
+ * Event listener for server close. It unloads plugins
+ */
+function onClose() {
+  PluginLoader.plugin.unloadAll();
 }
 
 /**

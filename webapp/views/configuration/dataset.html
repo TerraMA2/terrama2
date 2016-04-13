@@ -3,7 +3,7 @@
 {% block ngApp %}ng-app="terrama2.dataseries.registration"{% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" href="/externals/angular-datatimepicker/css/datetimepicker.css">
 
   <style>
     .terrama2-pcd-table > tbody > tr > td,
@@ -11,13 +11,31 @@
       width: 14% !important;
       float: left !important;
     }
+
+    .form-control-feedback {
+      margin-right: 20px !important;
+    }
   </style>
 {% endblock %}
 
 {% block javascripts %}
+  <!-- Angular -->
   <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
+
+  <!-- Angular Schema Form dependencies -->
+  <script type="text/javascript" src="/externals/angular-sanitize/angular-sanitize.js"></script>
+  <script type="text/javascript" src="/externals/tv4/tv4.min.js"></script>
+  <script type="text/javascript" src="/externals/objectpath/ObjectPath.js"></script>
+  <script type="text/javascript" src="/externals/angular-schema-form/schema-form.js"></script>
+  <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-decorator.min.js"></script>
+
+  <!-- Angular ui router -->
   <script type="text/javascript" src="/externals/angular/angular-ui-router.min.js"></script>
+
+  <!-- terrama2 app -->
   <script type="text/javascript" src="/javascripts/angular/app.js"></script>
+
+  <!-- Angular i18n -->
   <script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
 
   <script type="text/javascript">
@@ -30,7 +48,8 @@
     };
 
     var configuration = {
-      dataSeries: {[ dataSeries|json|safe ]}
+      dataSeries: {[ dataSeries|json|safe ]},
+      parametersData: {[ parametersData|json|safe ]}
     }
   </script>
 
@@ -39,9 +58,12 @@
   <script type="text/javascript" src="/javascripts/angular/dataSeriesRegistration.js"></script>
 
   <script type="text/javascript" src="/externals/moment/moment.js"></script>
-  <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
-  <script type="text/javascript" src="/javascripts/terrama2.js"></script>
   <script type="text/javascript" src="/externals/bootstrap/js/jquery.bootstrap.wizard.js"></script>
+
+  <!-- Angular date input handler -->
+  <script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.js"></script>
+  <script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.templates.js"></script>
+  <script type="text/javascript" src="/externals/angular-datatimepicker/js/dateTimeInput.js"></script>
 
 {% endblock %}
 
@@ -52,10 +74,13 @@
     <div class="box box-default">
       <div class="box-header with-border">
         <h3 class="box-title">{[ __('Data Series Registration') ]}</h3>
-        <a ui-sref="advancedMode" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{[ __('Expert mode')]}</a>
-        <a ui-sref="wizardMode" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{[ __('Wizard mode')]}</a>
+        <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{[ __('Expert mode')]}</a>
+        <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{[ __('Wizard mode')]}</a>
       </div>
       <!-- /.box-header -->
+      <div class="col-md-12">
+        <!--<form sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>-->
+      </div>
       <div style="display: block;" class="box-body" ui-view>
 
       </div>
