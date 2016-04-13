@@ -110,7 +110,7 @@ var DataManager = {
           // todo: insert default values in database
           var inserts = [];
 
-          // data provider type defaults 
+          // data provider type defaults
           inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
           inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
           inserts.push(self.addDataProviderType({name: "HTTP", description: "Desc Http"}));
@@ -118,7 +118,7 @@ var DataManager = {
 
           // data provider intent defaults
           inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
-          
+
           // data series type defaults
           inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
           inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
@@ -414,6 +414,24 @@ var DataManager = {
         resolve(Utils.clone(dataProvider.get()));
 
         //  todo: emit signal
+
+      }).catch(function(err){
+        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
+      });
+    });
+  },
+
+  /**
+   * It saves User in database and load it in memory
+   * @param {Object} userObject - An object containing needed values to create User object.
+   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
+   */
+  addUser: function(userObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.User.create(userObject).then(function(user){
+        self.data.users.push(user.get());
+        resolve(Utils.clone(user.get()));
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
