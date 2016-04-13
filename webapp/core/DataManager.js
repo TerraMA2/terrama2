@@ -121,7 +121,7 @@ var DataManager = {
           // todo: insert default values in database
           var inserts = [];
 
-          // data provider type defaults 
+          // data provider type defaults
           inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
           inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
           inserts.push(self.addDataProviderType({name: "HTTP", description: "Desc Http"}));
@@ -498,6 +498,24 @@ var DataManager = {
   },
 
   /**
+   * It saves User in database and load it in memory
+   * @param {Object} userObject - An object containing needed values to create User object.
+   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
+   */
+  addUser: function(userObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.User.create(userObject).then(function(user){
+        self.data.users.push(user.get());
+        resolve(Utils.clone(user.get()));
+
+      }).catch(function(err){
+        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
+      });
+    });
+  },
+
+  /**
    * It retrieves a DataProvider object from restriction. It should be an object containing either id identifier or
    * name identifier.
    *
@@ -651,7 +669,7 @@ var DataManager = {
             dataSeriesList.push(new DataSeries(dataSeries));
         });
       });
-      
+
     } else {
       this.data.dataSeries.forEach(function(dataSeries) {
         dataSeriesList.push(new DataSeries(dataSeries));
@@ -713,13 +731,13 @@ var DataManager = {
               // output.dataSets = dataSets;
 
               // temp code: getting wkt
-              
+
               var promises = [];
-              
+
               dataSets.forEach(function(dSet) {
                 promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
               });
-              
+
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
