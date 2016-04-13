@@ -141,6 +141,9 @@ var DataManager = {
           inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
           inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
 
+          // default user
+          inserts.push(self.addUser({name: "Administrator", user: "admin", password: "admin", administrator: true}));
+
           Promise.all(inserts).then(function() {
             var arr = [];
             arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
