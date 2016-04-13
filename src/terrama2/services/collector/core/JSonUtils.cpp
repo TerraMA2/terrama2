@@ -81,3 +81,34 @@ terrama2::services::collector::core::IntersectionPtr terrama2::services::collect
   assert(0);
   return nullptr;
 }
+
+QJsonObject terrama2::services::collector::core::toJson(CollectorPtr collector)
+{
+  QJsonObject obj;
+  obj.insert("class", QString("Collector"));
+  obj.insert("id", static_cast<qint64>(collector->id));
+  obj.insert("project_id", static_cast<qint64>(collector->projectId));
+  obj.insert("service_instance_id", static_cast<qint64>(collector->serviceInstanceId));
+  obj.insert("input_data_series", static_cast<qint64>(collector->inputDataSeries));
+  obj.insert("output_data_series", static_cast<qint64>(collector->outputDataSeries));
+  obj.insert("schedule", terrama2::core::toJson(collector->schedule));
+  obj.insert("intersection", terrama2::services::collector::core::toJson(collector->intersection));
+  obj.insert("active", collector->active);
+
+  QJsonArray array;
+  for(auto it : collector->inputOutputMap)
+  {
+    QJsonObject dataset;
+    dataset.insert("input", static_cast<qint64>(it.first));
+    dataset.insert("output", static_cast<qint64>(it.second));
+    array.push_back(dataset);
+  }
+  obj.insert("input_output_map", array);
+
+  return obj;
+}
+
+QJsonObject terrama2::services::collector::core::toJson(IntersectionPtr intersection)
+{
+  return QJsonObject();
+}

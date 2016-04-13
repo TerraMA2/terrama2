@@ -59,7 +59,7 @@ void terrama2::core::TcpManager::parseData(QByteArray bytearray)
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
   if(error.error != QJsonParseError::NoError)
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error:\n").arg(error.errorString());
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
   else
   {
     if(jsonDoc.isArray())
@@ -80,11 +80,11 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
   QDataStream out(&bytearray, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_5_2);
 
-  out << static_cast<uint16_t>(0);
+  out << static_cast<uint32_t>(0);
   out << TcpSignals::ERROR_SIGNAL;
   out << log.c_str();
   out.device()->seek(0);
-  out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
+  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
   // wait while sending message
   qint64 written = tcpSocket_->write(bytearray);
@@ -139,9 +139,9 @@ void terrama2::core::TcpManager::readReadySlot()
   case TcpSignals::DATA_SIGNAL:
   {
     TERRAMA2_LOG_DEBUG() << "DATA_SIGNAL";
-    QByteArray bytearray(blockSize_-4, '\0');
-    in.readRawData(bytearray.data(), blockSize_-4);
-    // new data received
+    QByteArray bytearray;
+    in >> bytearray;
+
     parseData(bytearray);
     break;
   }
@@ -161,9 +161,8 @@ void terrama2::core::TcpManager::readReadySlot()
     QByteArray bytearray;
     QDataStream out(&bytearray, QIODevice::WriteOnly);
 
-    // out << static_cast<uint32_t>(0);
+    out << static_cast<uint32_t>(0);
     out << TcpSignals::STATUS_SIGNAL;
-    out << 4;
     out.device()->seek(0);
     out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 

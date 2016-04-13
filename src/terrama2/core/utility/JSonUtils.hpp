@@ -44,5 +44,17 @@ namespace terrama2 {
     DataSetPtr fromDataSetGridJson(QJsonObject json);
 
     Schedule fromScheduleJson(QJsonObject json);
+
+
+    QJsonObject toJson(DataProviderPtr dataProviderPtr);
+    QJsonObject toJson(DataSeriesPtr dataSeriesPtr);
+    QJsonObject toJson(DataSeriesSemantics semantics);
+
+    QJsonObject toJson(DataSetPtr dataSetPtr, DataSeriesSemantics semantics);
+    void addToJson(QJsonObject& obj, DataSetDcpPtr dataSetPtr);
+    void addToJson(QJsonObject& obj, DataSetOccurrencePtr dataSetPtr);
+    void addToJson(QJsonObject& obj, DataSetGridPtr dataSetPtr);
+
+    QJsonObject toJson(Schedule schedule);
   } /* core */
 } /* terrama2 */
