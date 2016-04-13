@@ -48,6 +48,9 @@
 //STL
 #include <algorithm>
 
+#include<sstream>
+
+
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
  assert(indexes.size() == 1);
@@ -56,21 +59,19 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
  {
    std::string strValue = dataset->getAsString(indexes[0]);
 
-   if((strValue.empty()) || (strValue == "NAN"))
-   {
+   double value = std::stod(strValue);
+   if (!std::isnormal(value))
      return nullptr;
-   }
-   else
-   {
-     double value = 0;
-     std::istringstream stream(strValue);//create stream
-     stream >> value;
 
-     te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
+   te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
 
-     return data;
-   }
+   return data;
  }
+ catch(const std::invalid_argument& e)
+ {
+   TERRAMA2_LOG_ERROR() << e.what();
+ }
+
  catch(std::exception& e)
  {
    TERRAMA2_LOG_ERROR() << e.what();
@@ -91,21 +92,21 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
  {
    std::string strValue = dataset->getAsString(indexes[0]);
 
-   if(strValue.empty())
-   {
+   boost::int32_t value = std::stoi(strValue);
+
+   if (!std::isnormal(value) && (value != 0))
      return nullptr;
-   }
-   else
-   {
-     boost::int32_t value = 0;
-     std::istringstream stream(strValue);//create stream
-     stream >> value;
 
-     te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
+   te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
 
-     return data;
-   }
+   return data;
  }
+
+ catch(const std::invalid_argument& e)
+ {
+   TERRAMA2_LOG_ERROR() << e.what();
+ }
+
  catch(std::exception& e)
  {
    TERRAMA2_LOG_ERROR() << e.what();
@@ -116,20 +117,6 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
  }
 
  return nullptr;
-}
-
-std::string terrama2::core::DataAccessor::getFolder(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("folder");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined folder in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
 }
 
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
@@ -185,7 +172,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
         removeFolder = true;
       }
       else
-        uri = dataProvider_->uri +"/"+ getFolder(dataset);
+        uri = dataProvider_->uri;
 
       //TODO: Set last date collected in filter
       std::shared_ptr<te::mem::DataSet> memDataSet;
@@ -221,7 +208,6 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
 
   return series;
 }
-
 
 void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
