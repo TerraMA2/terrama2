@@ -4,8 +4,28 @@ var passport = require('passport'),
     connection = require('./Sequelize.js'),
     User = connection.import('../models/User.js');
 
-module.exports = function(app) {
+var isAuthenticated = function(req, res, next) {
+  if(req.isAuthenticated())
+    return next();
+  req.flash('error', 'You have to be logged in to access the page.');
+  res.redirect('/');
+};
 
+var isAdministrator = function(req, res, next) {
+  if(req.isAuthenticated()) {
+    if(req.user.dataValues.administrator) {
+      return next();
+    } else {
+      req.flash('error', 'You don\'t have permission to access this page.');
+      res.redirect('/');
+    }
+  } else {
+    req.flash('error', 'You have to be logged in to access the page.');
+    res.redirect('/');
+  }
+};
+
+var setupPassport = function(app) {
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -17,7 +37,7 @@ module.exports = function(app) {
     function(user, password, done) {
       User.findOne({
         where: {
-          'user': 'admin'
+          'user': user
         }
       }).then(function(userObj) {
         if(userObj == null) {
@@ -52,4 +72,10 @@ module.exports = function(app) {
       done(null, user);
     });
   });
+};
+
+module.exports = {
+  isAuthenticated: isAuthenticated,
+  isAdministrator: isAdministrator,
+  setupPassport: setupPassport
 };

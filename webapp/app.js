@@ -7,7 +7,7 @@ var express = require('express'),
     app = express(),
     load = require('express-load'),
     swig = require('swig'),
-    setupPassport = require('./config/SetupPassport'),
+    passport = require('./config/Passport'),
     session = require('express-session'),
     flash = require('connect-flash'),
     // i18n = require('i18n-2'),
@@ -60,7 +60,7 @@ app.use(methodOverride('_method'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-setupPassport(app);
+passport.setupPassport(app);
 
 load('controllers')
   .then('routes')
