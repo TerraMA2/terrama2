@@ -60,7 +60,8 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
    std::string strValue = dataset->getAsString(indexes[0]);
 
    double value = std::stod(strValue);
-   if (!std::isnormal(value))
+
+   if (!std::isnormal(value) && (value != 0.0))
      return nullptr;
 
    te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);

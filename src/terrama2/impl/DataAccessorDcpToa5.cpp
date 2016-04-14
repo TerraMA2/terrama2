@@ -222,7 +222,6 @@ terrama2::core::Series terrama2::core::DataAccessorDcpToa5::getSeries(const std:
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
-  //QUrl url((uri+"/"+mask).c_str());
   QUrl url((uri+"/"+folder+"/"+mask).c_str());
   QFileInfo originalInfo(url.path());
   QFile file(url.path());
