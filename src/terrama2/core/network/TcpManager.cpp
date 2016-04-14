@@ -100,9 +100,6 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
 void terrama2::core::TcpManager::readReadySlot()
 {
   QDataStream in(tcpSocket_);
-
-  TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
-
   RaiiBlock block(blockSize_);
   Q_UNUSED(block)
   if(blockSize_ == 0)
@@ -114,7 +111,6 @@ void terrama2::core::TcpManager::readReadySlot()
     }
 
     in >> blockSize_;
-    TERRAMA2_LOG_DEBUG() << "blockSize: " << blockSize_;
   }
 
   if(tcpSocket_->bytesAvailable() != blockSize_)

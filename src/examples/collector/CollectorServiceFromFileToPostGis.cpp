@@ -49,7 +49,6 @@
 #include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
 #include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
 #include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-
 #include <terrama2/impl/DataStoragerPostGis.hpp>
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
@@ -67,7 +66,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    terrama2::core::initializeTerralib();
+    terrama2::core::initializeTerraMA();
 
     terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
     terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
@@ -180,7 +179,7 @@ int main(int argc, char* argv[])
 
     service.stop();
 
-    terrama2::core::finalizeTerralib();
+    terrama2::core::finalizeTerraMA();
   }
   catch(...)
   {

@@ -181,12 +181,16 @@ void terrama2::services::collector::core::Service::connectDataManager()
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
+  try
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id);
     connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(collector->id, timer);
+  }
+  catch(terrama2::core::InvalidCollectFrequencyException& e)
+  {
   }
 
   addToQueue(collector->id);

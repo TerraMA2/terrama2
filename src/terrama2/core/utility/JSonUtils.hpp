@@ -48,7 +48,6 @@ namespace terrama2 {
 
     QJsonObject toJson(DataProviderPtr dataProviderPtr);
     QJsonObject toJson(DataSeriesPtr dataSeriesPtr);
-    QJsonObject toJson(DataSeriesSemantics semantics);
 
     QJsonObject toJson(DataSetPtr dataSetPtr, DataSeriesSemantics semantics);
     void addToJson(QJsonObject& obj, DataSetDcpPtr dataSetPtr);

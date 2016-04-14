@@ -49,7 +49,6 @@
 
 terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject json)
 {
-  TERRAMA2_LOG_DEBUG() << "New DataProvider";
   if(json["class"].toString() != "DataProvider")
   {
     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
@@ -61,7 +60,8 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
        && json.contains("description")
        && json.contains("intent")
        && json.contains("uri")
-       && json.contains("active")))
+       && json.contains("active")
+       && json.contains("data_provider_type")))
     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
 
   terrama2::core::DataProvider* provider = new terrama2::core::DataProvider();
@@ -74,6 +74,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
   provider->intent = static_cast<terrama2::core::DataProvider::DataProviderIntent>(json["intent"].toInt());
   provider->uri = json["uri"].toString().toStdString();
   provider->active = json["active"].toBool();
+  provider->dataProviderType = json["data_provider_type"].toString().toStdString();
 
   return providerPtr;
 }
@@ -242,6 +243,7 @@ QJsonObject terrama2::core::toJson(DataProviderPtr dataProviderPtr)
   obj.insert("intent", static_cast<int>(dataProviderPtr->intent));
   obj.insert("uri", QString::fromStdString(dataProviderPtr->uri));
   obj.insert("active", dataProviderPtr->active);
+  obj.insert("data_provider_type", QString::fromStdString(dataProviderPtr->dataProviderType));
 
   return obj;
 }
@@ -252,7 +254,7 @@ QJsonObject terrama2::core::toJson(DataSeriesPtr dataSeriesPtr)
   obj.insert("class", QString("DataSeries"));
   obj.insert("id", static_cast<qint64>(dataSeriesPtr->id));
   obj.insert("data_provider_id", static_cast<qint64>(dataSeriesPtr->dataProviderId));
-  obj.insert("semantics", terrama2::core::toJson(dataSeriesPtr->semantics));
+  obj.insert("semantics", QString::fromStdString(dataSeriesPtr->semantics.name));
   obj.insert("name", QString::fromStdString(dataSeriesPtr->name));
   obj.insert("description", QString::fromStdString(dataSeriesPtr->description));
 
@@ -319,12 +321,6 @@ void terrama2::core::addToJson(QJsonObject& obj, DataSetOccurrencePtr dataSetPtr
 void terrama2::core::addToJson(QJsonObject& obj, DataSetGridPtr dataSetPtr)
 {
 
-}
-
-QJsonObject terrama2::core::toJson(DataSeriesSemantics semantics)
-{
-  //FIXME: create a toJson for DataSeriesSemantics
-  return QJsonObject();
 }
 
 QJsonObject terrama2::core::toJson(Schedule schedule)
