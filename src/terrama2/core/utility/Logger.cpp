@@ -96,45 +96,45 @@ const std::string& terrama2::core::Logger::path() const
 
 class LogSyncronizer : public std::streambuf
 {
-public:
-  LogSyncronizer(std::streambuf* sb1, terrama2::core::TcpManager* tcpManager = nullptr)
-   : sb1(sb1), sb2(new std::stringbuf()), tcpManager(tcpManager)
-  { }
-  ~LogSyncronizer() { delete sb2; }
+  public:
+    LogSyncronizer(std::streambuf* sb1, terrama2::core::TcpManager* tcpManager = nullptr)
+      : sb1(sb1), sb2(new std::stringbuf()), tcpManager(tcpManager)
+    { }
+    ~LogSyncronizer() { delete sb2; }
 
-private:
-  virtual int sync()
-  {
-    int const r1 = sb1->pubsync();
-    int const r2 = sb2->pubsync();
-    if(tcpManager)
+  private:
+    virtual int sync()
     {
-      std::string str = sb2->str();
-      bool sent = tcpManager->sendLog(str);
-      return r1 == 0 && r2 == 0 && sent ? 0 : -1;
+      int const r1 = sb1->pubsync();
+      int const r2 = sb2->pubsync();
+      if(tcpManager)
+      {
+        std::string str = sb2->str();
+        bool sent = tcpManager->sendLog(str);
+        return r1 == 0 && r2 == 0 && sent ? 0 : -1;
+      }
+      else
+        return r1 == 0 && r2 == 0 ? 0 : -1;
     }
-    else
-      return r1 == 0 && r2 == 0 ? 0 : -1;
-  }
 
-  virtual int_type overflow(int_type c)
-  {
-    if(c == EOF)
+    virtual int_type overflow(int_type c)
     {
-      return !EOF;
+      if(c == EOF)
+      {
+        return !EOF;
+      }
+      else
+      {
+        int const r1 = sb1->sputc(c);
+        int const r2 = sb2->sputc(c);
+        return r1 == EOF || r2 == EOF ? EOF : c;
+      }
     }
-    else
-    {
-      int const r1 = sb1->sputc(c);
-      int const r2 = sb2->sputc(c);
-      return r1 == EOF || r2 == EOF ? EOF : c;
-    }
-  }
 
-private:
-  std::streambuf* sb1;
-  std::stringbuf* sb2;
-  terrama2::core::TcpManager* tcpManager;
+  private:
+    std::streambuf* sb1;
+    std::stringbuf* sb2;
+    terrama2::core::TcpManager* tcpManager;
 };
 
 void terrama2::core::Logger::addStream(const std::string& stream_name, terrama2::core::TcpManager* tcpManager)

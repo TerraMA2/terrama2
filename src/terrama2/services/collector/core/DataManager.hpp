@@ -44,34 +44,34 @@ namespace terrama2
       {
         class DataManager : public terrama2::core::DataManager
         {
-          Q_OBJECT
+            Q_OBJECT
 
-        public:
-          DataManager() {}
+          public:
+            DataManager() {}
 
-          virtual void addFromJSON(const QJsonValue& jsonValue) override;
+            virtual void addFromJSON(const QJsonValue& jsonValue) override;
 
-          virtual ~DataManager() {}
-          DataManager(const DataManager& other) = default;
-          DataManager(DataManager&& other) = default;
-          DataManager& operator=(const DataManager& other) = default;
-          DataManager& operator=(DataManager&& other) = default;
+            virtual ~DataManager() {}
+            DataManager(const DataManager& other) = delete;
+            DataManager(DataManager&& other) = delete;
+            DataManager& operator=(const DataManager& other) = delete;
+            DataManager& operator=(DataManager&& other) = delete;
 
-          using terrama2::core::DataManager::add;
-          using terrama2::core::DataManager::update;
+            using terrama2::core::DataManager::add;
+            using terrama2::core::DataManager::update;
 
-          void add(CollectorPtr collector);
-          void update(CollectorPtr collector);
-          void removeCollector(CollectorId collectorId);
-          CollectorPtr findCollector(CollectorId id) const;
+            virtual void add(CollectorPtr collector);
+            virtual void update(CollectorPtr collector);
+            virtual void removeCollector(CollectorId collectorId);
+            virtual CollectorPtr findCollector(CollectorId id) const;
 
-        signals:
-          void collectorAdded(CollectorPtr);
-          void collectorUpdated(CollectorPtr);
-          void collectorRemoved(CollectorId);
+          signals:
+            void collectorAdded(CollectorPtr);
+            void collectorUpdated(CollectorPtr);
+            void collectorRemoved(CollectorId);
 
-        protected:
-          std::map<CollectorId, CollectorPtr> collectors_;
+          protected:
+            std::map<CollectorId, CollectorPtr> collectors_;
         };
       } // end namespace core
     }   // end namespace collector

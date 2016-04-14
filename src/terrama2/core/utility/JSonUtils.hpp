@@ -37,12 +37,24 @@
 namespace terrama2 {
   namespace core {
     DataProviderPtr fromDataProviderJson(QJsonObject json);
-    DataSeriesPtr fromDataSeriesJson(QJsonObject json, SemanticsManager* semanticsManager);
+    DataSeriesPtr fromDataSeriesJson(QJsonObject json);
     void addBaseDataSetData(QJsonObject json, DataSet* dataset);
     DataSetPtr fromDataSetDcpJson(QJsonObject json);
     DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);
     DataSetPtr fromDataSetGridJson(QJsonObject json);
 
     Schedule fromScheduleJson(QJsonObject json);
+
+
+    QJsonObject toJson(DataProviderPtr dataProviderPtr);
+    QJsonObject toJson(DataSeriesPtr dataSeriesPtr);
+    QJsonObject toJson(DataSeriesSemantics semantics);
+
+    QJsonObject toJson(DataSetPtr dataSetPtr, DataSeriesSemantics semantics);
+    void addToJson(QJsonObject& obj, DataSetDcpPtr dataSetPtr);
+    void addToJson(QJsonObject& obj, DataSetOccurrencePtr dataSetPtr);
+    void addToJson(QJsonObject& obj, DataSetGridPtr dataSetPtr);
+
+    QJsonObject toJson(Schedule schedule);
   } /* core */
 } /* terrama2 */

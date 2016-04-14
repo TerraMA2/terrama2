@@ -145,10 +145,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     {
       // store each item
       DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
-      auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet)
-                                        {
-                                          return dataSet->id == outputDataSetId;
-                                        });
+      auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet) { return dataSet->id == outputDataSetId; });
       dataStorager->store(item.second, *outputDataSet);
     }
   }
