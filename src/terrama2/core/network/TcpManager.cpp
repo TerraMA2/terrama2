@@ -32,6 +32,7 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonObject>
 
 class RaiiBlock
 {
@@ -62,15 +63,14 @@ void terrama2::core::TcpManager::parseData(QByteArray bytearray)
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
   else
   {
-    if(jsonDoc.isArray())
+    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+    if(jsonDoc.isObject())
     {
-      std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
-      auto jsonArray = jsonDoc.array();
-      std::for_each(jsonArray.constBegin(), jsonArray.constEnd(),
-                    std::bind(&terrama2::core::DataManager::addFromJSON, dataManager, std::placeholders::_1));
+      auto obj = jsonDoc.object();
+      dataManager->addFromJSON(obj);
     }
     else
-      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an array.\n");
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
   }
 }
 

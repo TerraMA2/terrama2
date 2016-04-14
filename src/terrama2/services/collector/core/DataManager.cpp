@@ -39,6 +39,7 @@
 
 // Qt
 #include <QJsonValue>
+#include <QJsonArray>
 
 terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
@@ -95,21 +96,17 @@ void terrama2::services::collector::core::DataManager::removeCollector(Collector
   emit collectorRemoved(collectorId);
 }
 
-void terrama2::services::collector::core::DataManager::addFromJSON(const QJsonValue& jsonValue)
+void terrama2::services::collector::core::DataManager::addFromJSON(const QJsonObject& obj)
 {
   try
   {
-    QJsonObject object = jsonValue.toObject();
-    QString coreClass = object["class"].toString();
+    terrama2::core::DataManager::DataManager::addFromJSON(obj);
 
-    if(coreClass == "Collector")
+    auto collectors = obj["Collectors"].toArray();
+    for(auto json : collectors)
     {
-      auto dataPtr = terrama2::services::collector::core::fromCollectorJson(object);
+      auto dataPtr = terrama2::services::collector::core::fromCollectorJson(json.toObject());
       add(dataPtr);
-    }
-    else
-    {
-      terrama2::core::DataManager::DataManager::addFromJSON(object);
     }
   }
   catch(terrama2::Exception& /*e*/)

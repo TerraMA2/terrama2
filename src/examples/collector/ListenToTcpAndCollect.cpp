@@ -169,14 +169,23 @@ int main(int argc, char* argv[])
     semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
     semanticsManager.addSemantics("OCCURRENCE-mvf", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
 
-    QJsonArray array;
-    array.push_back(terrama2::core::toJson(buildInputProvider()));
-    array.push_back(terrama2::core::toJson(buildOutputProvider()));
-    array.push_back(terrama2::core::toJson(buildInputDataSeries()));
-    array.push_back(terrama2::core::toJson(buildOutputDataSeries()));
-    array.push_back(terrama2::services::collector::core::toJson(buildCollector()));
+    QJsonObject obj;
 
-    QJsonDocument doc(array);
+    QJsonArray providersArray;
+    providersArray.push_back(terrama2::core::toJson(buildInputProvider()));
+    providersArray.push_back(terrama2::core::toJson(buildOutputProvider()));
+    obj.insert("DataProviders", providersArray);
+
+    QJsonArray seriesArray;
+    seriesArray.push_back(terrama2::core::toJson(buildInputDataSeries()));
+    seriesArray.push_back(terrama2::core::toJson(buildOutputDataSeries()));
+    obj.insert("DataSeries", seriesArray);
+
+    QJsonArray collectorsArray;
+    collectorsArray.push_back(terrama2::services::collector::core::toJson(buildCollector()));
+    obj.insert("Collectors", collectorsArray);
+
+    QJsonDocument doc(obj);
 
     terrama2::core::TcpManager tcpManager;
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();

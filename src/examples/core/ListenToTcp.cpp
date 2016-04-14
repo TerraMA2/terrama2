@@ -36,9 +36,9 @@ class MockDataManager : public terrama2::core::DataManager
     MockDataManager& operator=(const MockDataManager& other) = default;
     MockDataManager& operator=(MockDataManager&& other) = default;
 
-    virtual void addFromJSON(const QJsonValue& jsonValue) override
+    virtual void addFromJSON(const QJsonObject& obj) override
     {
-      QJsonDocument doc(jsonValue.toObject());
+      QJsonDocument doc(obj);
       std::cout << QString(doc.toJson()).toStdString() << std::endl;
     }
 
@@ -86,11 +86,16 @@ int main(int argc, char* argv[])
 {
   QCoreApplication app(argc, argv);
 
-  QJsonArray array;
-  array.push_back(terrama2::core::toJson(buildInputProvider()));
-  array.push_back(terrama2::core::toJson(buildInputDataSeries()));
+  QJsonObject obj;
+  QJsonArray providersArray;
+  providersArray.push_back(terrama2::core::toJson(buildInputProvider()));
+  obj.insert("DataProviders", providersArray);
 
-  QJsonDocument doc(array);
+  QJsonArray seriesArray;
+  seriesArray.push_back(terrama2::core::toJson(buildInputDataSeries()));
+  obj.insert("DataSeries", seriesArray);
+
+  QJsonDocument doc(obj);
 
   terrama2::core::TcpManager tcpManager;
   std::shared_ptr<terrama2::core::DataManager> dataManager = std::make_shared<MockDataManager>();
