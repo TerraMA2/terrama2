@@ -7,7 +7,7 @@ var express = require('express'),
     app = express(),
     load = require('express-load'),
     swig = require('swig'),
-    setupPassport = require('./setupPassport'),
+    setupPassport = require('./config/SetupPassport'),
     session = require('express-session'),
     flash = require('connect-flash'),
     // i18n = require('i18n-2'),
@@ -44,6 +44,7 @@ i18nRoutes.configure(app, {"extension": ".js", directory : __dirname + "/locales
 
 // set up the internacionalization middleware
 app.use(function(req, res, next) {
+  res.locals.errorMessage = req.flash('error');
   next();
 });
 

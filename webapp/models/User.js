@@ -21,6 +21,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: false
       },
+      salt: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       administrator: {
         type: DataTypes.BOOLEAN,
         allowNull: false
