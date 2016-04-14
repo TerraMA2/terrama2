@@ -21,8 +21,8 @@ DataProvider.prototype.toObject = function() {
   return Object.assign(AbstractData.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
-    data_provider_type_name: this.data_provider_type_name,
-    data_provider_intent_name: this.data_provider_intent_name,
+    data_provider_type: this.data_provider_type_name,
+    intent: this.data_provider_intent_name,
     name: this.name,
     description: this.description,
     uri: this.uri,

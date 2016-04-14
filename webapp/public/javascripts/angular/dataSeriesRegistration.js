@@ -64,9 +64,37 @@ angular.module('terrama2.dataseries.registration', [
         return typeof value === 'boolean';
       };
 
+      // wizard helper
+      var isWizardStepValid = function(formName, isSchemaForm) {
+        // todo: temp code. It is a "trick" for getting undefined form in scope. It must be changed
+        var form = angular.element('form[name="'+ formName + '"]').scope()[formName];
+
+        if (isSchemaForm == true) {
+          $scope.$broadcast('schemaFormValidate');
+        }
+
+        if (form.$valid)
+          return true;
+        
+        errorHelper(form);
+        return false;
+      };
+      
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
-        return this.generalDataForm.$valid;
+        return isWizardStepValid("generalDataForm");
+      };
+      
+      $scope.isSecondStepValid = function(obj) {
+        if ($scope.dataSeries.semantics.data_series_type_name === "Dcp")
+          if ($scope.dcps.length === 0) {
+            // todo: display alert box
+            console.log("it should have at least one dcp");
+            return isWizardStepValid("parametersForm", true) && false;
+          } else {
+            return true;
+          }
+        return isWizardStepValid("parametersForm", true);
       };
 
       $scope.semantics = "";
