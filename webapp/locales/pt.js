@@ -20,5 +20,20 @@
 	"Type to search": "Type to search",
 	"Name": "Name",
 	"Description": "Description",
-	"It will activate ": "It will activate "
+	"It will activate ": "It will activate ",
+	"Database Registration": "Database Registration",
+	"Type": "Type",
+	"Host": "Host",
+	"Database hostname": "Database hostname",
+	"Port": "Port",
+	"Database port": "Database port",
+	"Username": "Username",
+	"Database username": "Database username",
+	"Password": "Password",
+	"Database password": "Database password",
+	"OK": "OK",
+	"Test connection": "Test connection",
+	"Databases": "Databases",
+	"Services": "Services",
+	"Services Handling": "Services Handling"
 }
