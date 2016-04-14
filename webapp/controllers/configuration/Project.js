@@ -3,21 +3,6 @@ var DataManager = require('../../core/DataManager');
 module.exports = function(app) {
   return {
     get: function (request, response) {
-      // Its temp code. It should get from adminstration
-      var config =  {
-        "username": "postgres",
-        "password": "postgres",
-        "database": "nodejs",
-        "host": "127.0.0.1",
-        "dialect": "postgres",
-        define: {
-          schema: "terrama2"
-        }
-        //logging: false
-      };
-
-      DataManager.setConfiguration(config);
-
       DataManager.init(function() {
         DataManager.load().then(function() {
           response.render("configuration/projects");

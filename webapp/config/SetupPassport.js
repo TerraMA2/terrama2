@@ -1,15 +1,20 @@
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     bcrypt = require('bcrypt'),
-    User = require('./models/User.js');
+    connection = require('./Sequelize.js'),
+    User = connection.import('../models/User.js');
 
 module.exports = function(app) {
+
   app.use(passport.initialize());
   app.use(passport.session());
 
   passport.use(new LocalStrategy(
+    {
+      usernameField: 'user',
+      passwordField: 'password'
+    },
     function(user, password, done) {
-      console.log('entrou');
       User.findOne({
         where: {
           'user': 'admin'
@@ -19,13 +24,10 @@ module.exports = function(app) {
           return done(null, false, { message: 'Incorrect credentials.' });
         }
 
-        var hashedPassword = bcrypt.hashSync(password);
+        var hashedPassword = bcrypt.hashSync(password, userObj.salt);
 
-        console.log(password);
-        console.log(userObj.password);
-
-        if(userObj.password !== '') {//hashedPassword) {
-          return done(null, user);
+        if(userObj.password === hashedPassword) {
+          return done(null, userObj);
         }
 
         return done(null, false, { message: 'Incorrect credentials.' });
@@ -33,8 +35,8 @@ module.exports = function(app) {
     }
   ));
 
-  passport.serializeUser(function(user, done) {
-    done(null, user.id);
+  passport.serializeUser(function(userObj, done) {
+    done(null, userObj.id);
   });
 
   passport.deserializeUser(function(id, done) {
