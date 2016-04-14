@@ -1,6 +1,7 @@
-module.exports = function (app) {
+var passport = require('../../config/Passport');
 
+module.exports = function (app) {
   var controller = app.controllers.configuration.MapDisplay;
 
-  app.get('/configuration/mapdisplay', controller.get);
+  app.get('/configuration/mapdisplay', passport.isAuthenticated, controller.get);
 };
