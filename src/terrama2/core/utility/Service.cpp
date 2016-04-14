@@ -66,7 +66,7 @@ void terrama2::core::Service::start(uint threadNumber)
       threadNumber = 1; //if not able to find out set to 1
 
     //Starts collection threads
-    for (uint i = 0; i < threadNumber; ++i)
+    for(uint i = 0; i < threadNumber; ++i)
       processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this));
   }
   catch(const std::exception& e)
@@ -82,7 +82,7 @@ void terrama2::core::Service::start(uint threadNumber)
 void terrama2::core::Service::stop() noexcept
 {
   {
-    std::lock_guard<std::mutex> lock (mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     // finish the thread
     stop_ = true;
 
@@ -113,7 +113,7 @@ void terrama2::core::Service::mainLoopThread() noexcept
       {
         std::unique_lock<std::mutex> lock(mutex_);
         //wait for new data to collect
-        mainLoopCondition_.wait(lock, [this]{ return mainLoopWaitCondition(); });
+        mainLoopCondition_.wait(lock, [this] { return mainLoopWaitCondition(); });
 
         if(stop_)
           break;
@@ -141,7 +141,7 @@ void terrama2::core::Service::processingTaskThread() noexcept
 {
   try
   {
-    while (true)
+    while(true)
     {
       std::packaged_task<void()> task;
 

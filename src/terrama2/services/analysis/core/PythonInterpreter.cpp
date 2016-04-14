@@ -287,7 +287,7 @@ PyObject* terrama2::services::analysis::core::sumHistoryPCD(PyObject* self, PyOb
     {
       found = true;
 
-      if(analysisDataSeries.dataSeries->semantics.macroType != terrama2::core::DataSeriesSemantics::DCP)
+      if(analysisDataSeries.dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
       {
         QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
         errMsg = errMsg.arg(analysisId);

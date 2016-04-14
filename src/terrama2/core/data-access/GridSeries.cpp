@@ -57,7 +57,7 @@ void terrama2::core::GridSeries::addGridSeries(std::map<DataSetPtr, Series > ser
       DataSetGridPtr dataSet = std::dynamic_pointer_cast<const DataSetGrid>(item.first);
 
       auto teDataSet = item.second.syncDataSet;
-      for (int i = 0; i < teDataSet->size(); ++i)
+      for(int i = 0; i < teDataSet->size(); ++i)
       {
         std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet->dataset().get(), te::dt::RASTER_TYPE);
         std::shared_ptr<te::rst::Raster> raster = teDataSet->getRaster(i, rpos);

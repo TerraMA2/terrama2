@@ -35,12 +35,18 @@
 
 class RaiiBlock
 {
-public:
-  RaiiBlock(uint16_t& block) : block_(block) {}
-  ~RaiiBlock() { block_ = 0; }
+  public:
+    RaiiBlock(uint32_t& block) : block_(block) {}
+    ~RaiiBlock() {block_ = 0;}
 
-  uint16_t& block_;
+    uint32_t& block_;
 };
+
+bool terrama2::core::TcpManager::listen(std::weak_ptr<terrama2::core::DataManager> dataManager, const QHostAddress& address, quint16 port)
+{
+  dataManager_ = dataManager;
+  return listen(address, port);
+}
 
 terrama2::core::TcpManager::TcpManager(QObject* parent) : QTcpServer(parent), blockSize_(0)
 {
@@ -53,13 +59,12 @@ void terrama2::core::TcpManager::parseData(QByteArray bytearray)
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
   if(error.error != QJsonParseError::NoError)
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error:\n").arg(error.errorString());
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
   else
   {
     if(jsonDoc.isArray())
     {
-      assert(0);
-      terrama2::core::DataManager* dataManager; // FIXME: get dataManager
+      std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
       auto jsonArray = jsonDoc.array();
       std::for_each(jsonArray.constBegin(), jsonArray.constEnd(),
                     std::bind(&terrama2::core::DataManager::addFromJSON, dataManager, std::placeholders::_1));
@@ -75,11 +80,11 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
   QDataStream out(&bytearray, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_5_2);
 
-  out << static_cast<uint16_t>(0);
+  out << static_cast<uint32_t>(0);
   out << TcpSignals::ERROR_SIGNAL;
   out << log.c_str();
   out.device()->seek(0);
-  out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
+  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
   // wait while sending message
   qint64 written = tcpSocket_->write(bytearray);
@@ -95,28 +100,29 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
 void terrama2::core::TcpManager::readReadySlot()
 {
   QDataStream in(tcpSocket_);
-  in.setVersion(QDataStream::Qt_5_2);
+
+  TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
 
   RaiiBlock block(blockSize_);
   Q_UNUSED(block)
   if(blockSize_ == 0)
   {
-    if(tcpSocket_->bytesAvailable() < static_cast<int>(sizeof(uint16_t)))
+    if(tcpSocket_->bytesAvailable() < static_cast<int>(sizeof(uint32_t)))
     {
       TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nInvalid message size.");
       return;
     }
 
     in >> blockSize_;
+    TERRAMA2_LOG_DEBUG() << "blockSize: " << blockSize_;
   }
 
-  if(tcpSocket_->bytesAvailable() < blockSize_)
+  if(tcpSocket_->bytesAvailable() != blockSize_)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nWrong message size.");
     return;
   }
 
-  QByteArray bytearray;
   int sigInt = -1;
   in >> sigInt;
 
@@ -125,34 +131,40 @@ void terrama2::core::TcpManager::readReadySlot()
   switch(signal)
   {
   case TcpSignals::TERMINATE_SIGNAL:
+  {
+    TERRAMA2_LOG_DEBUG() << "TERMINATE_SIGNAL";
     emit stopSignal();
     break;
+  }
   case TcpSignals::DATA_SIGNAL:
   {
+    TERRAMA2_LOG_DEBUG() << "DATA_SIGNAL";
+    QByteArray bytearray;
     in >> bytearray;
-    // new data received
+
     parseData(bytearray);
     break;
   }
   case TcpSignals::START_SIGNAL:
   {
+    TERRAMA2_LOG_DEBUG() << "START_SIGNAL";
     int dataId;
     in >> dataId;
 
-    // TODO: collect ou analyse now!
+    emit startProcess(dataId);
 
     break;
   }
   case TcpSignals::STATUS_SIGNAL:
   {
+    TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
     QByteArray bytearray;
     QDataStream out(&bytearray, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_2);
 
-    out << static_cast<uint16_t>(0);
+    out << static_cast<uint32_t>(0);
     out << TcpSignals::STATUS_SIGNAL;
     out.device()->seek(0);
-    out << static_cast<uint16_t>(bytearray.size() - sizeof(uint16_t));
+    out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
     // wait while sending message
     qint64 written = tcpSocket_->write(bytearray);

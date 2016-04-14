@@ -47,12 +47,13 @@ namespace terrama2
     */
     struct Schedule
     {
-      Schedule() : schedule(0,0,0) {}
+      Schedule(){}
 
       ScheduleId id = 0; //!< Schedule identifier.
       uint64_t frequency = 0; //!< The time frequency.
       std::string frequencyUnit; //!< Unit of the time frequency.
-      te::dt::TimeDuration schedule; //!< Schedule time.
+      uint64_t schedule = 0; //!< Schedule frequency.
+      std::string scheduleUnit; //!< Unit of the schedule frequency.
       uint64_t scheduleRetry = 0; //!< The time frequency to retry.
       std::string scheduleRetryUnit; //!< Unit of the schedule retry.
       uint64_t scheduleTimeout = 0; //!< The time limit to retry.
