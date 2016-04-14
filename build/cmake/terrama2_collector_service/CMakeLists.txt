@@ -53,7 +53,8 @@ add_executable(terrama2_collector_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_F
 qt5_use_modules(terrama2_collector_service Core)
 
 target_link_libraries(terrama2_collector_service terrama2_core
-                                                 terrama2_collector_core)
+                                                 terrama2_collector_core
+                                                 terrama2_impl)
 
 set_target_properties(terrama2_collector_service
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

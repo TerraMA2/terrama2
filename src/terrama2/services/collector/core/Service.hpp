@@ -50,40 +50,40 @@ namespace terrama2
       {
         class Service : public terrama2::core::Service
         {
-          Q_OBJECT
+            Q_OBJECT
 
-        public:
-          Service(std::weak_ptr<DataManager> dataManager);
+          public:
+            Service(std::weak_ptr<DataManager> dataManager);
 
-          ~Service() = default;
-          Service(const Service& other) = default;
-          Service(Service&& other) = default;
-          Service& operator=(const Service& other) = default;
-          Service& operator=(Service&& other) = default;
+            ~Service() = default;
+            Service(const Service& other) = default;
+            Service(Service&& other) = default;
+            Service& operator=(const Service& other) = default;
+            Service& operator=(Service&& other) = default;
 
-        public slots:
-          //! Slot to be called when a DataSetTimer times out.
-          void addToQueue(CollectorId collectorId);
-          void addCollector(CollectorPtr);
-          void updateCollector(CollectorPtr collector);
-          void removeCollector(CollectorId collectorId);
+          public slots:
+            //! Slot to be called when a DataSetTimer times out.
+            void addToQueue(CollectorId collectorId);
+            void addCollector(CollectorPtr);
+            void updateCollector(CollectorPtr collector);
+            void removeCollector(CollectorId collectorId);
 
-        protected:
-          // comments on base class
-          virtual bool mainLoopWaitCondition() noexcept override;
-          // comments on base class
-          virtual bool checkNextData() override;
+          protected:
+            // comments on base class
+            virtual bool mainLoopWaitCondition() noexcept override;
+            // comments on base class
+            virtual bool checkNextData() override;
 
-          virtual void prepareTask(CollectorId collectorId);
+            virtual void prepareTask(CollectorId collectorId);
 
-          static void collect(CollectorId collectorId, std::weak_ptr<DataManager> weakDataManager);
+            static void collect(CollectorId collectorId, std::weak_ptr<DataManager> weakDataManager);
 
-          void connectDataManager();
+            void connectDataManager();
 
-          std::weak_ptr<DataManager> dataManager_;
+            std::weak_ptr<DataManager> dataManager_;
 
-          std::map<CollectorId, terrama2::core::TimerPtr> timers_;
-          std::deque<CollectorId> collectorQueue_;
+            std::map<CollectorId, terrama2::core::TimerPtr> timers_;
+            std::deque<CollectorId> collectorQueue_;
         };
 
       } // end namespace core

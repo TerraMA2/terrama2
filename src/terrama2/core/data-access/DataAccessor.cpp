@@ -38,7 +38,7 @@
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/datatype/SimpleData.h>
 #include <terralib/datatype/Property.h>
-#include <terralib/datatype/Enums.h>
+
 
 //QT
 #include <QUrl>
@@ -47,9 +47,6 @@
 
 //STL
 #include <algorithm>
-
-#include<sstream>
-
 
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
@@ -64,7 +61,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
    if (!std::isnormal(value) && (value != 0.0))
      return nullptr;
 
-   te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
+     te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
 
    return data;
  }
@@ -98,7 +95,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
    if (!std::isnormal(value) && (value != 0))
      return nullptr;
 
-   te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
+     te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
 
    return data;
  }
@@ -119,6 +116,8 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
 
  return nullptr;
 }
+
+
 
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
@@ -209,6 +208,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
 
   return series;
 }
+
 
 void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {

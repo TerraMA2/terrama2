@@ -34,7 +34,7 @@
 #include <terralib/raster/Raster.h>
 
 terrama2::core::SyncronizedDataSet::SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset)
-: dataset_(dataset)
+  : dataset_(dataset)
 {
 }
 
