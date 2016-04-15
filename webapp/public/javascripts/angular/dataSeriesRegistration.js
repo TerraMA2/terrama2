@@ -259,7 +259,7 @@ angular.module('terrama2.dataseries.registration', [
           return;
         }
         // checking parameters form (semantics) is invalid
-        if ($scope.dcps.length === 0 && isValidParametersForm(this.parametersForm)) {
+        if ($scope.dcps.length === 0 && !isValidParametersForm(this.parametersForm)) {
           errorHelper(this.parametersForm);
           return;
         }
@@ -304,12 +304,12 @@ angular.module('terrama2.dataseries.registration', [
             break;
 
           case "occurrence":
+            var format = $scope.model;
+            
             var dataSet = {
               semantics: semantics,
               active: $scope.parametersData.active,
-              child: {
-
-              }
+              format: format
             };
 
             dataToSend.dataSets.push(dataSet);
