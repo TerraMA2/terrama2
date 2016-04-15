@@ -701,12 +701,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @inner
    */
   var getZoomDragBoxExtent = function() {
-    var extentTmp = memberZoomDragBox.getGeometry().getExtent();
-    var extent = [correctLongitude(extentTmp[0]), extentTmp[1], correctLongitude(extentTmp[2]), extentTmp[3]];
-
-    // Zoom to the correct extent
-    zoomToExtent(extent);
-
+    var extent = memberZoomDragBox.getGeometry().getExtent();
     return extent;
   };
 
@@ -747,8 +742,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @inner
    */
   var getCurrentExtent = function() {
-    var extentTmp = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
-    var extent = [correctLongitude(extentTmp[0]), extentTmp[1], correctLongitude(extentTmp[2]), extentTmp[3]];
+    var extent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
     return extent;
   };
 
