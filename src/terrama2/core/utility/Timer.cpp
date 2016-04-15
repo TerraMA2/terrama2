@@ -33,6 +33,7 @@
 
 // TerraMA2
 #include "Timer.hpp"
+#include "ProcessLog.hpp"
 #include "../Exception.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/TimeUtils.hpp"

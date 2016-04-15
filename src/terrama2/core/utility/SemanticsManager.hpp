@@ -32,27 +32,44 @@
 
 #include "../data-model/DataSeriesSemantics.hpp"
 
-//STL
+// STL
 #include <string>
+#include <map>
+
+// TerraLib
+#include <terralib/common/Singleton.h>
 
 namespace terrama2
 {
   namespace core
   {
-    class SemanticsManager {
-    public:
-      SemanticsManager (){}
-      ~SemanticsManager (){}
+    class SemanticsManager : public te::common::Singleton<SemanticsManager>
+    {
+      public:
+        /*!
 
-      /*!
+          \exception terrama2::core::SemanticsException raised when a semantics with same name is already present
+        */
+        DataSeriesSemantics addSemantics(const std::string& name, const DataSeriesSemantics::DataSeriesType& dataSeriesType, const DataFormat& format);
+        /*!
 
-        \exception TODO: raised when a semantics with same name is already present
-      */
-      DataSeriesSemantics  addSemantics(const std::string& name, const DataSeriesSemantics::MacroType& macroType, const DataFormat& format);
-      DataSeriesSemantics  getSemantics(const std::string& name){assert(0);}//TODO: getSemantics
+          \exception terrama2::core::SemanticsException raised when the semantics is not defined
+        */
+        DataSeriesSemantics getSemantics(const std::string& name);
 
-    private:
+      protected:
+        friend class te::common::Singleton<SemanticsManager>;
 
+        SemanticsManager() {}
+        virtual ~SemanticsManager() {}
+
+        SemanticsManager(const SemanticsManager& other) = delete;
+        SemanticsManager(SemanticsManager&& other) = delete;
+        SemanticsManager& operator=(const SemanticsManager& other) = delete;
+        SemanticsManager& operator=(SemanticsManager&& other) = delete;
+
+      private:
+        std::map<std::string, DataSeriesSemantics> semanticsMap_;
     };
   } /* core */
 } /* terrama2 */
