@@ -142,7 +142,6 @@ var DataManager = {
             var arr = [];
             arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
             arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-            arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
             Promise.all(arr).then(function(){
               releaseCallback();
