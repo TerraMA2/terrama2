@@ -81,7 +81,7 @@ namespace terrama2
       private:
         uint64_t processID_;
         uint64_t primaryKey_;
-        std::string tableName_;
+        std::string tableName_ = "";
         QJsonObject obj_;
         std::shared_ptr< te::da::DataSource > dataSource_;
 

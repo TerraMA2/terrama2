@@ -58,10 +58,18 @@ void terrama2::core::ProcessLog::start(uint64_t processID)
 {
   // send start to database
 
-  boost::format query("INSERT INTO "+ tableName_ + " (PID, status) VALUES(%1%, %2%)");
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  boost::format query("INSERT INTO "+ tableName_ + " (PID, status, process_timestamp) VALUES(%1%, %2%, '%3%')");
 
   query.bind_arg(1, processID);
   query.bind_arg(2, static_cast<int>(Status::START));
+  query.bind_arg(3, TimeUtils::now()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
@@ -83,6 +91,13 @@ void terrama2::core::ProcessLog::addValue(std::string tag, std::string value)
 
 void terrama2::core::ProcessLog::updateData()
 {
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
   QJsonDocument doc(obj_);
   QByteArray json = doc.toJson();
 
@@ -97,10 +112,18 @@ void terrama2::core::ProcessLog::updateData()
 
 void terrama2::core::ProcessLog::error(std::string description)
 {
-  boost::format query("INSERT INTO "+ tableName_ + " (status, error_description) VALUES(%1%, '%2%') WHERE ID =" + QString::number(primaryKey_).toStdString());
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  boost::format query("INSERT INTO "+ tableName_ + " (status, error_description, process_timestamp) VALUES(%1%, '%2%', '%3%') WHERE ID =" + QString::number(primaryKey_).toStdString());
 
   query.bind_arg(1, static_cast<int>(Status::ERROR));
   query.bind_arg(2, description);
+  query.bind_arg(3, TimeUtils::now()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
@@ -114,10 +137,18 @@ void terrama2::core::ProcessLog::setTableName(std::string tableName)
 
 void terrama2::core::ProcessLog::done(te::dt::TimeInstantTZ dataTimestamp)
 {
-  boost::format query("INSERT INTO "+ tableName_ + " (status, data_timestamp) VALUES(%1%, '%2%') WHERE ID =" + QString::number(primaryKey_).toStdString());
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  boost::format query("INSERT INTO "+ tableName_ + " (status, data_timestamp, process_timestamp) VALUES(%1%, '%2%', '%3%') WHERE ID =" + QString::number(primaryKey_).toStdString());
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
   query.bind_arg(2, dataTimestamp.toString());
+  query.bind_arg(3, TimeUtils::now()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
@@ -126,8 +157,12 @@ void terrama2::core::ProcessLog::done(te::dt::TimeInstantTZ dataTimestamp)
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLog::getLastProcessDate()
 {
-  // VINICIUS: return last process date from database
-//  return terrama2::core::TimeUtils::now();
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
 
   std::string sql = "SELECT process_timestamp FROM "+ tableName_ + " WHERE ID = " + QString::number(primaryKey_).toStdString();
 
