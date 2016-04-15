@@ -31,7 +31,7 @@ var setupPassport = function(app) {
 
   passport.use(new LocalStrategy(
     {
-      usernameField: 'user',
+      usernameField: 'username',
       passwordField: 'password'
     },
     function(user, password, done) {

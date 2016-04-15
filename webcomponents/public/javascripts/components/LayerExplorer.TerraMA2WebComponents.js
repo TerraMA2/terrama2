@@ -83,9 +83,9 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       var elem = buildLayersFromMap(data, parent);
 
       if(parent === 'terrama2-layerexplorer') {
-        $('#' + parent).append(elem);
+        $('#' + parent).prepend(elem);
       } else {
-        $('#' + parent + ' > ul.children').append(elem);
+        $('#' + parent + ' > ul.children').prepend(elem);
       }
 
       // Handle opacity slider control
@@ -116,8 +116,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
           layers = layer.getLayers().getArray(),
           len = layers.length;
 
-      for(var i = 0; i < len; i++)
-        sublayersElem += buildLayersFromMap(layers[i], layer.get('id'));
+      for(var i = 0; i < len; i++) {
+        var sublayersElemTmp = sublayersElem;
+        sublayersElem = buildLayersFromMap(layers[i], layer.get('id')) + sublayersElemTmp;
+      }
 
       if(!$("#" + layer.get('id').replace(':', '')).length)
         elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
@@ -203,10 +205,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
   var setSortable = function() {
     $('.children').sortable({
       start: function(event, ui) {
-        $(this).attr('data-previndex', ui.item.index());
+        $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
       },
       update: function(event, ui) {
-        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
         $(this).removeAttr('data-previndex');
       }
     });
@@ -215,10 +217,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
     $('#terrama2-layerexplorer').sortable({
       start: function(event, ui) {
-        $(this).attr('data-previndex', ui.item.index());
+        $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
       },
       update: function(event, ui) {
-        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
         $(this).removeAttr('data-previndex');
       }
     });
