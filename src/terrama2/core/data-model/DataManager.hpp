@@ -60,19 +60,23 @@ namespace terrama2
      */
     class DataManager : public QObject
     {
-      Q_OBJECT
+        Q_OBJECT
 
-    public:
-      DataManager();
+      public:
+        DataManager();
 
-      //! Destructor.
-      virtual ~DataManager();
+        //! Destructor.
+        virtual ~DataManager();
+        DataManager(const DataManager& other) = delete;
+        DataManager(DataManager&& other) = delete;
+        DataManager& operator=(const DataManager& other) = delete;
+        DataManager& operator=(DataManager&& other) = delete;
 
-      std::unique_lock<std::recursive_mutex> getLock();
+        std::unique_lock<std::recursive_mutex> getLock();
 
-      virtual void addFromJSON(const QJsonValue& jsonValue);
+        virtual void addFromJSON(const QJsonValue& jsonValue);
 
-      /*!
+        /*!
         \brief Add the data provider to the database and register it in the manager.
 
         This method will also add all the dataseries contained in the data provider.
@@ -90,13 +94,13 @@ namespace terrama2
         \exception terrama2::Exception If it is not possible to add the data provider.
 
         \note Thread-safe.
-       */
-      void add(DataProviderPtr provider);
+        */
+        virtual void add(DataProviderPtr provider);
 
-      // TODO: doc here
-      void add(DataSeriesPtr dataseries);
+        // TODO: doc here
+        virtual void add(DataSeriesPtr dataseries);
 
-      /*!
+        /*!
         \brief Update a given data provider in the database.
 
         Emits dataProviderUpdated() signal if the data provider is updated successfully.
@@ -113,10 +117,10 @@ namespace terrama2
         \exception terrama2::Exception If it is not possible to update the data provider.
 
         \note Thread-safe.
-       */
-      void update(DataProviderPtr provider);
+        */
+        virtual void update(DataProviderPtr provider);
 
-      /*!
+        /*!
         \brief Update a given dataseries in the database.
 
         Emits dataSeriesUpdated() signal if the dataseries is updated successfully.
@@ -130,10 +134,10 @@ namespace terrama2
         \exception terrama2::Exception If it is not possible to update the dataseries.
 
         \note Thread-safe.
-       */
-      void update(DataSeriesPtr dataseries, const bool shallowSave = false);
+        */
+        virtual void update(DataSeriesPtr dataseries, const bool shallowSave = false);
 
-      /*!
+        /*!
         \brief Removes a given data provider.
 
         Emits dataProviderRemoved() signal if the data provider is removed successfully.
@@ -149,11 +153,11 @@ namespace terrama2
         \exception terrama2::Exception If it is not possible to remove the data provider.
 
         \note Thread-safe.
-       */
+        */
 
-      void removeDataProvider(const DataProviderId id, const bool shallowRemove = false);
+        virtual void removeDataProvider(const DataProviderId id, const bool shallowRemove = false);
 
-      /*!
+        /*!
         \brief Removes the dataseries with the given id.
 
         \pre The dataseries must have a valid ID.
@@ -167,10 +171,10 @@ namespace terrama2
         \exception terrama2::Exception If it is not possible to remove the dataseries.
 
         \note Thread-safe.
-       */
-      void removeDataSeries(const DataSeriesId id);
+        */
+        virtual void removeDataSeries(const DataSeriesId id);
 
-      /*!
+        /*!
         \brief Retrieves the data provider with the given name.
 
         In case there is no data provider in the database with the given name it will return an empty smart pointer.
@@ -182,10 +186,10 @@ namespace terrama2
         \exception terrama2::Exception If some error occur when trying to find the data provider.
 
         \note Thread-safe.
-       */
-      DataProviderPtr findDataProvider(const std::string& name) const;
+        */
+        virtual DataProviderPtr findDataProvider(const std::string& name) const;
 
-      /*!
+        /*!
         \brief Retrieves the data provider with the given id.
 
         In case there is no data provider in the database with the given id it will return an empty smart pointer.
@@ -197,10 +201,10 @@ namespace terrama2
         \return DataProvider A smart pointer to the data provider
 
         \note Thread-safe.
-       */
-      DataProviderPtr findDataProvider(const DataProviderId id) const;
+        */
+        virtual DataProviderPtr findDataProvider(const DataProviderId id) const;
 
-      /*!
+        /*!
         \brief Search for a dataseries with the given name
         In case none is found it will return an empty smart pointer.
 
@@ -210,10 +214,10 @@ namespace terrama2
         \exception terrama2::Exception If some error occur when trying to find the dataseries.
 
         \note Thread-safe.
-       */
-      DataSeriesPtr findDataSeries(const std::string& name) const;
+        */
+        virtual DataSeriesPtr findDataSeries(const std::string& name) const;
 
-      /*!
+        /*!
         \brief Search for a dataseries with the given id
         In case none is found it will return an empty smart pointer.
 
@@ -223,33 +227,33 @@ namespace terrama2
         \exception terrama2::Exception If some error occur when trying to find the dataseries.
 
         \note Thread-safe.
-       */
-      DataSeriesPtr findDataSeries(const DataSeriesId id) const;
+        */
+        virtual DataSeriesPtr findDataSeries(const DataSeriesId id) const;
 
-    signals:
+      signals:
 
-      //! Signal to notify that a provider has been added.
-      void dataProviderAdded(DataProviderPtr);
+        //! Signal to notify that a provider has been added.
+        void dataProviderAdded(DataProviderPtr);
 
-      //! Signal to notify that a provider has been removed.
-      void dataProviderRemoved(DataProviderId);
+        //! Signal to notify that a provider has been removed.
+        void dataProviderRemoved(DataProviderId);
 
-      //! Signal to notify that a provider has been updated.
-      void dataProviderUpdated(DataProviderPtr);
+        //! Signal to notify that a provider has been updated.
+        void dataProviderUpdated(DataProviderPtr);
 
-      //! Signal to notify that a dataseries has been added.
-      void dataSeriesAdded(DataSeriesPtr);
+        //! Signal to notify that a dataseries has been added.
+        void dataSeriesAdded(DataSeriesPtr);
 
-      //! Signal to notify that a dataseries has been removed.
-      void dataSeriesRemoved(DataSeriesId);
+        //! Signal to notify that a dataseries has been removed.
+        void dataSeriesRemoved(DataSeriesId);
 
-      //! Signal to notify that a dataseries has been updated.
-      void dataSeriesUpdated(DataSeriesPtr);
+        //! Signal to notify that a dataseries has been updated.
+        void dataSeriesUpdated(DataSeriesPtr);
 
-    protected:
-      std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
-      std::map<DataSeriesId, DataSeriesPtr> dataseries_;    //!< A map from data-set-id to dataseries.
-      mutable std::recursive_mutex mtx_;                    //!< A mutex to syncronize all operations.
+      protected:
+        std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
+        std::map<DataSeriesId, DataSeriesPtr> dataseries_;    //!< A map from data-set-id to dataseries.
+        mutable std::recursive_mutex mtx_;                    //!< A mutex to syncronize all operations.
     };
 
   } // end namespace core

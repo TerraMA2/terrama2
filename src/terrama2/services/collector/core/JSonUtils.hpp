@@ -42,6 +42,9 @@ namespace terrama2
       {
         CollectorPtr fromCollectorJson(QJsonObject json);
         IntersectionPtr fromIntersectionJson(QJsonObject json);
+
+        QJsonObject toJson(CollectorPtr collector);
+        QJsonObject toJson(IntersectionPtr intersection);
       } /* core */
     }   /* collector */
   }     /* services */

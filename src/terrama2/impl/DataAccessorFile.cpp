@@ -148,8 +148,6 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
      std::shared_ptr<te::da::DataSet> teDataSet(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 
      //FIXME: Nor working with raster!!
-     //TODO:.. filter and join te::da::dataset from each dataset
-     //TODO: join dataset
 
      completeDataset->copy(*teDataSet);
 
