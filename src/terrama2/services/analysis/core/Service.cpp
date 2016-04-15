@@ -75,7 +75,9 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 {
   Analysis analysis = dataManager_->findAnalysis(analysisId);
 
-  std::shared_ptr< AnalysisLog > analysisLog(new AnalysisLog(analysisId));
+  // VINICIUS: real connInfo
+  std::map<std::string, std::string> connInfoFAKE;
+  std::shared_ptr< AnalysisLog > analysisLog(new AnalysisLog(analysisId, connInfoFAKE));
   terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);
   connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
   timers_.emplace(analysisId, timer);

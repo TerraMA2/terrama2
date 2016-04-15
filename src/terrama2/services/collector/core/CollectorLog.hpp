@@ -43,15 +43,12 @@ namespace terrama2
         class CollectorLog : public terrama2::core::ProcessLog
         {
         public:
-          CollectorLog(uint64_t processID);
+          CollectorLog(uint64_t processID, std::map<std::string, std::string> connInfo);
 
-          void addValue(std::string tag, std::string value);
+          void addInput(std::string value);
 
-          void update(terrama2::core::Status status, te::dt::TimeInstantTZ dataTimestamp);
+          void addOutput(std::string value);
 
-          void error(std::string description);
-
-          std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate();
         };
       }
     }

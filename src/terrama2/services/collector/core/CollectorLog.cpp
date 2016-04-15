@@ -30,29 +30,18 @@
 // TerraMA2
 #include "CollectorLog.hpp"
 
-terrama2::services::collector::core::CollectorLog::CollectorLog(uint64_t processID)
- : ProcessLog(processID)
+terrama2::services::collector::core::CollectorLog::CollectorLog(uint64_t processID , std::map< std::string, std::string > connInfo)
+ : ProcessLog(processID, connInfo)
 {
-// VINICIUS:
+  setTableName("collector");
 }
 
-void terrama2::services::collector::core::CollectorLog::addValue(std::string tag, std::string value)
+void terrama2::services::collector::core::CollectorLog::addInput(std::string value)
 {
-// VINICIUS:
+  addValue("input", value);
 }
 
-void terrama2::services::collector::core::CollectorLog::update(terrama2::core::Status status, te::dt::TimeInstantTZ dataTimestamp)
+void terrama2::services::collector::core::CollectorLog::addOutput(std::string value)
 {
-// VINICIUS:
-}
-
-void terrama2::services::collector::core::CollectorLog::error(std::string description)
-{
-// VINICIUS:
-}
-
-std::shared_ptr< te::dt::TimeInstantTZ > terrama2::services::collector::core::CollectorLog::getLastProcessDate()
-{
-  // VINICIUS:
-  return terrama2::core::TimeUtils::now();
+  addValue("output", value);
 }

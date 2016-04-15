@@ -188,7 +188,9 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    std::shared_ptr< CollectorLog > collectorLog(new CollectorLog(collector->id));
+    // VINICIUS: real connInfo
+    std::map<std::string, std::string> connInfoFAKE;
+    std::shared_ptr< CollectorLog > collectorLog(new CollectorLog(collector->id, connInfoFAKE));
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, collectorLog);
     connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(collector->id, timer);

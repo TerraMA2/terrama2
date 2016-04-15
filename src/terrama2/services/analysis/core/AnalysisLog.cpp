@@ -30,29 +30,10 @@
 // TerraMA2
 #include "AnalysisLog.hpp"
 
-terrama2::services::analysis::core::AnalysisLog::AnalysisLog(uint64_t processID)
- : ProcessLog(processID)
+terrama2::services::analysis::core::AnalysisLog::AnalysisLog(uint64_t processID, std::map< std::string, std::string > connInfo)
+ : ProcessLog(processID, connInfo)
 {
 // VINICIUS:
+  setTableName("analysis");
 }
 
-void terrama2::services::analysis::core::AnalysisLog::addValue(std::string tag, std::string value)
-{
-// VINICIUS:
-}
-
-void terrama2::services::analysis::core::AnalysisLog::update(terrama2::core::Status status, te::dt::TimeInstantTZ dataTimestamp)
-{
-// VINICIUS:
-}
-
-void terrama2::services::analysis::core::AnalysisLog::error(std::string description)
-{
-// VINICIUS:
-}
-
-std::shared_ptr< te::dt::TimeInstantTZ > terrama2::services::analysis::core::AnalysisLog::getLastProcessDate()
-{
-  // VINICIUS:
-  return terrama2::core::TimeUtils::now();
-}

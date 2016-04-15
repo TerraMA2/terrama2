@@ -43,15 +43,8 @@ namespace terrama2
         class AnalysisLog : public terrama2::core::ProcessLog
         {
         public:
-          AnalysisLog(uint64_t processID);
+          AnalysisLog(uint64_t processID, std::map< std::string, std::string > connInfo);
 
-          void addValue(std::string tag, std::string value);
-
-          void update(terrama2::core::Status status, te::dt::TimeInstantTZ dataTimestamp);
-
-          void error(std::string description);
-
-          std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate();
         };
       }
     }
