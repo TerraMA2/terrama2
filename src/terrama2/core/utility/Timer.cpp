@@ -57,7 +57,7 @@ terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId, s
   impl_ = new Impl();
   impl_->dataSchedule_ = dataSchedule;
   impl_->processId_ = processId;
-  impl_->lastEmit_ = log->getLastProcessDate();
+  impl_->lastEmit_ = log->getLastProcessTimestamp();
 
   prepareTimer(dataSchedule);
 }

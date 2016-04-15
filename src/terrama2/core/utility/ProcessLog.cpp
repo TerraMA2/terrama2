@@ -155,7 +155,7 @@ void terrama2::core::ProcessLog::done(te::dt::TimeInstantTZ dataTimestamp)
   transactor->commit();
 }
 
-std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLog::getLastProcessDate()
+std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLog::getLastProcessTimestamp()
 {
   if(tableName_.empty())
   {
@@ -165,6 +165,24 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLog::getLastProc
   }
 
   std::string sql = "SELECT process_timestamp FROM "+ tableName_ + " WHERE ID = " + QString::number(primaryKey_).toStdString();
+
+  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+
+  std::unique_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
+
+  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(0).release()));
+}
+
+std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLog::getDataTimestamp()
+{
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE PID = " + QString::number(processID_).toStdString();
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 

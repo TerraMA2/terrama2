@@ -70,7 +70,9 @@ namespace terrama2
 
         void done(te::dt::TimeInstantTZ dataTimestamp);
 
-        std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate();
+        std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp();
+
+        std::shared_ptr< te::dt::TimeInstantTZ > getDataTimestamp();
 
         void setTableName(std::string tableName);
 
