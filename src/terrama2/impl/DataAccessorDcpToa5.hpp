@@ -51,7 +51,7 @@ namespace terrama2
         /*!
          * \brief DataAccessorDcpToa5 Constructor.
          * \param dataProvider It contains information of a DataProvider;
-         * \param dataSeries It contains a dataset Ex. set of PCD-TOA5.
+         * \param dataSeries It contains a dataset Ex. set of DCP-TOA5.
          * \param filter It contains the filter data.
          */
         DataAccessorDcpToa5(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
@@ -101,35 +101,38 @@ namespace terrama2
          * \brief getDataSet Get a memory dataset do core::DataSet.
          * \param uri Uri to the dataset;
          * \param filter Filter applyed to the dataset;
-         * \param dataSet It contains description of a dataset. Ex. information of PCD-TOA5;
+         * \param dataSet It contains description of a dataset. Ex. information of DCP-TOA5;
          */      
         virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
 
       private:
         /*!
          * \brief getTimeZone Get the timezone of the dataset.
-         * \param dataset It contains description of a dataset. Ex. information of PCD-TOA5;
+         * \param dataset It contains description of a dataset. Ex. information of DCP-TOA5;
          * \return Return timezone of the dataset.
          */
         std::string getTimeZone(DataSetPtr dataset) const;
+
+        //! Get folder of DCP-TOA5.
+        std::string getFolder(DataSetPtr dataSet) const;
 
         /*!
          * \brief timestampColumn Get timestamp column.
          * \return Return TimeStamp Column.
          */
-        std::string timestampColumn() const;
+        std::string timestampProperty() const;
 
         /*!
          * \brief recordColumn Get record column.
          * \return Return Record Column.
          */
-        std::string recordColumn() const;
+        std::string recordProperty() const;
 
         /*!
          * \brief stationColumn Get station column.
          * \return Return Station Column.
          */
-        std::string stationColumn() const;
+        std::string stationProperty() const;
 
         /*!
          * \brief stringToTimestamp is the function is responsible for handling the date and time fields

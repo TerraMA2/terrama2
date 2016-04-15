@@ -64,19 +64,20 @@ terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataPro
     TERRAMA2_LOG_ERROR() << errMsg;
     throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
   }
+
 }
 
-std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::timestampColumn() const
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::timestampProperty() const
 {
   return "TIMESTAMP";
 }
 
-std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::recordColumn() const
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::recordProperty() const
 {
   return "RECORD";
 }
 
-std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::stationColumn() const
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::stationProperty() const
 {
   return "Estacao_ID";
 }
@@ -94,6 +95,21 @@ std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getTimeZon
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
+
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getFolder(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("folder");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined folder in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::dataSourceType() const
 {
@@ -151,7 +167,7 @@ void terrama2::core::DataAccessorDcpToa5::adapt(DataSetPtr dataset, std::shared_
   {
     te::dt::Property* property = properties.at(i);
 
-    if (property->getName() == recordColumn())
+    if (property->getName() == recordProperty())
     {
       te::dt::Property* property = properties.at(i);
 
@@ -160,20 +176,18 @@ void terrama2::core::DataAccessorDcpToa5::adapt(DataSetPtr dataset, std::shared_
       te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(name, te::dt::INT32_TYPE);
       converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
     }
-
-    if (property->getName() == stationColumn())
+    else if (property->getName() == stationProperty())
     {
       te::dt::Property* property = properties.at(i);
 
       converter->add(i, property->clone());
     }
-
-    if(property->getName() == timestampColumn())
+    else if(property->getName() == timestampProperty())
     {
       // datetime column found
       converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpToa5::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataset)));
     }
-    else if((property->getName() != timestampColumn()) && (property->getName() != stationColumn()) && (property->getName() != recordColumn()))
+    else
     {
       // DCP-TOA5 dataset columns have the name of the dcp before every column,
       // remove the name and keep only the column name
@@ -199,6 +213,7 @@ terrama2::core::Series terrama2::core::DataAccessorDcpToa5::getSeries(const std:
 
 {
   std::string mask = getMask(dataSet);
+  std::string folder = getFolder(dataSet);
 
   QTemporaryDir tempDir;
   if(!tempDir.isValid())
@@ -207,7 +222,7 @@ terrama2::core::Series terrama2::core::DataAccessorDcpToa5::getSeries(const std:
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
-  QUrl url((uri+"/"+mask).c_str());
+  QUrl url((uri+"/"+folder+"/"+mask).c_str());
   QFileInfo originalInfo(url.path());
   QFile file(url.path());
   file.open(QIODevice::ReadWrite);
@@ -215,30 +230,24 @@ terrama2::core::Series terrama2::core::DataAccessorDcpToa5::getSeries(const std:
   QFile tempFile(tempDir.path()+"/"+originalInfo.fileName());
   tempFile.open(QIODevice::ReadWrite);
 
-  QString column = file.readLine();//Verify first line
-  if(!column.contains("TIMESTAMP",Qt::CaseInsensitive))
-  {
-    tempFile.write(file.readLine()); //headers line
+  file.readLine();//ignore first line
+  tempFile.write(file.readLine()); //headers line
 
-    //ignore third and fourth lines
-    file.readLine();
-    file.readLine();
+  //ignore third and fourth lines
+  file.readLine();
+  file.readLine();
 
-    //read all file
-    tempFile.write(file.readAll()); //headers line
+  //read all file
+  tempFile.write(file.readAll()); //headers line
 
-    file.close();
-    tempFile.close();
+  //update file path
+  QFileInfo info(tempFile);
+  std::string tempUri = "file://"+info.absolutePath().toStdString();
 
-    // Overwrite file.
-    file.open(QIODevice::WriteOnly);
-    tempFile.open(QIODevice::ReadOnly);
-    file.write(tempFile.readAll());
-  }
   file.close();
   tempFile.close();
 
-  return terrama2::core::DataAccessorFile::getSeries(uri, filter, dataSet);
+  return terrama2::core::DataAccessorFile::getSeries(tempUri, filter, dataSet);
 }
 
 terrama2::core::DataAccessor* terrama2::core::DataAccessorDcpToa5::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)

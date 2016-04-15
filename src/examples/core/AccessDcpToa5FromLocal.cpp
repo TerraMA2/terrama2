@@ -54,7 +54,6 @@ int main(int argc, char* argv[])
   std::string names, types;
   for(int i = 0; i < teDataSet->getNumProperties(); ++i)
   {
-    bool isdouble = true;
     std::string name = teDataSet->getPropertyName(i);
     names+= name + "\t";
 
@@ -62,27 +61,23 @@ int main(int argc, char* argv[])
     {
       types+= "INT32\t";
       dateColumnRecord = i;
-      isdouble = false;
     }
 
-    if (name == "Estacao_ID")
+    else if (name == "Estacao_ID")
     {
       types+= "String\t";
       dateColumnStation = i;
-      isdouble = false;
     }
 
-    if(name == "DateTime")
+    else if(name == "DateTime")
     {
       types+= "DataTime\t";
       dateColumnDateTime = i;
-      isdouble = false;
     }
 
-    if (isdouble)
+    else
     {
       types+= "Double\t";
-      isdouble = true;
     }
   }
 
@@ -95,39 +90,34 @@ int main(int argc, char* argv[])
   {
     for(int i = 0; i < teDataSet->getNumProperties(); ++i)
     {
-      bool isdouble = true;
       if(teDataSet->isNull(i))
       {
-        isdouble = false;
         std::cout << "NULL";
       }
 
-      if(i == dateColumnRecord)
+      else if(i == dateColumnRecord)
       {
         int value_int = teDataSet->getInt32(i);
         std::cout << value_int;
-        isdouble = false;
       }
 
-      if(i == dateColumnStation)
+      else if(i == dateColumnStation)
       {
         std::string value_str = teDataSet->getString(i);
         std::cout << value_str;
-        isdouble = false;
       }
 
-      if(i == dateColumnDateTime)
+      else if(i == dateColumnDateTime)
       {
         std::shared_ptr<te::dt::DateTime> dateTime =  teDataSet->getDateTime(i);
         std::cout << dateTime->toString();
-        isdouble = false;
       }
 
-      if(isdouble)
+      else
       {
         double value =  teDataSet->getDouble(i);
-        std::cout << value;
-        isdouble = true;
+        std::cout.precision(4);
+        std::cout << std::fixed << value;
       }
 
       std::cout << "\t";
