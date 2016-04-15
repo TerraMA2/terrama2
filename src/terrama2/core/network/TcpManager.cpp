@@ -99,8 +99,22 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
 
 void terrama2::core::TcpManager::readReadySlot()
 {
-  QDataStream in(tcpSocket_);
   RaiiBlock block(blockSize_);
+
+  TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
+  QDataStream in(tcpSocket_);
+
+  // QByteArray bytearray;
+  // in >> bytearray;
+  // int error = in.readRawData(bytearray.data(), tcpSocket_->bytesAvailable());
+
+  // std::cout << std::endl;
+  // std::cout << std::hex;
+  // for(int i = 0; i < bytearray.size(); ++i)
+  //   std::cout << (int)bytearray[i];
+  // std::cout << std::endl;
+  // return;
+
   Q_UNUSED(block)
   if(blockSize_ == 0)
   {
@@ -111,8 +125,10 @@ void terrama2::core::TcpManager::readReadySlot()
     }
 
     in >> blockSize_;
+    TERRAMA2_LOG_DEBUG() << "blockSize: " << blockSize_;
   }
 
+  TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
   if(tcpSocket_->bytesAvailable() != blockSize_)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nWrong message size.");
@@ -126,52 +142,52 @@ void terrama2::core::TcpManager::readReadySlot()
 
   switch(signal)
   {
-  case TcpSignals::TERMINATE_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "TERMINATE_SIGNAL";
-    emit stopSignal();
-    break;
-  }
-  case TcpSignals::DATA_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "DATA_SIGNAL";
-    QByteArray bytearray;
-    in >> bytearray;
+    case TcpSignals::TERMINATE_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "TERMINATE_SIGNAL";
+      emit stopSignal();
+      break;
+    }
+    case TcpSignals::DATA_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "DATA_SIGNAL";
+      QByteArray bytearray;
+      in >> bytearray;
 
-    parseData(bytearray);
-    break;
-  }
-  case TcpSignals::START_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "START_SIGNAL";
-    int dataId;
-    in >> dataId;
+      parseData(bytearray);
+      break;
+    }
+    case TcpSignals::START_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "START_SIGNAL";
+      int dataId;
+      in >> dataId;
 
-    emit startProcess(dataId);
+      emit startProcess(dataId);
 
-    break;
-  }
-  case TcpSignals::STATUS_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
-    QByteArray bytearray;
-    QDataStream out(&bytearray, QIODevice::WriteOnly);
+      break;
+    }
+    case TcpSignals::STATUS_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
+      QByteArray bytearray;
+      QDataStream out(&bytearray, QIODevice::WriteOnly);
 
-    out << static_cast<uint32_t>(0);
-    out << TcpSignals::STATUS_SIGNAL;
-    out.device()->seek(0);
-    out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+      out << static_cast<uint32_t>(0);
+      out << TcpSignals::STATUS_SIGNAL;
+      out.device()->seek(0);
+      out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
-    // wait while sending message
-    qint64 written = tcpSocket_->write(bytearray);
-    if(written == -1 || !tcpSocket_->waitForBytesWritten())
-      TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
+      // wait while sending message
+      qint64 written = tcpSocket_->write(bytearray);
+      if(written == -1 || !tcpSocket_->waitForBytesWritten())
+        TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
 
-    break;
-  }
-  default:
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error\n Unknown signal received.");
-    break;
+      break;
+    }
+    default:
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error\n Unknown signal received.");
+      break;
   }
 
   blockSize_ = 0;
