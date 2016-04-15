@@ -31,10 +31,11 @@
 #define __TERRAMA2_CORE_PROCESSLOG_HPP__
 
 // TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 
-// TerraMA2
-#include "TimeUtils.hpp"
+// Qt
+#include <QJsonObject>
 
 namespace terrama2
 {
@@ -57,19 +58,32 @@ namespace terrama2
     class ProcessLog
     {
       public:
-        ProcessLog(uint64_t processID) : processID_(processID) {}
+        ProcessLog(uint64_t processID, std::map < std::string, std::string > connInfo);
 
-        virtual void addValue(std::string tag, std::string value) = 0;
+        void start(uint64_t processID);
 
-        virtual void update(Status status, te::dt::TimeInstantTZ dataTimestamp) = 0;
+        void addValue(std::string tag, std::string value);
 
-        virtual void error(std::string description) = 0;
+        void updateData();
 
-        virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate() = 0;
+        void error(std::string description);
 
-      protected:
+        void done(te::dt::TimeInstantTZ dataTimestamp);
+
+        std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate();
+
+        void setTableName(std::string tableName);
+
+        uint64_t primaryKey();
+
+        uint64_t processID();
+
+      private:
         uint64_t processID_;
         uint64_t primaryKey_;
+        std::string tableName_;
+        QJsonObject obj_;
+        std::shared_ptr< te::da::DataSource > dataSource_;
 
     };
   }
