@@ -72,8 +72,14 @@ namespace terrama2
         struct ContextKey
         {
           DataSetId datasetId_;
-          uint64_t analysisId_;
+          AnalysisId analysisId_;
           std::string dateFilter_;
+        };
+
+        struct ResultKey
+        {
+          std::string geomId_;
+          std::string attribute_;
         };
 
         struct ContextKeyComparer
@@ -103,13 +109,27 @@ namespace terrama2
             }
         };
 
-        bool operator<(const ContextKey & lhs, const ContextKey & rhs);
+        struct ResultKeyComparer
+        {
+            bool operator()( const ResultKey& lhs , const ResultKey& rhs) const
+            {
+              if(lhs.geomId_.compare(rhs.geomId_) >= 0)
+              {
+                return true;
+              }
+              else
+              {
+                return lhs.attribute_.compare(rhs.attribute_) < 0;
+              }
+            }
+        };
+
 
         class Context : public te::common::Singleton<Context>
         {
           public:
-            std::map<std::string, double> analysisResult(uint64_t analysisId);
-            void setAnalysisResult(uint64_t analysisId, std::string geomId, double result);
+            std::map<ResultKey, double, ResultKeyComparer> analysisResult(uint64_t analysisId);
+            void setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result);
 
             void setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager);
             Analysis getAnalysis(AnalysisId analysisId) const;
@@ -122,7 +142,7 @@ namespace terrama2
 
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
-            std::map<AnalysisId, std::map<std::string, double> > analysisResult_;
+            std::map<AnalysisId, std::map<ResultKey, double, ResultKeyComparer> > analysisResult_;
             std::map<ContextKey, std::shared_ptr<ContextDataset>, ContextKeyComparer> datasetMap_;
             mutable std::recursive_mutex mutex_;
   			};

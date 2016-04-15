@@ -42,9 +42,9 @@ int main(int argc, char* argv[])
   analysis.name = "Analysis";
   analysis.active = true;
 
-  std::string script = "from terrama2 import *\n"
-                       "x = occurrence.count(\"Occurrence\", 0, Buffer.OBJECT_PLUS_EXTERN, \"12h\", \"\")\n"
+  std::string script = "x = occurrence.count(\"Occurrence\", 0, Buffer.OBJECT_PLUS_EXTERN, \"48h\", \"\")\n"
                        "add_value(\"Count\", x)";
+
 
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 
   analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = terrama2::core::MINUTE;
+  analysis.schedule.frequencyUnit = "min";
 
   dataManager->add(analysis);
 

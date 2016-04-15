@@ -74,9 +74,12 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 {
   Analysis analysis = dataManager_->findAnalysis(analysisId);
 
-  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId);
-  connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
-  timers_.emplace(analysisId, timer);
+  if(analysis.active)
+  {
+    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId);
+    connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+    timers_.emplace(analysisId, timer);
+  }
 
   // add to queue to run now
   addToQueue(analysisId);

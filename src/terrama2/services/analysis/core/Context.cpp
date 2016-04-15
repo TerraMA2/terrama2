@@ -55,17 +55,21 @@
 
 
 
-std::map<std::string, double> terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
+std::map<terrama2::services::analysis::core::ResultKey, double, terrama2::services::analysis::core::ResultKeyComparer> terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisResult_[analysisId];
 }
 
-void terrama2::services::analysis::core::Context::setAnalysisResult(AnalysisId analysisId, std::string geomId, double result)
+void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto& valueMap = analysisResult_[analysisId];
-  valueMap[geomId] = result;
+  ResultKey key;
+  key.geomId_ = geomId;
+  key.attribute_ = attribute;
+
+  valueMap[key] = result;
 }
 
 

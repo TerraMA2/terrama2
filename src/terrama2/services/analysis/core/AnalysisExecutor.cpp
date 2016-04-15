@@ -163,11 +163,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analys
       QString errMsg(QObject::tr("Analysis: %1 -> Empty result.").arg(analysis.id));
       TERRAMA2_LOG_WARNING() << errMsg;
     }
-    for(auto it : result)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Geometry: %2 Result: %3.").arg(analysis.id).arg(it.first.c_str()).arg(it.second));
-      TERRAMA2_LOG_INFO() << errMsg;
-    }
 
     // grab the lock
     PyEval_AcquireLock();
@@ -232,11 +227,6 @@ void terrama2::services::analysis::core::runDCPAnalysis(const Analysis& analysis
     {
       QString errMsg(QObject::tr("Analysis: %1 -> Empty result.").arg(analysis.id));
       TERRAMA2_LOG_WARNING() << errMsg;
-    }
-    for(auto it : result)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Geometry: %2 Result: %3.").arg(analysis.id).arg(it.first.c_str()).arg(it.second));
-      TERRAMA2_LOG_INFO() << errMsg;
     }
 
     // grab the lock

@@ -38,7 +38,16 @@ int main(int argc, char* argv[])
 
   Context::getInstance().setDataManager(dataManager);
 
-  std::string script = "x = dcp.min(\"DCP-Angra\", \"pluvio\", 2, Buffer.OUTSIDE_AND_GEOMETRY, [\"id1\", \"id2\"])\nadd_value(x)";
+  std::string script = "x = dcp.min(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"min\", x)\n"
+                       "x = dcp.max(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"max\", x)\n"
+                       "x = dcp.mean(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"mean\", x)\n"
+                       "x = dcp.median(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"median\", x)\n"
+                       "x = dcp.standardDeviation(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"standardDeviation\", x)\n";
 
   Analysis analysis;
   analysis.id = 1;
@@ -46,6 +55,7 @@ int main(int argc, char* argv[])
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
   analysis.type = MONITORED_OBJECT_TYPE;
+  analysis.active = false;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);

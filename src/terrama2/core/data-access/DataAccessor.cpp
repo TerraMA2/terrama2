@@ -185,7 +185,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
         removeFolder = true;
       }
       else
-        uri = dataProvider_->uri +"/"+ getFolder(dataset);
+        uri = dataProvider_->uri;
 
       //TODO: Set last date collected in filter
       std::shared_ptr<te::mem::DataSet> memDataSet;

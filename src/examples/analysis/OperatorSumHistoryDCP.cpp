@@ -38,7 +38,18 @@ int main(int argc, char* argv[])
 
   Context::getInstance().setDataManager(dataManager);
 
-  std::string script = "x = dcpHistory.sum(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\nadd_value(x)";
+  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "add_value(\"history_sum\",x)\n"
+                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "add_value(\"history_max\",x)\n"
+                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "add_value(\"history_min\",x)\n"
+                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "add_value(\"history_mean\",x)\n"
+                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "add_value(\"history_median\",x)\n"
+                       "x = dcp.history.standardDeviation(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "add_value(\"history_standardDeviation\",x)\n";
 
   Analysis analysis;
   analysis.id = 1;
@@ -46,6 +57,7 @@ int main(int argc, char* argv[])
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
   analysis.type = MONITORED_OBJECT_TYPE;
+  analysis.active = false;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
