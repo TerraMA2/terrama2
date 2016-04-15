@@ -46,6 +46,20 @@
     <div class="col-md-12">
       <div class="pull-right">
         <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
+        <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
+      </div>
+    </div>
+  </wz-step>
+
+  <wz-step wz-title="Schedule">
+    <div class="col-md-12">
+
+      <div ng-include="'/javascripts/angular/data-series/templates/schedule.html'"></div>
+
+    </div>
+    <div class="col-md-12">
+      <div class="pull-right">
+        <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
         <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('Next') }}</button>
       </div>
     </div>

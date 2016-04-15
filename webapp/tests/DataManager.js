@@ -21,7 +21,7 @@ function createDataProvider() {
     active: true,
     project_id: createProject().id,
     data_provider_type_name: "FTP",
-    data_provider_intent_name: "Intent1"
+    data_provider_intent_name: "Collect"
   };
 }
 
@@ -174,12 +174,6 @@ describe('DataManager', function() {
               }
             }
           }
-        },
-        // occurrence
-        {
-          id: 2,
-          data_series_id: dataSeries.id,
-          active: true
         }
       ];
 
@@ -196,6 +190,7 @@ describe('DataManager', function() {
 
   it('should retrieve DataSet', function(done) {
     DataManager.getDataSet({id: 1}).then(function(dset) {
+      console.log(dset);
       assert(dset.hasOwnProperty('position') && dset.position.coordinates[0] === 25.9);
       return done();
     }).catch(function(err) {
@@ -227,7 +222,7 @@ describe('DataManager', function() {
 
   it('should list DataSets', function(done) {
     var dataSets = DataManager.listDataSets();
-    return done(assert(dataSets.length === 2));
+    return done(assert(dataSets.length === 1));
   });
 
   it('should update DataSeries', function(done) {
@@ -248,7 +243,7 @@ describe('DataManager', function() {
 
   it('should destroy DataSet', function(done) {
     DataManager.removeDataSet({id: 1}).then(function() {
-      assert(DataManager.data.dataSets.length === 1);
+      assert(DataManager.data.dataSets.length === 0);
       return done();
     }).catch(function(err) {
       return done(err);

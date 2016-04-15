@@ -1,0 +1,65 @@
+<div class="row">
+  <div class="col-md-7">
+    <div class="form-group" ng-class="{'has-error': scheduleForm.frequency_unit.$dirty && scheduleForm.frequency_unit.$error.required, 'has-success': scheduleForm.frequency_unit.$dirty && scheduleForm.frequency_unit.$valid}">
+      <label>{{ i18n.__('Frequency Unit') }}:</label>
+      <select class="form-control" name="frequency_unit" ng-model="schedule.frequency_unit" ng-required="isFrequency" ng-change="onScheduleChange(1)">
+        <option>{{ i18n.__('Seconds') }}</option>
+        <option>{{ i18n.__('Minutes') }}</option>
+        <option>{{ i18n.__('Hours') }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-5" ng-if="schedule.frequency_unit && isFrequency">
+    <div class="form-group" ng-class="{'has-error': scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required, 'has-success': scheduleForm.frequency.$dirty && scheduleForm.frequency.$valid}">
+      <label>{{ i18n.__('Frequency') }}:</label>
+      <input class="form-control" name="frequency" ng-model="schedule.frequency" type="number" ng-required="isFrequency">
+
+      <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required">{{ i18n.__("Frequency value is required") }}</label>
+    </div>
+  </div>
+  <!-- /.col md 7 -->
+  <div class="col-md-7">
+    <div class="form-group" ng-class="{'has-error': scheduleForm.schedule_unit.$dirty && scheduleForm.schedule_unit.$error.required, 'has-success': scheduleForm.schedule_unit.$dirty && scheduleForm.schedule_unit.$valid}">
+      <label>{{ i18n.__('Schedule Unit') }}:</label>
+      <select class="form-control" name="schedule_unit" ng-model="schedule.schedule_unit" ng-required="isSchedule" ng-change="onScheduleChange(2)">
+        <option value="1">{{ i18n.__('Weekly') }}</option>
+        <option value="2">{{ i18n.__('Monthly') }}</option>
+        <option value="3">{{ i18n.__('Yearly') }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-5" ng-if="schedule.schedule_unit && isSchedule">
+    <div class="form-group" ng-class="{'has-error': scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.required, 'has-success': scheduleForm.schedule.$dirty && scheduleForm.schedule.$valid}">
+      <label>{{ i18n.__('Schedule') }}:</label>
+
+      <!-- monthly -->
+      <div class="dropdown dropup" ng-if="schedule.schedule_unit == '2'">
+        <a class="dropdown-toggle" id="monthlyDropDown" role="button" data-toggle="dropdown" data-target="#" href="#dropdownMonthly">
+          <div class="input-group">
+            <input type="text" class="form-control" data-date-time-input="MMM-DD" data-ng-model="schedule.schedule">
+
+            <span class="input-group-addon">
+              <i class="glyphicon glyphicon-calendar"></i>
+            </span>
+
+          </div>
+        </a>
+        <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel">
+          <datetimepicker ng-required="isSchedule" data-ng-model="schedule.schedule" data-datetimepicker-config="{ startView: 'day', minView:'day', dropdownSelector: '#monthlyDropDown' }"/>
+        </ul>
+      </div>
+      <select ng-if="schedule.schedule_unit == '1'" class="form-control" name="schedule" ng-model="schedule.schedule" ng-required="isSchedule">
+        <option value="1">{{ i18n.__('Sunday') }}</option>
+        <option value="2">{{ i18n.__('Monday') }}</option>
+        <option value="3">{{ i18n.__('Tuesday') }}</option>
+        <option value="4">{{ i18n.__('Wednesday') }}</option>
+        <option value="5">{{ i18n.__('Thursday') }}</option>
+        <option value="6">{{ i18n.__('Friday') }}</option>
+        <option value="7">{{ i18n.__('Saturday') }}</option>
+      </select>
+
+      <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.required">{{ i18n.__("Schedule value is required") }}</label>
+    </div>
+  </div>
+</div>
+<!-- /.row -->

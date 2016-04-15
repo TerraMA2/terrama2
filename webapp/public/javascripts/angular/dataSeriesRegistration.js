@@ -80,6 +80,21 @@ angular.module('terrama2.dataseries.registration', [
         return false;
       };
       
+      // schedule
+      $scope.isFrequency = false;
+      $scope.isSchedule = false;
+      $scope.onScheduleChange = function(value) {
+        // resetting
+        $scope.schedule = {};
+        if (value == 1) {
+          $scope.isFrequency = true;
+          $scope.isSchedule = false;
+        } else if (value == 2) {
+          $scope.isFrequency = false;
+          $scope.isSchedule = true;
+        }
+      };
+      
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
         return isWizardStepValid("generalDataForm");

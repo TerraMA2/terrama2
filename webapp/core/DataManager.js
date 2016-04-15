@@ -205,57 +205,59 @@ var DataManager = {
                 semanticsList.forEach(function(semantics) {
                   if (semantics.name === dSeries.data_series_semantic_name) {
                     self.data.dataSeries.push(new DataSeries(Object.assign({semantics: semantics.get()}, dSeries.get())));
+
+                    //todo: include grid too
+                    var dbOperations = [];
+                    dbOperations.push(models.db.DataSet.findAll({
+                      attributes: ['id', 'active', 'data_series_id'],
+                      include: [
+                        {
+                          model: models.db.DataSetDcp,
+                          attributes: ['position'],
+                          required: true
+                        }
+                      ]
+                    }));
+                    dbOperations.push(models.db.DataSet.findAll({
+                      attributes: ['id', 'active', 'data_series_id'],
+                      include: [
+                        {
+                          model: models.db.DataSetOccurrence,
+                          required: true
+                        }
+                      ]
+                    }));
+
+                    Promise.all(dbOperations).then(function(dataSetsArray) {
+                      dataSetsArray.forEach(function(dataSets) {
+                        dataSets.forEach(function(dataSet) {
+                          var dSetObject = {
+                            id: dataSet.id,
+                            data_series_id: dataSet.data_series_id,
+                            active: dataSet.active
+                          };
+
+                          if (dataSet.DataSetDcp)
+                            Object.assign(dSetObject, dataSet.DataSetDcp.get());
+                          else if (dataSet.DataSetOccurrence) {
+                            // do nothing
+                          }
+
+                          self.data.dataSets.push(DataSetFactory.build(dSetObject));
+                        });
+                      });
+
+                      self.isLoaded = true;
+                      resolve();
+                    }).catch(function(err) {
+                      clean();
+                      reject(err);
+                    });
+
                   }
                 });
               });
 
-            }).catch(function(err) {
-
-            });
-
-            //todo: include grid too
-            var dbOperations = [];
-            dbOperations.push(models.db.DataSet.findAll({
-              attributes: ['id', 'active', 'data_series_id'],
-              include: [
-                {
-                  model: models.db.DataSetDcp,
-                  attributes: ['position'],
-                  required: true
-                }
-              ]
-            }));
-            dbOperations.push(models.db.DataSet.findAll({
-              attributes: ['id', 'active', 'data_series_id'],
-              include: [
-                {
-                  model: models.db.DataSetOccurrence,
-                  required: true
-                }
-              ]
-            }));
-
-            Promise.all(dbOperations).then(function(dataSetsArray) {
-              dataSetsArray.forEach(function(dataSets) {
-                dataSets.forEach(function(dataSet) {
-                  var dSetObject = {
-                    id: dataSet.id,
-                    data_series_id: dataSet.data_series_id,
-                    active: dataSet.active
-                  };
-
-                  if (dataSet.DataSetDcp)
-                    Object.assign(dSetObject, dataSet.DataSetDcp.get());
-                  else if (dataSet.DataSetOccurrence) {
-                    // do nothing
-                  }
-
-                  self.data.dataSets.push(dSetObject);
-                });
-              });
-
-              self.isLoaded = true;
-              resolve();
             }).catch(function(err) {
               clean();
               reject(err);
