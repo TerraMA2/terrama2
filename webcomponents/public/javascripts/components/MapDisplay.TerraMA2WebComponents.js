@@ -32,6 +32,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberResolutionChangeEventKey = null;
   // Double click event key
   var memberDoubleClickEventKey = null;
+
+  // new
+
+  var memberSingleClickEventKey = null;
+
+  // new
+
   // Socket object
   var memberSocket = null;
 
@@ -830,6 +837,21 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       eventFunction(correctLongitude(e.coordinate[0]), e.coordinate[1]);
     });
   };
+
+  // new
+
+  var setMapSingleClickEvent = function(eventFunction) {
+    if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
+    memberSingleClickEventKey = memberOlMap.on('click', function(e) {
+      eventFunction(correctLongitude(e.coordinate[0]), e.coordinate[1]);
+    });
+  };
+
+  var unsetMapSingleClickEvent = function() {
+    if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
+  };
+
+  // new
 
   /**
    * Finds a layer by a given key.
