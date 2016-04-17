@@ -982,6 +982,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     isCurrentResolutionValidForLayer: isCurrentResolutionValidForLayer,
     setMapResolutionChangeEvent: setMapResolutionChangeEvent,
     setMapDoubleClickEvent: setMapDoubleClickEvent,
+    setMapSingleClickEvent: setMapSingleClickEvent,
+    unsetMapSingleClickEvent: unsetMapSingleClickEvent,
     findBy: findBy,
     applyCQLFilter: applyCQLFilter,
     alterLayerIndex: alterLayerIndex,
