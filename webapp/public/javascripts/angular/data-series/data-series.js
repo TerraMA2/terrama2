@@ -1,8 +1,14 @@
-angular.module('terrama2.listDataSeries', ['terrama2.table'])
-  .controller("ListController", ['$scope', function($scope) {
-    $scope.model = configuration.model || [];
+angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'])
+  .controller("ListController", ['$scope', 'DataSeriesFactory', function($scope, DataSeriesFactory) {
+    $scope.dataSeriesType = configuration.dataSeriesType || 'dynamic';
+    $scope.model = [];
+    $scope.fields = [];
+    DataSeriesFactory.get({type: $scope.dataSeriesType}).success(function(data) {
+      $scope.model = data;
+      $scope.fields = [{key: 'name', as: "Name"}, {key: "data_series_semantic_name", as: "Format"}];
+    }).error(function(err) {
 
-    $scope.fields = configuration.fields || [];
+    });
 
     $scope.link = configuration.link || null;
 

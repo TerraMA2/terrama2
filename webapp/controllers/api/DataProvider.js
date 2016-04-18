@@ -3,7 +3,7 @@ var RequestFactory = require("../../core/RequestFactory");
 
 module.exports = function(app) {
   return {
-    "post": function(request, response) {
+    post: function(request, response) {
       var dataProviderReceived = request.body;
 
       var uriObject = dataProviderReceived.uriObject;
@@ -25,15 +25,15 @@ module.exports = function(app) {
             name: dataProviderReceived.name,
             uri: requester.uri,
             description: dataProviderReceived.description,
-            data_provider_intent_name: "Intent1",
+            data_provider_intent_name: dataProviderReceived.data_provider_intent_name || requester.intent(),
             data_provider_type_name: uriObject[requester.syntax().SCHEME],
-            project_id: project.id, // todo: its temp code.get it from frontend
+            project_id: project.id,
             active: dataProviderReceived.active || false
           };
 
           // try to save
           DataManager.addDataProvider(dataProviderObject).then(function(result) {
-            response.json(result);
+            response.json(result.toObject());
           }).catch(function(err) {
             handleError(response, err, 400);
           });
@@ -46,18 +46,22 @@ module.exports = function(app) {
 
     },
 
-    "get": function(request, response) {
+    get: function(request, response) {
       var name = request.query.name;
 
       if (name) {
         DataManager.getDataProvider({name: name}).then(function(dataProvider) {
-          response.json(dataProvider);
+          response.json(dataProvider.toObject());
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
         })
       } else {
-        response.json(DataManager.listDataProviders());
+        var output = [];
+        DataManager.listDataProviders().forEach(function(element) {
+          output.push(element.toObject());
+        });
+        response.json(output);
       }
     },
 

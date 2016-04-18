@@ -21,7 +21,7 @@ function createDataProvider() {
     active: true,
     project_id: createProject().id,
     data_provider_type_name: "FTP",
-    data_provider_intent_name: "Intent1"
+    data_provider_intent_name: "Collect"
   };
 }
 
@@ -43,14 +43,6 @@ function createDataSeries() {
   };
 }
 
-function createDataSet() {
-  return {
-    name: "DataSet1",
-    active: true,
-    data_series_id: createDataSeries().id
-  }
-}
-
 describe('DataManager', function() {
   var MainClass = require('../app');
   var app = require("../app");
@@ -60,9 +52,6 @@ describe('DataManager', function() {
     "database": "nodejs_test",
     "host": "127.0.0.1",
     "dialect": "postgres",
-    //define: {
-    //  schema: "terrama2"
-    //},
     logging: false
   };
 
@@ -79,7 +68,7 @@ describe('DataManager', function() {
   // It runs after all tests. It drops each table.
   after(function(done){
     var DataManager = require("../core/DataManager");
-    DataManager.connection.drop({cascade: true}).then(function(e){
+    DataManager.connection.drop({cascade: true}).then(function(){
       return done();
     });
   });
@@ -126,9 +115,9 @@ describe('DataManager', function() {
     var provider = createDataProvider();
     provider.data_provider_intent_id = 50;
 
-    DataManager.addDataProvider(provider).then(function(result) {
+    DataManager.addDataProvider(provider).then(function() {
       return done("Error: No exception thrown");
-    }).catch(function(err) {
+    }).catch(function() {
       return done();
     })
   });
@@ -158,52 +147,32 @@ describe('DataManager', function() {
 
   });
 
-  it('should insert DataSeries', function(done) {
+  it('should insert DataSeries with datasets', function(done) {
     var semantics = createDataSeriesSemantic();
     DataManager.addDataSeriesSemantics(semantics).then(function(semantic) {
       var dataSeries = createDataSeries();
 
       dataSeries.dataSets = [
+        // dcp
         {
-          semantics: semantics,
           id: 1,
           data_series_id: dataSeries.id,
           active: true,
-          child: {
-            id: 1,
-            data_set_id: 1,
-            position: {
-              type: 'Point',
-              coordinates: [39.807222,-76.984722],
-              crs:{
-                type: 'name',
-                properties : {
-                  name: 'EPSG:4326'}
-              }
-            },
-            timeColumn: "timeColumn"
-          },
           dataFormats: [
             {
               key: "Format1",
               value: "ValueFormat1"
             }
-          ]
-        },
-        {
-          semantics: {
-            name: "FIRE_POINTS",
-            data_format_name: "Occurrence",
-            data_series_type_name: DataSeriesType.OCCURRENCE
-          },
-          id: 2,
-          data_series_id: dataSeries.id,
-          active: true,
-          child: {
-            id: 2,
-            data_set_id: 2,
-            geometryColumn: "geom_column",
-            timeColumn: "time_field"
+          ],
+          position: {
+            "type": "Point",
+            "coordinates": [25.9, -42.78],
+            "crs": {
+              "type": "name",
+              "properties": {
+                "name": "EPSG:4326"
+              }
+            }
           }
         }
       ];
@@ -220,8 +189,9 @@ describe('DataManager', function() {
   });
 
   it('should retrieve DataSet', function(done) {
-    DataManager.getDataSet({id: 1, type: DataSeriesType.DCP}).then(function(dset) {
-      assert(dset.child.timeColumn === "timeColumn");
+    DataManager.getDataSet({id: 1}).then(function(dset) {
+      console.log(dset);
+      assert(dset.hasOwnProperty('position') && dset.position.coordinates[0] === 25.9);
       return done();
     }).catch(function(err) {
       return done(err);
@@ -229,14 +199,22 @@ describe('DataManager', function() {
   });
 
   it('should update DataSet', function(done) {
-    var params = {id: 1, type: DataSeriesType.DCP};
-    DataManager.getDataSet(params).then(function(dset) {
-      DataManager.updateDataSet(params, {active:false, timeColumn: "TimeColumn3333"}).then(function(result) {
-        assert(result.child.timeColumn === "TimeColumn3333");
-        return done();
-      }).catch(function(err) {
-        return done(err);
-      });
+    var params = {id: 1, semantics: {
+      data_series_type_name: "Dcp"
+    }};
+    var newPosition = {
+      "type": "Point",
+        "coordinates": [2, -2],
+        "crs": {
+        "type": "name",
+          "properties": {
+          "name": "EPSG:4326"
+        }
+      }
+    };
+    DataManager.updateDataSet(params, {active:false, position: newPosition}).then(function(result) {
+      assert(result && result.position.coordinates[0] === 2);
+      return done();
     }).catch(function(err) {
       return done(err);
     });
@@ -244,11 +222,11 @@ describe('DataManager', function() {
 
   it('should list DataSets', function(done) {
     var dataSets = DataManager.listDataSets();
-    return done(assert(dataSets.length === 2));
+    return done(assert(dataSets.length === 1));
   });
 
   it('should update DataSeries', function(done) {
-    DataManager.getDataSerie({name: "DataSeries1"}).then(function(result) {
+    DataManager.getDataSeries({name: "DataSeries1"}).then(function(result) {
       result.name = "Updated DataSeries1";
 
       DataManager.updateDataSerie(result).then(function() {
@@ -265,7 +243,7 @@ describe('DataManager', function() {
 
   it('should destroy DataSet', function(done) {
     DataManager.removeDataSet({id: 1}).then(function() {
-      assert(DataManager.data.dataSets.length === 1);
+      assert(DataManager.data.dataSets.length === 0);
       return done();
     }).catch(function(err) {
       return done(err);

@@ -4,7 +4,6 @@
 {% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
 
 <style type="text/css">
   .terrama2-filterboxes-align
@@ -22,41 +21,20 @@
 
 <script type="text/javascript">
   var configuration = {
-    model: [
-      {
-        name: "PCD1",
-        type: "Pcd-Inpe"
-      },
-      {
-        name: "GRID1",
-        type: "Grid"
-      },
-
-      {
-        name: "An_1",
-        type: "Grid"
-      },
-
-      {
-        name: "An_2",
-        type: "Pcd"
-      },
-      {
-        name: "An_3",
-        type: "Monitored Object"
-      }
-    ],
-    fields: ['name', 'type'],
+    dataSeriesType: 'dynamic',
     link: function(object) {
-      return "/configuration/dataset?type=dynamic#wizard";
+      return "/configuration/dataset?type=dynamic#advanced";
     },
     iconFn: function(object) {
-      switch(object.type) {
-        case "Monitored Object":
+      switch(object.semantics.data_series_type_name) {
+        case "Monitored":
           return "/images/monitored-object.png";
           break;
         case "Grid":
           return "/images/grid-small.png";
+          break;
+        case "Occurrence":
+          return "/images/map-display.png";
           break;
         default:
           return "/images/map-pin.png";
@@ -74,8 +52,9 @@
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
-<script src="/javascripts/angular/data-series/data-series.js"></script>
+<script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/data-series/data-series.js"></script>
 
 {% endblock %}
 
