@@ -152,7 +152,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch(const terrama2::Exception& e)
   {
-    // should have been loggen on emition
+    // should have been logged on emition
   }
   catch(const boost::exception& e)
   {

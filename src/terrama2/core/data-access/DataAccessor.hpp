@@ -73,11 +73,11 @@ namespace terrama2
     class DataAccessor
     {
     public:
-      //! Returns the last Data date found on last access.
+      //! Returns the last data timestamp found on last access.
       virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
-
+      //! Returns the semantics of the DataSeries.
       DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
-
+      //! Returns a map of Series per DataSet.
       virtual std::map<DataSetPtr, Series > getSeries(const Filter& filter) const;
 
       //! Utility function for converting string to double in the te::da::DataSet contruction.
@@ -86,12 +86,15 @@ namespace terrama2
       //! Utility function for converting string to int32 in the te::da::DataSet contruction.
       te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
+      //! Default destructor.
       virtual ~DataAccessor() {}
 
     protected:
 
       /*!
-        \brief TODO: doc DataAccessor
+        \brief Base class nad interface for accesing data.
+
+        Each derived implementation must deal with protocol, format and data semantics.
 
         \param filter If defined creates a cache for the filtered data.
       */
@@ -152,6 +155,11 @@ namespace terrama2
        */
       virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
 
+      /*!
+        \brief Verifies if the DataSet intersects the Filter area.
+
+        Default behavior is true.
+      */
       virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
 
       DataProviderPtr dataProvider_;
