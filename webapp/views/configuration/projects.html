@@ -14,15 +14,25 @@
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/table/table.js"></script>
 <script type="text/javascript">
-  angular.module("terrama2.projects", ['terrama2'])
+  angular.module("terrama2.projects", ['terrama2', 'terrama2.table'])
     .controller("ProjectController", function($scope, $http) {
-      $scope.projects = [];
+      $scope.model = [];
+      $scope.linkToAdd = "/configuration/projects/new";
+      $scope.fields = [
+        {key: "name", as: "Name"},
+        {key: "description", as: "Description"}
+      ];
+      $scope.link = function(object) {
+        return "/configuration/projects/" + object.name + "/activate";
+      };
+      $scope.iconProperties = {};
+
       $scope.loading = true;
 
       $http.get("/api/Project/", {}).success(function(projects) {
-        console.log(projects);
-        $scope.projects = projects;
+        $scope.model = projects;
       }).error(function(err) {
         console.log("Err in retrieving projects");
       }).finally(function() {
@@ -48,48 +58,9 @@ sidebar-collapse
     <div style="display: block;" class="box-body">
 
       <div class="col-md-12">
-        <div class="col-md-7">
-          <div class="form-group">
-            <input class="form-control" id="searchNameInput" style="margin-top: 24px;" placeholder="{[ __('Type to search') ]}" type="text">
-          </div>
-        </div>
-
-        <div class="col-md-3">
-          <div class="form-group">
-            <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>Advanced</button>
-          </div>
-        </div>
-
-        <div class="col-md-2">
-          <div class="form-group">
-            <a href="/configuration/projects/new" class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-plus"></i></a>
-          </div>
-        </div>
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn"></terrama2-table>
       </div>
-      <!-- ./col-md-12 -->
 
-      <div class="col-md-12" style="margin-top: 30px;">
-
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th style="width: 50%;">{[ __('Name') ]}</th>
-              <th>{[ __('Description') ]}</th>
-            </tr>
-          </thead>
-          <tbody id="searchList">
-            <tr ng-repeat="project in projects">
-              <td><a href="/configuration/projects/{{ project.name }}/activate" title="{[ __('It will activate ') ]}{{ project.name }}">{{ project.name }}</a></td>
-              <td>{{ project.description }}</td>
-            </tr>
-            <tr ng-show="!projects.length">
-              <td colspan="2">No project found</td>
-            </tr>
-
-          </tbody>
-        </table>
-
-      </div>
     </div>
     <!-- /.box body -->
 

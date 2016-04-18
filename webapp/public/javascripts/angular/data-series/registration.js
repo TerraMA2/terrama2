@@ -1,9 +1,10 @@
 angular.module('terrama2.dataseries.registration', [
     'terrama2',
-    'ui.router',
-    'mgo-angular-wizard', // wizard
     'terrama2.projection',
     'terrama2.services',
+    'terrama2.components.messagebox', // handling alert box
+    'ui.router',
+    'mgo-angular-wizard', // wizard
     'ui.bootstrap.datetimepicker',
     'ui.dateTimeInput',
     'schemaForm'
@@ -49,6 +50,14 @@ angular.module('terrama2.dataseries.registration', [
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
+
+      // terrama2 messagebox
+      $scope.errorFound = false;
+      $scope.alertBox = {};
+      $scope.resetState = function() {
+        $scope.errorFound = false;
+        $scope.alertBox.message = "";
+      };
 
       // table fields
       $scope.tableFields = [];
@@ -254,13 +263,15 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.save = function() {
-        if(this.generalDataForm.$invalid) {
-          errorHelper(this.generalDataForm);
+        var generalDataForm = angular.element('form[name="generalDataForm"]').scope().generalDataForm;
+        if(generalDataForm.$invalid) {
+          errorHelper(generalDataForm);
           return;
         }
         // checking parameters form (semantics) is invalid
-        if ($scope.dcps.length === 0 && !isValidParametersForm(this.parametersForm)) {
-          errorHelper(this.parametersForm);
+        var parametersForm = angular.element('form[name="parametersForm"]').scope().parametersForm;
+        if ($scope.dcps.length === 0 && !isValidParametersForm(parametersForm)) {
+          errorHelper(parametersForm);
           return;
         }
 
@@ -271,6 +282,9 @@ angular.module('terrama2.dataseries.registration', [
         delete dataToSend.semantics;
 
         dataToSend.dataSets = [];
+
+        $scope.alertBox.title = "Data Series Registration";
+        $scope.errorFound = false;
 
         switch(semantics.data_series_type_name.toLowerCase()) {
           case "dcp":
@@ -327,8 +341,10 @@ angular.module('terrama2.dataseries.registration', [
           console.log(data);
           $window.location.href = "/configuration/dynamic/dataseries";
         }).error(function(err) {
+          $scope.alertBox.message = err.message;
+          $scope.errorFound = true;
           console.log(err);
-          alert("Error found")
+          alert("Error found");
         });
 
       };

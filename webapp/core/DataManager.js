@@ -737,13 +737,17 @@ var DataManager = {
           } else {
             // rollback dataseries
             rollback(new exceptions.DataSeriesError("Could not save DataSeries. " + err.message));
-
           }
         }).catch(function(err) {
           rollback(err);
         });
       }).catch(function(err){
-        reject(new exceptions.DataSeriesError("Could not save DataSeries. ", err));
+        var msg = "";
+
+        err.errors.forEach(function(error) {
+          msg = error.message;
+        });
+        reject(new exceptions.DataSeriesError(msg));
       });
     });
   },

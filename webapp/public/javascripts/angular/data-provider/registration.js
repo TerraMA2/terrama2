@@ -59,11 +59,6 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     active: configuration.dataProvider.active
   };
 
-  var helperPort = function(port) {
-    $scope.dataProvider.port = port;
-    $scope.remoteFieldsRequired = true;
-  };
-
   $scope.onSchemeChanged = function() {
     $scope.typeList.forEach(function(dataProviderType) {
       if (dataProviderType.name === $scope.protocol) {
