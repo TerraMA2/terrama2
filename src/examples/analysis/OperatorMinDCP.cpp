@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.name = "STATIC_DATA-ogr";
-  dataSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.name = "DCP-inpe";
-  dcpSeries->semantics.macroType = terrama2::core::DataSeriesSemantics::DCP;
+  dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
   dcpSeries->name = "Serra do Mar";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
   dcpDataset69034->format.emplace("timezone", "-02:00");
   dcpDataset69034->dataSeriesId = 2;
   dcpDataset69034->id = 2;
-  dcpDataset69034->position = new te::gm::Point(-44.46540, -23.00506, 4618, nullptr);
+  dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, nullptr));
   dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
 
 
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
   dcpDataset30886->format.emplace("timezone", "-02:00");
   dcpDataset30886->dataSeriesId = 2;
   dcpDataset30886->id = 2;
-  dcpDataset30886->position = new te::gm::Point(-46.121, -23.758, 4618, nullptr);
+  dcpDataset30886->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
   dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
 
   AnalysisDataSeries dcpADS;

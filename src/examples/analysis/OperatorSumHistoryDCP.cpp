@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
   dcpDataset->format.emplace("timezone", "-02:00");
   dcpDataset->dataSeriesId = 2;
   dcpDataset->id = 2;
-  dcpDataset->position = new te::gm::Point(-44.46540, -23.00506, 4674, nullptr);
+  dcpDataset->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4674, nullptr));
   dcpSeries->datasetList.push_back(dcpDatasetPtr);
 
   AnalysisDataSeries dcpADS;

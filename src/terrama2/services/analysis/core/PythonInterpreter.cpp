@@ -54,6 +54,9 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/vp/BufferMemory.h>
 #include <terralib/geometry/MultiPolygon.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <terralib/srs/SpatialReferenceSystem.h>
+#include <terralib/common/UnitOfMeasure.h>
 
 #include <math.h>
 
@@ -164,15 +167,15 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
 
         if(contextDataset->series.syncDataSet->size() > 0)
         {
-          auto spatialRefSystem = te::srs::SpatialReferenceSystemManager::getUnit(moGeom->getSRID());
-          std::string unit = spatialRefSystem->unit();
+          auto spatialRefSystem = te::srs::SpatialReferenceSystemManager::getInstance().getUnit(moGeom->getSRID());
+          std::string unit = spatialRefSystem->getName();
 
           if(bufferType != NONE && unit != "meter")
           {
             // Needs to convert to a srs in meters
             // if the unit of the occurrence is already in meters transform to that srs.
-            auto spatialRefSystem = te::srs::SpatialReferenceSystemManager::getUnit(sampleGeom->getSRID());
-            std::string unit = spatialRefSystem->unit();
+            auto spatialRefSystem = te::srs::SpatialReferenceSystemManager::getInstance().getUnit(sampleGeom->getSRID());
+            std::string unit = spatialRefSystem->getName();
             if(unit == "meter")
             {
               moGeom->transform(sampleGeom->getSRID());
@@ -836,7 +839,7 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
     {
       found = true;
 
-      if(analysisDataSeries.dataSeries->semantics.macroType != terrama2::core::DataSeriesSemantics::DCP)
+      if(analysisDataSeries.dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
       {
         QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
         errMsg = errMsg.arg(analysisId);
