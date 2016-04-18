@@ -17,14 +17,19 @@ DataSeries.prototype = Object.create(BaseClass.prototype);
 DataSeries.prototype.constructor = DataSeries;
 
 DataSeries.prototype.toObject = function() {
+  var dataSets = [];
+  (this.dataSets || []).forEach(function(element) {
+    dataSets.push(element instanceof BaseClass ? element.toObject() : element);
+  });
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     name: this.name,
     description: this.description,
     data_provider_id: this.data_provider_id,
-    data_series_semantic_name: this.data_series_semantic_name,
-    semantics: this.semantics,
-    datasets: this.dataSets
+    // data_series_semantic_name: this.data_series_semantic_name,
+    // semantics: this.semantics,
+    semantics: this.data_series_semantic_name,
+    datasets: dataSets
   })
 };
 
