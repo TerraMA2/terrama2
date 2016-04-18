@@ -91,10 +91,10 @@ int main(int argc, char* argv[])
     dataProvider->uri += "/fire_system";
 
     dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = 1;
     dataProvider->active = true;
     dataProvider->id = 1;
     dataProvider->name = "DataProvider queimadas local";
+    dataProvider->dataProviderType = "FILE";
 
     dataManager->add(dataProviderPtr);
 

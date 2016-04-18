@@ -108,19 +108,19 @@ int main(int argc, char* argv[])
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
 
-  out << static_cast<uint32_t>(0);
-  out << terrama2::core::TcpSignals::DATA_SIGNAL;
-  out << doc.toJson(QJsonDocument::Compact);
-  out.device()->seek(0);
-  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+  // out << static_cast<uint32_t>(0);
+  // out << terrama2::core::TcpSignals::DATA_SIGNAL;
+  // out << doc.toJson(QJsonDocument::Compact);
+  // out.device()->seek(0);
+  // out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
-  QTcpSocket socket;
-  socket.connectToHost("localhost", 30000);
-  socket.write(bytearray);
+  // QTcpSocket socket;
+  // socket.connectToHost("localhost", 30000);
+  // socket.write(bytearray);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  // QTimer timer;
+  // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  // timer.start(10000);
   app.exec();
 
   terrama2::core::finalizeTerraMA();

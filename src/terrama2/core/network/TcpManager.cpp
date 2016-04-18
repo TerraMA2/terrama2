@@ -104,17 +104,6 @@ void terrama2::core::TcpManager::readReadySlot()
   TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
   QDataStream in(tcpSocket_);
 
-  // QByteArray bytearray;
-  // in >> bytearray;
-  // int error = in.readRawData(bytearray.data(), tcpSocket_->bytesAvailable());
-
-  // std::cout << std::endl;
-  // std::cout << std::hex;
-  // for(int i = 0; i < bytearray.size(); ++i)
-  //   std::cout << (int)bytearray[i];
-  // std::cout << std::endl;
-  // return;
-
   Q_UNUSED(block)
   if(blockSize_ == 0)
   {
@@ -145,14 +134,14 @@ void terrama2::core::TcpManager::readReadySlot()
     case TcpSignals::TERMINATE_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "TERMINATE_SIGNAL";
+      
       emit stopSignal();
       break;
     }
     case TcpSignals::DATA_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "DATA_SIGNAL";
-      QByteArray bytearray;
-      in >> bytearray;
+      QByteArray bytearray = tcpSocket_->readAll();
 
       parseData(bytearray);
       break;
