@@ -51,13 +51,31 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_F
 qt5_use_modules(terrama2_analysis_core Core)
 
 
+
 target_link_libraries(terrama2_analysis_core  terrama2_core
                                               terrama2_impl
                                               terralib_mod_dataaccess
                                               terralib_mod_memory
                                               terralib_mod_vp_core
                                               terralib_mod_rp
-                                              ${PYTHON_LIBRARIES})
+                                              ${PYTHON_LIBRARIES}
+                                              ${Boost_PYTHON_LIBRARY})
+
+
+PYTHON_ADD_MODULE(terrama2 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/PythonInterpreter.cpp)
+
+qt5_use_modules(terrama2 Core)
+
+
+target_link_libraries(terrama2  terrama2_analysis_core
+                                terrama2_core
+                                terrama2_impl
+                                terralib_mod_dataaccess
+                                terralib_mod_memory
+                                terralib_mod_vp_core
+                                terralib_mod_rp
+                                ${PYTHON_LIBRARIES}
+                                ${Boost_PYTHON_LIBRARY})
 
 set_target_properties(terrama2_analysis_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

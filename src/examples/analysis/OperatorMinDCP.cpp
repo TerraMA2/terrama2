@@ -15,14 +15,7 @@
 #include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
-#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
-#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-
-
+#include <terrama2/impl/Utils.hpp>
 
 #include <iostream>
 
@@ -36,13 +29,7 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-
-  terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
-  terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+  terrama2::core::registerDataAccessor();
 
   QCoreApplication app(argc, argv);
 
@@ -51,14 +38,24 @@ int main(int argc, char* argv[])
 
   Context::getInstance().setDataManager(dataManager);
 
+  std::string script = "x = dcp.min(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"min\", x)\n"
+                       "x = dcp.max(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"max\", x)\n"
+                       "x = dcp.mean(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"mean\", x)\n"
+                       "x = dcp.median(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"median\", x)\n"
+                       "x = dcp.standardDeviation(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "add_value(\"standardDeviation\", x)\n";
+
   Analysis analysis;
   analysis.id = 1;
-
-  std::string script = "x = sumHistoryPCD(\"PCD-Angra\", \"pluvio\", 2, \"2h\")\nresult(x)";
-  analysis.name = "Sum History DCP";
+  analysis.name = "Min DCP";
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
   analysis.type = MONITORED_OBJECT_TYPE;
+  analysis.active = false;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -97,7 +94,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
   dataProvider2->name = "Provider";
-  dataProvider2->uri = "file:///Users/paulo/Workspace/data";
+  dataProvider2->uri = "file:///Users/paulo/Workspace/data/PCD_serrmar_INPE";
   dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
@@ -118,32 +115,43 @@ int main(int argc, char* argv[])
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.name = "DCP-inpe";
   dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
-  dcpSeries->name = "PCD-Angra";
+  dcpSeries->name = "Serra do Mar";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
 
   //DataSet information
-  terrama2::core::DataSetDcp* dcpDataset = new terrama2::core::DataSetDcp;
-  terrama2::core::DataSetDcpPtr dcpDatasetPtr(dcpDataset);
-  dcpDataset->active = true;
-  dcpDataset->format.emplace("mask", "angra.txt");
-  dcpDataset->format.emplace("timezone", "-02:00");
-  dcpDataset->dataSeriesId = 2;
-  dcpDataset->id = 2;
-  dcpDataset->position = new te::gm::Point(-44.46540, -23.00506, 4674, nullptr);
-  dcpSeries->datasetList.push_back(dcpDatasetPtr);
+  terrama2::core::DataSetDcp* dcpDataset69034 = new terrama2::core::DataSetDcp;
+  terrama2::core::DataSetDcpPtr dcpDataset69034Ptr(dcpDataset69034);
+  dcpDataset69034->active = true;
+  dcpDataset69034->format.emplace("mask", "69034.txt");
+  dcpDataset69034->format.emplace("timezone", "-02:00");
+  dcpDataset69034->dataSeriesId = 2;
+  dcpDataset69034->id = 2;
+  dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, nullptr));
+  dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
 
-  AnalysisDataSeries pcdADS;
-  pcdADS.id = 2;
-  pcdADS.dataSeries = dcpSeriesPtr;
-  pcdADS.type = ADDITIONAL_DATA_TYPE;
-  pcdADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
-  pcdADS.metadata["RADIUS"] = "50";
+
+  terrama2::core::DataSetDcp* dcpDataset30886 = new terrama2::core::DataSetDcp;
+  terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30886);
+  dcpDataset30886->active = true;
+  dcpDataset30886->format.emplace("mask", "30886.txt");
+  dcpDataset30886->format.emplace("timezone", "-02:00");
+  dcpDataset30886->dataSeriesId = 2;
+  dcpDataset30886->id = 2;
+  dcpDataset30886->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
+  dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
+
+  AnalysisDataSeries dcpADS;
+  dcpADS.id = 2;
+  dcpADS.dataSeries = dcpSeriesPtr;
+  dcpADS.type = ADDITIONAL_DATA_TYPE;
+  dcpADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
+  dcpADS.metadata["RADIUS"] = "50";
 
   dataManager->add(dcpSeriesPtr);
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
-  analysisDataSeriesList.push_back(pcdADS);
+  analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 
@@ -154,10 +162,12 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
+  /*
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);
-  app.exec();
+  timer.start(10000);
+*/
+   app.exec();
 
 
   terrama2::core::finalizeTerralib();
