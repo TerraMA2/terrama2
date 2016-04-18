@@ -16,7 +16,7 @@
   </div>
 </div>
 
-<div class="col-md-12">
+<div class="col-md-12" ng-show="form.length > 0">
   <div class="box box-default box-solid">
     <div class="box-header with-border">
       <h3 class="box-title">{{ i18n.__('Parameters Data') }}</h3>
@@ -27,10 +27,18 @@
     </div>
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
-      <form name="parametersDataForm">
-        <form sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
-        <div ng-include="'/javascripts/angular/parametersData.html'"></div>
-      </form>
+      <div class="row">
+        <div class="col-md-12">
+          <!-- schema form -->
+          <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+
+          <div class="col-md-2 terrama2-top-field">
+            <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+          </div>
+
+          <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

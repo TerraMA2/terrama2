@@ -12,26 +12,36 @@ var emit = function(signal, object) {
     if(isNaN(signal)) throw TypeError(signal + " is not a valid signal!");
 
     // Stringifies the message
-    var jsonMessage = JSON.stringify(object);
+    var jsonMessage = '\x00\0\x11' + JSON.stringify(object);
+    // var jsonMessage = object;
 
     // The size of the message plus the size of two integers, 4 bytes each
-    var totalSize = jsonMessage.length + 8;
+    var totalSize = jsonMessage.length + 4;
 
     // Creates the buffer and fills it with zeros
-    var buffer = new Buffer(totalSize).fill(0);
+    var buffer = new Buffer(totalSize + 4);
 
     // Writes the message (string) in the buffer with UTF-8 encoding
-    buffer.write(jsonMessage, 8, jsonMessage.length, 'utf8');
+    buffer.write(jsonMessage, 8, jsonMessage.length);
 
-    // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
-    buffer.writeUInt32BE(signal, 0);
 
     // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
-    buffer.writeUInt32BE(totalSize, 4);
+    buffer.writeUInt32BE(totalSize, 0);
+    
+    // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
+    buffer.writeUInt32BE(signal, 4);
+    
+    var client = new net.Socket({
+      readable: true,
+      writable: true
+    });
+    console.log(buffer);
+    console.log("Total size: ", totalSize);
+    console.log("");
 
-    var client = new net.Socket();
-
-    client.connect(1337, '127.0.0.1', function() {
+    //150.163.17.179
+    client.connect(30000, '150.163.17.179', function() {
+      // writing data in socket
       client.write(buffer);
     });
 
@@ -54,10 +64,14 @@ server.on('connection', function(socket) {
 
   socket.on('data', function(buffer) {
     try {
-      var signal = buffer.readUInt32BE(0);
-      var bufferSize = buffer.readUInt32BE(4);
+      console.log(buffer);
+      console.log(buffer.toString());
+      var bufferSize = buffer.readUInt32BE(0);
+      var signal = buffer.readUInt32BE(4);
+      console.log(bufferSize);
+      console.log(signal);
 
-      if(!Buffer.isBuffer(buffer) || bufferSize !== buffer.length) throw TypeError("Invalid buffer!");
+      if(!Buffer.isBuffer(buffer) || bufferSize !== socket.bytesRead) throw TypeError("Invalid buffer!");
 
       var message = buffer.toString('utf8', 8);
 

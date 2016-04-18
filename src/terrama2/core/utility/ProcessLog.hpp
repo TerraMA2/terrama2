@@ -31,52 +31,63 @@
 #define __TERRAMA2_CORE_PROCESSLOG_HPP__
 
 // TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 
-// TerraMA2
-#include "TimeUtils.hpp"
+// Qt
+#include <QJsonObject>
 
 namespace terrama2
 {
   namespace core
   {
-    namespace ProcessLog
+    /*!
+      \enum Status
+
+      \brief Possible status of manipulate data.
+    */
+    enum Status
     {
-      /*!
-        \enum Status
+      UNKNOWN     = 0, /*!< Is not possible to know de data status */
+      ERROR       = 1, /*!< Error during process */
+      START       = 2, /*!< The process started */
+      DOWNLOADED  = 3, /*!< The data was downloaded */
+      DONE        = 4  /*!< Process finished */
+    };
 
-        \brief Possible status of manipulate data.
-      */
-      enum Status
-      {
-        UNKNOWN     = 0, /*!< Is not possible to know de data status */
-        ERROR       = 1, /*!< Error during process */
-        START       = 2, /*!< The process started */
-        DOWNLOADED  = 3, /*!< The data was downloaded */
-        DONE        = 4  /*!< Process finished */
-      };
+    class ProcessLog
+    {
+      public:
+        ProcessLog(uint64_t processID, std::map < std::string, std::string > connInfo);
 
-      void insert(uint64_t id, Status status, std::string originURI, std::string actualURI)
-      {
+        void start(uint64_t processID);
 
-      }
+        void addValue(std::string tag, std::string value);
 
-      void update(uint64_t id, Status status, std::string originURI, std::string actualURI, te::dt::TimeInstantTZ dataTimestamp)
-      {
+        void updateData();
 
-      }
+        void error(std::string description);
 
-      void error(uint64_t id, Status status, std::string description)
-      {
+        void done(te::dt::TimeInstantTZ dataTimestamp);
 
-      }
+        std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp();
 
-      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessDate(uint64_t id)
-      {
-        // VINICIUS:
-        return terrama2::core::TimeUtils::now();
-      }
-    }
+        std::shared_ptr< te::dt::TimeInstantTZ > getDataTimestamp();
+
+        void setTableName(std::string tableName);
+
+        uint64_t primaryKey();
+
+        uint64_t processID();
+
+      private:
+        uint64_t processID_;
+        uint64_t primaryKey_;
+        std::string tableName_ = "";
+        QJsonObject obj_;
+        std::shared_ptr< te::da::DataSource > dataSource_;
+
+    };
   }
 }
 #endif //__TERRAMA2_CORE_PROCESSLOG_HPP__

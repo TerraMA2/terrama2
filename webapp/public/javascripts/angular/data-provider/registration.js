@@ -34,7 +34,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   });
 
   var makeRedirectUrl = function(extra) {
-    var redirectUrl = configuration.redirectTo.redirectTo;
+    var redirectUrl = configuration.redirectTo.redirectTo || "/configuration/providers/";
     redirectUrl += (redirectUrl.indexOf('?') === -1) ? '?' : '&';
 
     var redirectData = Object.assign(configuration.redirectTo, extra instanceof Object ? extra : {});
@@ -121,6 +121,9 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       var defaultRedirectTo = "/configuration/providers?id=" + dataProvider.id + "&method=" + configuration.saveConfig.method + "&";
 
       var redirectData = makeRedirectUrl({data_provider_id: dataProvider.id});
+
+      // disable fields
+      $scope.options = {formDefaults: {readonly: true}};
 
       $window.location.href = (redirectData || defaultRedirectTo);
     }).error(function(err) {

@@ -92,6 +92,9 @@ namespace terrama2
     //! Raised when the receives an invalid collect frequency
     struct InvalidCollectFrequencyException: virtual UtilityException { };
 
+    //! Raised when the receives an log exception
+    struct LogException: virtual UtilityException { };
+
     //! An exception indicating a parser error.
     struct JSonParserException: virtual UtilityException { };
 
