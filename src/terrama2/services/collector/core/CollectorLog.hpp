@@ -20,43 +20,38 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Exception.hpp
+  \file terrama2/services/collector/core/CollectorLog.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Vinicius Campanha
+*/
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 
-// TerraMA2
-#include "../../../core/Exception.hpp"
-
+#include "../../../core/utility/ProcessLog.hpp"
 
 namespace terrama2
 {
   namespace services
   {
-    namespace analysis
+    namespace collector
     {
       namespace core
       {
-        //! Base exception class for TerraMA2.
-        struct Exception: virtual terrama2::core::Exception {};
+        class CollectorLog : public terrama2::core::ProcessLog
+        {
+        public:
+          CollectorLog(uint64_t processID, std::map<std::string, std::string> connInfo);
 
-        struct InvalidFrequencyException: virtual Exception {};
+          void addInput(std::string value);
 
-        struct InvalidParameterException: virtual Exception {};
+          void addOutput(std::string value);
 
-        struct InvalidDataSetException: virtual Exception {};
-
-        struct PythonInterpreterException: virtual Exception {};
-
-
-      } // end namespace core
-    }   // end namespace analysis
-  }     // end namespace services
-}       // end namespace terrama2
-
-#endif  // __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+        };
+      }
+    }
+  }
+}
+#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__

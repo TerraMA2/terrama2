@@ -20,19 +20,17 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Exception.hpp
+  \file terrama2/services/analysis/core/AnalysisLog.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief
 
-  \author Gilberto Ribeiro de Queiroz
- */
+  \author Vinicius Campanha
+*/
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 
-// TerraMA2
-#include "../../../core/Exception.hpp"
-
+#include "../../../core/utility/ProcessLog.hpp"
 
 namespace terrama2
 {
@@ -42,21 +40,14 @@ namespace terrama2
     {
       namespace core
       {
-        //! Base exception class for TerraMA2.
-        struct Exception: virtual terrama2::core::Exception {};
+        class AnalysisLog : public terrama2::core::ProcessLog
+        {
+        public:
+          AnalysisLog(uint64_t processID, std::map< std::string, std::string > connInfo);
 
-        struct InvalidFrequencyException: virtual Exception {};
-
-        struct InvalidParameterException: virtual Exception {};
-
-        struct InvalidDataSetException: virtual Exception {};
-
-        struct PythonInterpreterException: virtual Exception {};
-
-
-      } // end namespace core
-    }   // end namespace analysis
-  }     // end namespace services
-}       // end namespace terrama2
-
-#endif  // __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+        };
+      }
+    }
+  }
+}
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__

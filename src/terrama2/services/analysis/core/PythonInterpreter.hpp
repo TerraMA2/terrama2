@@ -33,16 +33,7 @@
 
 #include "Analysis.hpp"
 
-#include <string>
-
-#include "Context.hpp"
-
-#include <terralib/dataaccess/dataset/DataSet.h>
-
-// Boost
-#include "boost/date_time/local_time/local_time.hpp"
-
-#include <Python.h>
+#include <boost/python.hpp>
 
 namespace terrama2
 {
@@ -52,17 +43,60 @@ namespace terrama2
     {
       namespace core
       {
-        PyObject* countPoints(PyObject* self, PyObject* args);
-        PyObject* sumHistoryPCD(PyObject* self, PyObject* args);
-        PyObject* result(PyObject* self, PyObject* args);
+        enum StatisticOperation
+        {
+          MIN = 1,
+          MAX = 2,
+          SUM = 3,
+          MEAN = 4,
+          MEDIAN = 5,
+          STANDARD_DEVIATION = 6,
+          COUNT = 7
+        };
 
-        std::string createMonitoredObjectFunction(const std::string& script);
+        enum Buffer
+        {
+          NONE = 0,
+          EXTERN = 1,
+          INTERN = 2,
+          INTERN_PLUS_EXTERN = 3,
+          OBJECT_PLUS_EXTERN = 4,
+          OBJECT_WITHOUT_INTERN = 5
+        };
+
+        void addValue(const std::string& attribute, double value);
+
+
+        double dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        int dcpCount(const std::string& dataSeriesName, double radius, Buffer bufferType);
+        double dcpMin(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        double dcpMax(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        double dcpMean(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        double dcpMedian(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        double dcpSum(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+        double dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids = boost::python::list());
+
+        double dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter);
+        double dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter);
+        double dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter);
+        double dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter);
+        double dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter);
+        double dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter);
+        double dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter);
+
+
+        int occurrenceCount(const std::string& dataSeriesName, double radius, Buffer bufferType, std::string dateFilter, std::string restriction);
+
+        void exportDCP();
+        void exportOccurrence();
 
         void initInterpreter();
-
-        void runMonitoredObjAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
-
         void finalizeInterpreter();
+
+        void runPythonScript(std::string script, boost::python::dict dictMain);
+        void runScriptMonitoredObjectAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
+        void runScriptDCPAnalysis(PyThreadState* state, uint64_t analysisId);
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

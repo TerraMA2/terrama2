@@ -42,7 +42,7 @@ void TsUtility::testTimerNoFrequencyException()
     schedule.frequency = 0;
     schedule.frequencyUnit = "second";
 
-    terrama2::core::Timer timer(schedule, 0);
+//    terrama2::core::Timer timer(schedule, 0);
 
     QFAIL("Should not be here!");
   }
@@ -61,7 +61,7 @@ void TsUtility::testTimerInvalidUnitException()
     schedule.frequency = 30;
     schedule.frequencyUnit = "invalid";
 
-    terrama2::core::Timer timer(schedule, 0);
+    //terrama2::core::Timer timer(schedule, 0);
 
     QFAIL("Should not be here!");
   }
@@ -82,54 +82,54 @@ void TsUtility::testTimer()
     schedule.frequency = 800;
     schedule.frequencyUnit = "second";
 
-    terrama2::core::Timer timerSecond1(schedule, 0);
+//    terrama2::core::Timer timerSecond1(schedule, 0);
 
     schedule.frequencyUnit = "ss";
-    terrama2::core::Timer timerSecond2(schedule, 0);
+//    terrama2::core::Timer timerSecond2(schedule, 0);
 
     schedule.frequencyUnit = "s";
-    terrama2::core::Timer timerSecond3(schedule, 0);
+//    terrama2::core::Timer timerSecond3(schedule, 0);
 
     schedule.frequencyUnit = "sec";
-    terrama2::core::Timer timerSecond4(schedule, 0);
+//    terrama2::core::Timer timerSecond4(schedule, 0);
 
     // Schedule a timer in minutes
     schedule.frequency = 35;
     schedule.frequencyUnit = "minute";
 
-    terrama2::core::Timer timerMinute1(schedule, 0);
+//   terrama2::core::Timer timerMinute1(schedule, 0);
 
     schedule.frequencyUnit = "min";
-    terrama2::core::Timer timerMinute2(schedule, 0);
+//    terrama2::core::Timer timerMinute2(schedule, 0);
 
     schedule.frequencyUnit = "minutes";
-    terrama2::core::Timer timerMinute3(schedule, 0);
+//    terrama2::core::Timer timerMinute3(schedule, 0);
 
     // Schedule a timer in hours
     schedule.frequency = 2;
     schedule.frequencyUnit = "hour";
 
-    terrama2::core::Timer timerHour1(schedule, 0);
+//    terrama2::core::Timer timerHour1(schedule, 0);
 
     schedule.frequencyUnit = "hh";
 
-    terrama2::core::Timer timerHour2(schedule, 0);
+//    terrama2::core::Timer timerHour2(schedule, 0);
 
     schedule.frequencyUnit = "h";
 
-    terrama2::core::Timer timerHour3(schedule, 0);
+//    terrama2::core::Timer timerHour3(schedule, 0);
 
     // Schedule a timer in days
     schedule.frequency = 3;
     schedule.frequencyUnit = "day";
 
-    terrama2::core::Timer timerDay1(schedule, 0);
+//    terrama2::core::Timer timerDay1(schedule, 0);
 
     schedule.frequencyUnit = "d";
-    terrama2::core::Timer timerDay2(schedule, 0);
+//    terrama2::core::Timer timerDay2(schedule, 0);
 
     schedule.frequencyUnit = "dd";
-    terrama2::core::Timer timerDay3(schedule, 0);
+//    terrama2::core::Timer timerDay3(schedule, 0);
 
   }
   catch(...)

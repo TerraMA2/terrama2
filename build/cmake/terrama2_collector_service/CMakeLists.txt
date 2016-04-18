@@ -42,6 +42,7 @@ include_directories (
 include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${Boost_INCLUDE_DIR}
 )
 
 set(CMAKE_AUTOMOC ON)
