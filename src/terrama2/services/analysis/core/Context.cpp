@@ -55,17 +55,21 @@
 
 
 
-std::map<std::string, double> terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
+std::map<terrama2::services::analysis::core::ResultKey, double, terrama2::services::analysis::core::ResultKeyComparer> terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisResult_[analysisId];
 }
 
-void terrama2::services::analysis::core::Context::setAnalysisResult(AnalysisId analysisId, std::string geomId, double result)
+void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto& valueMap = analysisResult_[analysisId];
-  valueMap[geomId] = result;
+  ResultKey key;
+  key.geomId_ = geomId;
+  key.attribute_ = attribute;
+
+  valueMap[key] = result;
 }
 
 
@@ -87,26 +91,25 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::se
   return it->second;
 }
 
-void terrama2::services::analysis::core::Context::loadContext(const terrama2::services::analysis::core::Analysis &analysis)
+void terrama2::services::analysis::core::Context::loadMonitoredObject(const terrama2::services::analysis::core::Analysis &analysis)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
+  auto dataManagerPtr = dataManager_.lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
+    auto datasets = analysisDataSeries.dataSeries->datasetList;
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      auto datasets = analysisDataSeries.dataSeries->datasetList;
-
       assert(datasets.size() == 1);
       auto dataset = datasets[0];
-
-      auto dataManagerPtr = dataManager_.lock();
-      if(!dataManagerPtr)
-      {
-        QString msg(QObject::tr("Invalid data manager."));
-        TERRAMA2_LOG_ERROR() << msg;
-        throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
-      }
 
       auto dataProvider = dataManagerPtr->findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
       terrama2::core::Filter filter;
@@ -121,6 +124,13 @@ void terrama2::services::analysis::core::Context::loadContext(const terrama2::se
 
       std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
 
+      if(!series.syncDataSet->dataset())
+      {
+        QString msg(QObject::tr("Analysis: %1 -> Adding an invalid dataset to the analysis context: DataSeries %2").arg(analysis.id).arg(analysisDataSeries.dataSeries->id));
+        TERRAMA2_LOG_ERROR() << msg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
+      }
+
       std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
       datasetContext->series = series;
@@ -132,11 +142,43 @@ void terrama2::services::analysis::core::Context::loadContext(const terrama2::se
       key.analysisId_ = analysis.id;
       datasetMap_[key] = datasetContext;
     }
+    else if(analysisDataSeries.type == DATASERIES_PCD_TYPE)
+    {
+      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      {
+        auto dataProvider = dataManagerPtr->findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
+        terrama2::core::Filter filter;
+
+        //accessing data
+        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, analysisDataSeries.dataSeries);
+        auto seriesMap = accessor->getSeries(filter);
+        auto series = seriesMap[dataset];
+
+        auto format = dataset->format;
+        std::string identifier = format["identifier"];
+
+        std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
+
+        std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
+
+        datasetContext->series = series;
+        datasetContext->identifier = identifier;
+        datasetContext->geometryPos = geomPropertyPosition;
+
+        ContextKey key;
+        key.datasetId_ = dataset->id;
+        key.analysisId_ = analysis.id;
+        datasetMap_[key] = datasetContext;
+      }
+
+
+
+    }
   }
 
 }
 
-void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter)
+void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter, const bool lastValue)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -163,74 +205,6 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
 
-
-  char format = dateFilter.at(dateFilter.size() - 1);
-  if(format == 'h')
-  {
-    std::string hoursStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int hours = atoi(hoursStr.c_str());
-      ldt -= boost::posix_time::hours(hours);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-  else if(format == 'm')
-  {
-    std::string minutesStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int minutes = atoi(minutesStr.c_str());
-      ldt -= boost::posix_time::minutes(minutes);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-  else if(format == 's')
-  {
-    std::string secondsStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int seconds = atoi(secondsStr.c_str());
-      ldt -= boost::posix_time::seconds(seconds);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-  else if(format == 'd')
-  {
-    std::string daysStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int days = atoi(daysStr.c_str());
-      //FIXME: subtrair dias
-      ldt -= boost::posix_time::hours(days);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {
@@ -241,9 +215,81 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
 
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
   terrama2::core::Filter filter;
+  filter.lastValue = lastValue;
 
-  std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-  filter.discardBefore = std::move(titz);
+  if(!dateFilter.empty())
+  {
+    char format = dateFilter.at(dateFilter.size() - 1);
+    if(format == 'h')
+    {
+      std::string hoursStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int hours = atoi(hoursStr.c_str());
+        ldt -= boost::posix_time::hours(hours);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+    else if(format == 'm')
+    {
+      std::string minutesStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int minutes = atoi(minutesStr.c_str());
+        ldt -= boost::posix_time::minutes(minutes);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+    else if(format == 's')
+    {
+      std::string secondsStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int seconds = atoi(secondsStr.c_str());
+        ldt -= boost::posix_time::seconds(seconds);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+    else if(format == 'd')
+    {
+      std::string daysStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int days = atoi(daysStr.c_str());
+        //FIXME: subtrair dias
+        ldt -= boost::posix_time::hours(days);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+
+
+    std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+    filter.discardBefore = std::move(titz);
+  }
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
@@ -336,74 +382,6 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
 
-
-  char format = dateFilter.at(dateFilter.size() - 1);
-  if(format == 'h')
-  {
-    std::string hoursStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int hours = atoi(hoursStr.c_str());
-      ldt -= boost::posix_time::hours(hours);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-  else if(format == 'm')
-  {
-    std::string minutesStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int minutes = atoi(minutesStr.c_str());
-      ldt -= boost::posix_time::minutes(minutes);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-  else if(format == 's')
-  {
-    std::string secondsStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int seconds = atoi(secondsStr.c_str());
-      ldt -= boost::posix_time::seconds(seconds);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-  else if(format == 'd')
-  {
-    std::string daysStr = dateFilter.substr(0, dateFilter.size() - 1);
-    try
-    {
-      int days = atoi(daysStr.c_str());
-      //FIXME: subtrair dias
-      ldt -= boost::posix_time::hours(days);
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-      errMsg = errMsg.arg(analysisId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-    }
-  }
-
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {
@@ -413,10 +391,82 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
   }
 
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
-  terrama2::core::Filter filter;
 
-  std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-  filter.discardBefore = std::move(titz);
+
+  terrama2::core::Filter filter;
+  if(!dateFilter.empty())
+  {
+
+    char format = dateFilter.at(dateFilter.size() - 1);
+    if(format == 'h')
+    {
+      std::string hoursStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int hours = atoi(hoursStr.c_str());
+        ldt -= boost::posix_time::hours(hours);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+    else if(format == 'm')
+    {
+      std::string minutesStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int minutes = atoi(minutesStr.c_str());
+        ldt -= boost::posix_time::minutes(minutes);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+    else if(format == 's')
+    {
+      std::string secondsStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int seconds = atoi(secondsStr.c_str());
+        ldt -= boost::posix_time::seconds(seconds);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+    else if(format == 'd')
+    {
+      std::string daysStr = dateFilter.substr(0, dateFilter.size() - 1);
+      try
+      {
+        int days = atoi(daysStr.c_str());
+        //FIXME: subtrair dias
+        ldt -= boost::posix_time::hours(days);
+      }
+      catch(...)
+      {
+        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
+        errMsg = errMsg.arg(analysisId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+    }
+
+    std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+    filter.discardBefore = std::move(titz);
+  }
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);

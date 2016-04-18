@@ -25,6 +25,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QTcpSocket>
+#include <QDataStream>
 
 class MockDataManager : public terrama2::core::DataManager
 {

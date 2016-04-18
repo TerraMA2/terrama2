@@ -44,6 +44,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QTcpSocket>
+#include <QDataStream>
 
 terrama2::core::DataProviderPtr buildInputProvider()
 {

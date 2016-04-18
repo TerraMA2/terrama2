@@ -92,7 +92,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
   {
     QString errMsg = QObject::tr("Invalid frequency.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
+    throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
   te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.frequencyUnit);
@@ -101,7 +101,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
   {
     QString errMsg = QObject::tr("Invalid unit frequency.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw InvalidCollectFrequencyException() << terrama2::ErrorDescription(errMsg);
+    throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
   double secondsFrequency = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
