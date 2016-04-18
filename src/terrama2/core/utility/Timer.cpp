@@ -44,18 +44,20 @@ struct terrama2::core::Timer::Impl
   Impl()
     : schedule_(0,0,0) {}
 
-  Schedule             dataSchedule_;
-  QTimer               timer_;//<! Timer to next collection.
-  te::dt::TimeDuration schedule_;//<! Schedule to next collection.
-  uint64_t             processId_;
+    Schedule             dataSchedule_;
+    QTimer               timer_;//<! Timer to next collection.
+    te::dt::TimeDuration schedule_;//<! Schedule to next collection.
+    uint64_t             processId_;
+    std::shared_ptr< te::dt::TimeInstantTZ > lastEmit_;
 };
 
-terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId)
+terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLog > log)
 {
 
   impl_ = new Impl();
   impl_->dataSchedule_ = dataSchedule;
   impl_->processId_ = processId;
+  impl_->lastEmit_ = log->getLastProcessTimestamp();
 
   prepareTimer(dataSchedule);
 }
@@ -65,9 +67,12 @@ terrama2::core::Timer::~Timer()
   delete impl_;
 }
 
-void terrama2::core::Timer::timeoutSlot() const
+void terrama2::core::Timer::timeoutSlot()
 {
   emit timerSignal(impl_->processId_);
+
+  impl_->lastEmit_ = terrama2::core::TimeUtils::now();
+  prepareTimer(impl_->dataSchedule_);
 }
 
 void terrama2::core::Timer::scheduleSlot() const
@@ -75,7 +80,7 @@ void terrama2::core::Timer::scheduleSlot() const
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
   if(impl_->schedule_.getHours() == now.time_of_day().hours()
-      && impl_->schedule_.getMinutes() == now.time_of_day().minutes())
+     && impl_->schedule_.getMinutes() == now.time_of_day().minutes())
   {
     emit timerSignal(impl_->processId_);
   }
@@ -101,28 +106,25 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   double secondsFrequency = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
 
-  std::shared_ptr < te::dt::TimeInstantTZ > lastProcess = terrama2::core::ProcessLog::getLastProcessDate(processId());
   std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
 
   double secondsSinceLastProcess = 0;
 
-  if(lastProcess)
-    secondsSinceLastProcess = *nowTZ.get() - *lastProcess.get();
+  if(impl_->lastEmit_)
+    secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
 
   double seconds = secondsFrequency - secondsSinceLastProcess;
 
-  if(seconds > 0)
-  {
-    // Timer with X seconds
-    connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-    impl_->timer_.start(seconds*1000);
-  }
-  else
-  {
-    // Timer with one second
-    connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-    impl_->timer_.start(1*1000);
-  }
+   if(seconds > 0)
+   {
+     // Timer with X seconds
+     connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
+     impl_->timer_.start(seconds*1000);
+   }
+   else
+   {
+     timeoutSlot();
+   }
 }
 
 uint64_t terrama2::core::Timer::processId() const
