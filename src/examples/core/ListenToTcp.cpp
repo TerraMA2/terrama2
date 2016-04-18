@@ -95,9 +95,9 @@ int main(int argc, char* argv[])
   providersArray.push_back(terrama2::core::toJson(buildInputProvider()));
   obj.insert("DataProviders", providersArray);
 
-  // QJsonArray seriesArray;
-  // seriesArray.push_back(terrama2::core::toJson(buildInputDataSeries()));
-  // obj.insert("DataSeries", seriesArray);
+  QJsonArray seriesArray;
+  seriesArray.push_back(terrama2::core::toJson(buildInputDataSeries()));
+  obj.insert("DataSeries", seriesArray);
 
   QJsonDocument doc(obj);
 
