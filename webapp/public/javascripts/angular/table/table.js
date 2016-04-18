@@ -15,9 +15,29 @@ angular.module('terrama2.table', ['terrama2'])
       controller: function($scope, i18n) {
         $scope.i18n = i18n;
         $scope.searchInput = '';
+        
+        // defines display fields in table
+        $scope.displayFields = [];
+        // fields identifiers
+        $scope.identityFields = [];
 
         if (!$scope.iconProperties)
           $scope.iconProperties = {type: 'img'};
+
+        $scope.$watch('fields', function(fields) {
+          // processing fields
+          fields.forEach(function(field) {
+            if (field instanceof Object) {
+              // todo: validation throwing errors
+              $scope.displayFields.push(field.as);
+              $scope.identityFields.push(field.key);
+            } else {
+              $scope.displayFields.push(field);
+              $scope.identityFields.push(field);
+            }
+          });
+
+        });
 
         $scope.width = $scope.iconProperties.width || 24;
         $scope.width = $scope.iconProperties.height || 24;

@@ -1,6 +1,7 @@
 angular.module('terrama2.dataseries.registration', [
     'terrama2',
     'ui.router',
+    'mgo-angular-wizard', // wizard
     'terrama2.projection',
     'terrama2.services',
     'ui.bootstrap.datetimepicker',
@@ -61,6 +62,54 @@ angular.module('terrama2.dataseries.registration', [
       };
       $scope.isBoolean = function(value) {
         return typeof value === 'boolean';
+      };
+
+      // wizard helper
+      var isWizardStepValid = function(formName, isSchemaForm) {
+        // todo: temp code. It is a "trick" for getting undefined form in scope. It must be changed
+        var form = angular.element('form[name="'+ formName + '"]').scope()[formName];
+
+        if (isSchemaForm == true) {
+          $scope.$broadcast('schemaFormValidate');
+        }
+
+        if (form.$valid)
+          return true;
+        
+        errorHelper(form);
+        return false;
+      };
+      
+      // schedule
+      $scope.isFrequency = false;
+      $scope.isSchedule = false;
+      $scope.onScheduleChange = function(value) {
+        // resetting
+        $scope.schedule = {};
+        if (value == 1) {
+          $scope.isFrequency = true;
+          $scope.isSchedule = false;
+        } else if (value == 2) {
+          $scope.isFrequency = false;
+          $scope.isSchedule = true;
+        }
+      };
+      
+      // Wizard validations
+      $scope.isFirstStepValid = function(obj) {
+        return isWizardStepValid("generalDataForm");
+      };
+      
+      $scope.isSecondStepValid = function(obj) {
+        if ($scope.dataSeries.semantics.data_series_type_name === "Dcp")
+          if ($scope.dcps.length === 0) {
+            // todo: display alert box
+            console.log("it should have at least one dcp");
+            return isWizardStepValid("parametersForm", true) && false;
+          } else {
+            return true;
+          }
+        return isWizardStepValid("parametersForm", true);
       };
 
       $scope.semantics = "";
@@ -182,7 +231,7 @@ angular.module('terrama2.dataseries.registration', [
         return form.$valid;
       };
       
-      $scope.addDcp = function() {
+      $scope.addDcp = function(aaaa) {
         if (isValidParametersForm(this.parametersForm)) {
           $scope.dcps.push(Object.assign({}, $scope.model));
           $scope.model = {};
@@ -210,7 +259,7 @@ angular.module('terrama2.dataseries.registration', [
           return;
         }
         // checking parameters form (semantics) is invalid
-        if (!isValidParametersForm()) {
+        if ($scope.dcps.length === 0 && isValidParametersForm(this.parametersForm)) {
           errorHelper(this.parametersForm);
           return;
         }
@@ -226,19 +275,24 @@ angular.module('terrama2.dataseries.registration', [
         switch(semantics.data_series_type_name.toLowerCase()) {
           case "dcp":
           case "pcd":
-            $scope.dcps.forEach(function(pcd) {
+            $scope.dcps.forEach(function(dcp) {
+              var format = {};
+              for(var key in dcp) {
+                if (dcp.hasOwnProperty(key))
+                  if (key !== "latitude" && key !== "longitude" && key !== "active")
+                    format[key] = dcp[key];
+              }
+              
               var dataSetStructure = {
-                semantics: semantics,
-                active: pcd.active,
-                child: {
-                  position: {
-                    type: 'Point',
-                    coordinates: [pcd.latitude, pcd.longitude],
-                    crs: {
-                      type: 'name',
-                      properties : {
-                        name: pcd.projection
-                      }
+                active: dcp.active,
+                format: format,
+                position: {
+                  type: 'Point',
+                  coordinates: [dcp.latitude, dcp.longitude],
+                  crs: {
+                    type: 'name',
+                    properties : {
+                      name: dcp.projection
                     }
                   }
                 }
