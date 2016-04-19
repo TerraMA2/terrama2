@@ -1,4 +1,4 @@
-var AbstractData = module.exports = function(params) {
+var AbstractData = function(params) {
   if (this.constructor === AbstractData) {
     throw new Error("Cannot instantiate abstract class");
   }
@@ -14,3 +14,5 @@ AbstractData.prototype.toObject = function() {
 AbstractData.prototype.toJSON = function() {
   return JSON.stringify(this.toObject());
 };
+
+module.exports = AbstractData;

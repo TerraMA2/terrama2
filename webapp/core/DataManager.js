@@ -29,6 +29,9 @@ var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
 
+// Tcp
+var TcpManager = require('./TcpManager')
+
 // data model
 var DataProvider = require("./data-model/DataProvider");
 var DataSeries = require("./data-model/DataSeries");
@@ -484,6 +487,9 @@ var DataManager = {
         resolve(dProvider);
 
         //  todo: emit signal
+        var d = new DataProvider(dProvider);
+        d.data_provider_intent_name = 1;
+        TcpManager.sendData({"DataProviders": [d.toObject()]});
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
@@ -531,7 +537,7 @@ var DataManager = {
         if (dataProvider[key] === restriction[key])
           ++keyCont;
         else
-          return;
+          return false;
       });
 
       if (keyCont == keys.length)
@@ -704,22 +710,44 @@ var DataManager = {
 
             Promise.all(dataSets).then(function(dataSets){
               self.data.dataSeries.push(new DataSeries(output));
-              output.datasets = dataSets;
-              resolve(output);
+              // output.dataSets = dataSets;
+
+              // temp code: getting wkt
+              
+              var promises = [];
+              
+              dataSets.forEach(function(dSet) {
+                promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
+              });
+              
+              Promise.all(promises).then(function(wktDataSets) {
+                // todo: emit signal
+                output.dataSets = wktDataSets;
+                TcpManager.sendData({"DataSeries": [output.toObject()]});
+
+                // resolving promise
+                resolve(output);
+              }).catch(function(err) {
+                reject(new exceptions.DataSetError("Could not retrieve data set dcp as wkt format. ", err));
+              });
             }).catch(function(err) {
               rollback(err);
             });
 
           } else {
             // rollback dataseries
-            rollback(new exceptions.DataSeriesError("Could not save DataSeries. " + err.message));
-
+            rollback(new exceptions.DataSeriesError("Could not save DataSeries without any data set."));
           }
         }).catch(function(err) {
           rollback(err);
         });
       }).catch(function(err){
-        reject(new exceptions.DataSeriesError("Could not save DataSeries. ", err));
+        var msg = "";
+
+        err.errors.forEach(function(error) {
+          msg = error.message;
+        });
+        reject(new exceptions.DataSeriesError(msg));
       });
     });
   },
@@ -939,7 +967,7 @@ var DataManager = {
       lock.readLock(function (release) {
         var dataSet = getItemByParam(self.data.dataSets, restriction);
         if (dataSet) {
-          var output = Utils.clone(dataSet);
+          var output = DataSetFactory.build(dataSet);
 
           if (output.position && format === Enums.Format.WKT)
             // Getting wkt representation of Point from GeoJSON
