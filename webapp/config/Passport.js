@@ -34,10 +34,10 @@ var setupPassport = function(app) {
       usernameField: 'username',
       passwordField: 'password'
     },
-    function(user, password, done) {
+    function(username, password, done) {
       User.findOne({
         where: {
-          'user': user
+          'username': username
         }
       }).then(function(userObj) {
         if(userObj == null) {
