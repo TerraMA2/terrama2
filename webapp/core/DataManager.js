@@ -736,7 +736,7 @@ var DataManager = {
 
           } else {
             // rollback dataseries
-            rollback(new exceptions.DataSeriesError("Could not save DataSeries. " + err.message));
+            rollback(new exceptions.DataSeriesError("Could not save DataSeries without any data set."));
           }
         }).catch(function(err) {
           rollback(err);
