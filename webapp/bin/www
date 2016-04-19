@@ -11,6 +11,7 @@ var http = require('http');
 var load = require('express-load');
 var portNumber = '36000';
 var PluginLoader = require("../core/PluginLoader");
+var TcpManager = require("../core/TcpManager");
 
 /**
  * Get port from environment and store in Express.
@@ -38,6 +39,7 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
   // detecting sigint error and then close server
   process.on('SIGINT', function(){
     server.close();
+    TcpManager.close()
   });
 
   io.attach(server);

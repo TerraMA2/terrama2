@@ -95,3 +95,10 @@ server.on('connection', function(socket) {
 });
 
 server.listen(1337, '0.0.0.0');
+server.on('close', function() {
+  console.log("TcpManager server closed");
+});
+
+TcpManager.close = function() {
+  server.close();
+};
