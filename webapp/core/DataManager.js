@@ -128,8 +128,8 @@ var DataManager = {
           inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
 
           // data provider intent defaults
-          inserts.push(models.db.DataProviderIntent.create({name: "Collect", description: "Desc Collect intent"}));
-          inserts.push(models.db.DataProviderIntent.create({name: "Processing", description: "Desc Processing intent"}));
+          inserts.push(models.db.DataProviderIntent.create({name: "COLLECT", description: "Desc Collect intent"}));
+          inserts.push(models.db.DataProviderIntent.create({name: "PROCESSING", description: "Desc Processing intent"}));
 
           // data series type defaults
           inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
@@ -145,6 +145,7 @@ var DataManager = {
             var arr = [];
             arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
             arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+            arr.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
             Promise.all(arr).then(function(){
               releaseCallback();
@@ -200,70 +201,60 @@ var DataManager = {
 
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
 
-            // getting semantics
-            models.db.DataSeriesSemantics.findAll({}).then(function(semanticsList) {
+            dataSeries.forEach(function(dSeries) {
+              self.data.dataSeries.push(new DataSeries(dSeries.get()));
 
-              dataSeries.forEach(function(dSeries) {
-                semanticsList.forEach(function(semantics) {
-                  if (semantics.name === dSeries.data_series_semantic_name) {
-                    self.data.dataSeries.push(new DataSeries(Object.assign({semantics: semantics.get()}, dSeries.get())));
-
-                    //todo: include grid too
-                    var dbOperations = [];
-                    dbOperations.push(models.db.DataSet.findAll({
-                      attributes: ['id', 'active', 'data_series_id'],
-                      include: [
-                        {
-                          model: models.db.DataSetDcp,
-                          attributes: ['position'],
-                          required: true
-                        }
-                      ]
-                    }));
-                    dbOperations.push(models.db.DataSet.findAll({
-                      attributes: ['id', 'active', 'data_series_id'],
-                      include: [
-                        {
-                          model: models.db.DataSetOccurrence,
-                          required: true
-                        }
-                      ]
-                    }));
-
-                    Promise.all(dbOperations).then(function(dataSetsArray) {
-                      dataSetsArray.forEach(function(dataSets) {
-                        dataSets.forEach(function(dataSet) {
-                          var dSetObject = {
-                            id: dataSet.id,
-                            data_series_id: dataSet.data_series_id,
-                            active: dataSet.active
-                          };
-
-                          if (dataSet.DataSetDcp)
-                            Object.assign(dSetObject, dataSet.DataSetDcp.get());
-                          else if (dataSet.DataSetOccurrence) {
-                            // do nothing
-                          }
-
-                          self.data.dataSets.push(DataSetFactory.build(dSetObject));
-                        });
-                      });
-
-                      self.isLoaded = true;
-                      resolve();
-                    }).catch(function(err) {
-                      clean();
-                      reject(err);
-                    });
-
+              //todo: include grid too
+              var dbOperations = [];
+              dbOperations.push(models.db.DataSet.findAll({
+                attributes: ['id', 'active', 'data_series_id'],
+                include: [
+                  {
+                    model: models.db.DataSetDcp,
+                    attributes: ['position'],
+                    required: true
                   }
-                });
-              });
+                ]
+              }));
+              dbOperations.push(models.db.DataSet.findAll({
+                attributes: ['id', 'active', 'data_series_id'],
+                include: [
+                  {
+                    model: models.db.DataSetOccurrence,
+                    required: true
+                  }
+                ]
+              }));
 
-            }).catch(function(err) {
-              clean();
-              reject(err);
+              Promise.all(dbOperations).then(function(dataSetsArray) {
+                dataSetsArray.forEach(function(dataSets) {
+                  dataSets.forEach(function(dataSet) {
+                    var dSetObject = {
+                      id: dataSet.id,
+                      data_series_id: dataSet.data_series_id,
+                      active: dataSet.active
+                    };
+
+                    if (dataSet.DataSetDcp)
+                      Object.assign(dSetObject, dataSet.DataSetDcp.get());
+                    else if (dataSet.DataSetOccurrence) {
+                      // do nothing
+                    }
+
+                    self.data.dataSets.push(DataSetFactory.build(dSetObject));
+                  });
+                });
+
+                self.isLoaded = true;
+                resolve();
+              }).catch(function(err) {
+                clean();
+                reject(err);
+              });
             });
+
+            self.isLoaded = true;
+            resolve();
 
           }).catch(function(err) {
             clean();
@@ -484,12 +475,17 @@ var DataManager = {
         var dProvider = new DataProvider(dataProvider.get());
         self.data.dataProviders.push(dProvider);
 
-        resolve(dProvider);
-
         //  todo: emit signal
         var d = new DataProvider(dProvider);
         d.data_provider_intent_name = 1;
-        TcpManager.sendData({"DataProviders": [d.toObject()]});
+
+        try {
+          TcpManager.sendData({"DataProviders": [d.toObject()]});
+        } catch (e) {
+          console.log("Error tcp send data: ", e);
+        } finally {
+          resolve(dProvider);
+        }
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));

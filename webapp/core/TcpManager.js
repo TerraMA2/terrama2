@@ -54,6 +54,10 @@ var emit = function(signal, object) {
     client.on('close', function() {
       console.log('\n\n[CLIENT] Connection closed');
     });
+
+    client.on('error', function(err) {
+      console.log("\n\n[ERROR] ", err);
+    })
   } catch(error) {
     throw error;
   }

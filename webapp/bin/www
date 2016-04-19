@@ -39,7 +39,7 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
   // detecting sigint error and then close server
   process.on('SIGINT', function(){
     server.close();
-    TcpManager.close()
+    TcpManager.close();
   });
 
   io.attach(server);

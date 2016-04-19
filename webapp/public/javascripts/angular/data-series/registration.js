@@ -90,6 +90,7 @@ angular.module('terrama2.dataseries.registration', [
       };
       
       // schedule
+      $scope.schedule = {};
       $scope.isFrequency = false;
       $scope.isSchedule = false;
       $scope.onScheduleChange = function(value) {
@@ -337,7 +338,11 @@ angular.module('terrama2.dataseries.registration', [
         }
 
         console.log(dataToSend);
-        DataSeriesFactory.post(dataToSend).success(function(data) {
+        DataSeriesFactory.post({
+          dataSeries: dataToSend,
+          schedule: $scope.schedule,
+          filter: $scope.filter
+        }).success(function(data) {
           console.log(data);
           $window.location.href = "/configuration/dynamic/dataseries";
         }).error(function(err) {
