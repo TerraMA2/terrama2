@@ -989,4 +989,5 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     alterLayerIndex: alterLayerIndex,
     init: init
   };
+
 })();
