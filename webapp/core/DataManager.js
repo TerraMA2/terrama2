@@ -96,25 +96,16 @@ var DataManager = {
 
       models = modelsFn();
       models.load(connection);
-<<<<<<< HEAD
 
       var fn = function() {
         // todo: insert default values in database
         var inserts = [];
 
-=======
-
-      var fn = function() {
-        // todo: insert default values in database
-        var inserts = [];
-
->>>>>>> 46c435bea261e9d3f6b714979c0ec15266e06812
         // data provider type defaults
         inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
         inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
         inserts.push(self.addDataProviderType({name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
-<<<<<<< HEAD
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
@@ -142,46 +133,7 @@ var DataManager = {
           var arr = [];
           arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
           arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-          arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
-          Promise.all(inserts).then(function() {
-            var arr = [];
-            arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-            arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-
-            Promise.all(arr).then(function(){
-              releaseCallback();
-            }).catch(function() {
-              releaseCallback();
-            })
-
-=======
-
-        // data provider intent defaults
-        inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
-
-        // data series type defaults
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
-
-        // data formats semantics defaults todo: check it
-        inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
-        inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
-        inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
-
-        var salt = bcrypt.genSaltSync(10);
-
-        // default user
-        inserts.push(self.addUser({name: "Administrator", username: "admin", password: bcrypt.hashSync("admin", salt), salt: salt, cellphone: '99999999999999', email: 'admin@admin', administrator: true}));
-
-        Promise.all(inserts).then(function() {
-          var arr = [];
-          arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-          arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-          arr.push(self.addDataSeriesSemantics({name: "FIRE POINTS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
-
->>>>>>> 46c435bea261e9d3f6b714979c0ec15266e06812
           Promise.all(arr).then(function(){
             releaseCallback();
           }).catch(function() {
