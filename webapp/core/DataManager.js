@@ -112,7 +112,7 @@ var DataManager = {
         var salt = bcrypt.genSaltSync(10);
 
         // default user
-        inserts.push(self.addUser({name: "Administrator", user: "admin", password: bcrypt.hashSync("admin", salt), salt: salt, administrator: true}));
+        inserts.push(self.addUser({name: "Administrator", username: "admin", password: bcrypt.hashSync("admin", salt), salt: salt, cellphone: '99999999999999', email: 'admin@admin', administrator: true}));
 
         Promise.all(inserts).then(function() {
           var arr = [];
