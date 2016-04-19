@@ -1,6 +1,7 @@
 var AbstractSemantics = require("./../AbstractSemantics");
 var DcpInpe = require('./DcpInpe');
 var DcpPostgis = require('./DcpPostgis');
+var WildFire = require('./WildFire');
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var PluginLoader = require('./../PluginLoader');
 
@@ -9,8 +10,10 @@ var Factory = module.exports = {};
 function availableTypes() {
   var output = [];
 
+  // native types
   output.push(DcpInpe);
   output.push(DcpPostgis);
+  output.push(WildFire);
 
   var plugins = availablePlugins();
 
@@ -80,6 +83,13 @@ Factory.listAll = function() {
     name: DcpPostgis.identifier(),
     form: DcpPostgis.form(),
     schema: DcpPostgis.schema()
+  });
+
+  // adding wild fire occurrence
+  output.push({
+    name: WildFire.identifier(),
+    form: WildFire.form(),
+    schema: WildFire.schema()
   });
 
   // checking for available plugins
