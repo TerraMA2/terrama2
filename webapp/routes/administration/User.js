@@ -7,5 +7,5 @@ module.exports = function (app) {
   app.get('/administration/users/new', passport.isAdministrator, controller.new);
   app.get('/administration/users/edit/:id', passport.isAdministrator, controller.edit);
   app.post('/administration/users/new', passport.isAdministrator, controller.post);
-  app.put('/administration/users/edit', passport.isAdministrator, controller.put);
+  app.put('/administration/users/edit/:id', passport.isAdministrator, controller.put);
 };

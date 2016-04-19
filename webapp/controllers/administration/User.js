@@ -24,7 +24,7 @@ module.exports = function(app) {
     },
 
     new: function (request, response) {
-      return response.render('administration/user', { method: 'POST', action: '/administration/users/new' });
+      return response.render('administration/user', { method: 'POST', url: '/administration/users/new' });
     },
 
     edit: function (request, response) {
@@ -43,7 +43,7 @@ module.exports = function(app) {
             administrator: userObj.administrator
           };
 
-          return response.render('administration/user', { method: 'PUT', action: '/administration/users/edit', user: user });
+          return response.render('administration/user', { user: user, method: 'PUT', url: '/administration/users/edit/' });
         } else {
           return response.render('administration/users');
         }
@@ -51,7 +51,8 @@ module.exports = function(app) {
     },
 
     post: function (request, response) {
-      if(request.body.password === request.body.passwordConfirm) {
+      console.log(request.body);
+      /*if(request.body.password === request.body.passwordConfirm) {
         var salt = User.generateSalt();
 
         var userObj = {
@@ -69,7 +70,7 @@ module.exports = function(app) {
         });
       } else {
         return response.redirect("back");
-      }
+      }*/
     },
 
     put: function (request, response) {
