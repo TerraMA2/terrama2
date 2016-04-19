@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: false
       },
-      user: {
+      username: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
@@ -22,6 +22,14 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       salt: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      cellphone: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      email: {
         type: DataTypes.STRING,
         allowNull: false
       },
