@@ -5,5 +5,7 @@ module.exports = function (app) {
 
   app.get('/administration/users', passport.isAdministrator, controller.get);
   app.get('/administration/users/new', passport.isAdministrator, controller.new);
-  app.get('/administration/users/:name', passport.isAdministrator, controller.edit);
+  app.get('/administration/users/edit/:id', passport.isAdministrator, controller.edit);
+  app.post('/administration/users/new', passport.isAdministrator, controller.post);
+  app.put('/administration/users/edit', passport.isAdministrator, controller.put);
 };

@@ -27,13 +27,20 @@
 
 {% block content %}
 <div class="col-md-12">
+  <form method="{[ method ]}" action="{[ action ]}">
+    {% if user !== undefined %}
+      <input type="hidden" name="id" value="{[ user.id ]}"/>
+    {% endif %}
     <div class="box box-default">
         <div class="box-header with-border">
-            <h3 class="box-title">{[ __('User Registration') ]}</h3>
+            {% if user !== undefined %}
+              <h3 class="box-title">{[ __('User Update') ]}</h3>
+            {% else %}
+              <h3 class="box-title">{[ __('User Registration') ]}</h3>
+            {% endif %}
         </div>
         <!-- /.box-header -->
         <div style="display: block;" class="box-body">
-
             <div class="col-md-12">
                 <div class="box box-default box-solid">
                     <div class="box-header with-border">
@@ -49,49 +56,49 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label>{[ __("Name") ]}:</label>
-                                    <input class="form-control" id="name" placeholder="{[ __('User Name') ]}" type="text">
+                                    <input class="form-control" name="name" id="name" placeholder="{[ __('User Name') ]}" type="text" value="{[ user.name ]}">
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>{[ __("Username") ]}:</label>
-                                    <input class="form-control" id="username" placeholder="{[ __('User name credential') ]}" type="text">
+                                    <input class="form-control" name="username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}">
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>{[ __("Password") ]}:</label>
-                                    <input class="form-control" id="password" placeholder="{[ __('User Password credential') ]}" type="password">
+                                    <input class="form-control" name="password" id="password" placeholder="{[ __('User Password credential') ]}" type="password">
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>{[ __("Confirm Password") ]}:</label>
-                                    <input class="form-control" id="password" placeholder="{[ __('Confirm password') ]}" type="password">
+                                    <input class="form-control" name="passwordConfirm" id="passwordConfirm" placeholder="{[ __('Confirm password') ]}" type="password">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{[ __("Cell phone") ]}:</label>
-                                    <input class="form-control" runat="server" id="cellphone" placeholder="{[ __('User cell phone number') ]}" type="tel">
+                                    <input class="form-control" runat="server" name="cellphone" id="cellphone" placeholder="{[ __('User cell phone number') ]}" type="tel" value="{[ user.cellphone ]}">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{[ __("E-mail") ]}:</label>
-                                    <input class="form-control" id="email" placeholder="{[ __('User e-mail') ]}" type="email">
+                                    <input class="form-control" name="email" id="email" placeholder="{[ __('User e-mail') ]}" type="email" value="{[ user.email ]}">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{[ __("Administrator") ]}:</label>
-                                    <input class="form-control" id="administrator" type="checkbox">
+                                    <input name="administrator" id="administrator" type="checkbox"{% if user.administrator %} checked{% endif %}>
                                 </div>
                             </div>
                         </div>
@@ -109,6 +116,7 @@
             <a href="/administration/users" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
         </div>
     </div>
-</div> <!-- end col md 12 -->
+  </form>
+</div>
 
 {% endblock %}

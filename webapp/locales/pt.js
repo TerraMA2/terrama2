@@ -47,5 +47,8 @@
 	"Cell phone": "Cell phone",
 	"User cell phone number": "User cell phone number",
 	"E-mail": "E-mail",
-	"User e-mail": "User e-mail"
+	"User e-mail": "User e-mail",
+	"Administrator": "Administrator",
+	"Cancel": "Cancel",
+	"User Update": "User Update"
 }

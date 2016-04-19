@@ -1,3 +1,5 @@
+var bcrypt = require('bcrypt');
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define(
     "User",
@@ -41,7 +43,15 @@ module.exports = function(sequelize, DataTypes) {
     {
       underscored: true,
       underscoredAll: true,
-      timestamps: false
+      timestamps: false,
+      classMethods: {
+        generateSalt: function() {
+          return bcrypt.genSaltSync(10);
+        },
+        generateHash: function(password, salt) {
+          return bcrypt.hashSync(password, salt);
+        }
+      }
     }
   );
 

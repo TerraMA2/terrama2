@@ -29,7 +29,6 @@ var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
 var connection = require('../config/Sequelize.js');
-var bcrypt = require('bcrypt');
 
 // Tcp
 var TcpManager = require('./TcpManager')
@@ -123,11 +122,6 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
-
-        var salt = bcrypt.genSaltSync(10);
-
-        // default user
-        inserts.push(self.addUser({name: "Administrator", username: "admin", password: bcrypt.hashSync("admin", salt), salt: salt, cellphone: '99999999999999', email: 'admin@admin', administrator: true}));
 
         Promise.all(inserts).then(function() {
           var arr = [];
@@ -474,60 +468,6 @@ var DataManager = {
         var d = new DataProvider(dProvider);
         d.data_provider_intent_name = 1;
         TcpManager.sendData({"DataProviders": [d.toObject()]});
-
-      }).catch(function(err){
-        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
-      });
-    });
-  },
-
-  /**
-   * It saves User in database and load it in memory
-   * @param {Object} userObject - An object containing needed values to create User object.
-   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
-   */
-  addUser: function(userObject) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      models.db.User.create(userObject).then(function(user){
-        self.data.users.push(user.get());
-        resolve(Utils.clone(user.get()));
-
-      }).catch(function(err){
-        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
-      });
-    });
-  },
-
-  /**
-   * It saves User in database and load it in memory
-   * @param {Object} userObject - An object containing needed values to create User object.
-   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
-   */
-  addUser: function(userObject) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      models.db.User.create(userObject).then(function(user){
-        self.data.users.push(user.get());
-        resolve(Utils.clone(user.get()));
-
-      }).catch(function(err){
-        reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
-      });
-    });
-  },
-
-  /**
-   * It saves User in database and load it in memory
-   * @param {Object} userObject - An object containing needed values to create User object.
-   * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
-   */
-  addUser: function(userObject) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      models.db.User.create(userObject).then(function(user){
-        self.data.users.push(user.get());
-        resolve(Utils.clone(user.get()));
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
