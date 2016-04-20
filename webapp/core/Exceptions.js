@@ -103,6 +103,19 @@ errors.ProjectError = function(message) {
 };
 util.inherits(errors.ProjectError, errors.BaseError);
 
+/**
+ * Thrown when User object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.UserError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'UserError';
+};
+util.inherits(errors.UserError, errors.BaseError);
+
 
 /**
  * Thrown when DataSeriesSemanticsError object has inconsistent data.
