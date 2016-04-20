@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/data-access/DataAccessor.hpp
 
-  \brief
+  \brief Base class to access data from a DataSeries.
 
   \author Jano Simas
   \author Evandro Delatin
@@ -48,8 +48,10 @@
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/memory/DataSet.h>
 
-namespace te {
-  namespace da {
+namespace te
+{
+  namespace da
+  {
     class DataSet;
   } /* da */
 } /* te */
@@ -72,99 +74,110 @@ namespace terrama2
     */
     class DataAccessor
     {
-    public:
-      //! Returns the last data timestamp found on last access.
-      virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
-      //! Returns the semantics of the DataSeries.
-      DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
-      //! Returns a map of Series per DataSet.
-      virtual std::map<DataSetPtr, Series > getSeries(const Filter& filter) const;
+      public:
+        //! Returns the last data timestamp found on last access.
+        virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
+        //! Returns the semantics of the DataSeries.
+        DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
+        /*!
+          \brief Get access to the filtered data of a DataSeries
 
-      //! Utility function for converting string to double in the te::da::DataSet contruction.
-      te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+          This method will return a Series per DataSet of the DataSeries.
 
-      //! Utility function for converting string to int32 in the te::da::DataSet contruction.
-      te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
+          In case the data is in a remote file server it will be downloaded, unpacked if the case, and accessed via TerrLib driver.
+          Any temporary folder will be removed in the process.
 
-      //! Default destructor.
-      virtual ~DataAccessor() {}
+          The data will be converted by the data type driver based on the DataSeriesSemantics of the DataSeries.
 
-    protected:
+          \param filter Filter data applied to accessed data, if empty, all data is returned.
+        */
+        virtual std::map<DataSetPtr, Series > getSeries(const Filter& filter) const;
 
-      /*!
-        \brief Base class nad interface for accesing data.
+        //! Utility function for converting string to double in the te::da::DataSet contruction.
+        te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
-        Each derived implementation must deal with protocol, format and data semantics.
+        //! Utility function for converting string to int32 in the te::da::DataSet contruction.
+        te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
-        \param filter If defined creates a cache for the filtered data.
-      */
-      DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-        : dataProvider_(dataProvider),
-          dataSeries_(dataSeries),
-          filter_(filter) {}
+        //! Default destructor.
+        virtual ~DataAccessor() {}
 
-      /*!
-         \brief Prefix especification for drivers.
+      protected:
 
-         Some drivers may need especification to access a datasource,
-         GDal, for example, need 'CSV:' befor the uri for csv files with txt extension.
+        /*!
+          \brief Base class nad interface for accesing data.
 
-       */
-      virtual std::string typePrefix() const { return ""; }
+          Each derived implementation must deal with protocol, format and data semantics.
 
-      /*!
-         \brief Driver that must be used to access a DataSource
-       */
-      virtual std::string dataSourceType() const = 0;
+          \param filter If defined creates a cache for the filtered data.//TODO: no implemented
+        */
+        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+          : dataProvider_(dataProvider),
+            dataSeries_(dataSeries),
+            filter_(filter) {}
 
-      /*!
-         \brief Creates a converter to make the necessary convertions of data type.
+        /*!
+           \brief Prefix especification for drivers.
 
-         This converter will convert strings to Data/Time formats or double,
-         create coordinate point classe from lat long string and other cases
+           Some drivers may need especification to access a datasource,
+           GDal, for example, need 'CSV:' befor the uri for csv files with txt extension.
 
-         \param dataSet Raw dataset
-         \param datasetType DataSetType from dataSet
-         \return Converter
-       */
-      virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter( DataSetPtr dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
+         */
+        virtual std::string typePrefix() const { return ""; }
 
-      /*!
-         \brief Add original attributes to the converter without convertion
-       */
-      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
+        /*!
+           \brief Driver that must be used to access a DataSource
+         */
+        virtual std::string dataSourceType() const = 0;
 
-      /*!
-         \brief Add addapted attributes to the converter
-       */
-      virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
+        /*!
+           \brief Creates a converter to make the necessary convertions of data type.
 
-      /*!
-         \brief Retrieve data from server.
+           This converter will convert strings to Data/Time formats or double,
+           create coordinate point classe from lat long string and other cases
 
-         Retrieved data is subjetc to filter.
+           \param dataSet Raw dataset
+           \param datasetType DataSetType from dataSet
+           \return Converter
+         */
+        virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter(DataSetPtr dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
 
-       */
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const = 0;
+        /*!
+           \brief Add original attributes to the converter without convertion
+         */
+        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
 
-      /*!
-         \brief Get a memory dataset do core::DataSet.
-         \param uri Uri to the dataset storage
-         \param filter Filter applyed to the dataset
-         \return Filtered dataset
-       */
-      virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+        /*!
+           \brief Add addapted attributes to the converter
+         */
+        virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
 
-      /*!
-        \brief Verifies if the DataSet intersects the Filter area.
+        /*!
+           \brief Retrieve data from server.
 
-        Default behavior is true.
-      */
-      virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
+           Retrieved data is subjetc to filter.
 
-      DataProviderPtr dataProvider_;
-      DataSeriesPtr dataSeries_;
-      Filter filter_;
+         */
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const = 0;
+
+        /*!
+           \brief Get a memory dataset do core::DataSet.
+           \param uri Uri to the dataset storage
+           \param filter Filter applyed to the dataset
+           \return Filtered dataset
+         */
+        virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+
+        /*!
+          \brief Verifies if the DataSet intersects the Filter area.
+
+          Default behavior is true.
+        */
+        virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
+
+        DataProviderPtr dataProvider_;//!< DataProvider with iformation of the server where the data is stored.
+        DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data iformation.
+        Filter filter_;//! Filter applied to accessed data.
     };
   }
 }

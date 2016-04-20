@@ -39,6 +39,7 @@ namespace terrama2
   namespace core
   {
     /*!
+      \class DcpSeries
       \brief A DcpSeries represents a set of DCP (Data Collecting Plataform).
 
       The DcpSeries aggregates the te::da::DataSet of each DCP
@@ -46,13 +47,14 @@ namespace terrama2
     */
     class DcpSeries : public SeriesAggregation
     {
-    public:
-      void addDcpSeries(std::map<DataSetPtr, Series > seriesMap);
+      public:
+        //! Add a group of DataSet data to the DcpSeries.
+        void addDcpSeries(std::map<DataSetPtr, Series > seriesMap);
+        //! Returns a map of DataSetDcp data.
+        const std::map<DataSetDcpPtr, Series>& getDcpSeries();
 
-      const std::map<DataSetDcpPtr, Series>& getDcpSeries();
-
-    private:
-      std::map<DataSetDcpPtr, Series> dcpMap_;
+      private:
+        std::map<DataSetDcpPtr, Series> dcpMap_;//!< Map of DataSetDcp data.
 
     };
   }

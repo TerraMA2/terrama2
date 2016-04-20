@@ -39,12 +39,17 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \class SeriesAggregation
+      \brief Base class for grouping DataSet data in a Series
+    */
     class SeriesAggregation
     {
-    public:
-      const std::map<DataSetPtr, Series>& getSeries();
-    protected:
-      std::map<DataSetPtr, Series> dataSeriesMap_;
+      public:
+        //! Returns a map of DataSet data.
+        const std::map<DataSetPtr, Series>& getSeries();
+      protected:
+        std::map<DataSetPtr, Series> dataSeriesMap_;//!< Map of DataSet data.
     };
   }
 }
