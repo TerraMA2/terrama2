@@ -169,6 +169,7 @@ void terrama2::core::initializeTerraMA()
   curl_global_init(CURL_GLOBAL_ALL);
   terrama2::core::initializeTerralib();
 
+  terrama2::core::initializeLogger("terrama2.log");
 }
 
 void terrama2::core::finalizeTerraMA()
