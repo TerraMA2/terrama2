@@ -30,7 +30,18 @@
 
 // TerraMA2
 #include "TimeUtils.hpp"
+#include "Logger.hpp"
+#include "../../Exception.hpp"
 
+// TerraLib
+#include <terralib/common/UnitsOfMeasureManager.h>
+
+// Boost
+#include <boost/algorithm/string.hpp>
+
+// Qt
+#include <QString>
+#include <QObject>
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::now()
 {
@@ -75,4 +86,65 @@ void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ >
 
   te::dt::TimeInstantTZ temp(t);
   (*timeInstant) = temp;
+}
+
+double terrama2::core::TimeUtils::convertStringToUnitOfMeasure(const std::string& time, std::string unitName)
+{
+  std::string timeStr = boost::to_upper_copy(time);
+  double result = 0;
+  auto it = te::common::UnitsOfMeasureManager::getInstance().begin();
+
+  if(it == te::common::UnitsOfMeasureManager::getInstance().end())
+  {
+    QString msg(QObject::tr("There is no UnitOfMeasure registered."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::InitializationException() << terrama2::ErrorDescription(msg);
+  }
+
+  bool found = false;
+  while(it != te::common::UnitsOfMeasureManager::getInstance().end())
+  {
+    auto uom = it->second;
+    std::vector<std::string> vecNames;
+    te::common::UnitsOfMeasureManager::getInstance().getNames(it->second, vecNames);
+
+
+    for(std::string& name : vecNames)
+    {
+      size_t foundPos = timeStr.find(name);
+      if (foundPos != std::string::npos)
+      {
+        found = true;
+        std::string value;
+        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
+        if(lastNumericPos != std::string::npos)
+          value = timeStr.substr(lastNumericPos + 1, foundPos - lastNumericPos - 1 );
+        else
+          value = timeStr.substr(0, foundPos);
+
+        int ivalue = std::stoi(value);
+        std::string uomName = uom->getName();
+        if(uomName == "SECOND")
+          result += ivalue;
+        else
+        {
+          result += te::common::UnitsOfMeasureManager::getInstance().getConversion(name, "SECOND") * ivalue;
+        }
+        break;
+      }
+    }
+    it++;
+  }
+
+  if(!found)
+  {
+    QString msg(QObject::tr("Could not find any known unit of measure in the given string."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
+  }
+
+  if(unitName != "SECOND")
+    result = te::common::UnitsOfMeasureManager::getInstance().getConversion("SECOND", unitName) * result;
+
+  return result;
 }
