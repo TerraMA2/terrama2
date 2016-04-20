@@ -398,9 +398,9 @@ var DataManager = {
     });
   },
 
-  listServiceInstances: function() {
+  listServiceInstances: function(restriction) {
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.findAll({}).then(function(services) {
+      models.db.ServiceInstance.findAll({where: restriction}).then(function(services) {
         var output = [];
         services.forEach(function(service){
           output.push(service.get());
@@ -794,7 +794,7 @@ var DataManager = {
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
-                TcpManager.sendData({"DataSeries": [output.toObject()]});
+                // TcpManager.sendData({"DataSeries": [output.toObject()]});
 
                 // resolving promise
                 resolve(output);
@@ -844,7 +844,7 @@ var DataManager = {
               {name: dataSeriesObject.name}
             ]
           }
-        }).then(function(rows) {
+        }).then(function() {
           dataSeries.name = dataSeriesObject.name;
           dataSeries.description = dataSeriesObject.description;
 
@@ -1160,6 +1160,150 @@ var DataManager = {
       dataSetsList.push(Utils.clone(this.data.dataSets[index]));
 
     return dataSetsList;
+  },
+
+  addDataSeriesAndCollector: function(dataSeriesObject, scheduleObject, filterObject, serviceObject) {
+    var self = this;
+
+    // todo: implement it
+    return new Promise(function(resolve, reject) {
+
+      var rollback = function(model, instance) {
+        return model.destroy({
+          where: {
+            id: instance.id
+          }
+        })
+      };
+
+      var rollbackModels = function(models, instances, exception) {
+        var promises = [];
+        for(var i = 0; i < models.length; ++i) {
+          promises.push(rollback(models[i], instances[i]));
+        }
+
+        Promise.all(promises).then(function() {
+          console.log("Rollback all");
+          return reject(exception);
+        }).catch(function(err) {
+          reject(err);
+        })
+      };
+
+      self.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
+        if (scheduleObject.schedule) {
+          scheduleObject.schedule = new Date(scheduleObject.schedule);
+        }
+
+        self.addSchedule(scheduleObject).then(function(scheduleResult) {
+          var collectorObject = {};
+
+          // todo: get service_instance id and collector status (active)
+          collectorObject.data_series_input = dataSeriesResult.id;
+          collectorObject.data_series_output = dataSeriesResult.id;
+          collectorObject.service_instance_id = serviceObject.id;
+          collectorObject.schedule_id = scheduleResult.id;
+          collectorObject.active = true;
+          collectorObject.collector_type = 1;
+          collectorObject.schedule_id = scheduleResult.id;
+
+          self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
+            resolve(dataSeriesResult)
+          }).catch(function(err) {
+            // rollback schedule
+            rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+          });
+        }).catch(function(err) {
+          // rollback dataseries
+          rollbackModels([models.db.DataSeries], [dataSeriesResult], err);
+        });
+      }).catch(function(err) {
+        reject(err);
+      })
+    });
+  },
+
+  addSchedule: function(scheduleObject) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db.Schedule.create(scheduleObject).then(function(schedule) {
+        resolve(new Schedule(schedule.get()));
+      }).catch(function(err) {
+        // todo: improve error message
+        reject(new exceptions.ScheduleError("Could not save schedule. ", err));
+      });
+    });
+  },
+
+  addCollector: function(collectorObject, filterObject) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db.Collector.create(collectorObject).then(function(collectorResult) {
+        if (_.isEmpty(filterObject))
+          return resolve(collectorResult.get());
+
+
+        filterObject.collector_id = collectorResult.id;
+
+        self.addFilter(filterObject).then(function(filterResult) {
+          var output = Utils.clone(collectorResult.get());
+          output.filter = filterResult;
+
+          resolve(output);
+        }).catch(function(err) {
+          console.log(err);
+          reject(new exceptions.CollectorError("Could not save collector: ", err));
+        })
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.CollectorError("Could not save collector: ", err));
+      })
+    });
+  },
+
+  addFilter: function(filterObject) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      var filterValues = {collector_id: filterObject.collector_id};
+      // checking filter by date
+      if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
+        filterValues.discard_before = new Date(filterObject.date.beforeDate);
+        filterValues.discard_after = new Date(filterObject.date.afterDate);
+      }
+
+      // checking filter by area
+      if (filterObject.hasOwnProperty('area') && !_.isEmpty(filterObject.area)) {
+        filterValues.region = {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [filterObject.area.minX, filterObject.area.minY],
+              [filterObject.area.maxX, filterObject.area.minY],
+              [filterObject.area.maxX, filterObject.area.maxY],
+              [filterObject.area.minX, filterObject.area.maxY],
+              [filterObject.area.minX, filterObject.area.minY]
+            ]
+          ],
+          "crs": {
+            "type": "name",
+            "properties": {
+              "name": "EPSG:4326"
+            }
+          }
+        };
+      }
+
+      // checking filter
+      models.db.Filter.create(filterValues).then(function(filter) {
+        resolve(filter.get());
+      }).catch(function(err) {
+        // todo: improve error message
+        reject(new Error("Could not save filter. ", err));
+      });
+    });
   }
 
 };

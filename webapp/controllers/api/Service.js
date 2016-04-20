@@ -5,7 +5,22 @@ var Utils = require("../../core/Utils");
 module.exports = function(app) {
   return {
     get: function(request, response) {
-      DataManager.listServiceInstances().then(function(services) {
+      var type = request.query.type;
+
+      //todo: improve it
+      var restriction = {};
+      switch (type) {
+        case "COLLECT":
+          restriction = {service_type_id: 1};
+          break;
+        case "ANALYSIS":
+          restriction = {service_type_id: 2};
+          break;
+        default:
+          break;
+      }
+
+      DataManager.listServiceInstances(restriction).then(function(services) {
         return response.json(services);
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);

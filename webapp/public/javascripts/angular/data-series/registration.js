@@ -44,12 +44,14 @@ angular.module('terrama2.dataseries.registration', [
     );
   }])
 
-  .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory",
-    function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory) {
+  .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory", "ServiceInstanceFactory",
+    function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory, ServiceInstanceFactory) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
+
+      $scope.service = {};
 
       // terrama2 messagebox
       $scope.errorFound = false;
@@ -88,11 +90,20 @@ angular.module('terrama2.dataseries.registration', [
         errorHelper(form);
         return false;
       };
-      
+
       // schedule
       $scope.schedule = {};
       $scope.isFrequency = false;
       $scope.isSchedule = false;
+      $scope.services = [];
+      // fix: temp code
+      ServiceInstanceFactory.get({type: 'COLLECT'}).success(function(services) {
+        $scope.services = services;
+      }).error(function(err) {
+        console.log(err);
+      });
+
+
       $scope.onScheduleChange = function(value) {
         // resetting
         if (value == 1) {
@@ -306,6 +317,12 @@ angular.module('terrama2.dataseries.registration', [
           return;
         }
 
+        var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
+        if (scheduleForm.$invalid) {
+          errorHelper(scheduleForm);
+          return;
+        }
+
         var dataToSend = Object.assign({}, $scope.dataSeries);
         dataToSend.data_series_semantic_name = $scope.dataSeries.semantics.name;
 
@@ -383,7 +400,8 @@ angular.module('terrama2.dataseries.registration', [
         DataSeriesFactory.post({
           dataSeries: dataToSend,
           schedule: scheduleValues,
-          filter: filterValues
+          filter: filterValues,
+          service: $scope.service
         }).success(function(data) {
           console.log(data);
           $window.location.href = "/configuration/dynamic/dataseries";

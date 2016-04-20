@@ -9,8 +9,9 @@ module.exports = function(app) {
       var dataSeriesObject = request.body.dataSeries;
       var scheduleObject = request.body.schedule;
       var filterObject = request.body.filter;
+      var serviceObject = request.body.service;
 
-      DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
+      DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceObject).then(function(dataSeriesResult) {
         // todo: add filter and schedule object
         return response.json(dataSeriesResult.toObject());
       }).catch(function(err) {
