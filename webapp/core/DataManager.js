@@ -794,7 +794,7 @@ var DataManager = {
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
-                // TcpManager.sendData({"DataSeries": [output.toObject()]});
+                TcpManager.sendData({"DataSeries": [output.toObject()]});
 
                 // resolving promise
                 resolve(output);
