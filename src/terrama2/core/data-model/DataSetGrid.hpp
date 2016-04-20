@@ -34,6 +34,14 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief DataSet information for Grid.
+
+      A grid is spatialy indexed data matrix.
+
+      Ex.: GeoTIFF files
+
+    */
     struct DataSetGrid : public DataSet
     {
 

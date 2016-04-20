@@ -39,6 +39,7 @@ typedef uint64_t DataProviderId;
 
 namespace terrama2 {
   namespace core {
+    //! Defines an invalid ID 
     inline uint64_t InvalidId(){ return 0;}
   } /* core */
 } /* terrama2 */

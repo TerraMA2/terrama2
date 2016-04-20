@@ -54,6 +54,10 @@ terrama2::core::TcpManager::TcpManager(QObject* parent) : QTcpServer(parent), bl
   QObject::connect(this, &terrama2::core::TcpManager::newConnection, this, &terrama2::core::TcpManager::receiveConnection);
 }
 
+terrama2::core::TcpManager::~TcpManager()
+{
+}
+
 void terrama2::core::TcpManager::parseData(QByteArray bytearray)
 {
   QJsonParseError error;
@@ -81,7 +85,7 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
   out.setVersion(QDataStream::Qt_5_2);
 
   out << static_cast<uint32_t>(0);
-  out << TcpSignals::ERROR_SIGNAL;
+  out << TcpSignals::LOG_SIGNAL;
   out << log.c_str();
   out.device()->seek(0);
   out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
@@ -131,24 +135,25 @@ void terrama2::core::TcpManager::readReadySlot()
 
   switch(signal)
   {
-    case TcpSignals::TERMINATE_SIGNAL:
+  case TcpSignals::TERMINATE_SERVICE_SIGNAL:
     {
-      TERRAMA2_LOG_DEBUG() << "TERMINATE_SIGNAL";
-      
+      TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";
+
       emit stopSignal();
       break;
     }
-    case TcpSignals::DATA_SIGNAL:
+    case TcpSignals::ADD_DATA_SIGNAL:
     {
-      TERRAMA2_LOG_DEBUG() << "DATA_SIGNAL";
+      TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
       QByteArray bytearray = tcpSocket_->readAll();
+      TERRAMA2_LOG_DEBUG() << QString(bytearray);
 
       parseData(bytearray);
       break;
     }
-    case TcpSignals::START_SIGNAL:
+    case TcpSignals::START_PROCESS_SIGNAL:
     {
-      TERRAMA2_LOG_DEBUG() << "START_SIGNAL";
+      TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
       int dataId;
       in >> dataId;
 
@@ -186,9 +191,9 @@ void terrama2::core::TcpManager::receiveConnection()
 {
   TERRAMA2_LOG_INFO() << QObject::tr("Receiving new configuration...");
 
-  tcpSocket_ = nextPendingConnection();
-  if(!tcpSocket_)
+  tcpSocket_.reset(nextPendingConnection());
+  if(!tcpSocket_.get())
     return;
 
-  connect(tcpSocket_, &QTcpSocket::readyRead, this, &terrama2::core::TcpManager::readReadySlot);
+  connect(tcpSocket_.get(), &QTcpSocket::readyRead, this, &terrama2::core::TcpManager::readReadySlot);
 }
