@@ -60,13 +60,13 @@
           data: $scope.user
         }).success(function(user) {
           alert("User saved");
-          console.log(user);
           $scope.errorFound = "";
+          window.location = "/administration/users";
         }).error(function(err) {
+          alert(err.message);
           $scope.errorFound = err.message;
           console.log(err);
           $scope.form.name.$invalid = true;
-
         }).finally(function(){
           $scope.isSubmiting = false;
         });
