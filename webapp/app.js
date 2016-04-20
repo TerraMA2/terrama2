@@ -7,10 +7,43 @@ var express = require('express'),
     app = express(),
     load = require('express-load'),
     swig = require('swig'),
+    passport = require('./config/Passport'),
+    session = require('express-session'),
+    flash = require('connect-flash'),
+    connection = require('./config/Sequelize.js'),
+    User = connection.import('./models/User.js'),
     // i18n = require('i18n-2'),
     i18n = require( "i18n" );
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
+
+app.use(session({ secret: KEY, resave: false, saveUninitialized: false }));
+app.use(function(req, res, next) {
+  if(req.session.passport !== undefined && req.session.passport.user !== undefined) {
+    User.findOne({
+      where: { 'id': req.session.passport.user }
+    }).then(function(userObj) {
+      if(userObj != null) {
+        res.locals.currentUser = {
+          id: userObj.id,
+          name: userObj.name,
+          email: userObj.email,
+          cellphone: userObj.cellphone,
+          username: userObj.username,
+          administrator: userObj.administrator
+        };
+      } else {
+        res.locals.currentUser = null;
+      }
+    });
+  } else {
+    res.locals.currentUser = null;
+  }
+
+  next();
+});
+
+app.use(flash());
 
 // Setting internationalization
 i18n.configure( {
@@ -36,6 +69,7 @@ i18nRoutes.configure(app, {"extension": ".js", directory : __dirname + "/locales
 
 // set up the internacionalization middleware
 app.use(function(req, res, next) {
+  res.locals.errorMessage = req.flash('error');
   next();
 });
 
@@ -43,13 +77,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
-app.use(function(req, res, next) {
+/*app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
-});
+});*/
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+passport.setupPassport(app);
 
 load('controllers')
   .then('routes')

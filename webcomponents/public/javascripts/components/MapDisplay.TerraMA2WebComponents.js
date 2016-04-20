@@ -2,7 +2,7 @@
 
 /**
  * Class responsible for presenting the map.
- * @module MapDisplay
+ * @class MapDisplay
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
@@ -26,14 +26,19 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberOlMap = new ol.Map({
     renderer: 'canvas',
     target: 'terrama2-map',
-    view: new ol.View({ projection: 'EPSG:4326', center: [-55, -15], zoom: 3 }),
-    interactions: ol.interaction.defaults({ doubleClickZoom: false }),
-    controls: ol.control.defaults().extend([ new ol.control.ScaleLine() ])
+    view: new ol.View({ projection: 'EPSG:4326', center: [-55, -15], zoom: 3 })
   });
   // Resolution change event key
   var memberResolutionChangeEventKey = null;
   // Double click event key
   var memberDoubleClickEventKey = null;
+
+  // new
+
+  var memberSingleClickEventKey = null;
+
+  // new
+
   // Socket object
   var memberSocket = null;
 
@@ -42,6 +47,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @returns {ol.Map} memberOlMap - Map object
    *
    * @function getMap
+   * @memberof MapDisplay
+   * @inner
    */
   var getMap = function() {
     return memberOlMap;
@@ -51,10 +58,188 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * Updates the map size accordingly to its container.
    *
    * @function updateMapSize
+   * @memberof MapDisplay
+   * @inner
    */
   var updateMapSize = function() {
     var interval = window.setInterval(function() { memberOlMap.updateSize(); }, 10);
-    window.setTimeout(function() { clearInterval(interval); }, 300);
+    window.setTimeout(function() { clearInterval(interval); }, 600);
+  };
+
+  /**
+   * Corrects the longitude of the map, if it's wrong. That's necessary because Openlayers 3 (in the current version) has a bug, when the map is moved to the right or to the left the X coordinate keeps growing.
+   * @param {float} longitude - Original longitude
+   * @returns {float} correctedLongitude - Corrected longitude
+   *
+   * @private
+   * @function correctLongitude
+   * @memberof MapDisplay
+   * @inner
+   */
+  var correctLongitude = function(longitude) {
+    // Variable that will keep the corrected longitude
+    var correctedLongitude = parseFloat(longitude);
+    // Variable that will keep the original longitude
+    var originalLongitude = parseFloat(longitude);
+
+    // The correction is executed only if the longitude is incorrect
+    if(originalLongitude > 180 || originalLongitude <= -180) {
+      // If the longitude is negative, it's converted to a positive float, otherwise just to a float
+      longitude = originalLongitude < 0 ? longitude * -1 : parseFloat(longitude);
+
+      // Division of the longitude by 180:
+      //   If the result is an even negative integer, nothing is added, subtracted or rounded
+      //   If the result is an odd negative integer, is added 1 to the result
+      //   If the result is a positive integer, is subtracted 1 from the result
+      //   If isn't integer but its integer part is even, it's rounded down
+      //   Otherwise, it's rounded up
+      var divisionResult = 0;
+      if((originalLongitude / 180) % 2 === -0)
+        divisionResult = longitude / 180;
+      else if((originalLongitude / 180) % 2 === -1)
+        divisionResult = (longitude / 180) + 1;
+      else if((longitude / 180) % 1 === 0)
+        divisionResult = (longitude / 180) - 1;
+      else if(parseInt(longitude / 180) % 2 === 0)
+        divisionResult = parseInt(longitude / 180);
+      else
+        divisionResult = Math.ceil(longitude / 180);
+
+      // If the division result is greater than zero, the correct longitude is calculated:
+      //   If the original longitude is negative, the division result multiplied by 180 is added to it
+      //   Otherwise, the division result multiplied by 180 is subtracted from it
+      if(divisionResult > 0)
+        correctedLongitude = (originalLongitude < 0) ? originalLongitude + (divisionResult * 180) : originalLongitude - (divisionResult * 180);
+    }
+
+    return correctedLongitude;
+  };
+
+  /**
+   * Adds a mouse position display in the map.
+   *
+   * @function addMousePosition
+   * @memberof MapDisplay
+   * @inner
+   */
+  var addMousePosition = function() {
+    var controlAlreadyExists = false;
+
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.MousePosition) {
+        controlAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!controlAlreadyExists) {
+      $("#terrama2-map").append('<div id="terrama2-map-info"></div>');
+
+      var mousePositionControl = new ol.control.MousePosition({
+        coordinateFormat: (function(precision) {
+          return (function(coordinates) {
+            return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision);
+          });
+        })(6),
+        projection: 'EPSG:4326',
+        className: 'terrama2-mouse-position',
+        target: document.getElementById('terrama2-map-info')
+      });
+
+      memberOlMap.addControl(mousePositionControl);
+    }
+  };
+
+  /**
+   * Removes the mouse position display from the map.
+   *
+   * @function removeMousePosition
+   * @memberof MapDisplay
+   * @inner
+   */
+  var removeMousePosition = function() {
+    $("#terrama2-map-info").remove();
+
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.MousePosition) {
+        memberOlMap.removeControl(control);
+        return;
+      }
+    });
+  };
+
+  /**
+   * Adds a scale display in the map.
+   *
+   * @function addScale
+   * @memberof MapDisplay
+   * @inner
+   */
+  var addScale = function() {
+    var controlAlreadyExists = false;
+
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.ScaleLine) {
+        controlAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!controlAlreadyExists)
+      memberOlMap.addControl(new ol.control.ScaleLine());
+  };
+
+  /**
+   * Removes the scale display from the map.
+   *
+   * @function removeScale
+   * @memberof MapDisplay
+   * @inner
+   */
+  var removeScale = function() {
+    memberOlMap.getControls().forEach(function(control, i) {
+      if(control instanceof ol.control.ScaleLine) {
+        memberOlMap.removeControl(control);
+        return;
+      }
+    });
+  };
+
+  /**
+   * Enables the double click zoom.
+   *
+   * @function enableDoubleClickZoom
+   * @memberof MapDisplay
+   * @inner
+   */
+  var enableDoubleClickZoom = function() {
+    var interactionAlreadyExists = false;
+
+    memberOlMap.getInteractions().forEach(function(interaction, i) {
+      if(interaction instanceof ol.interaction.DoubleClickZoom) {
+        interactionAlreadyExists = true;
+        return;
+      }
+    });
+
+    if(!interactionAlreadyExists)
+      memberOlMap.addInteraction(new ol.interaction.DoubleClickZoom());
+  };
+
+  /**
+   * Disables the double click zoom.
+   *
+   * @function disableDoubleClickZoom
+   * @memberof MapDisplay
+   * @inner
+   */
+  var disableDoubleClickZoom = function() {
+    memberOlMap.getInteractions().forEach(function(interaction, i) {
+      if(interaction instanceof ol.interaction.DoubleClickZoom) {
+        memberOlMap.removeInteraction(interaction);
+        return;
+      }
+    });
   };
 
   /**
@@ -65,6 +250,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    *
    * @private
    * @function createLayerGroup
+   * @memberof MapDisplay
+   * @inner
    */
   var createLayerGroup = function(id, name) {
     var layerGroup = new ol.layer.Group({
@@ -81,6 +268,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} name - Layer group name
    *
    * @function addLayerGroup
+   * @memberof MapDisplay
+   * @inner
    */
   var addLayerGroup = function(id, name) {
     var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'terrama2-layerexplorer');
@@ -113,6 +302,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @returns {ol.layer.Tile} tile - New tiled wms layer
    *
    * @function createTileWMS
+   * @memberof MapDisplay
+   * @inner
    */
   var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time) {
     var params = {
@@ -157,6 +348,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} time - Time parameter for temporal layers
    *
    * @function addTileWMSLayer
+   * @memberof MapDisplay
+   * @inner
    */
   var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time) {
     var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
@@ -194,6 +387,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    *
    * @private
    * @function createGeoJSONVector
+   * @memberof MapDisplay
+   * @inner
    */
   var createGeoJSONVector = function(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction) {
     var vector = new ol.layer.Vector({
@@ -234,6 +429,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} parentGroup - Parent group id
    *
    * @function addGeoJSONVectorLayer
+   * @memberof MapDisplay
+   * @inner
    */
   var addGeoJSONVectorLayer = function(url, layerId, layerName, layerVisible, minResolution, maxResolution, fillColors, strokeColors, styleFunction, parentGroup) {
     var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
@@ -262,6 +459,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} name - Layer name
    *
    * @function addBaseLayers
+   * @memberof MapDisplay
+   * @inner
    */
   var addBaseLayers = function(id, name) {
     var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'terrama2-layerexplorer');
@@ -316,6 +515,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} serverName - Server name
    *
    * @function addCapabilitiesLayers
+   * @memberof MapDisplay
+   * @inner
    */
   var addCapabilitiesLayers = function(capabilitiesUrl, serverUrl, serverType, serverId, serverName) {
     memberSocket.emit('proxyRequest', { url: capabilitiesUrl, additionalParameters: { serverUrl: serverUrl, serverType: serverType, serverId: serverId, serverName: serverName } });
@@ -331,6 +532,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    *
    * @private
    * @function createCapabilitiesLayers
+   * @memberof MapDisplay
+   * @inner
    */
   var createCapabilitiesLayers = function(xml, serverUrl, serverType, serverId, serverName) {
     var capabilities = memberParser.read(xml);
@@ -385,6 +588,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    *
    * @private
    * @function createStyle
+   * @memberof MapDisplay
+   * @inner
    */
   var createStyle = function(fill, stroke) {
     return new ol.style.Style({
@@ -403,6 +608,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {ol.layer} layer - Layer or layer group
    *
    * @function setLayerVisibility
+   * @memberof MapDisplay
+   * @inner
    */
   var setLayerVisibility = function(layer) {
     layer.setVisible(!layer.getVisible());
@@ -424,6 +631,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {boolean} visibilityFlag - Visibility flag, true to show and false to hide
    *
    * @function setLayerVisibilityById
+   * @memberof MapDisplay
+   * @inner
    */
   var setLayerVisibilityById = function(layerId, visibilityFlag) {
     var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
@@ -445,6 +654,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} layerId - Layer id
    *
    * @function isLayerVisible
+   * @memberof MapDisplay
+   * @inner
    */
   var isLayerVisible = function(layerId) {
     var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
@@ -456,11 +667,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
    * @function setLayerVisibilityChangeEvent
+   * @memberof MapDisplay
+   * @inner
    */
   var setLayerVisibilityChangeEvent = function(eventFunction) {
     $(document).unbind("layerVisibilityChange");
     $(document).on("layerVisibilityChange", function(e, layerId) {
-      eventFunction(e, layerId);
+      eventFunction(layerId);
     });
   };
 
@@ -468,6 +681,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * Adds the Zoom DragBox to the map.
    *
    * @function addZoomDragBox
+   * @memberof MapDisplay
+   * @inner
    */
   var addZoomDragBox = function() {
     memberOlMap.addInteraction(memberZoomDragBox);
@@ -477,6 +692,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * Removes the Zoom DragBox from the map.
    *
    * @function removeZoomDragBox
+   * @memberof MapDisplay
+   * @inner
    */
   var removeZoomDragBox = function() {
     memberOlMap.removeInteraction(memberZoomDragBox);
@@ -487,9 +704,12 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @returns {array} extent - Zoom DragBox extent
    *
    * @function getZoomDragBoxExtent
+   * @memberof MapDisplay
+   * @inner
    */
   var getZoomDragBoxExtent = function() {
-    return memberZoomDragBox.getGeometry().getExtent();
+    var extent = memberZoomDragBox.getGeometry().getExtent();
+    return extent;
   };
 
   /**
@@ -497,9 +717,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
    * @function setZoomDragBoxStartEvent
+   * @memberof MapDisplay
+   * @inner
    */
   var setZoomDragBoxStartEvent = function(eventFunction) {
-    memberZoomDragBox.on('boxstart', eventFunction);
+    memberZoomDragBox.on('boxstart', function(e) {
+      eventFunction();
+    });
   };
 
   /**
@@ -507,9 +731,13 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
    * @function setZoomDragBoxEndEvent
+   * @memberof MapDisplay
+   * @inner
    */
   var setZoomDragBoxEndEvent = function(eventFunction) {
-    memberZoomDragBox.on('boxend', eventFunction);
+    memberZoomDragBox.on('boxend', function(e) {
+      eventFunction();
+    });
   };
 
   /**
@@ -517,18 +745,23 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @returns {array} extent - Map extent
    *
    * @function getCurrentExtent
+   * @memberof MapDisplay
+   * @inner
    */
   var getCurrentExtent = function() {
-    return memberOlMap.getView().calculateExtent(memberOlMap.getSize());
+    var extent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
+    return extent;
   };
 
   /**
    * Zooms to the initial map extent.
    *
    * @function zoomToInitialExtent
+   * @memberof MapDisplay
+   * @inner
    */
   var zoomToInitialExtent = function() {
-    memberOlMap.getView().fit(memberInitialExtent, memberOlMap.getSize());
+    memberOlMap.getView().fit(memberInitialExtent, memberOlMap.getSize(), { constrainResolution: false });
   };
 
   /**
@@ -536,6 +769,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {array} extent - Extent
    *
    * @function zoomToExtent
+   * @memberof MapDisplay
+   * @inner
    */
   var zoomToExtent = function(extent) {
     memberOlMap.getView().fit(extent, memberOlMap.getSize(), { constrainResolution: false });
@@ -546,6 +781,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @returns {float} resolution - Map resolution
    *
    * @function getCurrentResolution
+   * @memberof MapDisplay
+   * @inner
    */
   var getCurrentResolution = function() {
     return memberOlMap.getView().getResolution();
@@ -557,6 +794,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @returns {boolean} flag - Flag that indicates if the current resolution is valid for the layer
    *
    * @function isCurrentResolutionValidForLayer
+   * @memberof MapDisplay
+   * @inner
    */
   var isCurrentResolutionValidForLayer = function(layerId) {
     var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
@@ -570,13 +809,15 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
    * @function setMapResolutionChangeEvent
+   * @memberof MapDisplay
+   * @inner
    */
   var setMapResolutionChangeEvent = function(eventFunction) {
     if(memberResolutionChangeEventKey !== null) memberOlMap.getView().unByKey(memberResolutionChangeEventKey);
     memberResolutionChangeEventKey = memberOlMap.getView().on('propertychange', function(e) {
       switch(e.key) {
         case 'resolution':
-          eventFunction(e);
+          eventFunction();
           break;
       }
     });
@@ -587,13 +828,30 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {function} eventFunction - Function to be executed when the event is triggered
    *
    * @function setMapDoubleClickEvent
+   * @memberof MapDisplay
+   * @inner
    */
   var setMapDoubleClickEvent = function(eventFunction) {
     if(memberDoubleClickEventKey !== null) memberOlMap.getView().unByKey(memberDoubleClickEventKey);
     memberDoubleClickEventKey = memberOlMap.on('dblclick', function(e) {
-      eventFunction(e);
+      eventFunction(correctLongitude(e.coordinate[0]), e.coordinate[1]);
     });
   };
+
+  // new
+
+  var setMapSingleClickEvent = function(eventFunction) {
+    if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
+    memberSingleClickEventKey = memberOlMap.on('click', function(e) {
+      eventFunction(correctLongitude(e.coordinate[0]), e.coordinate[1]);
+    });
+  };
+
+  var unsetMapSingleClickEvent = function() {
+    if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
+  };
+
+  // new
 
   /**
    * Finds a layer by a given key.
@@ -603,6 +861,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @returns {ol.layer} layer - Layer found
    *
    * @function findBy
+   * @memberof MapDisplay
+   * @inner
    */
   var findBy = function(layer, key, value) {
     if(layer.get(key) === value)
@@ -627,6 +887,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {string} layerId - Layer id to be filtered
    *
    * @function applyCQLFilter
+   * @memberof MapDisplay
+   * @inner
    */
   var applyCQLFilter = function(cql, layerId) {
     findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource().updateParams({ "CQL_FILTER": cql });
@@ -637,6 +899,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    *
    * @private
    * @function loadSocketsListeners
+   * @memberof MapDisplay
+   * @inner
    */
   var loadSocketsListeners = function() {
     memberSocket.on('proxyResponse', function(response) {
@@ -651,6 +915,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @param {int} indexTo - New index
    *
    * @function alterLayerIndex
+   * @memberof MapDisplay
+   * @inner
    */
   var alterLayerIndex = function(parent, indexFrom, indexTo) {
     var layers = findBy(memberOlMap.getLayerGroup(), 'id', parent).getLayers();
@@ -662,6 +928,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * Initializes the necessary features.
    *
    * @function init
+   * @memberof MapDisplay
+   * @inner
    */
   var init = function() {
     memberParser = new ol.format.WMSCapabilities();
@@ -686,6 +954,12 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   return {
     getMap: getMap,
     updateMapSize: updateMapSize,
+    addMousePosition: addMousePosition,
+    removeMousePosition: removeMousePosition,
+    addScale: addScale,
+    removeScale: removeScale,
+    enableDoubleClickZoom: enableDoubleClickZoom,
+    disableDoubleClickZoom: disableDoubleClickZoom,
     addLayerGroup: addLayerGroup,
     createTileWMS: createTileWMS,
     addTileWMSLayer: addTileWMSLayer,
@@ -708,9 +982,12 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     isCurrentResolutionValidForLayer: isCurrentResolutionValidForLayer,
     setMapResolutionChangeEvent: setMapResolutionChangeEvent,
     setMapDoubleClickEvent: setMapDoubleClickEvent,
+    setMapSingleClickEvent: setMapSingleClickEvent,
+    unsetMapSingleClickEvent: unsetMapSingleClickEvent,
     findBy: findBy,
     applyCQLFilter: applyCQLFilter,
     alterLayerIndex: alterLayerIndex,
     init: init
   };
+
 })();
