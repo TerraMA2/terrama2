@@ -1,8 +1,10 @@
+var passport = require('../../config/Passport');
+
 module.exports = function (app) {
 
   var controller = app.controllers.api.Service;
 
-  app.get('/api/Service/', controller.get);
-  app.post('/api/Service/', controller.post);
+  app.get('/api/Service/', passport.isAuthenticated, controller.get);
+  app.post('/api/Service/', passport.isAuthenticated, controller.post);
 
 };
