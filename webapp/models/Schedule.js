@@ -1,18 +1,19 @@
-module.exports = function(sequelize, DataTypes)
-{
-  var Project = sequelize.define("Project", {
+module.exports = function(sequelize, DataTypes) {
+  var Schedule = sequelize.define("Schedule",
+    {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
       },
-      version: DataTypes.INTEGER,
-      name: {
-        type: DataTypes.STRING,
-        unique: true
-      },
-      description: DataTypes.TEXT
+      frequency: DataTypes.INTEGER,
+      frequency_unit: DataTypes.STRING,
+      schedule: DataTypes.TIME,
+      schedule_retry: DataTypes.INTEGER,
+      schedule_retry_unit: DataTypes.STRING,
+      schedule_timeout: DataTypes.INTEGER,
+      schedule_timeout_unit: DataTypes.STRING
     },
     {
       underscored: true,
@@ -21,17 +22,17 @@ module.exports = function(sequelize, DataTypes)
 
       classMethods: {
         associate: function(models) {
-          Project.hasMany(models.DataProvider, {
+          Schedule.hasMany(models.Collector, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
             }
           });
 
-          Project.hasMany(models.Analysis, {
+          Schedule.hasOne(models.Analysis, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'project_id',
+              name: 'schedule_id',
               allowNull: false
             }
           });
@@ -40,5 +41,5 @@ module.exports = function(sequelize, DataTypes)
     }
   );
 
-  return Project;
+  return Schedule;
 };

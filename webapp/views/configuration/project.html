@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
   angular.module("terrama2.project.registration", [])
-    .controller("ProjectRegistration", function($scope, $http) {
+    .controller("ProjectRegistration", function($scope, $http, $window) {
       $scope.isSubmiting = false;
       $scope.errorFound = "";
 
@@ -32,9 +32,9 @@
           url: "{[ url ]}",
           data: $scope.project
         }).success(function(project) {
-          alert("Project saved");
           console.log(project);
           $scope.errorFound = "";
+          $window.location.href = "/configuration/projects";
         }).error(function(err) {
           $scope.errorFound = err.message;
           console.log(err);

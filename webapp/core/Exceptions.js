@@ -172,3 +172,45 @@ errors.PluginError = function(message) {
   this.name = 'PluginError';
 };
 util.inherits(errors.PluginError, errors.BaseError);
+
+
+/**
+ * Thrown when Schedule object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.ScheduleError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ScheduleError';
+};
+util.inherits(errors.ScheduleError, errors.BaseError);
+
+
+/**
+ * Thrown when Collector object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.CollectorError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'CollectorError';
+};
+util.inherits(errors.CollectorError, errors.BaseError);
+
+
+/**
+ * Thrown when Filter object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.FilterError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'FilterError';
+};
+util.inherits(errors.FilterError, errors.BaseError);

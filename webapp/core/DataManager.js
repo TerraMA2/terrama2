@@ -31,13 +31,14 @@ var Enums = require('./Enums');
 var connection = require('../config/Sequelize.js');
 
 // Tcp
-var TcpManager = require('./TcpManager')
+var TcpManager = require('./TcpManager');
 
 // data model
 var DataProvider = require("./data-model/DataProvider");
 var DataSeries = require("./data-model/DataSeries");
 var DataSetDcp = require("./data-model/DataSetDcp");
 var DataSetFactory = require("./data-model/DataSetFactory");
+var Schedule = require('./data-model/Schedule');
 
 
 // Available DataSeriesType
@@ -86,8 +87,6 @@ var DataManager = {
 
     // Lock function
     lock.readLock(function (release) {
-      var Sequelize = require("sequelize");
-
       var releaseCallback = function() {
         release();
         callback();
@@ -100,6 +99,22 @@ var DataManager = {
         // todo: insert default values in database
         var inserts = [];
 
+        // default users
+        var salt = models.db.User.generateSalt();
+        inserts.push(models.db.User.create({
+          name: "TerraMA2 User",
+          username: "terrama2",
+          password: models.db.User.generateHash("terrama2", salt),
+          salt: salt,
+          cellphone: '14578942362',
+          email: 'terrama2@terrama2.inpe.br',
+          administrator: false
+        }));
+
+        // services type
+        inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
+        inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
+
         // data provider type defaults
         inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
         inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
@@ -107,7 +122,8 @@ var DataManager = {
         inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
 
         // data provider intent defaults
-        inserts.push(models.db.DataProviderIntent.create({name: "Intent1", description: "Desc Intent2"}));
+        inserts.push(models.db.DataProviderIntent.create({name: "COLLECT", description: "Desc Collect intent"}));
+        inserts.push(models.db.DataProviderIntent.create({name: "PROCESSING", description: "Desc Processing intent"}));
 
         // data series type defaults
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
@@ -127,6 +143,7 @@ var DataManager = {
           var arr = [];
           arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
           arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+          arr.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
           Promise.all(arr).then(function(){
             releaseCallback();
@@ -142,6 +159,26 @@ var DataManager = {
         fn();
       }, function() {
         fn();
+      });
+    });
+  },
+  
+  finalize: function() {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      lock.writeLock(function(release) {
+        self.data.dataProviders = [];
+        self.data.dataSeries = [];
+        self.data.dataSets = [];
+        self.data.projects = [];
+
+        self.isLoaded = false;
+
+        resolve();
+
+        connection.close();
+
+        release();
       });
     });
   },
@@ -178,70 +215,59 @@ var DataManager = {
 
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
 
-            // getting semantics
-            models.db.DataSeriesSemantics.findAll({}).then(function(semanticsList) {
+            dataSeries.forEach(function(dSeries) {
+              self.data.dataSeries.push(new DataSeries(dSeries.get()));
 
-              dataSeries.forEach(function(dSeries) {
-                semanticsList.forEach(function(semantics) {
-                  if (semantics.name === dSeries.data_series_semantic_name) {
-                    self.data.dataSeries.push(new DataSeries(Object.assign({semantics: semantics.get()}, dSeries.get())));
-
-                    //todo: include grid too
-                    var dbOperations = [];
-                    dbOperations.push(models.db.DataSet.findAll({
-                      attributes: ['id', 'active', 'data_series_id'],
-                      include: [
-                        {
-                          model: models.db.DataSetDcp,
-                          attributes: ['position'],
-                          required: true
-                        }
-                      ]
-                    }));
-                    dbOperations.push(models.db.DataSet.findAll({
-                      attributes: ['id', 'active', 'data_series_id'],
-                      include: [
-                        {
-                          model: models.db.DataSetOccurrence,
-                          required: true
-                        }
-                      ]
-                    }));
-
-                    Promise.all(dbOperations).then(function(dataSetsArray) {
-                      dataSetsArray.forEach(function(dataSets) {
-                        dataSets.forEach(function(dataSet) {
-                          var dSetObject = {
-                            id: dataSet.id,
-                            data_series_id: dataSet.data_series_id,
-                            active: dataSet.active
-                          };
-
-                          if (dataSet.DataSetDcp)
-                            Object.assign(dSetObject, dataSet.DataSetDcp.get());
-                          else if (dataSet.DataSetOccurrence) {
-                            // do nothing
-                          }
-
-                          self.data.dataSets.push(DataSetFactory.build(dSetObject));
-                        });
-                      });
-
-                      self.isLoaded = true;
-                      resolve();
-                    }).catch(function(err) {
-                      clean();
-                      reject(err);
-                    });
-
+              //todo: include grid too
+              var dbOperations = [];
+              dbOperations.push(models.db.DataSet.findAll({
+                attributes: ['id', 'active', 'data_series_id'],
+                include: [
+                  {
+                    model: models.db.DataSetDcp,
+                    attributes: ['position'],
+                    required: true
                   }
+                ]
+              }));
+              dbOperations.push(models.db.DataSet.findAll({
+                attributes: ['id', 'active', 'data_series_id'],
+                include: [
+                  {
+                    model: models.db.DataSetOccurrence,
+                    required: true
+                  }
+                ]
+              }));
+
+              Promise.all(dbOperations).then(function(dataSetsArray) {
+                dataSetsArray.forEach(function(dataSets) {
+                  dataSets.forEach(function(dataSet) {
+                    var dSetObject = {
+                      id: dataSet.id,
+                      data_series_id: dataSet.data_series_id,
+                      active: dataSet.active
+                    };
+
+                    if (dataSet.DataSetDcp)
+                      Object.assign(dSetObject, dataSet.DataSetDcp.get());
+                    else if (dataSet.DataSetOccurrence) { }
+
+                    self.data.dataSets.push(DataSetFactory.build(dSetObject));
+                  });
                 });
+
+                self.isLoaded = true;
+                resolve();
+              }).catch(function(err) {
+                clean();
+                reject(err);
               });
 
-            }).catch(function(err) {
-              clean();
-              reject(err);
             });
+
+            self.isLoaded = true;
+            resolve();
 
           }).catch(function(err) {
             clean();
@@ -306,6 +332,12 @@ var DataManager = {
     });
   },
 
+  /**
+   * It updates a project from given object values.
+   *
+   * @param {Object} projectObject - an javascript object containing project values
+   * @return {Promise<DataFormat>} - a 'bluebird' module with DataFormat instance or error callback
+   */
   updateProject: function(projectObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -332,11 +364,51 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a Project list object from loaded projects.
+   *
+   * @return {Promise<Project>} - a 'bluebird' module with Project instance or error callback
+   */
   listProjects: function() {
     var projectList = [];
     for(var index = 0; index < this.data.projects.length; ++index)
       projectList.push(Utils.clone(this.data.projects[index]));
     return projectList;
+  },
+
+  /**
+   * It saves ServiceInstance in database and storage it in memory
+   * @param {Object} serviceObject - An object containing project values to be saved.
+   * @return {Promise} - a 'bluebird' module. The callback is either a {ServiceInstance} data values or error
+   */
+  addServiceInstance: function(serviceObject) {
+    return new Promise(function(resolve, reject){
+      lock.writeLock(function(release) {
+        models.db.ServiceInstance.create(serviceObject).then(function(serviceResult){
+          resolve(serviceResult.get())
+          release();
+        }).catch(function(e) {
+          var message = "Could not save service instance: ";
+          if (e.errors)
+            message += e.errors[0].message;
+          reject(new Error(message));
+          release();
+        });
+      });
+    });
+  },
+
+  listServiceInstances: function() {
+    return new Promise(function(resolve, reject){
+      models.db.ServiceInstance.findAll({}).then(function(services) {
+        var output = [];
+        services.forEach(function(service){
+          output.push(service.get());
+        });
+
+        resolve(output);
+      });
+    });
   },
 
   /**
@@ -356,6 +428,11 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataProviderType list object from database.
+   *
+   * @return {Promise<DataProviderType>} - a 'bluebird' module with DataProviderType instance or error callback
+   */
   listDataProviderType: function() {
     return new Promise(function(resolve, reject) {
       models.db.DataProviderType.findAll({}).then(function(result) {
@@ -387,6 +464,11 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataFormats list object from database.
+   *
+   * @return {Promise<DataFormat>} - a 'bluebird' module with DataFormat instance or error callback
+   */
   listDataFormats: function() {
     return new Promise(function(resolve, reject) {
       models.db.DataFormat.findAll({}).then(function(dataFormats) {
@@ -419,6 +501,13 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataSeriesSemantics object from restriction. It should be an object containing either id identifier or
+   * name identifier. This operation must retrieve only a row.
+   *
+   * @param {Object} restriction - An object containing DataSeriesSemantics identifier to get it.
+   * @return {Promise<DataSeriesSemantics>} - a 'bluebird' module with DataSeriesSemantics instance or error callback
+   */
   getDataSeriesSemantics: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -434,6 +523,12 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataSeriesSemantics list object from restriction.
+   *
+   * @param {Object} restriction - An optional object containing DataSeriesSemantics identifier to filter it.
+   * @return {Promise<DataSeriesSemantics>} - a 'bluebird' module with DataSeriesSemantics instance or error callback
+   */
   listDataSeriesSemantics: function(restriction) {
     return new Promise(function(resolve, reject) {
       models.db.DataSeriesSemantics.findAll({where: restriction}).then(function(semanticsList) {
@@ -629,7 +724,7 @@ var DataManager = {
             dataSeriesList.push(new DataSeries(dataSeries));
         });
       });
-
+      
     } else {
       this.data.dataSeries.forEach(function(dataSeries) {
         dataSeriesList.push(new DataSeries(dataSeries));
@@ -688,16 +783,14 @@ var DataManager = {
 
             Promise.all(dataSets).then(function(dataSets){
               self.data.dataSeries.push(new DataSeries(output));
-              // output.dataSets = dataSets;
-
               // temp code: getting wkt
-
+              
               var promises = [];
-
+              
               dataSets.forEach(function(dSet) {
                 promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
               });
-
+              
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
@@ -930,9 +1023,6 @@ var DataManager = {
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
   getDataSet: function(restriction, format) {
-    /**
-     * { id / data_series_id: someValue}
-     */
     var self = this;
     return new Promise(function(resolve, reject) {
       // setting default format

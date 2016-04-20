@@ -9,38 +9,39 @@
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 
 <script>
-    angular.module('terrama2.administration.services', ['terrama2.table'])
-        .controller('ListController', ['$scope', function($scope) {
+    angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services'])
+        .controller('ListController', ['$scope', 'ServiceInstanceFactory', function($scope, ServiceInstanceFactory) {
             $scope.link = function(object) {
                 return "/administration/services/" + object.name;
             };
 
-            $scope.model = [
-                {
-                    name: "AnalysisLocal",
-                    type: "Analysis",
-                    status: 'online'
-                },
-                {
-                    name: "Analysis2234",
-                    type: "Analysis",
-                    status: 'online'
-                },
-                {
-                    name: "Collector2234",
-                    type: "Collector",
-                    status: 'online'
-                },
-                {
-                    name: "Alert2234",
-                    type: "Alert",
-                    status: 'online'
+            ServiceInstanceFactory.get().success(function(services) {
+              services.forEach(function(service) {
+                switch(service.service_type_id) {
+                  case 1:
+                    service.type = "Collect";
+                    break;
+                  case 2:
+                    service.type = "Analysis";
+                    break;
+                  default:
+                    break;
                 }
-            ];
-            $scope.fields = ['name', 'type', 'status'];
+              });
+              $scope.model = services;
+
+              // todo: ping each one to check current state
+            }).error(function(err) {
+              console.log(err);
+            });
+
+            $scope.fields = [
+              {key: 'name', as: 'Name'},
+              {key: 'type', as: 'Type'}];
             $scope.iconFn = null;
 
             $scope.linkToAdd = "/administration/services/new";

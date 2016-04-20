@@ -1,18 +1,16 @@
-module.exports = function(sequelize, DataTypes)
-{
-  var Project = sequelize.define("Project", {
+module.exports = function(sequelize, DataTypes) {
+  var DataCollectionLog = sequelize.define("DataCollectionLog",
+    {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
       },
-      version: DataTypes.INTEGER,
-      name: {
-        type: DataTypes.STRING,
-        unique: true
-      },
-      description: DataTypes.TEXT
+      origin_uri: DataTypes.STRING,
+      storage_uri: DataTypes.STRING,
+      data_timestamp: DataTypes.TIME,
+      collect_timestamp: DataTypes.TIME
     },
     {
       underscored: true,
@@ -21,17 +19,17 @@ module.exports = function(sequelize, DataTypes)
 
       classMethods: {
         associate: function(models) {
-          Project.hasMany(models.DataProvider, {
+          DataCollectionLog.belongsTo(models.LogStatus, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: 'status_id',
               allowNull: false
             }
           });
 
-          Project.hasMany(models.Analysis, {
+          DataCollectionLog.belongsTo(models.CollectorInputOutput, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'project_id',
               allowNull: false
             }
           });
@@ -40,5 +38,5 @@ module.exports = function(sequelize, DataTypes)
     }
   );
 
-  return Project;
+  return DataCollectionLog;
 };

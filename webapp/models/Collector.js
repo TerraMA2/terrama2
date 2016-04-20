@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataSeries = sequelize.define("DataSeries",
+  var Collector = sequelize.define("Collector",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -7,11 +7,9 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      name: {
-        type: DataTypes.STRING,
-        unique: true
-      },
-      description: DataTypes.TEXT
+      active: DataTypes.BOOLEAN,
+      // todo: check it
+      collector_type: DataTypes.INTEGER
     },
     {
       underscored: true,
@@ -20,40 +18,47 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          DataSeries.belongsTo(models.DataProvider, {
+          Collector.hasOne(models.Filter, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false,
+              unique: true
+            }
+          });
+
+          Collector.hasMany(models.CollectorInputOutput, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
             }
           });
 
-          DataSeries.belongsTo(models.DataSeriesSemantics, {
+          Collector.belongsTo(models.ServiceInstance, {
             onDelete: "CASCADE",
-            foreignKey: { 
+            foreignKey: {
               allowNull: false
             }
           });
 
-          DataSeries.hasMany(models.DataSeriesProperty, {
+          Collector.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
+              name: "data_series_input",
               allowNull: false
             }
           });
 
-          DataSeries.hasMany(models.DataSet, {
+          Collector.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
+              name: "data_series_output",
               allowNull: false
             }
           });
 
-          DataSeries.hasMany(models.AnalysisDataSeries, {
+          Collector.belongsTo(models.Schedule, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
               allowNull: false
             }
           });
@@ -62,5 +67,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataSeries;
+  return Collector;
 };
