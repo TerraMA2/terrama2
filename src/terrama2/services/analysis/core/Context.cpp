@@ -31,6 +31,7 @@
 #include "Analysis.hpp"
 #include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/Filter.hpp"
@@ -38,6 +39,8 @@
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/Typedef.hpp"
+
+
 
 // QT
 #include <QString>
@@ -47,7 +50,7 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/sam/kdtree.h>
-
+#include <terralib/common/UnitsOfMeasureManager.h>
 
 #include <ctime>
 #include <iomanip>
@@ -219,73 +222,9 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
 
   if(!dateFilter.empty())
   {
-    char format = dateFilter.at(dateFilter.size() - 1);
-    if(format == 'h')
-    {
-      std::string hoursStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int hours = atoi(hoursStr.c_str());
-        ldt -= boost::posix_time::hours(hours);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
-    else if(format == 'm')
-    {
-      std::string minutesStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int minutes = atoi(minutesStr.c_str());
-        ldt -= boost::posix_time::minutes(minutes);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
-    else if(format == 's')
-    {
-      std::string secondsStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int seconds = atoi(secondsStr.c_str());
-        ldt -= boost::posix_time::seconds(seconds);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
-    else if(format == 'd')
-    {
-      std::string daysStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int days = atoi(daysStr.c_str());
-        //FIXME: subtrair dias
-        ldt -= boost::posix_time::hours(days);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
+    double minutes = terrama2::core::TimeUtils::convertStringToUnitOfMeasure(dateFilter, "MINUTE");
 
+    ldt -= boost::posix_time::minutes(minutes);
 
     std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
     filter.discardBefore = std::move(titz);
@@ -396,73 +335,9 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
   terrama2::core::Filter filter;
   if(!dateFilter.empty())
   {
+    double minutes = terrama2::core::TimeUtils::convertStringToUnitOfMeasure(dateFilter, "MINUTE");
 
-    char format = dateFilter.at(dateFilter.size() - 1);
-    if(format == 'h')
-    {
-      std::string hoursStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int hours = atoi(hoursStr.c_str());
-        ldt -= boost::posix_time::hours(hours);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
-    else if(format == 'm')
-    {
-      std::string minutesStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int minutes = atoi(minutesStr.c_str());
-        ldt -= boost::posix_time::minutes(minutes);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
-    else if(format == 's')
-    {
-      std::string secondsStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int seconds = atoi(secondsStr.c_str());
-        ldt -= boost::posix_time::seconds(seconds);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
-    else if(format == 'd')
-    {
-      std::string daysStr = dateFilter.substr(0, dateFilter.size() - 1);
-      try
-      {
-        int days = atoi(daysStr.c_str());
-        //FIXME: subtrair dias
-        ldt -= boost::posix_time::hours(days);
-      }
-      catch(...)
-      {
-        QString errMsg(QObject::tr("Analysis: %1 -> Invalid date filter."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-    }
+    ldt -= boost::posix_time::minutes(minutes);
 
     std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
     filter.discardBefore = std::move(titz);
