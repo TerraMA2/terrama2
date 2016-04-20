@@ -4,7 +4,7 @@ var Signals = require('./Signals.js');
 var TcpManager = module.exports = {};
 
 TcpManager.sendData = function(data) {
-  emit(Signals.DataSignal, data);
+  emit(Signals.ADD_DATA_SIGNAL, data);
 };
 
 var emit = function(signal, object) {
