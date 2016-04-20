@@ -54,7 +54,13 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
 
   try
   {
+    if(dataset->isNull(indexes[0]))
+      return nullptr;
+
     std::string strValue = dataset->getAsString(indexes[0]);
+
+    if(strValue.empty())
+      return nullptr;
 
     double value = std::stod(strValue);
 
@@ -88,7 +94,13 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
 
   try
   {
+    if(dataset->isNull(indexes[0]))
+      return nullptr;
+
     std::string strValue = dataset->getAsString(indexes[0]);
+
+    if(strValue.empty())
+      return nullptr;
 
     boost::int32_t value = std::stoi(strValue);
 
@@ -180,6 +192,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
 
       Series tempSeries = getSeries(uri, filter, dataset);
       series.emplace(dataset, tempSeries);
+
 
       if(removeFolder)
       {

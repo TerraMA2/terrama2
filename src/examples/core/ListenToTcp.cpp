@@ -108,6 +108,8 @@ int main(int argc, char* argv[])
 
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
+  
+//Code commented for tests with TCP communication
 
   // out << static_cast<uint32_t>(0);
   // out << terrama2::core::TcpSignals::DATA_SIGNAL;
