@@ -30,13 +30,14 @@ var _ = require('lodash');
 var Enums = require('./Enums');
 
 // Tcp
-var TcpManager = require('./TcpManager')
+var TcpManager = require('./TcpManager');
 
 // data model
 var DataProvider = require("./data-model/DataProvider");
 var DataSeries = require("./data-model/DataSeries");
 var DataSetDcp = require("./data-model/DataSetDcp");
 var DataSetFactory = require("./data-model/DataSetFactory");
+var Schedule = require('./data-model/Schedule');
 
 
 // Available DataSeriesType
@@ -74,7 +75,7 @@ var DataManager = {
 
     dataSeries: [],
     dataProviders: [],
-    dataSets: [], /** It will store data set id list */
+    dataSets: [],
     projects: []
   },
   connection: null,
@@ -120,6 +121,10 @@ var DataManager = {
         var fn = function() {
           // todo: insert default values in database
           var inserts = [];
+
+          // services type
+          inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
+          inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
 
           // data provider type defaults 
           inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
@@ -319,6 +324,12 @@ var DataManager = {
     });
   },
 
+  /**
+   * It updates a project from given object values.
+   *
+   * @param {Object} projectObject - an javascript object containing project values
+   * @return {Promise<DataFormat>} - a 'bluebird' module with DataFormat instance or error callback
+   */
   updateProject: function(projectObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -345,11 +356,51 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a Project list object from loaded projects.
+   *
+   * @return {Promise<Project>} - a 'bluebird' module with Project instance or error callback
+   */
   listProjects: function() {
     var projectList = [];
     for(var index = 0; index < this.data.projects.length; ++index)
       projectList.push(Utils.clone(this.data.projects[index]));
     return projectList;
+  },
+
+  /**
+   * It saves ServiceInstance in database and storage it in memory
+   * @param {Object} serviceObject - An object containing project values to be saved.
+   * @return {Promise} - a 'bluebird' module. The callback is either a {ServiceInstance} data values or error
+   */
+  addServiceInstance: function(serviceObject) {
+    return new Promise(function(resolve, reject){
+      lock.writeLock(function(release) {
+        models.db.ServiceInstance.create(serviceObject).then(function(serviceResult){
+          resolve(serviceResult.get())
+          release();
+        }).catch(function(e) {
+          var message = "Could not save service instance: ";
+          if (e.errors)
+            message += e.errors[0].message;
+          reject(new Error(message));
+          release();
+        });
+      });
+    });
+  },
+
+  listServiceInstances: function() {
+    return new Promise(function(resolve, reject){
+      models.db.ServiceInstance.findAll({}).then(function(services) {
+        var output = [];
+        services.forEach(function(service){
+          output.push(service.get());
+        });
+
+        resolve(output);
+      });
+    });
   },
 
   /**
@@ -369,6 +420,11 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataProviderType list object from database.
+   *
+   * @return {Promise<DataProviderType>} - a 'bluebird' module with DataProviderType instance or error callback
+   */
   listDataProviderType: function() {
     return new Promise(function(resolve, reject) {
       models.db.DataProviderType.findAll({}).then(function(result) {
@@ -400,6 +456,11 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataFormats list object from database.
+   *
+   * @return {Promise<DataFormat>} - a 'bluebird' module with DataFormat instance or error callback
+   */
   listDataFormats: function() {
     return new Promise(function(resolve, reject) {
       models.db.DataFormat.findAll({}).then(function(dataFormats) {
@@ -432,6 +493,13 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataSeriesSemantics object from restriction. It should be an object containing either id identifier or
+   * name identifier. This operation must retrieve only a row.
+   *
+   * @param {Object} restriction - An object containing DataSeriesSemantics identifier to get it.
+   * @return {Promise<DataSeriesSemantics>} - a 'bluebird' module with DataSeriesSemantics instance or error callback
+   */
   getDataSeriesSemantics: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -447,6 +515,12 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a DataSeriesSemantics list object from restriction.
+   *
+   * @param {Object} restriction - An optional object containing DataSeriesSemantics identifier to filter it.
+   * @return {Promise<DataSeriesSemantics>} - a 'bluebird' module with DataSeriesSemantics instance or error callback
+   */
   listDataSeriesSemantics: function(restriction) {
     return new Promise(function(resolve, reject) {
       models.db.DataSeriesSemantics.findAll({where: restriction}).then(function(semanticsList) {
@@ -670,9 +744,6 @@ var DataManager = {
    *         type_name: ...
    *       }
    *       dataSetValuesObject...
-   *       child: {
-   *         dataSetChildValues...
-   *       }
    *     }
    *   ]
    * }
@@ -948,9 +1019,6 @@ var DataManager = {
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
   getDataSet: function(restriction, format) {
-    /**
-     * { id / data_series_id: someValue}
-     */
     var self = this;
     return new Promise(function(resolve, reject) {
       // setting default format

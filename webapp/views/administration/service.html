@@ -8,10 +8,20 @@
 <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
 <script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <script>
-  angular.module('terrama2.administration.services.registration', ['terrama2'])
-    .controller('ServiceRegistration', ['$scope', function($scope) {
+  angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
+    .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
       $scope.service = {};
+      $scope.alertBox = {};
+      $scope.errorFound = false;
+      $scope.isChecking = false;
+      $scope.resetState = function() {
+        $scope.errorFound = false;
+        $scope.alertBox.message = "";
+      };
+
       $scope.save = function() {
         console.log($scope.service);
         if ($scope.serviceForm.$invalid)
@@ -21,6 +31,21 @@
             })
           });
 
+        $scope.isChecking = true;
+        $scope.errorFound = false;
+        $scope.alertBox.title = "Service Registration";
+
+        ServiceInstanceFactory.post($scope.service).success(function(data) {
+          $scope.alertBox.message = "Service saved";
+          $scope.errorFound = false;
+        }).error(function(err) {
+          // todo: display messagebox
+          console.log(err);
+          $scope.errorFound = true;
+          $scope.alertBox.message = err.message;
+        }).finally(function() {
+          $scope.isChecking = false;
+        })
       }
     }])
 </script>
@@ -38,6 +63,10 @@
       <!-- /.box-header -->
       <div style="display: block;" class="box-body">
         <div class="row">
+          <div class="col-md-12">
+            <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="resetState()"></terrama2-message-box>
+          </div>
+
           <form name="serviceForm">
             <div class="col-md-8">
               <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.name.$dirty && serviceForm.name.$invalid, 'has-success': serviceForm.name.$dirty && serviceForm.name.$valid}">
@@ -51,9 +80,9 @@
             <div class="col-md-4">
               <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.type.$dirty && serviceForm.type.$invalid, 'has-success': serviceForm.type.$dirty && serviceForm.type.$valid}">
                 <label>{[ __("Type") ]}:</label>
-                <select class="form-control" name="type" ng-model="service.type" required>
-                  <option value="1">Analysis</option>
-                  <option value="2">Collect</option>
+                <select class="form-control" name="type" ng-model="service.service_type_id" required>
+                  <option value="1">Collect</option>
+                  <option value="2">Analysis</option>
                 </select>
 
                 <span class="form-control-feedback glyphicon" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>

@@ -1,17 +1,12 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataSeries = sequelize.define("DataSeries",
+  var CollectorInputOutput = sequelize.define("CollectorInputOutput",
     {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
-      },
-      name: {
-        type: DataTypes.STRING,
-        unique: true
-      },
-      description: DataTypes.TEXT
+      }
     },
     {
       underscored: true,
@@ -20,40 +15,32 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          DataSeries.belongsTo(models.DataProvider, {
+          CollectorInputOutput.belongsTo(models.Collector, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
             }
           });
 
-          DataSeries.belongsTo(models.DataSeriesSemantics, {
+          CollectorInputOutput.belongsTo(models.DataSet, {
             onDelete: "CASCADE",
-            foreignKey: { 
+            foreignKey: {
+              name: "input_dataset",
               allowNull: false
             }
           });
 
-          DataSeries.hasMany(models.DataSeriesProperty, {
+          CollectorInputOutput.belongsTo(models.DataSet, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
+              name: "output_dataset",
               allowNull: false
             }
           });
 
-          DataSeries.hasMany(models.DataSet, {
+          CollectorInputOutput.hasMany(models.DataCollectionLog, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
-              allowNull: false
-            }
-          });
-
-          DataSeries.hasMany(models.AnalysisDataSeries, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              name: "data_series_id",
               allowNull: false
             }
           });
@@ -62,5 +49,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataSeries;
+  return CollectorInputOutput;
 };

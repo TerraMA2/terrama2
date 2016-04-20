@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataSeries = sequelize.define("DataSeries",
+  var AnalysisDataSeries = sequelize.define("AnalysisDataSeries",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -7,53 +7,47 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      name: {
+      alias: {
         type: DataTypes.STRING,
-        unique: true
-      },
-      description: DataTypes.TEXT
+        allowNull: false
+      }
     },
     {
       underscored: true,
       underscoredAll: true,
       timestamps: false,
+      tableName: 'analysis_metadata',
 
       classMethods: {
         associate: function(models) {
-          DataSeries.belongsTo(models.DataProvider, {
+          AnalysisDataSeries.hasMany(models.AnalysisDataSeriesMetadata, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: 'analysis_data_series_id',
               allowNull: false
             }
           });
 
-          DataSeries.belongsTo(models.DataSeriesSemantics, {
+          AnalysisDataSeries.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
-            foreignKey: { 
+            foreignKey: {
+              name: 'data_series_id',
               allowNull: false
             }
           });
 
-          DataSeries.hasMany(models.DataSeriesProperty, {
+          AnalysisDataSeries.belongsTo(models.AnalysisDataSeriesType, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
+              name: "type_id",
               allowNull: false
             }
           });
 
-          DataSeries.hasMany(models.DataSet, {
+          AnalysisDataSeries.belongsTo(models.Analysis, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "data_series_id",
-              allowNull: false
-            }
-          });
-
-          DataSeries.hasMany(models.AnalysisDataSeries, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              name: "data_series_id",
+              name: "analysis_id",
               allowNull: false
             }
           });
@@ -62,5 +56,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataSeries;
+  return AnalysisDataSeries;
 };

@@ -1,16 +1,15 @@
-module.exports = function(sequelize, DataTypes)
-{
-  var Project = sequelize.define("Project", {
+module.exports = function(sequelize, DataTypes) {
+  var AnalysisDataSeriesType = sequelize.define("AnalysisDataSeriesType",
+    {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
       },
-      version: DataTypes.INTEGER,
       name: {
         type: DataTypes.STRING,
-        unique: true
+        allowNull: false
       },
       description: DataTypes.TEXT
     },
@@ -18,20 +17,14 @@ module.exports = function(sequelize, DataTypes)
       underscored: true,
       underscoredAll: true,
       timestamps: false,
+      tableName: 'analysis_metadata',
 
       classMethods: {
         associate: function(models) {
-          Project.hasMany(models.DataProvider, {
+          AnalysisDataSeriesType.hasMany(models.AnalysisDataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
-              allowNull: false
-            }
-          });
-
-          Project.hasMany(models.Analysis, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              name: 'project_id',
+              name: 'type_id',
               allowNull: false
             }
           });
@@ -40,5 +33,5 @@ module.exports = function(sequelize, DataTypes)
     }
   );
 
-  return Project;
+  return AnalysisDataSeriesType;
 };
