@@ -6,10 +6,6 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       DataManager.listServiceInstances().then(function(services) {
-        // var output = [];
-        // services.forEach(function(service) {
-        //   output.push(service);
-        // });
         return response.json(services);
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);

@@ -242,9 +242,7 @@ var DataManager = {
 
                     if (dataSet.DataSetDcp)
                       Object.assign(dSetObject, dataSet.DataSetDcp.get());
-                    else if (dataSet.DataSetOccurrence) {
-                      // do nothing
-                    }
+                    else if (dataSet.DataSetOccurrence) { }
 
                     self.data.dataSets.push(DataSetFactory.build(dSetObject));
                   });
@@ -777,8 +775,6 @@ var DataManager = {
 
             Promise.all(dataSets).then(function(dataSets){
               self.data.dataSeries.push(new DataSeries(output));
-              // output.dataSets = dataSets;
-
               // temp code: getting wkt
               
               var promises = [];
