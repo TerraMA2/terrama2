@@ -1,6 +1,7 @@
-module.exports = function(app)
-{
-    var controller = app.controllers.configuration.DataSetGrid;
+var passport = require('../../config/Passport');
 
-    app.get("/configuration/grid", controller);
+module.exports = function(app) {
+  var controller = app.controllers.configuration.DataSetGrid;
+
+  app.get("/configuration/grid", passport.isAuthenticated, controller);
 }
