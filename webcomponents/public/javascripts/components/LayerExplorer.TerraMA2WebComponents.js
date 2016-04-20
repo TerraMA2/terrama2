@@ -2,7 +2,7 @@
 
 /**
  * Component responsible for presenting an organized list of layers.
- * @module LayerExplorer
+ * @class LayerExplorer
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
@@ -24,6 +24,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @returns {string} memberSelectedLayer - Layer id
    *
    * @function getSelectedLayer
+   * @memberof LayerExplorer
+   * @inner
    */
   var getSelectedLayer = function() {
     return memberSelectedLayer;
@@ -39,6 +41,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    *
    * @private
    * @function createLayerGroup
+   * @memberof LayerExplorer
+   * @inner
    */
   var createLayerGroup = function(id, name, parent, layers) {
     return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + name + "</span><ul class='children'>" + layers + "</ul></li>";
@@ -54,6 +58,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    *
    * @private
    * @function createLayer
+   * @memberof LayerExplorer
+   * @inner
    */
   var createLayer = function(id, name, parent, visible) {
     var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
@@ -67,6 +73,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @param {string} parent - Parent id
    *
    * @function addLayersFromMap
+   * @memberof LayerExplorer
+   * @inner
    */
   var addLayersFromMap = function(id, parent) {
     var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
@@ -75,9 +83,9 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
       var elem = buildLayersFromMap(data, parent);
 
       if(parent === 'terrama2-layerexplorer') {
-        $('#' + parent).append(elem);
+        $('#' + parent).prepend(elem);
       } else {
-        $('#' + parent + ' > ul.children').append(elem);
+        $('#' + parent + ' > ul.children').prepend(elem);
       }
 
       // Handle opacity slider control
@@ -97,6 +105,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    *
    * @private
    * @function buildLayersFromMap
+   * @memberof LayerExplorer
+   * @inner
    */
   var buildLayersFromMap = function(layer, parent) {
     var elem = "";
@@ -106,8 +116,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
           layers = layer.getLayers().getArray(),
           len = layers.length;
 
-      for(var i = 0; i < len; i++)
-        sublayersElem += buildLayersFromMap(layers[i], layer.get('id'));
+      for(var i = 0; i < len; i++) {
+        var sublayersElemTmp = sublayersElem;
+        sublayersElem = buildLayersFromMap(layers[i], layer.get('id')) + sublayersElemTmp;
+      }
 
       if(!$("#" + layer.get('id').replace(':', '')).length)
         elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
@@ -124,6 +136,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    *
    * @private
    * @function loadEvents
+   * @memberof LayerExplorer
+   * @inner
    */
   var loadEvents = function() {
     $('#terrama2-layerexplorer').on('click', 'span.group-name', function(ev) {
@@ -185,14 +199,16 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    *
    * @private
    * @function setSortable
+   * @memberof LayerExplorer
+   * @inner
    */
   var setSortable = function() {
     $('.children').sortable({
       start: function(event, ui) {
-        $(this).attr('data-previndex', ui.item.index());
+        $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
       },
       update: function(event, ui) {
-        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
         $(this).removeAttr('data-previndex');
       }
     });
@@ -201,10 +217,10 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
 
     $('#terrama2-layerexplorer').sortable({
       start: function(event, ui) {
-        $(this).attr('data-previndex', ui.item.index());
+        $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
       },
       update: function(event, ui) {
-        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), ui.item.index());
+        TerraMA2WebComponents.webcomponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
         $(this).removeAttr('data-previndex');
       }
     });
@@ -216,6 +232,8 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * Initializes the necessary features.
    *
    * @function init
+   * @memberof LayerExplorer
+   * @inner
    */
   var init = function() {
     var interval = window.setInterval(function() {

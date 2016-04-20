@@ -49,7 +49,6 @@
 #include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
 #include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
 #include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-
 #include <terrama2/impl/DataStoragerPostGis.hpp>
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
@@ -67,7 +66,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    terrama2::core::initializeTerralib();
+    terrama2::core::initializeTerraMA();
 
     terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
     terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
@@ -92,10 +91,10 @@ int main(int argc, char* argv[])
     dataProvider->uri += "/fire_system";
 
     dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = 1;
     dataProvider->active = true;
     dataProvider->id = 1;
     dataProvider->name = "DataProvider queimadas local";
+    dataProvider->dataProviderType = "FILE";
 
     dataManager->add(dataProviderPtr);
 
@@ -180,7 +179,7 @@ int main(int argc, char* argv[])
 
     service.stop();
 
-    terrama2::core::finalizeTerralib();
+    terrama2::core::finalizeTerraMA();
   }
   catch(...)
   {

@@ -74,7 +74,7 @@ namespace terrama2
 
         std::unique_lock<std::recursive_mutex> getLock();
 
-        virtual void addFromJSON(const QJsonValue& jsonValue);
+        virtual void addFromJSON(const QJsonObject& obj);
 
         /*!
         \brief Add the data provider to the database and register it in the manager.

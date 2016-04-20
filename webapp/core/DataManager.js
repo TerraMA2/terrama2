@@ -28,6 +28,7 @@ var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
+var connection = require('../config/Sequelize.js');
 
 // Tcp
 var TcpManager = require('./TcpManager');
@@ -47,7 +48,6 @@ var DataSeriesType = Enums.DataSeriesType;
 var ReadWriteLock = require('rwlock');
 var lock = new ReadWriteLock();
 
-
 // Helpers
 function getItemByParam(array, object) {
   var key = Object.keys(object)[0];
@@ -58,14 +58,12 @@ function getItemByParam(array, object) {
 
 
 var models = null;
-var actualConfig = {};
 
 /**
  * Controller of the system index.
  * @class DataManager
  *
  * @property {object} data - Object for storing model values, such DataProviders, DataSeries and Projects.
- * @property {object} connection - 'sequelize' module connection.
  */
 var DataManager = {
   data: {
@@ -75,20 +73,10 @@ var DataManager = {
 
     dataSeries: [],
     dataProviders: [],
-    dataSets: [],
+    dataSets: [], /** It will store data set id list */
     projects: []
   },
-  connection: null,
   isLoaded: false,
-
-  /**
-   * It sets active database configuration for models synchronization
-   * @param {Object} configuration - An object with database configuration
-   */
-  setConfiguration: function(configuration) {
-    if (configuration && !_.isEqual(actualConfig, configuration))
-      actualConfig = configuration;
-  },
 
   /**
    * It initializes DataManager, loading models and database synchronization
@@ -99,78 +87,99 @@ var DataManager = {
 
     // Lock function
     lock.readLock(function (release) {
-      var Sequelize = require("sequelize");
-
       var releaseCallback = function() {
         release();
         callback();
       };
 
+      models = modelsFn();
+      models.load(connection);
 
-      if (actualConfig) {
-        var connection = new Sequelize(actualConfig.database,
-          actualConfig.username,
-          actualConfig.password,
-          actualConfig);
+      var fn = function() {
+        // todo: insert default values in database
+        var inserts = [];
 
-        models = modelsFn();
-        models.load(connection);
+        // default users
+        var salt = models.db.User.generateSalt();
+        inserts.push(models.db.User.create({
+          name: "TerraMA2 User",
+          username: "terrama2",
+          password: models.db.User.generateHash("terrama2", salt),
+          salt: salt,
+          cellphone: '14578942362',
+          email: 'terrama2@terrama2.inpe.br',
+          administrator: false
+        }));
 
-        self.connection = connection;
+        // services type
+        inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
+        inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
 
-        var fn = function() {
-          // todo: insert default values in database
-          var inserts = [];
+        // data provider type defaults
+        inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
+        inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
+        inserts.push(self.addDataProviderType({name: "HTTP", description: "Desc Http"}));
+        inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
 
-          // services type
-          inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
-          inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
+        // data provider intent defaults
+        inserts.push(models.db.DataProviderIntent.create({name: "COLLECT", description: "Desc Collect intent"}));
+        inserts.push(models.db.DataProviderIntent.create({name: "PROCESSING", description: "Desc Processing intent"}));
 
-          // data provider type defaults 
-          inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
-          inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
-          inserts.push(self.addDataProviderType({name: "HTTP", description: "Desc Http"}));
-          inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
+        // data series type defaults
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
 
-          // data provider intent defaults
-          inserts.push(models.db.DataProviderIntent.create({name: "COLLECT", description: "Desc Collect intent"}));
-          inserts.push(models.db.DataProviderIntent.create({name: "PROCESSING", description: "Desc Processing intent"}));
+        // data provider intent defaults
+        inserts.push(models.db.DataProviderIntent.create({name: "Collect", description: "Desc Collect intent"}));
+        inserts.push(models.db.DataProviderIntent.create({name: "Processing", description: "Desc Processing intent"}));
 
-          // data series type defaults
-          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
-          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
-          inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
+        // data formats semantics defaults todo: check it
+        inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
+        inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
+        inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
 
-          // data formats semantics defaults todo: check it
-          inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
-          inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
-          inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
+        Promise.all(inserts).then(function() {
+          var arr = [];
+          arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+          arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+          arr.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
-          Promise.all(inserts).then(function() {
-            var arr = [];
-            arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-            arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-            arr.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
-
-            Promise.all(arr).then(function(){
-              releaseCallback();
-            }).catch(function() {
-              releaseCallback();
-            })
+          Promise.all(arr).then(function(){
+            releaseCallback();
           }).catch(function() {
-            releaseCallback()
-          });
-        };
-
-        connection.sync().then(function () {
-          fn();
-        }, function() {
-          fn();
+            releaseCallback();
+          })
+        }).catch(function() {
+          releaseCallback()
         });
-      }
-      else {
-        releaseCallback();
-      }
+      };
+
+      connection.sync().then(function () {
+        fn();
+      }, function() {
+        fn();
+      });
+    });
+  },
+  
+  finalize: function() {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      lock.writeLock(function(release) {
+        self.data.dataProviders = [];
+        self.data.dataSeries = [];
+        self.data.dataSets = [];
+        self.data.projects = [];
+
+        self.isLoaded = false;
+
+        resolve();
+
+        connection.close();
+
+        release();
+      });
     });
   },
 
@@ -254,6 +263,7 @@ var DataManager = {
                 clean();
                 reject(err);
               });
+
             });
 
             self.isLoaded = true;
@@ -547,17 +557,12 @@ var DataManager = {
         var dProvider = new DataProvider(dataProvider.get());
         self.data.dataProviders.push(dProvider);
 
+        resolve(dProvider);
+
         //  todo: emit signal
         var d = new DataProvider(dProvider);
         d.data_provider_intent_name = 1;
-
-        try {
-          TcpManager.sendData({"DataProviders": [d.toObject()]});
-        } catch (e) {
-          console.log("Error tcp send data: ", e);
-        } finally {
-          resolve(dProvider);
-        }
+        TcpManager.sendData({"DataProviders": [d.toObject()]});
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
@@ -742,6 +747,9 @@ var DataManager = {
    *         type_name: ...
    *       }
    *       dataSetValuesObject...
+   *       child: {
+   *         dataSetChildValues...
+   *       }
    *     }
    *   ]
    * }

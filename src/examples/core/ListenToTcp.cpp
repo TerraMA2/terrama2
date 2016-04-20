@@ -9,6 +9,7 @@
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
+#include <terrama2/core/utility/Utils.hpp>
 #include <terrama2_config.hpp>
 
 //STL
@@ -37,10 +38,10 @@ class MockDataManager : public terrama2::core::DataManager
     MockDataManager& operator=(const MockDataManager& other) = default;
     MockDataManager& operator=(MockDataManager&& other) = default;
 
-    virtual void addFromJSON(const QJsonValue& jsonValue) override
+    virtual void addFromJSON(const QJsonObject& obj) override
     {
-      QJsonDocument doc(jsonValue.toObject());
-      std::cout << QString(doc.toJson()).toStdString() << std::endl;
+      QJsonDocument doc(obj);
+      std::cout << QString(doc.toJson(QJsonDocument::Compact)).toStdString() << std::endl;
     }
 
 };
@@ -58,6 +59,7 @@ terrama2::core::DataProviderPtr buildInputProvider()
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider->uri = uri.toStdString();
   dataProvider->active = true;
+  dataProvider->dataProviderType = "FILE";
 
   return dataProviderPtr;
 }
@@ -85,37 +87,46 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
 
 int main(int argc, char* argv[])
 {
+
+  terrama2::core::initializeTerraMA();
   QCoreApplication app(argc, argv);
 
-  QJsonArray array;
-  array.push_back(terrama2::core::toJson(buildInputProvider()));
-  array.push_back(terrama2::core::toJson(buildInputDataSeries()));
+  QJsonObject obj;
+  QJsonArray providersArray;
+  providersArray.push_back(terrama2::core::toJson(buildInputProvider()));
+  obj.insert("DataProviders", providersArray);
 
-  QJsonDocument doc(array);
+  QJsonArray seriesArray;
+  seriesArray.push_back(terrama2::core::toJson(buildInputDataSeries()));
+  obj.insert("DataSeries", seriesArray);
+
+  QJsonDocument doc(obj);
 
   terrama2::core::TcpManager tcpManager;
   std::shared_ptr<terrama2::core::DataManager> dataManager = std::make_shared<MockDataManager>();
   tcpManager.listen(dataManager, QHostAddress::Any, 30000);
 
-
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
-  out.setVersion(QDataStream::Qt_5_2);
+  
+//Code commented for tests with TCP communication
 
-  out << static_cast<uint32_t>(0);
-  out << terrama2::core::TcpSignals::DATA_SIGNAL;
-  out << doc.toJson();
-  out.device()->seek(0);
-  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+  // out << static_cast<uint32_t>(0);
+  // out << terrama2::core::TcpSignals::DATA_SIGNAL;
+  // out << doc.toJson(QJsonDocument::Compact);
+  // out.device()->seek(0);
+  // out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
-  QTcpSocket socket;
-  socket.connectToHost("localhost", 30000);
-  socket.write(bytearray);
+  // QTcpSocket socket;
+  // socket.connectToHost("localhost", 30000);
+  // socket.write(bytearray);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(30000);
+  // QTimer timer;
+  // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  // timer.start(10000);
   app.exec();
+
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

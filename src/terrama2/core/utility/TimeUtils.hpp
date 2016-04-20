@@ -71,6 +71,14 @@ namespace terrama2
        */
       void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t years);
 
+      /*!
+        \brief Read units of time from string and convert it to the given unit.
+
+        \param time String with the time.
+        \param unitName The name of the output unit, it must be registered in UnitsOfMeasureManager.
+       */
+      double convertStringToUnitOfMeasure(const std::string& time, std::string unitName);
+
     }
   }
 }

@@ -103,6 +103,8 @@ server.on('close', function() {
   console.log("TcpManager server closed");
 });
 
-TcpManager.close = function() {
-  server.close();
+TcpManager.close = function(callback) {
+  server.close(function() {
+    callback();
+  });
 };
