@@ -103,6 +103,18 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
       boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
       fileTimestamp.reset(new te::dt::TimeInstantTZ(date));
+
+      if(filter.discardBefore)
+      {
+        if(fileTimestamp < filter.discardBefore)
+          return false;
+      }
+
+      if(filter.discardAfter)
+      {
+        if(fileTimestamp > filter.discardAfter)
+          return false;
+      }
     }
   }
   return true;
