@@ -43,36 +43,43 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Timer class for scheduling processes.
+
+      This class when created starts a timer based on the Schedule that will emit a timeoutSignal.
+
+      VINICIUS: documentar timer por frequencia e por agendamento
+
+    */
     class Timer : public QTimer
     {
-      Q_OBJECT
+        Q_OBJECT
 
-    public:
-      Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLog > log);
+      public:
+        Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLog > log);
 
-      virtual ~Timer();
-      Timer(const Timer& other) = delete;
-      Timer(Timer&& other) = delete;
-      Timer& operator=(const Timer& other) = delete;
-      Timer& operator=(Timer&& other) = delete;
+        virtual ~Timer();
+        Timer(const Timer& other) = delete;
+        Timer(Timer&& other) = delete;
+        Timer& operator=(const Timer& other) = delete;
+        Timer& operator=(Timer&& other) = delete;
 
-      uint64_t processId() const;
+        uint64_t processId() const;
 
-    signals:
+      signals:
 
-      void timerSignal(uint64_t processId) const;
+        void timeoutSignal(uint64_t processId) const;
 
-    private slots:
+      private slots:
 
-      //! Slot called when the timer times out, emits timerSignal.
-      void timeoutSlot();
-      void scheduleSlot() const;
+        //! Slot called when the timer times out, emits timeoutSignal.
+        void timeoutSlot();
 
-    private:
-      void prepareTimer(const terrama2::core::Schedule& dataSchedule);
+      private:
+        void prepareTimer(const terrama2::core::Schedule& dataSchedule);
 
-      struct Impl;
-      Impl* impl_;
+        struct Impl;
+        Impl* impl_;
     };
   }
 }

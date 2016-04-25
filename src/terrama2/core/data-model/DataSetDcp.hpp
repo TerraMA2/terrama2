@@ -40,8 +40,17 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief DataSet information for Dcp
+
+      A DCP is a fixed position data producer plataform.
+
+      DCP data is supposed to have a timestamp associated.
+
+    */
     struct DataSetDcp : public DataSet
     {
+      //! DCP position
       std::shared_ptr<te::gm::Point> position;//TODO: A posição é sempre um ponto? pode ser uma região? delete?
     };
   } // end namespace core

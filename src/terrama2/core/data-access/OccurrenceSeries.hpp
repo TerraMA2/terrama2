@@ -46,13 +46,14 @@ namespace terrama2
     */
     class OccurrenceSeries : public SeriesAggregation
     {
-    public:
-      void addOccurrences(std::map<DataSetPtr, Series > seriesMap);
+      public:
+        //! Add a group of DataSet data to the OccurrenceSeries.
+        void addOccurrences(std::map<DataSetPtr, Series > seriesMap);
+        //! Returns a map of DataSetOccurrence data.
+        const std::map<DataSetOccurrencePtr, Series>& getOccurrences();
 
-      const std::map<DataSetOccurrencePtr, Series>& getOccurrences();
-
-    private:
-      std::map<DataSetOccurrencePtr, Series> occurrenceMap;
+      private:
+        std::map<DataSetOccurrencePtr, Series> occurrenceMap;//!< Map of DataSetOccurrence data.
 
     };
   }

@@ -99,7 +99,7 @@ void TsDataSetTimer::TestTimerSignalEmit()
     terrama2::collector::DataSetTimer dataSetTimer(dataSet);
 
     qRegisterMetaType<uint64_t>("uint64_t");
-    QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
+    QSignalSpy spy(&dataSetTimer, SIGNAL(timeoutSignal(uint64_t)));
 
     QVERIFY(spy.wait(10000));
   }
@@ -126,7 +126,7 @@ void TsDataSetTimer::TestSchedulerSignalEmit()
     terrama2::collector::DataSetTimer dataSetTimer(dataSet);
 
     qRegisterMetaType<uint64_t>("uint64_t");
-    QSignalSpy spy(&dataSetTimer, SIGNAL(timerSignal(uint64_t)));
+    QSignalSpy spy(&dataSetTimer, SIGNAL(timeoutSignal(uint64_t)));
 
     QVERIFY(spy.wait(61000));
   }

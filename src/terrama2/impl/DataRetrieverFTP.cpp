@@ -66,7 +66,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider)
 
   CURLcode status;
 
-  CurlOpener curl;
+  CurlPtr curl;
 
   curl.init();
 
@@ -141,7 +141,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   std::vector<std::string> vectorFiles;
   std::string block;
 
-  terrama2::core::CurlOpener curl;
+  terrama2::core::CurlPtr curl;
 
   curl.init();
 
@@ -187,7 +187,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       {
         CURLcode res;
 
-        terrama2::core::CurlOpener curlDown;
+        terrama2::core::CurlPtr curlDown;
 
         curlDown.init();
 

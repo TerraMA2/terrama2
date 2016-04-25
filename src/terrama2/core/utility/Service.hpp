@@ -51,8 +51,9 @@ namespace terrama2
       Q_OBJECT
 
     public:
-      //populates core data and
+      //! Default constructor
       Service();
+      //! Default destructor
       virtual ~Service();
 
       /*!
@@ -78,7 +79,7 @@ namespace terrama2
 
     protected:
       /*!
-         \brief Returns if the main loop should continue.
+         \brief Returns true if the main loop should continue.
          \return True if there is data to be tasked OR is stop is true.
        */
       virtual bool mainLoopWaitCondition() = 0;
