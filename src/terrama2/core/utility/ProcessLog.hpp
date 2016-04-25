@@ -60,7 +60,7 @@ namespace terrama2
       public:
         ProcessLog(uint64_t processID, std::map < std::string, std::string > connInfo);
 
-        void start(uint64_t processID);
+        void start();
 
         void addValue(std::string tag, std::string value);
 

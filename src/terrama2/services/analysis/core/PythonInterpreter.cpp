@@ -426,6 +426,11 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
 
   std::shared_ptr<ContextDataset> contextDataset;
 
+
+
+  // Frees the GIL, from now on can not use the interpreter
+  Py_BEGIN_ALLOW_THREADS
+
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
     if(analysisDataSeries.dataSeries->name == dataSeriesName)
@@ -439,6 +444,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
         TERRAMA2_LOG_ERROR() << errMsg;
         return NAN;
       }
+
 
       Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, "", true);
 
@@ -467,8 +473,6 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
           return NAN;
         }
 
-        // Frees the GIL, from now on can not use the interpreter
-        PyThreadState* save = PyEval_SaveThread();
 
         auto metadata = analysisDataSeries.metadata;
 
@@ -568,8 +572,6 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
           }
         }
 
-        // All operations are done, acquires the GIL and set the return value
-        PyEval_RestoreThread(save);
 
       }
 
@@ -577,6 +579,10 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
       break;
     }
   }
+
+
+  // All operations are done, acquires the GIL and set the return value
+  Py_END_ALLOW_THREADS
 
   if(!hasData)
   {

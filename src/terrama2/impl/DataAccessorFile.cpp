@@ -95,8 +95,10 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     std::string name = fileInfo.fileName().toStdString();
     std::string baseName = fileInfo.baseName().toStdString();
     // Verify if the file name matches the mask
-    if(!isValidDataSetName(getMask(dataSet), filter, name))
-      continue;
+    // FIXME: use timestamp
+     std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+     if(!isValidDataSetName(getMask(dataSet), filter, name,timestamp))
+       continue;
 
     // creates a DataSource to the data and filters the dataset,
     // also joins if the DCP comes from separated files
