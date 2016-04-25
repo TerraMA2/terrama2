@@ -139,6 +139,9 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
 
+        // analysis data series type
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
+
         Promise.all(inserts).then(function() {
           var arr = [];
           arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
@@ -913,8 +916,8 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
-        active: dataSetObject.active,
-        data_series_id: dataSetObject.data_series_id
+        active: dataSetObject["active"],
+        data_series_id: dataSetObject["data_series_id"]
       }).then(function(dataSet) {
 
         var onSuccess = function(dSet) {
@@ -925,7 +928,7 @@ var DataManager = {
 
           // save dataformat
           if (dataSetObject.format) {
-            var formats = dataSetObject.format;
+            var formats = dataSetObject["format"];
             var formatList = [];
 
             if (formats instanceof Array) {
@@ -1280,11 +1283,11 @@ var DataManager = {
           "type": "Polygon",
           "coordinates": [
             [
-              [filterObject.area.minX, filterObject.area.minY],
-              [filterObject.area.maxX, filterObject.area.minY],
-              [filterObject.area.maxX, filterObject.area.maxY],
-              [filterObject.area.minX, filterObject.area.maxY],
-              [filterObject.area.minX, filterObject.area.minY]
+              [filterObject.area["minX"], filterObject.area["minY"]],
+              [filterObject.area["maxX"], filterObject.area["minY"]],
+              [filterObject.area["maxX"], filterObject.area["maxY"]],
+              [filterObject.area["minX"], filterObject.area["maxY"]],
+              [filterObject.area["minX"], filterObject.area["minY"]]
             ]
           ],
           "crs": {
@@ -1303,6 +1306,26 @@ var DataManager = {
         // todo: improve error message
         reject(new Error("Could not save filter. ", err));
       });
+    });
+  },
+
+  addAnalysis: function(analysisObject) {
+    return new Promise(function(resolve, reject) {
+      // todo: make it as factory: AnalysisGrid, Analysis...
+      models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
+        models.db["AnalysisDataSeries"].create({type_id: 1}).then(function(analysisDataSeriesResult) {
+          resolve(analysisResult.get());
+        }).catch(function(err) {
+          Utils.rollbackModels(models.db['Analysis'], analysisResult.get(), new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), {reject: reject})
+        });
+      }).catch(function(err) {
+        var msg = "";
+
+        err.errors.forEach(function(error) {
+          msg += error.message + "\n";
+        });
+        reject(new exceptions.AnalysisError("Could not save analysis: " + msg));
+      })
     });
   }
 

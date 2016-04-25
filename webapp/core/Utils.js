@@ -47,5 +47,27 @@ module.exports = {
       required: required,
       display: displayOrder
     }
+  },
+  
+  rollback: function(model, instance) {
+    return model.destroy({
+      where: {
+        id: instance.id
+      }
+    })
+  },
+  
+  rollbackModels: function(models, instances, exception, promise) {
+    var promises = [];
+    for(var i = 0; i < models.length; ++i) {
+      promises.push(this.rollback(models[i], instances[i]));
+    }
+  
+    Promise.all(promises).then(function() {
+      console.log("Rollback all");
+      return promise.reject(exception);
+    }).catch(function(err) {
+      promise.reject(err);
+    })
   }
 };
