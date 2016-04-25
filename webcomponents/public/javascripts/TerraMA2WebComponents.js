@@ -25,6 +25,7 @@ window.TerraMA2WebComponents = {
  * @property {boolean} memberComponentsLoaded - Flag that indicates if all the components have been loaded.
  * @property {string} memberTerrama2Url - TerraMA² WebComponents URL.
  * @property {json} memberConfJsonComponents - Configuration JSON containing the paths of the components files.
+ * @property {function} memberCallbackFunction - Callback function to be executed when all the components are loaded.
  */
 TerraMA2WebComponents.obj = (function() {
 
@@ -38,6 +39,8 @@ TerraMA2WebComponents.obj = (function() {
   var memberTerrama2Url = null;
   // Configuration JSON containing the paths of the components files
   var memberConfJsonComponents = null;
+  // Callback function to be executed when all the components are loaded
+  var memberCallbackFunction = null;
 
   /**
    * Returns the length of the components names array.
@@ -100,12 +103,17 @@ TerraMA2WebComponents.obj = (function() {
         url: memberTerrama2Url + "/javascripts/components/" + memberConfJsonComponents[memberComponents[i]],
         dataType: "script",
         success: function() {
-          TerraMA2WebComponents.webcomponents[memberComponents[i]].init();
           loadComponents(++i);
         }
       });
     } else {
       memberComponentsLoaded = true;
+
+      $.each(memberComponents, function(i, componentItem) {
+        TerraMA2WebComponents.webcomponents[componentItem].init();
+      });
+
+      memberCallbackFunction();
     }
   };
 
@@ -132,32 +140,28 @@ TerraMA2WebComponents.obj = (function() {
   var loadConfigurations = function() {
     var url = memberTerrama2Url + "/config/";
 
-    $.getJSON(url + "Components.TerraMA2WebComponents.json", function(data) { memberConfJsonComponents = data; });
+    $.getJSON(url + "Components.TerraMA2WebComponents.json", function(data) {
+      memberConfJsonComponents = data;
+      loadComponents(0);
+    });
   };
 
   /**
    * Initializes the necessary features.
    * @param {string} terrama2Url - TerraMA² WebComponents URL
    * @param {array} components - Array of components names
+   * @param {function} callbackFunction - Callback function to be executed when all the components are loaded
    *
    * @function init
    * @memberof TerraMA2WebComponents
    * @inner
    */
-  var init = function(terrama2Url, components) {
+  var init = function(terrama2Url, components, callbackFunction) {
+    memberCallbackFunction = callbackFunction;
     memberComponents = components;
     memberComponentsLength = components.length;
     memberTerrama2Url = terrama2Url;
     loadConfigurations();
-
-    var interval = window.setInterval(function() {
-      if(memberConfJsonComponents !== null) {
-        loadComponents(0);
-        clearInterval(interval);
-      }
-    }, 10);
-
-    $.ajax({ url: memberTerrama2Url + "/socket.io/socket.io.js", dataType: "script" });
   };
 
   return {

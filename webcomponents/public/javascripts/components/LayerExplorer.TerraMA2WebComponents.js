@@ -236,14 +236,9 @@ TerraMA2WebComponents.webcomponents.LayerExplorer = (function() {
    * @inner
    */
   var init = function() {
-    var interval = window.setInterval(function() {
-      if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
-        memberMapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
-        memberMap = memberMapDisplay.getMap();
-        loadEvents();
-        clearInterval(interval);
-      }
-    }, 10);
+    memberMapDisplay = TerraMA2WebComponents.webcomponents.MapDisplay;
+    memberMap = memberMapDisplay.getMap();
+    loadEvents();
   };
 
   return {
