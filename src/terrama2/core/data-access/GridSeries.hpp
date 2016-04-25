@@ -44,18 +44,21 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief
+      \class GridSeries
+      \brief A GridSeries represents a set of data grids.
 
+      The GridSeries aggregates the te::rst::Raster of each grid.
     */
     class GridSeries : public SeriesAggregation
     {
-    public:
-      void addGridSeries(std::map<DataSetPtr, Series > seriesMap);
+      public:
+        //! Add a group of DataSet data to the GridSeries.
+        void addGridSeries(std::map<DataSetPtr, Series > seriesMap);
+        //! Returns a map of DataSetGrid data.
+        const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridList();
 
-      const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridList();
-
-    private:
-      std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;
+      private:
+        std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;//!< Map of DataSetGrid data.
 
     };
   }

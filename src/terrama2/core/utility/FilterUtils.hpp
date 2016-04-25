@@ -45,6 +45,10 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Validates a name based on the mask and filter values.
+        VINICIUS: documentar!
+    */
     bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
 
     bool isValidMask(const std::string& mask);

@@ -77,4 +77,3 @@ const std::map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> 
 {
   return rasterMap_;
 }
-

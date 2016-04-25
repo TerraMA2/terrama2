@@ -34,26 +34,79 @@
 //Qt
 #include <QJsonObject>
 
-namespace terrama2 {
-  namespace core {
+namespace terrama2
+{
+  namespace core
+  {
+    /*!
+      \brief Creates a DataProvider from a QJsonObject.
+      \see [DataProvider at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataProvider) for more information.
+      */
     DataProviderPtr fromDataProviderJson(QJsonObject json);
+
+    /*!
+      \brief Creates a DataSeries from a QJsonObject.
+      \see [DataSeries at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSeries) for more information.
+      */
     DataSeriesPtr fromDataSeriesJson(QJsonObject json);
+
+    /*!
+      \brief Add base DataSet information to derived classes when constructing from QJsonObject.
+      */
     void addBaseDataSetData(QJsonObject json, DataSet* dataset);
+
+    /*!
+      \brief Creates a DataSetDcp from a QJsonObject.
+      \see [DataSetDcp at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetDcp) for more information.
+      */
     DataSetPtr fromDataSetDcpJson(QJsonObject json);
+
+    /*!
+    \brief Creates a DataSetOccurrence from a QJsonObject.
+    \see [DataSetOccurrence at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetOccurrence) for more information.
+      */
     DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);
+
+    /*!
+      \brief Creates a DataSetGrid from a QJsonObject.
+      \see [DataSetGrid at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetGrid) for more information.
+      */
     DataSetPtr fromDataSetGridJson(QJsonObject json);
 
+    /*!
+      \brief Creates a Schedule from a QJsonObject.
+      \see [Schedule at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Schedule) for more information.
+      */
     Schedule fromScheduleJson(QJsonObject json);
 
-
+    /*!
+      \brief Creates a QJsonObject from a DataProvider.
+      \attention This is a function created for debug and tests
+      */
     QJsonObject toJson(DataProviderPtr dataProviderPtr);
+
+    /*!
+      \brief Creates a QJsonObject from a DataSeries.
+      \attention This is a function created for debug and tests
+      */
     QJsonObject toJson(DataSeriesPtr dataSeriesPtr);
 
+    /*!
+      \brief Creates a QJsonObject from a DataSet.
+      \attention This is a function created for debug and tests
+      */
     QJsonObject toJson(DataSetPtr dataSetPtr, DataSeriesSemantics semantics);
+    //! Add DataSetDcp information to base DataSet QJsonObject.
     void addToJson(QJsonObject& obj, DataSetDcpPtr dataSetPtr);
+    //! Add DataSetOccurrence information to base DataSet QJsonObject.
     void addToJson(QJsonObject& obj, DataSetOccurrencePtr dataSetPtr);
+    //! Add DataSetGrid information to base DataSet QJsonObject.
     void addToJson(QJsonObject& obj, DataSetGridPtr dataSetPtr);
 
+    /*!
+      \brief Creates a QJsonObject from a Schedule.
+      \attention This is a function created for debug and tests
+      */
     QJsonObject toJson(Schedule schedule);
   } /* core */
 } /* terrama2 */

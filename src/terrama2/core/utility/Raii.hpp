@@ -148,12 +148,12 @@ namespace terrama2
     };
 
     //! Class for Resource Acquisition Is Initialization (RAII) of Curl.
-    class CurlOpener
+    class CurlPtr
     {
       public:
 
        //! Constructor.
-       CurlOpener()
+       CurlPtr()
        {
          curl_ = curl_easy_init();
        } 
@@ -174,10 +174,10 @@ namespace terrama2
          return curl_;
        }
 
-       /*! When CurlOpener destructor is called, the function curl_easy_cleanup is used automatically. 
+       /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically. 
            The function curl_easy_cleanup close all connections this handle curl.
        */
-       ~CurlOpener()
+       ~CurlPtr()
        {
          curl_easy_cleanup(curl_);
        }

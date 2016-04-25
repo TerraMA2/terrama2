@@ -64,7 +64,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
 
     double value = std::stod(strValue);
 
-    if (!std::isnormal(value) && (value != 0.0))
+    if(!std::isnormal(value) && (value != 0.0))
       return nullptr;
 
     te::dt::SimpleData<double>* data = new te::dt::SimpleData<double>(value);
@@ -90,48 +90,48 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
 
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
- assert(indexes.size() == 1);
+  assert(indexes.size() == 1);
 
- try
- {
-   if(dataset->isNull(indexes[0]))
-     return nullptr;
+  try
+  {
+    if(dataset->isNull(indexes[0]))
+      return nullptr;
 
-   std::string strValue = dataset->getAsString(indexes[0]);
+    std::string strValue = dataset->getAsString(indexes[0]);
 
-   if(strValue.empty())
-     return nullptr;
+    if(strValue.empty())
+      return nullptr;
 
-   boost::int32_t value = std::stoi(strValue);
+    boost::int32_t value = std::stoi(strValue);
 
-   if (!std::isnormal(value) && (value != 0))
-     return nullptr;
+    if(!std::isnormal(value) && (value != 0))
+      return nullptr;
 
-     te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
+    te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
 
-   return data;
- }
+    return data;
+  }
 
- catch(const std::invalid_argument& e)
- {
-   TERRAMA2_LOG_ERROR() << e.what();
- }
+  catch(const std::invalid_argument& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
 
- catch(std::exception& e)
- {
-   TERRAMA2_LOG_ERROR() << e.what();
- }
- catch(...)
- {
-   TERRAMA2_LOG_ERROR() << "Unknown error";
- }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error";
+  }
 
- return nullptr;
+  return nullptr;
 }
 
 
 
-std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter( DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter(DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
 
@@ -139,8 +139,8 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
 
   adapt(dataset, converter);
   std::string id = "FID";
-  const std::vector< te::dt::Property * > & propertyList = converter->getResult()->getProperties();
-  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property){ return property->getName() == id; });
+  const std::vector< te::dt::Property* >& propertyList = converter->getResult()->getProperties();
+  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property) { return property->getName() == id; });
   if(it != propertyList.cend())
     converter->remove(id);
 

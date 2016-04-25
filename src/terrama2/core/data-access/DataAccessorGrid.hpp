@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/data-access/DataAccessorGrid.hpp
 
-  \brief
+  \brief Base class to access data from a Grid DataSeries.
 
   \author Jano Simas
  */
@@ -41,21 +41,28 @@ namespace terrama2
   {
     /*!
       \class DataAccessorGrid
+      \brief Base class to access data from a Grid DataSeries.
+
+      Grid data are data organized in a grid with horizontal as vertical spatial indexing.
+
+      This could be a GeoTiff, Ascii-Grid, Grads, WCS or similar data.
 
     */
     class DataAccessorGrid : public virtual DataAccessor
     {
-    public:
-      DataAccessorGrid(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
-      virtual ~DataAccessorGrid() {}
+      public:
+        //! Default constructor
+        DataAccessorGrid(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+        //! Default destructor
+        virtual ~DataAccessorGrid() {}
+        //! Returns a GridSeries filtered by Filter
+        virtual GridSeriesPtr getGridSeries(const Filter& filter);
+        // Doc in base class
+        virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
-      virtual GridSeriesPtr getGridSeries(const Filter& filter);
-      // Doc in base class
-      virtual te::dt::TimeInstantTZ lastDateTime() const override;
-
-    protected:
-      // Doc in base class
-      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+      protected:
+        // Doc in base class
+        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
     };
   }
 }
