@@ -22,14 +22,14 @@
   <table class="table table-bordered">
     <thead>
     <tr>
-      <th ng-show="isFunction()"></th>
+      <th ng-show="isFunction(icon())"></th>
       <th ng-repeat="field in displayFields">{{ field }}</th>
     </tr>
     </thead>
 
     <tbody id="searchList">
     <tr ng-repeat="element in model | filter:searchInput track by $index">
-      <td ng-show="isFunction()" style="width: 50px;">
+      <td ng-show="isFunction(icon())" style="width: 50px;">
         <img ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
         <span ng-if="iconProperties.type === 'icon'" class="label">
           <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
@@ -39,6 +39,9 @@
 
         <a ng-href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
         <!--{{ element[field] }}-->
+      </td>
+      <td ng-if="isFunction(remove)">
+        <button class="btn btn-sm btn-danger" data-ng-click="removeOperation(element);">{{ i18n.__('Remove') }}</button>
       </td>
     </tr>
 
