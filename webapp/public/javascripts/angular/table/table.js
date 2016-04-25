@@ -9,12 +9,14 @@ angular.module('terrama2.table', ['terrama2'])
         link: '&',
         icon: '&',
         iconProperties: '=?iconProperties',
-        linkToAdd: '=?linkToAdd'
+        linkToAdd: '=?linkToAdd',
+        context: '=context'
       },
       
       controller: function($scope, i18n) {
         $scope.i18n = i18n;
         $scope.searchInput = '';
+        $scope.emptyMessage = 'No ' + ($scope.context || 'data') + ' found';
         
         // defines display fields in table
         $scope.displayFields = [];
