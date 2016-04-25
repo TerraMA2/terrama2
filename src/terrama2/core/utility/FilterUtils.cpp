@@ -103,8 +103,6 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
       boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
       fileTimestamp.reset(new te::dt::TimeInstantTZ(date));
-//      fileTimestamp = new te::dt::TimeInstantTZ(date);
-      std::cout << fileTimestamp->toString() << std::endl;
     }
   }
   return true;
@@ -114,30 +112,19 @@ bool terrama2::core::isValidMask(const std::string& mask)
 {
   bool day = false,
       month = false,
-      year = false,
-      hour = false,
-      minute = false,
-      second = false;
-
-  second = mask.find("ss") != std::string::npos;
-  minute = mask.find("mm") != std::string::npos;
-  hour = mask.find("hh") != std::string::npos;
+      year = false;
 
   day = mask.find("dd") != std::string::npos;
   month = mask.find("MM") != std::string::npos;
   year = mask.find("yyyy") != std::string::npos || mask.find("yy") != std::string::npos;
 
   if(day || month || year)
+  {
     if(!(day && month && year))
     {
       return false;
     }
-
-  if(second || minute || hour)
-    if(!(second && minute && hour))
-    {
-      return false;
-    }
+  }
 
   return true;
 }
