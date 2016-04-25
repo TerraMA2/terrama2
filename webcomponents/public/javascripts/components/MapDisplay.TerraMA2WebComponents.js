@@ -94,6 +94,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
     // The correction is executed only if the longitude is incorrect
     if(originalLongitude > 180 || originalLongitude <= -180) {
+
       // If the longitude is negative, it's converted to a positive float, otherwise just to a float
       longitude = originalLongitude < 0 ? longitude * -1 : parseFloat(longitude);
 
