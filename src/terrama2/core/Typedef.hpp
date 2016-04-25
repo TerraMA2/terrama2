@@ -29,6 +29,10 @@
 #define __TERRAMA2_CORE_TYPEDEF_HPP__
 
 #include <cstdint>
+//! Unique identifier of the ServiceInstance
+typedef uint64_t ServiceInstanceId;
+//! Unique identifier for Project
+typedef uint64_t ProjectId;
 //! Unique identifier for Schedule
 typedef uint64_t ScheduleId;
 //! Unique identifier for DataSet
