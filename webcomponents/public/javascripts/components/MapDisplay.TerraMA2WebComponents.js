@@ -12,6 +12,7 @@
  * @property {ol.Map} memberOlMap - Map object.
  * @property {int} memberResolutionChangeEventKey - Resolution change event key.
  * @property {int} memberDoubleClickEventKey - Double click event key.
+ * @property {int} memberSingleClickEventKey - Single click event key.
  * @property {object} memberSocket - Socket object.
  */
 TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
@@ -32,13 +33,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   var memberResolutionChangeEventKey = null;
   // Double click event key
   var memberDoubleClickEventKey = null;
-
-  // new
-
+  // Single click event key
   var memberSingleClickEventKey = null;
-
-  // new
-
   // Socket object
   var memberSocket = null;
 
@@ -62,8 +58,8 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    * @inner
    */
   var updateMapSize = function() {
-    var interval = window.setInterval(function() { memberOlMap.updateSize(); }, 10);
-    window.setTimeout(function() { clearInterval(interval); }, 600);
+    var interval = window.setInterval(function() { memberOlMap.updateSize(); }, 100);
+    window.setTimeout(function() { clearInterval(interval); }, 2000);
   };
 
   /**
@@ -280,12 +276,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
       layers.push(createLayerGroup(id, name));
       layerGroup.setLayers(layers);
 
-      var interval = window.setInterval(function() {
-        if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
-          TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(id, 'terrama2-layerexplorer');
-          clearInterval(interval);
-        }
-      }, 10);
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(id, 'terrama2-layerexplorer');
     }
   };
 
@@ -363,12 +354,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
       layerGroup.setLayers(layers);
 
-      var interval = window.setInterval(function() {
-        if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
-          TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(layerId, parentGroup);
-          clearInterval(interval);
-        }
-      }, 10);
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(layerId, parentGroup);
     }
   };
 
@@ -444,12 +430,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
       layerGroup.setLayers(layers);
 
-      var interval = window.setInterval(function() {
-        if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
-          TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(layerId, parentGroup);
-          clearInterval(interval);
-        }
-      }, 10);
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(layerId, parentGroup);
     }
   };
 
@@ -497,12 +478,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
       layerGroup.setLayers(layers);
 
-      var interval = window.setInterval(function() {
-        if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
-          TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(id, 'terrama2-layerexplorer');
-          clearInterval(interval);
-        }
-      }, 10);
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(id, 'terrama2-layerexplorer');
     }
   };
 
@@ -571,12 +547,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
 
       parentLayerGroup.setLayers(parentSubLayers);
 
-      var interval = window.setInterval(function() {
-        if(TerraMA2WebComponents.obj.isComponentsLoaded()) {
-          TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(serverId, 'terrama2-layerexplorer');
-          clearInterval(interval);
-        }
-      }, 10);
+      TerraMA2WebComponents.webcomponents.LayerExplorer.addLayersFromMap(serverId, 'terrama2-layerexplorer');
     }
   };
 
@@ -838,8 +809,14 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
-  // new
-
+  /**
+   * Sets the Map single click event.
+   * @param {function} eventFunction - Function to be executed when the event is triggered
+   *
+   * @function setMapSingleClickEvent
+   * @memberof MapDisplay
+   * @inner
+   */
   var setMapSingleClickEvent = function(eventFunction) {
     if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
     memberSingleClickEventKey = memberOlMap.on('click', function(e) {
@@ -847,11 +824,16 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
   };
 
+  /**
+   * Unsets the Map single click event.
+   *
+   * @function unsetMapSingleClickEvent
+   * @memberof MapDisplay
+   * @inner
+   */
   var unsetMapSingleClickEvent = function() {
     if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
   };
-
-  // new
 
   /**
    * Finds a layer by a given key.
@@ -933,7 +915,15 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
    */
   var init = function() {
     memberParser = new ol.format.WMSCapabilities();
-    memberSocket = io(TerraMA2WebComponents.obj.getTerrama2Url());
+
+    $.ajax({
+      url: TerraMA2WebComponents.obj.getTerrama2Url() + "/socket.io/socket.io.js",
+      dataType: "script",
+      success: function() {
+        memberSocket = io(TerraMA2WebComponents.obj.getTerrama2Url());
+        loadSocketsListeners();
+      }
+    });
 
     memberOlMap.getLayerGroup().set('id', 'terrama2-layerexplorer');
     memberOlMap.getLayerGroup().set('name', 'terrama2-layerexplorer');
@@ -943,8 +933,6 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     });
 
     memberInitialExtent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
-
-    loadSocketsListeners();
 
     $(document).ready(function() {
       updateMapSize();
