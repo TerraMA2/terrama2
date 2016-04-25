@@ -31,6 +31,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          ServiceInstance.hasMany(models.Analysis, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'instance_id',
+              allowNull: false
+            }
+          });
         }
       }
     }

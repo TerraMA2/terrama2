@@ -93,3 +93,10 @@
 .terrama2-feedback-icon {
     margin-right: 20px !important;
 }
+
+.terrama2-disable {
+    z-index: 1000 !important;
+    background-color: lightgrey !important;
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+}

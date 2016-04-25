@@ -40,4 +40,21 @@ angular.module("terrama2.services", [])
         return $http.post(url, dataSeriesObject);
       }
     }
+  }])
+  
+  .factory("ServiceInstanceFactory", ["$http", function($http) {
+    var url = "/api/Service";
+    return {
+      get: function(extra) {
+        return $http({
+          method: 'GET',
+          url: url,
+          params: extra instanceof Object ? extra : {}
+        })
+      },
+      
+      post: function(serviceObject) {
+        return $http.post(url, serviceObject);
+      }
+    }
   }]);

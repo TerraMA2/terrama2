@@ -4,7 +4,7 @@ var Signals = require('./Signals.js');
 var TcpManager = module.exports = {};
 
 TcpManager.sendData = function(data) {
-  emit(Signals.DataSignal, data);
+  emit(Signals.ADD_DATA_SIGNAL, data);
 };
 
 var emit = function(signal, object) {
@@ -54,6 +54,10 @@ var emit = function(signal, object) {
     client.on('close', function() {
       console.log('\n\n[CLIENT] Connection closed');
     });
+
+    client.on('error', function(err) {
+      console.log("\n\n[ERROR] ", err);
+    })
   } catch(error) {
     throw error;
   }
@@ -95,3 +99,12 @@ server.on('connection', function(socket) {
 });
 
 server.listen(1337, '0.0.0.0');
+server.on('close', function() {
+  console.log("TcpManager server closed");
+});
+
+TcpManager.close = function(callback) {
+  server.close(function() {
+    callback();
+  });
+};

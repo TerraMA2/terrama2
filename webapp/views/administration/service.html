@@ -6,11 +6,48 @@
 
 {% block javascripts %}
 <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
+<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
+<script type="text/javascript" src="/javascripts/angular/app.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <script>
-    angular.module('terrama2.administration.services.registration', [])
-        .controller('ServiceRegistration', ['$scope', function($scope) {
+  angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
+    .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
+      $scope.service = {};
+      $scope.alertBox = {};
+      $scope.errorFound = false;
+      $scope.isChecking = false;
+      $scope.resetState = function() {
+        $scope.errorFound = false;
+        $scope.alertBox.message = "";
+      };
 
-        }])
+      $scope.save = function() {
+        console.log($scope.service);
+        if ($scope.serviceForm.$invalid)
+          angular.forEach($scope.serviceForm.$error, function (field) {
+            angular.forEach(field, function(errorField){
+              errorField.$setDirty();
+            })
+          });
+
+        $scope.isChecking = true;
+        $scope.errorFound = false;
+        $scope.alertBox.title = "Service Registration";
+
+        ServiceInstanceFactory.post($scope.service).success(function(data) {
+          $scope.alertBox.message = "Service saved";
+          $scope.errorFound = false;
+        }).error(function(err) {
+          // todo: display messagebox
+          console.log(err);
+          $scope.errorFound = true;
+          $scope.alertBox.message = err.message;
+        }).finally(function() {
+          $scope.isChecking = false;
+        })
+      }
+    }])
 </script>
 
 {% endblock %}
@@ -18,83 +55,99 @@
 {% block content %}
 
 <div class="col-md-12">
-    <div class="col-md-12" ng-controller="ServiceRegistration">
-        <div class="box box-default">
-            <div class="box-header with-border">
-                <h3 class="box-title">{[ __("Service Registration") ]}</h3>
+  <div class="col-md-12" ng-controller="ServiceRegistration">
+    <div class="box box-default">
+      <div class="box-header with-border">
+        <h3 class="box-title">{[ __("Service Registration") ]}</h3>
+      </div>
+      <!-- /.box-header -->
+      <div style="display: block;" class="box-body">
+        <div class="row">
+          <div class="col-md-12">
+            <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="resetState()"></terrama2-message-box>
+          </div>
+
+          <form name="serviceForm">
+            <div class="col-md-8">
+              <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.name.$dirty && serviceForm.name.$invalid, 'has-success': serviceForm.name.$dirty && serviceForm.name.$valid}">
+                <label>{[ __("Name") ]}:</label>
+                <input class="form-control" name="name" ng-model="service.name" placeholder="{[ __('Service  Name') ]}" type="text" required>
+
+                <span class="help-block has-error" ng-show="serviceForm.name.$dirty && serviceForm.name.$invalid">{{ i18n.__('Service name is required') }}</span>
+              </div>
             </div>
-            <!-- /.box-header -->
-            <div style="display: block;" class="box-body">
-                <div class="row">
-                    <form name="serviceForm">
-                        <div class="col-md-8">
-                            <div class="form-group has-feedback">
-                                <label>{[ __("Name") ]}:</label>
-                                <input class="form-control" name="name" ng-model="service.name" placeholder="{[ __('Service  Name') ]}" type="text" required>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-4">
-                            <div class="form-group has-feedback">
-                                <label>{[ __("Type") ]}:</label>
-                                <select class="form-control" name="type" ng-model="service.type" required>
+            <!-- /.col -->
+            <div class="col-md-4">
+              <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.type.$dirty && serviceForm.type.$invalid, 'has-success': serviceForm.type.$dirty && serviceForm.type.$valid}">
+                <label>{[ __("Type") ]}:</label>
+                <select class="form-control" name="type" ng-model="service.service_type_id" required>
+                  <option value="1">Collect</option>
+                  <option value="2">Analysis</option>
+                </select>
 
-                                </select>
+                <span class="form-control-feedback glyphicon" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>
 
-                            </div>
-                            <!-- /.form-group -->
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>{[ __("Description") ]}:</label>
-                                <textarea class="form-control" ng-model="service.description" rows="3" placeholder="{[ __('Service Description') ]}"></textarea>
-                            </div>
-                        </div>
-
-                      <div class="col-md-6">
-                        <div class="form-group has-feedback">
-                          <label>{[ __("Host") ]}:</label>
-                          <input class="form-control" name="host" ng-model="service.host" placeholder="{[ __('Ssh Hostname') ]}" type="text" required>
-                        </div>
-                      </div>
-
-                      <div class="col-md-6">
-                        <div class="form-group has-feedback">
-                          <label>{[ __("Port") ]}:</label>
-                          <input class="form-control" name="port" ng-model="service.port" placeholder="{[ __('Ssh Port') ]}" type="text" required>
-                        </div>
-                      </div>
-
-                      <div class="col-md-6">
-                        <div class="form-group has-feedback">
-                          <label>{[ __("User") ]}:</label>
-                          <input class="form-control" name="user" ng-model="service.user" placeholder="{[ __('Ssh username') ]}" type="text" required>
-                        </div>
-                      </div>
-
-                      <div class="col-md-6">
-                        <div class="form-group has-feedback">
-                          <label>{[ __("Path to script") ]}:</label>
-                          <input class="form-control" name="path" ng-model="service.path" placeholder="{[ __('Script path to run') ]}" type="text" required>
-                        </div>
-                      </div>
-                    </form>
-                </div>
-                <!-- /.row -->
-            </div>
-            <!-- /.box body -->
-
-            <div class="box-footer">
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("OK") ]}</button>
-                <a ng-href="/administration/services" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
+              </div>
+              <!-- /.form-group -->
             </div>
 
-            <div class="overlay" ng-show="isChecking">
-                <i class="fa fa-refresh fa-spin"></i>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>{[ __("Description") ]}:</label>
+                <textarea class="form-control" ng-model="service.description" rows="3" placeholder="{[ __('Service Description') ]}"></textarea>
+              </div>
             </div>
+
+            <div class="col-md-6">
+              <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.host.$dirty && serviceForm.host.$invalid, 'has-success': serviceForm.host.$dirty && serviceForm.host.$valid}">
+                <label>{[ __("Host") ]}:</label>
+                <input class="form-control" name="host" ng-model="service.host" placeholder="{[ __('Ssh Hostname') ]}" type="text" required>
+
+                <span class="form-control-feedback glyphicon" ng-show="serviceForm.host.$dirty" ng-class="{'glyphicon-ok': serviceForm.host.$valid, 'glyphicon-remove': serviceForm.host.$invalid }"></span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.port.$dirty && serviceForm.port.$invalid, 'has-success': serviceForm.port.$dirty && serviceForm.port.$valid}">
+                <label>{[ __("Port") ]}:</label>
+                <input class="form-control" name="port" ng-model="service.port" placeholder="{[ __('Ssh Port') ]}" type="number" required>
+                <span class="form-control-feedback glyphicon" ng-show="service.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.user.$dirty && serviceForm.user.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
+                <label>{[ __("User") ]}:</label>
+                <input class="form-control" name="user" ng-model="service.user" placeholder="{[ __('Ssh username') ]}" type="text" required>
+
+                <span class="form-control-feedback glyphicon" ng-show="service.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.path.$dirty && serviceForm.path.$invalid, 'has-success': serviceForm.path.$dirty && serviceForm.path.$valid}">
+                <label>{[ __("Path to script") ]}:</label>
+                <input class="form-control" name="path" ng-model="service.path" placeholder="{[ __('Script path to run') ]}" type="text" required>
+
+                <span class="form-control-feedback glyphicon" ng-show="service.path.$dirty" ng-class="{'glyphicon-ok': serviceForm.path.$valid, 'glyphicon-remove': serviceForm.path.$invalid }"></span>
+              </div>
+            </div>
+          </form>
         </div>
-    </div> <!-- end col md 6 -->
+        <!-- /.row -->
+      </div>
+      <!-- /.box body -->
+
+      <div class="box-footer">
+        <button type="submit" class="btn btn-primary pull-right" data-ng-click="save()" style="margin-left: 10px;">{[ __("OK") ]}</button>
+        <a ng-href="/administration/services" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
+      </div>
+
+      <div class="overlay" ng-show="isChecking">
+        <i class="fa fa-refresh fa-spin"></i>
+      </div>
+    </div>
+  </div> <!-- end col md 6 -->
 </div> <!-- end col md 12 -->
 
 {% endblock %}
