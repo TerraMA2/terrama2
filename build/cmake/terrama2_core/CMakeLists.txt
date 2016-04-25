@@ -64,6 +64,7 @@ target_link_libraries(terrama2_core terralib_mod_memory
                                         ${Boost_SYSTEM_LIBRARY}
                                         ${Boost_LOG_LIBRARY}
                                         ${Boost_IOSTREAMS_LIBRARY}
+                                        ${Boost_REGEX_LIBRARY}
                                         ${CURL_LIBRARIES}
                                         ${QUAZIP_LIBRARIES})
 
