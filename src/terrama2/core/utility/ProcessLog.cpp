@@ -54,7 +54,7 @@ terrama2::core::ProcessLog::ProcessLog(uint64_t processID, std::map < std::strin
   dataSource_->setConnectionInfo(connInfo);
 }
 
-void terrama2::core::ProcessLog::start(uint64_t processID)
+void terrama2::core::ProcessLog::start()
 {
   // send start to database
 
@@ -67,7 +67,7 @@ void terrama2::core::ProcessLog::start(uint64_t processID)
 
   boost::format query("INSERT INTO "+ tableName_ + " (PID, status, process_timestamp) VALUES(%1%, %2%, '%3%')");
 
-  query.bind_arg(1, processID);
+  query.bind_arg(1, processID_);
   query.bind_arg(2, static_cast<int>(Status::START));
   query.bind_arg(3, TimeUtils::now()->toString());
 
