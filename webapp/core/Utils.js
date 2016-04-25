@@ -1,10 +1,11 @@
 var Enums = require("./Enums");
 var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
+var cloneDeep = require("lodash").cloneDeep;
 
 module.exports = {
   clone: function(object) {
-    return Object.assign({}, object);
+    return cloneDeep(object);
   },
 
   handleRequestError: function(response, err, code) {

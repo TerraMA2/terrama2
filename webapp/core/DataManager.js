@@ -166,7 +166,7 @@ var DataManager = {
     });
   },
   
-  finalize: function() {
+  unload: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
       lock.writeLock(function(release) {
@@ -179,9 +179,18 @@ var DataManager = {
 
         resolve();
 
-        connection.close();
-
         release();
+      });
+    });
+  },
+  
+  finalize: function() {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.unload().then(function() {
+        resolve();
+
+        connection.close();
       });
     });
   },
@@ -370,12 +379,13 @@ var DataManager = {
   /**
    * It retrieves a Project list object from loaded projects.
    *
-   * @return {Promise<Project>} - a 'bluebird' module with Project instance or error callback
+   * @return {Array} - a 'bluebird' module with Project instance or error callback
    */
   listProjects: function() {
     var projectList = [];
-    for(var index = 0; index < this.data.projects.length; ++index)
-      projectList.push(Utils.clone(this.data.projects[index]));
+    this.data.projects.forEach(function(project) {
+      projectList.push(Utils.clone(project));
+    });
     return projectList;
   },
 

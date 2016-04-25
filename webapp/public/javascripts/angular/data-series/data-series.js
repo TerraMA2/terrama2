@@ -4,7 +4,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     $scope.model = [];
     $scope.fields = [];
     DataSeriesFactory.get({type: $scope.dataSeriesType}).success(function(data) {
-      $scope.model = data;
+      $scope.model = data instanceof Array ? data : [];
       $scope.fields = [{key: 'name', as: "Name"}, {key: "semantics", as: "Format"}];
     }).error(function(err) {
 
