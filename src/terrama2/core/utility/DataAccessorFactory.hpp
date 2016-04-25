@@ -50,30 +50,40 @@ namespace terrama2
     struct DataProvider;
 
     /*!
-      \class DataAccessorFactory
-
       \brief Factory class for DataAcessor.
 
     */
     class DataAccessorFactory : public te::common::Singleton<DataAccessorFactory>
     {
       public:
-
+        //! DataAccessor constructor function.
         typedef std::function<DataAccessor* (terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, terrama2::core::Filter filter)> FactoryFnctType;
-
+        //! Register a new DataAccessor constructor associated with a DataSeriesSemantics.
         void add(const std::string& semanticName, FactoryFnctType f);
-
+        //! Remove the DataAccessor constructor associated with the DataSeriesSemantics.
         void remove(const std::string& semanticName);
-
+        //PAULO: documentar!
         bool find(const std::string& semanticName);
+        /*!
+          \brief Creates a DataAccessor
 
+          The DataAccessor is constructed based on the DataSeriesSemantics of the DataSeries.
+
+          \todo The DataAccessor will create a cache of the DataSeries data based on the Filter passed.
+
+          \param dataProvider DataProvider of the dataSeries.
+          \param dataSeries DataSeries of the data.
+          \param filter Filtering information for caching data.
+        */
         terrama2::core::DataAccessorPtr make(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, terrama2::core::Filter filter = Filter());
 
       protected:
         friend class te::common::Singleton<DataAccessorFactory>;
 
-        DataAccessorFactory() {}
-        virtual ~DataAccessorFactory() {}
+        //! Default constructor.
+        DataAccessorFactory() = default;
+        //! Default destructor
+        virtual ~DataAccessorFactory() = default;
 
         DataAccessorFactory(const DataAccessorFactory& other) = delete;
         DataAccessorFactory(DataAccessorFactory&& other) = delete;

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+var TcpManager = require("../core/TcpManager");
+
 /**
  * Module dependencies.
  */
@@ -38,6 +40,7 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
   // detecting sigint error and then close server
   process.on('SIGINT', function(){
     server.close();
+    TcpManager.closeServer();
   });
 
   io.attach(server);

@@ -108,18 +108,20 @@ int main(int argc, char* argv[])
 
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
-  
+
 //Code commented for tests with TCP communication
 
-  // out << static_cast<uint32_t>(0);
-  // out << terrama2::core::TcpSignals::DATA_SIGNAL;
-  // out << doc.toJson(QJsonDocument::Compact);
-  // out.device()->seek(0);
-  // out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+  auto json = doc.toJson(QJsonDocument::Compact);
 
-  // QTcpSocket socket;
-  // socket.connectToHost("localhost", 30000);
-  // socket.write(bytearray);
+  out << static_cast<uint32_t>(0);
+  out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
+  out << json;//.right(json.size() - 16);
+  out.device()->seek(0);
+  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+
+  QTcpSocket socket;
+  socket.connectToHost("localhost", 30000);
+  socket.write(bytearray);
 
   // QTimer timer;
   // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

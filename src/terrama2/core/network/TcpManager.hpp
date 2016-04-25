@@ -26,6 +26,7 @@
 #define __TERRAMA2_CORE_TCP_MANAGER_HPP__
 
 #include <QTcpServer>
+#include <QTcpSocket>
 
 #include <memory>
 

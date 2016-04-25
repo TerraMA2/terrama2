@@ -106,7 +106,7 @@ void terrama2::core::TcpManager::readReadySlot()
   RaiiBlock block(blockSize_);
 
   TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
-  QDataStream in(tcpSocket_);
+  QDataStream in(tcpSocket_.get());
 
   Q_UNUSED(block)
   if(blockSize_ == 0)

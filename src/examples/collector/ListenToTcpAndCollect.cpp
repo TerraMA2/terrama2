@@ -196,17 +196,17 @@ int main(int argc, char* argv[])
 
     QByteArray bytearray;
     QDataStream out(&bytearray, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_2);
 
     out << static_cast<uint32_t>(0);
-    out << terrama2::core::TcpSignals::DATA_SIGNAL;
-    out << doc.toJson();
+    out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
+    out << QString(doc.toJson()).toStdString().c_str();
     out.device()->seek(0);
     out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
     QTcpSocket socket;
     socket.connectToHost("localhost", 30000);
     socket.write(bytearray);
+    socket.waitForBytesWritten();
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
