@@ -376,6 +376,32 @@ var DataManager = {
     });
   },
 
+  removeProject: function(restriction) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      self.getProject(restriction).then(function(projectResult) {
+        models.db["Project"].destroy({
+          where: {
+            id: projectResult.id
+          }
+        }).then(function() {
+          for(var i = 0; i < self.data.projects.length; ++i) {
+            if (self.data.projects[i].id == projectResult.id)
+              self.data.projects.splice(i, 1);
+          }
+          resolve();
+        }).catch(function(err) {
+          console.log("Remove Project: ", err);
+          reject(new exceptions.ProjectError("Could not remove project: " + err.message));
+        })
+      }).catch(function(err) {
+        reject(err);
+      })
+    });
+
+  },
+
   /**
    * It retrieves a Project list object from loaded projects.
    *
@@ -684,7 +710,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
-        if (provider.id === dataProviderParam.id || provider.name === dataProviderParam.name) {
+        if (provider.id == dataProviderParam.id || provider.name == dataProviderParam.name) {
           models.db.DataProvider.destroy({where: {id: provider.id}}).then(function() {
             self.data.dataProviders.splice(index, 1);
             resolve();

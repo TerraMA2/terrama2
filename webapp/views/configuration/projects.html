@@ -24,6 +24,11 @@
         {key: "name", as: "Name"},
         {key: "description", as: "Description"}
       ];
+
+      $scope.remove = function(object) {
+        return "/api/Project/" + object.id + "/delete";
+      };
+
       $scope.link = function(object) {
         return "/configuration/projects/" + object.name + "/activate";
       };
@@ -58,7 +63,7 @@ sidebar-collapse
     <div style="display: block;" class="box-body">
 
       <div class="col-md-12">
-        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'project'"></terrama2-table>
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'project'" remove="remove(object)"></terrama2-table>
       </div>
 
     </div>
