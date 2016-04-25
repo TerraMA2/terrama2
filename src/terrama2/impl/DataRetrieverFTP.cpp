@@ -35,9 +35,9 @@
 
 // TerraMA2
 #include "DataRetrieverFTP.hpp"
-#include "../core/data-model/Filter.hpp"  
-#include "../core/utility/Raii.hpp"  
-#include "../core/utility/Logger.hpp"  
+#include "../core/data-model/Filter.hpp"
+#include "../core/utility/Raii.hpp"
+#include "../core/utility/Logger.hpp"
 #include "../core/data-model/Filter.hpp"
 #include "../core/utility/FilterUtils.hpp"
 
@@ -149,7 +149,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   {
 // Get a file listing from server
     if(curl.fcurl())
-    {   
+    {
       uriInput = dataProvider_->uri+"/";
       curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
       curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
@@ -177,7 +177,9 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 // filter file names that should be downloaded.
       for (std::string fileName: vectorFiles)
       {
-        if (terrama2::core::isValidDataSetName(mask,filter,fileName))
+        // FIXME: use timestamp
+        std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+        if (terrama2::core::isValidDataSetName(mask,filter,fileName,timestamp))
           vectorNames_.push_back(fileName);
       }
 
@@ -191,7 +193,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
 // Performs the download of files in the vectorNames
         if (curlDown.fcurl())
-        {          
+        {
           uri_origin = dataProvider_->uri +"/"+file;
           std::string filePath = temporaryFolder_+"/"+file;
 

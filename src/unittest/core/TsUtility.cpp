@@ -30,6 +30,7 @@
 //TerraMA2
 #include <terrama2/core/utility/Timer.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
+#include <terrama2/core/utility/FilterUtils.hpp>
 
 #include "TsUtility.hpp"
 
@@ -217,4 +218,64 @@ void TsUtility::testTimeUtilsAddYear()
 
   if(*dt.get() != *dt2.get())
     QFAIL("Should not be here!");
+}
+
+void TsUtility::ValidMask()
+{
+  std::string mask = "MMyyyydd-hhssmm.file";
+
+  if(!terrama2::core::isValidMask(mask))
+    QFAIL("Should not be here!");
+
+}
+
+void TsUtility::invalidValidMask()
+{
+  std::string mask = "MM-hhssmm.file";
+
+  if(terrama2::core::isValidMask(mask))
+    QFAIL("Should not be here!");
+
+}
+
+void TsUtility::testValidDataSetName()
+{
+  std::string name = "file2016-04-19153726.file";
+  std::string mask = "fileyyyy-MM-ddhhmmss.file";
+
+  const terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(!terrama2::core::isValidDataSetName(mask, filter, name, fileTimestamp))
+    QFAIL("Should not be here!");
+
+  std::cout << fileTimestamp->toString() << std::endl;
+}
+
+void TsUtility::testValidDataSetName2DigitsYear()
+{
+  std::string name = "file16-04-19153726.file";
+  std::string mask = "fileyy-MM-ddhhmmss.file";
+
+  const terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(!terrama2::core::isValidDataSetName(mask, filter, name, fileTimestamp))
+    QFAIL("Should not be here!");
+
+  std::cout << fileTimestamp->toString() << std::endl;
+}
+
+void TsUtility::testValidDataSetName2DigitsYear1900()
+{
+  std::string name = "file56-04-19153726.file";
+  std::string mask = "fileyy-MM-ddhhmmss.file";
+
+  const terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(!terrama2::core::isValidDataSetName(mask, filter, name, fileTimestamp))
+    QFAIL("Should not be here!");
+
+  std::cout << fileTimestamp->toString() << std::endl;
 }
