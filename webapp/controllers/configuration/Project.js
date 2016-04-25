@@ -3,10 +3,8 @@ var DataManager = require('../../core/DataManager');
 module.exports = function(app) {
   return {
     get: function (request, response) {
-      DataManager.init(function() {
-        DataManager.load().then(function() {
-          response.render("configuration/projects");
-        });
+      DataManager.load().then(function() {
+        response.render("configuration/projects");
       });
     },
 

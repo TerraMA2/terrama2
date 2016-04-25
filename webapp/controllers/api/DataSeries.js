@@ -6,9 +6,13 @@ var Intent = require('./../../core/Enums').DataProviderIntent;
 module.exports = function(app) {
   return {
     post: function(request, response) {
-      var dataSeriesObject = request.body;
+      var dataSeriesObject = request.body.dataSeries;
+      var scheduleObject = request.body.schedule;
+      var filterObject = request.body.filter;
+      var serviceObject = request.body.service;
 
-      DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
+      DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceObject).then(function(dataSeriesResult) {
+        // todo: add filter and schedule object
         return response.json(dataSeriesResult.toObject());
       }).catch(function(err) {
         return Utils.handleRequestError(response, err, 400);

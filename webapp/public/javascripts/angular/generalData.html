@@ -24,8 +24,8 @@
     <div class="form-group" ng-class="{'has-error': generalDataForm.access.$dirty && generalDataForm.access.$error.required, 'has-success': generalDataForm.access.$dirty && generalDataForm.access.$valid}">
       <label>{{ i18n.__('Access') }}:</label>
       <select class="form-control" ng-model="dataSeries.access" name="access" required>
-        <option value="1">Collect</option>
-        <option value="2">Processing</option>
+        <option value="1">COLLECT</option>
+        <option value="2">PROCESSING</option>
       </select>
 
       <label class="help-block text-danger" ng-show="generalDataForm.access.$dirty && generalDataForm.access.$error.required">{{ i18n.__("Data series access is required") }}</label>

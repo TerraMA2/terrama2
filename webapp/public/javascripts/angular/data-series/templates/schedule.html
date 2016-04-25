@@ -1,5 +1,14 @@
 <div class="row">
   <div class="col-md-7">
+    <div class="form-group" ng-class="{'has-error': scheduleForm.service_type_id.$dirty && scheduleForm.service_type_id.$error.required, 'has-success': scheduleForm.service_type_id.$dirty && scheduleForm.service_type_id.$valid}">
+      <label>{{ i18n.__('Available Collectors') }}:</label>
+      <select class="form-control" name="service_type_id" ng-model="service.id" required>
+        <option ng-repeat="element in services" ng-value="element.id">{{ element.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-md-7">
     <div class="form-group" ng-class="{'has-error': scheduleForm.frequency_unit.$dirty && scheduleForm.frequency_unit.$error.required, 'has-success': scheduleForm.frequency_unit.$dirty && scheduleForm.frequency_unit.$valid}">
       <label>{{ i18n.__('Frequency Unit') }}:</label>
       <select class="form-control" name="frequency_unit" ng-model="schedule.frequency_unit" ng-required="isFrequency" ng-change="onScheduleChange(1)">
@@ -33,7 +42,7 @@
       <label>{{ i18n.__('Schedule') }}:</label>
 
       <!-- monthly -->
-      <div class="dropdown dropup" ng-if="schedule.schedule_unit == '2'">
+      <div class="dropdown dropup" ng-if="schedule.schedule_unit == '2' || schedule.schedule_unit == '3'">
         <a class="dropdown-toggle" id="monthlyDropDown" role="button" data-toggle="dropdown" data-target="#" href="#dropdownMonthly">
           <div class="input-group">
             <input type="text" class="form-control" data-date-time-input="MMM-DD" data-ng-model="schedule.schedule">

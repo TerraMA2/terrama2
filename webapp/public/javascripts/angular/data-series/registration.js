@@ -44,12 +44,14 @@ angular.module('terrama2.dataseries.registration', [
     );
   }])
 
-  .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory",
-    function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory) {
+  .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory", "ServiceInstanceFactory",
+    function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory, ServiceInstanceFactory) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
+
+      $scope.service = {};
 
       // terrama2 messagebox
       $scope.errorFound = false;
@@ -88,17 +90,33 @@ angular.module('terrama2.dataseries.registration', [
         errorHelper(form);
         return false;
       };
-      
+
       // schedule
+      $scope.schedule = {};
       $scope.isFrequency = false;
       $scope.isSchedule = false;
+      $scope.services = [];
+      // fix: temp code
+      ServiceInstanceFactory.get({type: 'COLLECT'}).success(function(services) {
+        $scope.services = services;
+      }).error(function(err) {
+        console.log(err);
+      });
+
+
       $scope.onScheduleChange = function(value) {
         // resetting
-        $scope.schedule = {};
         if (value == 1) {
+          delete $scope.schedule.schedule;
+          delete $scope.schedule.schedule_retry;
+          delete $scope.schedule.schedule_retry_unit;
+          delete $scope.schedule.schedule_timeout;
+          delete $scope.schedule.schedule_timeout_unit;
           $scope.isFrequency = true;
           $scope.isSchedule = false;
         } else if (value == 2) {
+          delete $scope.frequency;
+          delete $scope.frequency_unit;
           $scope.isFrequency = false;
           $scope.isSchedule = true;
         }
@@ -126,9 +144,33 @@ angular.module('terrama2.dataseries.registration', [
       $scope.dcps = [];
       
       $scope.updatingDcp = false;
-
+      
       // filter values
-      $scope.filter = {};
+      $scope.filter = {date: {}};
+      $scope.radioPreAnalysis = {};
+      $scope.handlePreAnalysisFilter = function(selected) {
+        $scope.filter.pre_analysis = {};
+        $scope.radioPreAnalysis = selected;
+      };
+      $scope.beforeRenderStartDate = function($view, $dates, $leftDate, $upDate, $rightDate) {
+        if ($scope.filter.date.afterDate) {
+          var activeDate = moment($scope.filter.date.afterDate);
+          for (var i = 0; i < $dates.length; i++) {
+            if ($dates[i].localDateValue() >= activeDate.valueOf()) $dates[i].selectable = false;
+          }
+        }
+      };
+      $scope.beforeRenderEndDate = function($view, $dates, $leftDate, $upDate, $rightDate) {
+        if ($scope.filter.date.beforeDate) {
+          var activeDate = moment($scope.filter.date.beforeDate).subtract(1, $view).add(1, 'minute');
+          for (var i = 0; i < $dates.length; i++) {
+            if ($dates[i].localDateValue() <= activeDate.valueOf()) {
+              $dates[i].selectable = false;
+            }
+          }
+        }
+      };
+      
       $scope.parametersData = configuration.parametersData || {};
 
       $scope.dataSeries = {
@@ -275,6 +317,12 @@ angular.module('terrama2.dataseries.registration', [
           return;
         }
 
+        var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
+        if (scheduleForm.$invalid) {
+          errorHelper(scheduleForm);
+          return;
+        }
+
         var dataToSend = Object.assign({}, $scope.dataSeries);
         dataToSend.data_series_semantic_name = $scope.dataSeries.semantics.name;
 
@@ -336,8 +384,25 @@ angular.module('terrama2.dataseries.registration', [
             break;
         }
 
+        // adjusting time without timezone
+        var filterValues = Object.assign({}, $scope.filter);
+        if (filterValues.area) {
+          filterValues.area.afterDate = new Date(filterValues.area.afterDate.getTime() - filterValues.area.afterDate.getTimezoneOffset()).toString();
+          filterValues.area.beforeDate = new Date(filterValues.area.beforeDate.getTime() - filterValues.area.beforeDate.getTimezoneOffset()).toString();
+        }
+        
+        var scheduleValues = Object.assign({}, $scope.schedule);
+        if (scheduleValues.schedule) {
+          scheduleValues.schedule = new Date(scheduleValues.schedule.getTime() - scheduleValues.schedule.getTimezoneOffset()).toString();
+        }
+        
         console.log(dataToSend);
-        DataSeriesFactory.post(dataToSend).success(function(data) {
+        DataSeriesFactory.post({
+          dataSeries: dataToSend,
+          schedule: scheduleValues,
+          filter: filterValues,
+          service: $scope.service
+        }).success(function(data) {
           console.log(data);
           $window.location.href = "/configuration/dynamic/dataseries";
         }).error(function(err) {
