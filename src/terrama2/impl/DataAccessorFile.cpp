@@ -68,98 +68,107 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
   return dataRetriever->retrieveData(mask, filter);
 }
 
- terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-                                                                    const terrama2::core::Filter& filter,
-                                                                    terrama2::core::DataSetPtr dataSet) const
- {
-   QUrl url(uri.c_str());
-   QDir dir(url.path());
-   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-   if(fileInfoList.empty())
-   {
-     QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet->id);
-     TERRAMA2_LOG_ERROR() << errMsg;
-     throw NoDataException() << ErrorDescription(errMsg);
-   }
+terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
+                                                                   const terrama2::core::Filter& filter,
+                                                                   terrama2::core::DataSetPtr dataSet) const
+{
+  QUrl url(uri.c_str());
+  QDir dir(url.path());
+  QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+  if(fileInfoList.empty())
+  {
+    QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NoDataException() << ErrorDescription(errMsg);
+  }
 
-   //return value
-   Series series;
-   series.dataSet = dataSet;
+  //return value
+  Series series;
+  series.dataSet = dataSet;
 
-   bool first = true;
-   std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
-   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
-   for(const auto& fileInfo : fileInfoList)
-   {
-     std::string name = fileInfo.fileName().toStdString();
-     std::string baseName = fileInfo.baseName().toStdString();
-     // Verify if the file name matches the mask
-     if(!isValidDataSetName(getMask(dataSet), filter, name))
+  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
+  std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
+
+  bool first = true;
+  for(const auto& fileInfo : fileInfoList)
+  {
+    std::string name = fileInfo.fileName().toStdString();
+    std::string baseName = fileInfo.baseName().toStdString();
+    // Verify if the file name matches the mask
+    // FIXME: use timestamp
+     std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+     if(!isValidDataSetName(getMask(dataSet), filter, name,timestamp))
        continue;
 
-     // creates a DataSource to the data and filters the dataset,
-     // also joins if the DCP comes from separated files
-     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
-     std::map<std::string, std::string> connInfo;
+    // creates a DataSource to the data and filters the dataset,
+    // also joins if the DCP comes from separated files
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
+    std::map<std::string, std::string> connInfo;
 
-     connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
-     datasource->setConnectionInfo(connInfo);
+    connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
+    datasource->setConnectionInfo(connInfo);
 
-     //RAII for open/closing the datasource
-     OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
+    //RAII for open/closing the datasource
+    OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
-     if(!datasource->isOpened())
-     {
-       QString errMsg = QObject::tr("DataProvider could not be opened.");
-       TERRAMA2_LOG_ERROR() << errMsg;
+    if(!datasource->isOpened())
+    {
+      QString errMsg = QObject::tr("DataProvider could not be opened.");
+      TERRAMA2_LOG_ERROR() << errMsg;
 
-       continue;
-     }
+      continue;
+    }
 
-     // get a transactor to interact to the data source
-     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+    // get a transactor to interact to the data source
+    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-     // Some drivers use tha base name and other use filename with extension
-     std::string dataSetName;
-     std::vector<std::string> dataSetNames = transactor->getDataSetNames();
-     auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
-     auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
-     if(itBaseName != dataSetNames.cend())
-       dataSetName = baseName;
-     else if(itFileName != dataSetNames.cend())
-       dataSetName = name;
-     //No valid dataset name found
-     if(dataSetName.empty())
-       continue;
+    // Some drivers use tha base name and other use filename with extension
+    std::string dataSetName;
+    std::vector<std::string> dataSetNames = transactor->getDataSetNames();
+    auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
+    auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
+    if(itBaseName != dataSetNames.cend())
+      dataSetName = baseName;
+    else if(itFileName != dataSetNames.cend())
+      dataSetName = name;
+    //No valid dataset name found
+    if(dataSetName.empty())
+      continue;
 
-     if(first)
-     {
-     //read and adapt all te:da::DataSet from terrama2::core::DataSet
-       converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
-       series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-       assert(series.teDataSetType.get());
-       completeDataset = std::make_shared<te::mem::DataSet>(series.teDataSetType.get());
-       first = false;
-     }
+    if(first)
+    {
+      //read and adapt all te:da::DataSet from terrama2::core::DataSet
+      converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
+      series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+      assert(series.teDataSetType.get());
+      completeDataset = std::make_shared<te::mem::DataSet>(series.teDataSetType.get());
+      first = false;
+    }
 
-     assert(converter);
-     std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
-      assert(datasetOrig);
-     std::shared_ptr<te::da::DataSet> teDataSet(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
+    assert(converter);
+    std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
+    assert(datasetOrig);
+    std::shared_ptr<te::da::DataSet> teDataSet(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 
-     //FIXME: Nor working with raster!!
+    //FIXME: Nor working with raster!!
 
-     completeDataset->copy(*teDataSet);
+    completeDataset->copy(*teDataSet);
 
-     if(completeDataset->isEmpty())
-     {
-       QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
-       TERRAMA2_LOG_WARNING() << errMsg;
-     }
-   }// for each file
+    if(completeDataset->isEmpty())
+    {
+      QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
+      TERRAMA2_LOG_WARNING() << errMsg;
+    }
+  }// for each file
 
+  if(!completeDataset.get())
+  {
+    QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+  }
 
-   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
-   series.syncDataSet = syncDataset;
-   return series;
- }
+  std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
+  series.syncDataSet = syncDataset;
+  return series;
+}

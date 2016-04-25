@@ -49,7 +49,7 @@ namespace terrama2
           public:
             DataManager() {}
 
-            virtual void addFromJSON(const QJsonValue& jsonValue) override;
+            virtual void addFromJSON(const QJsonObject& obj) override;
 
             virtual ~DataManager() {}
             DataManager(const DataManager& other) = delete;

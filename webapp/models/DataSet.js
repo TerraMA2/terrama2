@@ -57,6 +57,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSet.hasOne(models.Analysis, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'dataset_output',
+              allowNull: false
+            }
+          });
         }
       }
     }

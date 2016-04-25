@@ -52,7 +52,7 @@ namespace terrama2
 
       \brief Manages all the metadata about data providers and its related dataseries.
 
-      The DataManager is a singleton responsible for loading metadata about
+      The DataManager is responsible for loading metadata about
       data providers and dataseries. It works like a database cache with TerraMA2
       concepts.
 
@@ -63,6 +63,7 @@ namespace terrama2
         Q_OBJECT
 
       public:
+        //! Default constructor
         DataManager();
 
         //! Destructor.
@@ -72,66 +73,84 @@ namespace terrama2
         DataManager& operator=(const DataManager& other) = delete;
         DataManager& operator=(DataManager&& other) = delete;
 
+        /*!
+          \brief Lock the DataManager and returns a lock handle.
+
+          This method is necessary to ensure data consistency when many querys are made.
+
+          \warning The DataManger is locked by this method use with caution!
+        */
         std::unique_lock<std::recursive_mutex> getLock();
 
-        virtual void addFromJSON(const QJsonValue& jsonValue);
+        /*!
+          \brief Add the DataProvider and DataSeries constained in the QJsonObject
+
+          Ffor each member of the QJsonObject a DataProvider or a DataSeries will be build and added to the DataManager.
+
+          \pre The QJsonObject must have a list of json-converted DataProvider and DataSeries
+        */
+        virtual void addFromJSON(const QJsonObject& obj);
 
         /*!
-        \brief Add the data provider to the database and register it in the manager.
+        \brief Register a DataProvider in the manager.
 
-        This method will also add all the dataseries contained in the data provider.
+        At end it will emit dataProviderAdded(DataProviderPtr) signal.
 
-        At end it will emit dataProviderAdded(DataProvider) signal.
-        At end it will emit dataseriesAdded(DataSeries) for each dataseries added if it's not a shallow save.
+        \param provider    TheDataProvider to be registered into the manager.
 
-        \param provider    The data provider to be added to the database and registered into the manager.
-        \param shallowSave If true it will only save the data provider attributes.
-
-        \pre The provider must have a valid ID (its ID must not be zero).
+        \pre The provider must not have a terrama2::core::InvalidId.
         \pre A provider with the same name must not be already in the manager.
-        \pre If not performing a shallow save, the contained dataseries must have a valid ID (all IDs must not be zero).
 
-        \exception terrama2::Exception If it is not possible to add the data provider.
+        \exception terrama2::InvalidArgumentException If it is not possible to add the data provider.
 
         \note Thread-safe.
         */
         virtual void add(DataProviderPtr provider);
 
-        // TODO: doc here
+        /*!
+        \brief Register a DataSeries in the manager.
+
+        At end it will emit dataSeriesAdded(DataSeriesPtr) signal.
+
+        \param dataseries    The DataSeries to be registered into the manager.
+
+        \pre The dataseries must not have a terrama2::core::InvalidId.
+        \pre A dataseries with the same name must not be already in the manager.
+
+        \exception terrama2::InvalidArgumentException If it is not possible to add the dataseries.
+
+        \note Thread-safe.
+        */
         virtual void add(DataSeriesPtr dataseries);
 
         /*!
-        \brief Update a given data provider in the database.
+        \brief Update a given data provider.
 
         Emits dataProviderUpdated() signal if the data provider is updated successfully.
-        Emits dataSeriesAdded() signal if a dataseries was added to the provider and it's not a shallow save.
-        Emits dataSeriesRemoved() signal if a dataseries was removed from the provider and it's not a shallow save.
-        Emits dataSeriesUpdated() signal if a dataseries was updated and it's not a shallow save.
 
         \param provider    The data provider to be updated.
-        \param shallowSave If true it will update only the data provider attributes.
 
-        \pre The data provider must have a valid ID.
-        \pre The data provider must exist in the database.
+        \pre The provider must not have a terrama2::core::InvalidId.
+        \pre The data provider must exist in the DataManager.
 
-        \exception terrama2::Exception If it is not possible to update the data provider.
+        \exception terrama2::InvalidArgumentException If it is not possible to update the data provider.
 
         \note Thread-safe.
         */
         virtual void update(DataProviderPtr provider);
 
         /*!
-        \brief Update a given dataseries in the database.
+        \brief Update a given dataseries.
 
         Emits dataSeriesUpdated() signal if the dataseries is updated successfully.
 
         \param dataseries     DataSeries to update.
         \param shallowSave If true it will update only the dataseries attributes.
 
-        \pre The dataseries must have a valid ID.
-        \pre The dataseries must exist in the database.
+        \pre The dataseries must not have a terrama2::core::InvalidId.
+        \pre The dataseries must exist in the DataManager.
 
-        \exception terrama2::Exception If it is not possible to update the dataseries.
+        \exception terrama2::InvalidArgumentException If it is not possible to update the dataseries.
 
         \note Thread-safe.
         */
@@ -145,12 +164,9 @@ namespace terrama2
         \param id ID of the data provider to remove.
         \param shallowRemove If false will remove every DataSeries dependent from the DataProvider
 
-        \pre The data provider must have a valid ID.
+        \post If shallowRemove is false, it will remove all dataseries that access this data provider.
 
-        \pos It will remove all dataseries that belong to this data provider.
-        \pos In case there is an analysis that uses one the dataseries it will throw an DataSeriesInUseException().
-
-        \exception terrama2::Exception If it is not possible to remove the data provider.
+        \exception terrama2::InvalidArgumentException If it is not possible to remove the data provider.
 
         \note Thread-safe.
         */
@@ -160,15 +176,11 @@ namespace terrama2
         /*!
         \brief Removes the dataseries with the given id.
 
-        \pre The dataseries must have a valid ID.
-
         Emits dataSeriesRemoved() signal if the dataseries is removed successfully.
-
-        In case there is an analysis configured to use this dataseries, the dataseries will not be removed.
 
         \param id ID of the dataseries to remove.
 
-        \exception terrama2::Exception If it is not possible to remove the dataseries.
+        \exception terrama2::InvalidArgumentException If it is not possible to remove the dataseries.
 
         \note Thread-safe.
         */
@@ -177,13 +189,13 @@ namespace terrama2
         /*!
         \brief Retrieves the data provider with the given name.
 
-        In case there is no data provider in the database with the given name it will return an empty smart pointer.
+        In case there is no data provider with the given name it will return an empty smart pointer.
 
         \param name The data provider name.
 
         \return DataProviderPtr A smart pointer to the data provider
 
-        \exception terrama2::Exception If some error occur when trying to find the data provider.
+        \exception terrama2::InvalidArgumentException If some error occur when trying to find the data provider.
 
         \note Thread-safe.
         */
@@ -192,9 +204,9 @@ namespace terrama2
         /*!
         \brief Retrieves the data provider with the given id.
 
-        In case there is no data provider in the database with the given id it will return an empty smart pointer.
+        In case there is no data provider with the given id it will return an empty smart pointer.
 
-        \exception terrama2::Exception If some error occur when trying to find the data provider.
+        \exception terrama2::InvalidArgumentException If some error occur when trying to find the data provider.
 
         \param id The data provider identifier.
 
@@ -206,12 +218,13 @@ namespace terrama2
 
         /*!
         \brief Search for a dataseries with the given name
+
         In case none is found it will return an empty smart pointer.
 
         \param name Name of the dataseries.
         \return A smart pointer to the dataseries.
 
-        \exception terrama2::Exception If some error occur when trying to find the dataseries.
+        \exception terrama2::InvalidArgumentException If some error occur when trying to find the dataseries.
 
         \note Thread-safe.
         */
@@ -224,7 +237,7 @@ namespace terrama2
         \param id Identifier of the dataseries.
         \return A smart pointer to the dataseries.
 
-        \exception terrama2::Exception If some error occur when trying to find the dataseries.
+        \exception terrama2::InvalidArgumentException If some error occur when trying to find the dataseries.
 
         \note Thread-safe.
         */
@@ -251,8 +264,8 @@ namespace terrama2
         void dataSeriesUpdated(DataSeriesPtr);
 
       protected:
-        std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from data-provider-id to data-provider.
-        std::map<DataSeriesId, DataSeriesPtr> dataseries_;    //!< A map from data-set-id to dataseries.
+        std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from DataProviderId to DataProvider.
+        std::map<DataSeriesId, DataSeriesPtr> dataseries_;    //!< A map from DataSeriesId to DataSeries.
         mutable std::recursive_mutex mtx_;                    //!< A mutex to syncronize all operations.
     };
 

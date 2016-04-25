@@ -46,6 +46,9 @@
 #include <algorithm>
 #include <memory>
 
+//Qt
+#include <QJsonArray>
+
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
@@ -266,47 +269,19 @@ terrama2::core::DataManager::~DataManager()
 {
 }
 
-void terrama2::core::DataManager::addFromJSON(const QJsonValue& jsonValue)
+void terrama2::core::DataManager::addFromJSON(const QJsonObject& obj)
 {
-  try
+  auto dataProviders = obj["DataProviders"].toArray();
+  for(auto json : dataProviders)
   {
-    QJsonObject object = jsonValue.toObject();
-    QString coreClass = object["class"].toString();
+    auto dataPtr = terrama2::core::fromDataProviderJson(json.toObject());
+    add(dataPtr);
+  }
 
-    if(coreClass == "DataProvider")
-    {
-      auto dataPtr = terrama2::core::fromDataProviderJson(object);
-      add(dataPtr);
-    }
-    else if(coreClass == "DataSeries")
-    {
-      auto dataPtr = terrama2::core::fromDataSeriesJson(object);
-      add(dataPtr);
-    }
-    else
-    {
-      // even known classes can be here, DataSetItem, Filter, etc
-      // should not arrive here if not inside a DataSet or DataProvider
-
-      QString errMsg = QObject::tr("Unknown class received: %1").arg(coreClass);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw DataManagerException() << ErrorDescription(errMsg);
-    }
-  }
-  catch(terrama2::Exception& /*e*/)
+  auto dataSeries = obj["DataSeries"].toArray();
+  for(auto json : dataSeries)
   {
-    // loggend on throw...
-  }
-  catch(boost::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str();
-  }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-  catch(...)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+    auto dataPtr = terrama2::core::fromDataSeriesJson(json.toObject());
+    add(dataPtr);
   }
 }

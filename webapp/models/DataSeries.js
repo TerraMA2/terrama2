@@ -49,6 +49,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSeries.hasMany(models.AnalysisDataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_id",
+              allowNull: false
+            }
+          });
         }
       }
     }

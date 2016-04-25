@@ -41,14 +41,25 @@ namespace terrama2
   namespace core
   {
     /*!
-      \struct Schedule
+      \brief Schedule information for processess.
 
-      \brief Model for a schedule.
+      The schedule struct holds information for when a process should be executed.
+
+      It can be of 2 forms:
+
+        ||  Frequency || The timeout interval when a process should be executed. ||
+        || Schedule || Every day of the week or month. ||
+
+      The frequency type will repeat indefinitely every timeout interval.
+
+      The schedule will calculate the next date to execute based on the month or day of the week.
+
     */
     struct Schedule
     {
-      Schedule(){}
-
+      //! Default constructor.
+      Schedule() {}
+      //TODO: VINICIUS: rever documentação dos atributos, melhorar descrição.
       ScheduleId id = 0; //!< Schedule identifier.
       uint64_t frequency = 0; //!< The time frequency.
       std::string frequencyUnit; //!< Unit of the time frequency.
@@ -59,7 +70,7 @@ namespace terrama2
       uint64_t scheduleTimeout = 0; //!< The time limit to retry.
       std::string scheduleTimeoutUnit; //!< Unit of the schedule timeout.
 
-      inline bool operator==(const Schedule& rhs){ return id == rhs.id; }
+      inline bool operator==(const Schedule& rhs) { return id == rhs.id; }
     };
   } // end namespace core
 } // end namespace terrama2

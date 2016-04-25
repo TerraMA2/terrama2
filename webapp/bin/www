@@ -11,6 +11,8 @@ var http = require('http');
 var load = require('express-load');
 var portNumber = '36000';
 var PluginLoader = require("../core/PluginLoader");
+var DataManager = require("../core/DataManager");
+var TcpManager = require("../core/TcpManager");
 
 /**
  * Get port from environment and store in Express.
@@ -26,22 +28,50 @@ app.set('port', port);
 var server = http.createServer(app);
 
 PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
-  /**
-   * Listen on provided port, on all network interfaces.
-   */
 
-  server.listen(port);
-  server.on('error', onError);
-  server.on('listening', onListening);
-  server.on('close', onClose);
+  // storing active connections
+  var connections = {};
 
-  // detecting sigint error and then close server
-  process.on('SIGINT', function(){
-    server.close();
+  // getting db configuration and initializes data manager
+  DataManager.init(function() {
+    console.log("Initializing TerraMA2");
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+
+    server.listen(port);
+
+    // approach for handling connections and remove it to avoid unclosed nodejs server
+    server.on('connection', function(conn) {
+      var key = conn.remoteAddress + ':' + conn.remotePort;
+      connections[key] = conn;
+
+      conn.on('close', function() {
+        delete connections[key];
+      })
+    });
+
+    server.on('error', onError);
+    server.on('listening', onListening);
+    server.on('close', onClose);
+
+    // detecting sigint error and then close server
+    process.on('SIGINT', function(){
+      DataManager.finalize().then(function() {
+        TcpManager.close(function() {
+          server.close(function() {
+            console.log("TerraMA2 finalized");
+          });
+
+          for (var key in connections)
+            connections[key].destroy();
+        });
+      });
+    });
+
+    io.attach(server);
+    load('sockets').into(io);
   });
-
-  io.attach(server);
-  load('sockets').into(io);
 
 });
 

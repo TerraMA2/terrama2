@@ -25,23 +25,33 @@
   \brief Filter information of a given DataSetItem.
 
   \author Jano Simas
+  \author Vinicius Campanha
 */
 
 #ifndef __TERRAMA2_CORE_UTILITY_FILTER_UTILS_HPP__
 #define __TERRAMA2_CORE_UTILITY_FILTER_UTILS_HPP__
 
-//TerraMA2
+// TerraMA2
 #include "../../Config.hpp"
 #include "../data-model/Filter.hpp"
 
-//STL
+// Terralib
+#include <terralib/datatype/TimeInstantTZ.h>
+
+// STL
 #include <vector>
 
 namespace terrama2
 {
   namespace core
   {
-    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name);
+    /*!
+      \brief Validates a name based on the mask and filter values.
+        VINICIUS: documentar!
+    */
+    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
+
+    bool isValidMask(const std::string& mask);
   } // end namespace core
 }   // end namespace terrama2
 

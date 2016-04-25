@@ -61,7 +61,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
   collector->inputDataSeries = json["input_data_series"].toInt();
   collector->outputDataSeries = json["output_data_series"].toInt();
 
-  auto inOutArray = json["output_data_series"].toArray();
+  auto inOutArray = json["input_output_map"].toArray();
   auto it = inOutArray.begin();
   for(; it != inOutArray.end(); ++it)
   {
@@ -78,7 +78,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
 
 terrama2::services::collector::core::IntersectionPtr terrama2::services::collector::core::fromIntersectionJson(QJsonObject json)
 {
-  assert(0);
+  //FIXME: implement fromIntersectionJson
   return nullptr;
 }
 
@@ -110,5 +110,6 @@ QJsonObject terrama2::services::collector::core::toJson(CollectorPtr collector)
 
 QJsonObject terrama2::services::collector::core::toJson(IntersectionPtr intersection)
 {
+  //FIXME: implement toJson(IntersectionPtr intersection)
   return QJsonObject();
 }

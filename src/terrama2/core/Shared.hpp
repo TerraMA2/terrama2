@@ -30,50 +30,62 @@
 
 #include <memory>
 
-namespace terrama2 {
-   namespace core {
-      struct DataProvider;
-      typedef std::shared_ptr<const terrama2::core::DataProvider> DataProviderPtr;
+namespace terrama2
+{
+  namespace core
+  {
+    struct DataProvider;
+    //! Shared smart pointer for DataProvider
+    typedef std::shared_ptr<const terrama2::core::DataProvider> DataProviderPtr;
 
-      struct DataSeries;
-      typedef std::shared_ptr<const terrama2::core::DataSeries> DataSeriesPtr;
+    struct DataSeries;
+    //! Shared smart pointer for DataSeries
+    typedef std::shared_ptr<const terrama2::core::DataSeries> DataSeriesPtr;
 
-      struct DataSet;
-      typedef std::shared_ptr<const terrama2::core::DataSet> DataSetPtr;
-      struct DataSetDcp;
-      typedef std::shared_ptr<const terrama2::core::DataSetDcp> DataSetDcpPtr;
-      struct DataSetOccurrence;
-      typedef std::shared_ptr<const terrama2::core::DataSetOccurrence> DataSetOccurrencePtr;
-      struct DataSetGrid;
-      typedef std::shared_ptr<const terrama2::core::DataSetGrid> DataSetGridPtr;
+    struct DataSet;
+    //! Shared smart pointer for DataSet
+    typedef std::shared_ptr<const terrama2::core::DataSet> DataSetPtr;
+    struct DataSetDcp;
+    //! Shared smart pointer for DataSetDcp
+    typedef std::shared_ptr<const terrama2::core::DataSetDcp> DataSetDcpPtr;
+    struct DataSetOccurrence;
+    //! Shared smart pointer for DataSetOccurrence
+    typedef std::shared_ptr<const terrama2::core::DataSetOccurrence> DataSetOccurrencePtr;
+    struct DataSetGrid;
+    //! Shared smart pointer for DataSetGrid
+    typedef std::shared_ptr<const terrama2::core::DataSetGrid> DataSetGridPtr;
 
-      class DcpSeries;
-      typedef std::shared_ptr<terrama2::core::DcpSeries> DcpSeriesPtr;
+    class DcpSeries;
+    //! Shared smart pointer for DcpSeries
+    typedef std::shared_ptr<terrama2::core::DcpSeries> DcpSeriesPtr;
+    class GridSeries;
+    //! Shared smart pointer for GridSeries
+    typedef std::shared_ptr<terrama2::core::GridSeries> GridSeriesPtr;
+    class OccurrenceSeries;
+    //! Shared smart pointer for OccurrenceSeries
+    typedef std::shared_ptr<terrama2::core::OccurrenceSeries> OccurrenceSeriesPtr;
+    class MonitoredObjectSeries;
+    //! Shared smart pointer for MonitoredObjectSeries
+    typedef std::shared_ptr<terrama2::core::MonitoredObjectSeries> MonitoredObjectSeriesPtr;
 
-      class GridSeries;
-      typedef std::shared_ptr<terrama2::core::GridSeries> GridSeriesPtr;
+    class DataAccessor;
+    //! Shared smart pointer for DataAccessor
+    typedef std::shared_ptr<terrama2::core::DataAccessor> DataAccessorPtr;
+    class DataRetriever;
+    //! Shared smart pointer for DataRetriever
+    typedef std::shared_ptr<terrama2::core::DataRetriever> DataRetrieverPtr;
 
-      class OccurrenceSeries;
-      typedef std::shared_ptr<terrama2::core::OccurrenceSeries> OccurrenceSeriesPtr;
+    class DataStorager;
+    //! Shared smart pointer for DataStorager
+    typedef std::shared_ptr<terrama2::core::DataStorager> DataStoragerPtr;
 
-      class MonitoredObjectSeries;
-      typedef std::shared_ptr<terrama2::core::MonitoredObjectSeries> MonitoredObjectSeriesPtr;
+    class SyncronizedDataSet;
+    //! Shared smart pointer for SyncronizedDataSet
+    typedef std::shared_ptr<terrama2::core::SyncronizedDataSet> SyncronizedDataSetPtr;
 
-
-      class DataAccessor;
-      typedef std::shared_ptr<terrama2::core::DataAccessor> DataAccessorPtr;
-
-      class DataRetriever;
-      typedef std::shared_ptr<terrama2::core::DataRetriever> DataRetrieverPtr;
-
-      class DataStorager;
-      typedef std::shared_ptr<terrama2::core::DataStorager> DataStoragerPtr;
-
-      class SyncronizedDataSet;
-      typedef std::shared_ptr<terrama2::core::SyncronizedDataSet> SyncronizedDataSetPtr;
-
-      class Timer;
-      typedef std::shared_ptr<const terrama2::core::Timer> TimerPtr;
+    class Timer;
+    //! Shared smart pointer for Timer
+    typedef std::shared_ptr<const terrama2::core::Timer> TimerPtr;
   }
 }
 

@@ -48,4 +48,11 @@ private slots:
   void testTimeUtilsAddMonth();
   void testTimeUtilsAddDay();
   void testTimeUtilsAddYear();
+
+  void ValidMask();
+  void invalidValidMask();
+
+  void testValidDataSetName();
+  void testValidDataSetName2DigitsYear();
+  void testValidDataSetName2DigitsYear1900();
 };

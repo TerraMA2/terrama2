@@ -27,6 +27,14 @@ module.exports = function(sequelize, DataTypes)
               allowNull: false
             }
           });
+
+          Project.hasMany(models.Analysis, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'project_id',
+              allowNull: false
+            }
+          });
         }
       }
     }

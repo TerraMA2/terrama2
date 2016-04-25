@@ -32,6 +32,7 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonObject>
 
 class RaiiBlock
 {
@@ -53,6 +54,10 @@ terrama2::core::TcpManager::TcpManager(QObject* parent) : QTcpServer(parent), bl
   QObject::connect(this, &terrama2::core::TcpManager::newConnection, this, &terrama2::core::TcpManager::receiveConnection);
 }
 
+terrama2::core::TcpManager::~TcpManager()
+{
+}
+
 void terrama2::core::TcpManager::parseData(QByteArray bytearray)
 {
   QJsonParseError error;
@@ -62,15 +67,14 @@ void terrama2::core::TcpManager::parseData(QByteArray bytearray)
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
   else
   {
-    if(jsonDoc.isArray())
+    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+    if(jsonDoc.isObject())
     {
-      std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
-      auto jsonArray = jsonDoc.array();
-      std::for_each(jsonArray.constBegin(), jsonArray.constEnd(),
-                    std::bind(&terrama2::core::DataManager::addFromJSON, dataManager, std::placeholders::_1));
+      auto obj = jsonDoc.object();
+      dataManager->addFromJSON(obj);
     }
     else
-      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an array.\n");
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
   }
 }
 
@@ -81,7 +85,7 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
   out.setVersion(QDataStream::Qt_5_2);
 
   out << static_cast<uint32_t>(0);
-  out << TcpSignals::ERROR_SIGNAL;
+  out << TcpSignals::LOG_SIGNAL;
   out << log.c_str();
   out.device()->seek(0);
   out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
@@ -99,11 +103,11 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
 
 void terrama2::core::TcpManager::readReadySlot()
 {
-  QDataStream in(tcpSocket_);
+  RaiiBlock block(blockSize_);
 
   TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
+  QDataStream in(tcpSocket_.get());
 
-  RaiiBlock block(blockSize_);
   Q_UNUSED(block)
   if(blockSize_ == 0)
   {
@@ -117,6 +121,7 @@ void terrama2::core::TcpManager::readReadySlot()
     TERRAMA2_LOG_DEBUG() << "blockSize: " << blockSize_;
   }
 
+  TERRAMA2_LOG_DEBUG() << "bytesAvailable: " << tcpSocket_->bytesAvailable();
   if(tcpSocket_->bytesAvailable() != blockSize_)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nWrong message size.");
@@ -130,52 +135,53 @@ void terrama2::core::TcpManager::readReadySlot()
 
   switch(signal)
   {
-  case TcpSignals::TERMINATE_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "TERMINATE_SIGNAL";
-    emit stopSignal();
-    break;
-  }
-  case TcpSignals::DATA_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "DATA_SIGNAL";
-    QByteArray bytearray;
-    in >> bytearray;
+  case TcpSignals::TERMINATE_SERVICE_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";
 
-    parseData(bytearray);
-    break;
-  }
-  case TcpSignals::START_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "START_SIGNAL";
-    int dataId;
-    in >> dataId;
+      emit stopSignal();
+      break;
+    }
+    case TcpSignals::ADD_DATA_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
+      QByteArray bytearray = tcpSocket_->readAll();
+      TERRAMA2_LOG_DEBUG() << QString(bytearray);
 
-    emit startProcess(dataId);
+      parseData(bytearray);
+      break;
+    }
+    case TcpSignals::START_PROCESS_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
+      int dataId;
+      in >> dataId;
 
-    break;
-  }
-  case TcpSignals::STATUS_SIGNAL:
-  {
-    TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
-    QByteArray bytearray;
-    QDataStream out(&bytearray, QIODevice::WriteOnly);
+      emit startProcess(dataId);
 
-    out << static_cast<uint32_t>(0);
-    out << TcpSignals::STATUS_SIGNAL;
-    out.device()->seek(0);
-    out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+      break;
+    }
+    case TcpSignals::STATUS_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
+      QByteArray bytearray;
+      QDataStream out(&bytearray, QIODevice::WriteOnly);
 
-    // wait while sending message
-    qint64 written = tcpSocket_->write(bytearray);
-    if(written == -1 || !tcpSocket_->waitForBytesWritten())
-      TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
+      out << static_cast<uint32_t>(0);
+      out << TcpSignals::STATUS_SIGNAL;
+      out.device()->seek(0);
+      out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
-    break;
-  }
-  default:
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error\n Unknown signal received.");
-    break;
+      // wait while sending message
+      qint64 written = tcpSocket_->write(bytearray);
+      if(written == -1 || !tcpSocket_->waitForBytesWritten())
+        TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
+
+      break;
+    }
+    default:
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error\n Unknown signal received.");
+      break;
   }
 
   blockSize_ = 0;
@@ -185,9 +191,9 @@ void terrama2::core::TcpManager::receiveConnection()
 {
   TERRAMA2_LOG_INFO() << QObject::tr("Receiving new configuration...");
 
-  tcpSocket_ = nextPendingConnection();
-  if(!tcpSocket_)
+  tcpSocket_.reset(nextPendingConnection());
+  if(!tcpSocket_.get())
     return;
 
-  connect(tcpSocket_, &QTcpSocket::readyRead, this, &terrama2::core::TcpManager::readReadySlot);
+  connect(tcpSocket_.get(), &QTcpSocket::readyRead, this, &terrama2::core::TcpManager::readReadySlot);
 }

@@ -1,4 +1,4 @@
-{% if (user && user.role === 'admin') %}
+{% if (currentUser !== null && currentUser.administrator) %}
 
 {% set MENU_URLS = {"databases": {name: __('Databases'), url: "/administration/databases/new", icon: "fa-database"}} %}
 {% set MENU_URLS["services"] = {name: __('Services'), url: "/administration/services", icon: "fa-laptop"} %}
@@ -86,7 +86,7 @@
       <!-- sidebar: style can be found in sidebar.less -->
       <section class="sidebar">
 
-        {% if (user.name) %}
+        {% if (currentUser !== null) %}
         <!-- Sidebar user panel -->
         <div class="user-panel">
           <div class="pull-left image" style="min-height: 40px;">
@@ -94,13 +94,13 @@
           </div>
 
           <div class="pull-left info">
-            <p>{[ user.name ]}</p>
+            <p>{[ currentUser.name ]}</p>
           </div>
         </div>
         <!-- /.search form -->
         {% endif %}
 
-        {% if (user && user.role === 'admin') %}
+        {% if (currentUser !== null && currentUser.administrator) %}
           <ul class="sidebar-menu">
           {% for tab in MENU_URLS %}
             <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
@@ -152,7 +152,6 @@
 
     <footer class="main-footer">
       <div class="pull-right hidden-xs">
-        <b>{{ __('Version') }}</b> 2.3.0
       </div>
       <strong>Copyright &copy; 2007 National Institute For Space Research (INPE) - Brazil </strong> All rights reserved.
     </footer>

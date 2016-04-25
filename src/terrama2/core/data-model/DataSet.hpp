@@ -38,16 +38,29 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Base struct of DataSet information.
+
+      A DataSet is the base abstract for data in TerraMA².
+
+      A DataSet can represent the data from a DCP, an occurrence series or a satellite imagens series.
+
+      Derive classes may have extra attributes base on the DataSeriesType.
+
+      The format attribute is a map of implementation-specific information, see specific driver for tag documentation.
+    */
     struct DataSet
     {
+      //! Default destructor.
       virtual ~DataSet() {}
 
-      DataSetId id = 0;
-      DataSeriesId dataSeriesId = 0;
-      bool active = true;
-      std::map<std::string, std::string> format;
+      DataSetId id = 0;//!< Unique identifier of the DataSet.
+      DataSeriesId dataSeriesId = 0;//!< Identifier of the DataSeries responsible for the DataSet.
+      bool active = true;//!< Attribute that indicates if the DataSet should be used.
+      std::map<std::string, std::string> format;//!< implementation-specific information.
 
-      inline bool operator==(const DataSet& rhs){ return id == rhs.id; }
+      //! Equality operator
+      inline bool operator==(const DataSet& rhs) { return id == rhs.id; }
     };
   } // end namespace core
 } // end namespace terrama2

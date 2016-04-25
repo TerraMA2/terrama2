@@ -15,24 +15,32 @@
     angular.module('terrama2.administration.users', ['terrama2.table'])
         .controller('ListController', ['$scope', function($scope) {
             $scope.link = function(object) {
-                return "/administration/users/" + object.username;
+                return "/administration/users/edit/" + object.id;
             };
 
-            $scope.model = [
-                {
-                    username: "joao",
-                    email: "joao@email.com"
-                },
-                {
-                    username: "eymar",
-                    email: "eymar@email.com"
-                },
-                {
-                    username: "gribs",
-                    email: "gribs@email.com"
-                }
+            $scope.model = {[ (usersList || {})|json|safe ]};
+            $scope.fields = [
+              {
+                key: 'name',
+                as: 'Nome'
+              },
+              {
+                key: 'email',
+                as: 'E-mail'
+              },
+              {
+                key: 'cellphone',
+                as: 'Celular'
+              },
+              {
+                key: 'username',
+                as: 'Usuário'
+              },
+              {
+                key: 'administrator',
+                as: 'Administrador'
+              },
             ];
-            $scope.fields = ['username', 'email'];
             $scope.iconFn = null;
 
             $scope.linkToAdd = "/administration/users/new";

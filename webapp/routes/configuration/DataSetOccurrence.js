@@ -1,6 +1,7 @@
-module.exports = function(app)
-{
-    var controller = app.controllers.configuration;
+var passport = require('../../config/Passport');
 
-    app.get("/configuration/occurrence", controller.DataSetOccurrence);
+module.exports = function(app) {
+  var controller = app.controllers.configuration;
+
+  app.get("/configuration/occurrence", passport.isAuthenticated, controller.DataSetOccurrence);
 }

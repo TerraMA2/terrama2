@@ -27,8 +27,8 @@
   \author Jano Simas
  */
 
- #ifndef __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
- #define __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
+#ifndef __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
+#define __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
 
 #include "../Shared.hpp"
 #include "../data-model/DataProvider.hpp"
@@ -46,31 +46,36 @@ namespace terrama2
   {
     class DataRetrieverFactory : public te::common::Singleton<DataRetrieverFactory>
     {
-    public:
+      public:
+        //! DataRetriever constructor function.
+        typedef std::function<DataRetriever* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
+        //! Register a new DataRetriever constructor associated with the DataProviderType.
+        void add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f);
+        //! Remove the DataRetriever constructor associated with the DataProviderType.
+        void remove(const terrama2::core::DataProviderType& dataProviderType);
+        //PAULO: documentar!
+        bool find(const terrama2::core::DataProviderType& dataProviderType);
+        /*!
+          \brief Creates a DataRetriever
 
-      typedef std::function<DataRetriever* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
-
-      void add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f);
-
-      void remove(const terrama2::core::DataProviderType& dataProviderType);
-
-      bool find(const terrama2::core::DataProviderType& dataProviderType);
-
-      terrama2::core::DataRetrieverPtr make(terrama2::core::DataProviderPtr dataProvider) const;
+          The DataRetriever is constructed based on the DataProviderType of the DataProvider.
+        */
+        terrama2::core::DataRetrieverPtr make(terrama2::core::DataProviderPtr dataProvider) const;
 
 
-    protected:
-      friend class te::common::Singleton<DataRetrieverFactory>;
+      protected:
+        friend class te::common::Singleton<DataRetrieverFactory>;
+        //! Default constructor
+        DataRetrieverFactory() {}
+        //! Default destructor
+        ~DataRetrieverFactory() {}
 
-      DataRetrieverFactory() {}
-      ~DataRetrieverFactory() {}
+        DataRetrieverFactory(const DataRetrieverFactory& other) = delete;
+        DataRetrieverFactory(DataRetrieverFactory&& other) = delete;
+        DataRetrieverFactory& operator=(const DataRetrieverFactory& other) = delete;
+        DataRetrieverFactory& operator=(DataRetrieverFactory&& other) = delete;
 
-      DataRetrieverFactory(const DataRetrieverFactory& other) = delete;
-      DataRetrieverFactory(DataRetrieverFactory&& other) = delete;
-      DataRetrieverFactory& operator=(const DataRetrieverFactory& other) = delete;
-      DataRetrieverFactory& operator=(DataRetrieverFactory&& other) = delete;
-
-      std::map<terrama2::core::DataProviderType, FactoryFnctType> factoriesMap_;
+        std::map<terrama2::core::DataProviderType, FactoryFnctType> factoriesMap_;
     };
 
 

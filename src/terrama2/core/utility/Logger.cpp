@@ -94,6 +94,7 @@ const std::string& terrama2::core::Logger::path() const
   return loggerPath_;
 }
 
+//TODO: move to cpp
 class LogSyncronizer : public std::streambuf
 {
   public:

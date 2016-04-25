@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetDcp* dcpDataset69034 = new terrama2::core::DataSetDcp;
   terrama2::core::DataSetDcpPtr dcpDataset69034Ptr(dcpDataset69034);
   dcpDataset69034->active = true;
-  dcpDataset69034->format.emplace("mask", "69034.txt");
+  dcpDataset69034->format.emplace("mask", "69033.txt");
   dcpDataset69034->format.emplace("timezone", "-02:00");
   dcpDataset69034->dataSeriesId = 2;
   dcpDataset69034->id = 2;
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
   dcpDataset30886->format.emplace("mask", "30886.txt");
   dcpDataset30886->format.emplace("timezone", "-02:00");
   dcpDataset30886->dataSeriesId = 2;
-  dcpDataset30886->id = 2;
+  dcpDataset30886->id = 3;
   dcpDataset30886->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
   dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
 
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
   /*
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  timer.start(30000);
 */
    app.exec();
 
