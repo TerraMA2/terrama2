@@ -360,6 +360,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
     var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
 
     if(layerGroup !== null) {
+
       var layers = layerGroup.getLayers();
 
       layers.push(
