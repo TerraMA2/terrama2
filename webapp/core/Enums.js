@@ -56,8 +56,8 @@ module.exports = {
   },
   
   DataProviderIntent: {
-    COLLECT: 'Collect',
-    PROCESSING: 'Processing'
+    COLLECT: 'COLLECT',
+    PROCESSING: 'PROCESSING'
   },
 
   /**

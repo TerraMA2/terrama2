@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/data-access/SyncronizedDataSet.hpp
 
-  \brief Thread-safe dataset.
+  \brief Thread-safe dataset access.
 
   \author Paulo R. M. Oliveira
 */
@@ -31,8 +31,10 @@
 #ifndef __TERRAMA2_CORE_SYNCRONIZED_DATASET_HPP__
 #define __TERRAMA2_CORE_SYNCRONIZED_DATASET_HPP__
 
+// TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
+// STL
 #include <memory>
 #include <mutex>
 
@@ -49,41 +51,258 @@ namespace terrama2
 {
   namespace core
   {
+
+    /*!
+      \class SyncronizedDataSet
+      \brief Provide syncronized access to a terralib dataset.
+
+     */
     class SyncronizedDataSet
     {
       public:
+        /*!
+          \brief Constructor.
+          \param dataset A smart point to the TerraLib dataset that will have the access syncronized.
+        */
         SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset);
-        ~SyncronizedDataSet();
 
+        /*! \brief Virtual destructor. */
+        virtual ~SyncronizedDataSet();
+
+        /*!
+          \brief Method for retrieving a geometric attribute value.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The geometric attribute value in the given position.
+        */
         std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a string value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The string attribute value in the given position.
+        */
         std::string getString(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a double value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The double attribute value in the given position.
+        */
         double getDouble(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a bool value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The bool attribute value in the given position.
+        */
         bool getBool(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a int16_t value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The int16_t attribute value in the given position.
+        */
         int16_t getInt16(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a int32_t value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The int32_t attribute value in the given position.
+        */
         int32_t getInt32(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a int64_t value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The int64_t attribute value in the given position.
+        */
         int64_t getInt64(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a raster attribute value.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The raster attribute value in the given position.
+
+
+          \exception Exception It can throw an exception if:
+                     <ul>
+                     <li>something goes wrong during the data retrieval</li>
+                     <li>the maximum number of simultaneous accesses has been reached</li>
+                     </ul>
+        */
         std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief Method for retrieving a date and time attribute value.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The date and time attribute value in the given position.
+        */
         std::shared_ptr<te::dt::DateTime> getDateTime(uint64_t row, uint64_t columnIndex) const;
+
+        /*!
+          \brief It checks if the attribute value is NULL.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return True if the attribute value is NULL.
+        */
         bool isNull(uint64_t row, std::size_t columnIndex) const;
 
+        /*!
+          \brief Method for retrieving a geometric attribute value.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The geometric attribute value in the given position.
+        */
         std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a string value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The string attribute value in the given position.
+        */
         std::string getString(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a double value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The double attribute value in the given position.
+        */
         double getDouble(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a bool value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The bool attribute value in the given position.
+        */
         bool getBool(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a int16_t value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The int16_t attribute value in the given position.
+        */
         int16_t getInt16(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a int32_t value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The int32_t attribute value in the given position.
+        */
         int32_t getInt32(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a int64_t value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The int64_t attribute value in the given position.
+        */
         int64_t getInt64(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a raster attribute value.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The raster attribute value in the given position.
+
+
+          \exception Exception It can throw an exception if:
+                     <ul>
+                     <li>something goes wrong during the data retrieval</li>
+                     <li>the maximum number of simultaneous accesses has been reached</li>
+                     </ul>
+        */
         std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a string value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The string attribute value in the given position.
+        */
         std::shared_ptr<te::dt::DateTime> getDateTime(uint64_t row, std::string columnName) const;
+
+        /*!
+          \brief It checks if the attribute value is NULL.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return True if the attribute value is NULL.
+        */
         bool isNull(uint64_t row, std::string columnName) const;
 
+        /*!
+          \brief It returns the collection size, if it is known.
+
+          It may return std::string::npos if the size is not known,
+          or it would be too costly to compute it.
+
+          \return The size of the collection, if it is known.
+        */
         uint64_t size() const;
 
+        /*!
+          \brief It returns a smart pointer to the TerraLib dataset.
+
+          \return The smart pointer to the TerraLib dataset.
+        */
         std::shared_ptr<te::da::DataSet> dataset() const;
 
       protected:
-        std::shared_ptr<te::da::DataSet> dataset_;
-        mutable std::mutex mutex_;
+        std::shared_ptr<te::da::DataSet> dataset_; //!< Smart pointer to the TerraLib dataset.
+        mutable std::mutex mutex_; //!< Mutex to syncronize the dataset access.
 
     };
   } // end namespace core

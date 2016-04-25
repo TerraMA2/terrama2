@@ -4,7 +4,7 @@ var Signals = require('./Signals.js');
 var TcpManager = module.exports = {};
 
 TcpManager.sendData = function(data) {
-  emit(Signals.DataSignal, data);
+  emit(Signals.ADD_DATA_SIGNAL, data);
 };
 
 var emit = function(signal, object) {
@@ -13,7 +13,7 @@ var emit = function(signal, object) {
 
     // Stringifies the message
     // var jsonMessage = '\x00\x00\x01\x01{"DataProviders": [{"active": true,"class": "DataProvider","data_provider_type": "FILE","description": "Testing provider","id": 1,"intent": 0,"name": "Provider","project_id": 1,"uri": "file:///home/jsimas/MyDevel/dpi/terrama2-build/data/PCD_serrmar_INPE"}]}';
-
+    
     //home/jsimas/MyDevel/dpi/terrama2-build/data/fire_system
     //'\x00\x00\x01\x01'
     var jsonMessage = JSON.stringify(object).replace(/\":/g, "\": ");
@@ -31,10 +31,10 @@ var emit = function(signal, object) {
 
     // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(totalSize, 0);
-
+    
     // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(signal, 4);
-
+    
     var client = new net.Socket();
     console.log(buffer);
     console.log("Total size: ", totalSize);
@@ -54,6 +54,10 @@ var emit = function(signal, object) {
     client.on('close', function() {
       console.log('\n\n[CLIENT] Connection closed');
     });
+
+    client.on('error', function(err) {
+      console.log("\n\n[ERROR] ", err);
+    })
   } catch(error) {
     throw error;
   }
@@ -95,11 +99,12 @@ server.on('connection', function(socket) {
 });
 
 server.listen(1337, '0.0.0.0');
-
 server.on('close', function() {
-console.log("TcpManager server closed");
+  console.log("TcpManager server closed");
 });
 
-TcpManager.closeServer = function() {
-server.close();
+TcpManager.close = function(callback) {
+  server.close(function() {
+    callback();
+  });
 };
