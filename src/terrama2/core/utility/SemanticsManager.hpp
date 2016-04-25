@@ -47,11 +47,13 @@ namespace terrama2
     {
       public:
         /*!
+          \brief Register a new DataSeriesSemantics
 
           \exception terrama2::core::SemanticsException raised when a semantics with same name is already present
         */
         DataSeriesSemantics addSemantics(const std::string& name, const DataSeriesSemantics::DataSeriesType& dataSeriesType, const DataFormat& format);
         /*!
+          \brief Recover a DataSeriesSemantics by name
 
           \exception terrama2::core::SemanticsException raised when the semantics is not defined
         */
@@ -59,8 +61,9 @@ namespace terrama2
 
       protected:
         friend class te::common::Singleton<SemanticsManager>;
-
+        //! Default constructor
         SemanticsManager() {}
+        //! Default destructor
         virtual ~SemanticsManager() {}
 
         SemanticsManager(const SemanticsManager& other) = delete;
