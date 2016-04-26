@@ -229,7 +229,6 @@
 	"Path to script": "Path to script",
 	"Script path to run": "Script path to run",
 	"Provider": "Provider",
-	"Longitude": "Longitude",
 	"Access": "Access",
 	"Data Series Name": "Data Series Name",
 	"Semantics": "Semantics",
@@ -237,5 +236,13 @@
 	"Timezone is required": "Timezone is required",
 	"Path is required": "Path is required",
 	"Longitude is invalid": "Longitude is invalid",
-	"Latitude is invalid": "Latitude is invalid"
+	"Latitude is invalid": "Latitude is invalid",
+	"Administrator": "Administrator",
+	"Instance": "Instance",
+	"Data Series": "Data Series",
+	"Influence": "Influence",
+	"Radius": "Radius",
+	"No analysis instance found": "No analysis instance found",
+	"Script": "Script",
+	"Validate": "Validate"
 }

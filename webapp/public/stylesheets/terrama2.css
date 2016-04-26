@@ -100,3 +100,11 @@
     opacity: 0.6 !important;
     pointer-events: none !important;
 }
+
+.terrama2-font-red {
+    color: red !important;
+}
+
+.terrama2-font-green {
+    color: #5cb85c !important;
+}

@@ -139,6 +139,10 @@ angular.module('terrama2.dataseries.registration', [
         return isWizardStepValid("parametersForm", true);
       };
 
+      $scope.isThirdStepValid = function(obj) {
+        return isWizardStepValid("storagerForm");
+      };
+
       $scope.semantics = "";
       $scope.isDynamic = params.state.toLowerCase() === "dynamic";
       $scope.dcps = [];

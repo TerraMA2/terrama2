@@ -2,20 +2,32 @@
 
 {% set tabActive = "analyses" %}
 
+{% block ngApp %} ng-app="terrama2.analysis.registration" {% endblock %}
+
 {% block title %} TerraMA2 {[ __('Analysis Registration') ]} {% endblock %}
+
+{% block styles %}
+  <style>
+    table > tbody {
+      overflow-y: auto !important;
+      height: 150px !important;
+    }
+  </style>
+{% endblock %}
 
 {% block javascripts %}
 <script type="text/javascript" src="/externals/moment/moment.js"></script>
-<script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+<script type="text/javascript" src="/externals/angular/angular.min.js"></script>
+<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
 <script type="text/javascript" src="/javascripts/terrama2.js"></script>
+<script type="text/javascript" src="/javascripts/angular/app.js"></script>
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
 {% endblock %}
 
 {% block content %}
 
-{# Input modal for select static and dynamic data #}
-{% include "../base/inputDataModal.html" %}
-
-<div class="col-md-12">
+<div class="col-md-12" ng-controller="AnalysisRegistration">
   <div class="box box-default">
     <div class="box-header with-border">
       <h3 class="box-title">{[ __('Analysis Registration') ]}</h3>
@@ -35,85 +47,61 @@
           <!-- /.box-header -->
           <div style="display: block;" class="box-body">
             <div class="row">
-              <div class="col-md-10">
-                <div class="form-group">
-                  <label>{[ __("Name") ]}:</label>
-                  <input class="form-control" id="name" placeholder="{[ __('Analysis Name') ]}" type="text">
-                </div>
-              </div>
-              <!-- /.col -->
-              <div class="col-md-2">
-                <div class="form-group">
-                  <div class="checkbox">
-                    <label style="font-weight: 700; margin-top:19px;">
-                      <input type="checkbox"> {[ __("Generate an image") ]}
-                    </label>
+              <form name="generalDataForm">
+                <div class="col-md-8">
+                  <div class="form-group">
+                    <label>{[ __("Name") ]}:</label>
+                    <input class="form-control" name="name" ng-model="analysis.name" placeholder="{[ __('Analysis Name') ]}" type="text" required>
+
+                    <span class="help-block" ng-show="generalDataForm.name.$dirty && generalDataForm.name.$invalid" ng-class="{'has-error': generalDataForm.name.$invalid}">{[ __('Analysis name is required') ]}</span>
                   </div>
                 </div>
-              </div>
+                <!-- /.col -->
 
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>{[ __("Author") ]}:</label>
-                  <input class="form-control" id="address" placeholder="{[ __('Analysis Author')]}" type="text">
-                </div>
-              </div>
-              <!-- /.col -->
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>{[ __("Institute") ]}:</label>
-                  <input class="form-control" id="address" placeholder="{[ __('Analysis Institute')]}" type="text">
-                </div>
-              </div>
-
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label>{[ __("Description") ]}:</label>
-                  <textarea class="form-control" rows="3" placeholder="{[ __('Analysis Description') ]}"></textarea>
-                </div>
-                <!-- /.form-group -->
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-group">
-                  <label>{[ __("Status") ]}:</label>
-                  <div class="checkbox">
-                    <label style="font-weight: 700;">
-                      <input type="checkbox"> {[ __("Active") ]}
-                    </label>
+                <div class="col-md-4">
+                  <div class="form-group has-feedback">
+                    <label>{[ __("Type") ]}:</label>
+                    <select class="form-control" name="type" ng-model="analysis.type_id" required>
+                      <option value="1">DCP</option>
+                      <option value="2">Occurrence</option>
+                      <option value="3">Grid</option>
+                      <option value="3">Monitored Object</option>
+                    </select>
                   </div>
+                  <!-- /.form-group -->
                 </div>
-              </div>
 
-              <div class="col-md-3">
-                <div class="form-group">
-                  <div class="checkbox">
-                    <label style="font-weight: 700; margin-top:25px;">
-                      <input type="checkbox"> {[ __("Inactive") ]}
-                    </label>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>{[ __("Description") ]}:</label>
+                    <textarea class="form-control" name="description" ng-model="analysis.description" rows="3" placeholder="{[ __('Analysis Description') ]}"></textarea>
                   </div>
+                  <!-- /.form-group -->
                 </div>
-              </div>
 
-              <div class="col-md-3">
-                <div class="form-group">
-                  <div class="checkbox">
-                    <label style="font-weight: 700; margin-top:25px;">
-                      <input type="checkbox"> {[ __("Conditioned") ]}
-                    </label>
+                <div class="col-md-8">
+                  <div class="form-group has-feedback">
+                    <label>{[ __("Instance") ]}:</label>
+                    <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
+                      <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
+                      <option ng-if="instances.length == 0">{[ __('No analysis instance found') ]}</option>
+                    </select>
                   </div>
+                  <!-- /.form-group -->
                 </div>
-              </div>
 
-              <div class="col-md-3">
-                <div class="form-group">
-                  <div class="checkbox">
-                    <button class="btn btn-default" style="margin-top:19px;">{[ __("Condition") ]}</button>
+                <div class="col-md-4">
+                  <div class="form-group has-feedback">
+                    <label>{[ __("Status") ]}:</label>
+                    <select class="form-control" name="status" ng-model="analysis.active" ng-init="analysis.active='true';" required>
+                      <option value="true">Active</option>
+                      <option value="false">Inactive</option>
+                    </select>
                   </div>
+                  <!-- /.form-group -->
                 </div>
-              </div>
-              {# % include "../base/collectSchedule.html" % #}
+              </form>
+              <!--./ generalDataForm -->
             </div>
             <!-- /.row -->
           </div>
@@ -122,9 +110,9 @@
       </div>
 
       <div class="col-md-12">
-        <div class="box box-default box-solid">
+        <div class="box box-default box-solid" id="dataSeriesBox">
           <div class="box-header with-border">
-            <h3 class="box-title">{[ __('Parameters') ]}</h3>
+            <h3 class="box-title">{[ __('Data Series') ]}</h3>
 
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -135,67 +123,108 @@
           <!-- /.box-header -->
           <div style="display: block;" class="box-body">
             <div class="row">
-              <div class="col-md-5">
-                <div class="form-group">
-                  <label>{[ __('Select the Monitored Object') ]}:</label>
-                  <select class="form-control">
-                  </select>
-                </div>
+              <div class="col-md-12">
+                <table class="table table-bordered table-hover">
+                  <tbody>
+                  <tr>
+                    <th>{[ __('Name') ]}</th>
+                    <th>{[ __('Type') ]}</th>
+                  </tr>
+                  <tr style="cursor:pointer;" ng-repeat="dataSeries in dataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
+                    <td>{{ dataSeries.name }}</td>
+                    <td>{{ dataSeries.semantics }}</td>
+                  </tr>
+                  <tr ng-if="dataSeriesList.length == 0">
+                    <td colspan="2">
+                      {[ __('No data series found') ]}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+                <!--./table-->
+                <!--todo: open box-->
 
-                <div class="form-group">
-                  <label>{[ __('Select attribute identifier') ]}:</label>
-                  <select class="form-control">
-                  </select>
-                </div>
-
-                <div class="panel-group">
-                  <div class="panel panel-default">
-                    <div class="panel-heading" style="font-weight: 700;">
-                      <span style="padding-right:12px;">{[ __('Input Data') ]}:</span>
-                      <button data-toggle="modal" data-target="#inputDataModal" class="btn btn-box-tool btn-lg terrama2-link">
-                        <i class="fa fa-plus"></i>
-                      </button>
-                      <button type="button" class="btn btn-box-tool btn-lg terrama2-link"><i class="fa fa-minus"></i>
-                      </button>
+                <div class="col-md-12 terrama2-nopadding-box" ng-if="selectedDataSeries">
+                  <div class="box box-default box-solid">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">{{ selectedDataSeries.name }}</h3>
                     </div>
-                    <div id="inputDataCollapse" class="panel-collapse collapse in">
-                      <div class="panel-body terrama2-nopadding-box">
-                        <select class="terrama2-list-align" style="border: none;" multiple="" class="form-control" id="sel2">
-                          <option>hidro</option>
-                          <option>Municipios_Afetados</option>
-                        </select>
+
+                    <div style="display: block;" class="box-body">
+                      <div class="row">
+                        <div class="col-md-12">
+                          <!-- metadata form handler -->
+                          <form name="metadataForm">
+                            <!-- dcp -->
+                            <div class="col-md-12 terrama2-nopadding-box">
+                              <div class="col-md-4">
+                                <div class="form-group has-feedback">
+                                  <label>{[ __("Influence") ]}:</label>
+                                  <select class="form-control" name="influence" required>
+                                    <option value="Radius">{[ __('Radius') ]}</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-12 terrama2-nopadding-box">
+
+                              <div class="col-md-8">
+                                <div class="form-group">
+                                  <label>{[ __("Radius") ]}:</label>
+                                  <input class="form-control" name="radius" type="text">
+                                </div>
+                              </div>
+
+                              <div class="col-md-4">
+                                <div class="input-group" style="margin-top: 25px;">
+                                  <input type="text" class="form-control" aria-label="..." ng-model="metadata.format">
+                                  <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                      <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
+                                      <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
+                                    </ul>
+                                  </div><!-- /btn-group -->
+                                </div><!-- /input-group -->
+                              </div><!-- /.col-md-4 -->
+                            </div><!--/.col-md-12-->
+                          </form><!--/.metadataForm-->
+                        </div><!--./col-md-12-->
                       </div>
-                    </div>
-                  </div>
-                </div>
+                    </div><!-- ./box-body-->
+                  </div><!--./box-solid-->
+                </div><!--./col-md-12-->
+              </div><!--./col-md-12-->
+            </div><!--./row-->
+          </div><!--./box-body-->
+        </div><!--./box-->
+      </div>
 
-                <div class="form-group">
-                  <label>{[ __('Influence ') ]}:</label>
-                  <select class="form-control">
-                  </select>
-                </div>
+      <div class="col-md-12">
+        <div class="box box-default box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title">{[ __('Script') ]}</h3>
 
-                <div class="form-group">
-                  <label>{[ __('Attribute PCD') ]}:</label>
-                  <select class="form-control">
-                  </select>
-                </div>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+            </div>
+          </div>
 
-                <div class="form-group">
-                  <label>{[ __('Data Set') ]}:</label>
-                  <select class="form-control">
-                    <option selected>{[ __('Select theme with influence area') ]}</option>
-                  </select>
-                </div>
-              </div>
+          <!-- /.box-header -->
+          <div style="display: block;" class="box-body">
+            <div class="row">
 
-              <div class="col-md-7">
+              <div class="col-md-12">
                 <div class="form-group">
+                  <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
                   <label>{[ __('Analysis Model') ]}:</label>
-                  <textarea class="form-control" rows="20" placeholder="{[ __('Type here your analysis model') ]}"></textarea>
+                  <textarea class="form-control" name="script" ng-model="analysis.script" rows="20" placeholder="{[ __('Type here your analysis model') ]}"></textarea>
                 </div>
                 <div class="col-md-12">
-                  <div class="btn-group" style="padding-top:25px;">
+                  <div class="btn-group">
                     <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
                       {[ __('Functions') ]}
                     </button>
@@ -205,6 +234,8 @@
                       <li><a href="#">abs</a></li>
                     </ul>
                   </div>
+
+                  <button class="btn btn-default pull-right">{[ __('Validate') ]}</button>
                 </div>
               </div>
             </div>
@@ -218,7 +249,7 @@
     <!-- /.box body -->
 
     <div class="box-footer">
-      <a href="/configuration/analyses/" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('OK') ]}</a>
+      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();">{[ __('OK') ]}</button>
       <a href="/configuration/analyses/" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
   </div>
