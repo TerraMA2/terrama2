@@ -54,7 +54,7 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
   {
     return dataSet->format.at("mask");
   }
-  catch (...)
+  catch(...)
   {
     QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -69,8 +69,8 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 }
 
 terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-                                                                   const terrama2::core::Filter& filter,
-                                                                   terrama2::core::DataSetPtr dataSet) const
+    const terrama2::core::Filter& filter,
+    terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -96,9 +96,9 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     std::string baseName = fileInfo.baseName().toStdString();
     // Verify if the file name matches the mask
     // FIXME: use timestamp
-     std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
-     if(!isValidDataSetName(getMask(dataSet), filter, name,timestamp))
-       continue;
+    std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+    if(!isValidDataSetName(getMask(dataSet), filter, name,timestamp))
+      continue;
 
     // creates a DataSource to the data and filters the dataset,
     // also joins if the DCP comes from separated files
