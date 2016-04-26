@@ -17,7 +17,6 @@ module.exports = function(sequelize, DataTypes) {
       underscored: true,
       underscoredAll: true,
       timestamps: false,
-      tableName: 'analysis_metadata',
 
       classMethods: {
         associate: function(models) {

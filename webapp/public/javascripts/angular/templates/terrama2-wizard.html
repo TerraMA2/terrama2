@@ -1,10 +1,19 @@
 <div>
-  <ul class="steps-indicator steps-{{ getEnabledSteps().length }}" ng-if="!hideIndicators">
-    <li ng-class="{default: !step.completed && !step.selected, current: step.selected && !step.completed, done: step.completed && !step.selected, editing: step.selected && step.completed}" ng-repeat="step in getEnabledSteps()">
-      <a ng-click="goTo(step)">{{ step.title || step.wzTitle }}</a>
-    </li>
-  </ul>
-  <div style='padding-top: 50px'>
+  <div class="col-md-8 col-md-offset-2">
+    <ul class="nav nav-tabs" ng-if="!hideIndicators">
+      <li style="width: calc(100%/{{ getEnabledSteps().length }});" ng-class="{'active': step.selected}" ng-repeat="step in getEnabledSteps()">
+
+        <a class="btn" ng-click="goTo(step)">
+          <span ng-if="step.wzData.required" ng-class="{'terrama2-font-red': step.wzData.required}"><i class="fa fa-asterisk"></i></span>
+          {{ step.title || step.wzTitle }}
+
+          <span ng-class="{'terrama2-font-red': step.selected && step.completed, 'terrama2-font-green': step.completed && !step.selected  }"><i class="fa" ng-class="{'fa-times': step.selected && step.completed, 'fa-check': step.completed && !step.selected}"></i></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div style='padding-top: 50px; padding-bottom: 30px;'>
 
   </div>
 

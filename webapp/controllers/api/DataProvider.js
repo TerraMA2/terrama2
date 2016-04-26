@@ -1,5 +1,7 @@
 var DataManager = require("../../core/DataManager");
+var DataProviderError = require('./../../core/Exceptions').DataProviderError;
 var RequestFactory = require("../../core/RequestFactory");
+var Utils = require('./../../core/Utils');
 
 module.exports = function(app) {
   return {
@@ -79,6 +81,19 @@ module.exports = function(app) {
       } else {
         response.status(400);
         response.json({status: 400, message: "DataProvider name not identified"});
+      }
+    },
+
+    delete: function(request, response) {
+      var id = request.params.id;
+      if (id) {
+        DataManager.removeDataProvider({id: id}).then(function() {
+          response.json({status: 200});
+        }).catch(function(err) {
+          Utils.handleRequestError(response, err, 400);
+        })
+      } else {
+        Utils.handleRequestError(response, new DataProviderError("Missing data provider id"), 400);
       }
     }
 
