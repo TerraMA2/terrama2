@@ -60,7 +60,10 @@ namespace terrama2
     {
       namespace core
       {
-        struct ContextDataset
+        /*!
+          \brief Contains additional information about a DataSeries to be used in an analysis.
+        */
+        struct ContextDataSeries
         {
           terrama2::core::Series series;
           std::string identifier;
@@ -69,6 +72,9 @@ namespace terrama2
 
         };
 
+        /*!
+          \brief Composed key for accessing a ContextDataSeries.
+        */
         struct ContextKey
         {
           DataSetId datasetId_;
@@ -76,64 +82,96 @@ namespace terrama2
           std::string dateFilter_;
         };
 
+        /*!
+          \brief Composed key for accessing the analysis result.
+        */
         struct ResultKey
         {
           std::string geomId_;
           std::string attribute_;
         };
 
-        struct ContextKeyComparer
+        /*!
+          \brief Comparator the context key.
+        */
+        struct ContextKeyComparator
         {
-            bool operator()( const ContextKey& lhs , const ContextKey& rhs) const
+          /*!
+            \brief Operator less then.
+          */
+          bool operator()( const ContextKey& lhs , const ContextKey& rhs) const
+          {
+            if(lhs.analysisId_ < rhs.analysisId_)
             {
-              if(lhs.analysisId_ < rhs.analysisId_)
-              {
-                return true;
-              }
-              else if(lhs.analysisId_ > rhs.analysisId_)
-              {
-                return false;
-              }
-              else if(lhs.datasetId_ < rhs.datasetId_)
-              {
-                return true;
-              }
-              else if(lhs.datasetId_ > rhs.datasetId_)
-              {
-                return false;
-              }
-              else
-              {
-                return lhs.dateFilter_.compare(rhs.dateFilter_) < 0;
-              }
+              return true;
             }
+            else if(lhs.analysisId_ > rhs.analysisId_)
+            {
+              return false;
+            }
+            else if(lhs.datasetId_ < rhs.datasetId_)
+            {
+              return true;
+            }
+            else if(lhs.datasetId_ > rhs.datasetId_)
+            {
+              return false;
+            }
+            else
+            {
+              return lhs.dateFilter_.compare(rhs.dateFilter_) < 0;
+            }
+          }
         };
 
-        struct ResultKeyComparer
+        /*!
+          \brief Comparator the result key.
+        */
+        struct ResultKeyComparator
         {
-            bool operator()( const ResultKey& lhs , const ResultKey& rhs) const
+          /*!
+            \brief Operator less then.
+          */
+          bool operator()( const ResultKey& lhs , const ResultKey& rhs) const
+          {
+            if(lhs.geomId_.compare(rhs.geomId_) >= 0)
             {
-              if(lhs.geomId_.compare(rhs.geomId_) >= 0)
-              {
-                return true;
-              }
-              else
-              {
-                return lhs.attribute_.compare(rhs.attribute_) < 0;
-              }
+              return true;
             }
+            else
+            {
+              return lhs.attribute_.compare(rhs.attribute_) < 0;
+            }
+          }
         };
 
+        /*!
+          \class Context
 
+          \brief Context class for the analysis execution.
+
+          Singleton class to keep an reference to the data that will be used in the analysis.
+          It's also used to store the result of the analysis.
+
+          Thread-safe class
+
+         */
         class Context : public te::common::Singleton<Context>
         {
           public:
-            std::map<ResultKey, double, ResultKeyComparer> analysisResult(uint64_t analysisId);
+
+            /*!
+              \brief Returns the map with the result for the given analysis.
+
+              \param analysisId Identifier of the analysis.
+              \return The map with the analysis result.
+            */
+            std::map<ResultKey, double, ResultKeyComparator> analysisResult(uint64_t analysisId);
             void setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result);
 
             void setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager);
             Analysis getAnalysis(AnalysisId analysisId) const;
-            std::shared_ptr<ContextDataset> getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            std::shared_ptr<ContextDataSeries> getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
             void loadMonitoredObject(const Analysis& analysis);
 
             bool exists(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
@@ -142,8 +180,8 @@ namespace terrama2
 
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
-            std::map<AnalysisId, std::map<ResultKey, double, ResultKeyComparer> > analysisResult_;
-            std::map<ContextKey, std::shared_ptr<ContextDataset>, ContextKeyComparer> datasetMap_;
+            std::map<AnalysisId, std::map<ResultKey, double, ResultKeyComparator> > analysisResult_;
+            std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_;
             mutable std::recursive_mutex mutex_;
   			};
       } // end namespace core

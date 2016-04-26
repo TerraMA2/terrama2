@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/DataManager.hpp
+  \file terrama2/services/analysis/core/Analysis.hpp
 
-  \brief Model class for the analysis configuration.
+  \brief Model for the analysis configuration.
 
   \author Paulo R. M. Oliveira
 */
@@ -47,51 +47,68 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief Defines the type of the analysis.
+        */
         enum AnalysisType
         {
-          PCD_TYPE,
-          MONITORED_OBJECT_TYPE,
-          GRID_TYPE,
-          TERRAME_TYPE
+          PCD_TYPE, //!< Analysis for DCP.
+          MONITORED_OBJECT_TYPE, //!< Analysis for monitored objects.
+          GRID_TYPE, //!< Analysis for grids.
+          TERRAME_TYPE //!< Analysis for TerraME.
         };
 
+        /*!
+          \brief Defines the language of the script.
+        */
         enum ScriptLanguage
         {
-          PYTHON,
-          LUA
+          PYTHON, //!< Scripts in Python.
+          LUA //!< Scripts in LUA.
         };
 
+        /*!
+          \brief Defines the type of use of a DataSeries in the analysis.
+        */
         enum AnalysisDataSeriesType
         {
-          DATASERIES_MONITORED_OBJECT_TYPE,
-          DATASERIES_GRID_TYPE,
-          DATASERIES_PCD_TYPE,
-          ADDITIONAL_DATA_TYPE
+          DATASERIES_MONITORED_OBJECT_TYPE, //!< Identifies a DataSeries used as monitored object.
+          DATASERIES_GRID_TYPE, //!< Identifies a DataSeries used as grid.
+          DATASERIES_PCD_TYPE, //!< Identifies a DataSeries used as DCP.
+          ADDITIONAL_DATA_TYPE //!< Identifies a DataSeries used as an additional data.
         };
 
+        /*!
+          \struct AnalysisDataSeries
+          \brief Contains the configuration of an DataSeries used in an anlysis.
+        */
         struct AnalysisDataSeries
         {
-          AnalysisDataSeriesId id = 0;
-          terrama2::core::DataSeriesPtr dataSeries;
-          AnalysisDataSeriesType type;
-          std::string alias;
-          std::map<std::string, std::string> metadata;
+          AnalysisDataSeriesId id = 0; //!< AnalysisDataSeries identifier.
+          terrama2::core::DataSeriesPtr dataSeries; //!< Smart pointer to the DataSeries.
+          AnalysisDataSeriesType type; //!< Type of use of the DataSeries in the analysis.
+          std::map<uint64_t, std::string> alias; //!< Map containing the alias for the columns of a DataSeries.
+          std::map<std::string, std::string> metadata; //!< Metadata of the AnalysisDataSeries.
         };
 
+        /*!
+          \struct Analysis
+          \brief Model for the configuration of an analysis execution.
+        */
         struct Analysis
         {
-          AnalysisId id = 0;
-          uint64_t projectId = 0;
-					ScriptLanguage scriptLanguage;
-					std::string script;
-          AnalysisType type;
-					std::string name;
-					std::string description;
-          bool active = true;
-          terrama2::core::DataSet outputDataset;
-          std::map<std::string, std::string> metadata;
-          std::vector<AnalysisDataSeries> analysisDataSeriesList;
-          terrama2::core::Schedule schedule;
+          AnalysisId id = 0; //!< Analysis identifier.
+          uint64_t projectId = 0; //!< Project identifier.
+					ScriptLanguage scriptLanguage; //!< Language of the script.
+					std::string script; //!< Content of the script.
+          AnalysisType type; //!< Type of the analysis.
+					std::string name; //!< Name of the analysis.
+					std::string description; //!< Short description of the purpose of the analysis.
+          bool active = true; //!< Defines if the analysis is active, if true it will be executed according to the schedule.
+          terrama2::core::DataSet outputDataset; //!< The dataset that stores the result of the analysis.
+          std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
+          std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this anlysis.
+          terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
         };
 
       } // end namespace core
