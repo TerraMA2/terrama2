@@ -33,7 +33,6 @@
 
 // TerraMA2
 #include "Timer.hpp"
-#include "ProcessLog.hpp"
 #include "../Exception.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/TimeUtils.hpp"
@@ -51,7 +50,7 @@ struct terrama2::core::Timer::Impl
     std::shared_ptr< te::dt::TimeInstantTZ > lastEmit_;
 };
 
-terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLog > log)
+terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLogger > log)
 {
 
   impl_ = new Impl();

@@ -96,8 +96,9 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     std::string baseName = fileInfo.baseName().toStdString();
     // Verify if the file name matches the mask
     // FIXME: use timestamp
+    std::string timezone;
      std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
-     if(!isValidDataSetName(getMask(dataSet), filter, name,timestamp))
+     if(!isValidDataSetName(getMask(dataSet), filter, timezone, name,timestamp))
        continue;
 
     // creates a DataSource to the data and filters the dataset,

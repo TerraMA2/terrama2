@@ -32,7 +32,7 @@
 #define __TERRAMA2_CORE_TIMER_HPP__
 
 // TerraMA2
-#include "ProcessLog.hpp"
+#include "ProcessLogger.hpp"
 #include "../Typedef.hpp"
 #include "../data-model/Schedule.hpp"
 
@@ -48,7 +48,7 @@ namespace terrama2
       Q_OBJECT
 
     public:
-      Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLog > log);
+      Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLogger > log);
 
       virtual ~Timer();
       Timer(const Timer& other) = delete;
