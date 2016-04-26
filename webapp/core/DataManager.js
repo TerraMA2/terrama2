@@ -130,27 +130,23 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
 
-        // data provider intent defaults
-        inserts.push(models.db.DataProviderIntent.create({name: "Collect", description: "Desc Collect intent"}));
-        inserts.push(models.db.DataProviderIntent.create({name: "Processing", description: "Desc Processing intent"}));
-
         // data formats semantics defaults todo: check it
         inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
 
-        Promise.all(inserts).then(function() {
-          var arr = [];
-          arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-          arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-          arr.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        // analysis data series type
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
 
-          Promise.all(arr).then(function(){
-            releaseCallback();
-          }).catch(function() {
-            releaseCallback();
-          })
-        }).catch(function() {
+        // semantics
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+
+        Promise.all(inserts).then(function() {
+          releaseCallback();
+        }).catch(function(err) {
+          console.log(err);
           releaseCallback()
         });
       };
@@ -163,7 +159,7 @@ var DataManager = {
     });
   },
   
-  finalize: function() {
+  unload: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
       lock.writeLock(function(release) {
@@ -176,9 +172,18 @@ var DataManager = {
 
         resolve();
 
-        connection.close();
-
         release();
+      });
+    });
+  },
+  
+  finalize: function() {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.unload().then(function() {
+        resolve();
+
+        connection.close();
       });
     });
   },
@@ -364,15 +369,42 @@ var DataManager = {
     });
   },
 
+  removeProject: function(restriction) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      self.getProject(restriction).then(function(projectResult) {
+        models.db["Project"].destroy({
+          where: {
+            id: projectResult.id
+          }
+        }).then(function() {
+          for(var i = 0; i < self.data.projects.length; ++i) {
+            if (self.data.projects[i].id == projectResult.id)
+              self.data.projects.splice(i, 1);
+          }
+          resolve();
+        }).catch(function(err) {
+          console.log("Remove Project: ", err);
+          reject(new exceptions.ProjectError("Could not remove project: " + err.message));
+        })
+      }).catch(function(err) {
+        reject(err);
+      })
+    });
+
+  },
+
   /**
    * It retrieves a Project list object from loaded projects.
    *
-   * @return {Promise<Project>} - a 'bluebird' module with Project instance or error callback
+   * @return {Array} - a 'bluebird' module with Project instance or error callback
    */
   listProjects: function() {
     var projectList = [];
-    for(var index = 0; index < this.data.projects.length; ++index)
-      projectList.push(Utils.clone(this.data.projects[index]));
+    this.data.projects.forEach(function(project) {
+      projectList.push(Utils.clone(project));
+    });
     return projectList;
   },
 
@@ -671,7 +703,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
-        if (provider.id === dataProviderParam.id || provider.name === dataProviderParam.name) {
+        if (provider.id == dataProviderParam.id || provider.name == dataProviderParam.name) {
           models.db.DataProvider.destroy({where: {id: provider.id}}).then(function() {
             self.data.dataProviders.splice(index, 1);
             resolve();
@@ -870,7 +902,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       for(var index = 0; index < self.data.dataSeries.length; ++index) {
         var dataSeries = self.data.dataSeries[index];
-        if (dataSeries.id === dataSeriesParam.id || dataSeries.name === dataSeriesParam.name) {
+        if (dataSeries.id == dataSeriesParam.id || dataSeries.name == dataSeriesParam.name) {
           models.db.DataSeries.destroy({where: {
             $or: [
               {id: dataSeriesParam.id},
@@ -913,8 +945,8 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
-        active: dataSetObject.active,
-        data_series_id: dataSetObject.data_series_id
+        active: dataSetObject["active"],
+        data_series_id: dataSetObject["data_series_id"]
       }).then(function(dataSet) {
 
         var onSuccess = function(dSet) {
@@ -925,7 +957,7 @@ var DataManager = {
 
           // save dataformat
           if (dataSetObject.format) {
-            var formats = dataSetObject.format;
+            var formats = dataSetObject["format"];
             var formatList = [];
 
             if (formats instanceof Array) {
@@ -1280,11 +1312,11 @@ var DataManager = {
           "type": "Polygon",
           "coordinates": [
             [
-              [filterObject.area.minX, filterObject.area.minY],
-              [filterObject.area.maxX, filterObject.area.minY],
-              [filterObject.area.maxX, filterObject.area.maxY],
-              [filterObject.area.minX, filterObject.area.maxY],
-              [filterObject.area.minX, filterObject.area.minY]
+              [filterObject.area["minX"], filterObject.area["minY"]],
+              [filterObject.area["maxX"], filterObject.area["minY"]],
+              [filterObject.area["maxX"], filterObject.area["maxY"]],
+              [filterObject.area["minX"], filterObject.area["maxY"]],
+              [filterObject.area["minX"], filterObject.area["minY"]]
             ]
           ],
           "crs": {
@@ -1303,6 +1335,26 @@ var DataManager = {
         // todo: improve error message
         reject(new Error("Could not save filter. ", err));
       });
+    });
+  },
+
+  addAnalysis: function(analysisObject) {
+    return new Promise(function(resolve, reject) {
+      // todo: make it as factory: AnalysisGrid, Analysis...
+      models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
+        models.db["AnalysisDataSeries"].create({type_id: 1}).then(function(analysisDataSeriesResult) {
+          resolve(analysisResult.get());
+        }).catch(function(err) {
+          Utils.rollbackModels(models.db['Analysis'], analysisResult.get(), new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), {reject: reject})
+        });
+      }).catch(function(err) {
+        var msg = "";
+
+        err.errors.forEach(function(error) {
+          msg += error.message + "\n";
+        });
+        reject(new exceptions.AnalysisError("Could not save analysis: " + msg));
+      })
     });
   }
 

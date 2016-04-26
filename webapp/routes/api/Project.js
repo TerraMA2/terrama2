@@ -7,4 +7,5 @@ module.exports = function (app) {
   app.post('/api/Project/', passport.isAuthenticated, controller.post);
   app.get('/api/Project/:id', passport.isAuthenticated, controller.get);
   app.put('/api/Project/:id', passport.isAuthenticated, controller.put);
+  app.delete('/api/Project/:id/delete', passport.isAuthenticated, controller.delete);
 };

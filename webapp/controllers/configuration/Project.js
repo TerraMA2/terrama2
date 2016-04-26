@@ -26,7 +26,7 @@ module.exports = function(app) {
       var projectName = request.params.name;
 
       DataManager.getProject({name: projectName}).then(function(project) {
-        app.locals.activeProject = {name: project.name};
+        app.locals.activeProject = {id: project.id, name: project.name};
 
         // Redirect for start application
         response.redirect("/configuration/status");
