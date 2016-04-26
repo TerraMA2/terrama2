@@ -40,7 +40,7 @@ Dcp.schema = function() {
     },
     projection: {
       type: Form.Field.TEXT,
-        title: "Projection"
+        title: "SRID"
     }
   };
 
@@ -56,15 +56,15 @@ Dcp.form = function() {
   return [
     {
       key: "latitude",
-      htmlClass: "col-md-3"
+      htmlClass: "col-md-2"
     },
     {
       key: "longitude",
-      htmlClass: "col-md-3"
+      htmlClass: "col-md-2"
     },
     {
       key: "projection",
-      htmlClass: "col-md-3"
+      htmlClass: "col-md-2"
     }
   ].concat(AbstractClass.form.call(this));
 };

@@ -21,19 +21,19 @@
     </div>
   </div>
 
+  <!--<div class="col-md-7">-->
+    <!--<div class="form-group" ng-class="{'has-error': generalDataForm.access.$dirty && generalDataForm.access.$error.required, 'has-success': generalDataForm.access.$dirty && generalDataForm.access.$valid}">-->
+      <!--<label>{{ i18n.__('Access') }}:</label>-->
+      <!--<select class="form-control" ng-model="dataSeries.access" name="access" required>-->
+        <!--<option value="1">COLLECT</option>-->
+        <!--<option value="2">PROCESSING</option>-->
+      <!--</select>-->
+
+      <!--<label class="help-block text-danger" ng-show="generalDataForm.access.$dirty && generalDataForm.access.$error.required">{{ i18n.__("Data series access is required") }}</label>-->
+    <!--</div>-->
+  <!--</div>-->
+
   <div class="col-md-7">
-    <div class="form-group" ng-class="{'has-error': generalDataForm.access.$dirty && generalDataForm.access.$error.required, 'has-success': generalDataForm.access.$dirty && generalDataForm.access.$valid}">
-      <label>{{ i18n.__('Access') }}:</label>
-      <select class="form-control" ng-model="dataSeries.access" name="access" required>
-        <option value="1">COLLECT</option>
-        <option value="2">PROCESSING</option>
-      </select>
-
-      <label class="help-block text-danger" ng-show="generalDataForm.access.$dirty && generalDataForm.access.$error.required">{{ i18n.__("Data series access is required") }}</label>
-    </div>
-  </div>
-
-  <div class="col-md-5">
     <div class="form-group" ng-class="{'has-error': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$error.required, 'has-success': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$valid}">
       <label>{{ i18n.__('Provider') }}:</label>
       <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()" required>

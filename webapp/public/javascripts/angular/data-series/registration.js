@@ -43,6 +43,130 @@ angular.module('terrama2.dataseries.registration', [
       }
     );
   }])
+  
+  .directive('terrama2DcpTable', function(i18n) {
+    return {
+      restrict: 'E',
+      templateUrl: '/javascripts/angular/data-series/templates/dcpTable.html',
+      scope: {
+        tableFields: '=tableFields',
+        dcps: '=dcps',
+        restrictionDisplay: '=restrictionDisplay'
+      },
+      link: function(scope, elem, attr) {
+        var element = elem[0];
+        var original = element.cloneNode;
+        element.cloneNode = patch;
+
+        function patch(deep) {
+          var clone = original.call(element, deep);
+
+          // You can remove this two lines and the result
+          //   will be more or less the same.
+          // In my case I need it for other reasons
+          clone.removeAttribute('mq-allow-external-clone');
+          clone.cloneNode = patch;
+
+          $compile(clone)(scope);
+          return clone;
+        }
+      },
+      controller: function($scope, i18n) {
+        $scope.i18n = i18n;
+        $scope.isBoolean = function(value) {
+          return typeof value === 'boolean';
+        };
+        
+        $scope.removeDcp = function(dcpItem) {
+          $scope.dcps.forEach(function(dcp, pcdIndex, array) {
+            // todo: which fields should compare to remove?
+            if (dcp.mask === dcpItem.mask) {
+              array.splice(pcdIndex, 1);
+              return;
+            }
+          });
+        }
+      }
+    };
+  })
+
+  .controller('StoragerController', ['$scope', 'i18n', 'DataSeriesSemanticsFactory', function($scope, i18n, DataSeriesSemanticsFactory) {
+    $scope.form = [];
+    $scope.model = {};
+    $scope.schema = {};
+    $scope.options = {};
+    $scope.tableFields = [];
+    $scope.formatSelected = null;
+
+    $scope.addDcp = function() {
+      $scope.$broadcast('schemaFormValidate');
+      var form = angular.element('form[name="storagerForm"]').scope()['storagerForm'];
+      if (form.$valid) {
+        $scope.dcps.push(Object.assign({}, $scope.model));
+        $scope.model = {};
+
+        // reset form to do not display feedback class
+        this.parametersForm.$setPristine();
+      }
+    };
+
+    $scope.onDcpClicked = function(dcp) {
+      $scope.model = dcp;
+    };
+
+    $scope.$on('storagerFormatChange', function(event, args) {
+      $scope.formatSelected = args.format.name;
+      DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
+        $scope.tableFields = [];
+        var form = data.metadata.form;
+        // building table fields. Check if form is for all ('*')
+        if (data.metadata.form.indexOf('*') != -1) {
+          // ignore form and make it from properties
+          var properties = data.metadata.schema.properties;
+          for(var key in properties) {
+            if (properties.hasOwnProperty(key)) {
+              $scope.tableFields.push(key);
+            }
+          }
+        } else {
+          form.push({key: 'InputDataSet', htmlClass: "col-md-2"});
+          // form is mapped
+          data.metadata.form.forEach(function(element) {
+            $scope.tableFields.push(element.key);
+          })
+        }
+
+        var schema = data.metadata.schema.properties;
+
+        var inputDataSets = [];
+        args.dcps.forEach(function(fmt) {
+          inputDataSets.push(fmt.mask);
+        });
+
+        schema["InputDataSet"] = {
+          type: "string",
+          title: "Input DataSet",
+          enum: inputDataSets
+        };
+
+        $scope.model = {};
+        $scope.form = data.metadata.form;
+        $scope.schema = {
+          type: 'object',
+          properties: schema,
+          required: data.metadata.schema.required
+        };
+        $scope.$broadcast('schemaFormRedraw');
+      }).error(function(err) {
+        console.log("Error in semantics change: ", err);
+        $scope.form = [];
+        $scope.model = {};
+        $scope.schema = {};
+        $scope.$broadcast('schemaFormRedraw');
+      })
+    });
+
+  }])
 
   .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory", "ServiceInstanceFactory",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory, ServiceInstanceFactory) {
@@ -91,7 +215,22 @@ angular.module('terrama2.dataseries.registration', [
         return false;
       };
 
+      // storager
+      $scope.storager = {};
+      $scope.formStorager = [];
+      $scope.modelStorager = {};
+      $scope.schemaStorager = {};
+      $scope.onStoragerFormatChange = function() {
+        $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
+      };
+
       // schedule
+      $scope.range = function(min, max) {
+        var output = [];
+        for(var i = min; i < max; ++i)
+          output.push(i);
+        return output;
+      };
       $scope.schedule = {};
       $scope.isFrequency = false;
       $scope.isSchedule = false;
@@ -105,6 +244,25 @@ angular.module('terrama2.dataseries.registration', [
 
 
       $scope.onScheduleChange = function(value) {
+        switch($scope.schedule.schedule_unit) {
+          case "weekly":
+            $scope.minSchedule = 1;
+            $scope.maxSchedule = 7;
+            break;
+          case "monthly":
+            $scope.minSchedule = 1;
+            $scope.maxSchedule = 31;
+            break;
+          case "yearly":
+            $scope.minSchedule = 1;
+            $scope.maxSchedule = 366;
+            break;
+          default:
+            $scope.minSchedule = 0;
+            $scope.maxSchedule = 0;
+            break;
+        }
+        
         // resetting
         if (value == 1) {
           delete $scope.schedule.schedule;
@@ -124,7 +282,8 @@ angular.module('terrama2.dataseries.registration', [
       
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
-        return isWizardStepValid("generalDataForm");
+        this.wzData.error = !isWizardStepValid("generalDataForm");
+        return true;
       };
       
       $scope.isSecondStepValid = function(obj) {
@@ -132,15 +291,19 @@ angular.module('terrama2.dataseries.registration', [
           if ($scope.dcps.length === 0) {
             // todo: display alert box
             console.log("it should have at least one dcp");
-            return isWizardStepValid("parametersForm", true) && false;
+            this.wzData.error = true;
+            return true;
           } else {
+            this.wzData.error = false;
             return true;
           }
-        return isWizardStepValid("parametersForm", true);
+        this.wzData.error = !isWizardStepValid("parametersForm", true);
+        return true;
       };
 
       $scope.isThirdStepValid = function(obj) {
-        return isWizardStepValid("storagerForm");
+        this.wzData.error = !isWizardStepValid("storagerForm");
+        return true;
       };
 
       $scope.semantics = "";
@@ -196,6 +359,17 @@ angular.module('terrama2.dataseries.registration', [
               return;
             }
           })
+        } else if (semanticsList.length > 0) {
+          $scope.dataSeries.semantics = semanticsList[0];
+          // if is dcp postgis, it shouldn't have a storager and it is processing
+          if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
+            $scope.dataSeries.access = 'COLLECT';
+
+            $scope.storagerFormats = [{name: 'DCP-POSTGIS'}];
+          } else {
+            $scope.dataSeries.access = 'PROCESSING';
+          }
+          $scope.onDataSemanticsChange();
         }
 
       }).error(function(err) {
@@ -285,8 +459,12 @@ angular.module('terrama2.dataseries.registration', [
 
         return form.$valid;
       };
+
+      $scope.onDcpClicked = function(dcp) {
+        $scope.model = dcp;
+      };
       
-      $scope.addDcp = function(aaaa) {
+      $scope.addDcp = function() {
         if (isValidParametersForm(this.parametersForm)) {
           $scope.dcps.push(Object.assign({}, $scope.model));
           $scope.model = {};

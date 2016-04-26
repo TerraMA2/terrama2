@@ -1,0 +1,43 @@
+<div class="row">
+  <div class="col-md-7">
+    <div class="form-group" ng-class="{'has-error': storagerForm.format.$dirty && storagerForm.format.$error.required, 'has-success': storagerForm.format.$dirty && storagerForm.format.$valid}">
+      <label>{{ i18n.__('Output Format') }}:</label>
+      <select id="storageFormat" class="form-control" name="format" ng-model="storager.format" ng-change="onStoragerFormatChange()" ng-options="format.name for format in storagerFormats" required>
+        <!--<option ng-repeat="format in storagerFormats">{{ format.name }}</option>-->
+      </select>
+    </div>
+  </div>
+
+  <div class="col-md-12 terrama2-nopadding-box" ng-controller="StoragerController">
+    <!-- schema form -->
+    <form name="storagerForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+
+
+    <div class="col-md-2 terrama2-top-field" ng-show="formatSelected">
+      <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+    </div>
+
+    <div class="col-md-12">
+      <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
+    </div>
+
+    <!--<terrama2-dcp-table tableFields="tableFields" dcps="dcps" restriction-display="(semantics === 'pcd' || semantics === 'dcp') && isDynamic"></terrama2-dcp-table>-->
+
+  </div>
+
+  <div class="col-md-12">
+    <div class="col-md-12 terrama2-nopadding-box">
+      <div class="box box-default box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title">{{ i18n.__('Schedule') }}</h3>
+        </div>
+
+        <div style="display: block;" class="box-body">
+          <form name="scheduleForm">
+            <div ng-include="'/javascripts/angular/data-series/templates/schedule.html'"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
