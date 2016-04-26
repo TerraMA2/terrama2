@@ -65,6 +65,20 @@ module.exports = function(app) {
 
     put: function(request, response) {
 
+    },
+    
+    delete: function(request, response) {
+      var id = request.params.id;
+      
+      if (id) {
+        DataManager.removeDataSerie({id: id}).then(function() {
+          response.json({status: 200});
+        }).catch(function(err) {
+          Utils.handleRequestError(response, new DataSeriesError("Dataseries not found"), 400);
+        });
+      } else {
+        Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
+      }
     }
   };
 };
