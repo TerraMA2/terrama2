@@ -95,7 +95,7 @@ sleep 1s
 #
 # Quazip
 #
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip5.dylib" ]; then
   echo "installing Quazip..."
   echo ""
   sleep 1s

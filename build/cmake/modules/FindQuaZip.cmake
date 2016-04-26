@@ -4,7 +4,6 @@
 # QUAZIP_LIBRARIES           - List of QuaZip libraries
 # QUAZIP_ZLIB_INCLUDE_DIR    - The include dir of zlib headers
 
-
 IF (QUAZIP_INCLUDE_DIRS AND QUAZIP_LIBRARIES)
 	# in cache already
 	SET(QUAZIP_FOUND TRUE)
