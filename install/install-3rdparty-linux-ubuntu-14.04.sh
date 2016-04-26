@@ -183,36 +183,30 @@ fi
 #
 # Quazip
 #
+
 if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
-  echo "installing Quazip..."
-  echo ""
-  sleep 1s
+ echo "installing Quazip..."
+ echo ""
+ sleep 1s
 
-  unzip -o quazip-0.7.zip &> /dev/null
-  valid $? "Error: could not uncompress quazip-0.7.zip!"
+ unzip -o quazip-0.7.2.zip &> /dev/null
+ valid $? "Error: could not uncompress quazip-0.7.2.zip!"
 
-  cd quazip-0.7
-  valid $? "Error: could not enter quazip-0.7!"
+ cd quazip-0.7.2
+ valid $? "Error: could not enter quazip-0.7.2"
 
-  qmake PREFIX=$TERRAMA2_DEPENDENCIES_DIR
- 
-  valid $? "Error: could not make Quazip!"
+ cmake . -DCMAKE_INSTALL_PREFIX=$TERRAMA2_DEPENDENCIES_DIR -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 
-  make
-  valid $? "Error: could not make Quazip!"
+ valid $? "Error: could not configure Quazip!"
 
-  make install
-  valid $? "Error: Could not install Quazip!"
+ make
+ valid $? "Error: could not make Quazip!"
 
-  cp quazip/libquazip.so $TERRAMA2_DEPENDENCIES_DIR/lib/
-  valid $? "Error: could not copy libquazip.so!"
+ make install
+ valid $? "Error: Could not install Quazip!"
 
-  cp -r $TERRAMA2_DEPENDENCIES_DIR/quazip/include/quazip/ $TERRAMA2_DEPENDENCIES_DIR/include/
-  valid $? "Error: could not copy include dir!"
-  
-  cd ..
+ cd ..
 fi
-
 
 #
 # Node.js

@@ -100,15 +100,15 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
   echo ""
   sleep 1s
 
-  unzip -o quazip-0.7.zip &> /dev/null
-  valid $? "Error: could not uncompress quazip-0.7.zip!"
+  unzip -o quazip-0.7.2.zip &> /dev/null
+  valid $? "Error: could not uncompress quazip-0.7.2.zip!"
 
-  cd quazip-0.7
-  valid $? "Error: could not enter quazip-0.7!"
+  cd quazip-0.7.2
+  valid $? "Error: could not enter quazip-0.7.2"
 
-  qmake PREFIX=$TERRAMA2_DEPENDENCIES_DIR
- 
-  valid $? "Error: could not make Quazip!"
+  cmake . -DCMAKE_INSTALL_PREFIX=$TERRAMA2_DEPENDENCIES_DIR
+
+  valid $? "Error: could not configure Quazip!"
 
   make
   valid $? "Error: could not make Quazip!"
@@ -116,12 +116,6 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
   make install
   valid $? "Error: Could not install Quazip!"
 
-  cp quazip/libquazip.so $TERRAMA2_DEPENDENCIES_DIR/lib/
-  valid $? "Error: could not copy libquazip.so!"
-
-  cp -r $TERRAMA2_DEPENDENCIES_DIR/quazip/include/quazip/ $TERRAMA2_DEPENDENCIES_DIR/include/
-  valid $? "Error: could not copy include dir!"
-  
   cd ..
 fi
 
