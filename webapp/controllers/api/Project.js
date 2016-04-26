@@ -45,6 +45,19 @@ module.exports = function(app) {
         Utils.handleRequestError(request, new ProjectError("Project name not identified"), 400);
       }
     },
+    
+    delete: function(request, response) {
+      var id = request.params.id;
+      if (id) {
+        DataManager.removeProject({id: id}).then(function() {
+          response.json({status: 200});
+        }).catch(function(err) {
+          Utils.handleRequestError(request, new ProjectError("Project not found"), 400);
+        });
+      } else {
+        Utils.handleRequestError(request, new ProjectError("Project id not typed"), 400);
+      }
+    }
 
   };
 };
