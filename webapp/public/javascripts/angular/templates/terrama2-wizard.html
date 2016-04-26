@@ -4,6 +4,7 @@
       <li style="width: calc(100%/{{ getEnabledSteps().length }});" ng-class="{'active': step.selected}" ng-repeat="step in getEnabledSteps()">
 
         <a class="btn" ng-click="goTo(step)">
+          <span ng-if="step.wzData.required" ng-class="{'terrama2-font-red': step.wzData.required}"><i class="fa fa-asterisk"></i></span>
           {{ step.title || step.wzTitle }}
 
           <span ng-class="{'terrama2-font-red': step.selected && step.completed, 'terrama2-font-green': step.completed && !step.selected  }"><i class="fa" ng-class="{'fa-times': step.selected && step.completed, 'fa-check': step.completed && !step.selected}"></i></span>
