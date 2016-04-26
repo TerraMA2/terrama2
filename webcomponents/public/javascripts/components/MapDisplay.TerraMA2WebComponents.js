@@ -63,6 +63,20 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   };
 
   /**
+   * Updates the parameters of the source of a given layer.
+   * @param {string} layerId - Layer id
+   * @param {object} params - New layer source parameters
+   *
+   * @function updateLayerSourceParams
+   * @memberof MapDisplay
+   * @inner
+   */
+  var updateLayerSourceParams = function(layerId, params) {
+    var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+    layer.getSource().updateParams(params);
+  };
+
+  /**
    * Corrects the longitude of the map, if it's wrong. That's necessary because Openlayers 3 (in the current version) has a bug, when the map is moved to the right or to the left the X coordinate keeps growing.
    * @param {float} longitude - Original longitude
    * @returns {float} correctedLongitude - Corrected longitude
@@ -942,6 +956,7 @@ TerraMA2WebComponents.webcomponents.MapDisplay = (function() {
   return {
     getMap: getMap,
     updateMapSize: updateMapSize,
+    updateLayerSourceParams: updateLayerSourceParams,
     addMousePosition: addMousePosition,
     removeMousePosition: removeMousePosition,
     addScale: addScale,
