@@ -68,21 +68,10 @@ terrama2::core::Timer::~Timer()
 
 void terrama2::core::Timer::timeoutSlot()
 {
-  emit timerSignal(impl_->processId_);
+  emit timeoutSignal(impl_->processId_);
 
   impl_->lastEmit_ = terrama2::core::TimeUtils::now();
   prepareTimer(impl_->dataSchedule_);
-}
-
-void terrama2::core::Timer::scheduleSlot() const
-{
-  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-
-  if(impl_->schedule_.getHours() == now.time_of_day().hours()
-     && impl_->schedule_.getMinutes() == now.time_of_day().minutes())
-  {
-    emit timerSignal(impl_->processId_);
-  }
 }
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)

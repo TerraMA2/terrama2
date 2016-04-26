@@ -22,7 +22,7 @@
 /*!
   \file terrama2/core/data-access/DataAccessorDcp.hpp
 
-  \brief
+  \brief Base class to access data from a DCP DataSeries.
 
   \author Jano Simas
  */
@@ -41,7 +41,7 @@ namespace terrama2
   {
     /*!
       \class DataAccessorDcp
-      \brief DataAccessor for DCP DataSeries.
+      \brief Base class to access data from a DCP DataSeries.
 
       DCP are Data Collecting Plataforms, here we consider that:
        - It's fixed, one static geographical position associated
@@ -52,15 +52,19 @@ namespace terrama2
     */
     class DataAccessorDcp : public virtual DataAccessor
     {
-    public:
-      DataAccessorDcp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
-      virtual ~DataAccessorDcp() {}
+      public:
+        //! Default constructor
+        DataAccessorDcp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+        //! Default destructor
+        virtual ~DataAccessorDcp() {}
+        //! Returns a DcpSeries filtered by Filter
+        virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
+        // Doc in base class
+        virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
-      virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
-      // Doc in base class
-      virtual te::dt::TimeInstantTZ lastDateTime() const override;
-
-      virtual bool intersects(DataSetPtr dataset, const Filter& filter) const override;
+      protected:
+        // Doc in base class
+        virtual bool intersects(DataSetPtr dataset, const Filter& filter) const override;
     };
   }
 }

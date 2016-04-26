@@ -51,26 +51,40 @@ namespace terrama2
     */
     class DataRetriever
     {
-    public:
-      DataRetriever(DataProviderPtr) {}
-      virtual ~DataRetriever() {}
+      public:
+        //!< Default constructor.
+        DataRetriever(DataProviderPtr) {}
+        //!< Default destructor.
+        virtual ~DataRetriever() {}
 
-      static DataRetriever* make(DataProviderPtr dataProvider);
+        //!< Utility method to construct a DataRetriever, used as a callback in the DataRetreiverFactory.
+        static DataRetriever* make(DataProviderPtr dataProvider);
 
-      /*!
+        /*!
+          \brief Downloads the remote file to a temporary location.
 
-        \return Uri to the termporary file
-      */
-      virtual std::string retrieveData(const std::string& query, const Filter& filter);
+          This method is overloaded by derived classes, the default behavior is to raise an exception.
 
-      virtual te::dt::TimeInstantTZ lastDateTime() const;
+          \warning This method depends the data to be downloadable. see DataRetriever::isRetrivable()
 
+          \exception NotRetrivableException Raised when the DataRetriever doesn't allow the download of the data toa file.
 
-      //!  Returns true if the data should be downloaded to a file or false if should be access directly.
-      virtual bool isRetrivable() const;
+          \return Uri to the termporary file
+        */
+        virtual std::string retrieveData(const std::string& query, const Filter& filter);
 
-    protected:
-      DataProviderPtr dataProvider_;
+        //! Returns the last data timestamp found on last access.
+        virtual te::dt::TimeInstantTZ lastDateTime() const;
+
+        /*!
+          \brief Returns true if the data should be downloaded to a file or false if should be access directly.
+
+          \exception NotRetrivableException Raised when the DataRetriever doesn't allow the download of the data toa file.
+        */
+        virtual bool isRetrivable() const;
+
+      protected:
+        DataProviderPtr dataProvider_;//!< Information of the remote server.
     };
   }
 }

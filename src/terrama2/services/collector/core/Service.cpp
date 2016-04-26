@@ -152,7 +152,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch(const terrama2::Exception& e)
   {
-    // should have been loggen on emition
+    // should have been logged on emition
   }
   catch(const boost::exception& e)
   {
@@ -190,7 +190,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
     std::map<std::string, std::string> connInfoFAKE;
     std::shared_ptr< CollectorLog > collectorLog(new CollectorLog(collector->id, connInfoFAKE));
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, collectorLog);
-    connect(timer.get(), &terrama2::core::Timer::timerSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
+    connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(collector->id, timer);
 
     addToQueue(collector->id);

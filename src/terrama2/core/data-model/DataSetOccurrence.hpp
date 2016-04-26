@@ -34,10 +34,16 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+     \brief DataSet information for occurrences.
+
+     Occurrence data is associated with a spatial position and a timestamp.
+
+     Ex.: Lightning strikes occurrences.
+
+    */
     struct DataSetOccurrence : public DataSet
     {
-      // std::string dateTimeColumnName;
-      // std::string geometryColumnName;
     };
   } // end namespace core
 } // end namespace terrama2

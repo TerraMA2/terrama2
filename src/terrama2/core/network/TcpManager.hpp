@@ -26,6 +26,7 @@
 #define __TERRAMA2_CORE_TCP_MANAGER_HPP__
 
 #include <QTcpServer>
+#include <QTcpSocket>
 
 #include <memory>
 
@@ -37,7 +38,14 @@ namespace terrama2
   {
     class DataManager;
     /*!
-       \brief The TcpManager class waits for a connection from the central TerraMA² server for new terrama2::core::* classes.
+      \class TcpManager
+       \brief Manages all TCP data communication between the service and TerraMA² application.
+
+       The TcpManager class waits for a connection from the central TerraMA² application.
+
+       For valid signals: TcpSignals
+
+       Detailed information of data message: https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/tcp
 
      */
     class TcpManager : public QTcpServer
@@ -48,28 +56,40 @@ namespace terrama2
         //! Constructor, connects signal.
         TcpManager(QObject* parent = 0);
         //! Default destructor.
-        virtual ~TcpManager() {}
+        virtual ~TcpManager();
 
+        //! Send log information to the TerraMA² application.
         bool sendLog(std::string log);
+        /*!
+          \brief Listens to TCP socket connections.
+
+          Holds a weak pointer to a DataManager that wil be used when new data is received.
+
+          \see <a href="http://doc.qt.io/qt-5/qtcpserver.html">QTcpServer </a>
+        */
         bool listen(std::weak_ptr<terrama2::core::DataManager> dataManager, const QHostAddress& address = QHostAddress::Any, quint16 port = 0);
 
       signals:
+        //! Emited when the service should be terminated.
         void stopSignal();
+        //! Emited when a process should be started immediately.
         void startProcess(uint64_t);
 
       private slots:
         //! Slot called when a new conenction arrives.
         void receiveConnection();
+        //! Slot called when finished receiving a tcp message.
         void readReadySlot();
 
       private:
         using QTcpServer::listen;
 
         uint32_t blockSize_; //!< Size of the message received.
+        //! Parse bytearray as a json and add to the DataManager.
         void parseData(QByteArray bytearray);
 
-        QTcpSocket* tcpSocket_ = nullptr;
-        std::weak_ptr<terrama2::core::DataManager> dataManager_;
+        std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.
+        std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
     };
   }
 }

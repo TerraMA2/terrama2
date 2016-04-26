@@ -29,17 +29,25 @@
 #define __TERRAMA2_CORE_TYPEDEF_HPP__
 
 #include <cstdint>
-
+//! Unique identifier of the ServiceInstance
 typedef uint64_t ServiceInstanceId;
+//! Unique identifier for Project
 typedef uint64_t ProjectId;
+//! Unique identifier for Schedule
 typedef uint64_t ScheduleId;
+//! Unique identifier for DataSet
 typedef uint64_t DataSetId;
+//! Unique identifier for DataSeries
 typedef uint64_t DataSeriesId;
+//! Unique identifier for DataProvider
 typedef uint64_t DataProviderId;
 
-namespace terrama2 {
-  namespace core {
-    inline uint64_t InvalidId(){ return 0;}
+namespace terrama2
+{
+  namespace core
+  {
+    //! Defines an invalid ID
+    inline uint64_t InvalidId() { return 0;}
   } /* core */
 } /* terrama2 */
 

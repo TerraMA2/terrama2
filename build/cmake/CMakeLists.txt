@@ -223,7 +223,7 @@ if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
                PATH_SUFFIXES bin)
 endif()
 
-find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem regex python)
+find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem regex python iostreams)
 
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
@@ -250,6 +250,11 @@ endif()
 
 find_package(GTest)
 find_package(GMock)
+
+find_package(QuaZip REQUIRED)
+if(NOT QUAZIP_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required Quazip library!")
+endif()
 
 
 #

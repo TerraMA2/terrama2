@@ -57,13 +57,15 @@ namespace terrama2
     */
     class DataAccessorOccurrence : public virtual DataAccessor
     {
-    public:
-      DataAccessorOccurrence(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
-      virtual ~DataAccessorOccurrence() {}
-
-      virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
-      // Doc in base class
-      virtual te::dt::TimeInstantTZ lastDateTime() const override;
+      public:
+        //! Default constructor
+        DataAccessorOccurrence(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+        //! Default destructor
+        virtual ~DataAccessorOccurrence() {}
+        //! Returns a OccurrenceSeries filtered by Filter
+        virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
+        // Doc in base class
+        virtual te::dt::TimeInstantTZ lastDateTime() const override;
     };
   }
 }

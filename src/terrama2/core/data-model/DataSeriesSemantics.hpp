@@ -53,16 +53,16 @@ namespace terrama2
     struct DataSeriesSemantics
     {
       enum DataSeriesType {
-        DCP = 1,
-        OCCURRENCE = 2,
-        GRID = 3,
-        MONITORED = 4,
-        STATIC = 5
+        DCP = 1,//!< Fixed position data producer station. (Data Collection Platform).
+        OCCURRENCE = 2,//!< Dated-positioned occurrence.
+        GRID = 3,//!< Spatialy indexed data matrix.
+        MONITORED = 4,//!< Group of vector-spatial-geometry to be monitored (//TODO: NOT in use, to be used for dynamic monitored objects).
+        STATIC = 5//<! Group  of vector-spatial-geometry.
       };
 
-      std::string name;
-      DataSeriesType dataSeriesType = STATIC;
-      DataFormat dataFormat;
+      std::string name;//!< Name of the semantics.
+      DataSeriesType dataSeriesType = STATIC;//!< Semantics type of DataSeries
+      DataFormat dataFormat;//TODO: how to doc this?!
     };
   } /* core */
 } /* terrama2 */
