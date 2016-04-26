@@ -130,10 +130,6 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
 
-        // data provider intent defaults
-        inserts.push(models.db.DataProviderIntent.create({name: "Collect", description: "Desc Collect intent"}));
-        inserts.push(models.db.DataProviderIntent.create({name: "Processing", description: "Desc Processing intent"}));
-
         // data formats semantics defaults todo: check it
         inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
@@ -142,18 +138,15 @@ var DataManager = {
         // analysis data series type
         inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
 
-        Promise.all(inserts).then(function() {
-          var arr = [];
-          arr.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-          arr.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-          arr.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        // semantics
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
-          Promise.all(arr).then(function(){
-            releaseCallback();
-          }).catch(function() {
-            releaseCallback();
-          })
-        }).catch(function() {
+        Promise.all(inserts).then(function() {
+          releaseCallback();
+        }).catch(function(err) {
+          console.log(err);
           releaseCallback()
         });
       };
@@ -909,7 +902,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       for(var index = 0; index < self.data.dataSeries.length; ++index) {
         var dataSeries = self.data.dataSeries[index];
-        if (dataSeries.id === dataSeriesParam.id || dataSeries.name === dataSeriesParam.name) {
+        if (dataSeries.id == dataSeriesParam.id || dataSeries.name == dataSeriesParam.name) {
           models.db.DataSeries.destroy({where: {
             $or: [
               {id: dataSeriesParam.id},
