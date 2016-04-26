@@ -22,9 +22,9 @@
 /*!
   \file terrama2/services/analysis/core/Exception.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Analysis module Exceptions.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Paulo R. M. Oliveira
  */
 
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
@@ -42,7 +42,7 @@ namespace terrama2
     {
       namespace core
       {
-        //! Base exception class for TerraMA2.
+        //! Base exception class for analysis module.
         struct Exception: virtual terrama2::core::Exception {};
 
         //! To be updated when an invalid frequency is detected in an analysis.
