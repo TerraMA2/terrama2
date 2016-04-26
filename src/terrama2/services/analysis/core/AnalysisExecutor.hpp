@@ -44,13 +44,37 @@ namespace terrama2
     {
       namespace core
       {
+        // Forward declaration
         struct Analysis;
 
-
+        /*!
+          \brief Join a given thread.
+          \param t The thread to join.
+        */
         void joinThread(std::thread& t);
+
+        /*!
+          \brief Join all created threads for an anlysis execution.
+          \param threads The threads to join.
+        */
         void joinAllThreads(std::vector<std::thread>& threads);
+
+        /*!
+          \brief Starts the process of an analysis execution.
+          \param analysis The analysis to be executed.
+        */
         void runAnalysis(const Analysis& analysis);
+
+        /*!
+          \brief Prepare the context for a monitored object analysis.
+          \param analysis The analysis to be executed
+        */
         void runMonitoredObjectAnalysis(const Analysis& analysis);
+
+        /*!
+          \brief Prepare the context for a DCP analysis.
+          \param analysis The analysis to be executed
+        */
         void runDCPAnalysis(const Analysis& analysis);
 
       } // end namespace core
