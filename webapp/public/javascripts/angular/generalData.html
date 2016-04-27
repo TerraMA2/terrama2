@@ -14,7 +14,6 @@
     <div class="form-group" ng-class="{'has-error': generalDataForm.semantics.$dirty && generalDataForm.semantics.$invalid, 'has-success': generalDataForm.semantics.$dirty && generalDataForm.semantics.$valid}">
       <label>{{ i18n.__('Format') }}:</label>
       <select class="form-control" name="semantics" ng-model="dataSeries.semantics" ng-options="semantics.name for semantics in dataSeriesSemantics" ng-change="onDataSemanticsChange();" required>
-        <option></option>
       </select>
 
       <label class="help-block text-danger" ng-show="generalDataForm.semantics.$dirty && generalDataForm.semantics.$error.required">{{ i18n.__("Format is required") }}</label>

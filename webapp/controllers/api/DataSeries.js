@@ -11,9 +11,14 @@ module.exports = function(app) {
       var filterObject = request.body.filter;
       var serviceObject = request.body.service;
 
-      DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceObject).then(function(dataSeriesResult) {
-        // todo: add filter and schedule object
-        return response.json(dataSeriesResult.toObject());
+      // temp to get service instance (analysis)
+      DataManager.getServiceInstance({service_type_id: 2}).then(function(serviceResult) {
+        DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(dataSeriesResult) {
+          // todo: add filter and schedule object
+          return response.json(dataSeriesResult.toObject());
+        }).catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
       }).catch(function(err) {
         return Utils.handleRequestError(response, err, 400);
       });

@@ -442,6 +442,23 @@ var DataManager = {
       });
     });
   },
+  
+  getServiceInstance : function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject){
+      self.listServiceInstances(restriction).then(function(result) {
+        if (result.length == 0)
+          return reject(new Error("No service instances found"));
+
+        if (result.length > 1)
+          return reject(new Error("More than one service instance retrieved"));
+        
+        resolve(result[0]);
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  },
 
   /**
    * It saves DataProviderType in database.

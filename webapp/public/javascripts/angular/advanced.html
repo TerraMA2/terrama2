@@ -36,8 +36,8 @@
           <!-- schema form -->
           <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
-          <div class="col-md-2 terrama2-top-field">
-            <button class="btn btn-default" ng-show="semantics === 'dcp' && dataSeries.semantics.name != 'DCP-POSTGIS'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+          <div class="col-md-2 terrama2-top-field" style="padding-bottom: 40px;">
+            <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
           </div>
 
           <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
