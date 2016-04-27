@@ -4,7 +4,6 @@
 # QUAZIP_LIBRARIES           - List of QuaZip libraries
 # QUAZIP_ZLIB_INCLUDE_DIR    - The include dir of zlib headers
 
-
 IF (QUAZIP_INCLUDE_DIRS AND QUAZIP_LIBRARIES)
 	# in cache already
 	SET(QUAZIP_FOUND TRUE)
@@ -25,7 +24,7 @@ ELSE (QUAZIP_INCLUDE_DIRS AND QUAZIP_LIBRARIES)
 	ELSE(WIN32)
 		FIND_PACKAGE(PkgConfig)
 #     pkg_check_modules(PC_QCA2 QUIET qca2)
-		pkg_check_modules(PC_QUAZIP quazip)
+		pkg_check_modules(PC_QUAZIP QUIET quazip)
 		FIND_LIBRARY(QUAZIP_LIBRARIES
 			WIN32_DEBUG_POSTFIX d
             NAMES quazip${QUAZIP_LIB_VERSION_SUFFIX}
