@@ -43,8 +43,6 @@ terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::c
       return MONITORED_OBJECT_TYPE;
     case 3:
       return GRID_TYPE;
-    case 4:
-      return TERRAME_TYPE;
   }
 
   throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid analysis type"));
