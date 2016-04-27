@@ -12,13 +12,55 @@
     <!-- schema form -->
     <form name="storagerForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
+    <form name="inputDataSetForm">
+      <div class="col-md-2" ng-if="formatSelected">
+        <div class="form-group" ng-class="{'has-error': inputDataSetForm.inputDataSet.$error.required, 'has-success': inputDataSetForm.inputDataSet.$dirty && inputDataSetForm.inputDataSet.$valid}">
+          <label>{{ i18n.__('Input DataSet') }}:</label>
+          <select class="form-control" name="inputDataSet" ng-model="storage.inputDataSet" ng-options="iDataSet.mask for iDataSet in inputDataSets" required>
+          </select>
+
+          <label class="help-block text-danger" ng-show="inputDataSetForm.inputDataSet.$error.required">{{ i18n.__("Input dataset is required") }}</label>
+        </div>
+      </div>
+    </form>
 
     <div class="col-md-2 terrama2-top-field" ng-show="formatSelected">
-      <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+      <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcpStorager(storagerForm)">{{ i18n.__('Add') }}</button>
     </div>
 
     <div class="col-md-12">
-      <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
+      <!--dcp table -->
+      <div class="col-md-12 terrama2-nopadding-box" ng-if="(semantics === 'pcd' || semantics === 'dcp') && isDynamic">
+        <div class="col-md-12">
+          <div class="box-body table-responsive no-padding">
+            <table class="table table-hover" >
+              <tbody style="overflow-y: auto; height: 150px;">
+              <!-- header-->
+              <tr>
+                <th ng-repeat="field in tableFieldsStorager">{{ capitalizeIt(field) }}</th>
+                <th></th>
+              </tr>
+
+              <tr ng-repeat="dcp in dcpsStorager track by $index">
+                <td ng-repeat="field in tableFieldsStorager">
+                  <!-- boolean types -->
+                  <span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
+                    <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
+                  </span>
+                  <!--{{ dcp }}-->
+                  <span ng-if="!isBoolean(dcp[field]) && $index !== (tableFieldsStorager.length)">
+                    {{ dcp[field]}}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-danger" ng-click="removePcdStorager(dcp)">{{ i18n.__("Remove") }}</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div><!-- /.box-body -->
+        </div>
+      </div>
     </div>
 
     <!--<terrama2-dcp-table tableFields="tableFields" dcps="dcps" restriction-display="(semantics === 'pcd' || semantics === 'dcp') && isDynamic"></terrama2-dcp-table>-->

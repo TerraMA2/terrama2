@@ -1,4 +1,4 @@
-<div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'pcd' || semantics === 'dcp') && isDynamic">
+<div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'pcd' || semantics === 'dcp') && dataSeries.semantics.name != 'DCP-POSTGIS' && isDynamic">
 
   <div class="col-md-12">
     <div class="box-body table-responsive no-padding">
@@ -10,7 +10,7 @@
           <th></th>
         </tr>
 
-        <tr ng-repeat="dcp in dcps track by $index" data-ng-click="onDcpClicked(dcp)">
+        <tr ng-repeat="dcp in dcps track by $index">
           <td ng-repeat="field in tableFields">
             <!-- boolean types -->
               <span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">

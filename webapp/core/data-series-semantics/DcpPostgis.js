@@ -15,17 +15,12 @@ DcpPostgis.identifier = function() {
 
 DcpPostgis.schema = function() {
   var dcpSchema = Dcp.schema.call(this);
-  dcpSchema.properties.mask = {
+  dcpSchema.properties.tableName = {
     type: Form.Field.TEXT,
-    title: "Mask"
+    title: "Table Name"
   };
 
-  dcpSchema.properties.timezone = {
-    type: Form.Field.TEXT,
-    title: "Timezone"
-  };
-
-  dcpSchema.required = dcpSchema.required.concat(['mask', 'timezone']);
+  dcpSchema.required = dcpSchema.required.concat(['tableName']);
 
   return dcpSchema;
 };
@@ -33,23 +28,8 @@ DcpPostgis.schema = function() {
 DcpPostgis.form = function() {
   return [
     {
-      key: 'mask',
-      htmlClass: "col-md-6"
-    },
-    {
-      key: 'timezone',
-      type: 'select',
-      htmlClass: "col-md-6",
-      titleMap: [
-        {
-          value: '00:00',
-          name: '00:00'
-        },
-        {
-          value: '12:00',
-          name: '12:00'
-        }
-      ]
+      key: 'tableName',
+      htmlClass: "col-md-5"
     }
   ].concat(Dcp.form.call(this));
 };

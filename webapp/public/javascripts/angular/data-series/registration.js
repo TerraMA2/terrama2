@@ -95,29 +95,64 @@ angular.module('terrama2.dataseries.registration', [
     $scope.model = {};
     $scope.schema = {};
     $scope.options = {};
-    $scope.tableFields = [];
+    $scope.tableFieldsStorager = [];
     $scope.formatSelected = null;
+    $scope.dcpsStorager = [];
+    $scope.inputDataSets = [];
+    $scope.storage = {};
 
-    $scope.addDcp = function() {
+    var removeInput = function(dcpMask) {
+      $scope.inputDataSets.forEach(function(dcp, pcdIndex, array) {
+        // todo: which fields should compare to remove?
+        if (dcp.mask === dcpMask) {
+          array.splice(pcdIndex, 1);
+          return;
+        }
+      });
+    };
+
+    $scope.removePcdStorager = function(dcpItem) {
+      $scope.dcpsStorager.forEach(function(dcp, pcdIndex, array) {
+        // todo: which fields should compare to remove?
+        if (dcp.inputDataSet === dcpItem.mask) {
+          array.splice(pcdIndex, 1);
+          return;
+        }
+      });
+    };
+
+    $scope.addDcpStorager = function() {
       $scope.$broadcast('schemaFormValidate');
       var form = angular.element('form[name="storagerForm"]').scope()['storagerForm'];
-      if (form.$valid) {
-        $scope.dcps.push(Object.assign({}, $scope.model));
+      var inputDataSetForm = angular.element('form[name="inputDataSetForm"]').scope()['inputDataSetForm'];
+      if (form.$valid && inputDataSetForm.$valid) {
+        $scope.model['inputDataSet'] = $scope.storage.inputDataSet.mask;
+        $scope.dcpsStorager.push(Object.assign({}, $scope.model));
         $scope.model = {};
 
+        // remove it from input list
+        removeInput($scope.storage.inputDataSet.mask);
+
         // reset form to do not display feedback class
-        this.parametersForm.$setPristine();
+        form.$setPristine();
+        inputDataSetForm.$setPristine();
       }
     };
 
-    $scope.onDcpClicked = function(dcp) {
-      $scope.model = dcp;
-    };
+    $scope.$on("dcpOperation", function(event, args) {
+      if (args.action === "remove") {
+        $scope.removePcdStorager(args.dcp);
+      //  todo: remove it from list
+        removeInput(args.dcp.mask);
+      } else if (args.action === "add") {
+        $scope.inputDataSets.push(args.dcp);
+      }
+    });
 
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format.name;
       DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
-        $scope.tableFields = [];
+        $scope.tableFieldsStorager = [];
         var form = data.metadata.form;
         // building table fields. Check if form is for all ('*')
         if (data.metadata.form.indexOf('*') != -1) {
@@ -125,29 +160,20 @@ angular.module('terrama2.dataseries.registration', [
           var properties = data.metadata.schema.properties;
           for(var key in properties) {
             if (properties.hasOwnProperty(key)) {
-              $scope.tableFields.push(key);
+              $scope.tableFieldsStorager.push(key);
             }
           }
         } else {
-          form.push({key: 'InputDataSet', htmlClass: "col-md-2"});
+          // form.push({key: 'InputDataSet', htmlClass: "col-md-2"});
           // form is mapped
           data.metadata.form.forEach(function(element) {
-            $scope.tableFields.push(element.key);
+            $scope.tableFieldsStorager.push(element.key);
           })
         }
 
+        $scope.tableFieldsStorager.push("inputDataSet");
+
         var schema = data.metadata.schema.properties;
-
-        var inputDataSets = [];
-        args.dcps.forEach(function(fmt) {
-          inputDataSets.push(fmt.mask);
-        });
-
-        schema["InputDataSet"] = {
-          type: "string",
-          title: "Input DataSet",
-          enum: inputDataSets
-        };
 
         $scope.model = {};
         $scope.form = data.metadata.form;
@@ -361,14 +387,6 @@ angular.module('terrama2.dataseries.registration', [
           })
         } else if (semanticsList.length > 0) {
           $scope.dataSeries.semantics = semanticsList[0];
-          // if is dcp postgis, it shouldn't have a storager and it is processing
-          if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
-            $scope.dataSeries.access = 'COLLECT';
-
-            $scope.storagerFormats = [{name: 'DCP-POSTGIS'}];
-          } else {
-            $scope.dataSeries.access = 'PROCESSING';
-          }
           $scope.onDataSemanticsChange();
         }
 
@@ -398,6 +416,16 @@ angular.module('terrama2.dataseries.registration', [
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_format_name.toLowerCase();
+
+        // if is dcp postgis, it shouldn't have a storager and it is processing
+        if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
+          $scope.dataSeries.access = 'COLLECT';
+
+          $scope.storagerFormats = [{name: 'DCP-POSTGIS'}];
+        } else {
+          $scope.dataSeries.access = 'PROCESSING';
+          $scope.storagerFormats = [];
+        }
         
         DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.name, {metadata:true}).success(function(data) {
           $scope.tableFields = [];
@@ -448,6 +476,7 @@ angular.module('terrama2.dataseries.registration', [
         $scope.dcps.forEach(function(dcp, pcdIndex, array) {
           // todo: which fields should compare to remove?
           if (dcp.mask === dcpItem.mask) {
+            $scope.$broadcast("dcpOperation", {action: "remove", dcp: Object.assign({}, dcpItem)});
             array.splice(pcdIndex, 1);
             return;
           }
@@ -459,14 +488,11 @@ angular.module('terrama2.dataseries.registration', [
 
         return form.$valid;
       };
-
-      $scope.onDcpClicked = function(dcp) {
-        $scope.model = dcp;
-      };
       
       $scope.addDcp = function() {
         if (isValidParametersForm(this.parametersForm)) {
           $scope.dcps.push(Object.assign({}, $scope.model));
+          $scope.$broadcast("dcpOperation", {action: "add", dcp: Object.assign({}, $scope.model)});
           $scope.model = {};
 
           // reset form to do not display feedback class
