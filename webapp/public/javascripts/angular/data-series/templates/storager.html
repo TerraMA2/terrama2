@@ -3,7 +3,7 @@
     <div class="form-group" ng-class="{'has-error': storagerForm.format.$dirty && storagerForm.format.$error.required, 'has-success': storagerForm.format.$dirty && storagerForm.format.$valid}">
       <label>{{ i18n.__('Output Format') }}:</label>
       <select id="storageFormat" class="form-control" name="format" ng-model="storager.format" ng-change="onStoragerFormatChange()" ng-options="format.name for format in storagerFormats" required>
-        <!--<option ng-repeat="format in storagerFormats">{{ format.name }}</option>-->
+        <option ng-repeat="format in storagerFormats">{{ format.name }}</option>
       </select>
     </div>
   </div>

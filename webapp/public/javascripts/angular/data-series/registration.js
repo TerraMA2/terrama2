@@ -485,7 +485,7 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
           $scope.dataSeries.access = 'COLLECT';
 
-          $scope.storagerFormats = [{name: 'DCP-POSTGIS'}];
+          $scope.storagerFormats = [{name: 'DCP-POSTGIS', data_series_type_name: 'Dcp'}];
         } else {
           $scope.dataSeries.access = 'PROCESSING';
           $scope.storagerFormats = [];
@@ -597,62 +597,6 @@ angular.module('terrama2.dataseries.registration', [
 
         $scope.alertBox.title = "Data Series Registration";
 
-        var _makeDataSets = function(dataSetList, data_series_semantics) {
-          var dataSets = [];
-
-          switch(data_series_semantics.toLowerCase()) {
-            case "dcp":
-            case "pcd":
-              $scope.dcps.forEach(function(dcp) {
-                var format = {};
-                for(var key in dcp) {
-                  if (dcp.hasOwnProperty(key))
-                    if (key !== "latitude" && key !== "longitude" && key !== "active")
-                      format[key] = dcp[key];
-                }
-
-                var dataSetStructure = {
-                  active: dcp.active,
-                  format: format,
-                  position: {
-                    type: 'Point',
-                    coordinates: [dcp.latitude, dcp.longitude],
-                    crs: {
-                      type: 'name',
-                      properties : {
-                        name: "EPSG:" + dcp.projection
-                      }
-                    }
-                  }
-                };
-
-                dataToSend.dataSets.push(dataSetStructure);
-              });
-
-              break;
-
-            case "occurrence":
-              var format = $scope.model;
-
-              var dataSet = {
-                semantics: semantics,
-                active: $scope.parametersData.active,
-                format: format
-              };
-
-              dataToSend.dataSets.push(dataSet);
-              break;
-
-            case "grid":
-              break;
-
-            default:
-              break;
-          }
-
-          return dataSets;
-        };
-
         var _save = function() {
 
           var dataToSend = Object.assign({}, $scope.dataSeries);
@@ -723,11 +667,17 @@ angular.module('terrama2.dataseries.registration', [
           }
 
           var scheduleValues = Object.assign({}, $scope.schedule);
-          if (scheduleValues.schedule) {
-            scheduleValues.schedule = new Date(scheduleValues.schedule.getTime() - scheduleValues.schedule.getTimezoneOffset()).toString();
-          }
 
           console.log(dataToSend);
+
+          return {
+            dataSeries: dataToSend,
+            schedule: scheduleValues,
+            filter: filterValues
+          };
+        };
+
+        var _sendRequest = function(dataToSend, scheduleValues, filterValues) {
           DataSeriesFactory.post({
             dataSeries: dataToSend,
             schedule: scheduleValues,
@@ -746,13 +696,27 @@ angular.module('terrama2.dataseries.registration', [
 
         if ($scope.dataSeries.access == 'COLLECT') {
           $scope.$on("storageValuesReceive", function(event, values) {
-            _save();
+          //  todo: improve
+
+            var dataObject = _save();
+            var outputDataSeries = {
+              name: dataObject.dataSeries.name + "_output",
+              description: dataObject.dataSeries.description,
+              data_series_semantic_name: $scope.dataSeries.semantics.name,
+              data_provider_id: $scope.dataSeries.data_provider_id,
+              dataSets: values.data instanceof Object ? [values.data] : values.data
+            };
+
+            _sendRequest({input: dataObject.dataSeries, output: outputDataSeries}, dataObject.schedule, dataObject.filter);
+
           });
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
           // processing
-          _save();
+          var dataObject = _save();
+
+          _sendRequest(dataObject.dataSeries, dataObject.schedule, dataObject.filter);
         }
 
       };

@@ -843,7 +843,7 @@ var DataManager = {
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
-                TcpManager.sendData({"DataSeries": [output.toObject()]});
+                // TcpManager.sendData({"DataSeries": [output.toObject()]});
 
                 // resolving promise
                 resolve(output);
@@ -864,10 +864,10 @@ var DataManager = {
       }).catch(function(err){
         var msg = "";
 
-        err.errors.forEach(function(error) {
-          msg = error.message;
-        });
-        reject(new exceptions.DataSeriesError(msg));
+        // err.errors.forEach(function(error) {
+        //   msg = error.message;
+        // });
+        reject(new exceptions.DataSeriesError(err.message));
       });
     });
   },
@@ -1239,36 +1239,40 @@ var DataManager = {
         })
       };
 
-      self.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-        if (scheduleObject.schedule) {
-          scheduleObject.schedule = new Date(scheduleObject.schedule);
-        }
-
-        self.addSchedule(scheduleObject).then(function(scheduleResult) {
-          var collectorObject = {};
-
-          // todo: get service_instance id and collector status (active)
-          collectorObject.data_series_input = dataSeriesResult.id;
-          collectorObject.data_series_output = dataSeriesResult.id;
-          collectorObject.service_instance_id = serviceObject.id;
-          collectorObject.schedule_id = scheduleResult.id;
-          collectorObject.active = true;
-          collectorObject.collector_type = 1;
-          collectorObject.schedule_id = scheduleResult.id;
-
-          self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
-            resolve(dataSeriesResult)
+      self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
+        self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
+          if (scheduleObject.schedule) {
+            scheduleObject.schedule = new Date(scheduleObject.schedule);
+          }
+  
+          self.addSchedule(scheduleObject).then(function(scheduleResult) {
+            var collectorObject = {};
+  
+            // todo: get service_instance id and collector status (active)
+            collectorObject.data_series_input = dataSeriesResult.id;
+            collectorObject.data_series_output = dataSeriesResultOutput.id;
+            collectorObject.service_instance_id = serviceObject.id;
+            collectorObject.schedule_id = scheduleResult.id;
+            collectorObject.active = true;
+            collectorObject.collector_type = 1;
+            collectorObject.schedule_id = scheduleResult.id;
+  
+            self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
+              resolve(dataSeriesResult)
+            }).catch(function(err) {
+              // rollback schedule
+              rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+            });
           }).catch(function(err) {
-            // rollback schedule
-            rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+            // rollback dataseries
+            rollbackModels([models.db.DataSeries, models.db.DataSeries], [dataSeriesResultOutput, dataSeriesResult], err);
           });
         }).catch(function(err) {
-          // rollback dataseries
           rollbackModels([models.db.DataSeries], [dataSeriesResult], err);
-        });
+        })
       }).catch(function(err) {
         reject(err);
-      })
+      })  
     });
   },
 
