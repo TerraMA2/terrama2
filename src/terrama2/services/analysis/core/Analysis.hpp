@@ -52,10 +52,10 @@ namespace terrama2
         */
         enum AnalysisType
         {
-          PCD_TYPE, //!< Analysis for DCP.
-          MONITORED_OBJECT_TYPE, //!< Analysis for monitored objects.
-          GRID_TYPE, //!< Analysis for grids.
-          TERRAME_TYPE //!< Analysis for TerraME.
+          PCD_TYPE = 1, //!< Analysis for DCP.
+          MONITORED_OBJECT_TYPE = 2, //!< Analysis for monitored objects.
+          GRID_TYPE = 3, //!< Analysis for grids.
+          TERRAME_TYPE = 4//!< Analysis for TerraME.
         };
 
         /*!
@@ -63,8 +63,8 @@ namespace terrama2
         */
         enum ScriptLanguage
         {
-          PYTHON, //!< Scripts in Python.
-          LUA //!< Scripts in LUA.
+          PYTHON = 1, //!< Scripts in Python.
+          LUA = 2 //!< Scripts in LUA.
         };
 
         /*!
@@ -72,10 +72,10 @@ namespace terrama2
         */
         enum AnalysisDataSeriesType
         {
-          DATASERIES_MONITORED_OBJECT_TYPE, //!< Identifies a DataSeries used as monitored object.
-          DATASERIES_GRID_TYPE, //!< Identifies a DataSeries used as grid.
-          DATASERIES_PCD_TYPE, //!< Identifies a DataSeries used as DCP.
-          ADDITIONAL_DATA_TYPE //!< Identifies a DataSeries used as an additional data.
+          DATASERIES_MONITORED_OBJECT_TYPE = 1, //!< Identifies a DataSeries used as monitored object.
+          DATASERIES_GRID_TYPE = 2, //!< Identifies a DataSeries used as grid.
+          DATASERIES_PCD_TYPE = 3, //!< Identifies a DataSeries used as DCP.
+          ADDITIONAL_DATA_TYPE = 4 //!< Identifies a DataSeries used as an additional data.
         };
 
         /*!
@@ -86,6 +86,7 @@ namespace terrama2
         {
           AnalysisDataSeriesId id = 0; //!< AnalysisDataSeries identifier.
           terrama2::core::DataSeriesPtr dataSeries; //!< Smart pointer to the DataSeries.
+          DataSeriesId dataSeriesId; //!< Identifier of the DataSeries.
           AnalysisDataSeriesType type; //!< Type of use of the DataSeries in the analysis.
           std::map<uint64_t, std::string> alias; //!< Map containing the alias for the columns of a DataSeries.
           std::map<std::string, std::string> metadata; //!< Metadata of the AnalysisDataSeries.
@@ -98,14 +99,14 @@ namespace terrama2
         struct Analysis
         {
           AnalysisId id = 0; //!< Analysis identifier.
-          uint64_t projectId = 0; //!< Project identifier.
+          ProjectId projectId = 0; //!< Project identifier.
 					ScriptLanguage scriptLanguage; //!< Language of the script.
 					std::string script; //!< Content of the script.
           AnalysisType type; //!< Type of the analysis.
 					std::string name; //!< Name of the analysis.
 					std::string description; //!< Short description of the purpose of the analysis.
           bool active = true; //!< Defines if the analysis is active, if true it will be executed according to the schedule.
-          terrama2::core::DataSet outputDataset; //!< The dataset that stores the result of the analysis.
+          DataSetId outputDataset; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this anlysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.

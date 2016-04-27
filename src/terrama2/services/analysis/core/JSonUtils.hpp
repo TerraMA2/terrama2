@@ -20,18 +20,17 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Utils.hpp
+  \file src/terrama2/services/analysis/core/JSonUtils.hpp
 
-  \brief Utility functions for TerraMA2 Analysis module.
+  \brief Utility functions to encode and decode analysis objects to/from JSON.
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__
-
-// TerraMA2
 #include "Analysis.hpp"
+
+// Qt
+#include <QJsonObject>
 
 namespace terrama2
 {
@@ -41,38 +40,11 @@ namespace terrama2
     {
       namespace core
       {
+        Analysis fromAnalysisJson(const QJsonObject& json);
 
-        /*!
-          \brief Returns a enum with the type of the Analysis based on the given parameter.
-
-          \param type Type of the Analysis.
-
-          \return Enum with the type of the Analysis.
-         */
-        AnalysisType ToType(uint64_t type);
-
-        /*!
-          \brief Returns a enum with the type of use of the DataSeries in the analysis based on the given parameter.
-
-          \param type Type of use of the DataSeries in the Analysis.
-
-          \return Enum with the type of use of the DataSeries in the Analysis.
-         */
-        AnalysisDataSeriesType ToAnalysisDataSeriesType(uint64_t type);
-
-
-        /*!
-          \brief Returns a enum with the script language of the Analysis based on the given parameter.
-
-          \param scriptLanguage Script language of the Analysis.
-
-          \return Enum with the script language of the Analysis.
-         */
-        ScriptLanguage ToScriptLanguage(uint64_t scriptLanguage);
+        QJsonObject toJson(const Analysis& analysis);
 
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
-
-#endif // __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__

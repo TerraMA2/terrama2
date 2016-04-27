@@ -65,6 +65,15 @@ namespace terrama2
             //! Destructor
             virtual ~DataManager ();
 
+            /*!
+              \brief Decodes and registers the data model objects received in JSON into the DataManager.
+
+              It decodes the objects from the analysis modules and call the parent function to decode the objects from core module.
+
+              \pre The QJsonObject must have a list of json-converted data model objects.
+            */
+            virtual void addFromJSON(const QJsonObject& obj) override;
+
             //! Needed for overloading add method.
             using terrama2::core::DataManager::add;
 
