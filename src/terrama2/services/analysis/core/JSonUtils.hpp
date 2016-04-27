@@ -40,8 +40,15 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief Creates an Analysis object from a QJsonObject.
+          \see [Analysis at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/Analysis) for more information.
+        */
         Analysis fromAnalysisJson(const QJsonObject& json);
 
+        /*!
+          \brief Creates a QJsonObject from an Analysis.
+        */
         QJsonObject toJson(const Analysis& analysis);
 
       } // end namespace core
