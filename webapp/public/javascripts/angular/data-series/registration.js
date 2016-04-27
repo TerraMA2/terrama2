@@ -270,16 +270,47 @@ angular.module('terrama2.dataseries.registration', [
 
 
       $scope.onScheduleChange = function(value) {
-        switch($scope.schedule.schedule_unit) {
+        var resetHelper = function(i) {
+          if (i == 1) {
+            delete $scope.schedule.schedule;
+            delete $scope.schedule.schedule_retry;
+            delete $scope.schedule.schedule_retry_unit;
+            delete $scope.schedule.schedule_timeout;
+            delete $scope.schedule.schedule_timeout_unit;
+            $scope.isFrequency = true;
+            $scope.isSchedule = false;
+          } else if (i == 2) {
+            delete $scope.frequency;
+            delete $scope.frequency_unit;
+            $scope.isFrequency = false;
+            $scope.isSchedule = true;
+          }
+        };
+
+        switch(value) {
+          case "seconds":
+          case "minutes":
+            resetHelper(1);
+            $scope.minSchedule = 1;
+            $scope.maxSchedule = 60;
+            break;
+          case "hours":
+            resetHelper(1);
+            $scope.minSchedule = 1;
+            $scope.maxSchedule = 24;
+            break;
           case "weekly":
+            resetHelper(2);
             $scope.minSchedule = 1;
             $scope.maxSchedule = 7;
             break;
           case "monthly":
+            resetHelper(2);
             $scope.minSchedule = 1;
             $scope.maxSchedule = 31;
             break;
           case "yearly":
+            resetHelper(2);
             $scope.minSchedule = 1;
             $scope.maxSchedule = 366;
             break;
@@ -287,22 +318,6 @@ angular.module('terrama2.dataseries.registration', [
             $scope.minSchedule = 0;
             $scope.maxSchedule = 0;
             break;
-        }
-        
-        // resetting
-        if (value == 1) {
-          delete $scope.schedule.schedule;
-          delete $scope.schedule.schedule_retry;
-          delete $scope.schedule.schedule_retry_unit;
-          delete $scope.schedule.schedule_timeout;
-          delete $scope.schedule.schedule_timeout_unit;
-          $scope.isFrequency = true;
-          $scope.isSchedule = false;
-        } else if (value == 2) {
-          delete $scope.frequency;
-          delete $scope.frequency_unit;
-          $scope.isFrequency = false;
-          $scope.isSchedule = true;
         }
       };
       
