@@ -20,28 +20,22 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/CollectorLog.cpp
+  \file unittest/analysis/TsJSONUtils.hpp
 
-  \brief
+  \brief Tests for JSON Utility class
 
-  \author Vinicius Campanha
+  \author Paulo R. M. Oliveira
 */
 
-// TerraMA2
-#include "CollectorLog.hpp"
 
-terrama2::services::collector::core::CollectorLog::CollectorLog(uint64_t processID , std::map< std::string, std::string > connInfo)
- : ProcessLogger(processID, connInfo)
-{
-  setTableName("collector");
-}
+//QT
+#include <QtTest/QTest>
 
-void terrama2::services::collector::core::CollectorLog::addInput(std::string value)
-{
-  addValue("input", value);
-}
 
-void terrama2::services::collector::core::CollectorLog::addOutput(std::string value)
+class TsJSONUtils : public QObject
 {
-  addValue("output", value);
-}
+  Q_OBJECT
+
+private slots:
+  void testJSON();
+};

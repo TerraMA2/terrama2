@@ -46,12 +46,50 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief Validates a name based on the mask and filter values.
-        VINICIUS: documentar!
-    */
-    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
+      \brief Check if the mask cases with name
 
-    bool isValidMask(const std::string& mask);
+      \param mask A mask to check  names
+      \param name A name to check
+
+      \return Returns if the name is valid or not.
+    */
+    bool isValidDataSetName(const std::string& mask, const std::string& name);
+
+    /*!
+      \brief Check if the mask cases with name and filter the name by date in it.
+              It also fullfill the fileTimestamp with the date in name
+
+      \param mask A mask to check  names
+      \param filter Contains the checks to validate name and date
+      \param timezone The timezone of the date in name
+      \param name A name to check
+      \param fileTimestamp A TimeInstantTZ to be fullfiled with the date in name
+
+      \return Returns if the name is valid or not.
+
+      \exception terrama2::Exception If it is not possible to form a date with mask.
+      \exception terrama2::Exception If it was not possible to find a valid date in name.
+    */
+    bool isValidDataSetName(const std::string& mask, const Filter& filter, std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
+
+    /*!
+      \brief Check timestamp is between a valid period.
+
+      \param filter Contains the valid period to validate date
+      \param fileTimestamp A TimeInstantTZ with the date to be validated
+
+      \return Returns if the Timestamp is valid or not.
+    */
+    bool isValidTimestamp(const Filter& filter, const std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
+
+    /*!
+      \brief Check mask has the minimal needed to form a date.
+
+      \param mask A mask to validate
+
+      \return Returns if the mask is valid or not.
+    */
+    bool isValidDatedMask(const std::string& mask);
   } // end namespace core
 }   // end namespace terrama2
 

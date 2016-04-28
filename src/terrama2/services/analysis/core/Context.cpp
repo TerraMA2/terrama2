@@ -58,7 +58,7 @@
 
 
 
-std::map<terrama2::services::analysis::core::ResultKey, double, terrama2::services::analysis::core::ResultKeyComparer> terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
+std::map<terrama2::services::analysis::core::ResultKey, double, terrama2::services::analysis::core::ResultKeyComparator> terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisResult_[analysisId];
@@ -76,7 +76,7 @@ void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t ana
 }
 
 
-std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::services::analysis::core::Context::getContextDataset(const AnalysisId analysisId, const uint64_t datasetId, const std::string& dateFilter) const
+std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::Context::getContextDataset(const AnalysisId analysisId, const uint64_t datasetId, const std::string& dateFilter) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -88,7 +88,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataset> terrama2::se
   auto it = datasetMap_.find(key);
   if(it == datasetMap_.end())
   {
-    return std::shared_ptr<terrama2::services::analysis::core::ContextDataset>();
+    return std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries>();
   }
 
   return it->second;
@@ -108,77 +108,74 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    auto datasets = analysisDataSeries.dataSeries->datasetList;
+    auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+    auto datasets = dataSeriesPtr->datasetList;
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
       assert(datasets.size() == 1);
       auto dataset = datasets[0];
 
-      auto dataProvider = dataManagerPtr->findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
+      auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
       terrama2::core::Filter filter;
 
       //accessing data
-      terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, analysisDataSeries.dataSeries);
+      terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
       auto seriesMap = accessor->getSeries(filter);
       auto series = seriesMap[dataset];
 
       auto format = dataset->format;
       std::string identifier = format["identifier"];
 
-      std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
+      std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
       if(!series.syncDataSet->dataset())
       {
-        QString msg(QObject::tr("Analysis: %1 -> Adding an invalid dataset to the analysis context: DataSeries %2").arg(analysis.id).arg(analysisDataSeries.dataSeries->id));
+        QString msg(QObject::tr("Analysis: %1 -> Adding an invalid dataset to the analysis context: DataSeries %2").arg(analysis.id).arg(dataSeriesPtr->id));
         TERRAMA2_LOG_ERROR() << msg;
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
       }
 
       std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
-      datasetContext->series = series;
-      datasetContext->identifier = identifier;
-      datasetContext->geometryPos = geomPropertyPosition;
+      dataSeriesContext->series = series;
+      dataSeriesContext->identifier = identifier;
+      dataSeriesContext->geometryPos = geomPropertyPosition;
 
       ContextKey key;
       key.datasetId_ = dataset->id;
       key.analysisId_ = analysis.id;
-      datasetMap_[key] = datasetContext;
+      datasetMap_[key] = dataSeriesContext;
     }
     else if(analysisDataSeries.type == DATASERIES_PCD_TYPE)
     {
-      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      for(auto dataset : dataSeriesPtr->datasetList)
       {
-        auto dataProvider = dataManagerPtr->findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
+        auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
         terrama2::core::Filter filter;
 
         //accessing data
-        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, analysisDataSeries.dataSeries);
+        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
         auto seriesMap = accessor->getSeries(filter);
         auto series = seriesMap[dataset];
 
         auto format = dataset->format;
         std::string identifier = format["identifier"];
 
-        std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
+        std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
         std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
-        datasetContext->series = series;
-        datasetContext->identifier = identifier;
-        datasetContext->geometryPos = geomPropertyPosition;
+        dataSeriesContext->series = series;
+        dataSeriesContext->identifier = identifier;
+        dataSeriesContext->geometryPos = geomPropertyPosition;
 
         ContextKey key;
         key.datasetId_ = dataset->id;
         key.analysisId_ = analysis.id;
-        datasetMap_[key] = datasetContext;
+        datasetMap_[key] = dataSeriesContext;
       }
-
-
-
     }
   }
-
 }
 
 void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter, const bool lastValue)
@@ -241,9 +238,9 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
     auto format = series.dataSet->format;
     std::string identifier = format["identifier"];
 
-    std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
-    datasetContext->series = series;
-    datasetContext->identifier = identifier;
+    std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
+    dataSeriesContext->series = series;
+    dataSeriesContext->identifier = identifier;
 
     terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(series.dataSet);
     if(!dcpDataset->position)
@@ -252,14 +249,14 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
       TERRAMA2_LOG_ERROR() << msg;
       throw InvalidDataSetException() << terrama2::ErrorDescription(msg);
     }
-    datasetContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
+    dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 
     ContextKey key;
     key.datasetId_ = series.dataSet->id;
     key.analysisId_ = analysisId;
     key.dateFilter_ = dateFilter;
-    datasetMap_[key] = datasetContext;
+    datasetMap_[key] = dataSeriesContext;
 
     QString msg(QObject::tr("Adding dataset to Context: [ Analysis = %1 ], [ DataSet = %2 ], [ Date filter = %3 ].").arg(std::to_string(analysisId).c_str(), std::to_string(series.dataSet->id).c_str(), dateFilter.c_str()));
     TERRAMA2_LOG_DEBUG() << msg;
@@ -354,13 +351,13 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
     auto format = series.dataSet->format;
     std::string identifier = format["identifier"];
 
-    std::shared_ptr<ContextDataset> datasetContext(new ContextDataset);
+    std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
     std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
-    datasetContext->series = series;
-    datasetContext->identifier = identifier;
-    datasetContext->geometryPos = geomPropertyPosition;
+    dataSeriesContext->series = series;
+    dataSeriesContext->identifier = identifier;
+    dataSeriesContext->geometryPos = geomPropertyPosition;
 
     if(createSpatialIndex)
     {
@@ -368,7 +365,7 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
       for(std::size_t i = 0; i < size; ++i)
       {
         auto geom = series.syncDataSet->getGeometry(i, geomPropertyPosition);
-        datasetContext->rtree.insert(*geom->getMBR(), i);
+        dataSeriesContext->rtree.insert(*geom->getMBR(), i);
       }
     }
 
@@ -377,7 +374,7 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
     key.datasetId_ = series.dataSet->id;
     key.analysisId_ = analysisId;
     key.dateFilter_ = dateFilter;
-    datasetMap_[key] = datasetContext;
+    datasetMap_[key] = dataSeriesContext;
 
     QString msg(QObject::tr("Adding dataset to Context: [ Analysis = %1 ], [ DataSet = %2 ], [ Date filter = %3 ].").arg(std::to_string(analysisId).c_str(), std::to_string(series.dataSet->id).c_str(), dateFilter.c_str()));
     TERRAMA2_LOG_DEBUG() << msg;
@@ -386,8 +383,13 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
 
 void terrama2::services::analysis::core::Context::setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager)
 {
-
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
   dataManager_ = dataManager;
+}
+
+
+std::weak_ptr<terrama2::services::analysis::core::DataManager> terrama2::services::analysis::core::Context::getDataManager()
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  return dataManager_;
 }

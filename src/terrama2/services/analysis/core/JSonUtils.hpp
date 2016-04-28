@@ -20,19 +20,17 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Exception.hpp
+  \file src/terrama2/services/analysis/core/JSonUtils.hpp
 
-  \brief Analysis module Exceptions.
+  \brief Utility functions to encode and decode analysis objects to/from JSON.
 
   \author Paulo R. M. Oliveira
- */
+*/
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__
+#include "Analysis.hpp"
 
-// TerraMA2
-#include "../../../core/Exception.hpp"
-
+// Qt
+#include <QJsonObject>
 
 namespace terrama2
 {
@@ -42,25 +40,18 @@ namespace terrama2
     {
       namespace core
       {
-        //! Base exception class for analysis module.
-        struct Exception: virtual terrama2::core::Exception {};
+        /*!
+          \brief Creates an Analysis object from a QJsonObject.
+          \see [Analysis at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/Analysis) for more information.
+        */
+        Analysis fromAnalysisJson(const QJsonObject& json);
 
-        //! To be updated when an invalid frequency is detected in an analysis.
-        struct InvalidFrequencyException: virtual Exception {};
-
-        //! To be used when an invalid parameter is given.
-        struct InvalidParameterException: virtual Exception {};
-
-        //! To be used when an invalid dataset is dectected.
-        struct InvalidDataSetException: virtual Exception {};
-
-        //! To be used when an error occur in the python script execution.
-        struct PythonInterpreterException: virtual Exception {};
-
+        /*!
+          \brief Creates a QJsonObject from an Analysis.
+        */
+        QJsonObject toJson(const Analysis& analysis);
 
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
-
-#endif  // __TERRAMA2_SERVICES_ANALYSIS_CORE_EXCEPTION_HPP__

@@ -109,7 +109,7 @@ void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysi
   try
   {
     Analysis analysis = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&run, analysis));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, analysis));
   }
   catch(std::exception& e)
   {
@@ -134,11 +134,6 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
-}
-
-void terrama2::services::analysis::core::Service::run(Analysis analysis)
-{
-  terrama2::services::analysis::core::runAnalysis(analysis);
 }
 
 void terrama2::services::analysis::core::Service::connectDataManager()

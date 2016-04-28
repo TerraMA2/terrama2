@@ -55,16 +55,32 @@ namespace terrama2
           Q_OBJECT
 
           public:
+            //! Constructor
             Service(DataManagerPtr dataManager);
+
+            //! Destructor
             virtual ~Service();
 
           public slots:
 
+            /*!
+              \brief Adds the analysis to the queue of execution and starts the schedule for future executions.
+              \param analysisId Analysis identifier.
+            */
             void addAnalysis(AnalysisId analysisId);
 
+            /*!
+              \brief Removes an analysis from the queue of execution.
+              \param analysisId Analysis identifier.
+            */
             void removeAnalysis(AnalysisId analysisId);
 
+            /*!
+              \brief Updates an analysis in the queue of execution.
+              \param analysisId Analysis identifier.
+            */
             void updateAnalysis(AnalysisId analysisId);
+
 
             void addToQueue(AnalysisId analysisId);
 
@@ -82,15 +98,19 @@ namespace terrama2
              */
             virtual bool checkNextData() override;
 
-
-            static void run(Analysis analysis);
-
+            /*!
+              \brief Binds the method of execution to the task queue.
+              \param analysisId Analysis identifier.
+            */
             void prepareTask(uint64_t analysisId);
 
+            /*!
+              \brief Connects data manager signals to analysis management methods.
+            */
             void connectDataManager();
 
 
-            std::map<AnalysisId, terrama2::core::TimerPtr> timers_;
+            std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
             std::vector<AnalysisId> analysisQueue_; //!< Analysis queue.
             DataManagerPtr dataManager_; //!< Data manager.
 

@@ -95,8 +95,8 @@ void terrama2::core::Service::stop() noexcept
   if(mainLoopThread_.valid())
     mainLoopThread_.get();
 
-  //wait for each collectiing thread
-  for(auto & future : processingThreadPool_)
+  //wait for each collecting thread
+  for (auto& future : processingThreadPool_)
   {
     if(future.valid())
       future.get();

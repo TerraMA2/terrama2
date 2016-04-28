@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 
-#include "../../../core/utility/ProcessLog.hpp"
+#include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
 {
@@ -40,7 +40,7 @@ namespace terrama2
     {
       namespace core
       {
-        class CollectorLog : public terrama2::core::ProcessLog
+        class CollectorLog : public terrama2::core::ProcessLogger
         {
         public:
           CollectorLog(uint64_t processID, std::map<std::string, std::string> connInfo);

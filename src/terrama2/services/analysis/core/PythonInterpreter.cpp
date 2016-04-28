@@ -43,7 +43,6 @@
 #include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
-#include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/data-access/SyncronizedDataSet.hpp"
@@ -62,7 +61,7 @@
 
 using namespace boost::python;
 
-int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, double radius, Buffer bufferType, std::string dateFilter, std::string restriction)
+int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, double radius, BufferType bufferType, std::string dateFilter, std::string restriction)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -80,16 +79,26 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
   uint64_t count = 0;
   bool found = false;
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
-  std::shared_ptr<ContextDataset> moDsContext;
+  std::shared_ptr<ContextDataSeries> moDsContext;
 
   // Reads the object monitored
   for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
   {
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      terrama2::core::DataSeriesPtr& dataSeries = analysisDataSeries.dataSeries;
+
+
+      terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
@@ -131,19 +140,18 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
     return 0;
   }
 
-
-
-  std::shared_ptr<ContextDataset> contextDataset;
+  std::shared_ptr<ContextDataSeries> contextDataset;
 
   for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilter, true);
+      Context::getInstance().addDataset(analysisId, dataSeries, dateFilter, true);
 
-      auto datasets = analysisDataSeries.dataSeries->datasetList;
+      auto datasets = dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
@@ -279,10 +287,18 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
   uint64_t analysisId = PyInt_AsLong(analysisPy);
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
   if(analysis.type == MONITORED_OBJECT_TYPE)
   {
-    std::shared_ptr<ContextDataset> moDsContext;
+    std::shared_ptr<ContextDataSeries> moDsContext;
     terrama2::core::DataSetPtr datasetMO;
 
     // Reads the object monitored
@@ -291,8 +307,9 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
     {
       if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
       {
-        assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
-        datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+        auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+        assert(dataSeries->datasetList.size() == 1);
+        datasetMO = dataSeries->datasetList[0];
 
         if(!Context::getInstance().exists(analysis.id, datasetMO->id))
         {
@@ -319,42 +336,42 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 }
 
 
-int terrama2::services::analysis::core::dcpCount(const std::string& dataSeriesName, double radius, Buffer bufferType)
+int terrama2::services::analysis::core::dcpCount(const std::string& dataSeriesName, double radius, BufferType bufferType)
 {
   return dcpOperator(COUNT, dataSeriesName, "", radius, bufferType);
 }
 
-double terrama2::services::analysis::core::dcpMin(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMin(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MIN, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpMax(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMax(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MAX, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpMean(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMean(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MEAN, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpMedian(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMedian(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MEDIAN, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpSum(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpSum(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(SUM, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(STANDARD_DEVIATION, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName,  const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName,  const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -379,10 +396,18 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   bool found = false;
   bool hasData = false;
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
 
-  std::shared_ptr<ContextDataset> moDsContext;
+  std::shared_ptr<ContextDataSeries> moDsContext;
   terrama2::core::DataSetPtr datasetMO;
 
   // Reads the object monitored
@@ -390,8 +415,9 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   {
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
-      datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+      terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      assert(dataSeries->datasetList.size() == 1);
+      datasetMO = dataSeries->datasetList[0];
 
       if(!Context::getInstance().exists(analysis.id, datasetMO->id))
       {
@@ -424,7 +450,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   }
 
 
-  std::shared_ptr<ContextDataset> contextDataset;
+  std::shared_ptr<ContextDataSeries> contextDataset;
 
 
 
@@ -433,11 +459,13 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      if(analysisDataSeries.dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
+      if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
       {
         QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
         errMsg = errMsg.arg(analysisId);
@@ -446,12 +474,12 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
       }
 
 
-      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, "", true);
+      Context::getInstance().addDCP(analysisId, dataSeries, "", true);
 
       // For DCP count returns the number of datasets
-      count = analysisDataSeries.dataSeries->datasetList.size();
+      count = dataSeries->datasetList.size();
 
-      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      for(auto dataset : dataSeries->datasetList)
       {
         contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id);
 
@@ -623,7 +651,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(dcpSum_overloads, terrama2::services::analysis::
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpStandardDeviation_overloads, terrama2::services::analysis::core::dcpStandardDeviation, 4, 5)
 
 
-void terrama2::services::analysis::core::exportDCP()
+void terrama2::services::analysis::core::registerDCPFunctions()
 {
   // map the dcp namespace to a sub-module
   // make "from terrama2.dcp import <function>" work
@@ -657,7 +685,7 @@ void terrama2::services::analysis::core::exportDCP()
 
 }
 
-void terrama2::services::analysis::core::exportOccurrence()
+void terrama2::services::analysis::core::registerOccurrenceFunctions()
 {
   // map the occurrence namespace to a sub-module
   // make "from terrama2.occurrence import <function>" work
@@ -680,15 +708,15 @@ BOOST_PYTHON_MODULE(terrama2)
 
   def("add_value", terrama2::services::analysis::core::addValue);
 
-  enum_<terrama2::services::analysis::core::Buffer>("Buffer")
+  enum_<terrama2::services::analysis::core::BufferType>("Buffer")
           .value("EXTERN", terrama2::services::analysis::core::EXTERN)
           .value("INTERN", terrama2::services::analysis::core::INTERN)
           .value("INTERN_PLUS_EXTERN", terrama2::services::analysis::core::INTERN_PLUS_EXTERN)
           .value("OBJECT_PLUS_EXTERN", terrama2::services::analysis::core::OBJECT_PLUS_EXTERN)
           .value("OBJECT_WITHOUT_INTERN", terrama2::services::analysis::core::OBJECT_WITHOUT_INTERN);
 
-  terrama2::services::analysis::core::exportDCP();
-  terrama2::services::analysis::core::exportOccurrence();
+  terrama2::services::analysis::core::registerDCPFunctions();
+  terrama2::services::analysis::core::registerOccurrenceFunctions();
 
 }
 
@@ -707,7 +735,7 @@ void terrama2::services::analysis::core::initInterpreter()
 
   PyEval_InitThreads();
 
-  initterrama2();
+  INIT_MODULE();
 
   // release our hold on the global interpreter
   PyEval_ReleaseLock();
@@ -788,7 +816,7 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 }
 
 
-double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -813,19 +841,29 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
   uint64_t count = 0;
   bool found = false;
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
 
-  std::shared_ptr<ContextDataset> moDsContext;
+  std::shared_ptr<ContextDataSeries> moDsContext;
   terrama2::core::DataSetPtr datasetMO;
 
   // Reads the object monitored
   for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
   {
+    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
-      datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+      assert(dataSeries->datasetList.size() == 1);
+      datasetMO = dataSeries->datasetList[0];
 
       if(!Context::getInstance().exists(analysis.id, datasetMO->id))
       {
@@ -858,15 +896,16 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
   }
 
 
-  std::shared_ptr<ContextDataset> contextDataset;
+  std::shared_ptr<ContextDataSeries> contextDataset;
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      if(analysisDataSeries.dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
+      if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
       {
         QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
         errMsg = errMsg.arg(analysisId);
@@ -874,9 +913,9 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
         return NAN;
       }
 
-      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilter, false);
+      Context::getInstance().addDCP(analysisId, dataSeries, dateFilter, false);
 
-      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      for(auto dataset : dataSeries->datasetList)
       {
         if(dataset->id != dcpId)
           continue;
@@ -1031,32 +1070,32 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
 }
 
 
-double terrama2::services::analysis::core::dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(SUM, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(SUM, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MEAN, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MEAN, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MIN, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MIN, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MAX, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MAX, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MEDIAN, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MEDIAN, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(STANDARD_DEVIATION, dataSeriesName, attribute, dcpId,  radius, bufferType, dateFilter);
 }

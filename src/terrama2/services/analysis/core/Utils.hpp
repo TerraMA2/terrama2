@@ -45,19 +45,28 @@ namespace terrama2
         /*!
           \brief Returns a enum with the type of the Analysis based on the given parameter.
 
-          \param type Type of the analysis.
+          \param type Type of the Analysis.
 
-          \return Enum with the type of the analysis.
+          \return Enum with the type of the Analysis.
          */
         AnalysisType ToType(uint64_t type);
+
+        /*!
+          \brief Returns a enum with the type of use of the DataSeries in the analysis based on the given parameter.
+
+          \param type Type of use of the DataSeries in the Analysis.
+
+          \return Enum with the type of use of the DataSeries in the Analysis.
+         */
+        AnalysisDataSeriesType ToAnalysisDataSeriesType(uint64_t type);
 
 
         /*!
           \brief Returns a enum with the script language of the Analysis based on the given parameter.
 
-          \param scriptLanguage Script language of the analysis.
+          \param scriptLanguage Script language of the Analysis.
 
-          \return Enum with the script language of the analysis.
+          \return Enum with the script language of the Analysis.
          */
         ScriptLanguage ToScriptLanguage(uint64_t scriptLanguage);
 

@@ -112,10 +112,10 @@ int main(int argc, char* argv[])
 //Code commented for tests with TCP communication
 
   auto json = doc.toJson(QJsonDocument::Compact);
-
   out << static_cast<uint32_t>(0);
-  out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
-  out << json;//.right(json.size() - 16);
+  out << static_cast<uint32_t>(terrama2::core::TcpSignals::ADD_DATA_SIGNAL);
+  out << json;
+  bytearray.remove(8, 4);//Remove QByteArray header
   out.device()->seek(0);
   out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
@@ -123,9 +123,9 @@ int main(int argc, char* argv[])
   socket.connectToHost("localhost", 30000);
   socket.write(bytearray);
 
-  // QTimer timer;
-  // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  // timer.start(10000);
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(10000);
   app.exec();
 
   terrama2::core::finalizeTerraMA();

@@ -22,7 +22,29 @@
 <script type="text/javascript" src="/javascripts/terrama2.js"></script>
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
+<script type="text/javascript" src="/externals/ace-editor/ace.js"></script>
+<script type="text/javascript" src="/externals/ace-editor/ext-language_tools.js"></script>
+<script type="text/javascript">
+  ace.require("ace/ext/language_tools");
+
+  var editor = ace.edit("script");
+  editor.setTheme("ace/theme/chrome");
+  editor.getSession().setMode("ace/mode/python");
+
+  editor.setOptions({
+    fontSize: "12pt",
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: false
+  });
+
+  var textarea = $('textarea[name="script"]').hide();
+  editor.getSession().setValue(textarea.val());
+  editor.getSession().on('change', function() {
+    textarea.val(editor.getSession().getValue());
+  });
+</script>
+<!--<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>-->
 {% endblock %}
 
 {% block content %}
@@ -221,7 +243,8 @@
                 <div class="form-group">
                   <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
                   <label>{[ __('Analysis Model') ]}:</label>
-                  <textarea class="form-control" name="script" ng-model="analysis.script" rows="20" placeholder="{[ __('Type here your analysis model') ]}"></textarea>
+                  <div id="script" style="height: 400px;"></div>
+                  <textarea name="script" ng-model="analysis.script"></textarea>
                 </div>
                 <div class="col-md-12">
                   <div class="btn-group">
