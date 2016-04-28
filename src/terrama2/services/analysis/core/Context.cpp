@@ -108,17 +108,18 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    auto datasets = analysisDataSeries.dataSeries->datasetList;
+    auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+    auto datasets = dataSeriesPtr->datasetList;
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
       assert(datasets.size() == 1);
       auto dataset = datasets[0];
 
-      auto dataProvider = dataManagerPtr->findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
+      auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
       terrama2::core::Filter filter;
 
       //accessing data
-      terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, analysisDataSeries.dataSeries);
+      terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
       auto seriesMap = accessor->getSeries(filter);
       auto series = seriesMap[dataset];
 
@@ -129,7 +130,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
       if(!series.syncDataSet->dataset())
       {
-        QString msg(QObject::tr("Analysis: %1 -> Adding an invalid dataset to the analysis context: DataSeries %2").arg(analysis.id).arg(analysisDataSeries.dataSeries->id));
+        QString msg(QObject::tr("Analysis: %1 -> Adding an invalid dataset to the analysis context: DataSeries %2").arg(analysis.id).arg(dataSeriesPtr->id));
         TERRAMA2_LOG_ERROR() << msg;
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
       }
@@ -147,13 +148,13 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
     }
     else if(analysisDataSeries.type == DATASERIES_PCD_TYPE)
     {
-      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      for(auto dataset : dataSeriesPtr->datasetList)
       {
-        auto dataProvider = dataManagerPtr->findDataProvider(analysisDataSeries.dataSeries->dataProviderId);
+        auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
         terrama2::core::Filter filter;
 
         //accessing data
-        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, analysisDataSeries.dataSeries);
+        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
         auto seriesMap = accessor->getSeries(filter);
         auto series = seriesMap[dataset];
 
@@ -382,8 +383,13 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
 
 void terrama2::services::analysis::core::Context::setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager)
 {
-
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
   dataManager_ = dataManager;
+}
+
+
+std::weak_ptr<terrama2::services::analysis::core::DataManager> terrama2::services::analysis::core::Context::getDataManager()
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  return dataManager_;
 }

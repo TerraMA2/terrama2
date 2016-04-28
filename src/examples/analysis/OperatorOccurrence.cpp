@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeries = dataSeriesPtr;
+  monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
 
 
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
 
   AnalysisDataSeries occurrenceADS;
   occurrenceADS.id = 2;
-  occurrenceADS.dataSeries = occurrenceDataSeriesPtr;
+  occurrenceADS.dataSeriesId = occurrenceDataSeriesPtr->id;
   occurrenceADS.type = ADDITIONAL_DATA_TYPE;
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;

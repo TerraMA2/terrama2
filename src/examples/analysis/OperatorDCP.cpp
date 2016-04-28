@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeries = dataSeriesPtr;
+  monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
 
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 
   AnalysisDataSeries dcpADS;
   dcpADS.id = 2;
-  dcpADS.dataSeries = dcpSeriesPtr;
+  dcpADS.dataSeriesId = dcpSeriesPtr->id;
   dcpADS.type = ADDITIONAL_DATA_TYPE;
   dcpADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
   dcpADS.metadata["RADIUS"] = "50";

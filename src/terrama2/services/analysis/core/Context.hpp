@@ -169,6 +169,7 @@ namespace terrama2
             std::map<ResultKey, double, ResultKeyComparator> analysisResult(uint64_t analysisId);
             void setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result);
 
+            std::weak_ptr<terrama2::services::analysis::core::DataManager> getDataManager();
             void setDataManager(std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager);
             Analysis getAnalysis(AnalysisId analysisId) const;
             std::shared_ptr<ContextDataSeries> getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;

@@ -140,7 +140,10 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   adapt(dataset, converter);
   std::string id = "FID";
   const std::vector< te::dt::Property* >& propertyList = converter->getResult()->getProperties();
-  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property) { return property->getName() == id; });
+  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property)
+  {
+    return property->getName() == id;
+  });
   if(it != propertyList.cend())
     converter->remove(id);
 

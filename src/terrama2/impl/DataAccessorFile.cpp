@@ -54,7 +54,7 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
   {
     return dataSet->format.at("mask");
   }
-  catch (...)
+  catch(...)
   {
     QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;

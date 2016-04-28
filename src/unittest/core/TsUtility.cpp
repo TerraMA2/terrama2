@@ -28,6 +28,7 @@
 */
 
 //TerraMA2
+#include <terrama2/core/data-model/Filter.hpp>
 #include <terrama2/core/utility/Timer.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/FilterUtils.hpp>
