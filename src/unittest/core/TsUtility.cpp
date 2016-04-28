@@ -243,7 +243,7 @@ void TsUtility::testValidDataSetName()
   std::string name = "file2016-04-19153726.file";
   std::string mask = "fileyyyy-MM-ddhhmmss.file";
   std::string timezone = "00";
-  const terrama2::core::Filter filter;
+  terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
 
   if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
@@ -255,7 +255,7 @@ void TsUtility::testValidDataSetName2DigitsYear()
   std::string name = "file16-04-19153726.file";
   std::string mask = "fileyy-MM-ddhhmmss.file";
   std::string timezone = "00";
-  const terrama2::core::Filter filter;
+  terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
 
   if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
@@ -267,7 +267,7 @@ void TsUtility::testValidDataSetName2DigitsYear1900()
   std::string name = "file56-04-19153726.file";
   std::string mask = "fileyy-MM-ddhhmmss.file";
   std::string timezone = "00";
-  const terrama2::core::Filter filter;
+  terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
 
   if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
