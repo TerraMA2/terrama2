@@ -42,21 +42,104 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \class DataManager
+
+          \brief Manages all the metadata about anlysis, data providers and its related dataseries.
+
+          The DataManager is a singleton responsible for loading metadata about
+          analysis, data providers and dataseries. It works like a database cache with TerraMA2
+          concepts.
+
+          Take care to keep it synchronized.
+        */
         class DataManager : public terrama2::core::DataManager
         {
           Q_OBJECT
 
           public:
 
+            //! Constructor
             DataManager();
+
+            //! Destructor
             virtual ~DataManager ();
 
+            /*!
+              \brief Decodes and registers the data model objects received in JSON into the DataManager.
+
+              It decodes the objects from the analysis modules and call the parent function to decode the objects from core module.
+
+              \pre The QJsonObject must have a list of json-converted data model objects.
+            */
+            virtual void addFromJSON(const QJsonObject& obj) override;
+
+            //! Needed for overloading add method.
             using terrama2::core::DataManager::add;
+
+            //! Needed for overloading add method.
             using terrama2::core::DataManager::update;
 
+            /*!
+              \brief Register the analysis into the data manager.
+
+              At end it will emit analysisAdded(Analysis) signal.
+
+              \param analysis The analysis to be registered into the data manager.
+
+              \pre The analysis must have a valid ID (its ID must not be zero).
+              \pre A analysis with the same name must not be already in the manager.
+
+              \exception terrama2::Exception If it is not possible to add the analysis.
+
+              \note Thread-safe.
+            */
             void add(const Analysis& analysis);
+
+            /*!
+              \brief Update a given analysis in the data manager
+
+              Emits analysisUpdated() signal if the analysis is updated successfully.
+
+              \param analysis The analysis to be updated.
+
+              \pre The analysis must have a valid ID.
+              \pre The analysis must exist in the data manager.
+
+              \exception terrama2::Exception If it is not possible to update the analysis.
+
+              \note Thread-safe.
+            */
             void update(const Analysis& analysis);
+
+            /*!
+              \brief Removes the given analysis.
+
+              Emits analysisRemoved() signal if the analysis is removed successfully.
+
+              \param analysisId ID of the analysis to remove.
+
+              \pre The analysis must have a valid ID.
+
+              \exception terrama2::Exception If it is not possible to remove the analysis.
+
+              \note Thread-safe.
+            */
             void removeAnalysis(AnalysisId analysisId);
+
+            /*!
+              \brief Retrieves the analysis with the given id.
+
+              In case there is no analysis in the database with the given id it will throw an InvalidArgumentException.
+
+              \exception terrama2::Exception If some error occur when trying to find the analysis.
+
+              \param id The analysis identifier.
+
+              \return The analysis object.
+
+              \note Thread-safe.
+            */
             Analysis findAnalysis(const AnalysisId analysisId);
 
           signals:

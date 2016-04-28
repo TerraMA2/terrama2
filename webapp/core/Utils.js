@@ -1,10 +1,11 @@
 var Enums = require("./Enums");
 var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
+var cloneDeep = require("lodash").cloneDeep;
 
 module.exports = {
   clone: function(object) {
-    return Object.assign({}, object);
+    return cloneDeep(object);
   },
 
   handleRequestError: function(response, err, code) {
@@ -47,5 +48,27 @@ module.exports = {
       required: required,
       display: displayOrder
     }
+  },
+  
+  rollback: function(model, instance) {
+    return model.destroy({
+      where: {
+        id: instance.id
+      }
+    })
+  },
+  
+  rollbackModels: function(models, instances, exception, promise) {
+    var promises = [];
+    for(var i = 0; i < models.length; ++i) {
+      promises.push(this.rollback(models[i], instances[i]));
+    }
+  
+    Promise.all(promises).then(function() {
+      console.log("Rollback all");
+      return promise.reject(exception);
+    }).catch(function(err) {
+      promise.reject(err);
+    })
   }
 };

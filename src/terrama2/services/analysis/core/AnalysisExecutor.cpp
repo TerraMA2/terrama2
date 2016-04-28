@@ -44,12 +44,13 @@
 
 void terrama2::services::analysis::core::joinThread(std::thread& t)
 {
+  if(t.joinable())
     t.join();
 }
 
 void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>& threads)
 {
-    std::for_each(threads.begin(), threads.end(), joinThread);
+  std::for_each(threads.begin(), threads.end(), joinThread);
 }
 
 void terrama2::services::analysis::core::runAnalysis(const Analysis& analysis)

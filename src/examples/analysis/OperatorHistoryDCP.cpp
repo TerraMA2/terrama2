@@ -38,22 +38,22 @@ int main(int argc, char* argv[])
 
   Context::getInstance().setDataManager(dataManager);
 
-  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_sum\",x)\n"
-                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_max\",x)\n"
-                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_min\",x)\n"
-                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_mean\",x)\n"
-                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_median\",x)\n"
-                       "x = dcp.history.standardDeviation(\"DCP-Angra\", \"pluvio\", 2, \"2h\")\n"
+                       "x = dcp.history.standardDeviation(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_standardDeviation\",x)\n";
 
   Analysis analysis;
   analysis.id = 1;
-  analysis.name = "Sum History DCP";
+  analysis.name = "History DCP";
   analysis.script = script;
   analysis.scriptLanguage = PYTHON;
   analysis.type = MONITORED_OBJECT_TYPE;

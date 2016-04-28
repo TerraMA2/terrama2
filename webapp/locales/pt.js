@@ -50,5 +50,20 @@
 	"User e-mail": "User e-mail",
 	"Administrator": "Administrator",
 	"Cancel": "Cancel",
-	"User Update": "User Update"
+	"User Update": "User Update",
+	"Analysis Registration": "Analysis Registration",
+	"Analysis Name": "Analysis Name",
+	"Analysis name is required": "Analysis name is required",
+	"Analysis Description": "Analysis Description",
+	"Instance": "Instance",
+	"No analysis instance found": "No analysis instance found",
+	"Data Series": "Data Series",
+	"No data series found": "No data series found",
+	"Influence": "Influence",
+	"Radius": "Radius",
+	"Script": "Script",
+	"Analysis Model": "Analysis Model",
+	"Type here your analysis model": "Type here your analysis model",
+	"Functions": "Functions",
+	"Validate": "Validate"
 }

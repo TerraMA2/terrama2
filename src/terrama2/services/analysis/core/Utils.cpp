@@ -37,17 +37,36 @@ terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::c
 {
   switch (type)
   {
-    case 2:
+    case 1:
       return PCD_TYPE;
-    case 3:
+    case 2:
       return MONITORED_OBJECT_TYPE;
-    case 4:
+    case 3:
       return GRID_TYPE;
-    case 5:
+    case 4:
       return TERRAME_TYPE;
   }
 
   throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid analysis type"));
+
+}
+
+
+terrama2::services::analysis::core::AnalysisDataSeriesType terrama2::services::analysis::core::ToAnalysisDataSeriesType(uint64_t type)
+{
+  switch (type)
+  {
+    case 1:
+      return DATASERIES_MONITORED_OBJECT_TYPE;
+    case 2:
+      return DATASERIES_GRID_TYPE;
+    case 3:
+      return DATASERIES_PCD_TYPE;
+    case 4:
+      return ADDITIONAL_DATA_TYPE;
+  }
+
+  throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid analysis data series type"));
 
 }
 

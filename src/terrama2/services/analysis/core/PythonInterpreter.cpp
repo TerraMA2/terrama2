@@ -62,7 +62,7 @@
 
 using namespace boost::python;
 
-int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, double radius, Buffer bufferType, std::string dateFilter, std::string restriction)
+int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, double radius, BufferType bufferType, std::string dateFilter, std::string restriction)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -82,7 +82,7 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
-  std::shared_ptr<ContextDataset> moDsContext;
+  std::shared_ptr<ContextDataSeries> moDsContext;
 
   // Reads the object monitored
   for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
@@ -133,7 +133,7 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
 
 
 
-  std::shared_ptr<ContextDataset> contextDataset;
+  std::shared_ptr<ContextDataSeries> contextDataset;
 
   for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
   {
@@ -282,7 +282,7 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
   if(analysis.type == MONITORED_OBJECT_TYPE)
   {
-    std::shared_ptr<ContextDataset> moDsContext;
+    std::shared_ptr<ContextDataSeries> moDsContext;
     terrama2::core::DataSetPtr datasetMO;
 
     // Reads the object monitored
@@ -319,42 +319,42 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 }
 
 
-int terrama2::services::analysis::core::dcpCount(const std::string& dataSeriesName, double radius, Buffer bufferType)
+int terrama2::services::analysis::core::dcpCount(const std::string& dataSeriesName, double radius, BufferType bufferType)
 {
   return dcpOperator(COUNT, dataSeriesName, "", radius, bufferType);
 }
 
-double terrama2::services::analysis::core::dcpMin(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMin(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MIN, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpMax(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMax(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MAX, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpMean(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMean(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MEAN, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpMedian(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpMedian(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(MEDIAN, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpSum(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpSum(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(SUM, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   return dcpOperator(STANDARD_DEVIATION, dataSeriesName, attribute, radius, bufferType, ids);
 }
 
-double terrama2::services::analysis::core::dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName,  const std::string& attribute, double radius, Buffer bufferType, boost::python::list ids)
+double terrama2::services::analysis::core::dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName,  const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -382,7 +382,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
 
-  std::shared_ptr<ContextDataset> moDsContext;
+  std::shared_ptr<ContextDataSeries> moDsContext;
   terrama2::core::DataSetPtr datasetMO;
 
   // Reads the object monitored
@@ -424,7 +424,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   }
 
 
-  std::shared_ptr<ContextDataset> contextDataset;
+  std::shared_ptr<ContextDataSeries> contextDataset;
 
 
 
@@ -623,7 +623,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(dcpSum_overloads, terrama2::services::analysis::
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpStandardDeviation_overloads, terrama2::services::analysis::core::dcpStandardDeviation, 4, 5)
 
 
-void terrama2::services::analysis::core::exportDCP()
+void terrama2::services::analysis::core::registerDCPFunctions()
 {
   // map the dcp namespace to a sub-module
   // make "from terrama2.dcp import <function>" work
@@ -657,7 +657,7 @@ void terrama2::services::analysis::core::exportDCP()
 
 }
 
-void terrama2::services::analysis::core::exportOccurrence()
+void terrama2::services::analysis::core::registerOccurrenceFunctions()
 {
   // map the occurrence namespace to a sub-module
   // make "from terrama2.occurrence import <function>" work
@@ -680,15 +680,15 @@ BOOST_PYTHON_MODULE(terrama2)
 
   def("add_value", terrama2::services::analysis::core::addValue);
 
-  enum_<terrama2::services::analysis::core::Buffer>("Buffer")
+  enum_<terrama2::services::analysis::core::BufferType>("Buffer")
           .value("EXTERN", terrama2::services::analysis::core::EXTERN)
           .value("INTERN", terrama2::services::analysis::core::INTERN)
           .value("INTERN_PLUS_EXTERN", terrama2::services::analysis::core::INTERN_PLUS_EXTERN)
           .value("OBJECT_PLUS_EXTERN", terrama2::services::analysis::core::OBJECT_PLUS_EXTERN)
           .value("OBJECT_WITHOUT_INTERN", terrama2::services::analysis::core::OBJECT_WITHOUT_INTERN);
 
-  terrama2::services::analysis::core::exportDCP();
-  terrama2::services::analysis::core::exportOccurrence();
+  terrama2::services::analysis::core::registerDCPFunctions();
+  terrama2::services::analysis::core::registerOccurrenceFunctions();
 
 }
 
@@ -707,7 +707,7 @@ void terrama2::services::analysis::core::initInterpreter()
 
   PyEval_InitThreads();
 
-  initterrama2();
+  INIT_MODULE();
 
   // release our hold on the global interpreter
   PyEval_ReleaseLock();
@@ -788,7 +788,7 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 }
 
 
-double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -816,7 +816,7 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
 
-  std::shared_ptr<ContextDataset> moDsContext;
+  std::shared_ptr<ContextDataSeries> moDsContext;
   terrama2::core::DataSetPtr datasetMO;
 
   // Reads the object monitored
@@ -858,7 +858,7 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
   }
 
 
-  std::shared_ptr<ContextDataset> contextDataset;
+  std::shared_ptr<ContextDataSeries> contextDataset;
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
@@ -1031,32 +1031,32 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
 }
 
 
-double terrama2::services::analysis::core::dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(SUM, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(SUM, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MEAN, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MEAN, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MIN, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MIN, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MAX, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MAX, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(MEDIAN, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(MEDIAN, dataSeriesName, attribute, dcpId, radius, bufferType, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
 {
-  return dcpHistoryOperator(STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, dateFilter);
+  return dcpHistoryOperator(STANDARD_DEVIATION, dataSeriesName, attribute, dcpId,  radius, bufferType, dateFilter);
 }

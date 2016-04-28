@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Utils.hpp
+  \file terrama2/services/analysis/core/BufferMemory.hpp
 
-  \brief Utility functions for TerraMA2 Analysis module.
+  \brief Utility function to create a buffer for a set of geometries.
 
   \author Paulo R. M. Oliveira
 */
@@ -34,6 +34,7 @@
 #include <memory>
 #include <vector>
 
+// Forward declaration
 namespace te
 {
   namespace mem
@@ -47,6 +48,7 @@ namespace te
   }
 }
 
+// Forward declaration
 namespace terrama2
 {
   namespace core
@@ -60,8 +62,29 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief Defines the buffer type.
+        */
+        enum BufferType
+        {
+          NONE = 0, //!< No buffer
+          EXTERN = 1, //!< External buffer.
+          INTERN = 2, //!< Internal buffer.
+          INTERN_PLUS_EXTERN = 3, //!< Internal buffer plus external external buffer.
+          OBJECT_PLUS_EXTERN = 4, //!< Geometry plus external buffer.
+          OBJECT_WITHOUT_INTERN = 5 //!< Geometry minus internal buffer.
+        };
 
-        std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance);
+        /*!
+          \brief Creates a buffer for each given geometry with the given distance.
+
+          \param geometries Vector with the geometries.
+          \param box A envelope that covers all given geometries.
+          \param distance The distance of the buffer.
+          \param bufferType The type of the buffer.
+          \return A smart pointer to a memory dataset with the buffers created from the given geometries.
+        */
+        std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance, BufferType);
 
       } // end namespace core
     }   // end namespace analysis
