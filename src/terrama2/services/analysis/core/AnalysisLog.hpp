@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 
-#include "../../../core/utility/ProcessLog.hpp"
+#include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
 {
@@ -40,7 +40,7 @@ namespace terrama2
     {
       namespace core
       {
-        class AnalysisLog : public terrama2::core::ProcessLog
+        class AnalysisLog : public terrama2::core::ProcessLogger
         {
         public:
           AnalysisLog(uint64_t processID, std::map< std::string, std::string > connInfo);

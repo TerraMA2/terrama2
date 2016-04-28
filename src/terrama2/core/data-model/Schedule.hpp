@@ -59,16 +59,20 @@ namespace terrama2
     {
       //! Default constructor.
       Schedule() {}
-      //TODO: VINICIUS: rever documentação dos atributos, melhorar descrição.
+
       ScheduleId id = 0; //!< Schedule identifier.
-      uint64_t frequency = 0; //!< The time frequency.
-      std::string frequencyUnit; //!< Unit of the time frequency.
-      uint64_t schedule = 0; //!< Schedule frequency.
-      std::string scheduleUnit; //!< Unit of the schedule frequency.
-      uint64_t scheduleRetry = 0; //!< The time frequency to retry.
-      std::string scheduleRetryUnit; //!< Unit of the schedule retry.
-      uint64_t scheduleTimeout = 0; //!< The time limit to retry.
-      std::string scheduleTimeoutUnit; //!< Unit of the schedule timeout.
+
+      uint64_t frequency = 0; //!< The value for time frequency. Ex: From 5 to 5 minutes.
+      std::string frequencyUnit; //!< Unit of the time frequency (years, months, days, minutes, hours or seconds)
+
+      uint64_t schedule = 0; //!<  Value for Schedule, value could be the of day of year, month or week, the hour of day. Ex: The Third day of a week, the day 137 of a year.
+      std::string scheduleUnit; //!< Unit of the schedule frequency. (year, month, day, minute, hour or second)
+
+      uint64_t scheduleRetry = 0; //!< The value of time between retrys. Ex: If fails retry at every 5 minutes.
+      std::string scheduleRetryUnit; //!< Unit of the schedule retry. (years, months, days, minutes, hours or seconds)
+
+      uint64_t scheduleTimeout = 0; //!< The time limit to retry. Ex: Stop retrys after 1 hour.
+      std::string scheduleTimeoutUnit; //!< Unit of the schedule timeout. (years, months, days, minutes, hours or seconds)
 
       inline bool operator==(const Schedule& rhs) { return id == rhs.id; }
     };

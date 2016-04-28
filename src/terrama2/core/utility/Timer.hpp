@@ -32,7 +32,7 @@
 #define __TERRAMA2_CORE_TIMER_HPP__
 
 // TerraMA2
-#include "ProcessLog.hpp"
+#include "ProcessLogger.hpp"
 #include "../Typedef.hpp"
 #include "../data-model/Schedule.hpp"
 
@@ -53,33 +53,37 @@ namespace terrama2
     */
     class Timer : public QTimer
     {
-        Q_OBJECT
+      Q_OBJECT
 
-      public:
-        Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLog > log);
+    public:
+      Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLogger > log);
 
-        virtual ~Timer();
-        Timer(const Timer& other) = delete;
-        Timer(Timer&& other) = delete;
-        Timer& operator=(const Timer& other) = delete;
-        Timer& operator=(Timer&& other) = delete;
+      virtual ~Timer();
+      Timer(const Timer& other) = delete;
+      Timer(Timer&& other) = delete;
+      Timer& operator=(const Timer& other) = delete;
+      Timer& operator=(Timer&& other) = delete;
 
-        uint64_t processId() const;
+      uint64_t processId() const;
 
-      signals:
+    signals:
 
         void timeoutSignal(uint64_t processId) const;
 
-      private slots:
+    private slots:
 
         //! Slot called when the timer times out, emits timeoutSignal.
         void timeoutSlot();
 
-      private:
-        void prepareTimer(const terrama2::core::Schedule& dataSchedule);
+    private:
+      void prepareTimer(const terrama2::core::Schedule& dataSchedule);
 
-        struct Impl;
-        Impl* impl_;
+      double frequencySeconds(const Schedule& dataSchedule);
+
+      double scheduleSeconds(const Schedule& dataSchedule);
+
+      struct Impl;
+      Impl* impl_;
     };
   }
 }

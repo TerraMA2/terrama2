@@ -31,7 +31,7 @@
 #include "AnalysisLog.hpp"
 
 terrama2::services::analysis::core::AnalysisLog::AnalysisLog(uint64_t processID, std::map< std::string, std::string > connInfo)
- : ProcessLog(processID, connInfo)
+ : ProcessLogger(processID, connInfo)
 {
 // VINICIUS:
   setTableName("analysis");
