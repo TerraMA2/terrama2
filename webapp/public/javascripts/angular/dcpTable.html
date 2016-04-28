@@ -6,18 +6,20 @@
         <tbody style="overflow-y: auto; height: 150px;">
         <!-- header-->
         <tr>
+          <th>ID</th>
           <th ng-repeat="field in tableFields track by $index">{{ capitalizeIt(field) }}</th>
           <th></th>
         </tr>
 
         <tr ng-repeat="dcp in dcps track by $index">
+          <td>{{ $index + 1 }}</td>
           <td ng-repeat="field in tableFields">
             <!-- boolean types -->
               <span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
                 <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
               </span>
             <!--{{ dcp }}-->
-              <span ng-if="!isBoolean(dcp[field]) && $index !== (tableFields.length - 1)">
+              <span ng-if="!isBoolean(dcp[field])">
                 {{ dcp[field]}}
               </span>
           </td>

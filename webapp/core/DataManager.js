@@ -142,6 +142,7 @@ var DataManager = {
         inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-POSTGIS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -1258,6 +1259,7 @@ var DataManager = {
             collectorObject.schedule_id = scheduleResult.id;
   
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
+              // todo: emit signal
               resolve(dataSeriesResult)
             }).catch(function(err) {
               // rollback schedule
