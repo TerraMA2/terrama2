@@ -52,6 +52,8 @@ terrama2::core::ProcessLog::ProcessLog(uint64_t processID, std::map < std::strin
 {
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
   dataSource_->setConnectionInfo(connInfo);
+  //VINICIUS: validar e emitir exceção caso não conecte
+  dataSource_->open();
 }
 
 void terrama2::core::ProcessLog::start()

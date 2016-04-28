@@ -199,7 +199,8 @@ int main(int argc, char* argv[])
 
     out << static_cast<uint32_t>(0);
     out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
-    out << QString(doc.toJson()).toStdString().c_str();
+    out << doc.toJson();
+    bytearray.remove(8, 4);//Remove QByteArray header
     out.device()->seek(0);
     out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
