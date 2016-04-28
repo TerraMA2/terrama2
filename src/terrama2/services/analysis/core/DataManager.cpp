@@ -28,8 +28,14 @@
 */
 
 #include "DataManager.hpp"
+#include "JSonUtils.hpp"
 #include "../../../Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
+
+
+// Qt
+#include <QJsonValue>
+#include <QJsonArray>
 
 
 terrama2::services::analysis::core::DataManager::DataManager()
@@ -38,6 +44,37 @@ terrama2::services::analysis::core::DataManager::DataManager()
 
 terrama2::services::analysis::core::DataManager::~DataManager ()
 {
+}
+
+void terrama2::services::analysis::core::DataManager::addFromJSON(const QJsonObject& obj)
+{
+  try
+  {
+    terrama2::core::DataManager::DataManager::addFromJSON(obj);
+
+    auto analysisArray = obj["Analysis"].toArray();
+    for(auto json : analysisArray)
+    {
+      auto dataPtr = terrama2::services::analysis::core::fromAnalysisJson(json.toObject());
+      add(dataPtr);
+    }
+  }
+  catch(terrama2::Exception& /*e*/)
+  {
+    // logged on throw...
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str();
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+  }
 }
 
 void terrama2::services::analysis::core::DataManager::add(const Analysis& analysis)
