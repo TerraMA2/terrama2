@@ -78,6 +78,10 @@ namespace terrama2
     private:
       void prepareTimer(const terrama2::core::Schedule& dataSchedule);
 
+      double frequencySeconds(const Schedule& dataSchedule);
+
+      double scheduleSeconds(const Schedule& dataSchedule);
+
       struct Impl;
       Impl* impl_;
     };

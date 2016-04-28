@@ -76,13 +76,46 @@ void terrama2::core::Timer::timeoutSlot()
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 {
-  if(dataSchedule.frequency <= 0)
+  double timerSeconds = 0;
+
+  if(dataSchedule.frequency > 0)
   {
-    QString errMsg = QObject::tr("Invalid frequency.");
+    timerSeconds = frequencySeconds(dataSchedule);
+  }
+  else if(dataSchedule.schedule > 0)
+  {
+    timerSeconds = scheduleSeconds(dataSchedule);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("No frequency or schedule informed.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
+  std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+
+  double secondsSinceLastProcess = 0;
+
+  if(impl_->lastEmit_)
+    secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
+
+  double secondsToStart = timerSeconds - secondsSinceLastProcess;
+
+   if(secondsToStart > 0)
+   {
+     // Timer with X seconds
+     connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
+     impl_->timer_.start(secondsToStart*1000);
+   }
+   else
+   {
+     timeoutSlot();
+   }
+}
+
+double terrama2::core::Timer::frequencySeconds(const Schedule& dataSchedule)
+{
   te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.frequencyUnit);
 
   if(!uom)
@@ -94,25 +127,15 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   double secondsFrequency = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
 
-  std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+  return secondsFrequency;
+}
 
-  double secondsSinceLastProcess = 0;
-
-  if(impl_->lastEmit_)
-    secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
-
-  double seconds = secondsFrequency - secondsSinceLastProcess;
-
-   if(seconds > 0)
-   {
-     // Timer with X seconds
-     connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-     impl_->timer_.start(seconds*1000);
-   }
-   else
-   {
-     timeoutSlot();
-   }
+double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
+{
+  // VINICIUS: implement
+  assert(0);
+  throw InvalidFrequencyException() << terrama2::ErrorDescription("Not implemented");
+  return double();
 }
 
 uint64_t terrama2::core::Timer::processId() const
