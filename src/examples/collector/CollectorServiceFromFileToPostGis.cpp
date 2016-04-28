@@ -62,6 +62,88 @@
 #include <QTimer>
 #include <QUrl>
 
+void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+{
+  ///////////////////////////////////////////////
+  //     input
+  // DataProvider information
+  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->uri = "file://";
+  dataProvider->uri += TERRAMA2_DATA_DIR;
+  dataProvider->uri += "/fire_system";
+
+  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->active = true;
+  dataProvider->id = 1;
+  dataProvider->name = "DataProvider queimadas local";
+  dataProvider->dataProviderType = "FILE";
+
+  dataManager->add(dataProviderPtr);
+
+  // DataSeries information
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  dataSeries->id = 1;
+  dataSeries->name = "DataProvider queimadas local";
+  dataSeries->semantics.name = "OCCURRENCE-mvf";
+  dataSeries->dataProviderId = dataProviderPtr->id;
+
+  terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
+  dataSet->id = 1;
+  dataSet->active = true;
+  dataSet->format.emplace("mask", "fires.csv");
+  dataSet->format.emplace("timezone", "+00");
+  dataSet->format.emplace("srid", "4326");
+
+  dataSeries->datasetList.emplace_back(dataSet);
+
+  dataManager->add(dataSeriesPtr);
+}
+
+void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+{
+  ///////////////////////////////////////////////
+  //     output
+  QUrl uri;
+  uri.setScheme("postgis");
+  uri.setHost("localhost");
+  uri.setPort(5432);
+  uri.setUserName("postgres");
+  uri.setPassword("postgres");
+  uri.setPath("/basedeteste");
+
+  // DataProvider information
+  terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
+  outputDataProvider->id = 2;
+  outputDataProvider->name = "DataProvider queimadas postgis";
+  outputDataProvider->uri = uri.url().toStdString();
+  outputDataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  outputDataProvider->dataProviderType = "POSTGIS";
+  outputDataProvider->active = true;
+
+  dataManager->add(outputDataProviderPtr);
+
+  // DataSeries information
+  terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+  outputDataSeries->id = 2;
+  outputDataSeries->name = "DataProvider queimadas postgis";
+  outputDataSeries->semantics.name = "OCCURRENCE-postgis";
+  outputDataSeries->dataProviderId = outputDataProviderPtr->id;
+
+  dataManager->add(outputDataSeriesPtr);
+
+  // DataSet information
+  terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
+  outputDataSet->active = true;
+  outputDataSet->id = 2;
+  outputDataSet->format.emplace("table_name", "queimadas");
+
+  outputDataSeries->datasetList.emplace_back(outputDataSet);
+}
+
 int main(int argc, char* argv[])
 {
   try
@@ -81,81 +163,8 @@ int main(int argc, char* argv[])
 
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
 
-    ///////////////////////////////////////////////
-    //     input
-    // DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/fire_system";
-
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-    dataProvider->active = true;
-    dataProvider->id = 1;
-    dataProvider->name = "DataProvider queimadas local";
-    dataProvider->dataProviderType = "FILE";
-
-    dataManager->add(dataProviderPtr);
-
-    // DataSeries information
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->id = 1;
-    dataSeries->name = "DataProvider queimadas local";
-    dataSeries->semantics.name = "OCCURRENCE-mvf";
-    dataSeries->dataProviderId = dataProviderPtr->id;
-
-    terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
-    dataSet->id = 1;
-    dataSet->active = true;
-    dataSet->format.emplace("mask", "fires.csv");
-    dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("srid", "4326");
-
-    dataSeries->datasetList.emplace_back(dataSet);
-
-    dataManager->add(dataSeriesPtr);
-
-    ///////////////////////////////////////////////
-    //     output
-    QUrl uri;
-    uri.setScheme("postgis");
-    uri.setHost("localhost");
-    uri.setPort(5432);
-    uri.setUserName("postgres");
-    uri.setPassword("postgres");
-    uri.setPath("/basedeteste");
-
-    // DataProvider information
-    terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
-    outputDataProvider->id = 2;
-    outputDataProvider->name = "DataProvider queimadas postgis";
-    outputDataProvider->uri = uri.url().toStdString();
-    outputDataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-    outputDataProvider->dataProviderType = "POSTGIS";
-    outputDataProvider->active = true;
-
-    dataManager->add(outputDataProviderPtr);
-
-    // DataSeries information
-    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-    outputDataSeries->id = 2;
-    outputDataSeries->name = "DataProvider queimadas postgis";
-    outputDataSeries->semantics.name = "OCCURRENCE-postgis";
-    outputDataSeries->dataProviderId = outputDataProviderPtr->id;
-
-    dataManager->add(outputDataSeriesPtr);
-
-    // DataSet information
-    terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
-    outputDataSet->active = true;
-    outputDataSet->id = 2;
-    outputDataSet->format.emplace("table_name", "queimadas");
-
-    outputDataSeries->datasetList.emplace_back(outputDataSet);
+    addInput(dataManager);
+    addOutput(dataManager);
 
     terrama2::services::collector::core::Service service(dataManager);
     service.start();
