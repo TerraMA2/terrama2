@@ -31,10 +31,12 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__
 
+// TerraMA2
+#include "../Shared.hpp"
+
 // STL
 #include <thread>
 #include <vector>
-
 
 namespace terrama2
 {
@@ -61,21 +63,24 @@ namespace terrama2
 
         /*!
           \brief Starts the process of an analysis execution.
+          \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed.
         */
-        void runAnalysis(const Analysis& analysis);
+        void runAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
 
         /*!
           \brief Prepare the context for a monitored object analysis.
+          \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed
         */
-        void runMonitoredObjectAnalysis(const Analysis& analysis);
+        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
 
         /*!
           \brief Prepare the context for a DCP analysis.
+          \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed
         */
-        void runDCPAnalysis(const Analysis& analysis);
+        void runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
 
       } // end namespace core
     }   // end namespace analysis

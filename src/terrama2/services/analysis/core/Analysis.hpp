@@ -90,7 +90,6 @@ namespace terrama2
         struct AnalysisDataSeries
         {
           AnalysisDataSeriesId id = 0; //!< AnalysisDataSeries identifier.
-          terrama2::core::DataSeriesPtr dataSeries; //!< Smart pointer to the DataSeries.
           DataSeriesId dataSeriesId; //!< Identifier of the DataSeries.
           AnalysisDataSeriesType type; //!< Type of use of the DataSeries in the analysis.
           std::map<uint64_t, std::string> alias; //!< Map containing the alias for the columns of a DataSeries.

@@ -43,7 +43,6 @@
 #include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
-#include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/data-access/SyncronizedDataSet.hpp"
@@ -80,6 +79,14 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
   uint64_t count = 0;
   bool found = false;
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
   std::shared_ptr<ContextDataSeries> moDsContext;
@@ -89,7 +96,9 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
   {
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      terrama2::core::DataSeriesPtr& dataSeries = analysisDataSeries.dataSeries;
+
+
+      terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
@@ -131,19 +140,18 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
     return 0;
   }
 
-
-
   std::shared_ptr<ContextDataSeries> contextDataset;
 
   for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      Context::getInstance().addDataset(analysisId, analysisDataSeries.dataSeries, dateFilter, true);
+      Context::getInstance().addDataset(analysisId, dataSeries, dateFilter, true);
 
-      auto datasets = analysisDataSeries.dataSeries->datasetList;
+      auto datasets = dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
@@ -279,6 +287,14 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
   uint64_t analysisId = PyInt_AsLong(analysisPy);
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
   if(analysis.type == MONITORED_OBJECT_TYPE)
   {
@@ -291,8 +307,9 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
     {
       if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
       {
-        assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
-        datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+        auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+        assert(dataSeries->datasetList.size() == 1);
+        datasetMO = dataSeries->datasetList[0];
 
         if(!Context::getInstance().exists(analysis.id, datasetMO->id))
         {
@@ -379,6 +396,14 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   bool found = false;
   bool hasData = false;
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
 
@@ -390,8 +415,9 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   {
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
-      datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+      terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      assert(dataSeries->datasetList.size() == 1);
+      datasetMO = dataSeries->datasetList[0];
 
       if(!Context::getInstance().exists(analysis.id, datasetMO->id))
       {
@@ -433,11 +459,13 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      if(analysisDataSeries.dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
+      if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
       {
         QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
         errMsg = errMsg.arg(analysisId);
@@ -446,12 +474,12 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
       }
 
 
-      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, "", true);
+      Context::getInstance().addDCP(analysisId, dataSeries, "", true);
 
       // For DCP count returns the number of datasets
-      count = analysisDataSeries.dataSeries->datasetList.size();
+      count = dataSeries->datasetList.size();
 
-      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      for(auto dataset : dataSeries->datasetList)
       {
         contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id);
 
@@ -813,6 +841,14 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
   uint64_t count = 0;
   bool found = false;
 
+  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+  if(!dataManagerPtr)
+  {
+    QString msg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+  }
+
   Analysis analysis = Context::getInstance().getAnalysis(analysisId);
 
 
@@ -822,10 +858,12 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
   // Reads the object monitored
   for(AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
   {
+    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      assert(analysisDataSeries.dataSeries->datasetList.size() == 1);
-      datasetMO = analysisDataSeries.dataSeries->datasetList[0];
+      assert(dataSeries->datasetList.size() == 1);
+      datasetMO = dataSeries->datasetList[0];
 
       if(!Context::getInstance().exists(analysis.id, datasetMO->id))
       {
@@ -862,11 +900,12 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
-    if(analysisDataSeries.dataSeries->name == dataSeriesName)
+    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+    if(dataSeries->name == dataSeriesName)
     {
       found = true;
 
-      if(analysisDataSeries.dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
+      if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
       {
         QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
         errMsg = errMsg.arg(analysisId);
@@ -874,9 +913,9 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
         return NAN;
       }
 
-      Context::getInstance().addDCP(analysisId, analysisDataSeries.dataSeries, dateFilter, false);
+      Context::getInstance().addDCP(analysisId, dataSeries, dateFilter, false);
 
-      for(auto dataset : analysisDataSeries.dataSeries->datasetList)
+      for(auto dataset : dataSeries->datasetList)
       {
         if(dataset->id != dcpId)
           continue;

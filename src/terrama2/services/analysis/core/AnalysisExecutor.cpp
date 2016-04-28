@@ -35,6 +35,7 @@
 
 #include "PythonInterpreter.hpp"
 #include "Context.hpp"
+#include "DataManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 
@@ -53,18 +54,18 @@ void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>
   std::for_each(threads.begin(), threads.end(), joinThread);
 }
 
-void terrama2::services::analysis::core::runAnalysis(const Analysis& analysis)
+void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
 {
   switch(analysis.type)
   {
     case MONITORED_OBJECT_TYPE:
     {
-      runMonitoredObjectAnalysis(analysis);
+      runMonitoredObjectAnalysis(dataManager, analysis);
       break;
     }
     case PCD_TYPE:
     {
-      runDCPAnalysis(analysis);
+      runDCPAnalysis(dataManager, analysis);
       break;
     }
     default:
@@ -76,7 +77,7 @@ void terrama2::services::analysis::core::runAnalysis(const Analysis& analysis)
   }
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analysis& analysis)
+void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
 {
   try
   {
@@ -88,7 +89,8 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analys
     {
       if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
       {
-        auto datasets = analysisDataSeries.dataSeries->datasetList;
+        auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+        auto datasets = dataSeries->datasetList;
         assert(datasets.size() == 1);
         auto dataset = datasets[0];
 
@@ -191,7 +193,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(const Analys
 }
 
 
-void terrama2::services::analysis::core::runDCPAnalysis(const Analysis& analysis)
+void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
 {
   try
   {
@@ -202,10 +204,10 @@ void terrama2::services::analysis::core::runDCPAnalysis(const Analysis& analysis
     {
       if(analysisDataSeries.type == DATASERIES_PCD_TYPE)
       {
+        auto dataSeriesPtr = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+        size =  dataSeriesPtr->datasetList.size();
 
-        size =  analysisDataSeries.dataSeries->datasetList.size();
-
-        Context::getInstance().addDCP(analysis.id, analysisDataSeries.dataSeries);
+        Context::getInstance().addDCP(analysis.id, dataSeriesPtr);
         break;
       }
     }
