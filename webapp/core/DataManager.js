@@ -1215,7 +1215,6 @@ var DataManager = {
   addDataSeriesAndCollector: function(dataSeriesObject, scheduleObject, filterObject, serviceObject) {
     var self = this;
 
-    // todo: implement it
     return new Promise(function(resolve, reject) {
 
       var rollback = function(model, instance) {
@@ -1260,6 +1259,8 @@ var DataManager = {
   
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
               // todo: emit signal
+              // TcpManager.sendData({'Collectors': [collectorResult]});
+              console.log(collectorResult);
               resolve(dataSeriesResult)
             }).catch(function(err) {
               // rollback schedule
