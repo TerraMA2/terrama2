@@ -10,35 +10,34 @@ module.exports = function(app) {
       var dataSeriesObject = request.body.dataSeries;
       var scheduleObject = request.body.schedule;
       var filterObject = request.body.filter;
-      var serviceObject = request.body.service;
+      var serviceId = request.body.service;
 
-      // temp to get service instance (analysis)
-      DataManager.getServiceInstance({service_type_id: 2}).then(function(serviceResult) {
-        if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+      if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+        // getting service instance (analysis)
+        DataManager.getServiceInstance({service_type_id: serviceId}).then(function(serviceResult) {
           DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(dataSeriesResult) {
             // todo: add filter and schedule object
             return response.json(dataSeriesResult.toObject());
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });
-        } else {
-          DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-            if (!isEmpty(filterObject)) {
-              DataManager.addFilter(filterObject).then(function(filterResult) {
-                response.json({status: 200});
-              }).catch(function(err) {
-                return Utils.handleRequestError(response, err, 400);
-              });
-            } else
+        }).catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
+      } else {
+        DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
+          if (!isEmpty(filterObject)) {
+            DataManager.addFilter(filterObject).then(function(filterResult) {
               response.json({status: 200});
-          }).catch(function(err) {
-            return Utils.handleRequestError(response, err, 400);
-          });
-        }
-      }).catch(function(err) {
-        return Utils.handleRequestError(response, err, 400);
-      });
-
+            }).catch(function(err) {
+              return Utils.handleRequestError(response, err, 400);
+            });
+          } else
+            response.json({status: 200});
+        }).catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
+      }
     },
 
     get: function(request, response) {

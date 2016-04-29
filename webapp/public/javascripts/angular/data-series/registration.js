@@ -102,18 +102,23 @@ angular.module('terrama2.dataseries.registration', [
       // apply a validation
       $scope.$broadcast('schemaFormValidate');
       var form = angular.element('form[name="storagerForm"]').scope()['storagerForm'];
-      if (form.$valid) {
+      var dataForm = angular.element('form[name="storagerDataForm"]').scope()['storagerDataForm'];
+      if (form.$valid && dataForm.$valid) {
         // checking if it is a dcp
         switch ($scope.formatSelected.data_series_type_name) {
           case "Dcp":
             $scope.$emit("storageValuesReceive", {
               data: $scope.dcpsStorager,
+              data_provider: $scope['storager_data_provider_id'],
+              service: $scope["storager_service"],
               type: $scope.formatSelected.data_series_type_name
             });
             break;
           case "Occurrence":
             $scope.$emit("storageValuesReceive", {
               data: $scope.modelStorager,
+              data_provider: $scope['storager_data_provider_id'],
+              service: $scope["storager_service"],
               type: $scope.formatSelected.data_series_type_name
             });
             break;
@@ -121,6 +126,12 @@ angular.module('terrama2.dataseries.registration', [
             $scope.$emit("storageValuesReceive", {data: null, type: null});
             break;
         }
+      } else {
+        angular.forEach(dataForm.$error, function (field) {
+          angular.forEach(field, function(errorField){
+            errorField.$setDirty();
+          })
+        });
       }
     });
 
@@ -228,6 +239,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
       $scope.onStoragerFormatChange = function() {
+        console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
         $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
       };
@@ -651,12 +663,12 @@ angular.module('terrama2.dataseries.registration', [
         };
 
         // it dispatches post operation to nodejs
-        var _sendRequest = function(dataToSend, scheduleValues, filterValues) {
+        var _sendRequest = function(dataToSend, scheduleValues, filterValues, serviceOutput) {
           DataSeriesFactory.post({
             dataSeries: dataToSend,
             schedule: scheduleValues,
             filter: filterValues,
-            service: $scope.service
+            service: serviceOutput
           }).success(function(data) {
             console.log(data);
             $window.location.href = "/configuration/dynamic/dataseries";
@@ -668,8 +680,6 @@ angular.module('terrama2.dataseries.registration', [
           });
         };
 
-        console.log($scope.dataSeries.access);
-
         if ($scope.dataSeries.access == 'COLLECT') {
           $scope.$on("storageValuesReceive", function(event, values) {
           //  todo: improve
@@ -679,11 +689,14 @@ angular.module('terrama2.dataseries.registration', [
               name: dataObject.dataSeries.name + "_output",
               description: dataObject.dataSeries.description,
               data_series_semantic_name: $scope.dataSeries.semantics.name,
-              data_provider_id: $scope.dataSeries.data_provider_id,
+              data_provider_id: values.data_provider,
               dataSets: values.data instanceof Object ? [values.data] : values.data
             };
 
-            _sendRequest({input: dataObject.dataSeries, output: outputDataSeries}, dataObject.schedule, dataObject.filter);
+            _sendRequest({input: dataObject.dataSeries, output: outputDataSeries},
+                          dataObject.schedule,
+                          dataObject.filter,
+                          values.service);
 
           });
           // getting values from another controller

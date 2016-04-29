@@ -71,7 +71,8 @@
             <div class="row">
               <form name="generalDataForm">
                 <div class="col-md-8">
-                  <div class="form-group">
+                  <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required,
+                                                     'has-success': generalDataForm.name.$dirty && generalDataForm.name.$valid}">
                     <label>{[ __("Name") ]}:</label>
                     <input class="form-control" name="name" ng-model="analysis.name" placeholder="{[ __('Analysis Name') ]}" type="text" required>
 
@@ -81,7 +82,8 @@
                 <!-- /.col -->
 
                 <div class="col-md-4">
-                  <div class="form-group has-feedback">
+                  <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.type.$dirty && generalDataForm.type.$error.required,
+                                                     'has-success': generalDataForm.type.$dirty && generalDataForm.type.$valid}">
                     <label>{[ __("Type") ]}:</label>
                     <select class="form-control" name="type" ng-model="analysis.type_id" required>
                       <option value="1">DCP</option>
@@ -89,6 +91,11 @@
                       <option value="3">Grid</option>
                       <option value="3">Monitored Object</option>
                     </select>
+
+                    <span class="help-block" ng-show="generalDataForm.type.$dirty && generalDataForm.type.$error.required"
+                          ng-class="{'has-error': generalDataForm.type.$invalid}">
+                      {[ __('Analysis name is required') ]}
+                    </span>
                   </div>
                   <!-- /.form-group -->
                 </div>
@@ -102,23 +109,32 @@
                 </div>
 
                 <div class="col-md-8">
-                  <div class="form-group has-feedback">
+                  <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.instance.$dirty && generalDataForm.instance.$error.required,
+                                                     'has-success': generalDataForm.instance.$dirty && generalDataForm.instance.$valid}">
                     <label>{[ __("Instance") ]}:</label>
                     <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
                       <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
                       <option ng-if="instances.length == 0">{[ __('No analysis instance found') ]}</option>
                     </select>
+
+                    <span class="help-block" ng-show="generalDataForm.instance.$dirty && generalDataForm.instance.$error.required"
+                          ng-class="{'has-error': generalDataForm.instance.$invalid}">
+                      {[ __('Analysis name is required') ]}
+                    </span>
                   </div>
                   <!-- /.form-group -->
                 </div>
 
                 <div class="col-md-4">
-                  <div class="form-group has-feedback">
-                    <label>{[ __("Status") ]}:</label>
-                    <select class="form-control" name="status" ng-model="analysis.active" ng-init="analysis.active='true';" required>
-                      <option value="true">Active</option>
-                      <option value="false">Inactive</option>
-                    </select>
+                  <div class="form-group">
+                    <div class="form-group">
+                      <div class="checkbox">
+                        <label style="font-weight: 700; margin-top:19px;">
+                          <input name="active" ng-model="analysis.active" ng-init="analysis.active = true" type="checkbox"> {[ __("Active") ]}
+                        </label>
+                      </div>
+                    </div>
+
                   </div>
                   <!-- /.form-group -->
                 </div>
@@ -178,40 +194,48 @@
                           <!-- metadata form handler -->
                           <form name="metadataForm">
                             <!-- dcp -->
-                            <div class="col-md-12 terrama2-nopadding-box">
-                              <div class="col-md-4">
-                                <div class="form-group has-feedback">
-                                  <label>{[ __("Influence") ]}:</label>
-                                  <select class="form-control" name="influence" required>
-                                    <option value="Radius">{[ __('Radius') ]}</option>
-                                  </select>
+                            <div ng-if="semantics.data_series_type_name === 'Dcp'">
+                              <div class="col-md-12 terrama2-nopadding-box">
+                                <div class="col-md-4">
+                                  <div class="form-group has-feedback">
+                                    <label>{[ __("Influence") ]}:</label>
+                                    <select class="form-control" name="influence" required>
+                                      <option value="Radius">{[ __('Radius') ]}</option>
+                                    </select>
+                                  </div>
                                 </div>
                               </div>
+
+                              <div class="col-md-12 terrama2-nopadding-box">
+
+                                <div class="col-md-8">
+                                  <div class="form-group">
+                                    <label>{[ __("Radius") ]}:</label>
+                                    <input class="form-control" name="radius" type="text">
+                                  </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                  <div class="input-group" style="margin-top: 25px;">
+                                    <input type="text" class="form-control" aria-label="..." ng-model="metadata.format">
+                                    <div class="input-group-btn">
+                                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                                      </button>
+                                      <ul class="dropdown-menu dropdown-menu-right">
+                                        <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
+                                        <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
+                                      </ul>
+                                    </div><!-- /btn-group -->
+                                  </div><!-- /input-group -->
+                                </div><!-- /.col-md-4 -->
+                              </div><!--/.col-md-12-->
                             </div>
 
-                            <div class="col-md-12 terrama2-nopadding-box">
-
-                              <div class="col-md-8">
-                                <div class="form-group">
-                                  <label>{[ __("Radius") ]}:</label>
-                                  <input class="form-control" name="radius" type="text">
-                                </div>
+                            <!-- Occurrence -->
+                            <div ng-if="semantics.data_series_type_name === 'Occurrence'">
+                              <div class="col-md-12 terrama2-nopadding-box">
                               </div>
-
-                              <div class="col-md-4">
-                                <div class="input-group" style="margin-top: 25px;">
-                                  <input type="text" class="form-control" aria-label="..." ng-model="metadata.format">
-                                  <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                      <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
-                                      <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
-                                    </ul>
-                                  </div><!-- /btn-group -->
-                                </div><!-- /input-group -->
-                              </div><!-- /.col-md-4 -->
-                            </div><!--/.col-md-12-->
+                            </div>
                           </form><!--/.metadataForm-->
                         </div><!--./col-md-12-->
                       </div>
