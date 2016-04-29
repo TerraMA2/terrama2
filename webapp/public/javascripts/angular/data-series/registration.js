@@ -48,52 +48,6 @@ angular.module('terrama2.dataseries.registration', [
     editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
   })
 
-  .directive('terrama2DcpTable', function(i18n) {
-    return {
-      restrict: 'E',
-      templateUrl: '/javascripts/angular/data-series/templates/dcpTable.html',
-      scope: {
-        tableFields: '=tableFields',
-        dcps: '=dcps',
-        restrictionDisplay: '=restrictionDisplay'
-      },
-      link: function(scope, elem, attr) {
-        var element = elem[0];
-        var original = element.cloneNode;
-        element.cloneNode = patch;
-
-        function patch(deep) {
-          var clone = original.call(element, deep);
-
-          // You can remove this two lines and the result
-          //   will be more or less the same.
-          // In my case I need it for other reasons
-          clone.removeAttribute('mq-allow-external-clone');
-          clone.cloneNode = patch;
-
-          $compile(clone)(scope);
-          return clone;
-        }
-      },
-      controller: function($scope, i18n) {
-        $scope.i18n = i18n;
-        $scope.isBoolean = function(value) {
-          return typeof value === 'boolean';
-        };
-
-        $scope.removeDcp = function(dcpItem) {
-          $scope.dcps.forEach(function(dcp, pcdIndex, array) {
-            // todo: which fields should compare to remove?
-            if (dcp.mask === dcpItem.mask) {
-              array.splice(pcdIndex, 1);
-              return;
-            }
-          });
-        }
-      }
-    };
-  })
-
   .controller('StoragerController', ['$scope', 'i18n', 'DataSeriesSemanticsFactory', function($scope, i18n, DataSeriesSemanticsFactory) {
     $scope.formStorager = [];
     $scope.modelStorager = {};
