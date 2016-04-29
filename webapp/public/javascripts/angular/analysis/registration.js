@@ -1,11 +1,13 @@
 angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services'])
-  .controller('AnalysisRegistration', ['$scope', 'ServiceInstanceFactory', 'DataSeriesFactory', function($scope, ServiceInstanceFactory, DataSeriesFactory) {
+  .controller('AnalysisRegistration', ['$scope', 'ServiceInstanceFactory', 'DataSeriesFactory', 'DataSeriesSemanticsFactory',
+    function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory) {
     // initializing objects
     $scope.analysis = {};
     $scope.instances = [];
     $scope.dataSeriesList = [];
     $scope.selectedDataSeries = null;
     $scope.metadata = {};
+    $scope.semantics = {};
     
     // temp code for debugging
     var errorHelper = function(err) {
@@ -35,8 +37,14 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     // it handles hidden box with data-series analysis metadata
     $scope.onDataSeriesClick = function(dataSeries) {
       $scope.selectedDataSeries = dataSeries;
+      
+      // getting data series semantics
+      DataSeriesSemanticsFactory.get(dataSeries.semantics).success(function(data) {
+        $scope.semantics = data;
+      }).error(errorHelper);
     };
 
+    // pcd metadata (radius format - km, m...)
     $scope.onMetadataFormatClick = function(format) {
       $scope.metadata.format = format;
     };

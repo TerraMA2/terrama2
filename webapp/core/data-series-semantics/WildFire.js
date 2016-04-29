@@ -17,6 +17,10 @@ WildFire.schema = function() {
   var occurrenceSchema = Occurrence.schema.call(this);
 
   var properties = {
+    mask: {
+      type: Form.Field.TEXT,
+      title: "Mask"
+    },
     srid: {
       type: Form.Field.TEXT,
       title: "SRID"
@@ -34,7 +38,7 @@ WildFire.schema = function() {
     Object.assign(occurrenceSchema, {properties: properties});
   }
   
-  var requiredFields = ['srid', 'timezone'];
+  var requiredFields = ['mask', 'srid', 'timezone'];
   
   occurrenceSchema.required = occurrenceSchema.hasOwnProperty('required') ? occurrenceSchema.required.concat(requiredFields) : requiredFields;
 
@@ -44,13 +48,17 @@ WildFire.schema = function() {
 WildFire.form = function() {
   return [
     {
+      key: 'mask',
+      htmlClass: 'col-md-4'
+    },
+    {
       key: 'srid',
-      htmlClass: "col-md-6"
+      htmlClass: "col-md-4"
     },
     {
       key: 'timezone',
       type: 'select',
-      htmlClass: "col-md-6",
+      htmlClass: "col-md-4",
       titleMap: [
         {
           value: '00:00',
