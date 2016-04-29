@@ -20,28 +20,39 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/CollectorLog.cpp
+  \file terrama2/services/collector/core/CollectorLogger.hpp
 
   \brief
 
   \author Vinicius Campanha
 */
 
-// TerraMA2
-#include "CollectorLog.hpp"
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 
-terrama2::services::collector::core::CollectorLog::CollectorLog(uint64_t processID , std::map< std::string, std::string > connInfo)
- : ProcessLogger(processID, connInfo)
-{
-  setTableName("collector_" + std::to_string(processID));
-}
+#include "Typedef.hpp"
+#include "../../../core/utility/ProcessLogger.hpp"
 
-void terrama2::services::collector::core::CollectorLog::addInput(std::string value)
+namespace terrama2
 {
-  addValue("input", value);
-}
+  namespace services
+  {
+    namespace collector
+    {
+      namespace core
+      {
+        class CollectorLogger : public terrama2::core::ProcessLogger
+        {
+        public:
+          CollectorLogger(CollectorId id, std::map<std::string, std::string> connInfo);
 
-void terrama2::services::collector::core::CollectorLog::addOutput(std::string value)
-{
-  addValue("output", value);
+          void addInput(std::string value);
+
+          void addOutput(std::string value);
+
+        };
+      }
+    }
+  }
 }
+#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__

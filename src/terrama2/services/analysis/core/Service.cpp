@@ -31,7 +31,7 @@
 #include "Exception.hpp"
 #include "DataManager.hpp"
 #include "AnalysisExecutor.hpp"
-#include "AnalysisLog.hpp"
+#include "AnalysisLogger.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Timer.hpp"
 
@@ -79,7 +79,7 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
   {
     // VINICIUS: real connInfo
     std::map<std::string, std::string> connInfoFAKE;
-    std::shared_ptr< AnalysisLog > analysisLog(new AnalysisLog(analysisId, connInfoFAKE));
+    std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfoFAKE));
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);
     connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(analysisId, timer);

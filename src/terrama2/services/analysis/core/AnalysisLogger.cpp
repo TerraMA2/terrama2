@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/AnalysisLog.cpp
+  \file terrama2/services/analysis/core/AnalysisLogger.cpp
 
   \brief
 
@@ -28,11 +28,12 @@
 */
 
 // TerraMA2
-#include "AnalysisLog.hpp"
+#include "AnalysisLogger.hpp"
 
-terrama2::services::analysis::core::AnalysisLog::AnalysisLog(uint64_t processID, std::map< std::string, std::string > connInfo)
- : ProcessLogger(processID, connInfo)
+terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger(AnalysisId id, std::map< std::string, std::string > connInfo)
+ : ProcessLogger(id, connInfo)
 {
-  setTableName("analysis_" + std::to_string(processID));
+  // FIXME: use instance id in table name
+  setTableName("analysis_" + std::to_string(1));
 }
 

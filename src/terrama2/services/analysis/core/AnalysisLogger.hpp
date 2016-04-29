@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/AnalysisLog.hpp
+  \file terrama2/services/analysis/core/AnalysisLogger.hpp
 
   \brief
 
@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 
+#include "../Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
@@ -40,10 +41,10 @@ namespace terrama2
     {
       namespace core
       {
-        class AnalysisLog : public terrama2::core::ProcessLogger
+        class AnalysisLogger : public terrama2::core::ProcessLogger
         {
         public:
-          AnalysisLog(uint64_t processID, std::map< std::string, std::string > connInfo);
+          AnalysisLogger(AnalysisId id, std::map< std::string, std::string > connInfo);
 
         };
       }

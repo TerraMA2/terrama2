@@ -20,38 +20,29 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/CollectorLog.hpp
+  \file terrama2/services/collector/core/CollectorLogger.cpp
 
   \brief
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
-#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
+// TerraMA2
+#include "CollectorLogger.hpp"
 
-#include "../../../core/utility/ProcessLogger.hpp"
-
-namespace terrama2
+terrama2::services::collector::core::CollectorLogger::CollectorLogger(CollectorId id , std::map< std::string, std::string > connInfo)
+ : ProcessLogger(id, connInfo)
 {
-  namespace services
-  {
-    namespace collector
-    {
-      namespace core
-      {
-        class CollectorLog : public terrama2::core::ProcessLogger
-        {
-        public:
-          CollectorLog(uint64_t processID, std::map<std::string, std::string> connInfo);
-
-          void addInput(std::string value);
-
-          void addOutput(std::string value);
-
-        };
-      }
-    }
-  }
+  // FIXME: use instance id in table name
+  setTableName("collector_" + std::to_string(1));
 }
-#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
+
+void terrama2::services::collector::core::CollectorLogger::addInput(std::string value)
+{
+  addValue("input", value);
+}
+
+void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value)
+{
+  addValue("output", value);
+}
