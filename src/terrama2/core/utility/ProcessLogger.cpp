@@ -36,7 +36,9 @@
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype.h>
 
 // Qt
 #include <QString>
@@ -52,8 +54,19 @@ terrama2::core::ProcessLogger::ProcessLogger(uint64_t processID, std::map < std:
 {
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
   dataSource_->setConnectionInfo(connInfo);
-  //VINICIUS: validar e emitir exceção caso não conecte
   dataSource_->open();
+
+  if(!dataSource_->isOpened())
+  {
+    QString errMsg = QObject::tr("Could not connect to database");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
+  }
+}
+
+terrama2::core::ProcessLogger::~ProcessLogger()
+{
+  dataSource_->close();
 }
 
 void terrama2::core::ProcessLogger::start()
@@ -67,7 +80,7 @@ void terrama2::core::ProcessLogger::start()
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  boost::format query("INSERT INTO "+ tableName_ + " (PID, status, start_timestamp, last_process_timestamp) VALUES(%1%, %2%, '%3%', '%4%')");
+  boost::format query("INSERT INTO "+ tableName_ + " (pid, status, start_timestamp, last_process_timestamp) VALUES(%1%, %2%, '%3%', '%4%')");
 
   query.bind_arg(1, processID_);
   query.bind_arg(2, static_cast<int>(Status::START));
@@ -104,7 +117,7 @@ void terrama2::core::ProcessLogger::updateData()
   QJsonDocument doc(obj_);
   QByteArray json = doc.toJson();
 
-  boost::format query("INSERT INTO "+ tableName_ + " (data) VALUES('%1%') WHERE id =" + QString::number(primaryKey_).toStdString());
+  boost::format query("UPDATE "+ tableName_ + " SET data='%1%' WHERE id =" + QString::number(primaryKey_).toStdString());
 
   query.bind_arg(1, QString(json).toStdString());
 
@@ -122,7 +135,7 @@ void terrama2::core::ProcessLogger::error(std::string description)
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  boost::format query("INSERT INTO "+ tableName_ + " (status, error_description, last_process_timestamp) VALUES(%1%, '%2%', '%3%') WHERE id =" + QString::number(primaryKey_).toStdString());
+  boost::format query("UPDATE "+ tableName_ + " SET status=%1%, error_description='%2%', last_process_timestamp='%3%' WHERE id =" + QString::number(primaryKey_).toStdString());
 
   query.bind_arg(1, static_cast<int>(Status::ERROR));
   query.bind_arg(2, description);
@@ -136,6 +149,41 @@ void terrama2::core::ProcessLogger::error(std::string description)
 void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 {
   tableName_ = tableName;
+
+  if(!dataSource_->dataSetExists(tableName_))
+  {
+    std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+
+    std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(tableName_));
+
+    std::shared_ptr< te::dt::SimpleProperty > id(new te::dt::SimpleProperty("id", te::dt::INT32_TYPE, true));
+    id->setAutoNumber(true);
+    datasetType->add(id->clone());
+
+    datasetType->add(new te::dt::SimpleProperty("pid", te::dt::INT32_TYPE, true));
+    datasetType->add(new te::dt::SimpleProperty("status", te::dt::INT32_TYPE, true));
+    datasetType->add(new te::dt::DateTimeProperty("start_timestamp", te::dt::TIME_INSTANT_TZ, true));
+    datasetType->add(new te::dt::DateTimeProperty("data_timestamp", te::dt::TIME_INSTANT_TZ));
+    datasetType->add(new te::dt::DateTimeProperty("last_process_timestamp", te::dt::TIME_INSTANT_TZ, true));
+    datasetType->add(new te::dt::StringProperty("error_description", te::dt::STRING));
+    datasetType->add(new te::dt::StringProperty("data", te::dt::STRING));
+
+    std::map<std::string, std::string> options;
+    transactor->createDataSet(datasetType.get(),options);
+
+    std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(datasetType->getName(),"id");
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey(tableName_ + "_pk");
+    pk->add(id_pk1.get());
+
+    transactor->addPrimaryKey(datasetType->getName(),pk);
+
+    if(!(transactor->getPrimaryKey(datasetType->getName())).get())
+    {
+      QString errMsg = QObject::tr("Failed do add primary key to Process Logger table!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    }
+  }
 }
 
 void terrama2::core::ProcessLogger::done(te::dt::TimeInstantTZ dataTimestamp)
@@ -147,7 +195,7 @@ void terrama2::core::ProcessLogger::done(te::dt::TimeInstantTZ dataTimestamp)
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  boost::format query("INSERT INTO "+ tableName_ + " (status, data_timestamp, last_process_timestamp) VALUES(%1%, '%2%', '%3%') WHERE id =" + QString::number(primaryKey_).toStdString());
+  boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp='%2%', last_process_timestamp='%3%' WHERE id =" + QString::number(primaryKey_).toStdString());
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
   query.bind_arg(2, dataTimestamp.toString());
@@ -167,13 +215,21 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT last_process_timestamp FROM "+ tableName_ + " WHERE id = " + QString::number(primaryKey_).toStdString();
+  std::string sql = "SELECT MAX(last_process_timestamp) FROM "+ tableName_ + " WHERE pid = " + QString::number(processID_).toStdString();
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
-  std::unique_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
+  std::shared_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
 
-  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(0).release()));
+  if(!tempDataSet)
+    return nullptr;
+
+  size_t columnPos = te::da::GetPropertyPos(tempDataSet.get(), "max");
+
+  if(!tempDataSet->moveNext() || tempDataSet->isNull(columnPos))
+    return nullptr;
+
+  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataLastTimestamp()
@@ -185,13 +241,21 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE PID = " + QString::number(processID_).toStdString();
+  std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE pid = " + QString::number(processID_).toStdString();
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
   std::unique_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
 
-  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(0).release()));
+  if(!tempDataSet)
+    return nullptr;
+
+  size_t columnPos = te::da::GetPropertyPos(tempDataSet.get(), "max");
+
+  if(!tempDataSet->moveNext() || tempDataSet->isNull(columnPos))
+    return nullptr;
+
+  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
 uint64_t terrama2::core::ProcessLogger::primaryKey()

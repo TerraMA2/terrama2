@@ -41,18 +41,6 @@
 #include <string>
 #include <QString>
 
-bool terrama2::core::isValidDataSetName(const std::string& mask, const std::string& name)
-{
-  QString m(mask.c_str());
-
-  boost::regex expression(m.toStdString());
-
-  if(!boost::regex_match(name, expression, boost::match_default))
-    return false;
-
-  return true;
-}
-
 bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& filter, std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
 {
   if(!isValidDatedMask(mask))
@@ -126,9 +114,7 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
   }
   else
   {
-    QString errMsg = QObject::tr("Can not find in file name all the date parts!");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::UtilityException() << ErrorDescription(errMsg);
+    fileTimestamp.reset();
   }
 
   return true;

@@ -46,16 +46,6 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief Check if the mask cases with name
-
-      \param mask A mask to check  names
-      \param name A name to check
-
-      \return Returns if the name is valid or not.
-    */
-    bool isValidDataSetName(const std::string& mask, const std::string& name);
-
-    /*!
       \brief Check if the mask cases with name and filter the name by date in it.
               It also fullfill the fileTimestamp with the date in name
 

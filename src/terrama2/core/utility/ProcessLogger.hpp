@@ -66,6 +66,11 @@ namespace terrama2
       ProcessLogger(uint64_t processID, std::map < std::string, std::string > connInfo);
 
       /*!
+       * \brief Class destructor
+       */
+      ~ProcessLogger();
+
+      /*!
        * \brief Log the start of the process.
        */
       void start();
@@ -125,8 +130,8 @@ namespace terrama2
       uint64_t processID();
 
     private:
-      uint64_t processID_;
-      uint64_t primaryKey_;
+      uint64_t processID_ = 0;
+      uint64_t primaryKey_ = 0;
       std::string tableName_ = "";
       QJsonObject obj_;
       std::shared_ptr< te::da::DataSource > dataSource_;
