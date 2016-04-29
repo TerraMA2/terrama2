@@ -38,6 +38,7 @@
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/datatype.h>
 
 // Qt
 #include <QString>
@@ -61,6 +62,11 @@ terrama2::core::ProcessLogger::ProcessLogger(uint64_t processID, std::map < std:
     TERRAMA2_LOG_ERROR() << errMsg;
     throw LogException() << ErrorDescription(errMsg);
   }
+}
+
+terrama2::core::ProcessLogger::~ProcessLogger()
+{
+  dataSource_->close();
 }
 
 void terrama2::core::ProcessLogger::start()
@@ -143,6 +149,41 @@ void terrama2::core::ProcessLogger::error(std::string description)
 void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 {
   tableName_ = tableName;
+
+  if(!dataSource_->dataSetExists(tableName_))
+  {
+    std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+
+    std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(tableName_));
+
+    std::shared_ptr< te::dt::SimpleProperty > id(new te::dt::SimpleProperty("id", te::dt::INT32_TYPE, true));
+    id->setAutoNumber(true);
+    datasetType->add(id->clone());
+
+    datasetType->add(new te::dt::SimpleProperty("pid", te::dt::INT32_TYPE, true));
+    datasetType->add(new te::dt::SimpleProperty("status", te::dt::INT32_TYPE, true));
+    datasetType->add(new te::dt::DateTimeProperty("start_timestamp", te::dt::TIME_INSTANT_TZ, true));
+    datasetType->add(new te::dt::DateTimeProperty("data_timestamp", te::dt::TIME_INSTANT_TZ));
+    datasetType->add(new te::dt::DateTimeProperty("last_process_timestamp", te::dt::TIME_INSTANT_TZ, true));
+    datasetType->add(new te::dt::StringProperty("error_description", te::dt::STRING));
+    datasetType->add(new te::dt::StringProperty("data", te::dt::STRING));
+
+    std::map<std::string, std::string> options;
+    transactor->createDataSet(datasetType.get(),options);
+
+    std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(datasetType->getName(),"id");
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey(tableName_ + "_pk");
+    pk->add(id_pk1.get());
+
+    transactor->addPrimaryKey(datasetType->getName(),pk);
+
+    if(!(transactor->getPrimaryKey(datasetType->getName())).get())
+    {
+      QString errMsg = QObject::tr("Failed do add primary key to Process Logger table!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    }
+  }
 }
 
 void terrama2::core::ProcessLogger::done(te::dt::TimeInstantTZ dataTimestamp)

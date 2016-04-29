@@ -66,6 +66,11 @@ namespace terrama2
       ProcessLogger(uint64_t processID, std::map < std::string, std::string > connInfo);
 
       /*!
+       * \brief Class destructor
+       */
+      ~ProcessLogger();
+
+      /*!
        * \brief Log the start of the process.
        */
       void start();
