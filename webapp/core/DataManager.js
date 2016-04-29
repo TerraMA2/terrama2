@@ -757,31 +757,51 @@ var DataManager = {
    * It retrieves DataSeries loaded in memory.
    *
    * @param {Object} restriction - an object to filter result
-   * @return {Array<DataSeries>} - An array with DataSeries available/loaded in memory.
+   * @return {Promise<Array<DataSeries>>} - An array with DataSeries available/loaded in memory.
    */
   listDataSeries: function(restriction) {
-    var dataSeriesList = [];
+    var self = this;
 
-    // todo: should have parent search module? #tempCode for filtering
-    if (restriction && restriction.hasOwnProperty('DataProvider')) {
-      var dataProviderRestriction = restriction.DataProvider;
+    return new Promise(function(resolve, reject) {
+      var dataSeriesList = [];
 
-      var dataProviders = this.listDataProviders(dataProviderRestriction);
+      // todo: should have parent search module? #tempCode for filtering
+      if (restriction && restriction.hasOwnProperty('DataProvider')) {
+        var dataProviderRestriction = restriction.DataProvider;
 
-      this.data.dataSeries.forEach(function(dataSeries) {
-        dataProviders.forEach(function(dataProvider) {
-          if (dataSeries.data_provider_id === dataProvider.id)
-            dataSeriesList.push(new DataSeries(dataSeries));
+        var dataProviders = this.listDataProviders(dataProviderRestriction);
+
+        this.data.dataSeries.forEach(function (dataSeries) {
+          dataProviders.forEach(function (dataProvider) {
+            if (dataSeries.data_provider_id === dataProvider.id)
+              dataSeriesList.push(new DataSeries(dataSeries));
+          });
         });
-      });
-      
-    } else {
-      this.data.dataSeries.forEach(function(dataSeries) {
-        dataSeriesList.push(new DataSeries(dataSeries));
-      });
-    }
 
-    return dataSeriesList;
+        return resolve(dataSeriesList);
+
+      } else if (restriction && restriction.hasOwnProperty("Collector")) {
+        // collector restriction
+        self.listCollectors({}).then(function(collectorsResult) {
+          collectorsResult.forEach(function(collector) {
+            self.data.dataSeries.forEach(function(dataSeries) {
+              if (dataSeries.id === collector.data_series_output)
+                dataSeriesList.push(new DataSeries(dataSeries));
+            });
+          });
+          
+          return resolve(dataSeriesList);
+        }).catch(function(err) {
+          return reject(err);
+        });
+      } else {
+        this.data.dataSeries.forEach(function(dataSeries) {
+          dataSeriesList.push(new DataSeries(dataSeries));
+        });
+
+        return resolve(dataSeriesList);
+      }
+    });
   },
 
   /**
@@ -1332,6 +1352,21 @@ var DataManager = {
         console.log(err);
         reject(new exceptions.CollectorError("Could not save collector: ", err));
       })
+    });
+  },
+
+  listCollectors: function(restriction) {
+    return new Promise(function(resolve, reject) {
+      models['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
+        var output = [];
+        collectorsResult.forEach(function(collector) {
+          output.push(collector.get());
+        });
+        resolve(collectorsResult);
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
+      });
     });
   },
 

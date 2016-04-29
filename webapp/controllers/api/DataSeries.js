@@ -50,7 +50,10 @@ module.exports = function(app) {
     get: function(request, response) {
       var dataSeriesId = request.params.id;
       var dataSeriesType = request.query.type;
-
+      
+      // collector scope
+      var collector = request.query['collector'];
+      
       var dataProviderIntent;
       
       // list dataseries restriction
@@ -73,6 +76,10 @@ module.exports = function(app) {
           data_provider_intent_name: dataProviderIntent
         };
       }
+      
+      if (collector) {
+        restriction.Collector = {};
+      }
 
       if (dataSeriesId) {
 
@@ -82,11 +89,16 @@ module.exports = function(app) {
           return Utils.handleRequestError(response, err, 400);
         });
       } else {
-        var output = [];
-        DataManager.listDataSeries(restriction).forEach(function(dataSeries) {
-          output.push(dataSeries.toObject());
+        DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
+          var output = [];
+          dataSeriesList.forEach(function(dataSeries) {
+            output.push(dataSeries.toObject());
+          });
+          response.json(output);
+        }).catch(function(err) {
+          console.log(err);
+          return Utils.handleRequestError(response, err, 400);
         });
-        return response.json(output);
       }
     },
 
