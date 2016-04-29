@@ -48,7 +48,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition skin-blue sidebar-mini {% block bodyClass %}{% endblock %}">
+<body class="hold-transition skin-blue sidebar-mini {% if (collapsed) %} sidebar-collapse {% endif %} {% block bodyClass %}{% endblock %}">
   <div class="wrapper">
 
     <header class="main-header">
@@ -62,7 +62,7 @@
       <!-- Header Navbar: style can be found in header.less -->
       <nav class="navbar navbar-static-top" role="navigation">
         <!-- Sidebar toggle button-->
-        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button" id="collapseButton">
           <span class="sr-only">Toggle navigation</span>
         </a>
 
@@ -166,15 +166,26 @@
 
   <script type="text/javascript">
     $(document).ready(function(){
-      $("#loadConfigFileButton").click(function(e)
-      {
-        $("#loadConfigFileInput").trigger('click');
-      });
+      var collapsed = {[ collapsed || false ]};
 
-      $("#loadConfigFileInput").change(function(e){
-        // TODO load project
-      });
+//      if (collapsed) {
+//        $("#collapseButton").trigger('click');
+//      }
 
+      $("#collapseButton").click(function(event) {
+        var self = this;
+        $.ajax({
+          method: 'POST',
+          url: '/userDefaults/',
+          data: {
+            collapsed: !collapsed
+          }
+        }).success(function(data) {
+          console.log(data);
+        }).error(function(err) {
+          console.log(err);
+        });
+      });
     });
   </script>
   {# Block for handling TerraMA2 javascripts include #}

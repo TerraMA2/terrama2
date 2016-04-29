@@ -1,0 +1,10 @@
+{
+  "username": "postgres",
+  "password": "postgres",
+  "database": "nodejs",
+  "host": "127.0.0.1",
+  "dialect": "postgres",
+  "define": {
+    "schema": "terrama2"
+  }
+}

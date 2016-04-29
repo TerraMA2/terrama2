@@ -1,5 +1,6 @@
 <div class="col-md-12">
-  <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="resetState()"></terrama2-message-box>
+  <!-- alert box -->
+  <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
 </div>
 
 <div class="col-md-12">
@@ -36,13 +37,29 @@
           <!-- schema form -->
           <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
-          <div class="col-md-2 terrama2-top-field">
+          <div class="col-md-2 terrama2-top-field" style="padding-bottom: 40px;">
             <button class="btn btn-default" ng-show="semantics === 'dcp'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
           </div>
 
           <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-12">
+  <div class="box box-default box-solid">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ i18n.__('Storager') }}</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+        </button>
+      </div>
+    </div>
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body">
+      <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
     </div>
   </div>
 </div>
@@ -60,24 +77,6 @@
     <div style="display: block;" class="box-body">
       <form name="filterForm">
         <div ng-include="'/javascripts/angular/filter.html'"></div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-12">
-  <div class="box box-default box-solid">
-    <div class="box-header with-border">
-      <h3 class="box-title">{{ i18n.__('Schedule') }}</h3>
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-        </button>
-      </div>
-    </div>
-    <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
-      <form name="scheduleForm">
-        <div ng-include="'/javascripts/angular/data-series/templates/schedule.html'"></div>
       </form>
     </div>
   </div>

@@ -48,6 +48,10 @@ module.exports = {
     GRID: 'Grid',
     MONITORED: 'Monitored'
   },
+  
+  DataSeriesFormat: {
+    CSV: 'CSV'
+  },
 
   DataSeriesSemantics: {
     NAME: "name",

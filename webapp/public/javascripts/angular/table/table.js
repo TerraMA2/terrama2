@@ -11,7 +11,7 @@ angular.module('terrama2.table', ['terrama2'])
         iconProperties: '=?iconProperties',
         linkToAdd: '=?linkToAdd',
         context: '=context',
-        remove: '&'
+        remove: '&?'
       },
       
       controller: function($scope, $http, i18n) {

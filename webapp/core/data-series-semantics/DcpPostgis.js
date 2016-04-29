@@ -14,18 +14,23 @@ DcpPostgis.identifier = function() {
 };
 
 DcpPostgis.schema = function() {
-  var dcpSchema = Dcp.schema.call(this);
-  dcpSchema.properties.mask = {
-    type: Form.Field.TEXT,
-    title: "Mask"
+  // var dcpSchema = Dcp.schema.call(this);
+  var dcpSchema = {
+    type: "object",
+    properties: {},
+    required: {}
   };
-
-  dcpSchema.properties.timezone = {
+  dcpSchema.properties.tableName = {
     type: Form.Field.TEXT,
-    title: "Timezone"
+    title: "Table Name"
   };
+  //
+  // dcpSchema.properties.geometryColumn = {
+  //   type: Form.Field.TEXT,
+  //   title: "Geometry Column"
+  // };
 
-  dcpSchema.required = dcpSchema.required.concat(['mask', 'timezone']);
+  dcpSchema.required = ['tableName'];//, 'geometryColumn'];
 
   return dcpSchema;
 };
@@ -33,25 +38,14 @@ DcpPostgis.schema = function() {
 DcpPostgis.form = function() {
   return [
     {
-      key: 'mask',
-      htmlClass: "col-md-6"
-    },
-    {
-      key: 'timezone',
-      type: 'select',
-      htmlClass: "col-md-6",
-      titleMap: [
-        {
-          value: '00:00',
-          name: '00:00'
-        },
-        {
-          value: '12:00',
-          name: '12:00'
-        }
-      ]
-    }
-  ].concat(Dcp.form.call(this));
+      key: 'tableName',
+      htmlClass: "col-md-3"
+    }//,
+    // {
+    //   key: 'geometryColumn',
+    //   htmlClass: "col-md-2"
+    // }
+  ];
 };
 
 module.exports = DcpPostgis;
