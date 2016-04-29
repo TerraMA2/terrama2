@@ -55,7 +55,7 @@ terrama2::core::ProcessLogger::ProcessLogger(uint64_t processID, std::map < std:
   dataSource_->setConnectionInfo(connInfo);
   dataSource_->open();
 
-  if(!datasourceDestination->isOpened())
+  if(!dataSource_->isOpened())
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg;
