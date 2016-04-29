@@ -32,8 +32,53 @@
 #include <terrama2/core/utility/Timer.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/FilterUtils.hpp>
+#include <terrama2/core/utility/ProcessLogger.hpp>
 
 #include "TsUtility.hpp"
+
+std::shared_ptr< terrama2::core::ProcessLogger > getLogger()
+{
+  std::map < std::string, std::string > connInfo{{"PG_HOST", "localhost"},
+                                                 {"PG_PORT", "5432"},
+                                                 {"PG_USER", "postgres"},
+                                                 {"PG_PASSWORD", "postgres"},
+                                                 {"PG_DB_NAME", "example"},
+                                                 {"PG_CONNECT_TIMEOUT", "4"},
+                                                 {"PG_CLIENT_ENCODING", "UTF-8"}};
+
+  std::shared_ptr< terrama2::core::ProcessLogger > log(new terrama2::core::ProcessLogger(1, connInfo));
+  log->setTableName("unittest_process_log_1");
+
+  return log;
+}
+
+void TsUtility::testProcessLogger()
+{
+  std::map < std::string, std::string > connInfo{{"PG_HOST", "localhost"},
+                                                 {"PG_PORT", "5432"},
+                                                 {"PG_USER", "postgres"},
+                                                 {"PG_PASSWORD", "postgres"},
+                                                 {"PG_DB_NAME", "example"},
+                                                 {"PG_CONNECT_TIMEOUT", "4"},
+                                                 {"PG_CLIENT_ENCODING", "UTF-8"}};
+
+  terrama2::core::ProcessLogger log(1, connInfo);
+  log.setTableName("unittest_process_log_1");
+
+  log.start();
+  log.addValue("tag1", "value1");
+  log.addValue("tag2", "value2");
+  log.addValue("tag1", "value3");
+  log.addValue("tag2", "value4");
+  log.updateData();
+  log.error("Unit Test Error");
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::now();
+
+  log.done(*dataTime.get());
+
+  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp()->getTimeInstantTZ());
+}
 
 void TsUtility::testTimerNoFrequencyException()
 {
@@ -44,7 +89,7 @@ void TsUtility::testTimerNoFrequencyException()
     schedule.frequency = 0;
     schedule.frequencyUnit = "second";
 
-//    terrama2::core::Timer timer(schedule, 0);
+    terrama2::core::Timer timer(schedule, 1, getLogger());
 
     QFAIL("Should not be here!");
   }
@@ -63,7 +108,7 @@ void TsUtility::testTimerInvalidUnitException()
     schedule.frequency = 30;
     schedule.frequencyUnit = "invalid";
 
-    //terrama2::core::Timer timer(schedule, 0);
+    terrama2::core::Timer timer(schedule, 1, getLogger());
 
     QFAIL("Should not be here!");
   }
@@ -84,54 +129,54 @@ void TsUtility::testTimer()
     schedule.frequency = 800;
     schedule.frequencyUnit = "second";
 
-//    terrama2::core::Timer timerSecond1(schedule, 0);
+    terrama2::core::Timer timerSecond1(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "ss";
-//    terrama2::core::Timer timerSecond2(schedule, 0);
+    terrama2::core::Timer timerSecond2(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "s";
-//    terrama2::core::Timer timerSecond3(schedule, 0);
+    terrama2::core::Timer timerSecond3(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "sec";
-//    terrama2::core::Timer timerSecond4(schedule, 0);
+    terrama2::core::Timer timerSecond4(schedule, 1, getLogger());
 
     // Schedule a timer in minutes
     schedule.frequency = 35;
     schedule.frequencyUnit = "minute";
 
-//   terrama2::core::Timer timerMinute1(schedule, 0);
+   terrama2::core::Timer timerMinute1(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "min";
-//    terrama2::core::Timer timerMinute2(schedule, 0);
+    terrama2::core::Timer timerMinute2(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "minutes";
-//    terrama2::core::Timer timerMinute3(schedule, 0);
+    terrama2::core::Timer timerMinute3(schedule, 1, getLogger());
 
     // Schedule a timer in hours
     schedule.frequency = 2;
     schedule.frequencyUnit = "hour";
 
-//    terrama2::core::Timer timerHour1(schedule, 0);
+    terrama2::core::Timer timerHour1(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "hh";
 
-//    terrama2::core::Timer timerHour2(schedule, 0);
+    terrama2::core::Timer timerHour2(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "h";
 
-//    terrama2::core::Timer timerHour3(schedule, 0);
+    terrama2::core::Timer timerHour3(schedule, 1, getLogger());
 
     // Schedule a timer in days
     schedule.frequency = 3;
     schedule.frequencyUnit = "day";
 
-//    terrama2::core::Timer timerDay1(schedule, 0);
+    terrama2::core::Timer timerDay1(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "d";
-//    terrama2::core::Timer timerDay2(schedule, 0);
+    terrama2::core::Timer timerDay2(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "dd";
-//    terrama2::core::Timer timerDay3(schedule, 0);
+    terrama2::core::Timer timerDay3(schedule, 1, getLogger());
 
   }
   catch(...)

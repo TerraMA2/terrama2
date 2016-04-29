@@ -41,6 +41,9 @@ public:
 
 
 private slots:
+
+  void testProcessLogger();
+
   void testTimerNoFrequencyException();
   void testTimerInvalidUnitException();
   void testTimer();

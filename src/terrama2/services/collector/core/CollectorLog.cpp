@@ -33,7 +33,7 @@
 terrama2::services::collector::core::CollectorLog::CollectorLog(uint64_t processID , std::map< std::string, std::string > connInfo)
  : ProcessLogger(processID, connInfo)
 {
-  setTableName("collector");
+  setTableName("collector_" + std::to_string(processID));
 }
 
 void terrama2::services::collector::core::CollectorLog::addInput(std::string value)
