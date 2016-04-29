@@ -9,6 +9,7 @@ module.exports = function(app) {
       DataManager.unload().then(function() {
         console.log("Unloaded");
         app.locals.activeProject = {};
+        app.locals.collapsed = false;
         request.logout();
         response.redirect('/');
       });

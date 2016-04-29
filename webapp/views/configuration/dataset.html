@@ -5,8 +5,13 @@
 {% block styles %}
   <link rel="stylesheet" href="/externals/angular-datatimepicker/css/datetimepicker.css">
   <link rel="stylesheet" type="text/css" href="/externals/angular-wizard/angular-wizard.min.css">
+  <link href="/externals/angular-xeditable/css/xeditable.css" rel="stylesheet">
 
   <style>
+    table > tbody {
+      overflow-y: auto !important;
+      height: 150px !important;
+    }
     .terrama2-pcd-header {
       width: 100% ;
     }
@@ -56,6 +61,9 @@
   <script type="text/javascript" src="/externals/objectpath/ObjectPath.js"></script>
   <script type="text/javascript" src="/externals/angular-schema-form/schema-form.js"></script>
   <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-decorator.min.js"></script>
+
+  <!-- XEditable  -->
+  <script src="/externals/angular-xeditable/js/xeditable.js"></script>
 
   <!-- Angular ui router -->
   <script type="text/javascript" src="/externals/angular/angular-ui-router.min.js"></script>

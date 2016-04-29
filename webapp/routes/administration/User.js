@@ -8,4 +8,5 @@ module.exports = function (app) {
   app.get('/administration/users/edit/:id', passport.isAdministrator, controller.edit);
   app.post('/administration/users/new', passport.isAdministrator, controller.post);
   app.put('/administration/users/edit/:id', passport.isAdministrator, controller.put);
+  app.delete('/administration/users/:id/delete', passport.isAdministrator, controller.delete);
 };

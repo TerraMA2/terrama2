@@ -131,7 +131,7 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
 
         // data formats semantics defaults todo: check it
-        inserts.push(self.addDataFormat({name: DataSeriesType.DCP, description: "DCP description"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
 
@@ -139,9 +139,10 @@ var DataManager = {
         inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
 
         // semantics
-        inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
-        inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: "Dcp", data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-POSTGIS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -439,6 +440,23 @@ var DataManager = {
         });
 
         resolve(output);
+      });
+    });
+  },
+  
+  getServiceInstance : function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject){
+      self.listServiceInstances(restriction).then(function(result) {
+        if (result.length == 0)
+          return reject(new Error("No service instances found"));
+
+        if (result.length > 1)
+          return reject(new Error("More than one service instance retrieved"));
+        
+        resolve(result[0]);
+      }).catch(function(err) {
+        reject(err);
       });
     });
   },
@@ -847,10 +865,10 @@ var DataManager = {
       }).catch(function(err){
         var msg = "";
 
-        err.errors.forEach(function(error) {
-          msg = error.message;
-        });
-        reject(new exceptions.DataSeriesError(msg));
+        // err.errors.forEach(function(error) {
+        //   msg = error.message;
+        // });
+        reject(new exceptions.DataSeriesError(err.message));
       });
     });
   },
@@ -1222,36 +1240,41 @@ var DataManager = {
         })
       };
 
-      self.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-        if (scheduleObject.schedule) {
-          scheduleObject.schedule = new Date(scheduleObject.schedule);
-        }
-
-        self.addSchedule(scheduleObject).then(function(scheduleResult) {
-          var collectorObject = {};
-
-          // todo: get service_instance id and collector status (active)
-          collectorObject.data_series_input = dataSeriesResult.id;
-          collectorObject.data_series_output = dataSeriesResult.id;
-          collectorObject.service_instance_id = serviceObject.id;
-          collectorObject.schedule_id = scheduleResult.id;
-          collectorObject.active = true;
-          collectorObject.collector_type = 1;
-          collectorObject.schedule_id = scheduleResult.id;
-
-          self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
-            resolve(dataSeriesResult)
+      self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
+        self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
+          if (scheduleObject.schedule) {
+            scheduleObject.schedule = new Date(scheduleObject.schedule);
+          }
+  
+          self.addSchedule(scheduleObject).then(function(scheduleResult) {
+            var collectorObject = {};
+  
+            // todo: get service_instance id and collector status (active)
+            collectorObject.data_series_input = dataSeriesResult.id;
+            collectorObject.data_series_output = dataSeriesResultOutput.id;
+            collectorObject.service_instance_id = serviceObject.id;
+            collectorObject.schedule_id = scheduleResult.id;
+            collectorObject.active = true;
+            collectorObject.collector_type = 1;
+            collectorObject.schedule_id = scheduleResult.id;
+  
+            self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
+              // todo: emit signal
+              resolve(dataSeriesResult)
+            }).catch(function(err) {
+              // rollback schedule
+              rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+            });
           }).catch(function(err) {
-            // rollback schedule
-            rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+            // rollback dataseries
+            rollbackModels([models.db.DataSeries, models.db.DataSeries], [dataSeriesResultOutput, dataSeriesResult], err);
           });
         }).catch(function(err) {
-          // rollback dataseries
           rollbackModels([models.db.DataSeries], [dataSeriesResult], err);
-        });
+        })
       }).catch(function(err) {
         reject(err);
-      })
+      })  
     });
   },
 

@@ -1,0 +1,5 @@
+<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel">
+  <button type="button" class="close" ng-click="close()">×</button>
+  <h4><i class="icon fa" ng-class="alertIcon()"></i> {{ title }}</h4>
+  {{ message }}
+</div>

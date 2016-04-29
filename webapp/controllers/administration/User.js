@@ -127,6 +127,25 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new UserError("Incorrect password"), 400);
       }
+    },
+    
+    delete: function(request, response) {
+      var userId = request.params.id;
+      if (userId) {
+        if (request.user.dataValues.id == userId) {
+          Utils.handleRequestError(response, new UserError("Cannot remove yourself"), 400);
+          return;
+        }
+        
+        User.destroy({where: {id: userId}}).then(function() {
+          response.json({status:200});
+        }).catch(function(err) {
+          console.log("Remove user: ", err);
+          Utils.handleRequestError(response, new UserError("Could not remove user ", err), 400);
+        });
+      } else {
+        Utils.handleRequestError(response, new UserError("Missing user id"), 400);
+      }
     }
   };
 };

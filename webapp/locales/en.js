@@ -244,5 +244,7 @@
 	"Radius": "Radius",
 	"No analysis instance found": "No analysis instance found",
 	"Script": "Script",
-	"Validate": "Validate"
+	"Validate": "Validate",
+	"Analysis name is required": "Analysis name is required",
+	"No data series found": "No data series found"
 }
