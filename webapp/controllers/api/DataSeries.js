@@ -1,4 +1,5 @@
 var DataManager = require("../../core/DataManager");
+var TcpManager = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var Intent = require('./../../core/Enums').DataProviderIntent;
@@ -16,8 +17,14 @@ module.exports = function(app) {
         // getting service instance (analysis)
         DataManager.getServiceInstance({service_type_id: serviceId}).then(function(serviceResult) {
           DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(dataSeriesResult) {
-            // todo: add filter and schedule object
-            return response.json(dataSeriesResult.toObject());
+            // sending tcp data
+            var output = [];
+            dataSeriesResult.forEach(function(dSeries) {
+              output.push(dSeries.toObject());
+            });
+
+            TcpManager.sendData({'DataSeries': output});
+            return response.json(output);
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });

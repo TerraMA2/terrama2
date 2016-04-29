@@ -606,7 +606,7 @@ angular.module('terrama2.dataseries.registration', [
                 }
 
                 var dataSetStructure = {
-                  active: dcp.active,
+                  active: $scope.dataSeries.active,
                   format: format,
                   position: {
                     type: 'Point',
@@ -685,12 +685,39 @@ angular.module('terrama2.dataseries.registration', [
           //  todo: improve
 
             var dataObject = _save();
+            
+            var dSets = values.data;
+
+            // it makes data set format
+            var _makeFormat = function(dSetObject) {
+              var format_ = {};
+              for(var key in dSetObject) {
+                if (dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id")
+                  format_[key] = dSetObject[key];
+              }
+              return format_;
+            };
+
+            var out;
+            if (dSets instanceof Object) {
+              dSets.format = _makeFormat(dSets);
+              dSets.active = $scope.dataSeries.active;
+              out = [dSets];
+            } else {
+              // setting to active
+              dSets.forEach(function(dSet) {
+                dSet.format = _makeFormat(dSet);
+                dSet.active = $scope.dataSeries.active;
+              });
+              out = dSets;
+            }
+            
             var outputDataSeries = {
               name: dataObject.dataSeries.name + "_output",
               description: dataObject.dataSeries.description,
               data_series_semantic_name: $scope.dataSeries.semantics.name,
               data_provider_id: values.data_provider,
-              dataSets: values.data instanceof Object ? [values.data] : values.data
+              dataSets: out
             };
 
             _sendRequest({input: dataObject.dataSeries, output: outputDataSeries},

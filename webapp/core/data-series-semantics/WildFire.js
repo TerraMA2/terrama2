@@ -22,7 +22,7 @@ WildFire.schema = function() {
       title: "Mask"
     },
     srid: {
-      type: Form.Field.TEXT,
+      type: Form.Field.NUMBER,
       title: "SRID"
     },
     timezone: {

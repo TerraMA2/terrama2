@@ -844,7 +844,7 @@ var DataManager = {
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
-                TcpManager.sendData({"DataSeries": [output.toObject()]});
+                // TcpManager.sendData({"DataSeries": [output.toObject()]});
 
                 // resolving promise
                 resolve(output);
@@ -1261,7 +1261,7 @@ var DataManager = {
               // todo: emit signal
               // TcpManager.sendData({'Collectors': [collectorResult]});
               console.log(collectorResult);
-              resolve(dataSeriesResult)
+              resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
               rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
@@ -1289,6 +1289,22 @@ var DataManager = {
         // todo: improve error message
         reject(new exceptions.ScheduleError("Could not save schedule. ", err));
       });
+    });
+  },
+
+  listSchedules: function(restriction) {
+    var self = this;
+    // todo: implement it
+    return new Promise(function(resolve, reject) {
+      resolve();
+    });
+  },
+
+  getSchedule: function(restriction) {
+    var self = this;
+    // todo: implement it from listSchedules
+    return new Promise(function(resolve, reject) {
+      resolve();
     });
   },
 
