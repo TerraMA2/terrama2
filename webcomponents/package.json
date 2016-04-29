@@ -1,0 +1,9 @@
+{
+  "name": "TerraMA2-WebComponents",
+  "version": "1.0.0-alpha",
+  "private": true,
+  "dependencies": {
+    "jsdoc": "^3.4.0",
+    "requirejs": "^2.2.0"
+  }
+}
