@@ -53,8 +53,14 @@ terrama2::core::ProcessLogger::ProcessLogger(uint64_t processID, std::map < std:
 {
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
   dataSource_->setConnectionInfo(connInfo);
-  //VINICIUS: validar e emitir exceção caso não conecte
   dataSource_->open();
+
+  if(!datasourceDestination->isOpened())
+  {
+    QString errMsg = QObject::tr("Could not connect to database");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
+  }
 }
 
 void terrama2::core::ProcessLogger::start()
@@ -182,16 +188,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
   if(!tempDataSet->moveNext() || tempDataSet->isNull(columnPos))
     return nullptr;
 
-//  std::unique_ptr<te::dt::DateTime> datetime(tempDataSet->getDateTime(0));
-//  te::dt::TimeInstantTZ* timeTz = dynamic_cast<te::dt::TimeInstantTZ*>(datetime.get());
-
-//  return std::make_shared< te::dt::TimeInstantTZ > (*timeTz);
-
-  std::unique_ptr<te::dt::DateTime> datetime(tempDataSet->getDateTime(columnPos).release());
-
-//  std::shared_ptr< te::dt::TimeInstantTZ > shared(dynamic_cast<te::dt::TimeInstantTZ*>(datetime));
-
-  return nullptr;
+  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataLastTimestamp()
@@ -209,7 +206,15 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
 
   std::unique_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
 
-  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(0).release()));
+  if(!tempDataSet)
+    return nullptr;
+
+  size_t columnPos = te::da::GetPropertyPos(tempDataSet.get(), "max");
+
+  if(!tempDataSet->moveNext() || tempDataSet->isNull(columnPos))
+    return nullptr;
+
+  return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
 uint64_t terrama2::core::ProcessLogger::primaryKey()

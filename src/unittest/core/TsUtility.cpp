@@ -72,7 +72,12 @@ void TsUtility::testProcessLogger()
   log.addValue("tag2", "value4");
   log.updateData();
   log.error("Unit Test Error");
-  log.done(*terrama2::core::TimeUtils::now().get());
+
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::now();
+
+  log.done(*dataTime.get());
+
+  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp()->getTimeInstantTZ());
 }
 
 void TsUtility::testTimerNoFrequencyException()
