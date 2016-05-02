@@ -10,7 +10,7 @@ WildFire.prototype = Object.create(Occurrence.prototype);
 WildFire.prototype.constructor = WildFire;
 
 WildFire.identifier = function() {
-  return "WILD-FIRES";
+  return "OCCURRENCE-wfp";
 };
 
 WildFire.schema = function() {

@@ -687,6 +687,9 @@ angular.module('terrama2.dataseries.registration', [
           //  todo: improve
 
             var dataObject = _save();
+            var dSeriesName = dataObject.dataSeries.name;
+            // setting _input in data series
+            dataObject.dataSeries.name += "_input";
             
             var dSets = values.data;
 
@@ -715,7 +718,7 @@ angular.module('terrama2.dataseries.registration', [
             }
             
             var outputDataSeries = {
-              name: dataObject.dataSeries.name + "_output",
+              name: dSeriesName,
               description: dataObject.dataSeries.description,
               data_series_semantic_name: values.semantics.name,//$scope.dataSeries.semantics.name,
               data_provider_id: values.data_provider,
