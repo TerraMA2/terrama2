@@ -33,7 +33,7 @@
 terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger(AnalysisId id, std::map< std::string, std::string > connInfo)
  : ProcessLogger(id, connInfo)
 {
-  // FIXME: use instance id in table name
-  setTableName("analysis_" + std::to_string(1));
+  // FIXME: use instance id in table prefix name
+  setTableName("analysis_" , 1);
 }
 

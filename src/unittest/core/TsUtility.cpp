@@ -34,6 +34,7 @@
 #include <terrama2/core/utility/FilterUtils.hpp>
 #include <terrama2/core/utility/ProcessLogger.hpp>
 
+
 #include "TsUtility.hpp"
 
 std::shared_ptr< terrama2::core::ProcessLogger > getLogger()
@@ -47,7 +48,7 @@ std::shared_ptr< terrama2::core::ProcessLogger > getLogger()
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
   std::shared_ptr< terrama2::core::ProcessLogger > log(new terrama2::core::ProcessLogger(1, connInfo));
-  log->setTableName("unittest_process_log_1");
+  log->setTableName("unittest_process_log_", 1);
 
   return log;
 }
@@ -63,19 +64,19 @@ void TsUtility::testProcessLogger()
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
   terrama2::core::ProcessLogger log(1, connInfo);
-  log.setTableName("unittest_process_log_1");
+  log.setTableName("unittest_process_log_", 1);
 
-  log.start();
-  log.addValue("tag1", "value1");
-  log.addValue("tag2", "value2");
-  log.addValue("tag1", "value3");
-  log.addValue("tag2", "value4");
-  log.updateData();
-  log.error("Unit Test Error");
+  uint64_t registerID = log.start();
+
+  log.addValue("tag1", "value1", registerID);
+  log.addValue("tag2", "value2", registerID);
+  log.addValue("tag1", "value3", registerID);
+  log.addValue("tag2", "value4", registerID);
+  log.error("Unit Test Error", registerID);
 
   std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::now();
 
-  log.done(*dataTime.get());
+  log.done(dataTime, registerID);
 
   QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp()->getTimeInstantTZ());
 }

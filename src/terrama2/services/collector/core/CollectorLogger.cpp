@@ -33,16 +33,16 @@
 terrama2::services::collector::core::CollectorLogger::CollectorLogger(CollectorId id , std::map< std::string, std::string > connInfo)
  : ProcessLogger(id, connInfo)
 {
-  // FIXME: use instance id in table name
-  setTableName("collector_" + std::to_string(1));
+  // FIXME: use instance id in table prefix name
+  setTableName("collector_", 1);
 }
 
-void terrama2::services::collector::core::CollectorLogger::addInput(std::string value)
+void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, uint64_t registerID)
 {
-  addValue("input", value);
+  addValue("input", value, registerID);
 }
 
-void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value)
+void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value, uint64_t registerID)
 {
-  addValue("output", value);
+  addValue("output", value, registerID);
 }
