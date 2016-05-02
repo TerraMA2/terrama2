@@ -29,7 +29,7 @@
 
 #include "Service.hpp"
 #include "Collector.hpp"
-#include "CollectorLog.hpp"
+#include "CollectorLogger.hpp"
 
 #include "../../../core/Shared.hpp"
 
@@ -195,7 +195,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
                                                 {"PG_CONNECT_TIMEOUT", "4"},
                                                 {"PG_CLIENT_ENCODING", "UTF-8"}};
 
-    std::shared_ptr< CollectorLog > collectorLog(new CollectorLog(collector->id, connInfo));
+    std::shared_ptr< CollectorLogger > collectorLog(new CollectorLogger(collector->id, connInfo));
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, collectorLog);
     connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(collector->id, timer);
