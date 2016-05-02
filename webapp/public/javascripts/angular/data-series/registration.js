@@ -632,7 +632,7 @@ angular.module('terrama2.dataseries.registration', [
 
               var dataSet = {
                 semantics: semantics,
-                active: $scope.parametersData.active,
+                active: $scope.dataSeries.active,
                 format: format
               };
 
@@ -654,6 +654,23 @@ angular.module('terrama2.dataseries.registration', [
           }
 
           var scheduleValues = Object.assign({}, $scope.schedule);
+          switch(scheduleValues.scheduleHandler) {
+            case "seconds":
+            case "minutes":
+            case "hours":
+              scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+              break;
+
+            case "weekly":
+            case "monthly":
+            case "yearly":
+              // todo: verify
+              scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+              break;
+
+            default:
+              break;
+          }
 
           console.log(dataToSend);
 

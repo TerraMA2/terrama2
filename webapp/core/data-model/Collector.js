@@ -8,7 +8,7 @@ var Collector = module.exports = function(params) {
   this.input_data_series = params.data_series_input;
   this.output_data_series = params.data_series_output;
   this.input_output_map = params.input_output_map || [];
-  this.schedule_id = params.schedule_id;
+  this.schedule = params.schedule || {};
   this.intersection = params.intersection;
   this.active = params.active;
 };
@@ -24,7 +24,7 @@ Collector.prototype.toObject = function() {
     input_data_series: this.input_data_series,
     output_data_series: this.output_data_series,
     input_output_map: this.input_output_map || [],
-    schedule: this['schedule_id'],
+    schedule: this['schedule'],
     intersection: this.intersection,
     active: this.active
   });
