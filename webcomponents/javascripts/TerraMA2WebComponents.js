@@ -16,18 +16,17 @@ if(typeof ol === "undefined") {
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
  */
-define(function() {
-
-  /**
-   * Initializes the necessary features.
-   *
-   * @function init
-   * @memberof TerraMA2WebComponents
-   * @inner
-   */
-  var init = function(terrama2Url) {};
-
-  return {
-  	init: init
-  };
-});
+requirejs(
+  [
+    'TerraMA2WC/components/MapDisplay.TerraMA2WebComponents',
+    'TerraMA2WC/components/LayerExplorer.TerraMA2WebComponents'
+  ],
+  function(MapDisplay, LayerExplorer) {
+    return (
+      window.TerraMA2WebComponents = {
+        MapDisplay: MapDisplay,
+        LayerExplorer: LayerExplorer
+      }
+    );
+  }
+);
