@@ -111,7 +111,8 @@ angular.module('terrama2.dataseries.registration', [
               data: $scope.dcpsStorager,
               data_provider: $scope['storager_data_provider_id'],
               service: $scope["storager_service"],
-              type: $scope.formatSelected.data_series_type_name
+              type: $scope.formatSelected.data_series_type_name,
+              semantics: $scope.formatSelected
             });
             break;
           case "Occurrence":
@@ -119,7 +120,8 @@ angular.module('terrama2.dataseries.registration', [
               data: $scope.modelStorager,
               data_provider: $scope['storager_data_provider_id'],
               service: $scope["storager_service"],
-              type: $scope.formatSelected.data_series_type_name
+              type: $scope.formatSelected.data_series_type_name,
+              semantics: $scope.formatSelected
             });
             break;
           default:
@@ -436,16 +438,16 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.initializing) {
           $scope.initializing = false;
         } else {
-          if (val || val.name != "") {
-            $scope.dataSeries.access = 'COLLECT';
-            $scope.display = false;
-          } else {
+          if (val && Object.keys(val).length == 0) {
             $scope.dataSeries.access = 'PROCESSING';
             //  display alert box
             $scope.alertLevel = "alert-warning";
             $scope.alertBox.title = "Data Series";
             $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
             $scope.display = true;
+          } else {
+            $scope.dataSeries.access = 'COLLECT';
+            $scope.display = false;
           }
         }
       });
@@ -606,7 +608,7 @@ angular.module('terrama2.dataseries.registration', [
                 }
 
                 var dataSetStructure = {
-                  active: dcp.active,
+                  active: $scope.dataSeries.active,
                   format: format,
                   position: {
                     type: 'Point',
@@ -685,12 +687,39 @@ angular.module('terrama2.dataseries.registration', [
           //  todo: improve
 
             var dataObject = _save();
+            
+            var dSets = values.data;
+
+            // it makes data set format
+            var _makeFormat = function(dSetObject) {
+              var format_ = {};
+              for(var key in dSetObject) {
+                if (dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id")
+                  format_[key] = dSetObject[key];
+              }
+              return format_;
+            };
+
+            var out;
+            if (dSets instanceof Object) {
+              dSets.format = _makeFormat(dSets);
+              dSets.active = $scope.dataSeries.active;
+              out = [dSets];
+            } else {
+              // setting to active
+              dSets.forEach(function(dSet) {
+                dSet.format = _makeFormat(dSet);
+                dSet.active = $scope.dataSeries.active;
+              });
+              out = dSets;
+            }
+            
             var outputDataSeries = {
               name: dataObject.dataSeries.name + "_output",
               description: dataObject.dataSeries.description,
-              data_series_semantic_name: $scope.dataSeries.semantics.name,
+              data_series_semantic_name: values.semantics.name,//$scope.dataSeries.semantics.name,
               data_provider_id: values.data_provider,
-              dataSets: values.data instanceof Object ? [values.data] : values.data
+              dataSets: out
             };
 
             _sendRequest({input: dataObject.dataSeries, output: outputDataSeries},

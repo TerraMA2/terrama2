@@ -22,6 +22,7 @@
 <script type="text/javascript" src="/javascripts/terrama2.js"></script>
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript" src="/externals/ace-editor/ace.js"></script>
 <script type="text/javascript" src="/externals/ace-editor/ext-language_tools.js"></script>
 <script type="text/javascript">
@@ -42,6 +43,8 @@
   editor.getSession().setValue(textarea.val());
   editor.getSession().on('change', function() {
     textarea.val(editor.getSession().getValue());
+    // notify angular
+    $(textarea).trigger('input');
   });
 </script>
 <script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
@@ -69,6 +72,10 @@
           <!-- /.box-header -->
           <div style="display: block;" class="box-body">
             <div class="row">
+              <div class="col-md-12">
+                <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
+              </div>
+
               <form name="generalDataForm">
                 <div class="col-md-8">
                   <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required,
@@ -264,12 +271,25 @@
             <div class="row">
 
               <div class="col-md-12">
-                <div class="form-group">
-                  <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
-                  <label>{[ __('Analysis Model') ]}:</label>
-                  <div id="script" style="height: 400px;"></div>
-                  <textarea name="script" ng-model="analysis.script"></textarea>
-                </div>
+                <form name="scriptForm">
+                  <div class="form-group" ng-class="{'has-error': scriptForm.script.$dirty && scriptForm.script.$error.required,
+                                                     'has-success': scriptForm.script.$dirty && scriptForm.script.$valid}">
+
+                    <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
+                    <label>{[ __('Analysis Model') ]}:</label>
+                    <div id="script" style="height: 400px;"></div>
+                    <textarea name="script" ng-model="analysis.script" required></textarea>
+
+                    <!-- required -->
+                    <span class="help-block"
+                          ng-show="scriptForm.script.$dirty && scriptForm.script.$error.required">
+                      {[ __('Analysis script is required') ]}
+                    </span>
+
+                    <!-- todo: syntax error message -->
+                  </div>
+                </form>
+
                 <div class="col-md-12">
                   <div class="btn-group">
                     <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">

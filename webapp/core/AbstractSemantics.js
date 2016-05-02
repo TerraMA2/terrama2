@@ -57,11 +57,11 @@ AbstractSemantics.prototype.get = function() {
  */
 AbstractSemantics.schema = function() {
   return {
-    active: {
-      title: "Active",
-      type: FormField.CHECKBOX,
-      default: true
-    }
+    // active: {
+    //   title: "Active",
+    //   type: FormField.CHECKBOX,
+    //   default: true
+    // }
   };
 };
 
