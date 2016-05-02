@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/CollectorLog.cpp
+  \file terrama2/services/collector/core/CollectorLogger.cpp
 
   \brief
 
@@ -28,20 +28,21 @@
 */
 
 // TerraMA2
-#include "CollectorLog.hpp"
+#include "CollectorLogger.hpp"
 
-terrama2::services::collector::core::CollectorLog::CollectorLog(uint64_t processID , std::map< std::string, std::string > connInfo)
- : ProcessLogger(processID, connInfo)
+terrama2::services::collector::core::CollectorLogger::CollectorLogger(CollectorId id , std::map< std::string, std::string > connInfo)
+ : ProcessLogger(id, connInfo)
 {
-  setTableName("collector_" + std::to_string(processID));
+  // FIXME: use instance id in table prefix name
+  setTableName("collector_");
 }
 
-void terrama2::services::collector::core::CollectorLog::addInput(std::string value)
+void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, uint64_t registerID)
 {
-  addValue("input", value);
+  addValue("input", value, registerID);
 }
 
-void terrama2::services::collector::core::CollectorLog::addOutput(std::string value)
+void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value, uint64_t registerID)
 {
-  addValue("output", value);
+  addValue("output", value, registerID);
 }

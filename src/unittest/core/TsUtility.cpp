@@ -34,9 +34,21 @@
 #include <terrama2/core/utility/FilterUtils.hpp>
 #include <terrama2/core/utility/ProcessLogger.hpp>
 
+
 #include "TsUtility.hpp"
 
-std::shared_ptr< terrama2::core::ProcessLogger > getLogger()
+class TestLogger : public terrama2::core::ProcessLogger
+{
+public:
+  TestLogger(uint64_t processId, std::map < std::string, std::string > connInfo)
+    : ProcessLogger(processId, connInfo)
+  {
+    setTableName("unittest_process_log_");
+  }
+};
+
+
+std::shared_ptr< TestLogger > getLogger()
 {
   std::map < std::string, std::string > connInfo{{"PG_HOST", "localhost"},
                                                  {"PG_PORT", "5432"},
@@ -46,10 +58,8 @@ std::shared_ptr< terrama2::core::ProcessLogger > getLogger()
                                                  {"PG_CONNECT_TIMEOUT", "4"},
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
-  std::shared_ptr< terrama2::core::ProcessLogger > log(new terrama2::core::ProcessLogger(1, connInfo));
-  log->setTableName("unittest_process_log_1");
 
-  return log;
+  return std::make_shared<TestLogger>(TestLogger(1 ,connInfo));
 }
 
 void TsUtility::testProcessLogger()
@@ -62,20 +72,20 @@ void TsUtility::testProcessLogger()
                                                  {"PG_CONNECT_TIMEOUT", "4"},
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
-  terrama2::core::ProcessLogger log(1, connInfo);
-  log.setTableName("unittest_process_log_1");
 
-  log.start();
-  log.addValue("tag1", "value1");
-  log.addValue("tag2", "value2");
-  log.addValue("tag1", "value3");
-  log.addValue("tag2", "value4");
-  log.updateData();
-  log.error("Unit Test Error");
+  TestLogger log(1 ,connInfo);
+
+  uint64_t registerID = log.start();
+
+  log.addValue("tag1", "value1", registerID);
+  log.addValue("tag2", "value2", registerID);
+  log.addValue("tag1", "value3", registerID);
+  log.addValue("tag2", "value4", registerID);
+  log.error("Unit Test Error", registerID);
 
   std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::now();
 
-  log.done(*dataTime.get());
+  log.done(dataTime, registerID);
 
   QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp()->getTimeInstantTZ());
 }
@@ -144,7 +154,7 @@ void TsUtility::testTimer()
     schedule.frequency = 35;
     schedule.frequencyUnit = "minute";
 
-   terrama2::core::Timer timerMinute1(schedule, 1, getLogger());
+    terrama2::core::Timer timerMinute1(schedule, 1, getLogger());
 
     schedule.frequencyUnit = "min";
     terrama2::core::Timer timerMinute2(schedule, 1, getLogger());

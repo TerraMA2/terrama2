@@ -20,38 +20,35 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/CollectorLog.hpp
+  \file terrama2/services/analysis/core/AnalysisLogger.hpp
 
   \brief
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
-#define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 
+#include "../Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
 {
   namespace services
   {
-    namespace collector
+    namespace analysis
     {
       namespace core
       {
-        class CollectorLog : public terrama2::core::ProcessLogger
+        class AnalysisLogger : public terrama2::core::ProcessLogger
         {
         public:
-          CollectorLog(uint64_t processID, std::map<std::string, std::string> connInfo);
-
-          void addInput(std::string value);
-
-          void addOutput(std::string value);
+          AnalysisLogger(AnalysisId id, std::map< std::string, std::string > connInfo);
 
         };
       }
     }
   }
 }
-#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
