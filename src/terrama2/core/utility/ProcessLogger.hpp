@@ -81,26 +81,26 @@ namespace terrama2
        * \brief Log the start of the process.
        * \return The ID of table register
        */
-      uint64_t start();
+      uint64_t start() const;
 
       /*!
        * \brief Store data in a Json to be logged after
        * \param tag A tag to identify data
        * \param value The data
        */
-      void addValue(const std::string tag, const std::string value, uint64_t registerId);
+      void addValue(const std::string tag, const std::string value, const uint64_t registerId) const;
 
       /*!
        * \brief Log an error in the process
        * \param description Error description
        */
-      void error(const std::string description, uint64_t registerId) const;
+      void error(const std::string description, const uint64_t registerId) const;
 
       /*!
        * \brief Log the end of process
        * \param dataTimestamp The las timestamp of data.
        */
-      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, uint64_t registerId) const;
+      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const uint64_t registerId) const;
 
       /*!
        * \brief Returns the process last log timestamp
@@ -132,7 +132,7 @@ namespace terrama2
       /*!
        * \brief Log in the log table the data stored in Json
        */
-      void updateData(uint64_t registerId, QJsonObject obj);
+      void updateData(const uint64_t registerId, const QJsonObject obj) const;
 
 
     private:

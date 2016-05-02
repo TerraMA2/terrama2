@@ -69,7 +69,7 @@ terrama2::core::ProcessLogger::~ProcessLogger()
   dataSource_->close();
 }
 
-uint64_t terrama2::core::ProcessLogger::start()
+uint64_t terrama2::core::ProcessLogger::start() const
 {
   // send start to database
 
@@ -95,7 +95,7 @@ uint64_t terrama2::core::ProcessLogger::start()
   return transactor->getLastGeneratedId();
 }
 
-void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::string value, uint64_t registerId)
+void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::string value, uint64_t registerId) const
 {
   if(tableName_.empty())
   {
@@ -326,7 +326,7 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tablePrefixNa
   }
 }
 
-void terrama2::core::ProcessLogger::updateData(uint64_t registerId, QJsonObject obj)
+void terrama2::core::ProcessLogger::updateData(const uint64_t registerId, const QJsonObject obj) const
 {
   if(tableName_.empty())
   {
