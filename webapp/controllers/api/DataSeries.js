@@ -16,14 +16,12 @@ module.exports = function(app) {
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
         // getting service instance (analysis)
         DataManager.getServiceInstance({service_type_id: serviceId}).then(function(serviceResult) {
-          DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(dataSeriesResult) {
+          DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(collectorResult) {
+            collectorResult.project_id = app.locals.activeProject.id;
             // sending tcp data
-            var output = [];
-            dataSeriesResult.forEach(function(dSeries) {
-              output.push(dSeries.toObject());
-            });
+            var output = collectorResult.toObject();
 
-            TcpManager.sendData({'DataSeries': output});
+            TcpManager.sendData(output);
             return response.json(output);
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);

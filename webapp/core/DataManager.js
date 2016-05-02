@@ -39,6 +39,7 @@ var DataSeries = require("./data-model/DataSeries");
 var DataSetDcp = require("./data-model/DataSetDcp");
 var DataSetFactory = require("./data-model/DataSetFactory");
 var Schedule = require('./data-model/Schedule');
+var Collector = require('./data-model/Collector');
 
 
 // Available DataSeriesType
@@ -1292,10 +1293,31 @@ var DataManager = {
             collectorObject.schedule_id = scheduleResult.id;
   
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
-              // todo: emit signal
-              // TcpManager.sendData({'Collectors': [collectorResult]});
+              var collector = new Collector(collectorResult);
+              var input_output_map = [];
+
+              for(var i = 0; i < dataSeriesResult.dataSets.length; ++i) {
+                var inputDataSet = dataSeriesResult.dataSets[i];
+                var outputDataSet;
+                if (dataSeriesResultOutput.dataSets.length == 1)
+                  outputDataSet = dataSeriesResultOutput.dataSets[0];
+                else
+                  outputDataSet = dataSeriesResultOutput.dataSets[i];
+
+                input_output_map.push({
+                  input: inputDataSet.id,
+                  output: outputDataSet.id
+                });
+              }
+
+              collector.input_output_map = input_output_map;
+
+              TcpManager.sendData({"DataSeries": [dataSeriesResult.toObject(), dataSeriesResultOutput.toObject()]});
+
               console.log(collectorResult);
-              resolve([dataSeriesResult, dataSeriesResultOutput])
+              console.log(collector);
+              resolve(collector);
+              // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
               rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
