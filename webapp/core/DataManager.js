@@ -39,6 +39,7 @@ var DataSeries = require("./data-model/DataSeries");
 var DataSetDcp = require("./data-model/DataSetDcp");
 var DataSetFactory = require("./data-model/DataSetFactory");
 var Schedule = require('./data-model/Schedule');
+var Collector = require('./data-model/Collector');
 
 
 // Available DataSeriesType
@@ -757,31 +758,65 @@ var DataManager = {
    * It retrieves DataSeries loaded in memory.
    *
    * @param {Object} restriction - an object to filter result
-   * @return {Array<DataSeries>} - An array with DataSeries available/loaded in memory.
+   * @return {Promise<Array<DataSeries>>} - An array with DataSeries available/loaded in memory.
    */
   listDataSeries: function(restriction) {
-    var dataSeriesList = [];
+    var self = this;
 
-    // todo: should have parent search module? #tempCode for filtering
-    if (restriction && restriction.hasOwnProperty('DataProvider')) {
-      var dataProviderRestriction = restriction.DataProvider;
+    return new Promise(function(resolve, reject) {
+      var dataSeriesList = [];
 
-      var dataProviders = this.listDataProviders(dataProviderRestriction);
+      // todo: should have parent search module? #tempCode for filtering
+      if (restriction && restriction.hasOwnProperty("Collector")) {
+        // collector restriction
+        self.listCollectors({}).then(function(collectorsResult) {
 
-      this.data.dataSeries.forEach(function(dataSeries) {
-        dataProviders.forEach(function(dataProvider) {
-          if (dataSeries.data_provider_id === dataProvider.id)
-            dataSeriesList.push(new DataSeries(dataSeries));
+          // creating a copy
+          var copyDataSeries = [];
+          self.data.dataSeries.forEach(function(ds) {
+            copyDataSeries.push(new DataSeries(ds));
+          });
+
+          copyDataSeries.forEach(function(element, index, arr) {
+            collectorsResult.some(function(collector) {
+              // collect
+              if (collector.data_series_output == element.id) {
+                arr.splice(index, 1);
+                return true;
+              } else if (collector.data_series_input == element.id) { // removing input dataseries
+                arr.splice(index, 1);
+              }
+              return false;
+            })
+          });
+          
+          // collect output and processing
+          return resolve(copyDataSeries);
+        }).catch(function(err) {
+          return reject(err);
         });
-      });
-      
-    } else {
-      this.data.dataSeries.forEach(function(dataSeries) {
-        dataSeriesList.push(new DataSeries(dataSeries));
-      });
-    }
 
-    return dataSeriesList;
+      } else if (restriction && restriction.hasOwnProperty('DataProvider')) {
+        var dataProviderRestriction = restriction.DataProvider;
+
+        var dataProviders = self.listDataProviders(dataProviderRestriction);
+
+        self.data.dataSeries.forEach(function (dataSeries) {
+          dataProviders.forEach(function (dataProvider) {
+            if (dataSeries.data_provider_id === dataProvider.id)
+              dataSeriesList.push(new DataSeries(dataSeries));
+          });
+        });
+
+        return resolve(dataSeriesList);
+      } else {
+        self.data.dataSeries.forEach(function(dataSeries) {
+          dataSeriesList.push(new DataSeries(dataSeries));
+        });
+
+        return resolve(dataSeriesList);
+      }
+    });
   },
 
   /**
@@ -844,7 +879,7 @@ var DataManager = {
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
-                TcpManager.sendData({"DataSeries": [output.toObject()]});
+                // TcpManager.sendData({"DataSeries": [output.toObject()]});
 
                 // resolving promise
                 resolve(output);
@@ -1258,10 +1293,31 @@ var DataManager = {
             collectorObject.schedule_id = scheduleResult.id;
   
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
-              // todo: emit signal
-              // TcpManager.sendData({'Collectors': [collectorResult]});
+              var collector = new Collector(collectorResult);
+              var input_output_map = [];
+
+              for(var i = 0; i < dataSeriesResult.dataSets.length; ++i) {
+                var inputDataSet = dataSeriesResult.dataSets[i];
+                var outputDataSet;
+                if (dataSeriesResultOutput.dataSets.length == 1)
+                  outputDataSet = dataSeriesResultOutput.dataSets[0];
+                else
+                  outputDataSet = dataSeriesResultOutput.dataSets[i];
+
+                input_output_map.push({
+                  input: inputDataSet.id,
+                  output: outputDataSet.id
+                });
+              }
+
+              collector.input_output_map = input_output_map;
+
+              TcpManager.sendData({"DataSeries": [dataSeriesResult.toObject(), dataSeriesResultOutput.toObject()]});
+
               console.log(collectorResult);
-              resolve(dataSeriesResult)
+              console.log(collector);
+              resolve(collector);
+              // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
               rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
@@ -1292,6 +1348,22 @@ var DataManager = {
     });
   },
 
+  listSchedules: function(restriction) {
+    var self = this;
+    // todo: implement it
+    return new Promise(function(resolve, reject) {
+      resolve();
+    });
+  },
+
+  getSchedule: function(restriction) {
+    var self = this;
+    // todo: implement it from listSchedules
+    return new Promise(function(resolve, reject) {
+      resolve();
+    });
+  },
+
   addCollector: function(collectorObject, filterObject) {
     var self = this;
 
@@ -1316,6 +1388,21 @@ var DataManager = {
         console.log(err);
         reject(new exceptions.CollectorError("Could not save collector: ", err));
       })
+    });
+  },
+
+  listCollectors: function(restriction) {
+    return new Promise(function(resolve, reject) {
+      models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
+        var output = [];
+        collectorsResult.forEach(function(collector) {
+          output.push(collector.get());
+        });
+        resolve(output);
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
+      });
     });
   },
 

@@ -1,6 +1,12 @@
-angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services'])
-  .controller('AnalysisRegistration', ['$scope', 'ServiceInstanceFactory', 'DataSeriesFactory', 'DataSeriesSemanticsFactory',
-    function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory) {
+angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
+  .controller('AnalysisRegistration',
+    [
+      '$scope',
+      'ServiceInstanceFactory',
+      'DataSeriesFactory',
+      'DataSeriesSemanticsFactory',
+      'AnalysisFactory',
+  function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory) {
     // initializing objects
     $scope.analysis = {};
     $scope.instances = [];
@@ -8,6 +14,15 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     $scope.selectedDataSeries = null;
     $scope.metadata = {};
     $scope.semantics = {};
+
+    // terrama2 alert box
+    $scope.alertBox = {};
+    $scope.display = false;
+    $scope.alertLevel = null;
+    $scope.close = function() {
+      $scope.display = false;
+    };
+
     
     // temp code for debugging
     var errorHelper = function(err) {
@@ -56,7 +71,16 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
         formErrorDisplay($scope.generalDataForm);
         return;
       }
+
+      if ($scope.scriptForm.$invalid) {
+        formErrorDisplay($scope.scriptForm);
+        return;
+      }
       
-      
+      // sending post operation
+      AnalysisFactory.post($scope.analysis).success(function(data) {
+        alert("Saved");
+        console.log(data);
+      }).error(errorHelper);
     };
   }]);

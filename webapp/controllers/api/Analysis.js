@@ -5,7 +5,12 @@ var Utils = require("../../core/Utils");
 module.exports = function(app) {
   return {
     get: function(request, response) {
+      var analysisId = request.params.id;
       // todo: implement it
+      if (analysisId) {
+
+      }
+
       response.json([]);
     },
 
@@ -13,7 +18,7 @@ module.exports = function(app) {
       var analysisObject = request.body;
 
       // if not has project_id, getting from cache
-      if (analysisObject.project_id)
+      if (!analysisObject.project_id)
         analysisObject.project_id = app.locals.activeProject.id;
 
       DataManager.addAnalysis(analysisObject).then(function(analysisResult) {
@@ -23,6 +28,10 @@ module.exports = function(app) {
         console.log(err);
         Utils.handleRequestError(response, err, 400);
       })
+    },
+
+    delete: function(request, response) {
+      response.json({status: 200});
     }
   };
 };

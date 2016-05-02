@@ -1,4 +1,5 @@
 var DataManager = require("../../core/DataManager");
+var TcpManager = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var Intent = require('./../../core/Enums').DataProviderIntent;
@@ -15,9 +16,13 @@ module.exports = function(app) {
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
         // getting service instance (analysis)
         DataManager.getServiceInstance({service_type_id: serviceId}).then(function(serviceResult) {
-          DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(dataSeriesResult) {
-            // todo: add filter and schedule object
-            return response.json(dataSeriesResult.toObject());
+          DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(collectorResult) {
+            collectorResult.project_id = app.locals.activeProject.id;
+            // sending tcp data
+            var output = collectorResult.toObject();
+
+            TcpManager.sendData(output);
+            return response.json(output);
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });
@@ -26,7 +31,7 @@ module.exports = function(app) {
         });
       } else {
         DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-          if (!isEmpty(filterObject)) {
+          if (!isEmpty(filterObject) || !isEmpty(filterObject.data)) {
             DataManager.addFilter(filterObject).then(function(filterResult) {
               response.json({status: 200});
             }).catch(function(err) {
@@ -43,7 +48,10 @@ module.exports = function(app) {
     get: function(request, response) {
       var dataSeriesId = request.params.id;
       var dataSeriesType = request.query.type;
-
+      
+      // collector scope
+      var collector = request.query['collector'];
+      
       var dataProviderIntent;
       
       // list dataseries restriction
@@ -66,6 +74,10 @@ module.exports = function(app) {
           data_provider_intent_name: dataProviderIntent
         };
       }
+      
+      if (collector) {
+        restriction.Collector = {};
+      }
 
       if (dataSeriesId) {
 
@@ -75,11 +87,16 @@ module.exports = function(app) {
           return Utils.handleRequestError(response, err, 400);
         });
       } else {
-        var output = [];
-        DataManager.listDataSeries(restriction).forEach(function(dataSeries) {
-          output.push(dataSeries.toObject());
+        DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
+          var output = [];
+          dataSeriesList.forEach(function(dataSeries) {
+            output.push(dataSeries.toObject());
+          });
+          response.json(output);
+        }).catch(function(err) {
+          console.log(err);
+          return Utils.handleRequestError(response, err, 400);
         });
-        return response.json(output);
       }
     },
 
