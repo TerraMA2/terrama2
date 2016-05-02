@@ -100,6 +100,8 @@ void terrama2::services::collector::core::DataManager::addFromJSON(const QJsonOb
 {
   try
   {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+
     terrama2::core::DataManager::DataManager::addFromJSON(obj);
 
     auto collectors = obj["Collectors"].toArray();

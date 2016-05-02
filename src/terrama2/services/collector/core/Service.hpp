@@ -36,6 +36,7 @@
 #include "Shared.hpp"
 #include "Typedef.hpp"
 #include "DataManager.hpp"
+#include "CollectorLog.hpp"
 
 // STL
 #include <memory>
@@ -76,13 +77,14 @@ namespace terrama2
 
             virtual void prepareTask(CollectorId collectorId);
 
-            static void collect(CollectorId collectorId, std::weak_ptr<DataManager> weakDataManager);
+            static void collect(CollectorId collectorId, std::shared_ptr< CollectorLog > logger, std::weak_ptr<DataManager> weakDataManager);
 
             void connectDataManager();
 
             std::weak_ptr<DataManager> dataManager_;
 
             std::map<CollectorId, terrama2::core::TimerPtr> timers_;
+            std::map<CollectorId, std::shared_ptr< CollectorLog > > loggers_;
             std::deque<CollectorId> collectorQueue_;
         };
 

@@ -106,6 +106,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
   try
   {
+    logger->start();
     //////////////////////////////////////////////////////////
     //  aquiring metadata
     auto lock = dataManager->getLock();
@@ -149,6 +150,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet) { return dataSet->id == outputDataSetId; });
       dataStorager->store(item.second, *outputDataSet);
     }
+
+    //TODO: logger->done();
   }
   catch(const terrama2::Exception& e)
   {
@@ -187,25 +190,28 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
     std::lock_guard<std::mutex> lock(mutex_);
 
     // VINICIUS: real connInfo
-    std::map<std::string, std::string> connInfo{{"PG_HOST", "localhost"},
-                                                {"PG_PORT", "5432"},
-                                                {"PG_USER", "postgres"},
-                                                {"PG_PASSWORD", "postgres"},
-                                                {"PG_DB_NAME", "nodejs"},
-                                                {"PG_CONNECT_TIMEOUT", "4"},
-                                                {"PG_CLIENT_ENCODING", "UTF-8"}};
+    std::map<std::string, std::string> connInfo {{"PG_HOST", "localhost"},
+      {"PG_PORT", "5432"},
+      {"PG_USER", "postgres"},
+      {"PG_PASSWORD", "postgres"},
+      {"PG_DB_NAME", "nodejs"},
+      {"PG_CONNECT_TIMEOUT", "4"},
+      {"PG_CLIENT_ENCODING", "UTF-8"}
+    };
 
-    std::shared_ptr< CollectorLogger > collectorLog(new CollectorLogger(collector->id, connInfo));
+    std::shared_ptr< CollectorLog > collectorLog = std::make_shared<CollectorLog>(collector->id, connInfo);
+    loggers_.emplace(collector->id, collectorLog);
+
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, collectorLog);
     connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(collector->id, timer);
-
-    addToQueue(collector->id);
   }
   catch(terrama2::core::InvalidFrequencyException& e)
   {
     // invalid schedule, already logged
   }
+
+  addToQueue(collector->id);
 }
 
 void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId)

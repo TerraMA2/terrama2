@@ -24,7 +24,7 @@
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
 #include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
 #include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
+#include <terrama2/impl/DataAccessorOccurrenceWfp.hpp>
 #include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
 #include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
 #include <terrama2/impl/DataStoragerPostGis.hpp>
@@ -71,7 +71,7 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.name = "OCCURRENCE-mvf";
+  dataSeries->semantics.name = "OCCURRENCE-wfp";
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -151,14 +151,14 @@ terrama2::services::collector::core::CollectorPtr buildCollector()
 
 int main(int argc, char* argv[])
 {
+  terrama2::core::initializeTerraMA();
+
   try
   {
-    terrama2::core::initializeTerraMA();
-
     terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
     terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
     terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
+    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-wfp", terrama2::core::DataAccessorOccurrenceWfp::make);
     terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
     terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
 
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
-    semanticsManager.addSemantics("OCCURRENCE-mvf", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
+    semanticsManager.addSemantics("OCCURRENCE-wfp", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
 
     QJsonObject obj;
 
@@ -194,35 +194,35 @@ int main(int argc, char* argv[])
     terrama2::services::collector::core::Service service(dataManager);
     service.start();
 
-    QByteArray bytearray;
-    QDataStream out(&bytearray, QIODevice::WriteOnly);
-
-    out << static_cast<uint32_t>(0);
-    out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
-    out << doc.toJson();
-    bytearray.remove(8, 4);//Remove QByteArray header
-    out.device()->seek(0);
-    out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
-
-    QTcpSocket socket;
-    socket.connectToHost("localhost", 30000);
-    socket.write(bytearray);
-    socket.waitForBytesWritten();
-
-    QTimer timer;
-    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(30000);
+    // QByteArray bytearray;
+    // QDataStream out(&bytearray, QIODevice::WriteOnly);
+    //
+    // out << static_cast<uint32_t>(0);
+    // out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
+    // out << doc.toJson();
+    // bytearray.remove(8, 4);//Remove QByteArray header
+    // out.device()->seek(0);
+    // out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+    //
+    // QTcpSocket socket;
+    // socket.connectToHost("localhost", 30000);
+    // socket.write(bytearray);
+    // socket.waitForBytesWritten();
+    //
+    // QTimer timer;
+    // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+    // timer.start(30000);
     app.exec();
 
     service.stop();
-
-    terrama2::core::finalizeTerraMA();
   }
   catch(...)
   {
     // TODO: o que fazer com uncaught exception
     std::cout << "\n\nException...\n" << std::endl;
   }
+
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

@@ -20,15 +20,15 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorOccurrenceMvf.hpp
+  \file terrama2/core/data-access/DataAccessorOccurrenceWfp.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_WFP_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_WFP_HPP__
 
 // TerraMA2
 #include "DataAccessorFile.hpp"
@@ -41,19 +41,19 @@ namespace terrama2
   {
     struct Filter;
     /*!
-      \class DataAccessorOccurrenceMvf
-      \brief DataAccessor for the Monitoring Vegetation Fire program of INPE - www.inpe.br/queimadas
+      \class DataAccessorOccurrenceWfp
+      \brief DataAccessor for the INPE's Wildiland Fire Program - www.inpe.br/queimadas
 
     */
-    class DataAccessorOccurrenceMvf : public DataAccessorOccurrence, public DataAccessorFile
+    class DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
     {
     public:
-      DataAccessorOccurrenceMvf(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorOccurrenceMvf() {}
+      DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorOccurrenceWfp() {}
 
       static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return new DataAccessorOccurrenceMvf(dataProvider, dataSeries, filter);
+        return new DataAccessorOccurrenceWfp(dataProvider, dataSeries, filter);
       }
 
     protected:
@@ -91,4 +91,4 @@ namespace terrama2
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_MVF_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_WFP_HPP__
