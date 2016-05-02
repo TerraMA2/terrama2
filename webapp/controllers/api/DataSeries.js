@@ -17,10 +17,14 @@ module.exports = function(app) {
         // getting service instance (analysis)
         DataManager.getServiceInstance({service_type_id: serviceId}).then(function(serviceResult) {
           DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(collectorResult) {
-            collectorResult.project_id = app.locals.activeProject.id;
-            // sending tcp data
-            var output = collectorResult.toObject();
+            var collector = collectorResult.collector;
+            collector['project_id'] = app.locals.activeProject.id;
 
+            var output = {
+              "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
+              "Collectors": [collector.toObject()]
+            };
+            
             TcpManager.sendData(output);
             return response.json(output);
           }).catch(function(err) {
