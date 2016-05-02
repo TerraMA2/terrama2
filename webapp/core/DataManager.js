@@ -766,12 +766,41 @@ var DataManager = {
       var dataSeriesList = [];
 
       // todo: should have parent search module? #tempCode for filtering
-      if (restriction && restriction.hasOwnProperty('DataProvider')) {
+      if (restriction && restriction.hasOwnProperty("Collector")) {
+        // collector restriction
+        self.listCollectors({}).then(function(collectorsResult) {
+
+          // creating a copy
+          var copyDataSeries = [];
+          self.data.dataSeries.forEach(function(ds) {
+            copyDataSeries.push(new DataSeries(ds));
+          });
+
+          copyDataSeries.forEach(function(element, index, arr) {
+            collectorsResult.some(function(collector) {
+              // collect
+              if (collector.data_series_output == element.id) {
+                arr.splice(index, 1);
+                return true;
+              } else if (collector.data_series_input == element.id) { // removing input dataseries
+                arr.splice(index, 1);
+              }
+              return false;
+            })
+          });
+          
+          // collect output and processing
+          return resolve(copyDataSeries);
+        }).catch(function(err) {
+          return reject(err);
+        });
+
+      } else if (restriction && restriction.hasOwnProperty('DataProvider')) {
         var dataProviderRestriction = restriction.DataProvider;
 
-        var dataProviders = this.listDataProviders(dataProviderRestriction);
+        var dataProviders = self.listDataProviders(dataProviderRestriction);
 
-        this.data.dataSeries.forEach(function (dataSeries) {
+        self.data.dataSeries.forEach(function (dataSeries) {
           dataProviders.forEach(function (dataProvider) {
             if (dataSeries.data_provider_id === dataProvider.id)
               dataSeriesList.push(new DataSeries(dataSeries));
@@ -779,23 +808,8 @@ var DataManager = {
         });
 
         return resolve(dataSeriesList);
-
-      } else if (restriction && restriction.hasOwnProperty("Collector")) {
-        // collector restriction
-        self.listCollectors({}).then(function(collectorsResult) {
-          collectorsResult.forEach(function(collector) {
-            self.data.dataSeries.forEach(function(dataSeries) {
-              if (dataSeries.id === collector.data_series_output)
-                dataSeriesList.push(new DataSeries(dataSeries));
-            });
-          });
-          
-          return resolve(dataSeriesList);
-        }).catch(function(err) {
-          return reject(err);
-        });
       } else {
-        this.data.dataSeries.forEach(function(dataSeries) {
+        self.data.dataSeries.forEach(function(dataSeries) {
           dataSeriesList.push(new DataSeries(dataSeries));
         });
 
@@ -1357,12 +1371,12 @@ var DataManager = {
 
   listCollectors: function(restriction) {
     return new Promise(function(resolve, reject) {
-      models['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
+      models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
         var output = [];
         collectorsResult.forEach(function(collector) {
           output.push(collector.get());
         });
-        resolve(collectorsResult);
+        resolve(output);
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));

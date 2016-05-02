@@ -111,7 +111,8 @@ angular.module('terrama2.dataseries.registration', [
               data: $scope.dcpsStorager,
               data_provider: $scope['storager_data_provider_id'],
               service: $scope["storager_service"],
-              type: $scope.formatSelected.data_series_type_name
+              type: $scope.formatSelected.data_series_type_name,
+              semantics: $scope.formatSelected
             });
             break;
           case "Occurrence":
@@ -119,7 +120,8 @@ angular.module('terrama2.dataseries.registration', [
               data: $scope.modelStorager,
               data_provider: $scope['storager_data_provider_id'],
               service: $scope["storager_service"],
-              type: $scope.formatSelected.data_series_type_name
+              type: $scope.formatSelected.data_series_type_name,
+              semantics: $scope.formatSelected
             });
             break;
           default:
@@ -436,16 +438,16 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.initializing) {
           $scope.initializing = false;
         } else {
-          if (val || val.name != "") {
-            $scope.dataSeries.access = 'COLLECT';
-            $scope.display = false;
-          } else {
+          if (val && Object.keys(val).length == 0) {
             $scope.dataSeries.access = 'PROCESSING';
             //  display alert box
             $scope.alertLevel = "alert-warning";
             $scope.alertBox.title = "Data Series";
             $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
             $scope.display = true;
+          } else {
+            $scope.dataSeries.access = 'COLLECT';
+            $scope.display = false;
           }
         }
       });
@@ -715,7 +717,7 @@ angular.module('terrama2.dataseries.registration', [
             var outputDataSeries = {
               name: dataObject.dataSeries.name + "_output",
               description: dataObject.dataSeries.description,
-              data_series_semantic_name: $scope.dataSeries.semantics.name,
+              data_series_semantic_name: values.semantics.name,//$scope.dataSeries.semantics.name,
               data_provider_id: values.data_provider,
               dataSets: out
             };

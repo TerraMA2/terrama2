@@ -33,7 +33,7 @@ module.exports = function(app) {
         });
       } else {
         DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-          if (!isEmpty(filterObject)) {
+          if (!isEmpty(filterObject) || !isEmpty(filterObject.data)) {
             DataManager.addFilter(filterObject).then(function(filterResult) {
               response.json({status: 200});
             }).catch(function(err) {
