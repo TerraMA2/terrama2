@@ -17,8 +17,7 @@
  * @property {function} memberCapabilitiesCallbackFunction - 'addCapabilitiesLayers' callback function.
  */
 define(
-  ['TerraMA2WC/TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  function() {
 
     // DragBox object
     var memberZoomDragBox = null;
