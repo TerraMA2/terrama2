@@ -11,5 +11,4 @@
     'TerraMA2WC/components/MapDisplay.TerraMA2WebComponents'
   ],
   wrap: true
-  
 })

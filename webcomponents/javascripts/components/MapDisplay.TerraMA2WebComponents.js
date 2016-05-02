@@ -17,7 +17,10 @@
  * @property {function} memberCapabilitiesCallbackFunction - 'addCapabilitiesLayers' callback function.
  */
 define(
+<<<<<<< 73f808860ce3212c08155cded0d89456f4b633e5
   
+=======
+>>>>>>> requirejs and modules update
   function() {
 
     // DragBox object

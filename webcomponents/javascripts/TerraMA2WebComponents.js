@@ -28,6 +28,5 @@ requirejs(
         LayerExplorer: LayerExplorer
       }
     );
-    
   }
 );
