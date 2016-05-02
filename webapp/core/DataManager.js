@@ -142,7 +142,7 @@ var DataManager = {
         // semantics
         inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
-        inserts.push(self.addDataSeriesSemantics({name: "WILD-FIRES", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-wfp", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-POSTGIS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
         Promise.all(inserts).then(function() {
@@ -903,6 +903,7 @@ var DataManager = {
         // err.errors.forEach(function(error) {
         //   msg = error.message;
         // });
+        console.log(err);
         reject(new exceptions.DataSeriesError(err.message));
       });
     });
@@ -1312,11 +1313,12 @@ var DataManager = {
 
               collector.input_output_map = input_output_map;
 
-              TcpManager.sendData({"DataSeries": [dataSeriesResult.toObject(), dataSeriesResultOutput.toObject()]});
+              // TcpManager.sendData({
+              //   "DataSeries": [dataSeriesResult.toObject(), dataSeriesResultOutput.toObject()],
+              //   "Collectors": [collector.toObject()]
+              // });
 
-              console.log(collectorResult);
-              console.log(collector);
-              resolve(collector);
+              resolve({collector: collector, input: dataSeriesResult, output:dataSeriesResultOutput});
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule

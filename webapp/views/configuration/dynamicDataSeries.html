@@ -23,7 +23,7 @@
   var configuration = {
     dataSeriesType: 'dynamic',
     link: function(object) {
-      return "/configuration/dataset/" + object.id + "?type=dynamic#wizard";
+      return "/configuration/dataset?type=dynamic#wizard";
     },
     iconFn: function(object) {
       switch(object.semantics.data_series_type_name) {
