@@ -242,9 +242,9 @@ uint64_t terrama2::core::ProcessLogger::processID() const
   return processID_;
 }
 
-void terrama2::core::ProcessLogger::setTableName(const std::string tablePrefixName, const uint64_t instanceID)
+void terrama2::core::ProcessLogger::setTableName(const std::string tablePrefixName)
 {
-  tableName_ = tablePrefixName + std::to_string(instanceID);
+  tableName_ = tablePrefixName + std::to_string(processID_);
 
   if(!dataSource_->dataSetExists(tableName_))
   {
@@ -280,7 +280,7 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tablePrefixNa
     }
   }
 
-  messagesTableName_ = "messages_" + std::to_string(instanceID);
+  messagesTableName_ = "messages_" + std::to_string(processID_);
 
   if(!dataSource_->dataSetExists(messagesTableName_))
   {

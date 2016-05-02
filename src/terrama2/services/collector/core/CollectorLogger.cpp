@@ -34,7 +34,7 @@ terrama2::services::collector::core::CollectorLogger::CollectorLogger(CollectorI
  : ProcessLogger(id, connInfo)
 {
   // FIXME: use instance id in table prefix name
-  setTableName("collector_", 1);
+  setTableName("collector_");
 }
 
 void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, uint64_t registerID)

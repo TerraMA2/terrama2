@@ -34,6 +34,6 @@ terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger(AnalysisId id
  : ProcessLogger(id, connInfo)
 {
   // FIXME: use instance id in table prefix name
-  setTableName("analysis_" , 1);
+  setTableName("analysis_");
 }
 

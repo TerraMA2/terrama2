@@ -120,12 +120,12 @@ namespace terrama2
        */
       uint64_t processID() const;
 
-//    protected:
+    protected:
       /*!
        * \brief Store the table name of the process log
        * \param tableName The log table name
        */
-      void setTableName(const std::string tablePrefixName, const uint64_t instanceID);
+      void setTableName(const std::string tablePrefixName);
 
 
     private:
