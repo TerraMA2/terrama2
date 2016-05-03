@@ -24,6 +24,8 @@ module.exports = function(app) {
               "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
               "Collectors": [collector.toObject()]
             };
+
+            // console.log(output);
             
             TcpManager.sendData(output);
             return response.json(output);

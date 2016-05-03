@@ -6,7 +6,7 @@ var OccurrencePostgis = module.exports = function() {
 };
 
 OccurrencePostgis.identifier = function() {
-  return "OCCURRENCE-POSTGIS";
+  return "OCCURRENCE-postgis";
 };
 
 OccurrencePostgis.prototype = Object.create(Occurrence.prototype);

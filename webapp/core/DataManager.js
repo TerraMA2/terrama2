@@ -141,9 +141,9 @@ var DataManager = {
 
         // semantics
         inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
-        inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-postgis", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-wfp", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
-        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-POSTGIS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-postgis", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -1277,11 +1277,8 @@ var DataManager = {
 
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
-          if (scheduleObject.schedule) {
-            scheduleObject.schedule = new Date(scheduleObject.schedule);
-          }
-  
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
+            var schedule = new Schedule(scheduleResult);
             var collectorObject = {};
   
             // todo: get service_instance id and collector status (active)
@@ -1312,13 +1309,9 @@ var DataManager = {
               }
 
               collector.input_output_map = input_output_map;
+              collector.schedule = schedule.toObject()
 
-              // TcpManager.sendData({
-              //   "DataSeries": [dataSeriesResult.toObject(), dataSeriesResultOutput.toObject()],
-              //   "Collectors": [collector.toObject()]
-              // });
-
-              resolve({collector: collector, input: dataSeriesResult, output:dataSeriesResultOutput});
+              resolve({collector: collector, input: dataSeriesResult, output:dataSeriesResultOutput, schedule: schedule});
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule

@@ -325,10 +325,9 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 
         // Stores the result in the context
         std::string geomId = moDsContext->series.syncDataSet->getString(index, moDsContext->identifier);
-        Context::getInstance().setAnalysisResult(analysisId, geomId, attribute, value);
 
-        QString errMsg(QObject::tr("Analysis: %1 -> Geometry: %2 \nAttribute: %3 \nResult: %4").arg(analysis.id).arg(geomId.c_str()).arg(attribute.c_str()).arg(value));
-        TERRAMA2_LOG_INFO() << errMsg;
+        Context::getInstance().addAttribute(analysisId, attribute);
+        Context::getInstance().setAnalysisResult(analysisId, geomId, attribute, value);
 
       }
     }

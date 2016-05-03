@@ -58,7 +58,7 @@
 
 
 
-std::map<terrama2::services::analysis::core::ResultKey, double, terrama2::services::analysis::core::ResultKeyComparator> terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
+std::map<std::string, std::map<std::string, double> > terrama2::services::analysis::core::Context::analysisResult(AnalysisId analysisId)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisResult_[analysisId];
@@ -67,12 +67,9 @@ std::map<terrama2::services::analysis::core::ResultKey, double, terrama2::servic
 void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  auto& valueMap = analysisResult_[analysisId];
-  ResultKey key;
-  key.geomId_ = geomId;
-  key.attribute_ = attribute;
-
-  valueMap[key] = result;
+  auto& geomIdMap = analysisResult_[analysisId];
+  auto& attributeMap = geomIdMap[geomId];
+  attributeMap[attribute] = result;
 }
 
 
@@ -257,9 +254,6 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
     key.analysisId_ = analysisId;
     key.dateFilter_ = dateFilter;
     datasetMap_[key] = dataSeriesContext;
-
-    QString msg(QObject::tr("Adding dataset to Context: [ Analysis = %1 ], [ DataSet = %2 ], [ Date filter = %3 ].").arg(std::to_string(analysisId).c_str(), std::to_string(series.dataSet->id).c_str(), dateFilter.c_str()));
-    TERRAMA2_LOG_DEBUG() << msg;
   }
 }
 
@@ -375,9 +369,6 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
     key.analysisId_ = analysisId;
     key.dateFilter_ = dateFilter;
     datasetMap_[key] = dataSeriesContext;
-
-    QString msg(QObject::tr("Adding dataset to Context: [ Analysis = %1 ], [ DataSet = %2 ], [ Date filter = %3 ].").arg(std::to_string(analysisId).c_str(), std::to_string(series.dataSet->id).c_str(), dateFilter.c_str()));
-    TERRAMA2_LOG_DEBUG() << msg;
   }
 }
 
@@ -392,4 +383,15 @@ std::weak_ptr<terrama2::services::analysis::core::DataManager> terrama2::service
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return dataManager_;
+}
+
+std::set<std::string> terrama2::services::analysis::core::Context::getAttributes(AnalysisId analysisId) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  return attributes_.at(analysisId);
+}
+void terrama2::services::analysis::core::Context::addAttribute(AnalysisId analysisId, const std::string& attribute)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  attributes_[analysisId].insert(attribute);
 }

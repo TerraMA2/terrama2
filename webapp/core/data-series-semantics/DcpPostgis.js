@@ -10,7 +10,7 @@ DcpPostgis.prototype = Object.create(Dcp.prototype);
 DcpPostgis.prototype.constructor = DcpPostgis;
 
 DcpPostgis.identifier = function() {
-  return "DCP-POSTGIS";
+  return "DCP-postgis";
 };
 
 DcpPostgis.schema = function() {

@@ -36,8 +36,23 @@
 #include "PythonInterpreter.hpp"
 #include "Context.hpp"
 #include "DataManager.hpp"
+#include "../../../core/data-access/SyncronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
+#include "../../../core/data-access/DataStorager.hpp"
+#include "../../../core/data-model/DataProvider.hpp"
+#include "../../../impl/DataStoragerPostGis.hpp"
 
+// TerraLib
+#include <terralib/datatype/SimpleProperty.h>
+#include <terralib/datatype/StringProperty.h>
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/DateTimeInstant.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/memory/DataSet.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/memory/DataSetItem.h>
 
 //STL
 #include <memory>
@@ -95,7 +110,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
         auto dataset = datasets[0];
 
         auto contextDataset = terrama2::services::analysis::core::Context::getInstance().getContextDataset(analysis.id, dataset->id);
-        if(!contextDataset->series.syncDataSet)
+        if(!contextDataset->series.syncDataSet->dataset())
         {
           QString errMsg = QObject::tr("Could not recover monitored object dataset.");
           TERRAMA2_LOG_WARNING() << errMsg;
@@ -159,13 +174,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
     joinAllThreads(threads);
 
-    auto result = Context::getInstance().analysisResult(analysis.id);
-
-    if(result.empty())
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Empty result.").arg(analysis.id));
-      TERRAMA2_LOG_WARNING() << errMsg;
-    }
 
     // grab the lock
     PyEval_AcquireLock();
@@ -183,6 +191,9 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
     // release the lock
     PyEval_ReleaseLock();
+
+    storeAnalysisResult(dataManager, analysis);
+
 
     terrama2::services::analysis::core::finalizeInterpreter();
   }
@@ -224,13 +235,6 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
 
     thread.join();
 
-    auto result = Context::getInstance().analysisResult(analysis.id);
-
-    if(result.empty())
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Empty result.").arg(analysis.id));
-      TERRAMA2_LOG_WARNING() << errMsg;
-    }
 
     // grab the lock
     PyEval_AcquireLock();
@@ -252,5 +256,132 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
   catch(std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+  }
+}
+
+void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis)
+{
+  auto resultMap = Context::getInstance().analysisResult(analysis.id);
+
+  if(resultMap.empty())
+  {
+    QString errMsg = QObject::tr("Analysis %1 returned an empty result.").arg(analysis.id);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return;
+  }
+
+  auto attributes = Context::getInstance().getAttributes(analysis.id);
+
+  auto dataSeries = dataManager->findDataSeries(analysis.outputDataSeriesId);
+
+  if(!dataSeries)
+  {
+    QString errMsg = QObject::tr("Could not find the output data series.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+  if(!dataProvider)
+  {
+    QString errMsg = QObject::tr("Could not find the output data provider.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  if(analysis.type == MONITORED_OBJECT_TYPE || analysis.type == PCD_TYPE)
+  {
+    assert(dataSeries->datasetList.size() == 1);
+
+    std::string datasetName;
+    std::unique_ptr<terrama2::core::DataStorager> storager;
+    if(dataProvider->dataProviderType == "POSTGIS")
+    {
+      auto datasSet = dataSeries->datasetList[0];
+      datasetName = datasSet->format.at("table_name");
+      storager.reset(new terrama2::core::DataStoragerPostGis(dataProvider));
+    }
+    else
+    {
+      //TODO Paulo: Implement storager file
+      throw terrama2::Exception() << ErrorDescription("NOT IMPLEMENTED YET");
+    }
+
+    te::da::DataSetType* dt = new te::da::DataSetType(datasetName);
+
+    // first property is the geomId
+    te::dt::StringProperty* geomIdProp = new te::dt::StringProperty("geom_id", te::dt::VAR_STRING, 255, true);
+    dt->add(geomIdProp);
+
+    //define a primary key
+    std::string namepk = datasetName+ "_pk";
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey(namepk, dt);
+    pk->add(geomIdProp);
+
+    //second property: analysis execution date
+    te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty( "execution_date", te::dt::TIME_INSTANT_TZ, true);
+    dt->add(dateProp);
+
+
+    //create index on date column
+    te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt);
+    indexDate->add(dateProp);
+
+    for(std::string attribute : attributes)
+    {
+      te::dt::SimpleProperty* prop = new te::dt::SimpleProperty(attribute, te::dt::DOUBLE_TYPE, false);
+      dt->add(prop);
+    }
+
+
+    te::dt::DateTimeInstant* date = dynamic_cast<te::dt::DateTimeInstant*>(terrama2::core::getCurrentDateTimeWithTZ());
+
+    std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
+    for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
+    {
+      te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
+      dsItem->setString("geom_id", it->first);
+      dsItem->setDateTime("execution_date", dynamic_cast<te::dt::DateTimeInstant*>(date->clone()));
+      for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
+      {
+        dsItem->setDouble(itAttribute->first, itAttribute->second);
+      }
+
+      ds->add(dsItem);
+    }
+
+    delete date;
+
+    assert(dataSeries->datasetList.size() == 1);
+    auto dataset = dataSeries->datasetList[0];
+
+
+    if(!storager)
+    {
+      QString errMsg = QObject::tr("Could not find storager support for the output data provider.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    std::shared_ptr<terrama2::core::SyncronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SyncronizedDataSet>(ds);
+
+    terrama2::core::Series series;
+    series.teDataSetType.reset(dt);
+    series.syncDataSet.swap(syncDataSet);
+
+    try
+    {
+      storager->store(series, dataset);
+    }
+    catch(terrama2::Exception /*e*/)
+    {
+      QString errMsg = QObject::tr("Could not store the result of the analysis: %1.").arg(analysis.id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+
+
+    QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis.id);
+    TERRAMA2_LOG_INFO() << errMsg;
+
   }
 }
