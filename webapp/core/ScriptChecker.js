@@ -27,22 +27,19 @@ var ScriptChecker = function() {
   this.checkPythonScript = function(script) {
     var path = require('path');
 
+    var buffer = require('crypto').randomBytes(24);
+    var pythonFilePath = path.join(__dirname, '../tmp/python-' + buffer.toString('hex') + '.py');
+    var pylintConfFilePath = path.join(__dirname, '../config/pylintrc');
+    var pythonCheckCommand = "C:\\Python27\\Scripts\\pylinte.exe --rcfile=" + pylintConfFilePath + " " + pythonFilePath;
+
     try {
-      var buffer = require('crypto').randomBytes(24);
-      var pythonFilePath = path.join(__dirname, '../tmp/python-' + buffer.toString('hex') + '.py');
-      var pylintConfFilePath = path.join(__dirname, '../config/pylintrc');
-
       memberFs.writeFileSync(pythonFilePath, script);
-
-      var pythonCheckCommand = "C:\\Python27\\Scripts\\pylinte.exe --rcfile=" + pylintConfFilePath + " " + pythonFilePath;
 
       var pythonCheckCommandResult = memberExecSync(pythonCheckCommand, { encoding: 'utf8' });
 
       console.log("----------------------------------------");
       console.log(pythonCheckCommandResult);
       console.log("----------------------------------------");
-
-      memberFs.unlink(pythonFilePath);
     } catch(e) {
       if(e.stderr === '') {
         console.error(e.stdout);
@@ -50,6 +47,8 @@ var ScriptChecker = function() {
         console.error(e.stderr);
       }
     }
+
+    memberFs.unlink(pythonFilePath);
   };
 };
 
