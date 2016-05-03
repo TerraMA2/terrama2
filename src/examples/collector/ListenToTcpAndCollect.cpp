@@ -194,27 +194,35 @@ int main(int argc, char* argv[])
     terrama2::services::collector::core::Service service(dataManager);
     service.start();
 
-    // QByteArray bytearray;
-    // QDataStream out(&bytearray, QIODevice::WriteOnly);
-    //
-    // out << static_cast<uint32_t>(0);
-    // out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
-    // out << doc.toJson();
-    // bytearray.remove(8, 4);//Remove QByteArray header
-    // out.device()->seek(0);
-    // out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
-    //
-    // QTcpSocket socket;
-    // socket.connectToHost("localhost", 30000);
-    // socket.write(bytearray);
-    // socket.waitForBytesWritten();
-    //
-    // QTimer timer;
-    // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    // timer.start(30000);
+    QByteArray bytearray;
+    QDataStream out(&bytearray, QIODevice::WriteOnly);
+    
+    out << static_cast<uint32_t>(0);
+    out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
+    out << doc.toJson();
+    bytearray.remove(8, 4);//Remove QByteArray header
+    out.device()->seek(0);
+    out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+
+    QTcpSocket socket;
+    socket.connectToHost("localhost", 30000);
+    socket.write(bytearray);
+    socket.waitForBytesWritten();
+
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+    timer.start(30000);
     app.exec();
 
     service.stop();
+  }
+  catch(boost::exception& e)
+  {
+    std::cout << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+  }
+  catch(std::exception& e)
+  {
+    std::cout << e.what() << std::endl;
   }
   catch(...)
   {

@@ -58,7 +58,7 @@ terrama2::core::TcpManager::~TcpManager()
 {
 }
 
-void terrama2::core::TcpManager::parseData(QByteArray bytearray)
+void terrama2::core::TcpManager::parseData(const QByteArray& bytearray)
 {
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);

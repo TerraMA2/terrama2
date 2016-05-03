@@ -35,6 +35,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
 #include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
@@ -70,7 +71,11 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
 
-      QCoreApplication app(argc, argv);
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
+    semanticsManager.addSemantics("OCCURRENCE-wfp", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
+
+    QCoreApplication app(argc, argv);
     terrama2::core::TcpManager tcpManager;
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
     tcpManager.listen(dataManager, QHostAddress::Any, 30000);

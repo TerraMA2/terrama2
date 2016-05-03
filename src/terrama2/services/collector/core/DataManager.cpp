@@ -59,6 +59,7 @@ void terrama2::services::collector::core::DataManager::add(terrama2::services::c
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
+    TERRAMA2_LOG_DEBUG() << "Collector added";
     collectors_[collector->id] = collector;
   }
 

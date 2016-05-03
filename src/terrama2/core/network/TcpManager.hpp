@@ -86,7 +86,7 @@ namespace terrama2
 
         uint32_t blockSize_; //!< Size of the message received.
         //! Parse bytearray as a json and add to the DataManager.
-        void parseData(QByteArray bytearray);
+        void parseData(const QByteArray& bytearray);
 
         std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
