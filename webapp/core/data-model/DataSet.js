@@ -16,7 +16,8 @@ DataSet.prototype.toObject = function() {
   return Object.assign(AbstractClass.prototype.toObject.call(this), {
     id: this.id,
     data_series_id: this.data_series_id,
-    active: this.active
+    active: this.active,
+    format: this.format
   });
 };
 

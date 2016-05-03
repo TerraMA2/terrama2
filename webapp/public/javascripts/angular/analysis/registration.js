@@ -76,9 +76,26 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
         formErrorDisplay($scope.scriptForm);
         return;
       }
+
+      // todo: improve it
+      // temp code for sending analysis dataseries
+      var metadata = {};
+      for(var key in $scope.metadata) {
+        if ($scope.metadata.hasOwnProperty(key)) {
+          metadata[key] = $scope.metadata[key];
+        }
+      }
+
+      var analysisDataSeries = {
+        data_series_id: $scope.selectedDataSeries.id,
+        metadata: metadata
+      };
+
+      var analysisToSend = Object.assign({}, $scope.analysis);
+      analysisToSend.analysisDataSeries = analysisDataSeries;
       
       // sending post operation
-      AnalysisFactory.post($scope.analysis).success(function(data) {
+      AnalysisFactory.post(analysisToSend).success(function(data) {
         alert("Saved");
         console.log(data);
       }).error(errorHelper);

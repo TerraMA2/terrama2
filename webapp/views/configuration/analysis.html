@@ -207,7 +207,7 @@
                                 <div class="col-md-4">
                                   <div class="form-group has-feedback">
                                     <label>{[ __("Influence") ]}:</label>
-                                    <select class="form-control" name="influence" required>
+                                    <select class="form-control" name="influence" ng-model="metadata.key" required>
                                       <option value="Radius">{[ __('Radius') ]}</option>
                                     </select>
                                   </div>
@@ -219,7 +219,7 @@
                                 <div class="col-md-8">
                                   <div class="form-group">
                                     <label>{[ __("Radius") ]}:</label>
-                                    <input class="form-control" name="radius" type="text">
+                                    <input class="form-control" name="radius" type="text" ng-model="metadata.value">
                                   </div>
                                 </div>
 

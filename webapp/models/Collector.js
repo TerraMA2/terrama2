@@ -19,7 +19,6 @@ module.exports = function(sequelize, DataTypes) {
       classMethods: {
         associate: function(models) {
           Collector.hasOne(models.Filter, {
-            onDelete: "CASCADE",
             foreignKey: {
               allowNull: false,
               unique: true
@@ -41,7 +40,7 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           Collector.belongsTo(models.DataSeries, {
-            onDelete: "CASCADE",
+            // onDelete: "CASCADE",
             foreignKey: {
               name: "data_series_input",
               allowNull: false
@@ -49,7 +48,7 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           Collector.belongsTo(models.DataSeries, {
-            onDelete: "CASCADE",
+            // onDelete: "CASCADE",
             foreignKey: {
               name: "data_series_output",
               allowNull: false
