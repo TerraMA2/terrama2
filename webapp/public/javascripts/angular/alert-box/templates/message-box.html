@@ -1,5 +1,16 @@
 <div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel">
   <button type="button" class="close" ng-click="close()">×</button>
-  <h4><i class="icon fa" ng-class="alertIcon()"></i> {{ title }}</h4>
-  {{ message }}
+  <h4>
+    <i class="icon fa" ng-class="alertIcon()"></i> {{ title }}
+  </h4>
+  <div class="row">
+    <div class="col-md-12">
+      {{ message }}
+    </div>
+    <div class="col-md-12" ng-if="isAnyExtra()">
+      <button type="button" class="btn btn-primary pull-right" ng-click="extra.confirmButtonFn(extra.object)">
+        {{ extra.confirmButtonName ||  'Confirm' }}
+      </button>
+    </div>
+  </div>
 </div>

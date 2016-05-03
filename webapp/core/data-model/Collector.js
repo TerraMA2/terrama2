@@ -9,7 +9,7 @@ var Collector = module.exports = function(params) {
   this.output_data_series = params.data_series_output;
   this.input_output_map = params.input_output_map || [];
   this.schedule = params.schedule || {};
-  this.intersection = params.intersection;
+  this.intersection = params.intersection || {};
   this.active = params.active;
 };
 
