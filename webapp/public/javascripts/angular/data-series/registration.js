@@ -143,8 +143,8 @@ angular.module('terrama2.dataseries.registration', [
       //  todo: remove it from list
         removeInput(args.dcp.mask);
       } else if (args.action === "add") {
-        $scope.dcpsStorager.push({tableName: args.dcp.mask, id: args.dcp.id});
-        // $scope.inputDataSets.push({tableName: args.dcp.mask, inputDataSet: args.dcp.mask});
+        $scope.dcpsStorager.push({table_name: args.dcp.mask, id: args.dcp.id});
+        // $scope.inputDataSets.push({table_name: args.dcp.mask, inputDataSet: args.dcp.mask});
       }
     });
 
@@ -155,7 +155,7 @@ angular.module('terrama2.dataseries.registration', [
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
       // todo: fix it. It is hard code
-      // $scope.tableFieldsStorager = ["tableName", "inputDataSet"];
+      // $scope.tableFieldsStorager = ["table_name", "inputDataSet"];
 
       DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
         var metadata = data.metadata;
