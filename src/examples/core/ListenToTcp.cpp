@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
 
-//Code commented for tests with TCP communication
+  //Code commented for tests with TCP communication
 
   auto json = doc.toJson(QJsonDocument::Compact);
   out << static_cast<uint32_t>(0);
@@ -123,9 +123,9 @@ int main(int argc, char* argv[])
   socket.connectToHost("localhost", 30000);
   socket.write(bytearray);
 
-  // QTimer timer;
-  // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  // timer.start(10000);
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(10000);
   app.exec();
 
   terrama2::core::finalizeTerraMA();
