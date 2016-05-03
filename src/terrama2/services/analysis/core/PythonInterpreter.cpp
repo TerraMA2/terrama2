@@ -96,8 +96,6 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
   {
     if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
     {
-
-
       terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];

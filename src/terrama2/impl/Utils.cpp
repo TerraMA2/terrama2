@@ -35,15 +35,21 @@
 #include "DataAccessorOccurrenceMvf.hpp"
 #include "DataAccessorOccurrencePostGis.hpp"
 #include "DataAccessorStaticDataOGR.hpp"
+#include "DataStoragerPostGis.hpp"
 
 #include "../core/utility/DataAccessorFactory.hpp"
+#include "../core/utility/DataStoragerFactory.hpp"
 
-void terrama2::core::registerDataAccessor()
+void terrama2::core::registerFactories()
 {
+  // Data access
   terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
   terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
   terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
   terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
   terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
   terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+
+  // Data storager
+  terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
 }
