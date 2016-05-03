@@ -24,8 +24,6 @@ module.exports = function(app) {
               "Collectors": [collector.toObject()]
             };
 
-            // console.log(output);
-            
             TcpManager.sendData(output);
             return response.json({status: 200, output: output});
           }).catch(function(err) {
@@ -36,14 +34,7 @@ module.exports = function(app) {
         });
       } else {
         DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-          if (!isEmpty(filterObject) || !isEmpty(filterObject.date)) {
-            DataManager.addFilter(filterObject).then(function(filterResult) {
-              response.json({status: 200});
-            }).catch(function(err) {
-              return Utils.handleRequestError(response, err, 400);
-            });
-          } else
-            response.json({status: 200});
+          response.json({status: 200});
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });
