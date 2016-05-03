@@ -27,6 +27,10 @@
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_CORE_TCP_SIGNALS_HPP__
+#define __TERRAMA2_CORE_TCP_SIGNALS_HPP__
+
+
 namespace terrama2 {
   namespace core {
     //! Namespace for signals for TCP communication.
@@ -49,3 +53,5 @@ namespace terrama2 {
     }
   }
 }
+
+#endif //__TERRAMA2_CORE_TCP_SIGNALS_HPP__
