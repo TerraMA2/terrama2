@@ -101,7 +101,7 @@
 
                     <span class="help-block" ng-show="generalDataForm.type.$dirty && generalDataForm.type.$error.required"
                           ng-class="{'has-error': generalDataForm.type.$invalid}">
-                      {[ __('Analysis name is required') ]}
+                      {[ __('Analysis type is required') ]}
                     </span>
                   </div>
                   <!-- /.form-group -->
@@ -126,7 +126,7 @@
 
                     <span class="help-block" ng-show="generalDataForm.instance.$dirty && generalDataForm.instance.$error.required"
                           ng-class="{'has-error': generalDataForm.instance.$invalid}">
-                      {[ __('Analysis name is required') ]}
+                      {[ __('Analysis instance is required') ]}
                     </span>
                   </div>
                   <!-- /.form-group -->
@@ -201,7 +201,8 @@
                           <!-- metadata form handler -->
                           <form name="metadataForm">
                             <!-- dcp -->
-                            <div ng-if="semantics.data_series_type_name === 'Dcp'">
+                            <!-- ng-if="semantics.data_series_type_name === 'Dcp'" -->
+                            <div >
                               <div class="col-md-12 terrama2-nopadding-box">
                                 <div class="col-md-4">
                                   <div class="form-group has-feedback">

@@ -18,6 +18,10 @@ var Analysis = module.exports = function(params) {
 Analysis.prototype = Object.create(BaseClass.prototype);
 Analysis.prototype.constructor = Analysis;
 
+Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
+  this.analysis_dataseries_list.push(analysisDataSeries);
+}
+
 Analysis.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,

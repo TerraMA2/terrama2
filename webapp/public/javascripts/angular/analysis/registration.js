@@ -35,7 +35,7 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     }).error(errorHelper);
     
     // getting DataSeries
-    DataSeriesFactory.get().success(function(dataSeriesObjects) {
+    DataSeriesFactory.get({collector: true}).success(function(dataSeriesObjects) {
       $scope.dataSeriesList = dataSeriesObjects;
     }).error(errorHelper);
     
