@@ -440,14 +440,9 @@ angular.module('terrama2.dataseries.registration', [
         } else {
           if (val && Object.keys(val).length == 0) {
             $scope.dataSeries.access = 'PROCESSING';
-            //  display alert box
-            $scope.alertLevel = "alert-warning";
-            $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
-            $scope.display = true;
           } else {
             $scope.dataSeries.access = 'COLLECT';
-            $scope.display = false;
+            // $scope.display = false;
           }
         }
       });
@@ -692,10 +687,10 @@ angular.module('terrama2.dataseries.registration', [
             console.log(data);
             $window.location.href = "/configuration/dynamic/dataseries";
           }).error(function(err) {
+            $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.message;
-            $scope.errorFound = true;
+            $scope.display = true;
             console.log(err);
-            alert("Error found");
           });
         };
 
@@ -753,6 +748,12 @@ angular.module('terrama2.dataseries.registration', [
         } else {
           // processing
           var dataObject = _save();
+
+          //  display alert box
+          $scope.alertLevel = "alert-warning";
+          $scope.alertBox.title = "Data Series";
+          $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+          $scope.display = true;
 
           _sendRequest(dataObject.dataSeries, dataObject.schedule, dataObject.filter);
         }

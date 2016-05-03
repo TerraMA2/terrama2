@@ -16,7 +16,6 @@ module.exports = function(sequelize, DataTypes) {
       classMethods: {
         associate: function(models) {
           Filter.belongsTo(models.Collector, {
-            onDelete: "CASCADE",
             foreignKey: {
               allowNull: false,
               unique: true
