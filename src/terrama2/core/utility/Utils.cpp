@@ -41,7 +41,7 @@
 #include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
-#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/datatype/TimeInstant.h>
 
 #include <ctime>
 
@@ -199,32 +199,9 @@ void terrama2::core::enableLogger()
   terrama2::core::Logger::getInstance().enableLog();
 }
 
-te::dt::TimeInstantTZ* terrama2::core::getCurrentDateTimeWithTZ()
+te::dt::TimeInstant* terrama2::core::getCurrentDateTimeInUTC()
 {
-  // Recovers the timezone
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
-
-  using namespace boost::posix_time;
-  using namespace boost::gregorian;
-
-  //This local adjustor depends on the machine TZ settings-- highly dangerous!
-  ptime t11(second_clock::universal_time());
-  ptime t10(second_clock::local_time());
-  std::cout << "UTC <--> Zone base on TZ setting" << std::endl;
-  std::cout << to_simple_string(t11) << " in your TZ is "
-            << to_simple_string(t10) << " UTC time "
-            << std::endl;
-  time_duration td = t11 - t10;
-  std::cout << "A difference of: "
-            << to_simple_string(td) << std::endl;
-
-
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
-  std::cout << zone->to_posix_string() << std::endl;
-  boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
-  return new te::dt::TimeInstantTZ(ldt);
+  boost::posix_time::ptime utcTime(boost::posix_time::second_clock::universal_time());
+  te::dt::TimeInstant* timeInstant = new te::dt::TimeInstant(utcTime);
+  return timeInstant;
 }
