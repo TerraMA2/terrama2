@@ -2,6 +2,7 @@
 
 // TerraMA2
 
+#include <terrama2/Exception.hpp>
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -10,7 +11,6 @@
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
-
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/impl/Utils.hpp>
 
@@ -37,6 +37,9 @@
 #include <QJsonDocument>
 #include <QTcpSocket>
 #include <QDataStream>
+
+// Boost
+#include <boost/exception/get_error_info.hpp>
 
 terrama2::core::DataProviderPtr buildInputProvider()
 {
