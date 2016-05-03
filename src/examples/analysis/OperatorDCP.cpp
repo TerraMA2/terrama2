@@ -24,13 +24,15 @@
 #include <QCoreApplication>
 #include <QUrl>
 
+#include <terralib/datatype/TimeInstantTZ.h>
+
 using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::core::registerDataAccessor();
+  terrama2::core::registerFactories();
 
   QCoreApplication app(argc, argv);
 
@@ -38,6 +40,8 @@ int main(int argc, char* argv[])
   DataManagerPtr dataManager(new DataManager());
 
   Context::getInstance().setDataManager(dataManager);
+
+  std::cout << terrama2::core::getCurrentDateTimeWithTZ()->toString() << std::endl;
 
 
   QUrl uri;

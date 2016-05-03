@@ -208,8 +208,23 @@ te::dt::TimeInstantTZ* terrama2::core::getCurrentDateTimeWithTZ()
   ::localtime_r(&ts, &t);
   ::strftime(buf, sizeof(buf), "%Z", &t);
 
+  using namespace boost::posix_time;
+  using namespace boost::gregorian;
+
+  //This local adjustor depends on the machine TZ settings-- highly dangerous!
+  ptime t11(second_clock::universal_time());
+  ptime t10(second_clock::local_time());
+  std::cout << "UTC <--> Zone base on TZ setting" << std::endl;
+  std::cout << to_simple_string(t11) << " in your TZ is "
+            << to_simple_string(t10) << " UTC time "
+            << std::endl;
+  time_duration td = t11 - t10;
+  std::cout << "A difference of: "
+            << to_simple_string(td) << std::endl;
+
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
+  std::cout << zone->to_posix_string() << std::endl;
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
   return new te::dt::TimeInstantTZ(ldt);
 }

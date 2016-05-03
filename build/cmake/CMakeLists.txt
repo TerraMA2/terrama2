@@ -282,6 +282,7 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_ANALYSIS_CORE_ENABLED "Build Analysis core modul
 #####################################
 #            SERVICES
 CMAKE_DEPENDENT_OPTION(TERRAMA2_COLLECTOR_SERVICE_ENABLED "Build Collector Service?" ON "TERRAMA2_COLLECTOR_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_ANALYSIS_SERVICE_ENABLED "Build Analysis Service?" ON "TERRAMA2_ANALYSIS_CORE_ENABLED" OFF)
 
 #####################################
 
@@ -351,6 +352,10 @@ endif()
 
 if(TERRAMA2_ANALYSIS_CORE_ENABLED)
   add_subdirectory(terrama2_analysis_core)
+endif()
+
+if(TERRAMA2_ANALYSIS_SERVICE_ENABLED)
+  add_subdirectory(terrama2_analysis_service)
 endif()
 
 if(TERRAMA2_UNITTEST_CORE_ENABLED)

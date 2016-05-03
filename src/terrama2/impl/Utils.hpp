@@ -39,7 +39,7 @@
      //! Temporary funcion to register all data accessor implementations
      // TODO: This shall be removed after each data accessor implementation is in separated modules.
 
-     void registerDataAccessor();
+     void registerFactories();
    }
  }
 
