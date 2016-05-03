@@ -1,3 +1,7 @@
+
+// Qt
+#include <QTimer>
+
 //TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
 
@@ -6,6 +10,8 @@
 
 int main(int argc, char **argv)
 {
+  QCoreApplication app(argc, argv);
+
   terrama2::core::initializeTerraMA();
 
   TsUtility testUtility;
@@ -23,8 +29,12 @@ int main(int argc, char **argv)
   //  TsLogger testLogger;
   //  ret = QTest::qExec(&testLogger, argc, argv);
 
-
   terrama2::core::finalizeTerraMA();
+
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(10000);
+  app.exec();
 
   return ret;
 }

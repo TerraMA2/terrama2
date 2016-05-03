@@ -28,6 +28,9 @@
   \author Vinicius Campanha
 */
 
+// Boost
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 //Terralib
 #include <terralib/common/UnitsOfMeasureManager.h>
 
@@ -76,15 +79,24 @@ void terrama2::core::Timer::timeoutSlot()
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 {
-  double timerSeconds = 0;
+  double secondsToStart = 0;
 
   if(dataSchedule.frequency > 0)
   {
-    timerSeconds = frequencySeconds(dataSchedule);
+    double timerSeconds = frequencySeconds(dataSchedule);
+
+    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+
+    double secondsSinceLastProcess = 0;
+
+    if(impl_->lastEmit_)
+      secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
+
+    secondsToStart = timerSeconds - secondsSinceLastProcess;
   }
   else if(dataSchedule.schedule > 0)
   {
-    timerSeconds = scheduleSeconds(dataSchedule);
+    secondsToStart = scheduleSeconds(dataSchedule);
   }
   else
   {
@@ -93,19 +105,12 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
-  std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
-
-  double secondsSinceLastProcess = 0;
-
-  if(impl_->lastEmit_)
-    secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
-
-  double secondsToStart = timerSeconds - secondsSinceLastProcess;
-
    if(secondsToStart > 0)
    {
      // Timer with X seconds
      connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
+     impl_->timer_.setInterval(secondsToStart*1000);
+     int j = impl_->timer_.interval();
      impl_->timer_.start(secondsToStart*1000);
    }
    else
@@ -132,10 +137,91 @@ double terrama2::core::Timer::frequencySeconds(const Schedule& dataSchedule)
 
 double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
 {
+  te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.scheduleUnit);
+
+  if(!uom)
+  {
+    QString errMsg = QObject::tr("Invalid schedule unit.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  if(uom->getName() == "WEEK")
+  {
+    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+
+    boost::gregorian::greg_weekday gw(dataSchedule.schedule);
+    boost::gregorian::date d(boost::date_time::next_weekday(nowTZ->getTimeInstantTZ().date(), gw));
+    boost::posix_time::ptime pt(d, boost::posix_time::hours(00));
+    boost::local_time::local_date_time dt(pt, nowTZ->getTimeInstantTZ().zone());
+    te::dt::TimeInstantTZ day(dt);
+
+    std::cout << nowTZ->toString() << std::endl;
+    std::cout << day.toString() << std::endl;
+    std::cout << day - *nowTZ.get() << std::endl;
+
+    int days = (day - *nowTZ.get()) / (3600 * 24);
+    int hours = ((day - *nowTZ.get()) % (3600 * 24)) / 3600;
+    int minutes = (((day - *nowTZ.get()) % (3600 * 24)) % 3600) / 60;
+    int seconds = ((((day - *nowTZ.get()) % (3600 * 24)) % 3600) % 60);
+
+    std::cout << days << " days " << hours <<":" <<minutes <<":" <<seconds << std::endl;
+
+    return day - *nowTZ.get();
+  }
+  else if(uom->getName() == "MONTH")
+  {
+
+  }
+  else if(uom->getName() == "YEAR")
+  {
+    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+
+    if(dataSchedule.schedule > nowTZ->getTimeInstantTZ().date().day_of_year())
+    {
+      int days = dataSchedule.schedule - nowTZ->getTimeInstantTZ().date().day_of_year();
+
+      std::shared_ptr< te::dt::TimeInstantTZ > nextDate(new te::dt::TimeInstantTZ(*nowTZ.get()));
+
+      terrama2::core::TimeUtils::addDay(nextDate, days);
+
+      boost::posix_time::ptime pt(nextDate->getTimeInstantTZ().date(), boost::posix_time::hours(00));
+      boost::local_time::local_date_time dt(pt, nextDate->getTimeInstantTZ().zone());
+      te::dt::TimeInstantTZ day(dt);
+
+      std::cout << nowTZ->toString() << std::endl;
+      std::cout << day.toString() << std::endl;
+      std::cout << day - *nowTZ.get() << std::endl;
+
+      int d = (day - *nowTZ.get()) / (3600 * 24);
+      int hours = ((day - *nowTZ.get()) % (3600 * 24)) / 3600;
+      int minutes = (((day - *nowTZ.get()) % (3600 * 24)) % 3600) / 60;
+      int seconds = ((((day - *nowTZ.get()) % (3600 * 24)) % 3600) % 60);
+      std::cout << d << " days " << hours <<":" <<minutes <<":" <<seconds << std::endl;
+
+      return day - *nowTZ.get();
+    }
+    else if (dataSchedule.schedule < nowTZ->getTimeInstantTZ().date().day_of_year())
+    {
+
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  else
+  {
+    QString errMsg = QObject::tr("Unknow schedule unit.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
+  }
+
   // VINICIUS: implement
-  assert(0);
-  throw InvalidFrequencyException() << terrama2::ErrorDescription("Not implemented");
-  return double();
+//  assert(0);
+//  throw InvalidFrequencyException() << terrama2::ErrorDescription("Not implemented");
+//  return double();
+  return 0.0;
 }
 
 uint64_t terrama2::core::Timer::processId() const

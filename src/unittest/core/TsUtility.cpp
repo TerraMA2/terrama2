@@ -128,7 +128,7 @@ void TsUtility::testTimerInvalidUnitException()
   }
 }
 
-void TsUtility::testTimer()
+void TsUtility::testFrequencyTimer()
 {
   try
   {
@@ -188,6 +188,31 @@ void TsUtility::testTimer()
     schedule.frequencyUnit = "dd";
     terrama2::core::Timer timerDay3(schedule, 1, getLogger());
 
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here!");
+  }
+}
+
+void TsUtility::testScheduleTimer()
+{
+  try
+  {
+    terrama2::core::Schedule schedule;
+
+    // Schedule a timer in seconds
+    schedule.id = 0;
+    schedule.schedule = 6;
+    schedule.scheduleUnit = "week";
+
+    terrama2::core::Timer timerWeek1(schedule, 1, getLogger());
+
+    schedule.id = 0;
+    schedule.schedule = 200;
+    schedule.scheduleUnit = "year";
+
+    terrama2::core::Timer timerYear1(schedule, 1, getLogger());
   }
   catch(...)
   {
