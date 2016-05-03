@@ -60,8 +60,7 @@ namespace te
   {
     enum
     {
-      UOM_second = 1040,
-      UOM_month = 9999
+      UOM_second = 1040
     };
   } // end of namespace common
 } // end of namespace te
@@ -156,20 +155,10 @@ void terrama2::core::initializeTerralib()
   te::common::UnitOfMeasurePtr uomWeek(new te::common::UnitOfMeasure(4, "WEEK", "w", te::common::MeasureType::Time, te::common::UOM_second, 604800.0, 0.0, 0.0, 1.0));
   std::vector<std::string> weekAlternativeNames {"w", "wk", "weeks"};
 
-  // month
-  te::common::UnitOfMeasurePtr uomMonth(new te::common::UnitOfMeasure(te::common::UOM_month,"MONTH", "m", te::common::MeasureType::Time));
-  std::vector<std::string> monthdAlternativeNames {"m", "month", "mm", "months"};
-
-  // week
-  te::common::UnitOfMeasurePtr uomYear(new te::common::UnitOfMeasure(5, "YEAR", "y", te::common::MeasureType::Time, te::common::UOM_month, 12.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> yearAlternativeNames {"y", "y", "yyyy", "years"};
-
   te::common::UnitsOfMeasureManager::getInstance().insert(uomMinute, minuteAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomHour, hourAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomDay, dayAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomWeek, weekAlternativeNames);
-  te::common::UnitsOfMeasureManager::getInstance().insert(uomMonth, monthdAlternativeNames);
-  te::common::UnitsOfMeasureManager::getInstance().insert(uomYear, yearAlternativeNames);
 }
 
 

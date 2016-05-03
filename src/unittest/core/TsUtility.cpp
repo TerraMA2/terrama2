@@ -207,12 +207,6 @@ void TsUtility::testScheduleTimer()
     schedule.scheduleUnit = "week";
 
     terrama2::core::Timer timerWeek1(schedule, 1, getLogger());
-
-    schedule.id = 0;
-    schedule.schedule = 200;
-    schedule.scheduleUnit = "year";
-
-    terrama2::core::Timer timerYear1(schedule, 1, getLogger());
   }
   catch(...)
   {

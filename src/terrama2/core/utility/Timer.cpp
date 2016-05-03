@@ -109,8 +109,6 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
    {
      // Timer with X seconds
      connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-     impl_->timer_.setInterval(secondsToStart*1000);
-     int j = impl_->timer_.interval();
      impl_->timer_.start(secondsToStart*1000);
    }
    else
@@ -169,47 +167,6 @@ double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
 
     return day - *nowTZ.get();
   }
-  else if(uom->getName() == "MONTH")
-  {
-
-  }
-  else if(uom->getName() == "YEAR")
-  {
-    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
-
-    if(dataSchedule.schedule > nowTZ->getTimeInstantTZ().date().day_of_year())
-    {
-      int days = dataSchedule.schedule - nowTZ->getTimeInstantTZ().date().day_of_year();
-
-      std::shared_ptr< te::dt::TimeInstantTZ > nextDate(new te::dt::TimeInstantTZ(*nowTZ.get()));
-
-      terrama2::core::TimeUtils::addDay(nextDate, days);
-
-      boost::posix_time::ptime pt(nextDate->getTimeInstantTZ().date(), boost::posix_time::hours(00));
-      boost::local_time::local_date_time dt(pt, nextDate->getTimeInstantTZ().zone());
-      te::dt::TimeInstantTZ day(dt);
-
-      std::cout << nowTZ->toString() << std::endl;
-      std::cout << day.toString() << std::endl;
-      std::cout << day - *nowTZ.get() << std::endl;
-
-      int d = (day - *nowTZ.get()) / (3600 * 24);
-      int hours = ((day - *nowTZ.get()) % (3600 * 24)) / 3600;
-      int minutes = (((day - *nowTZ.get()) % (3600 * 24)) % 3600) / 60;
-      int seconds = ((((day - *nowTZ.get()) % (3600 * 24)) % 3600) % 60);
-      std::cout << d << " days " << hours <<":" <<minutes <<":" <<seconds << std::endl;
-
-      return day - *nowTZ.get();
-    }
-    else if (dataSchedule.schedule < nowTZ->getTimeInstantTZ().date().day_of_year())
-    {
-
-    }
-    else
-    {
-      return 0;
-    }
-  }
   else
   {
     QString errMsg = QObject::tr("Unknow schedule unit.");
@@ -217,10 +174,6 @@ double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
-  // VINICIUS: implement
-//  assert(0);
-//  throw InvalidFrequencyException() << terrama2::ErrorDescription("Not implemented");
-//  return double();
   return 0.0;
 }
 
