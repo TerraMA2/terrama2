@@ -17,11 +17,12 @@
 
 {% block javascripts %}
 <script type="text/javascript" src="/externals/moment/moment.js"></script>
-<script type="text/javascript" src="/externals/angular/angular.min.js"></script>
+<!--<script type="text/javascript" src="/externals/angular/angular.min.js"></script>
 <script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
-<script type="text/javascript" src="/javascripts/terrama2.js"></script>
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
-<script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>-->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="/javascripts/terrama2.js"></script>
 <script type="text/javascript" src="/externals/ace-editor/ace.js"></script>
 <script type="text/javascript" src="/externals/ace-editor/ext-language_tools.js"></script>
 <script type="text/javascript">
@@ -258,7 +259,7 @@
                     </ul>
                   </div>
 
-                  <button class="btn btn-default pull-right">{[ __('Validate') ]}</button>
+                  <button class="btn btn-default pull-right" id="checkAnalysisScript">{[ __('Validate') ]}</button>
                 </div>
               </div>
             </div>
