@@ -49,6 +49,7 @@ var ScriptChecker = function() {
     }
 
     memberFs.unlink(pythonFilePath);
+
   };
 };
 
