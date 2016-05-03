@@ -20,7 +20,6 @@
 #include <terrama2/services/collector/core/DataManager.hpp>
 
 #include <terrama2/impl/Utils.hpp>
-
 #include <terrama2_config.hpp>
 
 //STL
@@ -146,8 +145,6 @@ terrama2::services::collector::core::CollectorPtr buildCollector()
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
-
   try
   {
 
