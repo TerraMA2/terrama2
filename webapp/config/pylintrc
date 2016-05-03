@@ -1,0 +1,5 @@
+[MESSAGES CONTROL]
+disable=C,W0311
+
+[REPORTS]
+reports=no
