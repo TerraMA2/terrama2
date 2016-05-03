@@ -10,9 +10,6 @@
 
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/Context.hpp>
-#include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
-#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 
 #include <terrama2/impl/Utils.hpp>
@@ -24,7 +21,6 @@
 #include <QCoreApplication>
 #include <QUrl>
 
-#include <terralib/datatype/TimeInstantTZ.h>
 
 using namespace terrama2::services::analysis::core;
 
@@ -40,9 +36,6 @@ int main(int argc, char* argv[])
   DataManagerPtr dataManager(new DataManager());
 
   Context::getInstance().setDataManager(dataManager);
-
-  std::cout << terrama2::core::getCurrentDateTimeWithTZ()->toString() << std::endl;
-
 
   QUrl uri;
   uri.setScheme("postgis");

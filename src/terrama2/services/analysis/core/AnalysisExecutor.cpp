@@ -334,7 +334,7 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     }
 
 
-    te::dt::DateTimeInstant* date = dynamic_cast<te::dt::DateTimeInstant*>(terrama2::core::getCurrentDateTimeWithTZ());
+    te::dt::DateTimeInstant* date = dynamic_cast<te::dt::DateTimeInstant*>(terrama2::core::getCurrentDateTimeInUTC());
 
     // Creates memory dataset and add the items.
     std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
