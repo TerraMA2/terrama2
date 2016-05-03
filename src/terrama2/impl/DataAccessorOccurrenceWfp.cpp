@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorOccurrenceMvf.cpp
+  \file terrama2/core/data-access/DataAccessorOccurrenceWfp.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorOccurrenceMvf.hpp"
+#include "DataAccessorOccurrenceWfp.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
@@ -46,11 +46,11 @@
 #include <QUrl>
 #include <QDir>
 
-terrama2::core::DataAccessorOccurrenceMvf::DataAccessorOccurrenceMvf(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorOccurrenceWfp::DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
   : DataAccessor(dataProvider, dataSeries, filter), DataAccessorOccurrence(dataProvider, dataSeries, filter),
     DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "OCCURRENCE-mvf")
+  if(dataSeries->semantics.name != "OCCURRENCE-wfp")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -58,16 +58,16 @@ terrama2::core::DataAccessorOccurrenceMvf::DataAccessorOccurrenceMvf(DataProvide
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::dataSourceType() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::dataSourceType() const
 {
   return "OGR";
 }
-std::string terrama2::core::DataAccessorOccurrenceMvf::typePrefix() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::typePrefix() const
 {
   return "CSV:";
 }
 
-void terrama2::core::DataAccessorOccurrenceMvf::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   // only one timestamp column
   int lonPos = -1;
@@ -84,7 +84,7 @@ void terrama2::core::DataAccessorOccurrenceMvf::adapt(DataSetPtr dataSet, std::s
     {
       // datetime column found
       converter->add(i, dtProperty,
-                     boost::bind(&terrama2::core::DataAccessorOccurrenceMvf::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
+                     boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
     }
     else if(property->getName() == latitudePropertyName() || property->getName() == longitudePropertyName())
     {
@@ -107,7 +107,7 @@ void terrama2::core::DataAccessorOccurrenceMvf::adapt(DataSetPtr dataSet, std::s
       latLonAttributes.push_back(latPos);
 
       te::gm::GeometryProperty* newProperty = new te::gm::GeometryProperty(geometryPropertyName(), srid, te::gm::PointType);
-      converter->add(latLonAttributes, newProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceMvf::stringToPoint, this, _1, _2, _3, srid));
+      converter->add(latLonAttributes, newProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToPoint, this, _1, _2, _3, srid));
     }
     else
     {
@@ -118,14 +118,14 @@ void terrama2::core::DataAccessorOccurrenceMvf::adapt(DataSetPtr dataSet, std::s
   }
 }
 
-void terrama2::core::DataAccessorOccurrenceMvf::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+void terrama2::core::DataAccessorOccurrenceWfp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
                                                            const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   // Don't add any columns here,
   // the converter will add columns
 }
 
-Srid terrama2::core::DataAccessorOccurrenceMvf::getSrid(DataSetPtr dataSet) const
+Srid terrama2::core::DataAccessorOccurrenceWfp::getSrid(DataSetPtr dataSet) const
 {
   try
   {
@@ -140,27 +140,27 @@ Srid terrama2::core::DataAccessorOccurrenceMvf::getSrid(DataSetPtr dataSet) cons
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::timestampPropertyName() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::timestampPropertyName() const
 {
   return "data_pas";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::latitudePropertyName() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::latitudePropertyName() const
 {
   return "lat";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::longitudePropertyName() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::longitudePropertyName() const
 {
   return "lon";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::geometryPropertyName() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::geometryPropertyName() const
 {
   return "position";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceMvf::getTimeZone(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrenceWfp::getTimeZone(DataSetPtr dataSet) const
 {
   try
   {
@@ -174,7 +174,7 @@ std::string terrama2::core::DataAccessorOccurrenceMvf::getTimeZone(DataSetPtr da
   }
 }
 
-te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
+te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
                                                                                    int /*dstType*/, const std::string& timezone) const
 {
   assert(indexes.size() == 1);
@@ -208,7 +208,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToTimesta
   return nullptr;
 }
 
-te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceMvf::stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
+te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
                                                                                int dstType, const Srid& srid) const
 {
   assert(dataset);

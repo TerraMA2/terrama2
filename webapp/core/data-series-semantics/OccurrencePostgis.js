@@ -6,7 +6,7 @@ var OccurrencePostgis = module.exports = function() {
 };
 
 OccurrencePostgis.identifier = function() {
-  return "OCCURRENCE-POSTGIS";
+  return "OCCURRENCE-postgis";
 };
 
 OccurrencePostgis.prototype = Object.create(Occurrence.prototype);
@@ -15,7 +15,7 @@ OccurrencePostgis.prototype.constructor = OccurrencePostgis;
 OccurrencePostgis.schema = function() {
   return {
     properties: {
-      tableName: {
+      table_name: {
         type: Form.Field.TEXT,
         title: "Table Name"
       }//,
@@ -24,7 +24,7 @@ OccurrencePostgis.schema = function() {
       //   title: "Geometry Field"
       // }
     },
-    required: ['tableName']
+    required: ['table_name']
     // ,timeStamp: {
     //   type: Form.Field.TEXT,
     //   title: "TimeStamp column"

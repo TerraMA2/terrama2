@@ -14,7 +14,6 @@ module.exports = function(app) {
       var serviceId = request.body.service;
 
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-        // getting service instance (analysis)
         DataManager.getServiceInstance({service_type_id: serviceId}).then(function(serviceResult) {
           DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(collectorResult) {
             var collector = collectorResult.collector;
@@ -24,9 +23,9 @@ module.exports = function(app) {
               "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
               "Collectors": [collector.toObject()]
             };
-            
+
             TcpManager.sendData(output);
-            return response.json(output);
+            return response.json({status: 200, output: output});
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });
@@ -35,14 +34,7 @@ module.exports = function(app) {
         });
       } else {
         DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-          if (!isEmpty(filterObject) || !isEmpty(filterObject.data)) {
-            DataManager.addFilter(filterObject).then(function(filterResult) {
-              response.json({status: 200});
-            }).catch(function(err) {
-              return Utils.handleRequestError(response, err, 400);
-            });
-          } else
-            response.json({status: 200});
+          response.json({status: 200});
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });

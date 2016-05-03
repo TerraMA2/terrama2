@@ -40,6 +40,8 @@ var DataSetDcp = require("./data-model/DataSetDcp");
 var DataSetFactory = require("./data-model/DataSetFactory");
 var Schedule = require('./data-model/Schedule');
 var Collector = require('./data-model/Collector');
+var Analysis = require('./data-model/Analysis');
+var AnalysisDataSeries = require('./data-model/AnalysisDataSeries');
 
 
 // Available DataSeriesType
@@ -141,9 +143,9 @@ var DataManager = {
 
         // semantics
         inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
-        inserts.push(self.addDataSeriesSemantics({name: "DCP-POSTGIS", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "DCP-postgis", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-wfp", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
-        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-POSTGIS", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-postgis", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -1031,7 +1033,7 @@ var DataManager = {
             }
 
             models.db.DataSetFormat.bulkCreate(formatList, {data_set_id: dataSet.id}).then(function () {
-              models.db.DataSetFormat.findAll({data_set_id: dataSet.id}).then(function(dataSetFormats) {
+              models.db.DataSetFormat.findAll({where: {data_set_id: dataSet.id}}).then(function(dataSetFormats) {
                 output.format = {};
                 dataSetFormats.forEach(function(dataSetFormat) {
                   output.format[dataSetFormat.key] = dataSetFormat.value;
@@ -1277,11 +1279,8 @@ var DataManager = {
 
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
-          if (scheduleObject.schedule) {
-            scheduleObject.schedule = new Date(scheduleObject.schedule);
-          }
-  
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
+            var schedule = new Schedule(scheduleResult);
             var collectorObject = {};
   
             // todo: get service_instance id and collector status (active)
@@ -1312,13 +1311,9 @@ var DataManager = {
               }
 
               collector.input_output_map = input_output_map;
+              collector.schedule = schedule.toObject()
 
-              // TcpManager.sendData({
-              //   "DataSeries": [dataSeriesResult.toObject(), dataSeriesResultOutput.toObject()],
-              //   "Collectors": [collector.toObject()]
-              // });
-
-              resolve({collector: collector, input: dataSeriesResult, output:dataSeriesResultOutput});
+              resolve({collector: collector, input: dataSeriesResult, output:dataSeriesResultOutput, schedule: schedule});
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
@@ -1455,7 +1450,13 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       // todo: make it as factory: AnalysisGrid, Analysis...
       models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
-        models.db["AnalysisDataSeries"].create({type_id: 1}).then(function(analysisDataSeriesResult) {
+        var analysisDataSeriesObject = Utils.clone(analysisObject.analysisDataSeries);
+        var analysisObject = new Analysis(analysisResult);
+        models.db["AnalysisDataSeries"].create(analysisDataSeriesObject).then(function(analysisDataSeriesResult) {
+          var analysisDataSeries = new AnalysisDataSeries(analysisDataSeriesResult);
+
+          console.log(analysisResult.get());
+          console.log(analysisDataSeriesResult.get());
           resolve(analysisResult.get());
         }).catch(function(err) {
           Utils.rollbackModels(models.db['Analysis'], analysisResult.get(), new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), {reject: reject})

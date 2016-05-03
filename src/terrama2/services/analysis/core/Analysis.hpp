@@ -110,7 +110,7 @@ namespace terrama2
 					std::string name; //!< Name of the analysis.
 					std::string description; //!< Short description of the purpose of the analysis.
           bool active = true; //!< Defines if the analysis is active, if true it will be executed according to the schedule.
-          DataSetId outputDataset; //!< The dataset that stores the result of the analysis.
+          DataSeriesId outputDataSeriesId; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this anlysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
