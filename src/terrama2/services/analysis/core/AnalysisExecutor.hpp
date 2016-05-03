@@ -82,6 +82,8 @@ namespace terrama2
         */
         void runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
 
+        void storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis);
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
