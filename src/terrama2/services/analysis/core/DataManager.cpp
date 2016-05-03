@@ -50,6 +50,8 @@ void terrama2::services::analysis::core::DataManager::addFromJSON(const QJsonObj
 {
   try
   {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    
     terrama2::core::DataManager::DataManager::addFromJSON(obj);
 
     auto analysisArray = obj["Analysis"].toArray();

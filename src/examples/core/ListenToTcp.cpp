@@ -71,7 +71,7 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.name = "OCCURRENCE-mvf";
+  dataSeries->semantics.name = "OCCURRENCE-wfp";
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
 
-//Code commented for tests with TCP communication
+  //Code commented for tests with TCP communication
 
   auto json = doc.toJson(QJsonDocument::Compact);
   out << static_cast<uint32_t>(0);

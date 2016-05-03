@@ -29,6 +29,7 @@
 
 #include "../../../core/Exception.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
+#include "../../../core/utility/Logger.hpp"
 
 #include "JSonUtils.hpp"
 
@@ -44,13 +45,19 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
 {
   if(json["class"].toString() != "Collector")
   {
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   if(!(json.contains("id") && json.contains("project_id") && json.contains("service_instance_id") && json.contains("input_data_series") &&
-       json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") && json.contains("intersection") &&
+       json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") /*&& json.contains("intersection")*/ &&
        json.contains("active")))
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  {
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
   terrama2::services::collector::core::Collector* collector = new terrama2::services::collector::core::Collector();
   terrama2::services::collector::core::CollectorPtr collectorPtr(collector);

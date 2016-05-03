@@ -4,7 +4,7 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
+#include <terrama2/impl/DataAccessorOccurrenceWfp.hpp>
 #include <terrama2/core/data-access/OccurrenceSeries.hpp>
 
 #include <iostream>
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics.name = "OCCURRENCE-mvf";
+  dataSeries->semantics.name = "OCCURRENCE-wfp";
 
   terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
   dataSet->active = true;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   //empty filter
   terrama2::core::Filter filter;
   //accessing data
-  terrama2::core::DataAccessorOccurrenceMvf accessor(dataProviderPtr, dataSeriesPtr);
+  terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
   terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
 
   assert(occurrenceSeries->getOccurrences().size() == 1);
