@@ -42,6 +42,15 @@
 // Forward declaration
 class QJsonDocument;
 
+// Forward declaration
+namespace te
+{
+  namespace dt
+  {
+    class TimeInstantTZ;
+  }
+}
+
 namespace terrama2
 {
   namespace core
@@ -87,6 +96,13 @@ namespace terrama2
       \note It just enable logging core application. It is not guaranteed that TerraMA2 logger has been initialized to display output in console and file.
     */
     void enableLogger();
+
+    /*!
+      \brief Returns the current date and time with timezone.
+
+      \return The current date and time with timezone.
+    */
+    te::dt::TimeInstantTZ* getCurrentDateTimeWithTZ();
 
 
   } // end namespace core

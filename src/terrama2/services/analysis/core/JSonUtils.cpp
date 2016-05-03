@@ -65,7 +65,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   analysis.name = json["name"].toString().toStdString();
   analysis.description = json["description"].toString().toStdString();
   analysis.active = json["active"].toBool();
-  analysis.outputDataset = json["output_dataset"].toInt();
+  analysis.outputDataSeriesId = json["output_dataseries"].toInt();
 
 
   QJsonObject metadataJson = json["metadata"].toObject();
@@ -140,7 +140,7 @@ QJsonObject terrama2::services::analysis::core::toJson(const Analysis& analysis)
   obj.insert("type", static_cast<qint64>(analysis.type));
   obj.insert("name", QString(analysis.name.c_str()));
   obj.insert("description", QString(analysis.description.c_str()));
-  obj.insert("output_dataset", static_cast<qint64>(analysis.outputDataset));
+  obj.insert("output_dataseries", static_cast<qint64>(analysis.outputDataSeriesId));
 
   // Analysis metadata
   QJsonObject metadataJson;
