@@ -143,8 +143,8 @@ angular.module('terrama2.dataseries.registration', [
       //  todo: remove it from list
         removeInput(args.dcp.mask);
       } else if (args.action === "add") {
-        $scope.dcpsStorager.push({tableName: args.dcp.mask, id: args.dcp.id});
-        // $scope.inputDataSets.push({tableName: args.dcp.mask, inputDataSet: args.dcp.mask});
+        $scope.dcpsStorager.push({table_name: args.dcp.mask, id: args.dcp.id});
+        // $scope.inputDataSets.push({table_name: args.dcp.mask, inputDataSet: args.dcp.mask});
       }
     });
 
@@ -155,7 +155,7 @@ angular.module('terrama2.dataseries.registration', [
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
       // todo: fix it. It is hard code
-      // $scope.tableFieldsStorager = ["tableName", "inputDataSet"];
+      // $scope.tableFieldsStorager = ["table_name", "inputDataSet"];
 
       DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
         var metadata = data.metadata;
@@ -198,6 +198,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.errorFound = false;
       $scope.alertBox = {};
       $scope.display = false;
+      $scope.extraProperties = {};
       $scope.resetState = function() {
         $scope.errorFound = false;
         $scope.alertBox.message = "";
@@ -440,8 +441,13 @@ angular.module('terrama2.dataseries.registration', [
         } else {
           if (val && Object.keys(val).length == 0) {
             $scope.dataSeries.access = 'PROCESSING';
+            // $scope.alertLevel = "alert-warning";
+            // $scope.alertBox.title = "Data Series";
+            // $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            // $scope.display = true;
           } else {
             $scope.dataSeries.access = 'COLLECT';
+
             // $scope.display = false;
           }
         }
@@ -677,12 +683,13 @@ angular.module('terrama2.dataseries.registration', [
         };
 
         // it dispatches post operation to nodejs
-        var _sendRequest = function(dataToSend, scheduleValues, filterValues, serviceOutput) {
+        var _sendRequest = function(object) {
+        // var _sendRequest = function(dataToSend, scheduleValues, filterValues, serviceOutput) { 
           DataSeriesFactory.post({
-            dataSeries: dataToSend,
-            schedule: scheduleValues,
-            filter: filterValues,
-            service: serviceOutput
+            dataSeries: object.dataToSend,
+            schedule: object.scheduleValues,
+            filter: object.filterValues,
+            service: object.serviceOutput
           }).success(function(data) {
             console.log(data);
             $window.location.href = "/configuration/dynamic/dataseries";
@@ -690,6 +697,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.message;
             $scope.display = true;
+            $scope.extraProperties = {};
             console.log(err);
           });
         };
@@ -737,10 +745,12 @@ angular.module('terrama2.dataseries.registration', [
               dataSets: out
             };
 
-            _sendRequest({input: dataObject.dataSeries, output: outputDataSeries},
-                          dataObject.schedule,
-                          dataObject.filter,
-                          values.service);
+            _sendRequest({
+              dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
+              scheduleValues: dataObject.schedule,
+              filterValues: dataObject.filter,
+              serviceOutput: values.service
+            });
 
           });
           // getting values from another controller
@@ -754,8 +764,14 @@ angular.module('terrama2.dataseries.registration', [
           $scope.alertBox.title = "Data Series";
           $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
           $scope.display = true;
+          $scope.extraProperties.object = {
+            dataToSend: dataObject.dataSeries,
+            scheduleValues: dataObject.schedule,
+            filterValues: dataObject.filter
+          };
+          $scope.extraProperties.confirmButtonFn = _sendRequest;
 
-          _sendRequest(dataObject.dataSeries, dataObject.schedule, dataObject.filter);
+          // _sendRequest(dataObject.dataSeries, dataObject.schedule, dataObject.filter);
         }
 
       };

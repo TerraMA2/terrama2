@@ -23,7 +23,8 @@ angular.module("terrama2.components.messagebox", [])
         title: "=title",
         message: "=message",
         close: "&",
-        display: "=displayHandler"
+        display: "=displayHandler",
+        extra: '=?extra'
       },
       controller: function($scope) {
         const ALERT_LEVELS = {
@@ -36,6 +37,10 @@ angular.module("terrama2.components.messagebox", [])
         $scope.$watch("display", function(val) {
           console.log(val);
         });
+
+        $scope.isAnyExtra = function() {
+          return Object.keys($scope.extra).length > 0;
+        }
 
         $scope.alertIcon = function() {
           switch($scope.alertLevel) {
