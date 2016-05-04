@@ -39,6 +39,7 @@
 #include "../../../core/data-access/SyncronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/data-access/DataStorager.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
 #include "../../../impl/DataStoragerPostGis.hpp"
@@ -48,7 +49,7 @@
 #include <terralib/datatype/StringProperty.h>
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/datatype/DateTimeInstant.h>
-#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/datatype/TimeInstant.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -333,8 +334,7 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
       dt->add(prop);
     }
 
-
-    te::dt::DateTimeInstant* date = dynamic_cast<te::dt::DateTimeInstant*>(terrama2::core::getCurrentDateTimeInUTC());
+    auto date = terrama2::core::TimeUtils::nowUTC();
 
     // Creates memory dataset and add the items.
     std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
@@ -342,7 +342,7 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     {
       te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
       dsItem->setString("geom_id", it->first);
-      dsItem->setDateTime("execution_date", dynamic_cast<te::dt::DateTimeInstant*>(date->clone()));
+      dsItem->setDateTime("execution_date",  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
       for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
       {
         dsItem->setDouble(itAttribute->first, itAttribute->second);
@@ -351,7 +351,6 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
       ds->add(dsItem);
     }
 
-    delete date;
 
     assert(dataSeries->datasetList.size() == 1);
     auto dataset = dataSeries->datasetList[0];

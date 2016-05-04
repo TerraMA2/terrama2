@@ -30,6 +30,7 @@
 // TerraMA2
 #include "Utils.hpp"
 #include "DataAccessorFactory.hpp"
+#include "SemanticsManager.hpp"
 #include "Logger.hpp"
 #include "../Exception.hpp"
 #include "../../Config.hpp"
@@ -41,13 +42,10 @@
 #include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
-#include <terralib/datatype/TimeInstant.h>
 
 #include <ctime>
 
 // Boost
-#include <boost/date_time/time_zone_base.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
 #include <boost/filesystem.hpp>
 
 // QT
@@ -175,6 +173,14 @@ void terrama2::core::initializeTerraMA()
   terrama2::core::initializeTerralib();
 
   terrama2::core::initializeLogger("terrama2.log");
+
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
+  semanticsManager.addSemantics("OCCURRENCE-wfp", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
+  semanticsManager.addSemantics("STATIC_DATA-ogr", terrama2::core::DataSeriesSemantics::STATIC, "OGR");
+  semanticsManager.addSemantics("DCP-inpe", terrama2::core::DataSeriesSemantics::STATIC, "CSV");
+
 }
 
 void terrama2::core::finalizeTerraMA()
@@ -197,11 +203,4 @@ void terrama2::core::disableLogger()
 void terrama2::core::enableLogger()
 {
   terrama2::core::Logger::getInstance().enableLog();
-}
-
-te::dt::TimeInstant* terrama2::core::getCurrentDateTimeInUTC()
-{
-  boost::posix_time::ptime utcTime(boost::posix_time::second_clock::universal_time());
-  te::dt::TimeInstant* timeInstant = new te::dt::TimeInstant(utcTime);
-  return timeInstant;
 }

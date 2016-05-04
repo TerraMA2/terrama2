@@ -30,6 +30,7 @@
 
 //Terralib
 #include <terralib/common/UnitsOfMeasureManager.h>
+#include <terralib/datatype/TimeInstant.h>
 
 // TerraMA2
 #include "Timer.hpp"
@@ -70,7 +71,7 @@ void terrama2::core::Timer::timeoutSlot()
 {
   emit timeoutSignal(impl_->processId_);
 
-  impl_->lastEmit_ = terrama2::core::TimeUtils::now();
+  impl_->lastEmit_ = terrama2::core::TimeUtils::nowUTC();
   prepareTimer(impl_->dataSchedule_);
 }
 
@@ -93,12 +94,12 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
-  std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+  std::shared_ptr < te::dt::TimeInstantTZ> nowUTC = terrama2::core::TimeUtils::nowUTC();
 
   double secondsSinceLastProcess = 0;
 
   if(impl_->lastEmit_)
-    secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
+    secondsSinceLastProcess = *nowUTC.get() - *impl_->lastEmit_.get();
 
   double secondsToStart = timerSeconds - secondsSinceLastProcess;
 

@@ -84,8 +84,8 @@ uint64_t terrama2::core::ProcessLogger::start() const
 
   query.bind_arg(1, processID_);
   query.bind_arg(2, static_cast<int>(Status::START));
-  query.bind_arg(3, TimeUtils::now()->toString());
-  query.bind_arg(4, TimeUtils::now()->toString());
+  query.bind_arg(3, TimeUtils::nowUTC()->toString());
+  query.bind_arg(4, TimeUtils::nowUTC()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
@@ -146,7 +146,7 @@ void terrama2::core::ProcessLogger::error(const std::string description, uint64_
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::shared_ptr< te::dt::TimeInstantTZ > now(TimeUtils::now());
+  std::shared_ptr< te::dt::TimeInstantTZ> now(TimeUtils::nowUTC());
 
   boost::format query("UPDATE "+ tableName_ + " SET status=%1%, last_process_timestamp='%2%' WHERE id =" + QString::number(registerId).toStdString());
 
@@ -178,7 +178,7 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
   query.bind_arg(2, dataTimestamp->toString());
-  query.bind_arg(3, TimeUtils::now()->toString());
+  query.bind_arg(3, TimeUtils::nowUTC()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());

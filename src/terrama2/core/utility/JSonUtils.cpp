@@ -128,6 +128,9 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
     case DataSeriesSemantics::GRID:
       createDataSet = fromDataSetGridJson;
       break;
+    case DataSeriesSemantics::STATIC:
+      createDataSet = fromDataSetGridJson;
+      break;
     default:
     {
       QString errMsg = QObject::tr("Invalid JSON object.\n Unknown DataSet type.");
@@ -205,6 +208,17 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
   }
 
   dataSet->position = point;
+
+  return dataSetPtr;
+}
+
+
+terrama2::core::DataSetPtr terrama2::core::fromDataSetJson(QJsonObject json)
+{
+  terrama2::core::DataSet* dataSet = new terrama2::core::DataSet();
+  terrama2::core::DataSetPtr dataSetPtr(dataSet);
+
+  addBaseDataSetData(json, dataSet);
 
   return dataSetPtr;
 }
