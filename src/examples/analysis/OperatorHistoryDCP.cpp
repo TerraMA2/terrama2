@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerralib();
 
-  terrama2::core::registerDataAccessor();
+  terrama2::core::registerFactories();
 
   QCoreApplication app(argc, argv);
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 
   dataManager->add(analysis);
 
-
+  // Starts the service and adds the analysis
   Service service(dataManager);
   service.start();
   service.addAnalysis(1);

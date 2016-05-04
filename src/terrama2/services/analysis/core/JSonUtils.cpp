@@ -46,9 +46,17 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
   }
 
-  if(!(json.contains("id") && json.contains("project_id") && json.contains("script_language") && json.contains("type") &&
-       json.contains("name") && json.contains("description") && json.contains("active") && json.contains("output_dataset") &&
-       json.contains("metadata") && json.contains("analysis_dataseries_list") && json.contains("schedule")))
+  if(!(json.contains("id")
+       && json.contains("project_id")
+       && json.contains("script_language")
+       && json.contains("type")
+       && json.contains("name")
+       && json.contains("description")
+       && json.contains("active")
+       && json.contains("output_dataset")
+       && json.contains("metadata")
+       && json.contains("analysis_dataseries_list")
+       && json.contains("schedule")))
   {
     QString errMsg(QObject::tr("Invalid JSON object."));
     TERRAMA2_LOG_ERROR() << errMsg;
