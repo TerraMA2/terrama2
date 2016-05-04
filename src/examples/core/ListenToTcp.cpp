@@ -123,9 +123,9 @@ int main(int argc, char* argv[])
   socket.connectToHost("localhost", 30000);
   socket.write(bytearray);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  // QTimer timer;
+  // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  // timer.start(10000);
   app.exec();
 
   terrama2::core::finalizeTerraMA();

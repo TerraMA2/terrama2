@@ -83,7 +83,7 @@ void TsUtility::testProcessLogger()
   log.addValue("tag2", "value4", registerID);
   log.error("Unit Test Error", registerID);
 
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::now();
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
   log.done(dataTime, registerID);
 

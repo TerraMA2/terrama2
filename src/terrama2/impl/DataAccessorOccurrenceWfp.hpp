@@ -42,51 +42,51 @@ namespace terrama2
     struct Filter;
     /*!
       \class DataAccessorOccurrenceWfp
-      \brief DataAccessor for the INPE's Wildland Fire Program - www.inpe.br/queimadas
+      \brief DataAccessor for the INPE's Wildiland Fire Program - www.inpe.br/queimadas
 
     */
     class DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
     {
-      public:
-        DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-        virtual ~DataAccessorOccurrenceWfp() {}
+    public:
+      DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorOccurrenceWfp() {}
 
-        static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
-        {
-          return new DataAccessorOccurrenceWfp(dataProvider, dataSeries, filter);
-        }
+      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      {
+        return new DataAccessorOccurrenceWfp(dataProvider, dataSeries, filter);
+      }
 
-      protected:
-        virtual std::string dataSourceType() const override;
-        virtual std::string typePrefix() const override;
+    protected:
+      virtual std::string dataSourceType() const override;
+      virtual std::string typePrefix() const override;
 
-        virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
-        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
-                                const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+      virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+                              const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
-      private:
-        //! Recover projection information from dataset
-        Srid getSrid(DataSetPtr dataSet) const;
-        //! Recover timezone information from dataset
-        std::string getTimeZone(DataSetPtr dataSet) const;
-        //! Name of column with Date/Time information
-        std::string timestampPropertyName() const;
-        //! Name of column with latitude information
-        std::string latitudePropertyName() const;
-        //! Name of column with longitude information
-        std::string longitudePropertyName() const;
-        std::string geometryPropertyName() const;
-        /*!
-          \brief Convert string to TimeInstantTZ.
+    private:
+      //! Recover projection information from dataset
+      Srid getSrid(DataSetPtr dataSet) const;
+      //! Recover timezone information from dataset
+      std::string getTimeZone(DataSetPtr dataSet) const;
+      //! Name of column with Date/Time information
+      std::string timestampPropertyName() const;
+      //! Name of column with latitude information
+      std::string latitudePropertyName() const;
+      //! Name of column with longitude information
+      std::string longitudePropertyName() const;
+      std::string geometryPropertyName() const;
+      /*!
+        \brief Convert string to TimeInstantTZ.
 
-          \note Format recognized:  YYYY-mm-dd HH:MM:SS"
+        \note Format recognized:  YYYY-mm-dd HH:MM:SS"
 
-        */
-        te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/,
-                                                const std::string& timezone) const;
+      */
+      te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/,
+                                              const std::string& timezone) const;
 
-        //! Convert string to Geometry
-        te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
+      //! Convert string to Geometry
+      te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
     };
   }
 }
