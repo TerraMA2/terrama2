@@ -7,6 +7,14 @@ TcpManager.sendData = function(data) {
   emit(Signals.ADD_DATA_SIGNAL, data);
 };
 
+TcpManager.checkStatus = function() {
+  emit(Signals.STATUS_SIGNAL, {});
+}
+
+TcpManager.startService = function(data) {
+  emit(Signals.START_PROCESS_SIGNAL, {});
+}
+
 var emit = function(signal, object) {
   try {
     if(isNaN(signal)) throw TypeError(signal + " is not a valid signal!");

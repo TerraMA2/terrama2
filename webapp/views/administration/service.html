@@ -110,26 +110,26 @@
             <div class="col-md-6">
               <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.port.$dirty && serviceForm.port.$invalid, 'has-success': serviceForm.port.$dirty && serviceForm.port.$valid}">
                 <label>{[ __("Port") ]}:</label>
-                <input class="form-control" name="port" ng-model="service.port" placeholder="{[ __('Ssh Port') ]}" type="number" required>
-                <span class="form-control-feedback glyphicon" ng-show="service.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
+                <input class="form-control" name="port" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" required>
+                <span class="form-control-feedback glyphicon" ng-show="serviceForm.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.user.$dirty && serviceForm.user.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
                 <label>{[ __("User") ]}:</label>
-                <input class="form-control" name="user" ng-model="service.user" placeholder="{[ __('Ssh username') ]}" type="text" required>
+                <input class="form-control" name="user" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" required>
 
-                <span class="form-control-feedback glyphicon" ng-show="service.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
+                <span class="form-control-feedback glyphicon" ng-show="serviceForm.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.path.$dirty && serviceForm.path.$invalid, 'has-success': serviceForm.path.$dirty && serviceForm.path.$valid}">
                 <label>{[ __("Path to script") ]}:</label>
-                <input class="form-control" name="path" ng-model="service.path" placeholder="{[ __('Script path to run') ]}" type="text" required>
+                <input class="form-control" name="path" ng-model="service.pathToBinary" placeholder="{[ __('Script path to run') ]}" type="text" required>
 
-                <span class="form-control-feedback glyphicon" ng-show="service.path.$dirty" ng-class="{'glyphicon-ok': serviceForm.path.$valid, 'glyphicon-remove': serviceForm.path.$invalid }"></span>
+                <span class="form-control-feedback glyphicon" ng-show="serviceForm.path.$dirty" ng-class="{'glyphicon-ok': serviceForm.path.$valid, 'glyphicon-remove': serviceForm.path.$invalid }"></span>
               </div>
             </div>
           </form>
