@@ -33,6 +33,7 @@
 
 //Terralib
 #include <terralib/common/UnitsOfMeasureManager.h>
+#include <terralib/datatype/TimeInstant.h>
 
 // TerraMA2
 #include "Timer.hpp"
@@ -73,7 +74,7 @@ void terrama2::core::Timer::timeoutSlot()
 {
   emit timeoutSignal(impl_->processId_);
 
-  impl_->lastEmit_ = terrama2::core::TimeUtils::now();
+  impl_->lastEmit_ = terrama2::core::TimeUtils::nowUTC();
   prepareTimer(impl_->dataSchedule_);
 }
 

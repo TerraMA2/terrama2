@@ -107,7 +107,7 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
     auto itPr = providers_.find(dataseries->dataProviderId);
     if(itPr == providers_.end())
     {
-      QString errMsg = QObject::tr("Can not add a dataseries with a non-registered data provider.");
+      QString errMsg = QObject::tr("Can not add a dataseries with a non-registered data provider: %1.").arg(dataseries->dataProviderId);
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
