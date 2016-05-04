@@ -1,6 +1,7 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var ProjectError = require("../../core/Exceptions").ProjectError;
+var TokenCode = require('./../../core/Enums').TokenCode;
 
 
 module.exports = function(app) {
@@ -9,7 +10,13 @@ module.exports = function(app) {
       var projectObject = request.body;
 
       DataManager.addProject(projectObject).then(function(project) {
-        response.json(project);
+        var token = Utils.generateToken();
+        app.locals.tokenIntent = {
+          token: token,
+          code: TokenCode.SAVE,
+          intent: project.name
+        };
+        response.json({status: 200, result: project, token: token});
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       });
@@ -36,26 +43,36 @@ module.exports = function(app) {
         var projectGiven = request.body;
         projectGiven.id = id;
         DataManager.updateProject(projectGiven).then(function(project) {
-          response.json(project);
+          var token = Utils.generateToken();
+          app.locals.tokenIntent = {
+            token: token,
+            code: TokenCode.UPDATE,
+            intent: project.name
+          };
+          response.json({status: 200, result: project, token: token});
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
         })
       } else {
-        Utils.handleRequestError(request, new ProjectError("Project name not identified"), 400);
+        Utils.handleRequestError(response, new ProjectError("Project name not identified"), 400);
       }
     },
     
     delete: function(request, response) {
       var id = request.params.id;
       if (id) {
-        DataManager.removeProject({id: id}).then(function() {
-          response.json({status: 200});
+        DataManager.getProject({id: id}).then(function(project) {
+          DataManager.removeProject({id: id}).then(function() {
+            response.json({status: 200, name: project.name});
+          }).catch(function(err) {
+            Utils.handleRequestError(response, err, 400);
+          });
         }).catch(function(err) {
-          Utils.handleRequestError(request, new ProjectError("Project not found"), 400);
+          Utils.handleRequestError(response, new ProjectError("Project not found"), 400);
         });
       } else {
-        Utils.handleRequestError(request, new ProjectError("Project id not typed"), 400);
+        Utils.handleRequestError(response, new ProjectError("Project id not typed"), 400);
       }
     }
 
