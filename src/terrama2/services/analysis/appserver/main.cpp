@@ -22,11 +22,53 @@
 /*!
   \file terrama2/Exception.hpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Main file for analysis service.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Paulo R. M. Oliveira
  */
 
 // TerraMA2
-#include "../core/"
+#include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/core/network/TcpManager.hpp>
+#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/Logger.hpp>
+#include <terrama2/impl/Utils.hpp>
+// STL
+#include <memory>
+#include <iostream>
 
+// Qt
+#include <QCoreApplication>
+#include <QTimer>
+
+int main(int argc, char* argv[])
+{
+  try
+  {
+    terrama2::core::initializeTerraMA();
+
+    terrama2::core::registerFactories();
+
+    QCoreApplication app(argc, argv);
+    terrama2::core::TcpManager tcpManager;
+    auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
+    tcpManager.listen(dataManager, QHostAddress::Any, 30001);
+
+    terrama2::services::analysis::core::Service service(dataManager);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::analysis::core::Service::addToQueue);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::analysis::core::Service::stop);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);
+    service.start();
+
+    app.exec();
+
+    terrama2::core::finalizeTerraMA();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unhandled exception.");
+  }
+
+  return 0;
+}

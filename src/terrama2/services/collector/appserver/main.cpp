@@ -30,23 +30,11 @@
 // TerraMA2
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
-
-#include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/DataAccessorFactory.hpp>
-#include <terrama2/core/utility/DataStoragerFactory.hpp>
-#include <terrama2/core/utility/DataRetrieverFactory.hpp>
-#include <terrama2/core/utility/SemanticsManager.hpp>
-
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceWfp.hpp>
-#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
-#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-
-#include <terrama2/impl/DataStoragerPostGis.hpp>
-
+#include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/data-access/DataRetriever.hpp>
+#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/impl/Utils.hpp>
+
 
 // STL
 #include <memory>
@@ -62,18 +50,7 @@ int main(int argc, char* argv[])
   {
     terrama2::core::initializeTerraMA();
 
-    terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-wfp", terrama2::core::DataAccessorOccurrenceWfp::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
-
-    terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
-
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
-    semanticsManager.addSemantics("OCCURRENCE-wfp", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
+    terrama2::core::registerFactories();
 
     QCoreApplication app(argc, argv);
     terrama2::core::TcpManager tcpManager;

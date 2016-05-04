@@ -47,7 +47,7 @@ namespace te
 {
   namespace dt
   {
-    class TimeInstantTZ;
+    class TimeInstant;
   }
 }
 
@@ -102,7 +102,7 @@ namespace terrama2
 
       \return The current date and time with timezone.
     */
-    te::dt::TimeInstantTZ* getCurrentDateTimeWithTZ();
+    te::dt::TimeInstant* getCurrentDateTimeInUTC();
 
 
   } // end namespace core

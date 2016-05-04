@@ -41,7 +41,7 @@
 #include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
-#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/datatype/TimeInstant.h>
 
 #include <ctime>
 
@@ -199,17 +199,9 @@ void terrama2::core::enableLogger()
   terrama2::core::Logger::getInstance().enableLog();
 }
 
-te::dt::TimeInstantTZ* terrama2::core::getCurrentDateTimeWithTZ()
+te::dt::TimeInstant* terrama2::core::getCurrentDateTimeInUTC()
 {
-  // Recovers the timezone
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
-
-
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
-  boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
-  return new te::dt::TimeInstantTZ(ldt);
+  boost::posix_time::ptime utcTime(boost::posix_time::second_clock::universal_time());
+  te::dt::TimeInstant* timeInstant = new te::dt::TimeInstant(utcTime);
+  return timeInstant;
 }
