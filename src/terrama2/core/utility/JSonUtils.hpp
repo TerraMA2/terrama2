@@ -56,6 +56,12 @@ namespace terrama2
     void addBaseDataSetData(QJsonObject json, DataSet* dataset);
 
     /*!
+      \brief Creates a DataSet from a QJsonObject.
+      \see [DataSetDcp at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSet) for more information.
+    */
+    DataSetPtr fromDataSetJson(QJsonObject json);
+
+    /*!
       \brief Creates a DataSetDcp from a QJsonObject.
       \see [DataSetDcp at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetDcp) for more information.
       */

@@ -154,10 +154,6 @@ int main(int argc, char* argv[])
 
     QCoreApplication app(argc, argv);
 
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
-    semanticsManager.addSemantics("OCCURRENCE-wfp", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
-
     QJsonObject obj;
 
     QJsonArray providersArray;

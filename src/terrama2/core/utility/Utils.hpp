@@ -97,12 +97,6 @@ namespace terrama2
     */
     void enableLogger();
 
-    /*!
-      \brief Returns the current date and time with timezone.
-
-      \return The current date and time with timezone.
-    */
-    te::dt::TimeInstant* getCurrentDateTimeInUTC();
 
 
   } // end namespace core
