@@ -82,6 +82,7 @@ void TsUtility::testProcessLogger()
   log.addValue("tag1", "value3", registerID);
   log.addValue("tag2", "value4", registerID);
   log.error("Unit Test Error", registerID);
+  log.error("Unit Test second Error", registerID);
 
   std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::now();
 
@@ -203,7 +204,8 @@ void TsUtility::testScheduleTimer()
 
     // Schedule a timer in seconds
     schedule.id = 0;
-    schedule.schedule = 6;
+    schedule.scheduleDay = 6;
+    schedule.scheduleHour = "09:00:00.000";
     schedule.scheduleUnit = "week";
 
     terrama2::core::Timer timerWeek1(schedule, 1, getLogger());

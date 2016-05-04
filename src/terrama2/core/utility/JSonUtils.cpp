@@ -258,7 +258,8 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   schedule.id = json["id"].toInt();
   schedule.frequency = json["frequency"].toInt();
   schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
-  schedule.schedule = json["schedule"].toInt();
+  schedule.scheduleDay = json["schedule_day"].toInt();
+  schedule.scheduleHour = json["schedule_hour"].toString().toStdString();
   schedule.scheduleUnit = json["schedule_unit"].toString().toStdString();
   schedule.scheduleRetry = json["schedule_retry"].toInt();
   schedule.scheduleRetryUnit = json["schedule_retry_unit"].toString().toStdString();
@@ -367,7 +368,8 @@ QJsonObject terrama2::core::toJson(Schedule schedule)
   obj.insert("frequency",static_cast<qint64>(schedule.frequency));
   obj.insert("frequency_unit", QString::fromStdString(schedule.frequencyUnit));
 
-  obj.insert("schedule",static_cast<qint64>(schedule.schedule));
+  obj.insert("schedule_day",static_cast<qint64>(schedule.scheduleDay));
+  obj.insert("schedule_hour",QString::fromStdString(schedule.scheduleHour));
   obj.insert("schedule_unit",QString::fromStdString(schedule.scheduleUnit));
   obj.insert("schedule_retry",static_cast<qint64>(schedule.scheduleRetry));
   obj.insert("schedule_retry_unit", QString::fromStdString(schedule.scheduleRetryUnit));
