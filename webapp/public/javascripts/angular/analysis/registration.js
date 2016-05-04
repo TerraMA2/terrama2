@@ -23,22 +23,22 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
       $scope.display = false;
     };
 
-    
+
     // temp code for debugging
     var errorHelper = function(err) {
       console.log(err);
     };
-    
+
     // getting instances
     ServiceInstanceFactory.get({type: 'ANALYSIS'}).success(function(services) {
       $scope.instances = services;
     }).error(errorHelper);
-    
+
     // getting DataSeries
     DataSeriesFactory.get({collector: true}).success(function(dataSeriesObjects) {
       $scope.dataSeriesList = dataSeriesObjects;
     }).error(errorHelper);
-    
+
     // helpers
     var formErrorDisplay = function(form) {
       angular.forEach(form.$error, function (field) {
@@ -52,7 +52,7 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     // it handles hidden box with data-series analysis metadata
     $scope.onDataSeriesClick = function(dataSeries) {
       $scope.selectedDataSeries = dataSeries;
-      
+
       // getting data series semantics
       DataSeriesSemanticsFactory.get(dataSeries.semantics).success(function(data) {
         $scope.semantics = data;
@@ -63,7 +63,7 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     $scope.onMetadataFormatClick = function(format) {
       $scope.metadata.format = format;
     };
-    
+
     // save function
     $scope.save = function() {
       console.log($scope.analysis);
@@ -93,7 +93,7 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
 
       var analysisToSend = Object.assign({}, $scope.analysis);
       analysisToSend.analysisDataSeries = analysisDataSeries;
-      
+
       // sending post operation
       AnalysisFactory.post(analysisToSend).success(function(data) {
         alert("Saved");

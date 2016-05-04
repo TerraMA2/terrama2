@@ -279,6 +279,9 @@
 
                     <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
                     <label>{[ __('Analysis Model') ]}:</label>
+                    <div id="scriptCheckResult" style="margin: 25px 0 40px 0;
+                                                       font-size: 20px;
+                                                       font-weight: 600;"></div>
                     <div id="script" style="height: 400px;"></div>
                     <textarea name="script" ng-model="analysis.script" required></textarea>
 
@@ -318,7 +321,7 @@
     <!-- /.box body -->
 
     <div class="box-footer">
-      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();">{[ __('OK') ]}</button>
+      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton" disabled="disabled">{[ __('OK') ]}</button>
       <a href="/configuration/analyses/" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
   </div>
