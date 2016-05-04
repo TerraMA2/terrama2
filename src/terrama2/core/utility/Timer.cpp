@@ -150,7 +150,7 @@ double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
 
     boost::gregorian::greg_weekday gw(dataSchedule.scheduleDay);
     boost::gregorian::date d(boost::date_time::next_weekday(nowTZ->getTimeInstantTZ().date(), gw));
-    boost::posix_time::time_duration td(boost::posix_time::duration_from_string(dataSchedule.scheduleHour));
+    boost::posix_time::time_duration td(boost::posix_time::duration_from_string(dataSchedule.scheduleTimestamp));
     boost::posix_time::ptime pt(d, td);
     boost::local_time::local_date_time dt(pt, nowTZ->getTimeInstantTZ().zone());
     te::dt::TimeInstantTZ day(dt);

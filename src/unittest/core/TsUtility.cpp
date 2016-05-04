@@ -205,7 +205,7 @@ void TsUtility::testScheduleTimer()
     // Schedule a timer in seconds
     schedule.id = 0;
     schedule.scheduleDay = 6;
-    schedule.scheduleHour = "09:00:00.000";
+    schedule.scheduleTimestamp = "09:00:00.000";
     schedule.scheduleUnit = "week";
 
     terrama2::core::Timer timerWeek1(schedule, 1, getLogger());
