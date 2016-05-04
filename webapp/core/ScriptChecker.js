@@ -30,25 +30,48 @@ var ScriptChecker = function() {
     var buffer = require('crypto').randomBytes(24);
     var pythonFilePath = path.join(__dirname, '../tmp/python-' + buffer.toString('hex') + '.py');
     var pylintConfFilePath = path.join(__dirname, '../config/pylintrc');
-    var pythonCheckCommand = "C:\\Python27\\Scripts\\pylinte.exe --rcfile=" + pylintConfFilePath + " " + pythonFilePath;
+    var pythonCheckCommand = "pylint --rcfile=" + pylintConfFilePath + " " + pythonFilePath;
+
+    memberFs.writeFileSync(pythonFilePath, script);
+
+    var pythonCheckCommandResult = '';
 
     try {
-      memberFs.writeFileSync(pythonFilePath, script);
-
-      var pythonCheckCommandResult = memberExecSync(pythonCheckCommand, { encoding: 'utf8' });
-
-      console.log("----------------------------------------");
-      console.log(pythonCheckCommandResult);
-      console.log("----------------------------------------");
+      pythonCheckCommandResult = memberExecSync(pythonCheckCommand, { encoding: 'utf8' });
     } catch(e) {
       if(e.stderr === '') {
-        console.error(e.stdout);
+        pythonCheckCommandResult = e.stdout;
       } else {
-        console.error(e.stderr);
+        pythonCheckCommandResult = '';
+        console.log(e.stderr);
       }
     }
 
     memberFs.unlink(pythonFilePath);
+
+    var textLines = pythonCheckCommandResult.split(/\r?\n/);
+    var textLinesLength = textLines.length;
+
+    var messages = '';
+    var hasError = false;
+
+    if(textLinesLength > 0) {
+      for(var i = 0; i < textLinesLength; i++) {
+        if(i > 0 && textLines[i] !== '') {
+          messages += textLines[i] + '<br/>';
+
+          if(textLines[i].substring(0, 1) === 'E')
+            hasError = true;
+        }
+      }
+    }
+
+    var returnObject = {
+      hasError: hasError,
+      messages: messages
+    };
+
+    return returnObject;
   };
 };
 

@@ -21,9 +21,9 @@ var AnalysisScriptChecker = function(io) {
 
     // Python script request event
     client.on('checkPythonScriptRequest', function(json) {
-      memberScriptChecker.checkPythonScript(json.script);
+      var returnObject = memberScriptChecker.checkPythonScript(json.script);
 
-      client.emit('checkPythonScriptResponse', {});
+      client.emit('checkPythonScriptResponse', returnObject);
     });
   });
 };
