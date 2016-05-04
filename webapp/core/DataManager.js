@@ -717,11 +717,15 @@ var DataManager = {
    * name identifier.
    *
    * @param {Object} dataProviderParam - An object containing DataProvider identifier to get it.
+   * @param {bool} cascade - A bool value to delete on cascade
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  removeDataProvider: function(dataProviderParam) {
+  removeDataProvider: function(dataProviderParam, cascade) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      if (!cascade)
+        cascade = false;
+
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
         if (provider.id == dataProviderParam.id || provider.name == dataProviderParam.name) {
@@ -729,7 +733,8 @@ var DataManager = {
             self.data.dataProviders.splice(index, 1);
             resolve();
           }).catch(function(err) {
-            reject(new exceptions.DataProviderError("Could not remove DataProvider ", err));
+            console.log(err);
+            reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
           });
           return;
         }

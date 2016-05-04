@@ -34,6 +34,19 @@
 
       $scope.loading = true;
       $scope.errorFound = false;
+      $scope.extra = {
+        removeOperationCallback: function(err, data) {
+          $scope.display = true;
+          if (err) {
+            $scope.alertLevel = "alert-danger";
+            $scope.alertBox.message = err.message;
+            return;
+          }
+
+          $scope.alertLevel = "alert-success";
+          $scope.alertBox.message = data.name + " removed";
+        }
+      };
       $scope.method = "{[ method ]}";
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
@@ -74,7 +87,7 @@
           <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
         </div>
 
-        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'data provider'" remove="remove(object);"></terrama2-table>
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'data provider'" remove="remove(object);" extra="extra"></terrama2-table>
       </div>
 
     </div>

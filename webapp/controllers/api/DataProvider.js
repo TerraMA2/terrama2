@@ -109,14 +109,18 @@ module.exports = function(app) {
     delete: function(request, response) {
       var id = request.params.id;
       if (id) {
-        DataManager.removeDataProvider({id: id}).then(function() {
-        // generating token
-          var token = Utils.generateToken();
-          app.locals.tokenIntent = {
-            token: token,
-            code: TokenCode.DELETE
-          };
-          response.json({status: 200});
+        DataManager.getDataProvider({id: id}).then(function(dProvider) {
+          DataManager.removeDataProvider({id: id}).then(function() {
+          // generating token
+            var token = Utils.generateToken();
+            app.locals.tokenIntent = {
+              token: token,
+              code: TokenCode.DELETE
+            };
+            response.json({status: 200, name: dProvider.name});
+          }).catch(function(err) {
+            Utils.handleRequestError(response, err, 400);
+          })
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
         })

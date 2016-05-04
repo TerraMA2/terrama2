@@ -11,7 +11,8 @@ angular.module('terrama2.table', ['terrama2'])
         iconProperties: '=?iconProperties',
         linkToAdd: '=?linkToAdd',
         context: '=context',
-        remove: '&?'
+        remove: '&?',
+        extra: '=?extra'
       },
       
       controller: function($scope, $http, i18n) {
@@ -24,9 +25,14 @@ angular.module('terrama2.table', ['terrama2'])
         // fields identifiers
         $scope.identityFields = [];
 
+        $scope.extra = $scope.extra ? $scope.extra : {};
+
         // remove function
         $scope.removeOperation = function(object) {
           // todo: open model: confirmation
+
+          // callback
+          var callback = $scope.extra.removeOperationCallback;
           $http({
             method: 'DELETE',
             url: $scope.remove({object: object})
@@ -34,8 +40,14 @@ angular.module('terrama2.table', ['terrama2'])
             $scope.model.forEach(function(element, index, arr) {
               if (element.id == object.id)
                 arr.splice(index, 1);
+
+              if ($scope.isFunction(callback))
+                callback(null, response);
             });
+
           }).error(function(err) {
+            if ($scope.isFunction(callback))
+              callback(err);
             console.log(err);
           });
         };
