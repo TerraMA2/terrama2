@@ -390,7 +390,7 @@ var DataManager = {
           resolve();
         }).catch(function(err) {
           console.log("Remove Project: ", err);
-          reject(new exceptions.ProjectError("Could not remove project: " + err.message));
+          reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
         })
       }).catch(function(err) {
         reject(err);

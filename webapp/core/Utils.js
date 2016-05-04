@@ -92,8 +92,15 @@ module.exports = {
     })
   },
 
-  generateToken: function() {
-    return crypto.randomBytes(48).toString('hex');
+  generateToken: function(app, code, intent) {
+    var token = crypto.randomBytes(48).toString('hex');
+    app.locals.tokenIntent = {
+      token: token,
+      code: code,
+      intent: intent
+    };
+
+    return token;
   },
 
   getTokenCodeMessage: getTokenCodeMessage,

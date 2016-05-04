@@ -10,12 +10,7 @@ module.exports = function(app) {
       var projectObject = request.body;
 
       DataManager.addProject(projectObject).then(function(project) {
-        var token = Utils.generateToken();
-        app.locals.tokenIntent = {
-          token: token,
-          code: TokenCode.SAVE,
-          intent: project.name
-        };
+        var token = Utils.generateToken(app, TokenCode.SAVE, project.name);
         response.json({status: 200, result: project, token: token});
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
@@ -43,12 +38,7 @@ module.exports = function(app) {
         var projectGiven = request.body;
         projectGiven.id = id;
         DataManager.updateProject(projectGiven).then(function(project) {
-          var token = Utils.generateToken();
-          app.locals.tokenIntent = {
-            token: token,
-            code: TokenCode.UPDATE,
-            intent: project.name
-          };
+          var token = Utils.generateToken(app, TokenCode.UPDATE, project.name);
           response.json({status: 200, result: project, token: token});
         }).catch(function(err) {
           response.status(400);

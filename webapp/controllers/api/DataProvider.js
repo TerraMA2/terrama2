@@ -37,13 +37,7 @@ module.exports = function(app) {
           // try to save
           DataManager.addDataProvider(dataProviderObject).then(function(result) {
             // generating token
-            var token = Utils.generateToken();
-            app.locals.tokenIntent = {
-              token: token,
-              code: TokenCode.SAVE,
-              intent: dProvider.name
-            };
-
+            var token = Utils.generateToken(app, TokenCode.SAVE, result.name);
             response.json({status: 200, result: result.toObject(), token: token});
           }).catch(function(err) {
             handleError(response, err, 400);
@@ -83,12 +77,7 @@ module.exports = function(app) {
         DataManager.updateDataProvider({name: dataProviderName, active: request.body.active}).then(function() {
           DataManager.getDataProvider({name: dataProviderName}).then(function(dProvider) {
             // generating token
-            var token = Utils.generateToken();
-            app.locals.tokenIntent = {
-              token: token,
-              code: TokenCode.UPDATE,
-              intent: dProvider.name
-            };
+            var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
 
             response.json({status: 200, result: dProvider, token: token});
           }).catch(function(err) {
@@ -112,11 +101,6 @@ module.exports = function(app) {
         DataManager.getDataProvider({id: id}).then(function(dProvider) {
           DataManager.removeDataProvider({id: id}).then(function() {
           // generating token
-            var token = Utils.generateToken();
-            app.locals.tokenIntent = {
-              token: token,
-              code: TokenCode.DELETE
-            };
             response.json({status: 200, name: dProvider.name});
           }).catch(function(err) {
             Utils.handleRequestError(response, err, 400);

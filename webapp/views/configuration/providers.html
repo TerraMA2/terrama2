@@ -53,12 +53,8 @@
         title: "Data Provider",
         message: "{[ message ]}"
       };
+      $scope.resetState = function() { $scope.display = false; };
       $scope.display = {% if message %}true{% else %} false{% endif %};
-
-      $scope.close = function() {
-        $scope.errorFound = false;
-        $scope.alertBox.message = "";
-      };
 
       DataProviderFactory.get().success(function(dataProviders) {
         $scope.model = dataProviders;
