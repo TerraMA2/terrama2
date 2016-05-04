@@ -21,12 +21,12 @@
   \author Jano Simas
 */
 
+#include "TimeUtils.hpp"
 #include "ServiceManager.hpp"
 
 terrama2::core::ServiceManager::ServiceManager()
-// : startTime_(now())
+ : startTime_(terrama2::core::TimeUtils::nowUTC())
 {
-  //PAULO: set start time to now()
 }
 
 void terrama2::core::ServiceManager::setInstanceName(const std::string& instanceName)
@@ -69,15 +69,17 @@ const std::string& terrama2::core::ServiceManager::terrama2Version() const
 {
   return terrama2Version_;
 }
-const te::dt::TimeInstantTZ& terrama2::core::ServiceManager::startTime() const
+const std::shared_ptr< te::dt::TimeInstantTZ >& terrama2::core::ServiceManager::startTime() const
 {
-  // return startTime_;
+  return startTime_;
 }
 const QJsonObject& terrama2::core::ServiceManager::status() const
 {
   QJsonObject obj;
   obj.insert("instance_id", instanceId());
   obj.insert("instance_name", QString::fromStdString(instanceName()));
+  obj.insert("start_time", QString::fromStdString(startTime_->toString()));
+  obj.insert("terrama2_version",  QString::fromStdString(terrama2Version()));
   //TODO: Define status message
   return obj;
 }

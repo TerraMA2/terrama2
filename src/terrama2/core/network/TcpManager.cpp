@@ -24,6 +24,7 @@
 #include "TcpManager.hpp"
 #include "TcpSignals.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/ServiceManager.hpp"
 #include "../data-model/DataManager.hpp"
 
 // Qt
@@ -191,8 +192,13 @@ void terrama2::core::TcpManager::readReadySlot()
       QByteArray bytearray;
       QDataStream out(&bytearray, QIODevice::WriteOnly);
 
+      auto jsonObj = ServiceManager::getInstance().status();
+      QJsonDocument doc(jsonObj);
+
       out << static_cast<uint32_t>(0);
       out << TcpSignals::STATUS_SIGNAL;
+      out << doc.toJson(QJsonDocument::Compact);
+      bytearray.remove(8, 4);//Remove QByteArray header
       out.device()->seek(0);
       out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 

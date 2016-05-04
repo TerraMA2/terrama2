@@ -31,6 +31,8 @@
 #include "Utils.hpp"
 #include "DataAccessorFactory.hpp"
 #include "SemanticsManager.hpp"
+
+#include "ServiceManager.hpp"
 #include "Logger.hpp"
 #include "../Exception.hpp"
 #include "../../Config.hpp"
@@ -181,6 +183,8 @@ void terrama2::core::initializeTerraMA()
   semanticsManager.addSemantics("STATIC_DATA-ogr", terrama2::core::DataSeriesSemantics::STATIC, "OGR");
   semanticsManager.addSemantics("DCP-inpe", terrama2::core::DataSeriesSemantics::STATIC, "CSV");
 
+  //Cronstruction of ServiceManager to get the start time
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
 }
 
 void terrama2::core::finalizeTerraMA()

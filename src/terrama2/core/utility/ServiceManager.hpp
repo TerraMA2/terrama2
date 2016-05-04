@@ -53,7 +53,7 @@ namespace terrama2
       virtual int listeningPort() const;
 
       virtual const std::string& terrama2Version() const;
-      virtual const te::dt::TimeInstantTZ& startTime() const;
+      virtual const std::shared_ptr< te::dt::TimeInstantTZ >& startTime() const;
       virtual const QJsonObject& status() const;
 
     protected:
@@ -72,8 +72,7 @@ namespace terrama2
       ServiceType serviceType_;
       int listeningPort_;
       const std::string terrama2Version_ = "TerraMA2-4-alpha2";
-      //PAULO: uncomment this
-      // te::dt::TimeInstantTZ startTime_;
+      std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
     };
   }
 }
