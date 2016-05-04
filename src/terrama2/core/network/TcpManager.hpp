@@ -85,8 +85,10 @@ namespace terrama2
         using QTcpServer::listen;
 
         uint32_t blockSize_; //!< Size of the message received.
-        //! Parse bytearray as a json and add to the DataManager.
-        void parseData(const QByteArray& bytearray);
+        //! Parse bytearray as a json and add contents to the DataManager.
+        void addData(const QByteArray& bytearray);
+        //! Parse bytearray as a json and remove contents from the DataManager.
+        void removeData(const QByteArray& bytearray);
 
         std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.

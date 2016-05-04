@@ -109,7 +109,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   {
     logger->start();
 
-    TERRAMA2_LOG_DEBUG() << "Starting collector";
+    TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
     //////////////////////////////////////////////////////////
     //  aquiring metadata
@@ -196,13 +196,13 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
 
     // VINICIUS: real connInfo
     std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
-                                                  {"PG_PORT", "5432"},
-                                                  {"PG_USER", "postgres"},
-                                                  {"PG_PASSWORD", "postgres"},
-                                                  {"PG_DB_NAME", "nodejs"},
-                                                  {"PG_CONNECT_TIMEOUT", "4"},
-                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                };
+      {"PG_PORT", "5432"},
+      {"PG_USER", "postgres"},
+      {"PG_PASSWORD", "postgres"},
+      {"PG_DB_NAME", "nodejs"},
+      {"PG_CONNECT_TIMEOUT", "4"},
+      {"PG_CLIENT_ENCODING", "UTF-8"}
+    };
 
     std::shared_ptr< CollectorLogger > collectorLog = std::make_shared<CollectorLogger>(collector->id, connInfo);
     loggers_.emplace(collector->id, collectorLog);

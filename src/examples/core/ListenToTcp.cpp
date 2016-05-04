@@ -38,7 +38,7 @@ class MockDataManager : public terrama2::core::DataManager
     MockDataManager& operator=(const MockDataManager& other) = default;
     MockDataManager& operator=(MockDataManager&& other) = default;
 
-    virtual void addFromJSON(const QJsonObject& obj) override
+    virtual void addJSon(const QJsonObject& obj) override
     {
       QJsonDocument doc(obj);
       std::cout << QString(doc.toJson(QJsonDocument::Compact)).toStdString() << std::endl;

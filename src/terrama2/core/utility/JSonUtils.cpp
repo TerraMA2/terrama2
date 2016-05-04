@@ -133,7 +133,6 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       QString errMsg = QObject::tr("Invalid JSON object.\n Unknown DataSet type.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-      break;
     }
   }
 
@@ -239,14 +238,14 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   }
 
   if(!(json.contains("id")
-      && json.contains("frequency")
-      && json.contains("frequency_unit")
-      && json.contains("schedule")
-      && json.contains("schedule_unit")
-      && json.contains("schedule_retry")
-      && json.contains("schedule_retry_unit")
-      && json.contains("schedule_timeout")
-      && json.contains("schedule_timeout_unit")))
+       && json.contains("frequency")
+       && json.contains("frequency_unit")
+       && json.contains("schedule")
+       && json.contains("schedule_unit")
+       && json.contains("schedule_retry")
+       && json.contains("schedule_retry_unit")
+       && json.contains("schedule_timeout")
+       && json.contains("schedule_timeout_unit")))
   {
     QString errMsg = QObject::tr("Invalid JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;

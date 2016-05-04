@@ -58,7 +58,7 @@ terrama2::core::TcpManager::~TcpManager()
 {
 }
 
-void terrama2::core::TcpManager::parseData(const QByteArray& bytearray)
+void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
 {
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
@@ -71,7 +71,27 @@ void terrama2::core::TcpManager::parseData(const QByteArray& bytearray)
     if(jsonDoc.isObject())
     {
       auto obj = jsonDoc.object();
-      dataManager->addFromJSON(obj);
+      dataManager->addJSon(obj);
+    }
+    else
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
+  }
+}
+
+void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
+{
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+  if(error.error != QJsonParseError::NoError)
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+  else
+  {
+    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+    if(jsonDoc.isObject())
+    {
+      auto obj = jsonDoc.object();
+      dataManager->removeJSon(obj);
     }
     else
       TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
@@ -132,7 +152,7 @@ void terrama2::core::TcpManager::readReadySlot()
 
   switch(signal)
   {
-  case TcpSignals::TERMINATE_SERVICE_SIGNAL:
+    case TcpSignals::TERMINATE_SERVICE_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";
 
@@ -144,7 +164,15 @@ void terrama2::core::TcpManager::readReadySlot()
       TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
       QByteArray bytearray = tcpSocket_->readAll();
 
-      parseData(bytearray);
+      addData(bytearray);
+      break;
+    }
+    case TcpSignals::REMOVE_DATA_SIGNAL:
+    {
+      TERRAMA2_LOG_DEBUG() << "REMOVE_DATA_SIGNAL";
+      QByteArray bytearray = tcpSocket_->readAll();
+
+      removeData(bytearray);
       break;
     }
     case TcpSignals::START_PROCESS_SIGNAL:
