@@ -86,7 +86,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
   {
     double timerSeconds = frequencySeconds(dataSchedule);
 
-    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::nowUTC();
 
     double secondsSinceLastProcess = 0;
 
@@ -147,7 +147,7 @@ double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
 
   if(uom->getName() == "WEEK")
   {
-    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::now();
+    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::nowUTC();
 
     boost::gregorian::greg_weekday gw(dataSchedule.scheduleDay);
     boost::gregorian::date d(boost::date_time::next_weekday(nowTZ->getTimeInstantTZ().date(), gw));
