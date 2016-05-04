@@ -51,7 +51,9 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
 {
   if(json["class"].toString() != "DataProvider")
   {
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   if(!(json.contains("id")
@@ -62,7 +64,11 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
        && json.contains("uri")
        && json.contains("active")
        && json.contains("data_provider_type")))
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  {
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
   terrama2::core::DataProvider* provider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr providerPtr(provider);
@@ -83,7 +89,9 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
 {
   if(json["class"].toString() != "DataSeries")
   {
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   if(!(json.contains("id")
@@ -91,7 +99,11 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
        && json.contains("semantics")
        && json.contains("name")
        && json.contains("description")))
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  {
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
@@ -116,9 +128,16 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
     case DataSeriesSemantics::GRID:
       createDataSet = fromDataSetGridJson;
       break;
-    default:
-      throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object.\n Unknown DataSet type."));
+    case DataSeriesSemantics::STATIC:
+      createDataSet = fromDataSetGridJson;
       break;
+    default:
+    {
+      QString errMsg = QObject::tr("Invalid JSON object.\n Unknown DataSet type.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+      break;
+    }
   }
 
   for(auto json : dataSetArray)
@@ -136,14 +155,20 @@ void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSe
 {
   if(json["class"].toString() != "DataSet")
   {
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   if(!(json.contains("id")
        && json.contains("data_series_id")
        && json.contains("active")
        && json.contains("format")))
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  {
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
   dataSet->id = json["id"].toInt();
   dataSet->dataSeriesId = json["data_series_id"].toInt();
@@ -165,7 +190,11 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
   addBaseDataSetData(json, dataSet);
 
   if(!json.contains("position"))
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  {
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
   std::string wkt = json["position"].toString().toStdString();
   auto geom = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(wkt.c_str()));
@@ -173,10 +202,23 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
 
   if(!point.get())
   {
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   dataSet->position = point;
+
+  return dataSetPtr;
+}
+
+
+terrama2::core::DataSetPtr terrama2::core::fromDataSetJson(QJsonObject json)
+{
+  terrama2::core::DataSet* dataSet = new terrama2::core::DataSet();
+  terrama2::core::DataSetPtr dataSetPtr(dataSet);
+
+  addBaseDataSetData(json, dataSet);
 
   return dataSetPtr;
 }
@@ -205,7 +247,9 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
 {
   if(json["class"].toString() != "Schedule")
   {
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   if(!(json.contains("id")
@@ -217,7 +261,11 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
       && json.contains("schedule_retry_unit")
       && json.contains("schedule_timeout")
       && json.contains("schedule_timeout_unit")))
-     throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  {
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
 
   terrama2::core::Schedule schedule;

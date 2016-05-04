@@ -41,11 +41,11 @@ namespace terrama2
     {
 
       /*!
-        \brief Return a TimeInstantTZ with the local timestamp
+        \brief Return a TimeInstantTZ with the current time in UTC.
 
-        \return A TimeInstantTZ with the local timestamp
+        \return A TimeInstantTZ  with the current time in UTC.
       */
-      std::shared_ptr< te::dt::TimeInstantTZ > now();
+      std::shared_ptr< te::dt::TimeInstantTZ > nowUTC();
 
       /*!
         \brief Add or subtrac a number of months from a TimeInstantTZ

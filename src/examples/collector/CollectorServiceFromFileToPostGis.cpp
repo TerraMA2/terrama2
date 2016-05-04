@@ -43,13 +43,7 @@
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/collector/core/Collector.hpp>
 
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
-#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
-#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-#include <terrama2/impl/DataStoragerPostGis.hpp>
+#include <terrama2/impl/Utils.hpp>
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
 
@@ -86,7 +80,7 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.name = "OCCURRENCE-mvf";
+  dataSeries->semantics.name = "OCCURRENCE-wfp";
   dataSeries->dataProviderId = dataProviderPtr->id;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -150,14 +144,7 @@ int main(int argc, char* argv[])
   {
     terrama2::core::initializeTerraMA();
 
-    terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
-
-    terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
+    terrama2::core::registerFactories();
 
     QCoreApplication app(argc, argv);
 

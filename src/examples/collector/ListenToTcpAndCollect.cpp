@@ -2,6 +2,7 @@
 
 // TerraMA2
 
+#include <terrama2/Exception.hpp>
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -10,25 +11,15 @@
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
-
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/DataAccessorFactory.hpp>
-#include <terrama2/core/utility/DataStoragerFactory.hpp>
-#include <terrama2/core/utility/DataRetrieverFactory.hpp>
+#include <terrama2/impl/Utils.hpp>
 
 #include <terrama2/services/collector/core/Collector.hpp>
 #include <terrama2/services/collector/core/JSonUtils.hpp>
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
 
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorOccurrenceMvf.hpp>
-#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
-#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-#include <terrama2/impl/DataStoragerPostGis.hpp>
-
+#include <terrama2/impl/Utils.hpp>
 #include <terrama2_config.hpp>
 
 //STL
@@ -45,6 +36,9 @@
 #include <QJsonDocument>
 #include <QTcpSocket>
 #include <QDataStream>
+
+// Boost
+#include <boost/exception/get_error_info.hpp>
 
 terrama2::core::DataProviderPtr buildInputProvider()
 {
@@ -71,7 +65,7 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.name = "OCCURRENCE-mvf";
+  dataSeries->semantics.name = "OCCURRENCE-wfp";
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -153,22 +147,12 @@ int main(int argc, char* argv[])
 {
   try
   {
+
     terrama2::core::initializeTerraMA();
 
-    terrama2::core::DataAccessorFactory::getInstance().add("DCP-inpe", terrama2::core::DataAccessorDcpInpe::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("DCP-postgis", terrama2::core::DataAccessorDcpPostGIS::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("GRID-geotiff", terrama2::core::DataAccessorGeoTiff::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-mvf", terrama2::core::DataAccessorOccurrenceMvf::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
-    terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
-
-    terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
+    terrama2::core::registerFactories();
 
     QCoreApplication app(argc, argv);
-
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
-    semanticsManager.addSemantics("OCCURRENCE-mvf", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
 
     QJsonObject obj;
 
@@ -215,14 +199,22 @@ int main(int argc, char* argv[])
     app.exec();
 
     service.stop();
-
-    terrama2::core::finalizeTerraMA();
+  }
+  catch(boost::exception& e)
+  {
+    std::cout << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+  }
+  catch(std::exception& e)
+  {
+    std::cout << e.what() << std::endl;
   }
   catch(...)
   {
     // TODO: o que fazer com uncaught exception
     std::cout << "\n\nException...\n" << std::endl;
   }
+
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }
