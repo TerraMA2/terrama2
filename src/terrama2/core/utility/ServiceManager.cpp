@@ -44,12 +44,12 @@ const std::string& terrama2::core::ServiceManager::instanceName() const
   return instanceName_;
 }
 
-void terrama2::core::ServiceManager::setInstanceId(int instanceId)
+void terrama2::core::ServiceManager::setInstanceId(ServiceInstanceId instanceId)
 {
   instanceId_ = instanceId;
   serviceLoaded_ = true;
 }
-int terrama2::core::ServiceManager::instanceId() const
+ServiceInstanceId terrama2::core::ServiceManager::instanceId() const
 {
   return instanceId_;
 }
@@ -84,7 +84,7 @@ const std::shared_ptr< te::dt::TimeInstantTZ >& terrama2::core::ServiceManager::
 QJsonObject terrama2::core::ServiceManager::status() const
 {
   QJsonObject obj;
-  obj.insert("instance_id", instanceId());
+  obj.insert("instance_id", static_cast<int>(instanceId()));
   obj.insert("instance_name", QString::fromStdString(instanceName()));
   obj.insert("start_time", QString::fromStdString(startTime_->toString()));
   obj.insert("terrama2_version",  QString::fromStdString(terrama2Version()));
