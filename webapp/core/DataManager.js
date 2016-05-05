@@ -1283,6 +1283,15 @@ var DataManager = {
         })
       };
 
+      var rollbackPromise = function(promises, exception) {
+        Promise.all(promises).then(function() {
+          console.log("Rollback all promises");
+          return reject(exception);
+        }).catch(function(err) {
+          reject(err);
+        })
+      }
+
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
@@ -1323,14 +1332,17 @@ var DataManager = {
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
-              rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+              console.log("rollback schedule")
+              rollbackPromise([self.removeSchedule(scheduleResult), self.removeDataSerie(dataSeriesResult)], err);
             });
           }).catch(function(err) {
             // rollback dataseries
-            rollbackModels([models.db.DataSeries, models.db.DataSeries], [dataSeriesResultOutput, dataSeriesResult], err);
+            console.log("rollback dataseries in out");
+            rollbackPromise([self.removeDataSerie(dataSeriesResultOutput), self.removeDataSerie(dataSeriesResult)], err);
           });
         }).catch(function(err) {
-          rollbackModels([models.db.DataSeries], [dataSeriesResult], err);
+          console.log("rollback dataseries");
+          rollbackPromise([self.removeDataSerie(dataSeriesResult)], err);
         })
       }).catch(function(err) {
         reject(err);
@@ -1347,6 +1359,18 @@ var DataManager = {
       }).catch(function(err) {
         // todo: improve error message
         reject(new exceptions.ScheduleError("Could not save schedule. ", err));
+      });
+    });
+  },
+
+  removeSchedule: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Schedule.destroy({where: {id: restriction.id}}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
       });
     });
   },

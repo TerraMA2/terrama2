@@ -35,11 +35,13 @@ angular.module('terrama2.dataseries.registration', [
       .state('wizard', {
         parent: 'main',
         url: "/wizard",
-        templateUrl: '/javascripts/angular/wizard.html'
+        templateUrl: '/javascripts/angular/wizard.html',
+        controller: 'RegisterDataSeries'
       }).state('advanced', {
         parent: 'main',
         url: "/advanced",
-        templateUrl: '/javascripts/angular/advanced.html'
+        templateUrl: '/javascripts/angular/advanced.html',
+        controller: 'RegisterDataSeries'
       }
     );
   }])
@@ -155,7 +157,7 @@ angular.module('terrama2.dataseries.registration', [
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
       // todo: fix it. It is hard code
-      // $scope.tableFieldsStorager = ["table_name", "inputDataSet"];
+      $scope.tableFieldsStorager = [];
 
       DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
         var metadata = data.metadata;
