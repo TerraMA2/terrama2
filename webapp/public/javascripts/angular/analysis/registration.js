@@ -1,4 +1,35 @@
-angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
+angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox', 'schemaForm'])
+
+  .controller('StoragerController', ['$scope', 'DataSeriesSemanticsFactory', function($scope, DataSeriesSemanticsFactory) {
+
+    $scope.formStorager = [];
+    $scope.modelStorager = {};
+    $scope.schemaStorager = {};
+
+    $scope.$on('storagerFormatChange', function(event, args) {
+      $scope.formatSelected = args.format;
+      // todo: fix it. It is hard code
+      // $scope.tableFieldsStorager = ["table_name", "inputDataSet"];
+
+      DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
+        var metadata = data.metadata;
+        var properties = metadata.schema.properties;
+
+        $scope.modelStorager = {};
+        $scope.formStorager = metadata.form;
+        $scope.schemaStorager = {
+          type: 'object',
+          properties: metadata.schema.properties,
+          required: metadata.schema.required
+        };
+
+        $scope.$broadcast('schemaFormRedraw');
+      }).error(function(err) {
+
+      });
+    });
+  }])
+
   .controller('AnalysisRegistration',
     [
       '$scope',
@@ -6,7 +37,8 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
       'DataSeriesFactory',
       'DataSeriesSemanticsFactory',
       'AnalysisFactory',
-  function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory) {
+      'DataProviderFactory',
+  function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
     // initializing objects
     $scope.analysis = {};
     $scope.instances = [];
@@ -14,6 +46,7 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     $scope.selectedDataSeries = null;
     $scope.metadata = {};
     $scope.semantics = {};
+    $scope.storagerFormats = [];
 
     // terrama2 alert box
     $scope.alertBox = {};
@@ -23,6 +56,28 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
       $scope.display = false;
     };
 
+    DataSeriesSemanticsFactory.list().success(function(semanticsList) {
+      $scope.dataSeriesSemantics = semanticsList;
+
+      $scope.dataSeriesSemantics.forEach(function(dSemantics) {
+        if(dSemantics.data_series_type_name === "ANALYSIS") {
+          $scope.storagerFormats.push(Object.assign({}, dSemantics));
+        }
+      });
+    }).error(function(err) {
+      console.log(err);
+    });
+
+    DataProviderFactory.get().success(function(dataProviders) {
+      $scope.dataProviders = dataProviders;
+    }).error(function(err) {
+      console.log(err);
+    });
+
+    $scope.onStoragerFormatChange = function() {
+      $scope.showStoragerForm = true;
+      $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format});
+    };
 
     // temp code for debugging
     var errorHelper = function(err) {

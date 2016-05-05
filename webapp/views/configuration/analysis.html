@@ -16,16 +16,39 @@
 {% endblock %}
 
 {% block javascripts %}
-<script type="text/javascript" src="/externals/moment/moment.js"></script>
+
+<!-- Angular -->
 <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
-<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
+
+<!-- Angular Schema Form dependencies -->
+<script type="text/javascript" src="/externals/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="/externals/tv4/tv4.min.js"></script>
+<script type="text/javascript" src="/externals/objectpath/ObjectPath.js"></script>
+<script type="text/javascript" src="/externals/angular-schema-form/schema-form.js"></script>
+<script type="text/javascript" src="/externals/bootstrap/js/bootstrap-decorator.min.js"></script>
+
+<!-- terrama2 Angular app -->
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
-<script type="text/javascript" src="/javascripts/angular/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<script type="text/javascript" src="/javascripts/terrama2.js"></script>
+
+<!-- Angular i18n -->
+<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
+
+<!-- Ace editor -->
 <script type="text/javascript" src="/externals/ace-editor/ace.js"></script>
 <script type="text/javascript" src="/externals/ace-editor/ext-language_tools.js"></script>
+
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+<!-- terrama2 Script -->
+<script type="text/javascript" src="/javascripts/terrama2.js"></script>
+
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
+
+<script type="text/javascript" src="/externals/moment/moment.js"></script>
+
 <script type="text/javascript">
   ace.require("ace/ext/language_tools");
 
@@ -48,7 +71,7 @@
     $(textarea).trigger('input');
   });
 </script>
-<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -152,6 +175,53 @@
             <!-- /.row -->
           </div>
           <!-- /.box body -->
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="box box-default box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title">{[ __('Storager') ]}</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+            </div>
+          </div>
+          <!-- /.box-header -->
+          <div style="display: block;" class="box-body">
+            <div class="row">
+
+              <form name="storagerDataForm">
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>{[ __('Output Format') ]}:</label>
+                      <select id="storageFormat" class="form-control" name="format" ng-change="onStoragerFormatChange()" ng-model="storager.format" ng-options="format.name for format in storagerFormats">
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group" ng-class="{'has-error': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required,
+                                  'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
+                    <label>{[ __('Provider Output') ]}:</label>
+                    <select class="form-control" name="storager_data_provider_id" ng-model="storager_data_provider_id" ng-options="provider.id as provider.name for provider in dataProviders" ng-required="storager.format.name">
+                      <option></option>
+                    </select>
+                    <label class="help-block text-danger" ng-show="storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required">
+                      {[ __("Data provider is required") ]}
+                    </label>
+                  </div>
+                </div>
+              </form>
+              <div class="col-md-12 terrama2-nopadding-box" ng-controller="StoragerController">
+                <!-- schema form -->
+                <div class="col-md-12" ng-show="showStoragerForm">
+                  <form name="storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -279,10 +349,9 @@
 
                     <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
                     <label>{[ __('Analysis Model') ]}:</label>
-                    <div id="scriptCheckResult" style="margin: 25px 0 40px 0;
-                                                       font-size: 20px;
-                                                       font-weight: 600;"></div>
-                    <div id="script" style="height: 400px;"></div>
+                    <div id="scriptCheckResult"></div>
+                    <div id="systemError" style="display: none;"></div>
+                    <div id="script"></div>
                     <textarea name="script" ng-model="analysis.script" required></textarea>
 
                     <!-- required -->

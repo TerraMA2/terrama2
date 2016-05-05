@@ -34,7 +34,9 @@ var ScriptChecker = function() {
 
     memberFs.writeFileSync(pythonFilePath, script);
 
+    var hasError = false;
     var pythonCheckCommandResult = '';
+    var pythonCheckCommandError = '';
 
     try {
       pythonCheckCommandResult = memberExecSync(pythonCheckCommand, { encoding: 'utf8' });
@@ -42,8 +44,9 @@ var ScriptChecker = function() {
       if(e.stderr === '') {
         pythonCheckCommandResult = e.stdout;
       } else {
+        hasError = true;
         pythonCheckCommandResult = '';
-        console.log(e.stderr);
+        pythonCheckCommandError = e.stderr;
       }
     }
 
@@ -53,21 +56,29 @@ var ScriptChecker = function() {
     var textLinesLength = textLines.length;
 
     var messages = '';
-    var hasError = false;
+    var hasPythonError = false;
 
-    if(textLinesLength > 0) {
+    if(!hasError && pythonCheckCommandResult !== '' && textLinesLength > 0) {
       for(var i = 0; i < textLinesLength; i++) {
         if(i > 0 && textLines[i] !== '') {
-          messages += textLines[i] + '<br/>';
+          messages += textLines[i] + '\n';
 
           if(textLines[i].substring(0, 1) === 'E')
-            hasError = true;
+            hasPythonError = true;
         }
+      }
+    } else {
+      if(hasError) {
+        messages += 'Attention! Occurred a system error, contact the administrator.\n\nError:';
+      } else {
+        messages += 'No errors found.';
       }
     }
 
     var returnObject = {
       hasError: hasError,
+      systemError: pythonCheckCommandError.replace(/\r\n/, '\n'),
+      hasPythonError: hasPythonError,
       messages: messages
     };
 
