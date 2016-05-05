@@ -30,6 +30,7 @@
 // TerraMA2
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/Logger.hpp>
@@ -42,6 +43,9 @@
 #include <QCoreApplication>
 #include <QTimer>
 
+//Python
+#include <Python.h>
+
 int main(int argc, char* argv[])
 {
   try
@@ -50,12 +54,20 @@ int main(int argc, char* argv[])
 
     terrama2::core::registerFactories();
 
+    Py_Initialize();
+    PyEval_InitThreads();
+    PyEval_ReleaseLock();
+    terrama2::services::analysis::core::initInterpreter();
+
     QCoreApplication app(argc, argv);
     terrama2::core::TcpManager tcpManager;
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
     tcpManager.listen(dataManager, QHostAddress::Any, 30001);
 
+
+
     terrama2::services::analysis::core::Service service(dataManager);
+
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::analysis::core::Service::addToQueue);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::analysis::core::Service::stop);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);

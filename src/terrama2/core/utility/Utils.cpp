@@ -179,7 +179,10 @@ void terrama2::core::initializeTerraMA()
   semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
   semanticsManager.addSemantics("OCCURRENCE-wfp", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
   semanticsManager.addSemantics("STATIC_DATA-ogr", terrama2::core::DataSeriesSemantics::STATIC, "OGR");
-  semanticsManager.addSemantics("DCP-inpe", terrama2::core::DataSeriesSemantics::STATIC, "CSV");
+  semanticsManager.addSemantics("DCP-inpe", terrama2::core::DataSeriesSemantics::DCP, "CSV");
+  semanticsManager.addSemantics("DCP-toa5", terrama2::core::DataSeriesSemantics::DCP, "CSV");
+  semanticsManager.addSemantics("DCP-postgis", terrama2::core::DataSeriesSemantics::DCP, "POSTGIS");
+  semanticsManager.addSemantics("ANALYSIS_MONITORED_OBJECT-postgis", terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT, "POSTGIS");
 
 }
 

@@ -43,6 +43,7 @@ include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${Boost_INCLUDE_DIR}
+  ${PYTHON_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -54,8 +55,10 @@ add_executable(terrama2_analysis_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FI
 qt5_use_modules(terrama2_analysis_service Core)
 
 target_link_libraries(terrama2_analysis_service terrama2_core
-                                                 terrama2_analysis_core
-                                                 terrama2_impl)
+                                                terrama2_analysis_core
+                                                terrama2_impl
+                                                ${PYTHON_LIBRARIES}
+                                                ${Boost_PYTHON_LIBRARY})
 
 set_target_properties(terrama2_analysis_service
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

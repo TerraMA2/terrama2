@@ -1,19 +1,17 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/DataAccessorFactory.hpp>
-#include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
+#include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/DataManager.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -35,8 +33,6 @@ int main(int argc, char* argv[])
 
 
   DataManagerPtr dataManager(new DataManager());
-
-  Context::getInstance().setDataManager(dataManager);
 
   std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_sum\",x)\n"

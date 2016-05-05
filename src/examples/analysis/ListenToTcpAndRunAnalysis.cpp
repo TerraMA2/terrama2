@@ -39,6 +39,9 @@
 #include <QDataStream>
 #include <QtTest/QTest>
 
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <Python.h>
+
 // Boost
 #include <boost/exception/get_error_info.hpp>
 
@@ -52,6 +55,9 @@ int main(int argc, char* argv[])
     terrama2::core::initializeTerraMA();
 
     terrama2::core::registerFactories();
+
+
+    terrama2::services::analysis::core::initInterpreter();
 
     QCoreApplication app(argc, argv);
 
@@ -79,7 +85,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics.name = "STATIC_DATA-postgis";
+    outputDataSeries->semantics.name = "ANALYSIS_MONITORED_OBJECT-postgis";
     outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -93,15 +99,7 @@ int main(int argc, char* argv[])
 
 
     std::string script = "x = dcp.min(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"min\", x)\n"
-                         "x = dcp.max(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"max\", x)\n"
-                         "x = dcp.mean(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"mean\", x)\n"
-                         "x = dcp.median(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"median\", x)\n"
-                         "x = dcp.standardDeviation(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"standardDeviation\", x)\n";
+                         "add_value(\"min\", x)\n";
 
     Analysis analysis;
     analysis.id = 1;
@@ -214,7 +212,8 @@ int main(int argc, char* argv[])
 
     QJsonArray seriesArray;
     seriesArray.push_back(terrama2::core::toJson(dataSeriesPtr));
-    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));
+    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));;
+    seriesArray.push_back(terrama2::core::toJson(outputDataSeriesPtr));
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray analysisArray;
@@ -254,6 +253,11 @@ int main(int argc, char* argv[])
     app.exec();
 
     service.stop();
+  }
+  catch(terrama2::Exception& e)
+  {
+    QString errMsg(e.what());
+    TERRAMA2_LOG_ERROR() << errMsg;
   }
   catch(boost::exception& e)
   {

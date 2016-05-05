@@ -129,7 +129,10 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       createDataSet = fromDataSetGridJson;
       break;
     case DataSeriesSemantics::STATIC:
-      createDataSet = fromDataSetGridJson;
+      createDataSet = fromDataSetJson;
+      break;
+    case DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT:
+      createDataSet = fromDataSetJson;
       break;
     default:
     {
