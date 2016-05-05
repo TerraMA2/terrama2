@@ -80,10 +80,12 @@ int main(int argc, char* argv[])
     QObject::connect(&serviceManager, &terrama2::core::ServiceManager::listeningPortUpdated, &tcpManager, &terrama2::core::TcpManager::updateListeningPort);
 
     terrama2::services::collector::core::Service service(dataManager);
+
+    QObject::connect(&serviceManager, &terrama2::core::ServiceManager::numberOfThreadsUpdated, &service, &terrama2::services::collector::core::Service::updateNumberOfThreads);
+
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::collector::core::Service::addToQueue);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::collector::core::Service::stop);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);
-    service.start();
 
     app.exec();
 

@@ -70,6 +70,11 @@ bool terrama2::services::analysis::core::Service::checkNextData()
   return !analysisQueue_.empty();
 }
 
+void terrama2::services::analysis::core::Service::updateNumberOfThreads(int numberOfThreads)
+{
+  stop();
+  start(numberOfThreads);
+}
 
 void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
 {

@@ -73,6 +73,16 @@ int terrama2::core::ServiceManager::listeningPort() const
   return listeningPort_;
 }
 
+void terrama2::core::ServiceManager::setNumberOfThreads(int numberOfThreads)
+{
+  numberOfThreads_ = numberOfThreads;
+  numberOfThreadsUpdated(numberOfThreads_);
+}
+int terrama2::core::ServiceManager::numberOfThreads() const
+{
+  return numberOfThreads_;
+}
+
 const std::string& terrama2::core::ServiceManager::terrama2Version() const
 {
   return terrama2Version_;
@@ -97,4 +107,5 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   setInstanceId(obj["instance_id"].toInt());
   setInstanceName(obj["instance_name"].toString().toStdString());
   setListeningPort(obj["listening_port"].toInt());
+  setNumberOfThreads(obj["number_of_threads"].toInt());
 }

@@ -79,6 +79,9 @@ namespace terrama2
         //! Return the port beeing listened for remote signals.
         virtual int listeningPort() const;
 
+        void setNumberOfThreads(int numberOfThreads);
+        virtual int numberOfThreads() const;
+
         //! Return the TerraMA2 version of the runnning instance.
         virtual const std::string& terrama2Version() const;
         //! Return the Date/Time when the service was started.
@@ -94,6 +97,7 @@ namespace terrama2
             - instance_id
             - instance_name
             - listening_port
+            - number_of_threads
         */
         void updateService(const QJsonObject& obj);
         /*!
@@ -107,6 +111,7 @@ namespace terrama2
       signals:
         //! Signal emited when the listening is changed
         void listeningPortUpdated(int);
+        void numberOfThreadsUpdated(int);
 
       protected:
         friend class te::common::Singleton<ServiceManager>;
@@ -124,6 +129,7 @@ namespace terrama2
         ServiceInstanceId instanceId_ = 0;
         std::string serviceType_;
         int listeningPort_;
+        int numberOfThreads_;
         const std::string terrama2Version_ = "TerraMA2-4-alpha2";//FIXME: use the global version
         std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
         bool serviceLoaded_ = false;

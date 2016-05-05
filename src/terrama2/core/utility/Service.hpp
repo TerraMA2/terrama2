@@ -77,6 +77,8 @@ namespace terrama2
        */
       void stop() noexcept;
 
+      virtual void updateNumberOfThreads(int) = 0;
+
     protected:
       /*!
          \brief Returns true if the main loop should continue.
