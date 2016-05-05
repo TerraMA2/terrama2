@@ -70,6 +70,9 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
   m.replace("mm", "(?<MINUTES>[0-5][0-9])");
   m.replace("ss", "(?<SECONDS>[0-5][0-9])");
 
+  // add a extension validation in case of the name has it
+  m += "(?<EXTENSIONS>\\..+)?";
+
   boost::regex expression(m.toStdString());
   boost::match_results< std::string::const_iterator > match;
 
