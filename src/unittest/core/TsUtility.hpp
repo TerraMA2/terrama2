@@ -60,4 +60,5 @@ private slots:
   void testValidDataSetName();
   void testValidDataSetName2DigitsYear();
   void testValidDataSetName2DigitsYear1900();
+  void testIgnoreArchiveExtension();
 };

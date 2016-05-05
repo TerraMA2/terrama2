@@ -10,9 +10,10 @@
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
 
 <script>
-    angular.module('terrama2.administration.users', ['terrama2.table'])
+    angular.module('terrama2.administration.users', ['terrama2.table', 'terrama2.components.messagebox'])
         .controller('ListController', ['$scope', function($scope) {
             $scope.link = function(object) {
                 return "/administration/users/edit/" + object.id;
@@ -48,6 +49,31 @@
             $scope.iconFn = null;
 
             $scope.linkToAdd = "/administration/users/new";
+
+            // alert-box
+            $scope.alertLevel = "alert-success";
+            $scope.alertBox = {
+              title: "Users",
+              message: "{[ message ]}"
+            };
+            $scope.resetState = function() { $scope.display = false; };
+
+            // callback after remove operation
+            $scope.extra = {
+              removeOperationCallback: function(err, data) {
+                $scope.display = true;
+                if (err) {
+                  $scope.alertLevel = "alert-danger";
+                  $scope.alertBox.message = err.message;
+                  return;
+                }
+
+                $scope.alertLevel = "alert-success";
+                $scope.alertBox.message = data.name + " removed";
+              }
+            };
+
+            $scope.display = {% if message %}true{% else %} false{% endif %};
         }]);
 
 </script>
@@ -64,7 +90,11 @@
         <div class="box-body">
 
             <div class="col-md-12">
-                <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd" remove="remove(object);"></terrama2-table>
+              <div class="col-md-12">
+                <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+              </div>
+
+              <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd" remove="remove(object);" extra="extra"></terrama2-table>
             </div>
 
         </div><!-- /.box-body -->

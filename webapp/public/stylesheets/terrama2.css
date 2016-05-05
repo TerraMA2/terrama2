@@ -108,3 +108,25 @@
 .terrama2-font-green {
     color: #5cb85c !important;
 }
+
+#scriptCheckResult {
+  margin: 25px 0 30px 0;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: pre;
+}
+
+#systemError {
+  margin: 0 0 40px 0;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: pre;
+  color: red;
+  background: #EAE9E9;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+#script {
+  height: 400px;
+}

@@ -34,7 +34,7 @@
         }).success(function(project) {
           console.log(project);
           $scope.errorFound = "";
-          $window.location.href = "/configuration/projects";
+          $window.location.href = "/configuration/projects?token=" + project.token;
         }).error(function(err) {
           $scope.errorFound = err.message;
           console.log(err);

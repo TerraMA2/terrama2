@@ -10,6 +10,7 @@
 
 <script type="text/javascript">
   var configuration = {
+    message: "{[ message ]}",
     dataSeriesType: 'static',
     link: function(object) {
       return "/configuration/dataset?type=static#wizard";
@@ -38,6 +39,7 @@
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/data-series/data-series.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 {% endblock %}
 
@@ -52,7 +54,11 @@
     <div class="box-body">
 
       <div class="col-md-12">
-        <terrama2-table fields="fields" model="model" icon="iconFn" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" remove="remove(object)"></terrama2-table>
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        </div>
+
+        <terrama2-table fields="fields" model="model" icon="iconFn" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" remove="remove(object)" extra="extra"></terrama2-table>
       </div>
 
     </div><!-- /.box-body -->

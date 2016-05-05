@@ -82,7 +82,7 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 
   if(analysis.active)
   {
-    // VINICIUS: real connInfo
+    // FIXME: real connInfo
     std::map<std::string, std::string> connInfoFAKE;
     std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfoFAKE));
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);

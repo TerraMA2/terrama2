@@ -201,7 +201,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    // VINICIUS: real connInfo
+    // FIXME: real connInfo
     std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
       {"PG_PORT", "5432"},
       {"PG_USER", "postgres"},

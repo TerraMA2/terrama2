@@ -132,11 +132,13 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS, description: "Data Series Analysis type"}));
 
         // data formats semantics defaults todo: check it
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
 
         // analysis data series type
         inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
@@ -146,6 +148,7 @@ var DataManager = {
         inserts.push(self.addDataSeriesSemantics({name: "DCP-postgis", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-wfp", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-postgis", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "ANALYSIS-postgis", data_format_name: "POSTGIS", data_series_type_name: DataSeriesType.ANALYSIS}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -162,7 +165,7 @@ var DataManager = {
       });
     });
   },
-  
+
   unload: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -180,7 +183,7 @@ var DataManager = {
       });
     });
   },
-  
+
   finalize: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -390,7 +393,7 @@ var DataManager = {
           resolve();
         }).catch(function(err) {
           console.log("Remove Project: ", err);
-          reject(new exceptions.ProjectError("Could not remove project: " + err.message));
+          reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
         })
       }).catch(function(err) {
         reject(err);
@@ -446,7 +449,7 @@ var DataManager = {
       });
     });
   },
-  
+
   getServiceInstance : function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject){
@@ -456,7 +459,7 @@ var DataManager = {
 
         if (result.length > 1)
           return reject(new Error("More than one service instance retrieved"));
-        
+
         resolve(result[0]);
       }).catch(function(err) {
         reject(err);
@@ -717,11 +720,15 @@ var DataManager = {
    * name identifier.
    *
    * @param {Object} dataProviderParam - An object containing DataProvider identifier to get it.
+   * @param {bool} cascade - A bool value to delete on cascade
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  removeDataProvider: function(dataProviderParam) {
+  removeDataProvider: function(dataProviderParam, cascade) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      if (!cascade)
+        cascade = false;
+
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
         if (provider.id == dataProviderParam.id || provider.name == dataProviderParam.name) {
@@ -729,7 +736,8 @@ var DataManager = {
             self.data.dataProviders.splice(index, 1);
             resolve();
           }).catch(function(err) {
-            reject(new exceptions.DataProviderError("Could not remove DataProvider ", err));
+            console.log(err);
+            reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
           });
           return;
         }
@@ -791,7 +799,7 @@ var DataManager = {
               return false;
             })
           });
-          
+
           // collect output and processing
           return resolve(copyDataSeries);
         }).catch(function(err) {
@@ -871,13 +879,13 @@ var DataManager = {
             Promise.all(dataSets).then(function(dataSets){
               self.data.dataSeries.push(new DataSeries(output));
               // temp code: getting wkt
-              
+
               var promises = [];
-              
+
               dataSets.forEach(function(dSet) {
                 promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
               });
-              
+
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
@@ -972,7 +980,8 @@ var DataManager = {
             self.data.dataSeries.splice(index, 1);
             resolve(status);
           }).catch(function (err) {
-            reject(new exceptions.DataSeriesError("Could not remove DataSeries: ", err));
+            console.log(err);
+            reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
           });
           return;
         }
@@ -1277,12 +1286,21 @@ var DataManager = {
         })
       };
 
+      var rollbackPromise = function(promises, exception) {
+        Promise.all(promises).then(function() {
+          console.log("Rollback all promises");
+          return reject(exception);
+        }).catch(function(err) {
+          reject(err);
+        })
+      }
+
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
             var schedule = new Schedule(scheduleResult);
             var collectorObject = {};
-  
+
             // todo: get service_instance id and collector status (active)
             collectorObject.data_series_input = dataSeriesResult.id;
             collectorObject.data_series_output = dataSeriesResultOutput.id;
@@ -1291,7 +1309,7 @@ var DataManager = {
             collectorObject.active = true;
             collectorObject.collector_type = 1;
             collectorObject.schedule_id = scheduleResult.id;
-  
+
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
               var collector = new Collector(collectorResult);
               var input_output_map = [];
@@ -1317,18 +1335,21 @@ var DataManager = {
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
-              rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+              console.log("rollback schedule")
+              rollbackPromise([self.removeSchedule(scheduleResult), self.removeDataSerie(dataSeriesResult)], err);
             });
           }).catch(function(err) {
             // rollback dataseries
-            rollbackModels([models.db.DataSeries, models.db.DataSeries], [dataSeriesResultOutput, dataSeriesResult], err);
+            console.log("rollback dataseries in out");
+            rollbackPromise([self.removeDataSerie(dataSeriesResultOutput), self.removeDataSerie(dataSeriesResult)], err);
           });
         }).catch(function(err) {
-          rollbackModels([models.db.DataSeries], [dataSeriesResult], err);
+          console.log("rollback dataseries");
+          rollbackPromise([self.removeDataSerie(dataSeriesResult)], err);
         })
       }).catch(function(err) {
         reject(err);
-      })  
+      })
     });
   },
 
@@ -1341,6 +1362,18 @@ var DataManager = {
       }).catch(function(err) {
         // todo: improve error message
         reject(new exceptions.ScheduleError("Could not save schedule. ", err));
+      });
+    });
+  },
+
+  removeSchedule: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Schedule.destroy({where: {id: restriction.id}}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
       });
     });
   },
