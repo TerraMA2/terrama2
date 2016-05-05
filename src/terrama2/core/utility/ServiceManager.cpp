@@ -81,7 +81,7 @@ const std::shared_ptr< te::dt::TimeInstantTZ >& terrama2::core::ServiceManager::
 {
   return startTime_;
 }
-const QJsonObject& terrama2::core::ServiceManager::status() const
+QJsonObject terrama2::core::ServiceManager::status() const
 {
   QJsonObject obj;
   obj.insert("instance_id", instanceId());

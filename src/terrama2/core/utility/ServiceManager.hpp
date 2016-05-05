@@ -60,7 +60,7 @@ namespace terrama2
         virtual const std::shared_ptr< te::dt::TimeInstantTZ >& startTime() const;
 
         void updateService(const QJsonObject& obj);
-        virtual const QJsonObject& status() const;
+        virtual QJsonObject status() const;
 
       signals:
         void listeningPortUpdated(int);
