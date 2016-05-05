@@ -74,5 +74,11 @@ module.exports = {
   Format: {
     GEOJSON: 'GeoJSON',
     WKT: 'wkt'
+  },
+
+  TokenCode: {
+    SAVE: 1,
+    UPDATE: 2,
+    DELETE: 3
   }
 };

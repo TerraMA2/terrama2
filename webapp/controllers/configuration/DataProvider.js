@@ -1,5 +1,6 @@
 var DataManager = require("../../core/DataManager");
 var Utils = require('../../helpers/Utils');
+var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var UriBuilder = require('../../core/UriBuilder');
 var RequestFactory = require("../../core/RequestFactory");
 
@@ -10,11 +11,9 @@ module.exports = function(app) {
       var dataProviderId = request.query.id,
           method = request.query.method;
 
-      DataManager.getDataProvider({id: dataProviderId}).then(function(dataProvider) {
-        return response.render("configuration/providers", {dataProvider: dataProvider.name, method: method});
-      }).catch(function(err) {
-        return response.render("configuration/providers");
-      });
+      var parameters = makeTokenParameters(request.query.token, app);
+
+      return response.render("configuration/providers", parameters);
     },
 
     new: function(request, response) {

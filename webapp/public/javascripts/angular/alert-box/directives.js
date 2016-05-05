@@ -39,7 +39,7 @@ angular.module("terrama2.components.messagebox", [])
         });
 
         $scope.isAnyExtra = function() {
-          return Object.keys($scope.extra).length > 0;
+          return Object.keys($scope.extra || {}).length > 0;
         }
 
         $scope.alertIcon = function() {

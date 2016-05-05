@@ -393,7 +393,7 @@ var DataManager = {
           resolve();
         }).catch(function(err) {
           console.log("Remove Project: ", err);
-          reject(new exceptions.ProjectError("Could not remove project: " + err.message));
+          reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
         })
       }).catch(function(err) {
         reject(err);
@@ -720,11 +720,15 @@ var DataManager = {
    * name identifier.
    *
    * @param {Object} dataProviderParam - An object containing DataProvider identifier to get it.
+   * @param {bool} cascade - A bool value to delete on cascade
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  removeDataProvider: function(dataProviderParam) {
+  removeDataProvider: function(dataProviderParam, cascade) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      if (!cascade)
+        cascade = false;
+
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
         if (provider.id == dataProviderParam.id || provider.name == dataProviderParam.name) {
@@ -732,7 +736,8 @@ var DataManager = {
             self.data.dataProviders.splice(index, 1);
             resolve();
           }).catch(function(err) {
-            reject(new exceptions.DataProviderError("Could not remove DataProvider ", err));
+            console.log(err);
+            reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
           });
           return;
         }
@@ -975,7 +980,8 @@ var DataManager = {
             self.data.dataSeries.splice(index, 1);
             resolve(status);
           }).catch(function (err) {
-            reject(new exceptions.DataSeriesError("Could not remove DataSeries: ", err));
+            console.log(err);
+            reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
           });
           return;
         }
@@ -1280,6 +1286,15 @@ var DataManager = {
         })
       };
 
+      var rollbackPromise = function(promises, exception) {
+        Promise.all(promises).then(function() {
+          console.log("Rollback all promises");
+          return reject(exception);
+        }).catch(function(err) {
+          reject(err);
+        })
+      }
+
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
@@ -1320,14 +1335,17 @@ var DataManager = {
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
-              rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+              console.log("rollback schedule")
+              rollbackPromise([self.removeSchedule(scheduleResult), self.removeDataSerie(dataSeriesResult)], err);
             });
           }).catch(function(err) {
             // rollback dataseries
-            rollbackModels([models.db.DataSeries, models.db.DataSeries], [dataSeriesResultOutput, dataSeriesResult], err);
+            console.log("rollback dataseries in out");
+            rollbackPromise([self.removeDataSerie(dataSeriesResultOutput), self.removeDataSerie(dataSeriesResult)], err);
           });
         }).catch(function(err) {
-          rollbackModels([models.db.DataSeries], [dataSeriesResult], err);
+          console.log("rollback dataseries");
+          rollbackPromise([self.removeDataSerie(dataSeriesResult)], err);
         })
       }).catch(function(err) {
         reject(err);
@@ -1344,6 +1362,18 @@ var DataManager = {
       }).catch(function(err) {
         // todo: improve error message
         reject(new exceptions.ScheduleError("Could not save schedule. ", err));
+      });
+    });
+  },
+
+  removeSchedule: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Schedule.destroy({where: {id: restriction.id}}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
       });
     });
   },

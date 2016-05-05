@@ -61,7 +61,7 @@
         }).success(function(user) {
 //          alert("User saved");
           $scope.errorFound = "";
-          window.location = "/administration/users";
+          window.location = "/administration/users?token=" + user.token;
         }).error(function(err) {
           alert(err.message);
           $scope.errorFound = err.message;
