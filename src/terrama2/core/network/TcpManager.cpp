@@ -52,7 +52,10 @@ bool terrama2::core::TcpManager::updateListeningPort(int port)
   return listen(serverAddress(), port);
 }
 
-terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent) : QTcpServer(parent), blockSize_(0)
+terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent)
+  : QTcpServer(parent),
+    blockSize_(0),
+    dataManager_(dataManager)
 {
   QObject::connect(this, &terrama2::core::TcpManager::newConnection, this, &terrama2::core::TcpManager::receiveConnection);
   serviceManager_ = &terrama2::core::ServiceManager::getInstance();
@@ -176,7 +179,7 @@ void terrama2::core::TcpManager::readReadySlot()
   {
     TERRAMA2_LOG_ERROR() << tr("Signal received before service load information.");
 
-    //FIXME: remove comment when web interface start sending TcpSignals::UPDATE_SERVICE_SIGNAL 
+    //FIXME: remove comment when web interface start sending TcpSignals::UPDATE_SERVICE_SIGNAL
     // emit stopSignal();
     // return;
   }
