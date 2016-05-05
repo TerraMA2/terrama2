@@ -350,3 +350,15 @@ void TsUtility::testValidDataSetName2DigitsYear1900()
   if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
     QFAIL("Should not be here!");
 }
+
+void TsUtility::testIgnoreArchiveExtension()
+{
+  std::string name = "file56-04-19153726.file";
+  std::string mask = "fileyy-MM-ddhhmmss";
+  std::string timezone = "00";
+  terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
+    QFAIL("Should not be here!");
+}
