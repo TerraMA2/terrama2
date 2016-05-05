@@ -18,17 +18,9 @@ OccurrencePostgis.schema = function() {
       table_name: {
         type: Form.Field.TEXT,
         title: "Table Name"
-      }//,
-      // geometry: {
-      //   type: Form.Field.TEXT,
-      //   title: "Geometry Field"
-      // }
+      }
     },
     required: ['table_name']
-    // ,timeStamp: {
-    //   type: Form.Field.TEXT,
-    //   title: "TimeStamp column"
-    // }
   }
 };
 

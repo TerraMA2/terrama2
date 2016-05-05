@@ -18,6 +18,7 @@ angular.module('terrama2.table', ['terrama2'])
       controller: function($scope, $http, i18n) {
         $scope.i18n = i18n;
         $scope.searchInput = '';
+        $scope.selected = {};
         $scope.emptyMessage = 'No ' + ($scope.context || 'data') + ' found';
         
         // defines display fields in table
@@ -26,6 +27,10 @@ angular.module('terrama2.table', ['terrama2'])
         $scope.identityFields = [];
 
         $scope.extra = $scope.extra ? $scope.extra : {};
+
+        $scope.setModelSelected = function(modelSelected) {
+          $scope.selected = modelSelected;
+        }
 
         // remove function
         $scope.removeOperation = function(object) {
@@ -49,6 +54,8 @@ angular.module('terrama2.table', ['terrama2'])
             if ($scope.isFunction(callback))
               callback(err);
             console.log(err);
+          }).finally(function() {
+            // $scope.selected = {};
           });
         };
 

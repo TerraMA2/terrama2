@@ -977,7 +977,8 @@ var DataManager = {
             self.data.dataSeries.splice(index, 1);
             resolve(status);
           }).catch(function (err) {
-            reject(new exceptions.DataSeriesError("Could not remove DataSeries: ", err));
+            console.log(err);
+            reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
           });
           return;
         }

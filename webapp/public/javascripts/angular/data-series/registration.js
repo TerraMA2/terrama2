@@ -461,15 +461,21 @@ angular.module('terrama2.dataseries.registration', [
         $scope.showStoragerForm = false;
 
         // if is dcp postgis, it shouldn't have a storager and it is processing
-        if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
-          $scope.storagerFormats = [{name: 'DCP-POSTGIS', data_series_type_name: 'Dcp'}];
-        } else {
-          $scope.dataSeriesSemantics.forEach(function(dSemantics) {
-            if (dSemantics.data_series_type_name === "Occurrence") {
-              $scope.storagerFormats.push(Object.assign({}, dSemantics));
-            }
-          });
-        }
+        // if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
+        //   $scope.storagerFormats = [{name: 'DCP-postgis', data_series_type_name: 'Dcp'}];
+        // } else {
+        //   $scope.dataSeriesSemantics.forEach(function(dSemantics) {
+        //     if (dSemantics.data_series_type_name === "Occurrence") {
+        //       $scope.storagerFormats.push(Object.assign({}, dSemantics));
+        //     }
+        //   });
+        // }
+
+        $scope.dataSeriesSemantics.forEach(function(dSemantics) {
+          if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
+            $scope.storagerFormats.push(Object.assign({}, dSemantics));
+          }
+        });
 
         DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.name, {metadata:true}).success(function(data) {
           $scope.tableFields = [];

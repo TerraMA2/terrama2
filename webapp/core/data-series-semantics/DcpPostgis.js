@@ -3,7 +3,7 @@ var Enums = require('./../Enums');
 var Form = Enums.Form;
 
 var DcpPostgis = function() {
-  Dcp.call(this, {name: "DCP-POSTGIS"});
+  Dcp.call(this, {name: "DCP-postgis"});
 };
 
 DcpPostgis.prototype = Object.create(Dcp.prototype);
