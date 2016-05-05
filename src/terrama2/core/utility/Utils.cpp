@@ -63,7 +63,7 @@ namespace te
   {
     enum
     {
-      UOM_second =  1040
+      UOM_second = 1040
     };
   } // end of namespace common
 } // end of namespace te
@@ -137,26 +137,31 @@ void terrama2::core::initializeTerralib()
   te::plugin::PluginManager::getInstance().loadAll();
 
   // Base of Time measure: second
-  te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"second", "s", te::common::MeasureType::Time));
+  te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"SECOND", "s", te::common::MeasureType::Time));
   std::vector<std::string> secondAlternativeNames {"s", "sec", "ss", "seconds"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomSecond, secondAlternativeNames);
 
   // minute
-  te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "minute", "min", te::common::MeasureType::Time, te::common::UOM_second, 60.0, 0.0, 0.0, 1.0));
+  te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "MINUTE", "min", te::common::MeasureType::Time, te::common::UOM_second, 60.0, 0.0, 0.0, 1.0));
   std::vector<std::string> minuteAlternativeNames {"min", "minutes"};
 
   // hour
-  te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "hour", "h", te::common::MeasureType::Time, te::common::UOM_second, 3600.0, 0.0, 0.0, 1.0));
+  te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "HOUR", "h", te::common::MeasureType::Time, te::common::UOM_second, 3600.0, 0.0, 0.0, 1.0));
   std::vector<std::string> hourAlternativeNames {"hh", "h", "hours"};
 
   // day
-  te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "day", "d", te::common::MeasureType::Time, te::common::UOM_second, 86400.0, 0.0, 0.0, 1.0));
+  te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "DAY", "d", te::common::MeasureType::Time, te::common::UOM_second, 86400.0, 0.0, 0.0, 1.0));
   std::vector<std::string> dayAlternativeNames {"d", "dd", "days"};
+
+  // week
+  te::common::UnitOfMeasurePtr uomWeek(new te::common::UnitOfMeasure(4, "WEEK", "w", te::common::MeasureType::Time, te::common::UOM_second, 604800.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> weekAlternativeNames {"w", "wk", "weeks"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomMinute, minuteAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomHour, hourAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomDay, dayAlternativeNames);
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomWeek, weekAlternativeNames);
 }
 
 
