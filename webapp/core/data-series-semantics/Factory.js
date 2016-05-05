@@ -3,6 +3,7 @@ var DcpInpe = require('./DcpInpe');
 var DcpPostgis = require('./DcpPostgis');
 var WildFire = require('./WildFire');
 var OccurrencePostgis = require('./OccurrencePostgis');
+var AnalysisPostgis = require('./AnalysisPostgis');
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var PluginLoader = require('./../PluginLoader');
 
@@ -16,6 +17,7 @@ function availableTypes() {
   output.push(DcpPostgis);
   output.push(WildFire);
   output.push(OccurrencePostgis);
+  output.push(AnalysisPostgis);
 
   var plugins = availablePlugins();
 
@@ -34,7 +36,7 @@ function availablePlugins() {
       }
     }
   }
-  
+
   return output;
 }
 
@@ -101,6 +103,12 @@ Factory.listAll = function() {
     schema: OccurrencePostgis.schema()
   });
 
+  // adding analysis postgis
+  output.push({
+    name: AnalysisPostgis.identifier(),
+    form: AnalysisPostgis.form(),
+    schema: AnalysisPostgis.schema()
+  });
 
   // checking for available plugins
   var plugins = availablePlugins();

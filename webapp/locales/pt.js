@@ -93,5 +93,11 @@
 	"Project Registration": "Project Registration",
 	"Project Name": "Project Name",
 	"Project name is required": "Project name is required",
-	"Project Description": "Project Description"
+	"Project Description": "Project Description",
+	"Storager": "Storager",
+	"Output Format": "Output Format",
+	"Provider Output": "Provider Output",
+	"Data provider is required": "Data provider is required",
+	"Output Service": "Output Service",
+	"Collector service is required": "Collector service is required"
 }

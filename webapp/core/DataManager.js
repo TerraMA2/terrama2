@@ -132,11 +132,13 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS, description: "Data Series Analysis type"}));
 
         // data formats semantics defaults todo: check it
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
 
         // analysis data series type
         inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
@@ -146,6 +148,7 @@ var DataManager = {
         inserts.push(self.addDataSeriesSemantics({name: "DCP-postgis", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-wfp", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-postgis", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "ANALYSIS-postgis", data_format_name: "POSTGIS", data_series_type_name: DataSeriesType.ANALYSIS}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -162,7 +165,7 @@ var DataManager = {
       });
     });
   },
-  
+
   unload: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -180,7 +183,7 @@ var DataManager = {
       });
     });
   },
-  
+
   finalize: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -446,7 +449,7 @@ var DataManager = {
       });
     });
   },
-  
+
   getServiceInstance : function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject){
@@ -456,7 +459,7 @@ var DataManager = {
 
         if (result.length > 1)
           return reject(new Error("More than one service instance retrieved"));
-        
+
         resolve(result[0]);
       }).catch(function(err) {
         reject(err);
@@ -791,7 +794,7 @@ var DataManager = {
               return false;
             })
           });
-          
+
           // collect output and processing
           return resolve(copyDataSeries);
         }).catch(function(err) {
@@ -871,13 +874,13 @@ var DataManager = {
             Promise.all(dataSets).then(function(dataSets){
               self.data.dataSeries.push(new DataSeries(output));
               // temp code: getting wkt
-              
+
               var promises = [];
-              
+
               dataSets.forEach(function(dSet) {
                 promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
               });
-              
+
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
@@ -1282,7 +1285,7 @@ var DataManager = {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
             var schedule = new Schedule(scheduleResult);
             var collectorObject = {};
-  
+
             // todo: get service_instance id and collector status (active)
             collectorObject.data_series_input = dataSeriesResult.id;
             collectorObject.data_series_output = dataSeriesResultOutput.id;
@@ -1291,7 +1294,7 @@ var DataManager = {
             collectorObject.active = true;
             collectorObject.collector_type = 1;
             collectorObject.schedule_id = scheduleResult.id;
-  
+
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
               var collector = new Collector(collectorResult);
               var input_output_map = [];
@@ -1328,7 +1331,7 @@ var DataManager = {
         })
       }).catch(function(err) {
         reject(err);
-      })  
+      })
     });
   },
 
