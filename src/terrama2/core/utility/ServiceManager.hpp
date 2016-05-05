@@ -27,6 +27,7 @@
 
 //Qt
 #include <QJsonObject>
+#include <QObject>
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -36,43 +37,52 @@ namespace terrama2
 {
   namespace core
   {
-    typedef int ServiceType;
-    class ServiceManager : public te::common::Singleton<ServiceManager>
+    class ServiceManager : public QObject, public te::common::Singleton<ServiceManager>
     {
-    public:
-      void setInstanceName(const std::string& instanceName);
-      virtual const std::string& instanceName() const;
+        Q_OBJECT
 
-      void setInstanceId(int instanceId);
-      virtual int instanceId() const;
+      public:
+        virtual bool serviceLoaded() const;
 
-      void setServiceType(ServiceType serviceType);
-      virtual ServiceType serviceType() const;
+        void setInstanceName(const std::string& instanceName);
+        virtual const std::string& instanceName() const;
 
-      void setListeningPort(int listeningPort);
-      virtual int listeningPort() const;
+        void setInstanceId(int instanceId);
+        virtual int instanceId() const;
 
-      virtual const std::string& terrama2Version() const;
-      virtual const std::shared_ptr< te::dt::TimeInstantTZ >& startTime() const;
-      virtual const QJsonObject& status() const;
+        void setServiceType(const std::string& serviceType);
+        virtual const std::string& serviceType() const;
 
-    protected:
-      friend class te::common::Singleton<ServiceManager>;
+        void setListeningPort(int listeningPort);
+        virtual int listeningPort() const;
 
-      ServiceManager();
+        virtual const std::string& terrama2Version() const;
+        virtual const std::shared_ptr< te::dt::TimeInstantTZ >& startTime() const;
 
-      virtual ~ServiceManager() = default;
-      ServiceManager(const ServiceManager& other) = delete;
-      ServiceManager(ServiceManager&& other) = delete;
-      ServiceManager& operator=(const ServiceManager& other) = delete;
-      ServiceManager& operator=(ServiceManager&& other) = delete;
+        void updateService(const QJsonObject& obj);
+        virtual const QJsonObject& status() const;
 
-      std::string instanceName_;
-      int instanceId_;
-      ServiceType serviceType_;
-      int listeningPort_;
-      const std::string terrama2Version_ = "TerraMA2-4-alpha2";
-      std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
+      signals:
+        void listeningPortUpdated(int);
+
+      protected:
+        friend class te::common::Singleton<ServiceManager>;
+
+        ServiceManager();
+
+        virtual ~ServiceManager() = default;
+        ServiceManager(const ServiceManager& other) = delete;
+        ServiceManager(ServiceManager&& other) = delete;
+        ServiceManager& operator=(const ServiceManager& other) = delete;
+        ServiceManager& operator=(ServiceManager&& other) = delete;
+
+        std::string instanceName_;
+        int instanceId_ = 0;
+        std::string serviceType_;
+        int listeningPort_;
+        const std::string terrama2Version_ = "TerraMA2-4-alpha2";//FIXME: use the global version
+        std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
+        bool serviceLoaded_ = false;
     };
   }
 }

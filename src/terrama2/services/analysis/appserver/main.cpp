@@ -51,9 +51,9 @@ int main(int argc, char* argv[])
     terrama2::core::registerFactories();
 
     QCoreApplication app(argc, argv);
-    terrama2::core::TcpManager tcpManager;
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
-    tcpManager.listen(dataManager, QHostAddress::Any, 30001);
+    terrama2::core::TcpManager tcpManager(dataManager);
+    tcpManager.listen(QHostAddress::Any, 30001);
 
     terrama2::services::analysis::core::Service service(dataManager);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::analysis::core::Service::addToQueue);

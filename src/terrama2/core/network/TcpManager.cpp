@@ -44,19 +44,41 @@ class RaiiBlock
     uint32_t& block_;
 };
 
-bool terrama2::core::TcpManager::listen(std::weak_ptr<terrama2::core::DataManager> dataManager, const QHostAddress& address, quint16 port)
+bool terrama2::core::TcpManager::updateListeningPort(int port)
 {
-  dataManager_ = dataManager;
-  return listen(address, port);
+  if(serverPort() == port)
+    return true;
+
+  return listen(serverAddress(), port);
 }
 
-terrama2::core::TcpManager::TcpManager(QObject* parent) : QTcpServer(parent), blockSize_(0)
+terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent) : QTcpServer(parent), blockSize_(0)
 {
   QObject::connect(this, &terrama2::core::TcpManager::newConnection, this, &terrama2::core::TcpManager::receiveConnection);
+  serviceManager_ = &terrama2::core::ServiceManager::getInstance();
 }
 
 terrama2::core::TcpManager::~TcpManager()
 {
+}
+
+void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
+{
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+  if(error.error != QJsonParseError::NoError)
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+  else
+  {
+    if(jsonDoc.isObject())
+    {
+      auto obj = jsonDoc.object();
+      serviceManager_->updateService(obj);
+    }
+    else
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
+  }
 }
 
 void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
@@ -150,9 +172,24 @@ void terrama2::core::TcpManager::readReadySlot()
   in >> sigInt;
 
   TcpSignals::TcpSignal signal = static_cast<TcpSignals::TcpSignal>(sigInt);
+  if(signal != TcpSignals::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
+  {
+    TERRAMA2_LOG_ERROR() << tr("Signal received before service load information.");
+
+    //FIXME: remove comment when web interface start sending TcpSignals::UPDATE_SERVICE_SIGNAL 
+    // emit stopSignal();
+    // return;
+  }
 
   switch(signal)
   {
+    case TcpSignals::UPDATE_SERVICE_SIGNAL:
+    {
+      QByteArray bytearray = tcpSocket_->readAll();
+
+      updateService(bytearray);
+      break;
+    }
     case TcpSignals::TERMINATE_SERVICE_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";

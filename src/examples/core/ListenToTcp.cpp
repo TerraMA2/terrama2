@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
 
   QJsonDocument doc(obj);
 
-  terrama2::core::TcpManager tcpManager;
   std::shared_ptr<terrama2::core::DataManager> dataManager = std::make_shared<MockDataManager>();
-  tcpManager.listen(dataManager, QHostAddress::Any, 30000);
+  terrama2::core::TcpManager tcpManager(dataManager);
+  tcpManager.listen(QHostAddress::Any, 30000);
 
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);

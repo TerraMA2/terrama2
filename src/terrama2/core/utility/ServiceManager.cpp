@@ -29,6 +29,12 @@ terrama2::core::ServiceManager::ServiceManager()
 {
 }
 
+bool terrama2::core::ServiceManager::serviceLoaded() const
+{
+  return serviceLoaded_;
+}
+
+
 void terrama2::core::ServiceManager::setInstanceName(const std::string& instanceName)
 {
   instanceName_ = instanceName;
@@ -41,17 +47,18 @@ const std::string& terrama2::core::ServiceManager::instanceName() const
 void terrama2::core::ServiceManager::setInstanceId(int instanceId)
 {
   instanceId_ = instanceId;
+  serviceLoaded_ = true;
 }
 int terrama2::core::ServiceManager::instanceId() const
 {
   return instanceId_;
 }
 
-void terrama2::core::ServiceManager::setServiceType(ServiceType serviceType)
+void terrama2::core::ServiceManager::setServiceType(const std::string& serviceType)
 {
   serviceType_ = serviceType;
 }
-terrama2::core::ServiceType terrama2::core::ServiceManager::serviceType() const
+const std::string& terrama2::core::ServiceManager::serviceType() const
 {
   return serviceType_;
 }
@@ -59,6 +66,7 @@ terrama2::core::ServiceType terrama2::core::ServiceManager::serviceType() const
 void terrama2::core::ServiceManager::setListeningPort(int listeningPort)
 {
   listeningPort_ = listeningPort;
+  listeningPortUpdated(listeningPort_);
 }
 int terrama2::core::ServiceManager::listeningPort() const
 {
@@ -82,4 +90,11 @@ const QJsonObject& terrama2::core::ServiceManager::status() const
   obj.insert("terrama2_version",  QString::fromStdString(terrama2Version()));
   //TODO: Define status message
   return obj;
+}
+
+void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
+{
+  setInstanceId(obj["instance_id"].toInt());
+  setInstanceName(obj["instance_name"].toString().toStdString());
+  setListeningPort(obj["listening_port"].toInt());
 }
