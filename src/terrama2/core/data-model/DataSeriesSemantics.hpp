@@ -31,6 +31,9 @@
 #define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_SEMANTICS_HPP__
 
 #include <string>
+#include <vector>
+
+#include "../Typedef.hpp"
 
 namespace terrama2
 {
@@ -52,7 +55,8 @@ namespace terrama2
     */
     struct DataSeriesSemantics
     {
-      enum DataSeriesType {
+      enum DataSeriesType
+      {
         DCP = 1,//!< Fixed position data producer station. (Data Collection Platform).
         OCCURRENCE = 2,//!< Dated-positioned occurrence.
         GRID = 3,//!< Spatialy indexed data matrix.
@@ -61,8 +65,13 @@ namespace terrama2
       };
 
       std::string name;//!< Name of the semantics.
+      std::string code;//!< Name of the semantics.
       DataSeriesType dataSeriesType = STATIC;//!< Semantics type of DataSeries
       DataFormat dataFormat;//TODO: how to doc this?!
+      std::vector<DataProviderType> providersTypeList;
+
+      bool operator<(const DataSeriesSemantics& rhs) const { return code < rhs.code; }
+      bool operator==(const DataSeriesSemantics& rhs) const { return code == rhs.code; }
     };
   } /* core */
 } /* terrama2 */

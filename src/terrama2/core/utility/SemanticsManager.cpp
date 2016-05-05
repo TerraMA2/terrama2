@@ -35,9 +35,11 @@
 #include <QString>
 #include <QObject>
 
-terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemantics(const std::string& name,
+terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemantics(const std::string& code,
+                                                                                   const std::string& name,
                                                                                    const DataSeriesSemantics::DataSeriesType& dataSeriesType,
-                                                                                   const DataFormat& format)
+                                                                                   const DataFormat& format,
+                                                                                   const std::vector<DataProviderType>& providersTypeList)
 {
   auto it = semanticsMap_.find(name);
   if(it != semanticsMap_.cend())
@@ -48,21 +50,23 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemanti
   }
 
   DataSeriesSemantics semantics;
+  semantics.code = code;
   semantics.name = name;
   semantics.dataSeriesType = dataSeriesType;
   semantics.dataFormat = format;
+  semantics.providersTypeList = providersTypeList;
 
   semanticsMap_[name] = semantics;
 
   return semantics;
 }
 
-terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::getSemantics(const std::string& name)
+terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::getSemantics(const std::string& semanticsCode)
 {
-  auto it = semanticsMap_.find(name);
+  auto it = semanticsMap_.find(semanticsCode);
   if(it == semanticsMap_.cend())
   {
-    QString errMsg = QObject::tr("Semantics %1 not registered.").arg(name.c_str());
+    QString errMsg = QObject::tr("Semantics %1 not registered.").arg(semanticsCode.c_str());
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::SemanticsException() << ErrorDescription(errMsg);
   }

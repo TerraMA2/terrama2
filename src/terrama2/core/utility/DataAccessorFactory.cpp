@@ -33,35 +33,40 @@
 #include "../data-model/DataSet.hpp"
 #include "../data-model/DataSeries.hpp"
 #include "../data-model/DataProvider.hpp"
-#include "../data-model/DataSeriesSemantics.hpp"
-#include "../utility/Logger.hpp"
+
+#include "Logger.hpp"
+#include "SemanticsManager.hpp"
 
 #include <QObject>
 #include <QString>
 
 #include <memory>
 
-void terrama2::core::DataAccessorFactory::add(const std::string& semanticName, FactoryFnctType f)
+void terrama2::core::DataAccessorFactory::add(const std::string& semanticsCode, FactoryFnctType f)
 {
-  std::map<std::string, FactoryFnctType>::const_iterator it = factoriesMap_.find(semanticName);
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  auto semantics = semanticsManager.getSemantics(semanticsCode);
+  auto it = factoriesMap_.find(semantics);
 
   if(it != factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("A data accessor factory with this name already exists: %1!").arg(semanticName.c_str());
+    QString errMsg = QObject::tr("A data accessor factory with this name already exists: %1!").arg(semantics.name.c_str());
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  factoriesMap_[semanticName] = f;
+  factoriesMap_[semantics] = f;
 }
 
-void terrama2::core::DataAccessorFactory::remove(const std::string& semanticName)
+void terrama2::core::DataAccessorFactory::remove(const std::string& semanticsCode)
 {
-  std::map<std::string, FactoryFnctType>::iterator it = factoriesMap_.find(semanticName);
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  auto semantics = semanticsManager.getSemantics(semanticsCode);
+  std::map<terrama2::core::DataSeriesSemantics, FactoryFnctType>::const_iterator it = factoriesMap_.find(semantics);
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("There is no registered data accessor factory named : %1!").arg(semanticName.c_str());
+    QString errMsg = QObject::tr("There is no registered data accessor factory named : %1!").arg(semantics.name.c_str());
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
@@ -69,9 +74,11 @@ void terrama2::core::DataAccessorFactory::remove(const std::string& semanticName
   factoriesMap_.erase(it);
 }
 
-bool terrama2::core::DataAccessorFactory::find(const std::string& semanticName)
+bool terrama2::core::DataAccessorFactory::find(const std::string& semanticsCode)
 {
-  std::map<std::string, FactoryFnctType>::const_iterator it = factoriesMap_.find(semanticName);
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  auto semantics = semanticsManager.getSemantics(semanticsCode);
+  std::map<terrama2::core::DataSeriesSemantics, FactoryFnctType>::const_iterator it = factoriesMap_.find(semantics);
 
   return (it != factoriesMap_.end());
 }
@@ -79,7 +86,7 @@ bool terrama2::core::DataAccessorFactory::find(const std::string& semanticName)
 terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, terrama2::core::Filter filter)
 {
 
-  std::map<std::string, FactoryFnctType>::const_iterator it = factoriesMap_.find(dataSeries->semantics.name);
+  std::map<terrama2::core::DataSeriesSemantics, FactoryFnctType>::const_iterator it = factoriesMap_.find(dataSeries->semantics);
 
   if(it == factoriesMap_.end())
   {
@@ -88,7 +95,7 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terram
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  std::shared_ptr<DataAccessor> dataAccessor(factoriesMap_[dataSeries->semantics.name.c_str()](dataProvider, dataSeries, filter));
+  std::shared_ptr<DataAccessor> dataAccessor(factoriesMap_[dataSeries->semantics](dataProvider, dataSeries, filter));
 
   return dataAccessor;
 }

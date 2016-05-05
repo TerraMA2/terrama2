@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_MODEL_SEMANTICS_MANAGER_HPP__
 
 #include "../data-model/DataSeriesSemantics.hpp"
+#include "../data-model/DataProvider.hpp"
 
 // STL
 #include <string>
@@ -51,13 +52,17 @@ namespace terrama2
 
           \exception terrama2::core::SemanticsException raised when a semantics with same name is already present
         */
-        DataSeriesSemantics addSemantics(const std::string& name, const DataSeriesSemantics::DataSeriesType& dataSeriesType, const DataFormat& format);
+        DataSeriesSemantics addSemantics(const std::string& code,
+                                         const std::string& name,
+                                         const DataSeriesSemantics::DataSeriesType& dataSeriesType,
+                                         const DataFormat& format,
+                                         const std::vector<DataProviderType>& providersTypeList);
         /*!
           \brief Recover a DataSeriesSemantics by name
 
           \exception terrama2::core::SemanticsException raised when the semantics is not defined
         */
-        DataSeriesSemantics getSemantics(const std::string& name);
+        DataSeriesSemantics getSemantics(const std::string& semanticsCode);
 
       protected:
         friend class te::common::Singleton<SemanticsManager>;
@@ -72,7 +77,7 @@ namespace terrama2
         SemanticsManager& operator=(SemanticsManager&& other) = delete;
 
       private:
-        std::map<std::string, DataSeriesSemantics> semanticsMap_;
+        std::map<std::string, DataSeriesSemantics> semanticsMap_;//!< Semantics map by code
     };
   } /* core */
 } /* terrama2 */
