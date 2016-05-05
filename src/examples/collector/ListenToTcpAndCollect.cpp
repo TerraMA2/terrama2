@@ -2,7 +2,6 @@
 
 // TerraMA2
 
-#include <terrama2/Exception.hpp>
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -11,8 +10,9 @@
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
+
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/impl/Utils.hpp>
+#include <terrama2/Exception.hpp>
 
 #include <terrama2/services/collector/core/Collector.hpp>
 #include <terrama2/services/collector/core/JSonUtils.hpp>
@@ -147,7 +147,6 @@ int main(int argc, char* argv[])
 {
   try
   {
-
     terrama2::core::initializeTerraMA();
 
     terrama2::core::registerFactories();
@@ -172,9 +171,9 @@ int main(int argc, char* argv[])
 
     QJsonDocument doc(obj);
 
-    terrama2::core::TcpManager tcpManager;
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
-    tcpManager.listen(dataManager, QHostAddress::Any, 30000);
+    terrama2::core::TcpManager tcpManager(dataManager);
+    tcpManager.listen(QHostAddress::Any, 30000);
     terrama2::services::collector::core::Service service(dataManager);
     service.start();
 

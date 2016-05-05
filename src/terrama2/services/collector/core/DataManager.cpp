@@ -59,7 +59,7 @@ void terrama2::services::collector::core::DataManager::add(terrama2::services::c
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    TERRAMA2_LOG_DEBUG() << "Collector added";
+    TERRAMA2_LOG_DEBUG() << tr("Collector added");
     collectors_[collector->id] = collector;
   }
 
@@ -97,13 +97,13 @@ void terrama2::services::collector::core::DataManager::removeCollector(Collector
   emit collectorRemoved(collectorId);
 }
 
-void terrama2::services::collector::core::DataManager::addFromJSON(const QJsonObject& obj)
+void terrama2::services::collector::core::DataManager::addJSon(const QJsonObject& obj)
 {
   try
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-    terrama2::core::DataManager::DataManager::addFromJSON(obj);
+    terrama2::core::DataManager::DataManager::addJSon(obj);
 
     auto collectors = obj["Collectors"].toArray();
     for(auto json : collectors)
@@ -111,6 +111,38 @@ void terrama2::services::collector::core::DataManager::addFromJSON(const QJsonOb
       auto dataPtr = terrama2::services::collector::core::fromCollectorJson(json.toObject());
       add(dataPtr);
     }
+  }
+  catch(terrama2::Exception& /*e*/)
+  {
+    // loggend on throw...
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str();
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+  }
+}
+
+void terrama2::services::collector::core::DataManager::removeJSon(const QJsonObject& obj)
+{
+  try
+  {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    auto collectors = obj["Collectors"].toArray();
+    for(auto json : collectors)
+    {
+      auto dataId = json.toInt();
+      removeCollector(dataId);
+    }
+
+    terrama2::core::DataManager::DataManager::removeJSon(obj);
   }
   catch(terrama2::Exception& /*e*/)
   {

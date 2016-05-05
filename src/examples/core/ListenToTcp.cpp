@@ -38,7 +38,7 @@ class MockDataManager : public terrama2::core::DataManager
     MockDataManager& operator=(const MockDataManager& other) = default;
     MockDataManager& operator=(MockDataManager&& other) = default;
 
-    virtual void addFromJSON(const QJsonObject& obj) override
+    virtual void addJSon(const QJsonObject& obj) override
     {
       QJsonDocument doc(obj);
       std::cout << QString(doc.toJson(QJsonDocument::Compact)).toStdString() << std::endl;
@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
 
   QJsonDocument doc(obj);
 
-  terrama2::core::TcpManager tcpManager;
   std::shared_ptr<terrama2::core::DataManager> dataManager = std::make_shared<MockDataManager>();
-  tcpManager.listen(dataManager, QHostAddress::Any, 30000);
+  terrama2::core::TcpManager tcpManager(dataManager);
+  tcpManager.listen(QHostAddress::Any, 30000);
 
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
@@ -123,9 +123,9 @@ int main(int argc, char* argv[])
   socket.connectToHost("localhost", 30000);
   socket.write(bytearray);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  // QTimer timer;
+  // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  // timer.start(10000);
   app.exec();
 
   terrama2::core::finalizeTerraMA();

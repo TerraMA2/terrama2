@@ -136,7 +136,6 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       QString errMsg = QObject::tr("Invalid JSON object.\n Unknown DataSet type.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-      break;
     }
   }
 
