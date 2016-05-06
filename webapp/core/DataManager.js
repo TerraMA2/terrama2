@@ -140,8 +140,15 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
 
+        // analysis type
+        inserts.push(models.db["AnalysisType"].create({id: 1, name: "Dcp", description: "Description Dcp"}));
+        inserts.push(models.db["AnalysisType"].create({id: 2, name: "Grid", description: "Description Grid"}));
+        inserts.push(models.db["AnalysisType"].create({id: 3, name: "Monitored Object", description: "Description Monitored"}));
+
         // analysis data series type
-        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Dcp", description: "Description Dcp"}));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 2, name: "Grid", description: "Description Grid"}));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 3, name: "Monitored Object", description: "Description Monitored"}));
 
         // semantics
         inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
@@ -852,7 +859,7 @@ var DataManager = {
    * @param {Object} dataSeriesObject - An object containing DataSeries values to save it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSeries: function(dataSeriesObject) {
+  addDataSeries: function(dataSeriesObject, analysisType) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var output;
@@ -873,7 +880,7 @@ var DataManager = {
             for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
               var dSet = dataSeriesObject.dataSets[i];
               dSet.data_series_id = dataSerie.id;
-              dataSets.push(self.addDataSet(dataSemantics.get(), dSet));
+              dataSets.push(self.addDataSet(dataSemantics.get(), dSet, analysisType));
             }
 
             Promise.all(dataSets).then(function(dataSets){
@@ -914,7 +921,7 @@ var DataManager = {
         //   msg = error.message;
         // });
         console.log(err);
-        reject(new exceptions.DataSeriesError(err.message));
+        reject(new exceptions.DataSeriesError("Could not save data series " + err.message));
       });
     });
   },
@@ -1006,7 +1013,7 @@ var DataManager = {
    * @param {Array<Object>} dataSetObject - An object containing DataSet values to save it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSet: function(dataSeriesSemantic, dataSetObject) {
+  addDataSet: function(dataSeriesSemantic, dataSetObject, analysisType) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
@@ -1017,6 +1024,7 @@ var DataManager = {
         var onSuccess = function(dSet) {
           var output;
           output = DataSetFactory.build(Object.assign(Utils.clone(dSet.get()), dataSet.get()));
+          console.log(output)
 
           output.semantics = dataSeriesSemantic;
 
@@ -1048,6 +1056,10 @@ var DataManager = {
                   output.format[dataSetFormat.key] = dataSetFormat.value;
                 });
 
+                //  if analysis, add input dataseries id
+                if (analysisType && analysisType.data_series_id)
+                  output.format['monitored_object_dataseries_id'] = analysisType.data_series_id;
+
                 self.data.dataSets.push(output);
                 resolve(output);
               });
@@ -1061,7 +1073,8 @@ var DataManager = {
         };
 
         var onError = function(err) {
-          reject(new exceptions.DataSetError("Could not save data set.", err));
+          console.log(err);
+          reject(new exceptions.DataSetError("Could not save data set." + err.message));
         };
 
         // rollback data set function if any error occurred
@@ -1088,9 +1101,43 @@ var DataManager = {
               //  todo: implement it
               rollback(dataSet);
               break;
-            case DataSeriesType.MONITORED:
-            //  todo: implement it
-              rollback(dataSet);
+            case DataSeriesType.ANALYSIS:
+              // tbl/
+              //  todo: check it
+              console.log(analysisType)
+              switch(analysisType.type) {
+                case DataSeriesType.DCP:
+                  var analysisDataSetDcp = {
+                    data_set_id: dataSet.id,
+                    position: dataSetObject.position
+                  };
+                  models.db.DataSetDcp.create(analysisDataSetDcp).then(onSuccess).catch(onError);
+                  break;
+                case "Monitored Object":
+                  models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
+                  break;
+                case DataSeriesType.GRID:
+                  // var analysisDataMonitored = {
+                  //   data_set_id: dataSet.id,
+                  //   time_column: dataSetObject.time_column,
+                  //   geometry_column: dataSetObject.geometry_column,
+                  //   srid: dataSetObject.srid,
+                  //   id_column: dataSetObject.id_column
+                  // }
+                  // models.db['DataSetMonitored'].create(analysisDataMonitored).then(onSuccess).catch(onError);
+                  rollback(dataSet);
+                  break;
+                default:
+                  rollback(dataSet);
+                  break;
+              }
+
+
+              // var dataSetMonitored = {
+              //   data_set_id: dataSet.id,
+
+              // };
+              // models.db['DataSetMonitored'].create(dataSetMonitored).then(onSuccess).catch(onError);
               break;
             default:
               rollback(dataSet);
@@ -1479,29 +1526,77 @@ var DataManager = {
     });
   },
 
-  addAnalysis: function(analysisObject) {
+  addAnalysis: function(analysisObject, dataSeriesObject) {
+    var self = this;
     return new Promise(function(resolve, reject) {
-      // todo: make it as factory: AnalysisGrid, Analysis...
-      models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
-        var analysisDataSeriesObject = Utils.clone(analysisObject.analysisDataSeries);
-        var analysisObject = new Analysis(analysisResult);
-        models.db["AnalysisDataSeries"].create(analysisDataSeriesObject).then(function(analysisDataSeriesResult) {
-          var analysisDataSeries = new AnalysisDataSeries(analysisDataSeriesResult);
+      // adding dataseries_output
+      self.addDataSeries(dataSeriesObject, {
+        data_series_id: analysisObject.data_series_id,
+        type: analysisObject.type
+      }).then(function(dataSeriesResult) {
+        // adding analysis
+        // todo: make it as factory: AnalysisGrid, Analysis...
+        analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
+        var scopeAnalysisObject = analysisObject;
+        models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
 
-          console.log(analysisResult.get());
-          console.log(analysisDataSeriesResult.get());
-          resolve(analysisResult.get());
+          console.log(analysisObject);
+          var analysisDataSeriesObject = Utils.clone(scopeAnalysisObject.analysisDataSeries);
+          // setting foreign keys
+          analysisDataSeriesObject.data_series_id = dataSeriesResult.id;
+          analysisDataSeriesObject.analysis_id = analysisResult.id;
+
+          var analysisInstance = new Analysis(analysisResult);
+          console.log("AnalysisObject => ", analysisInstance);
+
+          models.db["AnalysisDataSeries"].create(analysisDataSeriesObject).then(function(analysisDataSeriesResult) {
+            var analysisDataSeries = new AnalysisDataSeries(analysisDataSeriesResult);
+
+            var metadata = [];
+            for(var key in scopeAnalysisObject.analysisDataSeries.metadata) {
+              if (scopeAnalysisObject.analysisDataSeries.metadata.hasOwnProperty(key)) {
+                metadata.push({
+                  analysis_data_series_id: analysisDataSeriesResult.id,
+                  key: key,
+                  value: scopeAnalysisObject.analysisDataSeries.metadata[key]
+                });
+              }
+            }
+            models.db["AnalysisDataSeriesMetadata"].bulkCreate(metadata, {analysis_data_series_id: analysisDataSeriesResult.id}).then(function(bulkMetadataResult) {
+              var analysidDataSeriesMetadata = {};
+              bulkMetadataResult.forEach(function(meta) {
+                var data = meta.get();
+                analysidDataSeriesMetadata[data.key] = data.value;
+              });
+
+              analysisDataSeries.metadata = analysidDataSeriesMetadata;
+              console.log(analysisDataSeries.metadata)
+              analysisInstance.addAnalysisDataSeries(analysisDataSeries.toObject());
+              resolve(analysisInstance);
+            }).catch(function(err) {
+              var promises = [];
+              promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
+              Utils.rollbackPromises(promises, err, reject);
+            })
+          }).catch(function(err) {
+            var promises = [];
+            promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
+            Utils.rollbackPromises(promises, new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), reject);
+          });
         }).catch(function(err) {
-          Utils.rollbackModels(models.db['Analysis'], analysisResult.get(), new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), {reject: reject})
-        });
+          // rollback dataseries
+          self.removeDataSerie({id: dataSeriesResult.id}).then(function() {
+            console.log(err);
+            reject(new exceptions.AnalysisError("Could not save analysis: " + err.message));
+          }).catch(function(err) {
+            console.log("Error rollback dataseries analysis: ", err);
+            reject(err);
+          })
+        })
       }).catch(function(err) {
-        var msg = "";
-
-        err.errors.forEach(function(error) {
-          msg += error.message + "\n";
-        });
-        reject(new exceptions.AnalysisError("Could not save analysis: " + msg));
-      })
+        console.log(err);
+        reject(err);
+      });
     });
   }
 
