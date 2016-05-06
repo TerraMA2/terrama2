@@ -109,3 +109,13 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   setListeningPort(obj["listening_port"].toInt());
   setNumberOfThreads(obj["number_of_threads"].toInt());
 }
+
+void terrama2::core::ServiceManager::setLogConnectionInfo(std::map<std::string, std::string> connInfo)
+{
+  connInfo_ = connInfo;
+}
+
+std::map<std::string, std::string> terrama2::core::ServiceManager::logConnectionInfo() const
+{
+  return connInfo_;
+}

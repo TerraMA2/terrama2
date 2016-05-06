@@ -108,6 +108,10 @@ namespace terrama2
         */
         virtual QJsonObject status() const;
 
+        void setLogConnectionInfo(std::map<std::string, std::string> connInfo);
+        virtual std::map<std::string, std::string> logConnectionInfo() const;
+
+
       signals:
         //! Signal emited when the listening is changed
         void listeningPortUpdated(int);
@@ -133,6 +137,7 @@ namespace terrama2
         const std::string terrama2Version_ = "TerraMA2-4-alpha2";//FIXME: use the global version
         std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
         bool serviceLoaded_ = false;
+        std::map<std::string, std::string> connInfo_;
     };
   }
 }
