@@ -34,6 +34,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
+#include <terrama2/core/utility/ServiceManager.hpp>
 
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
@@ -143,37 +144,49 @@ int main(int argc, char* argv[])
   try
   {
     terrama2::core::initializeTerraMA();
-
     terrama2::core::registerFactories();
 
-    QCoreApplication app(argc, argv);
 
-    auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
+    {
+      QCoreApplication app(argc, argv);
+      auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+      std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
+                                                    {"PG_PORT", "5432"},
+                                                    {"PG_USER", "postgres"},
+                                                    {"PG_PASSWORD", "postgres"},
+                                                    {"PG_DB_NAME", "nodejs"},
+                                                    {"PG_CONNECT_TIMEOUT", "4"},
+                                                    {"PG_CLIENT_ENCODING", "UTF-8"}
+                                                  };
+      serviceManager.setLogConnectionInfo(connInfo);
 
-    addInput(dataManager);
-    addOutput(dataManager);
+      auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
 
-    terrama2::services::collector::core::Service service(dataManager);
-    service.start();
+      addInput(dataManager);
+      addOutput(dataManager);
 
-    terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
-    terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
-    collector->id = 1;
-    collector->projectId = 1;
-    collector->serviceInstanceId = 1;
+      terrama2::services::collector::core::Service service(dataManager);
+      service.start();
 
-    collector->inputDataSeries = 1;
-    collector->outputDataSeries = 2;
-    collector->inputOutputMap.emplace(1, 2);
+      terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
+      terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
+      collector->id = 1;
+      collector->projectId = 1;
+      collector->serviceInstanceId = 1;
 
-    dataManager->add(collectorPtr);
+      collector->inputDataSeries = 1;
+      collector->outputDataSeries = 2;
+      collector->inputOutputMap.emplace(1, 2);
 
-    QTimer timer;
-    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(30000);
-    app.exec();
+      dataManager->add(collectorPtr);
 
-    service.stop();
+      QTimer timer;
+      QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+      timer.start(30000);
+      app.exec();
+
+      service.stop();
+    }
 
     terrama2::core::finalizeTerraMA();
   }
