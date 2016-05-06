@@ -80,7 +80,7 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.name = "OCCURRENCE-wfp";
+  dataSeries->semantics.code = "OCCURRENCE-wfp";
   dataSeries->dataProviderId = dataProviderPtr->id;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -124,7 +124,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 2;
   outputDataSeries->name = "DataProvider queimadas postgis";
-  outputDataSeries->semantics.name = "OCCURRENCE-postgis";
+  outputDataSeries->semantics.code = "OCCURRENCE-postgis";
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
   dataManager->add(outputDataSeriesPtr);

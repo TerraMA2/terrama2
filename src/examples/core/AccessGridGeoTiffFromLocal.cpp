@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics.name = "GRID-geotiff";
+  dataSeries->semantics.code = "GRID-geotiff";
 
   terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
   dataSet->active = true;

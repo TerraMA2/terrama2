@@ -187,7 +187,7 @@ void terrama2::core::DataManager::removeDataSeries(const DataSeriesId id)
     const auto& it = dataseries_.find(id);
     if(it == dataseries_.end())
     {
-      QString errMsg = QObject::tr("DataSeries not registered.");
+      QString errMsg = QObject::tr("DataSeries not registered");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
@@ -250,7 +250,7 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
   const auto& it = dataseries_.find(id);
   if(it == dataseries_.cend())
   {
-    QString errMsg = QObject::tr("DataSeries not registered.");
+    QString errMsg = QObject::tr("DataSeries not registered: %1.").arg(id);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }

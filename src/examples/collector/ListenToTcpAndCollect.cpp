@@ -66,7 +66,7 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.name = "OCCURRENCE-wfp";
+  dataSeries->semantics.code = "OCCURRENCE-wfp";
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -111,7 +111,7 @@ terrama2::core::DataSeriesPtr buildOutputDataSeries()
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 2;
   outputDataSeries->name = "DataProvider queimadas postgis";
-  outputDataSeries->semantics.name = "OCCURRENCE-postgis";
+  outputDataSeries->semantics.code = "OCCURRENCE-postgis";
   outputDataSeries->dataProviderId = 2;
 
   // DataSet information

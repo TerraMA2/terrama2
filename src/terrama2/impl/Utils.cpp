@@ -35,6 +35,7 @@
 #include "DataAccessorOccurrenceWfp.hpp"
 #include "DataAccessorOccurrencePostGis.hpp"
 #include "DataAccessorStaticDataOGR.hpp"
+#include "DataAccessorAnalysisPostGis.hpp"
 #include "DataStoragerPostGis.hpp"
 
 #include "../core/utility/DataAccessorFactory.hpp"
@@ -49,6 +50,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-wfp", terrama2::core::DataAccessorOccurrenceWfp::make);
   terrama2::core::DataAccessorFactory::getInstance().add("OCCURRENCE-postgis", terrama2::core::DataAccessorOccurrencePostGis::make);
   terrama2::core::DataAccessorFactory::getInstance().add("STATIC_DATA-ogr", terrama2::core::DataAccessorStaticDataOGR::make);
+  terrama2::core::DataAccessorFactory::getInstance().add("ANALYSIS_MONITORED_OBJECT-postgis", terrama2::core::DataAccessorAnalysisPostGis::make);
 
   // Data storager
   terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
