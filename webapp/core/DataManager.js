@@ -1582,7 +1582,6 @@ var DataManager = {
             var promises = [];
             promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
             Utils.rollbackPromises(promises, new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), reject);
-            // Utils.rollbackModels(models.db['Analysis'], analysisResult.get(), new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), {reject: reject})
           });
         }).catch(function(err) {
           // rollback dataseries
