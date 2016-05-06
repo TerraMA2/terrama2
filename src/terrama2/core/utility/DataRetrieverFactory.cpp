@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/utility/DataAccessFactory.hpp
+  \file terrama2/core/utility/DataRetrieverFactory.hpp
 
   \brief
 

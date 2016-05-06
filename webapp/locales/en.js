@@ -249,5 +249,15 @@
 	"No data series found": "No data series found",
 	"Analysis script is required": "Analysis script is required",
 	"Analysis type is required": "Analysis type is required",
-	"Analysis instance is required": "Analysis instance is required"
+	"Analysis instance is required": "Analysis instance is required",
+	"Service name is required": "Service name is required",
+	"Service type is required": "Service type is required",
+	"Ssh host is required": "Ssh host is required",
+	"Ssh port is required": "Ssh port is required",
+	"Ssh port is invalid": "Ssh port is invalid",
+	"Ssh user is required": "Ssh user is required",
+	"Service path is required": "Service path is required",
+	"Service Port": "Service Port",
+	"Service port is required": "Service port is required",
+	"Service port is invalid": "Service port is invalid"
 }
