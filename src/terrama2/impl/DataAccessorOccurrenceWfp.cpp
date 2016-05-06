@@ -50,7 +50,7 @@ terrama2::core::DataAccessorOccurrenceWfp::DataAccessorOccurrenceWfp(DataProvide
   : DataAccessor(dataProvider, dataSeries, filter), DataAccessorOccurrence(dataProvider, dataSeries, filter),
     DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "OCCURRENCE-wfp")
+  if(dataSeries->semantics.code != "OCCURRENCE-wfp")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

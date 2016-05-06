@@ -114,6 +114,7 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
 
     if(!datasource->isOpened())
     {
+      //TODO Jano: Document why it cant not throw an exception here
       QString errMsg = QObject::tr("DataProvider could not be opened.");
       TERRAMA2_LOG_ERROR() << errMsg;
 

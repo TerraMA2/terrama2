@@ -129,7 +129,10 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       createDataSet = fromDataSetGridJson;
       break;
     case DataSeriesSemantics::STATIC:
-      createDataSet = fromDataSetGridJson;
+      createDataSet = fromDataSetJson;
+      break;
+    case DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT:
+      createDataSet = fromDataSetJson;
       break;
     default:
     {
@@ -305,7 +308,7 @@ QJsonObject terrama2::core::toJson(DataSeriesPtr dataSeriesPtr)
   obj.insert("class", QString("DataSeries"));
   obj.insert("id", static_cast<qint64>(dataSeriesPtr->id));
   obj.insert("data_provider_id", static_cast<qint64>(dataSeriesPtr->dataProviderId));
-  obj.insert("semantics", QString::fromStdString(dataSeriesPtr->semantics.name));
+  obj.insert("semantics", QString::fromStdString(dataSeriesPtr->semantics.code));
   obj.insert("name", QString::fromStdString(dataSeriesPtr->name));
   obj.insert("description", QString::fromStdString(dataSeriesPtr->description));
 

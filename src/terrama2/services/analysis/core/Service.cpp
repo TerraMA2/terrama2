@@ -31,7 +31,10 @@
 #include "Exception.hpp"
 #include "DataManager.hpp"
 #include "AnalysisExecutor.hpp"
+#include "PythonInterpreter.hpp"
 #include "AnalysisLogger.hpp"
+#include "Context.hpp"
+#include <Python.h>
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Timer.hpp"
 
@@ -39,6 +42,7 @@ terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
   dataManager_(dataManager)
 {
+  terrama2::services::analysis::core::Context::getInstance().setDataManager(dataManager);
   connectDataManager();
 }
 

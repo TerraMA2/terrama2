@@ -66,7 +66,7 @@ namespace terrama2
          if it's not possible, only one thread will be created.
 
        */
-      void start(uint threadNumber = 0);
+      virtual void start(uint threadNumber = 0);
 
     public slots:
       /*!

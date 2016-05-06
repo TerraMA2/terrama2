@@ -39,8 +39,11 @@
 #include <QDataStream>
 #include <QtTest/QTest>
 
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <Python.h>
+
 // Boost
-#include <boost/exception/get_error_info.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 using namespace terrama2::services::analysis::core;
 
@@ -52,6 +55,9 @@ int main(int argc, char* argv[])
     terrama2::core::initializeTerraMA();
 
     terrama2::core::registerFactories();
+
+
+    terrama2::services::analysis::core::initInterpreter();
 
     QCoreApplication app(argc, argv);
 
@@ -79,7 +85,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics.name = "STATIC_DATA-postgis";
+    outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
     outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -93,15 +99,7 @@ int main(int argc, char* argv[])
 
 
     std::string script = "x = dcp.min(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"min\", x)\n"
-                         "x = dcp.max(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"max\", x)\n"
-                         "x = dcp.mean(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"mean\", x)\n"
-                         "x = dcp.median(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"median\", x)\n"
-                         "x = dcp.standardDeviation(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"standardDeviation\", x)\n";
+                         "add_value(\"min\", x)\n";
 
     Analysis analysis;
     analysis.id = 1;
@@ -125,7 +123,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics.name = "STATIC_DATA-ogr";
+    dataSeries->semantics.code = "STATIC_DATA-ogr";
     dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
@@ -162,7 +160,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
     terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
     dcpSeries->dataProviderId = dataProvider2->id;
-    dcpSeries->semantics.name = "DCP-inpe";
+    dcpSeries->semantics.code = "DCP-inpe";
     dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
     dcpSeries->name = "Serra do Mar";
     dcpSeries->id = 2;
@@ -214,7 +212,8 @@ int main(int argc, char* argv[])
 
     QJsonArray seriesArray;
     seriesArray.push_back(terrama2::core::toJson(dataSeriesPtr));
-    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));
+    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));;
+    seriesArray.push_back(terrama2::core::toJson(outputDataSeriesPtr));
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray analysisArray;
@@ -225,9 +224,9 @@ int main(int argc, char* argv[])
     QJsonDocument doc(obj);
 
     // Starts the service and TCP manager
-    terrama2::core::TcpManager tcpManager;
-    auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
-    tcpManager.listen(dataManager, QHostAddress::Any, 30001);
+    auto dataManager = std::make_shared<DataManager>();
+    terrama2::core::TcpManager tcpManager(dataManager);
+    tcpManager.listen(QHostAddress::Any, 30001);
     terrama2::services::analysis::core::Service service(dataManager);
     service.start();
 
@@ -255,10 +254,14 @@ int main(int argc, char* argv[])
 
     service.stop();
   }
+  catch(terrama2::Exception& e)
+  {
+    QString errMsg(e.what());
+    TERRAMA2_LOG_ERROR() << errMsg;
+  }
   catch(boost::exception& e)
   {
-    QString errMsg(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(std::exception& e)
   {

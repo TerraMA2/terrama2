@@ -40,7 +40,7 @@ terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(DataProvide
 : DataAccessor(dataProvider, dataSeries, filter),
   DataAccessorFile(dataProvider, dataSeries, filter)
 {
- if(dataSeries->semantics.name != "STATIC_DATA-ogr")
+ if(dataSeries->semantics.code != "STATIC_DATA-ogr")
  {
    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
    TERRAMA2_LOG_ERROR() << errMsg;
