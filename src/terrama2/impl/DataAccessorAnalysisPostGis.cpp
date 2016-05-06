@@ -43,7 +43,7 @@ terrama2::core::DataAccessorAnalysisPostGis::DataAccessorAnalysisPostGis(DataPro
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorPostGis(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "ANALYSIS-postgis")
+  if(dataSeries->semantics.code != "ANALYSIS_MONITORED_OBJECT-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
