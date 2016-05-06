@@ -7,9 +7,9 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      timeColumn: DataTypes.STRING,
-      geometryColumn: DataTypes.STRING,
-      idColumn: DataTypes.STRING,
+      time_column: DataTypes.STRING,
+      geometry_column: DataTypes.STRING,
+      id_column: DataTypes.STRING,
       srid: DataTypes.INTEGER
     },
     {

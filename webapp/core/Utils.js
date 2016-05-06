@@ -3,6 +3,7 @@ var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
 var cloneDeep = require("lodash").cloneDeep;
 var crypto = require('crypto');
+var exceptions = require('./Exceptions');
 
 function getTokenCodeMessage(code) {
   var msg;
@@ -92,6 +93,14 @@ module.exports = {
     })
   },
 
+  rollbackPromises: function(promises, exception, errorHandler) {
+    Promise.all(promises).then(function() {
+      errorHandler(exception);
+    }).catch(function(err) {
+      errorHandler(err);
+    })
+  },
+
   generateToken: function(app, code, intent) {
     var token = crypto.randomBytes(48).toString('hex');
     app.locals.tokenIntent = {
@@ -118,5 +127,25 @@ module.exports = {
     }
 
     return parameters;
+  },
+
+  getAnalysisType: function(analysisCode) {
+    if (analysisCode) {
+      switch(parseInt(analysisCode)) {
+        case Enums.AnalysisType.DCP:
+          return "Dcp";
+          break;
+        case Enums.AnalysisType.GRID:
+          return "Grid";
+          break;
+        case Enums.AnalysisType.MONITORED:
+          return "Monitored Object";
+          break;
+        default:
+          throw new Error("Invalid analysis id");
+          break;
+      }
+    }
+    throw new Error("Invalid analysis id");
   }
 };

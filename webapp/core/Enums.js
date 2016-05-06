@@ -47,7 +47,14 @@ module.exports = {
     OCCURRENCE: 'Occurrence',
     GRID: 'Grid',
     MONITORED: 'Monitored',
-    ANALYSIS: 'ANALYSIS'
+    ANALYSIS: 'ANALYSIS',
+    POSTGIS: 'POSTGIS'
+  },
+
+  AnalysisType: {
+    DCP: 1,
+    GRID: 2,
+    MONITORED: 3
   },
 
   DataSeriesFormat: {
