@@ -68,6 +68,7 @@ namespace terrama2
             void addCollector(CollectorPtr);
             void updateCollector(CollectorPtr collector);
             void removeCollector(CollectorId collectorId);
+            virtual void updateNumberOfThreads(int) override;
 
           protected:
             // comments on base class

@@ -44,12 +44,12 @@ const std::string& terrama2::core::ServiceManager::instanceName() const
   return instanceName_;
 }
 
-void terrama2::core::ServiceManager::setInstanceId(int instanceId)
+void terrama2::core::ServiceManager::setInstanceId(ServiceInstanceId instanceId)
 {
   instanceId_ = instanceId;
   serviceLoaded_ = true;
 }
-int terrama2::core::ServiceManager::instanceId() const
+ServiceInstanceId terrama2::core::ServiceManager::instanceId() const
 {
   return instanceId_;
 }
@@ -73,6 +73,16 @@ int terrama2::core::ServiceManager::listeningPort() const
   return listeningPort_;
 }
 
+void terrama2::core::ServiceManager::setNumberOfThreads(int numberOfThreads)
+{
+  numberOfThreads_ = numberOfThreads;
+  numberOfThreadsUpdated(numberOfThreads_);
+}
+int terrama2::core::ServiceManager::numberOfThreads() const
+{
+  return numberOfThreads_;
+}
+
 const std::string& terrama2::core::ServiceManager::terrama2Version() const
 {
   return terrama2Version_;
@@ -84,7 +94,7 @@ const std::shared_ptr< te::dt::TimeInstantTZ >& terrama2::core::ServiceManager::
 QJsonObject terrama2::core::ServiceManager::status() const
 {
   QJsonObject obj;
-  obj.insert("instance_id", instanceId());
+  obj.insert("instance_id", static_cast<int>(instanceId()));
   obj.insert("instance_name", QString::fromStdString(instanceName()));
   obj.insert("start_time", QString::fromStdString(startTime_->toString()));
   obj.insert("terrama2_version",  QString::fromStdString(terrama2Version()));
@@ -97,4 +107,5 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   setInstanceId(obj["instance_id"].toInt());
   setInstanceName(obj["instance_name"].toString().toStdString());
   setListeningPort(obj["listening_port"].toInt());
+  setNumberOfThreads(obj["number_of_threads"].toInt());
 }

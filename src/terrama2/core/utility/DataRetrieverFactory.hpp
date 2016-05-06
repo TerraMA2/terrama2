@@ -50,11 +50,11 @@ namespace terrama2
         //! DataRetriever constructor function.
         typedef std::function<DataRetriever* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
         //! Register a new DataRetriever constructor associated with the DataProviderType.
-        void add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f);
+        void add(const DataProviderType& dataProviderType, FactoryFnctType f);
         //! Remove the DataRetriever constructor associated with the DataProviderType.
-        void remove(const terrama2::core::DataProviderType& dataProviderType);
+        void remove(const DataProviderType& dataProviderType);
         //PAULO: documentar!
-        bool find(const terrama2::core::DataProviderType& dataProviderType);
+        bool find(const DataProviderType& dataProviderType);
         /*!
           \brief Creates a DataRetriever
 
@@ -75,7 +75,7 @@ namespace terrama2
         DataRetrieverFactory& operator=(const DataRetrieverFactory& other) = delete;
         DataRetrieverFactory& operator=(DataRetrieverFactory&& other) = delete;
 
-        std::map<terrama2::core::DataProviderType, FactoryFnctType> factoriesMap_;
+        std::map<DataProviderType, FactoryFnctType> factoriesMap_;
     };
 
 

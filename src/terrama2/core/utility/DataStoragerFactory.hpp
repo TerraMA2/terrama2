@@ -50,11 +50,11 @@ namespace terrama2
         //! DataStorager constructor function.
         typedef std::function<DataStorager* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
         //! Register a new DataStorager constructor associated with the DataProviderType.
-        void add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f);
+        void add(const DataProviderType& dataProviderType, FactoryFnctType f);
         //! Remove the DataStorager constructor associated with the DataProviderType.
-        void remove(const terrama2::core::DataProviderType& dataProviderType);
+        void remove(const DataProviderType& dataProviderType);
         //PAULO: documentar!
-        bool find(const terrama2::core::DataProviderType& dataProviderType);
+        bool find(const DataProviderType& dataProviderType);
         /*!
           \brief Creates a DataStorager
 
@@ -75,7 +75,7 @@ namespace terrama2
         DataStoragerFactory& operator=(const DataStoragerFactory& other) = delete;
         DataStoragerFactory& operator=(DataStoragerFactory&& other) = delete;
 
-        std::map<terrama2::core::DataProviderType, FactoryFnctType> factoriesMap_;
+        std::map<DataProviderType, FactoryFnctType> factoriesMap_;
     };
 
 
