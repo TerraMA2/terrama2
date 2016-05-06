@@ -39,6 +39,7 @@
 
 // Boost
 #include <boost/exception/get_error_info.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 terrama2::core::DataProviderPtr buildInputProvider()
 {
@@ -201,7 +202,7 @@ int main(int argc, char* argv[])
   }
   catch(boost::exception& e)
   {
-    std::cout << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+    std::cout << boost::diagnostic_information(e) << std::endl;
   }
   catch(std::exception& e)
   {
