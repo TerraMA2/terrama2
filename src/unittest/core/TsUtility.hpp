@@ -47,7 +47,8 @@ private slots:
 
   void testTimerNoFrequencyException();
   void testTimerInvalidUnitException();
-  void testTimer();
+  void testFrequencyTimer();
+  void testScheduleTimer();
 
   void testTimeUtilsAddMonth();
   void testTimeUtilsAddDay();
@@ -59,4 +60,5 @@ private slots:
   void testValidDataSetName();
   void testValidDataSetName2DigitsYear();
   void testValidDataSetName2DigitsYear1900();
+  void testIgnoreArchiveExtension();
 };

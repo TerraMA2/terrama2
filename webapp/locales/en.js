@@ -247,5 +247,7 @@
 	"Validate": "Validate",
 	"Analysis name is required": "Analysis name is required",
 	"No data series found": "No data series found",
-	"Analysis script is required": "Analysis script is required"
+	"Analysis script is required": "Analysis script is required",
+	"Analysis type is required": "Analysis type is required",
+	"Analysis instance is required": "Analysis instance is required"
 }

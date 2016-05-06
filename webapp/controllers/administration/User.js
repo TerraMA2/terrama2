@@ -1,5 +1,6 @@
 var User = require('../../config/Sequelize.js').import('../../models/User.js');
 var Utils = require("../../core/Utils");
+var TokenCode = require('../../core/Enums').TokenCode;
 var UserError = require("../../core/Exceptions").UserError;
 
 module.exports = function(app) {
@@ -21,7 +22,9 @@ module.exports = function(app) {
           usersArray.push(userObj);
         });
 
-        return response.render('administration/users', { usersList: usersArray });
+        var parameters = Utils.makeTokenParameters(request.query.token, app);
+
+        return response.render('administration/users', Object.assign({ usersList: usersArray }, parameters));
       }).catch(function(err) {
         response.status(400);
         response.json({status: 400, message: err.message});
@@ -58,6 +61,7 @@ module.exports = function(app) {
       });
     },
 
+    // api: json
     post: function (request, response) {
       if((request.body.password !== undefined && request.body.passwordConfirm !== undefined) && (request.body.password === request.body.passwordConfirm) && (request.body.password !== '')) {
         var salt = User.generateSalt();
@@ -73,7 +77,8 @@ module.exports = function(app) {
         };
 
         User.create(userObj).then(function(user) {
-          response.json(user);
+          var token = Utils.generateToken(app, TokenCode.SAVE, user.name);
+          response.json({status: 200, result: user, token: token});
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
@@ -83,6 +88,7 @@ module.exports = function(app) {
       }
     },
 
+    // api: json
     put: function (request, response) {
       if(request.body.password === request.body.passwordConfirm) {
         User.findOne({
@@ -96,7 +102,7 @@ module.exports = function(app) {
               username: request.body.username,
               cellphone: request.body.cellphone,
               email: request.body.email,
-              administrator: (request.body.administrator !== undefined && request.body.administrator === 'on')
+              administrator: request.body.administrator
             };
 
             var fields = ["name", "username", "cellphone", "email", "administrator"];
@@ -112,7 +118,8 @@ module.exports = function(app) {
                 id: request.params.id
               }
             }).then(function(user) {
-              response.json(user);
+              var token = Utils.generateToken(app, TokenCode.UPDATE, userToUpdate.name);
+              response.json({status: 200, result: user, token: token});
             }).catch(function(err) {
               response.status(400);
               response.json({status: 400, message: err.message});
@@ -129,19 +136,24 @@ module.exports = function(app) {
       }
     },
     
+    // api: json
     delete: function(request, response) {
       var userId = request.params.id;
       if (userId) {
         if (request.user.dataValues.id == userId) {
-          Utils.handleRequestError(response, new UserError("Cannot remove yourself"), 400);
+          Utils.handleRequestError(response, new UserError("You cannot remove yourself"), 400);
           return;
         }
-        
-        User.destroy({where: {id: userId}}).then(function() {
-          response.json({status:200});
+        User.findOne({where: {id: userId}}).then(function(userResult) {
+          var name = userResult.name;
+          User.destroy({where: {id: userId}}).then(function() {
+            response.json({status:200, name: name});
+          }).catch(function(err) {
+            console.log("Remove user: ", err);
+            Utils.handleRequestError(response, new UserError("Could not remove user ", err), 400);
+          });
         }).catch(function(err) {
-          console.log("Remove user: ", err);
-          Utils.handleRequestError(response, new UserError("Could not remove user ", err), 400);
+          Utils.handleRequestError(response, new UserError("User not found", err), 400);
         });
       } else {
         Utils.handleRequestError(response, new UserError("Missing user id"), 400);

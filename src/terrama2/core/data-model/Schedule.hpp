@@ -65,8 +65,9 @@ namespace terrama2
       uint64_t frequency = 0; //!< The value for time frequency. Ex: From 5 to 5 minutes.
       std::string frequencyUnit; //!< Unit of the time frequency (years, months, days, minutes, hours or seconds)
 
-      uint64_t schedule = 0; //!<  Value for Schedule, value could be the of day of year, month or week, the hour of day. Ex: The Third day of a week, the day 137 of a year.
-      std::string scheduleUnit; //!< Unit of the schedule frequency. (year, month, day, minute, hour or second)
+      uint64_t scheduleDay = 0; //!< Value for Schedule day of week, day of year or day of month. Ex: The Third day of a week or the day 137 of a year.
+      std::string scheduleTimestamp; //!< The time to execute a process in the scheduled Day.
+      std::string scheduleUnit; //!< Unit of the schedule frequency. (Ex: week, month or year)
 
       uint64_t scheduleRetry = 0; //!< The value of time between retrys. Ex: If fails retry at every 5 minutes.
       std::string scheduleRetryUnit; //!< Unit of the schedule retry. (years, months, days, minutes, hours or seconds)

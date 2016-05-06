@@ -139,7 +139,6 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       QString errMsg = QObject::tr("Invalid JSON object.\n Unknown DataSet type.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-      break;
     }
   }
 
@@ -258,7 +257,8 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   if(!(json.contains("id")
       && json.contains("frequency")
       && json.contains("frequency_unit")
-      && json.contains("schedule")
+      && json.contains("schedule_day")
+      && json.contains("schedule_timestamp")
       && json.contains("schedule_unit")
       && json.contains("schedule_retry")
       && json.contains("schedule_retry_unit")
@@ -275,7 +275,8 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   schedule.id = json["id"].toInt();
   schedule.frequency = json["frequency"].toInt();
   schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
-  schedule.schedule = json["schedule"].toInt();
+  schedule.scheduleDay = json["schedule_day"].toInt();
+  schedule.scheduleTimestamp = json["schedule_timestamp"].toString().toStdString();
   schedule.scheduleUnit = json["schedule_unit"].toString().toStdString();
   schedule.scheduleRetry = json["schedule_retry"].toInt();
   schedule.scheduleRetryUnit = json["schedule_retry_unit"].toString().toStdString();
@@ -384,7 +385,8 @@ QJsonObject terrama2::core::toJson(Schedule schedule)
   obj.insert("frequency",static_cast<qint64>(schedule.frequency));
   obj.insert("frequency_unit", QString::fromStdString(schedule.frequencyUnit));
 
-  obj.insert("schedule",static_cast<qint64>(schedule.schedule));
+  obj.insert("schedule_day",static_cast<qint64>(schedule.scheduleDay));
+  obj.insert("schedule_timestamp",QString::fromStdString(schedule.scheduleTimestamp));
   obj.insert("schedule_unit",QString::fromStdString(schedule.scheduleUnit));
   obj.insert("schedule_retry",static_cast<qint64>(schedule.scheduleRetry));
   obj.insert("schedule_retry_unit", QString::fromStdString(schedule.scheduleRetryUnit));

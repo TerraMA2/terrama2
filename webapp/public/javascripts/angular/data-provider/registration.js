@@ -59,6 +59,10 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     active: configuration.dataProvider.active
   };
 
+  $scope.initActive = function() {
+    $scope.dataProvider.active = (configuration.dataProvider.active === false || configuration.dataProvider.active) ? configuration.dataProvider.active : true;
+  };
+
   $scope.onSchemeChanged = function() {
     $scope.typeList.forEach(function(dataProviderType) {
       if (dataProviderType.name === $scope.protocol) {
@@ -109,13 +113,12 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       url: configuration.saveConfig.url,
       method: configuration.saveConfig.method,
       data: formData
-    }).success(function(dataProvider) {
-      $scope.alertBox.message = "Data Provider has been saved";
+    }).success(function(data) {
       $scope.isEditing = true;
 
-      var defaultRedirectTo = "/configuration/providers?id=" + dataProvider.id + "&method=" + configuration.saveConfig.method + "&";
+      var defaultRedirectTo = "/configuration/providers?id=" + data.result.id + "&method=" + configuration.saveConfig.method + "&";
 
-      var redirectData = makeRedirectUrl({data_provider_id: dataProvider.id});
+      var redirectData = makeRedirectUrl({data_provider_id: data.result.id}) + "&token=" + data.token;
 
       // disable fields
       $scope.options = {formDefaults: {readonly: true}};

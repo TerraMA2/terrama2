@@ -74,7 +74,8 @@
               <div class="form-group">
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
-                    <input type="checkbox" name="active" ng-model="dataProvider.active" ng-init="dataProvider.active = true"> {[ __("Active Server") ]}
+                    <input type="checkbox" name="active" ng-model="dataProvider.active" 
+                      ng-init="initActive(configuration.dataProvider.active)"> {[ __("Active Server") ]}
                   </label>
                 </div>
               </div>

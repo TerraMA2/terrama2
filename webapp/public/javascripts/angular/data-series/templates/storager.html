@@ -73,11 +73,11 @@
                     <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
                   </span>
                   <!-- todo: fix it -->
-                  <span ng-if="field == 'tableName'" editable-text="dcp[field]">
+                  <span ng-if="field.toLowerCase() != 'id'" editable-text="dcp[field]">
                     {{ dcp[field]}}
                   </span>
 
-                  <span ng-if="field != 'tableName'">
+                  <span ng-if="field.toLowerCase() == 'id'">
                     {{ dcp[field]}}
                   </span>
                 </td>

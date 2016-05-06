@@ -1,10 +1,13 @@
 var DataManager = require('../../core/DataManager');
+var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
 module.exports = function(app) {
   return {
     get: function (request, response) {
       DataManager.load().then(function() {
-        response.render("configuration/projects");
+        var parameters = makeTokenParameters(request.query.token, app);
+
+        response.render("configuration/projects", parameters);
       });
     },
 

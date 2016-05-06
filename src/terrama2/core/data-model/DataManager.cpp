@@ -269,7 +269,7 @@ terrama2::core::DataManager::~DataManager()
 {
 }
 
-void terrama2::core::DataManager::addFromJSON(const QJsonObject& obj)
+void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
 {
   auto dataProviders = obj["DataProviders"].toArray();
   for(auto json : dataProviders)
@@ -283,5 +283,22 @@ void terrama2::core::DataManager::addFromJSON(const QJsonObject& obj)
   {
     auto dataPtr = terrama2::core::fromDataSeriesJson(json.toObject());
     add(dataPtr);
+  }
+}
+
+void terrama2::core::DataManager::removeJSon(const QJsonObject& obj)
+{
+  auto dataSeries = obj["DataSeries"].toArray();
+  for(auto json : dataSeries)
+  {
+    auto dataId = json.toInt();
+    removeDataSeries(dataId);
+  }
+
+  auto dataProviders = obj["DataProviders"].toArray();
+  for(auto json : dataProviders)
+  {
+    auto dataId = json.toInt();
+    removeDataProvider(dataId);
   }
 }

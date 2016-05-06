@@ -60,9 +60,9 @@ int main(int argc, char* argv[])
     terrama2::services::analysis::core::initInterpreter();
 
     QCoreApplication app(argc, argv);
-    terrama2::core::TcpManager tcpManager;
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
-    tcpManager.listen(dataManager, QHostAddress::Any, 30001);
+    terrama2::core::TcpManager tcpManager(dataManager);
+    tcpManager.listen(QHostAddress::Any, 30001);
 
 
 

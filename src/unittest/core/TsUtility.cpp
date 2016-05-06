@@ -82,8 +82,9 @@ void TsUtility::testProcessLogger()
   log.addValue("tag1", "value3", registerID);
   log.addValue("tag2", "value4", registerID);
   log.error("Unit Test Error", registerID);
+  log.error("Unit Test second Error", registerID);
 
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::now();
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
   log.done(dataTime, registerID);
 
@@ -128,7 +129,7 @@ void TsUtility::testTimerInvalidUnitException()
   }
 }
 
-void TsUtility::testTimer()
+void TsUtility::testFrequencyTimer()
 {
   try
   {
@@ -188,6 +189,26 @@ void TsUtility::testTimer()
     schedule.frequencyUnit = "dd";
     terrama2::core::Timer timerDay3(schedule, 1, getLogger());
 
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here!");
+  }
+}
+
+void TsUtility::testScheduleTimer()
+{
+  try
+  {
+    terrama2::core::Schedule schedule;
+
+    // Schedule a timer in seconds
+    schedule.id = 0;
+    schedule.scheduleDay = 6;
+    schedule.scheduleTimestamp = "09:00:00.000";
+    schedule.scheduleUnit = "week";
+
+    terrama2::core::Timer timerWeek1(schedule, 1, getLogger());
   }
   catch(...)
   {
@@ -322,6 +343,18 @@ void TsUtility::testValidDataSetName2DigitsYear1900()
 {
   std::string name = "file56-04-19153726.file";
   std::string mask = "fileyy-MM-ddhhmmss.file";
+  std::string timezone = "00";
+  terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
+    QFAIL("Should not be here!");
+}
+
+void TsUtility::testIgnoreArchiveExtension()
+{
+  std::string name = "file56-04-19153726.file";
+  std::string mask = "fileyy-MM-ddhhmmss";
   std::string timezone = "00";
   terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;

@@ -4,7 +4,7 @@
 
 {% block staticDataMenu %}active{% endblock %}
 
-{% block title %} TerraMA2 {[ __('Data Providers') ]} {% endblock %}
+{% block title %} TerraMA2 {[ __('Data Providers') ]}{% endblock %}
 
 {% block javascripts %}
 
@@ -34,30 +34,27 @@
 
       $scope.loading = true;
       $scope.errorFound = false;
+      $scope.extra = {
+        removeOperationCallback: function(err, data) {
+          $scope.display = true;
+          if (err) {
+            $scope.alertLevel = "alert-danger";
+            $scope.alertBox.message = err.message;
+            return;
+          }
+
+          $scope.alertLevel = "alert-success";
+          $scope.alertBox.message = data.name + " removed";
+        }
+      };
       $scope.method = "{[ method ]}";
+      $scope.alertLevel = "alert-success";
       $scope.alertBox = {
         title: "Data Provider",
-        message: "{[ dataProvider ]}"
+        message: "{[ message ]}"
       };
-
-      switch($scope.method) {
-        case "PUT":
-          $scope.alertBox.message += " has been updated";
-          break;
-        case "POST":
-          $scope.alertBox.message += " has been saved";
-          break;
-        case "DELETE":
-          $scope.alertBox.message += " has been removed";
-          break;
-        default:
-          $scope.alertBox.message = "";
-      }
-
-      $scope.close = function() {
-        $scope.errorFound = false;
-        $scope.alertBox.message = "";
-      };
+      $scope.resetState = function() { $scope.display = false; };
+      $scope.display = {% if message %}true{% else %} false{% endif %};
 
       DataProviderFactory.get().success(function(dataProviders) {
         $scope.model = dataProviders;
@@ -82,7 +79,11 @@
     <div style="display: block;" class="box-body">
 
       <div class="col-md-12">
-        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'data provider'" remove="remove(object);"></terrama2-table>
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        </div>
+
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'data provider'" remove="remove(object);" extra="extra"></terrama2-table>
       </div>
 
     </div>

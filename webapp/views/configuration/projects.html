@@ -15,8 +15,9 @@
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
-  angular.module("terrama2.projects", ['terrama2', 'terrama2.table'])
+  angular.module("terrama2.projects", ['terrama2', 'terrama2.table', 'terrama2.components.messagebox'])
     .controller("ProjectController", function($scope, $http) {
       $scope.model = [];
       $scope.linkToAdd = "/configuration/projects/new";
@@ -35,6 +36,31 @@
       $scope.iconProperties = {};
 
       $scope.loading = true;
+
+      // alert-box
+      $scope.alertLevel = "alert-success";
+      $scope.alertBox = {
+        title: "Project",
+        message: "{[ message ]}"
+      };
+      $scope.resetState = function() { $scope.display = false; };
+
+      // callback after remove operation
+      $scope.extra = {
+        removeOperationCallback: function(err, data) {
+          $scope.display = true;
+          if (err) {
+            $scope.alertLevel = "alert-danger";
+            $scope.alertBox.message = err.message;
+            return;
+          }
+
+          $scope.alertLevel = "alert-success";
+          $scope.alertBox.message = data.name + " removed";
+        }
+      };
+
+      $scope.display = {% if message %}true{% else %} false{% endif %};
 
       $http.get("/api/Project/", {}).success(function(projects) {
         $scope.model = projects;
@@ -63,7 +89,12 @@ sidebar-collapse
     <div style="display: block;" class="box-body">
 
       <div class="col-md-12">
-        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'project'" remove="remove(object)"></terrama2-table>
+
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        </div>
+
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'project'" remove="remove(object)" extra="extra"></terrama2-table>
       </div>
 
     </div>

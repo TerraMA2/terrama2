@@ -84,6 +84,8 @@ namespace terrama2
 
             void addToQueue(AnalysisId analysisId);
 
+            virtual void updateNumberOfThreads(int) override;
+
           protected:
 
             /*!
