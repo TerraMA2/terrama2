@@ -43,7 +43,7 @@
 #include <Python.h>
 
 // Boost
-#include <boost/exception/get_error_info.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 using namespace terrama2::services::analysis::core;
 
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics.name = "ANALYSIS_MONITORED_OBJECT-postgis";
+    outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
     outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics.name = "STATIC_DATA-ogr";
+    dataSeries->semantics.code = "STATIC_DATA-ogr";
     dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
     terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
     dcpSeries->dataProviderId = dataProvider2->id;
-    dcpSeries->semantics.name = "DCP-inpe";
+    dcpSeries->semantics.code = "DCP-inpe";
     dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
     dcpSeries->name = "Serra do Mar";
     dcpSeries->id = 2;
@@ -224,9 +224,9 @@ int main(int argc, char* argv[])
     QJsonDocument doc(obj);
 
     // Starts the service and TCP manager
-    terrama2::core::TcpManager tcpManager;
-    auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
-    tcpManager.listen(dataManager, QHostAddress::Any, 30001);
+    auto dataManager = std::make_shared<DataManager>();
+    terrama2::core::TcpManager tcpManager(dataManager);
+    tcpManager.listen(QHostAddress::Any, 30001);
     terrama2::services::analysis::core::Service service(dataManager);
     service.start();
 
@@ -261,8 +261,7 @@ int main(int argc, char* argv[])
   }
   catch(boost::exception& e)
   {
-    QString errMsg(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(std::exception& e)
   {

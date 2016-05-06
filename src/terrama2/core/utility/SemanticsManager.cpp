@@ -41,7 +41,7 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemanti
                                                                                    const DataFormat& format,
                                                                                    const std::vector<DataProviderType>& providersTypeList)
 {
-  auto it = semanticsMap_.find(name);
+  auto it = semanticsMap_.find(code);
   if(it != semanticsMap_.cend())
   {
     QString errMsg = QObject::tr("Semantics %1 already registered.").arg(name.c_str());
@@ -56,7 +56,7 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemanti
   semantics.dataFormat = format;
   semantics.providersTypeList = providersTypeList;
 
-  semanticsMap_[name] = semantics;
+  semanticsMap_[code] = semantics;
 
   return semantics;
 }

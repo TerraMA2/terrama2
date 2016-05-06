@@ -45,17 +45,25 @@
 void terrama2::core::DataAccessorFactory::add(const std::string& semanticsCode, FactoryFnctType f)
 {
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  auto semantics = semanticsManager.getSemantics(semanticsCode);
-  auto it = factoriesMap_.find(semantics);
-
-  if(it != factoriesMap_.end())
+  try
   {
-    QString errMsg = QObject::tr("A data accessor factory with this name already exists: %1!").arg(semantics.name.c_str());
-    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-  }
+    auto semantics = semanticsManager.getSemantics(semanticsCode);
+    auto it = factoriesMap_.find(semantics);
 
-  factoriesMap_[semantics] = f;
+    if(it != factoriesMap_.end())
+    {
+      QString errMsg = QObject::tr("A data accessor factory with this name already exists: %1!").arg(semantics.code.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+    }
+
+    factoriesMap_[semantics] = f;
+  }
+  catch(terrama2::core::SemanticsException e)
+  {
+    // Could not add the factory because the given semantic isn't registered.
+    // Logged on throw.
+  }
 }
 
 void terrama2::core::DataAccessorFactory::remove(const std::string& semanticsCode)
@@ -66,7 +74,7 @@ void terrama2::core::DataAccessorFactory::remove(const std::string& semanticsCod
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("There is no registered data accessor factory named : %1!").arg(semantics.name.c_str());
+    QString errMsg = QObject::tr("There is no registered data accessor factory named : %1!").arg(semantics.code.c_str());
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
@@ -90,7 +98,7 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terram
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("Could not find a data accessor factory for this semantic: %1!").arg(dataSeries->semantics.name.c_str());
+    QString errMsg = QObject::tr("Could not find a data accessor factory for this semantic: %1!").arg(dataSeries->semantics.code.c_str());
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }

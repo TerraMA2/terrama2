@@ -43,7 +43,7 @@ terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::DataAccessorMonitore
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorPostGis(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "ANALYSIS_MONITORED_OBJECT-postgis")
+  if(dataSeries->semantics.code != "ANALYSIS_MONITORED_OBJECT-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -85,7 +85,7 @@ std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::dataSour
 
 te::dt::TimeInstantTZ terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::lastDateTime() const
 {
-  //TODO: Get last last date of execution from column execution_date
+  //TODO: Get last date of execution from column execution_date
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
   TERRAMA2_LOG_ERROR() << errMsg;
   throw Exception() << ErrorDescription(errMsg);

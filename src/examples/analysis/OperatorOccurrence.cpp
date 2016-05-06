@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics.name = "STATIC_DATA-ogr";
+  dataSeries->semantics.code = "STATIC_DATA-ogr";
   dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr occurrenceDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 2;
   outputDataSeries->name = "Occurrence";
-  outputDataSeries->semantics.name = "OCCURRENCE-postgis";
+  outputDataSeries->semantics.code = "OCCURRENCE-postgis";
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
