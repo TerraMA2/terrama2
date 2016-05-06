@@ -68,6 +68,23 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
   return dataRetriever->retrieveData(mask, filter);
 }
 
+std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
+{
+  return std::make_shared<te::mem::DataSet>(dataSetType.get());
+}
+
+void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, std::shared_ptr<te::da::DataSet> dataSet) const
+{
+  auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
+  complete->copy(*dataSet);
+}
+
+std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor, const std::string& dataSetName, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+{
+  std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
+  return std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
+}
+
 terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
                                                                    const terrama2::core::Filter& filter,
                                                                    terrama2::core::DataSetPtr dataSet) const
@@ -86,7 +103,7 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
   Series series;
   series.dataSet = dataSet;
 
-  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
+  std::shared_ptr<te::da::DataSet> completeDataset(nullptr);
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
   bool first = true;
@@ -143,18 +160,16 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
       converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
       series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
       assert(series.teDataSetType.get());
-      completeDataset = std::make_shared<te::mem::DataSet>(series.teDataSetType.get());
+      completeDataset = createCompleteDataSet(series.teDataSetType);
       first = false;
     }
 
     assert(converter);
-    std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
-    assert(datasetOrig);
-    std::shared_ptr<te::da::DataSet> teDataSet(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
+    std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
 
     //FIXME: Nor working with raster!!
 
-    completeDataset->copy(*teDataSet);
+    addToCompleteDataSet(completeDataset, teDataSet);
 
     if(completeDataset->isEmpty())
     {
