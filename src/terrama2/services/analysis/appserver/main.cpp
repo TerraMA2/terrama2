@@ -43,8 +43,6 @@
 #include <QCoreApplication>
 #include <QTimer>
 
-//Python
-#include <Python.h>
 
 int main(int argc, char* argv[])
 {
@@ -54,9 +52,6 @@ int main(int argc, char* argv[])
 
     terrama2::core::registerFactories();
 
-    Py_Initialize();
-    PyEval_InitThreads();
-    PyEval_ReleaseLock();
     terrama2::services::analysis::core::initInterpreter();
 
     QCoreApplication app(argc, argv);

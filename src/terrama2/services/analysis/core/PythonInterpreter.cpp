@@ -452,7 +452,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
 
 
   // Frees the GIL, from now on can not use the interpreter
-  //Py_BEGIN_ALLOW_THREADS
+  Py_BEGIN_ALLOW_THREADS
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
@@ -617,7 +617,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
 
 
   // All operations are done, acquires the GIL and set the return value
-  //Py_END_ALLOW_THREADS
+  Py_END_ALLOW_THREADS
 
   if(!hasData)
   {
