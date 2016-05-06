@@ -184,7 +184,7 @@ void terrama2::core::initializeTerraMA()
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
   semanticsManager.addSemantics("OCCURRENCE-postgis", "PostGis stored occurrence", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS", {"POSTGIS"});
-  semanticsManager.addSemantics("OCCURRENCE-wfp", "INPE's Wildiland Fire Program", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV", {"FILE", "FTP"});
+  semanticsManager.addSemantics("OCCURRENCE-wfp", "INPE's Wildland Fire Program", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV", {"FILE", "FTP"});
   semanticsManager.addSemantics("STATIC_DATA-ogr", "Generic static data", terrama2::core::DataSeriesSemantics::STATIC, "OGR", {"FILE", "FTP"});
   semanticsManager.addSemantics("DCP-inpe", "INPE's DCP data format", terrama2::core::DataSeriesSemantics::STATIC, "CSV", {"FILE", "FTP"});
 }
