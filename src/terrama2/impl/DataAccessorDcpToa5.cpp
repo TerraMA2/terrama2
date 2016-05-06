@@ -58,7 +58,7 @@ terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataPro
    DataAccessorDcp(dataProvider, dataSeries, filter),
    DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "DCP-toa5")
+  if(dataSeries->semantics.code != "DCP-toa5")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

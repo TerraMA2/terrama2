@@ -50,7 +50,7 @@ terrama2::core::DataAccessorOccurrenceWfp::DataAccessorOccurrenceWfp(DataProvide
   : DataAccessor(dataProvider, dataSeries, filter), DataAccessorOccurrence(dataProvider, dataSeries, filter),
     DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.name != "OCCURRENCE-wfp")
+  if(dataSeries->semantics.code != "OCCURRENCE-wfp")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -119,7 +119,7 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 }
 
 void terrama2::core::DataAccessorOccurrenceWfp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
-                                                           const std::shared_ptr<te::da::DataSetType>& datasetType) const
+    const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   // Don't add any columns here,
   // the converter will add columns
@@ -175,7 +175,7 @@ std::string terrama2::core::DataAccessorOccurrenceWfp::getTimeZone(DataSetPtr da
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
-                                                                                   int /*dstType*/, const std::string& timezone) const
+    int /*dstType*/, const std::string& timezone) const
 {
   assert(indexes.size() == 1);
 
@@ -209,7 +209,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimesta
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
-                                                                               int dstType, const Srid& srid) const
+    int dstType, const Srid& srid) const
 {
   assert(dataset);
   assert(indexes.size() == 2);

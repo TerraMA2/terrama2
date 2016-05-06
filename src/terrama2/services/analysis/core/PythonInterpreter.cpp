@@ -499,84 +499,59 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
         }
 
 
-        auto metadata = analysisDataSeries.metadata;
-
-        if(metadata["INFLUENCE_TYPE"] != "REGION")
+        try
         {
 
-          auto buffer = dcpDataset->position->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
+          auto metadata = analysisDataSeries.metadata;
 
-          int srid  = dcpDataset->position->getSRID();
-          if(srid == 0)
+          if(metadata["INFLUENCE_TYPE"] != "REGION")
           {
-            auto format = datasetMO->format;
-            if(format.find("srid") != format.end())
+
+            int srid  = dcpDataset->position->getSRID();
+            if(srid == 0)
             {
-              srid = std::stoi(format["srid"]);
+              auto format = datasetMO->format;
+              if(format.find("srid") != format.end())
+              {
+                srid = std::stoi(format["srid"]);
+                dcpDataset->position->setSRID(srid);
+              }
             }
-          }
+              auto buffer = dcpDataset->position->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
 
-          auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
 
-          if(polygon != nullptr)
-          {
-            auto centroid = polygon->getCentroid();
-            if(centroid->getSRID() == 0)
-              centroid->setSRID(srid);
-            else if(centroid->getSRID() != srid && srid != 0)
-              centroid->transform(srid);
+            auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
 
-            std::vector<double> values;
-            if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
+            if(polygon != nullptr)
             {
-              uint64_t countValues = 0;
-              if(contextDataset->series.syncDataSet->size() == 0)
-                continue;
-              for(unsigned int i = 0; i < contextDataset->series.syncDataSet->size(); ++i)
+              auto centroid = polygon->getCentroid();
+              if(centroid->getSRID() == 0)
+                centroid->setSRID(srid);
+              else if(centroid->getSRID() != srid && srid != 0)
+                centroid->transform(srid);
+
+              std::vector<double> values;
+              if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
               {
-                try
-                {
-                  if(!attribute.empty() && !contextDataset->series.syncDataSet->isNull(i, attribute))
-                  {
-                    hasData = true;
-                    countValues++;
-                    double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
-                    values.push_back(value);
-                    sum += value;
-                    if(value > max)
-                      max = value;
-                    if(value < min)
-                      min = value;
-                  }
-                }
-                catch(...)
-                {
-                  // In case the DCP doesn't have the specified column
+                uint64_t countValues = 0;
+                if(contextDataset->series.syncDataSet->size() == 0)
                   continue;
-                }
-              }
-
-              mean = sum / countValues;
-              std::sort (values.begin(), values.end());
-              double half = values.size() / 2;
-              if(values.size() > 1 && values.size() % 2 == 0)
-              {
-                median = values[(int)half] + values[(int)half - 1] / 2;
-              }
-              else
-              {
-                median = values.size() == 1 ? values[0] : 0.;
-              }
-
-              double sumVariance = 0.;
-              for(unsigned int i = 0; i < contextDataset->series.syncDataSet->size(); ++i)
-              {
-                if(!contextDataset->series.syncDataSet->isNull(i, attribute))
+                for(unsigned int i = 0; i < contextDataset->series.syncDataSet->size(); ++i)
                 {
                   try
                   {
-                    double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
-                    sumVariance += (value - mean) * (value - mean);
+                    if(!attribute.empty() && !contextDataset->series.syncDataSet->isNull(i, attribute))
+                    {
+                      hasData = true;
+                      countValues++;
+                      double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
+                      values.push_back(value);
+                      sum += value;
+                      if(value > max)
+                        max = value;
+                      if(value < min)
+                        min = value;
+                    }
                   }
                   catch(...)
                   {
@@ -584,17 +559,52 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
                     continue;
                   }
                 }
+
+                mean = sum / countValues;
+                std::sort (values.begin(), values.end());
+                double half = values.size() / 2;
+                if(values.size() > 1 && values.size() % 2 == 0)
+                {
+                  median = values[(int)half] + values[(int)half - 1] / 2;
+                }
+                else
+                {
+                  median = values.size() == 1 ? values[0] : 0.;
+                }
+
+                double sumVariance = 0.;
+                for(unsigned int i = 0; i < contextDataset->series.syncDataSet->size(); ++i)
+                {
+                  if(!contextDataset->series.syncDataSet->isNull(i, attribute))
+                  {
+                    try
+                    {
+                      double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
+                      sumVariance += (value - mean) * (value - mean);
+                    }
+                    catch(...)
+                    {
+                      // In case the DCP doesn't have the specified column
+                      continue;
+                    }
+                  }
+                }
+
+                standardDeviation = sumVariance / countValues;
+
               }
-
-              standardDeviation = sumVariance / countValues;
-
+            }
+            else
+            {
+              // TODO: Monitored object is not a multi polygon.
+              assert(false);
             }
           }
-          else
-          {
-            // TODO: Monitored object is not a multi polygon.
-            assert(false);
-          }
+        }
+        catch(terrama2::Exception /*e*/)
+        {
+          QString errMsg = QObject::tr("Ops.");
+          TERRAMA2_LOG_WARNING() << errMsg;
         }
 
 
@@ -728,13 +738,9 @@ BOOST_PYTHON_MODULE(terrama2)
 
 void terrama2::services::analysis::core::initInterpreter()
 {
-  Py_Initialize();
-
   PyEval_InitThreads();
-
+  Py_Initialize();
   INIT_MODULE();
-
-  // release our hold on the global interpreter
   PyEval_ReleaseLock();
 }
 

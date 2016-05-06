@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorOccurrencePostGis.cpp
+  \file terrama2/core/data-access/DataAccessorMonitoredObjectAnalysisPostGis.cpp
 
-  \brief
+  \brief Data accessor for an monitored object analysis result.
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
  */
 
-#include "DataAccessorOccurrencePostGis.hpp"
+#include "DataAccessorMonitoredObjectAnalysisPostGis.hpp"
 #include "../core/utility/Raii.hpp"
 
 //TerraLib
@@ -39,12 +39,11 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorOccurrencePostGis::DataAccessorOccurrencePostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::DataAccessorMonitoredObjectAnalysisPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorOccurrence(dataProvider, dataSeries, filter),
    DataAccessorPostGis(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "OCCURRENCE-postgis")
+  if(dataSeries->semantics.code != "ANALYSIS_MONITORED_OBJECT-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -52,7 +51,7 @@ terrama2::core::DataAccessorOccurrencePostGis::DataAccessorOccurrencePostGis(Dat
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::getDataSetName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getDataSetName(DataSetPtr dataSet) const
 {
   try
   {
@@ -66,35 +65,28 @@ std::string terrama2::core::DataAccessorOccurrencePostGis::getDataSetName(DataSe
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::getDateTimePropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getDateTimePropertyName(DataSetPtr dataSet) const
 {
-  try
-  {
-    return dataSet->format.at("timestamp_property");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
+  return "execution_date";
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::getGeometryPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getGeometryPropertyName(DataSetPtr dataSet) const
 {
-  try
-  {
-    return dataSet->format.at("geometry_property");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
+  //TODO: Read the geom property from the monitored objet.
+  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::dataSourceType() const
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::dataSourceType() const
 {
   return "POSTGIS";
+}
+
+te::dt::TimeInstantTZ terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::lastDateTime() const
+{
+  //TODO: Get last date of execution from column execution_date
+  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception() << ErrorDescription(errMsg);
 }

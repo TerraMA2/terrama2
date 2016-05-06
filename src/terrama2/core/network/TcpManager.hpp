@@ -36,6 +36,8 @@ namespace terrama2
 {
   namespace core
   {
+    class ServiceManager;
+
     class DataManager;
     /*!
       \class TcpManager
@@ -54,7 +56,7 @@ namespace terrama2
 
       public:
         //! Constructor, connects signal.
-        TcpManager(QObject* parent = 0);
+        TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent = 0);
         //! Default destructor.
         virtual ~TcpManager();
 
@@ -63,11 +65,12 @@ namespace terrama2
         /*!
           \brief Listens to TCP socket connections.
 
-          Holds a weak pointer to a DataManager that wil be used when new data is received.
-
           \see <a href="http://doc.qt.io/qt-5/qtcpserver.html">QTcpServer </a>
         */
-        bool listen(std::weak_ptr<terrama2::core::DataManager> dataManager, const QHostAddress& address = QHostAddress::Any, quint16 port = 0);
+        using QTcpServer::listen;
+
+      public slots:
+        bool updateListeningPort(int);
 
       signals:
         //! Emited when the service should be terminated.
@@ -82,14 +85,18 @@ namespace terrama2
         void readReadySlot();
 
       private:
-        using QTcpServer::listen;
-
         uint32_t blockSize_; //!< Size of the message received.
-        //! Parse bytearray as a json and add to the DataManager.
-        void parseData(const QByteArray& bytearray);
+        //! Parse bytearray as a json and add contents to the DataManager.
+        void addData(const QByteArray& bytearray);
+        //! Parse bytearray as a json and remove contents from the DataManager.
+        void removeData(const QByteArray& bytearray);
+        void updateService(const QByteArray& bytearray);
+
 
         std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
+
+        ServiceManager* serviceManager_;
     };
   }
 }

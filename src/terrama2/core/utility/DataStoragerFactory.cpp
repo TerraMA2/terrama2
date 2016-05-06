@@ -35,7 +35,7 @@
 #include <QObject>
 #include <QString>
 
-void terrama2::core::DataStoragerFactory::add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f)
+void terrama2::core::DataStoragerFactory::add(const DataProviderType& dataProviderType, FactoryFnctType f)
 {
   auto it = factoriesMap_.find(dataProviderType);
 
@@ -49,7 +49,7 @@ void terrama2::core::DataStoragerFactory::add(const terrama2::core::DataProvider
   factoriesMap_.emplace(dataProviderType, f);
 }
 
-void terrama2::core::DataStoragerFactory::remove(const terrama2::core::DataProviderType& dataProviderType)
+void terrama2::core::DataStoragerFactory::remove(const DataProviderType& dataProviderType)
 {
   auto it = factoriesMap_.find(dataProviderType);
 
@@ -63,7 +63,7 @@ void terrama2::core::DataStoragerFactory::remove(const terrama2::core::DataProvi
   factoriesMap_.erase(it);
 }
 
-bool terrama2::core::DataStoragerFactory::find(const terrama2::core::DataProviderType& dataProviderType)
+bool terrama2::core::DataStoragerFactory::find(const DataProviderType& dataProviderType)
 {
   auto it = factoriesMap_.find(dataProviderType);
 

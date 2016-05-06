@@ -27,6 +27,10 @@
   \author Jano Simas
 */
 
+#ifndef __TERRAMA2_CORE_TCP_SIGNALS_HPP__
+#define __TERRAMA2_CORE_TCP_SIGNALS_HPP__
+
+
 namespace terrama2 {
   namespace core {
     //! Namespace for signals for TCP communication.
@@ -44,8 +48,11 @@ namespace terrama2 {
         START_PROCESS_SIGNAL = 3,//!< Start signal, queue the collection, analysis, ...
         LOG_SIGNAL = 4,//!< Log signal, send error message to node.js server
         REMOVE_DATA_SIGNAL = 5, //!< Remove data signal
-        PROCESS_FINISHED_SIGNAL = 6 //!< Signal emited when a process has finished
+        PROCESS_FINISHED_SIGNAL = 6, //!< Signal emited when a process has finished
+        UPDATE_SERVICE_SIGNAL = 7 //!< Signal to receive service information.
       };
     }
   }
 }
+
+#endif //__TERRAMA2_CORE_TCP_SIGNALS_HPP__

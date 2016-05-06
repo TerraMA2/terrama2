@@ -72,7 +72,7 @@ namespace terrama2
 
               \pre The QJsonObject must have a list of json-converted data model objects.
             */
-            virtual void addFromJSON(const QJsonObject& obj) override;
+            virtual void addJSon(const QJsonObject& obj) override;
 
             //! Needed for overloading add method.
             using terrama2::core::DataManager::add;

@@ -72,6 +72,7 @@ void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>
 
 void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
 {
+
   switch(analysis.type)
   {
     case MONITORED_OBJECT_TYPE:
@@ -97,7 +98,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 {
   try
   {
-    terrama2::services::analysis::core::initInterpreter();
     terrama2::services::analysis::core::Context::getInstance().loadMonitoredObject(analysis);
 
     int size = 0;
@@ -209,7 +209,6 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
 {
   try
   {
-    terrama2::services::analysis::core::initInterpreter();
 
     int size = 0;
     for(auto analysisDataSeries : analysis.analysisDataSeriesList)

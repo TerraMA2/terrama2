@@ -47,9 +47,6 @@ namespace terrama2
       \brief Timer class for scheduling processes.
 
       This class when created starts a timer based on the Schedule that will emit a timeoutSignal.
-
-      VINICIUS: documentar timer por frequencia e por agendamento
-
     */
     class Timer : public QTimer
     {
@@ -76,10 +73,25 @@ namespace terrama2
         void timeoutSlot();
 
     private:
+        /*!
+       * \brief The method checks if the process execution is by frequency or by schedule, calcules the
+       *        time to start it and starts a timer with the countdown to the time of execution.
+       * \param dataSchedule
+       */
       void prepareTimer(const terrama2::core::Schedule& dataSchedule);
 
+      /*!
+       * \brief A method to calculate the seconds for frequency stored in the Schedule
+       * \param dataSchedule The schedule struct with the information for when a process should be executed
+       * \return A double containing the frequency in seconds
+       */
       double frequencySeconds(const Schedule& dataSchedule);
 
+      /*!
+       * \brief A method to calculate the seconds until the scheduled date and time in stored in the Schedule
+       * \param dataSchedule The schedule struct with the information for when a process should be executed
+       * \return A double containing the seconds until the scheduled timestamp
+       */
       double scheduleSeconds(const Schedule& dataSchedule);
 
       struct Impl;

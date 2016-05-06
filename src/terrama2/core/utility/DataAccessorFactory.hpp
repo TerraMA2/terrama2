@@ -33,6 +33,7 @@
 //TerraMA2
 #include "../Shared.hpp"
 #include "../data-model/Filter.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -59,11 +60,11 @@ namespace terrama2
         //! DataAccessor constructor function.
         typedef std::function<DataAccessor* (terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, terrama2::core::Filter filter)> FactoryFnctType;
         //! Register a new DataAccessor constructor associated with the DataSeriesSemantics.
-        void add(const std::string& semanticName, FactoryFnctType f);
+        bool add(const std::string& semanticsCode, FactoryFnctType f);
         //! Remove the DataAccessor constructor associated with the DataSeriesSemantics.
-        void remove(const std::string& semanticName);
+        void remove(const std::string& semanticsCode);
         //PAULO: documentar!
-        bool find(const std::string& semanticName);
+        bool find(const std::string& semanticsCode);
         /*!
           \brief Creates a DataAccessor
 
@@ -92,7 +93,7 @@ namespace terrama2
 
       private:
 
-        std::map<std::string, FactoryFnctType> factoriesMap_;
+        std::map<DataSeriesSemantics, FactoryFnctType> factoriesMap_;
     };
   }
 }

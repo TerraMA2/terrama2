@@ -29,6 +29,8 @@
 #define __TERRAMA2_CORE_TYPEDEF_HPP__
 
 #include <cstdint>
+#include <string>
+
 //! Unique identifier of the ServiceInstance
 typedef uint64_t ServiceInstanceId;
 //! Unique identifier for Project
@@ -41,6 +43,8 @@ typedef uint64_t DataSetId;
 typedef uint64_t DataSeriesId;
 //! Unique identifier for DataProvider
 typedef uint64_t DataProviderId;
+
+typedef std::string DataProviderType;
 
 namespace terrama2
 {

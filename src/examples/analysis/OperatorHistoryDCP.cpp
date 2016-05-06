@@ -1,19 +1,17 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/DataAccessorFactory.hpp>
-#include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
+#include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/Shared.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/DataManager.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -27,16 +25,16 @@ using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   terrama2::core::registerFactories();
+
+  terrama2::services::analysis::core::initInterpreter();
 
   QCoreApplication app(argc, argv);
 
 
   DataManagerPtr dataManager(new DataManager());
-
-  Context::getInstance().setDataManager(dataManager);
 
   std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
                        "add_value(\"history_sum\",x)\n"
@@ -74,7 +72,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics.name = "STATIC_DATA-ogr";
+  dataSeries->semantics.code = "STATIC_DATA-ogr";
   dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
@@ -115,7 +113,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
-  dcpSeries->semantics.name = "DCP-inpe";
+  dcpSeries->semantics.code = "DCP-inpe";
   dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
