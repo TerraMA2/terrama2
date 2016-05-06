@@ -72,16 +72,10 @@ std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getDateT
 
 std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getGeometryPropertyName(DataSetPtr dataSet) const
 {
-  try
-  {
-    return dataSet->format.at("geometry_property");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
+  //TODO: Read the geom property from the monitored objet.
+  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception() << ErrorDescription(errMsg);
 }
 
 std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::dataSourceType() const
@@ -91,6 +85,7 @@ std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::dataSour
 
 te::dt::TimeInstantTZ terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::lastDateTime() const
 {
+  //TODO: Get last last date of execution from column execution_date
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
   TERRAMA2_LOG_ERROR() << errMsg;
   throw Exception() << ErrorDescription(errMsg);
