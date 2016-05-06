@@ -25,9 +25,11 @@ using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   terrama2::core::registerFactories();
+
+  terrama2::services::analysis::core::initInterpreter();
 
   QCoreApplication app(argc, argv);
 

@@ -6,6 +6,7 @@
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
@@ -24,9 +25,11 @@ using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   terrama2::core::registerFactories();
+
+  terrama2::services::analysis::core::initInterpreter();
 
   QCoreApplication app(argc, argv);
 
@@ -58,7 +61,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 3;
   outputDataSeries->name = "Analysis result";
-  outputDataSeries->semantics.code = "ANALYSIS-postgis";
+  outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 

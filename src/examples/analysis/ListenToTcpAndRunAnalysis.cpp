@@ -254,11 +254,6 @@ int main(int argc, char* argv[])
 
     service.stop();
   }
-  catch(terrama2::Exception& e)
-  {
-    QString errMsg(e.what());
-    TERRAMA2_LOG_ERROR() << errMsg;
-  }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
