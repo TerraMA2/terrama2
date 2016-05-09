@@ -1437,7 +1437,20 @@ var DataManager = {
     var self = this;
     // todo: implement it from listSchedules
     return new Promise(function(resolve, reject) {
-      resolve();
+      self.listCollectors(restriction || {}).then(function(collectors) {
+        if (collectors.length == 1)
+          models.db['Schedule'].findOne({id: collectors[0].schedule_id}).then(function(scheduleResult) {
+            resolve(scheduleResult.get());
+          }).catch(function(err) {
+            console.log(err);
+            reject(new exceptions.ScheduleError("Could not find schedule " + err.message));
+          });
+        else {
+          reject(new exceptions.ScheduleError("Could not find schedule with a collector associated"));
+        }
+      }).catch(function(err) {
+        reject(err);
+      })
     });
   },
 

@@ -143,14 +143,24 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
 
       var analysisDataSeries = {
         data_series_id: $scope.selectedDataSeries.id,
-        metadata: metadata
+        metadata: metadata,
+        alias: metadata.alias,
+        // todo: check it
+        type_id: $scope.analysis.type_id
       };
 
       var analysisToSend = Object.assign({}, $scope.analysis);
+      analysisToSend.dataSeries = $scope.selectedDataSeries;
       analysisToSend.analysisDataSeries = analysisDataSeries;
 
+      var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
+
+
       // sending post operation
-      AnalysisFactory.post(analysisToSend).success(function(data) {
+      AnalysisFactory.post({
+        analysis: analysisToSend,
+        storager: storager
+      }).success(function(data) {
         alert("Saved");
         console.log(data);
       }).error(errorHelper);
