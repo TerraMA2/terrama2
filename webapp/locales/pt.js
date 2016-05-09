@@ -108,5 +108,6 @@
 	"Ssh user is required": "Ssh user is required",
 	"Path": "Path",
 	"Service path is required": "Service path is required",
-	"Service Port": "Service Port"
+	"Service Port": "Service Port",
+	"Alias": "Alias"
 }
