@@ -138,6 +138,11 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
     return 0;
   }
 
+
+  // Save thread state before entering multi-thread zone
+
+  //Py_BEGIN_ALLOW_THREADS
+
   std::shared_ptr<ContextDataSeries> contextDataset;
 
   for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
@@ -161,16 +166,18 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
         }
 
 
-        // Save thread state before entering multi-thread zone
-
-        Py_BEGIN_ALLOW_THREADS
-
         std::vector<uint64_t> indexes;
         terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
 
-        // Converts the monitored object to the same srid of the occurrences
+        if(syncDs->size() == 0)
+        {
+          return 0.;
+        }
+
         auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
 
+
+        // Converts the monitored object to the same srid of the occurrences
         if(contextDataset->series.syncDataSet->size() > 0)
         {
           auto spatialRefSystem = te::srs::SpatialReferenceSystemManager::getInstance().getUnit(moGeom->getSRID());
@@ -261,11 +268,12 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
           }*/
         }
 
-        // All operations are done, acquires the GIL and set the return value
-        Py_END_ALLOW_THREADS
       }
     }
   }
+
+  // All operations are done, acquires the GIL and set the return value
+  //Py_END_ALLOW_THREADS
 
   return count;
 }
@@ -716,6 +724,7 @@ BOOST_PYTHON_MODULE(terrama2)
   def("add_value", terrama2::services::analysis::core::addValue);
 
   enum_<terrama2::services::analysis::core::BufferType>("Buffer")
+          .value("NONE", terrama2::services::analysis::core::NONE)
           .value("EXTERN", terrama2::services::analysis::core::EXTERN)
           .value("INTERN", terrama2::services::analysis::core::INTERN)
           .value("INTERN_PLUS_EXTERN", terrama2::services::analysis::core::INTERN_PLUS_EXTERN)
@@ -873,7 +882,7 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
         QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
         errMsg = errMsg.arg(analysisId);
         TERRAMA2_LOG_ERROR() << errMsg;
-        return 0.;
+        return NAN;
       }
 
       moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
@@ -898,6 +907,10 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
     return NAN;
   }
 
+
+
+  // Frees the GIL, from now on can not use the interpreter
+  Py_BEGIN_ALLOW_THREADS
 
   std::shared_ptr<ContextDataSeries> contextDataset;
 
@@ -941,9 +954,6 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
           TERRAMA2_LOG_ERROR() << errMsg;
           return NAN;
         }
-
-        // Frees the GIL, from now on can not use the interpreter
-        Py_BEGIN_ALLOW_THREADS
 
         auto metadata = analysisDataSeries.metadata;
 
@@ -1038,14 +1048,14 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
           }
         }
 
-        // All operations are done, acquires the GIL and set the return value
-        Py_END_ALLOW_THREADS
       }
 
       break;
     }
   }
 
+  // All operations are done, acquires the GIL and set the return value
+  Py_END_ALLOW_THREADS
 
   if(found)
   {
