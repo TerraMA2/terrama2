@@ -115,7 +115,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
   try
   {
-    logger->start();
+    auto logId = logger->start();
 
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
@@ -145,8 +145,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      //TODO: logger->done();
-      TERRAMA2_LOG_ERROR() << tr("No data to collect.");
+      //TODO: logger->done(logId);
+      TERRAMA2_LOG_WARNING() << tr("No data to collect.");
       return;
     }
 
@@ -164,7 +164,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       dataStorager->store(item.second, *outputDataSet);
     }
 
-    //TODO: logger->done();
+    //TODO: logger->done(logId);
   }
   catch(const terrama2::Exception& e)
   {
