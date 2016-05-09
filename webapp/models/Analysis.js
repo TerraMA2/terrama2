@@ -13,7 +13,8 @@ module.exports = function(sequelize, DataTypes) {
       },
       description: DataTypes.TEXT,
       script_language: DataTypes.STRING,
-      script: DataTypes.TEXT
+      script: DataTypes.TEXT,
+      active: DataTypes.BOOLEAN
     },
     {
       underscored: true,

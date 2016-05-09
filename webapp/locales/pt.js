@@ -109,5 +109,13 @@
 	"Path": "Path",
 	"Service path is required": "Service path is required",
 	"Service Port": "Service Port",
-	"Alias": "Alias"
+	"Alias": "Alias",
+	"Service port is required": "Service port is required",
+	"Service port is invalid": "Service port is invalid",
+	"Touches": "Touches",
+	"Center": "Center",
+	"Region": "Region",
+	"Influence Data Series": "Influence Data Series",
+	"Influence Attribute": "Influence Attribute",
+	"": ""
 }
