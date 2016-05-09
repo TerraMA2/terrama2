@@ -12,6 +12,7 @@
 #include <terrama2/services/analysis/core/DataManager.hpp>
 
 #include <terrama2/impl/Utils.hpp>
+#include <terrama2_config.hpp>
 
 #include <iostream>
 
@@ -99,7 +100,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->name = "Provider";
-  dataProvider->uri = "file:///Users/paulo/Workspace/data/shp";
+  dataProvider->uri+=TERRAMA2_DATA_DIR;
+  dataProvider->uri+="/shapefile";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
@@ -133,7 +135,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
   dataProvider2->name = "Provider";
-  dataProvider2->uri = "file:///Users/paulo/Workspace/data/PCD_serrmar_INPE";
+  dataProvider2->uri+=TERRAMA2_DATA_DIR;
+  dataProvider2->uri+="/PCD_serrmar_INPE";
   dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
