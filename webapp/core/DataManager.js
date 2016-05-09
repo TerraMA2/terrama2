@@ -224,6 +224,7 @@ var DataManager = {
       // helper for clean up datamanager and reject promise
       var _rejectClean = function(err) {
         clean();
+        console.log(err);
         reject(err);
       };
 
@@ -301,12 +302,19 @@ var DataManager = {
 
                         if (dataSet.DataSetDcp) {
                           var dcpDset = dataSet.DataSetDcp.get();
-                          self.getWKT(dcpDset.position).then(function(wktPosition) {
-                            dcpDset.position = wktPosition;
+                          
+                          // checking dcp position is null
+                          if (dcpDset.position) {
+                            self.getWKT(dcpDset.position).then(function(wktPosition) {
+                              dcpDset.position = wktPosition;
+                              Object.assign(dSetObject, dcpDset);
+                              
+                              _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                            }).catch(_rejectClean);
+                          } else {
                             Object.assign(dSetObject, dcpDset);
-
                             _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
-                          }).catch(_rejectClean(err));
+                          }
                         }
                         else if (dataSet.DataSetOccurrence)
                           _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
@@ -330,12 +338,7 @@ var DataManager = {
       }).catch(_rejectClean);
     });
   },
-  
-  /**
-   * It retrieves a Well Known Text (WKT) from GeoJSON structure
-   * @param {Object} geoJSONObject - A javascript object in GeoJSON syntax.
-   * @return {Promise} - a 'bluebird' module. The callback is either a string representation or callback error.
-   */
+
   getWKT: function(geoJSONObject) {
     return new Promise(function(resolve, reject) {
       models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
@@ -1232,13 +1235,12 @@ var DataManager = {
           if (output.position && format === Enums.Format.WKT)
             // Getting wkt representation of Point from GeoJSON
             self.getWKT(output.position).then(function(wktGeom) {
-              output.position = wktGeom;
               resolve(output);
               release();
             }).catch(function(err) {
               reject(err);
               release();
-            });
+            })
           else {
             resolve(output);
             release();
@@ -1546,10 +1548,51 @@ var DataManager = {
       */
       models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
         var output = [];
-        collectorsResult.forEach(function(collector) {
-          output.push(collector.get());
+        var promises = [];
+
+        self.listDataSeries().then(function(dataSeriesResult) {
+          collectorsResult.forEach(function(collector) {
+            var input_output_map = [];
+            var inputDataSeries = null;
+            var outputDataSeries = null;
+
+            dataSeriesResult.some(function(dataSeries) {
+              if (collector.data_series_input == dataSeries.id) { // input
+                inputDataSeries = dataSeries;
+                return inputDataSeries && outputDataSeries;
+              } else if (collector.data_series_output == dataSeries.id) {
+                outputDataSeries = dataSeries;
+                return inputDataSeries && outputDataSeries;
+              }
+              return false;
+            }); // end some dataseries
+
+            if (inputDataSeries && outputDataSeries) {
+              // iterating over datasets
+              for(var i = 0; i < inputDataSeries.dataSets.length; ++i) {
+                var inputDataSet = inputDataSeries.dataSets[i];
+                var outputDataSet;
+                if (outputDataSeries.dataSets.length == 1)
+                  outputDataSet = outputDataSeries.dataSets[0];
+                else
+                  outputDataSet = outputDataSeries.dataSets[i];
+
+                input_output_map.push({
+                  input: inputDataSet.id,
+                  output: outputDataSet.id
+                });
+              }
+
+              output.push(new Collector(Object.assign({input_output_map: input_output_map}, collector.get())));
+              input_output_map = [];
+            }
+          }); // end foreach collectors
+
+          resolve(output);
+        }).catch(function(err) {
+          console.log(err);
+          reject(err);
         });
-        resolve(output);
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
