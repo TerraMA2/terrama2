@@ -26,7 +26,7 @@ module.exports = function(app) {
         Utils.handleRequestError(response, err, 400);
       })
     },
-    
+
     post: function(request, response) {
       var serviceObject = request.body;
       DataManager.addServiceInstance(serviceObject).then(function(service) {
