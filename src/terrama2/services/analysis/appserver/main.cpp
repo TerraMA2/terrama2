@@ -32,9 +32,12 @@
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/core/network/TcpManager.hpp>
+#include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/impl/Utils.hpp>
+#include <terrama2/core/ErrorCodes.hpp>
+
 // STL
 #include <memory>
 #include <iostream>
@@ -48,6 +51,14 @@ int main(int argc, char* argv[])
 {
   try
   {
+    if(argc != 2)
+    {
+      //TODO: help message
+      std::cout << "\n<< Help usage message >>\n" << std::endl;
+      return SERVICE_PARAMETERS_ERROR;
+    }
+    int listeningPort = std::stoi(argv[1]);
+
     terrama2::core::initializeTerraMA();
 
     terrama2::core::registerFactories();
@@ -55,6 +66,19 @@ int main(int argc, char* argv[])
     terrama2::services::analysis::core::initInterpreter();
 
     QCoreApplication app(argc, argv);
+    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    serviceManager.setServiceType("Analysis");
+    serviceManager.setListeningPort(listeningPort);
+    std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
+                                                  {"PG_PORT", "5432"},
+                                                  {"PG_USER", "postgres"},
+                                                  {"PG_PASSWORD", "postgres"},
+                                                  {"PG_DB_NAME", "nodejs"},
+                                                  {"PG_CONNECT_TIMEOUT", "4"},
+                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
+                                                };
+    serviceManager.setLogConnectionInfo(connInfo);
+
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
     terrama2::core::TcpManager tcpManager(dataManager);
     tcpManager.listen(QHostAddress::Any, 30001);
