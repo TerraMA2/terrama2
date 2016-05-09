@@ -221,6 +221,29 @@ var DataManager = {
         self.data.dataSets = [];
         self.data.projects = [];
       };
+      // helper for clean up datamanager and reject promise
+      var _rejectClean = function(err) {
+        clean();
+        reject(err);
+      };
+
+      var _continueInMemory = function(dataSetObject, dataSetFmtsResult, builtDataSeries) {
+        // for each format
+        var fmt = {};
+        dataSetFmtsResult.forEach(function(format, formatIndex, formatArr) {
+          if (format.data_set_id == dataSetObject.id) {
+            fmt[format.key] = format.value;
+            // remove it to avoid re-iterate
+            formatArr.splice(formatIndex, 1);
+          }
+        });
+
+        var builtDataSet = DataSetFactory.build(Object.assign(dataSetObject, {format: fmt}));
+
+        builtDataSeries.dataSets.push(builtDataSet.toObject());
+        // adding local cache. TODO: Is it necessary to store individual or along data series?
+        self.data.dataSets.push(builtDataSet);
+      };
 
       models.db.Project.findAll({}).then(function(projects) {
         projects.forEach(function(project) {
@@ -232,76 +255,101 @@ var DataManager = {
             self.data.dataProviders.push(new DataProvider(dataProvider.get()));
           });
 
+          // find all dataseries
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
 
-            dataSeries.forEach(function(dSeries) {
-              self.data.dataSeries.push(new DataSeries(dSeries.get()));
+            //todo: include grid too
+            var dbOperations = [];
+            dbOperations.push(models.db.DataSet.findAll({
+              attributes: ['id', 'active', 'data_series_id'],
+              include: [
+                {
+                  model: models.db.DataSetDcp,
+                  attributes: ['position'],
+                  required: true
+                }
+              ]
+            }));
+            dbOperations.push(models.db.DataSet.findAll({
+              attributes: ['id', 'active', 'data_series_id'],
+              include: [
+                {
+                  model: models.db.DataSetOccurrence,
+                  required: true
+                }
+              ]
+            }));
 
-              //todo: include grid too
-              var dbOperations = [];
-              dbOperations.push(models.db.DataSet.findAll({
-                attributes: ['id', 'active', 'data_series_id'],
-                include: [
-                  {
-                    model: models.db.DataSetDcp,
-                    attributes: ['position'],
-                    required: true
-                  }
-                ]
-              }));
-              dbOperations.push(models.db.DataSet.findAll({
-                attributes: ['id', 'active', 'data_series_id'],
-                include: [
-                  {
-                    model: models.db.DataSetOccurrence,
-                    required: true
-                  }
-                ]
-              }));
+            // find all datasets
+            Promise.all(dbOperations).then(function(dataSetsArray) {
+              // find all data set
+              models.db['DataSetFormat'].findAll({}).then(function(dataSetFormatsResult) {
+                // for each dataSeries
+                dataSeries.forEach(function(dSeries) {
+                  var builtDataSeries = new DataSeries(dSeries.get());
 
-              Promise.all(dbOperations).then(function(dataSetsArray) {
-                dataSetsArray.forEach(function(dataSets) {
-                  dataSets.forEach(function(dataSet) {
-                    var dSetObject = {
-                      id: dataSet.id,
-                      data_series_id: dataSet.data_series_id,
-                      active: dataSet.active
-                    };
+                  dataSetsArray.forEach(function(dataSets) {
+                    // for each data set retrieved
+                    dataSets.forEach(function(dataSet) {
+                      if (dSeries.id == dataSet.data_series_id) {
 
-                    if (dataSet.DataSetDcp)
-                      Object.assign(dSetObject, dataSet.DataSetDcp.get());
-                    else if (dataSet.DataSetOccurrence) { }
+                        var dSetObject = {
+                          id: dataSet.id,
+                          data_series_id: dataSet.data_series_id,
+                          active: dataSet.active
+                        };
 
-                    self.data.dataSets.push(DataSetFactory.build(dSetObject));
-                  });
-                });
+                        if (dataSet.DataSetDcp) {
+                          var dcpDset = dataSet.DataSetDcp.get();
+                          self.getWKT(dcpDset.position).then(function(wktPosition) {
+                            dcpDset.position = wktPosition;
+                            Object.assign(dSetObject, dcpDset);
+
+                            _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                          }).catch(_rejectClean(err));
+                        }
+                        else if (dataSet.DataSetOccurrence)
+                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                        else // todo: grid, monitored object
+                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                      }
+                    }); // end foreach dataSets
+                  }); // end foreach dataSetsArray
+
+                  // adding local cache
+                  self.data.dataSeries.push(builtDataSeries);
+                }); // end foreach dataseries
 
                 self.isLoaded = true;
                 resolve();
-              }).catch(function(err) {
-                clean();
-                reject(err);
-              });
 
-            });
-
-            self.isLoaded = true;
-            resolve();
-
-          }).catch(function(err) {
-            clean();
-            reject(err);
-          });
-
-        }).catch(function(err) {
-          clean();
-          reject(err);
-        });
+              }).catch(_rejectClean);
+            }).catch(_rejectClean);
+          }).catch(_rejectClean);
+        }).catch(_rejectClean);
+      }).catch(_rejectClean);
+    });
+  },
+  
+  /**
+   * It retrieves a Well Known Text (WKT) from GeoJSON structure
+   * @param {Object} geoJSONObject - A javascript object in GeoJSON syntax.
+   * @return {Promise} - a 'bluebird' module. The callback is either a string representation or callback error.
+   */
+  getWKT: function(geoJSONObject) {
+    return new Promise(function(resolve, reject) {
+      models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
+        // it retrieves an array with data result (array) and query executed.
+        // if data result is empty or greater than 1, its not allowed.
+        if (wktGeom[0].length !== 1)
+          reject(new exceptions.DataSetError("Invalid wkt retrieved from geojson."));
+        else {
+          resolve(wktGeom[0][0].geom);
+        }
       }).catch(function(err) {
-        clean();
         reject(err);
       });
-    });
+    })
   },
 
   /**
@@ -1183,16 +1231,10 @@ var DataManager = {
 
           if (output.position && format === Enums.Format.WKT)
             // Getting wkt representation of Point from GeoJSON
-            models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(output.position) + "')) as geom").then(function(wktGeom) {
-              // it retrieves an array with data result (array) and query executed.
-              // if data result is empty or greater than 1, its not allowed.
-              if (wktGeom[0].length !== 1)
-                reject(new exceptions.DataSetError("Invalid wkt retrieved from geojson."));
-              else {
-                output.position = wktGeom[0][0].geom;
-                resolve(output);
-                release();
-              }
+            self.getWKT(output.position).then(function(wktGeom) {
+              output.position = wktGeom;
+              resolve(output);
+              release();
             }).catch(function(err) {
               reject(err);
               release();
@@ -1482,7 +1524,26 @@ var DataManager = {
   },
 
   listCollectors: function(restriction) {
+    var self = this;
     return new Promise(function(resolve, reject) {
+      /*
+        var collector = new Collector(collectorResult);
+        var input_output_map = [];
+
+        for(var i = 0; i < dataSeriesResult.dataSets.length; ++i) {
+          var inputDataSet = dataSeriesResult.dataSets[i];
+          var outputDataSet;
+          if (dataSeriesResultOutput.dataSets.length == 1)
+            outputDataSet = dataSeriesResultOutput.dataSets[0];
+          else
+            outputDataSet = dataSeriesResultOutput.dataSets[i];
+
+          input_output_map.push({
+            input: inputDataSet.id,
+            output: outputDataSet.id
+          });
+        }
+      */
       models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
         var output = [];
         collectorsResult.forEach(function(collector) {
