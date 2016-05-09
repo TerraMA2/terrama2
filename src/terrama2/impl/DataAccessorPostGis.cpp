@@ -163,9 +163,9 @@ void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::Data
                                                             std::vector<te::da::Expression*>& where) const
 {
   te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
-  if(filter.geometry.get())
+  if(filter.region.get())
   {
-    te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.geometry->clone()));
+    te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.region->clone()));
     te::da::Expression* intersectExpression = new te::da::ST_Intersects(geometryProperty, geometryVal);
 
     where.push_back(intersectExpression);

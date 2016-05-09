@@ -28,6 +28,7 @@
 */
 #include "../Shared.hpp"
 #include "../data-model/Schedule.hpp"
+#include "../data-model/Filter.hpp"
 
 #include "SemanticsManager.hpp"
 
@@ -84,6 +85,9 @@ namespace terrama2
       \see [Schedule at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Schedule) for more information.
       */
     Schedule fromScheduleJson(QJsonObject json);
+
+    Filter fromFilterJson(QJsonObject json);
+    QJsonObject toJson(const Filter& filter);
 
     /*!
       \brief Creates a QJsonObject from a DataProvider.

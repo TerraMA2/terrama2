@@ -98,7 +98,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId)
 {
   std::lock_guard<std::mutex> lock(mutex_);
-  TERRAMA2_LOG_DEBUG() << "Collector added to queue.";
+  TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
 
   collectorQueue_.push_back(collectorId);
   mainLoopCondition_.notify_one();
@@ -140,7 +140,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     /////////////////////////////////////////////////////////////////////////
     //  recovering data
 
-    terrama2::core::Filter filter;
+    terrama2::core::Filter filter = collectorPtr->filter;
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
@@ -241,7 +241,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << "Unknown error";
+    TERRAMA2_LOG_ERROR() << tr("Unknown error");
   }
 }
 

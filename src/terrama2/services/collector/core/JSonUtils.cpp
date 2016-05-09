@@ -77,6 +77,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
   }
 
   collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject()); 
   collector->intersection = terrama2::services::collector::core::fromIntersectionJson(json["intersection"].toObject());
   collector->active = json["active"].toBool();
 
