@@ -124,14 +124,14 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
 
 bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const
 {
-  if(dateColumn < 0)
+  if(dateColumn < 0 || ( !filter.discardBefore.get() && !filter.discardAfter.get()))
     return true;
 
   if(dataSet->isNull(dateColumn))
   {
     QString errMsg = QObject::tr("Null date/time attribute.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataAccessorException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return true;
   }
 
   std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
@@ -148,19 +148,19 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
 
 bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int geomColumn) const
 {
-  if(geomColumn < 0)
+  if(geomColumn < 0 || !filter.region.get())
     return true;
 
   if(dataSet->isNull(geomColumn))
   {
     QString errMsg = QObject::tr("Null geometry attribute.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataAccessorException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return true;
   }
 
   std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
 
-  if(filter.region.get() && !region->intersects(filter.region.get()))
+  if(!region->intersects(filter.region.get()))
     return false;
 
   return true;
@@ -168,20 +168,20 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
 bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const
 {
-  if(rasterColumn < 0)
+  if(rasterColumn < 0 || !filter.region.get())
     return true;
 
   if(dataSet->isNull(rasterColumn))
   {
     QString errMsg = QObject::tr("Null raster attribute.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataAccessorException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return true;
   }
 
   std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(rasterColumn));
 
   std::unique_ptr<const te::gm::Envelope> envelope(filter.region->getMBR());
-  if(filter.region.get() && !raster->getExtent(filter.region->getSRID())->intersects(*envelope))
+  if(!raster->getExtent(filter.region->getSRID())->intersects(*envelope))
     return false;
 
   return true;
