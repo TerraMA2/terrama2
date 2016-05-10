@@ -158,6 +158,9 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
 
       var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
 
+      var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
+
+
       // sending post operation
       AnalysisFactory.post({
         analysis: analysisToSend,

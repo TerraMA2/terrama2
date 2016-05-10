@@ -1586,8 +1586,6 @@ var DataManager = {
               console.log(analysisDataSeries.metadata)
               analysisInstance.addAnalysisDataSeries(analysisDataSeries.toObject());
 
-
-
               var analysisMetadata = [];
               for(var key in scopeAnalysisObject.metadata) {
                 if (scopeAnalysisObject.metadata.hasOwnProperty(key)) {
