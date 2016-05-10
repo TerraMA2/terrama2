@@ -286,9 +286,9 @@
                                   <div class="form-group has-feedback">
                                     <label>{[ __("Influence") ]}:</label>
                                     <select class="form-control" name="influence" ng-model="metadata.INFLUENCE_TYPE" required>
-                                      {% for influenceType in Enums.InfluenceTypes %}
-                                        <option value="{[ influenceType.Value ]}">{[ influenceType.Name ]}</option>
-                                      {% endfor %}
+                                      <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
+                                      <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
+                                      <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
                                     </select>
                                   </div>
                                 </div>
@@ -300,7 +300,7 @@
                                   </div>
                                 </div>
                               </div>
-                              <div ng-if="metadata.INFLUENCE_TYPE == 1 || metadata.INFLUENCE_TYPE == 2">
+                              <div ng-if="metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
                                 <div class="col-md-12 terrama2-nopadding-box">
 
                                   <div class="col-md-6">
@@ -326,14 +326,14 @@
                                 </div><!--/.col-md-12-->
                               </div>
 
-                              <div ng-if="metadata.INFLUENCE_TYPE == 3">
+                              <div ng-if="metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
                                 <div class="col-md-12 terrama2-nopadding-box">
 
                                   <div class="col-md-6">
                                     <div class="form-group has-feedback">
                                       <label>{[ __("Influence Data Series") ]}:</label>
                                       <select class="form-control" name="dataSeriesId" ng-model="metadata.INFLUENCE_DATASERIES_ID" required>
-                                        <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.name }}">{{ dataSeries.name }}</option>
+                                        <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
                                       </select>
                                     </div>
                                   </div>
