@@ -73,7 +73,7 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createComplet
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
 }
 
-void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, std::shared_ptr<te::da::DataSet> dataSet) const
+void terrama2::core::DataAccessorFile::joinDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, std::shared_ptr<te::da::DataSet> dataSet) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->copy(*dataSet);
@@ -169,7 +169,7 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
 
     //FIXME: Nor working with raster!!
 
-    addToCompleteDataSet(completeDataset, teDataSet);
+    joinDataSet(completeDataset, teDataSet);
 
     if(completeDataset->isEmpty())
     {
