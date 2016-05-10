@@ -24,8 +24,13 @@
         type: "img"
       };
 
-      $scope.fields = ['name', 'type'];
+      $scope.fields = [
+        {key: "name", as: "Name"},
+        {key: "type", as: "Type"}
+      ];
+
       $scope.linkToAdd = "/configuration/analyses/new";
+
       $scope.link = function(object) {
         return "/configuration/analyses/new";
       };
