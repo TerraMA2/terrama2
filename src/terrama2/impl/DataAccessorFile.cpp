@@ -81,26 +81,25 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
 
   int dateColumn = -1;
   int geomColumn = -1;
+  int rasterColumn = -1;
   for(int i = 0; i < propertiesNumber; ++i)
   {
     if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
       dateColumn = i;
-
-      if(geomColumn > -1)
-        break;
-      else
-        continue;
+      continue;
     }
 
     if(geomColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
     {
       geomColumn = i;
+      continue;
+    }
 
-      if(dateColumn > -1)
-        break;
-      else
-        continue;
+    if(rasterColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::RASTER_TYPE)
+    {
+      geomColumn = i;
+      continue;
     }
   }
 
@@ -110,7 +109,9 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   while(i < size)
   {
     dataSet->move(i);
-    if(!isValidTimestamp(dataSet, filter, dateColumn) || !isValidGeometry(dataSet, filter, geomColumn))
+    if(!isValidTimestamp(dataSet, filter, dateColumn)
+        || !isValidGeometry(dataSet, filter, geomColumn)
+        || !isValidRaster(dataSet, filter, rasterColumn))
     {
       dataSet->remove();
       --size;
@@ -147,7 +148,6 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
 
 bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int geomColumn) const
 {
-  //TODO: filter raster
   if(geomColumn < 0)
     return true;
 
@@ -161,6 +161,27 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
   std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
 
   if(filter.region.get() && !region->intersects(filter.region.get()))
+    return false;
+
+  return true;
+}
+
+bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const
+{
+  if(rasterColumn < 0)
+    return true;
+
+  if(dataSet->isNull(rasterColumn))
+  {
+    QString errMsg = QObject::tr("Null raster attribute.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(rasterColumn));
+
+  std::unique_ptr<const te::gm::Envelope> envelope(filter.region->getMBR());
+  if(filter.region.get() && !raster->getExtent(filter.region->getSRID())->intersects(*envelope))
     return false;
 
   return true;

@@ -70,6 +70,7 @@ namespace terrama2
       virtual void filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const;
       bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const;
       bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int geomColumn) const;
+      bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const;
     };
   }
 }
