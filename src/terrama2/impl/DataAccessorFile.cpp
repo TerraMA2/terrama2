@@ -320,6 +320,12 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getLa
     }
   }
 
+  if(dateColumn < 0)
+  {
+    boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
+    return std::make_shared<te::dt::TimeInstantTZ>(boostTime);
+  }
+
   std::shared_ptr< te::dt::DateTime > lastDateTime;
 
   dataSet->moveBeforeFirst();
