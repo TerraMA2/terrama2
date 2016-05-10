@@ -66,6 +66,10 @@ namespace terrama2
       virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
       virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, std::shared_ptr<te::da::DataSet> dataSet) const;
       virtual std::shared_ptr<te::da::DataSet> getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor, const std::string& dataSetName, std::shared_ptr<te::da::DataSetTypeConverter> converter) const;
+
+      virtual void filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const;
+      bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const;
+      bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int geomColumn) const;
     };
   }
 }

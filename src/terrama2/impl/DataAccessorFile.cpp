@@ -46,6 +46,7 @@
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/memory/DataSetItem.h>
 
 
 std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
@@ -71,6 +72,97 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
+}
+
+void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const
+{
+  auto dataSet = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
+  int propertiesNumber = dataSet->getNumProperties();
+
+  int dateColumn = -1;
+  int geomColumn = -1;
+  for(int i = 0; i < propertiesNumber; ++i)
+  {
+    if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    {
+      dateColumn = i;
+
+      if(geomColumn > -1)
+        break;
+      else
+        continue;
+    }
+
+    if(geomColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
+    {
+      geomColumn = i;
+
+      if(dateColumn > -1)
+        break;
+      else
+        continue;
+    }
+  }
+
+  int size = dataSet->size();
+  int i = 0;
+
+  while(i < size)
+  {
+    dataSet->move(i);
+    if(!isValidTimestamp(dataSet, filter, dateColumn) || !isValidGeometry(dataSet, filter, geomColumn))
+    {
+      dataSet->remove();
+      --size;
+      continue;
+    }
+
+    ++i;
+  }
+}
+
+bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const
+{
+  if(dateColumn < 0)
+    return true;
+
+  if(dataSet->isNull(dateColumn))
+  {
+    QString errMsg = QObject::tr("Null date/time attribute.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
+  auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
+
+  if(filter.discardBefore.get() && (*timesIntant) < (*filter.discardBefore))
+    return false;
+
+  if(filter.discardAfter.get() && (*timesIntant) > (*filter.discardAfter))
+    return false;
+
+  return true;
+}
+
+bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int geomColumn) const
+{
+  if(geomColumn < 0)
+    return true;
+
+  if(dataSet->isNull(geomColumn))
+  {
+    QString errMsg = QObject::tr("Null geometry attribute.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
+
+  if(filter.region.get() && !region->intersects(filter.region.get()))
+    return false;
+
+  return true;
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, std::shared_ptr<te::da::DataSet> dataSet) const
@@ -167,8 +259,6 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     assert(converter);
     std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
 
-    //FIXME: Nor working with raster!!
-
     addToCompleteDataSet(completeDataset, teDataSet);
 
     if(completeDataset->isEmpty())
@@ -184,6 +274,8 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
+
+  filterDataSet(completeDataset, filter);
 
   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
   series.syncDataSet = syncDataset;
