@@ -44,6 +44,7 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 
 terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
   : dataManager_(dataManager)
@@ -53,6 +54,7 @@ terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::se
 
 void terrama2::services::collector::core::Service::updateNumberOfThreads(int numberOfThreads)
 {
+  //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
   stop();
   start(numberOfThreads);
 }
@@ -97,7 +99,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId)
 {
   std::lock_guard<std::mutex> lock(mutex_);
-  TERRAMA2_LOG_DEBUG() << "Collector added to queue.";
+  TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
 
   collectorQueue_.push_back(collectorId);
   mainLoopCondition_.notify_one();
@@ -114,7 +116,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
   try
   {
-    logger->start();
+    auto logId = logger->start();
 
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
@@ -139,13 +141,13 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     /////////////////////////////////////////////////////////////////////////
     //  recovering data
 
-    terrama2::core::Filter filter;
+    terrama2::core::Filter filter = collectorPtr->filter;
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      //TODO: logger->done();
-      TERRAMA2_LOG_ERROR() << tr("No data to collect.");
+      //TODO: logger->done(logId);
+      TERRAMA2_LOG_WARNING() << tr("No data to collect.");
       return;
     }
 
@@ -163,7 +165,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       dataStorager->store(item.second, *outputDataSet);
     }
 
-    //TODO: logger->done();
+    //TODO: logger->done(logId);
   }
   catch(const terrama2::Exception& e)
   {
@@ -201,16 +203,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    // FIXME: real connInfo
-    std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
-      {"PG_PORT", "5432"},
-      {"PG_USER", "postgres"},
-      {"PG_PASSWORD", "postgres"},
-      {"PG_DB_NAME", "nodejs"},
-      {"PG_CONNECT_TIMEOUT", "4"},
-      {"PG_CLIENT_ENCODING", "UTF-8"}
-    };
-
+    std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
     std::shared_ptr< CollectorLogger > collectorLog = std::make_shared<CollectorLogger>(collector->id, connInfo);
     loggers_.emplace(collector->id, collectorLog);
 
@@ -249,7 +242,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << "Unknown error";
+    TERRAMA2_LOG_ERROR() << tr("Unknown error");
   }
 }
 

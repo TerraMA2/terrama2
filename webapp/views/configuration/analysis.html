@@ -118,8 +118,7 @@
                     <label>{[ __("Type") ]}:</label>
                     <select class="form-control" name="type" ng-model="analysis.type_id" required>
                       <option value="1">DCP</option>
-                      <option value="2">Occurrence</option>
-                      <option value="3">Grid</option>
+                      <option value="2">Grid</option>
                       <option value="3">Monitored Object</option>
                     </select>
 
@@ -205,7 +204,7 @@
                   <div class="form-group" ng-class="{'has-error': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required,
                                   'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
                     <label>{[ __('Provider Output') ]}:</label>
-                    <select class="form-control" name="storager_data_provider_id" ng-model="storager_data_provider_id" ng-options="provider.id as provider.name for provider in dataProviders" ng-required="storager.format.name">
+                    <select class="form-control" name="storager_data_provider_id" ng-model="analysis.data_provider_id" ng-options="provider.id as provider.name for provider in dataProviders" ng-required="storager.format.name">
                       <option></option>
                     </select>
                     <label class="help-block text-danger" ng-show="storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required">
@@ -273,41 +272,79 @@
                           <form name="metadataForm">
                             <!-- dcp -->
                             <!-- ng-if="semantics.data_series_type_name === 'Dcp'" -->
-                            <div >
+                            <div>
+                              <div class="col-md-12">
+                                <div class="form-group">
+                                  <label>{[ __("Alias") ]}:</label>
+                                  <input class="form-control" name="radius" type="text" ng-model="metadata.alias">
+                                </div>
+                              </div>
+                            </div>
+                            <div ng-if="analysis.type_id == 1">
                               <div class="col-md-12 terrama2-nopadding-box">
-                                <div class="col-md-4">
+                                <div class="col-md-12">
                                   <div class="form-group has-feedback">
                                     <label>{[ __("Influence") ]}:</label>
-                                    <select class="form-control" name="influence" ng-model="metadata.key" required>
-                                      <option value="Radius">{[ __('Radius') ]}</option>
+                                    <select class="form-control" name="influence" ng-model="metadata.INFLUENCE_TYPE" required>
+                                      {% for influenceType in Enums.InfluenceTypes %}
+                                        <option value="{[ influenceType.Value ]}">{[ influenceType.Name ]}</option>
+                                      {% endfor %}
                                     </select>
                                   </div>
                                 </div>
-                              </div>
-
-                              <div class="col-md-12 terrama2-nopadding-box">
 
                                 <div class="col-md-8">
                                   <div class="form-group">
-                                    <label>{[ __("Radius") ]}:</label>
-                                    <input class="form-control" name="radius" type="text" ng-model="metadata.value">
+                                    <label>{[ __("Alias") ]}:</label>
+                                    <input class="form-control" name="radius" type="text" ng-model="metadata.alias">
                                   </div>
                                 </div>
+                              </div>
+                              <div ng-if="metadata.INFLUENCE_TYPE == 1 || metadata.INFLUENCE_TYPE == 2">
+                                <div class="col-md-12 terrama2-nopadding-box">
 
-                                <div class="col-md-4">
-                                  <div class="input-group" style="margin-top: 25px;">
-                                    <input type="text" class="form-control" aria-label="..." ng-model="metadata.format">
-                                    <div class="input-group-btn">
-                                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
-                                      </button>
-                                      <ul class="dropdown-menu dropdown-menu-right">
-                                        <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
-                                        <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
-                                      </ul>
-                                    </div><!-- /btn-group -->
-                                  </div><!-- /input-group -->
-                                </div><!-- /.col-md-4 -->
-                              </div><!--/.col-md-12-->
+                                  <div class="col-md-6">
+                                    <div class="form-group">
+                                      <label>{[ __("Radius") ]}:</label>
+                                      <input class="form-control" name="radius" type="text" ng-model="metadata.INFLUENCE_RADIUS">
+                                    </div>
+                                  </div>
+
+                                  <div class="col-md-6">
+                                    <div class="input-group" style="margin-top: 25px;">
+                                      <input type="text" class="form-control" aria-label="..." ng-model="metadata.INFLUENCE_RADIUS_UNIT">
+                                      <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                          <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
+                                          <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
+                                        </ul>
+                                      </div><!-- /btn-group -->
+                                    </div><!-- /input-group -->
+                                  </div><!-- /.col-md-4 -->
+                                </div><!--/.col-md-12-->
+                              </div>
+
+                              <div ng-if="metadata.INFLUENCE_TYPE == 3">
+                                <div class="col-md-12 terrama2-nopadding-box">
+
+                                  <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                      <label>{[ __("Influence Data Series") ]}:</label>
+                                      <select class="form-control" name="dataSeriesId" ng-model="metadata.INFLUENCE_DATASERIES_ID" required>
+                                        <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.name }}">{{ dataSeries.name }}</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div class="form-group">
+                                      <label>{[ __("Influence Attribute") ]}:</label>
+                                      <input class="form-control" name="attribute" type="text" ng-model="metadata.INFLUENCE_ATTRIBUTE">
+                                    </div>
+                                  </div>
+                                </div><!--/.col-md-12-->
+                              </div>
                             </div>
 
                             <!-- Occurrence -->

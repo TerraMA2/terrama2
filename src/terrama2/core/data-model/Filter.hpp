@@ -63,7 +63,7 @@ namespace terrama2
 
       std::shared_ptr<te::dt::TimeInstantTZ> discardBefore = nullptr; //!< Initial date of interest for collecting data from the DataSet.
       std::shared_ptr<te::dt::TimeInstantTZ> discardAfter = nullptr; //!< Final date of interest for collecting data from the DataSet.
-      std::shared_ptr<te::gm::Geometry> geometry = nullptr; //!< Geometry to be used as area of interest for filtering the data during its collect.
+      std::shared_ptr<te::gm::Geometry> region = nullptr; //!< Geometry to be used as area of interest for filtering the data during its collect.
       std::shared_ptr<double> value = nullptr; //!< Value to be used in a filter by value.
       bool lastValue = false; //! Used to read only the last value.
       //TODO: filter by value operation

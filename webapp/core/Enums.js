@@ -47,7 +47,14 @@ module.exports = {
     OCCURRENCE: 'Occurrence',
     GRID: 'Grid',
     MONITORED: 'Monitored',
-    ANALYSIS: 'ANALYSIS'
+    ANALYSIS: 'ANALYSIS',
+    POSTGIS: 'POSTGIS'
+  },
+
+  AnalysisType: {
+    DCP: 1,
+    GRID: 2,
+    MONITORED: 3
   },
 
   DataSeriesFormat: {
@@ -80,5 +87,20 @@ module.exports = {
     SAVE: 1,
     UPDATE: 2,
     DELETE: 3
-  }
+  },
+
+  InfluenceTypes: [
+    {
+      Name: "Touches",
+      Value: 1
+    },
+    {
+      Name: "Center",
+      Value: 2
+    },
+    {
+      Name: "Region",
+      Value: 3
+    }
+  ]
 };

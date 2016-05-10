@@ -11,6 +11,7 @@
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
+#include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/impl/Utils.hpp>
@@ -56,6 +57,16 @@ int main(int argc, char* argv[])
 
     terrama2::core::registerFactories();
 
+    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
+                                                  {"PG_PORT", TERRAMA2_DATABASE_PORT},
+                                                  {"PG_USER", TERRAMA2_DATABASE_USERNAME},
+                                                  {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
+                                                  {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
+                                                  {"PG_CONNECT_TIMEOUT", "4"},
+                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
+                                                };
+    serviceManager.setLogConnectionInfo(connInfo);
 
     terrama2::services::analysis::core::initInterpreter();
 
@@ -63,11 +74,12 @@ int main(int argc, char* argv[])
 
     QUrl uri;
     uri.setScheme("postgis");
-    uri.setHost("localhost");
-    uri.setPort(5432);
-    uri.setUserName("postgres");
-    uri.setPassword("postgres");
-    uri.setPath("/basedeteste");
+    uri.setHost(TERRAMA2_DATABASE_HOST);
+    uri.setPort(atoi(TERRAMA2_DATABASE_PORT));
+    uri.setUserName(TERRAMA2_DATABASE_USERNAME);
+    uri.setPassword(TERRAMA2_DATABASE_PASSWORD);
+    uri.setPath("/");
+    uri.setPath(uri.path() + TERRAMA2_DATABASE_DBNAME);
 
     // DataProvider information
     terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
@@ -113,7 +125,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->name = "Provider";
-    dataProvider->uri = "file:///Users/paulo/Workspace/data/shp";
+    dataProvider->uri+=TERRAMA2_DATA_DIR;
+    dataProvider->uri+="/shapefile";
     dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
@@ -143,7 +156,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
     dataProvider2->name = "Provider";
-    dataProvider2->uri = "file:///Users/paulo/Workspace/data/PCD_serrmar_INPE";
+    dataProvider2->uri+=TERRAMA2_DATA_DIR;
+    dataProvider2->uri+="/PCD_serrmar_INPE";
     dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
     dataProvider2->dataProviderType = "FILE";
     dataProvider2->active = true;
@@ -247,9 +261,9 @@ int main(int argc, char* argv[])
     socket.write(bytearray);
     socket.waitForBytesWritten();
 
-    QTimer timer;
+    /*QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(30000);
+    timer.start(30000);*/
     app.exec();
 
     service.stop();
