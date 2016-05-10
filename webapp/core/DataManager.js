@@ -77,7 +77,8 @@ var DataManager = {
     dataSeries: [],
     dataProviders: [],
     dataSets: [], /** It will store data set id list */
-    projects: []
+    projects: [],
+    analysis: []
   },
   isLoaded: false,
 
@@ -181,6 +182,7 @@ var DataManager = {
         self.data.dataSeries = [];
         self.data.dataSets = [];
         self.data.projects = [];
+        self.data.analysis = [];
 
         self.isLoaded = false;
 
@@ -220,79 +222,89 @@ var DataManager = {
         self.data.dataSeries = [];
         self.data.dataSets = [];
         self.data.projects = [];
+        self.data.analysis = [];
       };
 
-      models.db.Project.findAll({}).then(function(projects) {
-        projects.forEach(function(project) {
-          self.data.projects.push(project.get());
+      models.db.Analysis.findAll({}).then(function(analysisList) {
+        analysisList.forEach(function(analysisObj) {
+          self.data.analysis.push(analysisObj.get());
         });
 
-        models.db.DataProvider.findAll({}).then(function(dataProviders){
-          dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(new DataProvider(dataProvider.get()));
+        models.db.Project.findAll({}).then(function(projects) {
+          projects.forEach(function(project) {
+            self.data.projects.push(project.get());
           });
 
-          models.db.DataSeries.findAll({}).then(function(dataSeries) {
-
-            dataSeries.forEach(function(dSeries) {
-              self.data.dataSeries.push(new DataSeries(dSeries.get()));
-
-              //todo: include grid too
-              var dbOperations = [];
-              dbOperations.push(models.db.DataSet.findAll({
-                attributes: ['id', 'active', 'data_series_id'],
-                include: [
-                  {
-                    model: models.db.DataSetDcp,
-                    attributes: ['position'],
-                    required: true
-                  }
-                ]
-              }));
-              dbOperations.push(models.db.DataSet.findAll({
-                attributes: ['id', 'active', 'data_series_id'],
-                include: [
-                  {
-                    model: models.db.DataSetOccurrence,
-                    required: true
-                  }
-                ]
-              }));
-
-              Promise.all(dbOperations).then(function(dataSetsArray) {
-                dataSetsArray.forEach(function(dataSets) {
-                  dataSets.forEach(function(dataSet) {
-                    var dSetObject = {
-                      id: dataSet.id,
-                      data_series_id: dataSet.data_series_id,
-                      active: dataSet.active
-                    };
-
-                    if (dataSet.DataSetDcp)
-                      Object.assign(dSetObject, dataSet.DataSetDcp.get());
-                    else if (dataSet.DataSetOccurrence) { }
-
-                    self.data.dataSets.push(DataSetFactory.build(dSetObject));
-                  });
-                });
-
-                self.isLoaded = true;
-                resolve();
-              }).catch(function(err) {
-                clean();
-                reject(err);
-              });
-
+          models.db.DataProvider.findAll({}).then(function(dataProviders){
+            dataProviders.forEach(function(dataProvider) {
+              self.data.dataProviders.push(new DataProvider(dataProvider.get()));
             });
 
-            self.isLoaded = true;
-            resolve();
+            models.db.DataSeries.findAll({}).then(function(dataSeries) {
+
+              dataSeries.forEach(function(dSeries) {
+                self.data.dataSeries.push(new DataSeries(dSeries.get()));
+
+                //todo: include grid too
+                var dbOperations = [];
+                dbOperations.push(models.db.DataSet.findAll({
+                  attributes: ['id', 'active', 'data_series_id'],
+                  include: [
+                    {
+                      model: models.db.DataSetDcp,
+                      attributes: ['position'],
+                      required: true
+                    }
+                  ]
+                }));
+                dbOperations.push(models.db.DataSet.findAll({
+                  attributes: ['id', 'active', 'data_series_id'],
+                  include: [
+                    {
+                      model: models.db.DataSetOccurrence,
+                      required: true
+                    }
+                  ]
+                }));
+
+                Promise.all(dbOperations).then(function(dataSetsArray) {
+                  dataSetsArray.forEach(function(dataSets) {
+                    dataSets.forEach(function(dataSet) {
+                      var dSetObject = {
+                        id: dataSet.id,
+                        data_series_id: dataSet.data_series_id,
+                        active: dataSet.active
+                      };
+
+                      if (dataSet.DataSetDcp)
+                        Object.assign(dSetObject, dataSet.DataSetDcp.get());
+                      else if (dataSet.DataSetOccurrence) { }
+
+                      self.data.dataSets.push(DataSetFactory.build(dSetObject));
+                    });
+                  });
+
+                  self.isLoaded = true;
+                  resolve();
+                }).catch(function(err) {
+                  clean();
+                  reject(err);
+                });
+
+              });
+
+              self.isLoaded = true;
+              resolve();
+
+            }).catch(function(err) {
+              clean();
+              reject(err);
+            });
 
           }).catch(function(err) {
             clean();
             reject(err);
           });
-
         }).catch(function(err) {
           clean();
           reject(err);
@@ -1539,6 +1551,57 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves a Analysis object from restriction. It should be an object containing either id identifier or
+   * name identifier.
+   *
+   * @param {Object} restriction - An object containing Analysis identifier to get it.
+   * @return {Promise<DataProvider>} - a 'bluebird' module with Analysis instance or error callback
+   */
+  getAnalysis: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var analysisObj = getItemByParam(self.data.analysis, restriction);
+      if (analysisObj)
+        resolve(new Analysis(analysisObj));
+      else
+        reject(new exceptions.AnalysisError("Could not find a analysis: " + restriction[Object.keys(restriction)[0]]));
+    });
+  },
+
+  /**
+   * It retrieves Analysis loaded in memory.
+   *
+   * @param {Object} restriction - An object containing Analysis filter values
+   * @return {Array<DataProvider>} - An array with Analysis available/loaded in memory.
+   */
+  listAnalysis: function(restriction) {
+    var analysisObjectList = [];
+
+    if (restriction === undefined || restriction === null)
+      restriction = {};
+
+    var keys = Object.keys(restriction);
+
+    this.data.analysis.forEach(function(analysisItem) {
+
+      // todo: implement better approach
+      var keyCont = 0;
+      keys.forEach(function (key) {
+        if (analysisItem[key] === restriction[key])
+          ++keyCont;
+        else
+          return false;
+      });
+
+      if (keyCont == keys.length)
+        analysisObjectList.push(new Analysis(analysisItem));
+
+      keyCont = 0;
+    });
+    return analysisObjectList;
+  },
+
   addAnalysis: function(analysisObject, dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -1606,11 +1669,6 @@ var DataManager = {
 
                 analysisInstance.metadata = analysisMetadata;
 
-                console.log("-------------------------------");
-                console.log("Aqui:");
-                console.log(analysisInstance);
-                console.log("-------------------------------");
-
                 resolve(analysisInstance);
               }).catch(function(err) {
                 var promises = [];
@@ -1641,6 +1699,37 @@ var DataManager = {
         console.log(err);
         reject(err);
       });
+    });
+  },
+
+  /**
+   * It removes Analysis from param. It should be an object containing either id identifier or
+   * name identifier.
+   *
+   * @param {Object} analysisParam - An object containing Analysis identifier to get it.
+   * @param {bool} cascade - A bool value to delete on cascade
+   * @return {Promise} - a 'bluebird' module with Analysis instance or error callback
+   */
+  removeAnalysis: function(analysisParam, cascade) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      if (!cascade)
+        cascade = false;
+
+      for(var index = 0; index < self.data.analysis.length; ++index) {
+        var analysisObj = self.data.analysis[index];
+        if (analysisObj.id == analysisParam.id || analysisObj.name == analysisParam.name) {
+          models.db.Analysis.destroy({where: {id: analysisObj.id}}).then(function() {
+            self.data.analysis.splice(index, 1);
+            resolve();
+          }).catch(function(err) {
+            console.log(err);
+            reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
+          });
+          return;
+        }
+      }
+      reject(new exceptions.AnalysisError("Analysis not found"));
     });
   }
 

@@ -89,18 +89,18 @@ module.exports = {
     DELETE: 3
   },
 
-  InfluenceTypes: [
-    {
+  InfluenceTypes: {
+    TOUCHES: {
       Name: "Touches",
       Value: 1
     },
-    {
+    CENTER: {
       Name: "Center",
       Value: 2
     },
-    {
+    REGION: {
       Name: "Region",
       Value: 3
     }
-  ]
+  }
 };

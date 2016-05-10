@@ -7,12 +7,21 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var analysisId = request.params.id;
-      // todo: implement it
+
       if (analysisId) {
-
+        DataManager.getAnalysis({id: analysisId}).then(function(analysisObject) {
+          response.json(analysisObject.toObject());
+        }).catch(function(err) {
+          response.status(400);
+          response.json({status: 400, message: err.message});
+        })
+      } else {
+        var output = [];
+        DataManager.listAnalysis().forEach(function(element) {
+          output.push(element.toObject());
+        });
+        response.json(output);
       }
-
-      response.json([]);
     },
 
     post: function(request, response) {
@@ -58,7 +67,20 @@ module.exports = function(app) {
     },
 
     delete: function(request, response) {
-      response.json({status: 200});
+      var id = request.params.id;
+      if (id) {
+        DataManager.getAnalysis({id: id}).then(function(analysis) {
+          DataManager.removeAnalysis({id: id}).then(function() {
+            response.json({status: 200, name: analysis.name});
+          }).catch(function(err) {
+            Utils.handleRequestError(response, err, 400);
+          })
+        }).catch(function(err) {
+          Utils.handleRequestError(response, err, 400);
+        })
+      } else {
+        Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
+      }
     }
   };
 };
