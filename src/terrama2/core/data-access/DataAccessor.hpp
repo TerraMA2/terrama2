@@ -102,6 +102,8 @@ namespace terrama2
         //! Default destructor.
         virtual ~DataAccessor() {}
 
+        //DataRetrieverPtr getDataRetriever() const;
+
       protected:
 
         /*!
@@ -175,9 +177,11 @@ namespace terrama2
         */
         virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
 
+
         DataProviderPtr dataProvider_;//!< DataProvider with iformation of the server where the data is stored.
         DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data iformation.
         Filter filter_;//! Filter applied to accessed data.
+      /*  DataRetrieverPtr dataRetriever_; */
     };
   }
 }

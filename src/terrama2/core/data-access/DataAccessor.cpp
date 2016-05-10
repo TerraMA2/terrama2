@@ -167,6 +167,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   try
   {
     DataRetrieverPtr dataRetriever = DataRetrieverFactory::getInstance().make(dataProvider_);
+
     for(const auto& dataset : dataSeries_->datasetList)
     {
       //if the dataset is not active, continue to next.
