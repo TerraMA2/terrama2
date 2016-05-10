@@ -1,5 +1,6 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
+var TcpManager = require("../../core/TcpManager");
 
 
 module.exports = function(app) {
@@ -44,6 +45,7 @@ module.exports = function(app) {
         };
 
         DataManager.addAnalysis(analysisObject, dataSeries).then(function(analysisResult) {
+          TcpManager.sendData({"Analysis": [analysisResult.toObject()]});
           console.log(analysisResult);
           response.json({status: 200});
         }).catch(function(err) {

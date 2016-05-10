@@ -1585,7 +1585,40 @@ var DataManager = {
               analysisDataSeries.metadata = analysidDataSeriesMetadata;
               console.log(analysisDataSeries.metadata)
               analysisInstance.addAnalysisDataSeries(analysisDataSeries.toObject());
-              resolve(analysisInstance);
+
+
+
+              var analysisMetadata = [];
+              for(var key in scopeAnalysisObject.metadata) {
+                if (scopeAnalysisObject.metadata.hasOwnProperty(key)) {
+                  analysisMetadata.push({
+                    analysis_id: analysisResult.id,
+                    key: key,
+                    value: scopeAnalysisObject.metadata[key]
+                  });
+                }
+              }
+
+              models.db["AnalysisMetadata"].bulkCreate(analysisMetadata, {analysis_id: analysisResult.id}).then(function(bulkAnalysisMetadataResult) {
+                analysisMetadata = {};
+                bulkAnalysisMetadataResult.forEach(function(meta) {
+                  var data = meta.get();
+                  analysisMetadata[data.key] = data.value;
+                });
+
+                analysisInstance.metadata = analysisMetadata;
+
+                console.log("-------------------------------");
+                console.log("Aqui:");
+                console.log(analysisInstance);
+                console.log("-------------------------------");
+
+                resolve(analysisInstance);
+              }).catch(function(err) {
+                var promises = [];
+                promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
+                Utils.rollbackPromises(promises, err, reject);
+              })
             }).catch(function(err) {
               var promises = [];
               promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
