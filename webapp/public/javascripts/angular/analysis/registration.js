@@ -116,7 +116,7 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
 
     // pcd metadata (radius format - km, m...)
     $scope.onMetadataFormatClick = function(format) {
-      $scope.metadata.format = format;
+      $scope.metadata.INFLUENCE_RADIUS_UNIT = format;
     };
 
     // save function
@@ -136,15 +136,17 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
       // temp code for sending analysis dataseries
       var metadata = {};
       for(var key in $scope.metadata) {
-        if ($scope.metadata.hasOwnProperty(key)) {
+        if($scope.metadata.hasOwnProperty(key)) {
           metadata[key] = $scope.metadata[key];
         }
       }
 
+      console.log($scope);
+
       var analysisDataSeries = {
         data_series_id: $scope.selectedDataSeries.id,
-        metadata: metadata,
-        alias: metadata.alias,
+        metadata: {},
+        alias: $scope.metadata.alias,
         // todo: check it
         type_id: $scope.analysis.type_id
       };
@@ -152,9 +154,9 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
       var analysisToSend = Object.assign({}, $scope.analysis);
       analysisToSend.dataSeries = $scope.selectedDataSeries;
       analysisToSend.analysisDataSeries = analysisDataSeries;
+      analysisToSend.metadata = metadata;
 
       var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
-
 
       // sending post operation
       AnalysisFactory.post({
