@@ -14,9 +14,13 @@
   </div>
 
   <div class="col-md-5" ng-if="isFrequency">
-    <div class="form-group" ng-class="{'has-error': scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required, 'has-success': scheduleForm.frequency.$dirty && scheduleForm.frequency.$valid}">
+    <div class="form-group" ng-class="{'has-error': scheduleForm.frequency.$dirty && scheduleForm.frequency.$invalid, 'has-success': scheduleForm.frequency.$dirty && scheduleForm.frequency.$valid}">
       <label>{{ i18n.__('Frequency') }}:</label>
       <input class="form-control" name="frequency" ng-model="schedule.frequency" type="number" ng-required="isFrequency" min="{{ minSchedule }}" max="{{ maxSchedule }}">
+
+      <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required">{{ i18n.__("Frequency value is required") }}</label>
+
+      <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && (scheduleForm.frequency.$error.max || scheduleForm.frequency.$error.min)">{{ i18n.__("Frequency value is invalid") }}</label>
     </div>
   </div>
 

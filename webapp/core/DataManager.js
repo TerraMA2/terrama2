@@ -1715,8 +1715,44 @@ var DataManager = {
         reject(err);
       });
     });
-  }
+  },
 
+  listAnalyses: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var _reject = function(err) {
+        console.log(err);
+        reject(err);
+      };
+
+      // TODO: building analysis from a factory. (AnalysisGrid, AnalysisDataseries...)
+      models.db['Analysis'].findAll({}).then(function(analysesResult) {
+        var output = [];
+
+        models.db["AnalysisDataSeries"].findAll({
+          include: [models.db['AnalysisDataSeriesMetadata']]
+        }).then(function(analysesDataSeriesResult) {
+          analysesResult.forEach(function(analysis) {
+            var analysisObject = new Analysis(analysis.get());
+            analysesDataSeriesResult.forEach(function(analysisDataSeries) {
+              var analysisDsObject = new AnalysisDataSeries(analysisDataSeries.get());
+              var metadata = {};
+              analysisDataSeries['AnalysisDataSeriesMetadata'].forEach(function(analysisDsMetadata) {
+                metadata[analysisDsMetadata.key] = analysisDsMetadata.value;
+              });
+
+              analysisDsObject.metadata = metadata;
+
+              analysisObject.addAnalysisDataSeries(analysisDsObject.toObject());
+            });
+
+            output.push(analysisObject);
+          }); // end foreach analysesResult
+          resolve(output);
+        }).catch(_reject); // end catch AnalysisDataSeries
+      }).catch(_reject);
+    });
+  }
 };
 
 module.exports = DataManager;

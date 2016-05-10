@@ -20,7 +20,7 @@ SSHDispatcher.prototype.connect = function(privatekeyPath) {
     self.client.on('error', function(err) {
       console.log(err);
       self.connected = false;
-      return reject(new Error("Error wile connecting. " + err.message));
+      return reject(new Error("Error while connecting. " + err.message));
     });
 
     self.client.connect({
