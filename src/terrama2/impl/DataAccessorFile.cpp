@@ -147,6 +147,7 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
 
 bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int geomColumn) const
 {
+  //TODO: filter raster
   if(geomColumn < 0)
     return true;
 
