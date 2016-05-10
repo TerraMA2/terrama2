@@ -313,14 +313,17 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     te::dt::StringProperty* geomIdProp = new te::dt::StringProperty("geom_id", te::dt::VAR_STRING, 255, true);
     dt->add(geomIdProp);
 
-    //define a primary key
-    std::string namepk = datasetName+ "_pk";
-    te::da::PrimaryKey* pk = new te::da::PrimaryKey(namepk, dt);
-    pk->add(geomIdProp);
 
     //second property: analysis execution date
     te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty( "execution_date", te::dt::TIME_INSTANT_TZ, true);
     dt->add(dateProp);
+
+    // the primary key is composed by the geomId and the execution date.
+    std::string namepk = datasetName+ "_pk";
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey(namepk, dt);
+    pk->add(geomIdProp);
+    pk->add(dateProp);
+
 
 
     //create index on date column

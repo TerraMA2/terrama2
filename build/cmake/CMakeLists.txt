@@ -76,6 +76,33 @@ if(NOT DEFINED TERRAMA2_DATA_DIR)
   set(TERRAMA2_DATA_DIR "${CMAKE_BINARY_DIR}/data" CACHE PATH "Path to a directory containing the data used in the examples and/or in the unit test")
 endif()
 
+
+# variable that defines the database username to be used in unittests and examples
+if(NOT DEFINED TERRAMA2_DATABASE_USERNAME)
+  set(TERRAMA2_DATABASE_USERNAME "postgres" CACHE PATH "Database username to be used in unittests and examples")
+endif()
+
+
+# variable that defines the database name to be used in unittests and examples
+if(NOT DEFINED TERRAMA2_DATABASE_DBNAME)
+    set(TERRAMA2_DATABASE_DBNAME "terrama2" CACHE PATH "Database name to be used in unittests and examples")
+endif()
+
+# variable that defines the database host to be used in unittests and examples
+if(NOT DEFINED TERRAMA2_DATABASE_HOST)
+  set(TERRAMA2_DATABASE_HOST "localhost" CACHE PATH "Database host to be used in unittests and examples")
+endif()
+
+# variable that defines the database port to be used in unittests and examples
+if(NOT DEFINED TERRAMA2_DATABASE_PORT)
+  set(TERRAMA2_DATABASE_PORT "5432" CACHE PATH "Database port to be used in unittests and examples")
+endif()
+
+# variable that defines the database port to be used in unittests and examples
+if(NOT DEFINED TERRAMA2_DATABASE_PASSWORD)
+  set(TERRAMA2_DATABASE_PASSWORD "postgres" CACHE PATH "Database password to be used in unittests and examples")
+endif()
+
 # variables that control install locations
 if(NOT DEFINED TERRAMA2_DESTINATION_PLUGINS)
   set(TERRAMA2_DESTINATION_PLUGINS "${TERRAMA2_BASE_DESTINATION_DIR}share/terrama2/plugins")
