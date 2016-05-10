@@ -54,6 +54,7 @@ terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::se
 
 void terrama2::services::collector::core::Service::updateNumberOfThreads(int numberOfThreads)
 {
+  //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
   stop();
   start(numberOfThreads);
 }
