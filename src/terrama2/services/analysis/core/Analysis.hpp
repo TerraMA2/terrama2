@@ -58,6 +58,16 @@ namespace terrama2
         };
 
         /*!
+          \brief Defines the type of influence of a DCP over the monitored object.
+        */
+        enum InfluenceType
+        {
+          RADIUS_TOUCHES = 1, //!< The DCP will be considered if monitored object intercepts the influence radius.
+          RADIUS_CENTER = 2, //!< The DCP will be considered if monitored object centroid intercepts the influence radius.
+          REGION = 3, //!< A DataSeries will be used to identify the region of influence of each DCP.
+        };
+
+        /*!
           \brief Defines the language of the script.
         */
         enum ScriptLanguage

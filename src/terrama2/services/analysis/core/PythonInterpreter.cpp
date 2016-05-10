@@ -56,10 +56,12 @@
 #include <terralib/srs/SpatialReferenceSystemManager.h>
 #include <terralib/srs/SpatialReferenceSystem.h>
 #include <terralib/common/UnitOfMeasure.h>
+#include <terralib/common/UnitsOfMeasureManager.h>
 
 #include <math.h>
 
 using namespace boost::python;
+
 
 int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, double radius, BufferType bufferType, std::string dateFilter, std::string restriction)
 {
@@ -510,9 +512,13 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
         try
         {
 
-          auto metadata = analysisDataSeries.metadata;
+          // Reads influence type
+          auto metadata = analysis.metadata;
+          InfluenceType influenceType = (InfluenceType)atoi(metadata["INFLUENCE_TYPE"].c_str());
 
-          if(metadata["INFLUENCE_TYPE"] != "REGION")
+
+          // For influence based on radius, creates a buffer for the DCP location
+          if(influenceType == RADIUS_CENTER || influenceType == RADIUS_TOUCHES)
           {
 
             int srid  = dcpDataset->position->getSRID();
@@ -525,7 +531,47 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
                 dcpDataset->position->setSRID(srid);
               }
             }
-              auto buffer = dcpDataset->position->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
+
+            if(metadata["INFLUENCE_RADIUS"].empty())
+            {
+              QString errMsg(QObject::tr("Analysis: %1 -> Invalid influence radius."));
+              errMsg = errMsg.arg(analysisId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              return NAN;
+            }
+
+            double radius = 0.;
+            try
+            {
+              std::string radiusStr = metadata["INFLUENCE_RADIUS"];
+              std::string radiusUnit = metadata["INFLUENCE_RADIUS_UNIT"];
+
+              if(radiusStr.empty())
+                radiusStr = "0";
+              if(radiusUnit.empty())
+                radiusUnit = "km";
+
+              radius = te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * radius;
+            }
+            catch(...)
+            {
+              QString errMsg(QObject::tr("Analysis: %1 -> Invalid influence radius."));
+              errMsg = errMsg.arg(analysisId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              return NAN;
+            }
+
+
+
+            auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(srid);
+            std::string unitName = spatialReferenceSystem->getUnitName();
+            if(unitName == "decimal degree")
+            {
+              dcpDataset->position->transform(29193);
+            }
+
+            auto buffer = dcpDataset->position->buffer(radius, 16, te::gm::CapButtType);
+
 
 
             auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
@@ -539,7 +585,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
                 centroid->transform(srid);
 
               std::vector<double> values;
-              if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
+              if(influenceType == RADIUS_CENTER && centroid->within(buffer) || (influenceType == RADIUS_TOUCHES && polygon->touches(buffer)))
               {
                 uint64_t countValues = 0;
                 if(contextDataset->series.syncDataSet->size() == 0)
@@ -611,8 +657,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
         }
         catch(terrama2::Exception /*e*/)
         {
-          QString errMsg = QObject::tr("Ops.");
-          TERRAMA2_LOG_WARNING() << errMsg;
+          return NAN;
         }
 
 
