@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -30,6 +31,18 @@ int main(int argc, char* argv[])
 
   terrama2::core::registerFactories();
 
+
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
+                                                {"PG_PORT", TERRAMA2_DATABASE_PORT},
+                                                {"PG_USER", TERRAMA2_DATABASE_USERNAME},
+                                                {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
+                                                {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
+                                                {"PG_CONNECT_TIMEOUT", "4"},
+                                                {"PG_CLIENT_ENCODING", "UTF-8"}
+                                              };
+  serviceManager.setLogConnectionInfo(connInfo);
+
   terrama2::services::analysis::core::initInterpreter();
 
   QCoreApplication app(argc, argv);
@@ -40,11 +53,12 @@ int main(int argc, char* argv[])
 
   QUrl uri;
   uri.setScheme("postgis");
-  uri.setHost("localhost");
-  uri.setPort(5432);
-  uri.setUserName("postgres");
-  uri.setPassword("postgres");
-  uri.setPath("/basedeteste");
+  uri.setHost(TERRAMA2_DATABASE_HOST);
+  uri.setPort(atoi(TERRAMA2_DATABASE_PORT));
+  uri.setUserName(TERRAMA2_DATABASE_USERNAME);
+  uri.setPassword(TERRAMA2_DATABASE_PASSWORD);
+  uri.setPath("/");
+  uri.setPath(uri.path() + TERRAMA2_DATABASE_DBNAME);
 
   // DataProvider information
   terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
