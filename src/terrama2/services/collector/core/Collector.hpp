@@ -32,6 +32,7 @@
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
+#include "../../../core/data-model/Filter.hpp"
 #include "../../../core/Typedef.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
@@ -62,6 +63,7 @@ namespace terrama2
           std::map<DataSetId, DataSetId> inputOutputMap;
 
           terrama2::core::Schedule schedule;
+          terrama2::core::Filter filter;
           IntersectionPtr intersection;
         };
 

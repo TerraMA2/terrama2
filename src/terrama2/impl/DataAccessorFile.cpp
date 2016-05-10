@@ -86,8 +86,8 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-                                                                   const terrama2::core::Filter& filter,
-                                                                   terrama2::core::DataSetPtr dataSet) const
+    const terrama2::core::Filter& filter,
+    terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -112,11 +112,10 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     std::string name = fileInfo.fileName().toStdString();
     std::string baseName = fileInfo.baseName().toStdString();
     // Verify if the file name matches the mask
-    // FIXME: use timestamp
-    std::string timezone;
-     std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
-     if(!isValidDataSetName(getMask(dataSet), filter, timezone, name,timestamp))
-       continue;
+    std::string timezone;//TODO: get timezone
+    std::shared_ptr< te::dt::TimeInstantTZ > timestamp;// FIXME: use timestamp
+    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name,timestamp))
+      continue;
 
     // creates a DataSource to the data and filters the dataset,
     // also joins if the DCP comes from separated files
@@ -131,7 +130,8 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
 
     if(!datasource->isOpened())
     {
-      //TODO Jano: Document why it cant not throw an exception here
+      // Can't throw here, inside loop
+      // just log and continue
       QString errMsg = QObject::tr("DataProvider could not be opened.");
       TERRAMA2_LOG_ERROR() << errMsg;
 

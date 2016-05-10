@@ -48,6 +48,19 @@
 //STL
 #include <algorithm>
 
+terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter)
+  : dataProvider_(dataProvider),
+    dataSeries_(dataSeries),
+    filter_(filter)
+{
+  if(!dataProvider_.get() || ! dataSeries_.get())
+  {
+    QString errMsg = QObject::tr("Mandatory parameters not provided.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+}
+
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
   assert(indexes.size() == 1);

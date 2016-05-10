@@ -111,10 +111,7 @@ namespace terrama2
 
           \param filter If defined creates a cache for the filtered data.//TODO: no implemented
         */
-        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-          : dataProvider_(dataProvider),
-            dataSeries_(dataSeries),
-            filter_(filter) {}
+        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter());
 
         /*!
            \brief Prefix especification for drivers.
