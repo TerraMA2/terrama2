@@ -59,6 +59,9 @@ terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSer
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
+
+  boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
+  lastDateTime_ = std::make_shared<te::dt::TimeInstantTZ>(boostTime);
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const

@@ -113,6 +113,8 @@ namespace terrama2
 
       */
       bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const;
+
+      std::shared_ptr< te::dt::TimeInstantTZ > getLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
     };
   }
 }

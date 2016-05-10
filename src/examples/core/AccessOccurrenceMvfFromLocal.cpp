@@ -44,6 +44,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
 
+    std::cout << "Last data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
+
     assert(occurrenceSeries->getOccurrences().size() == 1);
 
     std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.syncDataSet->dataset();

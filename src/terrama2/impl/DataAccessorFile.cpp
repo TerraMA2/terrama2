@@ -29,6 +29,7 @@
 
 #include "DataAccessorFile.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/TimeUtils.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
 
@@ -124,7 +125,7 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
 
 bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const
 {
-  if(dateColumn < 0 || ( !filter.discardBefore.get() && !filter.discardAfter.get()))
+  if(dateColumn < 0 || (!filter.discardBefore.get() && !filter.discardAfter.get()))
     return true;
 
   if(dataSet->isNull(dateColumn))
@@ -200,8 +201,8 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-    const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet) const
+                                                                   const terrama2::core::Filter& filter,
+                                                                   terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -298,8 +299,56 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
   }
 
   filterDataSet(completeDataset, filter);
+  std::shared_ptr< te::dt::TimeInstantTZ > lastTimeStamp = getLastTimestamp(completeDataset);
+  (*lastDateTime_) = *lastTimeStamp;//FIXME: compare with file name timestamp
 
   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
   series.syncDataSet = syncDataset;
   return series;
+}
+
+std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const
+{
+  int propertiesNumber = dataSet->getNumProperties();
+  int dateColumn = -1;
+  for(int i = 0; i < propertiesNumber; ++i)
+  {
+    if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    {
+      dateColumn = i;
+      break;
+    }
+  }
+
+  std::shared_ptr< te::dt::DateTime > lastDateTime;
+
+  dataSet->moveBeforeFirst();
+  while(dataSet->moveNext())
+  {
+    std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
+    if(!lastDateTime.get() || *lastDateTime < *dateTime)
+      lastDateTime = dateTime;
+  }
+
+  std::shared_ptr< te::dt::TimeInstantTZ > lastDateTimeTz;
+  if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT)
+  {
+    //NOTE: Depends on te::dt::TimeInstant toString implementation, it's doc is wrong
+    std::string dateString = lastDateTime->toString();
+    lastDateTimeTz = terrama2::core::TimeUtils::stringToTimestamp(dateString, "%Y-%m-%d %H:%M:%S");
+    //FIXME: add terrama2::DataSet timezone
+    //FIXME: not sure this works, need to test
+  }
+  else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
+  {
+    lastDateTimeTz = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(lastDateTime);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("Unknown date format.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  return lastDateTimeTz;
 }
