@@ -21,6 +21,7 @@
 
 <script type="text/javascript">
   var configuration = {
+    message: "{[ message ]}",
     dataSeriesType: 'dynamic',
     link: function(object) {
       return "/configuration/dataset?type=dynamic#wizard";
@@ -54,6 +55,7 @@
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
 <script src="/javascripts/angular/data-series/data-series.js"></script>
 
 {% endblock %}
@@ -68,7 +70,11 @@
     <div style="display: block;" class="box-body">
 
       <div class="col-md-12">
-        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" remove="remove(object)"></terrama2-table>
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        </div>
+
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" remove="remove(object)" extra="extra"></terrama2-table>
       </div>
 
     </div>

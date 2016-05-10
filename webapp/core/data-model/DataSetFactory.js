@@ -2,6 +2,7 @@ var DataSetError = require('./../Exceptions').DataSetError;
 var DataSetDcp = require('./DataSetDcp');
 var DataSetOccurrence = require('./DataSetOccurrence');
 var DataSetMonitored = require('./DataSetMonitored');
+var DataSet = require("./DataSet");
 
 
 function build(params) {
@@ -9,9 +10,12 @@ function build(params) {
   if (params.hasOwnProperty("position"))
     return new DataSetDcp(params);
   // checking for monitored object
-  if (params.hasOwnProperty('time_column') && params.hasOwnProperty('geometry_column'))
+  if (params.hasOwnProperty('time_column') && params.hasOwnProperty('geometry_column')) {
     return new DataSetMonitored(params);
+  }
 
+  if (params.hasOwnProperty('type') && (params.type == 'ANALYSIS-postgis' || params.type == 'ANALYSIS'))
+    return new DataSet(params);
   // todo: validate it - occurrence}
   if (params.hasOwnProperty('id') && params.id > 0) {
     return new DataSetOccurrence(params);

@@ -35,11 +35,13 @@ angular.module('terrama2.dataseries.registration', [
       .state('wizard', {
         parent: 'main',
         url: "/wizard",
-        templateUrl: '/javascripts/angular/wizard.html'
+        templateUrl: '/javascripts/angular/wizard.html',
+        controller: 'RegisterDataSeries'
       }).state('advanced', {
         parent: 'main',
         url: "/advanced",
-        templateUrl: '/javascripts/angular/advanced.html'
+        templateUrl: '/javascripts/angular/advanced.html',
+        controller: 'RegisterDataSeries'
       }
     );
   }])
@@ -155,7 +157,7 @@ angular.module('terrama2.dataseries.registration', [
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
       // todo: fix it. It is hard code
-      // $scope.tableFieldsStorager = ["table_name", "inputDataSet"];
+      $scope.tableFieldsStorager = [];
 
       DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
         var metadata = data.metadata;
@@ -461,15 +463,21 @@ angular.module('terrama2.dataseries.registration', [
         $scope.showStoragerForm = false;
 
         // if is dcp postgis, it shouldn't have a storager and it is processing
-        if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
-          $scope.storagerFormats = [{name: 'DCP-POSTGIS', data_series_type_name: 'Dcp'}];
-        } else {
-          $scope.dataSeriesSemantics.forEach(function(dSemantics) {
-            if (dSemantics.data_series_type_name === "Occurrence") {
-              $scope.storagerFormats.push(Object.assign({}, dSemantics));
-            }
-          });
-        }
+        // if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
+        //   $scope.storagerFormats = [{name: 'DCP-postgis', data_series_type_name: 'Dcp'}];
+        // } else {
+        //   $scope.dataSeriesSemantics.forEach(function(dSemantics) {
+        //     if (dSemantics.data_series_type_name === "Occurrence") {
+        //       $scope.storagerFormats.push(Object.assign({}, dSemantics));
+        //     }
+        //   });
+        // }
+
+        $scope.dataSeriesSemantics.forEach(function(dSemantics) {
+          if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
+            $scope.storagerFormats.push(Object.assign({}, dSemantics));
+          }
+        });
 
         DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.name, {metadata:true}).success(function(data) {
           $scope.tableFields = [];

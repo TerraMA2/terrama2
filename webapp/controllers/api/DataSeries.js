@@ -3,6 +3,7 @@ var TcpManager = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var Intent = require('./../../core/Enums').DataProviderIntent;
+var TokenCode = require('./../../core/Enums').TokenCode;
 var isEmpty = require('lodash').isEmpty;
 
 module.exports = function(app) {
@@ -25,7 +26,9 @@ module.exports = function(app) {
             };
 
             TcpManager.sendData(output);
-            return response.json({status: 200, output: output});
+
+            var token = Utils.generateToken(app, TokenCode.SAVE, collectorResult.output.name);
+            return response.json({status: 200, output: output, token: token});
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });
@@ -104,11 +107,15 @@ module.exports = function(app) {
       var id = request.params.id;
       
       if (id) {
-        DataManager.removeDataSerie({id: id}).then(function() {
-          response.json({status: 200});
+        DataManager.getDataSeries({id: id}).then(function(dataSeriesResult) {
+          DataManager.removeDataSerie({id: id}).then(function() {
+            response.json({status: 200, name: dataSeriesResult.name});
+          }).catch(function(err) {
+            Utils.handleRequestError(response, err, 400);
+          });
         }).catch(function(err) {
-          Utils.handleRequestError(response, new DataSeriesError("Dataseries not found"), 400);
-        });
+          Utils.handleRequestError(response, err, 400);
+        })
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }

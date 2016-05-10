@@ -16,15 +16,39 @@
 {% endblock %}
 
 {% block javascripts %}
-<script type="text/javascript" src="/externals/moment/moment.js"></script>
+
+<!-- Angular -->
 <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
-<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
-<script type="text/javascript" src="/javascripts/terrama2.js"></script>
+
+<!-- Angular Schema Form dependencies -->
+<script type="text/javascript" src="/externals/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="/externals/tv4/tv4.min.js"></script>
+<script type="text/javascript" src="/externals/objectpath/ObjectPath.js"></script>
+<script type="text/javascript" src="/externals/angular-schema-form/schema-form.js"></script>
+<script type="text/javascript" src="/externals/bootstrap/js/bootstrap-decorator.min.js"></script>
+
+<!-- terrama2 Angular app -->
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
-<script type="text/javascript" src="/javascripts/angular/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+
+<!-- Angular i18n -->
+<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
+
+<!-- Ace editor -->
 <script type="text/javascript" src="/externals/ace-editor/ace.js"></script>
 <script type="text/javascript" src="/externals/ace-editor/ext-language_tools.js"></script>
+
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+<!-- terrama2 Script -->
+<script type="text/javascript" src="/javascripts/terrama2.js"></script>
+
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
+
+<script type="text/javascript" src="/externals/moment/moment.js"></script>
+
 <script type="text/javascript">
   ace.require("ace/ext/language_tools");
 
@@ -47,7 +71,7 @@
     $(textarea).trigger('input');
   });
 </script>
-<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -94,8 +118,7 @@
                     <label>{[ __("Type") ]}:</label>
                     <select class="form-control" name="type" ng-model="analysis.type_id" required>
                       <option value="1">DCP</option>
-                      <option value="2">Occurrence</option>
-                      <option value="3">Grid</option>
+                      <option value="2">Grid</option>
                       <option value="3">Monitored Object</option>
                     </select>
 
@@ -155,6 +178,53 @@
       </div>
 
       <div class="col-md-12">
+        <div class="box box-default box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title">{[ __('Storager') ]}</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+            </div>
+          </div>
+          <!-- /.box-header -->
+          <div style="display: block;" class="box-body">
+            <div class="row">
+
+              <form name="storagerDataForm">
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>{[ __('Output Format') ]}:</label>
+                      <select id="storageFormat" class="form-control" name="format" ng-change="onStoragerFormatChange()" ng-model="storager.format" ng-options="format.name for format in storagerFormats">
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group" ng-class="{'has-error': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required,
+                                  'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
+                    <label>{[ __('Provider Output') ]}:</label>
+                    <select class="form-control" name="storager_data_provider_id" ng-model="analysis.data_provider_id" ng-options="provider.id as provider.name for provider in dataProviders" ng-required="storager.format.name">
+                      <option></option>
+                    </select>
+                    <label class="help-block text-danger" ng-show="storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required">
+                      {[ __("Data provider is required") ]}
+                    </label>
+                  </div>
+                </div>
+              </form>
+              <div class="col-md-12 terrama2-nopadding-box" ng-controller="StoragerController">
+                <!-- schema form -->
+                <div class="col-md-12" ng-show="showStoragerForm">
+                  <form name="storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
         <div class="box box-default box-solid" id="dataSeriesBox">
           <div class="box-header with-border">
             <h3 class="box-title">{[ __('Data Series') ]}</h3>
@@ -202,41 +272,72 @@
                           <form name="metadataForm">
                             <!-- dcp -->
                             <!-- ng-if="semantics.data_series_type_name === 'Dcp'" -->
-                            <div >
+                            <div>
+                              <div class="col-md-12">
+                                <div class="form-group">
+                                  <label>{[ __("Alias") ]}:</label>
+                                  <input class="form-control" name="radius" type="text" ng-model="metadata.alias">
+                                </div>
+                              </div>
+                            </div>
+                            <div ng-if="analysis.type_id == 1">
                               <div class="col-md-12 terrama2-nopadding-box">
-                                <div class="col-md-4">
+                                <div class="col-md-12">
                                   <div class="form-group has-feedback">
                                     <label>{[ __("Influence") ]}:</label>
-                                    <select class="form-control" name="influence" ng-model="metadata.key" required>
-                                      <option value="Radius">{[ __('Radius') ]}</option>
+                                    <select class="form-control" name="influence" ng-model="metadata.INFLUENCE_TYPE" required>
+                                      {% for influenceType in Enums.InfluenceTypes %}
+                                        <option value="{[ influenceType.Value ]}">{[ influenceType.Name ]}</option>
+                                      {% endfor %}
                                     </select>
                                   </div>
                                 </div>
                               </div>
+                              <div ng-if="metadata.INFLUENCE_TYPE == 1 || metadata.INFLUENCE_TYPE == 2">
+                                <div class="col-md-12 terrama2-nopadding-box">
 
-                              <div class="col-md-12 terrama2-nopadding-box">
-
-                                <div class="col-md-8">
-                                  <div class="form-group">
-                                    <label>{[ __("Radius") ]}:</label>
-                                    <input class="form-control" name="radius" type="text" ng-model="metadata.value">
+                                  <div class="col-md-6">
+                                    <div class="form-group">
+                                      <label>{[ __("Radius") ]}:</label>
+                                      <input class="form-control" name="radius" type="text" ng-model="metadata.INFLUENCE_RADIUS">
+                                    </div>
                                   </div>
-                                </div>
 
-                                <div class="col-md-4">
-                                  <div class="input-group" style="margin-top: 25px;">
-                                    <input type="text" class="form-control" aria-label="..." ng-model="metadata.format">
-                                    <div class="input-group-btn">
-                                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
-                                      </button>
-                                      <ul class="dropdown-menu dropdown-menu-right">
-                                        <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
-                                        <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
-                                      </ul>
-                                    </div><!-- /btn-group -->
-                                  </div><!-- /input-group -->
-                                </div><!-- /.col-md-4 -->
-                              </div><!--/.col-md-12-->
+                                  <div class="col-md-6">
+                                    <div class="input-group" style="margin-top: 25px;">
+                                      <input type="text" class="form-control" aria-label="..." ng-model="metadata.INFLUENCE_RADIUS_UNIT">
+                                      <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                          <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
+                                          <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
+                                        </ul>
+                                      </div><!-- /btn-group -->
+                                    </div><!-- /input-group -->
+                                  </div><!-- /.col-md-4 -->
+                                </div><!--/.col-md-12-->
+                              </div>
+
+                              <div ng-if="metadata.INFLUENCE_TYPE == 3">
+                                <div class="col-md-12 terrama2-nopadding-box">
+
+                                  <div class="col-md-6">
+                                    <div class="form-group has-feedback">
+                                      <label>{[ __("Influence Data Series") ]}:</label>
+                                      <select class="form-control" name="dataSeriesId" ng-model="metadata.INFLUENCE_DATASERIES_ID" required>
+                                        <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.name }}">{{ dataSeries.name }}</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div class="form-group">
+                                      <label>{[ __("Influence Attribute") ]}:</label>
+                                      <input class="form-control" name="attribute" type="text" ng-model="metadata.INFLUENCE_ATTRIBUTE">
+                                    </div>
+                                  </div>
+                                </div><!--/.col-md-12-->
+                              </div>
                             </div>
 
                             <!-- Occurrence -->
@@ -278,7 +379,9 @@
 
                     <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
                     <label>{[ __('Analysis Model') ]}:</label>
-                    <div id="script" style="height: 400px;"></div>
+                    <div id="scriptCheckResult"></div>
+                    <div id="systemError" style="display: none;"></div>
+                    <div id="script"></div>
                     <textarea name="script" ng-model="analysis.script" required></textarea>
 
                     <!-- required -->
@@ -303,7 +406,7 @@
                     </ul>
                   </div>
 
-                  <button class="btn btn-default pull-right">{[ __('Validate') ]}</button>
+                  <button class="btn btn-default pull-right" id="checkAnalysisScript">{[ __('Validate') ]}</button>
                 </div>
               </div>
             </div>
@@ -317,7 +420,7 @@
     <!-- /.box body -->
 
     <div class="box-footer">
-      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();">{[ __('OK') ]}</button>
+      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton" disabled="disabled">{[ __('OK') ]}</button>
       <a href="/configuration/analyses/" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
   </div>

@@ -103,12 +103,10 @@
 {% block title %} TerraMA2 {{ __('Data Series Registration') }} {% endblock %}
 
 {% block content %}
-  <div class="col-md-12" ng-controller="RegisterDataSeries">
+  <div class="col-md-12">
     <div class="box box-default">
       <div class="box-header with-border">
         <h3 class="box-title">{[ __('Data Series Registration') ]}</h3>
-        <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{[ __('Expert mode')]}</a>
-        <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{[ __('Wizard mode')]}</a>
       </div>
       <!-- /.box-header -->
       <div style="display: block;" class="box-body" ui-view>

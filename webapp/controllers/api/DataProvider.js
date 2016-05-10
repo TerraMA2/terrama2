@@ -2,6 +2,7 @@ var DataManager = require("../../core/DataManager");
 var DataProviderError = require('./../../core/Exceptions').DataProviderError;
 var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
+var TokenCode = require('./../../core/Enums').TokenCode;
 
 module.exports = function(app) {
   return {
@@ -35,7 +36,9 @@ module.exports = function(app) {
 
           // try to save
           DataManager.addDataProvider(dataProviderObject).then(function(result) {
-            response.json(result.toObject());
+            // generating token
+            var token = Utils.generateToken(app, TokenCode.SAVE, result.name);
+            response.json({status: 200, result: result.toObject(), token: token});
           }).catch(function(err) {
             handleError(response, err, 400);
           });
@@ -72,7 +75,15 @@ module.exports = function(app) {
 
       if (dataProviderName) {
         DataManager.updateDataProvider({name: dataProviderName, active: request.body.active}).then(function() {
-          response.json({status: 200});
+          DataManager.getDataProvider({name: dataProviderName}).then(function(dProvider) {
+            // generating token
+            var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
+
+            response.json({status: 200, result: dProvider, token: token});
+          }).catch(function(err) {
+            response.status(400);
+            response.json({status: 400, message: err.message})
+          }); 
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
@@ -87,8 +98,13 @@ module.exports = function(app) {
     delete: function(request, response) {
       var id = request.params.id;
       if (id) {
-        DataManager.removeDataProvider({id: id}).then(function() {
-          response.json({status: 200});
+        DataManager.getDataProvider({id: id}).then(function(dProvider) {
+          DataManager.removeDataProvider({id: id}).then(function() {
+          // generating token
+            response.json({status: 200, name: dProvider.name});
+          }).catch(function(err) {
+            Utils.handleRequestError(response, err, 400);
+          })
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
         })

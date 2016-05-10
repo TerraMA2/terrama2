@@ -31,6 +31,7 @@
 #include "Utils.hpp"
 #include "DataAccessorFactory.hpp"
 #include "SemanticsManager.hpp"
+
 #include "Logger.hpp"
 #include "../Exception.hpp"
 #include "../../Config.hpp"
@@ -181,11 +182,14 @@ void terrama2::core::initializeTerraMA()
 
 
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  semanticsManager.addSemantics("OCCURRENCE-postgis", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS");
-  semanticsManager.addSemantics("OCCURRENCE-wfp", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV");
-  semanticsManager.addSemantics("STATIC_DATA-ogr", terrama2::core::DataSeriesSemantics::STATIC, "OGR");
-  semanticsManager.addSemantics("DCP-inpe", terrama2::core::DataSeriesSemantics::STATIC, "CSV");
 
+  semanticsManager.addSemantics("OCCURRENCE-postgis", "PostGis stored occurrence", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS", {"POSTGIS"});
+  semanticsManager.addSemantics("OCCURRENCE-wfp", "INPE's Wildland Fire Program", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV", {"FILE", "FTP"});
+  semanticsManager.addSemantics("STATIC_DATA-ogr", "Generic static data", terrama2::core::DataSeriesSemantics::STATIC, "OGR", {"FILE", "FTP"});
+  semanticsManager.addSemantics("DCP-inpe", "INPE's DCP data format", terrama2::core::DataSeriesSemantics::DCP, "CSV", {"FILE", "FTP"});
+  semanticsManager.addSemantics("DCP-toa5", "TOA5 DCP format", terrama2::core::DataSeriesSemantics::DCP, "CSV", {"FILE", "FTP"});
+  semanticsManager.addSemantics("DCP-postgis", "DCP PostGIS", terrama2::core::DataSeriesSemantics::DCP, "POSTGIS",  {"POSTGIS"});
+  semanticsManager.addSemantics("ANALYSIS_MONITORED_OBJECT-postgis", "Monitored object analysis result", terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT, "POSTGIS", {"POSTGIS"});
 }
 
 void terrama2::core::finalizeTerraMA()

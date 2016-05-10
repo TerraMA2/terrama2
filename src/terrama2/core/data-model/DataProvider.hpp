@@ -55,8 +55,6 @@ namespace terrama2
       A DataProvider contains the list of dataseries that belongs to this provider
       that should be collected for further analysis.
      */
-
-    typedef std::string DataProviderType;
     struct DataProvider
     {
       enum DataProviderIntent

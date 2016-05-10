@@ -7,13 +7,21 @@ TcpManager.sendData = function(data) {
   emit(Signals.ADD_DATA_SIGNAL, data);
 };
 
+TcpManager.checkStatus = function() {
+  emit(Signals.STATUS_SIGNAL, {});
+}
+
+TcpManager.startService = function(data) {
+  emit(Signals.START_PROCESS_SIGNAL, {});
+}
+
 var emit = function(signal, object) {
   try {
     if(isNaN(signal)) throw TypeError(signal + " is not a valid signal!");
 
     // Stringifies the message
     // var jsonMessage = '\x00\x00\x01\x01{"DataProviders": [{"active": true,"class": "DataProvider","data_provider_type": "FILE","description": "Testing provider","id": 1,"intent": 0,"name": "Provider","project_id": 1,"uri": "file:///home/jsimas/MyDevel/dpi/terrama2-build/data/PCD_serrmar_INPE"}]}';
-    
+
     //home/jsimas/MyDevel/dpi/terrama2-build/data/fire_system
     //'\x00\x00\x01\x01'
     var jsonMessage = JSON.stringify(object).replace(/\":/g, "\": ");
@@ -31,17 +39,17 @@ var emit = function(signal, object) {
 
     // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(totalSize, 0);
-    
+
     // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(signal, 4);
-    
+
     var client = new net.Socket();
     console.log(buffer);
     console.log("Total size: ", totalSize);
     console.log("");
 
     //150.163.17.179
-    client.connect(30000, '150.163.17.179', function() {
+    client.connect(30001, '172.16.46.18', function() {
       // writing data in socket
       client.write(buffer);
     });

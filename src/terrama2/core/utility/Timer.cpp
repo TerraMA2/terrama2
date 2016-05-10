@@ -155,17 +155,6 @@ double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
     boost::posix_time::ptime pt(d, td);
     boost::local_time::local_date_time dt(pt, nowTZ->getTimeInstantTZ().zone());
     te::dt::TimeInstantTZ day(dt);
-// VINICIUS: remove
-    std::cout << nowTZ->toString() << std::endl;
-    std::cout << day.toString() << std::endl;
-    std::cout << day - *nowTZ.get() << std::endl;
-
-    int days = (day - *nowTZ.get()) / (3600 * 24);
-    int hours = ((day - *nowTZ.get()) % (3600 * 24)) / 3600;
-    int minutes = (((day - *nowTZ.get()) % (3600 * 24)) % 3600) / 60;
-    int seconds = ((((day - *nowTZ.get()) % (3600 * 24)) % 3600) % 60);
-
-    std::cout << days << " days " << hours <<":" <<minutes <<":" <<seconds << std::endl;
 
     return day - *nowTZ.get();
   }

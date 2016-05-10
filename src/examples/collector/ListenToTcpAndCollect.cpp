@@ -2,7 +2,6 @@
 
 // TerraMA2
 
-#include <terrama2/Exception.hpp>
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -11,8 +10,10 @@
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
+#include <terrama2/core/utility/ServiceManager.hpp>
+
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/impl/Utils.hpp>
+#include <terrama2/Exception.hpp>
 
 #include <terrama2/services/collector/core/Collector.hpp>
 #include <terrama2/services/collector/core/JSonUtils.hpp>
@@ -39,6 +40,7 @@
 
 // Boost
 #include <boost/exception/get_error_info.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 terrama2::core::DataProviderPtr buildInputProvider()
 {
@@ -65,7 +67,7 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.name = "OCCURRENCE-wfp";
+  dataSeries->semantics.code = "OCCURRENCE-wfp";
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -110,7 +112,7 @@ terrama2::core::DataSeriesPtr buildOutputDataSeries()
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 2;
   outputDataSeries->name = "DataProvider queimadas postgis";
-  outputDataSeries->semantics.name = "OCCURRENCE-postgis";
+  outputDataSeries->semantics.code = "OCCURRENCE-postgis";
   outputDataSeries->dataProviderId = 2;
 
   // DataSet information
@@ -147,7 +149,6 @@ int main(int argc, char* argv[])
 {
   try
   {
-
     terrama2::core::initializeTerraMA();
 
     terrama2::core::registerFactories();
@@ -172,9 +173,20 @@ int main(int argc, char* argv[])
 
     QJsonDocument doc(obj);
 
-    terrama2::core::TcpManager tcpManager;
+    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
+                                                  {"PG_PORT", "5432"},
+                                                  {"PG_USER", "postgres"},
+                                                  {"PG_PASSWORD", "postgres"},
+                                                  {"PG_DB_NAME", "nodejs"},
+                                                  {"PG_CONNECT_TIMEOUT", "4"},
+                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
+                                                };
+    serviceManager.setLogConnectionInfo(connInfo);
+
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
-    tcpManager.listen(dataManager, QHostAddress::Any, 30000);
+    terrama2::core::TcpManager tcpManager(dataManager);
+    tcpManager.listen(QHostAddress::Any, 30000);
     terrama2::services::collector::core::Service service(dataManager);
     service.start();
 
@@ -202,7 +214,7 @@ int main(int argc, char* argv[])
   }
   catch(boost::exception& e)
   {
-    std::cout << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+    std::cout << boost::diagnostic_information(e) << std::endl;
   }
   catch(std::exception& e)
   {

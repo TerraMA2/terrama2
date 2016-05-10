@@ -2,6 +2,27 @@ var Enums = require("./Enums");
 var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
 var cloneDeep = require("lodash").cloneDeep;
+var crypto = require('crypto');
+var exceptions = require('./Exceptions');
+
+function getTokenCodeMessage(code) {
+  var msg;
+  switch(code) {
+    case Enums.TokenCode.SAVE:
+      msg = "saved";
+      break;
+    case Enums.TokenCode.UPDATE:
+      msg = "updated";
+      break;
+    case Enums.TokenCode.DELETE:
+      msg = "deleted";
+      break;
+    default:
+      msg = "";
+      break;
+  }
+  return msg;
+}
 
 module.exports = {
   clone: function(object) {
@@ -70,5 +91,61 @@ module.exports = {
     }).catch(function(err) {
       promise.reject(err);
     })
+  },
+
+  rollbackPromises: function(promises, exception, errorHandler) {
+    Promise.all(promises).then(function() {
+      errorHandler(exception);
+    }).catch(function(err) {
+      errorHandler(err);
+    })
+  },
+
+  generateToken: function(app, code, intent) {
+    var token = crypto.randomBytes(48).toString('hex');
+    app.locals.tokenIntent = {
+      token: token,
+      code: code,
+      intent: intent
+    };
+
+    return token;
+  },
+
+  getTokenCodeMessage: getTokenCodeMessage,
+
+  makeTokenParameters: function(token, app) {
+    var parameters = {};
+
+    if (app.locals.tokenIntent && app.locals.tokenIntent.token === token) {
+      var code = app.locals.tokenIntent.code;
+      var intent = app.locals.tokenIntent.intent;
+
+      parameters.message = intent + " " + getTokenCodeMessage(code);
+      // resetting
+      delete app.locals.tokenIntent;
+    }
+
+    return parameters;
+  },
+
+  getAnalysisType: function(analysisCode) {
+    if (analysisCode) {
+      switch(parseInt(analysisCode)) {
+        case Enums.AnalysisType.DCP:
+          return "Dcp";
+          break;
+        case Enums.AnalysisType.GRID:
+          return "Grid";
+          break;
+        case Enums.AnalysisType.MONITORED:
+          return "Monitored Object";
+          break;
+        default:
+          throw new Error("Invalid analysis id");
+          break;
+      }
+    }
+    throw new Error("Invalid analysis id");
   }
 };

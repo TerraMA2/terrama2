@@ -83,13 +83,21 @@ namespace terrama2
         std::unique_lock<std::recursive_mutex> getLock();
 
         /*!
-          \brief Add the DataProvider and DataSeries constained in the QJsonObject
+          \brief Add the DataProvider and DataSeries contained in the QJsonObject
 
-          Ffor each member of the QJsonObject a DataProvider or a DataSeries will be build and added to the DataManager.
+          For each member of the QJsonObject a DataProvider or a DataSeries will be build and added to the DataManager.
 
           \pre The QJsonObject must have a list of json-converted DataProvider and DataSeries
         */
-        virtual void addFromJSON(const QJsonObject& obj);
+        virtual void addJSon(const QJsonObject& obj);
+        /*!
+          \brief Remove the DataProvider and DataSeries contained in the QJsonObject
+
+          For each member of the QJsonObject a DataProvider or a DataSeries will be removed from the DataManager.
+
+          \pre The QJsonObject must have a list of DataProviderId and DataSeriesId
+        */
+        virtual void removeJSon(const QJsonObject& obj);
 
         /*!
         \brief Register a DataProvider in the manager.

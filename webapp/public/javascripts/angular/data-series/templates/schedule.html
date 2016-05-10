@@ -7,8 +7,8 @@
         <option value="minutes">{{ i18n.__('Minutes') }}</option>
         <option value="hours">{{ i18n.__('Hours') }}</option>
         <option value="weekly">{{ i18n.__('Weekly') }}</option>
-        <option value="monthly">{{ i18n.__('Monthly') }}</option>
-        <option value="yearly">{{ i18n.__('Yearly') }}</option>
+<!--         <option value="monthly">{{ i18n.__('Monthly') }}</option>
+        <option value="yearly">{{ i18n.__('Yearly') }}</option> -->
       </select>
     </div>
   </div>
@@ -47,7 +47,7 @@
       <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$invalid">{{ i18n.__("Schedule value is required") }}</label>
 
       <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.number">{{ i18n.__("Schedule value is not a valid integer") }}</label>
-      <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && (scheduleForm.schedule.$error.ngMin || scheduleForm.schedule.$error.ngMax)">{{ i18n.__("Schedule value is not in range") }}</label>
+      <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && (scheduleForm.schedule.$error.min || scheduleForm.schedule.$error.max)">{{ i18n.__("Schedule value is not in range") }}</label>
     </div>
   </div>
 

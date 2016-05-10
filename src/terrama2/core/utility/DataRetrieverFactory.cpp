@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/utility/DataAccessFactory.hpp
+  \file terrama2/core/utility/DataRetrieverFactory.hpp
 
   \brief
 
@@ -35,7 +35,7 @@
 #include <QObject>
 #include <QString>
 
-void terrama2::core::DataRetrieverFactory::add(const terrama2::core::DataProviderType& dataProviderType, FactoryFnctType f)
+void terrama2::core::DataRetrieverFactory::add(const DataProviderType& dataProviderType, FactoryFnctType f)
 {
   auto it = factoriesMap_.find(dataProviderType);
 
@@ -49,7 +49,7 @@ void terrama2::core::DataRetrieverFactory::add(const terrama2::core::DataProvide
   factoriesMap_.emplace(dataProviderType, f);
 }
 
-void terrama2::core::DataRetrieverFactory::remove(const terrama2::core::DataProviderType& dataProviderType)
+void terrama2::core::DataRetrieverFactory::remove(const DataProviderType& dataProviderType)
 {
   auto it = factoriesMap_.find(dataProviderType);
 
@@ -63,7 +63,7 @@ void terrama2::core::DataRetrieverFactory::remove(const terrama2::core::DataProv
   factoriesMap_.erase(it);
 }
 
-bool terrama2::core::DataRetrieverFactory::find(const terrama2::core::DataProviderType& dataProviderType)
+bool terrama2::core::DataRetrieverFactory::find(const DataProviderType& dataProviderType)
 {
   auto it = factoriesMap_.find(dataProviderType);
 

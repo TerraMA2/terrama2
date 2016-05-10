@@ -44,12 +44,20 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 
 terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
   : dataManager_(dataManager)
 {
   connectDataManager();
 }
+
+void terrama2::services::collector::core::Service::updateNumberOfThreads(int numberOfThreads)
+{
+  stop();
+  start(numberOfThreads);
+}
+
 
 bool terrama2::services::collector::core::Service::mainLoopWaitCondition() noexcept
 {
@@ -109,7 +117,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   {
     logger->start();
 
-    TERRAMA2_LOG_DEBUG() << "Starting collector";
+    TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
     //////////////////////////////////////////////////////////
     //  aquiring metadata
@@ -194,16 +202,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    // VINICIUS: real connInfo
-    std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
-                                                  {"PG_PORT", "5432"},
-                                                  {"PG_USER", "postgres"},
-                                                  {"PG_PASSWORD", "postgres"},
-                                                  {"PG_DB_NAME", "nodejs"},
-                                                  {"PG_CONNECT_TIMEOUT", "4"},
-                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                };
-
+    std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
     std::shared_ptr< CollectorLogger > collectorLog = std::make_shared<CollectorLogger>(collector->id, connInfo);
     loggers_.emplace(collector->id, collectorLog);
 

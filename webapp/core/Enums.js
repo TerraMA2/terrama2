@@ -41,16 +41,25 @@ module.exports = {
     USER: 'user',
     PASSWORD: 'password'
   },
-  
+
   DataSeriesType: {
     DCP: 'Dcp',
     OCCURRENCE: 'Occurrence',
     GRID: 'Grid',
-    MONITORED: 'Monitored'
+    MONITORED: 'Monitored',
+    ANALYSIS: 'ANALYSIS',
+    POSTGIS: 'POSTGIS'
   },
-  
+
+  AnalysisType: {
+    DCP: 1,
+    GRID: 2,
+    MONITORED: 3
+  },
+
   DataSeriesFormat: {
-    CSV: 'CSV'
+    CSV: 'CSV',
+    POSTGIS: 'POSTGIS'
   },
 
   DataSeriesSemantics: {
@@ -58,7 +67,7 @@ module.exports = {
     FORMAT: "data_format_name",
     TYPE: "data_series_type_name"
   },
-  
+
   DataProviderIntent: {
     COLLECT: 'COLLECT',
     PROCESSING: 'PROCESSING'
@@ -72,5 +81,26 @@ module.exports = {
   Format: {
     GEOJSON: 'GeoJSON',
     WKT: 'wkt'
-  }
+  },
+
+  TokenCode: {
+    SAVE: 1,
+    UPDATE: 2,
+    DELETE: 3
+  },
+
+  InfluenceTypes: [
+    {
+      Name: "Touches",
+      Value: 1
+    },
+    {
+      Name: "Center",
+      Value: 2
+    },
+    {
+      Name: "Region",
+      Value: 3
+    }
+  ]
 };

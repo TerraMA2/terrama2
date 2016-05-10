@@ -1,16 +1,15 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/DataAccessorFactory.hpp>
-#include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/DataManager.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -26,16 +25,16 @@ using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   terrama2::core::registerFactories();
+
+  terrama2::services::analysis::core::initInterpreter();
 
   QCoreApplication app(argc, argv);
 
 
   DataManagerPtr dataManager(new DataManager());
-
-  Context::getInstance().setDataManager(dataManager);
 
   QUrl uri;
   uri.setScheme("postgis");
@@ -62,7 +61,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 3;
   outputDataSeries->name = "Analysis result";
-  outputDataSeries->semantics.name = "STATIC_DATA-postgis";
+  outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -112,7 +111,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics.name = "STATIC_DATA-ogr";
+  dataSeries->semantics.code = "STATIC_DATA-ogr";
   dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
@@ -153,7 +152,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
-  dcpSeries->semantics.name = "DCP-inpe";
+  dcpSeries->semantics.code = "DCP-inpe";
   dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
   dcpSeries->name = "Serra do Mar";
   dcpSeries->id = 2;

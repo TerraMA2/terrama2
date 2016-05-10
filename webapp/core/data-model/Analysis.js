@@ -22,6 +22,10 @@ Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
   this.analysis_dataseries_list.push(analysisDataSeries);
 }
 
+Analysis.prototype.setMetadata = function(metadata) {
+  this.metadata = metadata;
+}
+
 Analysis.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -31,7 +35,7 @@ Analysis.prototype.toObject = function() {
     name: this.name,
     description: this.description,
     active: this.active,
-    output_dataset: this['dataset_output'],
+    output_dataseries_id: this['dataset_output'],
     metadata: this.metadata,
     'analysis_dataseries_list': this.analysis_dataseries_list,
     schedule: this['schedule_id']

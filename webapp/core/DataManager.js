@@ -132,20 +132,30 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS, description: "Data Series Analysis type"}));
 
         // data formats semantics defaults todo: check it
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
+
+        // analysis type
+        inserts.push(models.db["AnalysisType"].create({id: 1, name: "Dcp", description: "Description Dcp"}));
+        inserts.push(models.db["AnalysisType"].create({id: 2, name: "Grid", description: "Description Grid"}));
+        inserts.push(models.db["AnalysisType"].create({id: 3, name: "Monitored Object", description: "Description Monitored"}));
 
         // analysis data series type
-        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Monitored Object", description: "Description 1"}));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Dcp", description: "Description Dcp"}));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 2, name: "Grid", description: "Description Grid"}));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 3, name: "Monitored Object", description: "Description Monitored"}));
 
         // semantics
         inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "DCP-postgis", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-wfp", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
         inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-postgis", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
+        inserts.push(self.addDataSeriesSemantics({name: "ANALYSIS-postgis", data_format_name: "POSTGIS", data_series_type_name: DataSeriesType.ANALYSIS}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -162,7 +172,7 @@ var DataManager = {
       });
     });
   },
-  
+
   unload: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -180,7 +190,7 @@ var DataManager = {
       });
     });
   },
-  
+
   finalize: function() {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -390,7 +400,7 @@ var DataManager = {
           resolve();
         }).catch(function(err) {
           console.log("Remove Project: ", err);
-          reject(new exceptions.ProjectError("Could not remove project: " + err.message));
+          reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
         })
       }).catch(function(err) {
         reject(err);
@@ -446,7 +456,7 @@ var DataManager = {
       });
     });
   },
-  
+
   getServiceInstance : function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject){
@@ -456,7 +466,7 @@ var DataManager = {
 
         if (result.length > 1)
           return reject(new Error("More than one service instance retrieved"));
-        
+
         resolve(result[0]);
       }).catch(function(err) {
         reject(err);
@@ -717,11 +727,15 @@ var DataManager = {
    * name identifier.
    *
    * @param {Object} dataProviderParam - An object containing DataProvider identifier to get it.
+   * @param {bool} cascade - A bool value to delete on cascade
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  removeDataProvider: function(dataProviderParam) {
+  removeDataProvider: function(dataProviderParam, cascade) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      if (!cascade)
+        cascade = false;
+
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
         if (provider.id == dataProviderParam.id || provider.name == dataProviderParam.name) {
@@ -729,7 +743,8 @@ var DataManager = {
             self.data.dataProviders.splice(index, 1);
             resolve();
           }).catch(function(err) {
-            reject(new exceptions.DataProviderError("Could not remove DataProvider ", err));
+            console.log(err);
+            reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
           });
           return;
         }
@@ -791,7 +806,7 @@ var DataManager = {
               return false;
             })
           });
-          
+
           // collect output and processing
           return resolve(copyDataSeries);
         }).catch(function(err) {
@@ -844,7 +859,7 @@ var DataManager = {
    * @param {Object} dataSeriesObject - An object containing DataSeries values to save it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSeries: function(dataSeriesObject) {
+  addDataSeries: function(dataSeriesObject, analysisType) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var output;
@@ -865,19 +880,19 @@ var DataManager = {
             for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
               var dSet = dataSeriesObject.dataSets[i];
               dSet.data_series_id = dataSerie.id;
-              dataSets.push(self.addDataSet(dataSemantics.get(), dSet));
+              dataSets.push(self.addDataSet(dataSemantics.get(), dSet, analysisType));
             }
 
             Promise.all(dataSets).then(function(dataSets){
               self.data.dataSeries.push(new DataSeries(output));
               // temp code: getting wkt
-              
+
               var promises = [];
-              
+
               dataSets.forEach(function(dSet) {
                 promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
               });
-              
+
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
                 output.dataSets = wktDataSets;
@@ -906,7 +921,7 @@ var DataManager = {
         //   msg = error.message;
         // });
         console.log(err);
-        reject(new exceptions.DataSeriesError(err.message));
+        reject(new exceptions.DataSeriesError("Could not save data series " + err.message));
       });
     });
   },
@@ -972,7 +987,8 @@ var DataManager = {
             self.data.dataSeries.splice(index, 1);
             resolve(status);
           }).catch(function (err) {
-            reject(new exceptions.DataSeriesError("Could not remove DataSeries: ", err));
+            console.log(err);
+            reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
           });
           return;
         }
@@ -997,7 +1013,7 @@ var DataManager = {
    * @param {Array<Object>} dataSetObject - An object containing DataSet values to save it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSet: function(dataSeriesSemantic, dataSetObject) {
+  addDataSet: function(dataSeriesSemantic, dataSetObject, analysisType) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
@@ -1008,6 +1024,7 @@ var DataManager = {
         var onSuccess = function(dSet) {
           var output;
           output = DataSetFactory.build(Object.assign(Utils.clone(dSet.get()), dataSet.get()));
+          console.log(output)
 
           output.semantics = dataSeriesSemantic;
 
@@ -1039,6 +1056,10 @@ var DataManager = {
                   output.format[dataSetFormat.key] = dataSetFormat.value;
                 });
 
+                //  if analysis, add input dataseries id
+                if (analysisType && analysisType.data_series_id)
+                  output.format['monitored_object_dataseries_id'] = analysisType.data_series_id;
+
                 self.data.dataSets.push(output);
                 resolve(output);
               });
@@ -1052,7 +1073,8 @@ var DataManager = {
         };
 
         var onError = function(err) {
-          reject(new exceptions.DataSetError("Could not save data set.", err));
+          console.log(err);
+          reject(new exceptions.DataSetError("Could not save data set." + err.message));
         };
 
         // rollback data set function if any error occurred
@@ -1079,9 +1101,43 @@ var DataManager = {
               //  todo: implement it
               rollback(dataSet);
               break;
-            case DataSeriesType.MONITORED:
-            //  todo: implement it
-              rollback(dataSet);
+            case DataSeriesType.ANALYSIS:
+              // tbl/
+              //  todo: check it
+              console.log(analysisType)
+              switch(analysisType.type) {
+                case DataSeriesType.DCP:
+                  var analysisDataSetDcp = {
+                    data_set_id: dataSet.id,
+                    position: dataSetObject.position
+                  };
+                  models.db.DataSetDcp.create(analysisDataSetDcp).then(onSuccess).catch(onError);
+                  break;
+                case "Monitored Object":
+                  models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
+                  break;
+                case DataSeriesType.GRID:
+                  // var analysisDataMonitored = {
+                  //   data_set_id: dataSet.id,
+                  //   time_column: dataSetObject.time_column,
+                  //   geometry_column: dataSetObject.geometry_column,
+                  //   srid: dataSetObject.srid,
+                  //   id_column: dataSetObject.id_column
+                  // }
+                  // models.db['DataSetMonitored'].create(analysisDataMonitored).then(onSuccess).catch(onError);
+                  rollback(dataSet);
+                  break;
+                default:
+                  rollback(dataSet);
+                  break;
+              }
+
+
+              // var dataSetMonitored = {
+              //   data_set_id: dataSet.id,
+
+              // };
+              // models.db['DataSetMonitored'].create(dataSetMonitored).then(onSuccess).catch(onError);
               break;
             default:
               rollback(dataSet);
@@ -1277,12 +1333,21 @@ var DataManager = {
         })
       };
 
+      var rollbackPromise = function(promises, exception) {
+        Promise.all(promises).then(function() {
+          console.log("Rollback all promises");
+          return reject(exception);
+        }).catch(function(err) {
+          reject(err);
+        })
+      }
+
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
             var schedule = new Schedule(scheduleResult);
             var collectorObject = {};
-  
+
             // todo: get service_instance id and collector status (active)
             collectorObject.data_series_input = dataSeriesResult.id;
             collectorObject.data_series_output = dataSeriesResultOutput.id;
@@ -1291,7 +1356,7 @@ var DataManager = {
             collectorObject.active = true;
             collectorObject.collector_type = 1;
             collectorObject.schedule_id = scheduleResult.id;
-  
+
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
               var collector = new Collector(collectorResult);
               var input_output_map = [];
@@ -1317,18 +1382,21 @@ var DataManager = {
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
-              rollbackModels([models.db.Schedule, models.db.DataSeries], [scheduleResult, dataSeriesResult], err);
+              console.log("rollback schedule")
+              rollbackPromise([self.removeSchedule(scheduleResult), self.removeDataSerie(dataSeriesResult)], err);
             });
           }).catch(function(err) {
             // rollback dataseries
-            rollbackModels([models.db.DataSeries, models.db.DataSeries], [dataSeriesResultOutput, dataSeriesResult], err);
+            console.log("rollback dataseries in out");
+            rollbackPromise([self.removeDataSerie(dataSeriesResultOutput), self.removeDataSerie(dataSeriesResult)], err);
           });
         }).catch(function(err) {
-          rollbackModels([models.db.DataSeries], [dataSeriesResult], err);
+          console.log("rollback dataseries");
+          rollbackPromise([self.removeDataSerie(dataSeriesResult)], err);
         })
       }).catch(function(err) {
         reject(err);
-      })  
+      })
     });
   },
 
@@ -1345,6 +1413,18 @@ var DataManager = {
     });
   },
 
+  removeSchedule: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Schedule.destroy({where: {id: restriction.id}}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
+      });
+    });
+  },
+
   listSchedules: function(restriction) {
     var self = this;
     // todo: implement it
@@ -1357,7 +1437,20 @@ var DataManager = {
     var self = this;
     // todo: implement it from listSchedules
     return new Promise(function(resolve, reject) {
-      resolve();
+      self.listCollectors(restriction || {}).then(function(collectors) {
+        if (collectors.length == 1)
+          models.db['Schedule'].findOne({id: collectors[0].schedule_id}).then(function(scheduleResult) {
+            resolve(scheduleResult.get());
+          }).catch(function(err) {
+            console.log(err);
+            reject(new exceptions.ScheduleError("Could not find schedule " + err.message));
+          });
+        else {
+          reject(new exceptions.ScheduleError("Could not find schedule with a collector associated"));
+        }
+      }).catch(function(err) {
+        reject(err);
+      })
     });
   },
 
@@ -1446,29 +1539,110 @@ var DataManager = {
     });
   },
 
-  addAnalysis: function(analysisObject) {
+  addAnalysis: function(analysisObject, dataSeriesObject) {
+    var self = this;
     return new Promise(function(resolve, reject) {
-      // todo: make it as factory: AnalysisGrid, Analysis...
-      models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
-        var analysisDataSeriesObject = Utils.clone(analysisObject.analysisDataSeries);
-        var analysisObject = new Analysis(analysisResult);
-        models.db["AnalysisDataSeries"].create(analysisDataSeriesObject).then(function(analysisDataSeriesResult) {
-          var analysisDataSeries = new AnalysisDataSeries(analysisDataSeriesResult);
+      // adding dataseries_output
+      self.addDataSeries(dataSeriesObject, {
+        data_series_id: analysisObject.data_series_id,
+        type: analysisObject.type
+      }).then(function(dataSeriesResult) {
+        // adding analysis
+        // todo: make it as factory: AnalysisGrid, Analysis...
+        analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
+        var scopeAnalysisObject = analysisObject;
+        models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
 
-          console.log(analysisResult.get());
-          console.log(analysisDataSeriesResult.get());
-          resolve(analysisResult.get());
+          console.log(analysisObject);
+          var analysisDataSeriesObject = Utils.clone(scopeAnalysisObject.analysisDataSeries);
+          // setting foreign keys
+          analysisDataSeriesObject.data_series_id = dataSeriesResult.id;
+          analysisDataSeriesObject.analysis_id = analysisResult.id;
+
+          var analysisInstance = new Analysis(analysisResult);
+          console.log("AnalysisObject => ", analysisInstance);
+
+          models.db["AnalysisDataSeries"].create(analysisDataSeriesObject).then(function(analysisDataSeriesResult) {
+            var analysisDataSeries = new AnalysisDataSeries(analysisDataSeriesResult);
+
+            var metadata = [];
+            for(var key in scopeAnalysisObject.analysisDataSeries.metadata) {
+              if (scopeAnalysisObject.analysisDataSeries.metadata.hasOwnProperty(key)) {
+                metadata.push({
+                  analysis_data_series_id: analysisDataSeriesResult.id,
+                  key: key,
+                  value: scopeAnalysisObject.analysisDataSeries.metadata[key]
+                });
+              }
+            }
+            models.db["AnalysisDataSeriesMetadata"].bulkCreate(metadata, {analysis_data_series_id: analysisDataSeriesResult.id}).then(function(bulkMetadataResult) {
+              var analysidDataSeriesMetadata = {};
+              bulkMetadataResult.forEach(function(meta) {
+                var data = meta.get();
+                analysidDataSeriesMetadata[data.key] = data.value;
+              });
+
+              analysisDataSeries.metadata = analysidDataSeriesMetadata;
+              console.log(analysisDataSeries.metadata)
+              analysisInstance.addAnalysisDataSeries(analysisDataSeries.toObject());
+
+
+
+              var analysisMetadata = [];
+              for(var key in scopeAnalysisObject.metadata) {
+                if (scopeAnalysisObject.metadata.hasOwnProperty(key)) {
+                  analysisMetadata.push({
+                    analysis_id: analysisResult.id,
+                    key: key,
+                    value: scopeAnalysisObject.metadata[key]
+                  });
+                }
+              }
+
+              models.db["AnalysisMetadata"].bulkCreate(analysisMetadata, {analysis_id: analysisResult.id}).then(function(bulkAnalysisMetadataResult) {
+                analysisMetadata = {};
+                bulkAnalysisMetadataResult.forEach(function(meta) {
+                  var data = meta.get();
+                  analysisMetadata[data.key] = data.value;
+                });
+
+                analysisInstance.metadata = analysisMetadata;
+
+                console.log("-------------------------------");
+                console.log("Aqui:");
+                console.log(analysisInstance);
+                console.log("-------------------------------");
+
+                resolve(analysisInstance);
+              }).catch(function(err) {
+                var promises = [];
+                promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
+                Utils.rollbackPromises(promises, err, reject);
+              })
+            }).catch(function(err) {
+              var promises = [];
+              promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
+              Utils.rollbackPromises(promises, err, reject);
+            })
+          }).catch(function(err) {
+            var promises = [];
+            promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
+            Utils.rollbackPromises(promises, new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), reject);
+          });
         }).catch(function(err) {
-          Utils.rollbackModels(models.db['Analysis'], analysisResult.get(), new exceptions.AnalysisError("Could not save Analysis Dataseries: " + err), {reject: reject})
-        });
+          // rollback dataseries
+          self.removeDataSerie({id: dataSeriesResult.id}).then(function() {
+            console.log(err);
+            reject(new exceptions.AnalysisError("Could not save analysis: " + err.message));
+          }).catch(function(err) {
+            console.log("Error rollback dataseries analysis: ", err);
+            reject(err);
+          })
+        })
       }).catch(function(err) {
-        var msg = "";
-
-        err.errors.forEach(function(error) {
-          msg += error.message + "\n";
-        });
-        reject(new exceptions.AnalysisError("Could not save analysis: " + msg));
-      })
+        console.log(err);
+        reject(err);
+      });
     });
   }
 
