@@ -213,7 +213,7 @@
                   </div>
                 </div>
               </form>
-              <div class="col-md-12 terrama2-nopadding-box" ng-controller="StoragerController">
+              <div class="col-md-12 terrama2-nopadding-box">
                 <!-- schema form -->
                 <div class="col-md-12" ng-show="showStoragerForm">
                   <form name="storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
@@ -290,13 +290,6 @@
                                       <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
                                       <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
                                     </select>
-                                  </div>
-                                </div>
-
-                                <div class="col-md-8">
-                                  <div class="form-group">
-                                    <label>{[ __("Alias") ]}:</label>
-                                    <input class="form-control" name="radius" type="text" ng-model="metadata.alias">
                                   </div>
                                 </div>
                               </div>
