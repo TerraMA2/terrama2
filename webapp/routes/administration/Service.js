@@ -5,5 +5,5 @@ module.exports = function (app) {
 
   app.get('/administration/services', passport.isAdministrator, controller.get);
   app.get('/administration/services/new', passport.isAdministrator, controller.new);
-  app.get('/administration/services/:name', passport.isAdministrator, controller.edit);
+  app.get('/administration/services/:id', passport.isAdministrator, controller.edit);
 };

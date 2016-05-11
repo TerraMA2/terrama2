@@ -16,7 +16,7 @@
     angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services'])
         .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$http', function($scope, ServiceInstanceFactory, $http) {
             $scope.link = function(object) {
-                return "/administration/services/" + object.name;
+                return "/administration/services/" + object.id;
             };
 
             $scope.model = [];
@@ -54,12 +54,26 @@
             $scope.extra = {
               service: {
                 handler: function(serviceInstance) {
-                  $http.post("/api/Remote", {serviceId: serviceInstance.id}).success(function(data) {
-                    serviceInstance.online = data.online;
-                    console.log(data);
-                  }).catch(function(err) {
-                    console.log("Error in remote service: ", err);
-                  })
+                  serviceInstance.loading = true;
+                  if (!serviceInstance.online) {
+                    $http.post("/api/Remote/start", {serviceId: serviceInstance.id}).success(function(data) {
+                      serviceInstance.online = data.online;
+                      console.log(data);
+                    }).catch(function(err) {
+                      console.log("Error while starting remote service: ", err);
+                    }).finally(function() {
+                      serviceInstance.loading = false;
+                    })
+                  } else {
+                    $http.post("/api/Remote/stop", {serviceId: serviceInstance.id}).success(function(data) {
+                      serviceInstance.online = data.online || false;
+                      console.log(data);
+                    }).error(function(err) {
+                      console.log("Error while stoping remote service: ", err);
+                    }).finally(function() {
+                      serviceInstance.loading = false;
+                    });
+                  }
                 },
                 ping: function(serviceInstance) {
                   $http.post("/api/Remote/ping", {serviceId: serviceInstance.id}).success(function(data) {

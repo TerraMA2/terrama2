@@ -32,71 +32,127 @@ function parseByteArray(byteArray) {
 */
 var clients = {};
 
-function connect(connection, buffer) {
-  return new Promise(function(resolve, reject) {
-    try {
-      var client;
-      // checking if exists
-      for (var key in clients) {
-        if (clients.hasOwnProperty(key)) {
-          client = clients[key];
-          break;
-        }
-      }
 
-      var _connect = function(socket){
-        //todo: fix it. It sets timeout to start service
-        setTimeout(function() {
-          socket.connect(connection.port, connection.host, function() {
-            socket.write(buffer);
-          });
-        }, 1000);
+/**
+This method provides a client to communicate in tcp channel. It saves a service instance in memory
+
+@param {ServiceInstance} connection - a terrama2 service instance
+@param {Buffer} buffer - a buffer containing message to send
+@param {Object} callback - a callback for handling sync operations. (optional) The syntax is {success: PromiseResolve, error: PromiseReject};
+*/
+function _makeClient(connection, buffer, callback) {
+  try {
+    var client;
+    // checking if exists
+    for (var key in clients) {
+      if (clients.hasOwnProperty(key)) {
+        client = clients[key];
+        break;
+      }
+    }
+
+    var _connect = function(socket){
+      //todo: fix it. It sets timeout to start service
+      setTimeout(function() {
+        socket.connect(connection.port, connection.host, function() {
+          socket.write(buffer);
+        });
+      }, 1000);
+    };
+
+    if (!client || !client.socket.readyState == "open") {
+      client = {
+        socket: new net.Socket(),
+        service: connection
       };
 
-      if (!client || !client.socket.connecting) {
-        client = {
-          socket: new net.Socket(),
-          service: connection
-        };
+      _connect(client.socket);
 
-        _connect(client.socket);
-
-        clients[connection.name] = client;
-      } else if (!client.socket.connecting) {
-        _connect(client.socket);
-      }
-
-      client.socket.on('data', function(data) {
-        // TODO: parse
-        console.log('\n\n[CLIENT] Received:\n');
-        console.log(data);
-
-        try {
-          var parsedMessage = parseByteArray(data);
-
-          resolve(parsedMessage.message);
-        } catch(e) {
-          reject(e);
-        }
-
-        // resolve({instance_id: 1, instance_name: "test"});
-      });
-
-      client.socket.on('close', function() {
-        console.log('\n\n[CLIENT] Connection closed');
-      });
-
-      client.socket.on('error', function(err) {
-        console.log("\n\n[ERROR] ", err);
-        reject(new Error(err));
-      })
-    } catch (e) {
-      reject(e);
-      // throw e;
+      clients[connection.name] = client;
+    } else if (!client.socket.connecting) {
+      _connect(client.socket);
     }
+
+    if (!client || !client.socket.connecting) {
+      client = {
+        socket: new net.Socket(),
+        service: connection
+      };
+
+      _connect(client.socket);
+
+      clients[connection.name] = client;
+    } else if (!client.socket.connecting) {
+      _connect(client.socket);
+    }
+
+    client.socket.on('data', function(data) {
+      // TODO: parse
+      console.log('\n\n[CLIENT] Received:\n');
+      console.log(data);
+
+      try {
+        var parsedMessage = parseByteArray(data);
+
+        // checking callback
+        if (callback && callback.success)
+          callback.success(parsedMessage);
+      } catch(e) {
+        if (callback && callback.error)
+          callback.error(e);
+      }
+    });
+
+    client.socket.on('close', function() {
+      console.log('\n\n[CLIENT] Connection closed');
+    });
+
+    client.socket.on('error', function(err) {
+      console.log("\n\n[ERROR] ", err);
+
+      if (callback && callback.error)
+        callback.error(new Error(err));
+    })
+
+  } catch (e) {
+    if (callback && callback.error) {
+      callback.error(e);
+      return;
+    }
+    throw e;
+  }
+}
+
+/**
+This method provides asynchronous tcp connection
+
+@param {ServiceInstance} connection - a terrama2 service instance
+@param {Buffer} buffer - a buffer containing message to send
+*/
+function asyncConnect(connection, buffer) {
+  _makeClient(connection, buffer);
+}
+
+/**
+This method provides synchronous tcp connection
+
+@param {ServiceInstance} connection - a terrama2 service instance
+@param {Buffer} buffer - a buffer containing message to send
+*/
+function syncConnect(connection, buffer) {
+  return new Promise(function(resolve, reject) {
+    _makeClient(connection, buffer, {
+      success: resolve,
+      error: reject
+    });
   });
 }
 
+/**
+This method prepares a bytearray to send in tcp socket.
+@param {Signal} signal - a valid terrama2 tcp signal
+@param {Object} object - a javascript object message to send
+*/
 function makeBuffer(signal, object) {
   try {
     if(isNaN(signal))
@@ -125,10 +181,15 @@ function makeBuffer(signal, object) {
   return buffer;
 }
 
-TcpManager.sendData = function(data) {
-  emit(Signals.ADD_DATA_SIGNAL, data);
+// async
+TcpManager.sendData = function(serviceInstance, data) {
+  var buffer = makeBuffer(Signals.ADD_DATA_SIGNAL, data);
+
+  asyncConnect(serviceInstance, buffer);
+  // emit(Signals.ADD_DATA_SIGNAL, data);
 };
 
+// sync
 TcpManager.checkStatus = function(serviceInstance) {
   var statusStructure = {
     instance_id: serviceInstance.id,
@@ -140,18 +201,14 @@ TcpManager.checkStatus = function(serviceInstance) {
   // connect();
 };
 
+// async
 TcpManager.updateService = function(serviceInstance) {
-  return new Promise(function(resolve, reject) {
-    var buffer = makeBuffer(Signals.UPDATE_SERVICE_SIGNAL, serviceInstance);
-    connect(serviceInstance, buffer).then(function(serviceStatus) {
-      resolve(serviceStatus);
-    }).catch(function(err) {
-      reject(err);
-    });
-  });
+  var buffer = makeBuffer(Signals.UPDATE_SERVICE_SIGNAL, serviceInstance);
+  asyncConnect(serviceInstance, buffer);
 };
 
-TcpManager.startService = function(serviceInstance, object) {
+// sync
+TcpManager.startService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     var ssh = new SSH(serviceInstance);
     ssh.connect().then(function() {
@@ -159,13 +216,28 @@ TcpManager.startService = function(serviceInstance, object) {
         // retrieving exit code
         resolve(code);
       }).catch(function(err, code) {
-        reject(err);
+        reject(err, code);
       });
     }).catch(function(err) {
       reject(err);
     });
   })
 }
+
+// async
+TcpManager.stopService = function(serviceInstance) {
+  return new Promise(function(resolve, reject) {
+    var buffer = makeBuffer(Signals.TERMINATE_SERVICE_SIGNAL, {});
+
+    syncConnect(serviceInstance, buffer).then(function(parsedMessage) {
+      var messageObject = parsedMessage.message;
+
+      resolve(messageObject);
+    }).catch(function(err) {
+      reject(err);
+    });
+  });
+};
 
 var emit = function(signal, object) {
   try {
@@ -258,7 +330,7 @@ server.on('connection', function(socket) {
   });
 });
 
-server.listen(1338, '0.0.0.0');
+server.listen(1337, '0.0.0.0');
 server.on('close', function() {
   console.log("TcpManager server closed");
 });

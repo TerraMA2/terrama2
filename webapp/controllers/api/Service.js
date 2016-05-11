@@ -6,26 +6,35 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var type = request.query.type;
+      var serviceId = request.query.serviceId;
 
-      //todo: improve it
-      var restriction = {};
-      switch (type) {
-        case "COLLECT":
-          restriction = {service_type_id: 1};
-          break;
-        case "ANALYSIS":
-          restriction = {service_type_id: 2};
-          break;
-        default:
-          break;
+      if (!serviceId) {
+        //todo: improve it
+        var restriction = {};
+        switch (type) {
+          case "COLLECT":
+            restriction = {service_type_id: 1};
+            break;
+          case "ANALYSIS":
+            restriction = {service_type_id: 2};
+            break;
+          default:
+            break;
+        }
+
+        DataManager.listServiceInstances(restriction).then(function(services) {
+          // todo: checking status - on/off
+          return response.json(services);
+        }).catch(function(err) {
+          Utils.handleRequestError(response, err, 400);
+        })
+      } else {
+        DataManager.getServiceInstance({id: serviceId}).then(function(service) {
+          response.json({status: 200, result: service});
+        }).catch(function(err) {
+          Utils.handleRequestError(response, err, 400);
+        }) 
       }
-
-      DataManager.listServiceInstances(restriction).then(function(services) {
-        // todo: checking status - on/off
-        return response.json(services);
-      }).catch(function(err) {
-        Utils.handleRequestError(response, err, 400);
-      })
     },
     
     post: function(request, response) {

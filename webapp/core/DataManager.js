@@ -1528,24 +1528,6 @@ var DataManager = {
   listCollectors: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      /*
-        var collector = new Collector(collectorResult);
-        var input_output_map = [];
-
-        for(var i = 0; i < dataSeriesResult.dataSets.length; ++i) {
-          var inputDataSet = dataSeriesResult.dataSets[i];
-          var outputDataSet;
-          if (dataSeriesResultOutput.dataSets.length == 1)
-            outputDataSet = dataSeriesResultOutput.dataSets[0];
-          else
-            outputDataSet = dataSeriesResultOutput.dataSets[i];
-
-          input_output_map.push({
-            input: inputDataSet.id,
-            output: outputDataSet.id
-          });
-        }
-      */
       models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
         var output = [];
         var promises = [];
