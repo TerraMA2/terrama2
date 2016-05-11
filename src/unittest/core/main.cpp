@@ -12,7 +12,7 @@
 #include "TsUtility.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataRetrieverFTP.hpp"
-
+#include "TsDataAccessorGeoTiff.hpp"
 
 int main(int argc, char **argv)
 {
@@ -46,7 +46,10 @@ int main(int argc, char **argv)
   int ret = QTest::qExec(&testDataAccessorDcpInpe, argc, argv);
 
   //TsDataRetrieverFTP testDataRetrieverFTP;
- // int ret = QTest::qExec(&testDataRetrieverFTP, argc, argv);
+  //int ret = QTest::qExec(&testDataRetrieverFTP, argc, argv);
+
+  //TsDataAccessorGeoTiff testDataAccessorGeoTiff;
+  //int ret = QTest::qExec(&testDataAccessorGeoTiff, argc, argv);
 
   terrama2::core::finalizeTerraMA();
 

@@ -114,7 +114,7 @@ void TsDataRetrieverFTP::TestOk()
 
    try
    {
-    path = mock_->retrieveData(mask, filter);
+    path = mock_->retrieveData(mask, filter);    
     QFAIL("Exception expected!");
    }
    catch(terrama2::Exception& e)
