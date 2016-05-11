@@ -1539,6 +1539,28 @@ var DataManager = {
     });
   },
 
+  /**
+   * It retrieves Analysis loaded in memory.
+   *
+   * @param {Object} restriction - An object containing Analysis filter values
+   * @return {Array<DataProvider>} - An array with Analysis available/loaded in memory.
+   */
+  listAnalysis: function(restriction) {
+    return new Promise(function(resolve, reject){
+      models.db.Analysis.findAll({where: restriction}).then(function(analysisList) {
+        var output = [];
+        analysisList.forEach(function(analysisObj) {
+          output.push(analysisObj.get());
+        });
+
+        resolve(output);
+      }).catch(function(err) {
+        clean();
+        reject(err);
+      });
+    });
+  },
+
   addAnalysis: function(analysisObject, dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -1606,11 +1628,6 @@ var DataManager = {
 
                 analysisInstance.metadata = analysisMetadata;
 
-                console.log("-------------------------------");
-                console.log("Aqui:");
-                console.log(analysisInstance);
-                console.log("-------------------------------");
-
                 resolve(analysisInstance);
               }).catch(function(err) {
                 var promises = [];
@@ -1640,6 +1657,27 @@ var DataManager = {
       }).catch(function(err) {
         console.log(err);
         reject(err);
+      });
+    });
+  },
+
+  /**
+   * It removes Analysis from param. It should be an object containing either id identifier or name identifier.
+   *
+   * @param {Object} analysisParam - An object containing Analysis identifier to get it.
+   * @param {bool} cascade - A bool value to delete on cascade
+   * @return {Promise} - a 'bluebird' module with Analysis instance or error callback
+   */
+  removeAnalysis: function(analysisParam, cascade) {
+    return new Promise(function(resolve, reject) {
+      if(!cascade)
+        cascade = false;
+
+      models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
       });
     });
   }
