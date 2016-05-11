@@ -1,6 +1,7 @@
 var Client = require('ssh2').Client;
 var Promise = require("bluebird");
 var fs = require('fs');
+var util = require('util');
 
 var SSHDispatcher = module.exports = function(serviceInstance) {
   this.client = new Client();
@@ -42,11 +43,15 @@ SSHDispatcher.prototype.execute = function(command) {
       if (err)
         return reject(err);
 
-      stream.on('close', function(code, signal) {
-        console.log('code: ' + code + ', signal: ' + signal);
+      stream.on('exit', function(code, signal) {
+        console.log("EXIT: ", code, signal);
         if (code == 0)
           return resolve(code);
         return reject(new Error("Error occurred while remote command: code \"" + code + "\", signal: \"" + signal + "\""));
+      });
+
+      stream.on('close', function(code, signal) {
+        console.log('code: ' + code + ', signal: ' + signal);
       }).on('data', function(data) {
         console.log('STDOUT: ' + data);
       }).stderr.on('data', function(data) {
@@ -62,7 +67,12 @@ SSHDispatcher.prototype.startService = function() {
     if (!self.connected)
       return reject(new Error("Could not start service. There is no such active connection"));
 
-    self.execute(self.serviceInstance.pathToBinary).then(function(code) {
+    // var command = !self.serviceInstance.pathToBinary.endsWith(" &") ? self.serviceInstance.pathToBinary + " &" : self.serviceInstance.pathToBinary;
+    var command = util.format("%s %s", self.serviceInstance.pathToBinary, self.serviceInstance.port.toString());
+
+    command += (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : "");
+    
+    self.execute(command).then(function(code) {
       resolve(code);
     }).catch(function(err, code) {
       reject(err, code)

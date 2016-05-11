@@ -241,3 +241,17 @@ errors.AnalysisError = function(message) {
   this.name = 'AnalysisError';
 };
 util.inherits(errors.AnalysisError, errors.BaseError);
+
+
+/**
+ * Thrown when Signal is invalid.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.SignalError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'SignalError';
+};
+util.inherits(errors.SignalError, errors.BaseError);

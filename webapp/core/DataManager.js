@@ -224,7 +224,7 @@ var DataManager = {
       // helper for clean up datamanager and reject promise
       var _rejectClean = function(err) {
         clean();
-        console.log(err);
+        console.log("CLEAN: ", err);
         reject(err);
       };
 

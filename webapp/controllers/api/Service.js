@@ -21,6 +21,7 @@ module.exports = function(app) {
       }
 
       DataManager.listServiceInstances(restriction).then(function(services) {
+        // todo: checking status - on/off
         return response.json(services);
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
