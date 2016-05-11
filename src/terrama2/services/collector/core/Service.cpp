@@ -205,6 +205,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
     std::lock_guard<std::mutex> lock(mutex_);
 
     std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
+    //TODO: No need to create one for ache collector, remove this and alter logger interface
     std::shared_ptr< CollectorLogger > collectorLog = std::make_shared<CollectorLogger>(collector->id, connInfo);
     loggers_.emplace(collector->id, collectorLog);
 
