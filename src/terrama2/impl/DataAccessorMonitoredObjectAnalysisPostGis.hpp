@@ -53,7 +53,6 @@ namespace terrama2
 
     protected:
 
-      virtual te::dt::TimeInstantTZ lastDateTime() const override;
       virtual std::string getDataSetName(DataSetPtr dataSet) const override;
       virtual std::string getDateTimePropertyName(DataSetPtr dataSet) const override;
       virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const override;

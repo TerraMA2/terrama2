@@ -29,6 +29,7 @@
 
 #include "DataAccessorFile.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/TimeUtils.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
 
@@ -81,26 +82,25 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
 
   int dateColumn = -1;
   int geomColumn = -1;
+  int rasterColumn = -1;
   for(int i = 0; i < propertiesNumber; ++i)
   {
     if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
       dateColumn = i;
-
-      if(geomColumn > -1)
-        break;
-      else
-        continue;
+      continue;
     }
 
     if(geomColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
     {
       geomColumn = i;
+      continue;
+    }
 
-      if(dateColumn > -1)
-        break;
-      else
-        continue;
+    if(rasterColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::RASTER_TYPE)
+    {
+      geomColumn = i;
+      continue;
     }
   }
 
@@ -110,7 +110,9 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   while(i < size)
   {
     dataSet->move(i);
-    if(!isValidTimestamp(dataSet, filter, dateColumn) || !isValidGeometry(dataSet, filter, geomColumn))
+    if(!isValidTimestamp(dataSet, filter, dateColumn)
+        || !isValidGeometry(dataSet, filter, geomColumn)
+        || !isValidRaster(dataSet, filter, rasterColumn))
     {
       dataSet->remove();
       --size;
@@ -123,14 +125,14 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
 
 bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const
 {
-  if(dateColumn < 0)
+  if(dateColumn < 0 || (!filter.discardBefore.get() && !filter.discardAfter.get()))
     return true;
 
   if(dataSet->isNull(dateColumn))
   {
     QString errMsg = QObject::tr("Null date/time attribute.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataAccessorException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return true;
   }
 
   std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
@@ -147,19 +149,40 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
 
 bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int geomColumn) const
 {
-  if(geomColumn < 0)
+  if(geomColumn < 0 || !filter.region.get())
     return true;
 
   if(dataSet->isNull(geomColumn))
   {
     QString errMsg = QObject::tr("Null geometry attribute.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataAccessorException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return true;
   }
 
   std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
 
-  if(filter.region.get() && !region->intersects(filter.region.get()))
+  if(!region->intersects(filter.region.get()))
+    return false;
+
+  return true;
+}
+
+bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const
+{
+  if(rasterColumn < 0 || !filter.region.get())
+    return true;
+
+  if(dataSet->isNull(rasterColumn))
+  {
+    QString errMsg = QObject::tr("Null raster attribute.");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return true;
+  }
+
+  std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(rasterColumn));
+
+  std::unique_ptr<const te::gm::Envelope> envelope(filter.region->getMBR());
+  if(!raster->getExtent(filter.region->getSRID())->intersects(*envelope))
     return false;
 
   return true;
@@ -178,8 +201,8 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-    const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet) const
+                                                                   const terrama2::core::Filter& filter,
+                                                                   terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -276,8 +299,69 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
   }
 
   filterDataSet(completeDataset, filter);
+  std::shared_ptr< te::dt::TimeInstantTZ > lastTimeStamp = getLastTimestamp(completeDataset);
+  (*lastDateTime_) = *lastTimeStamp;//FIXME: compare with file name timestamp
 
   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
   series.syncDataSet = syncDataset;
   return series;
+}
+
+std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const
+{
+  int propertiesNumber = dataSet->getNumProperties();
+  int dateColumn = -1;
+  for(int i = 0; i < propertiesNumber; ++i)
+  {
+    if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    {
+      dateColumn = i;
+      break;
+    }
+  }
+
+  if(dateColumn < 0)
+  {
+    boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
+    return std::make_shared<te::dt::TimeInstantTZ>(boostTime);
+  }
+
+  std::shared_ptr< te::dt::DateTime > lastDateTime;
+
+  dataSet->moveBeforeFirst();
+  while(dataSet->moveNext())
+  {
+    std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
+    if(!lastDateTime.get() || *lastDateTime < *dateTime)
+      lastDateTime = dateTime;
+  }
+
+  std::shared_ptr< te::dt::TimeInstantTZ > lastDateTimeTz;
+  if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT)
+  {
+    //NOTE: Depends on te::dt::TimeInstant toString implementation, it's doc is wrong
+    std::string dateString = lastDateTime->toString();
+    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S");
+    auto date = boostLocalTimeWithoutTimeZone.date();
+    auto time = boostLocalTimeWithoutTimeZone.utc_time().time_of_day();
+    boost::posix_time::ptime ptime(date, time);
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC+00"));
+
+    boost::local_time::local_date_time boostLocalTime(ptime, zone);
+    lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
+    //FIXME: add terrama2::DataSet timezone
+  }
+  else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
+  {
+    lastDateTimeTz = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(lastDateTime);
+  }
+  else
+  {
+    //This method expects a valid Date/Time, other formats are not valid.
+    QString errMsg = QObject::tr("Unknown date format.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  return lastDateTimeTz;
 }

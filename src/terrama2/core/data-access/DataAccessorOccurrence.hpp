@@ -64,8 +64,6 @@ namespace terrama2
         virtual ~DataAccessorOccurrence() {}
         //! Returns a OccurrenceSeries filtered by Filter
         virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
-        // Doc in base class
-        virtual te::dt::TimeInstantTZ lastDateTime() const override;
     };
   }
 }

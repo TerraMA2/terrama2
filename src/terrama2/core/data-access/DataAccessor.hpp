@@ -76,7 +76,7 @@ namespace terrama2
     {
       public:
         //! Returns the last data timestamp found on last access.
-        virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
+        virtual std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime() const {return lastDateTime_; }
         //! Returns the semantics of the DataSeries.
         DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
         /*!
@@ -175,6 +175,8 @@ namespace terrama2
         DataProviderPtr dataProvider_;//!< DataProvider with iformation of the server where the data is stored.
         DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data iformation.
         Filter filter_;//! Filter applied to accessed data.
+
+        std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime_;
     };
   }
 }

@@ -177,7 +177,7 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
   boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp='%2%', last_process_timestamp='%3%' WHERE id =" + QString::number(registerId).toStdString());
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
-  query.bind_arg(2, dataTimestamp->toString());
+  query.bind_arg(2, dataTimestamp.get() ? dataTimestamp->toString() : "NULL");
   query.bind_arg(3, TimeUtils::nowUTC()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
