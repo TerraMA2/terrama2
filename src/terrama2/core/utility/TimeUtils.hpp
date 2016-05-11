@@ -79,6 +79,9 @@ namespace terrama2
        */
       double convertStringToUnitOfMeasure(const std::string& time, std::string unitName);
 
+      std::shared_ptr<te::dt::TimeInstantTZ> stringToTimestamp(const std::string& dateTime, const std::string& mask);
+      boost::local_time::local_date_time stringToBoostLocalTime(const std::string& dateTime, const std::string& mask);
+
     }
   }
 }

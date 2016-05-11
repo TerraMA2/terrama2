@@ -88,10 +88,3 @@ std::string terrama2::core::DataAccessorAnalysisPostGis::dataSourceType() const
 {
   return "POSTGIS";
 }
-
-te::dt::TimeInstantTZ terrama2::core::DataAccessorAnalysisPostGis::lastDateTime() const
-{
-  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw Exception() << ErrorDescription(errMsg);
-}

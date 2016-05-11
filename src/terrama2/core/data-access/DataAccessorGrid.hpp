@@ -57,8 +57,6 @@ namespace terrama2
         virtual ~DataAccessorGrid() {}
         //! Returns a GridSeries filtered by Filter
         virtual GridSeriesPtr getGridSeries(const Filter& filter);
-        // Doc in base class
-        virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
       protected:
         // Doc in base class

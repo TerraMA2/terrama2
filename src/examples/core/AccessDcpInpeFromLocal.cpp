@@ -96,6 +96,8 @@ int main(int argc, char* argv[])
       std::cout << "\t";
     }
     std::cout << std::endl;
+
+    std::cout << "\nDataSet size: " << teDataSet->size() << std::endl;
   }
 
   terrama2::core::finalizeTerralib();

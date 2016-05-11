@@ -54,6 +54,7 @@ terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::se
 
 void terrama2::services::collector::core::Service::updateNumberOfThreads(int numberOfThreads)
 {
+  //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
   stop();
   start(numberOfThreads);
 }
@@ -98,7 +99,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId)
 {
   std::lock_guard<std::mutex> lock(mutex_);
-  TERRAMA2_LOG_DEBUG() << "Collector added to queue.";
+  TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
 
   collectorQueue_.push_back(collectorId);
   mainLoopCondition_.notify_one();
@@ -115,7 +116,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
   try
   {
-    logger->start();
+    auto logId = logger->start();
 
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
@@ -140,15 +141,16 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     /////////////////////////////////////////////////////////////////////////
     //  recovering data
 
-    terrama2::core::Filter filter;
+    terrama2::core::Filter filter = collectorPtr->filter;
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      //TODO: logger->done();
-      TERRAMA2_LOG_ERROR() << tr("No data to collect.");
+      logger->done(nullptr, logId);
+      TERRAMA2_LOG_WARNING() << tr("No data to collect.");
       return;
     }
+    auto lastDateTime = dataAccessor->lastDateTime();
 
     /////////////////////////////////////////////////////////////////////////
     // storing data
@@ -164,7 +166,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       dataStorager->store(item.second, *outputDataSet);
     }
 
-    //TODO: logger->done();
+    logger->done(lastDateTime, logId);
   }
   catch(const terrama2::Exception& e)
   {
@@ -241,7 +243,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << "Unknown error";
+    TERRAMA2_LOG_ERROR() << tr("Unknown error");
   }
 }
 

@@ -48,6 +48,22 @@
 //STL
 #include <algorithm>
 
+terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter)
+  : dataProvider_(dataProvider),
+    dataSeries_(dataSeries),
+    filter_(filter)
+{
+  if(!dataProvider_.get() || ! dataSeries_.get())
+  {
+    QString errMsg = QObject::tr("Mandatory parameters not provided.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
+  lastDateTime_ = std::make_shared<te::dt::TimeInstantTZ>(boostTime);
+}
+
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
 {
   assert(indexes.size() == 1);
@@ -191,9 +207,6 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
         uri = dataProvider_->uri;
 
       //TODO: Set last date collected in filter
-      std::shared_ptr<te::mem::DataSet> memDataSet;
-      std::shared_ptr<te::da::DataSetType> dataSetType;
-
       Series tempSeries = getSeries(uri, filter, dataset);
       series.emplace(dataset, tempSeries);
 
@@ -212,7 +225,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   }
   catch(const boost::exception& e)
   {
-    std::cout << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString() << std::endl;
+    std::cout << boost::diagnostic_information(e) << std::endl;
   }
   catch(const std::exception& e)
   {

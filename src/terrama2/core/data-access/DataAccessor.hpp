@@ -76,7 +76,7 @@ namespace terrama2
     {
       public:
         //! Returns the last data timestamp found on last access.
-        virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
+        virtual std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime() const {return lastDateTime_; }
         //! Returns the semantics of the DataSeries.
         DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
         /*!
@@ -102,8 +102,6 @@ namespace terrama2
         //! Default destructor.
         virtual ~DataAccessor() {}
 
-        //DataRetrieverPtr getDataRetriever() const;
-
       protected:
 
         /*!
@@ -113,10 +111,7 @@ namespace terrama2
 
           \param filter If defined creates a cache for the filtered data.//TODO: no implemented
         */
-        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-          : dataProvider_(dataProvider),
-            dataSeries_(dataSeries),
-            filter_(filter) {}
+        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter());
 
         /*!
            \brief Prefix especification for drivers.
@@ -177,11 +172,11 @@ namespace terrama2
         */
         virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
 
-
         DataProviderPtr dataProvider_;//!< DataProvider with iformation of the server where the data is stored.
         DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data iformation.
         Filter filter_;//! Filter applied to accessed data.
-      /*  DataRetrieverPtr dataRetriever_; */
+
+        std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime_;
     };
   }
 }

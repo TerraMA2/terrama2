@@ -53,14 +53,6 @@ terrama2::core::DataAccessorStaticDataOGR::~DataAccessorStaticDataOGR()
 
 }
 
-te::dt::TimeInstantTZ terrama2::core::DataAccessorStaticDataOGR::lastDateTime() const
-{
-  QString errMsg = QObject::tr("No data available.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw NoDataException() << ErrorDescription(errMsg);
-}
-
-
 std::string terrama2::core::DataAccessorStaticDataOGR::dataSourceType() const
 {
   return "OGR";
