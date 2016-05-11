@@ -146,10 +146,11 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      //TODO: logger->done(logId);
+      logger->done(nullptr, logId);
       TERRAMA2_LOG_WARNING() << tr("No data to collect.");
       return;
     }
+    auto lastDateTime = dataAccessor->lastDateTime();
 
     /////////////////////////////////////////////////////////////////////////
     // storing data
@@ -165,7 +166,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       dataStorager->store(item.second, *outputDataSet);
     }
 
-    //TODO: logger->done(logId);
+    logger->done(lastDateTime, logId);
   }
   catch(const terrama2::Exception& e)
   {

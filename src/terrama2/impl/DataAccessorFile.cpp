@@ -341,9 +341,15 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getLa
   {
     //NOTE: Depends on te::dt::TimeInstant toString implementation, it's doc is wrong
     std::string dateString = lastDateTime->toString();
-    lastDateTimeTz = terrama2::core::TimeUtils::stringToTimestamp(dateString, "%Y-%m-%d %H:%M:%S");
+    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S");
+    auto date = boostLocalTimeWithoutTimeZone.date();
+    auto time = boostLocalTimeWithoutTimeZone.utc_time().time_of_day();
+    boost::posix_time::ptime ptime(date, time);
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC+00"));
+
+    boost::local_time::local_date_time boostLocalTime(ptime, zone);
+    lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
     //FIXME: add terrama2::DataSet timezone
-    //FIXME: not sure this works, need to test
   }
   else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
   {
@@ -351,6 +357,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getLa
   }
   else
   {
+    //This method expects a valid Date/Time, other formats are not valid.
     QString errMsg = QObject::tr("Unknown date format.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);

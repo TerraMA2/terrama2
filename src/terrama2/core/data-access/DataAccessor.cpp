@@ -224,7 +224,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   }
   catch(const boost::exception& e)
   {
-    std::cout << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString() << std::endl;
+    std::cout << boost::diagnostic_information(e) << std::endl;
   }
   catch(const std::exception& e)
   {

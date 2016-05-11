@@ -73,6 +73,8 @@ namespace terrama2
                                      std::vector<te::da::Expression*>& where) const;
       virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
                                      std::vector<te::da::Expression*>& where) const;
+
+      void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;
     };
   }
 }
