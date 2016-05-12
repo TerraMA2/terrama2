@@ -41,22 +41,25 @@ namespace terrama2
   {
     struct Filter;
     /*!
-      \class DataAccessorGeoTiff
+      \class DataAccessorGeoTif
 
     */
-    class DataAccessorGeoTiff : public DataAccessorGrid, public DataAccessorFile
+    class DataAccessorGeoTif : public DataAccessorGrid, public DataAccessorFile
     {
     public:
-      DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorGeoTiff() {}
+      DataAccessorGeoTif(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorGeoTif() {}
 
       inline static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return new DataAccessorGeoTiff(dataProvider, dataSeries, filter);
+        return new DataAccessorGeoTif(dataProvider, dataSeries, filter);
       }
 
+      virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
+      
       virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
-                                        std::shared_ptr<te::da::DataSet> dataSet) const override;
+                                        std::shared_ptr<te::da::DataSet> dataSet,
+                                        std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const override;
 
     protected:
       virtual std::string dataSourceType() const override;

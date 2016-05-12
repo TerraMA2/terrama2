@@ -67,8 +67,6 @@ namespace terrama2
     private:
       //! Recover projection information from dataset
       Srid getSrid(DataSetPtr dataSet) const;
-      //! Recover timezone information from dataset
-      std::string getTimeZone(DataSetPtr dataSet) const;
       //! Name of column with Date/Time information
       std::string timestampPropertyName() const;
       //! Name of column with latitude information

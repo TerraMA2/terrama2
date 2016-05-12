@@ -178,7 +178,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       for (std::string fileName: vectorFiles)
       {
         // FIXME: use timestamp
-        std::string timezone;
+        std::string timezone = "UTC+00";//FIXME: get timezone from dataset
         std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
         if (terrama2::core::isValidDataSetName(mask,filter, timezone, fileName,timestamp))
           vectorNames_.push_back(fileName);

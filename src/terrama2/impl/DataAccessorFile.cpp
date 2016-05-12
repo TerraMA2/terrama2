@@ -64,6 +64,20 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
   }
 }
 
+std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("timezone");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
 {
   std::string mask = getMask(dataset);
@@ -189,13 +203,16 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
-                                                            std::shared_ptr<te::da::DataSet> dataSet) const 
+                                                            std::shared_ptr<te::da::DataSet> dataSet,
+                                                            std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->copy(*dataSet);
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor, const std::string& dataSetName, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor,
+                                                                                      const std::string& dataSetName,
+                                                                                      std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
   return std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
@@ -230,8 +247,20 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
   {
     std::string name = fileInfo.fileName().toStdString();
     std::string baseName = fileInfo.baseName().toStdString();
+
+    //get timezone of the dataset
+    std::string timezone;
+    try
+    {
+      timezone = getTimeZone(dataSet);
+    }
+    catch(const terrama2::core::UndefinedTagException& e)
+    {
+      //if timezone is not defined
+      timezone = "UTC+00";
+    }
+
     // Verify if the file name matches the mask
-    std::string timezone;//TODO: get timezone
     if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, fileTimestamp))
       continue;
 
@@ -285,7 +314,7 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     assert(converter);
     std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
 
-    addToCompleteDataSet(completeDataset, teDataSet);
+    addToCompleteDataSet(completeDataset, teDataSet, fileTimestamp);
 
     if(completeDataset->isEmpty())
     {
@@ -357,9 +386,18 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
   {
+    if(dataSet->isNull(dateColumn))
+      continue;
+
     std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
     if(!lastDateTime.get() || *lastDateTime < *dateTime)
       lastDateTime = dateTime;
+  }
+
+  if(!lastDateTime.get())
+  {
+    boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
+    return std::make_shared<te::dt::TimeInstantTZ>(boostTime);
   }
 
   std::shared_ptr< te::dt::TimeInstantTZ > lastDateTimeTz;

@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGeoTif accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
     assert(gridSeries->gridList().size() == 1);
