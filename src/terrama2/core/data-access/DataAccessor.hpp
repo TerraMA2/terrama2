@@ -109,7 +109,7 @@ namespace terrama2
 
           Each derived implementation must deal with protocol, format and data semantics.
 
-          \param filter If defined creates a cache for the filtered data.//TODO: no implemented
+          \param filter If defined creates a cache for the filtered data.//TODO: no implemented DataAccessor cache
         */
         DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter());
 
