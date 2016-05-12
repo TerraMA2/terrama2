@@ -11,34 +11,32 @@
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 
 <script>
-  angular.module('terrama2.analyses', ['terrama2.table'])
-    .controller("ListController", ['$scope', function($scope) {
-      $scope.model = [
-        {
-          name: "An_1",
-          type: "Grid"
-        },
-        {
-          name: "An_2",
-          type: "Pcd"
-        },
-        {
-          name: "An_3",
-          type: "Monitored Object"
-        }
-      ];
+
+  angular.module('terrama2.analyses', ['terrama2', 'terrama2.services', 'terrama2.table'])
+    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', function($scope, $http, AnalysisFactory) {
+      $scope.model = [];
 
       $scope.iconProperties = {
         type: "img"
       };
 
-      $scope.fields = ['name', 'type'];
+      $scope.fields = [
+        {key: "name", as: "Name"},
+        {key: "type_id", as: "Type"}
+      ];
+
       $scope.linkToAdd = "/configuration/analyses/new";
+
       $scope.link = function(object) {
         return "/configuration/analyses/new";
+      };
+
+      $scope.remove = function(object) {
+        return "/api/Analysis/" + object.id + "/delete";
       };
 
       $scope.icon = function(object) {
@@ -53,6 +51,14 @@
             return "/images/map-pin.png";
         }
       }
+
+      AnalysisFactory.get().success(function(analysis) {
+        $scope.model = analysis;
+      }).error(function(err) {
+        console.log("Err in retrieving Analysis " + err);
+      }).finally(function() {
+        $scope.loading = false;
+      });
     }]);
 </script>
 
@@ -68,7 +74,7 @@
       </div><!-- /.box-header -->
 
       <div class="box-body">
-        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd" context="'analysis'"></terrama2-table>
+        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd" context="'analysis'" remove="remove(object);"></terrama2-table>
       </div><!-- /.box-body -->
 
     </div><!-- /.box -->

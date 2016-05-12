@@ -111,6 +111,10 @@ int main(int argc, char* argv[])
   analysis.active = false;
   analysis.outputDataSeriesId = 3;
 
+  analysis.metadata["INFLUENCE_TYPE"] = "1";
+  analysis.metadata["INFLUENCE_RADIUS"] = "1";
+  analysis.metadata["INFLUENCE_UNIT"] = "km";
+
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->name = "Provider";
@@ -137,7 +141,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "afetados.shp");
+  dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4618");
   dataSet->format.emplace("identifier", "NOME");
   dataSet->id = 1;
@@ -218,9 +222,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-  QTimer timer;
+  /*QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(30000);
+  timer.start(30000);*/
 
   app.exec();
 
