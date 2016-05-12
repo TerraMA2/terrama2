@@ -31,7 +31,7 @@
 
 #include "DataAccessorDcpInpe.hpp"
 #include "DataAccessorDcpPostGIS.hpp"
-#include "DataAccessorGeoTiff.hpp"
+#include "DataAccessorGeoTif.hpp"
 #include "DataAccessorOccurrenceWfp.hpp"
 #include "DataAccessorOccurrencePostGis.hpp"
 #include "DataAccessorStaticDataOGR.hpp"

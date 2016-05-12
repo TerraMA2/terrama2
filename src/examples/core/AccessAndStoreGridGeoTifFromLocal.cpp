@@ -5,6 +5,7 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/impl/DataAccessorGeoTif.hpp>
+#include <terrama2/impl/DataStoragerTif.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
 
 #include <iostream>
@@ -35,7 +36,8 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    dataSet->format.emplace("mask", "hhmmyyyyMMdd_r3g2b1.tif");
+//    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -47,12 +49,26 @@ int main(int argc, char* argv[])
 
     assert(gridSeries->gridList().size() == 1);
 
-    auto raster = gridSeries->gridList().begin()->second;
+    //DataProvider information
+    terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
+    outputDataProvider->uri = "file://";
+    outputDataProvider->uri += TERRAMA2_DATA_DIR;
+    terrama2::core::DataStoragerTif dataStorager(outputDataProviderPtr);
 
-    std::string output = TERRAMA2_DATA_DIR;
-    output+="/grid_output.tif";
+    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+    outputDataSeries->semantics.code = "GRID-geotif";
 
-    te::rp::Copy2DiskRaster(*raster, output);
+    terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
+    terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);
+    outputDataSet->active = true;
+    outputDataSet->format.emplace("mask", "dd-MM-yy_hhmmss.tif");
+    outputDataSeries->datasetList.push_back(outputDataSetPtr);
+
+    auto seriesMap = gridSeries->getSeries();
+    auto series = seriesMap.begin()->second;
+    dataStorager.store(series, outputDataSetPtr);
   }
 
   terrama2::core::finalizeTerraMA();

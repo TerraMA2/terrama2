@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorGeoTiff.cpp
+  \file terrama2/core/data-access/DataAccessorGeoTif.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorGeoTiff.hpp"
+#include "DataAccessorGeoTif.hpp"
 #include "../core/utility/Logger.hpp"
 
 //TerraLib

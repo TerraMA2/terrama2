@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorGeoTiff.hpp
+  \file terrama2/core/data-access/DataAccessorGeoTif.hpp
 
   \brief
 
