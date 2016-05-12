@@ -30,16 +30,21 @@
 #include "DataAccessorGeoTiff.hpp"
 #include "../core/utility/Logger.hpp"
 
+//TerraLib
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/memory/DataSetItem.h>
+
 //QT
 #include <QString>
 #include <QObject>
+#include <QFileInfo>
 
 terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorGrid(dataProvider, dataSeries, filter),
    DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "GRID-geotiff")
+  if(dataSeries->semantics.code != "GRID-geotif")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -47,5 +52,24 @@ terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataPro
   }
 }
 
+std::string terrama2::core::DataAccessorGeoTiff::dataSourceType() const { return "GDAL"; }
 
-std::string terrama2::core::DataAccessorGeoTiff::dataSourceType() const { return "GDAL"; };
+void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                                               std::shared_ptr<te::da::DataSet> dataSet) const
+{
+  auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
+  complete->moveLast();
+
+  dataSet->moveBeforeFirst();
+  while(dataSet->moveNext())
+  {
+    auto raster(dataSet->getRaster(0));
+    auto info = raster->getInfo();
+    QFileInfo fileInfo(QString::fromStdString(info["URI"]));
+    raster->setName(fileInfo.baseName().toStdString());
+
+    te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
+    item->setRaster(0, raster.release());
+    complete->add(item);
+  }
+}

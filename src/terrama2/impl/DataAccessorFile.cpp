@@ -188,7 +188,8 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
   return true;
 }
 
-void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, std::shared_ptr<te::da::DataSet> dataSet) const
+void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                                            std::shared_ptr<te::da::DataSet> dataSet) const 
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->copy(*dataSet);
@@ -201,8 +202,8 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-                                                                   const terrama2::core::Filter& filter,
-                                                                   terrama2::core::DataSetPtr dataSet) const
+    const terrama2::core::Filter& filter,
+    terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -221,6 +222,9 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
   std::shared_ptr<te::da::DataSet> completeDataset(nullptr);
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
+  boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
+
   bool first = true;
   for(const auto& fileInfo : fileInfoList)
   {
@@ -228,8 +232,7 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
     std::string baseName = fileInfo.baseName().toStdString();
     // Verify if the file name matches the mask
     std::string timezone;//TODO: get timezone
-    std::shared_ptr< te::dt::TimeInstantTZ > timestamp;// FIXME: use timestamp
-    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name,timestamp))
+    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, fileTimestamp))
       continue;
 
     // creates a DataSource to the data and filters the dataset,
@@ -299,15 +302,38 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
   }
 
   filterDataSet(completeDataset, filter);
-  std::shared_ptr< te::dt::TimeInstantTZ > lastTimeStamp = getLastTimestamp(completeDataset);
-  (*lastDateTime_) = *lastTimeStamp;//FIXME: compare with file name timestamp
+
+  //Get last data timestamp and compare with file name timestamp
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(completeDataset);
+  //if both dates are valid
+  if((fileTimestamp.get() && !fileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+  {
+    (*lastDateTime_) = *dataTimeStamp > *fileTimestamp ? *dataTimeStamp : *fileTimestamp;
+  }
+  else if(fileTimestamp.get() && !fileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  {
+    //if only fileTimestamp is valid
+    (*lastDateTime_) = *fileTimestamp;
+  }
+  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
+  {
+    //if only dataTimeStamp is valid
+    (*lastDateTime_) = *dataTimeStamp;
+  }
+  else
+  {
+    boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
+    (*lastDateTime_) = te::dt::TimeInstantTZ(noTime);
+  }
+
 
   std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
   series.syncDataSet = syncDataset;
   return series;
 }
 
-std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const
+std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const
 {
   int propertiesNumber = dataSet->getNumProperties();
   int dateColumn = -1;
