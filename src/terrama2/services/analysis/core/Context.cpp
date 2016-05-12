@@ -40,8 +40,6 @@
 #include "../../../core/Exception.hpp"
 #include "../../../core/Typedef.hpp"
 
-
-
 // QT
 #include <QString>
 #include <QObject>
@@ -51,6 +49,8 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/sam/kdtree.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <terralib/srs/SpatialReferenceSystem.h>
 
 #include <ctime>
 #include <iomanip>
@@ -246,6 +246,26 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
       TERRAMA2_LOG_ERROR() << msg;
       throw InvalidDataSetException() << terrama2::ErrorDescription(msg);
     }
+
+    int srid  = dcpDataset->position->getSRID();
+    if(srid == 0)
+    {
+      if(format.find("srid") != format.end())
+      {
+        srid = std::stoi(format["srid"]);
+        dcpDataset->position->setSRID(srid);
+      }
+    }
+
+    // if data projection is in decimal degrees we need to convert it to a meter projection.
+    auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(dcpDataset->position->getSRID());
+    std::string unitName = spatialReferenceSystem->getUnitName();
+    if(unitName == "degree")
+    {
+      // Converts the data to UTM
+      dcpDataset->position->transform(29193);
+    }
+
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 
