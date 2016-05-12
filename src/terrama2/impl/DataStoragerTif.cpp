@@ -34,6 +34,7 @@
 //terralib
 #include <terralib/rp/Functions.h>
 #include <terralib/datatype/TimeInstant.h>
+#include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
 #include <QUrl>
@@ -95,6 +96,11 @@ std::string terrama2::core::DataStoragerTif::replaceMask(const std::string& mask
   if(timestamp->getDateTimeType() == te::dt::TIME_INSTANT)
   {
     auto dateTime = std::dynamic_pointer_cast<te::dt::TimeInstant>(timestamp);
+    //invalid date type
+    if(dateTime->getTimeInstant().is_not_a_date_time())
+      return mask;
+
+
     auto date = dateTime->getDate();
     year = date.getYear();
     month = date.getMonth().as_number();
@@ -109,14 +115,19 @@ std::string terrama2::core::DataStoragerTif::replaceMask(const std::string& mask
   {
     auto dateTime = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(timestamp);
     auto boostLocalTime = dateTime->getTimeInstantTZ();
+    //invalid date type
+    if(boostLocalTime.is_not_a_date_time())
+      return mask;
 
     std::string timezone;
     try
     {
+      //get dataset timezone
       timezone = getTimezone(dataSet);
     }
     catch(const terrama2::core::UndefinedTagException& e)
     {
+      //if no timezone is set use UTC
       timezone = "UTC+00";
     }
 
@@ -188,18 +199,31 @@ void terrama2::core::DataStoragerTif::store(Series series, DataSetPtr outputData
 
   QUrl uri(QString::fromStdString(dataProvider_->uri));
   auto path = uri.path().toStdString();
-
   try
   {
     std::string mask = getMask(outputDataSet);
 
     auto dataset = series.syncDataSet->dataset();
+    int rasterColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::RASTER_TYPE);
+    if(rasterColumn == -1)
+    {
+      QString errMsg = QObject::tr("No raster attribute.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataStoragerException() << ErrorDescription(errMsg);
+    }
+
+    int timestampColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::DATETIME_TYPE);
+
     dataset->moveBeforeFirst();
     while(dataset->moveNext())
     {
-      //TODO: better column identification
-      std::shared_ptr<te::rst::Raster> raster(dataset->isNull(0) ? nullptr : dataset->getRaster(0).release());
-      std::shared_ptr<te::dt::DateTime> timestamp(dataset->isNull(1) ? nullptr : dataset->getDateTime(1).release());
+      std::shared_ptr<te::rst::Raster> raster(dataset->isNull(rasterColumn) ? nullptr : dataset->getRaster(rasterColumn).release());
+      std::shared_ptr<te::dt::DateTime> timestamp;
+      if(timestampColumn == -1 ||dataset->isNull(timestampColumn))
+        timestamp = nullptr;
+      else
+        timestamp.reset(dataset->getDateTime(timestampColumn).release());
+
       if(!raster.get())
       {
         QString errMsg = QObject::tr("Null raster found.");
@@ -211,14 +235,14 @@ void terrama2::core::DataStoragerTif::store(Series series, DataSetPtr outputData
 
       std::string output = path + "/" + filename;
       te::rp::Copy2DiskRaster(*raster, output);
-      std::cout << "File timestamp: " << (timestamp.get() ? timestamp->toString() : "NULL") << std::endl;
     }
+  }
+  catch(const DataStoragerException& e)
+  {
+    throw;
   }
   catch(...)
   {
     //TODO: fix DataStoragerTif catch
   }
-
-  // auto raster = gridSeries->gridList().begin()->second;
-  // std::cout << "Name: " << raster->getName() << std::endl;
 }
