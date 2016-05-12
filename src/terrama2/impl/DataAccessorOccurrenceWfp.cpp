@@ -160,20 +160,6 @@ std::string terrama2::core::DataAccessorOccurrenceWfp::geometryPropertyName() co
   return "position";
 }
 
-std::string terrama2::core::DataAccessorOccurrenceWfp::getTimeZone(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("timezone");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
 te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,
     int /*dstType*/, const std::string& timezone) const
 {

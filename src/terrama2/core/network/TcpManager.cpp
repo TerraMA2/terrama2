@@ -198,6 +198,8 @@ void terrama2::core::TcpManager::readReadySlot()
       TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";
 
       emit stopSignal();
+
+      //TODO: send back TERMINATE_SERVICE_SIGNAL
       break;
     }
     case TcpSignals::ADD_DATA_SIGNAL:

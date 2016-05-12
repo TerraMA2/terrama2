@@ -4,7 +4,7 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorGeoTif.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
 
 #include <iostream>
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-geotiff";
+    dataSeries->semantics.code = "GRID-geotif";
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGeoTif accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
     assert(gridSeries->gridList().size() == 1);

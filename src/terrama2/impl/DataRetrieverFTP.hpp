@@ -66,7 +66,7 @@ namespace terrama2
        * Initializes temporaFolder Folder information where the files will be saved. Ex. "/tmp/".
        * Create the directory where you will download the files. Ex. "/tmp/terrama2-download/".
        * \param dataprovider dataprovider Dataprovider information.
-       * \exception DataRetrieverFTPException when FTP address is invalid.
+       * \exception DataRetrieverException when FTP address is invalid.
        * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
       */
       explicit DataRetrieverFTP(DataProviderPtr dataprovider);
@@ -85,8 +85,8 @@ namespace terrama2
        * \param mask Mask to the data files.
        * \param filter Filter to the data files.
        * \return Returns the absolute path of the folder that contains the files that have been made the download.
-       * \exception DataRetrieverFTPException when could not perform the download files.
-       * \exception DataRetrieverFTPException when Unknown error, Could not perform the download files.
+       * \exception DataRetrieverException when could not perform the download files.
+       * \exception DataRetrieverException when Unknown error, Could not perform the download files.
       */
       virtual std::string retrieveData(const std::string& mask, const Filter& filter) override;
 
