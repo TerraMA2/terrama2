@@ -7,11 +7,15 @@ var Utils = require('./Utils');
 var TcpManager = module.exports = {};
 
 
+/**
+This method parses the bytearray received.
+@param {Buffer} byteArray - a nodejs buffer with bytearray received
+@param {Object} object - a javascript object with signal, message and size
+*/
 function parseByteArray(byteArray) {
   var messageSizeReceived = byteArray.readUInt32BE(0);
   var signalReceived = byteArray.readUInt32BE(4);
   var rawData = byteArray.slice(8, byteArray.length);
-  console.log(rawData.toString());
 
   // validate signal
   var signal = Utils.getTcpSignal(signalReceived);
@@ -24,11 +28,13 @@ function parseByteArray(byteArray) {
   }
 }
 
-// todo: connection cache. it should be used in terrama2 shutdown
-/** The structure looks like: 
-* {
-*   servicename..: {socket: clientSocket, service: ServiceInstance}
-* }
+/** 
+The structure looks like: 
+
+@example 
+{
+  servicename..: {socket: clientSocket, service: ServiceInstance}
+}
 */
 var clients = {};
 
@@ -86,74 +92,6 @@ function _getClient(connection, buffer) {
 }
 
 /**
-This method provides a client to communicate in tcp channel. It saves a service instance in memory
-
-@param {ServiceInstance} connection - a terrama2 service instance
-@param {Buffer} buffer - a buffer containing message to send
-@param {Boolean} waitForResponse - a bool value to define if it will wait for receive any data
-*/
-function _makeClient(connection, buffer, waitForResponse) {
-  return new Promise(function(resolve, reject) {
-    try {
-      var client;
-      // checking if exists
-      for (var key in clients) {
-        if (clients.hasOwnProperty(key)) {
-          client = clients[key];
-          break;
-        }
-      }
-
-      if (!client) {
-        client = {
-          socket: new net.Socket(),
-          service: connection
-        };
-
-        clients[connection.name] = client;
-
-        // connect
-        client.socket.connect(connection.port, connection.host, function() {
-          client.socket.write(buffer);
-
-          if (!waitForResponse)
-            return resolve(null);
-        });
-
-        client.socket.on('data', function(data) {
-          console.log('\n\n[CLIENT] Received:\n');
-          console.log("BYTES: ", data);
-          console.log("JSON: ", data.toString());
-          try {
-            var parsedMessage = parseByteArray(data);
-
-            // if (waitForResponse)
-            return resolve(parsedMessage);
-          } catch(e) {
-            return reject(e);
-          }
-        });
-
-        client.socket.on('close', function() {
-          console.log('\n\n[CLIENT] Connection closed');
-        });
-      } else {
-        if (client.socket.readyState != "open")
-          client.socket.connect(connection.port, connection.host, function () {
-            client.socket.write(buffer);
-
-            if (!waitForResponse)
-              return resolve(null);
-          });
-      }
-
-    } catch (e) {
-      return reject(e)
-    }
-  });
-}
-
-/**
 This method prepares a bytearray to send in tcp socket.
 @param {Signals} signal - a valid terrama2 tcp signal
 @param {Object} object - a javascript object message to send
@@ -186,11 +124,16 @@ function makeBuffer(signal, object) {
   return buffer;
 }
 
-// async
+/**
+This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
+@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@param {Object} data - a javascript object message to send
+*/
 TcpManager.sendData = function(serviceInstance, data) {
   try {
     var buffer = makeBuffer(Signals.ADD_DATA_SIGNAL, data);
     
+    // getting client and writing in the channel
     _getClient(serviceInstance).then(function(client) {
       client.socket.write(buffer);
     }).catch(function(err) {
@@ -204,7 +147,11 @@ TcpManager.sendData = function(serviceInstance, data) {
 };
 
 
-// async
+/**
+This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp socket.
+@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@return {Promise} a bluebird promise
+*/
 TcpManager.updateService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     try {
@@ -224,7 +171,11 @@ TcpManager.updateService = function(serviceInstance) {
   });
 };
 
-// sync
+/**
+This method connects via ssh to service host and sends terminal command to start service.
+@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@return {Promise} a bluebird promise
+*/
 TcpManager.startService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     var ssh = new SSH(serviceInstance);
@@ -243,7 +194,11 @@ TcpManager.startService = function(serviceInstance) {
   })
 }
 
-// ping: sync
+/**
+This method sends STATUS_SIGNAL and waits for tcp client response.
+@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@return {Promise} a bluebird promise
+*/
 TcpManager.statusService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     try {
@@ -264,7 +219,6 @@ TcpManager.statusService = function(serviceInstance) {
               case Signals.ADD_DATA_SIGNAL:
             }
 
-            // if (waitForResponse)
             return resolve(parsedMessage);
           } catch(e) {
             return reject(e);
@@ -300,62 +254,6 @@ TcpManager.stopService = function(serviceInstance) {
       reject(e);
     }
   });
-};
-
-var emit = function(signal, object) {
-  try {
-    if(isNaN(signal)) throw TypeError(signal + " is not a valid signal!");
-
-    // Stringifies the message
-    // var jsonMessage = '\x00\x00\x01\x01{"DataProviders": [{"active": true,"class": "DataProvider","data_provider_type": "FILE","description": "Testing provider","id": 1,"intent": 0,"name": "Provider","project_id": 1,"uri": "file:///home/jsimas/MyDevel/dpi/terrama2-build/data/PCD_serrmar_INPE"}]}';
-    
-    //home/jsimas/MyDevel/dpi/terrama2-build/data/fire_system
-    //'\x00\x00\x01\x01'
-    var jsonMessage = JSON.stringify(object).replace(/\":/g, "\": ");
-
-    console.log(jsonMessage);
-
-    // The size of the message plus the size of two integers, 4 bytes each
-    var totalSize = jsonMessage.length + 4;
-
-    // Creates the buffer and fills it with zeros
-    var buffer = new Buffer(totalSize + 4);
-
-    // Writes the message (string) in the buffer with UTF-8 encoding
-    buffer.write(jsonMessage, 8, jsonMessage.length);
-
-    // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
-    buffer.writeUInt32BE(totalSize, 0);
-    
-    // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
-    buffer.writeUInt32BE(signal, 4);
-    
-    var client = new net.Socket();
-    console.log(buffer);
-    console.log("Total size: ", totalSize);
-    console.log("");
-
-    //150.163.17.179
-    client.connect(30000, '150.163.17.179', function() {
-      // writing data in socket
-      client.write(buffer);
-    });
-
-    client.on('data', function(data) {
-      console.log('\n\n[CLIENT] Received:\n');
-      console.log(data);
-    });
-
-    client.on('close', function() {
-      console.log('\n\n[CLIENT] Connection closed');
-    });
-
-    client.on('error', function(err) {
-      console.log("\n\n[ERROR] ", err);
-    })
-  } catch(error) {
-    throw error;
-  }
 };
 
 var server = net.createServer();
