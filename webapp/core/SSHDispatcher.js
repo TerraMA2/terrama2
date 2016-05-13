@@ -67,31 +67,32 @@ SSHDispatcher.prototype.startService = function() {
     if (!self.connected)
       return reject(new Error("Could not start service. There is no such active connection"));
 
-    // var command = !self.serviceInstance.pathToBinary.endsWith(" &") ? self.serviceInstance.pathToBinary + " &" : self.serviceInstance.pathToBinary;
-    var command = util.format("%s %s", self.serviceInstance.pathToBinary, self.serviceInstance.port.toString());
+    try {
+      // nohup &
+      var command = util.format("%s %s", self.serviceInstance.pathToBinary, self.serviceInstance.port.toString());
+      command += (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : "");
+      
+      self.execute(command).then(function(code) {
+        resolve(code);
+      }).catch(function(err, code) {
+        reject(err, code)
+      })
+    } catch (e) {
+      reject(e);
+    }
 
-    command += (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : "");
-    
-    self.execute(command).then(function(code) {
-      resolve(code);
-    }).catch(function(err, code) {
-      reject(err, code)
-    })
   });
 };
 
-SSHDispatcher.prototype.stopService = function() {
+SSHDispatcher.prototype.startServiceAsync = function() {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  // return new Promise(function(resolve, reject) {
     if (!self.connected)
-      return reject(new Error("Could not stop service. There is no such active connection"));
+      return reject(new Error("Could not start service. There is no such active connection"));
 
     var command = util.format("%s %s", self.serviceInstance.pathToBinary, self.serviceInstance.port.toString());
-    
-    self.execute(command).then(function(code) {
-      resolve(code);
-    }).catch(function(err, code) {
-      reject(err, code)
-    })
-  });
+    console.log("Command: " + command);
+    // command += (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : "");
+    this.execute(command);
+  // });
 };

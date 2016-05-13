@@ -497,7 +497,7 @@ var DataManager = {
 
   listServiceInstances: function(restriction) {
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.findAll({where: restriction}).then(function(services) {
+      models.db['ServiceInstance'].findAll({where: restriction}).then(function(services) {
         var output = [];
         services.forEach(function(service){
           output.push(service.get());
@@ -534,7 +534,7 @@ var DataManager = {
    */
   addDataProviderType: function(dataProviderTypeObject) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.create(dataProviderTypeObject).then(function(result) {
+      models.db['DataProviderType'].create(dataProviderTypeObject).then(function(result) {
         resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
@@ -549,7 +549,7 @@ var DataManager = {
    */
   listDataProviderType: function() {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.findAll({}).then(function(result) {
+      models.db['DataProviderType'].findAll({}).then(function(result) {
         var output = [];
         result.forEach(function(element) {
           output.push(Utils.clone(element.get()));
@@ -570,7 +570,7 @@ var DataManager = {
    */
   addDataFormat: function(dataFormatObject) {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.create(dataFormatObject).then(function(result) {
+      models.db['DataFormat'].create(dataFormatObject).then(function(result) {
         resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
@@ -585,7 +585,7 @@ var DataManager = {
    */
   listDataFormats: function() {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.findAll({}).then(function(dataFormats) {
+      models.db['DataFormat'].findAll({}).then(function(dataFormats) {
         var output = [];
 
         dataFormats.forEach(function(dataFormat){
@@ -594,7 +594,7 @@ var DataManager = {
 
         resolve(output);
       }).catch(function(err) {
-        reject(new exceptions.DataFormatError("Could not retrieve data format"));
+        reject(new exceptions.DataFormatError("Could not retrieve data format", err));
       })
     });
   },
@@ -676,7 +676,19 @@ var DataManager = {
         //  todo: emit signal
         var d = new DataProvider(dProvider);
         d.data_provider_intent_name = 1;
-        TcpManager.sendData({"DataProviders": [d.toObject()]});
+
+        // todo: improve it. it should be set in web interface.
+        // sending to all services
+        self.listServiceInstances().then(function(servicesInstance) {
+          var dataToSend = {"DataProviders": [d.toObject()]};
+
+          servicesInstance.forEach(function(service) {
+            TcpManager.sendData(service, dataToSend);
+          });
+
+        }).catch(function(err) {
+          reject(err);
+        });
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
