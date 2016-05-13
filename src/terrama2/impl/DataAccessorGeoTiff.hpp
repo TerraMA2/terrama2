@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorGeoTif.hpp
+  \file terrama2/core/data-access/DataAccessorGeoTiff.hpp
 
   \brief
 
@@ -41,18 +41,18 @@ namespace terrama2
   {
     struct Filter;
     /*!
-      \class DataAccessorGeoTif
+      \class DataAccessorGeoTiff
 
     */
-    class DataAccessorGeoTif : public DataAccessorGrid, public DataAccessorFile
+    class DataAccessorGeoTiff : public DataAccessorGrid, public DataAccessorFile
     {
     public:
-      DataAccessorGeoTif(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorGeoTif() {}
+      DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorGeoTiff() {}
 
       inline static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return new DataAccessorGeoTif(dataProvider, dataSeries, filter);
+        return new DataAccessorGeoTiff(dataProvider, dataSeries, filter);
       }
 
       virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;

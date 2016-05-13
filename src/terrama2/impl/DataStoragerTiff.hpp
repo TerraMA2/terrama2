@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerTif.hpp
+  \file terrama2/core/data-access/DataStoragerTiff.hpp
 
   \brief
 
@@ -45,12 +45,12 @@ namespace terrama2
 {
   namespace core
   {
-    class DataStoragerTif : public DataStorager
+    class DataStoragerTiff : public DataStorager
     {
       public:
-        DataStoragerTif(DataProviderPtr outputDataProvider)
+        DataStoragerTiff(DataProviderPtr outputDataProvider)
           : DataStorager(outputDataProvider) {}
-        ~DataStoragerTif() {}
+        ~DataStoragerTiff() {}
 
         static DataStorager* make(DataProviderPtr dataProvider);
 

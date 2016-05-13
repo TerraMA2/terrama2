@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerTif.cpp
+  \file terrama2/core/data-access/DataStoragerTiff.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataStoragerTif.hpp"
+#include "DataStoragerTiff.hpp"
 #include "../core/utility/TimeUtils.hpp"
 #include "../core/data-model/DataProvider.hpp"
 
@@ -39,12 +39,12 @@
 //Qt
 #include <QUrl>
 
-terrama2::core::DataStorager* terrama2::core::DataStoragerTif::make(DataProviderPtr dataProvider)
+terrama2::core::DataStorager* terrama2::core::DataStoragerTiff::make(DataProviderPtr dataProvider)
 {
-  return new DataStoragerTif(dataProvider);
+  return new DataStoragerTiff(dataProvider);
 }
 
-std::string terrama2::core::DataStoragerTif::getMask(DataSetPtr dataSet) const
+std::string terrama2::core::DataStoragerTiff::getMask(DataSetPtr dataSet) const
 {
   try
   {
@@ -58,7 +58,7 @@ std::string terrama2::core::DataStoragerTif::getMask(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataStoragerTif::getTimezone(DataSetPtr dataSet) const
+std::string terrama2::core::DataStoragerTiff::getTimezone(DataSetPtr dataSet) const
 {
   try
   {
@@ -72,14 +72,14 @@ std::string terrama2::core::DataStoragerTif::getTimezone(DataSetPtr dataSet) con
   }
 }
 
-std::string terrama2::core::DataStoragerTif::zeroPadNumber(int num, int size) const
+std::string terrama2::core::DataStoragerTiff::zeroPadNumber(int num, int size) const
 {
   std::ostringstream ss;
   ss << std::setw(size) << std::setfill('0') << num;
   return ss.str();
 }
 
-std::string terrama2::core::DataStoragerTif::replaceMask(const std::string& mask,
+std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mask,
     std::shared_ptr<te::dt::DateTime> timestamp,
     terrama2::core::DataSetPtr dataSet) const
 {
@@ -188,7 +188,7 @@ std::string terrama2::core::DataStoragerTif::replaceMask(const std::string& mask
   return fileName;
 }
 
-void terrama2::core::DataStoragerTif::store(Series series, DataSetPtr outputDataSet) const
+void terrama2::core::DataStoragerTiff::store(Series series, DataSetPtr outputDataSet) const
 {
   if(!outputDataSet.get() || !series.syncDataSet.get())
   {
@@ -243,6 +243,6 @@ void terrama2::core::DataStoragerTif::store(Series series, DataSetPtr outputData
   }
   catch(...)
   {
-    //TODO: fix DataStoragerTif catch
+    //TODO: fix DataStoragerTiff catch
   }
 }

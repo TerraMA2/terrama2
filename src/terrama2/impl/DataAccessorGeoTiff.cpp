@@ -20,18 +20,19 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorGeoTif.cpp
+  \file terrama2/core/data-access/DataAccessorGeoTiff.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorGeoTif.hpp"
+#include "DataAccessorGeoTiff.hpp"
 #include "../core/utility/Logger.hpp"
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 
 //QT
@@ -39,7 +40,7 @@
 #include <QObject>
 #include <QFileInfo>
 
-terrama2::core::DataAccessorGeoTif::DataAccessorGeoTif(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
    DataAccessorGrid(dataProvider, dataSeries, filter),
    DataAccessorFile(dataProvider, dataSeries, filter)
@@ -52,16 +53,16 @@ terrama2::core::DataAccessorGeoTif::DataAccessorGeoTif(DataProviderPtr dataProvi
   }
 }
 
-std::string terrama2::core::DataAccessorGeoTif::dataSourceType() const { return "GDAL"; }
+std::string terrama2::core::DataAccessorGeoTiff::dataSourceType() const { return "GDAL"; }
 
-std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorGeoTif::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
+std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorGeoTiff::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
   te::dt::Property* timestamp = new te::dt::DateTimeProperty("file_timestamp", te::dt::TIME_INSTANT_TZ);
   dataSetType->add(timestamp);
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
 }
 
-void terrama2::core::DataAccessorGeoTif::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                                                std::shared_ptr<te::da::DataSet> dataSet,
                                                                std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const
 {
@@ -91,7 +92,7 @@ void terrama2::core::DataAccessorGeoTif::addToCompleteDataSet(std::shared_ptr<te
     item->setRaster(rasterColumn, raster.release());
     if(timestampColumn != -1)
       item->setDateTime(timestampColumn, fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
-      
+
     complete->add(item);
   }
 }
