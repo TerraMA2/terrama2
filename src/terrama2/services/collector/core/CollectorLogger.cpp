@@ -37,12 +37,12 @@ terrama2::services::collector::core::CollectorLogger::CollectorLogger(CollectorI
   setTableName("collector_");
 }
 
-void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, uint64_t registerID)
+void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, RegisterId registerID)
 {
   addValue("input", value, registerID);
 }
 
-void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value, uint64_t registerID)
+void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value, RegisterId registerID)
 {
   addValue("output", value, registerID);
 }

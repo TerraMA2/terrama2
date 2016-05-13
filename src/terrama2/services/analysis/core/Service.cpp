@@ -63,7 +63,7 @@ bool terrama2::services::analysis::core::Service::checkNextData()
   if(analysisQueue_.empty())
     return false;
 
-  uint64_t analysisId = analysisQueue_.front();
+  AnalysisId analysisId = analysisQueue_.front();
   //prepare task for collecting
   prepareTask(analysisId);
 

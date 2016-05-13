@@ -36,7 +36,7 @@
 
 //Qt
 #include <QtTest/QTest>
-#include <QMetaType>//for signals with uint64_t
+#include <QMetaType>//for signals with uint32_t
 
 //STD
 #include <cstdint>
@@ -98,8 +98,8 @@ void TsDataSetTimer::TestTimerSignalEmit()
     dataSet.setDataFrequency(freq);
     terrama2::collector::DataSetTimer dataSetTimer(dataSet);
 
-    qRegisterMetaType<uint64_t>("uint64_t");
-    QSignalSpy spy(&dataSetTimer, SIGNAL(timeoutSignal(uint64_t)));
+    qRegisterMetaType<uint32_t>("uint32_t");
+    QSignalSpy spy(&dataSetTimer, SIGNAL(timeoutSignal(uint32_t)));
 
     QVERIFY(spy.wait(10000));
   }
@@ -125,8 +125,8 @@ void TsDataSetTimer::TestSchedulerSignalEmit()
     dataSet.setSchedule(schedule);
     terrama2::collector::DataSetTimer dataSetTimer(dataSet);
 
-    qRegisterMetaType<uint64_t>("uint64_t");
-    QSignalSpy spy(&dataSetTimer, SIGNAL(timeoutSignal(uint64_t)));
+    qRegisterMetaType<uint32_t>("uint32_t");
+    QSignalSpy spy(&dataSetTimer, SIGNAL(timeoutSignal(uint32_t)));
 
     QVERIFY(spy.wait(61000));
   }
@@ -140,4 +140,3 @@ void TsDataSetTimer::TestSchedulerSignalEmit()
     QFAIL(WRONG_TYPE_EXCEPTION);
   }
 }
-

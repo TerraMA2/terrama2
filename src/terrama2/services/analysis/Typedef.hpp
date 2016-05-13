@@ -30,20 +30,9 @@
 
 #include <cstdint>
 
-typedef uint64_t AnalysisDataSeriesId;
-typedef uint64_t AnalysisId;
+#include "../../core/Typedef.hpp"
 
-
-namespace terrama2
-{
-  namespace services
-  {
-    namespace analysis
-    {
-      inline uint64_t InvalidId(){ return 0;}
-    }   // end namespace analysis
-  }     // end namespace services
-}       // end namespace terrama2
-
+typedef uint32_t AnalysisDataSeriesId;
+typedef ProcessId AnalysisId;
 
 #endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__

@@ -76,7 +76,7 @@ namespace terrama2
         //! Emited when the service should be terminated.
         void stopSignal();
         //! Emited when a process should be started immediately.
-        void startProcess(uint64_t);
+        void startProcess(uint32_t);
 
       private slots:
         //! Slot called when a new conenction arrives.
