@@ -41,8 +41,8 @@
 class TestLogger : public terrama2::core::ProcessLogger
 {
 public:
-  TestLogger(ProcessId processId, std::map < std::string, std::string > connInfo)
-    : ProcessLogger(processId, connInfo)
+  TestLogger(std::map < std::string, std::string > connInfo)
+    : ProcessLogger(connInfo)
   {
     setTableName("unittest_process_log_");
   }
@@ -60,7 +60,7 @@ std::shared_ptr< TestLogger > getLogger()
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
 
-  return std::make_shared<TestLogger>(TestLogger(1 ,connInfo));
+  return std::make_shared<TestLogger>(TestLogger(connInfo));
 }
 
 void TsUtility::testProcessLogger()
@@ -74,7 +74,7 @@ void TsUtility::testProcessLogger()
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
 
-  TestLogger log(1 ,connInfo);
+  TestLogger log(connInfo);
 
   RegisterId registerID = log.start();
 

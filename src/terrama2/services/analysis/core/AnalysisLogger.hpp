@@ -44,7 +44,7 @@ namespace terrama2
         class AnalysisLogger : public terrama2::core::ProcessLogger
         {
         public:
-          AnalysisLogger(AnalysisId id, std::map< std::string, std::string > connInfo);
+          AnalysisLogger(std::map< std::string, std::string > connInfo);
 
         };
       }

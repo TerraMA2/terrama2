@@ -121,6 +121,7 @@ namespace terrama2
         //! Signal emited when the listening is changed
         void listeningPortUpdated(int);
         void numberOfThreadsUpdated(int);
+        void logConnectionInfoUpdated(const std::map<std::string, std::string>&);
 
       protected:
         friend class te::common::Singleton<ServiceManager>;

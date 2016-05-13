@@ -32,12 +32,14 @@
 #define __TERRAMA2_CORE_TIMER_HPP__
 
 // TerraMA2
-#include "ProcessLogger.hpp"
 #include "../Typedef.hpp"
 #include "../data-model/Schedule.hpp"
 
 //Qt
 #include <QTimer>
+
+//terralib
+#include <terralib/datatype/TimeInstantTZ.h>
 
 namespace terrama2
 {
@@ -53,7 +55,7 @@ namespace terrama2
       Q_OBJECT
 
     public:
-      Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< ProcessLogger > log);
+      Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit);
 
       virtual ~Timer();
       Timer(const Timer& other) = delete;
