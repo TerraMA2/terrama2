@@ -112,16 +112,6 @@ module.exports = function(app) {
       }).catch(function(err) {
         _handleError(response, err);
       });
-    },
-
-    ping: function(request, response) {
-      var serviceId = request.body.serviceId;
-      DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
-        response.json({status: 200, online: false})
-
-      }).catch(function(err) {
-        _handleError(response, err);
-      });
     }
   }
 }
