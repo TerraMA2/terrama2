@@ -108,7 +108,12 @@ namespace terrama2
         */
         virtual QJsonObject status() const;
 
+        //! Mark as started to shut down.
+        void setShuttingDownProcessInitiated();
+
+        //! Update connection to log database parameters
         void setLogConnectionInfo(std::map<std::string, std::string> connInfo);
+        //! Get connection to database parameters.
         virtual std::map<std::string, std::string> logConnectionInfo() const;
 
 
@@ -138,6 +143,7 @@ namespace terrama2
         std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
         bool serviceLoaded_ = false;
         std::map<std::string, std::string> connInfo_;
+        bool isShuttingDown_ = false;
     };
   }
 }
