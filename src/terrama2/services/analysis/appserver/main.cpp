@@ -74,13 +74,13 @@ int main(int argc, char* argv[])
     terrama2::core::TcpManager tcpManager(dataManager);
     tcpManager.listen(QHostAddress::Any, 30001);
 
-    // terrama2::services::analysis::core::Service service(dataManager);
-    //
-    // QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::analysis::core::Service::addToQueue);
-    // QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::analysis::core::Service::stop);
-    // QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);
-    // service.start();
-    //
+    terrama2::services::analysis::core::Service service(dataManager);
+
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::analysis::core::Service::addToQueue);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::analysis::core::Service::stop);
+    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);
+    service.start();
+
     app.exec();
 
     terrama2::core::finalizeTerraMA();
