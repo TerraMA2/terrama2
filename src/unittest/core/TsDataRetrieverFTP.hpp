@@ -25,13 +25,10 @@ class TsDataRetrieverFTP: public QObject
 
     //******Test functions********
 
-    QUrl BuildUriInvalid();
-    QUrl BuildLoginInvalid();
-    std::string BuildMaskInvalid();
-    std::string BuildMaskValid();
-    QUrl BuildUriAndLoginValid();
-    void TestOk();
-    void TestFail();
+    void TestFailUriInvalid();
+    void TestFailLoginInvalid();
+    void TestFailMaskInvalid();
+    void TestOkUriMaskAndLoginValid();
 
 };
 
