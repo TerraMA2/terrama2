@@ -9,8 +9,12 @@ module.exports = function(app) {
       var analysisId = request.params.id;
       var restriction = analysisId ? {id: analysisId} : {};
 
-      DataManager.listAnalysis(restriction).then(function(analysis) {
-        return response.json(analysis);
+      DataManager.listAnalyses(restriction).then(function(analyses) {
+        var output = [];
+        analyses.forEach(function(analysis) {
+          output.push(analysis.toObject());
+        })
+        return response.json(output);
       }).catch(function(err) {
         response.status(400);
         response.json({status: 400, message: err.message});
