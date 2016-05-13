@@ -43,6 +43,26 @@
 #include <QString>
 #include <QObject>
 
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::stringToTimestamp(const std::string& dateTime, const std::string& mask)
+{
+  boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
+  return std::make_shared<te::dt::TimeInstantTZ>(ldt);
+}
+
+boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocalTime(const std::string& dateTime, const std::string& mask)
+{
+  boost::posix_time::ptime boostDate;
+  std::istringstream ss(dateTime);
+  ss.exceptions(std::ios_base::failbit);
+  boost::local_time::local_time_input_facet* facet = new boost::local_time::local_time_input_facet(mask);
+  ss.imbue(std::locale(ss.getloc(), facet));
+
+  boost::local_time::local_date_time ldt(boost::local_time::not_a_date_time);
+  ss >> ldt; // do the parse
+
+  return ldt;
+}
+
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
 {
 

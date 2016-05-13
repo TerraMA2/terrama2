@@ -34,6 +34,7 @@
 #include "../data-model/DataSetGrid.hpp"
 #include "../data-model/DataSetOccurrence.hpp"
 #include "../utility/SemanticsManager.hpp"
+#include "../utility/TimeUtils.hpp"
 #include "../utility/Logger.hpp"
 #include "../Exception.hpp"
 
@@ -243,6 +244,52 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetGridJson(QJsonObject json)
   addBaseDataSetData(json, dataSet);
 
   return dataSetPtr;
+}
+
+terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
+{
+  if(json["class"].toString() != "Filter")
+  {
+    QString errMsg = QObject::tr("Invalid JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  terrama2::core::Filter filter;
+  if(json.contains("discard_before"))
+  {
+    std::string dateTime = json["discard_before"].toString().toStdString();
+    filter.discardBefore = TimeUtils::stringToTimestamp(dateTime, "%Y-%m-%dT%H:%M:%S%ZP");
+  }
+  if(json.contains("discard_after"))
+  {
+    std::string dateTime = json["discard_after"].toString().toStdString();
+    filter.discardAfter = TimeUtils::stringToTimestamp(dateTime, "%Y-%m-%dT%H:%M:%S%ZP");
+  }
+
+  if(json.contains("region"))
+  {
+    filter.region = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(json["region"].toString().toStdString().c_str()));
+  }
+
+  if(json.contains("value_comparison_operation"))
+  {
+    filter.value = std::make_shared<double>(json["by_value"].toDouble());
+    // filter.discard_before = json["value_comparison_operation"].toString();//TODO: filter by value operation
+  }
+
+  if(json.contains("last_value"))
+  {
+    filter.lastValue = json["last_value"].toBool();
+  }
+
+  return filter;
+}
+
+QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
+{
+  //TODO: implement filter to json
+  return QJsonObject();
 }
 
 terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)

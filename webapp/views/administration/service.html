@@ -13,7 +13,7 @@
 <script>
   angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
     .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
-      $scope.service = {[ service|json|safe ]} || {sshPort: 21};
+      $scope.service = {[ service|json|safe ]} || {sshPort: 22};
 
       $scope.update = false;
       if ($scope.service.name)

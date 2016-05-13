@@ -34,7 +34,7 @@
 #include "PythonInterpreter.hpp"
 #include "AnalysisLogger.hpp"
 #include "Context.hpp"
-#include <Python.h>
+#include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Timer.hpp"
 
@@ -63,7 +63,7 @@ bool terrama2::services::analysis::core::Service::checkNextData()
   if(analysisQueue_.empty())
     return false;
 
-  uint64_t analysisId = analysisQueue_.front();
+  AnalysisId analysisId = analysisQueue_.front();
   //prepare task for collecting
   prepareTask(analysisId);
 
@@ -84,14 +84,22 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 {
   Analysis analysis = dataManager_->findAnalysis(analysisId);
 
-  if(analysis.active)
+  std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
+  std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfo));
+  loggers_.emplace(analysisId, analysisLog);
+
+  try
   {
-    // FIXME: real connInfo
-    std::map<std::string, std::string> connInfoFAKE;
-    std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfoFAKE));
-    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);
-    connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
-    timers_.emplace(analysisId, timer);
+    if(analysis.active)
+    {
+      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);
+      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+      timers_.emplace(analysisId, timer);
+    }
+  }
+  catch(terrama2::core::InvalidFrequencyException& e)
+  {
+    // invalid schedule, already logged
   }
 
   // add to queue to run now

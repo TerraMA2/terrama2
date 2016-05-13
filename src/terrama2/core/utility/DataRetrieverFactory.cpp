@@ -43,7 +43,7 @@ void terrama2::core::DataRetrieverFactory::add(const DataProviderType& dataProvi
   {
     QString errMsg = QObject::tr("A data retriever factory for this type already exists!");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataRetrieverFTPException() << ErrorDescription(errMsg);
+    throw terrama2::core::DataRetrieverException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.emplace(dataProviderType, f);
@@ -57,7 +57,7 @@ void terrama2::core::DataRetrieverFactory::remove(const DataProviderType& dataPr
   {
     QString errMsg = QObject::tr("There is no registered data retriever factory for this type.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataRetrieverFTPException() << ErrorDescription(errMsg);
+    throw terrama2::core::DataRetrieverException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.erase(it);

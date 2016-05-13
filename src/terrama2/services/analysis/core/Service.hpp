@@ -47,6 +47,8 @@ namespace terrama2
       namespace core
       {
         class DataManager;
+        class AnalysisLogger;
+
         /*!
            \brief Service class to the analysis module.
          */
@@ -104,7 +106,7 @@ namespace terrama2
               \brief Binds the method of execution to the task queue.
               \param analysisId Analysis identifier.
             */
-            void prepareTask(uint64_t analysisId);
+            void prepareTask(AnalysisId analysisId);
 
             /*!
               \brief Connects data manager signals to analysis management methods.
@@ -114,6 +116,7 @@ namespace terrama2
 
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
             std::vector<AnalysisId> analysisQueue_; //!< Analysis queue.
+            std::map<AnalysisId, std::shared_ptr< AnalysisLogger > > loggers_; //TODO: Review
             DataManagerPtr dataManager_; //!< Data manager.
 
         };

@@ -55,6 +55,12 @@ namespace terrama2
         return new DataAccessorGeoTiff(dataProvider, dataSeries, filter);
       }
 
+      virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
+      
+      virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                        std::shared_ptr<te::da::DataSet> dataSet,
+                                        std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const override;
+
     protected:
       virtual std::string dataSourceType() const override;
     };

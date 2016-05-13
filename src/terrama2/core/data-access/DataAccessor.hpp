@@ -76,7 +76,7 @@ namespace terrama2
     {
       public:
         //! Returns the last data timestamp found on last access.
-        virtual te::dt::TimeInstantTZ lastDateTime() const = 0;
+        virtual std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime() const {return lastDateTime_; }
         //! Returns the semantics of the DataSeries.
         DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
         /*!
@@ -109,12 +109,9 @@ namespace terrama2
 
           Each derived implementation must deal with protocol, format and data semantics.
 
-          \param filter If defined creates a cache for the filtered data.//TODO: no implemented
+          \param filter If defined creates a cache for the filtered data.//TODO: no implemented DataAccessor cache
         */
-        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-          : dataProvider_(dataProvider),
-            dataSeries_(dataSeries),
-            filter_(filter) {}
+        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter());
 
         /*!
            \brief Prefix especification for drivers.
@@ -164,6 +161,7 @@ namespace terrama2
            \brief Get a memory dataset do core::DataSet.
            \param uri Uri to the dataset storage
            \param filter Filter applyed to the dataset
+           \note Updates lastDateTime
            \return Filtered dataset
          */
         virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
@@ -178,6 +176,8 @@ namespace terrama2
         DataProviderPtr dataProvider_;//!< DataProvider with iformation of the server where the data is stored.
         DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data iformation.
         Filter filter_;//! Filter applied to accessed data.
+
+        std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime_;//!< Last data Date/Time
     };
   }
 }

@@ -87,5 +87,20 @@ module.exports = {
     SAVE: 1,
     UPDATE: 2,
     DELETE: 3
+  },
+
+  InfluenceTypes: {
+    TOUCHES: {
+      Name: "Touches",
+      Value: 1
+    },
+    CENTER: {
+      Name: "Center",
+      Value: 2
+    },
+    REGION: {
+      Name: "Region",
+      Value: 3
+    }
   }
 };

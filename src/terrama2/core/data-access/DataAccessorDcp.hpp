@@ -59,9 +59,7 @@ namespace terrama2
         virtual ~DataAccessorDcp() {}
         //! Returns a DcpSeries filtered by Filter
         virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
-        // Doc in base class
-        virtual te::dt::TimeInstantTZ lastDateTime() const override;
-
+        
       protected:
         // Doc in base class
         virtual bool intersects(DataSetPtr dataset, const Filter& filter) const override;

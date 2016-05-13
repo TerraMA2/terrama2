@@ -88,7 +88,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
     return eval_path.string();
 
   // 2rd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
-  const char* tma_env = getenv(TERRAMA2_DIR_VAR_NAME);
+  const char* tma_env = getenv(TERRAMA2_DIR_VAR_NAME.c_str());
 
   if(tma_env != nullptr)
   {
@@ -137,6 +137,9 @@ void terrama2::core::initializeTerralib()
 
   te::plugin::PluginManager::getInstance().loadAll();
 
+
+
+
   // Base of Time measure: second
   te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"SECOND", "s", te::common::MeasureType::Time));
   std::vector<std::string> secondAlternativeNames {"s", "sec", "ss", "seconds"};
@@ -163,6 +166,26 @@ void terrama2::core::initializeTerralib()
   te::common::UnitsOfMeasureManager::getInstance().insert(uomHour, hourAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomDay, dayAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomWeek, weekAlternativeNames);
+
+
+  // Base of distance measure: meters
+  te::common::UnitOfMeasurePtr uomMeter(new te::common::UnitOfMeasure(te::common::UOM_Metre, "METER", "m", te::common::MeasureType::Length));
+  std::vector<std::string> meterSecondAlternativeNames {"m", "meter", "meters"};
+
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomMeter, meterSecondAlternativeNames);
+
+  // kilometer
+  te::common::UnitOfMeasurePtr uomKm(new te::common::UnitOfMeasure(5, "KILOMETER", "km", te::common::MeasureType::Length, te::common::UOM_Metre, 1000.0, 0.0, 0.0, 1.0));
+  std::vector<std::string> kmAlternativeNames {"km", "kilometers"};
+  // centimeter
+  te::common::UnitOfMeasurePtr uomCm(new te::common::UnitOfMeasure(6, "CENTIMETER", "cm", te::common::MeasureType::Length, te::common::UOM_Metre, 0.01, 0.0, 0.0, 1.0));
+  std::vector<std::string> cmAlternativeNames {"cm", "centimeters"};
+
+
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomKm, kmAlternativeNames);
+  te::common::UnitsOfMeasureManager::getInstance().insert(uomCm, cmAlternativeNames);
+
+
 }
 
 

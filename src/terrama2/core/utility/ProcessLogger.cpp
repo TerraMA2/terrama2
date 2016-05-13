@@ -49,7 +49,7 @@
 // Boost
 #include <boost/format.hpp>
 
-terrama2::core::ProcessLogger::ProcessLogger(const uint64_t processID, const std::map < std::string, std::string > connInfo)
+terrama2::core::ProcessLogger::ProcessLogger(const ProcessId processID, const std::map < std::string, std::string > connInfo)
   : processID_(processID)
 {
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
@@ -69,7 +69,7 @@ terrama2::core::ProcessLogger::~ProcessLogger()
   dataSource_->close();
 }
 
-uint64_t terrama2::core::ProcessLogger::start() const
+RegisterId terrama2::core::ProcessLogger::start() const
 {
   // send start to database
 
@@ -95,7 +95,7 @@ uint64_t terrama2::core::ProcessLogger::start() const
   return transactor->getLastGeneratedId();
 }
 
-void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::string value, uint64_t registerId) const
+void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::string value, RegisterId registerId) const
 {
   if(tableName_.empty())
   {
@@ -137,7 +137,7 @@ void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::s
 }
 
 
-void terrama2::core::ProcessLogger::error(const std::string description, uint64_t registerId) const
+void terrama2::core::ProcessLogger::error(const std::string description, RegisterId registerId) const
 {
   if(tableName_.empty())
   {
@@ -165,7 +165,7 @@ void terrama2::core::ProcessLogger::error(const std::string description, uint64_
 }
 
 
-void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInstantTZ> dataTimestamp, uint64_t registerId) const
+void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInstantTZ> dataTimestamp, RegisterId registerId) const
 {
   if(tableName_.empty())
   {
@@ -177,7 +177,7 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
   boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp='%2%', last_process_timestamp='%3%' WHERE id =" + QString::number(registerId).toStdString());
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
-  query.bind_arg(2, dataTimestamp->toString());
+  query.bind_arg(2, dataTimestamp.get() ? dataTimestamp->toString() : "NULL");
   query.bind_arg(3, TimeUtils::nowUTC()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
@@ -237,7 +237,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
   return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
-uint64_t terrama2::core::ProcessLogger::processID() const
+ProcessId terrama2::core::ProcessLogger::processID() const
 {
   return processID_;
 }
@@ -326,7 +326,7 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tablePrefixNa
   }
 }
 
-void terrama2::core::ProcessLogger::updateData(const uint64_t registerId, const QJsonObject obj) const
+void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const QJsonObject obj) const
 {
   if(tableName_.empty())
   {

@@ -82,11 +82,3 @@ std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::dataSour
 {
   return "POSTGIS";
 }
-
-te::dt::TimeInstantTZ terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::lastDateTime() const
-{
-  //TODO: Get last date of execution from column execution_date
-  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw Exception() << ErrorDescription(errMsg);
-}

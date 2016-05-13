@@ -1,6 +1,30 @@
 angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox', 'schemaForm'])
 
-  .controller('StoragerController', ['$scope', 'DataSeriesSemanticsFactory', function($scope, DataSeriesSemanticsFactory) {
+  .controller('AnalysisRegistration',
+    [
+      '$scope',
+      'ServiceInstanceFactory',
+      'DataSeriesFactory',
+      'DataSeriesSemanticsFactory',
+      'AnalysisFactory',
+      'DataProviderFactory',
+  function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
+    // initializing objects
+    $scope.analysis = {};
+    $scope.instances = [];
+    $scope.dataSeriesList = [];
+    $scope.selectedDataSeries = null;
+    $scope.metadata = {};
+    $scope.semantics = {};
+    $scope.storagerFormats = [];
+
+    // terrama2 alert box
+    $scope.alertBox = {};
+    $scope.display = false;
+    $scope.alertLevel = null;
+    $scope.close = function() {
+      $scope.display = false;
+    };
 
     $scope.formStorager = [];
     $scope.modelStorager = {};
@@ -28,33 +52,6 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
 
       });
     });
-  }])
-
-  .controller('AnalysisRegistration',
-    [
-      '$scope',
-      'ServiceInstanceFactory',
-      'DataSeriesFactory',
-      'DataSeriesSemanticsFactory',
-      'AnalysisFactory',
-      'DataProviderFactory',
-  function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
-    // initializing objects
-    $scope.analysis = {};
-    $scope.instances = [];
-    $scope.dataSeriesList = [];
-    $scope.selectedDataSeries = null;
-    $scope.metadata = {};
-    $scope.semantics = {};
-    $scope.storagerFormats = [];
-
-    // terrama2 alert box
-    $scope.alertBox = {};
-    $scope.display = false;
-    $scope.alertLevel = null;
-    $scope.close = function() {
-      $scope.display = false;
-    };
 
     DataSeriesSemanticsFactory.list().success(function(semanticsList) {
       $scope.dataSeriesSemantics = semanticsList;
@@ -116,12 +113,11 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
 
     // pcd metadata (radius format - km, m...)
     $scope.onMetadataFormatClick = function(format) {
-      $scope.metadata.format = format;
+      $scope.metadata.INFLUENCE_RADIUS_UNIT = format;
     };
 
     // save function
     $scope.save = function() {
-      console.log($scope.analysis);
       if ($scope.generalDataForm.$invalid) {
         formErrorDisplay($scope.generalDataForm);
         return;
@@ -136,15 +132,15 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
       // temp code for sending analysis dataseries
       var metadata = {};
       for(var key in $scope.metadata) {
-        if ($scope.metadata.hasOwnProperty(key)) {
+        if($scope.metadata.hasOwnProperty(key)) {
           metadata[key] = $scope.metadata[key];
         }
       }
 
       var analysisDataSeries = {
         data_series_id: $scope.selectedDataSeries.id,
-        metadata: metadata,
-        alias: metadata.alias,
+        metadata: {},
+        alias: $scope.metadata.alias,
         // todo: check it
         type_id: $scope.analysis.type_id
       };
@@ -152,17 +148,16 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
       var analysisToSend = Object.assign({}, $scope.analysis);
       analysisToSend.dataSeries = $scope.selectedDataSeries;
       analysisToSend.analysisDataSeries = analysisDataSeries;
+      analysisToSend.metadata = metadata;
 
       var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
-
 
       // sending post operation
       AnalysisFactory.post({
         analysis: analysisToSend,
         storager: storager
       }).success(function(data) {
-        alert("Saved");
-        console.log(data);
+        window.location = "/configuration/analyses";
       }).error(errorHelper);
     };
   }]);

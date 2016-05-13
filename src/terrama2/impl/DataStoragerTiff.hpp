@@ -20,15 +20,15 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerPostGis.hpp
+  \file terrama2/core/data-access/DataStoragerTiff.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_POSTGIS_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_POSTGIS_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_TIF_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_TIF_HPP__
 
 //TerraMA2
 #include "../core/data-access/DataStorager.hpp"
@@ -38,25 +38,32 @@
 #include <QString>
 #include <QObject>
 
+//Terralib
+#include <terralib/datatype/TimeInstantTZ.h>
+
 namespace terrama2
 {
   namespace core
   {
-    class DataStoragerPostGis : public DataStorager
+    class DataStoragerTiff : public DataStorager
     {
       public:
-        DataStoragerPostGis(DataProviderPtr outputDataProvider)
+        DataStoragerTiff(DataProviderPtr outputDataProvider)
           : DataStorager(outputDataProvider) {}
-        ~DataStoragerPostGis() {}
+        ~DataStoragerTiff() {}
 
         static DataStorager* make(DataProviderPtr dataProvider);
 
         virtual void store(Series series, DataSetPtr outputDataSet) const override;
-
       protected:
-        std::string getDataSetName(DataSetPtr dataSet) const;
+        std::string getMask(DataSetPtr dataSet) const;
+        std::string getTimezone(DataSetPtr dataSet) const;
+        std::string zeroPadNumber(int num, int size) const;
+        std::string replaceMask(const std::string& mask,
+                                std::shared_ptr<te::dt::DateTime> timestamp,
+                                terrama2::core::DataSetPtr dataSet) const;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_POSTGIS_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_TIF_HPP__

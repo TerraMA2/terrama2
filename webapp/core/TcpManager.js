@@ -103,8 +103,15 @@ function makeBuffer(signal, object) {
     if(isNaN(signal))
      throw TypeError(signal + " is not a valid signal!");
 
+    // Stringifies the message
+    // var jsonMessage = '\x00\x00\x01\x01{"DataProviders": [{"active": true,"class": "DataProvider","data_provider_type": "FILE","description": "Testing provider","id": 1,"intent": 0,"name": "Provider","project_id": 1,"uri": "file:///home/jsimas/MyDevel/dpi/terrama2-build/data/PCD_serrmar_INPE"}]}';
+    
+    //home/jsimas/MyDevel/dpi/terrama2-build/data/fire_system
+    //'\x00\x00\x01\x01'
     var jsonMessage = JSON.stringify(object).replace(/\":/g, "\": ");
+
     console.log(jsonMessage);
+
     // The size of the message plus the size of two integers, 4 bytes each
     var totalSize = jsonMessage.length + 4;
 

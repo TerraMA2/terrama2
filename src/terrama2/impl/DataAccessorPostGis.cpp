@@ -29,6 +29,7 @@
 
 #include "DataAccessorPostGis.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/TimeUtils.hpp"
 #include "../core/data-access/SyncronizedDataSet.hpp"
 
 // TerraLib
@@ -49,6 +50,7 @@
 #include <terralib/dataaccess/query/Where.h>
 #include <terralib/dataaccess/query/From.h>
 #include <terralib/dataaccess/query/And.h>
+#include <terralib/dataaccess/query/Max.h>
 
 #include <terralib/geometry/MultiPolygon.h>
 
@@ -57,7 +59,7 @@
 #include <QObject>
 
 terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
-                                                                      terrama2::core::DataSetPtr dataSet) const
+    terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
 
@@ -67,13 +69,14 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
   // also joins if the DCP comes from separated files
   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
 
-  std::map<std::string, std::string> connInfo{{"PG_HOST", url.host().toStdString()},
-                                              {"PG_PORT", std::to_string(url.port())},
-                                              {"PG_USER", url.userName().toStdString()},
-                                              {"PG_PASSWORD", url.password().toStdString()},
-                                              {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-                                              {"PG_CONNECT_TIMEOUT", "4"},
-                                              {"PG_CLIENT_ENCODING", "UTF-8"}};
+  std::map<std::string, std::string> connInfo {{"PG_HOST", url.host().toStdString()},
+    {"PG_PORT", std::to_string(url.port())},
+    {"PG_USER", url.userName().toStdString()},
+    {"PG_PASSWORD", url.password().toStdString()},
+    {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
+    {"PG_CONNECT_TIMEOUT", "4"},
+    {"PG_CLIENT_ENCODING", "UTF-8"}
+  };
 
   datasource->setConnectionInfo(connInfo);
 
@@ -123,6 +126,8 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
     TERRAMA2_LOG_WARNING() << errMsg;
   }
 
+  updateLastTimestamp(dataSet, transactor);
+
   Series series;
   series.dataSet = dataSet;
   series.syncDataSet.reset(new terrama2::core::SyncronizedDataSet(tempDataSet));
@@ -139,7 +144,7 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
 }
 
 void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                                            std::vector<te::da::Expression*>& where) const
+    std::vector<te::da::Expression*>& where) const
 {
   te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
   if(filter.discardBefore.get())
@@ -160,14 +165,73 @@ void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::Data
 }
 
 void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                                            std::vector<te::da::Expression*>& where) const
+    std::vector<te::da::Expression*>& where) const
 {
   te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
-  if(filter.geometry.get())
+  if(filter.region.get())
   {
-    te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.geometry->clone()));
+    te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.region->clone()));
     te::da::Expression* intersectExpression = new te::da::ST_Intersects(geometryProperty, geometryVal);
 
     where.push_back(intersectExpression);
   }
+}
+
+void terrama2::core::DataAccessorPostGis::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const
+{
+  std::string tableName = getDataSetName(dataSet);
+  te::da::FromItem* t1 = new te::da::DataSetName(tableName);
+  te::da::From* from = new te::da::From;
+  from->push_back(t1);
+  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
+
+  te::da::Fields* fields = new te::da::Fields;
+  te::da::Expression* max = new te::da::Max(dateTimeProperty);
+  te::da::Field* maxProperty = new te::da::Field(max);
+  fields->push_back(maxProperty);
+
+  te::da::Select select(fields, from);
+  std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(select);
+
+  //sanity check, must be 0 or 1
+  assert(tempDataSet->size() < 2);
+
+  if(tempDataSet->size() == 0)
+  {
+    QString errMsg = QObject::tr("Error retrieving last Date/Time.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  tempDataSet->moveFirst();
+  std::shared_ptr<te::dt::DateTime> lastDateTime(tempDataSet->getDateTime(0));
+
+  std::shared_ptr< te::dt::TimeInstantTZ > lastDateTimeTz;
+  if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT)
+  {
+    //NOTE: Depends on te::dt::TimeInstant toString implementation, it's doc is wrong
+    std::string dateString = lastDateTime->toString();
+    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S");
+    auto date = boostLocalTimeWithoutTimeZone.date();
+    auto time = boostLocalTimeWithoutTimeZone.utc_time().time_of_day();
+    boost::posix_time::ptime ptime(date, time);
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC+00"));
+
+    boost::local_time::local_date_time boostLocalTime(ptime, zone);
+    lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
+    //FIXME: add terrama2::DataSet timezone
+  }
+  else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
+  {
+    lastDateTimeTz = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(lastDateTime);
+  }
+  else
+  {
+    //This method expects a valid Date/Time, other formats are not valid.
+    QString errMsg = QObject::tr("Unknown date format.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  *lastDateTime_ = *lastDateTimeTz;
 }

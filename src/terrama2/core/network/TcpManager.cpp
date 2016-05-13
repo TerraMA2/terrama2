@@ -63,6 +63,28 @@ terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager
 
 terrama2::core::TcpManager::~TcpManager()
 {
+  //send Terminate message
+  if(tcpSocket_.get())
+  {
+    QByteArray bytearray;
+    QDataStream out(&bytearray, QIODevice::WriteOnly);
+
+    QJsonObject jsonObj;
+    jsonObj.insert("service_instance", static_cast<int>(serviceManager_->getInstance().instanceId()));
+    QJsonDocument doc(jsonObj);
+
+    out << static_cast<uint32_t>(0);
+    out << TcpSignals::TERMINATE_SERVICE_SIGNAL;
+    out << doc.toJson(QJsonDocument::Compact);
+    bytearray.remove(8, 4);//Remove QByteArray header
+    out.device()->seek(0);
+    out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+
+    // wait while sending message
+    qint64 written = tcpSocket_->write(bytearray);
+    if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
+      TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
+  }
 }
 
 void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
@@ -138,7 +160,7 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
 
   // wait while sending message
   qint64 written = tcpSocket_->write(bytearray);
-  if(written == -1 || !tcpSocket_->waitForBytesWritten())
+  if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
   {
     // couldn't write to socket
     return false;
@@ -244,7 +266,7 @@ void terrama2::core::TcpManager::readReadySlot()
 
       // wait while sending message
       qint64 written = tcpSocket_->write(bytearray);
-      if(written == -1 || !tcpSocket_->waitForBytesWritten())
+      if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
         TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
 
       break;

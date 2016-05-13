@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
@@ -9,6 +10,8 @@
 
 #include <iostream>
 
+//TerraLib
+#include <terralib/geometry/WKTReader.h>
 
 int main(int argc, char* argv[])
 {
@@ -40,6 +43,13 @@ int main(int argc, char* argv[])
 
     //empty filter
     terrama2::core::Filter filter;
+    filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2015-08-26 15:18:40-00", "%Y-%m-%d %H:%M:%S%ZP");
+    filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2015-08-26 15:18:42-00", "%Y-%m-%d %H:%M:%S%ZP");
+    std::string boundingBoxWkt = "POLYGON((-74. -13., -73. -13., -73. -14., -74. -14., -74. -13.))";
+    te::gm::Geometry* geometry = te::gm::WKTReader::read(boundingBoxWkt.c_str());
+    geometry->setSRID(4326);
+    filter.region = std::shared_ptr<te::gm::Geometry>(geometry);
+
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);

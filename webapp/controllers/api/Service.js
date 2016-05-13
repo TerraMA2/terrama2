@@ -36,7 +36,7 @@ module.exports = function(app) {
         }) 
       }
     },
-    
+
     post: function(request, response) {
       var serviceObject = request.body;
       DataManager.addServiceInstance(serviceObject).then(function(service) {

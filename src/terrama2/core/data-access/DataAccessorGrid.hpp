@@ -45,7 +45,7 @@ namespace terrama2
 
       Grid data are data organized in a grid with horizontal as vertical spatial indexing.
 
-      This could be a GeoTiff, Ascii-Grid, Grads, WCS or similar data.
+      This could be a GeoTifff, Ascii-Grid, Grads, WCS or similar data.
 
     */
     class DataAccessorGrid : public virtual DataAccessor
@@ -57,8 +57,6 @@ namespace terrama2
         virtual ~DataAccessorGrid() {}
         //! Returns a GridSeries filtered by Filter
         virtual GridSeriesPtr getGridSeries(const Filter& filter);
-        // Doc in base class
-        virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
       protected:
         // Doc in base class

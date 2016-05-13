@@ -66,8 +66,6 @@ namespace terrama2
           return new DataAccessorStaticDataOGR(dataProvider, dataSeries, filter);
         }
 
-        virtual te::dt::TimeInstantTZ lastDateTime() const override;
-
         // Doc in base class
         virtual std::string dataSourceType() const override;
     };

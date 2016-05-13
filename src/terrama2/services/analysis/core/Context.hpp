@@ -147,7 +147,7 @@ namespace terrama2
               \param attribute Name of the attribute.
               \param result The result value.
             */
-            void setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result);
+            void setAnalysisResult(AnalysisId analysisId, const std::string& geomId, const std::string& attribute, double result);
 
             /*!
               \brief Returns a weak pointer to the data manager.

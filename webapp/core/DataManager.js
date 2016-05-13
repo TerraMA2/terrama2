@@ -1252,7 +1252,7 @@ var DataManager = {
             }).catch(function(err) {
               reject(err);
               release();
-            })
+            });
           else {
             resolve(output);
             release();
@@ -1747,6 +1747,7 @@ var DataManager = {
       }).catch(_reject);
     });
   }
+
 };
 
 module.exports = DataManager;

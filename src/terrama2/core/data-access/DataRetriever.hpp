@@ -53,7 +53,7 @@ namespace terrama2
     {
       public:
         //!< Default constructor.
-        DataRetriever(DataProviderPtr) {}
+        DataRetriever(DataProviderPtr dataProvider);
         //!< Default destructor.
         virtual ~DataRetriever() {}
 

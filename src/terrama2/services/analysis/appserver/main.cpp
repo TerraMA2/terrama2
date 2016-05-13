@@ -69,21 +69,10 @@ int main(int argc, char* argv[])
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     serviceManager.setServiceType("Analysis");
     serviceManager.setListeningPort(listeningPort);
-    std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
-                                                  {"PG_PORT", "5432"},
-                                                  {"PG_USER", "postgres"},
-                                                  {"PG_PASSWORD", "postgres"},
-                                                  {"PG_DB_NAME", "nodejs"},
-                                                  {"PG_CONNECT_TIMEOUT", "4"},
-                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                };
-    serviceManager.setLogConnectionInfo(connInfo);
 
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
     terrama2::core::TcpManager tcpManager(dataManager);
     tcpManager.listen(QHostAddress::Any, 30001);
-
-
 
     terrama2::services::analysis::core::Service service(dataManager);
 
