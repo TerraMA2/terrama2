@@ -30,6 +30,8 @@
 
 #include <cstdint>
 
-typedef uint64_t CollectorId;
+#include "../../../core/Typedef.hpp"
+
+typedef ProcessId CollectorId;
 
 #endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_TYPEDEF_HPP__

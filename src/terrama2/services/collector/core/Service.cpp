@@ -217,6 +217,11 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
   {
     // invalid schedule, already logged
   }
+  catch(const te::common::Exception& e)
+  {
+    //TODO: should be caught elsewhere?
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
 
   addToQueue(collector->id);
 }

@@ -64,7 +64,7 @@ std::map<std::string, std::map<std::string, double> > terrama2::services::analys
   return analysisResult_[analysisId];
 }
 
-void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result)
+void terrama2::services::analysis::core::Context::setAnalysisResult(AnalysisId analysisId, const std::string& geomId, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto& geomIdMap = analysisResult_[analysisId];
@@ -73,7 +73,7 @@ void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t ana
 }
 
 
-std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::Context::getContextDataset(const AnalysisId analysisId, const uint64_t datasetId, const std::string& dateFilter) const
+std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::Context::getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 

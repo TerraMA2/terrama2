@@ -106,7 +106,7 @@ namespace terrama2
               \brief Binds the method of execution to the task queue.
               \param analysisId Analysis identifier.
             */
-            void prepareTask(uint64_t analysisId);
+            void prepareTask(AnalysisId analysisId);
 
             /*!
               \brief Connects data manager signals to analysis management methods.
