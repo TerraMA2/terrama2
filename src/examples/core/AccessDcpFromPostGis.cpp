@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
   terrama2::core::initializeTerralib();
 
   {
+    //TODO: get configuration from CMAKE
     QUrl uri;
     uri.setScheme("postgis");
     uri.setHost("localhost");

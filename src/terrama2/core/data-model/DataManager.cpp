@@ -262,7 +262,7 @@ terrama2::core::DataManager::DataManager()
 {
   qRegisterMetaType<DataProviderPtr>("DataProviderPtr");
   qRegisterMetaType<DataSeriesPtr>("DataSeriesPtr");
-  qRegisterMetaType<uint64_t>("uint64_t");
+  qRegisterMetaType<uint32_t>("uint32_t");
 }
 
 terrama2::core::DataManager::~DataManager()

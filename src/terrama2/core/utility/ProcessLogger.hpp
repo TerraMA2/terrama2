@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 #define __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 
+#include "../Typedef.hpp"
+
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/datatype/TimeInstantTZ.h>
@@ -70,7 +72,7 @@ namespace terrama2
        * \param processID ID of the process to log.
        * \param connInfo Datasource connection information.
        */
-      ProcessLogger(const uint64_t processID, const std::map < std::string, std::string > connInfo);
+      ProcessLogger(const ProcessId processID, const std::map < std::string, std::string > connInfo);
 
       /*!
        * \brief Class destructor
@@ -81,26 +83,26 @@ namespace terrama2
        * \brief Log the start of the process.
        * \return The ID of table register
        */
-      uint64_t start() const;
+      RegisterId start() const;
 
       /*!
        * \brief Store data in a Json to be logged after
        * \param tag A tag to identify data
        * \param value The data
        */
-      void addValue(const std::string tag, const std::string value, const uint64_t registerId) const;
+      void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
 
       /*!
        * \brief Log an error in the process
        * \param description Error description
        */
-      void error(const std::string description, const uint64_t registerId) const;
+      void error(const std::string description, const RegisterId registerId) const;
 
       /*!
        * \brief Log the end of process
        * \param dataTimestamp The las timestamp of data.
        */
-      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const uint64_t registerId) const;
+      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
 
       /*!
        * \brief Returns the process last log timestamp
@@ -118,7 +120,7 @@ namespace terrama2
        * \brief Returns the process ID
        * \return Returns the process ID
        */
-      uint64_t processID() const;
+      ProcessId processID() const;
 
     protected:
       /*!
@@ -132,11 +134,11 @@ namespace terrama2
       /*!
        * \brief Log in the log table the data stored in Json
        */
-      void updateData(const uint64_t registerId, const QJsonObject obj) const;
+      void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
 
     private:
-      uint64_t processID_ = 0;
+      ProcessId processID_ = 0;
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
       std::shared_ptr< te::da::DataSource > dataSource_;

@@ -28,6 +28,7 @@
 */
 
 //TerraMA2
+#include <terrama2/core/Typedef.hpp>
 #include <terrama2/core/data-model/Filter.hpp>
 #include <terrama2/core/utility/Timer.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
@@ -40,7 +41,7 @@
 class TestLogger : public terrama2::core::ProcessLogger
 {
 public:
-  TestLogger(uint64_t processId, std::map < std::string, std::string > connInfo)
+  TestLogger(ProcessId processId, std::map < std::string, std::string > connInfo)
     : ProcessLogger(processId, connInfo)
   {
     setTableName("unittest_process_log_");
@@ -75,7 +76,7 @@ void TsUtility::testProcessLogger()
 
   TestLogger log(1 ,connInfo);
 
-  uint64_t registerID = log.start();
+  RegisterId registerID = log.start();
 
   log.addValue("tag1", "value1", registerID);
   log.addValue("tag2", "value2", registerID);

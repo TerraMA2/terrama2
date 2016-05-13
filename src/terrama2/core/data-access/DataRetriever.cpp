@@ -28,11 +28,23 @@
  */
 
 #include "DataRetriever.hpp"
+#include "../utility/Logger.hpp"
 #include "../Exception.hpp"
 
 //Qt
 #include <QString>
 #include <QObject>
+
+terrama2::core::DataRetriever::DataRetriever(DataProviderPtr dataProvider)
+  : dataProvider_(dataProvider)
+{
+  if(!dataProvider_.get())
+  {
+    QString errMsg = QObject::tr("Mandatory parameters not provided.");
+    TERRAMA2_LOG_ERROR() << errMsg; 
+    throw DataRetrieverException() << ErrorDescription(errMsg);
+  }
+}
 
 std::string terrama2::core::DataRetriever::retrieveData(const std::string& query, const Filter& filter)
 {
