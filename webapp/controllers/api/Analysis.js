@@ -49,9 +49,14 @@ module.exports = function(app) {
         };
 
         DataManager.addAnalysis(analysisObject, dataSeries).then(function(analysisResult) {
-          TcpManager.sendData({"Analysis": [analysisResult.toObject()]});
-          console.log(analysisResult);
-          response.json({status: 200});
+          DataManager.getServiceInstance({id: analysisObject.instance_id}).then(function(serviceInstance) {
+            TcpManager.sendData(serviceInstance, {"Analysis": [analysisResult.toObject()]});
+            console.log(analysisResult);
+            response.json({status: 200});
+          }).catch(function(err) {
+            console.log(err);
+            Utils.handleRequestError(response, err, 400);
+          });
         }).catch(function(err) {
           console.log(err);
           Utils.handleRequestError(response, err, 400);
