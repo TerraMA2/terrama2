@@ -54,8 +54,8 @@
             $scope.extra = {
               service: {
                 handler: function(serviceInstance) {
-                  serviceInstance.loading = true;
                   if (!serviceInstance.online) {
+                    serviceInstance.loading = true;
                     $http.post("/api/Remote/start", {serviceId: serviceInstance.id}).success(function(data) {
                       serviceInstance.online = data.online;
                       console.log(data);
@@ -65,13 +65,14 @@
                       serviceInstance.loading = false;
                     })
                   } else {
+                    serviceInstance.requestingForClose = true;
                     $http.post("/api/Remote/stop", {serviceId: serviceInstance.id}).success(function(data) {
                       serviceInstance.online = data.online || false;
                       console.log(data);
                     }).error(function(err) {
                       console.log("Error while stoping remote service: ", err);
                     }).finally(function() {
-                      serviceInstance.loading = false;
+                      serviceInstance.requestingForClose = false;
                     });
                   }
                 },
