@@ -39,14 +39,16 @@ The structure looks like:
 var clients = {};
 
 
-function _getClient(connection, buffer) {
+function _getClient(connection) {
   return new Promise(function(resolve, reject) {
     var client;
     // checking if exists
     for (var key in clients) {
       if (clients.hasOwnProperty(key)) {
-        client = clients[key];
-        break;
+        if (clients[key].service.name == connection.name) {
+          client = clients[key];
+          break;
+        }
       }
     }
 
