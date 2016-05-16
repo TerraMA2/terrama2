@@ -18,7 +18,7 @@
 int main(int argc, char **argv)
 {
 
-  QCoreApplication app(argc, argv)
+  QCoreApplication app(argc, argv);
 
 
   ::testing::GTEST_FLAG(throw_on_failure) = true;
