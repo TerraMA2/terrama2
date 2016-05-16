@@ -100,11 +100,11 @@ module.exports = function(app) {
       DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
         TcpManager.stopService(serviceInstance).then(function(result) {
           setTimeout(function() {
-            TcpManager.statusService(serviceInstance).then(function(result) {
+            // TcpManager.statusService(serviceInstance).then(function(result) {
               response.json({status: 200, online: false, result: result})
-            }).catch(function(err) {
-              _handleError(response, err)
-            });
+            // }).catch(function(err) {
+            //   _handleError(response, err)
+            // });
           }, 4000);
         }).catch(function(err) {
           _handleError(response, err);
