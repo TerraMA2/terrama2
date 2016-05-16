@@ -37,7 +37,7 @@
 #include "../Shared.hpp"
 
 #include "DataRetriever.hpp"
-#include "Series.hpp"
+#include "DataSetSeries.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
@@ -62,7 +62,18 @@ namespace terrama2
   {
     /*!
     \class DataAccessor
-    \brief Base class to access data from a DataSeries.
+    \brief DataAccessor provides an interface for accesing the data from a DataSeries.
+
+    DataAccessor is used to have access to a <a href="http://www.dpi.inpe.br/terralib5/wiki/doku.php?id=wiki:designimplementation:dataaccess&s[]=dataset#dataset">Terralib DataSet</a>.
+
+    ## Accessing data ##
+
+    The best way to get a DataAccessor is from a DataAccessorFactory,
+    the DataAccessorFactory::make will return a DataAccessor from the right type.
+
+    Once you get a DataAccessor the DataAccessor::getSeries will return a
+
+    ## Derived classes ##
 
     Derived classes as responsible for the whole data access process,
     from downloading, when necessary, to accessing and filtering the raw data.
@@ -82,7 +93,7 @@ namespace terrama2
         /*!
           \brief Get access to the filtered data of a DataSeries
 
-          This method will return a Series per DataSet of the DataSeries.
+          This method will return aDataSetSeriesper DataSet of the DataSeries.
 
           In case the data is in a remote file server it will be downloaded, unpacked if the case, and accessed via TerrLib driver.
           Any temporary folder will be removed in the process.
@@ -91,7 +102,7 @@ namespace terrama2
 
           \param filter Filter data applied to accessed data, if empty, all data is returned.
         */
-        virtual std::map<DataSetPtr, Series > getSeries(const Filter& filter) const;
+        virtual std::map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter) const;
 
         //! Utility function for converting string to double in the te::da::DataSet contruction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -172,7 +183,7 @@ namespace terrama2
            \note Updates lastDateTime
            \return Filtered dataset
          */
-        virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
 
         /*!
           \brief Verifies if the DataSet intersects the Filter area.

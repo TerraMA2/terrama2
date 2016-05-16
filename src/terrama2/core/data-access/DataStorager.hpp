@@ -33,7 +33,7 @@
 //TerraMA2
 #include "../Shared.hpp"
 #include "../data-model/DataManager.hpp"
-#include "../data-access/Series.hpp"
+#include "../data-access/DataSetSeries.hpp"
 
 namespace te
 {
@@ -77,7 +77,7 @@ namespace terrama2
 
           The data will be stored in the DataProvider given in constructor.
         */
-        virtual void store(Series series, DataSetPtr outputDataSet) const = 0;
+        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const = 0;
 
       protected:
         DataProviderPtr dataProvider_;//!< Destination server information.

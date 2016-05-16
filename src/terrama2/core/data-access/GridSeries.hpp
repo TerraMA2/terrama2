@@ -32,7 +32,7 @@
 
 //TerraMA2
 #include "../data-model/DataSetGrid.hpp"
-#include "Series.hpp"
+#include "DataSetSeries.hpp"
 #include "SeriesAggregation.hpp"
 
 //TerraLib
@@ -53,7 +53,7 @@ namespace terrama2
     {
       public:
         //! Add a group of DataSet data to the GridSeries.
-        void addGridSeries(std::map<DataSetPtr, Series > seriesMap);
+        void addGridSeries(std::map<DataSetPtr,DataSetSeries> seriesMap);
         //! Returns a map of DataSetGrid data.
         const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridList();
 
