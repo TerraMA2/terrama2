@@ -4,6 +4,7 @@ var UriPattern = Enums.Uri;
 var cloneDeep = require("lodash").cloneDeep;
 var crypto = require('crypto');
 var exceptions = require('./Exceptions');
+var Signals = require('./Signals');
 
 function getTokenCodeMessage(code) {
   var msg;
@@ -147,5 +148,36 @@ module.exports = {
       }
     }
     throw new Error("Invalid analysis id");
+  },
+
+  getTcpSignal: function(value) {
+    switch(value) {
+      case Signals.TERMINATE_SERVICE_SIGNAL:
+        return Signals.TERMINATE_SERVICE_SIGNAL;
+        break;
+      case Signals.STATUS_SIGNAL:
+        return Signals.STATUS_SIGNAL;
+        break;
+      case Signals.ADD_DATA_SIGNAL:
+        return Signals.ADD_DATA_SIGNAL;
+        break;
+      case Signals.START_PROCESS_SIGNAL:
+        return Signals.START_PROCESS_SIGNAL;
+        break;
+      case Signals.LOG_SIGNAL:
+        return Signals.LOG_SIGNAL;
+        break;
+      case Signals.REMOVE_DATA_SIGNAL:
+        return Signals.REMOVE_DATA_SIGNAL;
+        break;
+      case Signals.PROCESS_FINISHED_SIGNAL:
+        return Signals.PROCESS_FINISHED_SIGNAL;
+        break;
+      case Signals.UPDATE_SERVICE_SIGNAL:
+        return Signals.UPDATE_SERVICE_SIGNAL;
+        break;
+      default:
+        throw new exceptions.SignalError("Invalid terrama2 tcp signal");
+    }
   }
 };
