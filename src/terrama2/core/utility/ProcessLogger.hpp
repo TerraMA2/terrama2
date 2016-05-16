@@ -72,7 +72,7 @@ namespace terrama2
        * \param processID ID of the process to log.
        * \param connInfo Datasource connection information.
        */
-      ProcessLogger(const ProcessId processID, const std::map < std::string, std::string > connInfo);
+      ProcessLogger(const std::map < std::string, std::string > connInfo);
 
       /*!
        * \brief Class destructor
@@ -83,7 +83,7 @@ namespace terrama2
        * \brief Log the start of the process.
        * \return The ID of table register
        */
-      RegisterId start() const;
+      RegisterId start(ProcessId processId) const;
 
       /*!
        * \brief Store data in a Json to be logged after
@@ -108,26 +108,27 @@ namespace terrama2
        * \brief Returns the process last log timestamp
        * \return A TimeInstantTZ with the last time that process logged something
        */
-      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp() const;
+      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
 
       /*!
        * \brief Returns the last timestamp of a data
        * \return A TimeInstantTZ with the data last timestamp
        */
-      std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp() const;
+      std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
 
       /*!
        * \brief Returns the process ID
        * \return Returns the process ID
        */
-      ProcessId processID() const;
+      ProcessId processID(const RegisterId registerId) const;
 
     protected:
       /*!
        * \brief Store the table name of the process log
        * \param tableName The log table name
        */
-      void setTableName(const std::string tablePrefixName);
+      void setTableName(const std::string tableName);
+      std::string getMessagesTableName(const RegisterId registerId) const;
 
 
     private:
@@ -138,7 +139,6 @@ namespace terrama2
 
 
     private:
-      ProcessId processID_ = 0;
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
       std::shared_ptr< te::da::DataSource > dataSource_;
