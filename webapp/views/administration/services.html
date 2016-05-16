@@ -14,10 +14,12 @@
 
 <script>
     angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services'])
-        .controller('ListController', ['$scope', 'ServiceInstanceFactory', function($scope, ServiceInstanceFactory) {
+        .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$http', function($scope, ServiceInstanceFactory, $http) {
             $scope.link = function(object) {
-                return "/administration/services/" + object.name;
+                return "/administration/services/" + object.id;
             };
+
+            $scope.model = [];
 
             ServiceInstanceFactory.get().success(function(services) {
               services.forEach(function(service) {
@@ -31,6 +33,9 @@
                   default:
                     break;
                 }
+                // checking online flag in model
+                if (!service.hasOwnProperty('online'))
+                  service.online = false;
               });
               $scope.model = services;
 
@@ -45,6 +50,42 @@
             $scope.iconFn = null;
 
             $scope.linkToAdd = "/administration/services/new";
+
+            $scope.extra = {
+              service: {
+                handler: function(serviceInstance) {
+                  if (!serviceInstance.online) {
+                    serviceInstance.loading = true;
+                    $http.post("/api/Remote/start", {serviceId: serviceInstance.id}).success(function(data) {
+                      serviceInstance.online = data.online;
+                      console.log(data);
+                    }).catch(function(err) {
+                      console.log("Error while starting remote service: ", err);
+                    }).finally(function() {
+                      serviceInstance.loading = false;
+                    })
+                  } else {
+                    serviceInstance.requestingForClose = true;
+                    $http.post("/api/Remote/stop", {serviceId: serviceInstance.id}).success(function(data) {
+                      serviceInstance.online = data.online || false;
+                      console.log(data);
+                    }).error(function(err) {
+                      console.log("Error while stoping remote service: ", err);
+                    }).finally(function() {
+                      serviceInstance.requestingForClose = false;
+                    });
+                  }
+                },
+                ping: function(serviceInstance) {
+                  $http.post("/api/Remote/ping", {serviceId: serviceInstance.id}).success(function(data) {
+                    serviceInstance.online = data.online;
+                    console.log(data);
+                  }).catch(function(err) {
+                    console.log("Error in ping: ", err);
+                  })
+                }
+              }
+            }
         }]);
 
 </script>
@@ -61,7 +102,7 @@
         <div class="box-body">
 
             <div class="col-md-12">
-                <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
+                <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd" extra="extra"></terrama2-table>
             </div>
 
         </div><!-- /.box-body -->

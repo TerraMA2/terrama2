@@ -9,8 +9,12 @@ module.exports = function(app) {
       var analysisId = request.params.id;
       var restriction = analysisId ? {id: analysisId} : {};
 
-      DataManager.listAnalysis(restriction).then(function(analysis) {
-        return response.json(analysis);
+      DataManager.listAnalyses(restriction).then(function(analyses) {
+        var output = [];
+        analyses.forEach(function(analysis) {
+          output.push(analysis.toObject());
+        })
+        return response.json(output);
       }).catch(function(err) {
         response.status(400);
         response.json({status: 400, message: err.message});
@@ -49,9 +53,14 @@ module.exports = function(app) {
         };
 
         DataManager.addAnalysis(analysisObject, dataSeries).then(function(analysisResult) {
-          TcpManager.sendData({"Analysis": [analysisResult.toObject()]});
-          console.log(analysisResult);
-          response.json({status: 200});
+          DataManager.getServiceInstance({id: analysisObject.instance_id}).then(function(serviceInstance) {
+            TcpManager.sendData(serviceInstance, {"Analysis": [analysisResult.toObject()]});
+            console.log(analysisResult);
+            response.json({status: 200});
+          }).catch(function(err) {
+            console.log(err);
+            Utils.handleRequestError(response, err, 400);
+          });
         }).catch(function(err) {
           console.log(err);
           Utils.handleRequestError(response, err, 400);
