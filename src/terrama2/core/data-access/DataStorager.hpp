@@ -48,16 +48,14 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataStorager
-      \brief Base classe for storager classes.
-
-      Derived classes are responsible for storing a te::da::DataSet in a DataSet.
+      \brief DataStorager provides an interface to store a DataSetSeries.
     */
     class DataStorager
     {
       public:
         /*!
           \brief The constructor stores the destination server information.
+          \exception DataStoragerException Raised if the DataProvider is NULL
         */
         DataStorager(DataProviderPtr outputDataProvider);
         //! Default destructor.
