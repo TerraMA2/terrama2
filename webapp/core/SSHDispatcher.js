@@ -2,17 +2,19 @@ var Client = require('ssh2').Client;
 var Promise = require("bluebird");
 var fs = require('fs');
 var util = require('util');
+var Utils = require("./Utils");
 
-var SSHDispatcher = module.exports = function(serviceInstance) {
+
+var SSHDispatcher = module.exports = function() {
   this.client = new Client();
-  this.serviceInstance = serviceInstance;
   this.connected = false;
 };
 
-SSHDispatcher.prototype.connect = function(privatekeyPath) {
+SSHDispatcher.prototype.connect = function(serviceInstance) {
   var self = this;
 
   return new Promise(function(resolve, reject) {
+    self.serviceInstance = serviceInstance;
     self.client.on('ready', function() {
       self.connected = true;
       return resolve()
@@ -28,8 +30,19 @@ SSHDispatcher.prototype.connect = function(privatekeyPath) {
       host: self.serviceInstance.host,
       port: self.serviceInstance.sshPort,
       username: self.serviceInstance.sshUser,
-      privateKey: require('fs').readFileSync(privatekeyPath || '/home/raphael/.ssh/id_rsa'), //TODO: fix it. Check the way without pass
+      privateKey: require('fs').readFileSync(Utils.getUserHome() + '/.ssh/id_rsa')
     })
+  });
+}
+
+SSHDispatcher.prototype.disconnect = function() {
+  var self = this;
+  return new Promise(function(resolve, reject) {
+    if (!self.connected)
+      return reject(new Error("Could not disconnect. There is no such active connection"));
+
+    self.client.end();
+    resolve();
   });
 }
 
@@ -44,7 +57,7 @@ SSHDispatcher.prototype.execute = function(command) {
         return reject(err);
 
       stream.on('exit', function(code, signal) {
-        console.log("EXIT: ", code, signal);
+        console.log("ssh-EXIT: ", code, signal);
         if (code == 0)
           return resolve(code);
         return reject(new Error("Error occurred while remote command: code \"" + code + "\", signal: \"" + signal + "\""));
@@ -53,9 +66,9 @@ SSHDispatcher.prototype.execute = function(command) {
       stream.on('close', function(code, signal) {
         console.log('code: ' + code + ', signal: ' + signal);
       }).on('data', function(data) {
-        console.log('STDOUT: ' + data);
+        console.log('ssh-STDOUT: ' + data);
       }).stderr.on('data', function(data) {
-        console.log('STDERR: ' + data);
+        console.log('ssh-STDERR: ' + data);
       });
     });
   });

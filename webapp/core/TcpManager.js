@@ -28,6 +28,11 @@ function parseByteArray(byteArray) {
   }
 }
 
+
+// ssh structure
+var ssh = new SSH();
+
+
 /** 
 The structure looks like: 
 
@@ -187,8 +192,7 @@ This method connects via ssh to service host and sends terminal command to start
 */
 TcpManager.startService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
-    var ssh = new SSH(serviceInstance);
-    ssh.connect().then(function() {
+    ssh.connect(serviceInstance).then(function() {
 
       ssh.startService().then(function(code) {
         resolve(code)
@@ -210,12 +214,15 @@ This method sends STATUS_SIGNAL and waits for tcp client response.
 */
 TcpManager.statusService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
+    var closeCallbackCalled = true;
     try {
       var buffer = makeBuffer(Signals.STATUS_SIGNAL, {});
 
       _getClient(serviceInstance).then(function(client) {
         // sending buffer
         client.socket.write(buffer);
+
+        closeCallbackCalled = false;
 
         client.socket.on('data', function(data) {
           console.log('\n\n[CLIENT] Received:\n');
@@ -224,13 +231,11 @@ TcpManager.statusService = function(serviceInstance) {
           try {
             var parsedMessage = parseByteArray(data);
 
-            switch(parsedMessage.signal) {
-              case Signals.ADD_DATA_SIGNAL:
-            }
-
-            return resolve(parsedMessage);
+            if (!closeCallbackCalled)
+              return resolve(parsedMessage);
           } catch(e) {
-            return reject(e);
+            if (!closeCallbackCalled)
+              return reject(e);
           }
         });
 
@@ -250,11 +255,30 @@ TcpManager.stopService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     try {
       var buffer = makeBuffer(Signals.TERMINATE_SERVICE_SIGNAL, {});
+
+      var closeCallbackCalled = true;
       _getClient(serviceInstance).then(function(client) {
 
-        resolve();
+        closeCallbackCalled = false;
         // sending buffer
         client.socket.write(buffer);
+
+        client.socket.on('data', function(data) {
+          console.log('\n\n[CLIENT] Received:\n');
+          console.log("BYTES: ", data);
+          console.log("JSON: ", data.toString());
+          try {
+            var parsedMessage = parseByteArray(data);
+
+            if (!closeCallbackCalled)
+              return resolve(parsedMessage);
+          } catch(e) {
+            if (!closeCallbackCalled)
+              return reject(e);
+          }
+        });
+
+        // resolve();
       }).catch(function(err) {
         reject(err);
       });
@@ -265,48 +289,12 @@ TcpManager.stopService = function(serviceInstance) {
   });
 };
 
-var server = net.createServer();
-
-server.on('connection', function(socket) {
-
-  socket.on('data', function(buffer) {
-    try {
-      console.log(buffer);
-      console.log(buffer.toString());
-      var bufferSize = buffer.readUInt32BE(0);
-      var signal = buffer.readUInt32BE(4);
-      console.log(bufferSize);
-      console.log(signal);
-
-      if(!Buffer.isBuffer(buffer) || bufferSize !== socket.bytesRead) throw TypeError("Invalid buffer!");
-
-      var message = buffer.toString('utf8', 8);
-
-      console.log("\n\n[SERVER] Signal:\n");
-      console.log(signal);
-
-      console.log("\n\n[SERVER] Buffer Size:\n");
-      console.log(bufferSize);
-
-      console.log("\n\n[SERVER] Message:\n");
-      console.log(message);
-    } catch(error) {
-      throw error;
-    }
-  });
-
-  socket.on("close", function(hasError){
-    console.log("Has error: " + hasError);
-  });
-});
-
-server.listen(1337, '0.0.0.0');
-server.on('close', function() {
-  console.log("TcpManager server closed");
-});
-
-TcpManager.close = function(callback) {
-  server.close(function() {
-    callback();
-  });
-};
+TcpManager.disconnect = function() {
+  return new Promise(function(resolve, reject) {
+    ssh.disconnect().then(function() {
+      resolve();
+    }).catch(function(err) {
+      reject(err);
+    });
+  })
+}
