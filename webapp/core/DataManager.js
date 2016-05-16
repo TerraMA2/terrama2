@@ -525,6 +525,18 @@ var DataManager = {
     });
   },
 
+  removeServiceInstance: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db['ServiceInstance'].destroy({where: restriction}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new Error("Could not remove service instance. " + err.message));
+      });
+    });
+  },
+
   /**
    * It saves DataProviderType in database.
    * @todo Load it in memory
