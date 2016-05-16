@@ -174,8 +174,17 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   {
     QString errMsg = QObject::tr("Disabled data provider (Should not arrive here!)");
 
-    throw DataProviderException() << ErrorDescription(errMsg);
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw DataProviderException() << ErrorDescription(errMsg);
+  }
+
+  if(filter.discardAfter.get() && filter.discardBefore.get()
+      && filter.discardAfter <= filter.discardBefore)
+  {
+    QString errMsg = QObject::tr("Empty filter time range.");
+
+    TERRAMA2_LOG_WARNING() << errMsg.toStdString();
+    throw DataProviderException() << ErrorDescription(errMsg);
   }
 
   std::map<DataSetPtr, Series > series;

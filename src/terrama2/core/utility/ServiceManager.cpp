@@ -98,6 +98,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
   obj.insert("instance_name", QString::fromStdString(instanceName()));
   obj.insert("start_time", QString::fromStdString(startTime_->toString()));
   obj.insert("terrama2_version",  QString::fromStdString(terrama2Version()));
+  obj.insert("shutting_down",  isShuttingDown_);
   //TODO: Define status message
   return obj;
 }
@@ -129,4 +130,9 @@ void terrama2::core::ServiceManager::setLogConnectionInfo(std::map<std::string, 
 std::map<std::string, std::string> terrama2::core::ServiceManager::logConnectionInfo() const
 {
   return connInfo_;
+}
+
+void terrama2::core::ServiceManager::setShuttingDownProcessInitiated()
+{
+  isShuttingDown_ = true;
 }
