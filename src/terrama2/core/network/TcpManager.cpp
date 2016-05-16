@@ -219,6 +219,8 @@ void terrama2::core::TcpManager::readReadySlot()
     {
       TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";
 
+      serviceManager_->setShuttingDownProcessInitiated();
+
       emit stopSignal();
       break;
     }

@@ -32,6 +32,7 @@
 
 //STL
 #include "Analysis.hpp"
+#include "AnalysisLogger.hpp"
 #include "../Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 
@@ -47,7 +48,6 @@ namespace terrama2
       namespace core
       {
         class DataManager;
-        class AnalysisLogger;
 
         /*!
            \brief Service class to the analysis module.
@@ -87,6 +87,7 @@ namespace terrama2
             void addToQueue(AnalysisId analysisId);
 
             virtual void updateNumberOfThreads(int) override;
+            virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
 
           protected:
 
@@ -116,7 +117,7 @@ namespace terrama2
 
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
             std::vector<AnalysisId> analysisQueue_; //!< Analysis queue.
-            std::map<AnalysisId, std::shared_ptr< AnalysisLogger > > loggers_; //TODO: Review
+            std::shared_ptr<AnalysisLogger> logger_;
             DataManagerPtr dataManager_; //!< Data manager.
 
         };

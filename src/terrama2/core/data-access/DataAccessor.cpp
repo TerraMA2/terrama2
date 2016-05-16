@@ -175,7 +175,16 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
     QString errMsg = QObject::tr("Disabled data provider (Should not arrive here!)");
 
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw DataProviderException() << ErrorDescription(errMsg);   
+    throw DataProviderException() << ErrorDescription(errMsg);
+  }
+
+  if(filter.discardAfter.get() && filter.discardBefore.get()
+      && filter.discardAfter <= filter.discardBefore)
+  {
+    QString errMsg = QObject::tr("Empty filter time range.");
+
+    TERRAMA2_LOG_WARNING() << errMsg.toStdString();
+    throw DataProviderException() << ErrorDescription(errMsg);
   }
 
   std::map<DataSetPtr, Series > series;
@@ -183,7 +192,6 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   try
   {
     DataRetrieverPtr dataRetriever = DataRetrieverFactory::getInstance().make(dataProvider_);
-
     for(const auto& dataset : dataSeries_->datasetList)
     {
       //if the dataset is not active, continue to next.

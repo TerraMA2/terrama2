@@ -41,8 +41,8 @@
 class TestLogger : public terrama2::core::ProcessLogger
 {
 public:
-  TestLogger(ProcessId processId, std::map < std::string, std::string > connInfo)
-    : ProcessLogger(processId, connInfo)
+  TestLogger(std::map < std::string, std::string > connInfo)
+    : ProcessLogger(connInfo)
   {
     setTableName("unittest_process_log_");
   }
@@ -60,7 +60,7 @@ std::shared_ptr< TestLogger > getLogger()
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
 
-  return std::make_shared<TestLogger>(TestLogger(1 ,connInfo));
+  return std::make_shared<TestLogger>(TestLogger(connInfo));
 }
 
 void TsUtility::testProcessLogger()
@@ -74,9 +74,9 @@ void TsUtility::testProcessLogger()
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}};
 
 
-  TestLogger log(1 ,connInfo);
+  TestLogger log(connInfo);
 
-  RegisterId registerID = log.start();
+  RegisterId registerID = log.start(1);
 
   log.addValue("tag1", "value1", registerID);
   log.addValue("tag2", "value2", registerID);
@@ -89,7 +89,7 @@ void TsUtility::testProcessLogger()
 
   log.done(dataTime, registerID);
 
-  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp()->getTimeInstantTZ());
+  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp(registerID)->getTimeInstantTZ());
 }
 
 void TsUtility::testTimerNoFrequencyException()
@@ -101,7 +101,9 @@ void TsUtility::testTimerNoFrequencyException()
     schedule.frequency = 0;
     schedule.frequencyUnit = "second";
 
-    terrama2::core::Timer timer(schedule, 1, getLogger());
+    auto logger = getLogger();
+    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::Timer timer(schedule, 1, lastTime);
 
     QFAIL("Should not be here!");
   }
@@ -120,7 +122,9 @@ void TsUtility::testTimerInvalidUnitException()
     schedule.frequency = 30;
     schedule.frequencyUnit = "invalid";
 
-    terrama2::core::Timer timer(schedule, 1, getLogger());
+    auto logger = getLogger();
+    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::Timer timer(schedule, 1, lastTime);
 
     QFAIL("Should not be here!");
   }
@@ -141,54 +145,56 @@ void TsUtility::testFrequencyTimer()
     schedule.frequency = 800;
     schedule.frequencyUnit = "second";
 
-    terrama2::core::Timer timerSecond1(schedule, 1, getLogger());
+    auto logger = getLogger();
+    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::Timer timerSecond1(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "ss";
-    terrama2::core::Timer timerSecond2(schedule, 1, getLogger());
+    terrama2::core::Timer timerSecond2(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "s";
-    terrama2::core::Timer timerSecond3(schedule, 1, getLogger());
+    terrama2::core::Timer timerSecond3(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "sec";
-    terrama2::core::Timer timerSecond4(schedule, 1, getLogger());
+    terrama2::core::Timer timerSecond4(schedule, 1, lastTime);
 
     // Schedule a timer in minutes
     schedule.frequency = 35;
     schedule.frequencyUnit = "minute";
 
-    terrama2::core::Timer timerMinute1(schedule, 1, getLogger());
+    terrama2::core::Timer timerMinute1(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "min";
-    terrama2::core::Timer timerMinute2(schedule, 1, getLogger());
+    terrama2::core::Timer timerMinute2(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "minutes";
-    terrama2::core::Timer timerMinute3(schedule, 1, getLogger());
+    terrama2::core::Timer timerMinute3(schedule, 1, lastTime);
 
     // Schedule a timer in hours
     schedule.frequency = 2;
     schedule.frequencyUnit = "hour";
 
-    terrama2::core::Timer timerHour1(schedule, 1, getLogger());
+    terrama2::core::Timer timerHour1(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "hh";
 
-    terrama2::core::Timer timerHour2(schedule, 1, getLogger());
+    terrama2::core::Timer timerHour2(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "h";
 
-    terrama2::core::Timer timerHour3(schedule, 1, getLogger());
+    terrama2::core::Timer timerHour3(schedule, 1, lastTime);
 
     // Schedule a timer in days
     schedule.frequency = 3;
     schedule.frequencyUnit = "day";
 
-    terrama2::core::Timer timerDay1(schedule, 1, getLogger());
+    terrama2::core::Timer timerDay1(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "d";
-    terrama2::core::Timer timerDay2(schedule, 1, getLogger());
+    terrama2::core::Timer timerDay2(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "dd";
-    terrama2::core::Timer timerDay3(schedule, 1, getLogger());
+    terrama2::core::Timer timerDay3(schedule, 1, lastTime);
 
   }
   catch(...)
@@ -209,7 +215,9 @@ void TsUtility::testScheduleTimer()
     schedule.scheduleTimestamp = "09:00:00.000";
     schedule.scheduleUnit = "week";
 
-    terrama2::core::Timer timerWeek1(schedule, 1, getLogger());
+    auto logger = getLogger();
+    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::Timer timerWeek1(schedule, 1, lastTime);
   }
   catch(...)
   {
