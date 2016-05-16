@@ -860,10 +860,10 @@ var DataManager = {
           copyDataSeries.forEach(function(element, index, arr) {
             collectorsResult.some(function(collector) {
               // collect
-              if (collector.data_series_output == element.id) {
+              if (collector.output_data_series == element.id) {
                 arr.splice(index, 1);
                 return true;
-              } else if (collector.data_series_input == element.id) { // removing input dataseries
+              } else if (collector.input_data_series == element.id) { // removing input dataseries
                 arr.splice(index, 1);
               }
               return false;
