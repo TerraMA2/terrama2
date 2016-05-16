@@ -54,8 +54,16 @@ namespace terrama2
       public:
         //!< Default constructor.
         DataRetriever(DataProviderPtr dataProvider);
-        //!< Default destructor.
-        virtual ~DataRetriever() {}
+        //! Default destructor.
+        virtual ~DataRetriever() = default;
+        //! Default copy constructor
+        DataRetriever(const DataRetriever& other) = default;
+        //! Default move constructor
+        DataRetriever(DataRetriever&& other) = default;
+        //! Default const assignment operator
+        DataRetriever& operator=(const DataRetriever& other) = default;
+        //! Default assignment operator
+        DataRetriever& operator=(DataRetriever&& other) = default;
 
         //!< Utility method to construct a DataRetriever, used as a callback in the DataRetreiverFactory.
         static DataRetriever* make(DataProviderPtr dataProvider);

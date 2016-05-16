@@ -43,10 +43,11 @@ typedef uint32_t DataSetId;
 typedef uint32_t DataSeriesId;
 //! Unique identifier for DataProvider
 typedef uint32_t DataProviderId;
-
+//! Unique identifier for Processes (Collector, Analysis,...)
 typedef uint32_t ProcessId;
+//! Unique identifier for Processes log
 typedef uint32_t RegisterId;
-
+//! DataProviderType code
 typedef std::string DataProviderType;
 
 namespace terrama2

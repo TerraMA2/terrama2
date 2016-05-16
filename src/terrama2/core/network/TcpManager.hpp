@@ -57,8 +57,15 @@ namespace terrama2
       public:
         //! Constructor, connects signal.
         TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent = 0);
-        //! Default destructor.
+        /*!
+          \brief Send a finishing service message and destroys the object.
+        */
         virtual ~TcpManager();
+
+        TcpManager(const TcpManager& other) = delete;
+        TcpManager(TcpManager&& other) = delete;
+        TcpManager& operator=(const TcpManager& other) = delete;
+        TcpManager& operator=(TcpManager&& other) = delete;
 
         //! Send log information to the TerraMA² application.
         bool sendLog(std::string log);

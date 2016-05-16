@@ -265,10 +265,6 @@ terrama2::core::DataManager::DataManager()
   qRegisterMetaType<uint32_t>("uint32_t");
 }
 
-terrama2::core::DataManager::~DataManager()
-{
-}
-
 void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
 {
   auto dataProviders = obj["DataProviders"].toArray();

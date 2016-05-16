@@ -100,7 +100,15 @@ namespace terrama2
         te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
         //! Default destructor.
-        virtual ~DataAccessor() {}
+        virtual ~DataAccessor() = default;
+        //! Default copy constructor
+        DataAccessor(const DataAccessor& other) = default;
+        //! Default move constructor
+        DataAccessor(DataAccessor&& other) = default;
+        //! Default const assignment operator
+        DataAccessor& operator=(const DataAccessor& other) = default;
+        //! Default assignment operator
+        DataAccessor& operator=(DataAccessor&& other) = default;
 
       protected:
 

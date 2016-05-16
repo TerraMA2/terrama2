@@ -23,6 +23,7 @@
 
 #include "TimeUtils.hpp"
 #include "ServiceManager.hpp"
+#include "../../Version.hpp"
 
 terrama2::core::ServiceManager::ServiceManager()
  : startTime_(terrama2::core::TimeUtils::nowUTC())
@@ -83,10 +84,6 @@ int terrama2::core::ServiceManager::numberOfThreads() const
   return numberOfThreads_;
 }
 
-const std::string& terrama2::core::ServiceManager::terrama2Version() const
-{
-  return terrama2Version_;
-}
 const std::shared_ptr< te::dt::TimeInstantTZ >& terrama2::core::ServiceManager::startTime() const
 {
   return startTime_;
@@ -97,7 +94,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
   obj.insert("instance_id", static_cast<int>(instanceId()));
   obj.insert("instance_name", QString::fromStdString(instanceName()));
   obj.insert("start_time", QString::fromStdString(startTime_->toString()));
-  obj.insert("terrama2_version",  QString::fromStdString(terrama2Version()));
+  obj.insert("terrama2_version",  QString::fromStdString(TERRAMA2_VERSION_STRING));
   obj.insert("shutting_down",  isShuttingDown_);
   //TODO: Define status message
   return obj;

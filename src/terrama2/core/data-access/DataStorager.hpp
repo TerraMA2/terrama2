@@ -60,8 +60,18 @@ namespace terrama2
           \brief The constructor stores the destination server information.
         */
         DataStorager(DataProviderPtr outputDataProvider);
-        //!< Default destructor.
-        ~DataStorager();
+        //! Default destructor.
+        virtual ~DataStorager() = default;
+        //! Default copy constructor
+        DataStorager(const DataStorager& other) = default;
+        //! Default move constructor
+        DataStorager(DataStorager&& other) = default;
+        //! Default const assignment operator
+        DataStorager& operator=(const DataStorager& other) = default;
+        //! Default assignment operator
+        DataStorager& operator=(DataStorager&& other) = default;
+
+
         /*!
           \brief Store the data series in outputDataSet.
 

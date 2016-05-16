@@ -82,8 +82,6 @@ namespace terrama2
         void setNumberOfThreads(int numberOfThreads);
         virtual int numberOfThreads() const;
 
-        //! Return the TerraMA2 version of the runnning instance.
-        virtual const std::string& terrama2Version() const;
         //! Return the Date/Time when the service was started.
         virtual const std::shared_ptr< te::dt::TimeInstantTZ >& startTime() const;
 
@@ -140,7 +138,6 @@ namespace terrama2
         std::string serviceType_;
         int listeningPort_;
         int numberOfThreads_;
-        const std::string terrama2Version_ = "TerraMA2-4-alpha2";//FIXME: use the global version
         std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
         bool serviceLoaded_ = false;
         std::map<std::string, std::string> connInfo_;
