@@ -179,5 +179,9 @@ module.exports = {
       default:
         throw new exceptions.SignalError("Invalid terrama2 tcp signal");
     }
+  },
+
+  getUserHome: function() {
+    return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
   }
 };
