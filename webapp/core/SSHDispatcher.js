@@ -26,11 +26,27 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
       return reject(new Error("Error while connecting. " + err.message));
     });
 
-    self.client.connect({
-      host: self.serviceInstance.host,
-      port: self.serviceInstance.sshPort,
-      username: self.serviceInstance.sshUser,
-      privateKey: require('fs').readFileSync(Utils.getUserHome() + '/.ssh/id_rsa')
+    var defaultDir = Utils.getUserHome() + '/.ssh/';
+    Utils.findFiles(defaultDir, 'id_*').then(function(files) {
+      var privateKey;
+      files.some(function(file) {
+        if (!file.endsWith('.pub')) {
+          privateKey = file;
+          return true;
+        }
+      })
+
+      if (!privateKey)
+        return reject(new Error("Could not find private key in \"" + defaultDir + "\""));
+
+      self.client.connect({
+        host: self.serviceInstance.host,
+        port: self.serviceInstance.sshPort,
+        username: self.serviceInstance.sshUser,
+        privateKey: require('fs').readFileSync(privateKey)
+      })
+    }).catch(function(err) {
+      reject(err);
     })
   });
 }
