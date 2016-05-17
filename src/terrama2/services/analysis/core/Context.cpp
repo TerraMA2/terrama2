@@ -32,6 +32,7 @@
 #include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/Filter.hpp"
@@ -51,6 +52,7 @@
 #include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/srs/SpatialReferenceSystemManager.h>
 #include <terralib/srs/SpatialReferenceSystem.h>
+#include <terralib/srs/Converter.h>
 
 #include <ctime>
 #include <iomanip>
@@ -216,7 +218,7 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
 
   if(!dateFilter.empty())
   {
-    double minutes = terrama2::core::TimeUtils::convertStringToUnitOfMeasure(dateFilter, "MINUTE");
+    double minutes = terrama2::core::TimeUtils::convertTimeStringToSeconds(dateFilter, "MINUTE");
 
     ldt -= boost::posix_time::minutes(minutes);
 
@@ -263,7 +265,8 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
     if(unitName == "degree")
     {
       // Converts the data to UTM
-      dcpDataset->position->transform(29193);
+      int sridUTM = terrama2::core::getUTMSrid(dcpDataset->position.get());
+      dcpDataset->position->transform(sridUTM);
     }
 
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
@@ -346,7 +349,7 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
   terrama2::core::Filter filter;
   if(!dateFilter.empty())
   {
-    double minutes = terrama2::core::TimeUtils::convertStringToUnitOfMeasure(dateFilter, "MINUTE");
+    double minutes = terrama2::core::TimeUtils::convertTimeStringToSeconds(dateFilter, "MINUTE");
 
     ldt -= boost::posix_time::minutes(minutes);
 

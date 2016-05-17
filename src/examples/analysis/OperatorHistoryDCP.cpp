@@ -94,18 +94,18 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
+  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
                        "add_value(\"history_sum\",x)\n"
-                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
+                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
                        "add_value(\"history_max\",x)\n"
-                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
+                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
                        "add_value(\"history_min\",x)\n"
-                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
+                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
                        "add_value(\"history_mean\",x)\n"
-                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
+                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
                        "add_value(\"history_median\",x)\n"
-                       "x = dcp.history.standardDeviation(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
-                       "add_value(\"history_standardDeviation\",x)\n";
+                       "x = dcp.history.standard_deviation(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
+                       "add_value(\"history_standard_deviation\",x)\n";
 
   Analysis analysis;
   analysis.id = 1;
@@ -117,8 +117,8 @@ int main(int argc, char* argv[])
   analysis.active = false;
 
 
-  analysis.metadata["INFLUENCE_TYPE"] = 1;
-  analysis.metadata["INFLUENCE_RADIUS"] = 1;
+  analysis.metadata["INFLUENCE_TYPE"] = "1";
+  analysis.metadata["INFLUENCE_RADIUS"] = "50";
   analysis.metadata["INFLUENCE_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -147,9 +147,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "afetados.shp");
-  dataSet->format.emplace("srid", "4618");
-  dataSet->format.emplace("identifier", "NOME");
+  dataSet->format.emplace("mask", "municipios_afetados.shp");
+  dataSet->format.emplace("identifier", "objet_id_5");
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
@@ -181,7 +180,7 @@ int main(int argc, char* argv[])
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.code = "DCP-inpe";
   dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
-  dcpSeries->name = "Serra do Mar";
+  dcpSeries->name = "DCP-Angra";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
 
@@ -229,9 +228,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-  QTimer timer;
+  /*QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);
+  timer.start(1000);*/
   app.exec();
 
 

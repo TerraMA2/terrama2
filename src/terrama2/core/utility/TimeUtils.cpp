@@ -97,7 +97,7 @@ void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ >
   (*timeInstant) = temp;
 }
 
-double terrama2::core::TimeUtils::convertStringToUnitOfMeasure(const std::string& time, std::string unitName)
+double terrama2::core::TimeUtils::convertTimeStringToSeconds(const std::string& time, std::string unitName)
 {
   std::string timeStr = boost::to_upper_copy(time);
   double result = 0;
@@ -114,6 +114,12 @@ double terrama2::core::TimeUtils::convertStringToUnitOfMeasure(const std::string
   while(it != te::common::UnitsOfMeasureManager::getInstance().end())
   {
     auto uom = it->second;
+    if(uom->getType() != te::common::MeasureType::Time)
+    {
+      ++it;
+      continue;
+    }
+
     std::vector<std::string> vecNames;
     te::common::UnitsOfMeasureManager::getInstance().getNames(it->second, vecNames);
 
