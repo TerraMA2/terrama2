@@ -58,7 +58,7 @@ namespace terrama2
       // Doc in base class
       virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const override;
       // Doc in base class
-      virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
+      virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
       //! Recover file mask
       virtual std::string getMask(DataSetPtr dataset) const;
       //! Recover timezone information from dataset

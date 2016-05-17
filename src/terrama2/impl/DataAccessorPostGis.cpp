@@ -58,7 +58,7 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
+terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
     terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
@@ -128,7 +128,7 @@ terrama2::core::Series terrama2::core::DataAccessorPostGis::getSeries(const std:
 
   updateLastTimestamp(dataSet, transactor);
 
-  Series series;
+ DataSetSeries series;
   series.dataSet = dataSet;
   series.syncDataSet.reset(new terrama2::core::SyncronizedDataSet(tempDataSet));
   series.teDataSetType = transactor->getDataSetType(tableName);

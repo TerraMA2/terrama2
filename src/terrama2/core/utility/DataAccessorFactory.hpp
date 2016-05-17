@@ -51,7 +51,7 @@ namespace terrama2
     struct DataProvider;
 
     /*!
-      \brief Factory class for DataAcessor.
+      \brief DataAccessorFactory allows the creation of a DataAcessor.
 
     */
     class DataAccessorFactory : public te::common::Singleton<DataAccessorFactory>

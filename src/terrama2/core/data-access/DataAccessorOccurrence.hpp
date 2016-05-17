@@ -60,8 +60,17 @@ namespace terrama2
       public:
         //! Default constructor
         DataAccessorOccurrence(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
-        //! Default destructor
-        virtual ~DataAccessorOccurrence() {}
+        //! Default destructor.
+        virtual ~DataAccessorOccurrence() = default;
+        //! Default copy constructor
+        DataAccessorOccurrence(const DataAccessorOccurrence& other) = default;
+        //! Default move constructor
+        DataAccessorOccurrence(DataAccessorOccurrence&& other) = default;
+        //! Default const assignment operator
+        DataAccessorOccurrence& operator=(const DataAccessorOccurrence& other) = default;
+        //! Default assignment operator
+        DataAccessorOccurrence& operator=(DataAccessorOccurrence&& other) = default;
+
         //! Returns a OccurrenceSeries filtered by Filter
         virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
     };
