@@ -22,4 +22,18 @@ $(document).ready(function(){
   $('#checkAnalysisScript').on('click', function() {
     socket.emit('checkPythonScriptRequest', { script: $('textarea[name="script"]').val() });
   });
+
+  socket.on('testSSHConnectionResponse', function(result) {
+    console.log(result);
+  });
+
+  $('#serviceCheckConnection').on('click', function() {
+    socket.emit('testSSHConnectionRequest',
+      {
+        host: $('input[name="host"]').val(),
+        port: $('input[name="sshPort"]').val(),
+        username: $('input[name="user"]').val()
+      }
+    );
+  });
 });

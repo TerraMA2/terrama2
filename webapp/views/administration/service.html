@@ -10,6 +10,12 @@
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
+
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+<!-- terrama2 Script -->
+<script type="text/javascript" src="/javascripts/terrama2.js"></script>
 <script>
   angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
     .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
@@ -194,6 +200,7 @@
       <!-- /.box body -->
 
       <div class="box-footer">
+        <button type="submit" class="btn btn-primary pull-right" id="serviceCheckConnection" style="margin-left: 10px;">Check Connection</button>
         <button type="submit" class="btn btn-primary pull-right" ng-disabled="update" data-ng-click="save()" style="margin-left: 10px;">{[ __("OK") ]}</button>
         <a ng-href="/administration/services" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
       </div>
