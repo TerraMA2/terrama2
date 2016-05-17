@@ -44,8 +44,3 @@ terrama2::core::DataStorager::DataStorager(DataProviderPtr outputDataProvider)
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 }
-
-terrama2::core::DataStorager::~DataStorager()
-{
-
-}

@@ -24,27 +24,34 @@
 
   \brief This file contains include headers for the TerraMA2 core module.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_CORE_HPP__
-#define __TERRAMA2_CORE_CORE_HPP__
+#ifndef __TERRAMA2_CORE_HPP__
+#define __TERRAMA2_CORE_HPP__
 
 // TerraMA2
-#include "ApplicationController.hpp"
-#include "DataManager.hpp"
-#include "DataProvider.hpp"
-#include "DataSet.hpp"
-#include "DataSetItem.hpp"
-#include "Exception.hpp"
-#include "Filter.hpp"
-#include "Intersection.hpp"
-#include "Logger.hpp"
-#include "PCD.hpp"
-#include "PCDAttribute.hpp"
-#include "PCDDataSet.hpp"
-#include "Utils.hpp"
-#include "Version.hpp"
+#include "data-access/DataAccessor.hpp"
+#include "data-access/DataStorager.hpp"
+#include "data-access/DataRetriever.hpp"
+#include "data-access/Series.hpp"
+
+
+#include "data-model/DataManager.hpp"
+#include "data-model/DataProvider.hpp"
+#include "data-model/DataSeries.hpp"
+#include "data-model/DataSet.hpp"
+#include "data-model/Filter.hpp"
+#include "data-model/Schedule.hpp"
+
+#include "network/TcpManager.hpp"
+
+#include "utility/DataAccessorFactory.hpp"
+#include "utility/DataStoragerFactory.hpp"
+#include "utility/DataRetrieverFactory.hpp"
+#include "utility/SemanticsManager.hpp"
+#include "utility/ServiceManager.hpp"
+#include "utility/Version.hpp"
 
 
 namespace terrama2
@@ -55,4 +62,4 @@ namespace terrama2
   } // end namespace core
 }   // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_CORE_HPP__
+#endif  // __TERRAMA2_CORE_HPP__

@@ -67,7 +67,7 @@ namespace terrama2
         DataManager();
 
         //! Destructor.
-        virtual ~DataManager();
+        virtual ~DataManager() = default;
         DataManager(const DataManager& other) = delete;
         DataManager(DataManager&& other) = delete;
         DataManager& operator=(const DataManager& other) = delete;

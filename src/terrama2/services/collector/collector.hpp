@@ -20,45 +20,41 @@
 */
 
 /*!
-  \file terrama2/core/Typedef.hpp
+  \file services/collector/collector.hpp
+
+  \brief This file contains include headers for the TerraMA2 collector service.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_TYPEDEF_HPP__
-#define __TERRAMA2_CORE_TYPEDEF_HPP__
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_HPP__
 
-#include <cstdint>
-#include <string>
-
-//! Unique identifier of the ServiceInstance
-typedef uint32_t ServiceInstanceId;
-//! Unique identifier for Project
-typedef uint32_t ProjectId;
-//! Unique identifier for Schedule
-typedef uint32_t ScheduleId;
-//! Unique identifier for DataSet
-typedef uint32_t DataSetId;
-//! Unique identifier for DataSeries
-typedef uint32_t DataSeriesId;
-//! Unique identifier for DataProvider
-typedef uint32_t DataProviderId;
-//! Unique identifier for Processes (Collector, Analysis,...)
-typedef uint32_t ProcessId;
-//! Unique identifier for Processes log
-typedef uint32_t RegisterId;
-//! DataProviderType code
-typedef std::string DataProviderType;
+#include "core/Collector.hpp"
+#include "core/CollectorLogger.hpp"
+#include "core/DataManager.hpp"
+#include "core/Service.hpp"
+#include "core/Exception.hpp"
+#include "core/Typedef.hpp"
+#include "core/Shared.hpp"
 
 namespace terrama2
 {
-  namespace core
+  namespace services
   {
-    //! Defines an invalid ID
-    inline uint32_t InvalidId() { return 0;}
-  } /* core */
-} /* terrama2 */
+    /*!
+      \brief Namespace for the TerraMA2 collector service.
+    */
+    namespace collector
+    {
+      /*!
+        \brief Namespace for the  TerraMA2 collector service core module.
+      */
+      namespace core
+      {
+      }
+    }
+  }
+}
 
-typedef int Srid;
-
-#endif // __TERRAMA2_CORE_TYPEDEF_HPP__
+#endif  // __TERRAMA2_SERVICES_COLLECTOR_HPP__

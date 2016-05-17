@@ -37,6 +37,9 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Utility functions for time manipulation.
+    */
     namespace TimeUtils
     {
 

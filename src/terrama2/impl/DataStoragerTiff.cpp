@@ -188,7 +188,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   return fileName;
 }
 
-void terrama2::core::DataStoragerTiff::store(Series series, DataSetPtr outputDataSet) const
+void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   if(!outputDataSet.get() || !series.syncDataSet.get())
   {

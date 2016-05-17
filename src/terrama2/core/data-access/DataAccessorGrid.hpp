@@ -53,8 +53,17 @@ namespace terrama2
       public:
         //! Default constructor
         DataAccessorGrid(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
-        //! Default destructor
-        virtual ~DataAccessorGrid() {}
+        //! Default destructor.
+        virtual ~DataAccessorGrid() = default;
+        //! Default copy constructor
+        DataAccessorGrid(const DataAccessorGrid& other) = default;
+        //! Default move constructor
+        DataAccessorGrid(DataAccessorGrid&& other) = default;
+        //! Default const assignment operator
+        DataAccessorGrid& operator=(const DataAccessorGrid& other) = default;
+        //! Default assignment operator
+        DataAccessorGrid& operator=(DataAccessorGrid&& other) = default;
+
         //! Returns a GridSeries filtered by Filter
         virtual GridSeriesPtr getGridSeries(const Filter& filter);
 

@@ -43,7 +43,22 @@ namespace terrama2
   namespace core
   {
     /*!
-    \brief Base class to download data from a remote server.
+    \brief DataRetriever provides an interface to download files from, usualy, remote servers.
+
+    ## Retrieving files ##
+
+    After you have a DataRetriever object calling retrieveData() should be enough
+    to get the files. The //query// parameter can be a FTP uri or a WCS query, details
+    of teh parameters can be found in the appropriate driver class.
+
+    The return value is the uri where the downloaded files are stored.
+
+    \note The best way to get a DataRetriever is from a DataRetrieverFactory,
+    the DataRetrieverFactory::make will return a DataRetriever from the right type.
+
+    \note A DataRetriever should be used from inside DataAccessor::getSeries
+
+    ## Derived classes ##
 
     Derived classes should access a remote server and download files to a temporary storage
     and return a uri to this file.
@@ -52,10 +67,21 @@ namespace terrama2
     class DataRetriever
     {
       public:
-        //!< Default constructor.
+        /*!
+         \brief Default constructor.
+         \exception DataRetrieverException Reaised if the DataProvider is NULL.
+         */
         DataRetriever(DataProviderPtr dataProvider);
-        //!< Default destructor.
-        virtual ~DataRetriever() {}
+        //! Default destructor.
+        virtual ~DataRetriever() = default;
+        //! Default copy constructor
+        DataRetriever(const DataRetriever& other) = default;
+        //! Default move constructor
+        DataRetriever(DataRetriever&& other) = default;
+        //! Default const assignment operator
+        DataRetriever& operator=(const DataRetriever& other) = default;
+        //! Default assignment operator
+        DataRetriever& operator=(DataRetriever&& other) = default;
 
         //!< Utility method to construct a DataRetriever, used as a callback in the DataRetreiverFactory.
         static DataRetriever* make(DataProviderPtr dataProvider);
@@ -67,7 +93,8 @@ namespace terrama2
 
           \warning This method depends the data to be downloadable. see DataRetriever::isRetrivable()
 
-          \exception NotRetrivableException Raised when the DataRetriever doesn't allow the download of the data toa file.
+          \exception NotRetrivableException Raised when this DataRetriever doesn't allow the download of the data.
+          This will happen based on the DataProviderType.
 
           \return Uri to the termporary file
         */
@@ -79,7 +106,8 @@ namespace terrama2
         /*!
           \brief Returns true if the data should be downloaded to a file or false if should be access directly.
 
-          \exception NotRetrivableException Raised when the DataRetriever doesn't allow the download of the data toa file.
+          \exception NotRetrivableException Raised when this DataRetriever doesn't allow the download of the data.
+          This will happen based on the DataProviderType
         */
         virtual bool isRetrivable() const;
 
