@@ -153,3 +153,8 @@
   from { -moz-transform: rotate(0deg);}
   to { -moz-transform: rotate(360deg);}
 }
+
+.pull-cell-left {
+  white-space: nowrap !important;
+  width: 1px !important;
+}
