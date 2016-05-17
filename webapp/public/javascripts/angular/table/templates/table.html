@@ -58,24 +58,29 @@
           <a ng-href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
           <!--{{ element[field] }}-->
         </td>
-        <td ng-if="isFunction(remove)">
-        <!-- data-ng-click="removeOperation(element);" -->
-          <button class="btn btn-sm btn-danger" ng-click="removeOperation(element)">{{ i18n.__('Remove') }}</button>
-        </td>
 
-        <td ng-if="extra.service">
+        <td ng-if="extra.service" class="pull-cell-left">
           <!-- loading  -->
           <span ng-if="element.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
 
-          <i ng-show="!element.loading" title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}" class="fa fa-circle" style="color: {{ element.online ? element.requestingForClose ? '#FF8C00' : 'green' : 'red' }}"></i>
+          <i ng-show="!element.loading" title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}" class="fa fa-circle" style="color: {{ element.online ? element.requestingForClose ? '#FF8C00' : 'green' : element.online == undefined || element.online == null ? '#333' : 'red' }}"></i>
 
-          <button class="btn btn-primary" ng-show="!element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
+          <button class="btn btn-primary btn-sm" ng-show="!element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
             <i class="fa fa-magic" style="margin-right: 5px;"></i>Start
           </button>
 
-          <button class="btn btn-danger" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
+          <button class="btn btn-danger btn-sm" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
             <i class="fa fa-power-off" style="margin-right: 5px;"></i>Stop
           </button>
+
+          <!-- <button class="btn btn-danger" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.reload(element)">
+            <i class="fa fa-power-off" style="margin-right: 5px;"></i>Reload
+          </button> -->
+        </td>
+
+        <td ng-if="isFunction(remove)" class="pull-cell-left">
+        <!-- data-ng-click="removeOperation(element);" -->
+          <button class="btn btn-sm btn-danger" ng-click="removeOperation(element)">{{ i18n.__('Remove') }}</button>
         </td>
       </tr>
 

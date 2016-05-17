@@ -2,6 +2,16 @@
 
 {% block ngApp %}ng-app="terrama2.administration.services"{% endblock %}
 
+{% block styles %}
+<style type="text/css">
+  .pull-cell-left {
+    white-space: nowrap !important;
+    width: 1px !important;
+  }
+
+</style>
+{% endblock %}
+
 {% block title %} TerraMA2 {[ __('Services Handling') ]} {% endblock %}
 
 {% block javascripts %}
@@ -39,8 +49,8 @@
                     break;
                 }
                 // checking online flag in model
-                if (!service.hasOwnProperty('online'))
-                  service.online = false;
+                // if (!service.hasOwnProperty('online'))
+                //   service.online = false;
               });
               $scope.model = services;
 
