@@ -44,8 +44,30 @@ namespace terrama2
   namespace core
   {
     /*!
-       \brief Base class for TerraMA2 services.
-     */
+      \brief The Service provides thread and time management for processes.
+
+      This class is used to manage thread sync and timer listening for derived TerraMA2 services.
+
+      The Service has a main thread that will check for new data to be processed
+      and a threadpool that will be allocated to actively process the data.
+
+      ## Threadpool ##
+
+      The number of threads available can be set at the start() of the service or updated later
+      by updateNumberOfThreads().
+
+      If the number of threads is set to 0 the service will
+      try to identify the concurrency capabilities of the hardware, if this fails
+      the number of threads will be set to 1.
+
+      ## Process queue ##
+
+      The processes are placed on a queue during processNextData().
+      This method must be overloaded.
+
+      Queued processes will be executed automatically by the threadpool.
+
+    */
     class Service : public QObject
     {
       Q_OBJECT
@@ -53,7 +75,11 @@ namespace terrama2
     public:
       //! Default constructor
       Service();
-      //! Default destructor
+      /*!
+        \brief Destructor
+
+        Stop the Service and destroys it.
+      */
       virtual ~Service();
 
       /*!
@@ -72,33 +98,38 @@ namespace terrama2
       /*!
          \brief  Stops the service.
 
-         \note Incomplete tasks might be lost and will be restarted with a new Service::start.
+         \note Incomplete tasks might be lost and will be restarted when the service is started again.
 
        */
       void stop() noexcept;
 
+      //! Updates the number of processing threads in the threadpool.
       virtual void updateNumberOfThreads(int) = 0;
+      //! Updates the connection parameters of the process log database
       virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) = 0;
 
     protected:
       /*!
          \brief Returns true if the main loop should continue.
-         \return True if there is data to be tasked OR is stop is true.
+         \return True if there is data to be tasked.
        */
-      virtual bool mainLoopWaitCondition() = 0;
+      virtual bool hasDataOnQueue() = 0;
 
       /*!
          \brief Watches for data that needs to be processed.
        */
       void mainLoopThread() noexcept;
       /*!
-         \brief Check if there is data to be processed.
-         \return True if there is more data to be processed.
+        \brief Add next task to the processing queue.
+        \return True if there is more data to be processed.
        */
-      virtual bool checkNextData() = 0;
+      virtual bool processNextData() = 0;
 
       //! Process a queued task.
       void processingTaskThread() noexcept;
+
+      //! Verifys if the number of threads is greater than 0.
+      int verifyNumberOfThreads(int numberOfThreads) const;
 
       bool stop_;
       std::mutex  mutex_;                                       //!< Mutex for thread safety

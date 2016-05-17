@@ -120,12 +120,12 @@ void terrama2::core::Service::mainLoopThread() noexcept
       {
         std::unique_lock<std::mutex> lock(mutex_);
         //wait for new data to collect
-        mainLoopCondition_.wait(lock, [this] { return mainLoopWaitCondition(); });
+        mainLoopCondition_.wait(lock, [this] { return stop_ || hasDataOnQueue(); });
 
         if(stop_)
           break;
 
-        while(checkNextData());
+        while(processNextData());
 
         if(stop_)
           break;
