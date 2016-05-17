@@ -32,6 +32,7 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
       files.some(function(file) {
         if (!file.endsWith('.pub')) {
           privateKey = file;
+          return true;
         }
       })
 
