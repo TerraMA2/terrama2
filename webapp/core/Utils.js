@@ -7,6 +7,10 @@ var exceptions = require('./Exceptions');
 var Signals = require('./Signals');
 var Promise = require("bluebird");
 
+// nodejs
+var glob = require('glob');
+var path = require('path');
+
 function getTokenCodeMessage(code) {
   var msg;
   switch(code) {
@@ -231,5 +235,18 @@ module.exports = {
         }).catch(_handleError); // end listCollectors
       }).catch(_handleError); // end listDataSeries
     });
+  },
+
+  findFiles: function(directory, pattern) {
+    return new Promise(function(resolve, reject) {
+      var fullPath = path.join(directory, pattern);
+
+      glob(fullPath, function(err, files) {
+        if (err) 
+          return reject(err);
+
+        resolve(files);
+      })
+    })
   }
 };
