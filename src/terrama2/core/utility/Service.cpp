@@ -38,7 +38,7 @@ terrama2::core::Service::Service()
 
 terrama2::core::Service::~Service()
 {
-
+  stop();
 }
 
 void terrama2::core::Service::start(uint threadNumber)
@@ -60,10 +60,7 @@ void terrama2::core::Service::start(uint threadNumber)
     mainLoopThread_ = std::async(std::launch::async, &Service::mainLoopThread, this);
 
     //check for the number o threads to create
-    if(threadNumber)
-      threadNumber = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
-    if(!threadNumber)
-      threadNumber = 1; //if not able to find out set to 1
+    threadNumber = verifyNumberOfThreads(threadNumber);
 
     //Starts collection threads
     for(uint i = 0; i < threadNumber; ++i)
@@ -77,6 +74,16 @@ void terrama2::core::Service::start(uint threadNumber)
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ServiceException() << ErrorDescription(errMsg);
   }
+}
+
+int terrama2::core::Service::verifyNumberOfThreads(int numberOfThreads) const
+{
+  if(numberOfThreads)
+    numberOfThreads = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
+  if(!numberOfThreads)
+    numberOfThreads = 1; //if not able to find out set to 1
+
+  return numberOfThreads;
 }
 
 void terrama2::core::Service::stop() noexcept
