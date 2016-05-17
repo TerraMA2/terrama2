@@ -81,9 +81,16 @@ SSHDispatcher.prototype.startService = function() {
       return reject(new Error("Could not start service. There is no such active connection"));
 
     try {
-      // nohup &
-      var command = util.format("%s %s", self.serviceInstance.pathToBinary, self.serviceInstance.port.toString());
-      command += (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : "");
+      var executable = self.serviceInstance.pathToBinary;
+      var port = self.serviceInstance.port.toString();
+      var command;
+      if (process.plataform == 'win32') {
+        command = "start " + util.format("%s %s", executable.endsWith(".exe") ? executable : executable + ".exe", port);
+      } else {
+        command = "nohup " + util.format("%s %s %s", executable, port, (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
+      }
+
+      console.log(command);
       
       self.execute(command).then(function(code) {
         resolve(code);
@@ -95,17 +102,4 @@ SSHDispatcher.prototype.startService = function() {
     }
 
   });
-};
-
-SSHDispatcher.prototype.startServiceAsync = function() {
-  var self = this;
-  // return new Promise(function(resolve, reject) {
-    if (!self.connected)
-      return reject(new Error("Could not start service. There is no such active connection"));
-
-    var command = util.format("%s %s", self.serviceInstance.pathToBinary, self.serviceInstance.port.toString());
-    console.log("Command: " + command);
-    // command += (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : "");
-    this.execute(command);
-  // });
 };
