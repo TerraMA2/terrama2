@@ -69,11 +69,8 @@ namespace terrama2
         //! Default assignment operator
         DataStorager& operator=(DataStorager&& other) = default;
 
-
         /*!
           \brief Store the data series in outputDataSet.
-
-          The data will be stored in the DataProvider given in constructor.
         */
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const = 0;
 
