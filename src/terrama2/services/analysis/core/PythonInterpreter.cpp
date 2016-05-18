@@ -42,7 +42,6 @@
 #include "Analysis.hpp"
 #include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
-#include "../../../core/utility/Utils.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/data-access/SyncronizedDataSet.hpp"
@@ -53,8 +52,6 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/vp/BufferMemory.h>
 #include <terralib/geometry/MultiPolygon.h>
-#include <terralib/srs/SpatialReferenceSystemManager.h>
-#include <terralib/srs/SpatialReferenceSystem.h>
 #include <terralib/common/UnitOfMeasure.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
 
@@ -63,7 +60,7 @@
 using namespace boost::python;
 
 
-int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, double radius, BufferType bufferType, std::string dateFilter, std::string restriction)
+int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, double distance, BufferType bufferType, std::string dateFilter, std::string restriction)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -147,132 +144,91 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
 
   std::shared_ptr<ContextDataSeries> contextDataset;
 
-  for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
+  try
   {
-    auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
-    if(dataSeries->name == dataSeriesName)
+    for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
     {
-      found = true;
-
-      Context::getInstance().addDataset(analysisId, dataSeries, dateFilter, true);
-
-      auto datasets = dataSeries->datasetList;
-
-      for(auto dataset : datasets)
+      auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      if(dataSeries->name == dataSeriesName)
       {
+        found = true;
 
-        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
-        if(!contextDataset)
+        Context::getInstance().addDataset(analysisId, dataSeries, dateFilter, true);
+
+        auto datasets = dataSeries->datasetList;
+
+        for(auto dataset : datasets)
         {
-          continue;
-        }
 
-
-        std::vector<uint64_t> indexes;
-        terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
-
-        if(syncDs->size() == 0)
-        {
-          return 0.;
-        }
-
-        auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
-
-
-        // Converts the monitored object to the same srid of the occurrences
-        if(contextDataset->series.syncDataSet->size() > 0)
-        {
-          auto spatialRefSystem = te::srs::SpatialReferenceSystemManager::getInstance().getUnit(moGeom->getSRID());
-          std::string unit = spatialRefSystem->getName();
-
-          if(bufferType != NONE && unit != "meter")
+          contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
+          if(!contextDataset)
           {
-            // Needs to convert to a srs in meters
-            // if the unit of the occurrence is already in meters transform to that srs.
-            auto spatialRefSystem = te::srs::SpatialReferenceSystemManager::getInstance().getUnit(sampleGeom->getSRID());
-            std::string unit = spatialRefSystem->getName();
-            if(unit == "meter")
-            {
-              moGeom->transform(sampleGeom->getSRID());
-            }
-            else
-            {
-              // UTM SAD 69  zone 23
-              moGeom->transform(29193);
-            }
+            continue;
           }
 
 
+          std::vector<uint64_t> indexes;
+          terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
 
-          switch (bufferType)
+          if(syncDs->size() == 0)
           {
-            case NONE:
-              break;
-            case EXTERN:
-            {
-              assert(false);
-              break;
-            }
-            case INTERN:
-            {
-              assert(false);
-              break;
-            }
-            case INTERN_PLUS_EXTERN:
-            {
-              assert(false);
-              break;
-            }
-            case OBJECT_PLUS_EXTERN:
-            {
-              assert(false);
-              break;
-            }
-            case OBJECT_WITHOUT_INTERN:
-            {
-              assert(false);
-              break;
-            }
+            continue;
           }
 
 
-          // Searchs in the spatial index for the occurrences that intersects the monitored object box
-          contextDataset->rtree.search(*moGeom->getMBR(), indexes);
-
-
-          std::vector<std::shared_ptr<te::gm::Geometry> > geometries;
-          for(uint64_t i : indexes)
+          // Converts the monitored object to the same srid of the occurrences
+          if(contextDataset->series.syncDataSet->size() > 0)
           {
-            // Verifies if the occurrence intersects the monitored object
-            auto occurenceGeom = syncDs->getGeometry(i, contextDataset->geometryPos);
-            if(occurenceGeom->intersects(moGeom.get()))
+
+            auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
+
+            auto geomResult = createBuffer(bufferType, moGeom, distance);
+
+            // Transform monitored object to occurrences SRID
+            moGeom->transform(sampleGeom->getSRID());
+
+            // Searchs in the spatial index for the occurrences that intersects the monitored object box
+            contextDataset->rtree.search(*geomResult->getMBR(), indexes);
+
+
+            std::vector<std::shared_ptr<te::gm::Geometry> > geometries;
+            for(uint64_t i : indexes)
             {
-              geometries.push_back(occurenceGeom);
+              // Verifies if the occurrence intersects the monitored object
+              auto occurenceGeom = syncDs->getGeometry(i, contextDataset->geometryPos);
+              if(occurenceGeom->intersects(geomResult.get()))
+              {
+                geometries.push_back(occurenceGeom);
+              }
+            }
+
+            count = geometries.size();
+
+            if(!geometries.empty())
+            {
+              // Creates aggregation buffer
+              std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
+              if(distance != 0.)
+              {
+                auto bufferDs = createAggregationBuffer(geometries, box, distance, bufferType);
+                count = bufferDs->size();
+              }
+              else
+              {
+                count = geometries.size();
+              }
             }
           }
 
-          count = geometries.size();
-
-          // TODO Paulo: Use this code in the occurrence operator with aggregation buffer
-          /*if(!geometries.empty())
-          {
-            // Creates aggregation buffer
-            std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
-            if(radius != 0.)
-            {
-              auto bufferDs = createBuffer(geometries, box, radius);
-              count = bufferDs->size();
-            }
-            else
-            {
-              count = geometries.size();
-            }
-          }*/
         }
-
       }
     }
   }
+  catch(std::exception e)
+  {
+    std::cout << e.what() << std::endl;
+  }
+
 
   // All operations are done, acquires the GIL and set the return value
   //Py_END_ALLOW_THREADS
@@ -336,7 +292,6 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 
         Context::getInstance().addAttribute(analysisId, attribute);
         Context::getInstance().setAnalysisResult(analysisId, geomId, attribute, value);
-
       }
     }
   }
@@ -537,7 +492,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
               return NAN;
             }
 
-            double radius = 0.;
+            double influenceRadius = 0.;
             try
             {
               std::string radiusStr = analysis.metadata["INFLUENCE_RADIUS"];
@@ -548,9 +503,9 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
               if(radiusUnit.empty())
                 radiusUnit = "km";
 
-              radius = atof(radiusStr.c_str());
+              influenceRadius = atof(radiusStr.c_str());
 
-              radius = te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * radius;
+              influenceRadius = te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
             }
             catch(...)
             {
@@ -562,12 +517,25 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
 
             try
             {
-              auto buffer = dcpDataset->position->buffer(radius, 16, te::gm::CapButtType);
+              auto buffer = dcpDataset->position->buffer(influenceRadius, 16, te::gm::CapButtType);
 
               int srid  = dcpDataset->position->getSRID();
               buffer->setSRID(srid);
 
+
               auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
+
+              if(polygon->getSRID() == 0)
+              {
+                QString errMsg(QObject::tr("Analysis: %1 -> Invalid monitored object SRID."));
+                errMsg = errMsg.arg(analysisId);
+                TERRAMA2_LOG_ERROR() << errMsg;
+                return NAN;
+              }
+
+              // Converts the buffer to monitored object SRID
+              buffer->transform(polygon->getSRID());
+
 
               if(polygon != nullptr)
               {
@@ -576,18 +544,11 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
                 bool intersects = false;
                 if(influenceType == RADIUS_TOUCHES)
                 {
-                  if(polygon->getSRID() != buffer->getSRID());
-                    polygon->transform(buffer->getSRID());
-
                   intersects = polygon->touches(buffer);
-
                 }
                 else if(influenceType == RADIUS_CENTER)
                 {
                   auto centroid = polygon->getCentroid();
-                  if(centroid->getSRID() != srid && srid != 0)
-                    centroid->transform(srid);
-
                   intersects = centroid->within(buffer);
                 }
 
@@ -740,7 +701,7 @@ void terrama2::services::analysis::core::registerDCPFunctions()
   def("mean", terrama2::services::analysis::core::dcpMean, dcpMean_overloads(args("dataSeriesName", "attribute", "radius", "bufferType", "ids"), "Mean operator for DCP"));
   def("median", terrama2::services::analysis::core::dcpMedian, dcpMedian_overloads(args("dataSeriesName", "attribute", "radius", "bufferType", "ids"), "Median operator for DCP"));
   def("sum", terrama2::services::analysis::core::dcpSum, dcpSum_overloads(args("dataSeriesName", "attribute", "radius", "bufferType", "ids"), "Sum operator for DCP"));
-  def("standardDeviation", terrama2::services::analysis::core::dcpStandardDeviation, dcpStandardDeviation_overloads(args("dataSeriesName", "attribute", "radius", "bufferType", "ids"), "Standard deviation operator for DCP"));
+  def("standard_deviation", terrama2::services::analysis::core::dcpStandardDeviation, dcpStandardDeviation_overloads(args("dataSeriesName", "attribute", "radius", "bufferType", "ids"), "Standard deviation operator for DCP"));
   def("count", terrama2::services::analysis::core::dcpCount);
 
   object dcpHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history"))));
@@ -755,7 +716,7 @@ void terrama2::services::analysis::core::registerDCPFunctions()
   def("mean", terrama2::services::analysis::core::dcpHistoryMean);
   def("median", terrama2::services::analysis::core::dcpHistoryMedian);
   def("sum", terrama2::services::analysis::core::dcpHistorySum);
-  def("standardDeviation", terrama2::services::analysis::core::dcpHistoryStandardDeviation);
+  def("standard_deviation", terrama2::services::analysis::core::dcpHistoryStandardDeviation);
 
 }
 
@@ -887,7 +848,7 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 }
 
 
-double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter)
+double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double distance, BufferType bufferType, const std::string& dateFilter)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -967,156 +928,258 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
   }
 
 
+  bool dataSeriesFound = false;
 
   // Frees the GIL, from now on can not use the interpreter
   Py_BEGIN_ALLOW_THREADS
 
   std::shared_ptr<ContextDataSeries> contextDataset;
 
-  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  try
   {
-    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
-    if(dataSeries->name == dataSeriesName)
+    for(auto analysisDataSeries : analysis.analysisDataSeriesList)
     {
-      hasData = true;
-
-      if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
+      terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      if(dataSeries->name == dataSeriesName)
       {
-        QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
-        errMsg = errMsg.arg(analysisId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        return NAN;
-      }
+        dataSeriesFound = true;
 
-      Context::getInstance().addDCP(analysisId, dataSeries, dateFilter, false);
-
-      for(auto dataset : dataSeries->datasetList)
-      {
-        if(dataset->id != dcpId)
-          continue;
-        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
-
-        terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
-        if(!dcpDataset)
+        if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
+          QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
           errMsg = errMsg.arg(analysisId);
           TERRAMA2_LOG_ERROR() << errMsg;
           return NAN;
         }
 
+        Context::getInstance().addDCP(analysisId, dataSeries, dateFilter, false);
 
-        if(dcpDataset->position == nullptr)
+        for(auto dataset : dataSeries->datasetList)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
-          errMsg = errMsg.arg(analysisId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return NAN;
-        }
+          if(dataset->id != dcpId)
+            continue;
+          contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
 
-
-        auto metadata = analysisDataSeries.metadata;
-
-        if(metadata["INFLUENCE_TYPE"] != "REGION")
-        {
-
-          auto buffer = dcpDataset->position->buffer(atof(metadata["RADIUS"].c_str()), 16, te::gm::CapButtType);
-
-          int srid  = dcpDataset->position->getSRID();
-          if(srid == 0)
+          terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
+          if(!dcpDataset)
           {
-            auto format = datasetMO->format;
-            if(format.find("srid") != format.end())
-            {
-              srid = std::stoi(format["srid"]);
-            }
+            QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
+            errMsg = errMsg.arg(analysisId);
+            TERRAMA2_LOG_ERROR() << errMsg;
+            return NAN;
           }
 
-          auto polygon = dynamic_cast<te::gm::MultiPolygon*>(geom.get());
 
-          if(polygon != nullptr)
+          if(dcpDataset->position == nullptr)
           {
-            auto centroid = polygon->getCentroid();
-            if(centroid->getSRID() == 0)
-              centroid->setSRID(srid);
-            else if(centroid->getSRID() != srid && srid != 0)
-              centroid->transform(srid);
+            QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
+            errMsg = errMsg.arg(analysisId);
+            TERRAMA2_LOG_ERROR() << errMsg;
+            return NAN;
+          }
 
-            std::vector<double> values;
-            if((metadata["INFLUENCE_TYPE"] == "RADIUS_CENTER" && centroid->within(buffer)) || (metadata["INFLUENCE_TYPE"] == "RADIUS_TOUCHES" && polygon->touches(buffer)))
+
+          try
+          {
+
+            // Reads influence type
+            std::string typeStr = analysis.metadata["INFLUENCE_TYPE"];
+            int type = atoi(typeStr.c_str());
+            if(type == 0 || type > 3)
             {
-              count = contextDataset->series.syncDataSet->size();
+              QString errMsg(QObject::tr("Analysis: %1 -> Invalid influence type for DCP analysis."));
+              errMsg = errMsg.arg(analysisId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              return NAN;
+            }
+            InfluenceType influenceType = (InfluenceType)type;
 
-              uint64_t countValues = 0;
-              for(unsigned int i = 0; i < count; ++i)
+
+            // For influence based on radius, creates a buffer for the DCP location
+            if(influenceType == RADIUS_CENTER || influenceType == RADIUS_TOUCHES)
+            {
+
+              if(analysis.metadata["INFLUENCE_RADIUS"].empty())
               {
-                if(!contextDataset->series.syncDataSet->isNull(i, attribute))
+                QString errMsg(QObject::tr("Analysis: %1 -> Invalid influence radius."));
+                errMsg = errMsg.arg(analysisId);
+                TERRAMA2_LOG_ERROR() << errMsg;
+                return NAN;
+              }
+
+              double radius = 0.;
+              try
+              {
+                std::string radiusStr = analysis.metadata["INFLUENCE_RADIUS"];
+                std::string radiusUnit = analysis.metadata["INFLUENCE_RADIUS_UNIT"];
+
+                if(radiusStr.empty())
+                  radiusStr = "0";
+                if(radiusUnit.empty())
+                  radiusUnit = "km";
+
+                radius = atof(radiusStr.c_str());
+
+                radius = te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * radius;
+              }
+              catch(...)
+              {
+                QString errMsg(QObject::tr("Analysis: %1 -> Invalid influence radius."));
+                errMsg = errMsg.arg(analysisId);
+                TERRAMA2_LOG_ERROR() << errMsg;
+                return NAN;
+              }
+
+              try
+              {
+                auto buffer = dcpDataset->position->buffer(radius, 16, te::gm::CapButtType);
+
+                int srid  = dcpDataset->position->getSRID();
+                buffer->setSRID(srid);
+
+
+
+                if(geom->getSRID() == 0)
                 {
-                  try
+                  QString errMsg(QObject::tr("Analysis: %1 -> Invalid monitored object SRID."));
+                  errMsg = errMsg.arg(analysisId);
+                  TERRAMA2_LOG_ERROR() << errMsg;
+                  return NAN;
+                }
+
+                // Converts the buffer to monitored object SRID
+                buffer->transform(geom->getSRID());
+
+                auto resultGeom = createBuffer(bufferType, geom, distance);
+
+
+                std::vector<double> values;
+
+                bool intersects = false;
+                if(influenceType == RADIUS_TOUCHES)
+                {
+                  intersects = resultGeom->intersects(buffer);
+                }
+                else if(influenceType == RADIUS_CENTER)
+                {
+                  //TODO: use method from terralib_mod_sa_core
+                  std::string geomType = resultGeom->getGeometryType();
+                  if(geomType == "MultiPolygon")
                   {
-                    countValues++;
-                    double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
-                    values.push_back(value);
-                    sum += value;
-                    if(value > max)
-                      max = value;
-                    if(value < min)
-                      min = value;
+                    auto polygon = dynamic_cast<te::gm::MultiPolygon*>(resultGeom.get());
+                    if(polygon)
+                    {
+                      auto centroid = polygon->getCentroid();
+                      intersects = centroid->within(buffer);
+                    }
                   }
-                  catch(...)
+                  else
                   {
-                    // In case the DCP doesn't have the specified column
-                    continue;
+                    intersects = resultGeom->intersects(buffer);
                   }
                 }
-              }
 
-              mean = sum / countValues;
-              std::sort (values.begin(), values.end());
-              double half = values.size() / 2;
-              if(values.size() % 2 == 0)
-              {
-                median = values[(int)half] + values[(int)half - 1] / 2;
-              }
-
-              double sumVariance = 0.;
-              for(unsigned int i = 0; i < count; ++i)
-              {
-                if(!contextDataset->series.syncDataSet->isNull(i, attribute))
+                if(intersects)
                 {
-                  try
-                  {
-                    double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
-                    sumVariance += (value - mean) * (value - mean);
-                  }
-                  catch(...)
-                  {
-                    // In case the DCP doesn't have the specified column
+
+                  uint64_t countValues = 0;
+                  if(contextDataset->series.syncDataSet->size() == 0)
                     continue;
+                  for(unsigned int i = 0; i < contextDataset->series.syncDataSet->size(); ++i)
+                  {
+                    try
+                    {
+                      if(!attribute.empty() && !contextDataset->series.syncDataSet->isNull(i, attribute))
+                      {
+                        hasData = true;
+                        countValues++;
+                        double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
+                        values.push_back(value);
+                        sum += value;
+                        if(value > max)
+                          max = value;
+                        if(value < min)
+                          min = value;
+                      }
+                    }
+                    catch(...)
+                    {
+                      // In case the DCP doesn't have the specified column
+                      continue;
+                    }
                   }
+
+                  mean = sum / countValues;
+                  std::sort (values.begin(), values.end());
+                  double half = values.size() / 2;
+                  if(values.size() > 1 && values.size() % 2 == 0)
+                  {
+                    median = values[(int)half] + values[(int)half - 1] / 2;
+                  }
+                  else
+                  {
+                    median = values.size() == 1 ? values[0] : 0.;
+                  }
+
+                  double sumVariance = 0.;
+                  for(unsigned int i = 0; i < contextDataset->series.syncDataSet->size(); ++i)
+                  {
+                    if(!contextDataset->series.syncDataSet->isNull(i, attribute))
+                    {
+                      try
+                      {
+                        double value = contextDataset->series.syncDataSet->getDouble(i, attribute);
+                        sumVariance += (value - mean) * (value - mean);
+                      }
+                      catch(...)
+                      {
+                        // In case the DCP doesn't have the specified column
+                        continue;
+                      }
+                    }
+                  }
+
+                  standardDeviation = sumVariance / countValues;
+
                 }
+
               }
-
-              standardDeviation = sumVariance / countValues;
-
+              catch(std::exception& e)
+              {
+                QString errMsg(QObject::tr("Analysis: %1 -> %2").arg(e.what()));
+                errMsg = errMsg.arg(analysisId);
+                TERRAMA2_LOG_ERROR() << errMsg;
+                return NAN;
+              }
             }
           }
-          else
+          catch(terrama2::Exception /*e*/)
           {
-            // TODO: Monitored object is not a multi polygon.
-            assert(false);
+            return NAN;
           }
+
         }
 
+        break;
       }
-      
-      break;
     }
   }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+    return NAN;
+  }
+
 
   // All operations are done, acquires the GIL and set the return value
   Py_END_ALLOW_THREADS
 
+  if(!dataSeriesFound)
+  {
+    QString errMsg(QObject::tr("Analysis: %1 -> Could not find a data series with the name: %2.").arg(analysisId).arg(dataSeriesName.c_str()));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return NAN;
+  }
 
   if(!hasData && statisticOperation != COUNT)
   {

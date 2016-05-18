@@ -310,9 +310,12 @@
       <!-- /.box body -->
 
       <div class="box-footer">
-        <button type="submit" class="btn btn-primary pull-right" id="serviceCheckConnection" style="margin-left: 10px;">Check Connection</button>
-        <button type="submit" class="btn btn-primary pull-right" ng-disabled="update" data-ng-click="save()" style="margin-left: 10px;">{[ __("OK") ]}</button>
-        <a ng-href="/administration/services" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
+        <button type="submit" class="btn btn-primary pull-right" id="serviceCheckConnection" style="margin-left: 10px; width: 135px;">
+          <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
+          <span class="text">Check Connection</span>
+        </button>
+        <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" ng-disabled="update" data-ng-click="save()" style="margin-left: 10px;">{[ __("OK") ]}</button>
+        <a ng-href="/administration/services" class="btn btn-primary pull-right" id="serviceCancelButton" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
       </div>
 
       <div class="overlay" ng-show="isChecking">

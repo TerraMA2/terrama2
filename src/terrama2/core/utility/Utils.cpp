@@ -7,7 +7,7 @@
   TerraMA2 is free software: you can redistribute it and/or modify
   it under the terms of the GNU Lesser General Public License as published by
   the Free Software Foundation, either version 3 of the License,
-  or (at your option) any later version.
+  or (at your option) any coord.getY()er version.
 
   TerraMA2 is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -43,6 +43,10 @@
 #include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
 #include <terralib/plugin.h>
+#include <terralib/geometry/Geometry.h>
+#include <terralib/sa/core/Utils.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <terralib/srs/SpatialReferenceSystem.h>
 
 #include <ctime>
 
@@ -213,6 +217,7 @@ void terrama2::core::initializeTerraMA()
   semanticsManager.addSemantics("DCP-toa5", "TOA5 DCP format", terrama2::core::DataSeriesSemantics::DCP, "CSV", {"FILE", "FTP"});
   semanticsManager.addSemantics("DCP-postgis", "DCP PostGIS", terrama2::core::DataSeriesSemantics::DCP, "POSTGIS",  {"POSTGIS"});
   semanticsManager.addSemantics("ANALYSIS_MONITORED_OBJECT-postgis", "Monitored object analysis result", terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT, "POSTGIS", {"POSTGIS"});
+  semanticsManager.addSemantics("GRID-geotiff", "GeoTIFF grid", terrama2::core::DataSeriesSemantics::GRID, "GEOTIFF",  {"FILE", "FTP"});
 }
 
 void terrama2::core::finalizeTerraMA()
@@ -235,4 +240,33 @@ void terrama2::core::disableLogger()
 void terrama2::core::enableLogger()
 {
   terrama2::core::Logger::getInstance().enableLog();
+}
+
+int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
+{
+  te::gm::Coord2D coord = te::sa::GetCentroidCoord(geom);
+
+  // Calculates the UTM zone for the given coordinate
+  int zoneNumber = floor((coord.getX() + 180)/6) + 1;
+
+  if( coord.getY() >= 56.0 && coord.getY() < 64.0 && coord.getX() >= 3.0 && coord.getX() < 12.0 )
+    zoneNumber = 32;
+
+  // Special zones for Svalbard
+  if( coord.getY() >= 72.0 && coord.getY() < 84.0 )
+  {
+  if( coord.getX() >= 0.0  && coord.getX() <  9.0 )
+    zoneNumber = 31;
+  else if( coord.getX() >= 9.0  && coord.getX() < 21.0 )
+    zoneNumber = 33;
+  else if(coord.getX() >= 21.0 && coord.getX() < 33.0 )
+    zoneNumber = 35;
+  else if(coord.getX() >= 33.0 && coord.getX() < 42.0 )
+    zoneNumber = 37;
+  }
+
+  // Creates a Proj4 description and returns the SRID.
+  std::string p4txt = "+proj=utm +zone=" + std::to_string(zoneNumber) + " +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs";
+  return te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt).second;
+
 }
