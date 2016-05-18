@@ -54,7 +54,7 @@ namespace terrama2
 
         static DataStorager* make(DataProviderPtr dataProvider);
 
-        virtual void store(Series series, DataSetPtr outputDataSet) const override;
+        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
       protected:
         std::string getMask(DataSetPtr dataSet) const;
         std::string getTimezone(DataSetPtr dataSet) const;

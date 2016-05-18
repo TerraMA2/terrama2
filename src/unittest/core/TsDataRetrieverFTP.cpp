@@ -58,7 +58,7 @@ using ::testing::Return;
 using ::testing::_;
 
 void TsDataRetrieverFTP::TestFailUriInvalid()
-{  
+{
   try
   {
     QUrl url;
@@ -109,7 +109,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
   {
     QFAIL("Exception unexpected!");
   }
-
+ 
  return;
 
 }

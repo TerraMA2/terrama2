@@ -76,6 +76,9 @@ int main(int argc, char* argv[])
 
     terrama2::services::analysis::core::Service service(dataManager);
 
+    QObject::connect(&serviceManager, &terrama2::core::ServiceManager::numberOfThreadsUpdated, &service, &terrama2::services::analysis::core::Service::updateNumberOfThreads);
+    QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, &service, &terrama2::services::analysis::core::Service::updateLoggerConnectionInfo);
+
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::analysis::core::Service::addToQueue);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::analysis::core::Service::stop);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);

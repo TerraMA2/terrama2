@@ -28,7 +28,7 @@
 #include <terrama2/core/data-access/DataAccessor.hpp>
 #include <terrama2/impl/DataAccessorFile.hpp>
 #include <terrama2/core/data-model/DataSeriesSemantics.hpp>
-#include <terrama2/core/data-access/Series.hpp>
+#include <terrama2/core/data-access/DataSetSeries.hpp>
 #include <terrama2/core/data-model/DataSeriesSemantics.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/Filter.hpp>
@@ -61,5 +61,3 @@ class MockDataRetriever: public terrama2::core::DataRetrieverFTP
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_MOCKDATARETRIEVER__
-
-

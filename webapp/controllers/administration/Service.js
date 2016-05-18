@@ -1,3 +1,5 @@
+var DataManager = require("./../../core/DataManager");
+
 module.exports = function(app) {
   return {
     get: function (request, response) {
@@ -9,8 +11,11 @@ module.exports = function(app) {
     },
     
     edit: function(request, response) {
-      console.log(request.params);  
-      return response.render('administration/service');
+      DataManager.getServiceInstance({id: request.params.id}).then(function(service) {
+        return response.render('administration/service', {service: service});
+      }).catch(function(err) {
+        response.json({status: 400, message: err.message});
+      })
     }
   };
 };

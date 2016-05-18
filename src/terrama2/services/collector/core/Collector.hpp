@@ -49,22 +49,25 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief The Collector groups the information to aquire data from a source server and store at a destination.
+        */
         struct Collector
         {
-          CollectorId id = 0;
-          ProjectId projectId = 0;
-          ServiceInstanceId serviceInstanceId = 0;
+          CollectorId id = 0;//!< Collector unique identification.
+          ProjectId projectId = 0;//!< Identification of the project owner of the colletor.
+          ServiceInstanceId serviceInstanceId = 0;//!< Collector service instace where the colletor should be executed.
 
-          bool active = true;
+          bool active = true;//!< Flag if the colletor is active.
 
-          DataSeriesId inputDataSeries = 0;
-          DataSeriesId outputDataSeries = 0;
+          DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
+          DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
 
-          std::map<DataSetId, DataSetId> inputOutputMap;
+          std::map<DataSetId, DataSetId> inputOutputMap;//!< Map of source DataSet to destiny DataSet.
 
-          terrama2::core::Schedule schedule;
-          terrama2::core::Filter filter;
-          IntersectionPtr intersection;
+          terrama2::core::Schedule schedule;//!< Schedule of execution of the collector.
+          terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
+          IntersectionPtr intersection;//!< Complementary data that should be appended on original data before storage.
         };
 
       } // end namespace core

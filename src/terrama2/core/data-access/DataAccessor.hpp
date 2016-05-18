@@ -37,7 +37,7 @@
 #include "../Shared.hpp"
 
 #include "DataRetriever.hpp"
-#include "Series.hpp"
+#include "DataSetSeries.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
@@ -62,7 +62,24 @@ namespace terrama2
   {
     /*!
     \class DataAccessor
-    \brief Base class to access data from a DataSeries.
+    \brief DataAccessor provides an interface for accesing the data from a DataSeries.
+
+    ## Accessing data ##
+
+    Once you get a DataAccessor the getSeries() will return a map of
+    DataSet and DataSetSeries, that will offer direct access to the data
+    through a [Terralib DataSet](http://www.dpi.inpe.br/terralib5/wiki/doku.php?id=wiki:designimplementation:dataaccess&s[]=dataset#dataset).
+
+    Once the getSeries() is called the latest timestamp from the data found in the file is stored
+    and can be retrieved by lastDateTime().
+
+    \warning lastDateTime() will return the latest data timestamp of the last time getSeries()
+    was called, **not the latest from all calls**.
+
+    \note The best way to get a DataAccessor is from a DataAccessorFactory,
+    the DataAccessorFactory::make will return a DataAccessor from the right type.
+
+    ## Derived classes ##
 
     Derived classes as responsible for the whole data access process,
     from downloading, when necessary, to accessing and filtering the raw data.
@@ -75,23 +92,30 @@ namespace terrama2
     class DataAccessor
     {
       public:
-        //! Returns the last data timestamp found on last access.
+        /*!
+          \brief Returns the last data timestamp found on last access.
+
+          \sa getSeries()
+        */
         virtual std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime() const {return lastDateTime_; }
-        //! Returns the semantics of the DataSeries.
+        //! Returns the DataSeriesSemantics of the DataSeries.
         DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
         /*!
           \brief Get access to the filtered data of a DataSeries
 
-          This method will return a Series per DataSet of the DataSeries.
+          This method will return a map of DataSetSeries per DataSet of the DataSeries.
 
-          In case the data is in a remote file server it will be downloaded, unpacked if the case, and accessed via TerrLib driver.
-          Any temporary folder will be removed in the process.
+          If the data is in a remote file server, it will be downloaded and unpacked if the case, and accessed via TerraLib driver.
+          Any temporary folder will be removed after the process.
 
-          The data will be converted by the data type driver based on the DataSeriesSemantics of the DataSeries.
+          \note The data will be converted by the data type driver based on the DataSeriesSemantics of the DataSeries.
 
           \param filter Filter data applied to accessed data, if empty, all data is returned.
+
+          \exception DataProviderException Raised if internal DataProvider isn't active.
+          \exception DataProviderException Raised if the Filter date result in an empty time range.
         */
-        virtual std::map<DataSetPtr, Series > getSeries(const Filter& filter) const;
+        virtual std::map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter) const;
 
         //! Utility function for converting string to double in the te::da::DataSet contruction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -100,16 +124,24 @@ namespace terrama2
         te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
         //! Default destructor.
-        virtual ~DataAccessor() {}
+        virtual ~DataAccessor() = default;
+        //! Default copy constructor
+        DataAccessor(const DataAccessor& other) = default;
+        //! Default move constructor
+        DataAccessor(DataAccessor&& other) = default;
+        //! Default const assignment operator
+        DataAccessor& operator=(const DataAccessor& other) = default;
+        //! Default assignment operator
+        DataAccessor& operator=(DataAccessor&& other) = default;
 
       protected:
 
         /*!
-          \brief Base class nad interface for accesing data.
+          \brief Constructor
 
-          Each derived implementation must deal with protocol, format and data semantics.
+          \param filter If defined creates a cache for the filtered data. //TODO: implement DataAccessor cache
 
-          \param filter If defined creates a cache for the filtered data.//TODO: no implemented DataAccessor cache
+          \exception DataAccessorException Raised if any of the parameters is NULL.
         */
         DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter());
 
@@ -117,7 +149,7 @@ namespace terrama2
            \brief Prefix especification for drivers.
 
            Some drivers may need especification to access a datasource,
-           GDal, for example, need 'CSV:' befor the uri for csv files with txt extension.
+           GDal, for example, need 'CSV:' befor the uri for csv files with //txt// extension.
 
          */
         virtual std::string typePrefix() const { return ""; }
@@ -164,7 +196,7 @@ namespace terrama2
            \note Updates lastDateTime
            \return Filtered dataset
          */
-        virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
 
         /*!
           \brief Verifies if the DataSet intersects the Filter area.

@@ -45,7 +45,7 @@
 #include <QObject>
 
 
-void terrama2::core::OccurrenceSeries::addOccurrences(std::map<DataSetPtr, Series > seriesMap)
+void terrama2::core::OccurrenceSeries::addOccurrences(std::map<DataSetPtr,DataSetSeries> seriesMap)
 {
   dataSeriesMap_ = seriesMap;
   for(const auto& item : seriesMap)
@@ -64,7 +64,7 @@ void terrama2::core::OccurrenceSeries::addOccurrences(std::map<DataSetPtr, Serie
   }
 }
 
-const std::map<terrama2::core::DataSetOccurrencePtr, terrama2::core::Series>& terrama2::core::OccurrenceSeries::getOccurrences()
+const std::map<terrama2::core::DataSetOccurrencePtr, terrama2::core::DataSetSeries>& terrama2::core::OccurrenceSeries::getOccurrences()
 {
   return occurrenceMap;
 }

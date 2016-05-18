@@ -6,7 +6,7 @@
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
 
-#include <terrama2_config.hpp>
+#include <terrama2/Config.hpp>
 
 #include <iostream>
 

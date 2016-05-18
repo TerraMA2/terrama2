@@ -39,7 +39,7 @@ namespace terrama2
   {
     namespace collector
     {
-      //! Base exception class for TerraMA2.
+      //! Base exception class for TerraMA2 collector service.
       struct Exception : virtual terrama2::core::Exception
       {
       };

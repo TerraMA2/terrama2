@@ -221,6 +221,30 @@ var DataManager = {
         self.data.dataSets = [];
         self.data.projects = [];
       };
+      // helper for clean up datamanager and reject promise
+      var _rejectClean = function(err) {
+        clean();
+        console.log("CLEAN: ", err);
+        reject(err);
+      };
+
+      var _continueInMemory = function(dataSetObject, dataSetFmtsResult, builtDataSeries) {
+        // for each format
+        var fmt = {};
+        dataSetFmtsResult.forEach(function(format, formatIndex, formatArr) {
+          if (format.data_set_id == dataSetObject.id) {
+            fmt[format.key] = format.value;
+            // remove it to avoid re-iterate
+            formatArr.splice(formatIndex, 1);
+          }
+        });
+
+        var builtDataSet = DataSetFactory.build(Object.assign(dataSetObject, {format: fmt}));
+
+        builtDataSeries.dataSets.push(builtDataSet.toObject());
+        // adding local cache. TODO: Is it necessary to store individual or along data series?
+        self.data.dataSets.push(builtDataSet);
+      };
 
       models.db.Project.findAll({}).then(function(projects) {
         projects.forEach(function(project) {
@@ -232,76 +256,103 @@ var DataManager = {
             self.data.dataProviders.push(new DataProvider(dataProvider.get()));
           });
 
+          // find all dataseries
           models.db.DataSeries.findAll({}).then(function(dataSeries) {
 
-            dataSeries.forEach(function(dSeries) {
-              self.data.dataSeries.push(new DataSeries(dSeries.get()));
+            //todo: include grid too
+            var dbOperations = [];
+            dbOperations.push(models.db.DataSet.findAll({
+              attributes: ['id', 'active', 'data_series_id'],
+              include: [
+                {
+                  model: models.db.DataSetDcp,
+                  attributes: ['position'],
+                  required: true
+                }
+              ]
+            }));
+            dbOperations.push(models.db.DataSet.findAll({
+              attributes: ['id', 'active', 'data_series_id'],
+              include: [
+                {
+                  model: models.db.DataSetOccurrence,
+                  required: true
+                }
+              ]
+            }));
 
-              //todo: include grid too
-              var dbOperations = [];
-              dbOperations.push(models.db.DataSet.findAll({
-                attributes: ['id', 'active', 'data_series_id'],
-                include: [
-                  {
-                    model: models.db.DataSetDcp,
-                    attributes: ['position'],
-                    required: true
-                  }
-                ]
-              }));
-              dbOperations.push(models.db.DataSet.findAll({
-                attributes: ['id', 'active', 'data_series_id'],
-                include: [
-                  {
-                    model: models.db.DataSetOccurrence,
-                    required: true
-                  }
-                ]
-              }));
+            // find all datasets
+            Promise.all(dbOperations).then(function(dataSetsArray) {
+              // find all data set
+              models.db['DataSetFormat'].findAll({}).then(function(dataSetFormatsResult) {
+                // for each dataSeries
+                dataSeries.forEach(function(dSeries) {
+                  var builtDataSeries = new DataSeries(dSeries.get());
 
-              Promise.all(dbOperations).then(function(dataSetsArray) {
-                dataSetsArray.forEach(function(dataSets) {
-                  dataSets.forEach(function(dataSet) {
-                    var dSetObject = {
-                      id: dataSet.id,
-                      data_series_id: dataSet.data_series_id,
-                      active: dataSet.active
-                    };
+                  dataSetsArray.forEach(function(dataSets) {
+                    // for each data set retrieved
+                    dataSets.forEach(function(dataSet) {
+                      if (dSeries.id == dataSet.data_series_id) {
 
-                    if (dataSet.DataSetDcp)
-                      Object.assign(dSetObject, dataSet.DataSetDcp.get());
-                    else if (dataSet.DataSetOccurrence) { }
+                        var dSetObject = {
+                          id: dataSet.id,
+                          data_series_id: dataSet.data_series_id,
+                          active: dataSet.active
+                        };
 
-                    self.data.dataSets.push(DataSetFactory.build(dSetObject));
-                  });
-                });
+                        if (dataSet.DataSetDcp) {
+                          var dcpDset = dataSet.DataSetDcp.get();
+
+                          // checking dcp position is null
+                          if (dcpDset.position) {
+                            self.getWKT(dcpDset.position).then(function(wktPosition) {
+                              dcpDset.position = wktPosition;
+                              Object.assign(dSetObject, dcpDset);
+
+                              _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                            }).catch(_rejectClean);
+                          } else {
+                            Object.assign(dSetObject, dcpDset);
+                            _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                          }
+                        }
+                        else if (dataSet.DataSetOccurrence)
+                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                        else // todo: grid, monitored object
+                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
+                      }
+                    }); // end foreach dataSets
+                  }); // end foreach dataSetsArray
+
+                  // adding local cache
+                  self.data.dataSeries.push(builtDataSeries);
+                }); // end foreach dataseries
 
                 self.isLoaded = true;
                 resolve();
-              }).catch(function(err) {
-                clean();
-                reject(err);
-              });
 
-            });
+              }).catch(_rejectClean);
+            }).catch(_rejectClean);
+          }).catch(_rejectClean);
+        }).catch(_rejectClean);
+      }).catch(_rejectClean);
+    });
+  },
 
-            self.isLoaded = true;
-            resolve();
-
-          }).catch(function(err) {
-            clean();
-            reject(err);
-          });
-
-        }).catch(function(err) {
-          clean();
-          reject(err);
-        });
+  getWKT: function(geoJSONObject) {
+    return new Promise(function(resolve, reject) {
+      models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
+        // it retrieves an array with data result (array) and query executed.
+        // if data result is empty or greater than 1, its not allowed.
+        if (wktGeom[0].length !== 1)
+          reject(new exceptions.DataSetError("Invalid wkt retrieved from geojson."));
+        else {
+          resolve(wktGeom[0][0].geom);
+        }
       }).catch(function(err) {
-        clean();
         reject(err);
       });
-    });
+    })
   },
 
   /**
@@ -446,7 +497,7 @@ var DataManager = {
 
   listServiceInstances: function(restriction) {
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.findAll({where: restriction}).then(function(services) {
+      models.db['ServiceInstance'].findAll({where: restriction}).then(function(services) {
         var output = [];
         services.forEach(function(service){
           output.push(service.get());
@@ -474,6 +525,18 @@ var DataManager = {
     });
   },
 
+  removeServiceInstance: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db['ServiceInstance'].destroy({where: restriction}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new Error("Could not remove service instance. " + err.message));
+      });
+    });
+  },
+
   /**
    * It saves DataProviderType in database.
    * @todo Load it in memory
@@ -483,7 +546,7 @@ var DataManager = {
    */
   addDataProviderType: function(dataProviderTypeObject) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.create(dataProviderTypeObject).then(function(result) {
+      models.db['DataProviderType'].create(dataProviderTypeObject).then(function(result) {
         resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
@@ -498,7 +561,7 @@ var DataManager = {
    */
   listDataProviderType: function() {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.findAll({}).then(function(result) {
+      models.db['DataProviderType'].findAll({}).then(function(result) {
         var output = [];
         result.forEach(function(element) {
           output.push(Utils.clone(element.get()));
@@ -519,7 +582,7 @@ var DataManager = {
    */
   addDataFormat: function(dataFormatObject) {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.create(dataFormatObject).then(function(result) {
+      models.db['DataFormat'].create(dataFormatObject).then(function(result) {
         resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
@@ -534,7 +597,7 @@ var DataManager = {
    */
   listDataFormats: function() {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.findAll({}).then(function(dataFormats) {
+      models.db['DataFormat'].findAll({}).then(function(dataFormats) {
         var output = [];
 
         dataFormats.forEach(function(dataFormat){
@@ -543,7 +606,7 @@ var DataManager = {
 
         resolve(output);
       }).catch(function(err) {
-        reject(new exceptions.DataFormatError("Could not retrieve data format"));
+        reject(new exceptions.DataFormatError("Could not retrieve data format", err));
       })
     });
   },
@@ -625,7 +688,19 @@ var DataManager = {
         //  todo: emit signal
         var d = new DataProvider(dProvider);
         d.data_provider_intent_name = 1;
-        TcpManager.sendData({"DataProviders": [d.toObject()]});
+
+        // todo: improve it. it should be set in web interface.
+        // sending to all services
+        self.listServiceInstances().then(function(servicesInstance) {
+          var dataToSend = {"DataProviders": [d.toObject()]};
+
+          servicesInstance.forEach(function(service) {
+            TcpManager.sendData(service, dataToSend);
+          });
+
+        }).catch(function(err) {
+          reject(err);
+        });
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
@@ -797,10 +872,10 @@ var DataManager = {
           copyDataSeries.forEach(function(element, index, arr) {
             collectorsResult.some(function(collector) {
               // collect
-              if (collector.data_series_output == element.id) {
+              if (collector.output_data_series == element.id) {
                 arr.splice(index, 1);
                 return true;
-              } else if (collector.data_series_input == element.id) { // removing input dataseries
+              } else if (collector.input_data_series == element.id) { // removing input dataseries
                 arr.splice(index, 1);
               }
               return false;
@@ -1183,16 +1258,9 @@ var DataManager = {
 
           if (output.position && format === Enums.Format.WKT)
             // Getting wkt representation of Point from GeoJSON
-            models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(output.position) + "')) as geom").then(function(wktGeom) {
-              // it retrieves an array with data result (array) and query executed.
-              // if data result is empty or greater than 1, its not allowed.
-              if (wktGeom[0].length !== 1)
-                reject(new exceptions.DataSetError("Invalid wkt retrieved from geojson."));
-              else {
-                output.position = wktGeom[0][0].geom;
-                resolve(output);
-                release();
-              }
+            self.getWKT(output.position).then(function(wktGeom) {
+              resolve(output);
+              release();
             }).catch(function(err) {
               reject(err);
               release();
@@ -1482,13 +1550,55 @@ var DataManager = {
   },
 
   listCollectors: function(restriction) {
+    var self = this;
     return new Promise(function(resolve, reject) {
       models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
         var output = [];
-        collectorsResult.forEach(function(collector) {
-          output.push(collector.get());
+        var promises = [];
+
+        self.listDataSeries().then(function(dataSeriesResult) {
+          collectorsResult.forEach(function(collector) {
+            var input_output_map = [];
+            var inputDataSeries = null;
+            var outputDataSeries = null;
+
+            dataSeriesResult.some(function(dataSeries) {
+              if (collector.data_series_input == dataSeries.id) { // input
+                inputDataSeries = dataSeries;
+                return inputDataSeries && outputDataSeries;
+              } else if (collector.data_series_output == dataSeries.id) {
+                outputDataSeries = dataSeries;
+                return inputDataSeries && outputDataSeries;
+              }
+              return false;
+            }); // end some dataseries
+
+            if (inputDataSeries && outputDataSeries) {
+              // iterating over datasets
+              for(var i = 0; i < inputDataSeries.dataSets.length; ++i) {
+                var inputDataSet = inputDataSeries.dataSets[i];
+                var outputDataSet;
+                if (outputDataSeries.dataSets.length == 1)
+                  outputDataSet = outputDataSeries.dataSets[0];
+                else
+                  outputDataSet = outputDataSeries.dataSets[i];
+
+                input_output_map.push({
+                  input: inputDataSet.id,
+                  output: outputDataSet.id
+                });
+              }
+
+              output.push(new Collector(Object.assign({input_output_map: input_output_map}, collector.get())));
+              input_output_map = [];
+            }
+          }); // end foreach collectors
+
+          resolve(output);
+        }).catch(function(err) {
+          console.log(err);
+          reject(err);
         });
-        resolve(output);
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
@@ -1539,28 +1649,6 @@ var DataManager = {
     });
   },
 
-  /**
-   * It retrieves Analysis loaded in memory.
-   *
-   * @param {Object} restriction - An object containing Analysis filter values
-   * @return {Array<DataProvider>} - An array with Analysis available/loaded in memory.
-   */
-  listAnalysis: function(restriction) {
-    return new Promise(function(resolve, reject){
-      models.db.Analysis.findAll({where: restriction}).then(function(analysisList) {
-        var output = [];
-        analysisList.forEach(function(analysisObj) {
-          output.push(analysisObj.get());
-        });
-
-        resolve(output);
-      }).catch(function(err) {
-        clean();
-        reject(err);
-      });
-    });
-  },
-
   addAnalysis: function(analysisObject, dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -1607,33 +1695,7 @@ var DataManager = {
               analysisDataSeries.metadata = analysidDataSeriesMetadata;
               console.log(analysisDataSeries.metadata)
               analysisInstance.addAnalysisDataSeries(analysisDataSeries.toObject());
-
-              var analysisMetadata = [];
-              for(var key in scopeAnalysisObject.metadata) {
-                if (scopeAnalysisObject.metadata.hasOwnProperty(key)) {
-                  analysisMetadata.push({
-                    analysis_id: analysisResult.id,
-                    key: key,
-                    value: scopeAnalysisObject.metadata[key]
-                  });
-                }
-              }
-
-              models.db["AnalysisMetadata"].bulkCreate(analysisMetadata, {analysis_id: analysisResult.id}).then(function(bulkAnalysisMetadataResult) {
-                analysisMetadata = {};
-                bulkAnalysisMetadataResult.forEach(function(meta) {
-                  var data = meta.get();
-                  analysisMetadata[data.key] = data.value;
-                });
-
-                analysisInstance.metadata = analysisMetadata;
-
-                resolve(analysisInstance);
-              }).catch(function(err) {
-                var promises = [];
-                promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
-                Utils.rollbackPromises(promises, err, reject);
-              })
+              resolve(analysisInstance);
             }).catch(function(err) {
               var promises = [];
               promises.push(self.removeDataSerie({id: dataSeriesResult.id}));
@@ -1658,6 +1720,43 @@ var DataManager = {
         console.log(err);
         reject(err);
       });
+    });
+  },
+
+  listAnalyses: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var _reject = function(err) {
+        console.log(err);
+        reject(err);
+      };
+
+      // TODO: building analysis from a factory. (AnalysisGrid, AnalysisDataseries...)
+      models.db['Analysis'].findAll({}).then(function(analysesResult) {
+        var output = [];
+
+        models.db["AnalysisDataSeries"].findAll({
+          include: [models.db['AnalysisDataSeriesMetadata']]
+        }).then(function(analysesDataSeriesResult) {
+          analysesResult.forEach(function(analysis) {
+            var analysisObject = new Analysis(analysis.get());
+            analysesDataSeriesResult.forEach(function(analysisDataSeries) {
+              var analysisDsObject = new AnalysisDataSeries(analysisDataSeries.get());
+              var metadata = {};
+              analysisDataSeries['AnalysisDataSeriesMetadata'].forEach(function(analysisDsMetadata) {
+                metadata[analysisDsMetadata.key] = analysisDsMetadata.value;
+              });
+
+              analysisDsObject.metadata = metadata;
+
+              analysisObject.addAnalysisDataSeries(analysisDsObject.toObject());
+            });
+
+            output.push(analysisObject);
+          }); // end foreach analysesResult
+          resolve(output);
+        }).catch(_reject); // end catch AnalysisDataSeries
+      }).catch(_reject);
     });
   },
 

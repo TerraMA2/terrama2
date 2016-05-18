@@ -37,7 +37,7 @@ namespace terrama2
 {
   namespace core
   {
-    //! Base excection for core module.
+    //! Base Exception for core module.
     struct Exception : virtual terrama2::Exception { };
 
 
@@ -47,6 +47,7 @@ namespace terrama2
     //#################################
     //     Data Access Module Exceptions
 
+    //! Base Exception for data access module
     struct DataAccessException: virtual Exception{ };
 
     //! Base Exception for DataAccessor
@@ -71,8 +72,9 @@ namespace terrama2
     //#################################
     //     Data Model Module Exceptions
 
+    //! Base Exception for data model module
     struct DataModelException: virtual Exception{ };
-
+    //! Base Exception for DataManager
     struct DataManagerException: virtual DataModelException{ };
 
     //#################################
@@ -80,6 +82,7 @@ namespace terrama2
     //#################################
     //     Network Module Exceptions
 
+    //! Base Exception for network module
     struct NetworkException: virtual Exception{ };
 
     //#################################
@@ -87,6 +90,7 @@ namespace terrama2
     //#################################
     //     Utility Module Exceptions
 
+    //! Base Exception for utility module
     struct UtilityException: virtual Exception{ };
 
     //! Raised when the receives an invalid collect frequency
@@ -97,9 +101,9 @@ namespace terrama2
 
     //! An exception indicating a parser error.
     struct JSonParserException: virtual UtilityException { };
-
+    //! Base Exception for Service
     struct ServiceException: virtual UtilityException { };
-
+    //! Base Exception for Semantics
     struct SemanticsException: virtual UtilityException { };
 
     //#################################

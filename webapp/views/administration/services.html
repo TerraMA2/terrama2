@@ -2,6 +2,16 @@
 
 {% block ngApp %}ng-app="terrama2.administration.services"{% endblock %}
 
+{% block styles %}
+<style type="text/css">
+  .pull-cell-left {
+    white-space: nowrap !important;
+    width: 1px !important;
+  }
+
+</style>
+{% endblock %}
+
 {% block title %} TerraMA2 {[ __('Services Handling') ]} {% endblock %}
 
 {% block javascripts %}
@@ -11,12 +21,19 @@
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
 
 <script>
-    angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services'])
-        .controller('ListController', ['$scope', 'ServiceInstanceFactory', function($scope, ServiceInstanceFactory) {
+    angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
+        .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$http', function($scope, ServiceInstanceFactory, $http) {
             $scope.link = function(object) {
-                return "/administration/services/" + object.name;
+                return "/administration/services/" + object.id;
+            };
+
+            $scope.model = [];
+
+            $scope.remove = function(object) {
+              return "/api/Service/" + object.id + "/delete";
             };
 
             ServiceInstanceFactory.get().success(function(services) {
@@ -31,6 +48,9 @@
                   default:
                     break;
                 }
+                // checking online flag in model
+                // if (!service.hasOwnProperty('online'))
+                //   service.online = false;
               });
               $scope.model = services;
 
@@ -39,12 +59,68 @@
               console.log(err);
             });
 
+            $scope.resetState = function() { $scope.display = false; };
+            $scope.alertLevel = "alert-success";
+            $scope.alertBox = {
+              title: "Service",
+              message: "{[ message ]}"
+            };
+            $scope.display = {% if message %}true{% else %} false{% endif %};
+
             $scope.fields = [
               {key: 'name', as: 'Name'},
               {key: 'type', as: 'Type'}];
             $scope.iconFn = null;
 
             $scope.linkToAdd = "/administration/services/new";
+
+            $scope.extra = {
+              removeOperationCallback: function(err, data) {
+                $scope.display = true;
+                if (err) {
+                  $scope.alertLevel = "alert-danger";
+                  $scope.alertBox.message = err.message;
+                  return;
+                }
+
+                $scope.alertLevel = "alert-success";
+                $scope.alertBox.message = data.name + " removed";
+              },
+
+              service: {
+                handler: function(serviceInstance) {
+                  if (!serviceInstance.online) {
+                    serviceInstance.loading = true;
+                    $http.post("/api/Remote/start", {serviceId: serviceInstance.id}).success(function(data) {
+                      serviceInstance.online = data.online;
+                      console.log(data);
+                    }).catch(function(err) {
+                      console.log("Error while starting remote service: ", err);
+                    }).finally(function() {
+                      serviceInstance.loading = false;
+                    })
+                  } else {
+                    serviceInstance.requestingForClose = true;
+                    $http.post("/api/Remote/stop", {serviceId: serviceInstance.id}).success(function(data) {
+                      serviceInstance.online = data.online || false;
+                      console.log(data);
+                    }).error(function(err) {
+                      console.log("Error while stoping remote service: ", err);
+                    }).finally(function() {
+                      serviceInstance.requestingForClose = false;
+                    });
+                  }
+                },
+                reload: function(serviceInstance) {
+                  $http.post("/api/Remote/reload", {serviceId: serviceInstance.id}).success(function(data) {
+                    serviceInstance.online = data.online;
+                    console.log(data);
+                  }).catch(function(err) {
+                    console.log("Error in ping: ", err);
+                  })
+                }
+              }
+            }
         }]);
 
 </script>
@@ -53,21 +129,25 @@
 {% block content %}
 
 <div class="col-md-12" ng-controller="ListController">
-    <div class="box">
-        <div class="box-header with-border">
-            <h3 class="box-title">{[ __("Services") ]}</h3>
-        </div><!-- /.box-header -->
+  <div class="box">
+    <div class="box-header with-border">
+      <h3 class="box-title">{[ __("Services") ]}</h3>
+    </div><!-- /.box-header -->
 
-        <div class="box-body">
+    <div class="box-body">
 
-            <div class="col-md-12">
-                <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd"></terrama2-table>
-            </div>
+      <div class="col-md-12">
+        <div class="col-md-12">
+          <div class="col-md-12">
+            <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+          </div>
+        </div>
 
-        </div><!-- /.box-body -->
+        <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd" extra="extra" remove="remove(object);"></terrama2-table>
+      </div>
 
-    </div><!-- /.box -->
-
+    </div><!-- /.box-body -->
+  </div><!-- /.box -->
 </div> <!-- end col md 12 -->
 
 {% endblock %}

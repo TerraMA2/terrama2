@@ -1,18 +1,18 @@
 <div class="col-md-12">
   <!-- Modal -->
-  <div ng-if="isFunction(remove)" class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div ng-if="isFunction(remove)" class="modal fade modal-danger" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-sm" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">{{ i18n.__('Are you sure?') }}</h4>
+          <h4 class="modal-title" id="myModalLabel">{{ i18n.__('Removal Confirmation') }}</h4>
         </div>
         <div class="modal-body">
-          {{ extra.message }}
+          {{ i18n.__('Are you sure?') }}
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="removeOperation()">OK</button>
+          <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="resetObjectToRemove()">Cancel</button>
+          <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="removeOperation()">OK</button>
         </div>
       </div>
     </div>
@@ -39,37 +39,54 @@
 
 <div class="col-md-12">
   <table class="table table-bordered">
-    <thead>
-    <tr>
-      <th ng-show="isFunction(icon())"></th>
-      <th ng-repeat="field in displayFields">{{ field }}</th>
-    </tr>
-    </thead>
-
     <tbody id="searchList">
-    <tr ng-repeat="element in model | filter:searchInput track by $index">
-      <td ng-show="isFunction(icon())" style="width: 50px;">
-        <img ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
-        <span ng-if="iconProperties.type === 'icon'" class="label">
-          <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
-        </span>
-      </td>
-      <td ng-repeat="field in identityFields ">
+      <!-- header -->
+      <tr style="font-weight: bold;">
+        <td ng-show="isFunction(icon())"></td>
+        <td ng-repeat="field in displayFields">{{ field }}</td>
+        <td ng-if="extra.service">Status</td>
+      </tr>
+      <tr ng-repeat="element in model | filter:searchInput track by $index">
+        <td ng-show="isFunction(icon())" style="width: 50px;">
+          <img ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
+          <span ng-if="iconProperties.type === 'icon'" class="label">
+            <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
+          </span>
+        </td>
+        <td ng-repeat="field in identityFields ">
 
-        <a ng-href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
-        <!--{{ element[field] }}-->
-      </td>
-      <td ng-if="isFunction(remove)">
-      <!-- data-ng-click="removeOperation(element);" -->
-        <button class="btn btn-sm btn-danger" ng-click="removeOperation(element)">{{ i18n.__('Remove') }}</button>
-        <!-- <button class="btn btn-sm btn-danger" ng-click="setModelSelected(element)" data-toggle="modal" data-target="#myModal">{{ i18n.__('Remove') }}</button> -->
-      </td>
-    </tr>
+          <a ng-href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
+          <!--{{ element[field] }}-->
+        </td>
 
-    <tr ng-show="!model.length">
-      <td colspan="2">{{ i18n.__(emptyMessage) }}</td>
-    </tr>
+        <td ng-if="extra.service" class="pull-cell-left">
+          <!-- loading  -->
+          <span ng-if="element.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
 
+          <i ng-show="!element.loading" title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}" class="fa fa-circle" style="color: {{ element.online ? element.requestingForClose ? '#FF8C00' : 'green' : element.online == undefined || element.online == null ? '#333' : 'red' }}"></i>
+
+          <button class="btn btn-primary btn-sm" ng-show="!element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
+            <i class="fa fa-magic" style="margin-right: 5px;"></i>Start
+          </button>
+
+          <button class="btn btn-danger btn-sm" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
+            <i class="fa fa-power-off" style="margin-right: 5px;"></i>Stop
+          </button>
+
+          <!-- <button class="btn btn-danger" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.reload(element)">
+            <i class="fa fa-power-off" style="margin-right: 5px;"></i>Reload
+          </button> -->
+        </td>
+
+        <td ng-if="isFunction(remove)" class="pull-cell-left">
+        <!-- data-ng-click="removeOperation(element);" -->
+          <button class="btn btn-sm btn-danger" ng-click="confirmRemoval(element)">{{ i18n.__('Remove') }}</button>
+        </td>
+      </tr>
+
+      <tr ng-show="!model.length">
+        <td colspan="2">{{ i18n.__(emptyMessage) }}</td>
+      </tr>
     </tbody>
   </table>
 </div>

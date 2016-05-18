@@ -4,6 +4,12 @@ var UriPattern = Enums.Uri;
 var cloneDeep = require("lodash").cloneDeep;
 var crypto = require('crypto');
 var exceptions = require('./Exceptions');
+var Signals = require('./Signals');
+var Promise = require("bluebird");
+
+// nodejs
+var glob = require('glob');
+var path = require('path');
 
 function getTokenCodeMessage(code) {
   var msg;
@@ -147,5 +153,100 @@ module.exports = {
       }
     }
     throw new Error("Invalid analysis id");
+  },
+
+  getTcpSignal: function(value) {
+    switch(value) {
+      case Signals.TERMINATE_SERVICE_SIGNAL:
+        return Signals.TERMINATE_SERVICE_SIGNAL;
+        break;
+      case Signals.STATUS_SIGNAL:
+        return Signals.STATUS_SIGNAL;
+        break;
+      case Signals.ADD_DATA_SIGNAL:
+        return Signals.ADD_DATA_SIGNAL;
+        break;
+      case Signals.START_PROCESS_SIGNAL:
+        return Signals.START_PROCESS_SIGNAL;
+        break;
+      case Signals.LOG_SIGNAL:
+        return Signals.LOG_SIGNAL;
+        break;
+      case Signals.REMOVE_DATA_SIGNAL:
+        return Signals.REMOVE_DATA_SIGNAL;
+        break;
+      case Signals.PROCESS_FINISHED_SIGNAL:
+        return Signals.PROCESS_FINISHED_SIGNAL;
+        break;
+      case Signals.UPDATE_SERVICE_SIGNAL:
+        return Signals.UPDATE_SERVICE_SIGNAL;
+        break;
+      default:
+        throw new exceptions.SignalError("Invalid terrama2 tcp signal");
+    }
+  },
+
+  getUserHome: function() {
+    return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+  },
+
+  prepareAddSignalMessage: function(DataManager) {
+    return new Promise(function(resolve, reject) {
+      var _handleError = function(err) {
+        console.log(err);
+        reject(err);
+      }
+
+      var dataProvidersResult = DataManager.listDataProviders();
+      var providers = [];
+      dataProvidersResult.forEach(function(dataProvider) {
+        providers.push(dataProvider.toObject())
+      }) // end foreach dataProvidersResult
+
+      // getting dataseries
+      DataManager.listDataSeries().then(function(dataSeriesResult) {
+        var series = [];
+        dataSeriesResult.forEach(function(dataSeries) {
+          series.push(dataSeries.toObject());
+        }) // end foreach dataSeriesResult
+
+        // getting collectors
+        DataManager.listCollectors().then(function(collectorsResult) {
+          var collectors = [];
+          collectorsResult.forEach(function(collector) {
+            collectors.push(collector.toObject());
+          }) // end foreach collectorsResult
+
+          // getting analyses
+          DataManager.listAnalyses().then(function(analysesResult) {
+            var analyses = [];
+            analysesResult.forEach(function(analysis) {
+              analyses.push(analysis.toObject());
+            }); // end foreach analysesResult
+
+            resolve({
+              "Analysis": analyses,
+              "DataSeries": series,
+              "DataProviders": providers,
+              "Collectors": collectors
+            });
+
+          }).catch(_handleError); // end listAnalyses
+        }).catch(_handleError); // end listCollectors
+      }).catch(_handleError); // end listDataSeries
+    });
+  },
+
+  findFiles: function(directory, pattern) {
+    return new Promise(function(resolve, reject) {
+      var fullPath = path.join(directory, pattern);
+
+      glob(fullPath, function(err, files) {
+        if (err) 
+          return reject(err);
+
+        resolve(files);
+      })
+    })
   }
 };

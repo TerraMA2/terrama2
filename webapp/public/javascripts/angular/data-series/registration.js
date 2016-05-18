@@ -732,17 +732,22 @@ angular.module('terrama2.dataseries.registration', [
             };
 
             var out;
-            if (dSets instanceof Object) {
+            if (dSets instanceof Array) {
+              // setting to active
+              var dSetsLocal = [];
+              dSets.forEach(function(dSet) {
+                dSetsLocal.push({
+                  active: $scope.dataSeries.active,
+                  format: _makeFormat(dSet)
+                });
+                // dSet.format = _makeFormat(dSet);
+                // dSet.active = $scope.dataSeries.active;
+              });
+              out = dSetsLocal;
+            } else {
               dSets.format = _makeFormat(dSets);
               dSets.active = $scope.dataSeries.active;
               out = [dSets];
-            } else {
-              // setting to active
-              dSets.forEach(function(dSet) {
-                dSet.format = _makeFormat(dSet);
-                dSet.active = $scope.dataSeries.active;
-              });
-              out = dSets;
             }
             
             var outputDataSeries = {

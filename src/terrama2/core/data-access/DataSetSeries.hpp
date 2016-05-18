@@ -47,10 +47,10 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class Series
+      \class DataSetSeries
       \brief Struct that holds information of the DataSet, a SyncronizedDataSet of the data and te::da::DataSetType
     */
-    struct Series
+    struct DataSetSeries
     {
       DataSetPtr dataSet;
       SyncronizedDataSetPtr syncDataSet;
