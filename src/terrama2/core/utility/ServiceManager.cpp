@@ -122,6 +122,7 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
 void terrama2::core::ServiceManager::setLogConnectionInfo(std::map<std::string, std::string> connInfo)
 {
   connInfo_ = connInfo;
+  emit logConnectionInfoUpdated(connInfo);
 }
 
 std::map<std::string, std::string> terrama2::core::ServiceManager::logConnectionInfo() const
